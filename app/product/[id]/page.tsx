@@ -15,7 +15,16 @@ export default async function ProductPage({
     .single();
     const { data: offers } = await supabase
   .from("offers")
-  .select("*")
+  .select(`
+  *,
+  retailer:retailers (
+    id,
+    name,
+    slug,
+    website,
+    logo
+  )
+`)
   .eq("product_id", product?.id)
   .eq("in_stock", true)
   .order("price", { ascending: true });
@@ -74,7 +83,7 @@ export default async function ProductPage({
 
                 {offers && offers.length > 0 ? (
   <a
-    href={offers[0].url}
+    href={offers[0].retailer?.website || offers[0].url}
     target="_blank"
     rel="noopener noreferrer"
     className="rounded-2xl bg-black px-8 py-4 font-semibold text-white"
@@ -120,7 +129,9 @@ export default async function ProductPage({
           className="flex flex-col gap-4 rounded-2xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <p className="font-semibold">{offer.retailer}</p>
+            <p className="font-semibold">
+  {offer.retailer?.name || offer.retailer}
+</p>
             <p className="mt-1 text-sm text-zinc-500">
               {offer.in_stock ? "In stock" : "Out of stock"}
             </p>
@@ -132,7 +143,7 @@ export default async function ProductPage({
             </p>
 
             <a
-              href={offer.url}
+              href={offer.retailer?.website || offer.url}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
