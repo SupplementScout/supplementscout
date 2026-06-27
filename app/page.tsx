@@ -1,3 +1,9 @@
+"use client";
+import { supabase } from "./lib/supabase";
+import { useEffect, useState } from "react";
+
+
+
 const popularSearches = [
   "Whey Protein",
   "Creatine",
@@ -18,6 +24,8 @@ const categories = [
   "Weight Loss",
 ];
 
+
+
 const priceDrops = [
   {
     name: "Optimum Nutrition Gold Standard Whey",
@@ -37,6 +45,30 @@ const priceDrops = [
 ];
 
 export default function Home() {
+  const [search, setSearch] = useState("");
+  const [products, setProducts] = useState<any[]>([]);
+
+useEffect(() => {
+  async function loadProducts() {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*");
+
+
+    if (!error && data) {
+      setProducts(data);
+    }
+  }
+
+  loadProducts();
+}, []);
+
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase()) ||
+    product.category.toLowerCase().includes(search.toLowerCase()) ||
+    product.retailer.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <main className="min-h-screen bg-white text-zinc-950">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
@@ -70,6 +102,9 @@ export default function Home() {
         <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-zinc-200 bg-white p-3 shadow-xl">
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="min-h-16 flex-1 rounded-2xl border border-zinc-200 px-6 text-base outline-none focus:border-zinc-950"
               placeholder="Search supplements, brands or ask AI..."
             />
@@ -79,14 +114,43 @@ export default function Home() {
           </div>
         </div>
 
+        {search && (
+          <div className="mx-auto mt-8 max-w-3xl space-y-3 text-left">
+            {filteredProducts.map((product) => (
+              <a
+  key={product.name}
+  href={`/product/${product.slug}`}
+  className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm hover:border-zinc-950"
+>
+  <div>
+    <h3 className="font-semibold">{product.name}</h3>
+    <p className="mt-1 text-sm text-zinc-500">
+      {product.category} · {product.retailer}
+    </p>
+  </div>
+  <div className="text-lg font-bold">
+  £{Number(product.price).toFixed(2)}
+</div>
+</a>
+            ))}
+
+            {filteredProducts.length === 0 && (
+              <div className="rounded-2xl border border-zinc-200 bg-white p-5 text-center text-zinc-500">
+                No products found.
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {popularSearches.map((item) => (
-            <span
+            <button
               key={item}
-              className="rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-700"
+              onClick={() => setSearch(item)}
+              className="rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-700 hover:border-zinc-950"
             >
               {item}
-            </span>
+            </button>
           ))}
         </div>
 
@@ -110,16 +174,12 @@ export default function Home() {
 
       <section className="border-t border-zinc-100 bg-zinc-50 px-6 py-20">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex items-end justify-between gap-6">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500">
-                Browse
-              </p>
-              <h2 className="mt-3 text-3xl font-bold">Popular categories</h2>
-            </div>
-          </div>
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500">
+            Browse
+          </p>
+          <h2 className="mt-3 text-3xl font-bold">Popular categories</h2>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((item) => (
               <div
                 key={item}
@@ -158,32 +218,6 @@ export default function Home() {
                 </button>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-zinc-950 px-6 py-20 text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">
-              AI Search
-            </p>
-            <h2 className="mt-3 text-4xl font-bold">
-              Ask questions. Get supplement answers.
-            </h2>
-            <p className="mt-5 max-w-xl leading-8 text-zinc-300">
-              Search like a human. Ask for the best creatine under £25, the cheapest whey isolate, or the best protein powder for cutting.
-            </p>
-          </div>
-
-          <div className="rounded-3xl bg-white p-6 text-zinc-950">
-            <p className="text-sm font-semibold text-zinc-500">Example search</p>
-            <div className="mt-4 rounded-2xl bg-zinc-100 p-5 font-medium">
-              Best creatine under £25
-            </div>
-            <div className="mt-4 rounded-2xl border border-zinc-200 p-5 text-sm leading-6 text-zinc-700">
-              SupplementScout will compare price, serving size, retailer availability and value before showing the best options.
-            </div>
           </div>
         </div>
       </section>
