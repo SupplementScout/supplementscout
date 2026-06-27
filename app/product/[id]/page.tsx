@@ -83,7 +83,7 @@ export default async function ProductPage({
 
                 {offers && offers.length > 0 ? (
   <a
-    href={offers[0].retailer?.website || offers[0].url}
+    href={offers[0].url}
     target="_blank"
     rel="noopener noreferrer"
     className="rounded-2xl bg-black px-8 py-4 font-semibold text-white"
@@ -130,7 +130,7 @@ export default async function ProductPage({
         >
           <div>
             <p className="font-semibold">
-  {offer.retailer?.name || offer.retailer}
+  {offer.retailer?.name || "Unknown retailer"}
 </p>
             <p className="mt-1 text-sm text-zinc-500">
               {offer.in_stock ? "In stock" : "Out of stock"}
@@ -143,7 +143,7 @@ export default async function ProductPage({
             </p>
 
             <a
-              href={offer.retailer?.website || offer.url}
+              href={offer.url}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
