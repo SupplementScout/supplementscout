@@ -73,8 +73,13 @@ export default async function ProductPage({
                   <p className="text-sm text-zinc-500">Best UK Price</p>
 
                   <div className="mt-2 text-5xl font-bold">
-                    £{Number(product.price).toFixed(2)}
-                  </div>
+  £{offers && offers.length > 0
+    ? (
+        Number(offers[0].price) +
+        Number(offers[0].shipping_cost || 0)
+      ).toFixed(2)
+    : Number(product.price).toFixed(2)}
+</div>
 
                   <p className="mt-2 text-sm text-zinc-500">
                     Sold by {product.retailer}
@@ -138,9 +143,22 @@ export default async function ProductPage({
           </div>
 
           <div className="flex items-center gap-4">
-            <p className="text-2xl font-bold">
-              £{Number(offer.price).toFixed(2)}
-            </p>
+            <div className="text-right">
+  <p className="text-sm text-zinc-500">
+    Product: £{Number(offer.price).toFixed(2)}
+  </p>
+
+  <p className="text-sm text-zinc-500">
+    Delivery: £{Number(offer.shipping_cost || 0).toFixed(2)}
+  </p>
+
+  <p className="mt-1 text-2xl font-bold">
+    £{(
+  Number(offer.price) +
+  Number(offer.shipping_cost || 0)
+).toFixed(2)}
+  </p>
+</div>
 
             <a
               href={offer.url}
