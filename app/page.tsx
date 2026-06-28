@@ -180,17 +180,14 @@ const categories = Array.from(
       {product.category} · {product.brand}
     </p>
   </div>
-  <div className="text-lg font-bold">
-  £{product.offers?.length
-  ? Math.min(
-      ...product.offers
-        .filter((offer: any) => offer.in_stock)
-        .map(
-          (offer: any) =>
-            Number(offer.price) + Number(offer.shipping_cost || 0)
-        )
-    ).toFixed(2)
-  : Number(product.price).toFixed(2)}
+  <div>
+  <p className="text-lg font-bold">
+    From £{getLowestPrice(product).toFixed(2)}
+  </p>
+
+  <p className="mt-1 text-sm text-zinc-500">
+    {product.offers?.filter((offer: any) => offer.in_stock).length || 0} offers
+  </p>
 </div>
 </a>
             ))}
