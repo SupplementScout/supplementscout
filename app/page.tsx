@@ -90,6 +90,22 @@ useEffect(() => {
     product.category?.toLowerCase().includes(query)
   );
 });
+function getLowestPrice(product: any) {
+  const availableOffers =
+    product.offers?.filter((offer: any) => offer.in_stock) || [];
+
+  if (availableOffers.length === 0) {
+    return Number(product.price);
+  }
+
+  return Math.min(
+    ...availableOffers.map(
+      (offer: any) =>
+        Number(offer.price) + Number(offer.shipping_cost || 0)
+    )
+  );
+}
+
 const categories = Array.from(
   new Set(
     products
