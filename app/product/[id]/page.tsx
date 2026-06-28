@@ -1,6 +1,44 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
 
+  const { data: product } = await supabase
+    .from("products")
+    .select("name, slug, brand, category, description")
+    .eq("slug", id)
+    .single();
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+      description: "This product could not be found on SupplementScout.",
+    };
+  }
+
+  const description =
+    product.description ||
+    `Compare UK prices for ${product.name} by ${product.brand}. Find the lowest total price including delivery.`;
+
+  return {
+    title: `${product.name} Price Comparison`,
+    description,
+    alternates: {
+      canonical: `/product/${product.slug}`,
+    },
+    openGraph: {
+      title: `${product.name} Price Comparison`,
+      description,
+      url: `https://www.supplementscout.co.uk/product/${product.slug}`,
+      type: "website",
+    },
+  };
+}
 export default async function ProductPage({
   params,
 }: {
