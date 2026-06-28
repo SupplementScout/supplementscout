@@ -92,17 +92,23 @@ const pricePerServing =
                   <p className="text-sm text-zinc-500">Best UK Price</p>
 
                   <div className="mt-2 text-5xl font-bold">
-  £{offers && offers.length > 0
-    ? (
-        Number(offers[0].price) +
-        Number(offers[0].shipping_cost || 0)
-      ).toFixed(2)
-    : Number(product.price).toFixed(2)}
+  £{cheapestTotal.toFixed(2)}
 </div>
 
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Sold by {product.retailer}
-                  </p>
+{cheapestOffer && (
+  <div className="mt-3 space-y-1 text-sm text-zinc-500">
+    <p>
+      Product: £{Number(cheapestOffer.price).toFixed(2)}
+    </p>
+    <p>
+      Delivery: £{Number(cheapestOffer.shipping_cost || 0).toFixed(2)}
+    </p>
+    <p>
+      Sold by {cheapestOffer.retailer?.name || "Unknown retailer"}
+    </p>
+  </div>
+)}
+                  
                 </div>
 
                 {offers && offers.length > 0 ? (
