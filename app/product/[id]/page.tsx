@@ -10,7 +10,7 @@ export async function generateMetadata({
 
   const { data: product } = await supabase
     .from("products")
-    .select("name, slug, brand, category, description")
+    .select("name, slug, brand, category, description, image")
     .eq("slug", id)
     .single();
 
@@ -36,6 +36,14 @@ export async function generateMetadata({
       description,
       url: `https://www.supplementscout.co.uk/product/${product.slug}`,
       type: "website",
+      images: product.image
+  ? [
+      {
+        url: product.image,
+        alt: product.name,
+      },
+    ]
+  : [],
     },
   };
 }
