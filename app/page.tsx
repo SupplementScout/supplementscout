@@ -53,7 +53,17 @@ useEffect(() => {
       { data: productsData, error: productsError },
       { data: retailersData, error: retailersError },
     ] = await Promise.all([
-      supabase.from("products").select("*").order("name"),
+      supabase
+  .from("products")
+  .select(`
+    *,
+    offers (
+      price,
+      shipping_cost,
+      in_stock
+    )
+  `)
+  .order("name"),
       supabase.from("retailers").select("id"),
     ]);
 
@@ -153,7 +163,16 @@ const categories = Array.from(
     </p>
   </div>
   <div className="text-lg font-bold">
-  £{Number(product.price).toFixed(2)}
+  £{product.offers?.length
+  ? Math.min(
+      ...product.offers
+        .filter((offer: any) => offer.in_stock)
+        .map(
+          (offer: any) =>
+            Number(offer.price) + Number(offer.shipping_cost || 0)
+        )
+    ).toFixed(2)
+  : Number(product.price).toFixed(2)}
 </div>
 </a>
             ))}
