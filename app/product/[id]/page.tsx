@@ -205,6 +205,16 @@ const pricePerServing =
             <p className="mt-1 text-sm text-zinc-500">
               {offer.in_stock ? "In stock" : "Out of stock"}
             </p>
+            {offer.last_checked_at && (
+  <p className="mt-1 text-xs text-zinc-500">
+    Price checked:{" "}
+    {new Date(offer.last_checked_at).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })}
+  </p>
+)}
           </div>
 
           <div className="flex items-center gap-4">
