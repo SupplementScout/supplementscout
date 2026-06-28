@@ -29,24 +29,19 @@ export default async function ProductPage({
   )
 `)
   .eq("product_id", product?.id)
-  .eq("in_stock", true)
-  .order("price", { ascending: true });
+  .eq("in_stock", true);
+const sortedOffers = [...(offers || [])].sort((a, b) => {
+  const totalA =
+    Number(a.price) + Number(a.shipping_cost || 0);
 
-  const cheapestOffer =
-  offers && offers.length > 0
-    ? offers.reduce((cheapest, offer) => {
-        const cheapestTotal =
-          Number(cheapest.price) +
-          Number(cheapest.shipping_cost || 0);
+  const totalB =
+    Number(b.price) + Number(b.shipping_cost || 0);
 
-        const offerTotal =
-          Number(offer.price) +
-          Number(offer.shipping_cost || 0);
+  return totalA - totalB;
+});
+  const cheapestOffer = sortedOffers[0] || null;
 
-        return offerTotal < cheapestTotal ? offer : cheapest;
-      })
-    : null;
-
+          
 const cheapestTotal = cheapestOffer
   ? Number(cheapestOffer.price) +
     Number(cheapestOffer.shipping_cost || 0)
