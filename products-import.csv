@@ -1,0 +1,2 @@
+product_name,slug,brand,category,servings,description,image,retailer_name,retailer_website,price,shipping_cost,url,in_stock
+Test Protein 1kg,test-protein-1kg,Test Brand,Whey Protein,30,Test product for CSV import,,Test Store,https://example.com,29.99,3.99,https://example.com/test-product,true
