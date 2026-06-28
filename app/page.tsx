@@ -16,12 +16,11 @@ const popularSearches = [
 ];
 
 const categories = [
-  "Protein Powders",
+  "Protein",
   "Creatine",
-  "Pre Workouts",
-  "Vitamins",
-  "Health Supplements",
-  "Weight Loss",
+  "Pre Workout",
+  "Mass Gainer",
+  "Amino Acids",
 ];
 
 
@@ -47,27 +46,46 @@ const priceDrops = [
 export default function Home() {
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+const [loadError, setLoadError] = useState("");
+const [retailerCount, setRetailerCount] = useState(0);
 
 useEffect(() => {
-  async function loadProducts() {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*");
+  async function loadData() {
+    setIsLoading(true);
+    setLoadError("");
 
+    const [
+      { data: productsData, error: productsError },
+      { data: retailersData, error: retailersError },
+    ] = await Promise.all([
+      supabase.from("products").select("*").order("name"),
+      supabase.from("retailers").select("id"),
+    ]);
 
-    if (!error && data) {
-      setProducts(data);
+    if (productsError || retailersError) {
+      setLoadError("Unable to load products. Please try again.");
+      setIsLoading(false);
+      return;
     }
+
+    setProducts(productsData || []);
+    setRetailerCount(retailersData?.length || 0);
+    setIsLoading(false);
   }
 
-  loadProducts();
+  loadData();
 }, []);
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase()) ||
-    product.category.toLowerCase().includes(search.toLowerCase()) ||
-    product.retailer.toLowerCase().includes(search.toLowerCase())
+  const filteredProducts = products.filter((product) => {
+  const query = search.toLowerCase();
+
+  return (
+    product.name?.toLowerCase().includes(query) ||
+    product.brand?.toLowerCase().includes(query) ||
+    product.category?.toLowerCase().includes(query)
   );
+});
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
@@ -113,7 +131,13 @@ useEffect(() => {
             </button>
           </div>
         </div>
+{isLoading && (
+  <p className="mt-8 text-zinc-500">Loading products...</p>
+)}
 
+{loadError && (
+  <p className="mt-8 text-red-600">{loadError}</p>
+)}
         {search && (
           <div className="mx-auto mt-8 max-w-3xl space-y-3 text-left">
             {filteredProducts.map((product) => (
@@ -125,7 +149,7 @@ useEffect(() => {
   <div>
     <h3 className="font-semibold">{product.name}</h3>
     <p className="mt-1 text-sm text-zinc-500">
-      {product.category} · {product.retailer}
+      {product.category} · {product.brand}
     </p>
   </div>
   <div className="text-lg font-bold">
@@ -134,7 +158,7 @@ useEffect(() => {
 </a>
             ))}
 
-            {filteredProducts.length === 0 && (
+            {!isLoading && !loadError && filteredProducts.length === 0 && (
               <div className="rounded-2xl border border-zinc-200 bg-white p-5 text-center text-zinc-500">
                 No products found.
               </div>
@@ -156,13 +180,13 @@ useEffect(() => {
 
         <div className="mx-auto mt-16 grid max-w-4xl gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-zinc-200 p-6">
-            <div className="text-3xl font-bold">250k+</div>
-            <p className="mt-2 text-sm text-zinc-600">supplements to compare</p>
+            <div className="text-3xl font-bold">{products.length}</div>
+            <p className="mt-2 text-sm text-zinc-600">products available</p>
           </div>
 
           <div className="rounded-2xl border border-zinc-200 p-6">
-            <div className="text-3xl font-bold">120+</div>
-            <p className="mt-2 text-sm text-zinc-600">UK retailers tracked</p>
+            <div className="text-3xl font-bold">{retailerCount}</div>
+            <p className="mt-2 text-sm text-zinc-600">UK retailers</p>
           </div>
 
           <div className="rounded-2xl border border-zinc-200 p-6">
@@ -181,46 +205,25 @@ useEffect(() => {
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((item) => (
-              <div
-                key={item}
-                className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm"
-              >
+  <button
+    key={item}
+    onClick={() => {
+      setSearch(item);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }}
+    className="rounded-3xl border border-zinc-200 bg-white p-8 text-left shadow-sm hover:border-zinc-950"
+  >
                 <h3 className="text-xl font-semibold">{item}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
                   Compare prices, sizes, servings and value across UK supplement retailers.
                 </p>
-              </div>
+              </button>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-7xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500">
-            Deals
-          </p>
-          <h2 className="mt-3 text-3xl font-bold">Latest price drops</h2>
-
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {priceDrops.map((item) => (
-              <div
-                key={item.name}
-                className="rounded-3xl border border-zinc-200 p-8 shadow-sm"
-              >
-                <h3 className="text-lg font-semibold">{item.name}</h3>
-                <div className="mt-6 flex items-center gap-3">
-                  <span className="text-zinc-400 line-through">{item.oldPrice}</span>
-                  <span className="text-2xl font-bold">{item.newPrice}</span>
-                </div>
-                <button className="mt-6 w-full rounded-2xl bg-zinc-950 px-5 py-3 font-semibold text-white">
-                  View deal
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       <footer className="px-6 py-10">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-zinc-200 pt-8 text-sm text-zinc-500 sm:flex-row">
