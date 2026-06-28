@@ -39,6 +39,8 @@ const priceDrops = [
 
 export default function Home() {
   const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+const [isSearching, setIsSearching] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 const [loadError, setLoadError] = useState("");
@@ -63,7 +65,8 @@ useEffect(() => {
       in_stock
     )
   `)
-  .order("name"),
+  .order("name")
+  .limit(50),
       supabase.from("retailers").select("id"),
     ]);
 
@@ -82,16 +85,49 @@ console.log("RETAILERS ERROR:", retailersError);
 
   loadData();
 }, []);
+useEffect(() => {
+  const timer = setTimeout(async () => {
+    const query = search.trim();
 
-  const filteredProducts = products.filter((product) => {
-  const query = search.toLowerCase();
+    if (query.length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
 
-  return (
-    product.name?.toLowerCase().includes(query) ||
-    product.brand?.toLowerCase().includes(query) ||
-    product.category?.toLowerCase().includes(query)
-  );
-});
+    setIsSearching(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select(`
+        *,
+        offers (
+          price,
+          shipping_cost,
+          in_stock
+        )
+      `)
+      .or(
+        `name.ilike.%${query}%,brand.ilike.%${query}%,category.ilike.%${query}%`
+      )
+      .order("name")
+      .limit(50);
+
+    if (error) {
+      console.log("SEARCH ERROR:", error);
+      setSearchResults([]);
+    } else {
+      setSearchResults(data || []);
+    }
+
+    setIsSearching(false);
+  }, 400);
+
+  return () => clearTimeout(timer);
+}, [search]);
+
+  const filteredProducts =
+  search.trim().length >= 2 ? searchResults : products;
 function getLowestPrice(product: any) {
   const availableOffers =
     product.offers?.filter((offer: any) => offer.in_stock) || [];
