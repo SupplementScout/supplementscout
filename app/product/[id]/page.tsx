@@ -111,9 +111,9 @@ const pricePerServing =
                   
                 </div>
 
-                {offers && offers.length > 0 ? (
+{cheapestOffer ? (
   <a
-    href={offers[0].url}
+    href={cheapestOffer.url}
     target="_blank"
     rel="noopener noreferrer"
     className="rounded-2xl bg-black px-8 py-4 font-semibold text-white"
@@ -123,12 +123,11 @@ const pricePerServing =
 ) : (
   <button
     disabled
-    className="rounded-2xl bg-zinc-300 px-8 py-4 font-semibold text-zinc-600"
+    className="cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-4 font-semibold text-zinc-600"
   >
-    No offers
+    No offer available
   </button>
-)}
-              </div>
+)}              </div>
             </div>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
