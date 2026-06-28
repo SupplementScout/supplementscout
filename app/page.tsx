@@ -15,13 +15,7 @@ const popularSearches = [
   "Mass Gainer",
 ];
 
-const categories = [
-  "Protein",
-  "Creatine",
-  "Pre Workout",
-  "Mass Gainer",
-  "Amino Acids",
-];
+
 
 
 
@@ -86,7 +80,13 @@ useEffect(() => {
     product.category?.toLowerCase().includes(query)
   );
 });
-
+const categories = Array.from(
+  new Set(
+    products
+      .map((product) => product.category)
+      .filter(Boolean)
+  )
+).sort();
   return (
     <main className="min-h-screen bg-white text-zinc-950">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
