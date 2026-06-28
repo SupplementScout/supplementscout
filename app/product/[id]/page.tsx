@@ -193,7 +193,7 @@ const pricePerServing =
 
   <div className="mt-6 space-y-3">
     {offers && offers.length > 0 ? (
-      offers.map((offer) => (
+      sortedOffers.map((offer) => (
         <div
           key={offer.id}
           className="flex flex-col gap-4 rounded-2xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between"
