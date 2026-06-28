@@ -13,6 +13,9 @@ export default async function ProductPage({
     .select("*")
     .eq("slug", id)
     .single();
+    if (error || !product) {
+    notFound();
+  }
     const { data: offers } = await supabase
   .from("offers")
   .select(`
@@ -29,15 +32,31 @@ export default async function ProductPage({
   .eq("in_stock", true)
   .order("price", { ascending: true });
 
-  if (error || !product) {
-    notFound();
-  }
+  const cheapestOffer =
+  offers && offers.length > 0
+    ? offers.reduce((cheapest, offer) => {
+        const cheapestTotal =
+          Number(cheapest.price) +
+          Number(cheapest.shipping_cost || 0);
 
-  const pricePerServing =
-    product.servings && product.servings > 0
-      ? Number(product.price) / product.servings
-      : null;
+        const offerTotal =
+          Number(offer.price) +
+          Number(offer.shipping_cost || 0);
 
+        return offerTotal < cheapestTotal ? offer : cheapest;
+      })
+    : null;
+
+const cheapestTotal = cheapestOffer
+  ? Number(cheapestOffer.price) +
+    Number(cheapestOffer.shipping_cost || 0)
+  : Number(product.price);
+
+const pricePerServing =
+  product.servings && Number(product.servings) > 0
+    ? cheapestTotal / Number(product.servings)
+    : null;
+   
   return (
     <main className="min-h-screen bg-zinc-50">
       <div className="mx-auto max-w-7xl px-6 py-12">

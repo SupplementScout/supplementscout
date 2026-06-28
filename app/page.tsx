@@ -67,6 +67,8 @@ useEffect(() => {
       supabase.from("retailers").select("id"),
     ]);
 
+    console.log("PRODUCTS ERROR:", productsError);
+console.log("RETAILERS ERROR:", retailersError);
     if (productsError || retailersError) {
       setLoadError("Unable to load products. Please try again.");
       setIsLoading(false);
