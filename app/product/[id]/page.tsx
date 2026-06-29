@@ -153,6 +153,13 @@ export default async function ProductPage({
     } else {
       priceRating = "High price";
     }
+
+  }
+  let averageDifferencePercent: number | null = null;
+
+  if (averageHistoricalPrice !== null && averageHistoricalPrice > 0) {
+    averageDifferencePercent =
+      ((cheapestTotal - averageHistoricalPrice) / averageHistoricalPrice) * 100;
   }
   const pricePerServing =
     product.servings && Number(product.servings) > 0
@@ -214,6 +221,13 @@ export default async function ProductPage({
                   {averageHistoricalPrice !== null && (
                     <p className="mt-1 text-sm text-zinc-500">
                       Average recorded price: £{averageHistoricalPrice.toFixed(2)}
+                    </p>
+                  )}
+                  {averageDifferencePercent !== null && (
+                    <p className="mt-1 text-sm font-medium">
+                      {averageDifferencePercent <= 0
+                        ? `${Math.abs(averageDifferencePercent).toFixed(1)}% below average`
+                        : `${averageDifferencePercent.toFixed(1)}% above average`}
                     </p>
                   )}
 
