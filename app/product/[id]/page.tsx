@@ -65,17 +65,35 @@ export default async function ProductPage({
     const { data: offers } = await supabase
   .from("offers")
   .select(`
-  *,
-  retailer:retailers (
-    id,
-    name,
-    slug,
-    website,
-    logo
-  )
-`)
-  .eq("product_id", product?.id)
-  .eq("in_stock", true);
+    *,
+    retailer:retailers (
+      id,
+      name,
+      slug,
+      website,
+      logo
+    )
+  `)
+  .eq("product_id", product.id)
+  .eq("in_stock", true)
+  .order("price", { ascending: true });
+
+const offerIds = offers?.map((offer) => offer.id) || [];
+
+let lowestHistoricalPrice: number | null = null;
+
+if (offerIds.length > 0) {
+  const { data: history } = await supabase
+    .from("price_history")
+    .select("total_price")
+    .in("offer_id", offerIds)
+    .order("total_price", { ascending: true })
+    .limit(1);
+
+  lowestHistoricalPrice = history?.[0]?.total_price
+    ? Number(history[0].total_price)
+    : null;
+}
 const sortedOffers = [...(offers || [])].sort((a, b) => {
   const totalA =
     Number(a.price) + Number(a.shipping_cost || 0);
@@ -135,7 +153,11 @@ const pricePerServing =
                   <div className="mt-2 text-5xl font-bold">
   £{cheapestTotal.toFixed(2)}
 </div>
-
+{lowestHistoricalPrice !== null && (
+  <p className="mt-2 text-sm text-zinc-500">
+    Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
+  </p>
+)}
 {cheapestOffer && (
   <div className="mt-3 space-y-1 text-sm text-zinc-500">
     <p>
