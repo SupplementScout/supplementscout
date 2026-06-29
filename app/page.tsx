@@ -45,6 +45,7 @@ const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 const [loadError, setLoadError] = useState("");
 const [retailerCount, setRetailerCount] = useState(0);
+const [productCount, setProductCount] = useState(0);
 
 useEffect(() => {
   async function loadData() {
@@ -54,6 +55,7 @@ useEffect(() => {
     const [
       { data: productsData, error: productsError },
       { data: retailersData, error: retailersError },
+      { count: productsCount, error: productsCountError },
     ] = await Promise.all([
       supabase
   .from("products")
@@ -68,6 +70,9 @@ useEffect(() => {
   .order("name")
   .limit(50),
       supabase.from("retailers").select("id"),
+      supabase
+  .from("products")
+  .select("*", { count: "exact", head: true }),
     ]);
 
     console.log("PRODUCTS ERROR:", productsError);
@@ -79,6 +84,7 @@ console.log("RETAILERS ERROR:", retailersError);
     }
 
     setProducts(productsData || []);
+    setProductCount(productsCount || 0);
     setRetailerCount(retailersData?.length || 0);
     setIsLoading(false);
   }
@@ -250,7 +256,7 @@ const categories = Array.from(
 
         <div className="mx-auto mt-16 grid max-w-4xl gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-zinc-200 p-6">
-            <div className="text-3xl font-bold">{products.length}</div>
+            <div className="text-3xl font-bold">{productCount}</div>
             <p className="mt-2 text-sm text-zinc-600">products available</p>
           </div>
 
