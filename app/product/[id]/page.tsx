@@ -1,3 +1,4 @@
+import PriceHistoryChart from "../../components/PriceHistoryChart";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
@@ -84,11 +85,12 @@ export default async function ProductPage({
   let averageHistoricalPrice: number | null = null;
   let historyCount = 0;
   let lowestPriceDate: string | null = null;
+  let chartData: { date: string; price: number }[] = [];
 
   if (offerIds.length > 0) {
     const { data: history } = await supabase
       .from("price_history")
-      .select("total_price, checked_at")
+      .select("total_price, checked_at, offer_id")
       .in("offer_id", offerIds)
       .order("checked_at", { ascending: true });
 
@@ -120,7 +122,15 @@ export default async function ProductPage({
         : null;
 
     historyCount = historicalPrices.length;
+    chartData = validHistory.map((item) => ({
+      date: new Date(item.checked_at).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+      }),
+      price: Number(item.total_price),
+    }));
   }
+
   const sortedOffers = [...(offers || [])].sort((a, b) => {
     const totalA =
       Number(a.price) + Number(a.shipping_cost || 0);
@@ -291,6 +301,13 @@ export default async function ProductPage({
                     : "Unknown"}
                 </div>
                 <p className="text-sm text-zinc-500">Per Serving</p>
+              </div>
+            </div>
+            <div className="mt-8 rounded-3xl border bg-white p-8">
+              <h2 className="text-2xl font-bold">Price history</h2>
+
+              <div className="mt-6">
+                <PriceHistoryChart data={chartData} />
               </div>
             </div>
             <div className="mt-8 rounded-3xl border bg-white p-8">
