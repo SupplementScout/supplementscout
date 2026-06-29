@@ -83,23 +83,35 @@ export default async function ProductPage({
   let lowestHistoricalPrice: number | null = null;
   let averageHistoricalPrice: number | null = null;
   let historyCount = 0;
+  let lowestPriceDate: string | null = null;
 
   if (offerIds.length > 0) {
     const { data: history } = await supabase
       .from("price_history")
-      .select("total_price")
+      .select("total_price, checked_at")
       .in("offer_id", offerIds)
       .order("checked_at", { ascending: true });
 
-    const historicalPrices =
-      history
-        ?.map((item) => Number(item.total_price))
-        .filter((price) => !Number.isNaN(price)) || [];
+    const validHistory =
+      history?.filter(
+        (item) => !Number.isNaN(Number(item.total_price))
+      ) || [];
+
+    const historicalPrices = validHistory.map((item) =>
+      Number(item.total_price)
+    );
 
     lowestHistoricalPrice =
       historicalPrices.length > 0
         ? Math.min(...historicalPrices)
         : null;
+    if (lowestHistoricalPrice !== null) {
+      const lowestRecord = validHistory.find(
+        (item) => Number(item.total_price) === lowestHistoricalPrice
+      );
+
+      lowestPriceDate = lowestRecord?.checked_at || null;
+    }
 
     averageHistoricalPrice =
       historicalPrices.length > 0
@@ -187,6 +199,16 @@ export default async function ProductPage({
                   {lowestHistoricalPrice !== null && (
                     <p className="mt-2 text-sm text-zinc-500">
                       Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
+                    </p>
+                  )}
+                  {lowestPriceDate && (
+                    <p className="mt-1 text-xs text-zinc-400">
+                      Recorded on{" "}
+                      {new Date(lowestPriceDate).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </p>
                   )}
                   {averageHistoricalPrice !== null && (
