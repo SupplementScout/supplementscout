@@ -37,13 +37,13 @@ export async function generateMetadata({
       url: `https://www.supplementscout.co.uk/product/${product.slug}`,
       type: "website",
       images: product.image
-  ? [
-      {
-        url: product.image,
-        alt: product.name,
-      },
-    ]
-  : [],
+        ? [
+          {
+            url: product.image,
+            alt: product.name,
+          },
+        ]
+        : [],
     },
   };
 }
@@ -59,12 +59,12 @@ export default async function ProductPage({
     .select("*")
     .eq("slug", id)
     .single();
-    if (error || !product) {
+  if (error || !product) {
     notFound();
   }
-    const { data: offers } = await supabase
-  .from("offers")
-  .select(`
+  const { data: offers } = await supabase
+    .from("offers")
+    .select(`
     *,
     retailer:retailers (
       id,
@@ -74,64 +74,79 @@ export default async function ProductPage({
       logo
     )
   `)
-  .eq("product_id", product.id)
-  .eq("in_stock", true)
-  .order("price", { ascending: true });
+    .eq("product_id", product.id)
+    .eq("in_stock", true)
+    .order("price", { ascending: true });
 
-const offerIds = offers?.map((offer) => offer.id) || [];
+  const offerIds = offers?.map((offer) => offer.id) || [];
 
-let lowestHistoricalPrice: number | null = null;
+  let lowestHistoricalPrice: number | null = null;
+  let averageHistoricalPrice: number | null = null;
+  let historyCount = 0;
 
-if (offerIds.length > 0) {
-  const { data: history } = await supabase
-    .from("price_history")
-    .select("total_price")
-    .in("offer_id", offerIds)
-    .order("total_price", { ascending: true })
-    .limit(1);
+  if (offerIds.length > 0) {
+    const { data: history } = await supabase
+      .from("price_history")
+      .select("total_price")
+      .in("offer_id", offerIds)
+      .order("checked_at", { ascending: true });
 
-  lowestHistoricalPrice = history?.[0]?.total_price
-    ? Number(history[0].total_price)
-    : null;
-}
-const sortedOffers = [...(offers || [])].sort((a, b) => {
-  const totalA =
-    Number(a.price) + Number(a.shipping_cost || 0);
+    const historicalPrices =
+      history
+        ?.map((item) => Number(item.total_price))
+        .filter((price) => !Number.isNaN(price)) || [];
 
-  const totalB =
-    Number(b.price) + Number(b.shipping_cost || 0);
+    lowestHistoricalPrice =
+      historicalPrices.length > 0
+        ? Math.min(...historicalPrices)
+        : null;
 
-  return totalA - totalB;
-});
+    averageHistoricalPrice =
+      historicalPrices.length > 0
+        ? historicalPrices.reduce((sum, price) => sum + price, 0) /
+        historicalPrices.length
+        : null;
+
+    historyCount = historicalPrices.length;
+  }
+  const sortedOffers = [...(offers || [])].sort((a, b) => {
+    const totalA =
+      Number(a.price) + Number(a.shipping_cost || 0);
+
+    const totalB =
+      Number(b.price) + Number(b.shipping_cost || 0);
+
+    return totalA - totalB;
+  });
   const cheapestOffer = sortedOffers[0] || null;
 
-          
-const cheapestTotal = cheapestOffer
-  ? Number(cheapestOffer.price) +
+
+  const cheapestTotal = cheapestOffer
+    ? Number(cheapestOffer.price) +
     Number(cheapestOffer.shipping_cost || 0)
-  : Number(product.price);
+    : Number(product.price);
 
-let priceRating: string | null = null;
+  let priceRating: string | null = null;
 
-if (lowestHistoricalPrice !== null && cheapestTotal > 0) {
-  const differencePercent =
-    ((cheapestTotal - lowestHistoricalPrice) / lowestHistoricalPrice) * 100;
+  if (lowestHistoricalPrice !== null && cheapestTotal > 0) {
+    const differencePercent =
+      ((cheapestTotal - lowestHistoricalPrice) / lowestHistoricalPrice) * 100;
 
-  if (differencePercent <= 0) {
-    priceRating = "Lowest recorded price";
-  } else if (differencePercent <= 5) {
-    priceRating = "Good price";
-  } else if (differencePercent <= 15) {
-    priceRating = "Average price";
-  } else {
-    priceRating = "High price";
+    if (differencePercent <= 0) {
+      priceRating = "Lowest recorded price";
+    } else if (differencePercent <= 5) {
+      priceRating = "Good price";
+    } else if (differencePercent <= 15) {
+      priceRating = "Average price";
+    } else {
+      priceRating = "High price";
+    }
   }
-}
-const pricePerServing =
-  product.servings && Number(product.servings) > 0
-    ? cheapestTotal / Number(product.servings)
-    : null;
-   
+  const pricePerServing =
+    product.servings && Number(product.servings) > 0
+      ? cheapestTotal / Number(product.servings)
+      : null;
+
   return (
     <main className="min-h-screen bg-zinc-50">
       <div className="mx-auto max-w-7xl px-6 py-12">
@@ -167,51 +182,62 @@ const pricePerServing =
                   <p className="text-sm text-zinc-500">Best UK Price</p>
 
                   <div className="mt-2 text-5xl font-bold">
-  £{cheapestTotal.toFixed(2)}
-</div>
-{lowestHistoricalPrice !== null && (
-  <p className="mt-2 text-sm text-zinc-500">
-    Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
-  </p>
-)}
-{priceRating && (
-  <p className="mt-2 text-sm font-semibold">
-    Price rating: {priceRating}
-  </p>
-)}
-{cheapestOffer && (
-  <div className="mt-3 space-y-1 text-sm text-zinc-500">
-    <p>
-      Product: £{Number(cheapestOffer.price).toFixed(2)}
-    </p>
-    <p>
-      Delivery: £{Number(cheapestOffer.shipping_cost || 0).toFixed(2)}
-    </p>
-    <p>
-      Sold by {cheapestOffer.retailer?.name || "Unknown retailer"}
-    </p>
-  </div>
-)}
-                  
+                    £{cheapestTotal.toFixed(2)}
+                  </div>
+                  {lowestHistoricalPrice !== null && (
+                    <p className="mt-2 text-sm text-zinc-500">
+                      Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
+                    </p>
+                  )}
+                  {averageHistoricalPrice !== null && (
+                    <p className="mt-1 text-sm text-zinc-500">
+                      Average recorded price: £{averageHistoricalPrice.toFixed(2)}
+                    </p>
+                  )}
+
+                  {historyCount > 0 && (
+                    <p className="mt-1 text-xs text-zinc-400">
+                      Based on {historyCount} price record{historyCount === 1 ? "" : "s"}
+                    </p>
+                  )}
+                  {priceRating && (
+                    <p className="mt-2 text-sm font-semibold">
+                      Price rating: {priceRating}
+                    </p>
+                  )}
+                  {cheapestOffer && (
+                    <div className="mt-3 space-y-1 text-sm text-zinc-500">
+                      <p>
+                        Product: £{Number(cheapestOffer.price).toFixed(2)}
+                      </p>
+                      <p>
+                        Delivery: £{Number(cheapestOffer.shipping_cost || 0).toFixed(2)}
+                      </p>
+                      <p>
+                        Sold by {cheapestOffer.retailer?.name || "Unknown retailer"}
+                      </p>
+                    </div>
+                  )}
+
                 </div>
 
-{cheapestOffer ? (
-  <a
-    href={cheapestOffer.url}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="rounded-2xl bg-black px-8 py-4 font-semibold text-white"
-  >
-    View Deal
-  </a>
-) : (
-  <button
-    disabled
-    className="cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-4 font-semibold text-zinc-600"
-  >
-    No offer available
-  </button>
-)}              </div>
+                {cheapestOffer ? (
+                  <a
+                    href={cheapestOffer.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-2xl bg-black px-8 py-4 font-semibold text-white"
+                  >
+                    View Deal
+                  </a>
+                ) : (
+                  <button
+                    disabled
+                    className="cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-4 font-semibold text-zinc-600"
+                  >
+                    No offer available
+                  </button>
+                )}              </div>
             </div>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -231,69 +257,69 @@ const pricePerServing =
                 <p className="text-sm text-zinc-500">Per Serving</p>
               </div>
             </div>
-<div className="mt-8 rounded-3xl border bg-white p-8">
-  <h2 className="text-2xl font-bold">All offers</h2>
+            <div className="mt-8 rounded-3xl border bg-white p-8">
+              <h2 className="text-2xl font-bold">All offers</h2>
 
-  <div className="mt-6 space-y-3">
-    {offers && offers.length > 0 ? (
-      sortedOffers.map((offer) => (
-        <div
-          key={offer.id}
-          className="flex flex-col gap-4 rounded-2xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <p className="font-semibold">
-  {offer.retailer?.name || "Unknown retailer"}
-</p>
-            <p className="mt-1 text-sm text-zinc-500">
-              {offer.in_stock ? "In stock" : "Out of stock"}
-            </p>
-            {offer.last_checked_at && (
-  <p className="mt-1 text-xs text-zinc-500">
-    Price checked:{" "}
-    {new Date(offer.last_checked_at).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    })}
-  </p>
-)}
-          </div>
+              <div className="mt-6 space-y-3">
+                {offers && offers.length > 0 ? (
+                  sortedOffers.map((offer) => (
+                    <div
+                      key={offer.id}
+                      className="flex flex-col gap-4 rounded-2xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div>
+                        <p className="font-semibold">
+                          {offer.retailer?.name || "Unknown retailer"}
+                        </p>
+                        <p className="mt-1 text-sm text-zinc-500">
+                          {offer.in_stock ? "In stock" : "Out of stock"}
+                        </p>
+                        {offer.last_checked_at && (
+                          <p className="mt-1 text-xs text-zinc-500">
+                            Price checked:{" "}
+                            {new Date(offer.last_checked_at).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </p>
+                        )}
+                      </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-  <p className="text-sm text-zinc-500">
-    Product: £{Number(offer.price).toFixed(2)}
-  </p>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-sm text-zinc-500">
+                            Product: £{Number(offer.price).toFixed(2)}
+                          </p>
 
-  <p className="text-sm text-zinc-500">
-    Delivery: £{Number(offer.shipping_cost || 0).toFixed(2)}
-  </p>
+                          <p className="text-sm text-zinc-500">
+                            Delivery: £{Number(offer.shipping_cost || 0).toFixed(2)}
+                          </p>
 
-  <p className="mt-1 text-2xl font-bold">
-    £{(
-  Number(offer.price) +
-  Number(offer.shipping_cost || 0)
-).toFixed(2)}
-  </p>
-</div>
+                          <p className="mt-1 text-2xl font-bold">
+                            £{(
+                              Number(offer.price) +
+                              Number(offer.shipping_cost || 0)
+                            ).toFixed(2)}
+                          </p>
+                        </div>
 
-            <a
-              href={offer.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
-            >
-              View deal
-            </a>
-          </div>
-        </div>
-      ))
-    ) : (
-      <p className="text-zinc-500">No offers available.</p>
-    )}
-  </div>
-</div>
+                        <a
+                          href={offer.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
+                        >
+                          View deal
+                        </a>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-zinc-500">No offers available.</p>
+                )}
+              </div>
+            </div>
             <div className="mt-8 rounded-3xl border bg-white p-8">
               <h2 className="text-2xl font-bold">Product Summary</h2>
 
