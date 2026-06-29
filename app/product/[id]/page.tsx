@@ -111,6 +111,22 @@ const cheapestTotal = cheapestOffer
     Number(cheapestOffer.shipping_cost || 0)
   : Number(product.price);
 
+let priceRating: string | null = null;
+
+if (lowestHistoricalPrice !== null && cheapestTotal > 0) {
+  const differencePercent =
+    ((cheapestTotal - lowestHistoricalPrice) / lowestHistoricalPrice) * 100;
+
+  if (differencePercent <= 0) {
+    priceRating = "Lowest recorded price";
+  } else if (differencePercent <= 5) {
+    priceRating = "Good price";
+  } else if (differencePercent <= 15) {
+    priceRating = "Average price";
+  } else {
+    priceRating = "High price";
+  }
+}
 const pricePerServing =
   product.servings && Number(product.servings) > 0
     ? cheapestTotal / Number(product.servings)
@@ -156,6 +172,11 @@ const pricePerServing =
 {lowestHistoricalPrice !== null && (
   <p className="mt-2 text-sm text-zinc-500">
     Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
+  </p>
+)}
+{priceRating && (
+  <p className="mt-2 text-sm font-semibold">
+    Price rating: {priceRating}
   </p>
 )}
 {cheapestOffer && (
