@@ -43,6 +43,87 @@ function extractSize(name = "") {
 
     return value;
 }
+const variantWords = [
+    // stymulanty i wersje
+    "stim",
+    "non stim",
+    "non-stim",
+    "caffeine free",
+    "zero caffeine",
+    "vegan",
+    "plant",
+
+    // płeć
+    "men",
+    "mens",
+    "women",
+    "womens",
+    "unisex",
+
+    // zestawy
+    "bundle",
+    "box",
+    "pack",
+    "stack",
+
+    // kolory
+    "black",
+    "white",
+    "red",
+    "blue",
+    "green",
+    "grey",
+    "gray",
+    "yellow",
+    "purple",
+    "burgundy",
+    "flame",
+    "graphite",
+    "sapphire",
+
+    // popularne smaki
+    "chocolate",
+    "vanilla",
+    "strawberry",
+    "banana",
+    "raspberry",
+    "caramel",
+    "mango",
+    "orange",
+    "peach",
+    "lemon",
+    "lime",
+    "apple",
+    "cookie",
+    "cookies",
+    "peanut",
+    "berry",
+    "tropical",
+];
+
+function extractVariants(name = "") {
+    const normalized = String(name)
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, " ");
+
+    return variantWords.filter((word) =>
+        normalized.includes(word)
+    );
+}
+
+function haveDifferentVariants(nameA, nameB) {
+    const variantsA = extractVariants(nameA);
+    const variantsB = extractVariants(nameB);
+
+    if (variantsA.length === 0 || variantsB.length === 0) {
+        return false;
+    }
+
+    return (
+        variantsA.sort().join("|") !==
+        variantsB.sort().join("|")
+    );
+}
 function similarity(a, b) {
     const wordsA = new Set(normalizeName(a).split(" ").filter(Boolean));
     const wordsB = new Set(normalizeName(b).split(" ").filter(Boolean));
@@ -86,6 +167,9 @@ async function findDuplicates() {
             const sizeB = extractSize(productB.name);
 
             if (sizeA !== null && sizeB !== null && sizeA !== sizeB) {
+                continue;
+            }
+            if (haveDifferentVariants(productA.name, productB.name)) {
                 continue;
             }
             const score = similarity(productA.name, productB.name);
