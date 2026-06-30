@@ -99,20 +99,46 @@ export default async function ProductPage({
         (item) => !Number.isNaN(Number(item.total_price))
       ) || [];
 
-    const historicalPrices = validHistory.map((item) =>
-      Number(item.total_price)
+    const dailyBestMap = new Map<
+      string,
+      { checkedAt: string; price: number }
+    >();
+
+    for (const item of validHistory) {
+      const price = Number(item.total_price);
+      const dateKey = new Date(item.checked_at)
+        .toISOString()
+        .split("T")[0];
+
+      const existing = dailyBestMap.get(dateKey);
+
+      if (!existing || price < existing.price) {
+        dailyBestMap.set(dateKey, {
+          checkedAt: item.checked_at,
+          price,
+        });
+      }
+    }
+
+    const dailyHistory = Array.from(dailyBestMap.values()).sort(
+      (a, b) =>
+        new Date(a.checkedAt).getTime() -
+        new Date(b.checkedAt).getTime()
     );
+
+    const historicalPrices = dailyHistory.map((item) => item.price);
 
     lowestHistoricalPrice =
       historicalPrices.length > 0
         ? Math.min(...historicalPrices)
         : null;
+
     if (lowestHistoricalPrice !== null) {
-      const lowestRecord = validHistory.find(
-        (item) => Number(item.total_price) === lowestHistoricalPrice
+      const lowestRecord = dailyHistory.find(
+        (item) => item.price === lowestHistoricalPrice
       );
 
-      lowestPriceDate = lowestRecord?.checked_at || null;
+      lowestPriceDate = lowestRecord?.checkedAt || null;
     }
 
     averageHistoricalPrice =
@@ -122,12 +148,13 @@ export default async function ProductPage({
         : null;
 
     historyCount = historicalPrices.length;
-    chartData = validHistory.map((item) => ({
-      date: new Date(item.checked_at).toLocaleDateString("en-GB", {
+
+    chartData = dailyHistory.map((item) => ({
+      date: new Date(item.checkedAt).toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "short",
       }),
-      price: Number(item.total_price),
+      price: item.price,
     }));
   }
 
