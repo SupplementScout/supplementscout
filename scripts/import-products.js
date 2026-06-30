@@ -126,6 +126,15 @@ function extractServings(row) {
 
   return null;
 }
+function normalizeProductName(name = "") {
+  return name
+    .toLowerCase()
+    .replace(/\b(gym high|capsules|caps|powder|servings|serves)\b/g, " ")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function findOrCreateProduct(row, rowNumber, retailerId) {
   const name = required(row.product_name, "product_name", rowNumber);
   const slug = required(row.slug, "slug", rowNumber);
@@ -241,35 +250,56 @@ async function findOrCreateProduct(row, rowNumber, retailerId) {
     return existingProduct.id;
   }
 
-  const { data: newProduct, error: insertError } = await supabase
+  const normalizedName = normalizeProductName(name);
+
+const { data: similarProducts, error: similarProductsError } = await supabase
   .from("products")
-  .insert(productData)
-  .select("id")
-  .single();
+  .select("id, name, brand, category")
+  .eq("brand", productData.brand)
+  .eq("category", productData.category);
 
-if (insertError) {
-  throw insertError;
+if (similarProductsError) {
+  throw similarProductsError;
 }
 
-const { error: mappingError } = await supabase
-  .from("retailer_products")
-  .insert({
-    retailer_id: retailerId,
-    product_id: newProduct.id,
-    external_name: name,
-    external_slug: slug,
-    external_gtin: gtin || null,
-    external_url: offerUrl,
-    match_method: "new_product",
-    match_confidence: 100,
-  });
+const possibleMatch = similarProducts?.find(
+  (product) => normalizeProductName(product.name) === normalizedName
+);
 
-if (mappingError) {
-  throw mappingError;
+if (possibleMatch) {
+  throw new Error(
+    `Possible duplicate product found: "${name}" may match product ID ${possibleMatch.id} "${possibleMatch.name}". Review manually before importing.`
+  );
 }
+  const { data: newProduct, error: insertError } = await supabase
+    .from("products")
+    .insert(productData)
+    .select("id")
+    .single();
 
-console.log(`Created product: ${name}`);
-return newProduct.id;
+  if (insertError) {
+    throw insertError;
+  }
+
+  const { error: mappingError } = await supabase
+    .from("retailer_products")
+    .insert({
+      retailer_id: retailerId,
+      product_id: newProduct.id,
+      external_name: name,
+      external_slug: slug,
+      external_gtin: gtin || null,
+      external_url: offerUrl,
+      match_method: "new_product",
+      match_confidence: 100,
+    });
+
+  if (mappingError) {
+    throw mappingError;
+  }
+
+  console.log(`Created product: ${name}`);
+  return newProduct.id;
 }
 
 async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
