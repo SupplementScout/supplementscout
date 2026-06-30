@@ -21,6 +21,28 @@ function normalizeName(name = "") {
         .trim();
 }
 
+function extractSize(name = "") {
+    const match = String(name)
+        .toLowerCase()
+        .match(/(\d+(?:\.\d+)?)\s*(kg|g|ml|l)\b/);
+
+    if (!match) {
+        return null;
+    }
+
+    const value = Number(match[1]);
+    const unit = match[2];
+
+    if (unit === "kg") {
+        return value * 1000;
+    }
+
+    if (unit === "l") {
+        return value * 1000;
+    }
+
+    return value;
+}
 function similarity(a, b) {
     const wordsA = new Set(normalizeName(a).split(" ").filter(Boolean));
     const wordsB = new Set(normalizeName(b).split(" ").filter(Boolean));
@@ -60,6 +82,12 @@ async function findDuplicates() {
                 continue;
             }
 
+            const sizeA = extractSize(productA.name);
+            const sizeB = extractSize(productB.name);
+
+            if (sizeA !== null && sizeB !== null && sizeA !== sizeB) {
+                continue;
+            }
             const score = similarity(productA.name, productB.name);
 
             if (score >= 0.6) {
