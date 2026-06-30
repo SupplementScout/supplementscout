@@ -131,20 +131,20 @@ async function findOrCreateProduct(row, rowNumber, retailerId) {
   const slug = required(row.slug, "slug", rowNumber);
   const offerUrl = required(row.url, "url", rowNumber);
 
-  const { data: existingOffer, error: offerFindError } = await supabase
-    .from("offers")
+  const { data: existingMapping, error: mappingFindError } = await supabase
+    .from("retailer_products")
     .select("product_id")
     .eq("retailer_id", retailerId)
-    .eq("url", offerUrl)
+    .eq("external_url", offerUrl)
     .maybeSingle();
 
-  if (offerFindError) {
-    throw offerFindError;
+  if (mappingFindError) {
+    throw mappingFindError;
   }
 
-  if (existingOffer) {
-    console.log(`Matched existing product by offer URL: ${name}`);
-    return existingOffer.product_id;
+  if (existingMapping) {
+    console.log(`Matched product by retailer mapping: ${name}`);
+    return existingMapping.product_id;
   }
 
   const productData = {
@@ -214,22 +214,62 @@ async function findOrCreateProduct(row, rowNumber, retailerId) {
       throw updateError;
     }
 
+    const { error: mappingError } = await supabase
+      .from("retailer_products")
+      .upsert(
+        {
+          retailer_id: retailerId,
+          product_id: existingProduct.id,
+          external_name: name,
+          external_slug: slug,
+          external_gtin: gtin || null,
+          external_url: offerUrl,
+          match_method: gtin ? "gtin" : "slug",
+          match_confidence: gtin ? 100 : 90,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "retailer_id,external_url",
+        }
+      );
+
+    if (mappingError) {
+      throw mappingError;
+    }
+
     console.log(`Updated product: ${name}`);
     return existingProduct.id;
   }
 
   const { data: newProduct, error: insertError } = await supabase
-    .from("products")
-    .insert(productData)
-    .select("id")
-    .single();
+  .from("products")
+  .insert(productData)
+  .select("id")
+  .single();
 
-  if (insertError) {
-    throw insertError;
-  }
+if (insertError) {
+  throw insertError;
+}
 
-  console.log(`Created product: ${name}`);
-  return newProduct.id;
+const { error: mappingError } = await supabase
+  .from("retailer_products")
+  .insert({
+    retailer_id: retailerId,
+    product_id: newProduct.id,
+    external_name: name,
+    external_slug: slug,
+    external_gtin: gtin || null,
+    external_url: offerUrl,
+    match_method: "new_product",
+    match_confidence: 100,
+  });
+
+if (mappingError) {
+  throw mappingError;
+}
+
+console.log(`Created product: ${name}`);
+return newProduct.id;
 }
 
 async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
@@ -354,10 +394,10 @@ async function runImport() {
     try {
       const retailerId = await findOrCreateRetailer(row, rowNumber);
       const productId = await findOrCreateProduct(
-  row,
-  rowNumber,
-  retailerId
-);
+        row,
+        rowNumber,
+        retailerId
+      );
 
       await createOrUpdateOffer(
         row,
