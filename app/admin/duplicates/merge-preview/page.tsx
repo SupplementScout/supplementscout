@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {
   type MergeOffer,
+  type MergePlanItem,
+  type MergePlanStatus,
   type ProductMergeDetails,
   type RetailerProductMapping,
   getMergePreview,
@@ -25,6 +27,22 @@ function formatValue(value: string | number | boolean | null) {
   return String(value);
 }
 
+const statusStyles: Record<MergePlanStatus, string> = {
+  safe: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  warning: "border-amber-200 bg-amber-50 text-amber-700",
+  blocked: "border-red-200 bg-red-50 text-red-700",
+};
+
+function StatusBadge({ status }: { status: MergePlanStatus }) {
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold capitalize ${statusStyles[status]}`}
+    >
+      {status}
+    </span>
+  );
+}
+
 function AdminError({ message }: { message: string }) {
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
@@ -33,6 +51,158 @@ function AdminError({ message }: { message: string }) {
         <p className="mt-3 text-sm">{message}</p>
       </div>
     </main>
+  );
+}
+
+function ProductLevelChecks({ items }: { items: MergePlanItem[] }) {
+  if (items.length === 0) {
+    return (
+      <p className="text-sm text-zinc-500">
+        No product-level conflicts detected.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((item) => (
+        <div
+          key={item.id}
+          className="rounded-lg border border-zinc-200 bg-zinc-50 p-4"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-semibold">{item.subject}</p>
+            <StatusBadge status={item.status} />
+          </div>
+          <p className="mt-2 text-sm text-zinc-600">{item.reason}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function OffersTransferPlanTable({ items }: { items: MergePlanItem[] }) {
+  if (items.length === 0) {
+    return <p className="text-sm text-zinc-500">No candidate offers.</p>;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[900px] border-collapse text-left text-sm">
+        <thead>
+          <tr className="border-b border-zinc-200 text-zinc-500">
+            <th className="py-2 pr-4">Status</th>
+            <th className="py-2 pr-4">Offer ID</th>
+            <th className="py-2 pr-4">Retailer</th>
+            <th className="py-2 pr-4">Price</th>
+            <th className="py-2 pr-4">Shipping</th>
+            <th className="py-2 pr-4">History</th>
+            <th className="py-2 pr-4">URL</th>
+            <th className="py-2 pr-4">Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.id} className="border-b border-zinc-100 align-top">
+              <td className="py-3 pr-4">
+                <StatusBadge status={item.status} />
+              </td>
+              <td className="py-3 pr-4 font-medium">{item.offerId}</td>
+              <td className="py-3 pr-4">{formatValue(item.retailer || null)}</td>
+              <td className="py-3 pr-4">{formatValue(item.price ?? null)}</td>
+              <td className="py-3 pr-4">
+                {formatValue(item.shippingCost ?? null)}
+              </td>
+              <td className="py-3 pr-4">{item.priceHistoryCount || 0}</td>
+              <td className="break-all py-3 pr-4">
+                {formatValue(item.url || null)}
+              </td>
+              <td className="py-3 pr-4">{item.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RetailerProductsTransferPlanTable({
+  items,
+}: {
+  items: MergePlanItem[];
+}) {
+  if (items.length === 0) {
+    return <p className="text-sm text-zinc-500">No candidate mappings.</p>;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[860px] border-collapse text-left text-sm">
+        <thead>
+          <tr className="border-b border-zinc-200 text-zinc-500">
+            <th className="py-2 pr-4">Status</th>
+            <th className="py-2 pr-4">Mapping ID</th>
+            <th className="py-2 pr-4">Retailer ID</th>
+            <th className="py-2 pr-4">External URL</th>
+            <th className="py-2 pr-4">External GTIN</th>
+            <th className="py-2 pr-4">Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.id} className="border-b border-zinc-100 align-top">
+              <td className="py-3 pr-4">
+                <StatusBadge status={item.status} />
+              </td>
+              <td className="py-3 pr-4 font-medium">{item.mappingId}</td>
+              <td className="py-3 pr-4">{formatValue(item.retailerId ?? null)}</td>
+              <td className="break-all py-3 pr-4">
+                {formatValue(item.externalUrl || null)}
+              </td>
+              <td className="py-3 pr-4">
+                {formatValue(item.externalGtin || null)}
+              </td>
+              <td className="py-3 pr-4">{item.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function PriceHistoryPlanTable({ items }: { items: MergePlanItem[] }) {
+  if (items.length === 0) {
+    return <p className="text-sm text-zinc-500">No candidate price history.</p>;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+        <thead>
+          <tr className="border-b border-zinc-200 text-zinc-500">
+            <th className="py-2 pr-4">Status</th>
+            <th className="py-2 pr-4">Offer ID</th>
+            <th className="py-2 pr-4">Retailer</th>
+            <th className="py-2 pr-4">Records</th>
+            <th className="py-2 pr-4">Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.id} className="border-b border-zinc-100 align-top">
+              <td className="py-3 pr-4">
+                <StatusBadge status={item.status} />
+              </td>
+              <td className="py-3 pr-4 font-medium">{item.offerId}</td>
+              <td className="py-3 pr-4">{formatValue(item.retailer || null)}</td>
+              <td className="py-3 pr-4">{item.priceHistoryCount || 0}</td>
+              <td className="py-3 pr-4">{item.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -309,6 +479,81 @@ export default async function MergePreviewPage({
               ))}
             </div>
           )}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-200 bg-white p-5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Merge plan</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                This is only a plan. No data will be inserted, updated, deleted,
+                or merged from this page.
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm">
+              <p className="font-semibold">
+                Final recommendation: {preview.mergePlan.recommendation}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700">
+                  Safe {preview.mergePlan.summary.safe}
+                </span>
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-semibold text-amber-700">
+                  Warning {preview.mergePlan.summary.warning}
+                </span>
+                <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1 font-semibold text-red-700">
+                  Blocked {preview.mergePlan.summary.blocked}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-8">
+            <div>
+              <h3 className="text-lg font-bold">Product-level checks</h3>
+              <div className="mt-3">
+                <ProductLevelChecks
+                  items={preview.mergePlan.productConflicts}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold">Offers transfer plan</h3>
+              <div className="mt-3">
+                <OffersTransferPlanTable items={preview.mergePlan.offers} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold">
+                Retailer products transfer plan
+              </h3>
+              <div className="mt-3">
+                <RetailerProductsTransferPlanTable
+                  items={preview.mergePlan.retailerProducts}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold">
+                Price history preservation plan
+              </h3>
+              <div className="mt-3">
+                <PriceHistoryPlanTable items={preview.mergePlan.priceHistory} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold">Future transaction order</h3>
+              <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-zinc-700">
+                {preview.mergePlan.transactionOrder.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-5 lg:grid-cols-2">
