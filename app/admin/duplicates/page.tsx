@@ -15,6 +15,22 @@ const levelStyles: Record<DuplicateLevel, string> = {
   low: "border-zinc-200 bg-zinc-50 text-zinc-700",
 };
 
+type AdminProduct = {
+  id: number | string;
+  name: string;
+  slug: string | null;
+  gtin: string | null;
+  brand: string | null;
+  category: string | null;
+};
+
+type IgnoredPair = {
+  id: number | string;
+  product_a_id: number | string;
+  product_b_id: number | string;
+  ignored_at: string | null;
+};
+
 function formatValue(value: string | number | null) {
   if (value === null || value === "") {
     return "Missing";
@@ -28,14 +44,7 @@ function ProductSummary({
   product,
 }: {
   label: string;
-  product: {
-    id: string | number;
-    name: string;
-    slug: string | null;
-    gtin: string | null;
-    brand: string | null;
-    category: string | null;
-  };
+  product: AdminProduct;
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-4">
@@ -101,7 +110,7 @@ export default async function DuplicateProductsPage({
 
   const [
     { data: products, error },
-    { data: ignoredPairs, error: ignoredPairsError },
+    { data: ignoredPairsData, error: ignoredPairsError },
   ] = await Promise.all([
     supabase
       .from("products")
@@ -109,11 +118,35 @@ export default async function DuplicateProductsPage({
       .order("name"),
     supabaseAdmin
       .from("ignored_duplicate_product_pairs")
-      .select("product_a_id, product_b_id"),
+      .select("id, product_a_id, product_b_id, ignored_at"),
   ]);
 
+  const ignoredPairs: IgnoredPair[] = ignoredPairsData || [];
+
+  const ignoredProductIds = Array.from(
+    new Set(
+      ignoredPairs.flatMap((pair) => [
+        Number(pair.product_a_id),
+        Number(pair.product_b_id),
+      ])
+    )
+  );
+
+  const { data: ignoredProductsData, error: ignoredProductsError } =
+    !ignoredPairsError && ignoredProductIds.length > 0
+      ? await supabaseAdmin
+          .from("products")
+          .select("id, name, slug, gtin, brand, category")
+          .in("id", ignoredProductIds)
+      : { data: [], error: null };
+
+  const ignoredProducts: AdminProduct[] = ignoredProductsData || [];
+  const ignoredProductMap = new Map(
+    ignoredProducts.map((product) => [Number(product.id), product])
+  );
+
   const ignoredPairKeys = new Set(
-    (ignoredPairs || []).map((pair) =>
+    ignoredPairs.map((pair) =>
       getDuplicatePairKey(pair.product_a_id, pair.product_b_id)
     )
   );
@@ -172,6 +205,13 @@ export default async function DuplicateProductsPage({
           </div>
         )}
 
+        {ignoredProductsError && (
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Unable to load product details for ignored pairs:{" "}
+            {ignoredProductsError.message}
+          </div>
+        )}
+
         {!error && duplicateMatches.length === 0 && (
           <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6 text-zinc-600">
             No potential duplicates found.
@@ -226,6 +266,100 @@ export default async function DuplicateProductsPage({
             </section>
           ))}
         </div>
+
+        <section className="mt-10 border-t border-zinc-200 pt-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Ignored
+              </p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight">
+                Ignored pairs
+              </h2>
+            </div>
+            <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600">
+              <span className="font-semibold text-zinc-950">
+                {ignoredPairs.length}
+              </span>{" "}
+              ignored pairs
+            </div>
+          </div>
+
+          {ignoredPairsError && (
+            <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6 text-zinc-600">
+              Ignored pairs are unavailable.
+            </div>
+          )}
+
+          {!ignoredPairsError && ignoredPairs.length === 0 && (
+            <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6 text-zinc-600">
+              No ignored pairs yet.
+            </div>
+          )}
+
+          <div className="mt-6 space-y-5">
+            {ignoredPairs.map((pair) => {
+              const productA = ignoredProductMap.get(Number(pair.product_a_id));
+              const productB = ignoredProductMap.get(Number(pair.product_b_id));
+
+              return (
+                <section
+                  key={pair.id}
+                  className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm font-medium text-zinc-600">
+                      Ignored at{" "}
+                      {pair.ignored_at
+                        ? new Date(pair.ignored_at).toLocaleString("en-GB")
+                        : "unknown time"}
+                    </p>
+
+                    <form
+                      action={`/admin/duplicates/restore?token=${encodeURIComponent(token)}`}
+                      method="post"
+                    >
+                      <input
+                        type="hidden"
+                        name="productAId"
+                        value={pair.product_a_id}
+                      />
+                      <input
+                        type="hidden"
+                        name="productBId"
+                        value={pair.product_b_id}
+                      />
+                      <button
+                        type="submit"
+                        className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
+                      >
+                        Restore
+                      </button>
+                    </form>
+                  </div>
+
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    {productA ? (
+                      <ProductSummary label="A" product={productA} />
+                    ) : (
+                      <div className="rounded-lg border border-zinc-200 bg-white p-4 text-sm text-zinc-500">
+                        Product A details unavailable. ID {pair.product_a_id}
+                      </div>
+                    )}
+
+                    {productB ? (
+                      <ProductSummary label="B" product={productB} />
+                    ) : (
+                      <div className="rounded-lg border border-zinc-200 bg-white p-4 text-sm text-zinc-500">
+                        Product B details unavailable. ID {pair.product_b_id}
+                      </div>
+                    )}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </main>
   );

@@ -53,18 +53,12 @@ export async function POST(request: NextRequest) {
 
   const { error } = await supabaseAdmin
     .from("ignored_duplicate_product_pairs")
-    .upsert(
-      {
-        product_a_id: productAId,
-        product_b_id: productBId,
-      },
-      {
-        onConflict: "product_a_id,product_b_id",
-      }
-    );
+    .delete()
+    .eq("product_a_id", productAId)
+    .eq("product_b_id", productBId);
 
   if (error) {
-    return new NextResponse("Unable to ignore duplicate pair.", {
+    return new NextResponse("Unable to restore duplicate pair.", {
       status: 500,
     });
   }

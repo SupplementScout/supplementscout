@@ -20,12 +20,21 @@ export function getDuplicatePairKey(
   productAId: number | string,
   productBId: number | string
 ) {
+  const [productA, productB] = getDuplicatePairIds(productAId, productBId);
+
+  return `${productA}:${productB}`;
+}
+
+export function getDuplicatePairIds(
+  productAId: number | string,
+  productBId: number | string
+) {
   const firstId = Number(productAId);
   const secondId = Number(productBId);
   const productA = Math.min(firstId, secondId);
   const productB = Math.max(firstId, secondId);
 
-  return `${productA}:${productB}`;
+  return [productA, productB] as const;
 }
 
 const variantWords = [
