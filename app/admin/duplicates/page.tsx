@@ -236,27 +236,43 @@ export default async function DuplicateProductsPage({
                   </span>
                 </div>
 
-                <form
-                  action={`/admin/duplicates/ignore?token=${encodeURIComponent(token)}`}
-                  method="post"
-                >
-                  <input
-                    type="hidden"
-                    name="productAId"
-                    value={match.productA.id}
-                  />
-                  <input
-                    type="hidden"
-                    name="productBId"
-                    value={match.productB.id}
-                  />
-                  <button
-                    type="submit"
+                <div className="flex flex-wrap gap-2">
+                  <form
+                    action={`/admin/duplicates/ignore?token=${encodeURIComponent(token)}`}
+                    method="post"
+                  >
+                    <input
+                      type="hidden"
+                      name="productAId"
+                      value={match.productA.id}
+                    />
+                    <input
+                      type="hidden"
+                      name="productBId"
+                      value={match.productB.id}
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
+                    >
+                      Ignore
+                    </button>
+                  </form>
+
+                  <Link
+                    href={`/admin/duplicates/merge-preview?token=${encodeURIComponent(token)}&canonical=${match.productA.id}&candidate=${match.productB.id}`}
                     className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
                   >
-                    Ignore
-                  </button>
-                </form>
+                    Preview: keep A
+                  </Link>
+
+                  <Link
+                    href={`/admin/duplicates/merge-preview?token=${encodeURIComponent(token)}&canonical=${match.productB.id}&candidate=${match.productA.id}`}
+                    className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
+                  >
+                    Preview: keep B
+                  </Link>
+                </div>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
