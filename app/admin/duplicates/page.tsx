@@ -2,7 +2,9 @@ import Link from "next/link";
 import {
   type DuplicateLevel,
   findPossibleDuplicates,
+  getDuplicatePairKey,
 } from "../../lib/duplicates";
+import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { supabase } from "../../lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -89,13 +91,43 @@ function ProductSummary({
   );
 }
 
-export default async function DuplicateProductsPage() {
-  const { data: products, error } = await supabase
-    .from("products")
-    .select("id, name, slug, gtin, brand, category")
-    .order("name");
+export default async function DuplicateProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string | string[] }>;
+}) {
+  const { token: tokenParam } = await searchParams;
+  const token = Array.isArray(tokenParam) ? tokenParam[0] : tokenParam || "";
 
-  const duplicateMatches = findPossibleDuplicates(products || []);
+  const [
+    { data: products, error },
+    { data: ignoredPairs, error: ignoredPairsError },
+  ] = await Promise.all([
+    supabase
+      .from("products")
+      .select("id, name, slug, gtin, brand, category")
+      .order("name"),
+    supabaseAdmin
+      .from("ignored_duplicate_product_pairs")
+      .select("product_a_id, product_b_id"),
+  ]);
+
+  const ignoredPairKeys = new Set(
+    (ignoredPairs || []).map((pair) =>
+      getDuplicatePairKey(pair.product_a_id, pair.product_b_id)
+    )
+  );
+
+  const allDuplicateMatches = findPossibleDuplicates(products || []);
+
+  const duplicateMatches = ignoredPairsError
+    ? allDuplicateMatches
+    : allDuplicateMatches.filter(
+        (match) =>
+          !ignoredPairKeys.has(
+            getDuplicatePairKey(match.productA.id, match.productB.id)
+          )
+      );
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
@@ -133,6 +165,13 @@ export default async function DuplicateProductsPage() {
           </div>
         )}
 
+        {ignoredPairsError && (
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Unable to load ignored pairs, so all detected pairs are shown:{" "}
+            {ignoredPairsError.message}
+          </div>
+        )}
+
         {!error && duplicateMatches.length === 0 && (
           <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6 text-zinc-600">
             No potential duplicates found.
@@ -156,6 +195,28 @@ export default async function DuplicateProductsPage() {
                     Score {Math.round(match.score * 100)}%
                   </span>
                 </div>
+
+                <form
+                  action={`/admin/duplicates/ignore?token=${encodeURIComponent(token)}`}
+                  method="post"
+                >
+                  <input
+                    type="hidden"
+                    name="productAId"
+                    value={match.productA.id}
+                  />
+                  <input
+                    type="hidden"
+                    name="productBId"
+                    value={match.productB.id}
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
+                  >
+                    Ignore
+                  </button>
+                </form>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">

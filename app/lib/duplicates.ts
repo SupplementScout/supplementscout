@@ -16,6 +16,18 @@ export type DuplicateMatch = {
   productB: DuplicateProduct;
 };
 
+export function getDuplicatePairKey(
+  productAId: number | string,
+  productBId: number | string
+) {
+  const firstId = Number(productAId);
+  const secondId = Number(productBId);
+  const productA = Math.min(firstId, secondId);
+  const productB = Math.max(firstId, secondId);
+
+  return `${productA}:${productB}`;
+}
+
 const variantWords = [
   "stim",
   "non stim",
