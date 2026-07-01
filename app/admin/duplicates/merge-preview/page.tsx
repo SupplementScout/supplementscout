@@ -55,12 +55,16 @@ function ProductDetails({
           <h2 className="mt-2 text-2xl font-bold">{product.name}</h2>
         </div>
 
-        <Link
-          href={`/product/${product.id}`}
-          className="text-sm font-semibold text-zinc-950 underline underline-offset-4"
-        >
-          View product
-        </Link>
+        {product.slug ? (
+          <Link
+            href={`/product/${product.slug}`}
+            className="text-sm font-semibold text-zinc-950 underline underline-offset-4"
+          >
+            View product
+          </Link>
+        ) : (
+          <span className="text-sm text-zinc-400">No product link</span>
+        )}
       </div>
 
       <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
