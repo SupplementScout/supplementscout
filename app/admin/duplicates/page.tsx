@@ -22,6 +22,8 @@ type AdminProduct = {
   gtin: string | null;
   brand: string | null;
   category: string | null;
+  is_active?: boolean | null;
+  merged_into_product_id?: number | string | null;
 };
 
 type IgnoredPair = {
@@ -114,7 +116,10 @@ export default async function DuplicateProductsPage({
   ] = await Promise.all([
     supabase
       .from("products")
-      .select("id, name, slug, gtin, brand, category")
+      .select(
+        "id, name, slug, gtin, brand, category, is_active, merged_into_product_id"
+      )
+      .eq("is_active", true)
       .order("name"),
     supabaseAdmin
       .from("ignored_duplicate_product_pairs")
@@ -136,7 +141,10 @@ export default async function DuplicateProductsPage({
     !ignoredPairsError && ignoredProductIds.length > 0
       ? await supabaseAdmin
           .from("products")
-          .select("id, name, slug, gtin, brand, category")
+          .select(
+            "id, name, slug, gtin, brand, category, is_active, merged_into_product_id"
+          )
+          .eq("is_active", true)
           .in("id", ignoredProductIds)
       : { data: [], error: null };
 

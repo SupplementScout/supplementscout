@@ -4,7 +4,8 @@ import { supabase } from "./lib/supabase";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: products } = await supabase
     .from("products")
-    .select("slug");
+    .select("slug")
+    .eq("is_active", true);
 
   const productPages =
     products?.map((product) => ({

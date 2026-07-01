@@ -1,7 +1,40 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+
+type ProductRouteProduct = {
+  id: number;
+  name: string;
+  slug: string | null;
+  gtin: string | null;
+  brand: string | null;
+  category: string | null;
+  servings: number | null;
+  description: string | null;
+  image: string | null;
+  price: number | null;
+  is_active: boolean | null;
+  merged_into_product_id: number | null;
+};
+
+function isPositiveInteger(value: string) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0;
+}
+
+async function getProductByRouteParam(id: string, select: string) {
+  const query = supabase.from("products").select(select);
+  const result = isPositiveInteger(id)
+    ? await query.eq("id", Number(id)).maybeSingle()
+    : await query.eq("slug", id).maybeSingle();
+
+  return {
+    ...result,
+    data: result.data as ProductRouteProduct | null,
+  };
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -9,11 +42,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
 
-  const { data: product } = await supabase
-    .from("products")
-    .select("name, slug, brand, category, description, image")
-    .eq("slug", id)
-    .single();
+  const { data: product } = await getProductByRouteParam(
+    id,
+    "name, slug, brand, category, description, image"
+  );
 
   if (!product) {
     return {
@@ -55,12 +87,14 @@ export default async function ProductPage({
 }) {
   const { id } = await params;
 
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("slug", id)
-    .single();
+  const { data: product, error } = await getProductByRouteParam(id, "*");
   if (error || !product) {
+    notFound();
+  }
+  if (product.is_active === false && product.merged_into_product_id !== null) {
+    permanentRedirect(`/product/${product.merged_into_product_id}`);
+  }
+  if (product.is_active === false) {
     notFound();
   }
   const { data: offers } = await supabase

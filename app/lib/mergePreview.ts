@@ -13,6 +13,9 @@ export type MergeProduct = {
   description: string | null;
   image: string | null;
   price: number | null;
+  is_active: boolean | null;
+  merged_into_product_id: number | null;
+  merged_at: string | null;
 };
 
 export type MergeOffer = {
@@ -208,6 +211,32 @@ function buildConflicts(
 ) {
   const conflicts: MergeConflict[] = [];
 
+  if (
+    canonical.product.is_active === false ||
+    canonical.product.merged_into_product_id !== null
+  ) {
+    conflicts.push({
+      type: "canonical_merged_or_inactive",
+      label: "Canonical product is already merged or inactive",
+      detail: canonical.product.merged_into_product_id
+        ? `Merged into product ${canonical.product.merged_into_product_id}`
+        : "Canonical product is inactive.",
+    });
+  }
+
+  if (
+    candidate.product.is_active === false ||
+    candidate.product.merged_into_product_id !== null
+  ) {
+    conflicts.push({
+      type: "candidate_merged_or_inactive",
+      label: "Candidate product is already merged or inactive",
+      detail: candidate.product.merged_into_product_id
+        ? `Merged into product ${candidate.product.merged_into_product_id}`
+        : "Candidate product is inactive.",
+    });
+  }
+
   const canonicalRetailerIds = canonical.offers
     .map((offer) => offer.retailer_id)
     .filter((id): id is number => typeof id === "number");
@@ -364,6 +393,8 @@ function buildMergePlan(
     different_brand: "blocked",
     different_category: "blocked",
     different_servings: "warning",
+    canonical_merged_or_inactive: "blocked",
+    candidate_merged_or_inactive: "blocked",
   };
   const productConflicts: MergePlanItem[] = conflicts
     .filter((conflict) => conflict.type in productConflictStatusByType)
@@ -438,69 +469,73 @@ function buildMergePlan(
       priceHistoryCount: priceHistoryCounts.get(offer.id) || 0,
     };
   });
-  const retailerProducts: MergePlanItem[] = candidate.retailerProducts.map((mapping) => {
-    const reasons: { status: MergePlanStatus; reason: string }[] = [];
-    const externalUrl = nonEmpty(mapping.external_url);
-    const exactKey = externalUrl
-      ? `${mapping.retailer_id}:${externalUrl}`
-      : null;
+  const retailerProducts: MergePlanItem[] = candidate.retailerProducts.map(
+    (mapping) => {
+      const reasons: { status: MergePlanStatus; reason: string }[] = [];
+      const externalUrl = nonEmpty(mapping.external_url);
+      const exactKey = externalUrl
+        ? `${mapping.retailer_id}:${externalUrl}`
+        : null;
 
-    if (!externalUrl) {
-      reasons.push({
-        status: "warning",
-        reason: "Missing external_url, so uniqueness cannot be fully checked.",
-      });
-    } else if (exactKey && canonicalMappingKeys.has(exactKey)) {
-      reasons.push({
-        status: "blocked",
-        reason:
-          "Canonical already has a retailer_products mapping with the same retailer_id and external_url.",
-      });
-    } else if (canonicalMappingRetailerIds.has(mapping.retailer_id)) {
-      reasons.push({
-        status: "warning",
-        reason:
-          "Canonical has a retailer_products mapping for the same retailer with a different URL.",
-      });
-    }
+      if (!externalUrl) {
+        reasons.push({
+          status: "warning",
+          reason:
+            "Missing external_url, so uniqueness cannot be fully checked.",
+        });
+      } else if (exactKey && canonicalMappingKeys.has(exactKey)) {
+        reasons.push({
+          status: "blocked",
+          reason:
+            "Canonical already has a retailer_products mapping with the same retailer_id and external_url.",
+        });
+      } else if (canonicalMappingRetailerIds.has(mapping.retailer_id)) {
+        reasons.push({
+          status: "warning",
+          reason:
+            "Canonical has a retailer_products mapping for the same retailer with a different URL.",
+        });
+      }
 
-    const candidateGtin = nonEmpty(mapping.external_gtin);
-    const canonicalSameRetailerMappings = canonical.retailerProducts.filter(
-      (canonicalMapping) => canonicalMapping.retailer_id === mapping.retailer_id
-    );
-    const differentExternalGtins = canonicalSameRetailerMappings
-      .map((canonicalMapping) => nonEmpty(canonicalMapping.external_gtin))
-      .filter(
-        (canonicalGtin): canonicalGtin is string =>
-          Boolean(canonicalGtin) &&
-          Boolean(candidateGtin) &&
-          canonicalGtin !== candidateGtin
+      const candidateGtin = nonEmpty(mapping.external_gtin);
+      const canonicalSameRetailerMappings = canonical.retailerProducts.filter(
+        (canonicalMapping) =>
+          canonicalMapping.retailer_id === mapping.retailer_id
       );
+      const differentExternalGtins = canonicalSameRetailerMappings
+        .map((canonicalMapping) => nonEmpty(canonicalMapping.external_gtin))
+        .filter(
+          (canonicalGtin): canonicalGtin is string =>
+            Boolean(canonicalGtin) &&
+            Boolean(candidateGtin) &&
+            canonicalGtin !== candidateGtin
+        );
 
-    if (candidateGtin && differentExternalGtins.length > 0) {
-      reasons.push({
-        status: "warning",
-        reason:
-          "Canonical has a non-empty external_gtin for this retailer that differs from the candidate mapping.",
-      });
+      if (candidateGtin && differentExternalGtins.length > 0) {
+        reasons.push({
+          status: "warning",
+          reason:
+            "Canonical has a non-empty external_gtin for this retailer that differs from the candidate mapping.",
+        });
+      }
+
+      const status = getStatus(reasons);
+
+      return {
+        id: `retailer-product-${mapping.id}`,
+        status,
+        subject: `Retailer product mapping ${mapping.id}`,
+        reason: joinReasons(
+          reasons,
+          "Candidate retailer_products mapping can be moved to canonical."
+        ),
+        mappingId: mapping.id,
+        retailerId: mapping.retailer_id,
+        externalUrl: mapping.external_url,
+        externalGtin: mapping.external_gtin,
+      };
     }
-
-    const status = getStatus(reasons);
-
-    return {
-      id: `retailer-product-${mapping.id}`,
-      status,
-      subject: `Retailer product mapping ${mapping.id}`,
-      reason: joinReasons(
-        reasons,
-        "Candidate retailer_products mapping can be moved to canonical."
-      ),
-      mappingId: mapping.id,
-      retailerId: mapping.retailer_id,
-      externalUrl: mapping.external_url,
-      externalGtin: mapping.external_gtin,
-    };
-  });
+  );
   const priceHistory: MergePlanItem[] = candidate.offers.map((offer) => {
     const offerPlan = offers.find((item) => item.offerId === offer.id);
     const status =
@@ -578,7 +613,7 @@ export async function getMergePreview(
   const { data: productsData, error: productsError } = await supabaseAdmin
     .from("products")
     .select(
-      "id, name, slug, gtin, brand, category, servings, description, image, price"
+      "id, name, slug, gtin, brand, category, servings, description, image, price, is_active, merged_into_product_id, merged_at"
     )
     .in("id", [canonicalId, candidateId]);
 

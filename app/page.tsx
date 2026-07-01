@@ -67,12 +67,14 @@ useEffect(() => {
       in_stock
     )
   `)
+  .eq("is_active", true)
   .order("name")
   .limit(50),
       supabase.from("retailers").select("id"),
       supabase
   .from("products")
-  .select("*", { count: "exact", head: true }),
+  .select("*", { count: "exact", head: true })
+  .eq("is_active", true),
     ]);
 
     console.log("PRODUCTS ERROR:", productsError);
@@ -113,6 +115,7 @@ useEffect(() => {
           in_stock
         )
       `)
+      .eq("is_active", true)
       .or(
         `name.ilike.%${query}%,brand.ilike.%${query}%,category.ilike.%${query}%`
       )
