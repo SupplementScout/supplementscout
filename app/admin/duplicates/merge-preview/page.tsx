@@ -7,6 +7,7 @@ import {
   type RetailerProductMapping,
   getMergePreview,
 } from "../../../lib/mergePreview";
+import { MergeConfirmButton } from "./MergeConfirmButton";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,27 @@ function AdminError({ message }: { message: string }) {
       </div>
     </main>
   );
+}
+
+function MergeErrorMessage({ errorCode }: { errorCode: string }) {
+  if (errorCode === "unsafe") {
+    return (
+      <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
+        Merge was not completed because the latest server-side preview is no
+        longer safe.
+      </div>
+    );
+  }
+
+  if (errorCode === "failed") {
+    return (
+      <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+        Merge was not completed. Re-check the preview and try again.
+      </div>
+    );
+  }
+
+  return null;
 }
 
 function ProductLevelChecks({ items }: { items: MergePlanItem[] }) {
@@ -390,10 +412,12 @@ export default async function MergePreviewPage({
     token?: string | string[];
     canonical?: string | string[];
     candidate?: string | string[];
+    merge_error?: string | string[];
   }>;
 }) {
   const params = await searchParams;
   const token = firstParam(params.token);
+  const mergeError = firstParam(params.merge_error);
   const canonicalId = parsePositiveInteger(firstParam(params.canonical));
   const candidateId = parsePositiveInteger(firstParam(params.candidate));
 
@@ -429,6 +453,16 @@ export default async function MergePreviewPage({
     return <AdminError message="Both products must exist to show merge preview." />;
   }
 
+  const canMerge =
+    preview.mergePlan.summary.blocked === 0 &&
+    preview.mergePlan.summary.warning === 0 &&
+    preview.canonical.product.is_active === true &&
+    preview.candidate.product.is_active === true &&
+    preview.canonical.product.merged_into_product_id === null &&
+    preview.candidate.product.merged_into_product_id === null &&
+    preview.canonical.product.merged_at === null &&
+    preview.candidate.product.merged_at === null;
+
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
       <div className="mx-auto max-w-7xl">
@@ -449,8 +483,11 @@ export default async function MergePreviewPage({
         </div>
 
         <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
-          Read-only preview — no changes will be made.
+          Review this server-side preview before merging. The merge action will
+          recalculate safety checks before making changes.
         </div>
+
+        <MergeErrorMessage errorCode={mergeError} />
 
         <div className="mt-6 grid gap-5 lg:grid-cols-2">
           <ProductDetails title="Canonical product" details={preview.canonical} />
@@ -505,6 +542,17 @@ export default async function MergePreviewPage({
                   Blocked {preview.mergePlan.summary.blocked}
                 </span>
               </div>
+              {canMerge && (
+                <div className="mt-4 border-t border-zinc-200 pt-4">
+                  <MergeConfirmButton
+                    action={`/admin/duplicates/merge?token=${encodeURIComponent(token)}`}
+                    canonicalId={String(preview.canonical.product.id)}
+                    canonicalName={preview.canonical.product.name}
+                    candidateId={String(preview.candidate.product.id)}
+                    candidateName={preview.candidate.product.name}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

@@ -2,8 +2,10 @@ import "server-only";
 
 import { supabaseAdmin } from "./supabaseAdmin";
 
+type BigintId = number | string;
+
 export type MergeProduct = {
-  id: number;
+  id: BigintId;
   name: string;
   slug: string | null;
   gtin: string | null;
@@ -14,14 +16,14 @@ export type MergeProduct = {
   image: string | null;
   price: number | null;
   is_active: boolean | null;
-  merged_into_product_id: number | null;
+  merged_into_product_id: BigintId | null;
   merged_at: string | null;
 };
 
 export type MergeOffer = {
-  id: number;
-  product_id: number;
-  retailer_id: number | null;
+  id: BigintId;
+  product_id: BigintId;
+  retailer_id: BigintId | null;
   price: number | null;
   shipping_cost: number | null;
   url: string | null;
@@ -34,9 +36,9 @@ type RawMergeOffer = Omit<MergeOffer, "retailer"> & {
 };
 
 export type RetailerProductMapping = {
-  id: number;
-  retailer_id: number;
-  product_id: number;
+  id: BigintId;
+  retailer_id: BigintId;
+  product_id: BigintId;
   external_name: string;
   external_slug: string | null;
   external_gtin: string | null;
@@ -65,10 +67,10 @@ export type MergePlanItem = {
   status: MergePlanStatus;
   subject: string;
   reason: string;
-  offerId?: number;
-  mappingId?: number;
+  offerId?: BigintId;
+  mappingId?: BigintId;
   retailer?: string;
-  retailerId?: number | null;
+  retailerId?: BigintId | null;
   url?: string | null;
   externalUrl?: string | null;
   externalGtin?: string | null;
@@ -101,6 +103,10 @@ type ComparableSize = {
 
 function normalizeText(value: string | null) {
   return String(value || "").trim().toLowerCase();
+}
+
+function idValue(value: BigintId) {
+  return String(value);
 }
 
 function nonEmpty(value: string | null) {
@@ -181,8 +187,8 @@ function normalizeOffer(offer: RawMergeOffer): MergeOffer {
   };
 }
 
-async function getPriceHistoryCounts(offerIds: number[]) {
-  const counts = new Map<number, number>();
+async function getPriceHistoryCounts(offerIds: BigintId[]) {
+  const counts = new Map<string, number>();
 
   if (offerIds.length === 0) {
     return counts;
@@ -198,7 +204,7 @@ async function getPriceHistoryCounts(offerIds: number[]) {
   }
 
   for (const record of data || []) {
-    const offerId = Number(record.offer_id);
+    const offerId = idValue(record.offer_id);
     counts.set(offerId, (counts.get(offerId) || 0) + 1);
   }
 
@@ -239,10 +245,12 @@ function buildConflicts(
 
   const canonicalRetailerIds = canonical.offers
     .map((offer) => offer.retailer_id)
-    .filter((id): id is number => typeof id === "number");
+    .filter((id): id is BigintId => id !== null)
+    .map(idValue);
   const candidateRetailerIds = candidate.offers
     .map((offer) => offer.retailer_id)
-    .filter((id): id is number => typeof id === "number");
+    .filter((id): id is BigintId => id !== null)
+    .map(idValue);
   const sharedRetailers = intersection(
     canonicalRetailerIds,
     candidateRetailerIds
@@ -251,8 +259,14 @@ function buildConflicts(
   if (sharedRetailers.length > 0) {
     const labels = sharedRetailers.map((retailerId) => {
       const offer =
-        canonical.offers.find((item) => item.retailer_id === retailerId) ||
-        candidate.offers.find((item) => item.retailer_id === retailerId);
+        canonical.offers.find(
+          (item) =>
+            item.retailer_id !== null && idValue(item.retailer_id) === retailerId
+        ) ||
+        candidate.offers.find(
+          (item) =>
+            item.retailer_id !== null && idValue(item.retailer_id) === retailerId
+        );
 
       return offer ? retailerLabel(offer) : `Retailer ${retailerId}`;
     });
@@ -366,8 +380,8 @@ function buildConflicts(
   }
 
   const sharedMappingRetailers = intersection(
-    canonical.retailerProducts.map((mapping) => mapping.retailer_id),
-    candidate.retailerProducts.map((mapping) => mapping.retailer_id)
+    canonical.retailerProducts.map((mapping) => idValue(mapping.retailer_id)),
+    candidate.retailerProducts.map((mapping) => idValue(mapping.retailer_id))
   );
 
   if (sharedMappingRetailers.length > 0) {
@@ -385,7 +399,7 @@ function buildMergePlan(
   canonical: ProductMergeDetails,
   candidate: ProductMergeDetails,
   conflicts: MergeConflict[],
-  priceHistoryCounts: Map<number, number>
+  priceHistoryCounts: Map<string, number>
 ): MergePlan {
   const productConflictStatusByType: Record<string, MergePlanStatus> = {
     different_gtin: "blocked",
@@ -407,7 +421,8 @@ function buildMergePlan(
   const canonicalRetailerIds = new Set(
     canonical.offers
       .map((offer) => offer.retailer_id)
-      .filter((id): id is number => typeof id === "number")
+      .filter((id): id is BigintId => id !== null)
+      .map(idValue)
   );
   const canonicalOfferUrls = new Set(
     canonical.offers
@@ -418,23 +433,25 @@ function buildMergePlan(
     canonical.retailerProducts
       .map((mapping) => {
         const externalUrl = nonEmpty(mapping.external_url);
-        return externalUrl ? `${mapping.retailer_id}:${externalUrl}` : null;
+        return externalUrl
+          ? `${idValue(mapping.retailer_id)}:${externalUrl}`
+          : null;
       })
       .filter((key): key is string => Boolean(key))
   );
   const canonicalMappingRetailerIds = new Set(
-    canonical.retailerProducts.map((mapping) => mapping.retailer_id)
+    canonical.retailerProducts.map((mapping) => idValue(mapping.retailer_id))
   );
   const offers: MergePlanItem[] = candidate.offers.map((offer) => {
     const reasons: { status: MergePlanStatus; reason: string }[] = [];
     const offerUrl = nonEmpty(offer.url);
 
-    if (typeof offer.retailer_id !== "number") {
+    if (offer.retailer_id === null) {
       reasons.push({
         status: "warning",
         reason: "Missing retailer_id, so retailer uniqueness cannot be checked.",
       });
-    } else if (canonicalRetailerIds.has(offer.retailer_id)) {
+    } else if (canonicalRetailerIds.has(idValue(offer.retailer_id))) {
       reasons.push({
         status: "blocked",
         reason: "Canonical already has an offer for this retailer.",
@@ -466,7 +483,7 @@ function buildMergePlan(
       url: offer.url,
       price: offer.price,
       shippingCost: offer.shipping_cost,
-      priceHistoryCount: priceHistoryCounts.get(offer.id) || 0,
+      priceHistoryCount: priceHistoryCounts.get(idValue(offer.id)) || 0,
     };
   });
   const retailerProducts: MergePlanItem[] = candidate.retailerProducts.map(
@@ -474,7 +491,7 @@ function buildMergePlan(
       const reasons: { status: MergePlanStatus; reason: string }[] = [];
       const externalUrl = nonEmpty(mapping.external_url);
       const exactKey = externalUrl
-        ? `${mapping.retailer_id}:${externalUrl}`
+        ? `${idValue(mapping.retailer_id)}:${externalUrl}`
         : null;
 
       if (!externalUrl) {
@@ -489,7 +506,9 @@ function buildMergePlan(
           reason:
             "Canonical already has a retailer_products mapping with the same retailer_id and external_url.",
         });
-      } else if (canonicalMappingRetailerIds.has(mapping.retailer_id)) {
+      } else if (
+        canonicalMappingRetailerIds.has(idValue(mapping.retailer_id))
+      ) {
         reasons.push({
           status: "warning",
           reason:
@@ -500,7 +519,7 @@ function buildMergePlan(
       const candidateGtin = nonEmpty(mapping.external_gtin);
       const canonicalSameRetailerMappings = canonical.retailerProducts.filter(
         (canonicalMapping) =>
-          canonicalMapping.retailer_id === mapping.retailer_id
+          idValue(canonicalMapping.retailer_id) === idValue(mapping.retailer_id)
       );
       const differentExternalGtins = canonicalSameRetailerMappings
         .map((canonicalMapping) => nonEmpty(canonicalMapping.external_gtin))
@@ -537,7 +556,10 @@ function buildMergePlan(
     }
   );
   const priceHistory: MergePlanItem[] = candidate.offers.map((offer) => {
-    const offerPlan = offers.find((item) => item.offerId === offer.id);
+    const offerPlan = offers.find(
+      (item) =>
+        item.offerId !== undefined && idValue(item.offerId) === idValue(offer.id)
+    );
     const status =
       offerPlan?.status === "blocked"
         ? "blocked"
@@ -559,7 +581,7 @@ function buildMergePlan(
       retailer: retailerLabel(offer),
       retailerId: offer.retailer_id,
       url: offer.url,
-      priceHistoryCount: priceHistoryCounts.get(offer.id) || 0,
+      priceHistoryCount: priceHistoryCounts.get(idValue(offer.id)) || 0,
     };
   });
   const allItems: MergePlanItem[] = [
@@ -607,27 +629,40 @@ function buildMergePlan(
 }
 
 export async function getMergePreview(
-  canonicalId: number,
-  candidateId: number
+  canonicalId: BigintId,
+  candidateId: BigintId
 ): Promise<MergePreview | null> {
-  const { data: productsData, error: productsError } = await supabaseAdmin
-    .from("products")
-    .select(
-      "id, name, slug, gtin, brand, category, servings, description, image, price, is_active, merged_into_product_id, merged_at"
-    )
-    .in("id", [canonicalId, candidateId]);
+  const canonicalIdValue = idValue(canonicalId);
+  const candidateIdValue = idValue(candidateId);
 
-  if (productsError) {
-    throw productsError;
+  const { data: canonicalProductData, error: canonicalProductError } =
+    await supabaseAdmin
+      .from("products")
+      .select(
+        "id, name, slug, gtin, brand, category, servings, description, image, price, is_active, merged_into_product_id, merged_at"
+      )
+      .eq("id", canonicalId)
+      .maybeSingle();
+
+  if (canonicalProductError) {
+    throw canonicalProductError;
   }
 
-  const products = (productsData || []) as MergeProduct[];
-  const canonicalProduct = products.find(
-    (product) => Number(product.id) === canonicalId
-  );
-  const candidateProduct = products.find(
-    (product) => Number(product.id) === candidateId
-  );
+  const { data: candidateProductData, error: candidateProductError } =
+    await supabaseAdmin
+      .from("products")
+      .select(
+        "id, name, slug, gtin, brand, category, servings, description, image, price, is_active, merged_into_product_id, merged_at"
+      )
+      .eq("id", candidateId)
+      .maybeSingle();
+
+  if (candidateProductError) {
+    throw candidateProductError;
+  }
+
+  const canonicalProduct = canonicalProductData as MergeProduct | null;
+  const candidateProduct = candidateProductData as MergeProduct | null;
 
   if (!canonicalProduct || !candidateProduct) {
     return null;
@@ -662,27 +697,27 @@ export async function getMergePreview(
   const retailerProducts = (retailerProductsData ||
     []) as RetailerProductMapping[];
   const canonicalOffers = offers.filter(
-    (offer) => Number(offer.product_id) === canonicalId
+    (offer) => idValue(offer.product_id) === canonicalIdValue
   );
   const candidateOffers = offers.filter(
-    (offer) => Number(offer.product_id) === candidateId
+    (offer) => idValue(offer.product_id) === candidateIdValue
   );
   const canonicalRetailerProducts = retailerProducts.filter(
-    (mapping) => Number(mapping.product_id) === canonicalId
+    (mapping) => idValue(mapping.product_id) === canonicalIdValue
   );
   const candidateRetailerProducts = retailerProducts.filter(
-    (mapping) => Number(mapping.product_id) === candidateId
+    (mapping) => idValue(mapping.product_id) === candidateIdValue
   );
 
   const priceHistoryCounts = await getPriceHistoryCounts(
-    [...canonicalOffers, ...candidateOffers].map((offer) => Number(offer.id))
+    [...canonicalOffers, ...candidateOffers].map((offer) => offer.id)
   );
   const canonicalPriceHistoryCount = canonicalOffers.reduce(
-    (total, offer) => total + (priceHistoryCounts.get(Number(offer.id)) || 0),
+    (total, offer) => total + (priceHistoryCounts.get(idValue(offer.id)) || 0),
     0
   );
   const candidatePriceHistoryCount = candidateOffers.reduce(
-    (total, offer) => total + (priceHistoryCounts.get(Number(offer.id)) || 0),
+    (total, offer) => total + (priceHistoryCounts.get(idValue(offer.id)) || 0),
     0
   );
 

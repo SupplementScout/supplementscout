@@ -33,6 +33,10 @@ type IgnoredPair = {
   ignored_at: string | null;
 };
 
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value || "";
+}
+
 function formatValue(value: string | number | null) {
   if (value === null || value === "") {
     return "Missing";
@@ -105,10 +109,18 @@ function ProductSummary({
 export default async function DuplicateProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string | string[] }>;
+  searchParams: Promise<{
+    token?: string | string[];
+    merged?: string | string[];
+    canonical?: string | string[];
+    candidate?: string | string[];
+  }>;
 }) {
-  const { token: tokenParam } = await searchParams;
-  const token = Array.isArray(tokenParam) ? tokenParam[0] : tokenParam || "";
+  const params = await searchParams;
+  const token = firstParam(params.token);
+  const merged = firstParam(params.merged);
+  const canonical = firstParam(params.canonical);
+  const candidate = firstParam(params.candidate);
 
   const [
     { data: products, error },
@@ -199,6 +211,13 @@ export default async function DuplicateProductsPage({
           Access is checked on the server for each request. The token is not
           stored in localStorage or cookies.
         </div>
+
+        {merged === "1" && canonical && candidate && (
+          <div className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700">
+            Candidate product {candidate} was merged into canonical product{" "}
+            {canonical}.
+          </div>
+        )}
 
         {error && (
           <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
