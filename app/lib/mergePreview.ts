@@ -31,6 +31,10 @@ export type MergeOffer = {
   retailer: { name: string | null } | null;
 };
 
+export type MergeOfferWithPriceHistoryCount = MergeOffer & {
+  priceHistoryCount: number;
+};
+
 type RawMergeOffer = Omit<MergeOffer, "retailer"> & {
   retailer: { name: string | null } | { name: string | null }[] | null;
 };
@@ -45,6 +49,11 @@ export type RetailerProductMapping = {
   external_url: string | null;
   match_method: string | null;
   match_confidence: number | null;
+  retailer?: { name: string | null } | null;
+};
+
+type RawRetailerProductMapping = Omit<RetailerProductMapping, "retailer"> & {
+  retailer?: { name: string | null } | { name: string | null }[] | null;
 };
 
 export type ProductMergeDetails = {
@@ -89,11 +98,40 @@ export type MergePlan = {
   transactionOrder: string[];
 };
 
+export type MergeDecisionValue = "keep_canonical" | "keep_candidate";
+
+export type OfferDecisionConflict = {
+  canonicalOffer: MergeOfferWithPriceHistoryCount;
+  candidateOffer: MergeOfferWithPriceHistoryCount;
+  retailerId: string;
+  retailer: string;
+};
+
+export type RetailerProductDecisionConflict = {
+  canonicalMapping: RetailerProductMapping;
+  candidateMapping: RetailerProductMapping;
+  retailerId: string;
+  retailer: string;
+};
+
+export type MergeDecisionConflicts = {
+  offerConflicts: OfferDecisionConflict[];
+  retailerProductConflicts: RetailerProductDecisionConflict[];
+};
+
+export type MergeReadiness =
+  | "blocked"
+  | "review_required"
+  | "ready"
+  | "ready_with_decisions";
+
 export type MergePreview = {
   canonical: ProductMergeDetails;
   candidate: ProductMergeDetails;
   conflicts: MergeConflict[];
+  decisionConflicts: MergeDecisionConflicts;
   mergePlan: MergePlan;
+  readiness: MergeReadiness;
 };
 
 type ComparableSize = {
@@ -107,6 +145,14 @@ function normalizeText(value: string | null) {
 
 function idValue(value: BigintId) {
   return String(value);
+}
+
+function compareBigintStrings(left: string, right: string) {
+  if (left.length !== right.length) {
+    return left.length - right.length;
+  }
+
+  return left.localeCompare(right);
 }
 
 function nonEmpty(value: string | null) {
@@ -143,11 +189,6 @@ function extractComparableSize(name = ""): ComparableSize | null {
 
 function formatComparableSize(size: ComparableSize) {
   return `${size.value} ${size.dimension}`;
-}
-
-function intersection<T>(left: T[], right: T[]) {
-  const rightSet = new Set(right);
-  return Array.from(new Set(left.filter((item) => rightSet.has(item))));
 }
 
 function retailerLabel(offer: MergeOffer) {
@@ -187,6 +228,19 @@ function normalizeOffer(offer: RawMergeOffer): MergeOffer {
   };
 }
 
+function normalizeRetailerProductMapping(
+  mapping: RawRetailerProductMapping
+): RetailerProductMapping {
+  const retailer = Array.isArray(mapping.retailer)
+    ? mapping.retailer[0] || null
+    : mapping.retailer || null;
+
+  return {
+    ...mapping,
+    retailer,
+  };
+}
+
 async function getPriceHistoryCounts(offerIds: BigintId[]) {
   const counts = new Map<string, number>();
 
@@ -211,9 +265,130 @@ async function getPriceHistoryCounts(offerIds: BigintId[]) {
   return counts;
 }
 
+function repeatedBigintStrings(values: string[]) {
+  const counts = new Map<string, number>();
+
+  for (const value of values) {
+    counts.set(value, (counts.get(value) || 0) + 1);
+  }
+
+  return Array.from(counts)
+    .filter(([, count]) => count > 1)
+    .map(([value]) => value)
+    .sort(compareBigintStrings);
+}
+
+function buildDecisionConflicts(
+  canonical: ProductMergeDetails,
+  candidate: ProductMergeDetails,
+  priceHistoryCounts: Map<string, number>
+): MergeDecisionConflicts {
+  const offerConflicts = canonical.offers.flatMap((canonicalOffer) => {
+    if (canonicalOffer.retailer_id === null) {
+      return [];
+    }
+
+    const retailerId = idValue(canonicalOffer.retailer_id);
+
+    return candidate.offers
+      .filter(
+        (candidateOffer) =>
+          candidateOffer.retailer_id !== null &&
+          idValue(candidateOffer.retailer_id) === retailerId
+      )
+      .map((candidateOffer) => ({
+        canonicalOffer: {
+          ...canonicalOffer,
+          priceHistoryCount: priceHistoryCounts.get(idValue(canonicalOffer.id)) || 0,
+        },
+        candidateOffer: {
+          ...candidateOffer,
+          priceHistoryCount: priceHistoryCounts.get(idValue(candidateOffer.id)) || 0,
+        },
+        retailerId,
+        retailer:
+          canonicalOffer.retailer?.name ||
+          candidateOffer.retailer?.name ||
+          `Retailer ${retailerId}`,
+      }));
+  });
+
+  offerConflicts.sort(
+    (left, right) =>
+      compareBigintStrings(left.retailerId, right.retailerId) ||
+      compareBigintStrings(
+        idValue(left.canonicalOffer.id),
+        idValue(right.canonicalOffer.id)
+      ) ||
+      compareBigintStrings(
+        idValue(left.candidateOffer.id),
+        idValue(right.candidateOffer.id)
+      )
+  );
+
+  const retailerProductConflicts = canonical.retailerProducts.flatMap(
+    (canonicalMapping) => {
+      const retailerId = idValue(canonicalMapping.retailer_id);
+
+      return candidate.retailerProducts
+        .filter(
+          (candidateMapping) =>
+            idValue(candidateMapping.retailer_id) === retailerId
+        )
+        .map((candidateMapping) => ({
+          canonicalMapping,
+          candidateMapping,
+          retailerId,
+          retailer:
+            canonicalMapping.retailer?.name ||
+            candidateMapping.retailer?.name ||
+            `Retailer ${retailerId}`,
+        }));
+    }
+  );
+
+  retailerProductConflicts.sort(
+    (left, right) =>
+      compareBigintStrings(left.retailerId, right.retailerId) ||
+      compareBigintStrings(
+        idValue(left.canonicalMapping.id),
+        idValue(right.canonicalMapping.id)
+      ) ||
+      compareBigintStrings(
+        idValue(left.candidateMapping.id),
+        idValue(right.candidateMapping.id)
+      )
+  );
+
+  return {
+    offerConflicts,
+    retailerProductConflicts,
+  };
+}
+
+function getMergeReadiness(
+  mergePlan: MergePlan,
+  decisionConflicts: MergeDecisionConflicts
+): MergeReadiness {
+  if (mergePlan.summary.blocked > 0) {
+    return "blocked";
+  }
+
+  if (
+    decisionConflicts.offerConflicts.length > 0 ||
+    decisionConflicts.retailerProductConflicts.length > 0 ||
+    mergePlan.summary.warning > 0
+  ) {
+    return "review_required";
+  }
+
+  return "ready";
+}
+
 function buildConflicts(
   canonical: ProductMergeDetails,
-  candidate: ProductMergeDetails
+  candidate: ProductMergeDetails,
+  decisionConflicts: MergeDecisionConflicts
 ) {
   const conflicts: MergeConflict[] = [];
 
@@ -243,48 +418,91 @@ function buildConflicts(
     });
   }
 
-  const canonicalRetailerIds = canonical.offers
-    .map((offer) => offer.retailer_id)
-    .filter((id): id is BigintId => id !== null)
-    .map(idValue);
-  const candidateRetailerIds = candidate.offers
-    .map((offer) => offer.retailer_id)
-    .filter((id): id is BigintId => id !== null)
-    .map(idValue);
-  const sharedRetailers = intersection(
-    canonicalRetailerIds,
-    candidateRetailerIds
+  const decisionOfferPairs = new Set(
+    decisionConflicts.offerConflicts.map(
+      (conflict) =>
+        `${idValue(conflict.canonicalOffer.id)}:${idValue(conflict.candidateOffer.id)}`
+    )
+  );
+  const decisionMappingPairs = new Set(
+    decisionConflicts.retailerProductConflicts.map(
+      (conflict) =>
+        `${idValue(conflict.canonicalMapping.id)}:${idValue(conflict.candidateMapping.id)}`
+    )
+  );
+  const duplicateCanonicalOfferIds = repeatedBigintStrings(
+    decisionConflicts.offerConflicts.map((conflict) =>
+      idValue(conflict.canonicalOffer.id)
+    )
+  );
+  const duplicateCandidateOfferIds = repeatedBigintStrings(
+    decisionConflicts.offerConflicts.map((conflict) =>
+      idValue(conflict.candidateOffer.id)
+    )
+  );
+  const duplicateCanonicalMappingIds = repeatedBigintStrings(
+    decisionConflicts.retailerProductConflicts.map((conflict) =>
+      idValue(conflict.canonicalMapping.id)
+    )
+  );
+  const duplicateCandidateMappingIds = repeatedBigintStrings(
+    decisionConflicts.retailerProductConflicts.map((conflict) =>
+      idValue(conflict.candidateMapping.id)
+    )
   );
 
-  if (sharedRetailers.length > 0) {
-    const labels = sharedRetailers.map((retailerId) => {
-      const offer =
-        canonical.offers.find(
-          (item) =>
-            item.retailer_id !== null && idValue(item.retailer_id) === retailerId
-        ) ||
-        candidate.offers.find(
-          (item) =>
-            item.retailer_id !== null && idValue(item.retailer_id) === retailerId
-        );
-
-      return offer ? retailerLabel(offer) : `Retailer ${retailerId}`;
-    });
-
+  if (duplicateCanonicalOfferIds.length > 0) {
     conflicts.push({
-      type: "same_retailer",
-      label: "Same retailer on both sides",
-      detail: labels.join(", "),
+      type: "canonical_offer_multiple_decision_conflicts",
+      label: "Canonical offer appears in multiple decision conflicts",
+      detail: `Offer IDs: ${duplicateCanonicalOfferIds.join(", ")}`,
     });
   }
 
-  const sharedOfferUrls = intersection(
-    canonical.offers
-      .map((offer) => nonEmpty(offer.url))
-      .filter((url): url is string => Boolean(url)),
-    candidate.offers
-      .map((offer) => nonEmpty(offer.url))
-      .filter((url): url is string => Boolean(url))
+  if (duplicateCandidateOfferIds.length > 0) {
+    conflicts.push({
+      type: "candidate_offer_multiple_decision_conflicts",
+      label: "Candidate offer appears in multiple decision conflicts",
+      detail: `Offer IDs: ${duplicateCandidateOfferIds.join(", ")}`,
+    });
+  }
+
+  if (duplicateCanonicalMappingIds.length > 0) {
+    conflicts.push({
+      type: "canonical_mapping_multiple_decision_conflicts",
+      label: "Canonical retailer_products mapping appears in multiple decision conflicts",
+      detail: `Mapping IDs: ${duplicateCanonicalMappingIds.join(", ")}`,
+    });
+  }
+
+  if (duplicateCandidateMappingIds.length > 0) {
+    conflicts.push({
+      type: "candidate_mapping_multiple_decision_conflicts",
+      label: "Candidate retailer_products mapping appears in multiple decision conflicts",
+      detail: `Mapping IDs: ${duplicateCandidateMappingIds.join(", ")}`,
+    });
+  }
+
+  const sharedOfferUrls = Array.from(
+    new Set(
+      canonical.offers.flatMap((canonicalOffer) => {
+        const canonicalUrl = nonEmpty(canonicalOffer.url);
+
+        if (!canonicalUrl) {
+          return [];
+        }
+
+        const hasUnresolvedUrlConflict = candidate.offers.some(
+          (candidateOffer) =>
+            nonEmpty(candidateOffer.url) === canonicalUrl &&
+            !decisionOfferPairs.has(
+              `${idValue(canonicalOffer.id)}:${idValue(candidateOffer.id)}`
+            )
+        );
+
+        return hasUnresolvedUrlConflict ? [canonicalUrl] : [];
+      })
+    )
   );
 
   if (sharedOfferUrls.length > 0) {
@@ -295,13 +513,26 @@ function buildConflicts(
     });
   }
 
-  const sharedExternalUrls = intersection(
-    canonical.retailerProducts
-      .map((mapping) => nonEmpty(mapping.external_url))
-      .filter((url): url is string => Boolean(url)),
-    candidate.retailerProducts
-      .map((mapping) => nonEmpty(mapping.external_url))
-      .filter((url): url is string => Boolean(url))
+  const sharedExternalUrls = Array.from(
+    new Set(
+      canonical.retailerProducts.flatMap((canonicalMapping) => {
+        const canonicalUrl = nonEmpty(canonicalMapping.external_url);
+
+        if (!canonicalUrl) {
+          return [];
+        }
+
+        const hasUnresolvedUrlConflict = candidate.retailerProducts.some(
+          (candidateMapping) =>
+            nonEmpty(candidateMapping.external_url) === canonicalUrl &&
+            !decisionMappingPairs.has(
+              `${idValue(canonicalMapping.id)}:${idValue(candidateMapping.id)}`
+            )
+        );
+
+        return hasUnresolvedUrlConflict ? [canonicalUrl] : [];
+      })
+    )
   );
 
   if (sharedExternalUrls.length > 0) {
@@ -379,19 +610,6 @@ function buildConflicts(
     });
   }
 
-  const sharedMappingRetailers = intersection(
-    canonical.retailerProducts.map((mapping) => idValue(mapping.retailer_id)),
-    candidate.retailerProducts.map((mapping) => idValue(mapping.retailer_id))
-  );
-
-  if (sharedMappingRetailers.length > 0) {
-    conflicts.push({
-      type: "same_retailer_product_retailer",
-      label: "retailer_products mappings for the same retailer",
-      detail: `Retailer IDs: ${sharedMappingRetailers.join(", ")}`,
-    });
-  }
-
   return conflicts;
 }
 
@@ -399,7 +617,8 @@ function buildMergePlan(
   canonical: ProductMergeDetails,
   candidate: ProductMergeDetails,
   conflicts: MergeConflict[],
-  priceHistoryCounts: Map<string, number>
+  priceHistoryCounts: Map<string, number>,
+  decisionConflicts: MergeDecisionConflicts
 ): MergePlan {
   const productConflictStatusByType: Record<string, MergePlanStatus> = {
     different_gtin: "blocked",
@@ -409,6 +628,10 @@ function buildMergePlan(
     different_servings: "warning",
     canonical_merged_or_inactive: "blocked",
     candidate_merged_or_inactive: "blocked",
+    canonical_offer_multiple_decision_conflicts: "blocked",
+    candidate_offer_multiple_decision_conflicts: "blocked",
+    canonical_mapping_multiple_decision_conflicts: "blocked",
+    candidate_mapping_multiple_decision_conflicts: "blocked",
   };
   const productConflicts: MergePlanItem[] = conflicts
     .filter((conflict) => conflict.type in productConflictStatusByType)
@@ -418,16 +641,24 @@ function buildMergePlan(
       subject: conflict.label,
       reason: conflict.detail,
     }));
+  const hasDecisionConflicts =
+    decisionConflicts.offerConflicts.length > 0 ||
+    decisionConflicts.retailerProductConflicts.length > 0;
+
+  if (hasDecisionConflicts) {
+    productConflicts.push({
+      id: "product-conflict-merge-requires-decisions",
+      status: "blocked",
+      subject: "Merge requires administrator decisions",
+      reason:
+        "Merge requires administrator decisions and cannot use the simple merge path.",
+    });
+  }
   const canonicalRetailerIds = new Set(
     canonical.offers
       .map((offer) => offer.retailer_id)
       .filter((id): id is BigintId => id !== null)
       .map(idValue)
-  );
-  const canonicalOfferUrls = new Set(
-    canonical.offers
-      .map((offer) => nonEmpty(offer.url))
-      .filter((url): url is string => Boolean(url))
   );
   const canonicalMappingKeys = new Set(
     canonical.retailerProducts
@@ -442,16 +673,43 @@ function buildMergePlan(
   const canonicalMappingRetailerIds = new Set(
     canonical.retailerProducts.map((mapping) => idValue(mapping.retailer_id))
   );
+  const decisionCandidateOfferIds = new Set(
+    decisionConflicts.offerConflicts.map((conflict) =>
+      idValue(conflict.candidateOffer.id)
+    )
+  );
+  const decisionCandidateMappingIds = new Set(
+    decisionConflicts.retailerProductConflicts.map((conflict) =>
+      idValue(conflict.candidateMapping.id)
+    )
+  );
   const offers: MergePlanItem[] = candidate.offers.map((offer) => {
     const reasons: { status: MergePlanStatus; reason: string }[] = [];
     const offerUrl = nonEmpty(offer.url);
+    const offerId = idValue(offer.id);
+    const isDecisionOffer = decisionCandidateOfferIds.has(idValue(offer.id));
+    const hasBlockingOfferUrlConflict =
+      offerUrl !== null &&
+      canonical.offers.some(
+        (canonicalOffer) =>
+          nonEmpty(canonicalOffer.url) === offerUrl &&
+          !decisionConflicts.offerConflicts.some(
+            (conflict) =>
+              idValue(conflict.canonicalOffer.id) ===
+                idValue(canonicalOffer.id) &&
+              idValue(conflict.candidateOffer.id) === offerId
+          )
+      );
 
     if (offer.retailer_id === null) {
       reasons.push({
         status: "warning",
         reason: "Missing retailer_id, so retailer uniqueness cannot be checked.",
       });
-    } else if (canonicalRetailerIds.has(idValue(offer.retailer_id))) {
+    } else if (
+      !isDecisionOffer &&
+      canonicalRetailerIds.has(idValue(offer.retailer_id))
+    ) {
       reasons.push({
         status: "blocked",
         reason: "Canonical already has an offer for this retailer.",
@@ -463,7 +721,7 @@ function buildMergePlan(
         status: "warning",
         reason: "Missing offer URL, so URL uniqueness cannot be checked.",
       });
-    } else if (canonicalOfferUrls.has(offerUrl)) {
+    } else if (hasBlockingOfferUrlConflict) {
       reasons.push({
         status: "blocked",
         reason: "Canonical already has an offer with this URL.",
@@ -490,6 +748,16 @@ function buildMergePlan(
     (mapping) => {
       const reasons: { status: MergePlanStatus; reason: string }[] = [];
       const externalUrl = nonEmpty(mapping.external_url);
+      const mappingId = idValue(mapping.id);
+      const isDecisionMapping = decisionCandidateMappingIds.has(mappingId);
+      const hasDecisionExternalUrlConflict =
+        isDecisionMapping &&
+        decisionConflicts.retailerProductConflicts.some(
+          (conflict) =>
+            idValue(conflict.candidateMapping.id) === mappingId &&
+            externalUrl !== null &&
+            nonEmpty(conflict.canonicalMapping.external_url) === externalUrl
+        );
       const exactKey = externalUrl
         ? `${idValue(mapping.retailer_id)}:${externalUrl}`
         : null;
@@ -500,13 +768,18 @@ function buildMergePlan(
           reason:
             "Missing external_url, so uniqueness cannot be fully checked.",
         });
-      } else if (exactKey && canonicalMappingKeys.has(exactKey)) {
+      } else if (
+        exactKey &&
+        canonicalMappingKeys.has(exactKey) &&
+        !hasDecisionExternalUrlConflict
+      ) {
         reasons.push({
           status: "blocked",
           reason:
             "Canonical already has a retailer_products mapping with the same retailer_id and external_url.",
         });
       } else if (
+        !isDecisionMapping &&
         canonicalMappingRetailerIds.has(idValue(mapping.retailer_id))
       ) {
         reasons.push({
@@ -684,7 +957,7 @@ export async function getMergePreview(
     await supabaseAdmin
       .from("retailer_products")
       .select(
-        "id, retailer_id, product_id, external_name, external_slug, external_gtin, external_url, match_method, match_confidence"
+        "id, retailer_id, product_id, external_name, external_slug, external_gtin, external_url, match_method, match_confidence, retailer:retailers(name)"
       )
       .in("product_id", [canonicalId, candidateId])
       .order("retailer_id");
@@ -694,8 +967,9 @@ export async function getMergePreview(
   }
 
   const offers = ((offersData || []) as RawMergeOffer[]).map(normalizeOffer);
-  const retailerProducts = (retailerProductsData ||
-    []) as RetailerProductMapping[];
+  const retailerProducts = (
+    (retailerProductsData || []) as RawRetailerProductMapping[]
+  ).map(normalizeRetailerProductMapping);
   const canonicalOffers = offers.filter(
     (offer) => idValue(offer.product_id) === canonicalIdValue
   );
@@ -734,17 +1008,26 @@ export async function getMergePreview(
     priceHistoryCount: candidatePriceHistoryCount,
   };
 
-  const conflicts = buildConflicts(canonical, candidate);
+  const decisionConflicts = buildDecisionConflicts(
+    canonical,
+    candidate,
+    priceHistoryCounts
+  );
+  const conflicts = buildConflicts(canonical, candidate, decisionConflicts);
+  const mergePlan = buildMergePlan(
+    canonical,
+    candidate,
+    conflicts,
+    priceHistoryCounts,
+    decisionConflicts
+  );
 
   return {
     canonical,
     candidate,
     conflicts,
-    mergePlan: buildMergePlan(
-      canonical,
-      candidate,
-      conflicts,
-      priceHistoryCounts
-    ),
+    decisionConflicts,
+    mergePlan,
+    readiness: getMergeReadiness(mergePlan, decisionConflicts),
   };
 }
