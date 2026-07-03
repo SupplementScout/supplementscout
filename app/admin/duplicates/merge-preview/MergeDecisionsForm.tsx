@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type FormEvent, useMemo, useRef, useState } from "react";
 import type {
   MergeDecisionConflicts,
   MergeDecisionValue,
   MergeOfferWithPriceHistoryCount,
-  MergeReadiness,
   RetailerProductMapping,
 } from "../../../lib/mergePreview";
 
@@ -13,8 +12,8 @@ type MergeDecisionsFormProps = {
   action: string;
   canonicalId: string;
   candidateId: string;
+  canMergeWithDecisions: boolean;
   decisionConflicts: MergeDecisionConflicts;
-  readiness: MergeReadiness;
 };
 
 type DecisionsState = Record<string, MergeDecisionValue>;
@@ -119,26 +118,28 @@ export function MergeDecisionsForm({
   action,
   canonicalId,
   candidateId,
+  canMergeWithDecisions,
   decisionConflicts,
-  readiness,
 }: MergeDecisionsFormProps) {
+  const confirmationInputRef = useRef<HTMLInputElement>(null);
   const [decisions, setDecisions] = useState<DecisionsState>({});
   const totalDecisionCount =
     decisionConflicts.offerConflicts.length +
     decisionConflicts.retailerProductConflicts.length;
   const selectedDecisionCount = Object.keys(decisions).length;
   const isComplete = selectedDecisionCount === totalDecisionCount;
+  const canSubmit = isComplete && canMergeWithDecisions;
   const formStatus =
-    readiness === "blocked"
+    !canMergeWithDecisions
       ? "Blocked"
       : isComplete
         ? "Ready to merge with decisions"
         : "Review required";
   const buttonText =
-    readiness === "blocked"
+    !canMergeWithDecisions
       ? "Merge blocked"
       : isComplete
-        ? "Backend support pending"
+        ? "Merge with selected decisions"
         : "Select all decisions";
   const decisionsJson = useMemo(
     () =>
@@ -180,6 +181,32 @@ export function MergeDecisionsForm({
     }));
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    const confirmationPhrase = `MERGE ${candidateId}`;
+    const confirmed = window.prompt(
+      [
+        "Confirm product merge with selected decisions.",
+        "",
+        `Canonical product ID: ${canonicalId}`,
+        `Candidate product ID: ${candidateId}`,
+        "",
+        "The selected conflict decisions will be applied before the candidate product is merged.",
+        "",
+        `Type ${confirmationPhrase} to continue.`,
+      ].join("\n")
+    );
+
+    if (confirmed !== confirmationPhrase) {
+      window.alert("Merge cancelled. Confirmation phrase did not match.");
+      event.preventDefault();
+      return;
+    }
+
+    if (confirmationInputRef.current) {
+      confirmationInputRef.current.value = confirmed;
+    }
+  }
+
   return (
     <section className="mt-8 rounded-lg border border-zinc-200 bg-white p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -197,9 +224,15 @@ export function MergeDecisionsForm({
         </div>
       </div>
 
-      <form action={action} method="post" className="mt-6 space-y-8">
+      <form
+        action={action}
+        method="post"
+        className="mt-6 space-y-8"
+        onSubmit={handleSubmit}
+      >
         <input type="hidden" name="canonicalId" value={canonicalId} />
         <input type="hidden" name="candidateId" value={candidateId} />
+        <input ref={confirmationInputRef} type="hidden" name="confirmation" />
         <input type="hidden" name="decisions" value={decisionsJson} />
 
         {decisionConflicts.offerConflicts.length > 0 && (
@@ -323,8 +356,8 @@ export function MergeDecisionsForm({
         <div className="border-t border-zinc-200 pt-5">
           <button
             type="submit"
-            disabled
-            className="rounded-lg border border-zinc-300 bg-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-500"
+            disabled={!canSubmit}
+            className="rounded-lg border border-emerald-700 bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:border-emerald-800 hover:bg-emerald-800 disabled:border-zinc-300 disabled:bg-zinc-200 disabled:text-zinc-500"
           >
             {buttonText}
           </button>

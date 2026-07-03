@@ -43,6 +43,18 @@ const readinessLabels: Record<MergeReadiness, string> = {
   ready_with_decisions: "Ready to merge with decisions",
 };
 
+const compatibilityBlockerReason =
+  "Merge requires administrator decisions and cannot use the simple merge path.";
+
+function isDecisionCompatibilityBlocker(item: MergePlanItem) {
+  return (
+    item.id === "product-conflict-merge-requires-decisions" &&
+    item.status === "blocked" &&
+    item.subject === "Merge requires administrator decisions" &&
+    item.reason === compatibilityBlockerReason
+  );
+}
+
 function StatusBadge({ status }: { status: MergePlanStatus }) {
   return (
     <span
@@ -462,18 +474,34 @@ export default async function MergePreviewPage({
     return <AdminError message="Both products must exist to show merge preview." />;
   }
 
-  const canMerge =
-    preview.mergePlan.summary.blocked === 0 &&
-    preview.mergePlan.summary.warning === 0 &&
+  const hasSafeProductState =
     preview.canonical.product.is_active === true &&
     preview.candidate.product.is_active === true &&
     preview.canonical.product.merged_into_product_id === null &&
     preview.candidate.product.merged_into_product_id === null &&
     preview.canonical.product.merged_at === null &&
     preview.candidate.product.merged_at === null;
+  const canMerge =
+    preview.mergePlan.summary.blocked === 0 &&
+    preview.mergePlan.summary.warning === 0 &&
+    hasSafeProductState;
   const hasDecisionConflicts =
     preview.decisionConflicts.offerConflicts.length > 0 ||
     preview.decisionConflicts.retailerProductConflicts.length > 0;
+  const hasRealBlockedItem = [
+    ...preview.mergePlan.productConflicts,
+    ...preview.mergePlan.offers,
+    ...preview.mergePlan.retailerProducts,
+    ...preview.mergePlan.priceHistory,
+  ].some(
+    (item) =>
+      item.status === "blocked" && !isDecisionCompatibilityBlocker(item)
+  );
+  const canMergeWithDecisions =
+    hasDecisionConflicts &&
+    hasSafeProductState &&
+    preview.mergePlan.summary.warning === 0 &&
+    !hasRealBlockedItem;
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
@@ -576,8 +604,8 @@ export default async function MergePreviewPage({
               action={`/admin/duplicates/merge?token=${encodeURIComponent(token)}`}
               canonicalId={String(preview.canonical.product.id)}
               candidateId={String(preview.candidate.product.id)}
+              canMergeWithDecisions={canMergeWithDecisions}
               decisionConflicts={preview.decisionConflicts}
-              readiness={preview.readiness}
             />
           )}
 
