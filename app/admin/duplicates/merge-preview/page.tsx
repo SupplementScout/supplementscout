@@ -3,11 +3,13 @@ import {
   type MergeOffer,
   type MergePlanItem,
   type MergePlanStatus,
+  type MergeReadiness,
   type ProductMergeDetails,
   type RetailerProductMapping,
   getMergePreview,
 } from "../../../lib/mergePreview";
 import { MergeConfirmButton } from "./MergeConfirmButton";
+import { MergeDecisionsForm } from "./MergeDecisionsForm";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,13 @@ const statusStyles: Record<MergePlanStatus, string> = {
   safe: "border-emerald-200 bg-emerald-50 text-emerald-700",
   warning: "border-amber-200 bg-amber-50 text-amber-700",
   blocked: "border-red-200 bg-red-50 text-red-700",
+};
+
+const readinessLabels: Record<MergeReadiness, string> = {
+  blocked: "Blocked",
+  review_required: "Review required",
+  ready: "Ready",
+  ready_with_decisions: "Ready to merge with decisions",
 };
 
 function StatusBadge({ status }: { status: MergePlanStatus }) {
@@ -462,6 +471,9 @@ export default async function MergePreviewPage({
     preview.candidate.product.merged_into_product_id === null &&
     preview.canonical.product.merged_at === null &&
     preview.candidate.product.merged_at === null;
+  const hasDecisionConflicts =
+    preview.decisionConflicts.offerConflicts.length > 0 ||
+    preview.decisionConflicts.retailerProductConflicts.length > 0;
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
@@ -531,6 +543,9 @@ export default async function MergePreviewPage({
               <p className="font-semibold">
                 Final recommendation: {preview.mergePlan.recommendation}
               </p>
+              <p className="mt-2 font-semibold">
+                Status: {readinessLabels[preview.readiness]}
+              </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700">
                   Safe {preview.mergePlan.summary.safe}
@@ -542,7 +557,7 @@ export default async function MergePreviewPage({
                   Blocked {preview.mergePlan.summary.blocked}
                 </span>
               </div>
-              {canMerge && (
+              {canMerge && !hasDecisionConflicts && (
                 <div className="mt-4 border-t border-zinc-200 pt-4">
                   <MergeConfirmButton
                     action={`/admin/duplicates/merge?token=${encodeURIComponent(token)}`}
@@ -555,6 +570,16 @@ export default async function MergePreviewPage({
               )}
             </div>
           </div>
+
+          {hasDecisionConflicts && (
+            <MergeDecisionsForm
+              action={`/admin/duplicates/merge?token=${encodeURIComponent(token)}`}
+              canonicalId={String(preview.canonical.product.id)}
+              candidateId={String(preview.candidate.product.id)}
+              decisionConflicts={preview.decisionConflicts}
+              readiness={preview.readiness}
+            />
+          )}
 
           <div className="mt-6 space-y-8">
             <div>
