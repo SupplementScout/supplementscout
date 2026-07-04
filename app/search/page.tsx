@@ -1,15 +1,19 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import ActiveSearchFilters from "../components/ActiveSearchFilters";
 import ProductResultCard from "../components/ProductResultCard";
 import SearchFilters from "../components/SearchFilters";
+import SearchPagination from "../components/SearchPagination";
 import SearchSort from "../components/SearchSort";
 import {
   normalizeSearchQuery,
   normalizeSearchFilters,
+  normalizeSearchPage,
   normalizeSearchSort,
   searchProducts,
 } from "../lib/products";
+import { searchUrl } from "../lib/searchUrl";
 
 type SearchPageProps = {
   searchParams: Promise<{
@@ -18,6 +22,7 @@ type SearchPageProps = {
     category?: string | string[];
     brand?: string | string[];
     retailer?: string | string[];
+    page?: string | string[];
   }>;
 };
 
@@ -53,19 +58,41 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = normalizeSearchQuery(params.q);
   const sort = normalizeSearchSort(params.sort);
   const filters = normalizeSearchFilters(params);
+  const requestedPage = normalizeSearchPage(params.page);
   const hasQuery = query.length > 0;
-  const { results, facets, unfilteredCount, error } = hasQuery
-    ? await searchProducts(query, sort, filters)
+  const {
+    results,
+    facets,
+    totalCount,
+    unfilteredCount,
+    page,
+    totalPages,
+    startResult,
+    endResult,
+    resultLimit,
+    error,
+  } = hasQuery
+    ? await searchProducts(query, sort, filters, requestedPage)
     : {
         results: [],
         facets: { categories: [], brands: [], retailers: [] },
+        totalCount: 0,
         unfilteredCount: 0,
+        page: 1,
+        totalPages: 1,
+        startResult: 0,
+        endResult: 0,
+        resultLimit: 0,
         error: null,
       };
   const hasActiveFilters =
     filters.category.length > 0 ||
     filters.brand.length > 0 ||
     filters.retailer.length > 0;
+
+  if (hasQuery && !error && totalCount > 0 && requestedPage > totalPages) {
+    redirect(searchUrl({ query, sort, filters, page: totalPages }));
+  }
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -131,8 +158,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </h1>
                 {!error && (
                   <p className="mt-2 text-sm text-zinc-600">
-                    {results.length} product{results.length === 1 ? "" : "s"}{" "}
-                    found
+                    {totalCount} product{totalCount === 1 ? "" : "s"} found
+                  </p>
+                )}
+                {!error && totalCount > 0 && (
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Showing {startResult}-{endResult} of {totalCount}
                   </p>
                 )}
                 {!error && hasActiveFilters && (
@@ -140,6 +171,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     Filtered from {unfilteredCount} product
                     {unfilteredCount === 1 ? "" : "s"} with an in-stock
                     delivered offer
+                  </p>
+                )}
+                {!error && unfilteredCount >= resultLimit && resultLimit > 0 && (
+                  <p className="mt-1 text-xs text-zinc-400">
+                    Search is currently limited to the first {resultLimit} matched
+                    products for this MVP.
                   </p>
                 )}
               </div>
@@ -163,7 +200,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </div>
             )}
 
-            {!error && results.length === 0 && (
+            {!error && totalCount === 0 && (
               <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-8 text-center">
                 <h2 className="text-2xl font-bold">
                   {hasActiveFilters ? "No filtered results found" : "No results found"}
@@ -186,10 +223,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 />
 
                 {results.length > 0 && (
-                  <div className="space-y-4">
-                    {results.map((product) => (
-                      <ProductResultCard key={product.id} product={product} />
-                    ))}
+                  <div>
+                    <div className="space-y-4">
+                      {results.map((product) => (
+                        <ProductResultCard key={product.id} product={product} />
+                      ))}
+                    </div>
+
+                    <SearchPagination
+                      query={query}
+                      sort={sort}
+                      filters={filters}
+                      currentPage={page}
+                      totalPages={totalPages}
+                    />
                   </div>
                 )}
               </div>

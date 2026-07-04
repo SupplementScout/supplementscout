@@ -4,10 +4,17 @@ type SearchUrlOptions = {
   query: string;
   sort: SearchSort;
   filters: SearchFilters;
+  page?: number;
   updates?: Partial<SearchFilters> & { sort?: SearchSort };
 };
 
-export function searchUrl({ query, sort, filters, updates = {} }: SearchUrlOptions) {
+export function searchUrl({
+  query,
+  sort,
+  filters,
+  page = 1,
+  updates = {},
+}: SearchUrlOptions) {
   const params = new URLSearchParams();
   const nextFilters = {
     ...filters,
@@ -35,6 +42,10 @@ export function searchUrl({ query, sort, filters, updates = {} }: SearchUrlOptio
 
   if (nextSort !== "relevance") {
     params.set("sort", nextSort);
+  }
+
+  if (page > 1) {
+    params.set("page", String(page));
   }
 
   const search = params.toString();

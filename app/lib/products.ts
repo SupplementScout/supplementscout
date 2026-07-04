@@ -3,6 +3,9 @@ import { supabase } from "./supabase";
 
 export type SearchSort = "relevance" | "price_asc" | "price_desc";
 
+export const SEARCH_PAGE_SIZE = 24;
+export const SEARCH_RESULT_LOAD_LIMIT = 1000;
+
 export type SearchFilters = {
   category: string;
   brand: string;
@@ -77,14 +80,24 @@ type RawProduct = {
   offers?: RawOffer[] | null;
 };
 
-const searchLimit = 80;
-
 function firstParamValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
 export function normalizeSearchQuery(value: string | string[] | undefined) {
   return (firstParamValue(value) || "").trim();
+}
+
+export function normalizeSearchPage(value: string | string[] | undefined) {
+  const page = firstParamValue(value);
+
+  if (!page || !/^[1-9][0-9]*$/.test(page)) {
+    return 1;
+  }
+
+  const parsedPage = Number.parseInt(page, 10);
+
+  return Number.isSafeInteger(parsedPage) ? parsedPage : 1;
 }
 
 function normalizeFilterValue(value: string | string[] | undefined) {
@@ -395,7 +408,8 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
 export async function searchProducts(
   query: string,
   sort: SearchSort,
-  filters: SearchFilters = { category: "", brand: "", retailer: "" }
+  filters: SearchFilters = { category: "", brand: "", retailer: "" },
+  requestedPage = 1
 ) {
   const sanitizedQuery = sanitizeSupabaseOrTerm(query);
 
@@ -403,7 +417,14 @@ export async function searchProducts(
     return {
       results: [],
       facets: { categories: [], brands: [], retailers: [] },
+      totalCount: 0,
       unfilteredCount: 0,
+      page: 1,
+      pageSize: SEARCH_PAGE_SIZE,
+      totalPages: 1,
+      startResult: 0,
+      endResult: 0,
+      resultLimit: SEARCH_RESULT_LOAD_LIMIT,
       error: null,
     };
   }
@@ -440,13 +461,20 @@ export async function searchProducts(
     .gt("offers.price", 0)
     .or(buildSearchFilter(sanitizedQuery))
     .order("name")
-    .limit(searchLimit);
+    .range(0, SEARCH_RESULT_LOAD_LIMIT - 1);
 
   if (error) {
     return {
       results: [],
       facets: { categories: [], brands: [], retailers: [] },
+      totalCount: 0,
       unfilteredCount: 0,
+      page: 1,
+      pageSize: SEARCH_PAGE_SIZE,
+      totalPages: 1,
+      startResult: 0,
+      endResult: 0,
+      resultLimit: SEARCH_RESULT_LOAD_LIMIT,
       error,
     };
   }
@@ -467,11 +495,27 @@ export async function searchProducts(
         .filter((product): product is ProductSearchResult => product !== null)
     : baseResults;
   const results = applyProductFilters(filteredResults, filters);
+  const sortedResults = sortResults(results, sort);
+  const totalCount = sortedResults.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / SEARCH_PAGE_SIZE));
+  const page = Math.min(requestedPage, totalPages);
+  const startIndex = totalCount === 0 ? 0 : (page - 1) * SEARCH_PAGE_SIZE;
+  const endIndex =
+    totalCount === 0
+      ? 0
+      : Math.min(startIndex + SEARCH_PAGE_SIZE, totalCount);
 
   return {
-    results: sortResults(results, sort),
+    results: sortedResults.slice(startIndex, endIndex),
     facets,
+    totalCount,
     unfilteredCount: baseResults.length,
+    page,
+    pageSize: SEARCH_PAGE_SIZE,
+    totalPages,
+    startResult: totalCount === 0 ? 0 : startIndex + 1,
+    endResult: endIndex,
+    resultLimit: SEARCH_RESULT_LOAD_LIMIT,
     error: null,
   };
 }
