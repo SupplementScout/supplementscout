@@ -48,6 +48,32 @@ export function getDeliveredPrice(offer: PriceInput): DeliveredPrice | null {
   };
 }
 
+export function getVerifiedPricePerServing(
+  deliveredPrice: DeliveredPrice | null,
+  servingCount: number | string | null,
+  verified: boolean | null
+) {
+  if (verified !== true || deliveredPrice === null) {
+    return null;
+  }
+
+  if (servingCount === null || servingCount === "") {
+    return null;
+  }
+
+  const servings = Number(servingCount);
+
+  if (!Number.isFinite(servings) || !Number.isInteger(servings) || servings <= 0) {
+    return null;
+  }
+
+  const pricePerServing = deliveredPrice.totalPrice / servings;
+
+  return Number.isFinite(pricePerServing) && pricePerServing > 0
+    ? pricePerServing
+    : null;
+}
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",

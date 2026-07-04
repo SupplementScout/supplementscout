@@ -1,4 +1,8 @@
-import { getDeliveredPrice, type DeliveredPrice } from "./pricing";
+import {
+  getDeliveredPrice,
+  getVerifiedPricePerServing,
+  type DeliveredPrice,
+} from "./pricing";
 import { supabase } from "./supabase";
 
 export type SearchSort = "relevance" | "price_asc" | "price_desc";
@@ -48,9 +52,12 @@ export type ProductSearchResult = {
   brand: string | null;
   category: string | null;
   image: string | null;
+  serving_count_verified: number | string | null;
+  unit_pricing_verified: boolean | null;
   cheapestOffer: SearchOffer;
   validOffers: SearchOffer[];
   availableOfferCount: number;
+  verifiedPricePerServing: number | null;
   relevanceScore: number;
 };
 
@@ -77,6 +84,8 @@ type RawProduct = {
   brand: string | null;
   category: string | null;
   image: string | null;
+  serving_count_verified: number | string | null;
+  unit_pricing_verified: boolean | null;
   offers?: RawOffer[] | null;
 };
 
@@ -272,9 +281,16 @@ function normalizeProduct(
     brand: product.brand,
     category: product.category,
     image: product.image,
+    serving_count_verified: product.serving_count_verified,
+    unit_pricing_verified: product.unit_pricing_verified,
     cheapestOffer,
     validOffers,
     availableOfferCount: validOffers.length,
+    verifiedPricePerServing: getVerifiedPricePerServing(
+      cheapestOffer.deliveredPrice,
+      product.serving_count_verified,
+      product.unit_pricing_verified
+    ),
     relevanceScore: scoreProduct(product, query),
   };
 }
@@ -439,6 +455,8 @@ export async function searchProducts(
         brand,
         category,
         image,
+        serving_count_verified,
+        unit_pricing_verified,
         offers!inner (
           id,
           price,

@@ -1,6 +1,11 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import {
+  getDeliveredPrice,
+  getVerifiedPricePerServing,
+} from "../../lib/pricing";
 import { supabase } from "../../lib/supabase";
 
 type ProductRouteProduct = {
@@ -16,6 +21,8 @@ type ProductRouteProduct = {
   price: number | null;
   is_active: boolean | null;
   merged_into_product_id: number | null;
+  serving_count_verified: number | string | null;
+  unit_pricing_verified: boolean | null;
 };
 
 function isPositiveInteger(value: string) {
@@ -240,17 +247,23 @@ export default async function ProductPage({
     averageDifferencePercent =
       ((cheapestTotal - averageHistoricalPrice) / averageHistoricalPrice) * 100;
   }
-  const pricePerServing =
-    product.servings && Number(product.servings) > 0
-      ? cheapestTotal / Number(product.servings)
-      : null;
+  const cheapestValidDeliveredPrice =
+    sortedOffers
+      .map((offer) => getDeliveredPrice(offer))
+      .filter((price): price is NonNullable<typeof price> => price !== null)
+      .sort((left, right) => left.totalPrice - right.totalPrice)[0] || null;
+  const verifiedPricePerServing = getVerifiedPricePerServing(
+    cheapestValidDeliveredPrice,
+    product.serving_count_verified,
+    product.unit_pricing_verified
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50">
       <div className="mx-auto max-w-7xl px-6 py-12">
-        <a href="/" className="text-sm text-zinc-500 hover:text-black">
+        <Link href="/" className="text-sm text-zinc-500 hover:text-black">
           ← Back to search
-        </a>
+        </Link>
 
         <div className="mt-8 grid gap-10 lg:grid-cols-2">
           <div className="flex aspect-square items-center justify-center rounded-3xl bg-white shadow">
@@ -355,23 +368,16 @@ export default async function ProductPage({
                 )}              </div>
             </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border bg-white p-5">
+            {verifiedPricePerServing !== null && (
+              <div className="mt-8 rounded-2xl border bg-white p-5">
                 <div className="text-2xl font-bold">
-                  {product.servings ?? "Unknown"}
+                  £{verifiedPricePerServing.toFixed(2)} per serving
                 </div>
-                <p className="text-sm text-zinc-500">Servings</p>
+                <p className="text-sm text-zinc-500">
+                  Verified price per serving
+                </p>
               </div>
-
-              <div className="rounded-2xl border bg-white p-5">
-                <div className="text-2xl font-bold">
-                  {pricePerServing !== null
-                    ? `£${pricePerServing.toFixed(2)}`
-                    : "Unknown"}
-                </div>
-                <p className="text-sm text-zinc-500">Per Serving</p>
-              </div>
-            </div>
+            )}
             <div className="mt-8 rounded-3xl border bg-white p-8">
               <h2 className="text-2xl font-bold">Price history</h2>
 
