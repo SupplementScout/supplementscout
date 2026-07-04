@@ -1,0 +1,299 @@
+import { getDeliveredPrice, type DeliveredPrice } from "./pricing";
+import { supabase } from "./supabase";
+
+export type SearchSort = "relevance" | "price_asc" | "price_desc";
+
+export type SearchRetailer = {
+  id: string;
+  name: string | null;
+  slug: string | null;
+  logo: string | null;
+};
+
+export type SearchOffer = {
+  id: string;
+  price: number | string | null;
+  shipping_cost: number | string | null;
+  url: string | null;
+  in_stock: boolean | null;
+  retailer: SearchRetailer | null;
+  deliveredPrice: DeliveredPrice;
+};
+
+export type ProductSearchResult = {
+  id: string;
+  slug: string | null;
+  name: string;
+  brand: string | null;
+  category: string | null;
+  image: string | null;
+  cheapestOffer: SearchOffer;
+  availableOfferCount: number;
+  relevanceScore: number;
+};
+
+type RawRetailer = {
+  id: number | string;
+  name: string | null;
+  slug: string | null;
+  logo?: string | null;
+};
+
+type RawOffer = {
+  id: number | string;
+  price: number | string | null;
+  shipping_cost: number | string | null;
+  url: string | null;
+  in_stock: boolean | null;
+  retailer: RawRetailer | RawRetailer[] | null;
+};
+
+type RawProduct = {
+  id: number | string;
+  slug: string | null;
+  name: string;
+  brand: string | null;
+  category: string | null;
+  image: string | null;
+  offers?: RawOffer[] | null;
+};
+
+const searchLimit = 80;
+
+function firstParamValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export function normalizeSearchQuery(value: string | string[] | undefined) {
+  return (firstParamValue(value) || "").trim();
+}
+
+export function normalizeSearchSort(
+  value: string | string[] | undefined
+): SearchSort {
+  const sort = firstParamValue(value);
+
+  if (sort === "price_asc" || sort === "price_desc") {
+    return sort;
+  }
+
+  return "relevance";
+}
+
+function sanitizeSupabaseOrTerm(query: string) {
+  return query.replace(/[%_,()]/g, " ").trim();
+}
+
+function normalizeWhitespace(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function searchQueryVariants(query: string) {
+  return Array.from(
+    new Set([query, normalizeWhitespace(query)].filter((value) => value.length > 0))
+  );
+}
+
+function buildSearchFilter(query: string) {
+  return searchQueryVariants(query)
+    .flatMap((variant) => [
+      `name.ilike.%${variant}%`,
+      `brand.ilike.%${variant}%`,
+      `category.ilike.%${variant}%`,
+    ])
+    .join(",");
+}
+
+function normalizeRetailer(
+  retailer: RawOffer["retailer"]
+): SearchRetailer | null {
+  const value = Array.isArray(retailer) ? retailer[0] || null : retailer;
+
+  if (!value) {
+    return null;
+  }
+
+  return {
+    id: String(value.id),
+    name: value.name,
+    slug: value.slug,
+    logo: value.logo || null,
+  };
+}
+
+function scoreProduct(product: RawProduct, query: string) {
+  const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  const name = normalizeWhitespace(product.name).toLowerCase();
+  const brand = normalizeWhitespace(product.brand || "").toLowerCase();
+  const category = normalizeWhitespace(product.category || "").toLowerCase();
+
+  let score = 0;
+
+  if (name === normalizedQuery) {
+    score += 100;
+  }
+
+  if (name.startsWith(normalizedQuery)) {
+    score += 60;
+  }
+
+  if (name.includes(normalizedQuery)) {
+    score += 40;
+  }
+
+  if (brand === normalizedQuery) {
+    score += 35;
+  } else if (brand.includes(normalizedQuery)) {
+    score += 20;
+  }
+
+  if (category === normalizedQuery) {
+    score += 30;
+  } else if (category.includes(normalizedQuery)) {
+    score += 15;
+  }
+
+  for (const term of normalizedQuery.split(" ").filter(Boolean)) {
+    if (name.includes(term)) {
+      score += 6;
+    }
+
+    if (brand.includes(term) || category.includes(term)) {
+      score += 3;
+    }
+  }
+
+  return score;
+}
+
+function normalizeProduct(
+  product: RawProduct,
+  query: string
+): ProductSearchResult | null {
+  const validOffers = (product.offers || [])
+    .filter((offer) => offer.in_stock === true)
+    .map((offer) => {
+      const deliveredPrice = getDeliveredPrice(offer);
+
+      if (!deliveredPrice) {
+        return null;
+      }
+
+      return {
+        id: String(offer.id),
+        price: offer.price,
+        shipping_cost: offer.shipping_cost,
+        url: offer.url,
+        in_stock: offer.in_stock,
+        retailer: normalizeRetailer(offer.retailer),
+        deliveredPrice,
+      };
+    })
+    .filter((offer): offer is SearchOffer => offer !== null)
+    .sort(
+      (left, right) =>
+        left.deliveredPrice.totalPrice - right.deliveredPrice.totalPrice ||
+        left.id.localeCompare(right.id)
+    );
+
+  const cheapestOffer = validOffers[0] || null;
+
+  if (!cheapestOffer) {
+    return null;
+  }
+
+  return {
+    id: String(product.id),
+    slug: product.slug,
+    name: product.name,
+    brand: product.brand,
+    category: product.category,
+    image: product.image,
+    cheapestOffer,
+    availableOfferCount: validOffers.length,
+    relevanceScore: scoreProduct(product, query),
+  };
+}
+
+function sortResults(results: ProductSearchResult[], sort: SearchSort) {
+  return [...results].sort((left, right) => {
+    const fallback =
+      left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
+
+    if (sort === "price_asc") {
+      return (
+        left.cheapestOffer.deliveredPrice.totalPrice -
+          right.cheapestOffer.deliveredPrice.totalPrice || fallback
+      );
+    }
+
+    if (sort === "price_desc") {
+      return (
+        right.cheapestOffer.deliveredPrice.totalPrice -
+          left.cheapestOffer.deliveredPrice.totalPrice || fallback
+      );
+    }
+
+    return (
+      right.relevanceScore - left.relevanceScore ||
+      left.cheapestOffer.deliveredPrice.totalPrice -
+        right.cheapestOffer.deliveredPrice.totalPrice ||
+      fallback
+    );
+  });
+}
+
+export async function searchProducts(query: string, sort: SearchSort) {
+  const sanitizedQuery = sanitizeSupabaseOrTerm(query);
+
+  if (!sanitizedQuery) {
+    return { results: [], error: null };
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      `
+        id,
+        slug,
+        name,
+        brand,
+        category,
+        image,
+        offers!inner (
+          id,
+          price,
+          shipping_cost,
+          url,
+          in_stock,
+          retailer:retailers (
+            id,
+            name,
+            slug,
+            logo
+          )
+        )
+      `
+    )
+    .eq("is_active", true)
+    .is("merged_into_product_id", null)
+    .is("merged_at", null)
+    .eq("offers.in_stock", true)
+    .gt("offers.price", 0)
+    .or(buildSearchFilter(sanitizedQuery))
+    .order("name")
+    .limit(searchLimit);
+
+  if (error) {
+    return { results: [], error };
+  }
+
+  const results = ((data || []) as RawProduct[])
+    .map((product) => normalizeProduct(product, sanitizedQuery))
+    .filter((product): product is ProductSearchResult => product !== null);
+
+  return {
+    results: sortResults(results, sort),
+    error: null,
+  };
+}
