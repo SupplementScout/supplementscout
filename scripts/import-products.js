@@ -49,10 +49,181 @@ function optionalNumber(value) {
   return number;
 }
 
+function rowHasColumn(row, fieldName) {
+  return Object.prototype.hasOwnProperty.call(row, fieldName);
+}
+
+function optionalPositiveNumber(row, fieldName, rowNumber) {
+  if (!rowHasColumn(row, fieldName)) {
+    return undefined;
+  }
+
+  const number = optionalNumber(row[fieldName]);
+
+  if (number === null) {
+    return null;
+  }
+
+  if (number <= 0) {
+    throw new Error(`Row ${rowNumber}: ${fieldName} must be greater than 0`);
+  }
+
+  return number;
+}
+
+function optionalNonNegativeNumber(row, fieldName, rowNumber) {
+  if (!rowHasColumn(row, fieldName)) {
+    return undefined;
+  }
+
+  const number = optionalNumber(row[fieldName]);
+
+  if (number === null) {
+    return null;
+  }
+
+  if (number < 0) {
+    throw new Error(`Row ${rowNumber}: ${fieldName} must be 0 or greater`);
+  }
+
+  return number;
+}
+
+function optionalPositiveInteger(row, fieldName, rowNumber) {
+  if (!rowHasColumn(row, fieldName)) {
+    return undefined;
+  }
+
+  const number = optionalNumber(row[fieldName]);
+
+  if (number === null) {
+    return null;
+  }
+
+  if (!Number.isInteger(number) || number <= 0) {
+    throw new Error(`Row ${rowNumber}: ${fieldName} must be a positive integer`);
+  }
+
+  return number;
+}
+
+function optionalText(row, fieldName) {
+  if (!rowHasColumn(row, fieldName)) {
+    return undefined;
+  }
+
+  return String(row[fieldName] || "").trim().toLowerCase() || null;
+}
+
 function parseBoolean(value) {
   return ["true", "1", "yes", "y"].includes(
     String(value || "").trim().toLowerCase()
   );
+}
+
+function optionalBoolean(row, fieldName, rowNumber) {
+  if (!rowHasColumn(row, fieldName)) {
+    return undefined;
+  }
+
+  const cleaned = String(row[fieldName] || "").trim().toLowerCase();
+
+  if (!cleaned) {
+    return false;
+  }
+
+  if (["true", "1", "yes", "y"].includes(cleaned)) {
+    return true;
+  }
+
+  if (["false", "0", "no", "n"].includes(cleaned)) {
+    return false;
+  }
+
+  throw new Error(`Row ${rowNumber}: ${fieldName} must be a boolean`);
+}
+
+function assignIfSupplied(target, fieldName, value) {
+  if (value !== undefined) {
+    target[fieldName] = value;
+  }
+}
+
+function readNormalizedProductFields(row, rowNumber) {
+  const fields = {};
+
+  assignIfSupplied(
+    fields,
+    "net_weight_g",
+    optionalPositiveNumber(row, "net_weight_g", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
+    "serving_count_verified",
+    optionalPositiveInteger(row, "serving_count_verified", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
+    "serving_size_g",
+    optionalPositiveNumber(row, "serving_size_g", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
+    "protein_per_serving_g",
+    optionalNonNegativeNumber(row, "protein_per_serving_g", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
+    "creatine_per_serving_g",
+    optionalNonNegativeNumber(row, "creatine_per_serving_g", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
+    "unit_count",
+    optionalPositiveInteger(row, "unit_count", rowNumber)
+  );
+  assignIfSupplied(fields, "unit_type", optionalText(row, "unit_type"));
+  assignIfSupplied(
+    fields,
+    "product_format",
+    optionalText(row, "product_format")
+  );
+  assignIfSupplied(
+    fields,
+    "unit_pricing_verified",
+    optionalBoolean(row, "unit_pricing_verified", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
+    "nutrition_verified",
+    optionalBoolean(row, "nutrition_verified", rowNumber)
+  );
+
+  if (
+    fields.serving_size_g !== undefined &&
+    fields.serving_size_g !== null &&
+    fields.protein_per_serving_g !== undefined &&
+    fields.protein_per_serving_g !== null &&
+    fields.protein_per_serving_g > fields.serving_size_g
+  ) {
+    throw new Error(
+      `Row ${rowNumber}: protein_per_serving_g cannot exceed serving_size_g`
+    );
+  }
+
+  if (
+    fields.serving_size_g !== undefined &&
+    fields.serving_size_g !== null &&
+    fields.creatine_per_serving_g !== undefined &&
+    fields.creatine_per_serving_g !== null &&
+    fields.creatine_per_serving_g > fields.serving_size_g
+  ) {
+    throw new Error(
+      `Row ${rowNumber}: creatine_per_serving_g cannot exceed serving_size_g`
+    );
+  }
+
+  return fields;
 }
 
 async function findOrCreateRetailer(row, rowNumber) {
@@ -177,6 +348,7 @@ async function findOrCreateProduct(row, rowNumber, retailerId) {
         .trim() || null,
     image: String(row.image || "").trim() || null,
     price: optionalNumber(row.price),
+    ...readNormalizedProductFields(row, rowNumber),
   };
 
   let existingProduct = null;
