@@ -13,9 +13,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SupplementScout",
+  metadataBase: new URL("https://www.supplementscout.co.uk"),
+  title: {
+    default: "SupplementScout | Compare UK Supplement Prices",
+    template: "%s | SupplementScout",
+  },
   description:
-    "Compare UK supplement prices and find the cheapest delivered retailer offers.",
+    "Compare supplement prices from UK retailers. Check delivery costs, price history, cost per serving and find the best real price.",
+  openGraph: {
+    siteName: "SupplementScout",
+    type: "website",
+    locale: "en_GB",
+    url: "https://www.supplementscout.co.uk",
+    title: "SupplementScout | Compare UK Supplement Prices",
+    description:
+      "Compare supplement prices from UK retailers. Check delivery costs, price history, cost per serving and find the best real price.",
+  },
+  twitter: {
+    card: "summary",
+    title: "SupplementScout | Compare UK Supplement Prices",
+    description:
+      "Compare supplement prices from UK retailers. Check delivery costs, price history, cost per serving and find the best real price.",
+  },
 };
 
 export default function RootLayout({

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
 import SearchSort from "../components/SearchSort";
 import {
@@ -14,11 +15,32 @@ type SearchPageProps = {
   }>;
 };
 
-export const metadata = {
-  title: "Search Supplement Prices | SupplementScout",
-  description:
-    "Search UK supplement prices and compare the cheapest available delivered offers.",
-};
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const query = normalizeSearchQuery(params.q);
+  const title = query
+    ? `Search results for “${query}”`
+    : "Search Supplements";
+  const description =
+    "Search UK supplement prices and compare the cheapest available delivered offers.";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${title} | SupplementScout`,
+      description,
+      url: query ? `/search?q=${encodeURIComponent(query)}` : "/search",
+    },
+    twitter: {
+      card: "summary",
+      title: `${title} | SupplementScout`,
+      description,
+    },
+  };
+}
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;

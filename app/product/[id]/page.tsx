@@ -54,20 +54,22 @@ export async function generateMetadata({
     };
   }
 
+  const brandText = product.brand ? ` by ${product.brand}` : "";
   const description =
     product.description ||
-    `Compare UK prices for ${product.name} by ${product.brand}. Find the lowest total price including delivery.`;
+    `Compare UK prices for ${product.name}${brandText}. Find the lowest total price including delivery.`;
+  const productUrl = product.slug ? `/product/${product.slug}` : `/product/${id}`;
 
   return {
-    title: `${product.name} Price Comparison`,
+    title: product.name,
     description,
     alternates: {
-      canonical: `/product/${product.slug}`,
+      canonical: productUrl,
     },
     openGraph: {
-      title: `${product.name} Price Comparison`,
+      title: `${product.name} | SupplementScout`,
       description,
-      url: `https://www.supplementscout.co.uk/product/${product.slug}`,
+      url: productUrl,
       type: "website",
       images: product.image
         ? [
@@ -77,6 +79,12 @@ export async function generateMetadata({
           },
         ]
         : [],
+    },
+    twitter: {
+      card: product.image ? "summary_large_image" : "summary",
+      title: `${product.name} | SupplementScout`,
+      description,
+      images: product.image ? [product.image] : [],
     },
   };
 }
