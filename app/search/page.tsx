@@ -1,9 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import ActiveSearchFilters from "../components/ActiveSearchFilters";
 import ProductResultCard from "../components/ProductResultCard";
+import SearchFilters from "../components/SearchFilters";
 import SearchSort from "../components/SearchSort";
 import {
   normalizeSearchQuery,
+  normalizeSearchFilters,
   normalizeSearchSort,
   searchProducts,
 } from "../lib/products";
@@ -12,6 +15,9 @@ type SearchPageProps = {
   searchParams: Promise<{
     q?: string | string[];
     sort?: string | string[];
+    category?: string | string[];
+    brand?: string | string[];
+    retailer?: string | string[];
   }>;
 };
 
@@ -21,7 +27,7 @@ export async function generateMetadata({
   const params = await searchParams;
   const query = normalizeSearchQuery(params.q);
   const title = query
-    ? `Search results for “${query}”`
+    ? `Search results for \u201c${query}\u201d`
     : "Search Supplements";
   const description =
     "Search UK supplement prices and compare the cheapest available delivered offers.";
@@ -46,10 +52,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = normalizeSearchQuery(params.q);
   const sort = normalizeSearchSort(params.sort);
+  const filters = normalizeSearchFilters(params);
   const hasQuery = query.length > 0;
-  const { results, error } = hasQuery
-    ? await searchProducts(query, sort)
-    : { results: [], error: null };
+  const { results, facets, unfilteredCount, error } = hasQuery
+    ? await searchProducts(query, sort, filters)
+    : {
+        results: [],
+        facets: { categories: [], brands: [], retailers: [] },
+        unfilteredCount: 0,
+        error: null,
+      };
+  const hasActiveFilters =
+    filters.category.length > 0 ||
+    filters.brand.length > 0 ||
+    filters.retailer.length > 0;
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -75,6 +91,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               className="min-h-12 flex-1 rounded-lg border border-zinc-300 px-4 text-base outline-none focus:border-zinc-950"
             />
             <input type="hidden" name="sort" value={sort} />
+            {filters.category && (
+              <input type="hidden" name="category" value={filters.category} />
+            )}
+            {filters.brand && (
+              <input type="hidden" name="brand" value={filters.brand} />
+            )}
+            {filters.retailer && (
+              <input type="hidden" name="retailer" value={filters.retailer} />
+            )}
             <button
               type="submit"
               className="min-h-12 rounded-lg bg-zinc-950 px-6 text-sm font-semibold text-white"
@@ -107,13 +132,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 {!error && (
                   <p className="mt-2 text-sm text-zinc-600">
                     {results.length} product{results.length === 1 ? "" : "s"}{" "}
-                    with an in-stock delivered offer
+                    found
+                  </p>
+                )}
+                {!error && hasActiveFilters && (
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Filtered from {unfilteredCount} product
+                    {unfilteredCount === 1 ? "" : "s"} with an in-stock
+                    delivered offer
                   </p>
                 )}
               </div>
 
-              <SearchSort query={query} sort={sort} />
+              <SearchSort query={query} sort={sort} filters={filters} />
             </div>
+
+            <ActiveSearchFilters
+              query={query}
+              sort={sort}
+              filters={filters}
+              facets={facets}
+            />
 
             {error && (
               <div className="mt-8 rounded-lg border border-red-200 bg-red-50 p-5 text-red-700">
@@ -126,19 +165,33 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
             {!error && results.length === 0 && (
               <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-8 text-center">
-                <h2 className="text-2xl font-bold">No results found</h2>
+                <h2 className="text-2xl font-bold">
+                  {hasActiveFilters ? "No filtered results found" : "No results found"}
+                </h2>
                 <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
-                  No active products with in-stock offers matched this search.
-                  Try a broader product name, brand or category.
+                  {hasActiveFilters
+                    ? "No products match this combination of filters. Remove a filter or clear all filters to broaden the search."
+                    : "No active products with in-stock offers matched this search. Try a broader product name, brand or category."}
                 </p>
               </div>
             )}
 
-            {!error && results.length > 0 && (
-              <div className="mt-8 space-y-4">
-                {results.map((product) => (
-                  <ProductResultCard key={product.id} product={product} />
-                ))}
+            {!error && (
+              <div className="mt-8 grid gap-6 lg:grid-cols-[280px_1fr]">
+                <SearchFilters
+                  query={query}
+                  sort={sort}
+                  filters={filters}
+                  facets={facets}
+                />
+
+                {results.length > 0 && (
+                  <div className="space-y-4">
+                    {results.map((product) => (
+                      <ProductResultCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </>

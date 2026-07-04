@@ -1,4 +1,4 @@
-import type { SearchSort } from "../lib/products";
+import type { SearchFilters, SearchSort } from "../lib/products";
 
 const sortOptions: Array<{ value: SearchSort; label: string }> = [
   { value: "relevance", label: "Relevance" },
@@ -9,13 +9,22 @@ const sortOptions: Array<{ value: SearchSort; label: string }> = [
 export default function SearchSort({
   query,
   sort,
+  filters,
 }: {
   query: string;
   sort: SearchSort;
+  filters: SearchFilters;
 }) {
   return (
     <form action="/search" className="flex items-center gap-3">
       <input type="hidden" name="q" value={query} />
+      {filters.category && (
+        <input type="hidden" name="category" value={filters.category} />
+      )}
+      {filters.brand && <input type="hidden" name="brand" value={filters.brand} />}
+      {filters.retailer && (
+        <input type="hidden" name="retailer" value={filters.retailer} />
+      )}
       <label htmlFor="search-sort" className="text-sm font-medium text-zinc-600">
         Sort
       </label>

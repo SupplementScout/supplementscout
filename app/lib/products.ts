@@ -3,6 +3,12 @@ import { supabase } from "./supabase";
 
 export type SearchSort = "relevance" | "price_asc" | "price_desc";
 
+export type SearchFilters = {
+  category: string;
+  brand: string;
+  retailer: string;
+};
+
 export type SearchRetailer = {
   id: string;
   name: string | null;
@@ -20,6 +26,18 @@ export type SearchOffer = {
   deliveredPrice: DeliveredPrice;
 };
 
+export type SearchFacetOption = {
+  value: string;
+  label: string;
+  count: number;
+};
+
+export type SearchFacets = {
+  categories: SearchFacetOption[];
+  brands: SearchFacetOption[];
+  retailers: SearchFacetOption[];
+};
+
 export type ProductSearchResult = {
   id: string;
   slug: string | null;
@@ -28,6 +46,7 @@ export type ProductSearchResult = {
   category: string | null;
   image: string | null;
   cheapestOffer: SearchOffer;
+  validOffers: SearchOffer[];
   availableOfferCount: number;
   relevanceScore: number;
 };
@@ -66,6 +85,22 @@ function firstParamValue(value: string | string[] | undefined) {
 
 export function normalizeSearchQuery(value: string | string[] | undefined) {
   return (firstParamValue(value) || "").trim();
+}
+
+function normalizeFilterValue(value: string | string[] | undefined) {
+  return normalizeWhitespace(firstParamValue(value) || "");
+}
+
+export function normalizeSearchFilters(values: {
+  category?: string | string[];
+  brand?: string | string[];
+  retailer?: string | string[];
+}): SearchFilters {
+  return {
+    category: normalizeFilterValue(values.category),
+    brand: normalizeFilterValue(values.brand),
+    retailer: normalizeFilterValue(values.retailer),
+  };
 }
 
 export function normalizeSearchSort(
@@ -121,6 +156,14 @@ function normalizeRetailer(
   };
 }
 
+export function retailerFilterValue(retailer: SearchRetailer | null) {
+  if (!retailer) {
+    return "";
+  }
+
+  return normalizeWhitespace(retailer.slug || retailer.id);
+}
+
 function scoreProduct(product: RawProduct, query: string) {
   const normalizedQuery = normalizeWhitespace(query).toLowerCase();
   const name = normalizeWhitespace(product.name).toLowerCase();
@@ -168,7 +211,8 @@ function scoreProduct(product: RawProduct, query: string) {
 
 function normalizeProduct(
   product: RawProduct,
-  query: string
+  query: string,
+  filters: SearchFilters
 ): ProductSearchResult | null {
   const validOffers = (product.offers || [])
     .filter((offer) => offer.in_stock === true)
@@ -196,7 +240,13 @@ function normalizeProduct(
         left.id.localeCompare(right.id)
     );
 
-  const cheapestOffer = validOffers[0] || null;
+  const matchingRetailerOffers = filters.retailer
+    ? validOffers.filter(
+        (offer) => retailerFilterValue(offer.retailer) === filters.retailer
+      )
+    : validOffers;
+
+  const cheapestOffer = matchingRetailerOffers[0] || null;
 
   if (!cheapestOffer) {
     return null;
@@ -210,9 +260,108 @@ function normalizeProduct(
     category: product.category,
     image: product.image,
     cheapestOffer,
+    validOffers,
     availableOfferCount: validOffers.length,
     relevanceScore: scoreProduct(product, query),
   };
+}
+
+function optionSort(left: SearchFacetOption, right: SearchFacetOption) {
+  return right.count - left.count || left.label.localeCompare(right.label);
+}
+
+function facetOptionsFromMap(map: Map<string, SearchFacetOption>) {
+  return Array.from(map.values()).sort(optionSort);
+}
+
+function buildFacets(results: ProductSearchResult[]): SearchFacets {
+  const categories = new Map<string, SearchFacetOption>();
+  const brands = new Map<string, SearchFacetOption>();
+  const retailers = new Map<string, SearchFacetOption>();
+
+  for (const product of results) {
+    const category = normalizeWhitespace(product.category || "");
+
+    if (category) {
+      const existing = categories.get(category);
+      categories.set(category, {
+        value: category,
+        label: category,
+        count: (existing?.count || 0) + 1,
+      });
+    }
+
+    const brand = normalizeWhitespace(product.brand || "");
+
+    if (brand) {
+      const existing = brands.get(brand);
+      brands.set(brand, {
+        value: brand,
+        label: brand,
+        count: (existing?.count || 0) + 1,
+      });
+    }
+
+    const productRetailers = new Map<string, SearchFacetOption>();
+
+    for (const offer of product.validOffers) {
+      const value = retailerFilterValue(offer.retailer);
+
+      if (!value) {
+        continue;
+      }
+
+      productRetailers.set(value, {
+        value,
+        label: offer.retailer?.name || value,
+        count: 1,
+      });
+    }
+
+    for (const [value, option] of productRetailers) {
+      const existing = retailers.get(value);
+      retailers.set(value, {
+        value,
+        label: option.label,
+        count: (existing?.count || 0) + 1,
+      });
+    }
+  }
+
+  return {
+    categories: facetOptionsFromMap(categories),
+    brands: facetOptionsFromMap(brands),
+    retailers: facetOptionsFromMap(retailers),
+  };
+}
+
+function applyProductFilters(
+  results: ProductSearchResult[],
+  filters: SearchFilters
+) {
+  return results.filter((product) => {
+    if (
+      filters.category &&
+      normalizeWhitespace(product.category || "") !== filters.category
+    ) {
+      return false;
+    }
+
+    if (filters.brand && normalizeWhitespace(product.brand || "") !== filters.brand) {
+      return false;
+    }
+
+    if (
+      filters.retailer &&
+      !product.validOffers.some(
+        (offer) => retailerFilterValue(offer.retailer) === filters.retailer
+      )
+    ) {
+      return false;
+    }
+
+    return true;
+  });
 }
 
 function sortResults(results: ProductSearchResult[], sort: SearchSort) {
@@ -243,11 +392,20 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
   });
 }
 
-export async function searchProducts(query: string, sort: SearchSort) {
+export async function searchProducts(
+  query: string,
+  sort: SearchSort,
+  filters: SearchFilters = { category: "", brand: "", retailer: "" }
+) {
   const sanitizedQuery = sanitizeSupabaseOrTerm(query);
 
   if (!sanitizedQuery) {
-    return { results: [], error: null };
+    return {
+      results: [],
+      facets: { categories: [], brands: [], retailers: [] },
+      unfilteredCount: 0,
+      error: null,
+    };
   }
 
   const { data, error } = await supabase
@@ -285,15 +443,35 @@ export async function searchProducts(query: string, sort: SearchSort) {
     .limit(searchLimit);
 
   if (error) {
-    return { results: [], error };
+    return {
+      results: [],
+      facets: { categories: [], brands: [], retailers: [] },
+      unfilteredCount: 0,
+      error,
+    };
   }
 
-  const results = ((data || []) as RawProduct[])
-    .map((product) => normalizeProduct(product, sanitizedQuery))
+  const baseResults = ((data || []) as RawProduct[])
+    .map((product) =>
+      normalizeProduct(product, sanitizedQuery, {
+        category: "",
+        brand: "",
+        retailer: "",
+      })
+    )
     .filter((product): product is ProductSearchResult => product !== null);
+  const facets = buildFacets(baseResults);
+  const filteredResults = filters.retailer
+    ? ((data || []) as RawProduct[])
+        .map((product) => normalizeProduct(product, sanitizedQuery, filters))
+        .filter((product): product is ProductSearchResult => product !== null)
+    : baseResults;
+  const results = applyProductFilters(filteredResults, filters);
 
   return {
     results: sortResults(results, sort),
+    facets,
+    unfilteredCount: baseResults.length,
     error: null,
   };
 }
