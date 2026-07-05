@@ -1,5 +1,6 @@
 import {
   getDeliveredPrice,
+  getVerifiedPricePerKg,
   getVerifiedPricePerServing,
   type DeliveredPrice,
 } from "./pricing";
@@ -52,11 +53,14 @@ export type ProductSearchResult = {
   brand: string | null;
   category: string | null;
   image: string | null;
+  net_weight_g: number | string | null;
+  product_format: string | null;
   serving_count_verified: number | string | null;
   unit_pricing_verified: boolean | null;
   cheapestOffer: SearchOffer;
   validOffers: SearchOffer[];
   availableOfferCount: number;
+  verifiedPricePerKg: number | null;
   verifiedPricePerServing: number | null;
   relevanceScore: number;
 };
@@ -84,6 +88,8 @@ type RawProduct = {
   brand: string | null;
   category: string | null;
   image: string | null;
+  net_weight_g: number | string | null;
+  product_format: string | null;
   serving_count_verified: number | string | null;
   unit_pricing_verified: boolean | null;
   offers?: RawOffer[] | null;
@@ -281,11 +287,19 @@ function normalizeProduct(
     brand: product.brand,
     category: product.category,
     image: product.image,
+    net_weight_g: product.net_weight_g,
+    product_format: product.product_format,
     serving_count_verified: product.serving_count_verified,
     unit_pricing_verified: product.unit_pricing_verified,
     cheapestOffer,
     validOffers,
     availableOfferCount: validOffers.length,
+    verifiedPricePerKg: getVerifiedPricePerKg(
+      cheapestOffer.deliveredPrice,
+      product.net_weight_g,
+      product.product_format,
+      product.unit_pricing_verified
+    ),
     verifiedPricePerServing: getVerifiedPricePerServing(
       cheapestOffer.deliveredPrice,
       product.serving_count_verified,
@@ -455,6 +469,8 @@ export async function searchProducts(
         brand,
         category,
         image,
+        net_weight_g,
+        product_format,
         serving_count_verified,
         unit_pricing_verified,
         offers!inner (

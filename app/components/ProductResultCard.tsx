@@ -86,8 +86,16 @@ export default function ProductResultCard({
               {product.verifiedPricePerServing !== null && (
                 <div className="flex items-center justify-between gap-6 border-t border-zinc-200 pt-2">
                   <dt className="text-zinc-500">Per serving</dt>
-                  <dd className="font-semibold">
+                  <dd className="text-right font-semibold">
                     {formatCurrency(product.verifiedPricePerServing)} per serving
+                  </dd>
+                </div>
+              )}
+              {product.verifiedPricePerKg !== null && (
+                <div className="flex items-center justify-between gap-6 border-t border-zinc-200 pt-2">
+                  <dt className="text-zinc-500">Per kg</dt>
+                  <dd className="text-right font-semibold">
+                    {formatCurrency(product.verifiedPricePerKg)} per kg
                   </dd>
                 </div>
               )}

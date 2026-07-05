@@ -3,13 +3,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import {
+  formatCurrency,
   getDeliveredPrice,
+  getVerifiedPricePerKg,
   getVerifiedPricePerServing,
 } from "../../lib/pricing";
 import { supabase } from "../../lib/supabase";
 
 type ProductRouteProduct = {
-  id: number;
+  id: string;
   name: string;
   slug: string | null;
   gtin: string | null;
@@ -20,25 +22,27 @@ type ProductRouteProduct = {
   image: string | null;
   price: number | null;
   is_active: boolean | null;
-  merged_into_product_id: number | null;
+  merged_into_product_id: number | string | null;
+  net_weight_g: number | string | null;
+  product_format: string | null;
   serving_count_verified: number | string | null;
   unit_pricing_verified: boolean | null;
 };
 
-function isPositiveInteger(value: string) {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0;
+function isProductIdValue(value: string) {
+  return /^[1-9][0-9]*$/.test(value);
 }
 
 async function getProductByRouteParam(id: string, select: string) {
   const query = supabase.from("products").select(select);
-  const result = isPositiveInteger(id)
-    ? await query.eq("id", Number(id)).maybeSingle()
+  const result = isProductIdValue(id)
+    ? await query.eq("id", id).maybeSingle()
     : await query.eq("slug", id).maybeSingle();
+  const product = result.data as (ProductRouteProduct & { id?: number | string }) | null;
 
   return {
     ...result,
-    data: result.data as ProductRouteProduct | null,
+    data: product ? { ...product, id: String(product.id) } : null,
   };
 }
 
@@ -107,7 +111,7 @@ export default async function ProductPage({
     notFound();
   }
   if (product.is_active === false && product.merged_into_product_id !== null) {
-    permanentRedirect(`/product/${product.merged_into_product_id}`);
+    permanentRedirect(`/product/${String(product.merged_into_product_id)}`);
   }
   if (product.is_active === false) {
     notFound();
@@ -257,6 +261,12 @@ export default async function ProductPage({
     product.serving_count_verified,
     product.unit_pricing_verified
   );
+  const verifiedPricePerKg = getVerifiedPricePerKg(
+    cheapestValidDeliveredPrice,
+    product.net_weight_g,
+    product.product_format,
+    product.unit_pricing_verified
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50">
@@ -368,14 +378,28 @@ export default async function ProductPage({
                 )}              </div>
             </div>
 
-            {verifiedPricePerServing !== null && (
+            {(verifiedPricePerServing !== null || verifiedPricePerKg !== null) && (
               <div className="mt-8 rounded-2xl border bg-white p-5">
+                {verifiedPricePerServing !== null && (
+                  <>
                 <div className="text-2xl font-bold">
                   £{verifiedPricePerServing.toFixed(2)} per serving
                 </div>
                 <p className="text-sm text-zinc-500">
                   Verified price per serving
                 </p>
+                  </>
+                )}
+                {verifiedPricePerKg !== null && (
+                  <div className={verifiedPricePerServing !== null ? "mt-3" : ""}>
+                    <div className="text-2xl font-bold">
+                      {formatCurrency(verifiedPricePerKg)} per kg
+                    </div>
+                    <p className="text-sm text-zinc-500">
+                      Verified price per kilogram
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             <div className="mt-8 rounded-3xl border bg-white p-8">

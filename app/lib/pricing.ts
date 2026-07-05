@@ -9,6 +9,8 @@ export type DeliveredPrice = {
   totalPrice: number;
 };
 
+const MASS_PRICED_PRODUCT_FORMATS = new Set(["powder", "food", "bar"]);
+
 function toFinitePrice(value: number | string | null, options?: { allowZero: boolean }) {
   if (value === null || value === "") {
     return null;
@@ -72,6 +74,39 @@ export function getVerifiedPricePerServing(
   return Number.isFinite(pricePerServing) && pricePerServing > 0
     ? pricePerServing
     : null;
+}
+
+export function getVerifiedPricePerKg(
+  deliveredPrice: DeliveredPrice | null,
+  netWeightG: number | string | null,
+  productFormat: string | null,
+  verified: boolean | null
+) {
+  if (verified !== true || deliveredPrice === null) {
+    return null;
+  }
+
+  if (!Number.isFinite(deliveredPrice.totalPrice) || deliveredPrice.totalPrice <= 0) {
+    return null;
+  }
+
+  if (netWeightG === null || netWeightG === "") {
+    return null;
+  }
+
+  const weightG = Number(netWeightG);
+
+  if (!Number.isFinite(weightG) || weightG <= 0) {
+    return null;
+  }
+
+  if (!productFormat || !MASS_PRICED_PRODUCT_FORMATS.has(productFormat)) {
+    return null;
+  }
+
+  const pricePerKg = deliveredPrice.totalPrice / (weightG / 1000);
+
+  return Number.isFinite(pricePerKg) && pricePerKg > 0 ? pricePerKg : null;
 }
 
 export function formatCurrency(value: number) {
