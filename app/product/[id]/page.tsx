@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import {
   formatCurrency,
   getDeliveredPrice,
+  getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
   getVerifiedPricePerServing,
 } from "../../lib/pricing";
@@ -25,7 +26,9 @@ type ProductRouteProduct = {
   merged_into_product_id: number | string | null;
   net_weight_g: number | string | null;
   product_format: string | null;
+  protein_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
+  nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
 };
 
@@ -267,6 +270,13 @@ export default async function ProductPage({
     product.product_format,
     product.unit_pricing_verified
   );
+  const verifiedCostPer25gProtein = getVerifiedCostPer25gProtein(
+    cheapestValidDeliveredPrice,
+    product.serving_count_verified,
+    product.protein_per_serving_g,
+    product.unit_pricing_verified,
+    product.nutrition_verified
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50">
@@ -378,7 +388,9 @@ export default async function ProductPage({
                 )}              </div>
             </div>
 
-            {(verifiedPricePerServing !== null || verifiedPricePerKg !== null) && (
+            {(verifiedPricePerServing !== null ||
+              verifiedPricePerKg !== null ||
+              verifiedCostPer25gProtein !== null) && (
               <div className="mt-8 rounded-2xl border bg-white p-5">
                 {verifiedPricePerServing !== null && (
                   <>
@@ -397,6 +409,22 @@ export default async function ProductPage({
                     </div>
                     <p className="text-sm text-zinc-500">
                       Verified price per kilogram
+                    </p>
+                  </div>
+                )}
+                {verifiedCostPer25gProtein !== null && (
+                  <div
+                    className={
+                      verifiedPricePerServing !== null || verifiedPricePerKg !== null
+                        ? "mt-3"
+                        : ""
+                    }
+                  >
+                    <div className="text-2xl font-bold">
+                      {formatCurrency(verifiedCostPer25gProtein)} per 25 g protein
+                    </div>
+                    <p className="text-sm text-zinc-500">
+                      Verified cost per 25 g protein
                     </p>
                   </div>
                 )}

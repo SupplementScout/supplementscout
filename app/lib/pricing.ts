@@ -109,6 +109,59 @@ export function getVerifiedPricePerKg(
   return Number.isFinite(pricePerKg) && pricePerKg > 0 ? pricePerKg : null;
 }
 
+export function getVerifiedCostPer25gProtein(
+  deliveredPrice: DeliveredPrice | null,
+  servingCountVerified: number | string | null,
+  proteinPerServingG: number | string | null,
+  unitPricingVerified: boolean | null,
+  nutritionVerified: boolean | null
+) {
+  if (
+    unitPricingVerified !== true ||
+    nutritionVerified !== true ||
+    deliveredPrice === null
+  ) {
+    return null;
+  }
+
+  if (!Number.isFinite(deliveredPrice.totalPrice) || deliveredPrice.totalPrice <= 0) {
+    return null;
+  }
+
+  if (
+    servingCountVerified === null ||
+    servingCountVerified === "" ||
+    proteinPerServingG === null ||
+    proteinPerServingG === ""
+  ) {
+    return null;
+  }
+
+  const servings = Number(servingCountVerified);
+  const proteinPerServing = Number(proteinPerServingG);
+
+  if (
+    !Number.isFinite(servings) ||
+    servings <= 0 ||
+    !Number.isFinite(proteinPerServing) ||
+    proteinPerServing <= 0
+  ) {
+    return null;
+  }
+
+  const totalPackageProtein = proteinPerServing * servings;
+
+  if (!Number.isFinite(totalPackageProtein) || totalPackageProtein <= 0) {
+    return null;
+  }
+
+  const costPer25gProtein = (deliveredPrice.totalPrice / totalPackageProtein) * 25;
+
+  return Number.isFinite(costPer25gProtein) && costPer25gProtein > 0
+    ? costPer25gProtein
+    : null;
+}
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",

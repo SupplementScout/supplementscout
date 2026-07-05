@@ -1,5 +1,6 @@
 import {
   getDeliveredPrice,
+  getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
   getVerifiedPricePerServing,
   type DeliveredPrice,
@@ -55,11 +56,14 @@ export type ProductSearchResult = {
   image: string | null;
   net_weight_g: number | string | null;
   product_format: string | null;
+  protein_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
+  nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
   cheapestOffer: SearchOffer;
   validOffers: SearchOffer[];
   availableOfferCount: number;
+  verifiedCostPer25gProtein: number | null;
   verifiedPricePerKg: number | null;
   verifiedPricePerServing: number | null;
   relevanceScore: number;
@@ -90,7 +94,9 @@ type RawProduct = {
   image: string | null;
   net_weight_g: number | string | null;
   product_format: string | null;
+  protein_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
+  nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
   offers?: RawOffer[] | null;
 };
@@ -289,11 +295,20 @@ function normalizeProduct(
     image: product.image,
     net_weight_g: product.net_weight_g,
     product_format: product.product_format,
+    protein_per_serving_g: product.protein_per_serving_g,
     serving_count_verified: product.serving_count_verified,
+    nutrition_verified: product.nutrition_verified,
     unit_pricing_verified: product.unit_pricing_verified,
     cheapestOffer,
     validOffers,
     availableOfferCount: validOffers.length,
+    verifiedCostPer25gProtein: getVerifiedCostPer25gProtein(
+      cheapestOffer.deliveredPrice,
+      product.serving_count_verified,
+      product.protein_per_serving_g,
+      product.unit_pricing_verified,
+      product.nutrition_verified
+    ),
     verifiedPricePerKg: getVerifiedPricePerKg(
       cheapestOffer.deliveredPrice,
       product.net_weight_g,
@@ -471,7 +486,9 @@ export async function searchProducts(
         image,
         net_weight_g,
         product_format,
+        protein_per_serving_g,
         serving_count_verified,
+        nutrition_verified,
         unit_pricing_verified,
         offers!inner (
           id,
