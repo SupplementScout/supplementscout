@@ -107,6 +107,14 @@ export default function ProductResultCard({
                   </dd>
                 </div>
               )}
+              {product.verifiedCostPer5gCreatine !== null && (
+                <div className="flex items-center justify-between gap-6 border-t border-zinc-200 pt-2">
+                  <dt className="text-zinc-500">Creatine</dt>
+                  <dd className="text-right font-semibold">
+                    {formatCurrency(product.verifiedCostPer5gCreatine)} per 5 g creatine
+                  </dd>
+                </div>
+              )}
             </dl>
 
             <Link

@@ -1,5 +1,6 @@
 import {
   getDeliveredPrice,
+  getVerifiedCostPer5gCreatine,
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
   getVerifiedPricePerServing,
@@ -57,12 +58,14 @@ export type ProductSearchResult = {
   net_weight_g: number | string | null;
   product_format: string | null;
   protein_per_serving_g: number | string | null;
+  creatine_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
   nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
   cheapestOffer: SearchOffer;
   validOffers: SearchOffer[];
   availableOfferCount: number;
+  verifiedCostPer5gCreatine: number | null;
   verifiedCostPer25gProtein: number | null;
   verifiedPricePerKg: number | null;
   verifiedPricePerServing: number | null;
@@ -95,6 +98,7 @@ type RawProduct = {
   net_weight_g: number | string | null;
   product_format: string | null;
   protein_per_serving_g: number | string | null;
+  creatine_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
   nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
@@ -296,12 +300,20 @@ function normalizeProduct(
     net_weight_g: product.net_weight_g,
     product_format: product.product_format,
     protein_per_serving_g: product.protein_per_serving_g,
+    creatine_per_serving_g: product.creatine_per_serving_g,
     serving_count_verified: product.serving_count_verified,
     nutrition_verified: product.nutrition_verified,
     unit_pricing_verified: product.unit_pricing_verified,
     cheapestOffer,
     validOffers,
     availableOfferCount: validOffers.length,
+    verifiedCostPer5gCreatine: getVerifiedCostPer5gCreatine(
+      cheapestOffer.deliveredPrice,
+      product.serving_count_verified,
+      product.creatine_per_serving_g,
+      product.unit_pricing_verified,
+      product.nutrition_verified
+    ),
     verifiedCostPer25gProtein: getVerifiedCostPer25gProtein(
       cheapestOffer.deliveredPrice,
       product.serving_count_verified,
@@ -487,6 +499,7 @@ export async function searchProducts(
         net_weight_g,
         product_format,
         protein_per_serving_g,
+        creatine_per_serving_g,
         serving_count_verified,
         nutrition_verified,
         unit_pricing_verified,

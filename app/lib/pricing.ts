@@ -162,6 +162,60 @@ export function getVerifiedCostPer25gProtein(
     : null;
 }
 
+export function getVerifiedCostPer5gCreatine(
+  deliveredPrice: DeliveredPrice | null,
+  servingCountVerified: number | string | null,
+  creatinePerServingG: number | string | null,
+  unitPricingVerified: boolean | null,
+  nutritionVerified: boolean | null
+) {
+  if (
+    unitPricingVerified !== true ||
+    nutritionVerified !== true ||
+    deliveredPrice === null
+  ) {
+    return null;
+  }
+
+  if (!Number.isFinite(deliveredPrice.totalPrice) || deliveredPrice.totalPrice <= 0) {
+    return null;
+  }
+
+  if (
+    servingCountVerified === null ||
+    servingCountVerified === "" ||
+    creatinePerServingG === null ||
+    creatinePerServingG === ""
+  ) {
+    return null;
+  }
+
+  const servings = Number(servingCountVerified);
+  const creatinePerServing = Number(creatinePerServingG);
+
+  if (
+    !Number.isFinite(servings) ||
+    !Number.isInteger(servings) ||
+    servings <= 0 ||
+    !Number.isFinite(creatinePerServing) ||
+    creatinePerServing <= 0
+  ) {
+    return null;
+  }
+
+  const totalPackageCreatine = creatinePerServing * servings;
+
+  if (!Number.isFinite(totalPackageCreatine) || totalPackageCreatine <= 0) {
+    return null;
+  }
+
+  const costPer5gCreatine = (deliveredPrice.totalPrice / totalPackageCreatine) * 5;
+
+  return Number.isFinite(costPer5gCreatine) && costPer5gCreatine > 0
+    ? costPer5gCreatine
+    : null;
+}
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",

@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import {
   formatCurrency,
   getDeliveredPrice,
+  getVerifiedCostPer5gCreatine,
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
   getVerifiedPricePerServing,
@@ -27,6 +28,7 @@ type ProductRouteProduct = {
   net_weight_g: number | string | null;
   product_format: string | null;
   protein_per_serving_g: number | string | null;
+  creatine_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
   nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
@@ -277,6 +279,13 @@ export default async function ProductPage({
     product.unit_pricing_verified,
     product.nutrition_verified
   );
+  const verifiedCostPer5gCreatine = getVerifiedCostPer5gCreatine(
+    cheapestValidDeliveredPrice,
+    product.serving_count_verified,
+    product.creatine_per_serving_g,
+    product.unit_pricing_verified,
+    product.nutrition_verified
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50">
@@ -390,7 +399,8 @@ export default async function ProductPage({
 
             {(verifiedPricePerServing !== null ||
               verifiedPricePerKg !== null ||
-              verifiedCostPer25gProtein !== null) && (
+              verifiedCostPer25gProtein !== null ||
+              verifiedCostPer5gCreatine !== null) && (
               <div className="mt-8 rounded-2xl border bg-white p-5">
                 {verifiedPricePerServing !== null && (
                   <>
@@ -425,6 +435,24 @@ export default async function ProductPage({
                     </div>
                     <p className="text-sm text-zinc-500">
                       Verified cost per 25 g protein
+                    </p>
+                  </div>
+                )}
+                {verifiedCostPer5gCreatine !== null && (
+                  <div
+                    className={
+                      verifiedPricePerServing !== null ||
+                      verifiedPricePerKg !== null ||
+                      verifiedCostPer25gProtein !== null
+                        ? "mt-3"
+                        : ""
+                    }
+                  >
+                    <div className="text-2xl font-bold">
+                      {formatCurrency(verifiedCostPer5gCreatine)} per 5 g creatine
+                    </div>
+                    <p className="text-sm text-zinc-500">
+                      Verified cost per 5 g creatine
                     </p>
                   </div>
                 )}
