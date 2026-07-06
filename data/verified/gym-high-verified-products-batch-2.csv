@@ -1,0 +1,9 @@
+id,expected_name,net_weight_g,serving_count_verified,serving_size_g,protein_per_serving_g,creatine_per_serving_g,unit_count,unit_type,product_format,unit_pricing_verified,nutrition_verified,source,notes
+408,GYM HIGH Whey Pro Synergy 1.8kg,1800,60,30,25,,,,powder,true,true,Product label,"30 g serving size, 60 servings, and 25 g protein per serving confirmed from label"
+495,GYM HIGH Cream Of Rice 2kg,2000,80,25,,,,,powder,true,,Product label,25 g serving size and 80 servings confirmed from label
+516,GYM HIGH Pure L-Arginine powder 500g,500,100,5,,,,,powder,true,,Product label,"5 g L-arginine per serving, 5 g serving size, and 100 servings confirmed from label"
+1,GYM HIGH CREA-4 Elite Capsules,,60,,,2.4,240,capsule,capsule,true,true,Product label,"240 capsules, 60 servings, 4 capsules per serving, and 2.4 g creatine per serving confirmed from label"
+413,GYM HIGH ZMB 60 Capsules,,60,,,,60,capsule,capsule,true,,Product label,"60 capsules, 60 servings, and 1 capsule per serving confirmed from label"
+427,GYM HIGH BCAA 120 Capsules,,30,,,,120,capsule,capsule,true,,Product label,"120 capsules, 30 servings, and 4 capsules per serving confirmed from label"
+429,GYM HIGH Testo Pro 180 Capsules,,60,,,,180,capsule,capsule,true,,Product label,"180 capsules, 60 servings, and 3 capsules per serving confirmed from label"
+508,GYM HIGH Shred Mode 60 Capsules,,60,,,,60,capsule,capsule,true,,Product label,"60 capsules, 60 servings, and 1 capsule per serving confirmed from label"
