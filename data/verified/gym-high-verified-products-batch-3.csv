@@ -1,0 +1,2 @@
+id,expected_name,net_weight_g,net_volume_ml,serving_count_verified,serving_size_g,serving_size_ml,protein_per_serving_g,creatine_per_serving_g,unit_count,unit_type,product_format,unit_pricing_verified,nutrition_verified,source,notes
+527,GYM HIGH L-Carnitine Liquid 500 ml,,500,16,,30,,,,,liquid,true,,Product label,"500 ml total volume, 16 servings, and 30 ml serving size confirmed from label"
