@@ -407,6 +407,10 @@ test("no Supabase query runs before authentication on protected pages", () => {
     ),
     "utf8"
   );
+  const outboundClicksSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "admin", "outbound-clicks", "page.tsx"),
+    "utf8"
+  );
 
   assert(
     duplicatePageSource.indexOf("await requireAdminPage()") <
@@ -415,6 +419,10 @@ test("no Supabase query runs before authentication on protected pages", () => {
   assert(
     mergePreviewSource.indexOf("await requireAdminPage()") <
       mergePreviewSource.indexOf("getMergePreview(")
+  );
+  assert(
+    outboundClicksSource.indexOf("await requireAdminPage()") <
+      outboundClicksSource.indexOf('await import("../lib/outboundClicksReport")')
   );
 });
 

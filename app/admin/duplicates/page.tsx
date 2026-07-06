@@ -214,24 +214,32 @@ export default async function DuplicateProductsPage({
             </h1>
           </div>
 
-          <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600">
-            <span className="font-semibold text-zinc-950">
-              {duplicateMatches.length}
-            </span>{" "}
-            possible pairs from{" "}
-            <span className="font-semibold text-zinc-950">
-              {products?.length || 0}
-            </span>{" "}
-            products
-          </div>
-          <form action="/admin/logout" method="post">
-            <button
-              type="submit"
+          <div className="flex flex-wrap gap-2">
+            <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600">
+              <span className="font-semibold text-zinc-950">
+                {duplicateMatches.length}
+              </span>{" "}
+              possible pairs from{" "}
+              <span className="font-semibold text-zinc-950">
+                {products?.length || 0}
+              </span>{" "}
+              products
+            </div>
+            <Link
+              href="/admin/outbound-clicks"
               className="rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
             >
-              Sign out
-            </button>
-          </form>
+              Outbound clicks
+            </Link>
+            <form action="/admin/logout" method="post">
+              <button
+                type="submit"
+                className="rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
 
         <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
