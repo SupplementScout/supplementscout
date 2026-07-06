@@ -6,24 +6,41 @@ const { createClient } = require("@supabase/supabase-js");
 
 dotenv.config({
   path: path.join(process.cwd(), ".env.local"),
+  quiet: true,
 });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !serviceRoleKey) {
-  console.error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local"
-  );
-  process.exit(1);
+let supabase;
+
+function getSupabase() {
+  if (supabase) {
+    return supabase;
+  }
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local"
+    );
+  }
+
+  supabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+
+  return supabase;
 }
 
-const supabase = createClient(supabaseUrl, serviceRoleKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-  },
-});
+const CATEGORY_MAPPINGS = new Map([
+  ["pre-workout", "Pre Workout"],
+  ["pre workout", "Pre Workout"],
+  ["creatine supplements", "Creatine"],
+  ["amino acid supplements", "Amino Acids"],
+]);
 
 function required(value, fieldName, rowNumber) {
   const cleaned = String(value || "").trim();
@@ -33,6 +50,21 @@ function required(value, fieldName, rowNumber) {
   }
 
   return cleaned;
+}
+
+function normalizeWhitespace(value) {
+  return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function normalizeCategory(value) {
+  const cleaned = normalizeWhitespace(value);
+  const mapped = CATEGORY_MAPPINGS.get(cleaned.toLowerCase());
+
+  return mapped || cleaned;
+}
+
+function shouldLogCategoryNormalization(inputCategory, normalizedCategory) {
+  return normalizedCategory !== normalizeWhitespace(inputCategory);
 }
 
 function optionalNumber(value) {
@@ -259,6 +291,7 @@ function readNormalizedProductFields(row, rowNumber) {
 }
 
 async function findOrCreateRetailer(row, rowNumber) {
+  const supabase = getSupabase();
   const name = required(row.retailer_name, "retailer_name", rowNumber);
   const website = required(
     row.retailer_website,
@@ -339,9 +372,11 @@ function normalizeProductName(name = "") {
 }
 
 async function findOrCreateProduct(row, rowNumber, retailerId) {
+  const supabase = getSupabase();
   const name = required(row.product_name, "product_name", rowNumber);
   const slug = required(row.slug, "slug", rowNumber);
   const offerUrl = required(row.url, "url", rowNumber);
+  const inputCategory = required(row.category, "category", rowNumber);
 
   const { data: existingMapping, error: mappingFindError } = await supabase
     .from("retailer_products")
@@ -364,7 +399,7 @@ async function findOrCreateProduct(row, rowNumber, retailerId) {
     slug,
     gtin: String(row.gtin || "").trim() || null,
     brand: required(row.brand, "brand", rowNumber),
-    category: required(row.category, "category", rowNumber),
+    category: normalizeCategory(inputCategory),
     servings: extractServings(row),
     description:
       String(row.description || "")
@@ -382,6 +417,12 @@ async function findOrCreateProduct(row, rowNumber, retailerId) {
     price: optionalNumber(row.price),
     ...readNormalizedProductFields(row, rowNumber),
   };
+
+  if (shouldLogCategoryNormalization(inputCategory, productData.category)) {
+    console.log(
+      `Category normalized: "${inputCategory}" -> "${productData.category}"`
+    );
+  }
 
   let existingProduct = null;
 
@@ -507,6 +548,7 @@ if (possibleMatch) {
 }
 
 async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
+  const supabase = getSupabase();
   const price = optionalNumber(
     required(row.price, "price", rowNumber)
   );
@@ -660,7 +702,14 @@ async function runImport() {
   }
 }
 
-runImport().catch((error) => {
-  console.error("Import failed:", error?.message || error);
-  process.exit(1);
-});
+if (require.main === module) {
+  runImport().catch((error) => {
+    console.error("Import failed:", error?.message || error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  normalizeCategory,
+  shouldLogCategoryNormalization,
+};
