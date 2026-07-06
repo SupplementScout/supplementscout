@@ -389,7 +389,7 @@ export default async function ProductPage({
 
                 {cheapestOffer ? (
                   <a
-                    href={cheapestOffer.url}
+                    href={`/go/${String(cheapestOffer.id)}?source=product_best_offer`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="rounded-2xl bg-black px-8 py-4 font-semibold text-white"
@@ -542,7 +542,7 @@ export default async function ProductPage({
                         </div>
 
                         <a
-                          href={offer.url}
+                          href={`/go/${String(offer.id)}?source=product_offer_list`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
