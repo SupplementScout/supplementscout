@@ -79,7 +79,7 @@ const {
 
 const { getDuplicatePairIds } = loadTsModule("app/lib/duplicates.ts");
 
-const nowMs = Date.UTC(2026, 6, 6, 12, 0, 0);
+const nowMs = Date.now();
 const secret = "test-session-secret";
 const adminToken = "test-admin-password";
 
@@ -259,6 +259,15 @@ test("authenticated request reaches the admin route", () => {
     }),
     "allow"
   );
+  assert.equal(
+    getAdminAccessDecision({
+      pathname: "/admin/catalog-health",
+      method: "GET",
+      cookieValue: validCookie(),
+      secret,
+    }),
+    "allow"
+  );
 });
 
 test("proxy allows only exact admin login routes without a session", () => {
@@ -411,6 +420,10 @@ test("no Supabase query runs before authentication on protected pages", () => {
     path.join(process.cwd(), "app", "admin", "outbound-clicks", "page.tsx"),
     "utf8"
   );
+  const catalogHealthSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "admin", "catalog-health", "page.tsx"),
+    "utf8"
+  );
 
   assert(
     duplicatePageSource.indexOf("await requireAdminPage()") <
@@ -423,6 +436,10 @@ test("no Supabase query runs before authentication on protected pages", () => {
   assert(
     outboundClicksSource.indexOf("await requireAdminPage()") <
       outboundClicksSource.indexOf('await import("../lib/outboundClicksReport")')
+  );
+  assert(
+    catalogHealthSource.indexOf("await requireAdminPage()") <
+      catalogHealthSource.indexOf('await import("../lib/catalogHealth")')
   );
 });
 
