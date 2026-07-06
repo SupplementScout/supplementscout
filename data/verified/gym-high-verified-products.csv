@@ -4,8 +4,9 @@ id,expected_name,net_weight_g,serving_count_verified,serving_size_g,protein_per_
 390,GYM HIGH Vegan Plant-Based-Protein Blend 600g,600,20,,22.5,,,,powder,true,true,manual verification,values already present in production
 367,GYM HIGH The Stacker 240g,240,30,,,,,,powder,true,false,manual verification,values already present in production
 411,GYM HIGH The Stinger Zero Caffeine Pump Pre Workout 425g,425,25,,,,,,powder,true,false,manual verification,values already present in production
-403,GYM HIGH Mass Gainer 2100g,2100,,,,,,,powder,true,false,manual verification,values already present in production
-412,GYM HIGH L-Glutamine  Powder 500g,500,,,,,,,powder,true,false,manual verification,values already present in production
-529,GYM HIGH Creatine Monohydrate 400g,400,80,,,5,,,powder,true,true,manual verification,values already present in production
-444,GYM HIGH Beta-Alanine 250g,250,,,,,,,powder,true,false,manual verification,values already present in production
-389,GYM HIGH Creatine Monohydrate Powder 250g,250,,,,,,,powder,true,false,manual verification,values already present in production
+403,GYM HIGH Mass Gainer 2100g,2100,7,300,60,,,,powder,true,true,Product label,Verified from label
+412,GYM HIGH L-Glutamine  Powder 500g,500,100,5,,,,,powder,true,,Product label,5 g glutamine per serving confirmed from label
+529,GYM HIGH Creatine Monohydrate 400g,400,80,5,,5,,,powder,true,true,manual verification,values confirmed for first GYM HIGH batch
+444,GYM HIGH Beta-Alanine 250g,250,125,2,,,,,powder,true,,Product label,2 g beta-alanine per serving confirmed from label
+389,GYM HIGH Creatine Monohydrate Powder 250g,250,50,5,,5,,,powder,true,true,Product label,5 g creatine monohydrate per serving confirmed from label
+414,GYM HIGH Hydro Amino EAA+BCAA 35 Servings,455,35,13,,,,,powder,true,,Product label,13 g serving size and 35 servings confirmed from label
