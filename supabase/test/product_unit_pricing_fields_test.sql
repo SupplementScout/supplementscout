@@ -8,8 +8,10 @@ do $$
 declare
   expected_columns jsonb := '{
     "net_weight_g": "numeric",
+    "net_volume_ml": "numeric",
     "serving_count_verified": "integer",
     "serving_size_g": "numeric",
+    "serving_size_ml": "numeric",
     "protein_per_serving_g": "numeric",
     "creatine_per_serving_g": "numeric",
     "unit_count": "integer",
@@ -50,8 +52,10 @@ insert into public.products (
   category,
   servings,
   net_weight_g,
+  net_volume_ml,
   serving_count_verified,
   serving_size_g,
+  serving_size_ml,
   protein_per_serving_g,
   creatine_per_serving_g,
   unit_count,
@@ -67,8 +71,10 @@ values (
   'Protein',
   30,
   1000.5,
+  500.5,
   30,
   33.35,
+  16.68,
   25.5,
   0.5,
   30,
@@ -175,9 +181,57 @@ begin
   end;
 
   begin
+    insert into public.products (name, slug, net_volume_ml)
+    values ('UNIT PRICING FOUNDATION TEST Bad Volume Zero', 'unit-pricing-foundation-test-bad-volume-zero', 0);
+    raise exception 'Expected net_volume_ml = 0 to fail';
+  exception
+    when check_violation then null;
+  end;
+
+  begin
+    insert into public.products (name, slug, net_volume_ml)
+    values ('UNIT PRICING FOUNDATION TEST Bad Volume Negative', 'unit-pricing-foundation-test-bad-volume-negative', -1);
+    raise exception 'Expected negative net_volume_ml to fail';
+  exception
+    when check_violation then null;
+  end;
+
+  begin
+    insert into public.products (name, slug, net_volume_ml)
+    values ('UNIT PRICING FOUNDATION TEST Bad Volume NaN', 'unit-pricing-foundation-test-bad-volume-nan', 'NaN'::numeric);
+    raise exception 'Expected NaN net_volume_ml to fail';
+  exception
+    when check_violation then null;
+  end;
+
+  begin
     insert into public.products (name, slug, serving_size_g)
     values ('UNIT PRICING FOUNDATION TEST Bad Serving Size NaN', 'unit-pricing-foundation-test-bad-serving-size-nan', 'NaN'::numeric);
     raise exception 'Expected NaN serving_size_g to fail';
+  exception
+    when check_violation then null;
+  end;
+
+  begin
+    insert into public.products (name, slug, serving_size_ml)
+    values ('UNIT PRICING FOUNDATION TEST Bad Serving Size Ml Zero', 'unit-pricing-foundation-test-bad-serving-size-ml-zero', 0);
+    raise exception 'Expected serving_size_ml = 0 to fail';
+  exception
+    when check_violation then null;
+  end;
+
+  begin
+    insert into public.products (name, slug, serving_size_ml)
+    values ('UNIT PRICING FOUNDATION TEST Bad Serving Size Ml Negative', 'unit-pricing-foundation-test-bad-serving-size-ml-negative', -5);
+    raise exception 'Expected negative serving_size_ml to fail';
+  exception
+    when check_violation then null;
+  end;
+
+  begin
+    insert into public.products (name, slug, serving_size_ml)
+    values ('UNIT PRICING FOUNDATION TEST Bad Serving Size Ml NaN', 'unit-pricing-foundation-test-bad-serving-size-ml-nan', 'NaN'::numeric);
+    raise exception 'Expected NaN serving_size_ml to fail';
   exception
     when check_violation then null;
   end;
@@ -299,10 +353,16 @@ begin
       net_weight_g is not null
       and (net_weight_g::text = 'NaN' or net_weight_g <= 0)
     ) or (
+      net_volume_ml is not null
+      and (net_volume_ml::text = 'NaN' or net_volume_ml <= 0)
+    ) or (
       serving_count_verified is not null and serving_count_verified <= 0
     ) or (
       serving_size_g is not null
       and (serving_size_g::text = 'NaN' or serving_size_g <= 0)
+    ) or (
+      serving_size_ml is not null
+      and (serving_size_ml::text = 'NaN' or serving_size_ml <= 0)
     ) or (
       protein_per_serving_g is not null
       and (protein_per_serving_g::text = 'NaN' or protein_per_serving_g < 0)

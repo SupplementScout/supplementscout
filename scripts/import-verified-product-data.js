@@ -6,8 +6,10 @@ const { createClient } = require("@supabase/supabase-js");
 
 const UPDATE_FIELDS = [
   "net_weight_g",
+  "net_volume_ml",
   "serving_count_verified",
   "serving_size_g",
+  "serving_size_ml",
   "protein_per_serving_g",
   "creatine_per_serving_g",
   "unit_count",
@@ -207,6 +209,12 @@ function parseUpdates(row, rowNumber) {
   assignIfPresent(
     updates,
     row,
+    "net_volume_ml",
+    parseNumber(row.net_volume_ml, "net_volume_ml", rowNumber, { minExclusive: 0 })
+  );
+  assignIfPresent(
+    updates,
+    row,
     "serving_count_verified",
     parseNumber(row.serving_count_verified, "serving_count_verified", rowNumber, {
       integer: true,
@@ -218,6 +226,14 @@ function parseUpdates(row, rowNumber) {
     row,
     "serving_size_g",
     parseNumber(row.serving_size_g, "serving_size_g", rowNumber, {
+      minExclusive: 0,
+    })
+  );
+  assignIfPresent(
+    updates,
+    row,
+    "serving_size_ml",
+    parseNumber(row.serving_size_ml, "serving_size_ml", rowNumber, {
       minExclusive: 0,
     })
   );
@@ -332,6 +348,27 @@ function analyzeRows(parsedRows, currentProductsById) {
 }
 
 function validateEffectiveValues(effective, rowNumber, errors) {
+  const productFormat = effective.product_format;
+  const isLiquid = productFormat === "liquid";
+
+  if (isLiquid) {
+    if (!isBlank(effective.net_weight_g)) {
+      errors.push(`Row ${rowNumber}: liquid products must use net_volume_ml instead of net_weight_g`);
+    }
+
+    if (!isBlank(effective.serving_size_g)) {
+      errors.push(`Row ${rowNumber}: liquid products must use serving_size_ml instead of serving_size_g`);
+    }
+  } else {
+    if (!isBlank(effective.net_volume_ml)) {
+      errors.push(`Row ${rowNumber}: net_volume_ml requires product_format liquid`);
+    }
+
+    if (!isBlank(effective.serving_size_ml)) {
+      errors.push(`Row ${rowNumber}: serving_size_ml requires product_format liquid`);
+    }
+  }
+
   if (
     effective.protein_per_serving_g !== null &&
     effective.protein_per_serving_g !== undefined &&
@@ -354,6 +391,17 @@ function validateEffectiveValues(effective, rowNumber, errors) {
 
   if (
     effective.unit_pricing_verified === true &&
+    isLiquid &&
+    isBlank(effective.net_volume_ml)
+  ) {
+    errors.push(
+      `Row ${rowNumber}: liquid unit_pricing_verified requires net_volume_ml`
+    );
+  }
+
+  if (
+    effective.unit_pricing_verified === true &&
+    !isLiquid &&
     isBlank(effective.serving_count_verified) &&
     isBlank(effective.net_weight_g) &&
     isBlank(effective.unit_count)

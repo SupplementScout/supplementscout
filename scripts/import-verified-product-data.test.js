@@ -16,8 +16,10 @@ function product(overrides = {}) {
     id: "337",
     name: "GYM HIGH Whey Pro Synergy 600g",
     net_weight_g: null,
+    net_volume_ml: null,
     serving_count_verified: null,
     serving_size_g: null,
+    serving_size_ml: null,
     protein_per_serving_g: null,
     creatine_per_serving_g: null,
     unit_count: null,
@@ -148,10 +150,20 @@ test("blank fields leave values unchanged", () => {
 });
 
 test("positive decimals are accepted for decimal fields", () => {
-  const updates = parseUpdates({ net_weight_g: "600.5", serving_size_g: "30.5" }, 2);
+  const updates = parseUpdates(
+    {
+      net_weight_g: "600.5",
+      net_volume_ml: "500.5",
+      serving_size_g: "30.5",
+      serving_size_ml: "25.5",
+    },
+    2
+  );
 
   assert.equal(updates.net_weight_g, 600.5);
+  assert.equal(updates.net_volume_ml, 500.5);
   assert.equal(updates.serving_size_g, 30.5);
+  assert.equal(updates.serving_size_ml, 25.5);
 });
 
 test("integer fields reject decimal values", () => {
@@ -163,7 +175,58 @@ test("integer fields reject decimal values", () => {
 
 test("negative and zero values are rejected where forbidden", () => {
   assert.throws(() => parseUpdates({ net_weight_g: "0" }, 2), /greater than 0/);
+  assert.throws(() => parseUpdates({ net_volume_ml: "-1" }, 2), /greater than 0/);
   assert.throws(() => parseUpdates({ unit_count: "-1" }, 2), /greater than 0/);
+});
+
+test("liquid CSV row accepts volume fields and serving count", () => {
+  const { results } = analyze(
+    "id,net_volume_ml,serving_count_verified,serving_size_ml,product_format,unit_pricing_verified\n337,500,16,30,liquid,true\n"
+  );
+
+  assert.equal(results[0].valid, true);
+  assert.deepEqual(
+    results[0].changes.map((change) => change.field),
+    [
+      "net_volume_ml",
+      "serving_count_verified",
+      "serving_size_ml",
+      "product_format",
+      "unit_pricing_verified",
+    ]
+  );
+});
+
+test("liquid CSV row rejects gram fields", () => {
+  const withWeight = analyze(
+    "id,net_weight_g,net_volume_ml,product_format,unit_pricing_verified\n337,500,500,liquid,true\n"
+  );
+  const withServingSizeG = analyze(
+    "id,net_volume_ml,serving_size_g,product_format,unit_pricing_verified\n337,500,30,liquid,true\n"
+  );
+
+  assert.equal(withWeight.results[0].valid, false);
+  assert.match(withWeight.results[0].errors.join(" "), /net_volume_ml instead of net_weight_g/);
+  assert.equal(withServingSizeG.results[0].valid, false);
+  assert.match(withServingSizeG.results[0].errors.join(" "), /serving_size_ml instead of serving_size_g/);
+});
+
+test("non-liquid CSV row rejects volume fields", () => {
+  const { results } = analyze(
+    "id,net_volume_ml,product_format,unit_pricing_verified\n337,500,powder,true\n"
+  );
+
+  assert.equal(results[0].valid, false);
+  assert.match(results[0].errors.join(" "), /net_volume_ml requires product_format liquid/);
+});
+
+test("liquid unit pricing requires net_volume_ml", () => {
+  const { results } = analyze(
+    "id,serving_count_verified,product_format,unit_pricing_verified\n337,16,liquid,true\n"
+  );
+
+  assert.equal(results[0].valid, false);
+  assert.match(results[0].errors.join(" "), /liquid unit_pricing_verified requires net_volume_ml/);
 });
 
 test("boolean parsing accepts documented values", () => {

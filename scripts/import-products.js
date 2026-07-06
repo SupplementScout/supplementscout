@@ -159,6 +159,11 @@ function readNormalizedProductFields(row, rowNumber) {
   );
   assignIfSupplied(
     fields,
+    "net_volume_ml",
+    optionalPositiveNumber(row, "net_volume_ml", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
     "serving_count_verified",
     optionalPositiveInteger(row, "serving_count_verified", rowNumber)
   );
@@ -166,6 +171,11 @@ function readNormalizedProductFields(row, rowNumber) {
     fields,
     "serving_size_g",
     optionalPositiveNumber(row, "serving_size_g", rowNumber)
+  );
+  assignIfSupplied(
+    fields,
+    "serving_size_ml",
+    optionalPositiveNumber(row, "serving_size_ml", rowNumber)
   );
   assignIfSupplied(
     fields,
@@ -221,6 +231,28 @@ function readNormalizedProductFields(row, rowNumber) {
     throw new Error(
       `Row ${rowNumber}: creatine_per_serving_g cannot exceed serving_size_g`
     );
+  }
+
+  if (fields.product_format === "liquid") {
+    if (fields.net_weight_g !== undefined && fields.net_weight_g !== null) {
+      throw new Error(
+        `Row ${rowNumber}: liquid products must use net_volume_ml instead of net_weight_g`
+      );
+    }
+
+    if (fields.serving_size_g !== undefined && fields.serving_size_g !== null) {
+      throw new Error(
+        `Row ${rowNumber}: liquid products must use serving_size_ml instead of serving_size_g`
+      );
+    }
+  } else {
+    if (fields.net_volume_ml !== undefined && fields.net_volume_ml !== null) {
+      throw new Error(`Row ${rowNumber}: net_volume_ml requires product_format liquid`);
+    }
+
+    if (fields.serving_size_ml !== undefined && fields.serving_size_ml !== null) {
+      throw new Error(`Row ${rowNumber}: serving_size_ml requires product_format liquid`);
+    }
   }
 
   return fields;

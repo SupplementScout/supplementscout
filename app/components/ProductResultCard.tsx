@@ -99,6 +99,14 @@ export default function ProductResultCard({
                   </dd>
                 </div>
               )}
+              {product.verifiedPricePerLitre !== null && (
+                <div className="flex items-center justify-between gap-6 border-t border-zinc-200 pt-2">
+                  <dt className="text-zinc-500">Per litre</dt>
+                  <dd className="text-right font-semibold">
+                    {formatCurrency(product.verifiedPricePerLitre)}/litre
+                  </dd>
+                </div>
+              )}
               {product.verifiedCostPer25gProtein !== null && (
                 <div className="flex items-center justify-between gap-6 border-t border-zinc-200 pt-2">
                   <dt className="text-zinc-500">Protein</dt>

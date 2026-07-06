@@ -11,8 +11,10 @@ Required column:
 Optional update columns:
 
 - `net_weight_g`
+- `net_volume_ml`
 - `serving_count_verified`
 - `serving_size_g`
+- `serving_size_ml`
 - `protein_per_serving_g`
 - `creatine_per_serving_g`
 - `unit_count`
@@ -38,8 +40,10 @@ IDs must be positive integer strings and must identify an existing product. Dupl
 Numeric fields:
 
 - `net_weight_g` must be greater than 0.
+- `net_volume_ml` must be greater than 0.
 - `serving_count_verified` must be a positive integer.
 - `serving_size_g` must be greater than 0.
+- `serving_size_ml` must be greater than 0.
 - `protein_per_serving_g` must be 0 or greater.
 - `creatine_per_serving_g` must be 0 or greater.
 - `unit_count` must be a positive integer.
@@ -48,6 +52,15 @@ Cross-field rules use the effective value after applying the proposed update to 
 
 - `protein_per_serving_g` cannot exceed `serving_size_g` when both are known.
 - `creatine_per_serving_g` cannot exceed `serving_size_g` when both are known.
+
+Liquid-specific rules:
+
+- Liquid products must use `product_format = liquid`.
+- Liquid products must use `net_volume_ml` instead of `net_weight_g`.
+- Liquid products must use `serving_size_ml` instead of `serving_size_g`.
+- `net_volume_ml` and `serving_size_ml` are rejected for non-liquid products.
+- Liquid rows with `unit_pricing_verified = true` require `net_volume_ml`.
+- `serving_size_ml` is optional for price-per-litre calculations.
 
 Boolean fields accept `true`, `1`, `yes`, `y`, `false`, `0`, `no`, and `n`, case-insensitively.
 
@@ -76,7 +89,8 @@ Allowed `unit_type` values:
 
 Verification flag requirements:
 
-- `unit_pricing_verified = true` requires `serving_count_verified`, `net_weight_g`, or `unit_count` after the update.
+- `unit_pricing_verified = true` requires `serving_count_verified`, `net_weight_g`, or `unit_count` after the update for non-liquid products.
+- Liquid `unit_pricing_verified = true` requires `net_volume_ml` after the update.
 - `nutrition_verified = true` requires `protein_per_serving_g` or `creatine_per_serving_g` after the update.
 
 ## Commands
@@ -125,6 +139,6 @@ V1 is dry-run only for writes. No database writes are performed by the script, a
 ## Example CSV
 
 ```csv
-id,expected_name,net_weight_g,serving_count_verified,serving_size_g,protein_per_serving_g,creatine_per_serving_g,unit_count,unit_type,product_format,unit_pricing_verified,nutrition_verified,source,notes
-529,GYM HIGH Creatine Monohydrate 400g,400,80,,,5,,,powder,true,true,manufacturer label,verified from label
+id,expected_name,net_weight_g,net_volume_ml,serving_count_verified,serving_size_g,serving_size_ml,protein_per_serving_g,creatine_per_serving_g,unit_count,unit_type,product_format,unit_pricing_verified,nutrition_verified,source,notes
+529,GYM HIGH Creatine Monohydrate 400g,400,,80,,,,5,,,powder,true,true,manufacturer label,verified from label
 ```

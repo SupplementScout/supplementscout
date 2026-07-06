@@ -109,6 +109,41 @@ export function getVerifiedPricePerKg(
   return Number.isFinite(pricePerKg) && pricePerKg > 0 ? pricePerKg : null;
 }
 
+export function getVerifiedPricePerLitre(
+  deliveredPrice: DeliveredPrice | null,
+  netVolumeMl: number | string | null,
+  productFormat: string | null,
+  verified: boolean | null
+) {
+  if (verified !== true || deliveredPrice === null) {
+    return null;
+  }
+
+  if (!Number.isFinite(deliveredPrice.totalPrice) || deliveredPrice.totalPrice <= 0) {
+    return null;
+  }
+
+  if (netVolumeMl === null || netVolumeMl === "") {
+    return null;
+  }
+
+  const volumeMl = Number(netVolumeMl);
+
+  if (!Number.isFinite(volumeMl) || volumeMl <= 0) {
+    return null;
+  }
+
+  if (productFormat !== "liquid") {
+    return null;
+  }
+
+  const pricePerLitre = deliveredPrice.totalPrice / (volumeMl / 1000);
+
+  return Number.isFinite(pricePerLitre) && pricePerLitre > 0
+    ? pricePerLitre
+    : null;
+}
+
 export function getVerifiedCostPer25gProtein(
   deliveredPrice: DeliveredPrice | null,
   servingCountVerified: number | string | null,

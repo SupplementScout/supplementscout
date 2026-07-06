@@ -3,6 +3,7 @@ import {
   getVerifiedCostPer5gCreatine,
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
+  getVerifiedPricePerLitre,
   getVerifiedPricePerServing,
   type DeliveredPrice,
 } from "./pricing";
@@ -56,7 +57,9 @@ export type ProductSearchResult = {
   category: string | null;
   image: string | null;
   net_weight_g: number | string | null;
+  net_volume_ml: number | string | null;
   product_format: string | null;
+  serving_size_ml: number | string | null;
   protein_per_serving_g: number | string | null;
   creatine_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
@@ -68,6 +71,7 @@ export type ProductSearchResult = {
   verifiedCostPer5gCreatine: number | null;
   verifiedCostPer25gProtein: number | null;
   verifiedPricePerKg: number | null;
+  verifiedPricePerLitre: number | null;
   verifiedPricePerServing: number | null;
   relevanceScore: number;
 };
@@ -96,7 +100,9 @@ type RawProduct = {
   category: string | null;
   image: string | null;
   net_weight_g: number | string | null;
+  net_volume_ml: number | string | null;
   product_format: string | null;
+  serving_size_ml: number | string | null;
   protein_per_serving_g: number | string | null;
   creatine_per_serving_g: number | string | null;
   serving_count_verified: number | string | null;
@@ -298,7 +304,9 @@ function normalizeProduct(
     category: product.category,
     image: product.image,
     net_weight_g: product.net_weight_g,
+    net_volume_ml: product.net_volume_ml,
     product_format: product.product_format,
+    serving_size_ml: product.serving_size_ml,
     protein_per_serving_g: product.protein_per_serving_g,
     creatine_per_serving_g: product.creatine_per_serving_g,
     serving_count_verified: product.serving_count_verified,
@@ -324,6 +332,12 @@ function normalizeProduct(
     verifiedPricePerKg: getVerifiedPricePerKg(
       cheapestOffer.deliveredPrice,
       product.net_weight_g,
+      product.product_format,
+      product.unit_pricing_verified
+    ),
+    verifiedPricePerLitre: getVerifiedPricePerLitre(
+      cheapestOffer.deliveredPrice,
+      product.net_volume_ml,
       product.product_format,
       product.unit_pricing_verified
     ),
@@ -497,7 +511,9 @@ export async function searchProducts(
         category,
         image,
         net_weight_g,
+        net_volume_ml,
         product_format,
+        serving_size_ml,
         protein_per_serving_g,
         creatine_per_serving_g,
         serving_count_verified,
