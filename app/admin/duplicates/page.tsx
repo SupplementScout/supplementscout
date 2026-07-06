@@ -6,6 +6,7 @@ import {
 } from "../../lib/duplicates";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import { supabase } from "../../lib/supabase";
+import { requireAdminPage } from "../../lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -110,14 +111,14 @@ export default async function DuplicateProductsPage({
   searchParams,
 }: {
   searchParams: Promise<{
-    token?: string | string[];
     merged?: string | string[];
     canonical?: string | string[];
     candidate?: string | string[];
   }>;
 }) {
+  await requireAdminPage();
+
   const params = await searchParams;
-  const token = firstParam(params.token);
   const merged = firstParam(params.merged);
   const canonical = firstParam(params.canonical);
   const candidate = firstParam(params.candidate);
@@ -143,8 +144,8 @@ export default async function DuplicateProductsPage({
   const ignoredProductIds = Array.from(
     new Set(
       ignoredPairs.flatMap((pair) => [
-        Number(pair.product_a_id),
-        Number(pair.product_b_id),
+        String(pair.product_a_id),
+        String(pair.product_b_id),
       ])
     )
   );
@@ -162,7 +163,7 @@ export default async function DuplicateProductsPage({
 
   const ignoredProducts: AdminProduct[] = ignoredProductsData || [];
   const ignoredProductMap = new Map(
-    ignoredProducts.map((product) => [Number(product.id), product])
+    ignoredProducts.map((product) => [String(product.id), product])
   );
 
   const ignoredPairKeys = new Set(
@@ -181,6 +182,24 @@ export default async function DuplicateProductsPage({
             getDuplicatePairKey(match.productA.id, match.productB.id)
           )
       );
+
+  if (error) {
+    console.error("Unable to load duplicate products.", {
+      errorName: error.name,
+    });
+  }
+
+  if (ignoredPairsError) {
+    console.error("Unable to load ignored duplicate pairs.", {
+      errorName: ignoredPairsError.name,
+    });
+  }
+
+  if (ignoredProductsError) {
+    console.error("Unable to load ignored duplicate product details.", {
+      errorName: ignoredProductsError.name,
+    });
+  }
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
@@ -205,11 +224,19 @@ export default async function DuplicateProductsPage({
             </span>{" "}
             products
           </div>
+          <form action="/admin/logout" method="post">
+            <button
+              type="submit"
+              className="rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
 
         <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          Access is checked on the server for each request. The token is not
-          stored in localStorage or cookies.
+          Access is checked on the server for each request. Admin secrets are
+          not added to links or forms.
         </div>
 
         {merged === "1" && canonical && candidate && (
@@ -221,21 +248,20 @@ export default async function DuplicateProductsPage({
 
         {error && (
           <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            Unable to load products: {error.message}
+            Unable to load duplicate products.
           </div>
         )}
 
         {ignoredPairsError && (
           <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            Unable to load ignored pairs, so all detected pairs are shown:{" "}
-            {ignoredPairsError.message}
+            Unable to load ignored duplicate pairs, so all detected pairs are
+            shown.
           </div>
         )}
 
         {ignoredProductsError && (
           <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            Unable to load product details for ignored pairs:{" "}
-            {ignoredProductsError.message}
+            Unable to load product details for ignored pairs.
           </div>
         )}
 
@@ -265,7 +291,7 @@ export default async function DuplicateProductsPage({
 
                 <div className="flex flex-wrap gap-2">
                   <form
-                    action={`/admin/duplicates/ignore?token=${encodeURIComponent(token)}`}
+                    action="/admin/duplicates/ignore"
                     method="post"
                   >
                     <input
@@ -287,14 +313,14 @@ export default async function DuplicateProductsPage({
                   </form>
 
                   <Link
-                    href={`/admin/duplicates/merge-preview?token=${encodeURIComponent(token)}&canonical=${match.productA.id}&candidate=${match.productB.id}`}
+                    href={`/admin/duplicates/merge-preview?canonical=${match.productA.id}&candidate=${match.productB.id}`}
                     className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
                   >
                     Preview: keep A
                   </Link>
 
                   <Link
-                    href={`/admin/duplicates/merge-preview?token=${encodeURIComponent(token)}&canonical=${match.productB.id}&candidate=${match.productA.id}`}
+                    href={`/admin/duplicates/merge-preview?canonical=${match.productB.id}&candidate=${match.productA.id}`}
                     className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
                   >
                     Preview: keep B
@@ -342,8 +368,8 @@ export default async function DuplicateProductsPage({
 
           <div className="mt-6 space-y-5">
             {ignoredPairs.map((pair) => {
-              const productA = ignoredProductMap.get(Number(pair.product_a_id));
-              const productB = ignoredProductMap.get(Number(pair.product_b_id));
+              const productA = ignoredProductMap.get(String(pair.product_a_id));
+              const productB = ignoredProductMap.get(String(pair.product_b_id));
 
               return (
                 <section
@@ -359,7 +385,7 @@ export default async function DuplicateProductsPage({
                     </p>
 
                     <form
-                      action={`/admin/duplicates/restore?token=${encodeURIComponent(token)}`}
+                      action="/admin/duplicates/restore"
                       method="post"
                     >
                       <input

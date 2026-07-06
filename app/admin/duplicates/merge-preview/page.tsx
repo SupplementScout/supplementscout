@@ -10,6 +10,7 @@ import {
 } from "../../../lib/mergePreview";
 import { MergeConfirmButton } from "./MergeConfirmButton";
 import { MergeDecisionsForm } from "./MergeDecisionsForm";
+import { requireAdminPage } from "../../../lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +18,8 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value || "";
 }
 
-function parsePositiveInteger(value: string) {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+function parsePositiveBigint(value: string) {
+  return /^[1-9]\d*$/.test(value) ? value : null;
 }
 
 function formatValue(value: string | number | boolean | null) {
@@ -430,17 +430,17 @@ export default async function MergePreviewPage({
   searchParams,
 }: {
   searchParams: Promise<{
-    token?: string | string[];
     canonical?: string | string[];
     candidate?: string | string[];
     merge_error?: string | string[];
   }>;
 }) {
+  await requireAdminPage();
+
   const params = await searchParams;
-  const token = firstParam(params.token);
   const mergeError = firstParam(params.merge_error);
-  const canonicalId = parsePositiveInteger(firstParam(params.canonical));
-  const candidateId = parsePositiveInteger(firstParam(params.candidate));
+  const canonicalId = parsePositiveBigint(firstParam(params.canonical));
+  const candidateId = parsePositiveBigint(firstParam(params.candidate));
 
   if (!canonicalId || !candidateId) {
     return (
@@ -459,14 +459,12 @@ export default async function MergePreviewPage({
   try {
     preview = await getMergePreview(canonicalId, candidateId);
   } catch (error) {
+    console.error("Unable to prepare merge preview.", {
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+
     return (
-      <AdminError
-        message={
-          error instanceof Error
-            ? error.message
-            : "Unable to load merge preview."
-        }
-      />
+      <AdminError message="Unable to prepare merge preview." />
     );
   }
 
@@ -508,7 +506,7 @@ export default async function MergePreviewPage({
       <div className="mx-auto max-w-7xl">
         <div className="border-b border-zinc-200 pb-6">
           <Link
-            href={`/admin/duplicates?token=${encodeURIComponent(token)}`}
+            href="/admin/duplicates"
             className="text-sm font-medium text-zinc-600 underline underline-offset-4"
           >
             Back to duplicates
@@ -520,6 +518,14 @@ export default async function MergePreviewPage({
           <h1 className="mt-2 text-3xl font-bold tracking-tight">
             Merge preview
           </h1>
+          <form action="/admin/logout" method="post" className="mt-4">
+            <button
+              type="submit"
+              className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-950 hover:text-zinc-950"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
 
         <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
@@ -588,7 +594,7 @@ export default async function MergePreviewPage({
               {canMerge && !hasDecisionConflicts && (
                 <div className="mt-4 border-t border-zinc-200 pt-4">
                   <MergeConfirmButton
-                    action={`/admin/duplicates/merge?token=${encodeURIComponent(token)}`}
+                    action="/admin/duplicates/merge"
                     canonicalId={String(preview.canonical.product.id)}
                     canonicalName={preview.canonical.product.name}
                     candidateId={String(preview.candidate.product.id)}
@@ -601,7 +607,7 @@ export default async function MergePreviewPage({
 
           {hasDecisionConflicts && (
             <MergeDecisionsForm
-              action={`/admin/duplicates/merge?token=${encodeURIComponent(token)}`}
+              action="/admin/duplicates/merge"
               canonicalId={String(preview.canonical.product.id)}
               candidateId={String(preview.candidate.product.id)}
               canMergeWithDecisions={canMergeWithDecisions}

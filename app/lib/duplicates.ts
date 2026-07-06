@@ -29,12 +29,16 @@ export function getDuplicatePairIds(
   productAId: number | string,
   productBId: number | string
 ) {
-  const firstId = Number(productAId);
-  const secondId = Number(productBId);
-  const productA = Math.min(firstId, secondId);
-  const productB = Math.max(firstId, secondId);
+  const firstId = String(productAId);
+  const secondId = String(productBId);
+  const firstComesBeforeSecond =
+    firstId.length === secondId.length
+      ? firstId <= secondId
+      : firstId.length < secondId.length;
 
-  return [productA, productB] as const;
+  return firstComesBeforeSecond
+    ? ([firstId, secondId] as const)
+    : ([secondId, firstId] as const);
 }
 
 const variantWords = [

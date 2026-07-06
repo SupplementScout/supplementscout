@@ -1,19 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getDuplicatePairIds } from "../../../lib/duplicates";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { requireAdminRoute } from "../../../lib/adminAuth";
 
 function isPositiveInteger(value: FormDataEntryValue | null) {
-  if (typeof value !== "string") {
-    return false;
-  }
-
-  const number = Number(value);
-
-  return Number.isInteger(number) && number > 0;
-}
-
-function unauthorizedResponse() {
-  return new NextResponse("401 Unauthorized", { status: 401 });
+  return typeof value === "string" && /^[1-9]\d*$/.test(value);
 }
 
 function badRequestResponse(message: string) {
@@ -21,11 +12,10 @@ function badRequestResponse(message: string) {
 }
 
 export async function POST(request: NextRequest) {
-  const expectedToken = process.env.ADMIN_TOKEN;
-  const providedToken = request.nextUrl.searchParams.get("token") || "";
+  const unauthorized = requireAdminRoute(request);
 
-  if (!expectedToken || providedToken !== expectedToken) {
-    return unauthorizedResponse();
+  if (unauthorized) {
+    return unauthorized;
   }
 
   const formData = await request.formData();
@@ -39,8 +29,8 @@ export async function POST(request: NextRequest) {
     return badRequestResponse("Product IDs must be positive integers.");
   }
 
-  const rawProductAId = Number(productAIdValue);
-  const rawProductBId = Number(productBIdValue);
+  const rawProductAId = String(productAIdValue);
+  const rawProductBId = String(productBIdValue);
 
   if (rawProductAId === rawProductBId) {
     return badRequestResponse("Product IDs must be different.");
@@ -64,7 +54,6 @@ export async function POST(request: NextRequest) {
   }
 
   const redirectUrl = new URL("/admin/duplicates", request.url);
-  redirectUrl.searchParams.set("token", providedToken);
 
   return NextResponse.redirect(redirectUrl, 303);
 }

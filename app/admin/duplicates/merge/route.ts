@@ -7,6 +7,7 @@ import {
   getMergePreview,
 } from "../../../lib/mergePreview";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { requireAdminRoute } from "../../../lib/adminAuth";
 
 const positiveBigintPattern = /^[1-9]\d*$/;
 const compatibilityBlockerReason =
@@ -35,10 +36,6 @@ function parsePositiveBigint(value: FormDataEntryValue | null) {
   }
 
   return value;
-}
-
-function unauthorizedResponse() {
-  return new NextResponse("401 Unauthorized", { status: 401 });
 }
 
 function badRequestResponse(message: string) {
@@ -308,19 +305,16 @@ function hasConfirmation(value: FormDataEntryValue | null, candidateId: string) 
 
 function redirectToPreview({
   request,
-  token,
   canonicalId,
   candidateId,
   errorCode,
 }: {
   request: NextRequest;
-  token: string;
   canonicalId: string;
   candidateId: string;
   errorCode: "unsafe" | "failed";
 }) {
   const redirectUrl = new URL("/admin/duplicates/merge-preview", request.url);
-  redirectUrl.searchParams.set("token", token);
   redirectUrl.searchParams.set("canonical", canonicalId);
   redirectUrl.searchParams.set("candidate", candidateId);
   redirectUrl.searchParams.set("merge_error", errorCode);
@@ -329,11 +323,10 @@ function redirectToPreview({
 }
 
 export async function POST(request: NextRequest) {
-  const expectedToken = process.env.ADMIN_TOKEN;
-  const providedToken = request.nextUrl.searchParams.get("token") || "";
+  const unauthorized = requireAdminRoute(request);
 
-  if (!expectedToken || providedToken !== expectedToken) {
-    return unauthorizedResponse();
+  if (unauthorized) {
+    return unauthorized;
   }
 
   let formData: FormData;
@@ -368,7 +361,6 @@ export async function POST(request: NextRequest) {
 
     return redirectToPreview({
       request,
-      token: providedToken,
       canonicalId,
       candidateId,
       errorCode: "failed",
@@ -378,7 +370,6 @@ export async function POST(request: NextRequest) {
   if (!preview) {
     return redirectToPreview({
       request,
-      token: providedToken,
       canonicalId,
       candidateId,
       errorCode: "unsafe",
@@ -398,7 +389,6 @@ export async function POST(request: NextRequest) {
     if (!canMerge) {
       return redirectToPreview({
         request,
-        token: providedToken,
         canonicalId,
         candidateId,
         errorCode: "unsafe",
@@ -417,7 +407,6 @@ export async function POST(request: NextRequest) {
 
       return redirectToPreview({
         request,
-        token: providedToken,
         canonicalId,
         candidateId,
         errorCode: "failed",
@@ -435,7 +424,6 @@ export async function POST(request: NextRequest) {
     ) {
       return redirectToPreview({
         request,
-        token: providedToken,
         canonicalId,
         candidateId,
         errorCode: "unsafe",
@@ -455,7 +443,6 @@ export async function POST(request: NextRequest) {
 
       return redirectToPreview({
         request,
-        token: providedToken,
         canonicalId,
         candidateId,
         errorCode: "failed",
@@ -464,7 +451,6 @@ export async function POST(request: NextRequest) {
   }
 
   const redirectUrl = new URL("/admin/duplicates", request.url);
-  redirectUrl.searchParams.set("token", providedToken);
   redirectUrl.searchParams.set("merged", "1");
   redirectUrl.searchParams.set("canonical", canonicalId);
   redirectUrl.searchParams.set("candidate", candidateId);
