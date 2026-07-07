@@ -198,7 +198,14 @@ export default function Home() {
       <footer className="px-6 py-10">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-zinc-200 pt-8 text-sm text-zinc-500 sm:flex-row">
           <p>© 2026 SupplementScout</p>
-          <p>The UK&apos;s Smart Supplement Search Engine</p>
+          <nav className="flex flex-wrap gap-4">
+            <Link href="/about" className="hover:text-zinc-950">
+              About
+            </Link>
+            <Link href="/affiliate-disclosure" className="hover:text-zinc-950">
+              Affiliate Disclosure
+            </Link>
+          </nav>
         </div>
       </footer>
     </main>
