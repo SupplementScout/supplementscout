@@ -539,7 +539,7 @@ function priceHistoryTotal(price, shippingCost) {
     return null;
   }
 
-  return productPrice + shipping;
+  return Math.round((productPrice + shipping) * 100) / 100;
 }
 
 function validateFeedRowForWrites(row, rowNumber, options = {}) {
@@ -886,6 +886,7 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
     in_stock: parseBoolean(row.in_stock),
     last_checked_at: new Date().toISOString(),
   };
+  offerData.total_price = priceHistoryTotal(offerData.price, offerData.shipping_cost);
 
   const { data: existingOffers, error: findError } = await supabase
     .from("offers")

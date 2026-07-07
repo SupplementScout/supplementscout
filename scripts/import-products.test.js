@@ -793,6 +793,7 @@ test("safe-create writes direct retailer URL to mapping and affiliate URL to off
   assert.equal(mappingWrite.payload.external_gtin, row.external_gtin);
   assert.equal(offerWrite.payload.url, row.aw_deep_link);
   assert.equal(offerWrite.payload.shipping_cost, 1.99);
+  assert.equal(offerWrite.payload.total_price, 6.98);
   assert.equal(Object.prototype.hasOwnProperty.call(productWrite.payload, "gtin"), false);
 });
 
@@ -1015,12 +1016,14 @@ test("unknown feed shipping remains allowed", async () => {
 
 test("Simply Supplements blank delivery is inferred from retailer policy", async () => {
   const cases = [
-    { price: "19.99", expectedShipping: 1.99 },
-    { price: "20.00", expectedShipping: 0 },
-    { price: "25.00", expectedShipping: 0 },
+    { price: "4.99", expectedShipping: 1.99, expectedTotal: 6.98 },
+    { price: "19.99", expectedShipping: 1.99, expectedTotal: 21.98 },
+    { price: "20.00", expectedShipping: 0, expectedTotal: 20 },
+    { price: "23.99", expectedShipping: 0, expectedTotal: 23.99 },
+    { price: "25.00", expectedShipping: 0, expectedTotal: 25 },
   ];
 
-  for (const { price, expectedShipping } of cases) {
+  for (const { price, expectedShipping, expectedTotal } of cases) {
     const row = baseFeedRow({
       retailer_name: "Simply Supplements",
       retailer_website: "https://www.simplysupplements.co.uk",
@@ -1047,6 +1050,8 @@ test("Simply Supplements blank delivery is inferred from retailer policy", async
       "shipping inferred from retailer policy"
     );
     assert.equal(offerWrite.payload.shipping_cost, expectedShipping);
+    assert.equal(offerWrite.payload.total_price, expectedTotal);
+    assert.notEqual(offerWrite.payload.total_price, 0);
   }
 });
 
@@ -1093,9 +1098,28 @@ test("price history total is null when shipping is unknown", async () => {
   const historyWrite = supabase.writes.find(
     (write) => write.table === "price_history"
   );
+  const offerWrite = supabase.writes.find((write) => write.table === "offers");
 
+  assert.equal(offerWrite.payload.shipping_cost, null);
+  assert.equal(offerWrite.payload.total_price, null);
   assert.equal(historyWrite.payload.shipping_cost, null);
   assert.equal(historyWrite.payload.total_price, null);
+});
+
+test("manual import offer total_price uses known shipping", async () => {
+  const supabase = createMockSupabase();
+  setSupabaseForTests(supabase);
+
+  await runImportRows([baseFeedRow({ shipping_cost: "2.50" })]);
+
+  const offerWrite = supabase.writes.find((write) => write.table === "offers");
+  const historyWrite = supabase.writes.find(
+    (write) => write.table === "price_history"
+  );
+
+  assert.equal(offerWrite.payload.total_price, 32.49);
+  assert.equal(historyWrite.payload.total_price, 32.49);
+  assert.notEqual(offerWrite.payload.total_price, 0);
 });
 
 test("additional variant conflicts are blocked", () => {
