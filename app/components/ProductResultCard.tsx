@@ -28,7 +28,7 @@ export default function ProductResultCard({
       <div className="grid min-w-0 grid-cols-1 gap-4 p-4 sm:grid-cols-[112px_minmax(0,1fr)] sm:p-5 md:grid-cols-[148px_minmax(0,1fr)_250px] md:items-center md:gap-5">
         <Link
           href={productHref(product)}
-          className="flex h-24 w-24 items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 p-2 sm:h-28 sm:w-full md:h-36"
+          className="flex h-[120px] w-[120px] items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 p-2 sm:h-28 sm:w-full md:h-36"
           aria-label={`View ${product.name}`}
         >
           {product.image ? (
