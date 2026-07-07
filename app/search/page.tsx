@@ -95,27 +95,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-950">
+    <main className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
           <Link href="/" className="text-xl font-bold tracking-tight">
             SupplementScout
           </Link>
-          <Link href="/" className="text-sm font-medium text-zinc-600">
+          <Link href="/" className="hidden text-sm font-medium text-zinc-600 sm:inline">
             New search
           </Link>
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
-        <form action="/search" className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
+      <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+        <form action="/search" className="min-w-0 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm sm:p-4">
           <div className="flex flex-col gap-3 md:flex-row">
             <input
               type="search"
               name="q"
               defaultValue={query}
               placeholder="Search supplements, brands or categories"
-              className="min-h-12 flex-1 rounded-lg border border-zinc-300 px-4 text-base outline-none focus:border-zinc-950"
+              className="min-h-12 flex-1 rounded-lg border border-zinc-300 px-4 text-base text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-zinc-950"
             />
             <input type="hidden" name="sort" value={sort} />
             {filters.category && (
@@ -129,7 +129,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             )}
             <button
               type="submit"
-              className="min-h-12 rounded-lg bg-zinc-950 px-6 text-sm font-semibold text-white"
+              className="min-h-12 rounded-lg bg-zinc-950 px-6 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
             >
               Search
             </button>
@@ -148,12 +148,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
         {hasQuery && (
           <>
-            <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="mt-6 flex flex-col gap-4 md:mt-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
                   Search results
                 </p>
-                <h1 className="mt-2 text-3xl font-bold md:text-4xl">
+                <h1 className="mt-1.5 text-2xl font-bold text-zinc-950 sm:text-3xl md:text-4xl">
                   {query}
                 </h1>
                 {!error && (
@@ -192,7 +192,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             />
 
             {error && (
-              <div className="mt-8 rounded-lg border border-red-200 bg-red-50 p-5 text-red-700">
+              <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5 text-red-700 md:mt-8">
                 <p className="font-semibold">Search failed.</p>
                 <p className="mt-1 text-sm">
                   Please try again or use a shorter search phrase.
@@ -201,7 +201,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             )}
 
             {!error && totalCount === 0 && (
-              <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-8 text-center">
+              <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6 text-center sm:p-8 md:mt-8">
                 <h2 className="text-2xl font-bold">
                   {hasActiveFilters ? "No filtered results found" : "No results found"}
                 </h2>
@@ -214,7 +214,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             )}
 
             {!error && (
-              <div className="mt-8 grid gap-6 lg:grid-cols-[280px_1fr]">
+              <div className="mt-5 grid gap-5 lg:mt-8 lg:grid-cols-[280px_1fr] lg:gap-6">
                 <SearchFilters
                   query={query}
                   sort={sort}
@@ -224,7 +224,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
                 {results.length > 0 && (
                   <div>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {results.map((product) => (
                         <ProductResultCard key={product.id} product={product} />
                       ))}
