@@ -24,11 +24,51 @@ function loadPricingModule() {
   return mod.exports;
 }
 
+const pricingModule = loadPricingModule();
+
+function loadProductsModule() {
+  const filename = path.join(process.cwd(), "app", "lib", "products.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  const originalLoad = Module._load;
+
+  Module._load = function patchedLoad(request, parent, isMain) {
+    if (parent === mod && request === "./pricing") {
+      return pricingModule;
+    }
+
+    if (parent === mod && request === "./supabase") {
+      return { supabase: {} };
+    }
+
+    return originalLoad.call(this, request, parent, isMain);
+  };
+
+  try {
+    mod.filename = filename;
+    mod.paths = Module._nodeModulePaths(path.dirname(filename));
+    mod._compile(outputText, filename);
+  } finally {
+    Module._load = originalLoad;
+  }
+
+  return mod.exports;
+}
+
 const {
   getDeliveredPrice,
+  getKnownProductPrice,
   getVerifiedPricePerKg,
   getVerifiedPricePerLitre,
-} = loadPricingModule();
+} = pricingModule;
+const { normalizeSearchOffers } = loadProductsModule();
 
 test("500 ml liquid at 24.98 returns 49.96 per litre", () => {
   const deliveredPrice = getDeliveredPrice({ price: 24.98, shipping_cost: 0 });
@@ -37,6 +77,55 @@ test("500 ml liquid at 24.98 returns 49.96 per litre", () => {
     getVerifiedPricePerLitre(deliveredPrice, 500, "liquid", true),
     49.96
   );
+});
+
+test("null or blank shipping has unknown delivered price", () => {
+  assert.equal(getDeliveredPrice({ price: 24.98, shipping_cost: null }), null);
+  assert.equal(getDeliveredPrice({ price: 24.98, shipping_cost: "" }), null);
+});
+
+test("zero shipping remains valid free delivery", () => {
+  assert.deepEqual(getDeliveredPrice({ price: 24.98, shipping_cost: 0 }), {
+    productPrice: 24.98,
+    shippingCost: 0,
+    totalPrice: 24.98,
+  });
+});
+
+test("search offer ranking prefers known delivered total over null shipping", () => {
+  const offers = normalizeSearchOffers([
+    {
+      id: "unknown-delivery",
+      price: 10,
+      shipping_cost: null,
+      url: "https://retailer.example/unknown",
+      in_stock: true,
+      retailer: { id: "1", name: "Retailer One", slug: "retailer-one" },
+    },
+    {
+      id: "known-delivery",
+      price: 12,
+      shipping_cost: 1.99,
+      url: "https://retailer.example/known",
+      in_stock: true,
+      retailer: { id: "2", name: "Retailer Two", slug: "retailer-two" },
+    },
+  ]);
+
+  assert.equal(getDeliveredPrice({ price: 10, shipping_cost: null }), null);
+  assert.equal(offers.length, 1);
+  assert.equal(offers[0].id, "known-delivery");
+  assert.equal(offers[0].deliveredPrice.totalPrice, 13.99);
+});
+
+test("invalid offer prices are not treated as displayable product prices", () => {
+  assert.equal(getKnownProductPrice(null), null);
+  assert.equal(getKnownProductPrice(""), null);
+  assert.equal(getKnownProductPrice("NaN"), null);
+  assert.equal(getKnownProductPrice("Infinity"), null);
+  assert.equal(getKnownProductPrice("0"), null);
+  assert.equal(getKnownProductPrice("-1"), null);
+  assert.equal(getKnownProductPrice("10"), 10);
 });
 
 test("liquid does not return price per kg", () => {

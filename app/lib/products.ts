@@ -76,14 +76,14 @@ export type ProductSearchResult = {
   relevanceScore: number;
 };
 
-type RawRetailer = {
+export type RawRetailer = {
   id: number | string;
   name: string | null;
   slug: string | null;
   logo?: string | null;
 };
 
-type RawOffer = {
+export type RawOffer = {
   id: number | string;
   price: number | string | null;
   shipping_cost: number | string | null;
@@ -253,12 +253,8 @@ function scoreProduct(product: RawProduct, query: string) {
   return score;
 }
 
-function normalizeProduct(
-  product: RawProduct,
-  query: string,
-  filters: SearchFilters
-): ProductSearchResult | null {
-  const validOffers = (product.offers || [])
+export function normalizeSearchOffers(offers: RawOffer[]) {
+  return offers
     .filter((offer) => offer.in_stock === true)
     .map((offer) => {
       const deliveredPrice = getDeliveredPrice(offer);
@@ -283,6 +279,14 @@ function normalizeProduct(
         left.deliveredPrice.totalPrice - right.deliveredPrice.totalPrice ||
         left.id.localeCompare(right.id)
     );
+}
+
+function normalizeProduct(
+  product: RawProduct,
+  query: string,
+  filters: SearchFilters
+): ProductSearchResult | null {
+  const validOffers = normalizeSearchOffers(product.offers || []);
 
   const matchingRetailerOffers = filters.retailer
     ? validOffers.filter(

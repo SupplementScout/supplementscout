@@ -16,6 +16,8 @@ const {
   parseSize,
   parseVariantIdentity,
   normalizeCategory,
+  normalizeShippingForImport,
+  priceHistoryTotal,
   runImportRows,
   setSupabaseForTests,
   shouldLogCategoryNormalization,
@@ -606,6 +608,10 @@ test("invalid feed shipping produces zero writes", async () => {
   await assertInvalidFeedRowHasZeroWrites({ shipping_cost: "NaN" });
   await assertInvalidFeedRowHasZeroWrites({ shipping_cost: "Infinity" });
   await assertInvalidFeedRowHasZeroWrites({ shipping_cost: "-1" });
+  await assertInvalidFeedRowHasZeroWrites({
+    shipping_cost: undefined,
+    delivery_cost: "NaN",
+  });
 });
 
 test("unknown feed shipping remains allowed", async () => {
@@ -621,6 +627,91 @@ test("unknown feed shipping remains allowed", async () => {
     assert.equal(result.report.approvedRows.length, 1);
     assert(supabase.writes.length > 0);
   }
+});
+
+test("Simply Supplements blank delivery is inferred from retailer policy", async () => {
+  const cases = [
+    { price: "19.99", expectedShipping: 1.99 },
+    { price: "20.00", expectedShipping: 0 },
+    { price: "25.00", expectedShipping: 0 },
+  ];
+
+  for (const { price, expectedShipping } of cases) {
+    const row = baseFeedRow({
+      retailer_name: "Simply Supplements",
+      retailer_website: "https://www.simplysupplements.co.uk",
+      merchant_id: "5959",
+      merchant_name: "Simply Supplements",
+      price,
+      shipping_cost: undefined,
+      delivery_cost: "",
+      gtin: "",
+    });
+    const supabase = createMockSupabase({
+      retailers: [
+        { id: "r1", name: "Simply Supplements", slug: "simply-supplements" },
+      ],
+    });
+    setSupabaseForTests(supabase);
+
+    const result = await runImportRows([row], { mode: "feed" });
+    const offerWrite = supabase.writes.find((write) => write.table === "offers");
+
+    assert.equal(result.report.shippingInferredFromPolicy.length, 1);
+    assert.equal(
+      result.report.shippingInferredFromPolicy[0].reason,
+      "shipping inferred from retailer policy"
+    );
+    assert.equal(offerWrite.payload.shipping_cost, expectedShipping);
+  }
+});
+
+test("other retailer blank delivery does not infer shipping", () => {
+  const result = normalizeShippingForImport(
+    baseFeedRow({ shipping_cost: undefined, delivery_cost: "" }),
+    "feed"
+  );
+
+  assert.equal(result.shippingInferredFromPolicy, false);
+  assert.equal(result.row.shipping_cost, null);
+});
+
+test("valid feed delivery_cost overrides inferred Simply Supplements rule", () => {
+  const result = normalizeShippingForImport(
+    baseFeedRow({
+      retailer_name: "Simply Supplements",
+      merchant_id: "5959",
+      merchant_name: "Simply Supplements",
+      price: "25.00",
+      shipping_cost: undefined,
+      delivery_cost: "2.49",
+    }),
+    "feed"
+  );
+
+  assert.equal(result.shippingInferredFromPolicy, false);
+  assert.equal(result.row.shipping_cost, 2.49);
+});
+
+test("price history total is null when shipping is unknown", async () => {
+  assert.equal(priceHistoryTotal("19.99", null), null);
+  assert.equal(priceHistoryTotal("19.99", ""), null);
+  assert.equal(priceHistoryTotal("19.99", 0), 19.99);
+
+  const supabase = createMockSupabase();
+  setSupabaseForTests(supabase);
+
+  await runImportRows(
+    [baseFeedRow({ gtin: "", shipping_cost: undefined, delivery_cost: "" })],
+    { mode: "feed" }
+  );
+
+  const historyWrite = supabase.writes.find(
+    (write) => write.table === "price_history"
+  );
+
+  assert.equal(historyWrite.payload.shipping_cost, null);
+  assert.equal(historyWrite.payload.total_price, null);
 });
 
 test("additional variant conflicts are blocked", () => {

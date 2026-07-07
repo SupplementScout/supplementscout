@@ -315,6 +315,7 @@ function createPreflightReport() {
     formatConflicts: [],
     productGtinBlocked: [],
     externalGtinStoredOrUpdated: [],
+    shippingInferredFromPolicy: [],
     incompleteEvidenceRows: [],
   };
 }
@@ -490,6 +491,15 @@ function analyzeFeedRows(resolvedRows) {
         gtin: item.externalGtin,
       });
     }
+
+    if (item.shippingInferredFromPolicy) {
+      report.shippingInferredFromPolicy.push({
+        rowNumber: item.rowNumber,
+        productName,
+        shippingCost: item.row.shipping_cost,
+        reason: "shipping inferred from retailer policy",
+      });
+    }
   }
 
   return report;
@@ -511,6 +521,7 @@ function formatPreflightReport(report) {
     `  format conflicts: ${report.formatConflicts.length}`,
     `  product GTIN blocked: ${report.productGtinBlocked.length}`,
     `  external GTIN stored or updated: ${report.externalGtinStoredOrUpdated.length}`,
+    `  shipping inferred from retailer policy: ${report.shippingInferredFromPolicy.length}`,
   ].join("\n");
 }
 

@@ -23,6 +23,36 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
   },
 });
 
+function normalizePriceHistoryNumber(value, options = {}) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return null;
+  }
+
+  if (!options.allowZero && number <= 0) {
+    return null;
+  }
+
+  if (options.allowZero && number < 0) {
+    return null;
+  }
+
+  return number;
+}
+
+function priceHistoryTotal(price, shippingCost) {
+  if (price === null || shippingCost === null) {
+    return null;
+  }
+
+  return price + shippingCost;
+}
+
 async function runBackfill() {
   const { data: offers, error: offersError } = await supabase
     .from("offers")
@@ -57,8 +87,10 @@ async function runBackfill() {
         continue;
       }
 
-      const price = Number(offer.price || 0);
-      const shippingCost = Number(offer.shipping_cost || 0);
+      const price = normalizePriceHistoryNumber(offer.price);
+      const shippingCost = normalizePriceHistoryNumber(offer.shipping_cost, {
+        allowZero: true,
+      });
 
       const { error: insertError } = await supabase
         .from("price_history")
@@ -66,7 +98,7 @@ async function runBackfill() {
           offer_id: offer.id,
           price,
           shipping_cost: shippingCost,
-          total_price: price + shippingCost,
+          total_price: priceHistoryTotal(price, shippingCost),
           checked_at: offer.last_checked_at || new Date().toISOString(),
         });
 

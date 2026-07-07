@@ -128,6 +128,80 @@ function parseOptionalFiniteNumber(value, fieldName) {
   return number;
 }
 
+function getInputShippingValue(row) {
+  if (
+    rowHasColumn(row, "shipping_cost") &&
+    row.shipping_cost !== null &&
+    row.shipping_cost !== undefined &&
+    row.shipping_cost !== ""
+  ) {
+    return row.shipping_cost;
+  }
+
+  if (rowHasColumn(row, "delivery_cost")) {
+    return row.delivery_cost;
+  }
+
+  if (rowHasColumn(row, "shipping_cost")) {
+    return row.shipping_cost;
+  }
+
+  return undefined;
+}
+
+function isSimplySupplementsRow(row) {
+  const merchantId = String(row.merchant_id || "").trim();
+  const merchantName = String(row.merchant_name || row.retailer_name || "")
+    .trim()
+    .toLowerCase();
+
+  return merchantId === "5959" || merchantName === "simply supplements";
+}
+
+function inferSimplySupplementsShipping(price) {
+  return price >= 20 ? 0 : 1.99;
+}
+
+function normalizeShippingForImport(row, mode = "manual") {
+  const shippingInput = getInputShippingValue(row);
+  const parsedShipping = parseOptionalFiniteNumber(shippingInput, "shipping_cost");
+
+  if (parsedShipping !== null) {
+    if (parsedShipping < 0) {
+      throw new Error("shipping_cost must be 0 or greater");
+    }
+
+    return {
+      row: { ...row, shipping_cost: parsedShipping },
+      shippingInferredFromPolicy: false,
+    };
+  }
+
+  if (mode !== "feed" || !isSimplySupplementsRow(row)) {
+    return {
+      row: { ...row, shipping_cost: null },
+      shippingInferredFromPolicy: false,
+    };
+  }
+
+  const price = parseFiniteNumber(row.price, "price");
+
+  if (price <= 0) {
+    throw new Error("price must be greater than 0");
+  }
+
+  const inferredShipping = inferSimplySupplementsShipping(price);
+
+  if (!Number.isFinite(inferredShipping) || inferredShipping < 0) {
+    throw new Error("inferred shipping_cost must be a finite non-negative number");
+  }
+
+  return {
+    row: { ...row, shipping_cost: inferredShipping },
+    shippingInferredFromPolicy: true,
+  };
+}
+
 function rowHasColumn(row, fieldName) {
   return Object.prototype.hasOwnProperty.call(row, fieldName);
 }
@@ -424,6 +498,26 @@ function buildProductData(row, rowNumber, mode = "manual") {
   return productData;
 }
 
+function priceHistoryTotal(price, shippingCost) {
+  const productPrice = Number(price);
+
+  if (!Number.isFinite(productPrice) || productPrice <= 0) {
+    return null;
+  }
+
+  if (shippingCost === null || shippingCost === undefined || shippingCost === "") {
+    return null;
+  }
+
+  const shipping = Number(shippingCost);
+
+  if (!Number.isFinite(shipping) || shipping < 0) {
+    return null;
+  }
+
+  return productPrice + shipping;
+}
+
 function validateFeedRowForWrites(row, rowNumber) {
   const errors = [];
 
@@ -452,7 +546,10 @@ function validateFeedRowForWrites(row, rowNumber) {
   });
 
   capture(() => {
-    const shipping = parseOptionalFiniteNumber(row.shipping_cost, "shipping_cost");
+    const shipping = parseOptionalFiniteNumber(
+      getInputShippingValue(row),
+      "shipping_cost"
+    );
 
     if (shipping !== null && shipping < 0) {
       throw new Error("shipping_cost must be 0 or greater");
@@ -734,7 +831,7 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
     product_id: productId,
     retailer_id: retailerId,
     price,
-    shipping_cost: optionalNumber(row.shipping_cost),
+    shipping_cost: optionalNumber(getInputShippingValue(row)),
     url: required(row.url, "url", rowNumber),
     in_stock: parseBoolean(row.in_stock),
     last_checked_at: new Date().toISOString(),
@@ -755,10 +852,20 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
 
   if (existingOffer) {
     const oldPrice = Number(existingOffer.price);
-    const oldShipping = Number(existingOffer.shipping_cost || 0);
+    const oldShipping =
+      existingOffer.shipping_cost === null ||
+      existingOffer.shipping_cost === undefined ||
+      existingOffer.shipping_cost === ""
+        ? null
+        : Number(existingOffer.shipping_cost);
 
     const newPrice = Number(offerData.price);
-    const newShipping = Number(offerData.shipping_cost || 0);
+    const newShipping =
+      offerData.shipping_cost === null ||
+      offerData.shipping_cost === undefined ||
+      offerData.shipping_cost === ""
+        ? null
+        : Number(offerData.shipping_cost);
 
     const priceChanged =
       oldPrice !== newPrice || oldShipping !== newShipping;
@@ -779,7 +886,7 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
           offer_id: updatedOffer.id,
           price: offerData.price,
           shipping_cost: offerData.shipping_cost,
-          total_price: newPrice + newShipping,
+          total_price: priceHistoryTotal(offerData.price, offerData.shipping_cost),
           checked_at: offerData.last_checked_at,
         });
 
@@ -809,8 +916,7 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
       offer_id: newOffer.id,
       price: offerData.price,
       shipping_cost: offerData.shipping_cost,
-      total_price:
-        Number(offerData.price) + Number(offerData.shipping_cost || 0),
+      total_price: priceHistoryTotal(offerData.price, offerData.shipping_cost),
       checked_at: offerData.last_checked_at,
     });
 
@@ -900,9 +1006,24 @@ async function findRetailerMapping(retailerId, offerUrl) {
 }
 
 async function resolveFeedRow(row, rowNumber) {
-  const validationErrors = validateFeedRowForWrites(row, rowNumber);
-  const retailerName = String(row.retailer_name || "").trim();
-  const offerUrl = String(row.url || "").trim();
+  let shippingNormalizedRow = row;
+  let shippingInferredFromPolicy = false;
+  const shippingErrors = [];
+
+  try {
+    const shippingResult = normalizeShippingForImport(row, "feed");
+    shippingNormalizedRow = shippingResult.row;
+    shippingInferredFromPolicy = shippingResult.shippingInferredFromPolicy;
+  } catch (error) {
+    shippingErrors.push(error?.message || String(error));
+  }
+
+  const validationErrors = [
+    ...validateFeedRowForWrites(shippingNormalizedRow, rowNumber),
+    ...shippingErrors,
+  ];
+  const retailerName = String(shippingNormalizedRow.retailer_name || "").trim();
+  const offerUrl = String(shippingNormalizedRow.url || "").trim();
   const retailer = retailerName
     ? await findRetailerBySlug(slugifyRetailerName(retailerName))
     : null;
@@ -917,17 +1038,18 @@ async function resolveFeedRow(row, rowNumber) {
     }
   }
 
-  if (!product && String(row.slug || "").trim()) {
-    product = await findProductForFeedRow(row);
+  if (!product && String(shippingNormalizedRow.slug || "").trim()) {
+    product = await findProductForFeedRow(shippingNormalizedRow);
   }
 
   return {
-    row,
+    row: shippingNormalizedRow,
     rowNumber,
     retailer,
     product,
     mapping,
     validationErrors,
+    shippingInferredFromPolicy,
   };
 }
 
@@ -1140,6 +1262,8 @@ module.exports = {
   parseVariantIdentity,
   preflightFeedRows,
   normalizeCategory,
+  normalizeShippingForImport,
+  priceHistoryTotal,
   runImport,
   runImportRows,
   setSupabaseForTests,

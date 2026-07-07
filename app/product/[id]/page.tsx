@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import {
   formatCurrency,
   getDeliveredPrice,
+  getKnownProductPrice,
   getVerifiedCostPer5gCreatine,
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
@@ -52,6 +53,36 @@ async function getProductByRouteParam(id: string, select: string) {
     ...result,
     data: product ? { ...product, id: String(product.id) } : null,
   };
+}
+
+function knownDeliveredPrice(offer: {
+  price: number | string | null;
+  shipping_cost: number | string | null;
+}) {
+  return getDeliveredPrice({
+    price: offer.price,
+    shipping_cost: offer.shipping_cost,
+  });
+}
+
+function formatShipping(value: number | string | null) {
+  if (value === null || value === "") {
+    return "Delivery unknown";
+  }
+
+  const shipping = Number(value);
+
+  if (!Number.isFinite(shipping) || shipping < 0) {
+    return "Delivery unknown";
+  }
+
+  return `Delivery: ${formatCurrency(shipping)}`;
+}
+
+function formatProductPrice(value: number | string | null) {
+  const price = getKnownProductPrice(value);
+
+  return price === null ? "Price unavailable" : formatCurrency(price);
 }
 
 export async function generateMetadata({
@@ -157,7 +188,10 @@ export default async function ProductPage({
 
     const validHistory =
       history?.filter(
-        (item) => !Number.isNaN(Number(item.total_price))
+        (item) =>
+          item.total_price !== null &&
+          Number.isFinite(Number(item.total_price)) &&
+          Number(item.total_price) > 0
       ) || [];
 
     const dailyBestMap = new Map<
@@ -220,25 +254,25 @@ export default async function ProductPage({
   }
 
   const sortedOffers = [...(offers || [])].sort((a, b) => {
-    const totalA =
-      Number(a.price) + Number(a.shipping_cost || 0);
+    const deliveredA = knownDeliveredPrice(a);
+    const deliveredB = knownDeliveredPrice(b);
+    const totalA = deliveredA?.totalPrice ?? Number.POSITIVE_INFINITY;
+    const totalB = deliveredB?.totalPrice ?? Number.POSITIVE_INFINITY;
 
-    const totalB =
-      Number(b.price) + Number(b.shipping_cost || 0);
+    const priceA = getKnownProductPrice(a.price) ?? Number.POSITIVE_INFINITY;
+    const priceB = getKnownProductPrice(b.price) ?? Number.POSITIVE_INFINITY;
 
-    return totalA - totalB;
+    return totalA - totalB || priceA - priceB || String(a.id).localeCompare(String(b.id));
   });
   const cheapestOffer = sortedOffers[0] || null;
-
-
-  const cheapestTotal = cheapestOffer
-    ? Number(cheapestOffer.price) +
-    Number(cheapestOffer.shipping_cost || 0)
-    : Number(product.price);
+  const cheapestDeliveredPrice = cheapestOffer
+    ? knownDeliveredPrice(cheapestOffer)
+    : null;
+  const cheapestTotal = cheapestDeliveredPrice?.totalPrice ?? null;
 
   let priceRating: string | null = null;
 
-  if (lowestHistoricalPrice !== null && cheapestTotal > 0) {
+  if (lowestHistoricalPrice !== null && cheapestTotal !== null && cheapestTotal > 0) {
     const differencePercent =
       ((cheapestTotal - lowestHistoricalPrice) / lowestHistoricalPrice) * 100;
 
@@ -257,11 +291,13 @@ export default async function ProductPage({
 
   if (averageHistoricalPrice !== null && averageHistoricalPrice > 0) {
     averageDifferencePercent =
-      ((cheapestTotal - averageHistoricalPrice) / averageHistoricalPrice) * 100;
+      cheapestTotal !== null
+        ? ((cheapestTotal - averageHistoricalPrice) / averageHistoricalPrice) * 100
+        : null;
   }
   const cheapestValidDeliveredPrice =
     sortedOffers
-      .map((offer) => getDeliveredPrice(offer))
+      .map((offer) => knownDeliveredPrice(offer))
       .filter((price): price is NonNullable<typeof price> => price !== null)
       .sort((left, right) => left.totalPrice - right.totalPrice)[0] || null;
   const verifiedPricePerServing = getVerifiedPricePerServing(
@@ -334,9 +370,15 @@ export default async function ProductPage({
                 <div>
                   <p className="text-sm font-semibold text-[#4B5563]">Best UK Price</p>
 
-                  <div className="mt-1 text-[56px] font-extrabold leading-none text-[#111827] sm:text-6xl lg:text-5xl">
-                    £{cheapestTotal.toFixed(2)}
-                  </div>
+                  {cheapestTotal !== null ? (
+                    <div className="mt-1 text-[56px] font-extrabold leading-none text-[#111827] sm:text-6xl lg:text-5xl">
+                      {formatCurrency(cheapestTotal)}
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-3xl font-extrabold leading-tight text-[#111827] sm:text-4xl">
+                      Total unknown
+                    </div>
+                  )}
                   {lowestHistoricalPrice !== null && (
                     <p className="mt-2 text-sm font-medium text-[#4B5563]">
                       Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
@@ -378,10 +420,10 @@ export default async function ProductPage({
                   {cheapestOffer && (
                     <div className="mt-3 space-y-1 text-sm font-medium text-[#4B5563]">
                       <p>
-                        Product: £{Number(cheapestOffer.price).toFixed(2)}
+                        Product: {formatProductPrice(cheapestOffer.price)}
                       </p>
                       <p>
-                        Delivery: £{Number(cheapestOffer.shipping_cost || 0).toFixed(2)}
+                        {formatShipping(cheapestOffer.shipping_cost)}
                       </p>
                       <p>
                         Sold by {cheapestOffer.retailer?.name || "Unknown retailer"}
@@ -530,18 +572,17 @@ export default async function ProductPage({
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <p className="text-sm font-medium text-gray-700">
-                            Product: £{Number(offer.price).toFixed(2)}
+                            Product: {formatProductPrice(offer.price)}
                           </p>
 
                           <p className="text-sm font-medium text-gray-700">
-                            Delivery: £{Number(offer.shipping_cost || 0).toFixed(2)}
+                            {formatShipping(offer.shipping_cost)}
                           </p>
 
                           <p className="mt-1 text-2xl font-bold text-gray-900">
-                            £{(
-                              Number(offer.price) +
-                              Number(offer.shipping_cost || 0)
-                            ).toFixed(2)}
+                            {knownDeliveredPrice(offer)
+                              ? formatCurrency(knownDeliveredPrice(offer)!.totalPrice)
+                              : "Total unknown"}
                           </p>
                         </div>
 

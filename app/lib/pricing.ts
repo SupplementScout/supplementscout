@@ -24,10 +24,14 @@ function toFinitePrice(value: number | string | null, options?: { allowZero: boo
 
 function toShippingCost(value: number | string | null) {
   if (value === null || value === "") {
-    return 0;
+    return null;
   }
 
   return toFinitePrice(value, { allowZero: true });
+}
+
+export function getKnownProductPrice(value: number | string | null) {
+  return toFinitePrice(value);
 }
 
 export function getDeliveredPrice(offer: PriceInput): DeliveredPrice | null {
