@@ -38,7 +38,7 @@ function normalizeComparableText(value = "") {
 function parseMultipack(value = "") {
   const text = String(value).toLowerCase();
   const match = text.match(
-    /\b(\d+)\s*x\s*(\d+(?:[.,]\d+)?)\s*(kg|g|mg|l|ml)\b/
+    /\b(\d+)\s*x\s*(\d+(?:[.,]\d+)?)\s*(kg|g|mg|mcg|iu|l|ml)\b/
   );
 
   if (!match) {
@@ -62,7 +62,7 @@ function parseSize(value = "") {
     };
   }
 
-  const match = text.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|mg|l|ml)\b/);
+  const match = text.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|mg|mcg|iu|l|ml)\b/);
 
   if (!match) {
     return null;
@@ -81,6 +81,14 @@ function parseSize(value = "") {
 
   if (unit === "mg") {
     return { value: amount / 1000, unit: "g", dimension: "mass" };
+  }
+
+  if (unit === "mcg") {
+    return { value: amount / 1000000, unit: "g", dimension: "mass" };
+  }
+
+  if (unit === "iu") {
+    return { value: amount, unit: "iu", dimension: "potency" };
   }
 
   if (unit === "l") {
@@ -129,6 +137,10 @@ function parseProductFormat(value = "") {
   }
 
   if (/\b(tablets?|tabs?)\b/.test(text)) {
+    return "tablet";
+  }
+
+  if (/\bmultivitamins?\b/.test(text)) {
     return "tablet";
   }
 
@@ -188,6 +200,9 @@ function parseVariantIdentity(rowOrName) {
           rowOrName.size,
           rowOrName.product_format,
           rowOrName.unit_type,
+          rowOrName.evidence_name,
+          rowOrName.evidence_size,
+          rowOrName.evidence_format,
         ]
           .filter(Boolean)
           .join(" ");
@@ -211,8 +226,8 @@ function sizeKey(size) {
 
 function productFamilyKey(value = "") {
   return normalizeComparableText(value)
-    .replace(/\b\d+\s*x\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|l|ml)\b/g, " ")
-    .replace(/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|l|ml)\b/g, " ")
+    .replace(/\b\d+\s*x\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
+    .replace(/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
     .replace(/\b(pack\s+of\s+\d+|\d+\s*(bars?|packs?|packets?|sachets?))\b/g, " ")
     .replace(/\b(chocolate|vanilla|strawberry|banana|cookies and cream|cookies cream|salted caramel|caramel|peanut|coconut|mango|berry|raspberry|orange|lemon|lime|cola|unflavoured)\b/g, " ")
     .replace(/\b(single|bars?|packs?|packets?|sachets?|capsules?|caps?|tablets?|tabs?|powder|liquid|ready to drink)\b/g, " ")
@@ -300,6 +315,65 @@ function isAmbiguousFeedRow(row) {
   );
 }
 
+function isSafeCreateRowAmbiguous(row) {
+  const identity = parseVariantIdentity(row);
+  const family = productFamilyKey(row.product_name || row.external_name || row.name || "");
+
+  return !family || identity.productFormat === null;
+}
+
+const SAFE_CREATE_ALLOWED_CATEGORIES = new Set([
+  "Vitamins",
+  "Health Supplements",
+  "Amino Acids",
+  "Creatine",
+]);
+
+const EXCLUDED_SAFE_CREATE_PATTERNS = [
+  /\bcbd\b/i,
+  /\bhemp\b/i,
+  /\bpet\b/i,
+  /\bdog\b/i,
+  /\bcat\b/i,
+  /\bpuppy\b/i,
+  /\bkitten\b/i,
+  /\bmedical\s*tests?\b/i,
+  /\btest\s*kits?\b/i,
+  /\bmassage\b/i,
+  /\btopical\b/i,
+  /\bcream\b/i,
+  /\blotion\b/i,
+  /\bgel\b/i,
+];
+
+function getSafeCreateExclusionReasons(row) {
+  const category = String(row.category || "").trim();
+
+  if (!SAFE_CREATE_ALLOWED_CATEGORIES.has(category)) {
+    return ["category is not allowed for safe-create"];
+  }
+
+  const text = [
+    row.product_name,
+    row.external_name,
+    row.name,
+    row.category,
+    row.raw_category,
+    row.merchant_category,
+    row.description,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  for (const pattern of EXCLUDED_SAFE_CREATE_PATTERNS) {
+    if (pattern.test(text)) {
+      return ["excluded product type"];
+    }
+  }
+
+  return [];
+}
+
 function createPreflightReport() {
   return {
     approvedRows: [],
@@ -317,6 +391,12 @@ function createPreflightReport() {
     externalGtinStoredOrUpdated: [],
     shippingInferredFromPolicy: [],
     incompleteEvidenceRows: [],
+    exclusions: [],
+    newRetailersToCreate: [],
+    newProductsToCreate: [],
+    retailerProductsToCreate: [],
+    offersToCreate: [],
+    priceHistoryRowsToCreate: [],
   };
 }
 
@@ -334,10 +414,12 @@ function addConflictByReason(report, item, reasons) {
   }
 }
 
-function analyzeFeedRows(resolvedRows) {
+function analyzeFeedRows(resolvedRows, options = {}) {
+  const safeCreate = Boolean(options.safeCreate);
   const report = createPreflightReport();
   const approvedCandidates = [];
   const dedupeKeys = new Map();
+  const plannedRetailerSlugs = new Set();
 
   for (const item of resolvedRows) {
     const { row, rowNumber, retailer, product, mapping, validationErrors = [] } = item;
@@ -361,12 +443,35 @@ function analyzeFeedRows(resolvedRows) {
       continue;
     }
 
-    if (!retailer || !product) {
-      report.unmatchedRows.push({ rowNumber, productName });
-      continue;
+    if (safeCreate) {
+      const exclusionReasons = getSafeCreateExclusionReasons(row);
+
+      if (exclusionReasons.length > 0) {
+        report.exclusions.push({ rowNumber, productName, reasons: exclusionReasons });
+        continue;
+      }
     }
 
-    if (isAmbiguousFeedRow(row)) {
+    if (!retailer || !product) {
+      if (!safeCreate) {
+        report.unmatchedRows.push({ rowNumber, productName });
+        continue;
+      }
+
+      if ((!retailer && !item.plannedRetailer) || (!product && !item.plannedProduct)) {
+        report.unmatchedRows.push({
+          rowNumber,
+          productName,
+          reasons: [
+            !retailer && !item.plannedRetailer ? "missing retailer" : null,
+            !product && !item.plannedProduct ? "missing product" : null,
+          ].filter(Boolean),
+        });
+        continue;
+      }
+    }
+
+    if (item.plannedProduct ? isSafeCreateRowAmbiguous(row) : isAmbiguousFeedRow(row)) {
       report.ambiguousRows.push({
         rowNumber,
         productName,
@@ -375,7 +480,9 @@ function analyzeFeedRows(resolvedRows) {
       continue;
     }
 
-    const compatibility = assessVariantCompatibility(row, product);
+    const compatibility = item.plannedProduct
+      ? { compatible: true, ambiguous: false, warnings: [] }
+      : assessVariantCompatibility(row, product);
 
     if (!compatibility.compatible || compatibility.ambiguous) {
       const conflict = {
@@ -402,7 +509,7 @@ function analyzeFeedRows(resolvedRows) {
     }
 
     if (productLevelGtin) {
-      if (product.gtin && product.gtin !== productLevelGtin) {
+      if (product?.gtin && product.gtin !== productLevelGtin) {
         report.gtinConflicts.push({
           rowNumber,
           productName,
@@ -434,7 +541,7 @@ function analyzeFeedRows(resolvedRows) {
       productLevelGtin,
       externalGtin,
       variantKey: rowIdentityKey(row),
-      collisionKey: `${retailer.id}:${product.id}`,
+      collisionKey: `${retailer?.id || item.plannedRetailer?.slug}:${product?.id || item.plannedProduct?.slug}`,
     });
   }
 
@@ -458,8 +565,8 @@ function analyzeFeedRows(resolvedRows) {
     group.forEach((item) => collisionRowNumbers.add(item.rowNumber));
     report.collisionGroups.push({
       collisionKey,
-      retailerId: group[0].retailer.id,
-      productId: group[0].product.id,
+      retailerId: group[0].retailer?.id || null,
+      productId: group[0].product?.id || null,
       rows: group.map((item) => ({
         rowNumber: item.rowNumber,
         productName: String(item.row.product_name || "").trim(),
@@ -475,6 +582,40 @@ function analyzeFeedRows(resolvedRows) {
 
   for (const item of report.approvedRows) {
     const productName = String(item.row.product_name || "").trim();
+
+    if (item.plannedRetailer && !plannedRetailerSlugs.has(item.plannedRetailer.slug)) {
+      plannedRetailerSlugs.add(item.plannedRetailer.slug);
+      report.newRetailersToCreate.push({
+        rowNumber: item.rowNumber,
+        name: item.plannedRetailer.name,
+        slug: item.plannedRetailer.slug,
+      });
+    }
+
+    if (item.plannedProduct) {
+      report.newProductsToCreate.push({
+        rowNumber: item.rowNumber,
+        productName,
+        slug: item.plannedProduct.slug,
+      });
+    }
+
+    if (!item.mapping) {
+      report.retailerProductsToCreate.push({
+        rowNumber: item.rowNumber,
+        productName,
+      });
+    }
+
+    report.offersToCreate.push({
+      rowNumber: item.rowNumber,
+      productName,
+    });
+
+    report.priceHistoryRowsToCreate.push({
+      rowNumber: item.rowNumber,
+      productName,
+    });
 
     if (!item.productLevelGtin && item.externalGtin) {
       report.productGtinBlocked.push({
@@ -512,6 +653,7 @@ function formatPreflightReport(report) {
     `  deduplicated identical rows: ${report.deduplicatedRows.length}`,
     `  invalid rows: ${report.invalidRows.length}`,
     `  unmatched rows: ${report.unmatchedRows.length}`,
+    `  exclusions: ${report.exclusions.length}`,
     `  ambiguous rows: ${report.ambiguousRows.length}`,
     `  collision groups: ${report.collisionGroups.length}`,
     `  GTIN conflicts: ${report.gtinConflicts.length}`,
@@ -522,6 +664,11 @@ function formatPreflightReport(report) {
     `  product GTIN blocked: ${report.productGtinBlocked.length}`,
     `  external GTIN stored or updated: ${report.externalGtinStoredOrUpdated.length}`,
     `  shipping inferred from retailer policy: ${report.shippingInferredFromPolicy.length}`,
+    `  new retailers would be created: ${report.newRetailersToCreate.length}`,
+    `  new products would be created: ${report.newProductsToCreate.length}`,
+    `  retailer_products would be created: ${report.retailerProductsToCreate.length}`,
+    `  offers would be created: ${report.offersToCreate.length}`,
+    `  price_history rows would be created: ${report.priceHistoryRowsToCreate.length}`,
   ].join("\n");
 }
 
@@ -531,7 +678,9 @@ module.exports = {
   formatPreflightReport,
   getExternalGtin,
   getProductLevelGtin,
+  getSafeCreateExclusionReasons,
   isAmbiguousFeedRow,
+  isSafeCreateRowAmbiguous,
   isProductGtinVerified,
   normalizeComparableText,
   parseFlavour,
