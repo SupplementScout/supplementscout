@@ -492,14 +492,14 @@ export default async function ProductPage({
               </div>
             )}
             <div className="mt-8 rounded-3xl border bg-white p-8">
-              <h2 className="text-2xl font-bold">Price history</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Price history</h2>
 
               <div className="mt-6">
                 <PriceHistoryChart data={chartData} />
               </div>
             </div>
             <div className="mt-8 rounded-3xl border bg-white p-8">
-              <h2 className="text-2xl font-bold">All offers</h2>
+              <h2 className="text-2xl font-bold text-gray-900">All offers</h2>
 
               <div className="mt-6 space-y-3">
                 {offers && offers.length > 0 ? (
@@ -509,14 +509,14 @@ export default async function ProductPage({
                       className="flex flex-col gap-4 rounded-2xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
-                        <p className="font-semibold">
+                        <p className="font-semibold text-gray-900">
                           {offer.retailer?.name || "Unknown retailer"}
                         </p>
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="mt-1 text-sm font-medium text-gray-700">
                           {offer.in_stock ? "In stock" : "Out of stock"}
                         </p>
                         {offer.last_checked_at && (
-                          <p className="mt-1 text-xs text-zinc-500">
+                          <p className="mt-1 text-xs text-gray-600">
                             Price checked:{" "}
                             {new Date(offer.last_checked_at).toLocaleDateString("en-GB", {
                               day: "numeric",
@@ -529,15 +529,15 @@ export default async function ProductPage({
 
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <p className="text-sm text-zinc-500">
+                          <p className="text-sm font-medium text-gray-700">
                             Product: £{Number(offer.price).toFixed(2)}
                           </p>
 
-                          <p className="text-sm text-zinc-500">
+                          <p className="text-sm font-medium text-gray-700">
                             Delivery: £{Number(offer.shipping_cost || 0).toFixed(2)}
                           </p>
 
-                          <p className="mt-1 text-2xl font-bold">
+                          <p className="mt-1 text-2xl font-bold text-gray-900">
                             £{(
                               Number(offer.price) +
                               Number(offer.shipping_cost || 0)
@@ -557,14 +557,14 @@ export default async function ProductPage({
                     </div>
                   ))
                 ) : (
-                  <p className="text-zinc-500">No offers available.</p>
+                  <p className="text-sm font-medium text-gray-700">No offers available.</p>
                 )}
               </div>
             </div>
             <div className="mt-8 rounded-3xl border bg-white p-8">
-              <h2 className="text-2xl font-bold">Product Summary</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Product Summary</h2>
 
-              <p className="mt-4 leading-8 text-zinc-600">
+              <p className="mt-4 leading-8 text-gray-700">
                 {product.description || "No product description available."}
               </p>
             </div>
