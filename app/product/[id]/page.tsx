@@ -298,48 +298,52 @@ export default async function ProductPage({
 
   return (
     <main className="min-h-screen bg-zinc-50">
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <Link href="/" className="text-sm text-zinc-500 hover:text-black">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:py-12">
+        <Link href="/" className="text-sm font-medium text-[#4B5563] hover:text-[#111827]">
           ← Back to search
         </Link>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-2">
-          <div className="flex aspect-square items-center justify-center rounded-3xl bg-white shadow">
+        <div className="mt-5 grid gap-5 lg:mt-8 lg:grid-cols-2 lg:gap-10">
+          <div className="flex h-[340px] min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:h-[400px] sm:p-6 lg:aspect-square lg:h-auto lg:p-0 lg:shadow">
             {product.image ? (
               <img
                 src={product.image}
                 alt={product.name}
-                className="h-full w-full rounded-3xl object-contain p-8"
+                className="max-h-[260px] min-w-0 max-w-full rounded-3xl object-contain sm:max-h-[300px] lg:h-full lg:max-h-none lg:p-8"
               />
             ) : (
-              <span className="text-zinc-400">Product Image</span>
+              <span className="text-[#6B7280]">Product Image</span>
             )}
           </div>
 
-          <div>
-            <p className="text-sm uppercase tracking-widest text-zinc-500">
+          <div className="w-[calc(100vw-2rem)] min-w-0 sm:w-auto">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#6B7280] sm:text-sm">
               {product.category}
             </p>
 
-            <h1 className="mt-3 text-5xl font-bold">{product.name}</h1>
+            <h1 className="mt-2 min-w-0 max-w-full text-[38px] font-extrabold leading-[1.08] text-[#111827] [overflow-wrap:anywhere] sm:mt-3 sm:text-5xl lg:text-5xl">
+              {product.name}
+            </h1>
 
-            <p className="mt-3 text-lg text-zinc-500">{product.brand}</p>
+            <p className="mt-2 text-base font-medium text-[#4B5563] sm:mt-3 sm:text-lg">
+              {product.brand}
+            </p>
 
-            <div className="mt-8 rounded-3xl border bg-white p-8">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-sm text-zinc-500">Best UK Price</p>
+                  <p className="text-sm font-semibold text-[#4B5563]">Best UK Price</p>
 
-                  <div className="mt-2 text-5xl font-bold">
+                  <div className="mt-1 text-[56px] font-extrabold leading-none text-[#111827] sm:text-6xl lg:text-5xl">
                     £{cheapestTotal.toFixed(2)}
                   </div>
                   {lowestHistoricalPrice !== null && (
-                    <p className="mt-2 text-sm text-zinc-500">
+                    <p className="mt-2 text-sm font-medium text-[#4B5563]">
                       Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
                     </p>
                   )}
                   {lowestPriceDate && (
-                    <p className="mt-1 text-xs text-zinc-400">
+                    <p className="mt-1 text-xs text-[#6B7280]">
                       Recorded on{" "}
                       {new Date(lowestPriceDate).toLocaleDateString("en-GB", {
                         day: "numeric",
@@ -349,12 +353,12 @@ export default async function ProductPage({
                     </p>
                   )}
                   {averageHistoricalPrice !== null && (
-                    <p className="mt-1 text-sm text-zinc-500">
+                    <p className="mt-1 text-sm text-[#4B5563]">
                       Average recorded price: £{averageHistoricalPrice.toFixed(2)}
                     </p>
                   )}
                   {averageDifferencePercent !== null && (
-                    <p className="mt-1 text-sm font-medium">
+                    <p className="mt-1 text-sm font-semibold text-[#111827]">
                       {averageDifferencePercent <= 0
                         ? `${Math.abs(averageDifferencePercent).toFixed(1)}% below average`
                         : `${averageDifferencePercent.toFixed(1)}% above average`}
@@ -362,17 +366,17 @@ export default async function ProductPage({
                   )}
 
                   {historyCount > 0 && (
-                    <p className="mt-1 text-xs text-zinc-400">
+                    <p className="mt-1 text-xs text-[#6B7280]">
                       Based on {historyCount} price record{historyCount === 1 ? "" : "s"}
                     </p>
                   )}
                   {priceRating && (
-                    <p className="mt-2 text-sm font-semibold">
+                    <p className="mt-2 text-sm font-semibold text-[#111827]">
                       Price rating: {priceRating}
                     </p>
                   )}
                   {cheapestOffer && (
-                    <div className="mt-3 space-y-1 text-sm text-zinc-500">
+                    <div className="mt-3 space-y-1 text-sm font-medium text-[#4B5563]">
                       <p>
                         Product: £{Number(cheapestOffer.price).toFixed(2)}
                       </p>
@@ -392,14 +396,14 @@ export default async function ProductPage({
                     href={`/go/${String(cheapestOffer.id)}?source=product_best_offer`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-2xl bg-black px-8 py-4 font-semibold text-white"
+                    className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-black px-8 py-4 font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
                   >
                     View Deal
                   </a>
                 ) : (
                   <button
                     disabled
-                    className="cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-4 font-semibold text-zinc-600"
+                    className="min-h-12 w-full cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-4 font-semibold text-[#4B5563] sm:w-auto"
                   >
                     No offer available
                   </button>
@@ -411,23 +415,23 @@ export default async function ProductPage({
               verifiedPricePerLitre !== null ||
               verifiedCostPer25gProtein !== null ||
               verifiedCostPer5gCreatine !== null) && (
-              <div className="mt-8 rounded-2xl border bg-white p-5">
+              <div className="mt-5 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:mt-7 sm:p-5 lg:mt-8">
                 {verifiedPricePerServing !== null && (
                   <>
-                <div className="text-2xl font-bold">
+                <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
                   £{verifiedPricePerServing.toFixed(2)} per serving
                 </div>
-                <p className="text-sm text-zinc-500">
+                <p className="mt-1 text-sm text-[#6B7280]">
                   Verified price per serving
                 </p>
                   </>
                 )}
                 {verifiedPricePerKg !== null && (
-                  <div className={verifiedPricePerServing !== null ? "mt-3" : ""}>
-                    <div className="text-2xl font-bold">
+                  <div className={verifiedPricePerServing !== null ? "mt-3 border-t border-zinc-200 pt-3" : ""}>
+                    <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
                       {formatCurrency(verifiedPricePerKg)} per kg
                     </div>
-                    <p className="text-sm text-zinc-500">
+                    <p className="mt-1 text-sm text-[#6B7280]">
                       Verified price per kilogram
                     </p>
                   </div>
@@ -436,14 +440,14 @@ export default async function ProductPage({
                   <div
                     className={
                       verifiedPricePerServing !== null || verifiedPricePerKg !== null
-                        ? "mt-3"
+                        ? "mt-3 border-t border-zinc-200 pt-3"
                         : ""
                     }
                   >
-                    <div className="text-2xl font-bold">
+                    <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
                       {formatCurrency(verifiedPricePerLitre)}/litre
                     </div>
-                    <p className="text-sm text-zinc-500">
+                    <p className="mt-1 text-sm text-[#6B7280]">
                       Verified price per litre
                     </p>
                   </div>
@@ -454,14 +458,14 @@ export default async function ProductPage({
                       verifiedPricePerServing !== null ||
                       verifiedPricePerKg !== null ||
                       verifiedPricePerLitre !== null
-                        ? "mt-3"
+                        ? "mt-3 border-t border-zinc-200 pt-3"
                         : ""
                     }
                   >
-                    <div className="text-2xl font-bold">
+                    <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
                       {formatCurrency(verifiedCostPer25gProtein)} per 25 g protein
                     </div>
-                    <p className="text-sm text-zinc-500">
+                    <p className="mt-1 text-sm text-[#6B7280]">
                       Verified cost per 25 g protein
                     </p>
                   </div>
@@ -473,14 +477,14 @@ export default async function ProductPage({
                       verifiedPricePerKg !== null ||
                       verifiedPricePerLitre !== null ||
                       verifiedCostPer25gProtein !== null
-                        ? "mt-3"
+                        ? "mt-3 border-t border-zinc-200 pt-3"
                         : ""
                     }
                   >
-                    <div className="text-2xl font-bold">
+                    <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
                       {formatCurrency(verifiedCostPer5gCreatine)} per 5 g creatine
                     </div>
-                    <p className="text-sm text-zinc-500">
+                    <p className="mt-1 text-sm text-[#6B7280]">
                       Verified cost per 5 g creatine
                     </p>
                   </div>
