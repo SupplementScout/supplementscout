@@ -48,6 +48,7 @@ export default function AffiliateDisclosurePage() {
         <nav className="flex items-center gap-5 text-sm font-medium text-zinc-700">
           <Link href="/about">About</Link>
           <Link href="/search">Search</Link>
+          <Link href="/contact">Contact</Link>
         </nav>
       </header>
 

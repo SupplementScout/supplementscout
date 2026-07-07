@@ -35,6 +35,7 @@ export default function AboutPage() {
         <nav className="flex items-center gap-5 text-sm font-medium text-zinc-700">
           <Link href="/search">Search</Link>
           <Link href="/affiliate-disclosure">Affiliate Disclosure</Link>
+          <Link href="/contact">Contact</Link>
         </nav>
       </header>
 
