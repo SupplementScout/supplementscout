@@ -226,12 +226,33 @@ function correctedSearchQuery(query: string) {
   );
 }
 
+function vitaminDk2SearchVariants(query: string) {
+  const correctedQuery = correctedSearchQuery(query);
+
+  if (correctedQuery === "vitamin d k2") {
+    return ["vitamin d%k2", "vitamin d3%k2"];
+  }
+
+  if (correctedQuery === "vitamin d3 k2") {
+    return ["vitamin d3%k2"];
+  }
+
+  if (correctedQuery === "d3 k2") {
+    return ["d3%k2", "vitamin d3%k2"];
+  }
+
+  return [];
+}
+
 export function searchQueryVariants(query: string) {
   return Array.from(
     new Set(
-      [query, normalizeWhitespace(query), correctedSearchQuery(query)].filter(
-        (value) => value.length > 0
-      )
+      [
+        query,
+        normalizeWhitespace(query),
+        correctedSearchQuery(query),
+        ...vitaminDk2SearchVariants(query),
+      ].filter((value) => value.length > 0)
     )
   );
 }
