@@ -68,7 +68,7 @@ const {
   getVerifiedPricePerKg,
   getVerifiedPricePerLitre,
 } = pricingModule;
-const { normalizeSearchOffers } = loadProductsModule();
+const { isVitaminLandingProductMatch, normalizeSearchOffers } = loadProductsModule();
 
 test("500 ml liquid at 24.98 returns 49.96 per litre", () => {
   const deliveredPrice = getDeliveredPrice({ price: 24.98, shipping_cost: 0 });
@@ -126,6 +126,41 @@ test("invalid offer prices are not treated as displayable product prices", () =>
   assert.equal(getKnownProductPrice("0"), null);
   assert.equal(getKnownProductPrice("-1"), null);
   assert.equal(getKnownProductPrice("10"), 10);
+});
+
+test("vitamins landing excludes BCAA drinks with only description vitamin matches", () => {
+  assert.equal(
+    isVitaminLandingProductMatch({
+      name: "Nocco BCAA Drink 330ml",
+      brand: "NOCCO",
+      category: "Amino Acids",
+      description: "Sugar-free Added vitamins 180mg caffeine 3000mg BCAA's",
+    }),
+    false
+  );
+});
+
+test("vitamins landing includes clear vitamin and mineral products", () => {
+  const includedProducts = [
+    "Vitamin C 500mg Capsules",
+    "Vitamin D3 1000IU Tablets",
+    "Zinc 15mg Tablets",
+    "Magnesium Citrate Capsules",
+    "Multivitamin A-Z Tablets",
+  ];
+
+  for (const name of includedProducts) {
+    assert.equal(
+      isVitaminLandingProductMatch({
+        name,
+        brand: "Example Brand",
+        category: "Vitamins & Minerals",
+        description: null,
+      }),
+      true,
+      name
+    );
+  }
 });
 
 test("liquid does not return price per kg", () => {

@@ -98,6 +98,7 @@ type RawProduct = {
   name: string;
   brand: string | null;
   category: string | null;
+  description: string | null;
   image: string | null;
   net_weight_g: number | string | null;
   net_volume_ml: number | string | null;
@@ -110,6 +111,24 @@ type RawProduct = {
   unit_pricing_verified: boolean | null;
   offers?: RawOffer[] | null;
 };
+
+export type LandingProductMatchInput = Pick<
+  RawProduct,
+  "name" | "brand" | "category" | "description"
+>;
+
+type LandingProductsOptions = {
+  productFilter?: (product: LandingProductMatchInput) => boolean;
+};
+
+const vitaminLandingStrongPattern =
+  /\b(?:multivitamins?|vitamins?|vitamin\s+(?:c|d|d2|d3|b)|b\s*complex|zinc|magnesium|iron|selenium|folic\s+acid|biotin|calcium|minerals?)\b/;
+
+const vitaminLandingSafeDescriptionPattern =
+  /\b(?:multivitamins?|vitamin\s+(?:c|d|d2|d3|b)|b\s*complex|zinc|magnesium|iron|selenium|folic\s+acid|biotin|calcium)\b/;
+
+const vitaminLandingExcludedIdentityPattern =
+  /\b(?:bcaa|eaa|amino|pre[-\s]?workout|protein|whey|drinks?|beverages?|energy|nocco)\b/;
 
 function firstParamValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -165,6 +184,29 @@ function sanitizeSupabaseOrTerm(query: string) {
 
 function normalizeWhitespace(value: string) {
   return value.trim().replace(/\s+/g, " ");
+}
+
+function searchableText(values: Array<string | null | undefined>) {
+  return normalizeWhitespace(values.filter(Boolean).join(" ")).toLowerCase();
+}
+
+export function isVitaminLandingProductMatch(
+  product: LandingProductMatchInput
+) {
+  const nameAndCategory = searchableText([product.name, product.category]);
+  const identity = searchableText([product.name, product.brand, product.category]);
+
+  if (vitaminLandingStrongPattern.test(nameAndCategory)) {
+    return true;
+  }
+
+  if (vitaminLandingExcludedIdentityPattern.test(identity)) {
+    return false;
+  }
+
+  return vitaminLandingSafeDescriptionPattern.test(
+    searchableText([product.description])
+  );
 }
 
 function searchQueryVariants(query: string) {
@@ -614,7 +656,11 @@ export async function searchProducts(
   };
 }
 
-export async function getLandingProducts(query: string | string[], limit = 24) {
+export async function getLandingProducts(
+  query: string | string[],
+  limit = 24,
+  options: LandingProductsOptions = {}
+) {
   const sanitizedQueries = (Array.isArray(query) ? query : [query])
     .map(sanitizeSupabaseOrTerm)
     .filter((value) => value.length > 0);
@@ -673,6 +719,9 @@ export async function getLandingProducts(query: string | string[], limit = 24) {
   }
 
   const results = ((data || []) as RawProduct[])
+    .filter((product) =>
+      options.productFilter ? options.productFilter(product) : true
+    )
     .map((product) =>
       normalizeProduct(product, primaryQuery, {
         category: "",

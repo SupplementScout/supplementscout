@@ -1,7 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
-import { getLandingProducts } from "../lib/products";
+import {
+  getLandingProducts,
+  isVitaminLandingProductMatch,
+} from "../lib/products";
 
 const vitaminSearchTerms = [
   "vitamin",
@@ -50,7 +53,9 @@ export const metadata: Metadata = {
 };
 
 export default async function VitaminsPage() {
-  const { results, error } = await getLandingProducts(vitaminSearchTerms, 24);
+  const { results, error } = await getLandingProducts(vitaminSearchTerms, 24, {
+    productFilter: isVitaminLandingProductMatch,
+  });
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
