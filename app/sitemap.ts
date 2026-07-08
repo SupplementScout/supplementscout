@@ -62,17 +62,23 @@ const staticPages: MetadataRoute.Sitemap = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { data: products } = await supabase
+  const { data: products, error } = await supabase
     .from("products")
-    .select("slug, updated_at")
-    .eq("is_active", true);
+    .select("slug")
+    .eq("is_active", true)
+    .is("merged_into_product_id", null)
+    .not("slug", "is", null);
+
+  if (error) {
+    console.error("Unable to load product pages for sitemap.", error);
+  }
 
   const productPages =
     products
       ?.filter((product) => product.slug)
       .map((product) => ({
         url: `${siteUrl}/product/${product.slug}`,
-        lastModified: product.updated_at || staticLastModified,
+        lastModified: staticLastModified,
         changeFrequency: "daily" as const,
         priority: 0.8,
       })) || [];
