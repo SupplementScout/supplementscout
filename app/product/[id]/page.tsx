@@ -447,7 +447,7 @@ export default async function ProductPage({
                   <a
                     href={`/go/${String(cheapestOffer.id)}?source=product_best_offer`}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="sponsored nofollow noopener noreferrer"
                     className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-black px-8 py-4 font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
                   >
                     View Deal
@@ -615,7 +615,7 @@ export default async function ProductPage({
                         <a
                           href={`/go/${String(offer.id)}?source=product_offer_list`}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="sponsored nofollow noopener noreferrer"
                           className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
                         >
                           View deal
