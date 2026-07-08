@@ -186,6 +186,16 @@ function normalizeWhitespace(value: string) {
   return value.trim().replace(/\s+/g, " ");
 }
 
+const searchQueryCorrections: Array<[RegExp, string]> = [
+  [/\bvit\s+d\b/g, "vitamin d"],
+  [/\bomega\s*3\b/g, "omega 3"],
+  [/\bmagnesum\b/g, "magnesium"],
+  [/\bprotien\b/g, "protein"],
+  [/\bsupliments\b/g, "supplements"],
+  [/\bcreatin\b/g, "creatine"],
+  [/\bglucosamin\b/g, "glucosamine"],
+];
+
 function searchableText(values: Array<string | null | undefined>) {
   return normalizeWhitespace(values.filter(Boolean).join(" ")).toLowerCase();
 }
@@ -209,9 +219,20 @@ export function isVitaminLandingProductMatch(
   );
 }
 
-function searchQueryVariants(query: string) {
+function correctedSearchQuery(query: string) {
+  return searchQueryCorrections.reduce(
+    (value, [pattern, replacement]) => value.replace(pattern, replacement),
+    normalizeWhitespace(query).toLowerCase()
+  );
+}
+
+export function searchQueryVariants(query: string) {
   return Array.from(
-    new Set([query, normalizeWhitespace(query)].filter((value) => value.length > 0))
+    new Set(
+      [query, normalizeWhitespace(query), correctedSearchQuery(query)].filter(
+        (value) => value.length > 0
+      )
+    )
   );
 }
 
