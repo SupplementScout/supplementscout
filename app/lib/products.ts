@@ -183,8 +183,8 @@ function buildSearchFilter(query: string) {
     .join(",");
 }
 
-function buildLandingProductFilter(query: string) {
-  return searchQueryVariants(query)
+function buildLandingProductFilter(queries: string[]) {
+  return Array.from(new Set(queries.flatMap(searchQueryVariants)))
     .flatMap((variant) => [
       `name.ilike.%${variant}%`,
       `category.ilike.%${variant}%`,
@@ -614,10 +614,13 @@ export async function searchProducts(
   };
 }
 
-export async function getLandingProducts(query: string, limit = 24) {
-  const sanitizedQuery = sanitizeSupabaseOrTerm(query);
+export async function getLandingProducts(query: string | string[], limit = 24) {
+  const sanitizedQueries = (Array.isArray(query) ? query : [query])
+    .map(sanitizeSupabaseOrTerm)
+    .filter((value) => value.length > 0);
+  const primaryQuery = sanitizedQueries[0] || "";
 
-  if (!sanitizedQuery) {
+  if (!primaryQuery) {
     return { results: [], error: null };
   }
 
@@ -661,7 +664,7 @@ export async function getLandingProducts(query: string, limit = 24) {
     .is("merged_at", null)
     .eq("offers.in_stock", true)
     .gt("offers.price", 0)
-    .or(buildLandingProductFilter(sanitizedQuery))
+    .or(buildLandingProductFilter(sanitizedQueries))
     .order("name")
     .range(0, SEARCH_RESULT_LOAD_LIMIT - 1);
 
@@ -671,7 +674,7 @@ export async function getLandingProducts(query: string, limit = 24) {
 
   const results = ((data || []) as RawProduct[])
     .map((product) =>
-      normalizeProduct(product, sanitizedQuery, {
+      normalizeProduct(product, primaryQuery, {
         category: "",
         brand: "",
         retailer: "",
