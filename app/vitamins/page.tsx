@@ -35,7 +35,7 @@ const popularSearches = [
 ];
 
 export const metadata: Metadata = {
-  title: "Compare Vitamins UK | SupplementScout",
+  title: "Compare Vitamins UK",
   description:
     "Compare vitamin and mineral supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
   alternates: {

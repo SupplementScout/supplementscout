@@ -16,7 +16,7 @@ const omega3SearchTerms = [
 ];
 
 export const metadata: Metadata = {
-  title: "Compare Omega 3 Supplements UK | SupplementScout",
+  title: "Compare Omega 3 Supplements UK",
   description:
     "Compare Omega 3, fish oil and cod liver oil supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
   alternates: {

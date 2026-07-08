@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Contact SupplementScout | Product Data and Retailer Enquiries",
+  title: "Contact SupplementScout",
   description:
     "Contact SupplementScout about product data, incorrect prices, broken retailer links, retailer partnerships, affiliate enquiries and supplement comparison data.",
   alternates: {

@@ -4,7 +4,7 @@ import ProductResultCard from "../components/ProductResultCard";
 import { getLandingProducts } from "../lib/products";
 
 export const metadata: Metadata = {
-  title: "Compare Vitamin D Supplements UK | SupplementScout",
+  title: "Compare Vitamin D Supplements UK",
   description:
     "Compare Vitamin D supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
   alternates: {

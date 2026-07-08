@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Affiliate Disclosure | SupplementScout",
+  title: "Affiliate Disclosure",
   description:
     "Learn how SupplementScout may earn affiliate commission and how we aim to keep supplement comparisons clear and transparent.",
   alternates: {
