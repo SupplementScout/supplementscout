@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Affiliate Disclosure | SupplementScout",
   description:
     "Learn how SupplementScout may earn affiliate commission and how we aim to keep supplement comparisons clear and transparent.",
+  alternates: {
+    canonical: "/affiliate-disclosure",
+  },
 };
 
 const sections = [

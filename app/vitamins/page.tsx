@@ -38,6 +38,9 @@ export const metadata: Metadata = {
   title: "Compare Vitamins UK | SupplementScout",
   description:
     "Compare vitamin and mineral supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
+  alternates: {
+    canonical: "/vitamins",
+  },
   openGraph: {
     title: "Compare Vitamins UK | SupplementScout",
     description:

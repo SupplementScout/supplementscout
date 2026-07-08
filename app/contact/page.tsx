@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Contact SupplementScout | Product Data and Retailer Enquiries",
   description:
     "Contact SupplementScout about product data, incorrect prices, broken retailer links, retailer partnerships, affiliate enquiries and supplement comparison data.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 const contactTopics = [

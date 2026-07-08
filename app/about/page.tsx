@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "About SupplementScout | UK Supplement Search Engine",
   description:
     "Learn what SupplementScout is and how it helps UK shoppers compare supplement prices, delivery costs and retailer offers.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 const comparisonItems = [

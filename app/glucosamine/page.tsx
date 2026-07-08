@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "Compare Glucosamine Supplements UK | SupplementScout",
   description:
     "Compare glucosamine, chondroitin and joint-support supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
+  alternates: {
+    canonical: "/glucosamine",
+  },
   openGraph: {
     title: "Compare Glucosamine Supplements UK | SupplementScout",
     description:

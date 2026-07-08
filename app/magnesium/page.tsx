@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Compare Magnesium Supplements UK | SupplementScout",
   description:
     "Compare magnesium supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
+  alternates: {
+    canonical: "/magnesium",
+  },
   openGraph: {
     title: "Compare Magnesium Supplements UK | SupplementScout",
     description:
