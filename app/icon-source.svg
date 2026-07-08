@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SupplementScout icon">
+  <rect width="512" height="512" rx="96" fill="#0f2a32"/>
+  <circle cx="216" cy="214" r="106" fill="none" stroke="#ffffff" stroke-width="52"/>
+  <path d="M296 294 394 392" fill="none" stroke="#ffffff" stroke-width="62" stroke-linecap="round"/>
+  <g transform="rotate(-28 216 214)">
+    <rect x="154" y="190" width="124" height="48" rx="24" fill="#34d399"/>
+    <path d="M216 190v48" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+  </g>
+</svg>
