@@ -57,10 +57,13 @@ export function getDeliveredPrice(offer: PriceInput): DeliveredPrice | null {
 
 export function getVerifiedPricePerServing(
   deliveredPrice: DeliveredPrice | null,
-  servingCount: number | string | null,
-  verified: boolean | null
+  servingCount: number | string | null
 ) {
-  if (verified !== true || deliveredPrice === null) {
+  if (deliveredPrice === null) {
+    return null;
+  }
+
+  if (!Number.isFinite(deliveredPrice.totalPrice) || deliveredPrice.totalPrice <= 0) {
     return null;
   }
 

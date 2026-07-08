@@ -420,8 +420,7 @@ function normalizeProduct(
     ),
     verifiedPricePerServing: getVerifiedPricePerServing(
       cheapestOffer.deliveredPrice,
-      product.serving_count_verified,
-      product.unit_pricing_verified
+      product.serving_count_verified
     ),
     relevanceScore: scoreProduct(product, query),
   };

@@ -67,6 +67,7 @@ const {
   getKnownProductPrice,
   getVerifiedPricePerKg,
   getVerifiedPricePerLitre,
+  getVerifiedPricePerServing,
   getVerifiedPricePerUnit,
   formatUnitPrice,
 } = pricingModule;
@@ -94,6 +95,20 @@ test("verified capsule and tablet unit pricing uses delivered total", () => {
   });
 });
 
+test("serving price uses delivered total without requiring unit pricing verification", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 13.99, shipping_cost: 1.99 });
+
+  assert.equal(getVerifiedPricePerServing(deliveredPrice, 40), 15.98 / 40);
+  assert.equal(getVerifiedPricePerServing(deliveredPrice, 40, false), 15.98 / 40);
+});
+
+test("serving price supports serving-only products while unit price stays hidden", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 13.99, shipping_cost: 1.99 });
+
+  assert.equal(getVerifiedPricePerServing(deliveredPrice, 60), 15.98 / 60);
+  assert.equal(getVerifiedPricePerUnit(deliveredPrice, null, null, false), null);
+});
+
 test("unit pricing is hidden unless verified with a valid capsule or tablet count", () => {
   const deliveredPrice = getDeliveredPrice({ price: 6.69, shipping_cost: 1.99 });
 
@@ -103,6 +118,16 @@ test("unit pricing is hidden unless verified with a valid capsule or tablet coun
   assert.equal(getVerifiedPricePerUnit(deliveredPrice, 180.5, "tablet", true), null);
   assert.equal(getVerifiedPricePerUnit(deliveredPrice, 180, "gummy", true), null);
   assert.equal(getVerifiedPricePerUnit(null, 180, "tablet", true), null);
+});
+
+test("vitamin d can show serving and verified tablet prices independently", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 6.69, shipping_cost: 1.99 });
+
+  assert.equal(getVerifiedPricePerServing(deliveredPrice, 180), 8.68 / 180);
+  assert.deepEqual(getVerifiedPricePerUnit(deliveredPrice, 180, "tablet", true), {
+    price: 8.68 / 180,
+    unitType: "tablet",
+  });
 });
 
 test("unit price formatting uses pence under one pound", () => {

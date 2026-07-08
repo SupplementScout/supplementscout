@@ -306,8 +306,7 @@ export default async function ProductPage({
       .sort((left, right) => left.totalPrice - right.totalPrice)[0] || null;
   const verifiedPricePerServing = getVerifiedPricePerServing(
     cheapestValidDeliveredPrice,
-    product.serving_count_verified,
-    product.unit_pricing_verified
+    product.serving_count_verified
   );
   const verifiedPricePerUnit = getVerifiedPricePerUnit(
     cheapestValidDeliveredPrice,
