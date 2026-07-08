@@ -83,8 +83,8 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-white text-zinc-950">
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+    <main className="min-h-screen bg-white pb-[env(safe-area-inset-bottom)] text-zinc-950">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-6">
         <div className="text-xl font-bold tracking-tight">SupplementScout</div>
 
         <nav className="hidden items-center gap-8 text-sm text-zinc-600 md:flex">
@@ -101,16 +101,16 @@ export default function Home() {
         </Link>
       </header>
 
-      <section className="mx-auto max-w-7xl px-6 pb-20 pt-16 text-center">
-        <p className="mb-5 text-sm font-semibold uppercase tracking-[0.35em] text-zinc-500">
+      <section className="mx-auto max-w-7xl px-4 pb-10 pt-8 text-center sm:px-6 sm:pb-20 sm:pt-16">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 sm:mb-5 sm:text-sm sm:tracking-[0.35em]">
           SupplementScout
         </p>
 
-        <h1 className="mx-auto max-w-5xl text-5xl font-bold tracking-tight sm:text-7xl">
+        <h1 className="mx-auto max-w-5xl text-4xl font-bold tracking-tight sm:text-7xl">
           The UK&apos;s Smart Supplement Search Engine
         </h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-600">
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-600 sm:mt-6 sm:text-lg sm:leading-8">
           Compare supplement prices, ingredients, serving value and UK retailer
           offers in one place.
         </p>
@@ -118,74 +118,74 @@ export default function Home() {
         <form
           id="search"
           action="/search"
-          className="mx-auto mt-10 max-w-3xl rounded-3xl border border-zinc-200 bg-white p-3 shadow-xl"
+          className="mx-auto mt-6 max-w-3xl rounded-3xl border border-zinc-200 bg-white p-2.5 shadow-xl sm:mt-10 sm:p-3"
         >
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
               type="search"
               name="q"
-              className="min-h-16 flex-1 rounded-2xl border border-zinc-200 px-6 text-base outline-none focus:border-zinc-950"
+              className="min-h-14 flex-1 rounded-2xl border border-zinc-200 px-4 text-base outline-none focus:border-zinc-950 sm:min-h-16 sm:px-6"
               placeholder="Search supplements, brands or categories"
             />
             <button
               type="submit"
-              className="min-h-16 rounded-2xl bg-zinc-950 px-10 font-semibold text-white"
+              className="min-h-14 rounded-2xl bg-zinc-950 px-8 font-semibold text-white sm:min-h-16 sm:px-10"
             >
               Search
             </button>
           </div>
         </form>
 
-        {isLoading && <p className="mt-8 text-zinc-500">Loading site stats...</p>}
+        {isLoading && <p className="mt-5 text-zinc-500 sm:mt-8">Loading site stats...</p>}
 
-        {loadError && <p className="mt-8 text-red-600">{loadError}</p>}
+        {loadError && <p className="mt-5 text-red-600 sm:mt-8">{loadError}</p>}
 
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="mt-5 flex flex-wrap justify-center gap-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:mt-8 sm:gap-3 sm:pb-0">
           {popularSearches.map((item) => (
             <Link
               key={item}
               href={searchHref(item)}
-              className="rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-700 hover:border-zinc-950"
+              className="rounded-full border border-zinc-200 px-3.5 py-2 text-sm text-zinc-700 hover:border-zinc-950 sm:px-4"
             >
               {item}
             </Link>
           ))}
         </div>
 
-        <div id="stats" className="mx-auto mt-16 grid max-w-4xl gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-zinc-200 p-6">
-            <div className="text-3xl font-bold">{productCount}</div>
-            <p className="mt-2 text-sm text-zinc-600">products available</p>
+        <div id="stats" className="mx-auto mt-8 grid max-w-4xl gap-3 sm:mt-16 sm:grid-cols-3 sm:gap-4">
+          <div className="rounded-2xl border border-zinc-200 p-4 sm:p-6">
+            <div className="text-2xl font-bold sm:text-3xl">{productCount}</div>
+            <p className="mt-1 text-sm text-zinc-600 sm:mt-2">products available</p>
           </div>
 
-          <div className="rounded-2xl border border-zinc-200 p-6">
-            <div className="text-3xl font-bold">{retailerCount}</div>
-            <p className="mt-2 text-sm text-zinc-600">UK retailers</p>
+          <div className="rounded-2xl border border-zinc-200 p-4 sm:p-6">
+            <div className="text-2xl font-bold sm:text-3xl">{retailerCount}</div>
+            <p className="mt-1 text-sm text-zinc-600 sm:mt-2">UK retailers</p>
           </div>
 
-          <div className="rounded-2xl border border-zinc-200 p-6">
-            <div className="text-3xl font-bold">Daily</div>
-            <p className="mt-2 text-sm text-zinc-600">price updates planned</p>
+          <div className="rounded-2xl border border-zinc-200 p-4 sm:p-6">
+            <div className="text-2xl font-bold sm:text-3xl">Daily</div>
+            <p className="mt-1 text-sm text-zinc-600 sm:mt-2">price updates planned</p>
           </div>
         </div>
       </section>
 
-      <section id="categories" className="border-t border-zinc-100 bg-zinc-50 px-6 py-20">
+      <section id="categories" className="border-t border-zinc-100 bg-zinc-50 px-4 py-10 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-7xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 sm:text-sm">
             Browse
           </p>
-          <h2 className="mt-3 text-3xl font-bold">Popular categories</h2>
+          <h2 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-3xl">Popular categories</h2>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
             {categories.map((item) => (
               <Link
                 key={item}
                 href={searchHref(item)}
-                className="rounded-3xl border border-zinc-200 bg-white p-8 text-left shadow-sm hover:border-zinc-950"
+                className="rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm hover:border-zinc-950 sm:rounded-3xl sm:p-8"
               >
-                <h3 className="text-xl font-semibold">{item}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-600">
+                <h3 className="text-lg font-semibold sm:text-xl">{item}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-600 sm:mt-3">
                   Compare prices, sizes, servings and value across UK supplement
                   retailers.
                 </p>
@@ -195,7 +195,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="px-6 py-10">
+      <footer className="px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 sm:py-10">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-zinc-200 pt-8 text-sm text-zinc-500 sm:flex-row">
           <p>© 2026 SupplementScout</p>
           <nav className="flex flex-wrap gap-4">
