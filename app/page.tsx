@@ -15,6 +15,21 @@ const popularSearches = [
   "Mass Gainer",
 ];
 
+const landingCategories = [
+  { label: "Vitamins", href: "/vitamins" },
+  { label: "Magnesium", href: "/magnesium" },
+  { label: "Vitamin D", href: "/vitamin-d" },
+  { label: "Omega 3", href: "/omega-3" },
+  { label: "Glucosamine", href: "/glucosamine" },
+];
+
+const landingCategoryHrefs = new Map(
+  landingCategories.map((category) => [
+    category.label.toLowerCase(),
+    category.href,
+  ])
+);
+
 type CategoryProduct = {
   category: string | null;
 };
@@ -26,12 +41,22 @@ function searchHref(query: string) {
   };
 }
 
+function categoryHref(category: string) {
+  return landingCategoryHrefs.get(category.toLowerCase()) || searchHref(category);
+}
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [retailerCount, setRetailerCount] = useState(0);
   const [productCount, setProductCount] = useState(0);
   const [categories, setCategories] = useState<string[]>([]);
+  const browseCategories = [
+    ...landingCategories.map((category) => category.label),
+    ...categories.filter(
+      (category) => !landingCategoryHrefs.has(category.toLowerCase())
+    ),
+  ];
 
   useEffect(() => {
     async function loadData() {
@@ -178,10 +203,10 @@ export default function Home() {
           <h2 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-3xl">Popular categories</h2>
 
           <div className="mt-5 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            {categories.map((item) => (
+            {browseCategories.map((item) => (
               <Link
                 key={item}
-                href={searchHref(item)}
+                href={categoryHref(item)}
                 className="rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm hover:border-zinc-950 sm:rounded-3xl sm:p-8"
               >
                 <h3 className="text-lg font-semibold sm:text-xl">{item}</h3>
