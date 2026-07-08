@@ -10,6 +10,7 @@ export type DeliveredPrice = {
 };
 
 const MASS_PRICED_PRODUCT_FORMATS = new Set(["powder", "food", "bar"]);
+const UNIT_PRICED_UNIT_TYPES = new Set(["capsule", "tablet"]);
 
 function toFinitePrice(value: number | string | null, options?: { allowZero: boolean }) {
   if (value === null || value === "") {
@@ -77,6 +78,46 @@ export function getVerifiedPricePerServing(
 
   return Number.isFinite(pricePerServing) && pricePerServing > 0
     ? pricePerServing
+    : null;
+}
+
+export function getVerifiedPricePerUnit(
+  deliveredPrice: DeliveredPrice | null,
+  unitCount: number | string | null,
+  unitType: string | null,
+  verified: boolean | null
+) {
+  if (verified !== true || deliveredPrice === null) {
+    return null;
+  }
+
+  if (!Number.isFinite(deliveredPrice.totalPrice) || deliveredPrice.totalPrice <= 0) {
+    return null;
+  }
+
+  if (unitCount === null || unitCount === "") {
+    return null;
+  }
+
+  const normalizedUnitType = unitType?.toLowerCase() || "";
+
+  if (!UNIT_PRICED_UNIT_TYPES.has(normalizedUnitType)) {
+    return null;
+  }
+
+  const units = Number(unitCount);
+
+  if (!Number.isFinite(units) || !Number.isInteger(units) || units <= 0) {
+    return null;
+  }
+
+  const pricePerUnit = deliveredPrice.totalPrice / units;
+
+  return Number.isFinite(pricePerUnit) && pricePerUnit > 0
+    ? {
+      price: pricePerUnit,
+      unitType: normalizedUnitType as "capsule" | "tablet",
+    }
     : null;
 }
 
@@ -260,4 +301,12 @@ export function formatCurrency(value: number) {
     style: "currency",
     currency: "GBP",
   }).format(value);
+}
+
+export function formatUnitPrice(value: number) {
+  if (value < 1) {
+    return `${(value * 100).toFixed(1)}p`;
+  }
+
+  return formatCurrency(value);
 }

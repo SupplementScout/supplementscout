@@ -67,6 +67,8 @@ const {
   getKnownProductPrice,
   getVerifiedPricePerKg,
   getVerifiedPricePerLitre,
+  getVerifiedPricePerUnit,
+  formatUnitPrice,
 } = pricingModule;
 const { isVitaminLandingProductMatch, normalizeSearchOffers } = loadProductsModule();
 
@@ -77,6 +79,35 @@ test("500 ml liquid at 24.98 returns 49.96 per litre", () => {
     getVerifiedPricePerLitre(deliveredPrice, 500, "liquid", true),
     49.96
   );
+});
+
+test("verified capsule and tablet unit pricing uses delivered total", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 6.69, shipping_cost: 1.99 });
+
+  assert.deepEqual(getVerifiedPricePerUnit(deliveredPrice, 180, "tablet", true), {
+    price: 8.68 / 180,
+    unitType: "tablet",
+  });
+  assert.deepEqual(getVerifiedPricePerUnit(deliveredPrice, "60", "capsule", true), {
+    price: 8.68 / 60,
+    unitType: "capsule",
+  });
+});
+
+test("unit pricing is hidden unless verified with a valid capsule or tablet count", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 6.69, shipping_cost: 1.99 });
+
+  assert.equal(getVerifiedPricePerUnit(deliveredPrice, 180, "tablet", false), null);
+  assert.equal(getVerifiedPricePerUnit(deliveredPrice, null, "tablet", true), null);
+  assert.equal(getVerifiedPricePerUnit(deliveredPrice, 0, "tablet", true), null);
+  assert.equal(getVerifiedPricePerUnit(deliveredPrice, 180.5, "tablet", true), null);
+  assert.equal(getVerifiedPricePerUnit(deliveredPrice, 180, "gummy", true), null);
+  assert.equal(getVerifiedPricePerUnit(null, 180, "tablet", true), null);
+});
+
+test("unit price formatting uses pence under one pound", () => {
+  assert.equal(formatUnitPrice(8.68 / 180), "4.8p");
+  assert.equal(formatUnitPrice(1.25), "£1.25");
 });
 
 test("null or blank shipping has unknown delivered price", () => {

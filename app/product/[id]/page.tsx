@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import {
   formatCurrency,
+  formatUnitPrice,
   getDeliveredPrice,
   getKnownProductPrice,
   getVerifiedCostPer5gCreatine,
@@ -11,6 +12,7 @@ import {
   getVerifiedPricePerKg,
   getVerifiedPricePerLitre,
   getVerifiedPricePerServing,
+  getVerifiedPricePerUnit,
 } from "../../lib/pricing";
 import { supabase } from "../../lib/supabase";
 
@@ -30,6 +32,8 @@ type ProductRouteProduct = {
   net_weight_g: number | string | null;
   net_volume_ml: number | string | null;
   product_format: string | null;
+  unit_count: number | string | null;
+  unit_type: string | null;
   serving_size_ml: number | string | null;
   protein_per_serving_g: number | string | null;
   creatine_per_serving_g: number | string | null;
@@ -305,6 +309,12 @@ export default async function ProductPage({
     product.serving_count_verified,
     product.unit_pricing_verified
   );
+  const verifiedPricePerUnit = getVerifiedPricePerUnit(
+    cheapestValidDeliveredPrice,
+    product.unit_count,
+    product.unit_type,
+    product.unit_pricing_verified
+  );
   const verifiedPricePerKg = getVerifiedPricePerKg(
     cheapestValidDeliveredPrice,
     product.net_weight_g,
@@ -453,6 +463,7 @@ export default async function ProductPage({
             </div>
 
             {(verifiedPricePerServing !== null ||
+              verifiedPricePerUnit !== null ||
               verifiedPricePerKg !== null ||
               verifiedPricePerLitre !== null ||
               verifiedCostPer25gProtein !== null ||
@@ -460,16 +471,27 @@ export default async function ProductPage({
               <div className="mt-5 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:mt-7 sm:p-5 lg:mt-8">
                 {verifiedPricePerServing !== null && (
                   <>
-                <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
+                    <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
                   £{verifiedPricePerServing.toFixed(2)} per serving
-                </div>
-                <p className="mt-1 text-sm text-[#6B7280]">
-                  Verified price per serving
-                </p>
+                    </div>
+                    <p className="mt-1 text-sm text-[#6B7280]">
+                      Verified price per serving
+                    </p>
                   </>
                 )}
-                {verifiedPricePerKg !== null && (
+                {verifiedPricePerUnit !== null && (
                   <div className={verifiedPricePerServing !== null ? "mt-3 border-t border-zinc-200 pt-3" : ""}>
+                    <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
+                      {formatUnitPrice(verifiedPricePerUnit.price)} per{" "}
+                      {verifiedPricePerUnit.unitType}
+                    </div>
+                    <p className="mt-1 text-sm text-[#6B7280]">
+                      Verified price per {verifiedPricePerUnit.unitType}
+                    </p>
+                  </div>
+                )}
+                {verifiedPricePerKg !== null && (
+                  <div className={verifiedPricePerServing !== null || verifiedPricePerUnit !== null ? "mt-3 border-t border-zinc-200 pt-3" : ""}>
                     <div className="text-xl font-extrabold leading-tight text-[#111827] sm:text-2xl">
                       {formatCurrency(verifiedPricePerKg)} per kg
                     </div>
@@ -481,7 +503,9 @@ export default async function ProductPage({
                 {verifiedPricePerLitre !== null && (
                   <div
                     className={
-                      verifiedPricePerServing !== null || verifiedPricePerKg !== null
+                      verifiedPricePerServing !== null ||
+                      verifiedPricePerUnit !== null ||
+                      verifiedPricePerKg !== null
                         ? "mt-3 border-t border-zinc-200 pt-3"
                         : ""
                     }
@@ -498,6 +522,7 @@ export default async function ProductPage({
                   <div
                     className={
                       verifiedPricePerServing !== null ||
+                      verifiedPricePerUnit !== null ||
                       verifiedPricePerKg !== null ||
                       verifiedPricePerLitre !== null
                         ? "mt-3 border-t border-zinc-200 pt-3"
@@ -516,6 +541,7 @@ export default async function ProductPage({
                   <div
                     className={
                       verifiedPricePerServing !== null ||
+                      verifiedPricePerUnit !== null ||
                       verifiedPricePerKg !== null ||
                       verifiedPricePerLitre !== null ||
                       verifiedCostPer25gProtein !== null
