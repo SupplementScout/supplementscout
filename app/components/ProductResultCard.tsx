@@ -25,10 +25,10 @@ export default function ProductResultCard({
 
   return (
     <article className="w-full min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
-      <div className="grid min-w-0 grid-cols-1 gap-4 p-4 sm:grid-cols-[112px_minmax(0,1fr)] sm:p-5 md:grid-cols-[148px_minmax(0,1fr)_250px] md:items-center md:gap-5">
+      <div className="grid min-w-0 grid-cols-[112px_minmax(0,1fr)] gap-x-3 gap-y-3 p-3 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-4 sm:p-5 md:grid-cols-[148px_minmax(0,1fr)_250px] md:items-center md:gap-5">
         <Link
           href={productHref(product)}
-          className="flex h-[120px] w-[120px] items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 p-2 sm:h-28 sm:w-full md:h-36"
+          className="flex h-28 w-28 items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 p-2 sm:w-full md:h-36"
           aria-label={`View ${product.name}`}
         >
           {product.image ? (
@@ -45,7 +45,7 @@ export default function ProductResultCard({
           )}
         </Link>
 
-        <div className="min-w-0 self-center">
+        <div className="col-span-2 min-w-0 self-start sm:col-span-1 sm:self-center">
           <div className="flex flex-wrap gap-x-2 gap-y-1 break-words text-xs font-semibold uppercase tracking-wide text-zinc-600">
             <span>{product.category || "Uncategorised"}</span>
             <span aria-hidden="true">/</span>
@@ -53,7 +53,7 @@ export default function ProductResultCard({
           </div>
 
           <Link href={productHref(product)} className="block min-w-0 max-w-full">
-            <h2 className="mt-1.5 max-w-full whitespace-normal break-all text-base font-bold leading-snug text-zinc-950 hover:underline sm:break-words sm:text-lg md:text-xl">
+            <h2 className="mt-1.5 max-w-full whitespace-normal break-words text-base font-bold leading-snug text-zinc-950 hover:underline sm:text-lg md:text-xl">
               {product.name}
             </h2>
           </Link>
@@ -67,16 +67,23 @@ export default function ProductResultCard({
               {product.availableOfferCount === 1 ? "" : "s"}
             </span>
           </div>
+
+          <Link
+            href={productHref(product)}
+            className="mt-4 flex min-h-11 w-full items-center justify-center rounded-lg bg-zinc-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 sm:hidden"
+          >
+            View product
+          </Link>
         </div>
 
-        <div className="min-w-0 border-t border-zinc-200 pt-4 sm:col-span-2 md:col-span-1 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+        <div className="col-start-2 row-start-1 min-w-0 sm:col-span-2 sm:col-start-auto sm:row-start-auto sm:border-t sm:border-zinc-200 sm:pt-4 md:col-span-1 md:border-l md:border-t-0 md:pl-5 md:pt-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">
             Total delivered
           </p>
           <p className="mt-1 text-2xl font-extrabold leading-none text-zinc-950 sm:text-3xl md:text-2xl">
             {formatCurrency(deliveredPrice.totalPrice)}
           </p>
-          <p className="mt-1 text-sm font-medium text-zinc-700">
+          <p className="mt-1 hidden text-sm font-medium text-zinc-700 sm:block">
             Includes delivery from {retailerName}
           </p>
 
@@ -137,7 +144,7 @@ export default function ProductResultCard({
 
           <Link
             href={productHref(product)}
-            className="mt-4 flex min-h-11 w-full items-center justify-center rounded-lg bg-zinc-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+            className="mt-4 hidden min-h-11 w-full items-center justify-center rounded-lg bg-zinc-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 sm:flex"
           >
             View product
           </Link>
