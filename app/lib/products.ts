@@ -183,6 +183,16 @@ function buildSearchFilter(query: string) {
     .join(",");
 }
 
+function buildLandingProductFilter(query: string) {
+  return searchQueryVariants(query)
+    .flatMap((variant) => [
+      `name.ilike.%${variant}%`,
+      `category.ilike.%${variant}%`,
+      `description.ilike.%${variant}%`,
+    ])
+    .join(",");
+}
+
 function normalizeRetailer(
   retailer: RawOffer["retailer"]
 ): SearchRetailer | null {
@@ -600,6 +610,84 @@ export async function searchProducts(
     startResult: totalCount === 0 ? 0 : startIndex + 1,
     endResult: endIndex,
     resultLimit: SEARCH_RESULT_LOAD_LIMIT,
+    error: null,
+  };
+}
+
+export async function getLandingProducts(query: string, limit = 24) {
+  const sanitizedQuery = sanitizeSupabaseOrTerm(query);
+
+  if (!sanitizedQuery) {
+    return { results: [], error: null };
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      `
+        id,
+        slug,
+        name,
+        brand,
+        category,
+        description,
+        image,
+        net_weight_g,
+        net_volume_ml,
+        product_format,
+        serving_size_ml,
+        protein_per_serving_g,
+        creatine_per_serving_g,
+        serving_count_verified,
+        nutrition_verified,
+        unit_pricing_verified,
+        offers!inner (
+          id,
+          price,
+          shipping_cost,
+          url,
+          in_stock,
+          retailer:retailers (
+            id,
+            name,
+            slug,
+            logo
+          )
+        )
+      `
+    )
+    .eq("is_active", true)
+    .is("merged_into_product_id", null)
+    .is("merged_at", null)
+    .eq("offers.in_stock", true)
+    .gt("offers.price", 0)
+    .or(buildLandingProductFilter(sanitizedQuery))
+    .order("name")
+    .range(0, SEARCH_RESULT_LOAD_LIMIT - 1);
+
+  if (error) {
+    return { results: [], error };
+  }
+
+  const results = ((data || []) as RawProduct[])
+    .map((product) =>
+      normalizeProduct(product, sanitizedQuery, {
+        category: "",
+        brand: "",
+        retailer: "",
+      })
+    )
+    .filter((product): product is ProductSearchResult => product !== null)
+    .sort(
+      (left, right) =>
+        left.cheapestOffer.deliveredPrice.totalPrice -
+          right.cheapestOffer.deliveredPrice.totalPrice ||
+        left.name.localeCompare(right.name) ||
+        left.id.localeCompare(right.id)
+    );
+
+  return {
+    results: results.slice(0, limit),
     error: null,
   };
 }
