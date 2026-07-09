@@ -71,16 +71,16 @@ export default function ProductResultCard({
             </h2>
           </Link>
 
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-            <span className="break-words font-semibold text-zinc-800">
+          <div className="mt-2 flex min-w-0 flex-col items-start gap-1 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3">
+            <span className="max-w-full break-words font-semibold text-zinc-800">
               {retailerName}
             </span>
-            <span className="text-zinc-600">
+            <span className="max-w-full break-words text-zinc-600">
               {product.availableOfferCount} in-stock offer
               {product.availableOfferCount === 1 ? "" : "s"}
             </span>
             {verifiedServings && (
-              <span className="text-zinc-600">
+              <span className="max-w-full break-words text-zinc-600">
                 Verified servings: {verifiedServings}
               </span>
             )}
