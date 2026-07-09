@@ -49,6 +49,15 @@ export default async function AdminPage() {
             </p>
           </Link>
           <Link
+            href="/admin/search-analytics"
+            className="rounded-lg border border-zinc-200 bg-white p-5 hover:border-zinc-950"
+          >
+            <h2 className="text-xl font-bold">Search analytics</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-600">
+              Review recent searches, zero-result terms, corrections, and top queries.
+            </p>
+          </Link>
+          <Link
             href="/admin/duplicates"
             className="rounded-lg border border-zinc-200 bg-white p-5 hover:border-zinc-950"
           >
