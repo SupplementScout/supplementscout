@@ -14,6 +14,7 @@ import {
   normalizeSearchSort,
   searchProducts,
 } from "../lib/products";
+import { logSearchResultsEvent } from "../lib/searchAnalytics";
 import { searchUrl } from "../lib/searchUrl";
 
 type SearchPageProps = {
@@ -109,6 +110,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   if (hasQuery && !error && totalCount > 0 && requestedPage > totalPages) {
     redirect(searchUrl({ query, sort, filters, page: totalPages }));
+  }
+
+  if (hasQuery && !error) {
+    await logSearchResultsEvent({
+      query,
+      metadata,
+      resultCount: totalCount,
+    });
   }
 
   return (
