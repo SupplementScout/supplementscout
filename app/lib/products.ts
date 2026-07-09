@@ -49,6 +49,19 @@ export type SearchFacets = {
   retailers: SearchFacetOption[];
 };
 
+export type SearchMatchStatus = "exact" | "corrected" | "none";
+
+export type SearchMode = "standard_ilike";
+
+export type SearchMetadata = {
+  originalQuery: string;
+  appliedQuery: string;
+  correctedQuery: string | null;
+  queryVariants: string[];
+  matchStatus: SearchMatchStatus;
+  searchMode: SearchMode;
+};
+
 export type ProductSearchResult = {
   id: string;
   slug: string | null;
@@ -255,6 +268,24 @@ export function searchQueryVariants(query: string) {
       ].filter((value) => value.length > 0)
     )
   );
+}
+
+export function buildSearchQueryPlan(query: string): SearchMetadata {
+  const originalQuery = normalizeWhitespace(query);
+  const correctedQueryValue = correctedSearchQuery(originalQuery);
+  const correctedQuery =
+    correctedQueryValue && correctedQueryValue !== originalQuery.toLowerCase()
+      ? correctedQueryValue
+      : null;
+
+  return {
+    originalQuery,
+    appliedQuery: correctedQuery || originalQuery,
+    correctedQuery,
+    queryVariants: searchQueryVariants(originalQuery),
+    matchStatus: "none",
+    searchMode: "standard_ilike",
+  };
 }
 
 function buildSearchFilter(query: string) {
@@ -580,6 +611,7 @@ export async function searchProducts(
   requestedPage = 1
 ) {
   const sanitizedQuery = sanitizeSupabaseOrTerm(query);
+  const searchMetadata = buildSearchQueryPlan(sanitizedQuery);
 
   if (!sanitizedQuery) {
     return {
@@ -593,6 +625,7 @@ export async function searchProducts(
       startResult: 0,
       endResult: 0,
       resultLimit: SEARCH_RESULT_LOAD_LIMIT,
+      metadata: searchMetadata,
       error: null,
     };
   }
@@ -652,6 +685,7 @@ export async function searchProducts(
       startResult: 0,
       endResult: 0,
       resultLimit: SEARCH_RESULT_LOAD_LIMIT,
+      metadata: searchMetadata,
       error,
     };
   }
@@ -681,6 +715,15 @@ export async function searchProducts(
     totalCount === 0
       ? 0
       : Math.min(startIndex + SEARCH_PAGE_SIZE, totalCount);
+  const metadata: SearchMetadata = {
+    ...searchMetadata,
+    matchStatus:
+      totalCount === 0
+        ? "none"
+        : searchMetadata.correctedQuery
+          ? "corrected"
+          : "exact",
+  };
 
   return {
     results: sortedResults.slice(startIndex, endIndex),
@@ -693,6 +736,7 @@ export async function searchProducts(
     startResult: totalCount === 0 ? 0 : startIndex + 1,
     endResult: endIndex,
     resultLimit: SEARCH_RESULT_LOAD_LIMIT,
+    metadata,
     error: null,
   };
 }

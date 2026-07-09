@@ -77,6 +77,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     startResult,
     endResult,
     resultLimit,
+    metadata,
     error,
   } = hasQuery
     ? await searchProducts(query, sort, filters, requestedPage)
@@ -90,6 +91,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         startResult: 0,
         endResult: 0,
         resultLimit: 0,
+        metadata: {
+          originalQuery: "",
+          appliedQuery: "",
+          correctedQuery: null,
+          queryVariants: [],
+          matchStatus: "none" as const,
+          searchMode: "standard_ilike" as const,
+        },
         error: null,
       };
   const hasActiveFilters =
@@ -173,6 +182,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     Showing {startResult}-{endResult} of {totalCount}
                   </p>
                 )}
+                {!error && totalCount > 0 && metadata.correctedQuery && (
+                  <p className="mt-1 text-sm font-medium text-zinc-700">
+                    Showing results for &ldquo;{metadata.appliedQuery}&rdquo;
+                  </p>
+                )}
                 {!error && hasActiveFilters && (
                   <p className="mt-1 text-sm text-zinc-500">
                     Filtered from {unfilteredCount} product
@@ -215,7 +229,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
                   {hasActiveFilters
                     ? "No products match this combination of filters. Remove a filter or clear all filters to broaden the search."
-                    : "No active products with in-stock offers matched this search. Try a broader product name, brand or category."}
+                    : (
+                        <>
+                          No products found for &ldquo;{query}&rdquo;. Try searching
+                          for an ingredient, brand or category, for example
+                          vitamin D, omega 3 or creatine.
+                        </>
+                      )}
                 </p>
               </div>
             )}
