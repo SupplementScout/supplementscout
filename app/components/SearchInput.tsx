@@ -18,6 +18,11 @@ type SearchSuggestionsResponse = {
   suggestions: SearchSuggestion[];
 };
 
+type SearchInputProps = {
+  initialQuery?: string;
+  variant?: "hero" | "compact";
+};
+
 const suggestionTypeLabels: Record<SearchSuggestion["type"], string> = {
   category: "Category",
   brand: "Brand",
@@ -34,8 +39,11 @@ function normalizeQuery(value: string) {
   return value.trim().replace(/\s+/g, " ");
 }
 
-export default function SearchInput() {
-  const [query, setQuery] = useState("");
+export default function SearchInput({
+  initialQuery = "",
+  variant = "hero",
+}: SearchInputProps) {
+  const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [correctedQuery, setCorrectedQuery] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -55,6 +63,26 @@ export default function SearchInput() {
         .filter((group) => group.suggestions.length > 0),
     [suggestions]
   );
+  const formClassName =
+    variant === "compact"
+      ? "relative min-w-0 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm sm:p-4"
+      : "relative mx-auto mt-6 max-w-3xl rounded-3xl border border-zinc-200 bg-white p-2.5 shadow-xl sm:mt-10 sm:p-3";
+  const rowClassName =
+    variant === "compact"
+      ? "flex flex-col gap-3 md:flex-row"
+      : "flex flex-col gap-3 sm:flex-row";
+  const inputClassName =
+    variant === "compact"
+      ? "min-h-12 flex-1 rounded-lg border border-zinc-300 px-4 text-base text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-zinc-950"
+      : "min-h-14 flex-1 rounded-2xl border border-zinc-200 px-4 text-base outline-none focus:border-zinc-950 sm:min-h-16 sm:px-6";
+  const buttonClassName =
+    variant === "compact"
+      ? "min-h-12 rounded-lg bg-zinc-950 px-6 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
+      : "min-h-14 rounded-2xl bg-zinc-950 px-8 font-semibold text-white sm:min-h-16 sm:px-10";
+  const dropdownClassName =
+    variant === "compact"
+      ? "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 overflow-hidden rounded-lg border border-zinc-200 bg-white text-left shadow-2xl"
+      : "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left shadow-2xl";
 
   useEffect(() => {
     if (!shouldSuggest) {
@@ -167,9 +195,10 @@ export default function SearchInput() {
     <form
       id="search"
       action="/search"
-      className="relative mx-auto mt-6 max-w-3xl rounded-3xl border border-zinc-200 bg-white p-2.5 shadow-xl sm:mt-10 sm:p-3"
+      method="get"
+      className={formClassName}
     >
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className={rowClassName}>
         <input
           type="search"
           name="q"
@@ -203,12 +232,12 @@ export default function SearchInput() {
           aria-expanded={isOpen && suggestions.length > 0}
           aria-haspopup="listbox"
           aria-controls="search-suggestions"
-          className="min-h-14 flex-1 rounded-2xl border border-zinc-200 px-4 text-base outline-none focus:border-zinc-950 sm:min-h-16 sm:px-6"
+          className={inputClassName}
           placeholder="Search supplements, brands or categories"
         />
         <button
           type="submit"
-          className="min-h-14 rounded-2xl bg-zinc-950 px-8 font-semibold text-white sm:min-h-16 sm:px-10"
+          className={buttonClassName}
         >
           Search
         </button>
@@ -218,7 +247,7 @@ export default function SearchInput() {
         <div
           id="search-suggestions"
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left shadow-2xl"
+          className={dropdownClassName}
         >
           {correctedQuery && (
             <p className="border-b border-zinc-100 px-4 py-3 text-sm text-zinc-500 sm:px-5">

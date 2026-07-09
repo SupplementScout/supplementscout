@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import ActiveSearchFilters from "../components/ActiveSearchFilters";
 import ProductResultCard from "../components/ProductResultCard";
 import SearchFilters from "../components/SearchFilters";
+import SearchInput from "../components/SearchInput";
 import SearchPagination from "../components/SearchPagination";
 import SearchSort from "../components/SearchSort";
 import {
@@ -124,33 +125,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </header>
 
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
-        <form action="/search" className="min-w-0 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm sm:p-4">
-          <div className="flex flex-col gap-3 md:flex-row">
-            <input
-              type="search"
-              name="q"
-              defaultValue={query}
-              placeholder="Search supplements, brands or categories"
-              className="min-h-12 flex-1 rounded-lg border border-zinc-300 px-4 text-base text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-zinc-950"
-            />
-            <input type="hidden" name="sort" value={sort} />
-            {filters.category && (
-              <input type="hidden" name="category" value={filters.category} />
-            )}
-            {filters.brand && (
-              <input type="hidden" name="brand" value={filters.brand} />
-            )}
-            {filters.retailer && (
-              <input type="hidden" name="retailer" value={filters.retailer} />
-            )}
-            <button
-              type="submit"
-              className="min-h-12 rounded-lg bg-zinc-950 px-6 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
-            >
-              Search
-            </button>
-          </div>
-        </form>
+        <SearchInput key={query} initialQuery={query} variant="compact" />
 
         {!hasQuery && (
           <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-8 text-center">
