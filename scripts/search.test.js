@@ -245,6 +245,136 @@ test("search query variants normalize extra whitespace and deduplicate variants"
   ]);
 });
 
+test("search query variants include conservative glucosamine dosage variants", () => {
+  assert.deepEqual(searchQueryVariants("glucosamine sulphate 1000mg"), [
+    "glucosamine sulphate 1000mg",
+    "glucosamine sulphate 1 000mg",
+    "glucosamine%sulphate%1000mg",
+    "glucosamine%sulphate%1%000mg",
+  ]);
+  assert.deepEqual(searchQueryVariants("glucosamine sulphate 1,000mg"), [
+    "glucosamine sulphate 1,000mg",
+    "glucosamine sulphate 1 000mg",
+    "glucosamine sulphate 1000mg",
+    "glucosamine%sulphate%1%000mg",
+    "glucosamine%sulphate%1000mg",
+  ]);
+  assert.deepEqual(searchQueryVariants("glucosamine 1000mg"), [
+    "glucosamine 1000mg",
+    "glucosamine 1 000mg",
+    "glucosamine%1000mg",
+    "glucosamine%1%000mg",
+  ]);
+  assert.deepEqual(searchQueryVariants("glucosamine 1,000mg"), [
+    "glucosamine 1,000mg",
+    "glucosamine 1 000mg",
+    "glucosamine 1000mg",
+    "glucosamine%1%000mg",
+    "glucosamine%1000mg",
+  ]);
+  assert.deepEqual(searchQueryVariants("glucosamine sulphate tablets"), [
+    "glucosamine sulphate tablets",
+    "glucosamine%sulphate%tablets",
+  ]);
+});
+
+test("search query variants normalize sulfate spelling conservatively", () => {
+  assert.deepEqual(searchQueryVariants("glucosamine sulfate 1000mg"), [
+    "glucosamine sulfate 1000mg",
+    "glucosamine sulphate 1000mg",
+    "glucosamine sulfate 1 000mg",
+    "glucosamine sulphate 1 000mg",
+    "glucosamine%sulfate%1000mg",
+    "glucosamine%sulphate%1000mg",
+    "glucosamine%sulfate%1%000mg",
+    "glucosamine%sulphate%1%000mg",
+  ]);
+});
+
+test("dosage variants are generated without unsafe comma variants", () => {
+  for (const query of [
+    "glucosamine sulphate 1000mg",
+    "glucosamine sulphate 1500mg",
+    "glucosamine sulphate 2000mg",
+    "glucosamine sulphate 3000mg",
+    "glucosamine sulphate 2000iu",
+    "glucosamine sulphate 4000iu",
+  ]) {
+    const variants = searchQueryVariants(query);
+
+    assert.equal(
+      variants.some((variant) => variant.includes(",")),
+      false,
+      query
+    );
+    assert.ok(
+      variants.some((variant) => variant.includes("%")),
+      query
+    );
+  }
+});
+
+function variantMatchesText(variant, text) {
+  const pattern = variant
+    .split("%")
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join(".*");
+
+  return new RegExp(pattern, "i").test(text);
+}
+
+test("generated glucosamine variants can match stored comma dosage product name", () => {
+  const productName = "Glucosamine Sulphate 1,000mg - Tablets";
+
+  for (const query of [
+    "glucosamine sulphate 1000mg",
+    "glucosamine sulphate 1,000mg",
+    "glucosamine 1000mg",
+    "glucosamine 1,000mg",
+    "glucosamine sulphate tablets",
+    "glucosamine sulfate 1000mg",
+  ]) {
+    assert.equal(
+      searchQueryVariants(query).some((variant) =>
+        variantMatchesText(variant, productName)
+      ),
+      true,
+      query
+    );
+  }
+});
+
+test("searchProducts sanitizes raw user percent before building search filter", async () => {
+  let searchFilter = "";
+  const { searchProducts: searchProductsWithCapturedFilter } = loadProductsModule({
+    from: () => {
+      const query = {
+        select: () => query,
+        eq: () => query,
+        is: () => query,
+        gt: () => query,
+        or: (filter) => {
+          searchFilter = filter;
+
+          return query;
+        },
+        order: () => query,
+        range: () => ({ data: [], error: null }),
+      };
+
+      return query;
+    },
+  });
+
+  await searchProductsWithCapturedFilter(
+    "magnesium%citrate",
+    "relevance"
+  );
+
+  assert.equal(searchFilter.includes("magnesium%citrate"), false);
+  assert.equal(searchFilter.includes("magnesium citrate"), true);
+});
+
 test("buildSearchQueryPlan returns corrected magnesium metadata", () => {
   assert.deepEqual(buildSearchQueryPlan("magnesum"), {
     originalQuery: "magnesum",

@@ -239,6 +239,58 @@ const searchQueryCorrections: Array<[RegExp, string]> = [
   [/\bsupliments\b/g, "supplements"],
   [/\bcreatin\b/g, "creatine"],
   [/\bglucosamin\b/g, "glucosamine"],
+  [/\bsulfate\b/g, "sulphate"],
+];
+
+const dosageVariantPatterns: Array<{
+  compact: RegExp;
+  separated: RegExp;
+  comma: RegExp;
+  separatedValue: string;
+  compactValue: string;
+}> = [
+  {
+    compact: /\b1000mg\b/g,
+    separated: /\b1\s+000mg\b/g,
+    comma: /\b1,000mg\b/g,
+    separatedValue: "1 000mg",
+    compactValue: "1000mg",
+  },
+  {
+    compact: /\b1500mg\b/g,
+    separated: /\b1\s+500mg\b/g,
+    comma: /\b1,500mg\b/g,
+    separatedValue: "1 500mg",
+    compactValue: "1500mg",
+  },
+  {
+    compact: /\b2000mg\b/g,
+    separated: /\b2\s+000mg\b/g,
+    comma: /\b2,000mg\b/g,
+    separatedValue: "2 000mg",
+    compactValue: "2000mg",
+  },
+  {
+    compact: /\b3000mg\b/g,
+    separated: /\b3\s+000mg\b/g,
+    comma: /\b3,000mg\b/g,
+    separatedValue: "3 000mg",
+    compactValue: "3000mg",
+  },
+  {
+    compact: /\b2000iu\b/g,
+    separated: /\b2\s+000iu\b/g,
+    comma: /\b2,000iu\b/g,
+    separatedValue: "2 000iu",
+    compactValue: "2000iu",
+  },
+  {
+    compact: /\b4000iu\b/g,
+    separated: /\b4\s+000iu\b/g,
+    comma: /\b4,000iu\b/g,
+    separatedValue: "4 000iu",
+    compactValue: "4000iu",
+  },
 ];
 
 function searchableText(values: Array<string | null | undefined>) {
@@ -271,6 +323,60 @@ function correctedSearchQuery(query: string) {
   );
 }
 
+function dosageFormatVariants(query: string) {
+  const variants = new Set<string>();
+
+  for (const pattern of dosageVariantPatterns) {
+    if (pattern.compact.test(query)) {
+      variants.add(query.replace(pattern.compact, pattern.separatedValue));
+    }
+
+    pattern.compact.lastIndex = 0;
+
+    if (pattern.separated.test(query)) {
+      variants.add(query.replace(pattern.separated, pattern.compactValue));
+    }
+
+    pattern.separated.lastIndex = 0;
+
+    if (pattern.comma.test(query)) {
+      variants.add(query.replace(pattern.comma, pattern.separatedValue));
+      variants.add(query.replace(pattern.comma, pattern.compactValue));
+    }
+
+    pattern.comma.lastIndex = 0;
+  }
+
+  return Array.from(variants).map(normalizeWhitespace);
+}
+
+function orderedWildcardQueryVariants(query: string) {
+  const tokens = normalizeWhitespace(
+    query.toLowerCase().replace(/[^a-z0-9]+/g, " ")
+  )
+    .split(" ")
+    .filter(Boolean);
+
+  if (tokens.length < 2 || tokens.length > 5) {
+    return [];
+  }
+
+  const hasGlucosamine = tokens.includes("glucosamine");
+  const hasSulphate = tokens.includes("sulphate") || tokens.includes("sulfate");
+  const hasDose = tokens.some((token) =>
+    /^(?:1000|1500|2000|3000)mg$|^(?:2000|4000)iu$|^\d$|^\d{3}(?:mg|iu)$/.test(
+      token
+    )
+  );
+  const hasTabletFormat = tokens.some((token) => /^tablets?$/.test(token));
+
+  if (!hasGlucosamine || (!hasDose && !(hasSulphate && hasTabletFormat))) {
+    return [];
+  }
+
+  return [tokens.join("%")];
+}
+
 function vitaminDk2SearchVariants(query: string) {
   const correctedQuery = correctedSearchQuery(query);
 
@@ -290,15 +396,19 @@ function vitaminDk2SearchVariants(query: string) {
 }
 
 export function searchQueryVariants(query: string) {
+  const exactVariants = [
+    query,
+    normalizeWhitespace(query),
+    correctedSearchQuery(query),
+    ...vitaminDk2SearchVariants(query),
+  ].filter((value) => value.length > 0);
+  const dosageVariants = exactVariants.flatMap(dosageFormatVariants);
+  const wildcardVariants = [...exactVariants, ...dosageVariants].flatMap(
+    orderedWildcardQueryVariants
+  );
+
   return Array.from(
-    new Set(
-      [
-        query,
-        normalizeWhitespace(query),
-        correctedSearchQuery(query),
-        ...vitaminDk2SearchVariants(query),
-      ].filter((value) => value.length > 0)
-    )
+    new Set([...exactVariants, ...dosageVariants, ...wildcardVariants])
   );
 }
 
