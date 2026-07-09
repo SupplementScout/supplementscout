@@ -25,6 +25,7 @@ function loadOutboundModule() {
 }
 
 const {
+  isCrawlerUserAgent,
   normalizeOutboundSource,
   resolveOutboundRedirect,
   validateRetailerDestinationUrl,
@@ -299,6 +300,15 @@ test("invalid source is replaced with safe default", async () => {
 
   assert.equal(result.ok, true);
   assert.equal(calls.insertedClicks[0].source_page, "product_offer_list");
+});
+
+test("obvious crawler user agents are detected conservatively", () => {
+  assert.equal(isCrawlerUserAgent(null), false);
+  assert.equal(isCrawlerUserAgent("Mozilla/5.0 Safari/537.36"), false);
+  assert.equal(isCrawlerUserAgent("Mozilla/5.0 AppleWebKit/537.36 Chrome/126"), false);
+  assert.equal(isCrawlerUserAgent("Googlebot/2.1"), true);
+  assert.equal(isCrawlerUserAgent("facebookexternalhit/1.1"), true);
+  assert.equal(isCrawlerUserAgent("HeadlessChrome Lighthouse"), true);
 });
 
 test("click insert failure still redirects to valid retailer URL", async () => {

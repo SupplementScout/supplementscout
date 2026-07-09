@@ -3,6 +3,28 @@ export const OUTBOUND_CLICK_SOURCES = [
   "product_offer_list",
 ] as const;
 
+const CRAWLER_USER_AGENT_PATTERNS = [
+  "googlebot",
+  "bingbot",
+  "slurp",
+  "duckduckbot",
+  "baiduspider",
+  "yandexbot",
+  "facebookexternalhit",
+  "twitterbot",
+  "linkedinbot",
+  "whatsapp",
+  "telegrambot",
+  "discordbot",
+  "crawler",
+  "spider",
+  "bot",
+  "preview",
+  "headlesschrome",
+  "pagespeed",
+  "lighthouse",
+] as const;
+
 export type OutboundClickSource = (typeof OUTBOUND_CLICK_SOURCES)[number];
 
 export type OutboundOfferRecord = {
@@ -73,6 +95,18 @@ export function normalizeOutboundSource(value: string | null): OutboundClickSour
   return OUTBOUND_CLICK_SOURCES.includes(value as OutboundClickSource)
     ? (value as OutboundClickSource)
     : DEFAULT_SOURCE;
+}
+
+export function isCrawlerUserAgent(value: string | null) {
+  if (!value) {
+    return false;
+  }
+
+  const userAgent = value.toLowerCase();
+
+  return CRAWLER_USER_AGENT_PATTERNS.some((pattern) =>
+    userAgent.includes(pattern)
+  );
 }
 
 export function validateRetailerDestinationUrl(value: string | null) {

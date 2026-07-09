@@ -1,11 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  isCrawlerUserAgent,
   resolveOutboundRedirect,
   type OutboundClickDataSource,
 } from "../../lib/outboundClickRedirect";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 
 export const dynamic = "force-dynamic";
+
+const ROBOTS_HEADER_VALUE = "noindex, nofollow, noarchive";
+
+function withRobotsHeader<T extends Response>(response: T) {
+  response.headers.set("X-Robots-Tag", ROBOTS_HEADER_VALUE);
+
+  return response;
+}
 
 function createDataSource(): OutboundClickDataSource {
   return {
@@ -40,16 +49,22 @@ function unavailableResponse(
   request: NextRequest
 ) {
   if (result.productPath) {
-    return NextResponse.redirect(new URL(result.productPath, request.url));
+    return withRobotsHeader(
+      NextResponse.redirect(new URL(result.productPath, request.url))
+    );
   }
 
-  return new Response(result.message, { status: result.status });
+  return withRobotsHeader(new Response(result.message, { status: result.status }));
 }
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ offerId: string }> }
 ) {
+  if (isCrawlerUserAgent(request.headers.get("user-agent"))) {
+    return withRobotsHeader(new Response(null, { status: 204 }));
+  }
+
   const { offerId } = await params;
   const result = await resolveOutboundRedirect({
     offerId,
@@ -62,5 +77,5 @@ export async function GET(
     return unavailableResponse(result, request);
   }
 
-  return NextResponse.redirect(result.destinationUrl);
+  return withRobotsHeader(NextResponse.redirect(result.destinationUrl));
 }
