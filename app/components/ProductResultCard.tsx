@@ -14,6 +14,18 @@ function formatDeliveryCost(value: number) {
   return value === 0 ? "Free delivery" : formatCurrency(value);
 }
 
+function formatVerifiedServings(value: number | string | null) {
+  if (value === null || value === "") {
+    return null;
+  }
+
+  const servings = Number(value);
+
+  return Number.isFinite(servings) && Number.isInteger(servings) && servings > 0
+    ? servings.toLocaleString("en-GB")
+    : null;
+}
+
 export default function ProductResultCard({
   product,
 }: {
@@ -22,6 +34,7 @@ export default function ProductResultCard({
   const { cheapestOffer } = product;
   const retailerName = cheapestOffer.retailer?.name || "Unknown retailer";
   const deliveredPrice = cheapestOffer.deliveredPrice;
+  const verifiedServings = formatVerifiedServings(product.serving_count_verified);
 
   return (
     <article className="w-full min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
@@ -66,6 +79,11 @@ export default function ProductResultCard({
               {product.availableOfferCount} in-stock offer
               {product.availableOfferCount === 1 ? "" : "s"}
             </span>
+            {verifiedServings && (
+              <span className="text-zinc-600">
+                Verified servings: {verifiedServings}
+              </span>
+            )}
           </div>
 
           <Link
@@ -78,13 +96,13 @@ export default function ProductResultCard({
 
         <div className="col-start-2 row-start-1 min-w-0 sm:col-span-2 sm:col-start-auto sm:row-start-auto sm:border-t sm:border-zinc-200 sm:pt-4 md:col-span-1 md:border-l md:border-t-0 md:pl-5 md:pt-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">
-            Total delivered
+            Best delivered price
           </p>
           <p className="mt-1 text-2xl font-extrabold leading-none text-zinc-950 sm:text-3xl md:text-2xl">
             {formatCurrency(deliveredPrice.totalPrice)}
           </p>
           <p className="mt-1 hidden text-sm font-medium text-zinc-700 sm:block">
-            Includes delivery from {retailerName}
+            From {retailerName}
           </p>
 
           <dl className="mt-3 space-y-2 text-sm">
