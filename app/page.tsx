@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import SearchInput from "./components/SearchInput";
 import { supabase } from "./lib/supabase";
 
 const popularSearches = [
@@ -140,26 +141,7 @@ export default function Home() {
           offers in one place.
         </p>
 
-        <form
-          id="search"
-          action="/search"
-          className="mx-auto mt-6 max-w-3xl rounded-3xl border border-zinc-200 bg-white p-2.5 shadow-xl sm:mt-10 sm:p-3"
-        >
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              type="search"
-              name="q"
-              className="min-h-14 flex-1 rounded-2xl border border-zinc-200 px-4 text-base outline-none focus:border-zinc-950 sm:min-h-16 sm:px-6"
-              placeholder="Search supplements, brands or categories"
-            />
-            <button
-              type="submit"
-              className="min-h-14 rounded-2xl bg-zinc-950 px-8 font-semibold text-white sm:min-h-16 sm:px-10"
-            >
-              Search
-            </button>
-          </div>
-        </form>
+        <SearchInput />
 
         {isLoading && <p className="mt-5 text-zinc-500 sm:mt-8">Loading site stats...</p>}
 
