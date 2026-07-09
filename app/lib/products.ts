@@ -58,7 +58,7 @@ export type SearchFacets = {
 
 export type SearchMatchStatus = "exact" | "corrected" | "none";
 
-export type SearchMode = "standard_ilike";
+export type SearchMode = "standard_ilike" | "goal_mapped_ilike";
 
 export type SearchMetadata = {
   originalQuery: string;
@@ -323,6 +323,21 @@ function correctedSearchQuery(query: string) {
   );
 }
 
+const goalSearchMappings = new Map<string, string[]>([
+  ["muscle gain", ["whey protein", "creatine", "mass gainer"]],
+  ["strength", ["creatine", "pre workout"]],
+  ["recovery", ["protein", "magnesium", "electrolytes"]],
+  ["joint support", ["glucosamine", "chondroitin", "collagen", "omega 3"]],
+  ["hydration", ["electrolytes"]],
+]);
+
+function goalSearchMapping(query: string) {
+  const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  const variants = goalSearchMappings.get(normalizedQuery);
+
+  return variants ? { variants } : null;
+}
+
 function dosageFormatVariants(query: string) {
   const variants = new Set<string>();
 
@@ -400,6 +415,7 @@ export function searchQueryVariants(query: string) {
     query,
     normalizeWhitespace(query),
     correctedSearchQuery(query),
+    ...(goalSearchMapping(query)?.variants || []),
     ...vitaminDk2SearchVariants(query),
   ].filter((value) => value.length > 0);
   const dosageVariants = exactVariants.flatMap(dosageFormatVariants);
@@ -419,14 +435,17 @@ export function buildSearchQueryPlan(query: string): SearchMetadata {
     correctedQueryValue && correctedQueryValue !== originalQuery.toLowerCase()
       ? correctedQueryValue
       : null;
+  const goalMapping = goalSearchMapping(originalQuery);
 
   return {
     originalQuery,
-    appliedQuery: correctedQuery || originalQuery,
-    correctedQuery,
+    appliedQuery: goalMapping
+      ? goalMapping.variants.join(", ")
+      : correctedQuery || originalQuery,
+    correctedQuery: goalMapping ? null : correctedQuery,
     queryVariants: searchQueryVariants(originalQuery),
     matchStatus: "none",
-    searchMode: "standard_ilike",
+    searchMode: goalMapping ? "goal_mapped_ilike" : "standard_ilike",
   };
 }
 

@@ -291,6 +291,56 @@ test("search query variants normalize sulfate spelling conservatively", () => {
   ]);
 });
 
+test("goal search variants map exact safe goals only", () => {
+  assert.deepEqual(searchQueryVariants("muscle gain"), [
+    "muscle gain",
+    "whey protein",
+    "creatine",
+    "mass gainer",
+  ]);
+  assert.deepEqual(searchQueryVariants("strength"), [
+    "strength",
+    "creatine",
+    "pre workout",
+  ]);
+  assert.deepEqual(searchQueryVariants("recovery"), [
+    "recovery",
+    "protein",
+    "magnesium",
+    "electrolytes",
+  ]);
+  assert.deepEqual(searchQueryVariants("joint support"), [
+    "joint support",
+    "glucosamine",
+    "chondroitin",
+    "collagen",
+    "omega 3",
+  ]);
+  assert.deepEqual(searchQueryVariants("hydration"), [
+    "hydration",
+    "electrolytes",
+  ]);
+});
+
+test("risky goal-like terms are not mapped", () => {
+  for (const query of [
+    "joint pain",
+    "arthritis",
+    "inflammation",
+    "fat loss",
+    "anxiety",
+    "insomnia",
+    "cold",
+    "flu",
+    "cure",
+    "treat",
+    "prevent",
+  ]) {
+    assert.deepEqual(searchQueryVariants(query), [query], query);
+    assert.equal(buildSearchQueryPlan(query).searchMode, "standard_ilike", query);
+  }
+});
+
 test("dosage variants are generated without unsafe comma variants", () => {
   for (const query of [
     "glucosamine sulphate 1000mg",
@@ -416,6 +466,55 @@ test("buildSearchQueryPlan keeps vitamin d k2 as a special variant search", () =
     queryVariants: ["vitamin d k2", "vitamin d%k2", "vitamin d3%k2"],
     matchStatus: "none",
     searchMode: "standard_ilike",
+  });
+});
+
+test("buildSearchQueryPlan returns goal metadata for exact safe goals", () => {
+  assert.deepEqual(buildSearchQueryPlan("muscle gain"), {
+    originalQuery: "muscle gain",
+    appliedQuery: "whey protein, creatine, mass gainer",
+    correctedQuery: null,
+    queryVariants: ["muscle gain", "whey protein", "creatine", "mass gainer"],
+    matchStatus: "none",
+    searchMode: "goal_mapped_ilike",
+  });
+  assert.deepEqual(buildSearchQueryPlan("strength"), {
+    originalQuery: "strength",
+    appliedQuery: "creatine, pre workout",
+    correctedQuery: null,
+    queryVariants: ["strength", "creatine", "pre workout"],
+    matchStatus: "none",
+    searchMode: "goal_mapped_ilike",
+  });
+  assert.deepEqual(buildSearchQueryPlan("recovery"), {
+    originalQuery: "recovery",
+    appliedQuery: "protein, magnesium, electrolytes",
+    correctedQuery: null,
+    queryVariants: ["recovery", "protein", "magnesium", "electrolytes"],
+    matchStatus: "none",
+    searchMode: "goal_mapped_ilike",
+  });
+  assert.deepEqual(buildSearchQueryPlan("joint support"), {
+    originalQuery: "joint support",
+    appliedQuery: "glucosamine, chondroitin, collagen, omega 3",
+    correctedQuery: null,
+    queryVariants: [
+      "joint support",
+      "glucosamine",
+      "chondroitin",
+      "collagen",
+      "omega 3",
+    ],
+    matchStatus: "none",
+    searchMode: "goal_mapped_ilike",
+  });
+  assert.deepEqual(buildSearchQueryPlan("hydration"), {
+    originalQuery: "hydration",
+    appliedQuery: "electrolytes",
+    correctedQuery: null,
+    queryVariants: ["hydration", "electrolytes"],
+    matchStatus: "none",
+    searchMode: "goal_mapped_ilike",
   });
 });
 

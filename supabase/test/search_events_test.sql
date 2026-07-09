@@ -106,6 +106,70 @@ $$;
 
 do $$
 begin
+  insert into public.search_events (
+    event_type,
+    source_page,
+    query,
+    applied_query,
+    result_count,
+    match_status,
+    search_mode
+  )
+  values
+    (
+      'search_results',
+      'search_page',
+      'magnesium',
+      'magnesium',
+      1,
+      'exact',
+      'standard_ilike'
+    ),
+    (
+      'search_results',
+      'search_page',
+      'muscle gain',
+      'whey protein, creatine, mass gainer',
+      3,
+      'exact',
+      'goal_mapped_ilike'
+    ),
+    (
+      'search_results',
+      'search_page',
+      'unknown',
+      'unknown',
+      0,
+      'none',
+      null
+    );
+
+  begin
+    insert into public.search_events (
+      event_type,
+      source_page,
+      query,
+      search_mode
+    )
+    values (
+      'search_results',
+      'search_page',
+      'invalid mode',
+      'invalid_mode'
+    );
+
+    raise exception 'Invalid search_mode was accepted';
+  exception
+    when check_violation then
+      null;
+  end;
+
+  raise notice 'Search event search_mode value checks passed.';
+end;
+$$;
+
+do $$
+begin
   if not exists (
     select 1
     from pg_indexes
