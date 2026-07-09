@@ -13,6 +13,13 @@ export type SearchSort = "relevance" | "price_asc" | "price_desc";
 
 export const SEARCH_PAGE_SIZE = 24;
 export const SEARCH_RESULT_LOAD_LIMIT = 1000;
+export const SEARCH_SUGGESTION_DEFAULT_LIMIT = 10;
+export const SEARCH_SUGGESTION_LOAD_LIMIT = 50;
+
+const SEARCH_SUGGESTION_CATEGORY_LIMIT = 3;
+const SEARCH_SUGGESTION_BRAND_LIMIT = 2;
+const SEARCH_SUGGESTION_PRODUCT_LIMIT = 5;
+const SEARCH_SUGGESTION_MIN_QUERY_LENGTH = 2;
 
 export type SearchFilters = {
   category: string;
@@ -60,6 +67,24 @@ export type SearchMetadata = {
   queryVariants: string[];
   matchStatus: SearchMatchStatus;
   searchMode: SearchMode;
+};
+
+export type SearchSuggestionType = "category" | "brand" | "product";
+
+export type SearchSuggestion = {
+  id: string;
+  type: SearchSuggestionType;
+  label: string;
+  href: string;
+  matchText: string;
+  score: number;
+};
+
+export type SearchSuggestionsResult = {
+  query: string;
+  appliedQuery: string;
+  correctedQuery: string | null;
+  suggestions: SearchSuggestion[];
 };
 
 export type ProductSearchResult = {
@@ -123,6 +148,13 @@ type RawProduct = {
   nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
   offers?: RawOffer[] | null;
+};
+
+type RawSuggestionProduct = Pick<
+  RawProduct,
+  "id" | "slug" | "name" | "brand" | "category"
+> & {
+  offers?: Array<Pick<RawOffer, "id" | "in_stock" | "price">> | null;
 };
 
 export type LandingProductMatchInput = Pick<
@@ -296,6 +328,141 @@ function buildSearchFilter(query: string) {
       `category.ilike.%${variant}%`,
     ])
     .join(",");
+}
+
+function searchUrlForSuggestion(query: string) {
+  return `/search?q=${encodeURIComponent(query)}`;
+}
+
+function productUrlForSuggestion(slug: string) {
+  return `/product/${encodeURIComponent(slug)}`;
+}
+
+function normalizeSuggestionKey(value: string) {
+  return normalizeWhitespace(value).toLowerCase();
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function wildcardVariantMatches(value: string, variant: string) {
+  if (!variant.includes("%")) {
+    return false;
+  }
+
+  const pattern = variant
+    .split("%")
+    .map((part) => escapeRegExp(normalizeSuggestionKey(part)))
+    .join(".*");
+
+  return new RegExp(pattern).test(normalizeSuggestionKey(value));
+}
+
+function scoreSuggestionText(
+  value: string,
+  plan: SearchMetadata,
+  type: SearchSuggestionType,
+  hasInStockOffer: boolean
+) {
+  const label = normalizeSuggestionKey(value);
+  const appliedQuery = normalizeSuggestionKey(plan.appliedQuery);
+  const correctedQuery = plan.correctedQuery
+    ? normalizeSuggestionKey(plan.correctedQuery)
+    : "";
+  const variants = plan.queryVariants
+    .map((variant) => normalizeSuggestionKey(variant.replace(/%/g, " ")))
+    .filter(Boolean);
+  let score = 0;
+
+  if (label === appliedQuery || variants.some((variant) => label === variant)) {
+    score += 100;
+  } else if (
+    label.startsWith(appliedQuery) ||
+    variants.some((variant) => label.startsWith(variant))
+  ) {
+    score += 70;
+  } else if (
+    label.includes(appliedQuery) ||
+    variants.some((variant) => label.includes(variant))
+  ) {
+    score += 35;
+  } else if (
+    plan.queryVariants.some((variant) => wildcardVariantMatches(value, variant))
+  ) {
+    score += 60;
+  }
+
+  if (score === 0) {
+    return 0;
+  }
+
+  if (correctedQuery && label.includes(correctedQuery)) {
+    score += 20;
+  }
+
+  if (type === "category") {
+    score += 12;
+  } else if (type === "brand") {
+    score += 8;
+  }
+
+  if (hasInStockOffer) {
+    score += 15;
+  }
+
+  return score;
+}
+
+function bestSuggestionMatch(
+  values: string[],
+  plan: SearchMetadata,
+  type: SearchSuggestionType,
+  hasInStockOffer: boolean
+) {
+  return values.reduce(
+    (best, value) => {
+      const score = scoreSuggestionText(value, plan, type, hasInStockOffer);
+
+      if (score > best.score) {
+        return { matchText: value, score };
+      }
+
+      return best;
+    },
+    { matchText: values[0] || "", score: 0 }
+  );
+}
+
+function addSuggestion(
+  suggestions: SearchSuggestion[],
+  seen: Set<string>,
+  suggestion: SearchSuggestion
+) {
+  const key = `${suggestion.type}:${normalizeSuggestionKey(suggestion.label)}`;
+
+  if (seen.has(key) || suggestion.score <= 0) {
+    return;
+  }
+
+  seen.add(key);
+  suggestions.push(suggestion);
+}
+
+function suggestionSort(left: SearchSuggestion, right: SearchSuggestion) {
+  return (
+    right.score - left.score ||
+    left.label.localeCompare(right.label) ||
+    left.id.localeCompare(right.id)
+  );
+}
+
+function normalizeSuggestionLimit(limit: number | undefined) {
+  if (!limit || !Number.isSafeInteger(limit)) {
+    return SEARCH_SUGGESTION_DEFAULT_LIMIT;
+  }
+
+  return Math.min(Math.max(limit, 1), SEARCH_SUGGESTION_DEFAULT_LIMIT);
 }
 
 function buildLandingProductFilter(queries: string[]) {
@@ -738,6 +905,136 @@ export async function searchProducts(
     resultLimit: SEARCH_RESULT_LOAD_LIMIT,
     metadata,
     error: null,
+  };
+}
+
+export async function getSearchSuggestions(query: string, limit?: number) {
+  const sanitizedQuery = sanitizeSupabaseOrTerm(query);
+  const plan = buildSearchQueryPlan(sanitizedQuery);
+  const resultLimit = normalizeSuggestionLimit(limit);
+  const emptyResult: SearchSuggestionsResult = {
+    query: plan.originalQuery,
+    appliedQuery: plan.appliedQuery,
+    correctedQuery: plan.correctedQuery,
+    suggestions: [],
+  };
+
+  if (plan.originalQuery.length < SEARCH_SUGGESTION_MIN_QUERY_LENGTH) {
+    return emptyResult;
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      `
+        id,
+        slug,
+        name,
+        brand,
+        category,
+        offers!inner (
+          id,
+          in_stock,
+          price
+        )
+      `
+    )
+    .eq("is_active", true)
+    .is("merged_into_product_id", null)
+    .is("merged_at", null)
+    .not("slug", "is", null)
+    .eq("offers.in_stock", true)
+    .gt("offers.price", 0)
+    .or(buildSearchFilter(sanitizedQuery))
+    .order("name")
+    .range(0, SEARCH_SUGGESTION_LOAD_LIMIT - 1);
+
+  if (error) {
+    return emptyResult;
+  }
+
+  const rows = ((data || []) as RawSuggestionProduct[]).filter(
+    (product) => product.slug
+  );
+  const seen = new Set<string>();
+  const categorySuggestions: SearchSuggestion[] = [];
+  const brandSuggestions: SearchSuggestion[] = [];
+  const productSuggestions: SearchSuggestion[] = [];
+
+  for (const product of rows) {
+    const hasInStockOffer = (product.offers || []).some(
+      (offer) => offer.in_stock === true && Number(offer.price) > 0
+    );
+
+    if (product.category) {
+      const match = bestSuggestionMatch(
+        [product.category],
+        plan,
+        "category",
+        hasInStockOffer
+      );
+      addSuggestion(categorySuggestions, seen, {
+        id: `category-${normalizeSuggestionKey(product.category).replace(/\s+/g, "-")}`,
+        type: "category",
+        label: product.category,
+        href: searchUrlForSuggestion(product.category),
+        matchText: match.matchText,
+        score: match.score,
+      });
+    }
+
+    if (product.brand) {
+      const match = bestSuggestionMatch(
+        [product.brand],
+        plan,
+        "brand",
+        hasInStockOffer
+      );
+      addSuggestion(brandSuggestions, seen, {
+        id: `brand-${normalizeSuggestionKey(product.brand).replace(/\s+/g, "-")}`,
+        type: "brand",
+        label: product.brand,
+        href: searchUrlForSuggestion(product.brand),
+        matchText: match.matchText,
+        score: match.score,
+      });
+    }
+
+    if (product.slug) {
+      const match = bestSuggestionMatch(
+        [product.name, product.brand || "", product.category || ""].filter(
+          Boolean
+        ),
+        plan,
+        "product",
+        hasInStockOffer
+      );
+      addSuggestion(productSuggestions, seen, {
+        id: `product-${String(product.id)}`,
+        type: "product",
+        label: product.name,
+        href: productUrlForSuggestion(product.slug),
+        matchText: match.matchText,
+        score: match.score,
+      });
+    }
+  }
+
+  return {
+    ...emptyResult,
+    suggestions: [
+      ...categorySuggestions
+        .sort(suggestionSort)
+        .slice(0, SEARCH_SUGGESTION_CATEGORY_LIMIT),
+      ...brandSuggestions
+        .sort(suggestionSort)
+        .slice(0, SEARCH_SUGGESTION_BRAND_LIMIT),
+      ...productSuggestions
+        .sort(suggestionSort)
+        .slice(0, SEARCH_SUGGESTION_PRODUCT_LIMIT),
+    ]
+      .sort(suggestionSort)
+      .slice(0, resultLimit),
   };
 }
 
