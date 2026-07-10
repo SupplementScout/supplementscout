@@ -21,16 +21,19 @@ function loadProductsModule(mockSupabase = {}) {
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && request === "./pricing") {
       return {
-        getDeliveredPrice: () => ({
-          productPrice: 10,
-          shippingCost: 0,
-          totalPrice: 10,
+        getDeliveredPrice: ({ price, shipping_cost }) => ({
+          productPrice: Number(price),
+          shippingCost: Number(shipping_cost),
+          totalPrice: Number(price) + Number(shipping_cost),
         }),
         getVerifiedCostPer5gCreatine: () => null,
         getVerifiedCostPer25gProtein: () => null,
         getVerifiedPricePerKg: () => null,
         getVerifiedPricePerLitre: () => null,
-        getVerifiedPricePerServing: () => null,
+        getVerifiedPricePerServing: (deliveredPrice, servingCount) =>
+          servingCount === null
+            ? null
+            : deliveredPrice.totalPrice / Number(servingCount),
       };
     }
 
@@ -52,7 +55,31 @@ function loadProductsModule(mockSupabase = {}) {
   return mod.exports;
 }
 
-const { buildSearchQueryPlan, searchProducts, searchQueryVariants } =
+function loadSearchUrlModule() {
+  const filename = path.join(process.cwd(), "app", "lib", "searchUrl.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+
+  return mod.exports;
+}
+
+const {
+  buildSearchQueryPlan,
+  normalizeSearchSort,
+  searchProducts,
+  searchQueryVariants,
+} =
   loadProductsModule({
     from: () => {
       const query = {
@@ -105,6 +132,7 @@ const { buildSearchQueryPlan, searchProducts, searchQueryVariants } =
       return query;
     },
   });
+const { searchUrl } = loadSearchUrlModule();
 
 const { searchProducts: searchProductsWithNoResults } = loadProductsModule({
   from: () => {
@@ -158,7 +186,15 @@ function searchProduct(id, name, category = "Supplements", brand = "Example Bran
   };
 }
 
-function searchProductsWithRows(query, rows) {
+function pricedSearchProduct(id, name, deliveredPrice, servingCount) {
+  const product = searchProduct(id, name);
+  product.serving_count_verified = servingCount;
+  product.offers[0].price = deliveredPrice;
+
+  return product;
+}
+
+function searchProductsWithRows(query, rows, sort = "relevance") {
   const { searchProducts: searchProductsFromRows } = loadProductsModule({
     from: () => {
       const builder = {
@@ -175,7 +211,7 @@ function searchProductsWithRows(query, rows) {
     },
   });
 
-  return searchProductsFromRows(query, "relevance");
+  return searchProductsFromRows(query, sort);
 }
 
 const suggestionProducts = [
@@ -538,6 +574,99 @@ test("searchProducts sanitizes raw user percent before building search filter", 
 
   assert.equal(searchFilter.includes("magnesium%citrate"), false);
   assert.equal(searchFilter.includes("magnesium citrate"), true);
+});
+
+test("normalizeSearchSort accepts price per serving and rejects unknown values", () => {
+  assert.equal(
+    normalizeSearchSort("price_per_serving_asc"),
+    "price_per_serving_asc"
+  );
+  assert.equal(normalizeSearchSort("unknown"), "relevance");
+});
+
+test("price per serving sort is ascending and places unknown values last", async () => {
+  const result = await searchProductsWithRows(
+    "product",
+    [
+      pricedSearchProduct(301, "Unknown servings", 5, null),
+      pricedSearchProduct(302, "One pound per serving", 12, 12),
+      pricedSearchProduct(303, "Fifty pence per serving", 8, 16),
+    ],
+    "price_per_serving_asc"
+  );
+
+  assert.deepEqual(
+    result.results.map((product) => product.name),
+    [
+      "Fifty pence per serving",
+      "One pound per serving",
+      "Unknown servings",
+    ]
+  );
+});
+
+test("price per serving ties use delivered total, name, then id", async () => {
+  const result = await searchProductsWithRows(
+    "product",
+    [
+      pricedSearchProduct(312, "Zulu", 12, 12),
+      pricedSearchProduct(313, "Alpha", 10, 10),
+      pricedSearchProduct(315, "Same name", 10, 10),
+      pricedSearchProduct(314, "Same name", 10, 10),
+    ],
+    "price_per_serving_asc"
+  );
+
+  assert.deepEqual(
+    result.results.map((product) => product.id),
+    ["313", "314", "315", "312"]
+  );
+});
+
+test("existing delivered price sorts remain unchanged", async () => {
+  const rows = [
+    pricedSearchProduct(321, "Ten pounds", 10, null),
+    pricedSearchProduct(322, "Five pounds", 5, null),
+    pricedSearchProduct(323, "Eight pounds", 8, null),
+  ];
+  const ascending = await searchProductsWithRows("pounds", rows, "price_asc");
+  const descending = await searchProductsWithRows("pounds", rows, "price_desc");
+
+  assert.deepEqual(
+    ascending.results.map((product) => product.id),
+    ["322", "323", "321"]
+  );
+  assert.deepEqual(
+    descending.results.map((product) => product.id),
+    ["321", "323", "322"]
+  );
+});
+
+test("search URLs preserve price per serving sort with filters and pagination", () => {
+  const filters = {
+    category: "Creatine",
+    brand: "Example Brand",
+    retailer: "example-retailer",
+  };
+
+  assert.equal(
+    searchUrl({
+      query: "creatine",
+      sort: "price_per_serving_asc",
+      filters,
+      updates: { brand: "Another Brand" },
+    }),
+    "/search?q=creatine&category=Creatine&brand=Another+Brand&retailer=example-retailer&sort=price_per_serving_asc"
+  );
+  assert.equal(
+    searchUrl({
+      query: "creatine",
+      sort: "price_per_serving_asc",
+      filters,
+      page: 2,
+    }),
+    "/search?q=creatine&category=Creatine&brand=Example+Brand&retailer=example-retailer&sort=price_per_serving_asc&page=2"
+  );
 });
 
 test("buildSearchQueryPlan returns corrected magnesium metadata", () => {

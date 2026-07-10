@@ -9,7 +9,11 @@ import {
 } from "./pricing";
 import { supabase } from "./supabase";
 
-export type SearchSort = "relevance" | "price_asc" | "price_desc";
+export type SearchSort =
+  | "relevance"
+  | "price_asc"
+  | "price_desc"
+  | "price_per_serving_asc";
 
 export const SEARCH_PAGE_SIZE = 24;
 export const SEARCH_RESULT_LOAD_LIMIT = 1000;
@@ -216,7 +220,11 @@ export function normalizeSearchSort(
 ): SearchSort {
   const sort = firstParamValue(value);
 
-  if (sort === "price_asc" || sort === "price_desc") {
+  if (
+    sort === "price_asc" ||
+    sort === "price_desc" ||
+    sort === "price_per_serving_asc"
+  ) {
     return sort;
   }
 
@@ -861,12 +869,12 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
   return [...results].sort((left, right) => {
     const fallback =
       left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
+    const deliveredPriceFallback =
+      left.cheapestOffer.deliveredPrice.totalPrice -
+        right.cheapestOffer.deliveredPrice.totalPrice || fallback;
 
     if (sort === "price_asc") {
-      return (
-        left.cheapestOffer.deliveredPrice.totalPrice -
-          right.cheapestOffer.deliveredPrice.totalPrice || fallback
-      );
+      return deliveredPriceFallback;
     }
 
     if (sort === "price_desc") {
@@ -876,11 +884,24 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
       );
     }
 
+    if (sort === "price_per_serving_asc") {
+      if (left.verifiedPricePerServing === null) {
+        return right.verifiedPricePerServing === null ? deliveredPriceFallback : 1;
+      }
+
+      if (right.verifiedPricePerServing === null) {
+        return -1;
+      }
+
+      return (
+        left.verifiedPricePerServing - right.verifiedPricePerServing ||
+        deliveredPriceFallback
+      );
+    }
+
     return (
       right.relevanceScore - left.relevanceScore ||
-      left.cheapestOffer.deliveredPrice.totalPrice -
-        right.cheapestOffer.deliveredPrice.totalPrice ||
-      fallback
+      deliveredPriceFallback
     );
   });
 }
