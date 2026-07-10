@@ -101,6 +101,7 @@ export type ProductSearchResult = {
   net_weight_g: number | string | null;
   net_volume_ml: number | string | null;
   product_format: string | null;
+  serving_size_g: number | string | null;
   serving_size_ml: number | string | null;
   protein_per_serving_g: number | string | null;
   creatine_per_serving_g: number | string | null;
@@ -145,6 +146,7 @@ type RawProduct = {
   net_weight_g: number | string | null;
   net_volume_ml: number | string | null;
   product_format: string | null;
+  serving_size_g: number | string | null;
   serving_size_ml: number | string | null;
   protein_per_serving_g: number | string | null;
   creatine_per_serving_g: number | string | null;
@@ -722,6 +724,7 @@ function normalizeProduct(
     net_weight_g: product.net_weight_g,
     net_volume_ml: product.net_volume_ml,
     product_format: product.product_format,
+    serving_size_g: product.serving_size_g,
     serving_size_ml: product.serving_size_ml,
     protein_per_serving_g: product.protein_per_serving_g,
     creatine_per_serving_g: product.creatine_per_serving_g,
@@ -736,7 +739,10 @@ function normalizeProduct(
       product.serving_count_verified,
       product.creatine_per_serving_g,
       product.unit_pricing_verified,
-      product.nutrition_verified
+      product.nutrition_verified,
+      product.net_weight_g,
+      product.serving_size_g,
+      product.product_format
     ),
     verifiedCostPer25gProtein: getVerifiedCostPer25gProtein(
       cheapestOffer.deliveredPrice,
@@ -945,6 +951,7 @@ export async function searchProducts(
         net_weight_g,
         net_volume_ml,
         product_format,
+        serving_size_g,
         serving_size_ml,
         protein_per_serving_g,
         creatine_per_serving_g,
@@ -1208,6 +1215,7 @@ export async function getLandingProducts(
         net_weight_g,
         net_volume_ml,
         product_format,
+        serving_size_g,
         serving_size_ml,
         protein_per_serving_g,
         creatine_per_serving_g,

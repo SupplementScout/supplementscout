@@ -339,7 +339,10 @@ export default async function ProductPage({
     product.serving_count_verified,
     product.creatine_per_serving_g,
     product.unit_pricing_verified,
-    product.nutrition_verified
+    product.nutrition_verified,
+    product.net_weight_g,
+    product.serving_size_g,
+    product.product_format
   );
   const productSummary = buildProductSummary(product);
   const keyFacts = buildProductKeyFacts(product);

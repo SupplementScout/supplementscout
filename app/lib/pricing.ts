@@ -250,7 +250,10 @@ export function getVerifiedCostPer5gCreatine(
   servingCountVerified: number | string | null,
   creatinePerServingG: number | string | null,
   unitPricingVerified: boolean | null,
-  nutritionVerified: boolean | null
+  nutritionVerified: boolean | null,
+  netWeightG: number | string | null,
+  servingSizeG: number | string | null,
+  productFormat: string | null
 ) {
   if (
     unitPricingVerified !== true ||
@@ -264,29 +267,52 @@ export function getVerifiedCostPer5gCreatine(
     return null;
   }
 
-  if (
-    servingCountVerified === null ||
-    servingCountVerified === "" ||
-    creatinePerServingG === null ||
-    creatinePerServingG === ""
-  ) {
+  if (creatinePerServingG === null || creatinePerServingG === "") {
     return null;
   }
 
-  const servings = Number(servingCountVerified);
   const creatinePerServing = Number(creatinePerServingG);
 
-  if (
-    !Number.isFinite(servings) ||
-    !Number.isInteger(servings) ||
-    servings <= 0 ||
-    !Number.isFinite(creatinePerServing) ||
-    creatinePerServing <= 0
-  ) {
+  if (!Number.isFinite(creatinePerServing) || creatinePerServing <= 0) {
     return null;
   }
 
-  const totalPackageCreatine = creatinePerServing * servings;
+  let totalPackageCreatine: number;
+
+  if (servingCountVerified !== null && servingCountVerified !== "") {
+    const servings = Number(servingCountVerified);
+
+    if (!Number.isFinite(servings) || !Number.isInteger(servings) || servings <= 0) {
+      return null;
+    }
+
+    totalPackageCreatine = creatinePerServing * servings;
+  } else {
+    if (
+      productFormat !== "powder" ||
+      netWeightG === null ||
+      netWeightG === "" ||
+      servingSizeG === null ||
+      servingSizeG === ""
+    ) {
+      return null;
+    }
+
+    const netWeight = Number(netWeightG);
+    const servingSize = Number(servingSizeG);
+
+    if (
+      !Number.isFinite(netWeight) ||
+      netWeight <= 0 ||
+      !Number.isFinite(servingSize) ||
+      servingSize <= 0 ||
+      creatinePerServing > servingSize
+    ) {
+      return null;
+    }
+
+    totalPackageCreatine = (netWeight / servingSize) * creatinePerServing;
+  }
 
   if (!Number.isFinite(totalPackageCreatine) || totalPackageCreatine <= 0) {
     return null;

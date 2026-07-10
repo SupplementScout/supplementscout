@@ -65,6 +65,7 @@ function loadProductsModule() {
 const {
   getDeliveredPrice,
   getKnownProductPrice,
+  getVerifiedCostPer5gCreatine,
   getVerifiedPricePerKg,
   getVerifiedPricePerLitre,
   getVerifiedPricePerServing,
@@ -107,6 +108,166 @@ test("serving price supports serving-only products while unit price stays hidden
 
   assert.equal(getVerifiedPricePerServing(deliveredPrice, 60), 15.98 / 60);
   assert.equal(getVerifiedPricePerUnit(deliveredPrice, null, null, false), null);
+});
+
+test("creatine cost keeps the verified serving-count path unchanged", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 20, shipping_cost: 0 });
+
+  assert.equal(
+    getVerifiedCostPer5gCreatine(
+      deliveredPrice,
+      100,
+      5,
+      true,
+      true,
+      null,
+      null,
+      null
+    ),
+    0.2
+  );
+});
+
+test("creatine cost can use verified powder weight and serving composition", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 27.98, shipping_cost: 0 });
+  const result = getVerifiedCostPer5gCreatine(
+    deliveredPrice,
+    null,
+    3,
+    true,
+    true,
+    317,
+    3,
+    "powder"
+  );
+
+  assert.ok(Math.abs(result - (27.98 / 317) * 5) < 1e-12);
+});
+
+test("powder fallback accounts for creatine concentration per serving", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 25, shipping_cost: 0 });
+
+  assert.equal(
+    getVerifiedCostPer5gCreatine(
+      deliveredPrice,
+      null,
+      5,
+      true,
+      true,
+      500,
+      10,
+      "powder"
+    ),
+    0.5
+  );
+});
+
+test("powder fallback requires verification flags and package inputs", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 25, shipping_cost: 0 });
+  const calculate = (unitVerified, nutritionVerified, netWeight, servingSize) =>
+    getVerifiedCostPer5gCreatine(
+      deliveredPrice,
+      null,
+      5,
+      unitVerified,
+      nutritionVerified,
+      netWeight,
+      servingSize,
+      "powder"
+    );
+
+  assert.equal(calculate(true, false, 500, 10), null);
+  assert.equal(calculate(false, true, 500, 10), null);
+  assert.equal(calculate(true, true, 500, null), null);
+  assert.equal(calculate(true, true, null, 10), null);
+});
+
+test("powder fallback rejects creatine exceeding the serving size", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 25, shipping_cost: 0 });
+
+  assert.equal(
+    getVerifiedCostPer5gCreatine(
+      deliveredPrice,
+      null,
+      11,
+      true,
+      true,
+      500,
+      10,
+      "powder"
+    ),
+    null
+  );
+});
+
+test("serving-count-free creatine cost is limited to powders", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 25, shipping_cost: 0 });
+
+  for (const format of ["capsule", "tablet", "liquid"]) {
+    assert.equal(
+      getVerifiedCostPer5gCreatine(
+        deliveredPrice,
+        null,
+        5,
+        true,
+        true,
+        500,
+        10,
+        format
+      ),
+      null,
+      format
+    );
+  }
+});
+
+test("powder fallback rejects zero, negative, NaN and infinite inputs", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 25, shipping_cost: 0 });
+  const calculate = (netWeight, servingSize, creatine) =>
+    getVerifiedCostPer5gCreatine(
+      deliveredPrice,
+      null,
+      creatine,
+      true,
+      true,
+      netWeight,
+      servingSize,
+      "powder"
+    );
+
+  for (const invalid of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    assert.equal(calculate(invalid, 10, 5), null);
+    assert.equal(calculate(500, invalid, 5), null);
+    assert.equal(calculate(500, 10, invalid), null);
+  }
+});
+
+test("powder fallback rejects invalid delivered totals", () => {
+  const calculate = (totalPrice) =>
+    getVerifiedCostPer5gCreatine(
+      { productPrice: totalPrice, shippingCost: 0, totalPrice },
+      null,
+      5,
+      true,
+      true,
+      500,
+      10,
+      "powder"
+    );
+
+  for (const invalid of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    assert.equal(calculate(invalid), null);
+  }
+});
+
+test("creatine fallback does not change serving or kilogram pricing", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 27.98, shipping_cost: 0 });
+
+  assert.equal(getVerifiedPricePerServing(deliveredPrice, null), null);
+  assert.equal(
+    getVerifiedPricePerKg(deliveredPrice, 317, "powder", true),
+    27.98 / 0.317
+  );
 });
 
 test("unit pricing is hidden unless verified with a valid capsule or tablet count", () => {
