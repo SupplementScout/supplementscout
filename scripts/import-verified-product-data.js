@@ -313,6 +313,9 @@ function analyzeRows(parsedRows, currentProductsById) {
     seenIds.add(id);
 
     const current = currentProductsById.get(id) || null;
+    const expectedName = !isBlank(raw.expected_name)
+      ? raw.expected_name.trim()
+      : current?.name || null;
 
     if (!idError && !current) {
       errors.push(`Row ${rowNumber}: product id ${id} does not exist`);
@@ -339,6 +342,7 @@ function analyzeRows(parsedRows, currentProductsById) {
       rowNumber,
       id,
       currentName: current?.name || null,
+      expectedName,
       changes,
       errors,
       valid: errors.length === 0,
@@ -473,8 +477,9 @@ function buildReviewSql(results) {
 
   for (const result of changedResults) {
     const assignments = result.changes
-      .map((change) => `  ${change.field} = ${sqlLiteral(change.newValue)}`)
+      .map((change) => `    ${change.field} = ${sqlLiteral(change.newValue)}`)
       .join(",\n");
+    const expectedName = result.expectedName || result.currentName;
 
     statements.push(
       "",
@@ -484,10 +489,21 @@ function buildReviewSql(results) {
       "from public.products",
       `where id = ${sqlLiteral(result.id)};`,
       "",
-      "update public.products",
-      "set",
+      "do $$",
+      "begin",
+      "  update public.products",
+      "  set",
       assignments,
-      `where id = ${sqlLiteral(result.id)};`,
+      `  where id = ${sqlLiteral(result.id)}`,
+      `    and name = ${sqlLiteral(expectedName)};`,
+      "",
+      "  if not found then",
+      `    raise exception using message = ${sqlLiteral(
+        `Product ID ${result.id} did not match expected name: ${expectedName}`
+      )};`,
+      "  end if;",
+      "end",
+      "$$;",
       "",
       "select id, name",
       result.changes.map((change) => `  , ${change.field}`).join("\n"),

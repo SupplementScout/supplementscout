@@ -294,13 +294,30 @@ test("apply would be blocked when one row is invalid", () => {
 });
 
 test("review SQL wraps updates in one manual transaction", () => {
-  const { results } = analyze("id,net_weight_g\n337,600\n");
+  const { results } = analyze(
+    "id,expected_name,net_weight_g\n337,GYM HIGH Whey Pro Synergy 600g,600\n"
+  );
   const sql = buildReviewSql(results);
 
   assert.match(sql, /^begin;/);
   assert.match(sql, /select id, name/);
-  assert.match(sql, /where id = '337';/);
+  assert.match(
+    sql,
+    /where id = '337'\n\s+and name = 'GYM HIGH Whey Pro Synergy 600g';/
+  );
+  assert.match(sql, /if not found then/);
+  assert.match(
+    sql,
+    /raise exception using message = 'Product ID 337 did not match expected name: GYM HIGH Whey Pro Synergy 600g';/
+  );
   assert.match(sql, /rollback;$/);
+});
+
+test("review SQL remains compatible when an existing batch omits expected_name", () => {
+  const { results } = analyze("id,net_weight_g\n337,600\n");
+  const sql = buildReviewSql(results);
+
+  assert.match(sql, /and name = 'GYM HIGH Whey Pro Synergy 600g';/);
 });
 
 test("legacy servings is not updated", () => {
