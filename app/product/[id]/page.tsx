@@ -14,6 +14,11 @@ import {
   getVerifiedPricePerServing,
   getVerifiedPricePerUnit,
 } from "../../lib/pricing";
+import {
+  buildProductKeyFacts,
+  buildProductMetadataDescription,
+  buildProductSummary,
+} from "../../lib/productPresentation";
 import { supabase } from "../../lib/supabase";
 
 type ProductRouteProduct = {
@@ -23,8 +28,6 @@ type ProductRouteProduct = {
   gtin: string | null;
   brand: string | null;
   category: string | null;
-  servings: number | null;
-  description: string | null;
   image: string | null;
   price: number | null;
   is_active: boolean | null;
@@ -34,6 +37,7 @@ type ProductRouteProduct = {
   product_format: string | null;
   unit_count: number | string | null;
   unit_type: string | null;
+  serving_size_g: number | string | null;
   serving_size_ml: number | string | null;
   protein_per_serving_g: number | string | null;
   creatine_per_serving_g: number | string | null;
@@ -98,7 +102,7 @@ export async function generateMetadata({
 
   const { data: product } = await getProductByRouteParam(
     id,
-    "name, slug, brand, category, description, image"
+    "id, name, slug, brand, category, image, product_format, net_weight_g, net_volume_ml, serving_count_verified, unit_count, unit_type"
   );
 
   if (!product) {
@@ -108,10 +112,7 @@ export async function generateMetadata({
     };
   }
 
-  const brandText = product.brand ? ` by ${product.brand}` : "";
-  const description =
-    product.description ||
-    `Compare UK prices for ${product.name}${brandText}. Find the lowest total price including delivery.`;
+  const description = buildProductMetadataDescription(product);
   const productUrl = product.slug ? `/product/${product.slug}` : `/product/${id}`;
 
   return {
@@ -340,6 +341,8 @@ export default async function ProductPage({
     product.unit_pricing_verified,
     product.nutrition_verified
   );
+  const productSummary = buildProductSummary(product);
+  const keyFacts = buildProductKeyFacts(product);
 
   return (
     <main className="min-h-screen bg-zinc-50">
@@ -460,6 +463,30 @@ export default async function ProductPage({
                   </button>
                 )}              </div>
             </div>
+
+            <section className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+              <h2 className="text-2xl font-bold text-gray-900">Product Summary</h2>
+              <p className="mt-4 leading-8 text-gray-700">{productSummary}</p>
+            </section>
+
+            {keyFacts.length > 0 && (
+              <section className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+                <h2 className="text-2xl font-bold text-gray-900">Key facts</h2>
+                <dl className="mt-5 divide-y divide-zinc-200">
+                  {keyFacts.map((fact) => (
+                    <div
+                      key={fact.label}
+                      className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+                    >
+                      <dt className="text-sm font-medium text-gray-600">{fact.label}</dt>
+                      <dd className="min-w-0 text-sm font-semibold text-gray-900 sm:text-right">
+                        {fact.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
 
             {(verifiedPricePerServing !== null ||
               verifiedPricePerUnit !== null ||
@@ -626,13 +653,6 @@ export default async function ProductPage({
                   <p className="text-sm font-medium text-gray-700">No offers available.</p>
                 )}
               </div>
-            </div>
-            <div className="mt-8 rounded-3xl border bg-white p-8">
-              <h2 className="text-2xl font-bold text-gray-900">Product Summary</h2>
-
-              <p className="mt-4 leading-8 text-gray-700">
-                {product.description || "No product description available."}
-              </p>
             </div>
           </div>
         </div>
