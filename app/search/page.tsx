@@ -116,7 +116,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     await logSearchResultsEvent({
       query,
       metadata,
-      resultCount: totalCount,
+      resultCount: unfilteredCount,
+      requestParams: params,
     });
   }
 

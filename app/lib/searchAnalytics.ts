@@ -13,8 +13,39 @@ export type SearchResultsEventInput = {
   query: string;
   metadata: SearchMetadata;
   resultCount: number;
+  requestParams: SearchAnalyticsRequestParams;
   log?: Pick<Console, "error">;
 };
+
+export type SearchAnalyticsRequestParams = {
+  q?: string | string[];
+  sort?: string | string[];
+  category?: string | string[];
+  brand?: string | string[];
+  retailer?: string | string[];
+  page?: string | string[];
+};
+
+function firstParamValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function hasParamValue(value: string | string[] | undefined) {
+  return (firstParamValue(value) || "").trim().length > 0;
+}
+
+export function shouldLogSearchResultsEvent(
+  params: SearchAnalyticsRequestParams
+) {
+  return (
+    hasParamValue(params.q) &&
+    !hasParamValue(params.sort) &&
+    !hasParamValue(params.category) &&
+    !hasParamValue(params.brand) &&
+    !hasParamValue(params.retailer) &&
+    !hasParamValue(params.page)
+  );
+}
 
 function normalizeForLogging(value: string) {
   return value.trim().replace(/\s+/g, " ");
@@ -59,6 +90,10 @@ function sanitizeOptionalSearchText(value: string | null) {
 }
 
 export async function logSearchResultsEvent(input: SearchResultsEventInput) {
+  if (!shouldLogSearchResultsEvent(input.requestParams)) {
+    return { logged: false, skipped: true, error: null };
+  }
+
   const query = sanitizeSearchQueryForAnalytics(input.query);
 
   if (!query) {
