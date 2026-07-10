@@ -674,6 +674,24 @@ function scoreProduct(product: RawProduct, query: string) {
   return score;
 }
 
+function scoreProductForSearch(product: RawProduct, plan: SearchMetadata) {
+  if (plan.searchMode !== "goal_mapped_ilike") {
+    return scoreProduct(product, plan.originalQuery);
+  }
+
+  const mappedTerms = goalSearchMapping(plan.originalQuery)?.variants || [];
+  const mappedScore = Math.max(
+    0,
+    ...mappedTerms.map((term) => scoreProduct(product, term))
+  );
+
+  if (mappedScore > 0) {
+    return 1000 + mappedScore;
+  }
+
+  return scoreProduct(product, plan.originalQuery);
+}
+
 export function normalizeSearchOffers(offers: RawOffer[]) {
   return offers
     .filter((offer) => offer.in_stock === true)
@@ -705,7 +723,8 @@ export function normalizeSearchOffers(offers: RawOffer[]) {
 function normalizeProduct(
   product: RawProduct,
   query: string,
-  filters: SearchFilters
+  filters: SearchFilters,
+  searchPlan?: SearchMetadata
 ): ProductSearchResult | null {
   const validOffers = normalizeSearchOffers(product.offers || []);
 
@@ -770,7 +789,9 @@ function normalizeProduct(
       cheapestOffer.deliveredPrice,
       product.serving_count_verified
     ),
-    relevanceScore: scoreProduct(product, query),
+    relevanceScore: searchPlan
+      ? scoreProductForSearch(product, searchPlan)
+      : scoreProduct(product, query),
   };
 }
 
@@ -988,17 +1009,24 @@ export async function searchProducts(
 
   const baseResults = ((data || []) as RawProduct[])
     .map((product) =>
-      normalizeProduct(product, sanitizedQuery, {
-        category: "",
-        brand: "",
-        retailer: "",
-      })
+      normalizeProduct(
+        product,
+        sanitizedQuery,
+        {
+          category: "",
+          brand: "",
+          retailer: "",
+        },
+        searchMetadata
+      )
     )
     .filter((product): product is ProductSearchResult => product !== null);
   const facets = buildFacets(baseResults);
   const filteredResults = filters.retailer
     ? ((data || []) as RawProduct[])
-        .map((product) => normalizeProduct(product, sanitizedQuery, filters))
+        .map((product) =>
+          normalizeProduct(product, sanitizedQuery, filters, searchMetadata)
+        )
         .filter((product): product is ProductSearchResult => product !== null)
     : baseResults;
   const results = applyProductFilters(filteredResults, filters);

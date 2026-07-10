@@ -122,6 +122,62 @@ const { searchProducts: searchProductsWithNoResults } = loadProductsModule({
   },
 });
 
+function searchProduct(id, name, category = "Supplements", brand = "Example Brand") {
+  return {
+    id,
+    slug: `product-${id}`,
+    name,
+    brand,
+    category,
+    description: null,
+    image: null,
+    net_weight_g: null,
+    net_volume_ml: null,
+    product_format: null,
+    serving_size_ml: null,
+    protein_per_serving_g: null,
+    creatine_per_serving_g: null,
+    serving_count_verified: null,
+    nutrition_verified: null,
+    unit_pricing_verified: null,
+    offers: [
+      {
+        id: id * 10,
+        price: 10,
+        shipping_cost: 0,
+        url: `https://example.com/product-${id}`,
+        in_stock: true,
+        retailer: {
+          id: 20,
+          name: "Example Retailer",
+          slug: "example-retailer",
+          logo: null,
+        },
+      },
+    ],
+  };
+}
+
+function searchProductsWithRows(query, rows) {
+  const { searchProducts: searchProductsFromRows } = loadProductsModule({
+    from: () => {
+      const builder = {
+        select: () => builder,
+        eq: () => builder,
+        is: () => builder,
+        gt: () => builder,
+        or: () => builder,
+        order: () => builder,
+        range: () => ({ data: rows, error: null }),
+      };
+
+      return builder;
+    },
+  });
+
+  return searchProductsFromRows(query, "relevance");
+}
+
 const suggestionProducts = [
   {
     id: 101,
@@ -516,6 +572,113 @@ test("buildSearchQueryPlan returns goal metadata for exact safe goals", () => {
     matchStatus: "none",
     searchMode: "goal_mapped_ilike",
   });
+});
+
+test("strength ranks creatine and pre-workout above original-only matches", async () => {
+  const result = await searchProductsWithRows("strength", [
+    searchProduct(201, "Max Strength Glucosamine"),
+    searchProduct(202, "Creatine Monohydrate", "Creatine"),
+    searchProduct(203, "Pre Workout Powder", "Pre Workout"),
+  ]);
+
+  assert.deepEqual(
+    result.results.map((product) => product.name),
+    ["Pre Workout Powder", "Creatine Monohydrate", "Max Strength Glucosamine"]
+  );
+  assert.ok(result.results[1].relevanceScore >= 1000);
+  assert.ok(result.results[2].relevanceScore < 1000);
+  assert.equal(result.metadata.searchMode, "goal_mapped_ilike");
+  assert.equal(result.metadata.appliedQuery, "creatine, pre workout");
+  assert.deepEqual(result.metadata.queryVariants, [
+    "strength",
+    "creatine",
+    "pre workout",
+  ]);
+});
+
+test("muscle gain gives each mapped supplement term the mapped ranking tier", async () => {
+  const result = await searchProductsWithRows("muscle gain", [
+    searchProduct(211, "Muscle Gain Formula"),
+    searchProduct(212, "Whey Protein Isolate", "Whey Protein"),
+    searchProduct(213, "Creatine Monohydrate", "Creatine"),
+    searchProduct(214, "Mass Gainer Powder", "Mass Gainer"),
+  ]);
+
+  assert.deepEqual(
+    new Set(result.results.slice(0, 3).map((product) => product.name)),
+    new Set([
+      "Whey Protein Isolate",
+      "Creatine Monohydrate",
+      "Mass Gainer Powder",
+    ])
+  );
+  assert.ok(result.results.slice(0, 3).every((product) => product.relevanceScore >= 1000));
+  assert.equal(result.results[3].name, "Muscle Gain Formula");
+});
+
+test("recovery gives protein, magnesium, and electrolytes the mapped ranking tier", async () => {
+  const result = await searchProductsWithRows("recovery", [
+    searchProduct(221, "Recovery Blend"),
+    searchProduct(222, "Protein Powder", "Protein"),
+    searchProduct(223, "Magnesium Tablets", "Magnesium"),
+    searchProduct(224, "Electrolytes Powder", "Electrolytes"),
+  ]);
+
+  assert.ok(result.results.slice(0, 3).every((product) => product.relevanceScore >= 1000));
+  assert.equal(result.results[3].name, "Recovery Blend");
+  assert.ok(result.results[3].relevanceScore < 1000);
+});
+
+test("joint support gives every configured mapped term the mapped ranking tier", async () => {
+  const result = await searchProductsWithRows("joint support", [
+    searchProduct(231, "Joint Support Formula"),
+    searchProduct(232, "Glucosamine Tablets", "Glucosamine"),
+    searchProduct(233, "Chondroitin Tablets", "Chondroitin"),
+    searchProduct(234, "Collagen Powder", "Collagen"),
+    searchProduct(235, "Omega 3 Softgels", "Omega 3"),
+  ]);
+
+  assert.ok(result.results.slice(0, 4).every((product) => product.relevanceScore >= 1000));
+  assert.equal(result.results[4].name, "Joint Support Formula");
+  assert.ok(result.results[4].relevanceScore < 1000);
+});
+
+test("hydration ranks electrolytes above an original-only hydration match", async () => {
+  const result = await searchProductsWithRows("hydration", [
+    searchProduct(241, "Hydration Formula"),
+    searchProduct(242, "Electrolytes Powder", "Electrolytes"),
+  ]);
+
+  assert.deepEqual(
+    result.results.map((product) => product.name),
+    ["Electrolytes Powder", "Hydration Formula"]
+  );
+  assert.ok(result.results[0].relevanceScore >= 1000);
+  assert.ok(result.results[1].relevanceScore < 1000);
+});
+
+test("goal scoring uses the best mapped-term score instead of accumulating scores", async () => {
+  const result = await searchProductsWithRows("recovery", [
+    searchProduct(251, "Protein Magnesium Electrolytes"),
+  ]);
+
+  assert.equal(result.results[0].relevanceScore, 1106);
+});
+
+test("non-goal searches preserve the existing product scoring behavior", async () => {
+  const result = await searchProductsWithRows("magnesium", [
+    searchProduct(261, "Magnesium Citrate"),
+    searchProduct(262, "Magnesium", "Magnesium"),
+  ]);
+
+  assert.deepEqual(
+    result.results.map((product) => [product.name, product.relevanceScore]),
+    [
+      ["Magnesium", 239],
+      ["Magnesium Citrate", 106],
+    ]
+  );
+  assert.equal(result.metadata.searchMode, "standard_ilike");
 });
 
 test("buildSearchQueryPlan returns no correction for unknown searches", () => {
