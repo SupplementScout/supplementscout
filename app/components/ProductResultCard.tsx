@@ -37,7 +37,7 @@ export default function ProductResultCard({
   const verifiedServings = formatVerifiedServings(product.serving_count_verified);
 
   return (
-    <article className="w-full min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
+    <article className="w-full min-w-0 max-w-full rounded-lg border border-zinc-200 bg-white shadow-sm">
       <div className="grid min-w-0 grid-cols-[112px_minmax(0,1fr)] gap-x-3 gap-y-3 p-3 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-4 sm:p-5 md:grid-cols-[148px_minmax(0,1fr)_250px] md:items-center md:gap-5">
         <Link
           href={productHref(product)}
@@ -106,54 +106,54 @@ export default function ProductResultCard({
           </p>
 
           <dl className="mt-3 space-y-2 text-sm">
-            <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
               <dt className="text-zinc-700">Product</dt>
-              <dd className="font-semibold text-zinc-950">
+              <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-950">
                 {formatCurrency(deliveredPrice.productPrice)}
               </dd>
             </div>
-            <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
               <dt className="text-zinc-700">Delivery</dt>
-              <dd className="font-semibold text-zinc-950">
+              <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-950">
                 {formatDeliveryCost(deliveredPrice.shippingCost)}
               </dd>
             </div>
             {product.verifiedPricePerServing !== null && (
-              <div className="flex items-center justify-between gap-4 border-t border-zinc-200 pt-2">
+              <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
                 <dt className="text-zinc-600">Per serving</dt>
-                <dd className="text-right font-semibold text-zinc-800">
+                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
                   {formatCurrency(product.verifiedPricePerServing)} per serving
                 </dd>
               </div>
             )}
             {product.verifiedPricePerKg !== null && (
-              <div className="flex items-center justify-between gap-4 border-t border-zinc-200 pt-2">
+              <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
                 <dt className="text-zinc-600">Per kg</dt>
-                <dd className="text-right font-semibold text-zinc-800">
+                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
                   {formatCurrency(product.verifiedPricePerKg)} per kg
                 </dd>
               </div>
             )}
             {product.verifiedPricePerLitre !== null && (
-              <div className="flex items-center justify-between gap-4 border-t border-zinc-200 pt-2">
+              <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
                 <dt className="text-zinc-600">Per litre</dt>
-                <dd className="text-right font-semibold text-zinc-800">
+                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
                   {formatCurrency(product.verifiedPricePerLitre)}/litre
                 </dd>
               </div>
             )}
             {product.verifiedCostPer25gProtein !== null && (
-              <div className="flex items-center justify-between gap-4 border-t border-zinc-200 pt-2">
+              <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
                 <dt className="text-zinc-600">Protein</dt>
-                <dd className="text-right font-semibold text-zinc-800">
+                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
                   {formatCurrency(product.verifiedCostPer25gProtein)} per 25 g protein
                 </dd>
               </div>
             )}
             {product.verifiedCostPer5gCreatine !== null && (
-              <div className="flex items-center justify-between gap-4 border-t border-zinc-200 pt-2">
+              <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 border-t border-zinc-200 pt-2">
                 <dt className="text-zinc-600">Creatine</dt>
-                <dd className="text-right font-semibold text-zinc-800">
+                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-800">
                   {formatCurrency(product.verifiedCostPer5gCreatine)} per 5 g creatine
                 </dd>
               </div>
