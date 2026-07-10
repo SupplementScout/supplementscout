@@ -918,6 +918,118 @@ test("identical existing product GTIN is accepted unchanged", async () => {
   assert.equal(Object.prototype.hasOwnProperty.call(productUpdate.payload, "gtin"), false);
 });
 
+test("existing product retailer update excludes all verified product fields", async () => {
+  const protectedFields = [
+    "gtin",
+    "net_weight_g",
+    "net_volume_ml",
+    "serving_count_verified",
+    "serving_size_g",
+    "serving_size_ml",
+    "protein_per_serving_g",
+    "creatine_per_serving_g",
+    "unit_count",
+    "unit_type",
+    "product_format",
+    "unit_pricing_verified",
+    "nutrition_verified",
+  ];
+  const supabase = createMockSupabase({
+    products: [
+      {
+        id: "p1",
+        name: "BioTech USA Iso Whey Zero 1816g powder",
+        brand: "BioTech USA",
+        category: "Whey Protein",
+        slug: "biotech-usa-iso-whey-zero-1816g",
+        gtin: "0001234567890",
+        net_weight_g: 1816,
+        net_volume_ml: 500,
+        serving_count_verified: 50,
+        serving_size_g: 36,
+        serving_size_ml: 10,
+        protein_per_serving_g: 25,
+        creatine_per_serving_g: 3,
+        unit_count: 60,
+        unit_type: "scoop",
+        product_format: "powder",
+        unit_pricing_verified: true,
+        nutrition_verified: true,
+      },
+    ],
+  });
+  setSupabaseForTests(supabase);
+
+  await runImportRows(
+    [
+      baseFeedRow({
+        product_gtin_verified: "true",
+        net_weight_g: "",
+        net_volume_ml: "",
+        serving_count_verified: "",
+        serving_size_g: "",
+        serving_size_ml: "",
+        protein_per_serving_g: "",
+        creatine_per_serving_g: "",
+        unit_count: "",
+        unit_type: "",
+        product_format: "",
+        unit_pricing_verified: "",
+        nutrition_verified: "",
+      }),
+    ],
+    { mode: "feed" }
+  );
+
+  const productUpdate = supabase.writes.find(
+    (write) => write.table === "products" && write.operation === "update"
+  );
+
+  assert(productUpdate);
+  for (const field of protectedFields) {
+    assert.equal(Object.prototype.hasOwnProperty.call(productUpdate.payload, field), false);
+  }
+  assert.equal(productUpdate.payload.name, baseFeedRow().product_name);
+});
+
+test("new product create keeps the full validated product payload", async () => {
+  const supabase = createMockSupabase({ products: [] });
+  setSupabaseForTests(supabase);
+
+  await runImportRows(
+    [
+      baseSafeCreateFeedRow({
+        gtin: "5056049515772",
+        external_gtin: "5056049515772",
+        product_gtin_verified: "true",
+        net_weight_g: "60",
+        serving_count_verified: "60",
+        serving_size_g: "1",
+        protein_per_serving_g: "0.5",
+        creatine_per_serving_g: "0.2",
+        unit_count: "60",
+        unit_type: "capsule",
+        product_format: "capsule",
+        unit_pricing_verified: "true",
+        nutrition_verified: "true",
+      }),
+    ],
+    { mode: "feed", safeCreate: true }
+  );
+
+  const productInsert = supabase.writes.find(
+    (write) => write.table === "products" && write.operation === "insert"
+  );
+
+  assert(productInsert);
+  assert.equal(productInsert.payload.gtin, "5056049515772");
+  assert.equal(productInsert.payload.net_weight_g, 60);
+  assert.equal(productInsert.payload.serving_count_verified, 60);
+  assert.equal(productInsert.payload.product_format, "capsule");
+  assert.equal(productInsert.payload.unit_pricing_verified, true);
+  assert.equal(productInsert.payload.nutrition_verified, true);
+});
+
 test("existing mapping stores compatible external_gtin", async () => {
   const supabase = createMockSupabase({
     retailer_products: [
@@ -1012,6 +1124,90 @@ test("unknown feed shipping remains allowed", async () => {
     assert.equal(result.report.approvedRows.length, 1);
     assert(supabase.writes.length > 0);
   }
+});
+
+test("existing offer keeps known shipping when feed shipping is unknown", async () => {
+  const supabase = createMockSupabase({
+    offers: [
+      {
+        id: "o1",
+        product_id: "p1",
+        retailer_id: "r1",
+        price: 10,
+        shipping_cost: 2.99,
+        total_price: 12.99,
+      },
+    ],
+  });
+  setSupabaseForTests(supabase);
+
+  await runImportRows(
+    [baseFeedRow({ price: "10", shipping_cost: undefined, delivery_cost: "", gtin: "" })],
+    { mode: "feed" }
+  );
+
+  const offerUpdate = supabase.writes.find(
+    (write) => write.table === "offers" && write.operation === "update"
+  );
+  const historyWrites = supabase.writes.filter(
+    (write) => write.table === "price_history"
+  );
+
+  assert.equal(offerUpdate.payload.shipping_cost, 2.99);
+  assert.equal(offerUpdate.payload.total_price, 12.99);
+  assert.equal(historyWrites.length, 0);
+});
+
+test("existing offer records explicit shipping changes including free delivery", async () => {
+  for (const [shipping_cost, expectedTotal] of [["0", 10], ["1.49", 11.49]]) {
+    const supabase = createMockSupabase({
+      offers: [
+        {
+          id: "o1",
+          product_id: "p1",
+          retailer_id: "r1",
+          price: 10,
+          shipping_cost: 2.99,
+          total_price: 12.99,
+        },
+      ],
+    });
+    setSupabaseForTests(supabase);
+
+    await runImportRows(
+      [baseFeedRow({ price: "10", shipping_cost, gtin: "" })],
+      { mode: "feed" }
+    );
+
+    const offerUpdate = supabase.writes.find(
+      (write) => write.table === "offers" && write.operation === "update"
+    );
+    const historyWrite = supabase.writes.find(
+      (write) => write.table === "price_history"
+    );
+
+    assert.equal(offerUpdate.payload.shipping_cost, Number(shipping_cost));
+    assert.equal(offerUpdate.payload.total_price, expectedTotal);
+    assert.equal(historyWrite.payload.shipping_cost, Number(shipping_cost));
+    assert.equal(historyWrite.payload.total_price, expectedTotal);
+  }
+});
+
+test("new offer without shipping keeps null shipping and total", async () => {
+  const supabase = createMockSupabase();
+  setSupabaseForTests(supabase);
+
+  await runImportRows(
+    [baseFeedRow({ shipping_cost: undefined, delivery_cost: "", gtin: "" })],
+    { mode: "feed" }
+  );
+
+  const offerInsert = supabase.writes.find(
+    (write) => write.table === "offers" && write.operation === "insert"
+  );
+
+  assert.equal(offerInsert.payload.shipping_cost, null);
+  assert.equal(offerInsert.payload.total_price, null);
 });
 
 test("Simply Supplements blank delivery is inferred from retailer policy", async () => {

@@ -522,6 +522,30 @@ function buildProductData(row, rowNumber, mode = "manual") {
   return productData;
 }
 
+const RETAILER_UPDATE_PROTECTED_PRODUCT_FIELDS = new Set([
+  "gtin",
+  "net_weight_g",
+  "net_volume_ml",
+  "serving_count_verified",
+  "serving_size_g",
+  "serving_size_ml",
+  "protein_per_serving_g",
+  "creatine_per_serving_g",
+  "unit_count",
+  "unit_type",
+  "product_format",
+  "unit_pricing_verified",
+  "nutrition_verified",
+]);
+
+function buildExistingProductUpdateData(productData) {
+  return Object.fromEntries(
+    Object.entries(productData).filter(
+      ([fieldName]) => !RETAILER_UPDATE_PROTECTED_PRODUCT_FIELDS.has(fieldName)
+    )
+  );
+}
+
 function priceHistoryTotal(price, shippingCost) {
   const productPrice = Number(price);
 
@@ -777,11 +801,7 @@ async function findOrCreateProduct(row, rowNumber, retailerId, options = {}) {
       }
     }
 
-    const productUpdateData = { ...productData };
-
-    if (feedStyleRow && !productLevelGtin) {
-      delete productUpdateData.gtin;
-    }
+    const productUpdateData = buildExistingProductUpdateData(productData);
 
     const { error: updateError } = await supabase
       .from("products")
@@ -911,18 +931,25 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
         : Number(existingOffer.shipping_cost);
 
     const newPrice = Number(offerData.price);
-    const newShipping =
+    const incomingShipping =
       offerData.shipping_cost === null ||
       offerData.shipping_cost === undefined ||
       offerData.shipping_cost === ""
         ? null
         : Number(offerData.shipping_cost);
+    const effectiveShipping =
+      incomingShipping === null ? oldShipping : incomingShipping;
+    const updateOfferData = {
+      ...offerData,
+      shipping_cost: effectiveShipping,
+      total_price: priceHistoryTotal(offerData.price, effectiveShipping),
+    };
 
     const priceChanged =
-      oldPrice !== newPrice || oldShipping !== newShipping;
+      oldPrice !== newPrice || oldShipping !== effectiveShipping;
     const { data: updatedOffer, error: updateError } = await supabase
       .from("offers")
-      .update(offerData)
+      .update(updateOfferData)
       .eq("id", existingOffer.id)
       .select("id")
       .single();
@@ -935,10 +962,10 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
         .from("price_history")
         .insert({
           offer_id: updatedOffer.id,
-          price: offerData.price,
-          shipping_cost: offerData.shipping_cost,
-          total_price: priceHistoryTotal(offerData.price, offerData.shipping_cost),
-          checked_at: offerData.last_checked_at,
+          price: updateOfferData.price,
+          shipping_cost: updateOfferData.shipping_cost,
+          total_price: updateOfferData.total_price,
+          checked_at: updateOfferData.last_checked_at,
         });
 
       if (historyError) {
@@ -1184,14 +1211,10 @@ async function preflightFeedRows(rows, options = {}) {
 async function writeApprovedFeedRow(preflightItem) {
   const { row, rowNumber, retailer, product } = preflightItem;
   const productData = buildProductData(row, rowNumber, "feed");
-  const productUpdateData = { ...productData };
+  const productUpdateData = buildExistingProductUpdateData(productData);
   const productLevelGtin = getProductLevelGtin(row, "feed");
   let retailerId = retailer?.id;
   let productId = product?.id;
-
-  if (!productLevelGtin || product?.gtin === productLevelGtin) {
-    delete productUpdateData.gtin;
-  }
 
   const supabase = getSupabase();
 
