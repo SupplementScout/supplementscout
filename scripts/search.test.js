@@ -450,6 +450,65 @@ test("generated glucosamine variants can match stored comma dosage product name"
   }
 });
 
+test("dose formatting variants find product 641 by its full stored name", () => {
+  const product = {
+    id: 641,
+    name: "Creatine Monohydrate Tablets 3,000mg",
+  };
+
+  for (const query of [
+    "Creatine Monohydrate Tablets 3,000mg",
+    "Creatine Monohydrate Tablets 3000mg",
+    "creatine 3,000mg",
+    "creatine 3000mg",
+    "3,000mg creatine tablets",
+    "3000 mg creatine tablets",
+  ]) {
+    assert.equal(
+      searchQueryVariants(query).some((variant) =>
+        variantMatchesText(variant, product.name)
+      ),
+      true,
+      `${product.id}: ${query}`
+    );
+  }
+});
+
+test("existing non-dosage and dosage searches keep matching", () => {
+  for (const [query, productName] of [
+    ["creatine", "Creatine Monohydrate Tablets 3,000mg"],
+    ["magnesum", "Magnesium Citrate Tablets 700mg"],
+    ["omega3", "Omega 3 Capsules 500mg"],
+    ["glucosamine sulphate 1000mg", "Glucosamine Sulphate 1,000mg - Tablets"],
+  ]) {
+    assert.equal(
+      searchQueryVariants(query).some((variant) =>
+        variantMatchesText(variant, productName)
+      ),
+      true,
+      query
+    );
+  }
+});
+
+test("thousands dosage normalization handles spaces before the unit", () => {
+  const productName = "Vitamin C 1,000mg Tablets";
+
+  for (const query of [
+    "vitamin c 1,000 mg",
+    "vitamin c 1000mg",
+    "vitamin c 1000 mg",
+  ]) {
+    assert.equal(
+      searchQueryVariants(query).some((variant) =>
+        variantMatchesText(variant, productName)
+      ),
+      true,
+      query
+    );
+  }
+});
+
 test("searchProducts sanitizes raw user percent before building search filter", async () => {
   let searchFilter = "";
   const { searchProducts: searchProductsWithCapturedFilter } = loadProductsModule({

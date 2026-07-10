@@ -242,56 +242,9 @@ const searchQueryCorrections: Array<[RegExp, string]> = [
   [/\bsulfate\b/g, "sulphate"],
 ];
 
-const dosageVariantPatterns: Array<{
-  compact: RegExp;
-  separated: RegExp;
-  comma: RegExp;
-  separatedValue: string;
-  compactValue: string;
-}> = [
-  {
-    compact: /\b1000mg\b/g,
-    separated: /\b1\s+000mg\b/g,
-    comma: /\b1,000mg\b/g,
-    separatedValue: "1 000mg",
-    compactValue: "1000mg",
-  },
-  {
-    compact: /\b1500mg\b/g,
-    separated: /\b1\s+500mg\b/g,
-    comma: /\b1,500mg\b/g,
-    separatedValue: "1 500mg",
-    compactValue: "1500mg",
-  },
-  {
-    compact: /\b2000mg\b/g,
-    separated: /\b2\s+000mg\b/g,
-    comma: /\b2,000mg\b/g,
-    separatedValue: "2 000mg",
-    compactValue: "2000mg",
-  },
-  {
-    compact: /\b3000mg\b/g,
-    separated: /\b3\s+000mg\b/g,
-    comma: /\b3,000mg\b/g,
-    separatedValue: "3 000mg",
-    compactValue: "3000mg",
-  },
-  {
-    compact: /\b2000iu\b/g,
-    separated: /\b2\s+000iu\b/g,
-    comma: /\b2,000iu\b/g,
-    separatedValue: "2 000iu",
-    compactValue: "2000iu",
-  },
-  {
-    compact: /\b4000iu\b/g,
-    separated: /\b4\s+000iu\b/g,
-    comma: /\b4,000iu\b/g,
-    separatedValue: "4 000iu",
-    compactValue: "4000iu",
-  },
-];
+const compactDosagePattern = /\b(\d{1,3})(\d{3})\s*(mg|iu)\b/gi;
+const separatedDosagePattern = /\b(\d{1,3})\s+(\d{3})\s*(mg|iu)\b/gi;
+const commaDosagePattern = /\b(\d{1,3}),(\d{3})\s*(mg|iu)\b/gi;
 
 function searchableText(values: Array<string | null | undefined>) {
   return normalizeWhitespace(values.filter(Boolean).join(" ")).toLowerCase();
@@ -341,25 +294,22 @@ function goalSearchMapping(query: string) {
 function dosageFormatVariants(query: string) {
   const variants = new Set<string>();
 
-  for (const pattern of dosageVariantPatterns) {
-    if (pattern.compact.test(query)) {
-      variants.add(query.replace(pattern.compact, pattern.separatedValue));
+  const separated = query.replace(compactDosagePattern, "$1 $2$3");
+  const compact = query.replace(separatedDosagePattern, "$1$2$3");
+  const normalizedSeparated = query.replace(separatedDosagePattern, "$1 $2$3");
+  const commaSeparated = query.replace(commaDosagePattern, "$1 $2$3");
+  const commaCompact = query.replace(commaDosagePattern, "$1$2$3");
+
+  for (const variant of [
+    separated,
+    compact,
+    normalizedSeparated,
+    commaSeparated,
+    commaCompact,
+  ]) {
+    if (variant !== query) {
+      variants.add(variant);
     }
-
-    pattern.compact.lastIndex = 0;
-
-    if (pattern.separated.test(query)) {
-      variants.add(query.replace(pattern.separated, pattern.compactValue));
-    }
-
-    pattern.separated.lastIndex = 0;
-
-    if (pattern.comma.test(query)) {
-      variants.add(query.replace(pattern.comma, pattern.separatedValue));
-      variants.add(query.replace(pattern.comma, pattern.compactValue));
-    }
-
-    pattern.comma.lastIndex = 0;
   }
 
   return Array.from(variants).map(normalizeWhitespace);
@@ -376,20 +326,34 @@ function orderedWildcardQueryVariants(query: string) {
     return [];
   }
 
+  const compactDoseIndex = tokens.findIndex((token) =>
+    /^\d{4,6}(?:mg|iu)$/.test(token)
+  );
+  const separatedDoseIndex = tokens.findIndex(
+    (token, index) =>
+      /^\d{1,3}$/.test(token) &&
+      /^\d{3}(?:mg|iu)$/.test(tokens[index + 1] || "")
+  );
+  const doseIndex = compactDoseIndex >= 0 ? compactDoseIndex : separatedDoseIndex;
+  const doseTokenCount = compactDoseIndex >= 0 ? 1 : separatedDoseIndex >= 0 ? 2 : 0;
+  const hasDose = doseIndex >= 0;
   const hasGlucosamine = tokens.includes("glucosamine");
   const hasSulphate = tokens.includes("sulphate") || tokens.includes("sulfate");
-  const hasDose = tokens.some((token) =>
-    /^(?:1000|1500|2000|3000)mg$|^(?:2000|4000)iu$|^\d$|^\d{3}(?:mg|iu)$/.test(
-      token
-    )
-  );
   const hasTabletFormat = tokens.some((token) => /^tablets?$/.test(token));
 
-  if (!hasGlucosamine || (!hasDose && !(hasSulphate && hasTabletFormat))) {
+  if (!hasDose && !(hasGlucosamine && hasSulphate && hasTabletFormat)) {
     return [];
   }
 
-  return [tokens.join("%")];
+  const variants = [tokens.join("%")];
+
+  if (doseIndex === 0 && doseTokenCount < tokens.length) {
+    variants.push(
+      [...tokens.slice(doseTokenCount), ...tokens.slice(0, doseTokenCount)].join("%")
+    );
+  }
+
+  return variants;
 }
 
 function vitaminDk2SearchVariants(query: string) {
