@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
 import { getLandingProducts } from "../lib/products";
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Compare Vitamin D Supplements UK",
   description:

@@ -6,6 +6,8 @@ import {
   isVitaminLandingProductMatch,
 } from "../lib/products";
 
+export const revalidate = 3600;
+
 const vitaminSearchTerms = [
   "vitamin",
   "vitamins",

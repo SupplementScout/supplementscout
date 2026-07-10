@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
 import { getLandingProducts } from "../lib/products";
 
+export const revalidate = 3600;
+
 const omega3SearchTerms = [
   "omega",
   "omega 3",
