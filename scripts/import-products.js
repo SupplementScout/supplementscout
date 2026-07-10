@@ -312,6 +312,128 @@ function parseRequiredBoolean(value, fieldName) {
   throw new Error(`${fieldName} must be a boolean`);
 }
 
+const CANONICAL_RETAILER_FEED_SIGNATURE_COLUMNS = [
+  "external_product_id",
+  "external_variant_id",
+  "shipping_known",
+];
+
+const CANONICAL_RETAILER_FEED_REQUIRED_COLUMNS = [
+  "retailer_name",
+  "retailer_website",
+  "external_product_id",
+  "external_variant_id",
+  "product_name",
+  "brand",
+  "category",
+  "slug",
+  "external_url",
+  "affiliate_url",
+  "price",
+  "shipping_known",
+  "in_stock",
+  "is_for_sale",
+];
+
+const CANONICAL_RETAILER_FEED_FORBIDDEN_COLUMNS = [
+  "gtin",
+  "product_gtin_verified",
+  "net_weight_g",
+  "net_volume_ml",
+  "serving_count_verified",
+  "serving_size_g",
+  "serving_size_ml",
+  "protein_per_serving_g",
+  "creatine_per_serving_g",
+  "unit_count",
+  "unit_type",
+  "unit_pricing_verified",
+  "nutrition_verified",
+];
+
+function isCanonicalRetailerFeedRow(row) {
+  return CANONICAL_RETAILER_FEED_SIGNATURE_COLUMNS.every((column) =>
+    rowHasColumn(row, column)
+  );
+}
+
+function normalizeCanonicalRetailerFeedRows(rows) {
+  if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
+    return rows;
+  }
+
+  const headerRow = rows[0];
+  const missingColumns = CANONICAL_RETAILER_FEED_REQUIRED_COLUMNS.filter(
+    (column) => !rowHasColumn(headerRow, column)
+  );
+  const forbiddenColumns = CANONICAL_RETAILER_FEED_FORBIDDEN_COLUMNS.filter(
+    (column) => rowHasColumn(headerRow, column)
+  );
+
+  if (missingColumns.length > 0) {
+    throw new Error(
+      `Canonical retailer feed missing required column(s): ${missingColumns.join(", ")}`
+    );
+  }
+
+  if (forbiddenColumns.length > 0) {
+    throw new Error(
+      `Canonical retailer feed contains forbidden column(s): ${forbiddenColumns.join(", ")}`
+    );
+  }
+
+  return rows.map((row, index) => {
+    const rowNumber = index + 2;
+
+    for (const column of CANONICAL_RETAILER_FEED_REQUIRED_COLUMNS) {
+      required(row[column], column, rowNumber);
+    }
+
+    const shippingKnown = parseRequiredBoolean(row.shipping_known, "shipping_known");
+    const shippingInput = String(row.shipping_cost ?? "").trim();
+    let shippingCost = null;
+
+    if (!shippingKnown && shippingInput) {
+      throw new Error(
+        `Row ${rowNumber}: shipping_cost must be blank when shipping_known is false`
+      );
+    }
+
+    if (shippingKnown) {
+      if (!shippingInput) {
+        throw new Error(
+          `Row ${rowNumber}: shipping_cost is required when shipping_known is true`
+        );
+      }
+
+      shippingCost = parseFiniteNumber(shippingInput, "shipping_cost");
+
+      if (shippingCost < 0) {
+        throw new Error(`Row ${rowNumber}: shipping_cost must be 0 or greater`);
+      }
+    }
+
+    const size = String(row.size ?? "").trim();
+    const sizeUnit = String(row.size_unit ?? "").trim();
+    const normalizedSize = size && sizeUnit ? `${size} ${sizeUnit}` : size;
+    const packCount = String(row.pack_count ?? "").trim();
+    const variantEvidence = [
+      String(row.variant_name ?? "").trim(),
+      packCount ? `pack of ${packCount}` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    return {
+      ...row,
+      variant: variantEvidence,
+      size: normalizedSize,
+      shipping_cost: shippingCost,
+      delivery_cost: undefined,
+    };
+  });
+}
+
 function optionalBoolean(row, fieldName, rowNumber) {
   if (!rowHasColumn(row, fieldName)) {
     return undefined;
@@ -1286,6 +1408,10 @@ async function runImportRows(rows, options = {}) {
   const safeCreate = Boolean(options.safeCreate);
 
   if (mode === "feed") {
+    rows = normalizeCanonicalRetailerFeedRows(rows);
+  }
+
+  if (mode === "feed") {
     const report = await preflightFeedRows(rows, { safeCreate });
 
     console.log(formatPreflightReport(report));
@@ -1449,6 +1575,7 @@ module.exports = {
   parseVariantIdentity,
   preflightFeedRows,
   normalizeCategory,
+  normalizeCanonicalRetailerFeedRows,
   normalizeShippingForImport,
   priceHistoryTotal,
   runImport,

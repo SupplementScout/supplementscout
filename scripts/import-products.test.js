@@ -18,6 +18,7 @@ const {
   parseSize,
   parseVariantIdentity,
   normalizeCategory,
+  normalizeCanonicalRetailerFeedRows,
   normalizeShippingForImport,
   priceHistoryTotal,
   runImportRows,
@@ -76,6 +77,37 @@ function baseSafeCreateFeedRow(overrides = {}) {
     evidence_format: "capsules",
     ...overrides,
   });
+}
+
+function baseCanonicalFeedRow(overrides = {}) {
+  return {
+    retailer_name: "Example Nutrition",
+    retailer_website: "https://example.test",
+    external_product_id: "prod_100",
+    external_variant_id: "var_100_500",
+    product_name: "Example Creatine Monohydrate 500g",
+    variant_name: "Unflavoured / 500g",
+    brand: "Example Nutrition",
+    category: "Creatine",
+    description: "Pure creatine monohydrate",
+    image: "https://example.test/images/creatine.jpg",
+    slug: "example-creatine-monohydrate-500g",
+    external_url: "https://example.test/products/creatine?variant=var_100_500",
+    affiliate_url: "https://example.test/products/creatine?variant=var_100_500",
+    external_gtin: "5012345678901",
+    price: "19.99",
+    shipping_known: "false",
+    shipping_cost: "",
+    in_stock: "true",
+    is_for_sale: "true",
+    size: "500",
+    size_unit: "g",
+    flavour: "unflavoured",
+    product_format: "powder",
+    pack_count: "1",
+    source_updated_at: "2026-07-10T09:30:00Z",
+    ...overrides,
+  };
 }
 
 function createMockSupabase(seed = {}) {
@@ -480,6 +512,149 @@ test("feed mode is explicit and ordinary CSV columns do not activate it", () => 
   assert.throws(() => parseArgs(["--safe-create"]), /only supported with --mode=feed/);
   assert.equal(getProductLevelGtin({ import_mode: "awin", gtin: "123" }), "123");
   assert.equal(getProductLevelGtin({ import_mode: "awin", gtin: "123" }, "feed"), null);
+});
+
+test("valid canonical retailer feed passes existing safe-create preflight", async () => {
+  const supabase = createMockSupabase({
+    retailers: [],
+    products: [],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([baseCanonicalFeedRow()], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(result.report.invalidRows.length, 0);
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("canonical signature triggers full required-header validation", async () => {
+  const row = baseCanonicalFeedRow();
+  delete row.affiliate_url;
+
+  await assert.rejects(
+    () => runImportRows([row], { mode: "feed", dryRun: true }),
+    /missing required column\(s\): affiliate_url/
+  );
+});
+
+test("variant_name alone does not activate canonical normalization", () => {
+  const rows = [baseFeedRow({ variant_name: "Chocolate" })];
+
+  assert.strictEqual(normalizeCanonicalRetailerFeedRows(rows), rows);
+});
+
+test("size_unit alone does not activate canonical normalization", () => {
+  const rows = [baseFeedRow({ size_unit: "g" })];
+
+  assert.strictEqual(normalizeCanonicalRetailerFeedRows(rows), rows);
+});
+
+test("external IDs without shipping_known do not activate canonical normalization", () => {
+  const rows = [
+    baseFeedRow({ external_product_id: "prod_100", external_variant_id: "var_100" }),
+  ];
+
+  assert.strictEqual(normalizeCanonicalRetailerFeedRows(rows), rows);
+});
+
+test("canonical retailer feed rejects forbidden product verification columns", async () => {
+  await assert.rejects(
+    () =>
+      runImportRows(
+        [baseCanonicalFeedRow({ serving_count_verified: "50" })],
+        { mode: "feed", dryRun: true }
+      ),
+    /forbidden column\(s\): serving_count_verified/
+  );
+});
+
+test("canonical shipping validation distinguishes unknown, free, and paid shipping", () => {
+  const unknown = normalizeCanonicalRetailerFeedRows([
+    baseCanonicalFeedRow({ shipping_known: "false", shipping_cost: "" }),
+  ])[0];
+  const free = normalizeCanonicalRetailerFeedRows([
+    baseCanonicalFeedRow({ shipping_known: "true", shipping_cost: "0" }),
+  ])[0];
+  const paid = normalizeCanonicalRetailerFeedRows([
+    baseCanonicalFeedRow({ shipping_known: "true", shipping_cost: "2.99" }),
+  ])[0];
+
+  assert.equal(unknown.shipping_cost, null);
+  assert.equal(free.shipping_cost, 0);
+  assert.equal(paid.shipping_cost, 2.99);
+  assert.throws(
+    () =>
+      normalizeCanonicalRetailerFeedRows([
+        baseCanonicalFeedRow({ shipping_known: "false", shipping_cost: "2.99" }),
+      ]),
+    /shipping_cost must be blank when shipping_known is false/
+  );
+  assert.throws(
+    () =>
+      normalizeCanonicalRetailerFeedRows([
+        baseCanonicalFeedRow({ shipping_known: "true", shipping_cost: "" }),
+      ]),
+    /shipping_cost is required when shipping_known is true/
+  );
+});
+
+test("canonical variant fields map to evidence understood by variant guards", () => {
+  const originalRow = baseCanonicalFeedRow({
+    variant_name: "Unflavoured / 500g",
+    size: "500",
+    size_unit: "g",
+    pack_count: "2",
+  });
+  const [row] = normalizeCanonicalRetailerFeedRows([originalRow]);
+  const identity = parseVariantIdentity(row);
+
+  assert.notStrictEqual(row, originalRow);
+  assert.equal(originalRow.size, "500");
+  assert.equal(Object.prototype.hasOwnProperty.call(originalRow, "variant"), false);
+  assert.equal(row.size, "500 g");
+  assert.match(row.variant, /Unflavoured \/ 500g/);
+  assert.equal(identity.size.value, 500);
+  assert.equal(identity.size.unit, "g");
+  assert.equal(identity.flavour, "unflavoured");
+  assert.equal(identity.packCount, 2);
+});
+
+test("canonical shipping ignores delivery_cost as an alternative", () => {
+  const [unknown] = normalizeCanonicalRetailerFeedRows([
+    baseCanonicalFeedRow({
+      shipping_known: "false",
+      shipping_cost: "",
+      delivery_cost: "4.99",
+    }),
+  ]);
+
+  assert.equal(unknown.shipping_cost, null);
+  assert.equal(unknown.delivery_cost, undefined);
+  assert.throws(
+    () =>
+      normalizeCanonicalRetailerFeedRows([
+        baseCanonicalFeedRow({
+          shipping_known: "true",
+          shipping_cost: "",
+          delivery_cost: "4.99",
+        }),
+      ]),
+    /shipping_cost is required when shipping_known is true/
+  );
+});
+
+test("legacy Awin-shaped feeds bypass canonical normalization", () => {
+  const rows = [baseSafeCreateFeedRow()];
+
+  assert.strictEqual(normalizeCanonicalRetailerFeedRows(rows), rows);
 });
 
 test("default feed mode remains match-only for unmatched rows", async () => {
