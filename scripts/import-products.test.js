@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 
 const {
@@ -327,6 +329,60 @@ function outOfStockSafeCreateFixture(overrides = {}) {
   };
 
   return { row, retailer, product };
+}
+
+function buildFitHouseCanonicalRows(config) {
+  return config.products.map((product) => {
+    const url = `${config.retailer.website}/products/${product.expected_handle}?variant=${product.shopify_variant_id}`;
+
+    return {
+      retailer_name: config.retailer.name,
+      retailer_website: config.retailer.website,
+      external_product_id: product.shopify_product_id,
+      external_variant_id: product.shopify_variant_id,
+      product_name: product.canonical_name,
+      variant_name: product.variant_name,
+      brand: product.brand,
+      category: product.category,
+      description: "",
+      image: `https://cdn.shopify.com/s/files/fit-house/${product.shopify_variant_id}.jpg`,
+      slug: product.canonical_slug,
+      external_url: url,
+      affiliate_url: url,
+      external_gtin: "",
+      price: String(product.approved_price),
+      shipping_known: String(config.shipping.known),
+      shipping_cost: String(config.shipping.cost),
+      in_stock: String(product.approved_in_stock),
+      is_for_sale: String(product.is_for_sale),
+      size: product.size === null ? "" : String(product.size),
+      size_unit: product.size_unit || "",
+      flavour: product.flavour || "",
+      product_format: product.product_format,
+      pack_count: String(product.pack_count),
+      source_updated_at: "2026-07-11T14:18:26+01:00",
+    };
+  });
+}
+
+function assertFitHouseApprovedScope(config, rows) {
+  const approvedMappings = new Set(
+    config.products.map(
+      (product) => `${product.shopify_product_id}:${product.shopify_variant_id}`
+    )
+  );
+
+  if (
+    rows.length !== config.products.length ||
+    rows.some(
+      (row) =>
+        !approvedMappings.has(
+          `${row.external_product_id}:${row.external_variant_id}`
+        )
+    )
+  ) {
+    throw new Error("Fit House preflight rows must exactly match approved config");
+  }
 }
 
 test("normalizes pre-workout variants to Pre Workout", () => {
@@ -758,6 +814,107 @@ test("safe-create approves safe unmatched rows for planned creation", async () =
   assert.equal(result.report.productGtinBlocked.length, 1);
   assert.equal(result.report.externalGtinStoredOrUpdated.length, 1);
   assert.equal(supabase.writes.length, 0);
+});
+
+test("Fit House approved config plans ten safe creates with zero dry-run writes", { concurrency: false }, async () => {
+  const config = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, "../config/retailers/fit-house-shopify.json"),
+      "utf8"
+    )
+  );
+  const rows = buildFitHouseCanonicalRows(config);
+  const uniqueCount = (field) => new Set(rows.map((row) => row[field])).size;
+
+  assert.equal(config.products.length, 10);
+  assert.equal(rows.length, 10);
+  assert.equal(uniqueCount("external_product_id"), 10);
+  assert.equal(uniqueCount("external_variant_id"), 10);
+  assert.equal(uniqueCount("slug"), 10);
+  assert.equal(uniqueCount("external_url"), 10);
+  assertFitHouseApprovedScope(config, rows);
+
+  for (const row of rows) {
+    assert.equal(
+      priceHistoryTotal(row.price, row.shipping_cost),
+      Math.round((Number(row.price) + 3.99) * 100) / 100
+    );
+  }
+
+  const supabase = createMockSupabase({
+    retailers: [],
+    products: [],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const logs = [];
+  const originalLog = console.log;
+  let result;
+
+  console.log = (...values) => logs.push(values.join(" "));
+  try {
+    result = await runImportRows(rows, {
+      mode: "feed",
+      safeCreate: true,
+      dryRun: true,
+    });
+  } finally {
+    console.log = originalLog;
+  }
+
+  assert.equal(result.report.approvedRows.length, 10);
+  assert.equal(result.report.invalidRows.length, 0);
+  assert.equal(result.report.ambiguousRows.length, 0);
+  assert.equal(result.report.exclusions.length, 0);
+  assert.equal(result.report.newRetailersToCreate.length, 1);
+  assert.equal(result.report.newRetailersToCreate[0].slug, "fit-house");
+  assert.equal(result.report.newProductsToCreate.length, 10);
+  assert.equal(result.report.retailerProductsToCreate.length, 10);
+  assert.equal(result.report.offersToCreate.length, 10);
+  assert.equal(result.report.offersToUpdate.length, 0);
+  assert.equal(result.report.priceHistoryRowsToCreate.length, 10);
+  assert.equal(result.planned, 10);
+  assert.equal(result.skipped, 0);
+  assert.equal(supabase.writes.length, 0);
+  assert.equal(
+    logs.some((line) => line.includes("Dry run: no database writes performed.")),
+    true
+  );
+});
+
+test("Fit House scope guard rejects an unmapped eleventh row before importer", async () => {
+  const config = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, "../config/retailers/fit-house-shopify.json"),
+      "utf8"
+    )
+  );
+  const rows = buildFitHouseCanonicalRows(config);
+  rows.push({
+    ...rows[0],
+    external_product_id: "9999999999999",
+    external_variant_id: "99999999999999",
+    slug: "unmapped-fit-house-product",
+    external_url: "https://fithouse.uk/products/unmapped?variant=99999999999999",
+    affiliate_url: "https://fithouse.uk/products/unmapped?variant=99999999999999",
+  });
+  let importerCalls = 0;
+
+  async function guardedRun() {
+    assertFitHouseApprovedScope(config, rows);
+    importerCalls += 1;
+    return runImportRows(rows, {
+      mode: "feed",
+      safeCreate: true,
+      dryRun: true,
+    });
+  }
+
+  await assert.rejects(guardedRun, /must exactly match approved config/);
+  assert.equal(importerCalls, 0);
 });
 
 test("offer preflight plans a new offer and price history row", async () => {
