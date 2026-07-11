@@ -19,7 +19,7 @@ const {
 
 const ROOT = path.resolve(__dirname, "../..");
 const fullConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/fit-house-shopify.json"), "utf8"));
-const config = structuredClone(fullConfig);
+const config = structuredClone({ ...fullConfig, products: fullConfig.products.slice(0, 52) });
 const header = fs.readFileSync(path.join(ROOT, "data/templates/retailer-feed-template.csv"), "utf8").split(/\r?\n/, 1)[0].split(",");
 const forbidden = ["canonical_product_id", "gtin", "product_gtin_verified", "free_shipping_threshold", "net_weight_g", "net_volume_ml", "unit_count", "unit_type", "servings", "nutrition_verified", "Variant Grams", "Body HTML", "SKU", "inventory quantity"];
 
@@ -133,6 +133,33 @@ test("config guard requires exactly 52 unique product IDs, variant IDs, slugs, a
   const extra = structuredClone(config); extra.products.push({ ...structuredClone(extra.products[0]), shopify_product_id: "999", shopify_variant_id: "998", canonical_slug: "extra", expected_handle: "extra" });
   assert.equal(extra.products.length, 53);
   assert.throws(() => validateConfig(extra), /exactly 52/);
+});
+
+test("production adapter rejects the full 72-product config before fetch or import", async () => {
+  assert.equal(fullConfig.products.length, 72);
+  let fetched = false;
+  let imported = false;
+  const originalReadFileSync = fs.readFileSync;
+  fs.readFileSync = (file, ...args) =>
+    path.resolve(file) === path.join(ROOT, "config/retailers/fit-house-shopify.json")
+      ? JSON.stringify(fullConfig)
+      : originalReadFileSync(file, ...args);
+
+  try {
+    await assert.rejects(
+      main({
+        argv: [],
+        fetchImpl: async () => { fetched = true; },
+        runImporter: () => { imported = true; },
+      }),
+      /exactly 52/
+    );
+  } finally {
+    fs.readFileSync = originalReadFileSync;
+  }
+
+  assert.equal(fetched, false);
+  assert.equal(imported, false);
 });
 
 test("duplicate generated external URL is rejected", () => {

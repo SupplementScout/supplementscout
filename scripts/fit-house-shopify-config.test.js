@@ -39,6 +39,12 @@ test("Fit House config has the approved top-level contract", () => {
       "EFX",
       "efx",
       "Applied Nutrition",
+      "7 Nutrition",
+      "Reflex Nutrition",
+      "Soma",
+      "Animal",
+      "Nordic Naturals",
+      "Olimp",
     ],
   });
   assert.deepEqual(config.shipping, {
@@ -49,8 +55,8 @@ test("Fit House config has the approved top-level contract", () => {
   });
 });
 
-test("Fit House config contains exactly 52 unique approved mappings", () => {
-  assert.equal(config.products.length, 52);
+test("Fit House config contains exactly 72 unique approved mappings", () => {
+  assert.equal(config.products.length, 72);
 
   for (const field of [
     "shopify_product_id",
@@ -59,7 +65,7 @@ test("Fit House config contains exactly 52 unique approved mappings", () => {
     "expected_handle",
   ]) {
     const values = config.products.map((product) => product[field]);
-    assert.equal(new Set(values).size, 52, `${field} must be unique`);
+    assert.equal(new Set(values).size, 72, `${field} must be unique`);
   }
 });
 
@@ -96,6 +102,18 @@ test("the approved first 38 mappings remain byte-for-byte unchanged", () => {
   assert.equal(
     digest,
     "b0938d7117a0816b01ae5724efe5ec0258c76f9099e26abaaa3459a1378e5d82"
+  );
+});
+
+test("the approved first 52 mappings remain byte-for-byte unchanged", () => {
+  const digest = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(config.products.slice(0, 52)))
+    .digest("hex");
+
+  assert.equal(
+    digest,
+    "4e2b3b60924d944bca6274e4b63cf7cae6d9cfc4534cb1c82936e4e2129c9a49"
   );
 });
 
@@ -165,7 +183,7 @@ test("batch three contains exactly the sixteen approved mappings", () => {
 });
 
 test("batch four contains exactly the fourteen approved new mappings", () => {
-  const batchFour = config.products.slice(38);
+  const batchFour = config.products.slice(38, 52);
   const expectedProductIds = [
     "8163807887600", "9370261913840", "9347456499952", "9179043856624",
     "8245425144048", "9059083157744", "8929298252016", "8776311636208",
@@ -184,6 +202,39 @@ test("batch four contains exactly the fourteen approved new mappings", () => {
     assert.ok(["Vitamins", "Amino Acids", "Health Supplements", "Creatine"].includes(product.category));
     assert.ok(["capsule", "tablet", "powder"].includes(product.product_format));
   }
+});
+
+test("batch five contains exactly the twenty approved new mappings", () => {
+  const batchFive = config.products.slice(52);
+  const expectedProductIds = [
+    "8816846504176", "8693101330672", "8271509946608", "8968956084464",
+    "8685938376944", "8147551846640", "9624501813488", "9623385932016",
+    "9347614343408", "9176724177136", "9176635834608", "9174925803760",
+    "9168643719408", "9097931817200", "8147560530160", "9060343709936",
+    "9041428283632", "8333086884080", "9168824172784", "8273427333360",
+  ];
+
+  assert.equal(batchFive.length, 20);
+  assert.deepEqual(batchFive.map((product) => product.shopify_product_id), expectedProductIds);
+
+  for (const product of batchFive) {
+    assert.equal(product.canonical_product_id, null);
+    assert.equal(product.approved_in_stock, true);
+    assert.equal(product.is_for_sale, true);
+    assert.equal(product.pack_count, 1);
+    assert.ok(Number.isFinite(product.approved_price) && product.approved_price > 0);
+    assert.ok(["Health Supplements", "Vitamins", "Amino Acids"].includes(product.category));
+    assert.ok(["capsule", "tablet", "powder", "softgel"].includes(product.product_format));
+  }
+
+  const egcg = batchFive.find((product) => product.shopify_product_id === "8816846504176");
+  assert.match(egcg.canonical_name, /180 Capsules/);
+  assert.match(egcg.canonical_slug, /180-capsules/);
+  assert.doesNotMatch(`${egcg.canonical_name} ${egcg.canonical_slug}`, /90[ -]capsules/i);
+
+  const berberine = batchFive.find((product) => product.shopify_product_id === "9168824172784");
+  assert.equal(berberine.canonical_product_id, null);
+  assert.match(berberine.canonical_name, /500mg 90 Capsules/);
 });
 
 test("every mapping has complete approved identity and variant evidence", () => {
@@ -235,19 +286,22 @@ test("shipping and newly approved vendor aliases remain exact", () => {
     "EFX",
     "efx",
     "Applied Nutrition",
+    "7 Nutrition",
+    "Reflex Nutrition",
+    "Soma",
+    "Animal",
+    "Nordic Naturals",
+    "Olimp",
   ]) {
     assert.ok(config.retailer.vendor_aliases.includes(alias), `missing alias: ${alias}`);
   }
 });
 
-test("approved batches exclude blocked image and separately deferred products", () => {
+test("approved batches exclude separately deferred products", () => {
   const serialized = JSON.stringify(config.products).toLowerCase();
   assert.equal(serialized.includes("shilajit"), false);
   assert.equal(serialized.includes("ostrovit-creatine-monohydrate-300g"), false);
-  for (const productId of ["8693101330672", "8271509946608", "8816846504176"]) {
-    assert.equal(config.products.some((product) => product.shopify_product_id === productId), false);
-  }
-  for (const slug of ["now-foods-organic-inulin-prebiotic-powder", "osavi-cod-liver-oil-d3-250ml-lemon"]) {
+  for (const slug of ["osavi-cod-liver-oil-d3-250ml-lemon"]) {
     assert.equal(serialized.includes(slug), false);
   }
 });
