@@ -20,6 +20,7 @@ const {
 const ROOT = path.resolve(__dirname, "../..");
 const fullConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/fit-house-shopify.json"), "utf8"));
 const config = structuredClone(fullConfig);
+config.products = config.products.slice(0, 38);
 const header = fs.readFileSync(path.join(ROOT, "data/templates/retailer-feed-template.csv"), "utf8").split(/\r?\n/, 1)[0].split(",");
 const forbidden = ["canonical_product_id", "gtin", "product_gtin_verified", "free_shipping_threshold", "net_weight_g", "net_volume_ml", "unit_count", "unit_type", "servings", "nutrition_verified", "Variant Grams", "Body HTML", "SKU", "inventory quantity"];
 
@@ -124,6 +125,11 @@ test("config guard requires exactly 38 unique product IDs, variant IDs, slugs, a
   const extra = structuredClone(config); extra.products.push({ ...structuredClone(extra.products[0]), shopify_product_id: "999", shopify_variant_id: "998", canonical_slug: "extra", expected_handle: "extra" });
   assert.equal(extra.products.length, 39);
   assert.throws(() => validateConfig(extra), /exactly 38/);
+});
+
+test("production adapter explicitly rejects the full 52-product config", () => {
+  assert.equal(fullConfig.products.length, 52);
+  assert.throws(() => validateConfig(structuredClone(fullConfig)), /exactly 38/);
 });
 
 test("duplicate generated external URL is rejected", () => {
@@ -287,21 +293,32 @@ test("adapter report keeps batch-three existing canonical and importer plans sep
     "price_history rows would be created: 16",
     "Dry run: no database writes performed.",
   ].join("\n");
-  const result = await main({
-    argv: [],
-    fetchImpl: async () => ({
-      ok: true,
-      status: 200,
-      text: async () => JSON.stringify(source()),
-    }),
-    runImporter: () => ({
-      command: importerCommand("generated.csv"),
-      status: 0,
-      output,
-      rowLevelOffers,
-      database_writes: 0,
-    }),
-  });
+  const originalReadFileSync = fs.readFileSync;
+  fs.readFileSync = (file, ...args) =>
+    path.resolve(file) === path.join(ROOT, "config/retailers/fit-house-shopify.json")
+      ? JSON.stringify(config)
+      : originalReadFileSync(file, ...args);
+
+  let result;
+  try {
+    result = await main({
+      argv: [],
+      fetchImpl: async () => ({
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify(source()),
+      }),
+      runImporter: () => ({
+        command: importerCommand("generated.csv"),
+        status: 0,
+        output,
+        rowLevelOffers,
+        database_writes: 0,
+      }),
+    });
+  } finally {
+    fs.readFileSync = originalReadFileSync;
+  }
 
   assert.deepEqual(result.report.batches.batch_1, {
     configured: 10, mapped: 10, existing_products: 10,
@@ -320,6 +337,20 @@ test("adapter report keeps batch-three existing canonical and importer plans sep
     new_price_history_rows_planned: 16,
   });
   assert.equal(result.report.database_writes, 0);
+});
+
+test("adapter main rejects the full 52-product config before fetching or importing", async () => {
+  let fetched = false;
+  let imported = false;
+
+  await assert.rejects(main({
+    argv: [],
+    fetchImpl: async () => { fetched = true; },
+    runImporter: () => { imported = true; },
+  }), /exactly 38/);
+
+  assert.equal(fetched, false);
+  assert.equal(imported, false);
 });
 
 test("adapter rejects every additional CLI argument before fetching or importing", async () => {
