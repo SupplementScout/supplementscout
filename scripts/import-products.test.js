@@ -5,6 +5,7 @@ const {
   assessVariantCompatibility,
   buildRetailerProductPayload,
   findOrCreateProduct,
+  formatPreflightReport,
   getExternalGtin,
   getProductLevelGtin,
   getOfferUrl,
@@ -273,6 +274,33 @@ async function assertInvalidFeedRowHasZeroWrites(overrides) {
   assert.equal(result.report.invalidRows.length, 1);
   assert.equal(result.report.approvedRows.length, 0);
   assert.equal(supabase.writes.length, 0);
+}
+
+async function preflightExistingOffer({ rowOverrides = {}, offerOverrides = {} } = {}) {
+  const row = baseFeedRow(rowOverrides);
+  const supabase = createMockSupabase({
+    offers: [
+      {
+        id: "o1",
+        product_id: "p1",
+        retailer_id: "r1",
+        price: 29.99,
+        shipping_cost: 0,
+        total_price: 29.99,
+        in_stock: true,
+        url: baseFeedRow().url,
+        ...offerOverrides,
+      },
+    ],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], {
+    mode: "feed",
+    dryRun: true,
+  });
+
+  return { report: result.report, result, supabase };
 }
 
 test("normalizes pre-workout variants to Pre Workout", () => {
@@ -704,6 +732,113 @@ test("safe-create approves safe unmatched rows for planned creation", async () =
   assert.equal(result.report.productGtinBlocked.length, 1);
   assert.equal(result.report.externalGtinStoredOrUpdated.length, 1);
   assert.equal(supabase.writes.length, 0);
+});
+
+test("offer preflight plans a new offer and price history row", async () => {
+  const supabase = createMockSupabase({ offers: [] });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([baseFeedRow()], {
+    mode: "feed",
+    dryRun: true,
+  });
+
+  assert.equal(result.report.offersToCreate.length, 1);
+  assert.equal(result.report.offersToUpdate.length, 0);
+  assert.equal(result.report.offersUnchanged.length, 0);
+  assert.equal(result.report.priceHistoryRowsToCreate.length, 1);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("offer preflight marks an identical offer unchanged", async () => {
+  const { report, supabase } = await preflightExistingOffer();
+
+  assert.equal(report.offersToCreate.length, 0);
+  assert.equal(report.offersToUpdate.length, 0);
+  assert.equal(report.offersUnchanged.length, 1);
+  assert.equal(report.priceHistoryRowsToCreate.length, 0);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("offer preflight plans price changes with price history", async () => {
+  const { report } = await preflightExistingOffer({
+    rowOverrides: { price: "31.99" },
+  });
+
+  assert.equal(report.offersToUpdate.length, 1);
+  assert.equal(report.priceChanges.length, 1);
+  assert.equal(report.priceHistoryRowsToCreate.length, 1);
+});
+
+test("offer preflight plans shipping changes with price history", async () => {
+  const { report } = await preflightExistingOffer({
+    rowOverrides: { shipping_cost: "1.49" },
+  });
+
+  assert.equal(report.offersToUpdate.length, 1);
+  assert.equal(report.shippingChanges.length, 1);
+  assert.equal(report.priceHistoryRowsToCreate.length, 1);
+});
+
+test("offer preflight preserves existing shipping when feed shipping is unknown", async () => {
+  const { report } = await preflightExistingOffer({
+    rowOverrides: { shipping_cost: undefined, delivery_cost: "" },
+    offerOverrides: { shipping_cost: 2.99, total_price: 32.98 },
+  });
+
+  assert.equal(report.offersToUpdate.length, 0);
+  assert.equal(report.offersUnchanged.length, 1);
+  assert.equal(report.priceHistoryRowsToCreate.length, 0);
+});
+
+test("offer preflight classifies stock-only changes without price history", async () => {
+  const { report } = await preflightExistingOffer({
+    rowOverrides: { in_stock: "false" },
+  });
+
+  assert.equal(report.offersToUpdate.length, 1);
+  assert.equal(report.stockOnlyChanges.length, 1);
+  assert.equal(report.urlOnlyChanges.length, 0);
+  assert.equal(report.priceHistoryRowsToCreate.length, 0);
+});
+
+test("offer preflight classifies URL-only changes without price history", async () => {
+  const { report } = await preflightExistingOffer({
+    rowOverrides: { affiliate_url: "https://affiliate.test/new-offer" },
+  });
+
+  assert.equal(report.offersToUpdate.length, 1);
+  assert.equal(report.stockOnlyChanges.length, 0);
+  assert.equal(report.urlOnlyChanges.length, 1);
+  assert.equal(report.priceHistoryRowsToCreate.length, 0);
+});
+
+test("offer preflight does not call combined stock and URL changes only changes", async () => {
+  const { report } = await preflightExistingOffer({
+    rowOverrides: {
+      in_stock: "false",
+      affiliate_url: "https://affiliate.test/new-offer",
+    },
+  });
+
+  assert.equal(report.offersToUpdate.length, 1);
+  assert.equal(report.stockOnlyChanges.length, 0);
+  assert.equal(report.urlOnlyChanges.length, 0);
+  assert.equal(report.priceHistoryRowsToCreate.length, 0);
+});
+
+test("formatPreflightReport includes detailed offer plan counters", async () => {
+  const { report } = await preflightExistingOffer();
+  const output = formatPreflightReport(report);
+
+  assert.match(output, /offers would be created: 0/);
+  assert.match(output, /offers would be updated: 0/);
+  assert.match(output, /offers unchanged: 1/);
+  assert.match(output, /price_history rows would be created: 0/);
+  assert.match(output, /price changes: 0/);
+  assert.match(output, /shipping changes: 0/);
+  assert.match(output, /stock-only changes: 0/);
+  assert.match(output, /URL-only changes: 0/);
 });
 
 test("safe-create requires is_for_sale to be present and true", async () => {

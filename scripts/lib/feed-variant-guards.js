@@ -396,7 +396,13 @@ function createPreflightReport() {
     newProductsToCreate: [],
     retailerProductsToCreate: [],
     offersToCreate: [],
+    offersToUpdate: [],
+    offersUnchanged: [],
     priceHistoryRowsToCreate: [],
+    priceChanges: [],
+    shippingChanges: [],
+    stockOnlyChanges: [],
+    urlOnlyChanges: [],
   };
 }
 
@@ -607,15 +613,56 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       });
     }
 
-    report.offersToCreate.push({
+    const offerReportItem = {
       rowNumber: item.rowNumber,
       productName,
-    });
+    };
+    const offerPlan = item.offerPlan || {
+      action: "create",
+      priceChanged: false,
+      shippingChanged: false,
+      stockChanged: false,
+      urlChanged: false,
+      createsPriceHistory: true,
+    };
 
-    report.priceHistoryRowsToCreate.push({
-      rowNumber: item.rowNumber,
-      productName,
-    });
+    if (offerPlan.action === "create") {
+      report.offersToCreate.push(offerReportItem);
+    } else if (offerPlan.action === "update") {
+      report.offersToUpdate.push(offerReportItem);
+    } else {
+      report.offersUnchanged.push(offerReportItem);
+    }
+
+    if (offerPlan.createsPriceHistory) {
+      report.priceHistoryRowsToCreate.push(offerReportItem);
+    }
+
+    if (offerPlan.priceChanged) {
+      report.priceChanges.push(offerReportItem);
+    }
+
+    if (offerPlan.shippingChanged) {
+      report.shippingChanges.push(offerReportItem);
+    }
+
+    if (
+      offerPlan.stockChanged &&
+      !offerPlan.priceChanged &&
+      !offerPlan.shippingChanged &&
+      !offerPlan.urlChanged
+    ) {
+      report.stockOnlyChanges.push(offerReportItem);
+    }
+
+    if (
+      offerPlan.urlChanged &&
+      !offerPlan.priceChanged &&
+      !offerPlan.shippingChanged &&
+      !offerPlan.stockChanged
+    ) {
+      report.urlOnlyChanges.push(offerReportItem);
+    }
 
     if (!item.productLevelGtin && item.externalGtin) {
       report.productGtinBlocked.push({
@@ -668,7 +715,13 @@ function formatPreflightReport(report) {
     `  new products would be created: ${report.newProductsToCreate.length}`,
     `  retailer_products would be created: ${report.retailerProductsToCreate.length}`,
     `  offers would be created: ${report.offersToCreate.length}`,
+    `  offers would be updated: ${report.offersToUpdate.length}`,
+    `  offers unchanged: ${report.offersUnchanged.length}`,
     `  price_history rows would be created: ${report.priceHistoryRowsToCreate.length}`,
+    `  price changes: ${report.priceChanges.length}`,
+    `  shipping changes: ${report.shippingChanges.length}`,
+    `  stock-only changes: ${report.stockOnlyChanges.length}`,
+    `  URL-only changes: ${report.urlOnlyChanges.length}`,
   ].join("\n");
 }
 

@@ -1128,6 +1128,57 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
   console.log(`Created offer: ${row.product_name} at ${row.retailer_name}`);
 }
 
+async function findExistingOfferForPreflight(productId, retailerId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("offers")
+    .select("id, price, shipping_cost, total_price, in_stock, url")
+    .eq("product_id", productId)
+    .eq("retailer_id", retailerId)
+    .limit(1);
+
+  if (error) {
+    throw error;
+  }
+
+  return data?.[0] || null;
+}
+
+function buildOfferPlan(row, existingOffer) {
+  if (!existingOffer) {
+    return {
+      action: "create",
+      priceChanged: false,
+      shippingChanged: false,
+      stockChanged: false,
+      urlChanged: false,
+      createsPriceHistory: true,
+    };
+  }
+
+  const incomingPrice = optionalNumber(row.price);
+  const existingShipping = optionalNumber(existingOffer.shipping_cost);
+  const incomingShipping = optionalNumber(getInputShippingValue(row));
+  const effectiveShipping =
+    incomingShipping === null ? existingShipping : incomingShipping;
+  const priceChanged = Number(existingOffer.price) !== Number(incomingPrice);
+  const shippingChanged = existingShipping !== effectiveShipping;
+  const stockChanged = Boolean(existingOffer.in_stock) !== parseBoolean(row.in_stock);
+  const urlChanged = String(existingOffer.url || "") !== getOfferUrl(row);
+
+  return {
+    action:
+      priceChanged || shippingChanged || stockChanged || urlChanged
+        ? "update"
+        : "unchanged",
+    priceChanged,
+    shippingChanged,
+    stockChanged,
+    urlChanged,
+    createsPriceHistory: priceChanged || shippingChanged,
+  };
+}
+
 async function findRetailerBySlug(slug) {
   const supabase = getSupabase();
   const { data, error } = await supabase
@@ -1276,6 +1327,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   let product = null;
   let plannedRetailer = null;
   let plannedProduct = null;
+  let existingOffer = null;
 
   if (retailer) {
     mapping = await findRetailerMapping(retailer.id, offerUrl);
@@ -1309,6 +1361,15 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     }
   }
 
+  if (validationErrors.length === 0 && retailer?.id && product?.id) {
+    existingOffer = await findExistingOfferForPreflight(product.id, retailer.id);
+  }
+
+  const offerPlan =
+    validationErrors.length === 0
+      ? buildOfferPlan(shippingNormalizedRow, existingOffer)
+      : null;
+
   return {
     row: shippingNormalizedRow,
     rowNumber,
@@ -1317,6 +1378,8 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     mapping,
     plannedRetailer,
     plannedProduct,
+    existingOffer,
+    offerPlan,
     validationErrors,
     shippingInferredFromPolicy,
   };
@@ -1529,7 +1592,7 @@ async function runImport(options = parseArgs(process.argv.slice(2))) {
   console.log("Import finished.");
   console.log(`Successful: ${result.successful}`);
   if (options.dryRun && result.planned > 0) {
-    console.log(`Planned writes: ${result.planned}`);
+    console.log(`Approved rows planned: ${result.planned}`);
   }
   console.log(`Skipped for review: ${result.skipped}`);
   console.log(`Failed: ${result.failed}`);
