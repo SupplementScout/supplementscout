@@ -16,7 +16,11 @@ const {
 } = require("./fit-house-shopify");
 
 const ROOT = path.resolve(__dirname, "../..");
-const config = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/fit-house-shopify.json"), "utf8"));
+const fullConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/fit-house-shopify.json"), "utf8"));
+const config = {
+  ...structuredClone(fullConfig),
+  products: structuredClone(fullConfig.products.slice(0, 10)),
+};
 const header = fs.readFileSync(path.join(ROOT, "data/templates/retailer-feed-template.csv"), "utf8").split(/\r?\n/, 1)[0].split(",");
 const forbidden = ["canonical_product_id", "gtin", "product_gtin_verified", "free_shipping_threshold", "net_weight_g", "net_volume_ml", "unit_count", "unit_type", "servings", "nutrition_verified", "Variant Grams", "Body HTML", "SKU", "inventory quantity"];
 
@@ -81,6 +85,7 @@ test("generated CSV exactly matches the template and excludes forbidden fields a
 
 test("config guard enforces ten unique product IDs, variant IDs, slugs, and handles", () => {
   assert.doesNotThrow(() => validateConfig(structuredClone(config)));
+  assert.throws(() => validateConfig(structuredClone(fullConfig)), /exactly 10/);
   for (const key of ["shopify_product_id", "shopify_variant_id", "canonical_slug", "expected_handle"]) {
     const changed = structuredClone(config);
     changed.products[1][key] = changed.products[0][key];

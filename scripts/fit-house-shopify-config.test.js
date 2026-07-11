@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
@@ -26,6 +27,17 @@ test("Fit House config has the approved top-level contract", () => {
       "Mutant",
       "Per4m",
       "PER4M",
+      "Doctor's Best",
+      "Doctors Best",
+      "TBJP",
+      "tbjp",
+      "Trec Nutrition",
+      "Trec",
+      "Nutrend",
+      "NUTREND",
+      "EFX Sports",
+      "EFX",
+      "efx",
     ],
   });
   assert.deepEqual(config.shipping, {
@@ -36,22 +48,70 @@ test("Fit House config has the approved top-level contract", () => {
   });
 });
 
-test("Fit House config contains exactly ten unique approved mappings", () => {
-  assert.equal(config.products.length, 10);
+test("Fit House config contains exactly 22 unique approved mappings", () => {
+  assert.equal(config.products.length, 22);
 
   for (const field of [
     "shopify_product_id",
     "shopify_variant_id",
     "canonical_slug",
+    "expected_handle",
   ]) {
     const values = config.products.map((product) => product[field]);
-    assert.equal(new Set(values).size, 10, `${field} must be unique`);
+    assert.equal(new Set(values).size, 22, `${field} must be unique`);
   }
 });
 
-test("every mapping is an approved in-stock new canonical candidate", () => {
-  for (const product of config.products) {
+test("the original ten batch-one mappings remain byte-for-byte unchanged", () => {
+  const digest = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(config.products.slice(0, 10)))
+    .digest("hex");
+
+  assert.equal(
+    digest,
+    "98a691985a3a7d5c04e0f3cd039644688c2639fd61d130907b247d4b6aeecfac"
+  );
+});
+
+test("batch two contains exactly the twelve approved new mappings", () => {
+  const batchTwo = config.products.slice(10);
+  const expectedProductIds = [
+    "10034753143024",
+    "10079982584048",
+    "10079982944496",
+    "10081661419760",
+    "10081679147248",
+    "10083619340528",
+    "10033393893616",
+    "10028557009136",
+    "10028561989872",
+    "10028475810032",
+    "10028500615408",
+    "10077997170928",
+  ];
+
+  assert.equal(batchTwo.length, 12);
+  assert.deepEqual(
+    batchTwo.map((product) => product.shopify_product_id),
+    expectedProductIds
+  );
+
+  for (const product of batchTwo) {
     assert.equal(product.canonical_product_id, null);
+    assert.equal(product.approved_in_stock, true);
+    assert.equal(product.is_for_sale, true);
+    assert.equal(Number.isFinite(product.approved_price), true);
+    assert.ok(product.approved_price > 0);
+    assert.ok(
+      ["Health Supplements", "Vitamins", "Creatine"].includes(product.category)
+    );
+    assert.ok(["powder", "softgel", "capsule"].includes(product.product_format));
+  }
+});
+
+test("every mapping has complete approved identity and variant evidence", () => {
+  for (const product of config.products) {
     assert.equal(product.approved_in_stock, true);
     assert.equal(product.is_for_sale, true);
     assert.equal(Number.isFinite(product.approved_price), true);
@@ -76,6 +136,37 @@ test("every mapping is an approved in-stock new canonical candidate", () => {
       "size and size_unit must both be null or both be supplied"
     );
   }
+});
+
+test("shipping and newly approved vendor aliases remain exact", () => {
+  assert.deepEqual(config.shipping, {
+    known: true,
+    cost: 3.99,
+    free_shipping_threshold: 100,
+    approval_note: "Confirmed directly by the retailer owner.",
+  });
+
+  for (const alias of [
+    "Doctor's Best",
+    "Doctors Best",
+    "TBJP",
+    "tbjp",
+    "Trec Nutrition",
+    "Trec",
+    "Nutrend",
+    "NUTREND",
+    "EFX Sports",
+    "EFX",
+    "efx",
+  ]) {
+    assert.ok(config.retailer.vendor_aliases.includes(alias), `missing alias: ${alias}`);
+  }
+});
+
+test("batch two excludes Shilajit and OstroVit Creatine 300g", () => {
+  const serialized = JSON.stringify(config.products.slice(10)).toLowerCase();
+  assert.equal(serialized.includes("shilajit"), false);
+  assert.equal(serialized.includes("ostrovit-creatine-monohydrate-300g"), false);
 });
 
 test("the tablet mapping preserves its approved orange flavour evidence", () => {

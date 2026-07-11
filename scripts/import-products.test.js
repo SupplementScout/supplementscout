@@ -823,6 +823,7 @@ test("Fit House approved config plans ten safe creates with zero dry-run writes"
       "utf8"
     )
   );
+  config.products = config.products.slice(0, 10);
   const rows = buildFitHouseCanonicalRows(config);
   const uniqueCount = (field) => new Set(rows.map((row) => row[field])).size;
 
@@ -892,6 +893,7 @@ test("Fit House scope guard rejects an unmapped eleventh row before importer", a
       "utf8"
     )
   );
+  config.products = config.products.slice(0, 10);
   const rows = buildFitHouseCanonicalRows(config);
   rows.push({
     ...rows[0],
