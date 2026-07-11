@@ -40,7 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 products-import.csv
+/tmp/
 
 # local feed and verified data exports
-data/feeds/
+data/feeds/*
+!data/feeds/kior/
+data/feeds/kior/*
+!data/feeds/kior/README.md
 data/verified/*.csv
