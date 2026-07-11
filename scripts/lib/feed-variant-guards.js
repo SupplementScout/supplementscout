@@ -132,6 +132,10 @@ function parsePackCount(value = "") {
 function parseProductFormat(value = "") {
   const text = String(value).toLowerCase();
 
+  if (/\bsoft\s*gels?\b/.test(text)) {
+    return "softgel";
+  }
+
   if (/\b(capsules?|caps?)\b/.test(text)) {
     return "capsule";
   }

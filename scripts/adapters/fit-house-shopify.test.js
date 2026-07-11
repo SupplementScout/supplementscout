@@ -13,14 +13,12 @@ const {
   runImporter,
   sha256,
   validateConfig,
+  validateGeneratedRows,
 } = require("./fit-house-shopify");
 
 const ROOT = path.resolve(__dirname, "../..");
 const fullConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/fit-house-shopify.json"), "utf8"));
-const config = {
-  ...structuredClone(fullConfig),
-  products: structuredClone(fullConfig.products.slice(0, 10)),
-};
+const config = structuredClone(fullConfig);
 const header = fs.readFileSync(path.join(ROOT, "data/templates/retailer-feed-template.csv"), "utf8").split(/\r?\n/, 1)[0].split(",");
 const forbidden = ["canonical_product_id", "gtin", "product_gtin_verified", "free_shipping_threshold", "net_weight_g", "net_volume_ml", "unit_count", "unit_type", "servings", "nutrition_verified", "Variant Grams", "Body HTML", "SKU", "inventory quantity"];
 
@@ -55,9 +53,10 @@ function build(shopify = source(), configured = config) {
   return buildCanonical({ config: structuredClone(configured), shopify, templateHeader: header });
 }
 
-test("valid source produces exactly ten approved canonical rows and reports unmapped products", () => {
+test("valid source produces exactly 22 approved canonical rows and reports unmapped products", () => {
   const result = build(source({ unmapped: true }));
-  assert.equal(result.rows.length, 10);
+  assert.equal(config.products.length, 22);
+  assert.equal(result.rows.length, 22);
   assert.equal(result.unmapped_products.length, 1);
   assert.equal(result.rows.some((row) => row.external_product_id === "999999999"), false);
   assert.deepEqual(result.rows.map((row) => row.external_product_id), config.products.map((item) => item.shopify_product_id));
@@ -71,28 +70,54 @@ test("valid source produces exactly ten approved canonical rows and reports unma
   }
 });
 
+test("generated rows preserve the approved batch-one and batch-two mapping order", () => {
+  const result = build();
+  assert.deepEqual(
+    result.rows.slice(0, 10).map((row) => row.external_product_id),
+    [
+      "9678096761072", "9680364208368", "9680391831792", "9706776264944",
+      "9706779279600", "9710810628336", "10019820470512", "10024895742192",
+      "10028457820400", "10028467093744",
+    ]
+  );
+  assert.deepEqual(
+    result.rows.slice(10).map((row) => row.external_product_id),
+    [
+      "10034753143024", "10079982584048", "10079982944496", "10081661419760",
+      "10081679147248", "10083619340528", "10033393893616", "10028557009136",
+      "10028561989872", "10028475810032", "10028500615408", "10077997170928",
+    ]
+  );
+});
+
 test("generated CSV exactly matches the template and excludes forbidden fields and raw metadata", () => {
   const result = build();
   assert.deepEqual(result.csv.split("\n", 1)[0].split(","), header);
   const rows = parse(result.csv, { columns: true, skip_empty_lines: true });
-  assert.equal(rows.length, 10);
+  assert.equal(rows.length, 22);
   for (const field of forbidden) assert.equal(header.includes(field), false);
   assert.equal(result.csv.includes("FORBIDDEN BODY"), false);
   assert.equal(result.csv.includes("FORBIDDEN-SKU"), false);
-  assert.equal(result.csv.includes("999"), false);
   assert.ok(rows.every((row) => row.description === "" && row.external_gtin === "" && row.shipping_cost === "3.99"));
 });
 
-test("config guard enforces ten unique product IDs, variant IDs, slugs, and handles", () => {
+test("config guard requires exactly 22 unique product IDs, variant IDs, slugs, and handles", () => {
   assert.doesNotThrow(() => validateConfig(structuredClone(config)));
-  assert.throws(() => validateConfig(structuredClone(fullConfig)), /exactly 10/);
   for (const key of ["shopify_product_id", "shopify_variant_id", "canonical_slug", "expected_handle"]) {
     const changed = structuredClone(config);
     changed.products[1][key] = changed.products[0][key];
     assert.throws(() => validateConfig(changed), /Duplicate or missing/);
   }
-  const extra = structuredClone(config); extra.products.push(structuredClone(extra.products[0]));
-  assert.throws(() => validateConfig(extra), /exactly 10/);
+  const short = structuredClone(config); short.products.pop();
+  assert.throws(() => validateConfig(short), /exactly 22/);
+  const extra = structuredClone(config); extra.products.push({ ...structuredClone(extra.products[0]), shopify_product_id: "999", shopify_variant_id: "998", canonical_slug: "extra", expected_handle: "extra" });
+  assert.throws(() => validateConfig(extra), /exactly 22/);
+});
+
+test("duplicate generated external URL is rejected", () => {
+  const rows = build().rows.map((row) => ({ ...row }));
+  rows[1].external_url = rows[0].external_url;
+  assert.throws(() => validateGeneratedRows(rows, header), /generated external URL/);
 });
 
 test("missing product, changed product ID, changed variant ID, and variant ownership mismatch block the run", () => {

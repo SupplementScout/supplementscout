@@ -11,7 +11,8 @@ const TEMPLATE_PATH = path.join(ROOT, "data/templates/retailer-feed-template.csv
 const OUTPUT_DIR = path.join(ROOT, "tmp/retailer-feeds/fit-house");
 const CSV_PATH = path.join(OUTPUT_DIR, "fit-house-canonical-generated.csv");
 const REPORT_PATH = path.join(OUTPUT_DIR, "fit-house-adapter-report.json");
-const EXPECTED_PRODUCT_COUNT = 10;
+const EXPECTED_PRODUCT_COUNT = 22;
+const BATCH_ONE_COUNT = 10;
 
 function fail(message) {
   throw new Error(message);
@@ -111,6 +112,17 @@ function serializeCsv(header, rows) {
   return `${lines.map((line) => line.map(csvCell).join(",")).join("\n")}\n`;
 }
 
+function validateGeneratedRows(rows, templateHeader) {
+  if (rows.length !== EXPECTED_PRODUCT_COUNT) {
+    fail(`Expected exactly ${EXPECTED_PRODUCT_COUNT} canonical rows, got ${rows.length}`);
+  }
+  assertUnique(rows, "external_url", "generated external URL");
+  const allowed = new Set(templateHeader);
+  if (rows.some((row) => Object.keys(row).some((key) => !allowed.has(key)) || templateHeader.some((key) => !Object.hasOwn(row, key)))) {
+    fail("Generated row does not exactly match canonical template");
+  }
+}
+
 function buildCanonical({ config, shopify, templateHeader }) {
   validateConfig(config);
   if (!shopify || !Array.isArray(shopify.products) || shopify.products.length === 0) fail("Shopify products array is empty");
@@ -161,9 +173,7 @@ function buildCanonical({ config, shopify, templateHeader }) {
   if (report.invalid_urls.length) fail(`Invalid Fit House URLs detected: ${JSON.stringify(report.invalid_urls)}`);
   const excessive = report.price_changes.filter((change) => change.percent > 25);
   if (excessive.length) fail(`Price change exceeds 25%: ${JSON.stringify(excessive)}`);
-  if (rows.length !== EXPECTED_PRODUCT_COUNT) fail(`Expected exactly ${EXPECTED_PRODUCT_COUNT} canonical rows, got ${rows.length}`);
-  const allowed = new Set(templateHeader);
-  if (rows.some((row) => Object.keys(row).some((key) => !allowed.has(key)) || templateHeader.some((key) => !Object.hasOwn(row, key)))) fail("Generated row does not exactly match canonical template");
+  validateGeneratedRows(rows, templateHeader);
   return { rows, ...report, csv: serializeCsv(templateHeader, rows) };
 }
 
@@ -180,6 +190,12 @@ function runImporter(csvPath, spawn = spawnSync) {
   return { command, status: result.status, output, database_writes: 0 };
 }
 
+function importerCount(output, label) {
+  const match = output.match(new RegExp(`^\\s*${label}:\\s*(\\d+)\\s*$`, "mi"));
+  if (!match) fail(`Importer output is missing counter: ${label}`);
+  return Number(match[1]);
+}
+
 async function main(deps = {}) {
   const argv = deps.argv ?? process.argv.slice(2);
   if (argv.length !== 0) fail("Fit House adapter does not accept CLI arguments");
@@ -192,6 +208,13 @@ async function main(deps = {}) {
   const csvHash = sha256(built.csv);
   atomicWrite(CSV_PATH, built.csv);
   const importer = (deps.runImporter || runImporter)(CSV_PATH);
+  const importerCounts = {
+    new_products: importerCount(importer.output, "new products would be created"),
+    retailer_products_created: importerCount(importer.output, "retailer_products would be created"),
+    offers_created: importerCount(importer.output, "offers would be created"),
+    offers_unchanged: importerCount(importer.output, "offers unchanged"),
+    price_history_created: importerCount(importer.output, "price_history rows would be created"),
+  };
   const report = {
     run_timestamp: new Date().toISOString(), source_url: config.source_url,
     source_products_count: shopify.products.length,
@@ -205,6 +228,22 @@ async function main(deps = {}) {
     stock_changes: built.stock_changes, handle_changes: built.handle_changes, vendor_mismatches: built.vendor_mismatches,
     duplicate_ids: built.duplicate_ids, invalid_images: built.invalid_images, invalid_urls: built.invalid_urls,
     generated_csv_sha256: csvHash, importer_command: importer.command, importer_result: importer,
+    batches: {
+      batch_1: {
+        configured: BATCH_ONE_COUNT,
+        mapped: built.rows.slice(0, BATCH_ONE_COUNT).length,
+        existing_products: BATCH_ONE_COUNT,
+        offers_unchanged: importerCounts.offers_unchanged,
+      },
+      batch_2: {
+        configured: config.products.length - BATCH_ONE_COUNT,
+        mapped: built.rows.slice(BATCH_ONE_COUNT).length,
+        new_products_planned: importerCounts.new_products,
+        new_retailer_products_planned: importerCounts.retailer_products_created,
+        new_offers_planned: importerCounts.offers_created,
+        new_price_history_rows_planned: importerCounts.price_history_created,
+      },
+    },
     database_writes: importer.database_writes,
   };
   atomicWrite(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
@@ -217,4 +256,4 @@ if (require.main === module) {
   main().catch((error) => { console.error(`Fit House adapter failed: ${error.message}`); process.exitCode = 1; });
 }
 
-module.exports = { CSV_PATH, REPORT_PATH, buildCanonical, importerCommand, main, runImporter, sha256, validateConfig };
+module.exports = { CSV_PATH, REPORT_PATH, buildCanonical, importerCommand, main, runImporter, sha256, validateConfig, validateGeneratedRows };

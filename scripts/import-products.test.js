@@ -29,6 +29,7 @@ const {
   setSupabaseForTests,
   shouldLogCategoryNormalization,
 } = require("./import-products");
+const { isSafeCreateRowAmbiguous } = require("./lib/feed-variant-guards");
 
 function baseFeedRow(overrides = {}) {
   return {
@@ -503,6 +504,10 @@ test("variant parsing extracts conservative flavour, size, pack count, and forma
   assert.equal(parseProductFormat("60 capsules"), "capsule");
   assert.equal(parseProductFormat("60 caps"), "capsule");
   assert.equal(parseProductFormat("120 tablets"), "tablet");
+  assert.equal(parseProductFormat("softgel"), "softgel");
+  assert.equal(parseProductFormat("softgels"), "softgel");
+  assert.equal(parseProductFormat("soft gel"), "softgel");
+  assert.equal(parseProductFormat("soft gels"), "softgel");
   assert.equal(parseProductFormat("ready to drink liquid 500ml"), "liquid");
   assert.equal(parseProductFormat("ready-to-drink"), "liquid");
   assert.equal(parseProductFormat("whey powder"), "powder");
@@ -884,6 +889,86 @@ test("Fit House approved config plans ten safe creates with zero dry-run writes"
     logs.some((line) => line.includes("Dry run: no database writes performed.")),
     true
   );
+});
+
+test("Fit House full config approves all 22 rows including four softgels", { concurrency: false }, async () => {
+  const config = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, "../config/retailers/fit-house-shopify.json"),
+      "utf8"
+    )
+  );
+  const rows = buildFitHouseCanonicalRows(config);
+  const batchOneRows = rows.slice(0, 10);
+  const products = batchOneRows.map((row, index) => ({
+    id: `fit-product-${index + 1}`,
+    name: row.product_name,
+    slug: row.slug,
+    brand: row.brand,
+    category: row.category,
+    product_format: row.product_format,
+    gtin: null,
+  }));
+  const retailerProducts = batchOneRows.map((row, index) => ({
+    id: `fit-mapping-${index + 1}`,
+    retailer_id: "fit-house-retailer",
+    product_id: products[index].id,
+    external_url: row.external_url,
+    external_gtin: null,
+  }));
+  const offers = batchOneRows.map((row, index) => ({
+    id: `fit-offer-${index + 1}`,
+    retailer_id: "fit-house-retailer",
+    product_id: products[index].id,
+    price: Number(row.price),
+    shipping_cost: Number(row.shipping_cost),
+    total_price: priceHistoryTotal(row.price, row.shipping_cost),
+    in_stock: true,
+    url: row.affiliate_url,
+  }));
+  const supabase = createMockSupabase({
+    retailers: [{
+      id: "fit-house-retailer",
+      name: "Fit House",
+      slug: "fit-house",
+      website: "https://fithouse.uk",
+    }],
+    products,
+    retailer_products: retailerProducts,
+    offers,
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const softgelRows = rows.filter((row) => row.product_format === "softgel");
+  assert.equal(softgelRows.length, 4);
+  assert.ok(softgelRows.every((row) => !isSafeCreateRowAmbiguous(row)));
+
+  const originalLog = console.log;
+  let result;
+  console.log = () => {};
+  try {
+    result = await runImportRows(rows, {
+      mode: "feed",
+      safeCreate: true,
+      dryRun: true,
+    });
+  } finally {
+    console.log = originalLog;
+  }
+
+  assert.equal(result.report.approvedRows.length, 22);
+  assert.equal(result.report.invalidRows.length, 0);
+  assert.equal(result.report.ambiguousRows.length, 0);
+  assert.equal(result.report.collisionGroups.length, 0);
+  assert.equal(result.report.newRetailersToCreate.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 12);
+  assert.equal(result.report.retailerProductsToCreate.length, 12);
+  assert.equal(result.report.offersToCreate.length, 12);
+  assert.equal(result.report.offersToUpdate.length, 0);
+  assert.equal(result.report.offersUnchanged.length, 10);
+  assert.equal(result.report.priceHistoryRowsToCreate.length, 12);
+  assert.equal(supabase.writes.length, 0);
 });
 
 test("Fit House scope guard rejects an unmapped eleventh row before importer", async () => {
