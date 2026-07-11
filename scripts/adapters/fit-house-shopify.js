@@ -11,8 +11,10 @@ const TEMPLATE_PATH = path.join(ROOT, "data/templates/retailer-feed-template.csv
 const OUTPUT_DIR = path.join(ROOT, "tmp/retailer-feeds/fit-house");
 const CSV_PATH = path.join(OUTPUT_DIR, "fit-house-canonical-generated.csv");
 const REPORT_PATH = path.join(OUTPUT_DIR, "fit-house-adapter-report.json");
-const EXPECTED_PRODUCT_COUNT = 22;
+const EXPECTED_PRODUCT_COUNT = 38;
 const BATCH_ONE_COUNT = 10;
+const BATCH_TWO_COUNT = 12;
+const BATCH_THREE_START = BATCH_ONE_COUNT + BATCH_TWO_COUNT;
 
 function fail(message) {
   throw new Error(message);
@@ -248,7 +250,8 @@ function batchOfferCounts(config, rowLevelOffers) {
   };
   return {
     batch_1: count(approvedSlugs.slice(0, BATCH_ONE_COUNT)),
-    batch_2: count(approvedSlugs.slice(BATCH_ONE_COUNT)),
+    batch_2: count(approvedSlugs.slice(BATCH_ONE_COUNT, BATCH_THREE_START)),
+    batch_3: count(approvedSlugs.slice(BATCH_THREE_START)),
   };
 }
 
@@ -274,7 +277,7 @@ async function main(deps = {}) {
   };
   const batchOffers = batchOfferCounts(config, importer.rowLevelOffers);
   for (const key of ["offers_created", "offers_updated", "offers_unchanged"]) {
-    if (batchOffers.batch_1[key] + batchOffers.batch_2[key] !== importerCounts[key]) {
+    if (batchOffers.batch_1[key] + batchOffers.batch_2[key] + batchOffers.batch_3[key] !== importerCounts[key]) {
       fail(`Batch offer count mismatch for ${key}`);
     }
   }
@@ -299,9 +302,16 @@ async function main(deps = {}) {
         ...batchOffers.batch_1,
       },
       batch_2: {
-        configured: config.products.length - BATCH_ONE_COUNT,
-        mapped: built.rows.slice(BATCH_ONE_COUNT).length,
+        configured: BATCH_TWO_COUNT,
+        mapped: built.rows.slice(BATCH_ONE_COUNT, BATCH_THREE_START).length,
+        existing_products: BATCH_TWO_COUNT,
         ...batchOffers.batch_2,
+      },
+      batch_3: {
+        configured: config.products.length - BATCH_THREE_START,
+        mapped: built.rows.slice(BATCH_THREE_START).length,
+        existing_canonical_mappings: config.products.slice(BATCH_THREE_START).filter((item) => item.canonical_product_id !== null).length,
+        ...batchOffers.batch_3,
         new_products_planned: importerCounts.new_products,
         new_retailer_products_planned: importerCounts.retailer_products_created,
         new_offers_planned: importerCounts.offers_created,
