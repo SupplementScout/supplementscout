@@ -923,15 +923,17 @@ async function findOrCreateProduct(row, rowNumber, retailerId, options = {}) {
       }
     }
 
-    const productUpdateData = buildExistingProductUpdateData(productData);
+    if (!feedStyleRow) {
+      const productUpdateData = buildExistingProductUpdateData(productData);
 
-    const { error: updateError } = await supabase
-      .from("products")
-      .update(productUpdateData)
-      .eq("id", existingProduct.id);
+      const { error: updateError } = await supabase
+        .from("products")
+        .update(productUpdateData)
+        .eq("id", existingProduct.id);
 
-    if (updateError) {
-      throw updateError;
+      if (updateError) {
+        throw updateError;
+      }
     }
 
     const { error: mappingError } = await supabase
@@ -1332,8 +1334,6 @@ async function preflightFeedRows(rows, options = {}) {
 
 async function writeApprovedFeedRow(preflightItem) {
   const { row, rowNumber, retailer, product } = preflightItem;
-  const productData = buildProductData(row, rowNumber, "feed");
-  const productUpdateData = buildExistingProductUpdateData(productData);
   const productLevelGtin = getProductLevelGtin(row, "feed");
   let retailerId = retailer?.id;
   let productId = product?.id;
@@ -1348,6 +1348,7 @@ async function writeApprovedFeedRow(preflightItem) {
   }
 
   if (!productId) {
+    const productData = buildProductData(row, rowNumber, "feed");
     const createProductData = { ...productData };
 
     if (!productLevelGtin) {
@@ -1365,15 +1366,6 @@ async function writeApprovedFeedRow(preflightItem) {
     }
 
     productId = newProduct.id;
-  } else {
-    const { error: updateError } = await supabase
-      .from("products")
-      .update(productUpdateData)
-      .eq("id", productId);
-
-    if (updateError) {
-      throw updateError;
-    }
   }
 
   const { error: mappingError } = await supabase
@@ -1560,6 +1552,7 @@ module.exports = {
   assessVariantCompatibility,
   buildRetailerProductPayload,
   formatPreflightReport,
+  findOrCreateProduct,
   getExternalGtin,
   getProductLevelGtin,
   getOfferUrl,

@@ -4,6 +4,7 @@ const test = require("node:test");
 const {
   assessVariantCompatibility,
   buildRetailerProductPayload,
+  findOrCreateProduct,
   getExternalGtin,
   getProductLevelGtin,
   getOfferUrl,
@@ -1084,87 +1085,96 @@ test("identical existing product GTIN is accepted unchanged", async () => {
     [baseFeedRow({ product_gtin_verified: "true" })],
     { mode: "feed" }
   );
-  const productUpdate = supabase.writes.find(
-    (write) => write.table === "products" && write.operation === "update"
-  );
-
   assert.equal(result.report.gtinConflicts.length, 0);
   assert.equal(result.report.approvedRows.length, 1);
-  assert.equal(Object.prototype.hasOwnProperty.call(productUpdate.payload, "gtin"), false);
+  assert.equal(
+    supabase.writes.some(
+      (write) => write.table === "products" && write.operation === "update"
+    ),
+    false
+  );
 });
 
-test("existing product retailer update excludes all verified product fields", async () => {
-  const protectedFields = [
-    "gtin",
-    "net_weight_g",
-    "net_volume_ml",
-    "serving_count_verified",
-    "serving_size_g",
-    "serving_size_ml",
-    "protein_per_serving_g",
-    "creatine_per_serving_g",
-    "unit_count",
-    "unit_type",
-    "product_format",
-    "unit_pricing_verified",
-    "nutrition_verified",
-  ];
+test("existing canonical product is never updated by a canonical retailer feed", async () => {
+  const existingProduct = {
+    id: "p1",
+    name: "BioTech USA Iso Whey Zero 1816g powder",
+    slug: "biotech-usa-iso-whey-zero-1816g",
+    brand: "BioTech USA",
+    category: "Whey Protein",
+    servings: 50,
+    description: "Existing canonical description",
+    image: "https://canonical.test/existing.jpg",
+    price: 44.99,
+    gtin: "0001234567890",
+    net_weight_g: 1816,
+    net_volume_ml: 500,
+    serving_count_verified: 50,
+    serving_size_g: 36,
+    serving_size_ml: 10,
+    protein_per_serving_g: 25,
+    creatine_per_serving_g: 3,
+    unit_count: 60,
+    unit_type: "scoop",
+    product_format: "powder",
+    unit_pricing_verified: true,
+    nutrition_verified: true,
+  };
   const supabase = createMockSupabase({
-    products: [
-      {
-        id: "p1",
-        name: "BioTech USA Iso Whey Zero 1816g powder",
-        brand: "BioTech USA",
-        category: "Whey Protein",
-        slug: "biotech-usa-iso-whey-zero-1816g",
-        gtin: "0001234567890",
-        net_weight_g: 1816,
-        net_volume_ml: 500,
-        serving_count_verified: 50,
-        serving_size_g: 36,
-        serving_size_ml: 10,
-        protein_per_serving_g: 25,
-        creatine_per_serving_g: 3,
-        unit_count: 60,
-        unit_type: "scoop",
-        product_format: "powder",
-        unit_pricing_verified: true,
-        nutrition_verified: true,
-      },
-    ],
+    products: [{ ...existingProduct }],
   });
   setSupabaseForTests(supabase);
 
   await runImportRows(
-    [
-      baseFeedRow({
-        product_gtin_verified: "true",
-        net_weight_g: "",
-        net_volume_ml: "",
-        serving_count_verified: "",
-        serving_size_g: "",
-        serving_size_ml: "",
-        protein_per_serving_g: "",
-        creatine_per_serving_g: "",
-        unit_count: "",
-        unit_type: "",
-        product_format: "",
-        unit_pricing_verified: "",
-        nutrition_verified: "",
-      }),
-    ],
+    [baseFeedRow({ description: "", image: "https://retailer.test/new.jpg", price: "29.99" })],
     { mode: "feed" }
   );
 
-  const productUpdate = supabase.writes.find(
-    (write) => write.table === "products" && write.operation === "update"
+  assert.equal(
+    supabase.writes.some(
+      (write) => write.table === "products" && write.operation === "update"
+    ),
+    false
+  );
+  assert.deepEqual(supabase.tables.products[0], existingProduct);
+  assert.equal(supabase.tables.retailer_products.length, 1);
+  assert.equal(supabase.tables.retailer_products[0].external_gtin, "0001234567890");
+  assert.equal(supabase.tables.offers.length, 1);
+  assert.equal(supabase.tables.offers[0].price, 29.99);
+  assert.equal(supabase.tables.price_history.length, 1);
+  assert.equal(supabase.tables.price_history[0].price, 29.99);
+});
+
+test("feed-style findOrCreateProduct preserves an existing canonical product", async () => {
+  const existingProduct = {
+    id: "p1",
+    name: "BioTech USA Iso Whey Zero 1816g powder",
+    slug: "biotech-usa-iso-whey-zero-1816g",
+    brand: "BioTech USA",
+    category: "Whey Protein",
+    description: "Keep this description",
+    image: "https://canonical.test/image.jpg",
+    price: 44.99,
+  };
+  const supabase = createMockSupabase({ products: [{ ...existingProduct }] });
+  setSupabaseForTests(supabase);
+
+  const productId = await findOrCreateProduct(
+    baseFeedRow({ description: "", image: "https://retailer.test/new.jpg" }),
+    2,
+    "r1",
+    { mode: "feed" }
   );
 
-  assert(productUpdate);
-  for (const field of protectedFields) {
-    assert.equal(Object.prototype.hasOwnProperty.call(productUpdate.payload, field), false);
-  }
-  assert.equal(productUpdate.payload.name, baseFeedRow().product_name);
+  assert.equal(productId, "p1");
+  assert.equal(
+    supabase.writes.some(
+      (write) => write.table === "products" && write.operation === "update"
+    ),
+    false
+  );
+  assert.deepEqual(supabase.tables.products[0], existingProduct);
+  assert.equal(supabase.tables.retailer_products.length, 1);
 });
 
 test("new product create keeps the full validated product payload", async () => {
@@ -1265,6 +1275,12 @@ test("repeated identical feed rows are deduplicated and reruns are idempotent", 
   assert.equal(second.report.approvedRows.length, 1);
   assert(supabase.writes.length > writesAfterFirstRun);
   assert.equal(supabase.tables.offers.length, 1);
+  assert.equal(
+    supabase.writes.some(
+      (write) => write.table === "products" && write.operation === "update"
+    ),
+    false
+  );
 });
 
 test("invalid feed prices produce zero writes", async () => {
