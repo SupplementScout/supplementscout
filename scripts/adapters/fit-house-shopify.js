@@ -11,10 +11,12 @@ const TEMPLATE_PATH = path.join(ROOT, "data/templates/retailer-feed-template.csv
 const OUTPUT_DIR = path.join(ROOT, "tmp/retailer-feeds/fit-house");
 const CSV_PATH = path.join(OUTPUT_DIR, "fit-house-canonical-generated.csv");
 const REPORT_PATH = path.join(OUTPUT_DIR, "fit-house-adapter-report.json");
-const EXPECTED_PRODUCT_COUNT = 38;
+const EXPECTED_PRODUCT_COUNT = 52;
 const BATCH_ONE_COUNT = 10;
 const BATCH_TWO_COUNT = 12;
+const BATCH_THREE_COUNT = 16;
 const BATCH_THREE_START = BATCH_ONE_COUNT + BATCH_TWO_COUNT;
+const BATCH_FOUR_START = BATCH_THREE_START + BATCH_THREE_COUNT;
 
 function fail(message) {
   throw new Error(message);
@@ -65,6 +67,25 @@ function validateConfig(config) {
     }
     if (!Number.isFinite(item.approved_price) || item.approved_price <= 0) fail(`Invalid approved price for ${item.shopify_product_id}`);
     if (item.pack_count !== 1) fail(`Fit House pack_count must be 1 for ${item.shopify_product_id}`);
+  }
+  const batchFour = config.products.slice(BATCH_FOUR_START);
+  if (batchFour.length !== 14 || batchFour.some((item) => item.canonical_product_id !== null)) {
+    fail("Batch four must contain exactly 14 new canonical product mappings");
+  }
+  const blockedProductIds = new Set([
+    "8816846504176", "8693101330672", "8271509946608", "8968956084464",
+    "8262988988656", "10081729544432", "10028522373360",
+  ]);
+  if (batchFour.some((item) => blockedProductIds.has(item.shopify_product_id))) {
+    fail("Batch four contains a blocked product");
+  }
+  const fenugreek = batchFour.find((item) => item.shopify_product_id === "8479801114864");
+  if (fenugreek?.canonical_name !== "Osavi Fenugreek 550mg 60 Capsules" || fenugreek.canonical_slug !== "osavi-fenugreek-550mg-60-capsules") {
+    fail("Unexpected batch-four Fenugreek identity");
+  }
+  const colostrum = batchFour.find((item) => item.shopify_product_id === "8333749092592");
+  if (colostrum?.canonical_name !== "Osavi Colostrum Powder 100g" || colostrum.canonical_slug !== "osavi-colostrum-powder-100g" || /1200mg/i.test(`${colostrum.canonical_name} ${colostrum.canonical_slug}`)) {
+    fail("Unexpected batch-four Colostrum identity");
   }
 }
 
@@ -251,7 +272,8 @@ function batchOfferCounts(config, rowLevelOffers) {
   return {
     batch_1: count(approvedSlugs.slice(0, BATCH_ONE_COUNT)),
     batch_2: count(approvedSlugs.slice(BATCH_ONE_COUNT, BATCH_THREE_START)),
-    batch_3: count(approvedSlugs.slice(BATCH_THREE_START)),
+    batch_3: count(approvedSlugs.slice(BATCH_THREE_START, BATCH_FOUR_START)),
+    batch_4: count(approvedSlugs.slice(BATCH_FOUR_START)),
   };
 }
 
@@ -277,7 +299,7 @@ async function main(deps = {}) {
   };
   const batchOffers = batchOfferCounts(config, importer.rowLevelOffers);
   for (const key of ["offers_created", "offers_updated", "offers_unchanged"]) {
-    if (batchOffers.batch_1[key] + batchOffers.batch_2[key] + batchOffers.batch_3[key] !== importerCounts[key]) {
+    if (batchOffers.batch_1[key] + batchOffers.batch_2[key] + batchOffers.batch_3[key] + batchOffers.batch_4[key] !== importerCounts[key]) {
       fail(`Batch offer count mismatch for ${key}`);
     }
   }
@@ -308,14 +330,19 @@ async function main(deps = {}) {
         ...batchOffers.batch_2,
       },
       batch_3: {
-        configured: config.products.length - BATCH_THREE_START,
-        mapped: built.rows.slice(BATCH_THREE_START).length,
-        existing_canonical_mappings: config.products.slice(BATCH_THREE_START).filter((item) => item.canonical_product_id !== null).length,
+        configured: BATCH_THREE_COUNT,
+        mapped: built.rows.slice(BATCH_THREE_START, BATCH_FOUR_START).length,
+        existing_canonical_mappings: config.products.slice(BATCH_THREE_START, BATCH_FOUR_START).filter((item) => item.canonical_product_id !== null).length,
         ...batchOffers.batch_3,
+      },
+      batch_4: {
+        configured: config.products.length - BATCH_FOUR_START,
+        mapped: built.rows.slice(BATCH_FOUR_START).length,
         new_products_planned: importerCounts.new_products,
         new_retailer_products_planned: importerCounts.retailer_products_created,
         new_offers_planned: importerCounts.offers_created,
         new_price_history_rows_planned: importerCounts.price_history_created,
+        ...batchOffers.batch_4,
       },
     },
     database_writes: importer.database_writes,
