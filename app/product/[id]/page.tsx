@@ -367,7 +367,7 @@ export default async function ProductPage({
             )}
           </div>
 
-          <div className="w-[calc(100vw-2rem)] min-w-0 sm:w-auto">
+          <div className="w-full min-w-0 max-w-full">
             <p className="text-xs font-semibold uppercase tracking-widest text-[#6B7280] sm:text-sm">
               {product.category}
             </p>
