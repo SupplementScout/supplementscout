@@ -19,7 +19,7 @@ const {
 
 const ROOT = path.resolve(__dirname, "../..");
 const fullConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/fit-house-shopify.json"), "utf8"));
-const config = structuredClone({ ...fullConfig, products: fullConfig.products.slice(0, 52) });
+const config = structuredClone(fullConfig);
 const header = fs.readFileSync(path.join(ROOT, "data/templates/retailer-feed-template.csv"), "utf8").split(/\r?\n/, 1)[0].split(",");
 const forbidden = ["canonical_product_id", "gtin", "product_gtin_verified", "free_shipping_threshold", "net_weight_g", "net_volume_ml", "unit_count", "unit_type", "servings", "nutrition_verified", "Variant Grams", "Body HTML", "SKU", "inventory quantity"];
 
@@ -28,7 +28,7 @@ function sourceProduct(item, overrides = {}) {
     id: Number(item.shopify_product_id),
     title: item.canonical_name,
     handle: item.expected_handle,
-    vendor: item.brand,
+    vendor: item.brand === "7Nutrition" ? "7 Nutrition" : item.brand,
     updated_at: "2026-07-11T12:00:00Z",
     body_html: "FORBIDDEN BODY",
     images: [{ src: `https://cdn.shopify.com/s/files/1/fit-house/${item.shopify_product_id}.jpg` }],
@@ -54,10 +54,10 @@ function build(shopify = source(), configured = config) {
   return buildCanonical({ config: structuredClone(configured), shopify, templateHeader: header });
 }
 
-test("valid source produces exactly 52 approved canonical rows and reports unmapped products", () => {
+test("valid source produces exactly 72 approved canonical rows and reports unmapped products", () => {
   const result = build(source({ unmapped: true }));
-  assert.equal(config.products.length, 52);
-  assert.equal(result.rows.length, 52);
+  assert.equal(config.products.length, 72);
+  assert.equal(result.rows.length, 72);
   assert.equal(result.unmapped_products.length, 1);
   assert.equal(result.rows.some((row) => row.external_product_id === "999999999"), false);
   assert.deepEqual(result.rows.map((row) => row.external_product_id), config.products.map((item) => item.shopify_product_id));
@@ -71,7 +71,7 @@ test("valid source produces exactly 52 approved canonical rows and reports unmap
   }
 });
 
-test("generated rows preserve the approved four-batch mapping order", () => {
+test("generated rows preserve the approved five-batch mapping order", () => {
   const result = build();
   assert.deepEqual(
     result.rows.slice(0, 10).map((row) => row.external_product_id),
@@ -99,12 +99,22 @@ test("generated rows preserve the approved four-batch mapping order", () => {
     ]
   );
   assert.deepEqual(
-    result.rows.slice(38).map((row) => row.external_product_id),
+    result.rows.slice(38, 52).map((row) => row.external_product_id),
     [
       "8163807887600", "9370261913840", "9347456499952", "9179043856624",
       "8245425144048", "9059083157744", "8929298252016", "8776311636208",
       "8493540278512", "8479801114864", "8339449184496", "8333749092592",
       "8493491585264", "10077991993584",
+    ]
+  );
+  assert.deepEqual(
+    result.rows.slice(52).map((row) => row.external_product_id),
+    [
+      "8816846504176", "8693101330672", "8271509946608", "8968956084464",
+      "8685938376944", "8147551846640", "9624501813488", "9623385932016",
+      "9347614343408", "9176724177136", "9176635834608", "9174925803760",
+      "9168643719408", "9097931817200", "8147560530160", "9060343709936",
+      "9041428283632", "8333086884080", "9168824172784", "8273427333360",
     ]
   );
 });
@@ -113,14 +123,14 @@ test("generated CSV exactly matches the template and excludes forbidden fields a
   const result = build();
   assert.deepEqual(result.csv.split("\n", 1)[0].split(","), header);
   const rows = parse(result.csv, { columns: true, skip_empty_lines: true });
-  assert.equal(rows.length, 52);
+  assert.equal(rows.length, 72);
   for (const field of forbidden) assert.equal(header.includes(field), false);
   assert.equal(result.csv.includes("FORBIDDEN BODY"), false);
   assert.equal(result.csv.includes("FORBIDDEN-SKU"), false);
   assert.ok(rows.every((row) => row.description === "" && row.external_gtin === "" && row.shipping_cost === "3.99"));
 });
 
-test("config guard requires exactly 52 unique product IDs, variant IDs, slugs, and handles", () => {
+test("config guard requires exactly 72 unique product IDs, variant IDs, slugs, and handles", () => {
   assert.doesNotThrow(() => validateConfig(structuredClone(config)));
   for (const key of ["shopify_product_id", "shopify_variant_id", "canonical_slug", "expected_handle"]) {
     const changed = structuredClone(config);
@@ -128,38 +138,17 @@ test("config guard requires exactly 52 unique product IDs, variant IDs, slugs, a
     assert.throws(() => validateConfig(changed), /Duplicate or missing/);
   }
   const short = structuredClone(config); short.products.pop();
-  assert.equal(short.products.length, 51);
-  assert.throws(() => validateConfig(short), /exactly 52/);
+  assert.equal(short.products.length, 71);
+  assert.throws(() => validateConfig(short), /exactly 72/);
   const extra = structuredClone(config); extra.products.push({ ...structuredClone(extra.products[0]), shopify_product_id: "999", shopify_variant_id: "998", canonical_slug: "extra", expected_handle: "extra" });
-  assert.equal(extra.products.length, 53);
-  assert.throws(() => validateConfig(extra), /exactly 52/);
+  assert.equal(extra.products.length, 73);
+  assert.throws(() => validateConfig(extra), /exactly 72/);
 });
 
-test("production adapter rejects the full 72-product config before fetch or import", async () => {
-  assert.equal(fullConfig.products.length, 72);
-  let fetched = false;
-  let imported = false;
-  const originalReadFileSync = fs.readFileSync;
-  fs.readFileSync = (file, ...args) =>
-    path.resolve(file) === path.join(ROOT, "config/retailers/fit-house-shopify.json")
-      ? JSON.stringify(fullConfig)
-      : originalReadFileSync(file, ...args);
-
-  try {
-    await assert.rejects(
-      main({
-        argv: [],
-        fetchImpl: async () => { fetched = true; },
-        runImporter: () => { imported = true; },
-      }),
-      /exactly 52/
-    );
-  } finally {
-    fs.readFileSync = originalReadFileSync;
-  }
-
-  assert.equal(fetched, false);
-  assert.equal(imported, false);
+test("batch five contains exactly twenty new canonical mappings", () => {
+  const batchFive = config.products.slice(52);
+  assert.equal(batchFive.length, 20);
+  assert.ok(batchFive.every((item) => item.canonical_product_id === null));
 });
 
 test("duplicate generated external URL is rejected", () => {
@@ -247,7 +236,7 @@ test("importer report must be newly created, valid JSON, and match the current r
   }), /stale or belongs/);
 });
 
-function rowLevelActions(batchOne, batchTwo, batchThree, batchFour) {
+function rowLevelActions(batchOne, batchTwo, batchThree, batchFour, batchFive) {
   return config.products.map((item, index) => ({
     rowNumber: index + 2,
     slug: item.canonical_slug,
@@ -257,28 +246,32 @@ function rowLevelActions(batchOne, batchTwo, batchThree, batchFour) {
         ? batchTwo[index - 10]
         : index < 38
           ? batchThree[index - 22]
-          : batchFour[index - 38],
+          : index < 52
+            ? batchFour[index - 38]
+            : batchFive[index - 52],
   }));
 }
 
 test("batch offer reporting splits pre-apply and post-apply actions by canonical slug", () => {
   const before = batchOfferCounts(
     config,
-    rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("create"))
+    rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("unchanged"), Array(20).fill("create"))
   );
   assert.deepEqual(before.batch_1, { offers_created: 0, offers_updated: 0, offers_unchanged: 10 });
   assert.deepEqual(before.batch_2, { offers_created: 0, offers_updated: 0, offers_unchanged: 12 });
   assert.deepEqual(before.batch_3, { offers_created: 0, offers_updated: 0, offers_unchanged: 16 });
-  assert.deepEqual(before.batch_4, { offers_created: 14, offers_updated: 0, offers_unchanged: 0 });
+  assert.deepEqual(before.batch_4, { offers_created: 0, offers_updated: 0, offers_unchanged: 14 });
+  assert.deepEqual(before.batch_5, { offers_created: 20, offers_updated: 0, offers_unchanged: 0 });
 
   const after = batchOfferCounts(
     config,
-    rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("unchanged"))
+    rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("unchanged"), Array(20).fill("unchanged"))
   );
   assert.deepEqual(after.batch_1, { offers_created: 0, offers_updated: 0, offers_unchanged: 10 });
   assert.deepEqual(after.batch_2, { offers_created: 0, offers_updated: 0, offers_unchanged: 12 });
   assert.deepEqual(after.batch_3, { offers_created: 0, offers_updated: 0, offers_unchanged: 16 });
   assert.deepEqual(after.batch_4, { offers_created: 0, offers_updated: 0, offers_unchanged: 14 });
+  assert.deepEqual(after.batch_5, { offers_created: 0, offers_updated: 0, offers_unchanged: 20 });
 });
 
 test("batch offer reporting supports mixed actions and preserves global totals", () => {
@@ -288,46 +281,49 @@ test("batch offer reporting supports mixed actions and preserves global totals",
       [...Array(8).fill("unchanged"), ...Array(2).fill("update")],
       [...Array(10).fill("unchanged"), "update", "create"],
       [...Array(13).fill("unchanged"), "update", "update", "create"],
-      [...Array(11).fill("unchanged"), "update", "update", "create"]
+      [...Array(11).fill("unchanged"), "update", "update", "create"],
+      [...Array(17).fill("unchanged"), "update", "update", "create"]
     )
   );
   assert.deepEqual(counts.batch_1, { offers_created: 0, offers_updated: 2, offers_unchanged: 8 });
   assert.deepEqual(counts.batch_2, { offers_created: 1, offers_updated: 1, offers_unchanged: 10 });
   assert.deepEqual(counts.batch_3, { offers_created: 1, offers_updated: 2, offers_unchanged: 13 });
   assert.deepEqual(counts.batch_4, { offers_created: 1, offers_updated: 2, offers_unchanged: 11 });
+  assert.deepEqual(counts.batch_5, { offers_created: 1, offers_updated: 2, offers_unchanged: 17 });
   assert.deepEqual(
-    Object.fromEntries(Object.keys(counts.batch_1).map((key) => [key, counts.batch_1[key] + counts.batch_2[key] + counts.batch_3[key] + counts.batch_4[key]])),
-    { offers_created: 3, offers_updated: 7, offers_unchanged: 42 }
+    Object.fromEntries(Object.keys(counts.batch_1).map((key) => [key, counts.batch_1[key] + counts.batch_2[key] + counts.batch_3[key] + counts.batch_4[key] + counts.batch_5[key]])),
+    { offers_created: 4, offers_updated: 9, offers_unchanged: 59 }
   );
 });
 
 test("batch offer reporting rejects unknown, missing, and duplicate slugs", () => {
-  const valid = rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("create"));
+  const valid = rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("unchanged"), Array(20).fill("create"));
   assert.throws(() => batchOfferCounts(config, [...valid.slice(0, -1), { ...valid.at(-1), slug: "unknown" }]), /unknown slug/);
   assert.throws(() => batchOfferCounts(config, valid.slice(0, -1)), /missing approved slug/);
   assert.throws(() => batchOfferCounts(config, [...valid.slice(0, -1), valid[0]]), /duplicate slug/);
 });
 
 test("batch offer reporting requires one exact row-level result per approved row", () => {
-  const valid = rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("create"));
+  const valid = rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"), Array(16).fill("unchanged"), Array(14).fill("unchanged"), Array(20).fill("create"));
   assert.throws(() => batchOfferCounts(config, valid.slice(0, -1)), /missing approved slug/);
   assert.throws(() => batchOfferCounts(config, valid.map((item, index) => index ? item : { ...item, extra: true })), /contain exactly/);
 });
 
-test("adapter report keeps batch-three existing offers and batch-four plans separate", async () => {
+test("adapter report keeps existing batches and batch-five plans separate", async () => {
   const rowLevelOffers = rowLevelActions(
     Array(10).fill("unchanged"),
     Array(12).fill("unchanged"),
     Array(16).fill("unchanged"),
-    Array(14).fill("create")
+    Array(14).fill("unchanged"),
+    Array(20).fill("create")
   );
   const output = [
-    "new products would be created: 14",
-    "retailer_products would be created: 14",
-    "offers would be created: 14",
+    "new products would be created: 20",
+    "retailer_products would be created: 20",
+    "offers would be created: 20",
     "offers would be updated: 0",
-    "offers unchanged: 38",
-    "price_history rows would be created: 14",
+    "offers unchanged: 52",
+    "price_history rows would be created: 20",
     "Dry run: no database writes performed.",
   ].join("\n");
   const originalReadFileSync = fs.readFileSync;
@@ -371,17 +367,21 @@ test("adapter report keeps batch-three existing offers and batch-four plans sepa
   });
   assert.deepEqual(result.report.batches.batch_4, {
     configured: 14, mapped: 14,
-    offers_created: 14, offers_updated: 0, offers_unchanged: 0,
-    new_products_planned: 14,
-    new_retailer_products_planned: 14,
-    new_offers_planned: 14,
-    new_price_history_rows_planned: 14,
+    offers_created: 0, offers_updated: 0, offers_unchanged: 14,
+  });
+  assert.deepEqual(result.report.batches.batch_5, {
+    configured: 20, mapped: 20,
+    offers_created: 20, offers_updated: 0, offers_unchanged: 0,
+    new_products_planned: 20,
+    new_retailer_products_planned: 20,
+    new_offers_planned: 20,
+    new_price_history_rows_planned: 20,
   });
   assert.equal(result.report.database_writes, 0);
 });
 
 test("batch four preserves approved identities and excludes blocked products", () => {
-  const batchFour = config.products.slice(38);
+  const batchFour = config.products.slice(38, 52);
   const serialized = JSON.stringify(batchFour).toLowerCase();
   assert.equal(batchFour.length, 14);
   assert.ok(batchFour.every((item) => item.canonical_product_id === null));
@@ -401,7 +401,7 @@ test("batch four preserves approved identities and excludes blocked products", (
   assert.throws(() => validateConfig(existing), /14 new canonical/);
 
   const blocked = structuredClone(config);
-  blocked.products[38].shopify_product_id = "8816846504176";
+  blocked.products[38].shopify_product_id = "8262988988656";
   assert.throws(() => validateConfig(blocked), /blocked product/);
 
   const wrongFenugreek = structuredClone(config);
