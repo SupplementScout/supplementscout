@@ -303,6 +303,32 @@ async function preflightExistingOffer({ rowOverrides = {}, offerOverrides = {} }
   return { report: result.report, result, supabase };
 }
 
+function outOfStockSafeCreateFixture(overrides = {}) {
+  const row = baseSafeCreateFeedRow({
+    price: "16.99",
+    shipping_cost: "3.99",
+    delivery_cost: "3.99",
+    in_stock: "false",
+    is_for_sale: "false",
+    ...overrides,
+  });
+  const retailer = {
+    id: "r1",
+    name: row.retailer_name,
+    slug: "simply-supplements",
+  };
+  const product = {
+    id: "p458",
+    name: row.product_name,
+    slug: row.slug,
+    brand: row.brand,
+    category: row.category,
+    gtin: null,
+  };
+
+  return { row, retailer, product };
+}
+
 test("normalizes pre-workout variants to Pre Workout", () => {
   assert.equal(normalizeCategory("Pre-Workout"), "Pre Workout");
   assert.equal(normalizeCategory("pre-workout"), "Pre Workout");
@@ -841,13 +867,10 @@ test("formatPreflightReport includes detailed offer plan counters", async () => 
   assert.match(output, /URL-only changes: 0/);
 });
 
-test("safe-create requires is_for_sale to be present and true", async () => {
+test("safe-create requires is_for_sale to be present and a valid boolean", async () => {
   for (const overrides of [
     { is_for_sale: undefined },
     { is_for_sale: "" },
-    { is_for_sale: "false" },
-    { is_for_sale: "0" },
-    { is_for_sale: "no" },
     { is_for_sale: "not-sure" },
   ]) {
     const supabase = createMockSupabase({
@@ -888,6 +911,121 @@ test("safe-create requires is_for_sale to be present and true", async () => {
     assert.equal(result.report.approvedRows.length, 1);
     assert.equal(supabase.writes.length, 0);
   }
+});
+
+test("safe-create allows an out-of-stock offer for an existing canonical product", async () => {
+  const { row, retailer, product } = outOfStockSafeCreateFixture();
+  const supabase = createMockSupabase({
+    retailers: [retailer],
+    products: [product],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.invalidRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 0);
+  assert.equal(result.report.retailerProductsToCreate.length, 1);
+  assert.equal(result.report.offersToCreate.length, 1);
+  assert.equal(result.report.priceHistoryRowsToCreate.length, 1);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("safe-create apply writes an out-of-stock offer without writing products", async () => {
+  const { row, retailer, product } = outOfStockSafeCreateFixture();
+  const supabase = createMockSupabase({
+    retailers: [retailer],
+    products: [{ ...product }],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  await runImportRows([row], { mode: "feed", safeCreate: true });
+
+  assert.equal(supabase.tables.retailer_products.length, 1);
+  assert.equal(supabase.tables.offers.length, 1);
+  assert.equal(supabase.tables.offers[0].in_stock, false);
+  assert.equal(supabase.tables.price_history.length, 1);
+  assert.equal(
+    supabase.writes.some((write) => write.table === "products"),
+    false
+  );
+});
+
+test("safe-create blocks an out-of-stock row without a canonical match", async () => {
+  const { row, retailer } = outOfStockSafeCreateFixture();
+  const supabase = createMockSupabase({
+    retailers: [retailer],
+    products: [],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.equal(result.report.invalidRows.length, 1);
+  assert.equal(result.report.newProductsToCreate.length, 0);
+  assert.equal(result.report.retailerProductsToCreate.length, 0);
+  assert.equal(result.report.offersToCreate.length, 0);
+  assert.deepEqual(result.report.invalidRows[0].reasons, [
+    "in_stock must be true to create a new canonical product",
+    "is_for_sale must be true to create a new canonical product",
+  ]);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("safe-create plans an out-of-stock offer returning to stock as stock-only", async () => {
+  const { row, retailer, product } = outOfStockSafeCreateFixture({
+    in_stock: "true",
+    is_for_sale: "true",
+  });
+  const supabase = createMockSupabase({
+    retailers: [retailer],
+    products: [product],
+    retailer_products: [],
+    offers: [
+      {
+        id: "o458",
+        product_id: product.id,
+        retailer_id: retailer.id,
+        price: 16.99,
+        shipping_cost: 3.99,
+        total_price: 20.98,
+        in_stock: false,
+        url: getOfferUrl(row),
+      },
+    ],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(result.report.offersToUpdate.length, 1);
+  assert.equal(result.report.stockOnlyChanges.length, 1);
+  assert.equal(result.report.priceHistoryRowsToCreate.length, 0);
+  assert.equal(supabase.writes.length, 0);
 });
 
 test("safe-create blocks variant-ambiguous new product rows", async () => {

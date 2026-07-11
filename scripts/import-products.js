@@ -713,20 +713,12 @@ function validateFeedRowForWrites(row, rowNumber, options = {}) {
   capture(() => required(row.brand, "brand", rowNumber));
   capture(() => required(row.category, "category", rowNumber));
   capture(() => {
-    const inStock = parseRequiredBoolean(row.in_stock, "in_stock");
-
-    if (safeCreate && !inStock) {
-      throw new Error("in_stock must be true");
-    }
+    parseRequiredBoolean(row.in_stock, "in_stock");
   });
   if (safeCreate || rowHasColumn(row, "is_for_sale")) {
     capture(() => {
       if (safeCreate && !rowHasColumn(row, "is_for_sale")) {
         throw new Error("is_for_sale is required");
-      }
-
-      if (safeCreate && !parseRequiredBoolean(row.is_for_sale, "is_for_sale")) {
-        throw new Error("is_for_sale must be true");
       }
 
       parseRequiredBoolean(row.is_for_sale, "is_for_sale");
@@ -754,6 +746,20 @@ function validateFeedRowForWrites(row, rowNumber, options = {}) {
 
   capture(() => extractServings(row));
   capture(() => readNormalizedProductFields(row, rowNumber));
+
+  return errors;
+}
+
+function validateSafeCreateCanonicalAvailability(row) {
+  const errors = [];
+
+  if (!parseRequiredBoolean(row.in_stock, "in_stock")) {
+    errors.push("in_stock must be true to create a new canonical product");
+  }
+
+  if (!parseRequiredBoolean(row.is_for_sale, "is_for_sale")) {
+    errors.push("is_for_sale must be true to create a new canonical product");
+  }
 
   return errors;
 }
@@ -1339,6 +1345,12 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
 
   if (!product && String(shippingNormalizedRow.slug || "").trim()) {
     product = await findProductForFeedRow(shippingNormalizedRow);
+  }
+
+  if (safeCreate && validationErrors.length === 0 && !product) {
+    validationErrors.push(
+      ...validateSafeCreateCanonicalAvailability(shippingNormalizedRow)
+    );
   }
 
   if (safeCreate && validationErrors.length === 0) {
