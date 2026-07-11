@@ -1021,7 +1021,7 @@ if (possibleMatch) {
   return newProduct.id;
 }
 
-async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
+async function createOrUpdateOffer(row, productId, retailerId, rowNumber, offerPlan = null) {
   const supabase = getSupabase();
   const price = optionalNumber(
     required(row.price, "price", rowNumber)
@@ -1052,6 +1052,20 @@ async function createOrUpdateOffer(row, productId, retailerId, rowNumber) {
   const existingOffer = existingOffers?.[0];
 
   if (existingOffer) {
+    if (offerPlan?.action === "unchanged") {
+      const { error: refreshError } = await supabase
+        .from("offers")
+        .update({ last_checked_at: offerData.last_checked_at })
+        .eq("id", existingOffer.id);
+
+      if (refreshError) {
+        throw refreshError;
+      }
+
+      console.log(`Refreshed offer: ${row.product_name} at ${row.retailer_name}`);
+      return;
+    }
+
     const oldPrice = Number(existingOffer.price);
     const oldShipping =
       existingOffer.shipping_cost === null ||
@@ -1466,7 +1480,21 @@ async function writeApprovedFeedRow(preflightItem) {
     throw mappingError;
   }
 
-  await createOrUpdateOffer(row, productId, retailerId, rowNumber);
+  await createOrUpdateOffer(
+    row,
+    productId,
+    retailerId,
+    rowNumber,
+    preflightItem.offerPlan
+  );
+}
+
+function buildRowLevelOfferResults(report) {
+  return report.approvedRows.map((item) => ({
+    rowNumber: item.rowNumber,
+    slug: String(item.row.slug || "").trim(),
+    offerAction: item.offerPlan.action,
+  }));
 }
 
 async function runImportRows(rows, options = {}) {
@@ -1491,6 +1519,7 @@ async function runImportRows(rows, options = {}) {
         planned: report.approvedRows.length,
         skipped: rows.length - report.approvedRows.length,
         report,
+        rowLevelOffers: buildRowLevelOfferResults(report),
       };
     }
 
@@ -1516,6 +1545,7 @@ async function runImportRows(rows, options = {}) {
       planned: 0,
       skipped: rows.length - successful - failed,
       report,
+      rowLevelOffers: buildRowLevelOfferResults(report),
     };
   }
 
@@ -1600,6 +1630,33 @@ async function runImport(options = parseArgs(process.argv.slice(2))) {
   console.log(`Found ${rows.length} CSV row(s).`);
   const result = await runImportRows(rows, options);
 
+  const reportPath = String(process.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH || "").trim();
+  if (reportPath) {
+    const reportRoot = path.resolve(process.cwd(), "tmp");
+    const resolvedReportPath = path.resolve(reportPath);
+    const relativeReportPath = path.relative(reportRoot, resolvedReportPath);
+    if (!relativeReportPath || relativeReportPath.startsWith("..") || path.isAbsolute(relativeReportPath)) {
+      throw new Error("Import report path must be inside the project tmp directory");
+    }
+    const runId = String(process.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID || "").trim();
+    if (!runId) throw new Error("Import report run ID is required");
+    const temporaryPath = `${resolvedReportPath}.tmp-${process.pid}`;
+    fs.mkdirSync(path.dirname(resolvedReportPath), { recursive: true });
+    try {
+      fs.writeFileSync(
+        temporaryPath,
+        `${JSON.stringify({ runId, rowLevelOffers: result.rowLevelOffers || [] }, null, 2)}\n`,
+        "utf8"
+      );
+      fs.renameSync(temporaryPath, resolvedReportPath);
+    } catch (error) {
+      try {
+        fs.unlinkSync(temporaryPath);
+      } catch {}
+      throw error;
+    }
+  }
+
   console.log("");
   console.log("Import finished.");
   console.log(`Successful: ${result.successful}`);
@@ -1626,6 +1683,7 @@ if (require.main === module) {
 module.exports = {
   assessVariantCompatibility,
   buildRetailerProductPayload,
+  buildRowLevelOfferResults,
   formatPreflightReport,
   findOrCreateProduct,
   getExternalGtin,

@@ -8,6 +8,7 @@ const { parse } = require("csv-parse/sync");
 const { atomicWrite } = require("./kior-shopify");
 const {
   buildCanonical,
+  batchOfferCounts,
   importerCommand,
   main,
   runImporter,
@@ -172,6 +173,11 @@ test("importer child process has only fixed safe-create dry-run arguments and no
   const csvPath = "C:\\tmp\\fit-house.csv";
   const result = runImporter(csvPath, (command, args, options) => {
     captured = { command, args, options };
+    fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
+    fs.writeFileSync(
+      options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH,
+      JSON.stringify({ runId: options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID, rowLevelOffers: [] })
+    );
     return { status: 0, stdout: "Dry run: no database writes performed.\n", stderr: "" };
   });
   assert.deepEqual(captured.args.slice(1), ["--mode=feed", "--safe-create", "--dry-run", `--csv=${csvPath}`]);
@@ -179,6 +185,72 @@ test("importer child process has only fixed safe-create dry-run arguments and no
   assert.equal(result.database_writes, 0);
   assert.match(result.output, /no database writes/);
   assert.deepEqual(importerCommand(csvPath).slice(2), ["--mode=feed", "--safe-create", "--dry-run", `--csv=${csvPath}`]);
+});
+
+test("importer report must be newly created, valid JSON, and match the current run", () => {
+  const ok = "Dry run: no database writes performed.\n";
+  assert.throws(() => runImporter("C:\\tmp\\fit-house.csv", () => ({ status: 0, stdout: ok, stderr: "" })), /did not create/);
+  assert.throws(() => runImporter("C:\\tmp\\fit-house.csv", (_command, _args, options) => {
+    fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, "not-json");
+    return { status: 0, stdout: ok, stderr: "" };
+  }), /empty or invalid/);
+  assert.throws(() => runImporter("C:\\tmp\\fit-house.csv", (_command, _args, options) => {
+    fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({ runId: "old", rowLevelOffers: [] }));
+    return { status: 0, stdout: ok, stderr: "" };
+  }), /stale or belongs/);
+});
+
+function rowLevelActions(batchOne, batchTwo) {
+  return config.products.map((item, index) => ({
+    rowNumber: index + 2,
+    slug: item.canonical_slug,
+    offerAction: index < 10 ? batchOne[index] : batchTwo[index - 10],
+  }));
+}
+
+test("batch offer reporting splits pre-apply and post-apply actions by canonical slug", () => {
+  const before = batchOfferCounts(
+    config,
+    rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("create"))
+  );
+  assert.deepEqual(before.batch_1, { offers_created: 0, offers_updated: 0, offers_unchanged: 10 });
+  assert.deepEqual(before.batch_2, { offers_created: 12, offers_updated: 0, offers_unchanged: 0 });
+
+  const after = batchOfferCounts(
+    config,
+    rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"))
+  );
+  assert.deepEqual(after.batch_1, { offers_created: 0, offers_updated: 0, offers_unchanged: 10 });
+  assert.deepEqual(after.batch_2, { offers_created: 0, offers_updated: 0, offers_unchanged: 12 });
+});
+
+test("batch offer reporting supports mixed actions and preserves global totals", () => {
+  const counts = batchOfferCounts(
+    config,
+    rowLevelActions(
+      [...Array(8).fill("unchanged"), ...Array(2).fill("update")],
+      [...Array(10).fill("unchanged"), "update", "create"]
+    )
+  );
+  assert.deepEqual(counts.batch_1, { offers_created: 0, offers_updated: 2, offers_unchanged: 8 });
+  assert.deepEqual(counts.batch_2, { offers_created: 1, offers_updated: 1, offers_unchanged: 10 });
+  assert.deepEqual(
+    Object.fromEntries(Object.keys(counts.batch_1).map((key) => [key, counts.batch_1[key] + counts.batch_2[key]])),
+    { offers_created: 1, offers_updated: 3, offers_unchanged: 18 }
+  );
+});
+
+test("batch offer reporting rejects unknown, missing, and duplicate slugs", () => {
+  const valid = rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"));
+  assert.throws(() => batchOfferCounts(config, [...valid.slice(0, -1), { ...valid.at(-1), slug: "unknown" }]), /unknown slug/);
+  assert.throws(() => batchOfferCounts(config, valid.slice(0, -1)), /missing approved slug/);
+  assert.throws(() => batchOfferCounts(config, [...valid.slice(0, -1), valid[0]]), /duplicate slug/);
+});
+
+test("batch offer reporting requires one exact row-level result per approved row", () => {
+  const valid = rowLevelActions(Array(10).fill("unchanged"), Array(12).fill("unchanged"));
+  assert.throws(() => batchOfferCounts(config, valid.slice(0, -1)), /missing approved slug/);
+  assert.throws(() => batchOfferCounts(config, valid.map((item, index) => index ? item : { ...item, extra: true })), /contain exactly/);
 });
 
 test("adapter rejects every additional CLI argument before fetching or importing", async () => {

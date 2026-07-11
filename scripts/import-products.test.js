@@ -6,6 +6,7 @@ const test = require("node:test");
 const {
   assessVariantCompatibility,
   buildRetailerProductPayload,
+  buildRowLevelOfferResults,
   findOrCreateProduct,
   formatPreflightReport,
   getExternalGtin,
@@ -1095,6 +1096,65 @@ test("offer preflight does not call combined stock and URL changes only changes"
   assert.equal(report.stockOnlyChanges.length, 0);
   assert.equal(report.urlOnlyChanges.length, 0);
   assert.equal(report.priceHistoryRowsToCreate.length, 0);
+});
+
+async function applyExistingOffer(rowOverrides = {}, offerOverrides = {}) {
+  const row = baseFeedRow(rowOverrides);
+  const supabase = createMockSupabase({
+    offers: [{
+      id: "o1", product_id: "p1", retailer_id: "r1", price: 29.99,
+      shipping_cost: 0, total_price: 29.99, in_stock: true,
+      url: baseFeedRow().url, ...offerOverrides,
+    }],
+  });
+  setSupabaseForTests(supabase);
+  const messages = [];
+  const originalLog = console.log;
+  console.log = (...args) => messages.push(args.join(" "));
+  try {
+    const result = await runImportRows([row], { mode: "feed" });
+    return { result, supabase, messages };
+  } finally {
+    console.log = originalLog;
+  }
+}
+
+test("unchanged offer refreshes only last_checked_at and reports row-level unchanged", async () => {
+  const { result, supabase, messages } = await applyExistingOffer();
+  const offerUpdate = supabase.writes.find((write) => write.table === "offers");
+  assert.deepEqual(Object.keys(offerUpdate.payload), ["last_checked_at"]);
+  assert.match(offerUpdate.payload.last_checked_at, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(supabase.writes.some((write) => write.table === "price_history"), false);
+  assert.equal(messages.some((message) => message.startsWith("Refreshed offer:")), true);
+  assert.equal(messages.some((message) => message.startsWith("Updated offer:")), false);
+  assert.deepEqual(result.rowLevelOffers, [{ rowNumber: 2, slug: baseFeedRow().slug, offerAction: "unchanged" }]);
+});
+
+test("business offer changes keep full updates and price history rules", async () => {
+  const cases = [
+    { overrides: { price: "31.99" }, action: "update", history: true },
+    { overrides: { shipping_cost: "1.49" }, action: "update", history: true },
+    { overrides: { in_stock: "false" }, action: "update", history: false },
+    { overrides: { affiliate_url: "https://affiliate.test/new-offer" }, action: "update", history: false },
+  ];
+  for (const item of cases) {
+    const { result, supabase, messages } = await applyExistingOffer(item.overrides);
+    const offerUpdate = supabase.writes.find((write) => write.table === "offers");
+    for (const key of ["product_id", "retailer_id", "price", "shipping_cost", "total_price", "url", "in_stock", "last_checked_at"]) {
+      assert.equal(Object.hasOwn(offerUpdate.payload, key), true);
+    }
+    assert.equal(supabase.writes.some((write) => write.table === "price_history"), item.history);
+    assert.equal(messages.some((message) => message.startsWith("Updated offer:")), true);
+    assert.equal(result.rowLevelOffers[0].offerAction, item.action);
+  }
+});
+
+test("new offer reports row-level create", async () => {
+  const supabase = createMockSupabase({ offers: [] });
+  setSupabaseForTests(supabase);
+  const result = await runImportRows([baseFeedRow()], { mode: "feed", dryRun: true });
+  assert.deepEqual(result.rowLevelOffers, [{ rowNumber: 2, slug: baseFeedRow().slug, offerAction: "create" }]);
+  assert.deepEqual(buildRowLevelOfferResults(result.report), result.rowLevelOffers);
 });
 
 test("formatPreflightReport includes detailed offer plan counters", async () => {

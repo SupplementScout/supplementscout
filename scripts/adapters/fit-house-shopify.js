@@ -183,17 +183,73 @@ function importerCommand(csvPath) {
 
 function runImporter(csvPath, spawn = spawnSync) {
   const command = importerCommand(csvPath);
-  const result = spawn(command[0], command.slice(1), { cwd: ROOT, encoding: "utf8", env: process.env });
+  const runId = crypto.randomUUID();
+  const importReportPath = path.join(OUTPUT_DIR, `fit-house-import-report-${runId}.json`);
+  fs.rmSync(importReportPath, { force: true });
+  const result = spawn(command[0], command.slice(1), {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: importReportPath,
+      SUPPLEMENTSCOUT_IMPORT_RUN_ID: runId,
+    },
+  });
   const output = `${result.stdout || ""}${result.stderr || ""}`;
   if (result.status !== 0) fail(`Importer safe-create dry-run failed (${result.status}):\n${output}`);
   if (!output.includes("Dry run: no database writes performed.")) fail("Importer did not confirm zero database writes");
-  return { command, status: result.status, output, database_writes: 0 };
+  if (!fs.existsSync(importReportPath)) fail("Importer did not create its row-level JSON report");
+  let machineReport;
+  try {
+    machineReport = JSON.parse(fs.readFileSync(importReportPath, "utf8"));
+  } catch {
+    fail("Importer row-level JSON report is empty or invalid");
+  } finally {
+    fs.rmSync(importReportPath, { force: true });
+  }
+  if (machineReport?.runId !== runId) fail("Importer row-level report is stale or belongs to another run");
+  return { command, status: result.status, output, rowLevelOffers: machineReport.rowLevelOffers, database_writes: 0 };
 }
 
 function importerCount(output, label) {
   const match = output.match(new RegExp(`^\\s*${label}:\\s*(\\d+)\\s*$`, "mi"));
   if (!match) fail(`Importer output is missing counter: ${label}`);
   return Number(match[1]);
+}
+
+function batchOfferCounts(config, rowLevelOffers) {
+  if (!Array.isArray(rowLevelOffers)) fail("Importer row-level offer report is missing");
+  const approvedSlugs = config.products.map((item) => item.canonical_slug);
+  const approved = new Set(approvedSlugs);
+  const bySlug = new Map();
+  for (const item of rowLevelOffers) {
+    if (!item || typeof item !== "object" || Array.isArray(item) || Object.keys(item).sort().join(",") !== "offerAction,rowNumber,slug") {
+      fail("Importer row-level result must contain exactly rowNumber, slug, and offerAction");
+    }
+    if (!Number.isInteger(item.rowNumber) || item.rowNumber < 2) fail(`Invalid rowNumber for ${item.slug}`);
+    if (!approved.has(item.slug)) fail(`Importer row-level report contains unknown slug: ${item.slug}`);
+    if (bySlug.has(item.slug)) fail(`Importer row-level report contains duplicate slug: ${item.slug}`);
+    if (!["create", "update", "unchanged"].includes(item.offerAction)) fail(`Invalid offerAction for ${item.slug}`);
+    bySlug.set(item.slug, item.offerAction);
+  }
+  for (const slug of approvedSlugs) {
+    if (!bySlug.has(slug)) fail(`Importer row-level report is missing approved slug: ${slug}`);
+  }
+  if (rowLevelOffers.length !== approvedSlugs.length) fail("Importer row-level result count does not match approved rows");
+  const count = (slugs) => {
+    const result = { offers_created: 0, offers_updated: 0, offers_unchanged: 0 };
+    const keys = {
+      create: "offers_created",
+      update: "offers_updated",
+      unchanged: "offers_unchanged",
+    };
+    for (const slug of slugs) result[keys[bySlug.get(slug)]] += 1;
+    return result;
+  };
+  return {
+    batch_1: count(approvedSlugs.slice(0, BATCH_ONE_COUNT)),
+    batch_2: count(approvedSlugs.slice(BATCH_ONE_COUNT)),
+  };
 }
 
 async function main(deps = {}) {
@@ -212,9 +268,16 @@ async function main(deps = {}) {
     new_products: importerCount(importer.output, "new products would be created"),
     retailer_products_created: importerCount(importer.output, "retailer_products would be created"),
     offers_created: importerCount(importer.output, "offers would be created"),
+    offers_updated: importerCount(importer.output, "offers would be updated"),
     offers_unchanged: importerCount(importer.output, "offers unchanged"),
     price_history_created: importerCount(importer.output, "price_history rows would be created"),
   };
+  const batchOffers = batchOfferCounts(config, importer.rowLevelOffers);
+  for (const key of ["offers_created", "offers_updated", "offers_unchanged"]) {
+    if (batchOffers.batch_1[key] + batchOffers.batch_2[key] !== importerCounts[key]) {
+      fail(`Batch offer count mismatch for ${key}`);
+    }
+  }
   const report = {
     run_timestamp: new Date().toISOString(), source_url: config.source_url,
     source_products_count: shopify.products.length,
@@ -233,11 +296,12 @@ async function main(deps = {}) {
         configured: BATCH_ONE_COUNT,
         mapped: built.rows.slice(0, BATCH_ONE_COUNT).length,
         existing_products: BATCH_ONE_COUNT,
-        offers_unchanged: importerCounts.offers_unchanged,
+        ...batchOffers.batch_1,
       },
       batch_2: {
         configured: config.products.length - BATCH_ONE_COUNT,
         mapped: built.rows.slice(BATCH_ONE_COUNT).length,
+        ...batchOffers.batch_2,
         new_products_planned: importerCounts.new_products,
         new_retailer_products_planned: importerCounts.retailer_products_created,
         new_offers_planned: importerCounts.offers_created,
@@ -256,4 +320,4 @@ if (require.main === module) {
   main().catch((error) => { console.error(`Fit House adapter failed: ${error.message}`); process.exitCode = 1; });
 }
 
-module.exports = { CSV_PATH, REPORT_PATH, buildCanonical, importerCommand, main, runImporter, sha256, validateConfig, validateGeneratedRows };
+module.exports = { CSV_PATH, REPORT_PATH, batchOfferCounts, buildCanonical, importerCommand, main, runImporter, sha256, validateConfig, validateGeneratedRows };
