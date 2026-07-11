@@ -11,7 +11,7 @@ const TEMPLATE_PATH = path.join(ROOT, "data/templates/retailer-feed-template.csv
 const OUTPUT_DIR = path.join(ROOT, "tmp/retailer-feeds/fit-house");
 const CSV_PATH = path.join(OUTPUT_DIR, "fit-house-canonical-generated.csv");
 const REPORT_PATH = path.join(OUTPUT_DIR, "fit-house-adapter-report.json");
-const EXPECTED_PRODUCT_COUNT = 72;
+const EXPECTED_PRODUCT_COUNT = 73;
 const BATCH_ONE_COUNT = 10;
 const BATCH_TWO_COUNT = 12;
 const BATCH_THREE_COUNT = 16;
@@ -20,6 +20,8 @@ const BATCH_FIVE_COUNT = 20;
 const BATCH_THREE_START = BATCH_ONE_COUNT + BATCH_TWO_COUNT;
 const BATCH_FOUR_START = BATCH_THREE_START + BATCH_THREE_COUNT;
 const BATCH_FIVE_START = BATCH_FOUR_START + BATCH_FOUR_COUNT;
+const EXISTING_CANONICAL_ADDITIONS_START = BATCH_FIVE_START + BATCH_FIVE_COUNT;
+const EXISTING_CANONICAL_ADDITIONS_COUNT = 1;
 
 function fail(message) {
   throw new Error(message);
@@ -75,9 +77,33 @@ function validateConfig(config) {
   if (batchFour.length !== BATCH_FOUR_COUNT || batchFour.some((item) => item.canonical_product_id !== null)) {
     fail("Batch four must contain exactly 14 new canonical product mappings");
   }
-  const batchFive = config.products.slice(BATCH_FIVE_START);
+  const batchFive = config.products.slice(BATCH_FIVE_START, EXISTING_CANONICAL_ADDITIONS_START);
   if (batchFive.length !== BATCH_FIVE_COUNT || batchFive.some((item) => item.canonical_product_id !== null)) {
     fail("Batch five must contain exactly 20 new canonical product mappings");
+  }
+  const existingCanonicalAdditions = config.products.slice(EXISTING_CANONICAL_ADDITIONS_START);
+  const shredMode = existingCanonicalAdditions[0];
+  if (
+    existingCanonicalAdditions.length !== EXISTING_CANONICAL_ADDITIONS_COUNT ||
+    shredMode.shopify_product_id !== "9673951019248" ||
+    shredMode.shopify_variant_id !== "48121139658992" ||
+    shredMode.expected_handle !== "gym-high-shred-mode-60-capsules" ||
+    shredMode.canonical_product_id !== 508 ||
+    shredMode.canonical_slug !== "gym-high-shred-mode-60-capsules" ||
+    shredMode.canonical_name !== "GYM HIGH Shred Mode 60 Capsules" ||
+    shredMode.brand !== "GYM HIGH" ||
+    shredMode.category !== "Health Supplements" ||
+    shredMode.product_format !== "capsule" ||
+    shredMode.variant_name !== "60 Capsules" ||
+    shredMode.size !== null ||
+    shredMode.size_unit !== null ||
+    shredMode.flavour !== null ||
+    shredMode.pack_count !== 1 ||
+    shredMode.is_for_sale !== true ||
+    shredMode.approved_price !== 39.99 ||
+    shredMode.approved_in_stock !== true
+  ) {
+    fail("Unexpected Shred Mode existing canonical mapping");
   }
   const blockedProductIds = new Set([
     "8816846504176", "8693101330672", "8271509946608", "8968956084464",
@@ -281,7 +307,8 @@ function batchOfferCounts(config, rowLevelOffers) {
     batch_2: count(approvedSlugs.slice(BATCH_ONE_COUNT, BATCH_THREE_START)),
     batch_3: count(approvedSlugs.slice(BATCH_THREE_START, BATCH_FOUR_START)),
     batch_4: count(approvedSlugs.slice(BATCH_FOUR_START, BATCH_FIVE_START)),
-    batch_5: count(approvedSlugs.slice(BATCH_FIVE_START)),
+    batch_5: count(approvedSlugs.slice(BATCH_FIVE_START, EXISTING_CANONICAL_ADDITIONS_START)),
+    existing_canonical_additions: count(approvedSlugs.slice(EXISTING_CANONICAL_ADDITIONS_START)),
   };
 }
 
@@ -307,7 +334,7 @@ async function main(deps = {}) {
   };
   const batchOffers = batchOfferCounts(config, importer.rowLevelOffers);
   for (const key of ["offers_created", "offers_updated", "offers_unchanged"]) {
-    if (batchOffers.batch_1[key] + batchOffers.batch_2[key] + batchOffers.batch_3[key] + batchOffers.batch_4[key] + batchOffers.batch_5[key] !== importerCounts[key]) {
+    if (batchOffers.batch_1[key] + batchOffers.batch_2[key] + batchOffers.batch_3[key] + batchOffers.batch_4[key] + batchOffers.batch_5[key] + batchOffers.existing_canonical_additions[key] !== importerCounts[key]) {
       fail(`Batch offer count mismatch for ${key}`);
     }
   }
@@ -350,12 +377,23 @@ async function main(deps = {}) {
       },
       batch_5: {
         configured: BATCH_FIVE_COUNT,
-        mapped: built.rows.slice(BATCH_FIVE_START).length,
+        mapped: built.rows.slice(BATCH_FIVE_START, EXISTING_CANONICAL_ADDITIONS_START).length,
         new_products_planned: importerCounts.new_products,
-        new_retailer_products_planned: importerCounts.retailer_products_created,
-        new_offers_planned: importerCounts.offers_created,
-        new_price_history_rows_planned: importerCounts.price_history_created,
+        new_retailer_products_planned: importerCounts.retailer_products_created - batchOffers.existing_canonical_additions.offers_created,
+        new_offers_planned: importerCounts.offers_created - batchOffers.existing_canonical_additions.offers_created,
+        new_price_history_rows_planned: importerCounts.price_history_created - batchOffers.existing_canonical_additions.offers_created,
         ...batchOffers.batch_5,
+      },
+      existing_canonical_additions: {
+        configured: EXISTING_CANONICAL_ADDITIONS_COUNT,
+        mapped: built.rows.slice(EXISTING_CANONICAL_ADDITIONS_START).length,
+        canonical_product_id: 508,
+        existing_canonical_mappings: 1,
+        new_products_planned: 0,
+        new_retailer_products_planned: batchOffers.existing_canonical_additions.offers_created,
+        new_offers_planned: batchOffers.existing_canonical_additions.offers_created,
+        new_price_history_rows_planned: batchOffers.existing_canonical_additions.offers_created,
+        ...batchOffers.existing_canonical_additions,
       },
     },
     database_writes: importer.database_writes,
