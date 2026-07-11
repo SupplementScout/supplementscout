@@ -30,7 +30,8 @@
       "Soma",
       "Animal",
       "Nordic Naturals",
-      "Olimp"
+      "Olimp",
+      "Gym High"
     ]
   },
   "shipping": {
@@ -1406,6 +1407,25 @@
       "pack_count": 1,
       "is_for_sale": true,
       "approved_price": 6.99,
+      "approved_in_stock": true
+    },
+    {
+      "shopify_product_id": "9673951019248",
+      "shopify_variant_id": "48121139658992",
+      "expected_handle": "gym-high-shred-mode-60-capsules",
+      "canonical_product_id": 508,
+      "canonical_name": "GYM HIGH Shred Mode 60 Capsules",
+      "canonical_slug": "gym-high-shred-mode-60-capsules",
+      "brand": "GYM HIGH",
+      "category": "Health Supplements",
+      "product_format": "capsule",
+      "variant_name": "60 Capsules",
+      "size": null,
+      "size_unit": null,
+      "flavour": null,
+      "pack_count": 1,
+      "is_for_sale": true,
+      "approved_price": 39.99,
       "approved_in_stock": true
     }
   ]

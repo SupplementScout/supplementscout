@@ -45,6 +45,7 @@ test("Fit House config has the approved top-level contract", () => {
       "Animal",
       "Nordic Naturals",
       "Olimp",
+      "Gym High",
     ],
   });
   assert.deepEqual(config.shipping, {
@@ -55,8 +56,8 @@ test("Fit House config has the approved top-level contract", () => {
   });
 });
 
-test("Fit House config contains exactly 72 unique approved mappings", () => {
-  assert.equal(config.products.length, 72);
+test("Fit House config contains exactly 73 unique approved mappings", () => {
+  assert.equal(config.products.length, 73);
 
   for (const field of [
     "shopify_product_id",
@@ -65,7 +66,7 @@ test("Fit House config contains exactly 72 unique approved mappings", () => {
     "expected_handle",
   ]) {
     const values = config.products.map((product) => product[field]);
-    assert.equal(new Set(values).size, 72, `${field} must be unique`);
+    assert.equal(new Set(values).size, 73, `${field} must be unique`);
   }
 });
 
@@ -114,6 +115,18 @@ test("the approved first 52 mappings remain byte-for-byte unchanged", () => {
   assert.equal(
     digest,
     "4e2b3b60924d944bca6274e4b63cf7cae6d9cfc4534cb1c82936e4e2129c9a49"
+  );
+});
+
+test("the approved first 72 mappings remain byte-for-byte unchanged", () => {
+  const digest = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(config.products.slice(0, 72)))
+    .digest("hex");
+
+  assert.equal(
+    digest,
+    "821db6d63c6f584776a74b6fabc3ad283a990be40332f0e81aac45520763ad58"
   );
 });
 
@@ -205,7 +218,7 @@ test("batch four contains exactly the fourteen approved new mappings", () => {
 });
 
 test("batch five contains exactly the twenty approved new mappings", () => {
-  const batchFive = config.products.slice(52);
+  const batchFive = config.products.slice(52, 72);
   const expectedProductIds = [
     "8816846504176", "8693101330672", "8271509946608", "8968956084464",
     "8685938376944", "8147551846640", "9624501813488", "9623385932016",
@@ -235,6 +248,29 @@ test("batch five contains exactly the twenty approved new mappings", () => {
   const berberine = batchFive.find((product) => product.shopify_product_id === "9168824172784");
   assert.equal(berberine.canonical_product_id, null);
   assert.match(berberine.canonical_name, /500mg 90 Capsules/);
+});
+
+test("the approved Fit House mapping targets existing canonical product 508", () => {
+  const mapping = config.products[72];
+  assert.deepEqual(mapping, {
+    shopify_product_id: "9673951019248",
+    shopify_variant_id: "48121139658992",
+    expected_handle: "gym-high-shred-mode-60-capsules",
+    canonical_product_id: 508,
+    canonical_name: "GYM HIGH Shred Mode 60 Capsules",
+    canonical_slug: "gym-high-shred-mode-60-capsules",
+    brand: "GYM HIGH",
+    category: "Health Supplements",
+    product_format: "capsule",
+    variant_name: "60 Capsules",
+    size: null,
+    size_unit: null,
+    flavour: null,
+    pack_count: 1,
+    is_for_sale: true,
+    approved_price: 39.99,
+    approved_in_stock: true,
+  });
 });
 
 test("every mapping has complete approved identity and variant evidence", () => {
@@ -292,6 +328,7 @@ test("shipping and newly approved vendor aliases remain exact", () => {
     "Animal",
     "Nordic Naturals",
     "Olimp",
+    "Gym High",
   ]) {
     assert.ok(config.retailer.vendor_aliases.includes(alias), `missing alias: ${alias}`);
   }
