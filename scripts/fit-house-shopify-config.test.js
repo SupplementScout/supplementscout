@@ -38,6 +38,7 @@ test("Fit House config has the approved top-level contract", () => {
       "EFX Sports",
       "EFX",
       "efx",
+      "Applied Nutrition",
     ],
   });
   assert.deepEqual(config.shipping, {
@@ -48,8 +49,8 @@ test("Fit House config has the approved top-level contract", () => {
   });
 });
 
-test("Fit House config contains exactly 22 unique approved mappings", () => {
-  assert.equal(config.products.length, 22);
+test("Fit House config contains exactly 38 unique approved mappings", () => {
+  assert.equal(config.products.length, 38);
 
   for (const field of [
     "shopify_product_id",
@@ -58,7 +59,7 @@ test("Fit House config contains exactly 22 unique approved mappings", () => {
     "expected_handle",
   ]) {
     const values = config.products.map((product) => product[field]);
-    assert.equal(new Set(values).size, 22, `${field} must be unique`);
+    assert.equal(new Set(values).size, 38, `${field} must be unique`);
   }
 });
 
@@ -74,8 +75,20 @@ test("the original ten batch-one mappings remain byte-for-byte unchanged", () =>
   );
 });
 
+test("the approved first 22 mappings remain byte-for-byte unchanged", () => {
+  const digest = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(config.products.slice(0, 22)))
+    .digest("hex");
+
+  assert.equal(
+    digest,
+    "8c3294679b89b4816ab00007600bced52c4087cbe8050be738743a65354265a9"
+  );
+});
+
 test("batch two contains exactly the twelve approved new mappings", () => {
-  const batchTwo = config.products.slice(10);
+  const batchTwo = config.products.slice(10, 22);
   const expectedProductIds = [
     "10034753143024",
     "10079982584048",
@@ -107,6 +120,35 @@ test("batch two contains exactly the twelve approved new mappings", () => {
       ["Health Supplements", "Vitamins", "Creatine"].includes(product.category)
     );
     assert.ok(["powder", "softgel", "capsule"].includes(product.product_format));
+  }
+});
+
+test("batch three contains exactly the sixteen approved mappings", () => {
+  const batchThree = config.products.slice(22);
+  const expectedProductIds = [
+    "8271543730416", "8493486047472", "9370163708144", "9347715301616",
+    "9347657269488", "9107338264816", "9060070064368", "9058975187184",
+    "8969071853808", "8905761685744", "8816824549616", "8776332837104",
+    "8776286798064", "8511414534384", "8493494370544", "8334171177200",
+  ];
+
+  assert.equal(batchThree.length, 16);
+  assert.deepEqual(batchThree.map((product) => product.shopify_product_id), expectedProductIds);
+  assert.deepEqual(
+    batchThree.filter((product) => product.canonical_product_id !== null).map((product) => ({
+      shopify_product_id: product.shopify_product_id,
+      canonical_product_id: product.canonical_product_id,
+    })),
+    [{ shopify_product_id: "9347715301616", canonical_product_id: 43 }]
+  );
+  assert.equal(batchThree.filter((product) => product.canonical_product_id === null).length, 15);
+
+  for (const product of batchThree) {
+    assert.equal(product.approved_in_stock, true);
+    assert.equal(product.is_for_sale, true);
+    assert.ok(Number.isFinite(product.approved_price) && product.approved_price > 0);
+    assert.ok(["Vitamins", "Amino Acids", "Health Supplements"].includes(product.category));
+    assert.ok(["capsule", "powder", "tablet", "softgel"].includes(product.product_format));
   }
 });
 
@@ -158,15 +200,22 @@ test("shipping and newly approved vendor aliases remain exact", () => {
     "EFX Sports",
     "EFX",
     "efx",
+    "Applied Nutrition",
   ]) {
     assert.ok(config.retailer.vendor_aliases.includes(alias), `missing alias: ${alias}`);
   }
 });
 
-test("batch two excludes Shilajit and OstroVit Creatine 300g", () => {
-  const serialized = JSON.stringify(config.products.slice(10)).toLowerCase();
+test("approved batches exclude blocked image and separately deferred products", () => {
+  const serialized = JSON.stringify(config.products).toLowerCase();
   assert.equal(serialized.includes("shilajit"), false);
   assert.equal(serialized.includes("ostrovit-creatine-monohydrate-300g"), false);
+  for (const productId of ["8693101330672", "8271509946608"]) {
+    assert.equal(config.products.some((product) => product.shopify_product_id === productId), false);
+  }
+  for (const slug of ["now-foods-organic-inulin-prebiotic-powder", "osavi-cod-liver-oil-d3-250ml-lemon"]) {
+    assert.equal(serialized.includes(slug), false);
+  }
 });
 
 test("the tablet mapping preserves its approved orange flavour evidence", () => {
@@ -174,8 +223,10 @@ test("the tablet mapping preserves its approved orange flavour evidence", () => 
     (product) => product.product_format === "tablet"
   );
 
-  assert.equal(tablets.length, 1);
-  assert.equal(tablets[0].flavour, "orange");
+  const orangeElectrolytes = tablets.find(
+    (product) => product.canonical_slug === "ostrovit-electrolytes-orange-20-effervescent-tablets"
+  );
+  assert.equal(orangeElectrolytes.flavour, "orange");
 });
 
 test("config excludes retailer-forbidden and verified product data", () => {

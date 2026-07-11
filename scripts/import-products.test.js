@@ -899,6 +899,7 @@ test("Fit House full config approves all 22 rows including four softgels", { con
       "utf8"
     )
   );
+  config.products = config.products.slice(0, 22);
   const rows = buildFitHouseCanonicalRows(config);
   const batchOneRows = rows.slice(0, 10);
   const products = batchOneRows.map((row, index) => ({
