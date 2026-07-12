@@ -1,11 +1,11 @@
 # KIOR Shopify adapter
 
-The KIOR adapter combines the public Shopify catalogue with the locally supplied Shopify CSV and an approved product mapping. It generates the existing canonical retailer feed and always runs the existing importer in dry-run mode.
+The KIOR adapter combines the public Shopify catalogue with an approved product mapping. If a local Shopify CSV is present, it is used only as an additional drift check. The adapter generates the existing canonical retailer feed and always runs the existing importer in dry-run mode.
 
 ## Required inputs
 
 - public JSON: `https://kior.uk/products.json?limit=250`;
-- local Shopify export: `data/feeds/kior/products_export.csv`;
+- optional local Shopify export: `data/feeds/kior/products_export.csv`;
 - approved mapping: `config/retailers/kior-shopify.json`;
 - canonical header: `data/templates/retailer-feed-template.csv`.
 
@@ -28,9 +28,11 @@ node scripts/import-products.js --mode=feed --dry-run --csv=<generated.csv>
 
 It never adds `--safe-create`, never applies changes, and never deletes records.
 
+The adapter accepts no CLI arguments. It automatically runs JSON-only when the local export is absent. When the export exists, every configured handle must have exactly one main row and its SKU/barcode evidence must match the approved `expected_sku` and `expected_barcode` values in config. The CSV never overrides config and is never the source of canonical output. Canonical `external_gtin` comes only from `expected_barcode`; an approved `null` produces an empty cell.
+
 ## Safety and review
 
-The run fails before final CSV generation on an invalid or incomplete response, duplicate or missing configured IDs, changed handles or variants, ambiguous CSV joins, SKU conflicts, invalid or excessive price changes, excessive stock changes, incomplete shipping policy, or a mismatch between configured canonical ID and slug in the read-only Supabase check.
+The run fails before final reporting on an invalid or incomplete response, duplicate or missing configured IDs, changed handles or variants, public JSON SKU/barcode drift, optional CSV drift or ambiguous joins, invalid images or URLs, invalid or excessive price changes, excessive stock changes, incomplete shipping policy, a mismatch between configured canonical ID and slug in the read-only Supabase check, or any incomplete importer dry-run result.
 
 Products returned by Shopify but absent from the approved mapping are listed under `unmapped_products`; no canonical row is produced for them. Review and approve their canonical identity and product metadata before adding them to the config.
 

@@ -13,6 +13,7 @@ const TEMPLATE_PATH = path.join(ROOT, "data/templates/retailer-feed-template.csv
 const OUTPUT_DIR = path.join(ROOT, "tmp/retailer-feeds/kior");
 const CSV_PATH = path.join(OUTPUT_DIR, "kior-canonical-generated.csv");
 const REPORT_PATH = path.join(OUTPUT_DIR, "kior-adapter-report.json");
+const EXPECTED_COUNT = 11;
 
 function fail(message) {
   throw new Error(message);
@@ -28,13 +29,30 @@ function id(value, label) {
   return result;
 }
 
+function normalizeEvidence(value) {
+  const normalized = String(value ?? "").trim();
+  return normalized === "" ? null : normalized;
+}
+
+function normalizeCsvSku(value) {
+  const normalized = String(value ?? "").trim().replace(/^'/, "");
+  return normalized === "" ? null : normalized;
+}
+
+function validateEvidence(item, key, productId) {
+  if (!Object.hasOwn(item, key)) fail(`Missing config field ${key} for ${productId}`);
+  if (item[key] !== null && (typeof item[key] !== "string" || item[key].trim() === "")) {
+    fail(`Invalid config field ${key} for ${productId}`);
+  }
+}
+
 function validateConfig(config) {
   if (config.schema_version !== 1) fail("Unsupported config schema_version");
   if (!config.retailer?.name || !config.retailer?.website) fail("Incomplete retailer config");
   if (!Array.isArray(config.retailer.vendor_aliases) || !config.retailer.vendor_aliases.length) fail("Missing vendor aliases");
   const shipping = config.shipping;
   if (shipping?.known !== true || !Number.isFinite(shipping.cost) || shipping.cost < 0 || !Number.isFinite(shipping.free_shipping_threshold) || shipping.free_shipping_threshold <= 0 || !shipping.approval_note) fail("Incomplete shipping config");
-  if (!Array.isArray(config.products) || config.products.length !== 11) fail("Config must contain exactly 11 approved products");
+  if (!Array.isArray(config.products) || config.products.length !== EXPECTED_COUNT) fail(`Config must contain exactly ${EXPECTED_COUNT} approved products`);
   const products = new Set();
   const variants = new Set();
   for (const item of config.products) {
@@ -45,6 +63,8 @@ function validateConfig(config) {
     for (const key of ["expected_handle", "canonical_product_id", "canonical_name", "canonical_slug", "category", "product_format", "variant_name", "pack_count", "is_for_sale", "approved_price", "approved_in_stock"]) {
       if (item[key] === undefined || item[key] === null || item[key] === "") fail(`Missing config field ${key} for ${productId}`);
     }
+    validateEvidence(item, "expected_sku", productId);
+    validateEvidence(item, "expected_barcode", productId);
   }
 }
 
@@ -121,6 +141,15 @@ function selectExportRow(rows, handle) {
   return candidates[0];
 }
 
+function validHttpsUrl(value, hostname) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && (!hostname || url.hostname === hostname);
+  } catch {
+    return false;
+  }
+}
+
 function getImage(product, variant) {
   return String(variant.featured_image?.src || variant.featured_image || product.images?.[0]?.src || "").trim();
 }
@@ -134,58 +163,75 @@ function serializeCsv(header, rows) {
   return `${[header, ...rows.map((row) => header.map((key) => row[key] ?? ""))].map((line) => line.map(csvCell).join(",")).join("\n")}\n`;
 }
 
-function buildCanonical({ config, shopify, exportGroups, templateHeader }) {
+function buildCanonical({ config, shopify, exportGroups = null, templateHeader }) {
   validateConfig(config);
   const indexed = indexShopifyProducts(shopify.products);
   const configuredIds = new Set(config.products.map((item) => String(item.shopify_product_id)));
-  const unmappedProducts = shopify.products.filter((product) => !configuredIds.has(String(product.id))).map((product) => ({ product_id: String(product.id), title: product.title, handle: product.handle }));
-  const missingConfiguredProducts = [];
-  const stockChanges = [];
-  const priceChanges = [];
-  const handleChanges = [];
-  const skuMismatches = [];
+  const report = {
+    unmappedProducts: shopify.products.filter((product) => !configuredIds.has(String(product.id))).map((product) => ({ product_id: String(product.id), title: product.title, handle: product.handle })),
+    missingConfiguredProducts: [], priceChanges: [], stockChanges: [], handleChanges: [], vendorMismatches: [],
+    invalidImages: [], invalidUrls: [], skuDrifts: [], barcodeDrifts: [],
+  };
   const rows = [];
 
   for (const item of config.products) {
     const productId = String(item.shopify_product_id);
     const product = indexed.get(productId);
-    if (!product) { missingConfiguredProducts.push(productId); continue; }
-    if (product.handle !== item.expected_handle) handleChanges.push({ product_id: productId, expected: item.expected_handle, actual: product.handle });
-    if (!config.retailer.vendor_aliases.includes(product.vendor)) fail(`Unexpected vendor for ${productId}: ${product.vendor}`);
+    if (!product) { report.missingConfiguredProducts.push(productId); continue; }
+    if (product.handle !== item.expected_handle) report.handleChanges.push({ product_id: productId, expected: item.expected_handle, actual: product.handle });
+    if (!config.retailer.vendor_aliases.includes(product.vendor)) report.vendorMismatches.push({ product_id: productId, actual: product.vendor });
     if (product.variants.length !== 1) fail(`Configured product ${productId} must have exactly one Shopify variant`);
     const variant = product.variants.find((candidate) => String(candidate.id) === String(item.shopify_variant_id));
     if (!variant) fail(`Configured variant ${item.shopify_variant_id} is missing for product ${productId}`);
-    const exportRow = selectExportRow(exportGroups.get(product.handle), product.handle);
-    const jsonSku = String(variant.sku || "").trim().replace(/^'/, "");
-    const csvSku = String(exportRow["Variant SKU"] || "").trim().replace(/^'/, "");
-    if (jsonSku && csvSku && jsonSku !== csvSku) skuMismatches.push({ product_id: productId, json_sku: jsonSku, csv_sku: csvSku });
+
+    const jsonSku = normalizeEvidence(variant.sku);
+    if (jsonSku !== item.expected_sku) report.skuDrifts.push({ product_id: productId, source: "json", expected: item.expected_sku, actual: jsonSku });
+    const jsonBarcode = normalizeEvidence(variant.barcode);
+    if (jsonBarcode !== null && jsonBarcode !== item.expected_barcode) report.barcodeDrifts.push({ product_id: productId, source: "json", expected: item.expected_barcode, actual: jsonBarcode });
+
+    if (exportGroups) {
+      const exportRow = selectExportRow(exportGroups.get(product.handle), product.handle);
+      const csvSku = normalizeCsvSku(exportRow["Variant SKU"]);
+      const csvBarcode = normalizeEvidence(exportRow["Variant Barcode"]);
+      if (csvSku !== item.expected_sku) report.skuDrifts.push({ product_id: productId, source: "csv", expected: item.expected_sku, actual: csvSku });
+      if (csvBarcode !== item.expected_barcode) report.barcodeDrifts.push({ product_id: productId, source: "csv", expected: item.expected_barcode, actual: csvBarcode });
+    }
+
     const price = Number(variant.price);
     if (!Number.isFinite(price) || price <= 0) fail(`Invalid live price for product ${productId}`);
     const pricePercent = Math.abs(price - Number(item.approved_price)) / Number(item.approved_price) * 100;
-    if (price !== Number(item.approved_price)) priceChanges.push({ product_id: productId, approved: Number(item.approved_price), live: price, percent: pricePercent });
-    if (Boolean(variant.available) !== item.approved_in_stock) stockChanges.push({ product_id: productId, approved: item.approved_in_stock, live: Boolean(variant.available) });
+    if (price !== Number(item.approved_price)) report.priceChanges.push({ product_id: productId, approved: Number(item.approved_price), live: price, percent: pricePercent });
+    if (Boolean(variant.available) !== item.approved_in_stock) report.stockChanges.push({ product_id: productId, approved: item.approved_in_stock, live: Boolean(variant.available) });
     const url = `${config.retailer.website}/products/${product.handle}?variant=${variant.id}`;
+    if (!validHttpsUrl(url, "kior.uk")) report.invalidUrls.push({ product_id: productId, url });
+    const image = getImage(product, variant);
+    if (!validHttpsUrl(image)) report.invalidImages.push({ product_id: productId, image });
     rows.push({
       retailer_name: config.retailer.name, retailer_website: config.retailer.website,
       external_product_id: productId, external_variant_id: String(variant.id), product_name: item.canonical_name,
       variant_name: item.variant_name, brand: config.retailer.name, category: item.category, description: "",
-      image: getImage(product, variant), slug: item.canonical_slug, external_url: url, affiliate_url: url,
-      external_gtin: String(exportRow["Variant Barcode"] || "").trim(), price: variant.price,
+      image, slug: item.canonical_slug, external_url: url, affiliate_url: url,
+      external_gtin: item.expected_barcode ?? "", price: variant.price,
       shipping_known: "true", shipping_cost: config.shipping.cost, in_stock: String(Boolean(variant.available)),
       is_for_sale: String(item.is_for_sale), size: "", size_unit: "", flavour: "", product_format: item.product_format,
-      pack_count: item.pack_count, source_updated_at: variant.updated_at || product.updated_at || ""
+      pack_count: item.pack_count, source_updated_at: variant.updated_at || product.updated_at || "",
     });
   }
+
   rows.sort((a, b) => BigInt(a.external_product_id) < BigInt(b.external_product_id) ? -1 : BigInt(a.external_product_id) > BigInt(b.external_product_id) ? 1 : BigInt(a.external_variant_id) < BigInt(b.external_variant_id) ? -1 : 1);
-  if (missingConfiguredProducts.length) fail(`Missing configured Shopify products: ${missingConfiguredProducts.join(", ")}`);
-  if (handleChanges.length) fail(`Shopify handle changes detected: ${JSON.stringify(handleChanges)}`);
-  if (skuMismatches.length) fail(`Shopify SKU mismatches detected: ${JSON.stringify(skuMismatches)}`);
-  const excessivePrices = priceChanges.filter((change) => change.percent > config.guardrails.max_price_change_percent);
+  if (report.missingConfiguredProducts.length) fail(`Missing configured Shopify products: ${report.missingConfiguredProducts.join(", ")}`);
+  if (report.handleChanges.length) fail(`Shopify handle changes detected: ${JSON.stringify(report.handleChanges)}`);
+  if (report.vendorMismatches.length) fail(`Shopify vendor mismatches detected: ${JSON.stringify(report.vendorMismatches)}`);
+  if (report.skuDrifts.length) fail(`Shopify SKU drifts detected: ${JSON.stringify(report.skuDrifts)}`);
+  if (report.barcodeDrifts.length) fail(`Shopify barcode drifts detected: ${JSON.stringify(report.barcodeDrifts)}`);
+  if (report.invalidImages.length) fail(`Invalid Shopify images detected: ${JSON.stringify(report.invalidImages)}`);
+  if (report.invalidUrls.length) fail(`Invalid KIOR URLs detected: ${JSON.stringify(report.invalidUrls)}`);
+  const excessivePrices = report.priceChanges.filter((change) => change.percent > config.guardrails.max_price_change_percent);
   if (excessivePrices.length) fail(`Price change exceeds threshold: ${JSON.stringify(excessivePrices)}`);
-  const stockPercent = stockChanges.length / config.products.length * 100;
-  if (stockChanges.length > config.guardrails.max_stock_changes || stockPercent > config.guardrails.max_stock_change_percent) fail(`Stock change threshold exceeded: ${stockChanges.length} (${stockPercent.toFixed(2)}%)`);
-  if (rows.length !== 11) fail(`Expected 11 canonical rows, got ${rows.length}`);
-  return { rows, unmappedProducts, missingConfiguredProducts, stockChanges, priceChanges, handleChanges, skuMismatches, csv: serializeCsv(templateHeader, rows) };
+  const stockPercent = report.stockChanges.length / config.products.length * 100;
+  if (report.stockChanges.length > config.guardrails.max_stock_changes || stockPercent > config.guardrails.max_stock_change_percent) fail(`Stock change threshold exceeded: ${report.stockChanges.length} (${stockPercent.toFixed(2)}%)`);
+  if (rows.length !== EXPECTED_COUNT) fail(`Expected ${EXPECTED_COUNT} canonical rows, got ${rows.length}`);
+  return { rows, ...report, csv: serializeCsv(templateHeader, rows) };
 }
 
 async function validateCanonicalMappings(config, client) {
@@ -204,20 +250,68 @@ function atomicWrite(filePath, content) {
   finally { if (fs.existsSync(temporary)) fs.unlinkSync(temporary); }
 }
 
+function outputCount(output, label) {
+  const match = output.match(new RegExp(`^\\s*${label}:\\s*(\\d+)\\s*$`, "mi"));
+  if (!match) fail(`Importer output is missing counter: ${label}`);
+  return Number(match[1]);
+}
+
 function runImporter(csvPath, spawn = spawnSync) {
   const args = [path.join(ROOT, "scripts/import-products.js"), "--mode=feed", "--dry-run", `--csv=${csvPath}`];
-  const result = spawn(process.execPath, args, { cwd: ROOT, encoding: "utf8", env: process.env });
+  const runId = crypto.randomUUID();
+  const importReportPath = path.join(OUTPUT_DIR, `kior-import-report-${runId}.json`);
+  fs.rmSync(importReportPath, { force: true });
+  const result = spawn(process.execPath, args, {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: { ...process.env, SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: importReportPath, SUPPLEMENTSCOUT_IMPORT_RUN_ID: runId },
+  });
   const output = `${result.stdout || ""}${result.stderr || ""}`;
-  if (result.status !== 0) fail(`Importer dry-run failed (${result.status}):\n${output}`);
-  return { args, output };
+  let machineReport;
+  try {
+    if (result.status !== 0) fail(`Importer dry-run failed (${result.status}):\n${output}`);
+    if (!output.includes("Dry run: no database writes performed.")) fail("Importer did not confirm zero database writes");
+    if (!fs.existsSync(importReportPath)) fail("Importer did not create its row-level JSON report");
+    try {
+      machineReport = JSON.parse(fs.readFileSync(importReportPath, "utf8"));
+    } catch {
+      fail("Importer row-level JSON report is empty or invalid");
+    }
+  } finally {
+    fs.rmSync(importReportPath, { force: true });
+  }
+  if (machineReport?.runId !== runId) fail("Importer row-level report is stale or belongs to another run");
+  const summary = {
+    approved_rows: outputCount(output, "approved rows"),
+    invalid_rows: outputCount(output, "invalid rows"),
+    ambiguous_rows: outputCount(output, "ambiguous rows"),
+    new_retailers: outputCount(output, "new retailers would be created"),
+    new_products: outputCount(output, "new products would be created"),
+    retailer_products_created: outputCount(output, "retailer_products would be created"),
+    offers_created: outputCount(output, "offers would be created"),
+    offers_updated: outputCount(output, "offers would be updated"),
+    offers_unchanged: outputCount(output, "offers unchanged"),
+    price_history_created: outputCount(output, "price_history rows would be created"),
+    skipped_for_review: outputCount(output, "Skipped for review"),
+    failed: outputCount(output, "Failed"),
+  };
+  if (summary.approved_rows !== EXPECTED_COUNT || machineReport?.rowLevelOffers?.length !== EXPECTED_COUNT) fail(`Importer approved row count must be ${EXPECTED_COUNT}`);
+  if (summary.skipped_for_review !== 0) fail("Importer skipped rows for review");
+  if (summary.failed !== 0) fail("Importer reported failed rows");
+  return { args, runId, output, summary, database_writes: 0 };
 }
 
 async function main(deps = {}) {
+  const argv = deps.argv ?? process.argv.slice(2);
+  if (argv.length !== 0) fail("KIOR adapter does not accept CLI arguments");
+  fs.rmSync(REPORT_PATH, { force: true });
   const configText = fs.readFileSync(CONFIG_PATH, "utf8");
   const config = JSON.parse(configText);
   validateConfig(config);
   const shopify = await fetchJson(config.source_url, { timeoutMs: config.guardrails.fetch_timeout_ms, maxBytes: config.guardrails.max_response_bytes, fetchImpl: deps.fetchImpl });
-  const exportGroups = parseExport(fs.readFileSync(EXPORT_PATH, "utf8"));
+  const exportPath = deps.exportPath ?? EXPORT_PATH;
+  const csvEnrichmentUsed = fs.existsSync(exportPath);
+  const exportGroups = csvEnrichmentUsed ? parseExport(fs.readFileSync(exportPath, "utf8")) : null;
   const templateHeader = fs.readFileSync(TEMPLATE_PATH, "utf8").split(/\r?\n/, 1)[0].split(",");
   const built = buildCanonical({ config, shopify, exportGroups, templateHeader });
   dotenv.config({ path: path.join(ROOT, ".env.local"), quiet: true });
@@ -225,17 +319,23 @@ async function main(deps = {}) {
   const client = deps.supabase || (deps.validateCanonical ? null : createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.SUPABASE_SERVICE_ROLE_KEY || "", { auth: { persistSession: false, autoRefreshToken: false } }));
   await canonicalValidator(config, client);
   const csvHash = sha256(built.csv);
-  const report = {
-    fetch_time: new Date().toISOString(), source_product_count: shopify.products.length, mapped_count: built.rows.length,
-    unmapped_count: built.unmappedProducts.length, unmapped_products: built.unmappedProducts,
-    missing_configured_products: built.missingConfiguredProducts, stock_changes: built.stockChanges,
-    price_changes: built.priceChanges, handle_changes: built.handleChanges, sku_mismatches: built.skuMismatches,
-    config_sha256: sha256(configText), generated_csv_sha256: csvHash,
-    output_paths: { canonical_csv: CSV_PATH, adapter_report: REPORT_PATH }
-  };
   atomicWrite(CSV_PATH, built.csv);
-  atomicWrite(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   const importer = (deps.runImporter || runImporter)(CSV_PATH);
+  if (importer.database_writes !== 0) fail("Importer database_writes must be zero");
+  const report = {
+    run_timestamp: new Date().toISOString(), runId: importer.runId, source_url: config.source_url,
+    configured_products: config.products.length, mapped_products: built.rows.length,
+    unmapped_products: built.unmappedProducts, canonical_rows: built.rows.length,
+    csv_enrichment_used: csvEnrichmentUsed,
+    ...(csvEnrichmentUsed ? { csv_enrichment_path: exportPath } : {}),
+    sku_drifts: built.skuDrifts, barcode_drifts: built.barcodeDrifts,
+    price_changes: built.priceChanges, stock_changes: built.stockChanges,
+    handle_changes: built.handleChanges, vendor_mismatches: built.vendorMismatches,
+    invalid_images: built.invalidImages, invalid_urls: built.invalidUrls,
+    generated_csv_sha256: csvHash, importer_summary: importer.summary,
+    database_writes: 0, success: true,
+  };
+  atomicWrite(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
   console.log(importer.output);
   return { report, importer, csv: built.csv };
@@ -243,4 +343,7 @@ async function main(deps = {}) {
 
 if (require.main === module) main().catch((error) => { console.error(`KIOR adapter failed: ${error.message}`); process.exitCode = 1; });
 
-module.exports = { atomicWrite, buildCanonical, fetchJson, parseExport, runImporter, validateCanonicalMappings };
+module.exports = {
+  CSV_PATH, REPORT_PATH, atomicWrite, buildCanonical, fetchJson, main, normalizeCsvSku,
+  normalizeEvidence, parseExport, runImporter, sha256, validateCanonicalMappings, validateConfig,
+};

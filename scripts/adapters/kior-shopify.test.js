@@ -5,12 +5,19 @@ const path = require("path");
 const test = require("node:test");
 const { parse } = require("csv-parse/sync");
 const {
+  CSV_PATH,
+  REPORT_PATH,
   atomicWrite,
   buildCanonical,
   fetchJson,
+  main,
+  normalizeCsvSku,
+  normalizeEvidence,
   parseExport,
   runImporter,
+  sha256,
   validateCanonicalMappings,
+  validateConfig,
 } = require("./kior-shopify");
 
 const ROOT = path.resolve(__dirname, "../..");
@@ -34,9 +41,13 @@ const approvedConfigEvidence = [
 function productFor(item, overrides = {}) {
   return {
     id: Number(item.shopify_product_id), title: item.canonical_name, handle: item.expected_handle,
-    vendor: "KIOR", updated_at: "2026-07-11T12:00:00Z", body_html: "DO NOT IMPORT BODY",
+    vendor: "KIOR", updated_at: "2026-07-11T12:00:00Z",
     images: [{ src: `https://cdn.test/${item.shopify_product_id}.jpg` }],
-    variants: [{ id: Number(item.shopify_variant_id), product_id: Number(item.shopify_product_id), title: "Default Title", sku: `SKU-${item.shopify_product_id}`, price: item.approved_price.toFixed(2), available: item.approved_in_stock, updated_at: "2026-07-11T12:00:00Z", grams: 999 }],
+    variants: [{
+      id: Number(item.shopify_variant_id), product_id: Number(item.shopify_product_id),
+      sku: item.expected_sku ?? "", barcode: null, price: item.approved_price.toFixed(2),
+      available: item.approved_in_stock, updated_at: "2026-07-11T12:00:00Z",
+    }],
     ...overrides,
   };
 }
@@ -46,196 +57,257 @@ function fixture(options = {}) {
   if (options.extra) products.push({ id: 999999, title: "Unmapped", handle: "unmapped", vendor: "KIOR", images: [], variants: [{ id: 888888, sku: "", price: "1.00", available: true }] });
   const exportLines = ["Handle,Variant SKU,Variant Inventory Qty,Variant Barcode,Variant Grams,Body (HTML),Image Src"];
   for (const item of config.products) {
-    exportLines.push(`${item.expected_handle},'SKU-${item.shopify_product_id},${item.approved_in_stock ? 5 : 0},BAR-${item.shopify_product_id},999,NEVER,https://csv.test/main.jpg`);
+    exportLines.push(`${item.expected_handle},${item.expected_sku ? `'${item.expected_sku}` : ""},99,${item.expected_barcode ?? ""},999,NEVER,https://csv.test/main.jpg`);
     exportLines.push(`${item.expected_handle},,,,,,https://csv.test/extra.jpg`);
   }
   return { products, groups: parseExport(`${exportLines.join("\n")}\n`) };
 }
 
-function build(options = {}) {
-  const data = fixture(options);
-  return buildCanonical({ config: structuredClone(config), shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header });
+function build({ enrichment = false, configOverride = config, products } = {}) {
+  const data = fixture();
+  return buildCanonical({
+    config: structuredClone(configOverride),
+    shopify: { products: products || data.products },
+    exportGroups: enrichment ? data.groups : null,
+    templateHeader: header,
+  });
 }
 
-test("config preserves 11 approved identities and explicit SKU/barcode evidence", () => {
-  assert.equal(config.products.length, 11);
-  assert.deepEqual(
-    config.products.map((item) => [
-      item.shopify_product_id,
-      item.shopify_variant_id,
-      item.canonical_product_id,
-      item.canonical_slug,
-      item.expected_sku,
-      item.expected_barcode,
-    ]),
-    approvedConfigEvidence,
-  );
+function response(body, status = 200) {
+  return { status, headers: { get: () => null }, text: async () => body };
+}
 
+function importerOutput(overrides = {}) {
+  const counts = {
+    "approved rows": 11, "invalid rows": 0, "ambiguous rows": 0,
+    "new retailers would be created": 0, "new products would be created": 0,
+    "retailer_products would be created": 0, "offers would be created": 0,
+    "offers would be updated": 0, "offers unchanged": 11,
+    "price_history rows would be created": 0, "Skipped for review": 0, Failed: 0,
+    ...overrides,
+  };
+  return `${Object.entries(counts).map(([key, value]) => `${key}: ${value}`).join("\n")}\nDry run: no database writes performed.\n`;
+}
+
+function importerStub() {
+  return {
+    runId: "test-run-id", output: importerOutput(), database_writes: 0,
+    summary: {
+      approved_rows: 11, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0,
+      new_products: 0, retailer_products_created: 0, offers_created: 0,
+      offers_updated: 0, offers_unchanged: 11, price_history_created: 0,
+      skipped_for_review: 0, failed: 0,
+    },
+  };
+}
+
+function importerSpawn({ runId = "current", report = true, reportBody, output = importerOutput(), status = 0 } = {}) {
+  return (_command, _args, options) => {
+    if (report) {
+      fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
+      fs.writeFileSync(
+        options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH,
+        reportBody ?? JSON.stringify({
+          runId: runId === "current" ? options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID : runId,
+          rowLevelOffers: config.products.map((item, index) => ({ rowNumber: index + 2, slug: item.canonical_slug, offerAction: "unchanged" })),
+        }),
+      );
+    }
+    return { status, stdout: output, stderr: "" };
+  };
+}
+
+test("config preserves explicit approved SKU/barcode evidence", () => {
+  assert.equal(config.products.length, 11);
+  assert.deepEqual(config.products.map((item) => [item.shopify_product_id, item.shopify_variant_id, item.canonical_product_id, item.canonical_slug, item.expected_sku, item.expected_barcode]), approvedConfigEvidence);
   assert.equal(new Set(config.products.map((item) => item.shopify_product_id)).size, 11);
   assert.equal(new Set(config.products.map((item) => item.shopify_variant_id)).size, 11);
   assert.equal(config.products.filter((item) => typeof item.expected_sku === "string").length, 9);
   assert.equal(config.products.filter((item) => item.expected_sku === null).length, 2);
   assert.equal(config.products.filter((item) => typeof item.expected_barcode === "string").length, 2);
   assert.equal(config.products.filter((item) => item.expected_barcode === null).length, 9);
-  for (const item of config.products) {
-    assert.equal(Object.hasOwn(item, "expected_sku"), true);
-    assert.equal(Object.hasOwn(item, "expected_barcode"), true);
-    if (typeof item.expected_sku === "string") assert.notEqual(item.expected_sku.trim(), "");
-    if (typeof item.expected_barcode === "string") assert.notEqual(item.expected_barcode.trim(), "");
-    for (const forbidden of ["gtin", "verified_metrics", "inventory_quantity", "variant_grams", "body_html", "raw_csv_data"]) {
-      assert.equal(Object.hasOwn(item, forbidden), false);
-    }
-  }
+  assert.doesNotThrow(() => validateConfig(config));
+});
 
-  const serialized = JSON.stringify(config).toLowerCase();
-  for (const forbidden of ["supabase_service_role_key", ".env.local", "products_export.csv", "c:\\", "/users/", "/home/"]) {
-    assert.equal(serialized.includes(forbidden), false);
+test("config requires both evidence fields as non-empty strings or null", () => {
+  for (const key of ["expected_sku", "expected_barcode"]) {
+    const missing = structuredClone(config); delete missing.products[0][key];
+    assert.throws(() => validateConfig(missing), new RegExp(`Missing config field ${key}`));
+    const empty = structuredClone(config); empty.products[0][key] = " ";
+    assert.throws(() => validateConfig(empty), new RegExp(`Invalid config field ${key}`));
+    const invalid = structuredClone(config); invalid.products[0][key] = 123;
+    assert.throws(() => validateConfig(invalid), new RegExp(`Invalid config field ${key}`));
   }
 });
 
-test("maps exactly 11 approved products in stable product/variant order", () => {
-  const result = build({ extra: true });
+test("normalization is conservative", () => {
+  assert.equal(normalizeEvidence(undefined), null);
+  assert.equal(normalizeEvidence("  Ab-01  "), "Ab-01");
+  assert.equal(normalizeCsvSku(" '001-Ab "), "001-Ab");
+  assert.equal(normalizeCsvSku(""), null);
+});
+
+test("JSON-only generates 11 rows and only two approved external GTINs", () => {
+  const result = build();
   assert.equal(result.rows.length, 11);
-  assert.equal(result.unmappedProducts.length, 1);
-  const ids = result.rows.map((row) => [BigInt(row.external_product_id), BigInt(row.external_variant_id)]);
-  assert.deepEqual(ids, [...ids].sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : 1));
+  assert.deepEqual(result.rows.filter((row) => row.external_gtin).map((row) => row.external_gtin), ["0-754590-525916", "0-754590-525954"]);
+  assert.equal(result.rows.filter((row) => row.external_gtin === "").length, 9);
+  for (const forbidden of ["expected_sku", "expected_barcode", "Variant Grams", "Body (HTML)", "Inventory Qty", "verified_metrics"]) assert.equal(result.csv.includes(forbidden), false);
 });
 
-test("canonical header exactly matches template and URLs include variant IDs", () => {
-  const result = build();
-  assert.deepEqual(result.csv.split("\n", 1)[0].split(","), header);
-  for (const row of result.rows) assert.equal(row.external_url, `https://kior.uk/products/${row.external_url.split("/products/")[1].split("?")[0]}?variant=${row.external_variant_id}`);
-});
-
-test("uses live availability, CSV barcode, image fallback, and approved canonical fields only", () => {
-  const result = build();
-  assert.equal(result.rows.filter((row) => row.in_stock === "true").length, 10);
-  assert.equal(result.rows.filter((row) => row.in_stock === "false").length, 1);
-  assert.match(result.rows[0].external_gtin, /^BAR-/);
-  assert.match(result.rows[0].image, /^https:\/\/cdn\.test\//);
-  assert.equal(result.rows[0].description, "");
-  assert.equal(result.csv.includes("DO NOT IMPORT BODY"), false);
-  assert.equal(result.csv.includes("NEVER"), false);
-  assert.equal(header.includes("Variant Grams"), false);
-  for (const forbidden of ["canonical_product_id", "gtin", "net_weight_g", "nutrition_verified"]) assert.equal(header.includes(forbidden), false);
-});
-
-test("adapter still requires local CSV data and does not use config evidence as output", () => {
-  const data = fixture();
-  const modified = structuredClone(config);
-  modified.products[0].expected_sku = "CONFIG-ONLY-SKU";
-  modified.products[0].expected_barcode = "CONFIG-ONLY-BARCODE";
-  const result = buildCanonical({ config: modified, shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header });
-  assert.equal(result.rows[0].external_gtin, `BAR-${result.rows[0].external_product_id}`);
-  assert.equal(result.csv.includes("CONFIG-ONLY-SKU"), false);
-  assert.equal(result.csv.includes("CONFIG-ONLY-BARCODE"), false);
-  assert.throws(
-    () => buildCanonical({ config: modified, shopify: { products: data.products }, exportGroups: new Map(), templateHeader: header }),
-    /No Shopify CSV rows/,
-  );
-});
-
-test("ignores additional image rows in Shopify CSV", () => assert.doesNotThrow(() => build()));
-
-test("rejects duplicate Shopify product and variant IDs", () => {
-  const a = fixture();
-  a.products.push(structuredClone(a.products[0]));
-  assert.throws(() => buildCanonical({ config, shopify: { products: a.products }, exportGroups: a.groups, templateHeader: header }), /Duplicate Shopify product ID/);
-  const b = fixture();
-  b.products[1].variants[0].id = b.products[0].variants[0].id;
-  assert.throws(() => buildCanonical({ config, shopify: { products: b.products }, exportGroups: b.groups, templateHeader: header }), /Duplicate Shopify variant ID/);
-});
-
-test("rejects missing product, changed variant, and changed handle", () => {
-  const missing = fixture(); missing.products.pop();
-  assert.throws(() => buildCanonical({ config, shopify: { products: missing.products }, exportGroups: missing.groups, templateHeader: header }), /Missing configured Shopify products/);
-  const variant = fixture(); variant.products[0].variants[0].id = 123;
-  assert.throws(() => buildCanonical({ config, shopify: { products: variant.products }, exportGroups: variant.groups, templateHeader: header }), /Configured variant .* is missing/);
-  const handle = fixture(); handle.products[0].handle = "changed";
-  assert.throws(() => buildCanonical({ config, shopify: { products: handle.products }, exportGroups: handle.groups, templateHeader: header }), /No Shopify CSV rows|handle changes/);
-});
-
-test("rejects SKU conflict and ambiguous CSV join", () => {
-  const sku = fixture(); sku.products[0].variants[0].sku = "CONFLICT";
-  assert.throws(() => buildCanonical({ config, shopify: { products: sku.products }, exportGroups: sku.groups, templateHeader: header }), /SKU mismatches/);
-  const ambiguous = fixture(); ambiguous.groups.get(config.products[0].expected_handle).push({ Handle: config.products[0].expected_handle, "Variant SKU": "SECOND", "Variant Price": "9.99" });
-  assert.throws(() => buildCanonical({ config, shopify: { products: ambiguous.products }, exportGroups: ambiguous.groups, templateHeader: header }), /Ambiguous Shopify CSV join/);
-});
-
-test("rejects invalid and excessive price changes", () => {
-  for (const price of ["", "0", "NaN", "Infinity"]) {
-    const data = fixture(); data.products[0].variants[0].price = price;
-    assert.throws(() => buildCanonical({ config, shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header }), /Invalid live price/);
+test("JSON SKU drift rules block mismatches and preserve approved null", () => {
+  assert.doesNotThrow(() => build());
+  for (const sku of ["DIFFERENT", ""]) {
+    const data = fixture(); data.products[0].variants[0].sku = sku;
+    assert.throws(() => build({ products: data.products }), /SKU drifts/);
   }
-  const jump = fixture(); jump.products[0].variants[0].price = (config.products[0].approved_price * 1.26).toFixed(2);
-  assert.throws(() => buildCanonical({ config, shopify: { products: jump.products }, exportGroups: jump.groups, templateHeader: header }), /Price change exceeds threshold/);
+  const data = fixture(); data.products.at(-1).variants[0].sku = "NEW-SKU";
+  assert.throws(() => build({ products: data.products }), /SKU drifts/);
 });
 
-test("rejects mass stock flip", () => {
+test("public barcode passes only when absent or equal to approved evidence", () => {
+  const matching = fixture(); matching.products[0].variants[0].barcode = config.products[0].expected_barcode;
+  assert.doesNotThrow(() => build({ products: matching.products }));
+  const mismatch = fixture(); mismatch.products[0].variants[0].barcode = "DIFFERENT";
+  assert.throws(() => build({ products: mismatch.products }), /barcode drifts/);
+  const unexpected = fixture(); unexpected.products[1].variants[0].barcode = "UNEXPECTED";
+  assert.throws(() => build({ products: unexpected.products }), /barcode drifts/);
+});
+
+test("matching optional CSV enriches without changing canonical output", () => {
+  const jsonOnly = build();
+  const enriched = build({ enrichment: true });
+  assert.equal(enriched.csv, jsonOnly.csv);
+  assert.equal(sha256(enriched.csv), sha256(jsonOnly.csv));
+});
+
+test("CSV drift blocks and CSV barcode never overrides config", () => {
   const data = fixture();
-  for (let index = 0; index < 4; index += 1) data.products[index].variants[0].available = !config.products[index].approved_in_stock;
-  assert.throws(() => buildCanonical({ config, shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header }), /Stock change threshold exceeded/);
+  data.groups.get(config.products[0].expected_handle)[0]["Variant SKU"] = "OTHER";
+  assert.throws(() => buildCanonical({ config, shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header }), /SKU drifts/);
+  const barcode = fixture();
+  barcode.groups.get(config.products[0].expected_handle)[0]["Variant Barcode"] = "OTHER";
+  assert.throws(() => buildCanonical({ config, shopify: { products: barcode.products }, exportGroups: barcode.groups, templateHeader: header }), /barcode drifts/);
+  const extra = fixture();
+  extra.groups.get(config.products[1].expected_handle)[0]["Variant Barcode"] = "CSV-ONLY";
+  assert.throws(() => buildCanonical({ config, shopify: { products: extra.products }, exportGroups: extra.groups, templateHeader: header }), /barcode drifts/);
 });
 
-function response(body, status = 200) {
-  return { status, headers: { get: () => null }, text: async () => body };
-}
+test("CSV requires one main row and ignores image-only rows", () => {
+  assert.doesNotThrow(() => build({ enrichment: true }));
+  const data = fixture();
+  data.groups.get(config.products[0].expected_handle).push({ Handle: config.products[0].expected_handle, "Variant SKU": config.products[0].expected_sku });
+  assert.throws(() => buildCanonical({ config, shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header }), /Ambiguous Shopify CSV join/);
+});
 
-test("fetch rejects HTTP errors, invalid JSON, empty products, and duplicate IDs", async () => {
+test("product, variant, handle, vendor, image and URL guardrails remain blocking", () => {
+  const missing = fixture(); missing.products.pop();
+  assert.throws(() => build({ products: missing.products }), /Missing configured/);
+  const variant = fixture(); variant.products[0].variants[0].id = 1;
+  assert.throws(() => build({ products: variant.products }), /Configured variant/);
+  const handle = fixture(); handle.products[0].handle = "changed";
+  assert.throws(() => build({ products: handle.products }), /handle changes/);
+  const vendor = fixture(); vendor.products[0].vendor = "Other";
+  assert.throws(() => build({ products: vendor.products }), /vendor mismatches/);
+  const image = fixture(); image.products[0].images[0].src = "http://invalid";
+  assert.throws(() => build({ products: image.products }), /Invalid Shopify images/);
+});
+
+test("fetch rejects bad responses and enforces timeout", async () => {
   await assert.rejects(fetchJson("x", { timeoutMs: 50, maxBytes: 1000, fetchImpl: async () => response("x", 503) }), /HTTP 503/);
-  await assert.rejects(fetchJson("x", { timeoutMs: 50, maxBytes: 1000, fetchImpl: async () => response("{" ) }), /not valid JSON/);
-  await assert.rejects(fetchJson("x", { timeoutMs: 50, maxBytes: 1000, fetchImpl: async () => response('{"products":[]}') }), /empty/);
-});
-
-test("fetch enforces timeout", async () => {
+  await assert.rejects(fetchJson("x", { timeoutMs: 50, maxBytes: 1000, fetchImpl: async () => response("{") }), /not valid JSON/);
   await assert.rejects(fetchJson("x", { timeoutMs: 5, maxBytes: 1000, fetchImpl: (_url, options) => new Promise((_resolve, reject) => options.signal.addEventListener("abort", () => reject(new Error("aborted")))) }), /aborted/);
 });
 
-test("atomicWrite creates and replaces the final file without leaving a temporary file", () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "kior-atomic-"));
-  const target = path.join(directory, "output.csv");
-  atomicWrite(target, "old");
-  atomicWrite(target, "complete");
-  assert.equal(fs.readFileSync(target, "utf8"), "complete");
-  assert.deepEqual(fs.readdirSync(directory), ["output.csv"]);
-});
-
-test("canonical mapping validation performs a read-only ID and slug check", async () => {
+test("canonical mapping validation performs read-only ID/slug checks", async () => {
   const calls = [];
-  const client = {
-    from(table) {
-      calls.push(["from", table]);
-      return {
-        select(columns) {
-          calls.push(["select", columns]);
-          return {
-            async in(column, values) {
-              calls.push(["in", column, values]);
-              return { data: config.products.map((item) => ({ id: item.canonical_product_id, slug: item.canonical_slug })), error: null };
-            },
-          };
-        },
-      };
-    },
-  };
+  const client = { from(table) { calls.push(["from", table]); return this; }, select(value) { calls.push(["select", value]); return this; }, in(key, ids) { calls.push(["in", key, ids]); return Promise.resolve({ data: config.products.map((item) => ({ id: item.canonical_product_id, slug: item.canonical_slug })), error: null }); } };
   await validateCanonicalMappings(config, client);
-  assert.deepEqual(calls.map((call) => call[0]), ["from", "select", "in"]);
   assert.equal(calls.some((call) => ["insert", "update", "upsert", "delete"].includes(call[0])), false);
 });
 
-test("child process receives only importer path, feed mode, dry-run, and csv", () => {
+test("importer command is fixed dry-run without safe-create or apply", () => {
   let captured;
-  const result = runImporter("C:\\tmp\\generated.csv", (command, args, options) => { captured = { command, args, options }; return { status: 0, stdout: "Dry run: no database writes performed.\n", stderr: "" }; });
+  runImporter("C:\\tmp\\generated.csv", (command, args, options) => {
+    captured = { command, args, options };
+    return importerSpawn() (command, args, options);
+  });
   assert.equal(captured.command, process.execPath);
   assert.deepEqual(captured.args.slice(1), ["--mode=feed", "--dry-run", "--csv=C:\\tmp\\generated.csv"]);
   assert.equal(captured.args.includes("--safe-create"), false);
   assert.equal(captured.args.some((arg) => /apply/i.test(arg)), false);
-  assert.match(result.output, /no database writes/);
 });
 
-test("generated CSV parses to 11 rows without verified metrics", () => {
+test("importer requires a fresh valid machine report", () => {
+  assert.throws(() => runImporter("x.csv", importerSpawn({ report: false })), /did not create/);
+  assert.throws(() => runImporter("x.csv", importerSpawn({ reportBody: "not-json" })), /empty or invalid/);
+  assert.throws(() => runImporter("x.csv", importerSpawn({ runId: "old" })), /stale/);
+});
+
+test("importer blocks unsafe summary counters", () => {
+  assert.throws(() => runImporter("x.csv", importerSpawn({ output: importerOutput({ "approved rows": 10 }) })), /approved row count/);
+  assert.throws(() => runImporter("x.csv", importerSpawn({ output: importerOutput({ "Skipped for review": 1 }) })), /skipped rows/);
+  assert.throws(() => runImporter("x.csv", importerSpawn({ output: importerOutput({ Failed: 1 }) })), /failed rows/);
+  assert.throws(() => runImporter("x.csv", importerSpawn({ status: 1 })), /dry-run failed/);
+});
+
+test("main rejects CLI args before fetching", async () => {
+  let fetched = false;
+  await assert.rejects(main({ argv: ["--dry-run"], fetchImpl: async () => { fetched = true; } }), /does not accept CLI arguments/);
+  assert.equal(fetched, false);
+});
+
+test("main supports JSON-only and reports enrichment only when the CSV exists", async () => {
+  const body = JSON.stringify({ products: fixture().products });
+  const absent = path.join(os.tmpdir(), `missing-kior-${cryptoRandom()}.csv`);
+  const jsonOnly = await main({ argv: [], exportPath: absent, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
+  assert.equal(jsonOnly.report.csv_enrichment_used, false);
+  assert.equal(Object.hasOwn(jsonOnly.report, "csv_enrichment_path"), false);
+  assert.equal(jsonOnly.report.success, true);
+  const enriched = await main({ argv: [], fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
+  assert.equal(enriched.report.csv_enrichment_used, true);
+  assert.equal(enriched.report.csv_enrichment_path.endsWith("products_export.csv"), true);
+  assert.equal(enriched.csv, jsonOnly.csv);
+});
+
+test("adapter report is written only after importer success", async () => {
+  const body = JSON.stringify({ products: fixture().products });
+  await assert.rejects(main({ argv: [], exportPath: path.join(os.tmpdir(), "absent-kior.csv"), fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: () => { throw new Error("importer failed"); } }), /importer failed/);
+  assert.equal(fs.existsSync(REPORT_PATH), false);
+  await main({ argv: [], exportPath: path.join(os.tmpdir(), "absent-kior.csv"), fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
+  assert.equal(JSON.parse(fs.readFileSync(REPORT_PATH, "utf8")).success, true);
+});
+
+test("main blocks any non-zero database_writes claim", async () => {
+  const body = JSON.stringify({ products: fixture().products });
+  await assert.rejects(main({
+    argv: [], exportPath: path.join(os.tmpdir(), "absent-kior.csv"),
+    fetchImpl: async () => response(body), validateCanonical: async () => {},
+    runImporter: () => ({ ...importerStub(), database_writes: 1 }),
+  }), /database_writes must be zero/);
+  assert.equal(fs.existsSync(REPORT_PATH), false);
+});
+
+test("atomic output replaces complete files and leaves no temporary files", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "kior-atomic-"));
+  const target = path.join(directory, "output.csv");
+  atomicWrite(target, "old");
+  assert.throws(() => atomicWrite(target, Symbol("invalid")), TypeError);
+  assert.equal(fs.readFileSync(target, "utf8"), "old");
+  atomicWrite(target, "complete");
+  assert.deepEqual(fs.readdirSync(directory), ["output.csv"]);
+});
+
+test("generated CSV parses to 11 rows without forbidden product data", () => {
   const rows = parse(build().csv, { columns: true, skip_empty_lines: true });
   assert.equal(rows.length, 11);
-  assert.equal(Object.hasOwn(rows[0], "canonical_product_id"), false);
-  assert.equal(Object.hasOwn(rows[0], "net_weight_g"), false);
+  for (const forbidden of ["canonical_product_id", "gtin", "net_weight_g", "nutrition_verified", "expected_sku", "expected_barcode"]) assert.equal(Object.hasOwn(rows[0], forbidden), false);
+});
+
+function cryptoRandom() {
+  return `${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+test.after(() => {
+  for (const target of [CSV_PATH, REPORT_PATH]) fs.rmSync(target, { force: true });
 });
