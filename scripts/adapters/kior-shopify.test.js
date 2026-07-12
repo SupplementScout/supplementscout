@@ -264,17 +264,26 @@ test("main supports JSON-only and reports enrichment only when the CSV exists", 
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "kior-enrichment-test-"));
   const absent = path.join(directory, "absent.csv");
   const present = path.join(directory, "enrichment.csv");
+  const jsonOnlyCsv = path.join(directory, "json-only-output.csv");
+  const jsonOnlyReport = path.join(directory, "json-only-report.json");
+  const enrichedCsv = path.join(directory, "enriched-output.csv");
+  const enrichedReport = path.join(directory, "enriched-report.json");
+  const absentInjected = absent.split(path.sep).join("/");
+  const presentInjected = present.split(path.sep).join("/");
   try {
-    const jsonOnly = await main({ argv: [], exportPath: absent, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
+    assert.equal(fs.existsSync(absentInjected), false);
+    const jsonOnly = await main({ argv: [], exportPath: absentInjected, csvPath: jsonOnlyCsv, reportPath: jsonOnlyReport, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
     assert.equal(jsonOnly.report.csv_enrichment_used, false);
     assert.equal(Object.hasOwn(jsonOnly.report, "csv_enrichment_path"), false);
     assert.equal(jsonOnly.report.success, true);
 
     fs.writeFileSync(present, data.exportCsv, "utf8");
-    const enriched = await main({ argv: [], exportPath: present, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
+    assert.equal(fs.existsSync(presentInjected), true);
+    const enriched = await main({ argv: [], exportPath: presentInjected, csvPath: enrichedCsv, reportPath: enrichedReport, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
     assert.equal(enriched.report.csv_enrichment_used, true);
-    assert.equal(enriched.report.csv_enrichment_path, present);
+    assert.equal(enriched.report.csv_enrichment_path, presentInjected);
     assert.equal(enriched.csv, jsonOnly.csv);
+    assert.equal(fs.readFileSync(enrichedCsv, "utf8"), fs.readFileSync(jsonOnlyCsv, "utf8"));
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }

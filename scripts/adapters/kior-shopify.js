@@ -304,7 +304,9 @@ function runImporter(csvPath, spawn = spawnSync) {
 async function main(deps = {}) {
   const argv = deps.argv ?? process.argv.slice(2);
   if (argv.length !== 0) fail("KIOR adapter does not accept CLI arguments");
-  fs.rmSync(REPORT_PATH, { force: true });
+  const csvPath = deps.csvPath ?? CSV_PATH;
+  const reportPath = deps.reportPath ?? REPORT_PATH;
+  fs.rmSync(reportPath, { force: true });
   const configText = fs.readFileSync(CONFIG_PATH, "utf8");
   const config = JSON.parse(configText);
   validateConfig(config);
@@ -319,8 +321,8 @@ async function main(deps = {}) {
   const client = deps.supabase || (deps.validateCanonical ? null : createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.SUPABASE_SERVICE_ROLE_KEY || "", { auth: { persistSession: false, autoRefreshToken: false } }));
   await canonicalValidator(config, client);
   const csvHash = sha256(built.csv);
-  atomicWrite(CSV_PATH, built.csv);
-  const importer = (deps.runImporter || runImporter)(CSV_PATH);
+  atomicWrite(csvPath, built.csv);
+  const importer = (deps.runImporter || runImporter)(csvPath);
   if (importer.database_writes !== 0) fail("Importer database_writes must be zero");
   const report = {
     run_timestamp: new Date().toISOString(), runId: importer.runId, source_url: config.source_url,
@@ -335,7 +337,7 @@ async function main(deps = {}) {
     generated_csv_sha256: csvHash, importer_summary: importer.summary,
     database_writes: 0, success: true,
   };
-  atomicWrite(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
+  atomicWrite(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
   console.log(importer.output);
   return { report, importer, csv: built.csv };
