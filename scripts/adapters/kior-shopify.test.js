@@ -60,7 +60,8 @@ function fixture(options = {}) {
     exportLines.push(`${item.expected_handle},${item.expected_sku ? `'${item.expected_sku}` : ""},99,${item.expected_barcode ?? ""},999,NEVER,https://csv.test/main.jpg`);
     exportLines.push(`${item.expected_handle},,,,,,https://csv.test/extra.jpg`);
   }
-  return { products, groups: parseExport(`${exportLines.join("\n")}\n`) };
+  const exportCsv = `${exportLines.join("\n")}\n`;
+  return { products, exportCsv, groups: parseExport(exportCsv) };
 }
 
 function build({ enrichment = false, configOverride = config, products } = {}) {
@@ -258,16 +259,25 @@ test("main rejects CLI args before fetching", async () => {
 });
 
 test("main supports JSON-only and reports enrichment only when the CSV exists", async () => {
-  const body = JSON.stringify({ products: fixture().products });
-  const absent = path.join(os.tmpdir(), `missing-kior-${cryptoRandom()}.csv`);
-  const jsonOnly = await main({ argv: [], exportPath: absent, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
-  assert.equal(jsonOnly.report.csv_enrichment_used, false);
-  assert.equal(Object.hasOwn(jsonOnly.report, "csv_enrichment_path"), false);
-  assert.equal(jsonOnly.report.success, true);
-  const enriched = await main({ argv: [], fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
-  assert.equal(enriched.report.csv_enrichment_used, true);
-  assert.equal(enriched.report.csv_enrichment_path.endsWith("products_export.csv"), true);
-  assert.equal(enriched.csv, jsonOnly.csv);
+  const data = fixture();
+  const body = JSON.stringify({ products: data.products });
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "kior-enrichment-test-"));
+  const absent = path.join(directory, "absent.csv");
+  const present = path.join(directory, "enrichment.csv");
+  try {
+    const jsonOnly = await main({ argv: [], exportPath: absent, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
+    assert.equal(jsonOnly.report.csv_enrichment_used, false);
+    assert.equal(Object.hasOwn(jsonOnly.report, "csv_enrichment_path"), false);
+    assert.equal(jsonOnly.report.success, true);
+
+    fs.writeFileSync(present, data.exportCsv, "utf8");
+    const enriched = await main({ argv: [], exportPath: present, fetchImpl: async () => response(body), validateCanonical: async () => {}, runImporter: importerStub });
+    assert.equal(enriched.report.csv_enrichment_used, true);
+    assert.equal(enriched.report.csv_enrichment_path, present);
+    assert.equal(enriched.csv, jsonOnly.csv);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("adapter report is written only after importer success", async () => {
@@ -303,10 +313,6 @@ test("generated CSV parses to 11 rows without forbidden product data", () => {
   assert.equal(rows.length, 11);
   for (const forbidden of ["canonical_product_id", "gtin", "net_weight_g", "nutrition_verified", "expected_sku", "expected_barcode"]) assert.equal(Object.hasOwn(rows[0], forbidden), false);
 });
-
-function cryptoRandom() {
-  return `${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
 
 test.after(() => {
   for (const target of [CSV_PATH, REPORT_PATH]) fs.rmSync(target, { force: true });
