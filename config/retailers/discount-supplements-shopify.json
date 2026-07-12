@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "source_url": "https://www.discount-supplements.co.uk/products.json?limit=250",
+  "retailer": {
+    "id": 4,
+    "name": "Discount Supplements",
+    "slug": "discount-supplements",
+    "website": "https://www.discount-supplements.co.uk",
+    "vendor_aliases": ["CNP"]
+  },
+  "shipping": {
+    "known": true,
+    "cost": 4.99,
+    "free_shipping_threshold": 80,
+    "approval_note": "Verified standard UK delivery for third-party brands, including CNP; the basket-level free-shipping threshold is informational and does not change a single-offer shipping row."
+  },
+  "guardrails": {
+    "fetch_timeout_ms": 15000,
+    "max_response_bytes": 5242880,
+    "max_pages": 20
+  },
+  "products": [
+    {
+      "shopify_product_id": "6788065329348",
+      "shopify_variant_id": "54879874810234",
+      "expected_variant_count": 1,
+      "expected_handle": "cnp-pro-creatine-250g",
+      "expected_product_title": "CNP Creatine Monohydrate 250g",
+      "expected_variant_title": "250g / Unflavoured",
+      "expected_option1": "250g",
+      "expected_option2": "Unflavoured",
+      "expected_option3": null,
+      "expected_sku": "CNP-0508",
+      "expected_barcode": null,
+      "canonical_product_id": 407,
+      "canonical_name": "CNP Creatine Monohydrate 250g",
+      "canonical_slug": "cnp-creatine-monohydrate-250g",
+      "brand": "CNP",
+      "category": "Creatine",
+      "product_format": "powder",
+      "variant_name": "250g / Unflavoured",
+      "size": 250,
+      "size_unit": "g",
+      "flavour": "Unflavoured",
+      "pack_count": 1,
+      "is_for_sale": true,
+      "approved_price": 12.99,
+      "approved_in_stock": true
+    }
+  ]
+}
