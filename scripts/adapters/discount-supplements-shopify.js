@@ -142,8 +142,9 @@ function runImporter(csvPath, spawn = spawnSync) {
     if (!fs.existsSync(helperPath)) fail("Importer did not create a fresh helper report");
     helper = JSON.parse(fs.readFileSync(helperPath, "utf8"));
   } finally { fs.rmSync(helperPath, { force: true }); }
-  const expectedRowResult = { rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" };
-  if (helper?.runId !== runId || helper?.rowLevelOffers?.length !== 1 || JSON.stringify(helper.rowLevelOffers[0]) !== JSON.stringify(expectedRowResult)) fail("Invalid or stale importer row-level report");
+  if (helper?.runId !== runId || helper?.rowLevelOffers?.length !== 1) fail("Invalid or stale importer row-level report");
+  const rowResult = helper.rowLevelOffers[0];
+  if (!rowResult || typeof rowResult !== "object" || Array.isArray(rowResult) || Object.keys(rowResult).sort().join(",") !== "offerAction,rowNumber,slug" || rowResult.rowNumber !== 2 || rowResult.slug !== "cnp-creatine-monohydrate-250g" || !["create", "unchanged"].includes(rowResult.offerAction)) fail("Invalid importer row-level result");
   const summary = {
     approved_rows: count(output, "approved rows"), invalid_rows: count(output, "invalid rows"), ambiguous_rows: count(output, "ambiguous rows"),
     new_retailers: count(output, "new retailers would be created"), new_products: count(output, "new products would be created"),
@@ -151,9 +152,13 @@ function runImporter(csvPath, spawn = spawnSync) {
     offers_updated: count(output, "offers would be updated"), offers_unchanged: count(output, "offers unchanged"),
     price_history_created: count(output, "price_history rows would be created"), skipped_for_review: count(output, "Skipped for review"), failed: count(output, "Failed"),
   };
-  const expected = { approved_rows: 1, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0, new_products: 0, retailer_products_created: 1, offers_created: 1, offers_updated: 0, offers_unchanged: 0, price_history_created: 1, skipped_for_review: 0, failed: 0 };
-  for (const [key, value] of Object.entries(expected)) if (summary[key] !== value) fail(`Unexpected importer ${key}: ${summary[key]}`);
-  return { args, runId, summary, rowLevelOffers: helper.rowLevelOffers, output, database_writes: 0 };
+  const common = { approved_rows: 1, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0, new_products: 0, offers_updated: 0, skipped_for_review: 0, failed: 0 };
+  for (const [key, value] of Object.entries(common)) if (summary[key] !== value) fail(`Unexpected importer ${key}: ${summary[key]}`);
+  const initialCreate = summary.retailer_products_created === 1 && summary.offers_created === 1 && summary.offers_unchanged === 0 && summary.price_history_created === 1 && rowResult.offerAction === "create";
+  const steadyState = summary.retailer_products_created === 0 && summary.offers_created === 0 && summary.offers_unchanged === 1 && summary.price_history_created === 0 && rowResult.offerAction === "unchanged";
+  const lifecycleState = initialCreate ? "INITIAL_CREATE" : steadyState ? "STEADY_STATE" : null;
+  if (!lifecycleState) fail(`Unexpected importer lifecycle state: ${JSON.stringify({ summary, rowResult })}`);
+  return { args, runId, lifecycleState, summary, rowLevelOffers: helper.rowLevelOffers, output, database_writes: 0 };
 }
 
 async function main(deps = {}) {
@@ -179,7 +184,7 @@ async function main(deps = {}) {
     retailer_id: 4, canonical_product_id: 407, configured_products: 1, mapped_products: 1, canonical_rows: 1,
     shipping_known: true, shipping_cost: 4.99, free_shipping_threshold: 80, delivered_price: Number(config.products[0].approved_price) + Number(config.shipping.cost),
     product_drifts: [], variant_drifts: [], price_changes: [], stock_changes: [], handle_changes: [], vendor_mismatches: [], sku_drifts: [], barcode_drifts: [], invalid_images: [], invalid_urls: [],
-    generated_csv_sha256: sha256(built.csv), importer_summary: importer.summary, importer_row_results: importer.rowLevelOffers, database_writes: 0, success: true,
+    generated_csv_sha256: sha256(built.csv), lifecycle_state: importer.lifecycleState, importer_summary: importer.summary, importer_row_results: importer.rowLevelOffers, database_writes: 0, success: true,
   };
   atomicWrite(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

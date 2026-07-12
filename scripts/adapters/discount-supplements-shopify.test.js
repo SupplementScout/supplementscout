@@ -43,6 +43,17 @@ function importerOutput(overrides = {}) {
   return `${Object.entries(values).map(([key, value]) => `${key}: ${value}`).join("\n")}\nDry run: no database writes performed.\n`;
 }
 
+function runImporterFixture({ overrides = {}, action = "create", rows, runId = "current" } = {}) {
+  return adapter.runImporter("approved.csv", (_command, _args, options) => {
+    fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
+    fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({
+      runId: runId === "current" ? options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID : runId,
+      rowLevelOffers: rows ?? [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: action }],
+    }));
+    return { status: 0, stdout: importerOutput(overrides), stderr: "" };
+  });
+}
+
 test("config freezes the single approved retailer, canonical product, variant, evidence, and shipping", () => {
   adapter.validateConfig(config);
   assert.equal(config.products.length, 1);
@@ -181,7 +192,7 @@ test("production target validation requires retailer ID 4 and canonical ID 407",
   }
 });
 
-test("importer command is fixed to feed dry-run and exact first-run counters", () => {
+test("valid initial create uses fixed feed dry-run command", () => {
   const captured = {};
   const result = adapter.runImporter("C:\\tmp\\approved.csv", (command, args, options) => {
     captured.command = command; captured.args = args;
@@ -201,7 +212,19 @@ test("importer command is fixed to feed dry-run and exact first-run counters", (
     price_history_created: 1, skipped_for_review: 0, failed: 0,
   });
   assert.equal(result.database_writes, 0);
+  assert.equal(result.lifecycleState, "INITIAL_CREATE");
   assert.deepEqual(result.rowLevelOffers, [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }]);
+});
+
+test("valid steady state is accepted exactly", () => {
+  const result = runImporterFixture({
+    overrides: { "retailer_products would be created": 0, "offers would be created": 0, "offers unchanged": 1, "price_history rows would be created": 0 },
+    action: "unchanged",
+  });
+  assert.equal(result.lifecycleState, "STEADY_STATE");
+  assert.equal(result.database_writes, 0);
+  assert.equal(result.summary.offers_unchanged, 1);
+  assert.deepEqual(result.rowLevelOffers, [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "unchanged" }]);
 });
 
 test("importer blocks any counter drift", () => {
@@ -212,17 +235,42 @@ test("importer blocks any counter drift", () => {
   }), /new_products/);
 });
 
+test("lifecycle state and row action must agree", () => {
+  assert.throws(() => runImporterFixture({
+    overrides: { "retailer_products would be created": 0, "offers would be created": 0, "offers unchanged": 1, "price_history rows would be created": 0 },
+    action: "create",
+  }), /lifecycle state/);
+  assert.throws(() => runImporterFixture({ action: "unchanged" }), /lifecycle state/);
+});
+
+test("updates and steady-state price history are fatal", () => {
+  assert.throws(() => runImporterFixture({ overrides: { "offers would be updated": 1 } }), /offers_updated/);
+  assert.throws(() => runImporterFixture({
+    overrides: { "retailer_products would be created": 0, "offers would be created": 0, "offers unchanged": 1, "price_history rows would be created": 1 },
+    action: "unchanged",
+  }), /lifecycle state/);
+});
+
+test("row-level report requires one current exact slug", () => {
+  assert.throws(() => runImporterFixture({ rows: [
+    { rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" },
+    { rowNumber: 3, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" },
+  ] }), /Invalid or stale/);
+  assert.throws(() => runImporterFixture({ runId: "stale-run" }), /Invalid or stale/);
+  assert.throws(() => runImporterFixture({ rows: [{ rowNumber: 2, slug: "wrong-slug", offerAction: "create" }] }), /row-level result/);
+});
+
 test("importer rejects stale or non-exact row-level evidence", () => {
   for (const rowLevelOffers of [
-    [{ rowNumber: 2, slug: "wrong-slug", offerAction: "create" }],
-    [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "unchanged" }],
+    [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "update" }],
+    [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create", extra: true }],
     [],
   ]) {
     assert.throws(() => adapter.runImporter("approved.csv", (_command, _args, options) => {
       fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
-      fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({ runId: "stale-run", rowLevelOffers }));
+      fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({ runId: options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID, rowLevelOffers }));
       return { status: 0, stdout: importerOutput(), stderr: "" };
-    }), /Invalid or stale importer row-level report/);
+    }), /row-level|Invalid or stale/);
   }
 });
 
@@ -246,7 +294,7 @@ test("main writes only controlled tmp outputs after validated dry-run success", 
   const result = await adapter.main({
     argv: [], csvPath, reportPath, fetchCatalog: async () => ({ products: [productFixture()] }),
     validateProduction: async () => {},
-    runImporter: () => ({ runId: "fresh-run", database_writes: 0, output: "ok", rowLevelOffers: [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }], summary: {
+    runImporter: () => ({ runId: "fresh-run", lifecycleState: "INITIAL_CREATE", database_writes: 0, output: "ok", rowLevelOffers: [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }], summary: {
       approved_rows: 1, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0, new_products: 0,
       retailer_products_created: 1, offers_created: 1, offers_updated: 0, offers_unchanged: 0,
       price_history_created: 1, skipped_for_review: 0, failed: 0,
@@ -255,6 +303,7 @@ test("main writes only controlled tmp outputs after validated dry-run success", 
   assert.equal(fs.existsSync(csvPath), true);
   assert.equal(fs.existsSync(reportPath), true);
   assert.equal(result.report.success, true);
+  assert.equal(result.report.lifecycle_state, "INITIAL_CREATE");
   assert.equal(result.report.database_writes, 0);
   assert.equal(result.report.delivered_price, 17.98);
   assert.equal(result.report.importer_summary.retailer_products_created, 1);
