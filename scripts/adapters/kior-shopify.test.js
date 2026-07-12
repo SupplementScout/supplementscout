@@ -17,6 +17,20 @@ const ROOT = path.resolve(__dirname, "../..");
 const config = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/kior-shopify.json"), "utf8"));
 const header = fs.readFileSync(path.join(ROOT, "data/templates/retailer-feed-template.csv"), "utf8").split(/\r?\n/, 1)[0].split(",");
 
+const approvedConfigEvidence = [
+  ["6717613539421", "39821206192221", 439, "kior-health-astragalus-60-caps", "20220001", "0-754590-525916"],
+  ["6717636903005", "39821296009309", 438, "kior-health-super-beets-60-caps", "20220012", null],
+  ["6717637328989", "39821296992349", 437, "kior-health-clear-mind-60-caps", "20220003", null],
+  ["6758522355805", "39962446921821", 435, "kior-health-collagen-probio-60-caps", "20220004", "0-754590-525954"],
+  ["6758526025821", "39962452426845", 458, "kior-health-digestive-enzyme", "20220006", null],
+  ["6758548078685", "39962495746141", 434, "kior-health-turmeric--ginger-60-caps", "20220013", null],
+  ["6766403551325", "39984169058397", 442, "kior-health-ksm-66-ashwaganda-60-caps", "20220009", null],
+  ["6825707929693", "40172596068445", 436, "kior-health-brain-wave-60-caps", "20220002", null],
+  ["6825718546525", "40172613533789", 441, "kior-health-green-tea-60-caps", "20220007", null],
+  ["7067692138589", "40939513741405", 460, "kior-health-collagen-glow", null, null],
+  ["7067692531805", "40939514232925", 461, "kior-health-collagen-super", null, null],
+];
+
 function productFor(item, overrides = {}) {
   return {
     id: Number(item.shopify_product_id), title: item.canonical_name, handle: item.expected_handle,
@@ -43,6 +57,42 @@ function build(options = {}) {
   return buildCanonical({ config: structuredClone(config), shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header });
 }
 
+test("config preserves 11 approved identities and explicit SKU/barcode evidence", () => {
+  assert.equal(config.products.length, 11);
+  assert.deepEqual(
+    config.products.map((item) => [
+      item.shopify_product_id,
+      item.shopify_variant_id,
+      item.canonical_product_id,
+      item.canonical_slug,
+      item.expected_sku,
+      item.expected_barcode,
+    ]),
+    approvedConfigEvidence,
+  );
+
+  assert.equal(new Set(config.products.map((item) => item.shopify_product_id)).size, 11);
+  assert.equal(new Set(config.products.map((item) => item.shopify_variant_id)).size, 11);
+  assert.equal(config.products.filter((item) => typeof item.expected_sku === "string").length, 9);
+  assert.equal(config.products.filter((item) => item.expected_sku === null).length, 2);
+  assert.equal(config.products.filter((item) => typeof item.expected_barcode === "string").length, 2);
+  assert.equal(config.products.filter((item) => item.expected_barcode === null).length, 9);
+  for (const item of config.products) {
+    assert.equal(Object.hasOwn(item, "expected_sku"), true);
+    assert.equal(Object.hasOwn(item, "expected_barcode"), true);
+    if (typeof item.expected_sku === "string") assert.notEqual(item.expected_sku.trim(), "");
+    if (typeof item.expected_barcode === "string") assert.notEqual(item.expected_barcode.trim(), "");
+    for (const forbidden of ["gtin", "verified_metrics", "inventory_quantity", "variant_grams", "body_html", "raw_csv_data"]) {
+      assert.equal(Object.hasOwn(item, forbidden), false);
+    }
+  }
+
+  const serialized = JSON.stringify(config).toLowerCase();
+  for (const forbidden of ["supabase_service_role_key", ".env.local", "products_export.csv", "c:\\", "/users/", "/home/"]) {
+    assert.equal(serialized.includes(forbidden), false);
+  }
+});
+
 test("maps exactly 11 approved products in stable product/variant order", () => {
   const result = build({ extra: true });
   assert.equal(result.rows.length, 11);
@@ -68,6 +118,21 @@ test("uses live availability, CSV barcode, image fallback, and approved canonica
   assert.equal(result.csv.includes("NEVER"), false);
   assert.equal(header.includes("Variant Grams"), false);
   for (const forbidden of ["canonical_product_id", "gtin", "net_weight_g", "nutrition_verified"]) assert.equal(header.includes(forbidden), false);
+});
+
+test("adapter still requires local CSV data and does not use config evidence as output", () => {
+  const data = fixture();
+  const modified = structuredClone(config);
+  modified.products[0].expected_sku = "CONFIG-ONLY-SKU";
+  modified.products[0].expected_barcode = "CONFIG-ONLY-BARCODE";
+  const result = buildCanonical({ config: modified, shopify: { products: data.products }, exportGroups: data.groups, templateHeader: header });
+  assert.equal(result.rows[0].external_gtin, `BAR-${result.rows[0].external_product_id}`);
+  assert.equal(result.csv.includes("CONFIG-ONLY-SKU"), false);
+  assert.equal(result.csv.includes("CONFIG-ONLY-BARCODE"), false);
+  assert.throws(
+    () => buildCanonical({ config: modified, shopify: { products: data.products }, exportGroups: new Map(), templateHeader: header }),
+    /No Shopify CSV rows/,
+  );
 });
 
 test("ignores additional image rows in Shopify CSV", () => assert.doesNotThrow(() => build()));
