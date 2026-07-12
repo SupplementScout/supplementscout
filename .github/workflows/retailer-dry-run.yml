@@ -2,6 +2,8 @@ name: Retailer Dry Run
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * *"
 
 permissions:
   contents: read
@@ -44,7 +46,12 @@ jobs:
         run: node scripts/adapters/kior-shopify.js
 
       - name: Validate final reports
-        run: node scripts/adapters/validate-scheduled-reports.js >> "$GITHUB_STEP_SUMMARY"
+        env:
+          RUN_TRIGGER: ${{ github.event_name == 'schedule' && 'scheduled' || 'manual' }}
+        run: |
+          echo "Trigger: $RUN_TRIGGER" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          node scripts/adapters/validate-scheduled-reports.js >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload final reports and generated feeds
         if: always()
