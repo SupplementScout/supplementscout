@@ -397,6 +397,7 @@ async function main(deps = {}) {
       },
     },
     database_writes: importer.database_writes,
+    success: true,
   };
   atomicWrite(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

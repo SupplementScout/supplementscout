@@ -422,6 +422,7 @@ test("adapter report keeps existing batches and the canonical 508 addition separ
     offers_created: 1, offers_updated: 0, offers_unchanged: 0,
   });
   assert.equal(result.report.database_writes, 0);
+  assert.equal(result.report.success, true);
 });
 
 test("batch four preserves approved identities and excludes blocked products", () => {

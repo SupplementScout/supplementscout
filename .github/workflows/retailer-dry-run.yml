@@ -1,0 +1,60 @@
+name: Retailer Dry Run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: retailer-dry-run
+  cancel-in-progress: false
+
+jobs:
+  retailer-dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test retailer adapters
+        run: node --test scripts/adapters/*.test.js
+
+      - name: Run Fit House dry-run
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/adapters/fit-house-shopify.js
+
+      - name: Run KIOR JSON-only dry-run
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/adapters/kior-shopify.js
+
+      - name: Validate final reports
+        run: node scripts/adapters/validate-scheduled-reports.js >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload final reports and generated feeds
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: retailer-dry-run-reports
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            tmp/retailer-feeds/fit-house/fit-house-adapter-report.json
+            tmp/retailer-feeds/fit-house/fit-house-canonical-generated.csv
+            tmp/retailer-feeds/kior/kior-adapter-report.json
+            tmp/retailer-feeds/kior/kior-canonical-generated.csv
