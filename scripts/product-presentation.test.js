@@ -324,3 +324,17 @@ test("product page does not render or select the raw description for metadata", 
     /name, slug, brand, category, description, image/
   );
 });
+
+test("product page constrains mobile offer cards and long content without horizontal overflow", () => {
+  const pageSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "product", "[id]", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(pageSource, /grid-cols-\[minmax\(0,1fr\)\]/);
+  assert.match(pageSource, /overflow-x-clip/);
+  assert.match(pageSource, /flex min-w-0 max-w-full flex-col gap-4 sm:flex-row sm:items-center/);
+  assert.match(pageSource, /w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl/);
+  assert.match(pageSource, /break-words[^\"]*\[overflow-wrap:anywhere\]/);
+  assert.doesNotMatch(pageSource, /className="flex items-center gap-4"/);
+});

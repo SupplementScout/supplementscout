@@ -348,13 +348,13 @@ export default async function ProductPage({
   const keyFacts = buildProductKeyFacts(product);
 
   return (
-    <main className="min-h-screen bg-zinc-50">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:py-12">
+    <main className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-zinc-50">
+      <div className="mx-auto w-full min-w-0 max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:py-12">
         <Link href="/" className="text-sm font-medium text-[#4B5563] hover:text-[#111827]">
           ← Back to search
         </Link>
 
-        <div className="mt-5 grid gap-5 lg:mt-8 lg:grid-cols-2 lg:gap-10">
+        <div className="mt-5 grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:mt-8 lg:grid-cols-2 lg:gap-10">
           <div className="flex h-[340px] min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:h-[400px] sm:p-6 lg:aspect-square lg:h-auto lg:p-0 lg:shadow">
             {product.image ? (
               <img
@@ -372,17 +372,17 @@ export default async function ProductPage({
               {product.category}
             </p>
 
-            <h1 className="mt-2 min-w-0 max-w-full text-[38px] font-extrabold leading-[1.08] text-[#111827] [overflow-wrap:anywhere] sm:mt-3 sm:text-5xl lg:text-5xl">
+            <h1 className="mt-2 min-w-0 max-w-full break-words text-[38px] font-extrabold leading-[1.08] text-[#111827] [overflow-wrap:anywhere] sm:mt-3 sm:text-5xl lg:text-5xl">
               {product.name}
             </h1>
 
-            <p className="mt-2 text-base font-medium text-[#4B5563] sm:mt-3 sm:text-lg">
+            <p className="mt-2 min-w-0 max-w-full break-words text-base font-medium text-[#4B5563] [overflow-wrap:anywhere] sm:mt-3 sm:text-lg">
               {product.brand}
             </p>
 
-            <div className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                <div>
+            <div className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+              <div className="flex min-w-0 max-w-full flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0 max-w-full">
                   <p className="text-sm font-semibold text-[#4B5563]">Best UK Price</p>
 
                   {cheapestTotal !== null ? (
@@ -433,7 +433,7 @@ export default async function ProductPage({
                     </p>
                   )}
                   {cheapestOffer && (
-                    <div className="mt-3 space-y-1 text-sm font-medium text-[#4B5563]">
+                    <div className="mt-3 min-w-0 max-w-full space-y-1 break-words text-sm font-medium text-[#4B5563] [overflow-wrap:anywhere]">
                       <p>
                         Product: {formatProductPrice(cheapestOffer.price)}
                       </p>
@@ -453,7 +453,7 @@ export default async function ProductPage({
                     href={`/go/${String(cheapestOffer.id)}?source=product_best_offer`}
                     target="_blank"
                     rel="sponsored nofollow noopener noreferrer"
-                    className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-black px-8 py-4 font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
+                    className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-2xl bg-black px-6 py-4 text-center font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto sm:px-8"
                   >
                     View Deal
                   </a>
@@ -467,13 +467,13 @@ export default async function ProductPage({
                 )}              </div>
             </div>
 
-            <section className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+            <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Product Summary</h2>
-              <p className="mt-4 leading-8 text-gray-700">{productSummary}</p>
+              <p className="mt-4 min-w-0 max-w-full break-words leading-8 text-gray-700 [overflow-wrap:anywhere]">{productSummary}</p>
             </section>
 
             {keyFacts.length > 0 && (
-              <section className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+              <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
                 <h2 className="text-2xl font-bold text-gray-900">Key facts</h2>
                 <dl className="mt-5 divide-y divide-zinc-200">
                   {keyFacts.map((fact) => (
@@ -482,7 +482,7 @@ export default async function ProductPage({
                       className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
                     >
                       <dt className="text-sm font-medium text-gray-600">{fact.label}</dt>
-                      <dd className="min-w-0 text-sm font-semibold text-gray-900 sm:text-right">
+                      <dd className="min-w-0 max-w-full break-words text-sm font-semibold text-gray-900 [overflow-wrap:anywhere] sm:text-right">
                         {fact.value}
                       </dd>
                     </div>
@@ -588,14 +588,14 @@ export default async function ProductPage({
                 )}
               </div>
             )}
-            <div className="mt-8 rounded-3xl border bg-white p-8">
+            <div className="mt-8 w-full min-w-0 max-w-full overflow-hidden rounded-2xl border bg-white p-5 sm:rounded-3xl sm:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Price history</h2>
 
               <div className="mt-6">
                 <PriceHistoryChart data={chartData} />
               </div>
             </div>
-            <div className="mt-8 rounded-3xl border bg-white p-8">
+            <div className="mt-8 w-full min-w-0 max-w-full rounded-2xl border bg-white p-5 sm:rounded-3xl sm:p-8">
               <h2 className="text-2xl font-bold text-gray-900">All offers</h2>
 
               <div className="mt-6 space-y-3">
@@ -603,10 +603,10 @@ export default async function ProductPage({
                   sortedOffers.map((offer) => (
                     <div
                       key={offer.id}
-                      className="flex flex-col gap-4 rounded-2xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex w-full min-w-0 max-w-full flex-col gap-4 rounded-2xl border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
                     >
-                      <div>
-                        <p className="font-semibold text-gray-900">
+                      <div className="min-w-0 max-w-full">
+                        <p className="min-w-0 max-w-full break-words font-semibold text-gray-900 [overflow-wrap:anywhere]">
                           {offer.retailer?.name || "Unknown retailer"}
                         </p>
                         <p className="mt-1 text-sm font-medium text-gray-700">
@@ -624,8 +624,8 @@ export default async function ProductPage({
                         )}
                       </div>
 
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
+                      <div className="flex min-w-0 max-w-full flex-col gap-4 sm:flex-row sm:items-center">
+                        <div className="min-w-0 max-w-full break-words text-left [overflow-wrap:anywhere] sm:text-right">
                           <p className="text-sm font-medium text-gray-700">
                             Product: {formatProductPrice(offer.price)}
                           </p>
@@ -645,7 +645,7 @@ export default async function ProductPage({
                           href={`/go/${String(offer.id)}?source=product_offer_list`}
                           target="_blank"
                           rel="sponsored nofollow noopener noreferrer"
-                          className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
+                          className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl bg-black px-5 py-3 text-center text-sm font-semibold text-white sm:w-auto"
                         >
                           View deal
                         </a>
