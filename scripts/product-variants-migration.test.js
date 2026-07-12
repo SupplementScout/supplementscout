@@ -4,7 +4,7 @@ const path = require("node:path");
 const test = require("node:test");
 
 const migrationPath = path.resolve(
-  "supabase/migrations/20260712_add_product_variants_stage1.sql"
+  "supabase/legacy-migrations/20260712_add_product_variants_stage1.sql"
 );
 const sql = fs.readFileSync(migrationPath, "utf8");
 const normalized = sql.replace(/--[^\n]*/g, " ").replace(/\s+/g, " ").trim();

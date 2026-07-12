@@ -1,0 +1,40 @@
+name: Baseline Validation
+
+on:
+  pull_request:
+    paths:
+      - "supabase/**"
+      - "scripts/verify-baseline-migrations.js"
+      - "package.json"
+      - "package-lock.json"
+  push:
+    paths:
+      - "supabase/**"
+      - "scripts/verify-baseline-migrations.js"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify baseline migration
+        run: npm run verify:baseline
