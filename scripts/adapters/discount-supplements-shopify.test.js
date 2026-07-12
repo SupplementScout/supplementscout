@@ -3,313 +3,244 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-
 const adapter = require("./discount-supplements-shopify");
 
 const ROOT = path.resolve(__dirname, "../..");
 const config = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/discount-supplements-shopify.json"), "utf8"));
 const header = fs.readFileSync(path.join(ROOT, "data/templates/retailer-feed-template.csv"), "utf8").split(/\r?\n/, 1)[0].split(",");
 
-function productFixture() {
+function productFixture(item) {
+  const options = [{ name: "Size", position: 1, values: [item.expected_option1] }];
+  if (item.expected_option2 !== null) options.push({ name: "Flavour", position: 2, values: [item.expected_option2] });
   return {
-    id: 6788065329348, title: "CNP Creatine Monohydrate 250g", handle: "cnp-pro-creatine-250g", vendor: "CNP",
-    updated_at: "2026-07-12T12:46:48+01:00",
-    options: [
-      { name: "Size", position: 1, values: ["250g"] },
-      { name: "Flavour", position: 2, values: ["Unflavoured"] },
-    ],
-    images: [{ src: "https://cdn.shopify.com/s/files/1/0266/9032/2479/files/cnp-creatine-250g.jpg" }],
-    variants: [{
-      id: 54879874810234, product_id: 6788065329348, title: "250g / Unflavoured",
-      option1: "250g", option2: "Unflavoured", option3: null, sku: "CNP-0508",
-      available: true, price: "12.99", updated_at: "2026-07-12T12:46:48+01:00",
-    }],
+    id: Number(item.shopify_product_id), title: item.expected_product_title, handle: item.expected_handle, vendor: item.brand,
+    updated_at: "2026-07-12T14:06:16+01:00", options,
+    images: [{ src: `https://cdn.shopify.com/s/files/1/discount/${item.shopify_product_id}.webp` }],
+    variants: [{ id: Number(item.shopify_variant_id), product_id: Number(item.shopify_product_id), title: item.expected_variant_title, option1: item.expected_option1, option2: item.expected_option2, option3: item.expected_option3, sku: item.expected_sku, available: item.approved_in_stock, price: String(item.approved_price), updated_at: "2026-07-12T14:06:16+01:00" }],
   };
 }
-
-function build(shopify = { products: [productFixture()] }, customConfig = config) {
-  return adapter.buildCanonical({ config: customConfig, shopify, templateHeader: header });
-}
-
+const catalog = () => ({ products: config.products.map(productFixture) });
+const build = (shopify = catalog(), customConfig = config) => adapter.buildCanonical({ config: customConfig, shopify, templateHeader: header });
+const expectedRows = [
+  { rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "unchanged" },
+  { rowNumber: 3, slug: "applied-nutrition-creatine-120-capsules", offerAction: "create" },
+  { rowNumber: 4, slug: "tbjp-berberine-60-capsules", offerAction: "create" },
+];
 function importerOutput(overrides = {}) {
-  const values = {
-    "approved rows": 1, "invalid rows": 0, "ambiguous rows": 0,
-    "new retailers would be created": 0, "new products would be created": 0,
-    "retailer_products would be created": 1, "offers would be created": 1,
-    "offers would be updated": 0, "offers unchanged": 0,
-    "price_history rows would be created": 1, "Skipped for review": 0, Failed: 0,
-    ...overrides,
-  };
+  const values = { "approved rows": 3, "invalid rows": 0, "ambiguous rows": 0, "new retailers would be created": 0, "new products would be created": 0, "retailer_products would be created": 2, "offers would be created": 2, "offers would be updated": 0, "offers unchanged": 1, "price_history rows would be created": 2, "Skipped for review": 0, Failed: 0, ...overrides };
   return `${Object.entries(values).map(([key, value]) => `${key}: ${value}`).join("\n")}\nDry run: no database writes performed.\n`;
 }
-
-function runImporterFixture({ overrides = {}, action = "create", rows, runId = "current" } = {}) {
+function runImporterFixture({ rows = expectedRows, overrides = {}, stale = false } = {}) {
   return adapter.runImporter("approved.csv", (_command, _args, options) => {
     fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
-    fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({
-      runId: runId === "current" ? options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID : runId,
-      rowLevelOffers: rows ?? [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: action }],
-    }));
+    fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({ runId: stale ? "stale" : options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID, rowLevelOffers: rows }));
     return { status: 0, stdout: importerOutput(overrides), stderr: "" };
   });
 }
 
-test("config freezes the single approved retailer, canonical product, variant, evidence, and shipping", () => {
+test("config contains exactly three immutable approved mappings", () => {
   adapter.validateConfig(config);
-  assert.equal(config.products.length, 1);
-  assert.deepEqual(config.retailer, {
-    id: 4, name: "Discount Supplements", slug: "discount-supplements",
-    website: "https://www.discount-supplements.co.uk", vendor_aliases: ["CNP"],
-  });
-  assert.deepEqual(config.shipping, {
-    known: true, cost: 4.99, free_shipping_threshold: 80,
-    approval_note: "Verified standard UK delivery for third-party brands, including CNP; the basket-level free-shipping threshold is informational and does not change a single-offer shipping row.",
-  });
-  const item = config.products[0];
-  assert.equal(item.expected_variant_count, 1);
-  assert.equal(item.expected_product_title, "CNP Creatine Monohydrate 250g");
-  assert.deepEqual([item.expected_option1, item.expected_option2, item.expected_option3], ["250g", "Unflavoured", null]);
-  assert.equal(item.expected_sku, "CNP-0508");
-  assert.equal(item.expected_barcode, null);
-  const serialized = JSON.stringify(config);
-  for (const forbidden of ["products.gtin", "Variant Grams", "Body HTML", "inventory quantity", "verified metrics", "SUPABASE_SERVICE_ROLE_KEY", "C:\\\\Users\\\\"]) {
-    assert.equal(serialized.includes(forbidden), false);
-  }
+  assert.equal(config.products.length, 3);
+  assert.deepEqual(config.products.map((item) => item.canonical_product_id), [407, 426, 688]);
+  assert.deepEqual(config.products.map((item) => item.expected_row_action), ["unchanged", "create", "create"]);
+  assert.deepEqual(config.products.map((item) => item.expected_unit_count), [null, 120, 60]);
+  assert.deepEqual(config.products.map((item) => item.pack_count), [1, 1, 1]);
+  assert.deepEqual(config.retailer.vendor_aliases, ["CNP", "Applied Nutrition", "TBJP"]);
 });
 
-test("buildCanonical emits exactly one locked row with empty GTIN and delivered price inputs", () => {
-  const result = build();
-  assert.equal(result.rows.length, 1);
-  const row = result.rows[0];
-  assert.equal(row.external_product_id, "6788065329348");
-  assert.equal(row.external_variant_id, "54879874810234");
-  assert.equal(row.external_url, "https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234");
-  assert.equal(row.external_gtin, "");
-  assert.equal(row.price, "12.99");
-  assert.equal(row.shipping_known, "true");
-  assert.equal(row.shipping_cost, "4.99");
-  assert.equal(Number(row.price) + Number(row.shipping_cost), 17.98);
-  assert.equal(Object.hasOwn(row, "sku"), false);
-  assert.deepEqual(Object.keys(row), header);
-});
-
-test("every approved Shopify and variant identity drift blocks the run", () => {
-  const mutations = [
-    ["product ID", (p) => { p.id = 1; }],
-    ["variant ID", (p) => { p.variants[0].id = 2; }],
-    ["variant count", (p) => { p.variants.push({ ...p.variants[0], id: 3 }); }],
-    ["handle", (p) => { p.handle = "changed"; }],
-    ["product title and format", (p) => { p.title = "CNP Creatine Monohydrate 250 Capsules"; }],
-    ["variant title", (p) => { p.variants[0].title = "500g / Unflavoured"; }],
-    ["size option", (p) => { p.options[0].values[0] = "500g"; p.variants[0].option1 = "500g"; }],
-    ["size unit", (p) => { p.options[0].values[0] = "250kg"; p.variants[0].option1 = "250kg"; }],
-    ["flavour", (p) => { p.options[1].values[0] = "Cherry"; p.variants[0].option2 = "Cherry"; }],
-    ["option3", (p) => { p.variants[0].option3 = "Single"; }],
-    ["vendor", (p) => { p.vendor = "Other"; }],
-    ["SKU", (p) => { p.variants[0].sku = "OTHER"; }],
-    ["missing SKU", (p) => { p.variants[0].sku = ""; }],
-    ["barcode appearance", (p) => { p.variants[0].barcode = "5012345678901"; }],
-    ["price", (p) => { p.variants[0].price = "13.00"; }],
-    ["stock", (p) => { p.variants[0].available = false; }],
-    ["image", (p) => { p.images[0].src = "http://example.test/image.jpg"; }],
-    ["foreign HTTPS image", (p) => { p.images[0].src = "https://example.test/image.jpg"; }],
+test("config source, retailer and every canonical identity remain immutable", () => {
+  const changes = [
+    ["source URL", (value) => { value.source_url = "https://www.monstersupplements.com/products.json?limit=250"; }],
+    ["retailer ID", (value) => { value.retailer.id = 5; }],
+    ["retailer slug", (value) => { value.retailer.slug = "changed"; }],
+    ["retailer name", (value) => { value.retailer.name = "Changed"; }],
+    ["retailer website", (value) => { value.retailer.website = "https://example.test"; }],
   ];
-  for (const [label, mutate] of mutations) {
-    const product = productFixture();
-    mutate(product);
-    assert.throws(() => build({ products: [product] }), undefined, label);
+  for (const itemIndex of [0, 1, 2]) {
+    changes.push(
+      [`canonical ID ${itemIndex}`, (value) => { value.products[itemIndex].canonical_product_id += 1; }],
+      [`canonical slug ${itemIndex}`, (value) => { value.products[itemIndex].canonical_slug += "-changed"; }],
+    );
+  }
+  for (const [label, mutate] of changes) {
+    const changed = structuredClone(config); mutate(changed);
+    assert.throws(() => adapter.validateConfig(changed), undefined, label);
   }
 });
 
-test("missing, null, and blank barcode match approved null while a real barcode blocks", () => {
+test("config format, size, unit count, flavour and pack count remain immutable", () => {
+  const changes = [
+    [0, "size", 2500], [0, "size_unit", "mg"], [0, "flavour", "Cherry"],
+    [0, "product_format", "capsule"], [0, "pack_count", 250],
+    [1, "expected_unit_count", 60], [1, "product_format", "powder"], [1, "pack_count", 120],
+    [2, "expected_unit_count", 120], [2, "flavour", "Unflavoured"], [2, "pack_count", 60],
+  ];
+  for (const [index, key, value] of changes) {
+    const changed = structuredClone(config); changed.products[index][key] = value;
+    assert.throws(() => adapter.validateConfig(changed), undefined, `${index}:${key}`);
+  }
+});
+
+test("canonical build emits three exact rows with Shopify IDs, URLs, shipping and no GTIN", () => {
+  const result = build();
+  assert.equal(result.rows.length, 3);
+  for (let index = 0; index < result.rows.length; index += 1) {
+    const row = result.rows[index], item = config.products[index];
+    assert.equal(row.external_product_id, item.shopify_product_id);
+    assert.equal(row.external_variant_id, item.shopify_variant_id);
+    assert.equal(row.external_url, `https://www.discount-supplements.co.uk/products/${item.expected_handle}?variant=${item.shopify_variant_id}`);
+    assert.equal(row.external_gtin, ""); assert.equal(row.shipping_known, "true"); assert.equal(row.shipping_cost, "4.99");
+    assert.equal(row.pack_count, "1"); assert.deepEqual(Object.keys(row), header);
+  }
+  assert.equal(Number(result.rows[1].price) + Number(result.rows[1].shipping_cost), 14.98);
+  assert.equal(Number(result.rows[2].price) + Number(result.rows[2].shipping_cost), 17.98);
+});
+
+test("every approved Shopify product and variant identity drift is fatal", () => {
+  for (const item of config.products) {
+    const mutations = [
+      ["product ID", (p) => { p.id += 1; }],
+      ["variant ID", (p) => { p.variants[0].id += 1; }],
+      ["variant ownership", (p) => { p.variants[0].product_id += 1; }],
+      ["variant count", (p) => { p.variants.push({ ...p.variants[0], id: p.variants[0].id + 2 }); }],
+      ["handle", (p) => { p.handle += "-changed"; }],
+      ["product title", (p) => { p.title += " changed"; }],
+      ["variant title", (p) => { p.variants[0].title += " changed"; }],
+      ["vendor", (p) => { p.vendor = "Other"; }],
+      ["product options", (p) => { p.options[0].values[0] = "Different"; }],
+      ["variant size/count option", (p) => { p.variants[0].option1 = "Different"; }],
+      ["variant flavour", (p) => { p.variants[0].option2 = "Different"; }],
+      ["variant option3", (p) => { p.variants[0].option3 = "Different"; }],
+      ["SKU", (p) => { p.variants[0].sku = "OTHER"; }],
+      ["barcode", (p) => { p.variants[0].barcode = "5012345678901"; }],
+      ["price", (p) => { p.variants[0].price = "99.99"; }],
+      ["stock", (p) => { p.variants[0].available = false; }],
+      ["image protocol", (p) => { p.images[0].src = "http://cdn.shopify.com/image.webp"; }],
+      ["image domain", (p) => { p.images[0].src = "https://example.test/image.webp"; }],
+    ];
+    for (const [label, mutate] of mutations) {
+      const source = catalog(), product = source.products.find((candidate) => String(candidate.id) === item.shopify_product_id);
+      mutate(product); assert.throws(() => build(source), undefined, `${item.canonical_product_id}:${label}`);
+    }
+  }
+});
+
+test("missing, null and blank barcode match approved null while a real barcode blocks", () => {
   for (const barcode of [undefined, null, "", "   "]) {
-    const product = productFixture();
-    if (barcode !== undefined) product.variants[0].barcode = barcode;
-    assert.doesNotThrow(() => build({ products: [product] }));
+    const source = catalog();
+    for (const product of source.products) {
+      if (barcode === undefined) delete product.variants[0].barcode;
+      else product.variants[0].barcode = barcode;
+    }
+    assert.doesNotThrow(() => build(source));
   }
-  const product = productFixture();
-  product.variants[0].barcode = "5012345678901";
-  assert.throws(() => build({ products: [product] }), /barcode drift/);
+  const source = catalog(); source.products[1].variants[0].barcode = "5012345678901";
+  assert.throws(() => build(source), /barcode drift/);
 });
 
-test("config identity, format and pack-count changes are rejected", () => {
-  for (const [key, value] of [["canonical_product_id", 408], ["canonical_slug", "changed"], ["size", 500], ["size_unit", "kg"], ["flavour", "Cherry"], ["product_format", "capsule"], ["pack_count", 2]]) {
-    const changed = structuredClone(config);
-    changed.products[0][key] = value;
-    assert.throws(() => adapter.validateConfig(changed), new RegExp(key));
-  }
-  for (const [key, value] of [["id", 5], ["slug", "changed"], ["website", "https://example.test"]]) {
-    const changed = structuredClone(config);
-    changed.retailer[key] = value;
-    assert.throws(() => adapter.validateConfig(changed), /retailer identity/);
-  }
-  const monster = structuredClone(config);
-  monster.source_url = "https://www.monstersupplements.com/products.json?limit=250";
-  assert.throws(() => adapter.validateConfig(monster), /source URL/);
-});
-
-test("fetchCatalog paginates until the approved product can be present", async () => {
+test("fetchCatalog paginates until all three approved products are present", async () => {
   const calls = [];
-  const firstPage = Array.from({ length: 250 }, (_, index) => ({ id: index + 1, variants: [] }));
+  const filler = Array.from({ length: 250 }, (_, index) => ({ id: index + 1, variants: [] }));
   const fetchImpl = async (url) => {
     calls.push(url);
-    const body = url.includes("page=1") ? { products: firstPage } : { products: [productFixture()] };
-    return new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
+    const products = url.includes("page=1") ? [...filler, productFixture(config.products[0])] : config.products.slice(1).map(productFixture);
+    return new Response(JSON.stringify({ products }), { status: 200, headers: { "content-type": "application/json" } });
   };
   const result = await adapter.fetchCatalog(config, fetchImpl);
   assert.equal(calls.length, 2);
-  assert.match(calls[0], /page=1/);
-  assert.match(calls[1], /page=2/);
-  assert.equal(result.products.length, 251);
+  assert.match(calls[0], /page=1/); assert.match(calls[1], /page=2/);
+  assert.equal(result.products.filter((product) => config.products.some((item) => item.shopify_product_id === String(product.id))).length, 3);
 });
 
-test("production target validation requires retailer ID 4 and canonical ID 407", async () => {
-  function clientWith(retailer, product) {
+test("mixed batch accepts one unchanged and two creates regardless of row order", () => {
+  const result = runImporterFixture({ rows: [expectedRows[2], expectedRows[0], expectedRows[1]] });
+  assert.equal(result.lifecycleState, "MIXED_BATCH"); assert.equal(result.database_writes, 0);
+  assert.deepEqual(result.summary, { approved_rows: 3, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0, new_products: 0, retailer_products_created: 2, offers_created: 2, offers_updated: 0, offers_unchanged: 1, price_history_created: 2, skipped_for_review: 0, failed: 0 });
+});
+
+test("wrong action for any slug is fatal", () => {
+  for (let index = 0; index < expectedRows.length; index += 1) {
+    const rows = structuredClone(expectedRows); rows[index].offerAction = rows[index].offerAction === "create" ? "unchanged" : "create";
+    assert.throws(() => runImporterFixture({ rows }), /Unexpected row action/);
+  }
+});
+
+test("missing, extra and duplicate slugs are fatal", () => {
+  assert.throws(() => runImporterFixture({ rows: expectedRows.slice(0, 2) }), /row-level report/);
+  assert.throws(() => runImporterFixture({ rows: [...expectedRows, { rowNumber: 5, slug: "extra", offerAction: "create" }] }), /row-level report/);
+  assert.throws(() => runImporterFixture({ rows: [expectedRows[0], expectedRows[1], { ...expectedRows[1], rowNumber: 4 }] }), /duplicate|Invalid/);
+});
+
+test("three creates instead of exactly two is fatal", () => {
+  const rows = structuredClone(expectedRows); rows[0].offerAction = "create";
+  assert.throws(() => runImporterFixture({ rows, overrides: { "retailer_products would be created": 3, "offers would be created": 3, "offers unchanged": 0, "price_history rows would be created": 3 } }), /Unexpected row action/);
+});
+
+test("legacy whole-batch INITIAL_CREATE and STEADY_STATE are fatal; only MIXED_BATCH is allowed", () => {
+  const initialRows = expectedRows.map((row) => ({ ...row, offerAction: "create" }));
+  assert.throws(() => runImporterFixture({ rows: initialRows, overrides: { "retailer_products would be created": 3, "offers would be created": 3, "offers unchanged": 0, "price_history rows would be created": 3 } }), /Unexpected row action/);
+  const steadyRows = expectedRows.map((row) => ({ ...row, offerAction: "unchanged" }));
+  assert.throws(() => runImporterFixture({ rows: steadyRows, overrides: { "retailer_products would be created": 0, "offers would be created": 0, "offers unchanged": 3, "price_history rows would be created": 0 } }), /Unexpected row action/);
+  assert.equal(runImporterFixture().lifecycleState, "MIXED_BATCH");
+});
+
+test("update action and aggregate update counter are fatal", () => {
+  const rows = structuredClone(expectedRows); rows[1].offerAction = "update";
+  assert.throws(() => runImporterFixture({ rows }), /Unexpected row action/);
+  assert.throws(() => runImporterFixture({ overrides: { "offers would be updated": 1 } }), /offers_updated/);
+});
+
+test("every unexpected aggregate counter is fatal", () => {
+  for (const [label, value] of [["approved rows", 2], ["new retailers would be created", 1], ["new products would be created", 1], ["retailer_products would be created", 1], ["offers would be created", 1], ["offers unchanged", 2], ["price_history rows would be created", 1], ["Skipped for review", 1], ["Failed", 1]]) {
+    assert.throws(() => runImporterFixture({ overrides: { [label]: value } }), /Unexpected importer/);
+  }
+});
+
+test("helper report must be fresh, present and valid", () => {
+  assert.throws(() => runImporterFixture({ stale: true }), /stale/);
+  assert.throws(() => adapter.runImporter("approved.csv", () => ({ status: 0, stdout: importerOutput(), stderr: "" })), /fresh helper/);
+  assert.throws(() => adapter.runImporter("approved.csv", (_command, _args, options) => { fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true }); fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, "bad json"); return { status: 0, stdout: importerOutput(), stderr: "" }; }), /JSON/);
+});
+
+test("importer command remains fixed dry-run without safe-create or apply", () => {
+  let args;
+  adapter.runImporter("C:\\tmp\\batch.csv", (_command, actual, options) => { args = actual; fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true }); fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({ runId: options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID, rowLevelOffers: expectedRows })); return { status: 0, stdout: importerOutput(), stderr: "" }; });
+  assert.deepEqual(args.slice(1), ["--mode=feed", "--dry-run", "--csv=C:\\tmp\\batch.csv"]);
+  assert.equal(args.includes("--safe-create"), false); assert.equal(args.some((arg) => /apply/i.test(arg)), false);
+});
+
+test("production target validation requires all three active unmerged canonical products", async () => {
+  const client = { from(table) { if (table === "retailers") return { select() { return this; }, eq() { return this; }, async maybeSingle() { return { data: { id: 4, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" }, error: null }; } }; return { select() { return this; }, async in() { return { data: config.products.map((item) => ({ id: item.canonical_product_id, slug: item.canonical_slug, is_active: true, merged_into_product_id: null, merged_at: null })), error: null }; } }; } };
+  await adapter.validateProductionTargets(config, client);
+});
+
+test("production target validation rejects retailer and canonical identity drift", async () => {
+  function clientWith(retailer, products) {
     return { from(table) {
-      const data = table === "retailers" ? retailer : product;
-      return { select() { return this; }, eq() { return this; }, async maybeSingle() { return { data, error: null }; } };
+      if (table === "retailers") return { select() { return this; }, eq() { return this; }, async maybeSingle() { return { data: retailer, error: null }; } };
+      return { select() { return this; }, async in() { return { data: products, error: null }; } };
     } };
   }
-  await adapter.validateProductionTargets(config, clientWith(
-    { id: 4, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" },
-    { id: 407, slug: "cnp-creatine-monohydrate-250g", is_active: true, merged_into_product_id: null, merged_at: null },
-  ));
-  await assert.rejects(adapter.validateProductionTargets(config, clientWith(
-    { id: 5, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" },
-    { id: 407, slug: "cnp-creatine-monohydrate-250g", is_active: true, merged_into_product_id: null, merged_at: null },
-  )), /Retailer ID/);
-  await assert.rejects(adapter.validateProductionTargets(config, clientWith(
-    { id: 4, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" },
-    { id: 407, slug: "changed", is_active: true, merged_into_product_id: null, merged_at: null },
-  )), /Canonical product/);
-  for (const product of [
-    { id: 407, slug: "cnp-creatine-monohydrate-250g", is_active: false, merged_into_product_id: null, merged_at: null },
-    { id: 407, slug: "cnp-creatine-monohydrate-250g", is_active: true, merged_into_product_id: 999, merged_at: "2026-01-01T00:00:00Z" },
+  const retailer = { id: 4, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" };
+  const products = config.products.map((item) => ({ id: item.canonical_product_id, slug: item.canonical_slug, is_active: true, merged_into_product_id: null, merged_at: null }));
+  await assert.rejects(adapter.validateProductionTargets(config, clientWith({ ...retailer, slug: "changed" }, products)), /Retailer identity/);
+  for (const mutate of [
+    (rows) => { rows[1].slug = "changed"; },
+    (rows) => { rows[1].is_active = false; },
+    (rows) => { rows[1].merged_into_product_id = 407; },
+    (rows) => { rows.splice(1, 1); },
   ]) {
-    await assert.rejects(adapter.validateProductionTargets(config, clientWith(
-      { id: 4, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" }, product,
-    )), /Canonical product/);
+    const changed = structuredClone(products); mutate(changed);
+    await assert.rejects(adapter.validateProductionTargets(config, clientWith(retailer, changed)), /Canonical identity/);
   }
 });
 
-test("valid initial create uses fixed feed dry-run command", () => {
-  const captured = {};
-  const result = adapter.runImporter("C:\\tmp\\approved.csv", (command, args, options) => {
-    captured.command = command; captured.args = args;
-    fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
-    fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({
-      runId: options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID,
-      rowLevelOffers: [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }],
-    }));
-    return { status: 0, stdout: importerOutput(), stderr: "" };
-  });
-  assert.deepEqual(captured.args.slice(1), ["--mode=feed", "--dry-run", "--csv=C:\\tmp\\approved.csv"]);
-  assert.equal(captured.args.includes("--safe-create"), false);
-  assert.equal(captured.args.some((arg) => /apply/i.test(arg)), false);
-  assert.deepEqual(result.summary, {
-    approved_rows: 1, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0, new_products: 0,
-    retailer_products_created: 1, offers_created: 1, offers_updated: 0, offers_unchanged: 0,
-    price_history_created: 1, skipped_for_review: 0, failed: 0,
-  });
-  assert.equal(result.database_writes, 0);
-  assert.equal(result.lifecycleState, "INITIAL_CREATE");
-  assert.deepEqual(result.rowLevelOffers, [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }]);
+test("hermetic main happy path writes a successful mixed-batch report", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "discount-batch-")); t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const result = await adapter.main({ argv: [], csvPath: path.join(directory, "batch.csv"), reportPath: path.join(directory, "report.json"), fetchCatalog: async () => catalog(), validateProduction: async () => {}, runImporter: () => ({ runId: "fresh", lifecycleState: "MIXED_BATCH", rowLevelOffers: expectedRows, summary: { approved_rows: 3, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0, new_products: 0, retailer_products_created: 2, offers_created: 2, offers_updated: 0, offers_unchanged: 1, price_history_created: 2, skipped_for_review: 0, failed: 0 }, output: "ok", database_writes: 0 }) });
+  assert.equal(result.report.success, true); assert.equal(result.report.database_writes, 0); assert.equal(result.report.lifecycle_state, "MIXED_BATCH");
+  assert.deepEqual(result.report.delivered_prices, [{ canonical_product_id: 407, delivered_price: 17.98 }, { canonical_product_id: 426, delivered_price: 14.98 }, { canonical_product_id: 688, delivered_price: 17.98 }]);
+  assert.equal(result.report.product_drifts.length, 0); assert.equal(result.report.importer_row_results.length, 3);
 });
 
-test("valid steady state is accepted exactly", () => {
-  const result = runImporterFixture({
-    overrides: { "retailer_products would be created": 0, "offers would be created": 0, "offers unchanged": 1, "price_history rows would be created": 0 },
-    action: "unchanged",
-  });
-  assert.equal(result.lifecycleState, "STEADY_STATE");
-  assert.equal(result.database_writes, 0);
-  assert.equal(result.summary.offers_unchanged, 1);
-  assert.deepEqual(result.rowLevelOffers, [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "unchanged" }]);
-});
-
-test("importer blocks any counter drift", () => {
-  assert.throws(() => adapter.runImporter("approved.csv", (_command, _args, options) => {
-    fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
-    fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({ runId: options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID, rowLevelOffers: [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }] }));
-    return { status: 0, stdout: importerOutput({ "new products would be created": 1 }), stderr: "" };
-  }), /new_products/);
-});
-
-test("lifecycle state and row action must agree", () => {
-  assert.throws(() => runImporterFixture({
-    overrides: { "retailer_products would be created": 0, "offers would be created": 0, "offers unchanged": 1, "price_history rows would be created": 0 },
-    action: "create",
-  }), /lifecycle state/);
-  assert.throws(() => runImporterFixture({ action: "unchanged" }), /lifecycle state/);
-});
-
-test("updates and steady-state price history are fatal", () => {
-  assert.throws(() => runImporterFixture({ overrides: { "offers would be updated": 1 } }), /offers_updated/);
-  assert.throws(() => runImporterFixture({
-    overrides: { "retailer_products would be created": 0, "offers would be created": 0, "offers unchanged": 1, "price_history rows would be created": 1 },
-    action: "unchanged",
-  }), /lifecycle state/);
-});
-
-test("row-level report requires one current exact slug", () => {
-  assert.throws(() => runImporterFixture({ rows: [
-    { rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" },
-    { rowNumber: 3, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" },
-  ] }), /Invalid or stale/);
-  assert.throws(() => runImporterFixture({ runId: "stale-run" }), /Invalid or stale/);
-  assert.throws(() => runImporterFixture({ rows: [{ rowNumber: 2, slug: "wrong-slug", offerAction: "create" }] }), /row-level result/);
-});
-
-test("importer rejects stale or non-exact row-level evidence", () => {
-  for (const rowLevelOffers of [
-    [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "update" }],
-    [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create", extra: true }],
-    [],
-  ]) {
-    assert.throws(() => adapter.runImporter("approved.csv", (_command, _args, options) => {
-      fs.mkdirSync(path.dirname(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH), { recursive: true });
-      fs.writeFileSync(options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH, JSON.stringify({ runId: options.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID, rowLevelOffers }));
-      return { status: 0, stdout: importerOutput(), stderr: "" };
-    }), /row-level|Invalid or stale/);
-  }
-});
-
-test("importer rejects missing and invalid helper reports and removes invalid helpers", () => {
-  assert.throws(() => adapter.runImporter("approved.csv", () => ({ status: 0, stdout: importerOutput(), stderr: "" })), /fresh helper report/);
-  let helperPath;
-  assert.throws(() => adapter.runImporter("approved.csv", (_command, _args, options) => {
-    helperPath = options.env.SUPPLEMENTSCOUT_IMPORT_REPORT_PATH;
-    fs.mkdirSync(path.dirname(helperPath), { recursive: true });
-    fs.writeFileSync(helperPath, "not json");
-    return { status: 0, stdout: importerOutput(), stderr: "" };
-  }), /JSON/);
-  assert.equal(fs.existsSync(helperPath), false);
-});
-
-test("main writes only controlled tmp outputs after validated dry-run success", async (t) => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "discount-supplements-adapter-"));
-  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
-  const csvPath = path.join(directory, "generated.csv");
-  const reportPath = path.join(directory, "report.json");
-  const result = await adapter.main({
-    argv: [], csvPath, reportPath, fetchCatalog: async () => ({ products: [productFixture()] }),
-    validateProduction: async () => {},
-    runImporter: () => ({ runId: "fresh-run", lifecycleState: "INITIAL_CREATE", database_writes: 0, output: "ok", rowLevelOffers: [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }], summary: {
-      approved_rows: 1, invalid_rows: 0, ambiguous_rows: 0, new_retailers: 0, new_products: 0,
-      retailer_products_created: 1, offers_created: 1, offers_updated: 0, offers_unchanged: 0,
-      price_history_created: 1, skipped_for_review: 0, failed: 0,
-    } }),
-  });
-  assert.equal(fs.existsSync(csvPath), true);
-  assert.equal(fs.existsSync(reportPath), true);
-  assert.equal(result.report.success, true);
-  assert.equal(result.report.lifecycle_state, "INITIAL_CREATE");
-  assert.equal(result.report.database_writes, 0);
-  assert.equal(result.report.delivered_price, 17.98);
-  assert.equal(result.report.importer_summary.retailer_products_created, 1);
-  assert.deepEqual(result.report.importer_row_results, [{ rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "create" }]);
-});
-
-test("main rejects CLI arguments", async () => {
-  await assert.rejects(adapter.main({ argv: ["--dry-run"] }), /does not accept CLI arguments/);
-});
+test("main rejects CLI arguments", async () => { await assert.rejects(adapter.main({ argv: ["--dry-run"] }), /does not accept CLI arguments/); });
