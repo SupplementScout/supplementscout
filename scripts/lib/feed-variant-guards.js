@@ -1,3 +1,5 @@
+const { canonicalJson, normalizeDecimalString } = require("./canonical-json");
+
 function parseStrictBoolean(value) {
   return ["true", "1", "yes", "y"].includes(
     String(value || "").trim().toLowerCase()
@@ -68,23 +70,23 @@ function parseSize(value = "") {
     return null;
   }
 
-  const amount = Number(match[1].replace(",", "."));
+  const amount = normalizeDecimalString(match[1].replace(",", "."), "size");
   const unit = match[2];
 
-  if (!Number.isFinite(amount) || amount <= 0) {
+  if (amount === "0" || amount.startsWith("-")) {
     return null;
   }
 
   if (unit === "kg") {
-    return { value: amount * 1000, unit: "g", dimension: "mass" };
+    return { value: normalizeDecimalString(`${amount}e3`, "size"), unit: "g", dimension: "mass" };
   }
 
   if (unit === "mg") {
-    return { value: amount / 1000, unit: "g", dimension: "mass" };
+    return { value: normalizeDecimalString(`${amount}e-3`, "size"), unit: "g", dimension: "mass" };
   }
 
   if (unit === "mcg") {
-    return { value: amount / 1000000, unit: "g", dimension: "mass" };
+    return { value: normalizeDecimalString(`${amount}e-6`, "size"), unit: "g", dimension: "mass" };
   }
 
   if (unit === "iu") {
@@ -92,7 +94,7 @@ function parseSize(value = "") {
   }
 
   if (unit === "l") {
-    return { value: amount * 1000, unit: "ml", dimension: "volume" };
+    return { value: normalizeDecimalString(`${amount}e3`, "size"), unit: "ml", dimension: "volume" };
   }
 
   return {
@@ -225,7 +227,7 @@ function sizeKey(size) {
   }
 
   const unitScope = size.perUnit ? "per-unit" : "total";
-  return `${size.dimension}:${Math.round(size.value * 1000) / 1000}:${size.unit}:${unitScope}`;
+  return `${size.dimension}:${normalizeDecimalString(size.value, "size")}:${size.unit}:${unitScope}`;
 }
 
 function productFamilyKey(value = "") {
@@ -399,6 +401,9 @@ function createPreflightReport() {
     newRetailersToCreate: [],
     newProductsToCreate: [],
     retailerProductsToCreate: [],
+    retailerProductsToUpdate: [],
+    retailerProductsUnchanged: [],
+    blockedRows: [],
     offersToCreate: [],
     offersToUpdate: [],
     offersUnchanged: [],
@@ -424,12 +429,29 @@ function addConflictByReason(report, item, reasons) {
   }
 }
 
+function changedFieldReport(before, after, fields) {
+  const changes = {};
+  for (const field of fields) {
+    const previous = before?.[field] ?? null;
+    const next = after?.[field] ?? null;
+    if (canonicalJson(previous) !== canonicalJson(next)) {
+      changes[field] = { before: previous, after: next };
+    }
+  }
+  return changes;
+}
+
 function analyzeFeedRows(resolvedRows, options = {}) {
   const safeCreate = Boolean(options.safeCreate);
+  const planBuilder = options.planBuilder;
   const report = createPreflightReport();
   const approvedCandidates = [];
   const dedupeKeys = new Map();
   const plannedRetailerSlugs = new Set();
+  const block = (entry) => {
+    report.blockedRows.push(entry);
+    return entry;
+  };
 
   for (const item of resolvedRows) {
     const { row, rowNumber, retailer, product, mapping, validationErrors = [] } = item;
@@ -448,8 +470,20 @@ function analyzeFeedRows(resolvedRows, options = {}) {
 
     dedupeKeys.set(rowIdentityKey(row), rowNumber);
 
+    if (item.variantResolutionError) {
+      const blocked = {
+        rowNumber,
+        productName,
+        reason: item.variantResolutionError,
+      };
+      report.ambiguousRows.push(blocked);
+      report.blockedRows.push(blocked);
+      continue;
+    }
+
     if (validationErrors.length > 0) {
       report.invalidRows.push({ rowNumber, productName, reasons: validationErrors });
+      report.blockedRows.push({ rowNumber, productName, reasons: validationErrors });
       continue;
     }
 
@@ -457,36 +491,39 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       const exclusionReasons = getSafeCreateExclusionReasons(row);
 
       if (exclusionReasons.length > 0) {
-        report.exclusions.push({ rowNumber, productName, reasons: exclusionReasons });
+        report.exclusions.push(block({ rowNumber, productName, reasons: exclusionReasons }));
         continue;
       }
     }
 
     if (!retailer || !product) {
       if (!safeCreate) {
-        report.unmatchedRows.push({ rowNumber, productName });
+        report.unmatchedRows.push(block({ rowNumber, productName, reason: "unmatched retailer or product" }));
         continue;
       }
 
       if ((!retailer && !item.plannedRetailer) || (!product && !item.plannedProduct)) {
-        report.unmatchedRows.push({
+        report.unmatchedRows.push(block({
           rowNumber,
           productName,
           reasons: [
             !retailer && !item.plannedRetailer ? "missing retailer" : null,
             !product && !item.plannedProduct ? "missing product" : null,
           ].filter(Boolean),
-        });
+        }));
         continue;
       }
     }
 
-    if (item.plannedProduct ? isSafeCreateRowAmbiguous(row) : isAmbiguousFeedRow(row)) {
-      report.ambiguousRows.push({
+    const unresolvedIdentityIsAmbiguous = item.plannedProduct
+      ? isSafeCreateRowAmbiguous(row)
+      : !item.productVariant && isAmbiguousFeedRow(row);
+    if (unresolvedIdentityIsAmbiguous) {
+      report.ambiguousRows.push(block({
         rowNumber,
         productName,
         reason: "ambiguous variant identity",
-      });
+      }));
       continue;
     }
 
@@ -505,6 +542,7 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       };
 
       report.ambiguousRows.push(conflict);
+      block(conflict);
       addConflictByReason(report, conflict, conflict.reasons);
       continue;
     }
@@ -520,27 +558,27 @@ function analyzeFeedRows(resolvedRows, options = {}) {
 
     if (productLevelGtin) {
       if (product?.gtin && product.gtin !== productLevelGtin) {
-        report.gtinConflicts.push({
+        report.gtinConflicts.push(block({
           rowNumber,
           productName,
           productId: product.id,
           existingGtin: product.gtin,
           candidateGtin: productLevelGtin,
-        });
+        }));
         continue;
       }
     }
 
     if (externalGtin) {
       if (mapping?.external_gtin && mapping.external_gtin !== externalGtin) {
-        report.externalGtinConflicts.push({
+        report.externalGtinConflicts.push(block({
           rowNumber,
           productName,
           productId: product.id,
           retailerId: retailer.id,
           existingExternalGtin: mapping.external_gtin,
           candidateExternalGtin: externalGtin,
-        });
+        }));
         continue;
       }
 
@@ -572,7 +610,26 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       continue;
     }
 
+    const externalVariantIds = group.map((item) =>
+      String(item.row.external_variant_id || "").trim()
+    );
+    const canonicalVariantIds = group.map((item) => item.productVariant?.id || null);
+    const hasDistinctResolvedVariants =
+      externalVariantIds.every(Boolean) &&
+      canonicalVariantIds.every(Boolean) &&
+      new Set(externalVariantIds).size === group.length &&
+      new Set(canonicalVariantIds).size === group.length;
+
+    if (hasDistinctResolvedVariants) {
+      continue;
+    }
+
     group.forEach((item) => collisionRowNumbers.add(item.rowNumber));
+    group.forEach((item) => block({
+      rowNumber: item.rowNumber,
+      productName: String(item.row.product_name || "").trim(),
+      reason: "multiple unresolved feed variants share one retailer-product identity",
+    }));
     report.collisionGroups.push({
       collisionKey,
       retailerId: group[0].retailer?.id || null,
@@ -582,7 +639,7 @@ function analyzeFeedRows(resolvedRows, options = {}) {
         productName: String(item.row.product_name || "").trim(),
       })),
       reason:
-        "multiple feed variants map to one product and retailer; offers has unique(product_id, retailer_id)",
+        "multiple unresolved feed variants share one retailer-product identity",
     });
   }
 
@@ -590,8 +647,28 @@ function analyzeFeedRows(resolvedRows, options = {}) {
     (item) => !collisionRowNumbers.has(item.rowNumber)
   );
 
+  if (planBuilder) {
+    for (const item of report.approvedRows) {
+      item.importPlan = planBuilder(item);
+    }
+  }
+
   for (const item of report.approvedRows) {
     const productName = String(item.row.product_name || "").trim();
+    const retailerProductFields = [
+      "external_product_id", "external_variant_id", "external_sku",
+      "external_options", "external_gtin", "external_url", "product_variant_id",
+    ];
+    const retailerProductAfter = item.importPlan?.retailer_product.values || {};
+    const retailerProductReportItem = {
+      rowNumber: item.rowNumber,
+      productName,
+      changes: changedFieldReport(
+        item.mapping,
+        retailerProductAfter,
+        retailerProductFields
+      ),
+    };
 
     if (item.plannedRetailer && !plannedRetailerSlugs.has(item.plannedRetailer.slug)) {
       plannedRetailerSlugs.add(item.plannedRetailer.slug);
@@ -610,16 +687,26 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       });
     }
 
-    if (!item.mapping) {
-      report.retailerProductsToCreate.push({
-        rowNumber: item.rowNumber,
-        productName,
-      });
+    if (item.importPlan?.retailer_product.action === "create") {
+      report.retailerProductsToCreate.push(retailerProductReportItem);
+    } else if (item.importPlan?.retailer_product.action === "update") {
+      report.retailerProductsToUpdate.push(retailerProductReportItem);
+    } else {
+      report.retailerProductsUnchanged.push(retailerProductReportItem);
     }
 
+    const offerAfter = {
+      ...(item.importPlan?.offer.values || {}),
+      product_variant_id: item.productVariant?.id || null,
+      retailer_product_id: item.mapping?.id || null,
+    };
     const offerReportItem = {
       rowNumber: item.rowNumber,
       productName,
+      changes: changedFieldReport(item.existingOffer, offerAfter, [
+        "price", "shipping_cost", "total_price", "in_stock", "url",
+        "product_variant_id", "retailer_product_id",
+      ]),
     };
     const offerPlan = item.offerPlan || {
       action: "create",
@@ -694,6 +781,26 @@ function analyzeFeedRows(resolvedRows, options = {}) {
     }
   }
 
+  const resolvedByRow = new Map(
+    resolvedRows.map((item) => [item.rowNumber, item.row])
+  );
+  report.blockedRows = report.blockedRows.map((entry) => {
+    const row = resolvedByRow.get(entry.rowNumber) || {};
+    return {
+      ...entry,
+      block_reason:
+        entry.block_reason || entry.reason || (entry.reasons || []).join("; "),
+      context: {
+        rowNumber: entry.rowNumber,
+        productName: entry.productName || String(row.product_name || "").trim(),
+        slug: String(row.slug || "").trim() || null,
+        external_product_id: String(row.external_product_id || "").trim() || null,
+        external_variant_id: String(row.external_variant_id || "").trim() || null,
+        external_url: String(row.external_url || row.url || "").trim() || null,
+      },
+    };
+  });
+
   return report;
 }
 
@@ -718,6 +825,9 @@ function formatPreflightReport(report) {
     `  new retailers would be created: ${report.newRetailersToCreate.length}`,
     `  new products would be created: ${report.newProductsToCreate.length}`,
     `  retailer_products would be created: ${report.retailerProductsToCreate.length}`,
+    `  retailer_products would be updated: ${report.retailerProductsToUpdate.length}`,
+    `  retailer_products unchanged: ${report.retailerProductsUnchanged.length}`,
+    `  blocked rows: ${report.blockedRows.length}`,
     `  offers would be created: ${report.offersToCreate.length}`,
     `  offers would be updated: ${report.offersToUpdate.length}`,
     `  offers unchanged: ${report.offersUnchanged.length}`,

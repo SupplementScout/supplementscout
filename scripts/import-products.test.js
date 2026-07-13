@@ -1,13 +1,15 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 
 const {
+  applyArtifactPlan,
+  approveArtifactPlan,
   assessVariantCompatibility,
   buildRetailerProductPayload,
   buildRowLevelOfferResults,
-  findOrCreateProduct,
   formatPreflightReport,
   getExternalGtin,
   getProductLevelGtin,
@@ -18,6 +20,7 @@ const {
   parseArgs,
   parseFlavour,
   parsePackCount,
+  parseExternalOptions,
   parseProductFormat,
   parseStrictBoolean,
   parseSize,
@@ -26,11 +29,62 @@ const {
   normalizeCanonicalRetailerFeedRows,
   normalizeShippingForImport,
   priceHistoryTotal,
-  runImportRows,
+  runImportRows: runImportRowsRaw,
   setSupabaseForTests,
   shouldLogCategoryNormalization,
+  validatePilotApply,
+  writeDryRunArtifact,
 } = require("./import-products");
 const { isSafeCreateRowAmbiguous } = require("./lib/feed-variant-guards");
+const {
+  canonicalJson,
+  normalizeDecimalString,
+} = require("./lib/canonical-json");
+
+async function runImportRows(rows, options = {}) {
+  if (options.dryRun) {
+    return runImportRowsRaw(rows, options);
+  }
+
+  const preflight = await runImportRowsRaw(rows, { ...options, dryRun: true });
+  const successfulRows = [];
+  const failedRows = [];
+  for (const item of preflight.report.approvedRows || []) {
+    const row = rows[item.rowNumber - 2];
+    const singlePreflight = await runImportRowsRaw([row], { ...options, dryRun: true });
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), "supplementscout-plan-test-"));
+    const artifactPath = path.join(directory, "plan.json");
+    try {
+      const artifact = writeDryRunArtifact([row], singlePreflight, {
+        artifactPath,
+        sourceContent: JSON.stringify(row),
+        sourceFileName: "test-row.json",
+        environmentMarker: "test",
+      });
+      const fingerprint = artifact.artifact.plans[0].plan_fingerprint;
+      const approved = await approveArtifactPlan({ artifactPath, planFingerprint: fingerprint });
+      const applied = await applyArtifactPlan({
+        artifactPath,
+        planFingerprint: fingerprint,
+        approvalId: approved.approvalId,
+        pilotApply: true,
+      });
+      successfulRows.push(...applied.successfulRows);
+    } catch (error) {
+      failedRows.push({ error: error?.message || String(error) });
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
+  }
+  return {
+    ...preflight,
+    successful: successfulRows.length,
+    failed: failedRows.length + (options.mode === "manual" ? preflight.blockedRows.length : 0),
+    planned: 0,
+    successfulRows,
+    failedRows,
+  };
+}
 
 function baseFeedRow(overrides = {}) {
   return {
@@ -136,6 +190,22 @@ function createMockSupabase(seed = {}) {
     offers: seed.offers || [],
     price_history: seed.price_history || [],
   };
+  if (seed.product_variants === undefined) {
+    tables.product_variants = tables.products.map((product, index) => ({
+      id: `default-variant-${index + 1}`,
+      product_id: product.id,
+      variant_key: "default",
+      display_name: "Default",
+      flavour_code: null,
+      flavour_label: null,
+      size_value: null,
+      size_unit: null,
+      pack_count: null,
+      product_format: null,
+      is_active: true,
+      is_default: true,
+    }));
+  }
   const writes = [];
   const operations = [];
 
@@ -266,14 +336,216 @@ function createMockSupabase(seed = {}) {
     }
   }
 
+  const approvedPlans = new Map();
+
   return {
     tables,
     writes,
     operations,
+    async rpc(name, args) {
+      operations.push({ type: "rpc", name, args });
+      if (name === "approve_product_import_plan") {
+        const id = `approval-${approvedPlans.size + 1}`;
+        approvedPlans.set(id, {
+          plan: structuredClone(args.p_plan),
+          metadata: {
+            artifact_sha256: args.p_artifact_sha256,
+            run_id: args.p_run_id,
+            plan_fingerprint: args.p_plan.meta.plan_fingerprint,
+            source_row_fingerprint: args.p_plan.meta.source_row_fingerprint,
+            retailer_id: args.p_plan.retailer.action === "existing" ? args.p_plan.retailer.id : null,
+            plan_kind: args.p_plan.meta.plan_kind,
+          },
+          consumed: false,
+        });
+        return {
+          data: {
+            approval_id: id,
+            expires_at: new Date(Date.now() + 900000).toISOString(),
+            ...approvedPlans.get(id).metadata,
+            status: "approved",
+          },
+          error: null,
+        };
+      }
+      if (name !== "apply_approved_product_import_plan") {
+        return { data: null, error: new Error(`Unknown RPC ${name}`) };
+      }
+
+      const approval = approvedPlans.get(args.p_approval_id);
+      if (!approval) return { data: null, error: new Error("approved import plan not found") };
+      if (approval.consumed) return { data: null, error: new Error("approved import plan already consumed") };
+      for (const [key, value] of Object.entries(approval.metadata)) {
+        const argument = {
+          artifact_sha256: args.p_artifact_sha256,
+          run_id: args.p_run_id,
+          plan_fingerprint: args.p_plan_fingerprint,
+          source_row_fingerprint: args.p_source_row_fingerprint,
+          retailer_id: args.p_retailer_id,
+          plan_kind: args.p_plan_kind,
+        }[key];
+        if ((argument ?? null) !== (value ?? null)) {
+          return { data: null, error: new Error(`approved import plan ${key} mismatch`) };
+        }
+      }
+      const snapshot = structuredClone(tables);
+      const writesLength = writes.length;
+      const plan = approval.plan;
+      try {
+        let retailerId = plan.retailer.id;
+        if (plan.retailer.action === "create") {
+          const row = {
+            ...plan.retailer.values,
+            id: `retailers-${tables.retailers.length + 1}`,
+          };
+          tables.retailers.push(row);
+          writes.push({ table: "retailers", operation: "insert", payload: row });
+          retailerId = row.id;
+        }
+
+        let productId = plan.product.id;
+        if (plan.product.action === "create") {
+          const row = {
+            ...materializeDecimalFields(plan.product.values, [
+              "price", "servings", "net_weight_g", "net_volume_ml", "serving_count_verified",
+              "serving_size_g", "serving_size_ml", "protein_per_serving_g",
+              "creatine_per_serving_g", "unit_count",
+            ]),
+            id: `products-${tables.products.length + 1}`,
+            gtin: null,
+            is_active: true,
+          };
+          tables.products.push(row);
+          writes.push({ table: "products", operation: "insert", payload: row });
+          productId = row.id;
+        }
+        if (seed.rpc_failure_at === "after_product") throw new Error("after product");
+
+        let productVariantId = plan.product_variant.id;
+        if (plan.product_variant.action === "create_default") {
+          const row = {
+            id: `product_variants-${tables.product_variants.length + 1}`,
+            product_id: productId,
+            variant_key: "default",
+            display_name: "Default",
+            flavour_code: null,
+            flavour_label: null,
+            size_value: null,
+            size_unit: null,
+            pack_count: null,
+            product_format: null,
+            is_active: true,
+            is_default: true,
+          };
+          tables.product_variants.push(row);
+          writes.push({ table: "product_variants", operation: "insert", payload: row });
+          productVariantId = row.id;
+        }
+        if (seed.rpc_failure_at === "after_default_variant") {
+          throw new Error("after default variant");
+        }
+
+        let mappingId = plan.retailer_product.id;
+        if (plan.retailer_product.action === "create") {
+          const row = {
+            ...materializeDecimalFields(plan.retailer_product.values, ["match_confidence"]),
+            id: `retailer_products-${tables.retailer_products.length + 1}`,
+            retailer_id: retailerId,
+            product_id: productId,
+            product_variant_id: productVariantId,
+          };
+          tables.retailer_products.push(row);
+          writes.push({ table: "retailer_products", operation: "insert", payload: row });
+          mappingId = row.id;
+        } else if (plan.retailer_product.action === "update") {
+          const row = tables.retailer_products.find(({ id }) => id === mappingId);
+          if (!row) throw new Error("stale retailer product");
+          Object.assign(row, materializeDecimalFields(plan.retailer_product.values, ["match_confidence"]), {
+            retailer_id: retailerId,
+            product_id: productId,
+            product_variant_id: productVariantId,
+          });
+          writes.push({ table: "retailer_products", operation: "update", payload: plan.retailer_product.values });
+        }
+        if (seed.rpc_failure_at === "after_retailer_product") throw new Error("after retailer product");
+
+        let offerId = plan.offer.id;
+        if (plan.offer.action === "create") {
+          const row = {
+            ...materializeDecimalFields(plan.offer.values, ["price", "shipping_cost", "total_price"]),
+            id: `offers-${tables.offers.length + 1}`,
+            product_id: productId,
+            retailer_id: retailerId,
+            product_variant_id: productVariantId,
+            retailer_product_id: mappingId,
+          };
+          tables.offers.push(row);
+          writes.push({ table: "offers", operation: "insert", payload: row });
+          offerId = row.id;
+        } else if (plan.offer.action === "update") {
+          const row = tables.offers.find(({ id }) => id === offerId);
+          if (!row) throw new Error("stale offer");
+          const materializedOfferValues = materializeDecimalFields(
+            plan.offer.values,
+            ["price", "shipping_cost", "total_price"]
+          );
+          const changed = Object.fromEntries(
+            Object.entries(materializedOfferValues).filter(
+              ([key, value]) => key === "last_checked_at" || !valuesEqualForTest(row[key], value)
+            )
+          );
+          Object.assign(row, materializedOfferValues);
+          writes.push({ table: "offers", operation: "update", payload: changed });
+        }
+        if (seed.rpc_failure_at === "after_offer") throw new Error("after offer");
+        if (seed.rpc_failure_at === "before_price_history") throw new Error("before price history");
+
+        if (plan.price_history.action === "create") {
+          const row = {
+            id: `price_history-${tables.price_history.length + 1}`,
+            offer_id: offerId,
+            price: Number(plan.offer.values.price),
+            shipping_cost: plan.offer.values.shipping_cost === null ? null : Number(plan.offer.values.shipping_cost),
+            total_price: plan.offer.values.total_price === null ? null : Number(plan.offer.values.total_price),
+            checked_at: plan.offer.values.last_checked_at,
+          };
+          tables.price_history.push(row);
+          writes.push({ table: "price_history", operation: "insert", payload: row });
+        }
+
+        approval.consumed = true;
+        return {
+          data: {
+            approval_id: args.p_approval_id, product_id: productId,
+            product_variant_id: productVariantId, retailer_product_id: mappingId, offer_id: offerId,
+            consumed_at: new Date().toISOString(), ...approval.metadata,
+          },
+          error: null,
+        };
+      } catch (error) {
+        for (const [table, rows] of Object.entries(snapshot)) {
+          tables[table].splice(0, tables[table].length, ...rows);
+        }
+        writes.splice(writesLength);
+        return { data: null, error };
+      }
+    },
     from(table) {
       return new Query(table);
     },
   };
+}
+
+function valuesEqualForTest(left, right) {
+  return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+}
+
+function materializeDecimalFields(values, fields) {
+  const result = { ...values };
+  for (const field of fields) {
+    if (result[field] !== null && result[field] !== undefined) result[field] = Number(result[field]);
+  }
+  return result;
 }
 
 async function assertInvalidFeedRowHasZeroWrites(overrides) {
@@ -290,11 +562,18 @@ async function assertInvalidFeedRowHasZeroWrites(overrides) {
 async function preflightExistingOffer({ rowOverrides = {}, offerOverrides = {} } = {}) {
   const row = baseFeedRow(rowOverrides);
   const supabase = createMockSupabase({
+    retailer_products: [{
+      id: "rp1", retailer_id: "r1", product_id: "p1",
+      product_variant_id: "default-variant-1", external_url: row.url,
+      external_gtin: row.gtin || null,
+    }],
     offers: [
       {
         id: "o1",
         product_id: "p1",
         retailer_id: "r1",
+        product_variant_id: "default-variant-1",
+        retailer_product_id: "rp1",
         price: 29.99,
         shipping_cost: 0,
         total_price: 29.99,
@@ -475,32 +754,32 @@ test("legacy manually imported GTIN behaviour remains intact", () => {
 test("variant parsing extracts conservative flavour, size, pack count, and format", () => {
   assert.equal(parseFlavour("Chocolate flavour"), "chocolate");
   assert.deepEqual(parseSize("908g"), {
-    value: 908,
+    value: "908",
     unit: "g",
     dimension: "mass",
   });
   assert.deepEqual(parseSize("0.908kg"), {
-    value: 908,
+    value: "908",
     unit: "g",
     dimension: "mass",
   });
   assert.deepEqual(parseSize("Optimum Nutrition Whey 2.27kg"), {
-    value: 2270,
+    value: "2270",
     unit: "g",
     dimension: "mass",
   });
   assert.deepEqual(parseSize("2,27kg"), {
-    value: 2270,
+    value: "2270",
     unit: "g",
     dimension: "mass",
   });
   assert.deepEqual(parseSize("1.8 kg"), {
-    value: 1800,
+    value: "1800",
     unit: "g",
     dimension: "mass",
   });
   assert.deepEqual(parseSize("500ml"), {
-    value: 500,
+    value: "500",
     unit: "ml",
     dimension: "volume",
   });
@@ -638,7 +917,29 @@ test("feed mode is explicit and ordinary CSV columns do not activate it", () => 
   assert.equal(getProductLevelGtin({ import_mode: "awin", gtin: "123" }, "feed"), null);
 });
 
-test("valid canonical retailer feed passes existing safe-create preflight", async () => {
+test("approval and pilot apply require an artifact, fingerprint and one approval ID", () => {
+  const artifact = "tmp/import-plans/review.json";
+  const fingerprint = "a".repeat(32);
+  const pilot = parseArgs([
+    "--mode=feed", "--pilot-apply", `--artifact=${artifact}`,
+    `--plan-fingerprint=${fingerprint}`, "--approval-id=approval-1",
+  ]);
+  assert.equal(pilot.pilotApply, true);
+  assert.equal(pilot.approvalId, "approval-1");
+  assert.equal(parseArgs([
+    "--mode=feed", "--approve-plan", `--artifact=${artifact}`,
+    `--plan-fingerprint=${fingerprint}`,
+  ]).approvePlan, true);
+  assert.throws(
+    () => parseArgs(["--mode=feed", "--pilot-apply", "--dry-run"]),
+    /cannot be combined/i
+  );
+  assert.throws(() => parseArgs(["--pilot-apply"]), /artifact and --plan-fingerprint/i);
+  assert.throws(() => validatePilotApply([{}], { dryRun: false }), /artifact approval workflow/i);
+  assert.doesNotThrow(() => validatePilotApply([{}, {}], { dryRun: true }));
+});
+
+test("safe-create blocks canonical feed rows with flavour and size evidence", async () => {
   const supabase = createMockSupabase({
     retailers: [],
     products: [],
@@ -655,7 +956,8 @@ test("valid canonical retailer feed passes existing safe-create preflight", asyn
   });
 
   assert.equal(result.report.invalidRows.length, 0);
-  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.equal(result.report.blockedRows.length, 1);
   assert.equal(supabase.writes.length, 0);
 });
 
@@ -745,7 +1047,7 @@ test("canonical variant fields map to evidence understood by variant guards", ()
   assert.equal(Object.prototype.hasOwnProperty.call(originalRow, "variant"), false);
   assert.equal(row.size, "500 g");
   assert.match(row.variant, /Unflavoured \/ 500g/);
-  assert.equal(identity.size.value, 500);
+  assert.equal(identity.size.value, "500");
   assert.equal(identity.size.unit, "g");
   assert.equal(identity.flavour, "unflavoured");
   assert.equal(identity.packCount, 2);
@@ -829,7 +1131,33 @@ test("safe-create approves safe unmatched rows for planned creation", async () =
   assert.equal(supabase.writes.length, 0);
 });
 
-test("Fit House approved config plans ten safe creates with zero dry-run writes", { concurrency: false }, async () => {
+test("safe-create emits a closed v2 plan with integrity fingerprints and approval metadata", async () => {
+  const supabase = createMockSupabase({
+    retailers: [], products: [], retailer_products: [], offers: [], price_history: [],
+  });
+  setSupabaseForTests(supabase);
+  const result = await runImportRows([baseSafeCreateFeedRow()], {
+    mode: "feed", safeCreate: true, dryRun: true,
+  });
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.deepEqual(Object.keys(plan).sort(), [
+    "approval", "expected_state", "meta", "offer", "price_history",
+    "product", "product_variant", "retailer", "retailer_product",
+  ]);
+  assert.equal(plan.meta.version, "2");
+  assert.equal(plan.meta.plan_kind, "feed");
+  assert.match(plan.meta.source_row_fingerprint, /^[0-9a-f]{64}$/);
+  assert.match(plan.meta.plan_fingerprint, /^[0-9a-f]{32}$/);
+  assert.equal(plan.approval.approved, true);
+  assert.equal(plan.approval.approval_type, "safe_create");
+  assert.equal(plan.approval.approved_category, plan.product.values.category);
+  assert.equal(plan.approval.canonical_name, plan.product.values.name);
+  assert.equal(plan.approval.source_row_fingerprint, plan.meta.source_row_fingerprint);
+  assert.equal(plan.approval.has_variant_evidence, false);
+  assert.match(plan.approval.approval_fingerprint, /^[0-9a-f]{32}$/);
+});
+
+test("Fit House safe-create plans only neutral rows and blocks variant evidence", { concurrency: false }, async () => {
   const config = JSON.parse(
     fs.readFileSync(
       path.join(__dirname, "../config/retailers/fit-house-shopify.json"),
@@ -879,19 +1207,20 @@ test("Fit House approved config plans ten safe creates with zero dry-run writes"
     console.log = originalLog;
   }
 
-  assert.equal(result.report.approvedRows.length, 10);
+  assert.equal(result.report.approvedRows.length, 4);
   assert.equal(result.report.invalidRows.length, 0);
-  assert.equal(result.report.ambiguousRows.length, 0);
+  assert.equal(result.report.ambiguousRows.length, 6);
   assert.equal(result.report.exclusions.length, 0);
   assert.equal(result.report.newRetailersToCreate.length, 1);
   assert.equal(result.report.newRetailersToCreate[0].slug, "fit-house");
-  assert.equal(result.report.newProductsToCreate.length, 10);
-  assert.equal(result.report.retailerProductsToCreate.length, 10);
-  assert.equal(result.report.offersToCreate.length, 10);
+  assert.equal(result.report.newProductsToCreate.length, 4);
+  assert.equal(result.report.retailerProductsToCreate.length, 4);
+  assert.equal(result.report.offersToCreate.length, 4);
   assert.equal(result.report.offersToUpdate.length, 0);
-  assert.equal(result.report.priceHistoryRowsToCreate.length, 10);
-  assert.equal(result.planned, 10);
-  assert.equal(result.skipped, 0);
+  assert.equal(result.report.priceHistoryRowsToCreate.length, 4);
+  assert.equal(result.report.blockedRows.length, 6);
+  assert.equal(result.planned, 4);
+  assert.equal(result.skipped, 6);
   assert.equal(supabase.writes.length, 0);
   assert.equal(
     logs.some((line) => line.includes("Dry run: no database writes performed.")),
@@ -899,7 +1228,7 @@ test("Fit House approved config plans ten safe creates with zero dry-run writes"
   );
 });
 
-test("Fit House full config approves all 22 rows including four softgels", { concurrency: false }, async () => {
+test("Fit House existing defaults pass while unsafe new variant rows stay blocked", { concurrency: false }, async () => {
   const config = JSON.parse(
     fs.readFileSync(
       path.join(__dirname, "../config/retailers/fit-house-shopify.json"),
@@ -922,6 +1251,7 @@ test("Fit House full config approves all 22 rows including four softgels", { con
     id: `fit-mapping-${index + 1}`,
     retailer_id: "fit-house-retailer",
     product_id: products[index].id,
+    product_variant_id: `default-variant-${index + 1}`,
     external_url: row.external_url,
     external_gtin: null,
   }));
@@ -929,6 +1259,8 @@ test("Fit House full config approves all 22 rows including four softgels", { con
     id: `fit-offer-${index + 1}`,
     retailer_id: "fit-house-retailer",
     product_id: products[index].id,
+    product_variant_id: `default-variant-${index + 1}`,
+    retailer_product_id: `fit-mapping-${index + 1}`,
     price: Number(row.price),
     shipping_cost: Number(row.shipping_cost),
     total_price: priceHistoryTotal(row.price, row.shipping_cost),
@@ -966,17 +1298,18 @@ test("Fit House full config approves all 22 rows including four softgels", { con
     console.log = originalLog;
   }
 
-  assert.equal(result.report.approvedRows.length, 22);
+  assert.equal(result.report.approvedRows.length, 12);
   assert.equal(result.report.invalidRows.length, 0);
-  assert.equal(result.report.ambiguousRows.length, 0);
+  assert.equal(result.report.ambiguousRows.length, 10);
   assert.equal(result.report.collisionGroups.length, 0);
   assert.equal(result.report.newRetailersToCreate.length, 0);
-  assert.equal(result.report.newProductsToCreate.length, 12);
-  assert.equal(result.report.retailerProductsToCreate.length, 12);
-  assert.equal(result.report.offersToCreate.length, 12);
+  assert.equal(result.report.newProductsToCreate.length, 8);
+  assert.equal(result.report.retailerProductsToCreate.length, 8);
+  assert.equal(result.report.offersToCreate.length, 8);
   assert.equal(result.report.offersToUpdate.length, 0);
-  assert.equal(result.report.offersUnchanged.length, 10);
-  assert.equal(result.report.priceHistoryRowsToCreate.length, 12);
+  assert.equal(result.report.offersUnchanged.length, 4);
+  assert.equal(result.report.priceHistoryRowsToCreate.length, 8);
+  assert.equal(result.report.blockedRows.length, 10);
   assert.equal(supabase.writes.length, 0);
 });
 
@@ -1109,8 +1442,14 @@ test("offer preflight does not call combined stock and URL changes only changes"
 async function applyExistingOffer(rowOverrides = {}, offerOverrides = {}) {
   const row = baseFeedRow(rowOverrides);
   const supabase = createMockSupabase({
+    retailer_products: [{
+      id: "rp1", retailer_id: "r1", product_id: "p1",
+      product_variant_id: "default-variant-1", external_url: row.url,
+      external_gtin: row.gtin || null,
+    }],
     offers: [{
       id: "o1", product_id: "p1", retailer_id: "r1", price: 29.99,
+      product_variant_id: "default-variant-1", retailer_product_id: "rp1",
       shipping_cost: 0, total_price: 29.99, in_stock: true,
       url: baseFeedRow().url, ...offerOverrides,
     }],
@@ -1127,14 +1466,11 @@ async function applyExistingOffer(rowOverrides = {}, offerOverrides = {}) {
   }
 }
 
-test("unchanged offer refreshes only last_checked_at and reports row-level unchanged", async () => {
-  const { result, supabase, messages } = await applyExistingOffer();
+test("unchanged offer is a true atomic-plan noop", async () => {
+  const { result, supabase } = await applyExistingOffer();
   const offerUpdate = supabase.writes.find((write) => write.table === "offers");
-  assert.deepEqual(Object.keys(offerUpdate.payload), ["last_checked_at"]);
-  assert.match(offerUpdate.payload.last_checked_at, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(offerUpdate, undefined);
   assert.equal(supabase.writes.some((write) => write.table === "price_history"), false);
-  assert.equal(messages.some((message) => message.startsWith("Refreshed offer:")), true);
-  assert.equal(messages.some((message) => message.startsWith("Updated offer:")), false);
   assert.deepEqual(result.rowLevelOffers, [{ rowNumber: 2, slug: baseFeedRow().slug, offerAction: "unchanged" }]);
 });
 
@@ -1146,13 +1482,12 @@ test("business offer changes keep full updates and price history rules", async (
     { overrides: { affiliate_url: "https://affiliate.test/new-offer" }, action: "update", history: false },
   ];
   for (const item of cases) {
-    const { result, supabase, messages } = await applyExistingOffer(item.overrides);
+    const { result, supabase } = await applyExistingOffer(item.overrides);
     const offerUpdate = supabase.writes.find((write) => write.table === "offers");
-    for (const key of ["product_id", "retailer_id", "price", "shipping_cost", "total_price", "url", "in_stock", "last_checked_at"]) {
-      assert.equal(Object.hasOwn(offerUpdate.payload, key), true);
-    }
+    assert.equal(Object.hasOwn(offerUpdate.payload, "last_checked_at"), true);
+    assert.equal(Object.hasOwn(offerUpdate.payload, "product_id"), false);
+    assert.equal(Object.hasOwn(offerUpdate.payload, "retailer_product_id"), false);
     assert.equal(supabase.writes.some((write) => write.table === "price_history"), item.history);
-    assert.equal(messages.some((message) => message.startsWith("Updated offer:")), true);
     assert.equal(result.rowLevelOffers[0].offerAction, item.action);
   }
 });
@@ -1295,6 +1630,8 @@ test("safe-create blocks an out-of-stock row without a canonical match", async (
   assert.equal(result.report.invalidRows.length, 1);
   assert.equal(result.report.newProductsToCreate.length, 0);
   assert.equal(result.report.retailerProductsToCreate.length, 0);
+  assert.equal(result.report.retailerProductsToUpdate.length, 0);
+  assert.equal(result.report.retailerProductsUnchanged.length, 0);
   assert.equal(result.report.offersToCreate.length, 0);
   assert.deepEqual(result.report.invalidRows[0].reasons, [
     "in_stock must be true to create a new canonical product",
@@ -1311,12 +1648,21 @@ test("safe-create plans an out-of-stock offer returning to stock as stock-only",
   const supabase = createMockSupabase({
     retailers: [retailer],
     products: [product],
-    retailer_products: [],
+    retailer_products: [{
+      id: "rp458",
+      retailer_id: retailer.id,
+      product_id: product.id,
+      product_variant_id: "default-variant-1",
+      external_url: getRetailerProductUrl(row),
+      external_gtin: row.external_gtin,
+    }],
     offers: [
       {
         id: "o458",
         product_id: product.id,
         retailer_id: retailer.id,
+        product_variant_id: "default-variant-1",
+        retailer_product_id: "rp458",
         price: 16.99,
         shipping_cost: 3.99,
         total_price: 20.98,
@@ -1555,7 +1901,7 @@ test("safe-create writes direct retailer URL to mapping and affiliate URL to off
   assert.equal(offerWrite.payload.url, row.aw_deep_link);
   assert.equal(offerWrite.payload.shipping_cost, 1.99);
   assert.equal(offerWrite.payload.total_price, 6.98);
-  assert.equal(Object.prototype.hasOwnProperty.call(productWrite.payload, "gtin"), false);
+  assert.equal(productWrite.payload.gtin, null);
 });
 
 test("safe-create blocks excluded and unsafe rows", async () => {
@@ -1618,7 +1964,7 @@ test("no writes occur before complete feed preflight", async () => {
 
   await runImportRows([baseFeedRow({ gtin: "" })], { mode: "feed" });
 
-  const firstWrite = supabase.operations.findIndex((operation) => operation.type === "write");
+  const firstWrite = supabase.operations.findIndex((operation) => operation.type === "rpc");
   const readsBeforeFirstWrite = supabase.operations
     .slice(0, firstWrite)
     .filter((operation) => operation.type === "read");
@@ -1730,39 +2076,7 @@ test("existing canonical product is never updated by a canonical retailer feed",
   assert.equal(supabase.tables.price_history[0].price, 29.99);
 });
 
-test("feed-style findOrCreateProduct preserves an existing canonical product", async () => {
-  const existingProduct = {
-    id: "p1",
-    name: "BioTech USA Iso Whey Zero 1816g powder",
-    slug: "biotech-usa-iso-whey-zero-1816g",
-    brand: "BioTech USA",
-    category: "Whey Protein",
-    description: "Keep this description",
-    image: "https://canonical.test/image.jpg",
-    price: 44.99,
-  };
-  const supabase = createMockSupabase({ products: [{ ...existingProduct }] });
-  setSupabaseForTests(supabase);
-
-  const productId = await findOrCreateProduct(
-    baseFeedRow({ description: "", image: "https://retailer.test/new.jpg" }),
-    2,
-    "r1",
-    { mode: "feed" }
-  );
-
-  assert.equal(productId, "p1");
-  assert.equal(
-    supabase.writes.some(
-      (write) => write.table === "products" && write.operation === "update"
-    ),
-    false
-  );
-  assert.deepEqual(supabase.tables.products[0], existingProduct);
-  assert.equal(supabase.tables.retailer_products.length, 1);
-});
-
-test("new product create keeps the full validated product payload", async () => {
+test("new product create keeps validated metrics but isolates retailer GTIN", async () => {
   const supabase = createMockSupabase({ products: [] });
   setSupabaseForTests(supabase);
 
@@ -1792,7 +2106,7 @@ test("new product create keeps the full validated product payload", async () => 
   );
 
   assert(productInsert);
-  assert.equal(productInsert.payload.gtin, "5056049515772");
+  assert.equal(productInsert.payload.gtin, null);
   assert.equal(productInsert.payload.net_weight_g, 60);
   assert.equal(productInsert.payload.serving_count_verified, 60);
   assert.equal(productInsert.payload.product_format, "capsule");
@@ -1804,8 +2118,10 @@ test("existing mapping stores compatible external_gtin", async () => {
   const supabase = createMockSupabase({
     retailer_products: [
       {
+        id: "rp1",
         retailer_id: "r1",
         product_id: "p1",
+        product_variant_id: "default-variant-1",
         external_url: "https://retailer.test/iso-whey-zero-chocolate",
         external_gtin: null,
       },
@@ -1816,6 +2132,12 @@ test("existing mapping stores compatible external_gtin", async () => {
   const result = await runImportRows([baseFeedRow()], { mode: "feed" });
 
   assert.equal(result.report.externalGtinStoredOrUpdated.length, 1);
+  assert.equal(result.report.retailerProductsToUpdate.length, 1);
+  assert.deepEqual(
+    result.report.retailerProductsToUpdate[0].changes.external_gtin,
+    { before: null, after: "0001234567890" }
+  );
+  assert.equal(result.report.retailerProductsUnchanged.length, 0);
   assert.equal(
     supabase.writes.some(
       (write) =>
@@ -1858,7 +2180,7 @@ test("repeated identical feed rows are deduplicated and reruns are idempotent", 
   assert.equal(first.report.approvedRows.length, 1);
   assert.equal(second.report.deduplicatedRows.length, 1);
   assert.equal(second.report.approvedRows.length, 1);
-  assert(supabase.writes.length > writesAfterFirstRun);
+  assert.equal(supabase.writes.length, writesAfterFirstRun);
   assert.equal(supabase.tables.offers.length, 1);
   assert.equal(
     supabase.writes.some(
@@ -1904,11 +2226,18 @@ test("unknown feed shipping remains allowed", async () => {
 
 test("existing offer keeps known shipping when feed shipping is unknown", async () => {
   const supabase = createMockSupabase({
+    retailer_products: [{
+      id: "rp1", retailer_id: "r1", product_id: "p1",
+      product_variant_id: "default-variant-1",
+      external_url: baseFeedRow().url, external_gtin: null,
+    }],
     offers: [
       {
         id: "o1",
         product_id: "p1",
         retailer_id: "r1",
+        product_variant_id: "default-variant-1",
+        retailer_product_id: "rp1",
         price: 10,
         shipping_cost: 2.99,
         total_price: 12.99,
@@ -1922,26 +2251,30 @@ test("existing offer keeps known shipping when feed shipping is unknown", async 
     { mode: "feed" }
   );
 
-  const offerUpdate = supabase.writes.find(
-    (write) => write.table === "offers" && write.operation === "update"
-  );
   const historyWrites = supabase.writes.filter(
     (write) => write.table === "price_history"
   );
 
-  assert.equal(offerUpdate.payload.shipping_cost, 2.99);
-  assert.equal(offerUpdate.payload.total_price, 12.99);
+  assert.equal(supabase.tables.offers[0].shipping_cost, 2.99);
+  assert.equal(supabase.tables.offers[0].total_price, 12.99);
   assert.equal(historyWrites.length, 0);
 });
 
 test("existing offer records explicit shipping changes including free delivery", async () => {
   for (const [shipping_cost, expectedTotal] of [["0", 10], ["1.49", 11.49]]) {
     const supabase = createMockSupabase({
+      retailer_products: [{
+        id: "rp1", retailer_id: "r1", product_id: "p1",
+        product_variant_id: "default-variant-1",
+        external_url: baseFeedRow().url, external_gtin: null,
+      }],
       offers: [
         {
           id: "o1",
           product_id: "p1",
           retailer_id: "r1",
+          product_variant_id: "default-variant-1",
+          retailer_product_id: "rp1",
           price: 10,
           shipping_cost: 2.99,
           total_price: 12.99,
@@ -2129,7 +2462,22 @@ test("feed dry-run performs zero writes", async () => {
   assert.equal(supabase.writes.length, 0);
 });
 
-test("manual import path still performs retailer, product, offer, and price history writes", async () => {
+test("manual import attaches an offer to an existing product without creating a product", async () => {
+  const supabase = createMockSupabase();
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([baseFeedRow({ gtin: "manual-retailer-gtin" })], {
+    mode: "manual",
+  });
+
+  assert.equal(result.successful, 1);
+  assert.equal(supabase.writes.some((write) => write.table === "products"), false);
+  assert.equal(supabase.writes.some((write) => write.table === "retailer_products"), true);
+  assert.equal(supabase.writes.some((write) => write.table === "offers"), true);
+  assert.equal(supabase.writes.some((write) => write.table === "price_history"), true);
+});
+
+test("manual import blocks an unknown canonical product before all writes", async () => {
   const supabase = createMockSupabase({
     retailers: [],
     products: [],
@@ -2139,12 +2487,146 @@ test("manual import path still performs retailer, product, offer, and price hist
   });
   setSupabaseForTests(supabase);
 
-  await runImportRows([baseFeedRow({ gtin: "manual-gtin" })], { mode: "manual" });
+  const result = await runImportRows([baseFeedRow({ gtin: "manual-gtin" })], {
+    mode: "manual",
+  });
 
-  assert.equal(supabase.writes.some((write) => write.table === "retailers"), true);
-  assert.equal(supabase.writes.some((write) => write.table === "products"), true);
-  assert.equal(supabase.writes.some((write) => write.table === "offers"), true);
-  assert.equal(supabase.writes.some((write) => write.table === "price_history"), true);
+  assert.equal(result.successful, 0);
+  assert.equal(result.failed, 1);
+  assert.match(result.report.blockedRows[0].reason, /existing canonical product/i);
+  assert.equal(result.blockedRows.length, 1);
+  assert.match(result.blockedRows[0].block_reason, /existing canonical product/i);
+  assert.equal(supabase.writes.length, 0);
+});
+
+async function resolveDefaultFixture(rowOverrides, productVariants) {
+  const row = baseFeedRow({ gtin: "", ...rowOverrides });
+  const product = {
+    id: "p1", name: row.product_name, slug: row.slug, brand: row.brand,
+    category: row.category, product_format: row.product_format || null, gtin: null,
+  };
+  const supabase = createMockSupabase({ products: [product], product_variants: productVariants });
+  setSupabaseForTests(supabase);
+  return runImportRows([row], { mode: "feed", dryRun: true });
+}
+
+function defaultVariant(overrides = {}) {
+  return {
+    id: "pv-default", product_id: "p1", flavour_code: null, flavour_label: null,
+    size_value: null, size_unit: null, pack_count: null, product_format: null,
+    is_active: true, is_default: true, ...overrides,
+  };
+}
+
+test("KIOR-like pack_count 1 capsule evidence resolves the neutral default", async () => {
+  const result = await resolveDefaultFixture(
+    { product_name: "KIOR Daily Capsules", slug: "kior-daily-capsules", brand: "KIOR", pack_count: "1", product_format: "capsule" },
+    [defaultVariant()]
+  );
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.id, "pv-default");
+});
+
+test("Fit House-like format-only evidence resolves one neutral default", async () => {
+  const result = await resolveDefaultFixture(
+    { product_name: "Fit House Creatine Powder", slug: "fit-house-creatine", brand: "Fit House", product_format: "powder", pack_count: "1" },
+    [defaultVariant()]
+  );
+  assert.equal(result.report.approvedRows.length, 1);
+});
+
+test("default fallback is fail-closed for non-default, missing, and duplicate defaults", async () => {
+  const nonDefault = {
+    ...defaultVariant({ id: "pv-chocolate", is_default: false }),
+    flavour_code: "chocolate", flavour_label: "Chocolate",
+  };
+  for (const variants of [
+    [defaultVariant(), nonDefault],
+    [],
+    [defaultVariant(), defaultVariant({ id: "pv-default-2" })],
+  ]) {
+    const result = await resolveDefaultFixture({}, variants);
+    assert.equal(result.report.approvedRows.length, 0);
+    assert.equal(result.report.blockedRows.length, 1);
+  }
+});
+
+test("non-default variants require complete distinguishing evidence or an approved mapping", async () => {
+  const chocolate500 = {
+    ...defaultVariant({ id: "pv-chocolate-500", is_default: false }),
+    flavour_code: "chocolate", flavour_label: "Chocolate", size_value: 500, size_unit: "g",
+  };
+  const vanilla500 = {
+    ...chocolate500, id: "pv-vanilla-500", flavour_code: "vanilla", flavour_label: "Vanilla",
+  };
+  for (const evidence of [
+    { flavour: "chocolate" },
+    { size: "500g" },
+    { external_options: JSON.stringify({ Flavour: "Chocolate" }) },
+  ]) {
+    const result = await resolveDefaultFixture(evidence, [chocolate500, vanilla500]);
+    assert.equal(result.report.approvedRows.length, 0);
+    assert.equal(result.report.blockedRows.length, 1);
+  }
+
+  const exact = await resolveDefaultFixture(
+    { flavour: "chocolate", size: "500g" },
+    [chocolate500, vanilla500]
+  );
+  assert.equal(exact.report.approvedRows[0].importPlan.product_variant.id, "pv-chocolate-500");
+});
+
+test("manual Stage 2 existing-product import creates full identity, is idempotent, and dry-run shares the plan", async () => {
+  const row = baseFeedRow({ gtin: "manual-retailer-gtin" });
+  const supabase = createMockSupabase();
+  setSupabaseForTests(supabase);
+
+  const dryRun = await runImportRows([row], { mode: "manual", dryRun: true });
+  assert.equal(dryRun.planned, 1);
+  assert.equal(supabase.writes.length, 0);
+  assert.equal(dryRun.report.approvedRows[0].importPlan.product_variant.action, "existing");
+  assert.equal(dryRun.report.approvedRows[0].importPlan.approval.approved, false);
+
+  const first = await runImportRows([row], { mode: "manual" });
+  const second = await runImportRows([row], { mode: "manual" });
+  assert.equal(first.successful, 1);
+  assert.equal(second.successful, 1);
+  assert.equal(supabase.tables.product_variants.length, 1);
+  assert.equal(supabase.tables.retailer_products.length, 1);
+  assert.equal(supabase.tables.offers.length, 1);
+  assert.equal(supabase.tables.offers[0].retailer_product_id, supabase.tables.retailer_products[0].id);
+  assert.equal(supabase.tables.offers[0].product_variant_id, supabase.tables.product_variants[0].id);
+  assert.equal(supabase.writes.some((write) => write.table === "products"), false);
+});
+
+test("manual import with ambiguous defaults blocks before any write", async () => {
+  const supabase = createMockSupabase({
+    product_variants: [defaultVariant(), defaultVariant({ id: "pv-default-2" })],
+  });
+  setSupabaseForTests(supabase);
+  const result = await runImportRows([baseFeedRow()], { mode: "manual" });
+  assert.equal(result.successful, 0);
+  assert.equal(result.failed, 1);
+  assert.equal(result.report.blockedRows.length, 1);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("safe-create RPC failures roll back product, default, mapping, offer, and history", async () => {
+  for (const rpc_failure_at of [
+    "after_product", "after_default_variant", "after_retailer_product",
+    "after_offer", "before_price_history",
+  ]) {
+    const supabase = createMockSupabase({
+      retailers: [], products: [], retailer_products: [], offers: [], price_history: [], rpc_failure_at,
+    });
+    setSupabaseForTests(supabase);
+    const result = await runImportRows([baseSafeCreateFeedRow()], { mode: "feed", safeCreate: true });
+    assert.equal(result.failed, 1);
+    assert.equal(result.failedRows.length, 1);
+    for (const table of ["products", "product_variants", "retailer_products", "offers", "price_history"]) {
+      assert.equal(supabase.tables[table].length, 0, `${rpc_failure_at} left ${table}`);
+    }
+  }
 });
 
 function discountStage2Fixture() {
@@ -2255,8 +2737,13 @@ function stage2Seed({ withMappings = false, withOffers = false } = {}) {
         external_variant_id: row.external_variant_id,
         external_sku: row.external_sku,
         external_options: JSON.parse(row.external_options),
+        external_name: row.product_name,
+        external_slug: row.slug,
         external_gtin: row.external_gtin,
         external_url: row.external_url,
+        match_method: "slug",
+        match_confidence: 90,
+        updated_at: "2026-07-13T12:00:00.000Z",
       }))
     : [];
   const offers = withOffers
@@ -2268,7 +2755,7 @@ function stage2Seed({ withMappings = false, withOffers = false } = {}) {
         product_variant_id: fixture.productVariants[index].id,
         price: Number(row.price),
         shipping_cost: 4.99,
-        total_price: Number(row.price) + 4.99,
+        total_price: priceHistoryTotal(Number(row.price), 4.99),
         url: row.affiliate_url,
         in_stock: true,
       }))
@@ -2309,6 +2796,28 @@ test("Stage 2 retailer product payload preserves Shopify variant identity and re
   assert.equal(Object.hasOwn(payload, "gtin"), false);
 });
 
+test("Stage 2 external_options accepts only JSON objects and blocks invalid rows", async () => {
+  assert.deepEqual(parseExternalOptions('{"Size":"500g"}'), { Size: "500g" });
+  assert.throws(() => parseExternalOptions("not-json"), /valid JSON object/i);
+  assert.throws(() => parseExternalOptions('["500g"]'), /JSON object/i);
+  assert.throws(() => parseExternalOptions('"500g"'), /JSON object/i);
+
+  for (const externalOptions of ["not-json", '["500g"]', '"500g"']) {
+    const { fixture, seed } = stage2Seed();
+    const supabase = createMockSupabase(seed);
+    setSupabaseForTests(supabase);
+
+    const result = await runImportRows(
+      [{ ...fixture.rows[0], external_options: externalOptions }],
+      { mode: "feed", dryRun: true }
+    );
+
+    assert.equal(result.report.approvedRows.length, 0);
+    assert.equal(result.report.invalidRows.length, 1);
+    assert.equal(supabase.writes.length, 0);
+  }
+});
+
 test("Stage 2 identity distinguishes two Shopify variants where product plus retailer does not", () => {
   const { fixture } = stage2Seed();
   const legacyKeys = new Set(
@@ -2337,6 +2846,33 @@ test("Stage 2 dry-run plans two retailer products and two offers for one retaile
   assert.equal(result.report.offersToCreate.length, 2);
   assert.equal(result.planned, 2);
   assert.equal(supabase.writes.length, 0);
+});
+
+test("Stage 2 mixed batch never reuses variant A offer when variant B mapping is new", async () => {
+  const { fixture, seed } = stage2Seed({ withMappings: true, withOffers: true });
+  seed.retailer_products = seed.retailer_products.slice(0, 1);
+  seed.offers = seed.offers.slice(0, 1);
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const dryRun = await runImportRows([fixture.rows[1]], {
+    mode: "feed",
+    dryRun: true,
+  });
+  assert.equal(dryRun.report.retailerProductsToCreate.length, 1);
+  assert.equal(dryRun.report.offersToCreate.length, 1);
+  assert.equal(dryRun.report.offersToUpdate.length, 0);
+  assert.equal(dryRun.report.approvedRows[0].existingOffer, null);
+
+  const apply = await runImportRows([fixture.rows[1]], { mode: "feed" });
+  assert.equal(apply.successful, 1);
+  assert.equal(apply.successfulRows.length, 1);
+  assert.equal(apply.failedRows.length, 0);
+  assert.equal(supabase.tables.retailer_products.length, 2);
+  assert.equal(supabase.tables.offers.length, 2);
+  assert.equal(supabase.tables.offers[0].retailer_product_id, "rp-1");
+  assert.notEqual(supabase.tables.offers[1].retailer_product_id, "rp-1");
+  assert.equal(supabase.tables.offers[1].product_variant_id, "pv-vanilla-1kg");
 });
 
 test("Stage 2 apply creates separate linked retailer products and offers without changing products.gtin", async () => {
@@ -2381,6 +2917,8 @@ test("Stage 2 rerun is idempotent and looks up offers by retailer product identi
   const result = await runImportRows(fixture.rows, { mode: "feed", dryRun: true });
 
   assert.equal(result.report.retailerProductsToCreate.length, 0);
+  assert.equal(result.report.retailerProductsToUpdate.length, 0);
+  assert.equal(result.report.retailerProductsUnchanged.length, 2);
   assert.equal(result.report.offersToCreate.length, 0);
   assert.equal(result.report.offersToUpdate.length, 0);
   assert.equal(result.report.offersUnchanged.length, 2);
@@ -2425,6 +2963,10 @@ test("Stage 2 price update changes only the selected Shopify variant offer", asy
   const result = await runImportRows([updatedVanilla], { mode: "feed" });
 
   assert.equal(result.successful, 1);
+  assert.deepEqual(result.report.offersToUpdate[0].changes.price, {
+    before: 39.99,
+    after: "37.49",
+  });
   assert.deepEqual(supabase.tables.offers[0], originalFirstOffer);
   assert.equal(supabase.tables.offers[1].price, 37.49);
   assert.equal(supabase.tables.offers[1].retailer_product_id, "rp-2");
@@ -2475,7 +3017,11 @@ test("Stage 2 stock and URL updates remain scoped to the selected Shopify varian
     const offerUpdate = supabase.writes.find(
       (write) => write.table === "offers" && write.operation === "update"
     );
-    assert.deepEqual(Object.keys(offerUpdate.payload).sort(), scenario.keys.sort());
+    assert.equal(Object.hasOwn(offerUpdate.payload, "last_checked_at"), true);
+    for (const key of Object.keys(scenario.expected)) {
+      assert.equal(Object.hasOwn(offerUpdate.payload, key), true);
+    }
+    assert.equal(Object.hasOwn(offerUpdate.payload, "retailer_product_id"), false);
   }
 });
 
@@ -2546,5 +3092,235 @@ test("Stage 2 dry-run blocks missing and ambiguous canonical variant resolution"
     assert.equal(result.report.ambiguousRows.length, 1, scenario.label);
     assert.match(result.report.ambiguousRows[0].reason, scenario.reason);
     assert.equal(supabase.writes.length, 0);
+  }
+});
+
+test("Stage 2 dry-run blocks conflicting row and external option evidence", async () => {
+  const { fixture, seed } = stage2Seed();
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(
+    [
+      {
+        ...fixture.rows[0],
+        external_options: JSON.stringify({ Size: "1kg", Flavour: "Chocolate" }),
+      },
+    ],
+    { mode: "feed", dryRun: true }
+  );
+
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.equal(result.report.ambiguousRows.length, 1);
+  assert.match(result.report.ambiguousRows[0].reason, /conflicting variant evidence/i);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("size normalization uses base mass and volume units and rejects invalid evidence", async () => {
+  assert.deepEqual(parseSize("0.5kg"), {
+    value: "500",
+    unit: "g",
+    dimension: "mass",
+  });
+  assert.deepEqual(parseSize("1L"), {
+    value: "1000",
+    unit: "ml",
+    dimension: "volume",
+  });
+  assert.equal(parseSize("500oz"), null);
+  assert.equal(parseSize("0kg"), null);
+
+  const { fixture, seed } = stage2Seed();
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+  const accepted = await runImportRowsRaw([fixture.rows[1]], {
+    mode: "feed",
+    dryRun: true,
+  });
+  assert.equal(accepted.report.approvedRows.length, 1);
+  assert.equal(accepted.report.approvedRows[0].importPlan.product_variant.evidence.size_value, "1000");
+  assert.equal(accepted.report.approvedRows[0].importPlan.product_variant.evidence.size_unit, "g");
+
+  for (const Size of ["1L", "500oz", "0kg"]) {
+    const blocked = await runImportRowsRaw(
+      [{ ...fixture.rows[1], external_options: JSON.stringify({ Size, Flavour: "Vanilla" }) }],
+      { mode: "feed", dryRun: true }
+    );
+    assert.equal(blocked.report.approvedRows.length, 0);
+    assert.equal(blocked.report.blockedRows.length, 1);
+  }
+});
+
+test("total_price-only drift updates once, records one history row, then becomes noop", async () => {
+  const { fixture, seed } = stage2Seed({ withMappings: true, withOffers: true });
+  seed.offers[1].total_price = 999;
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const applied = await runImportRows([fixture.rows[1]], { mode: "feed" });
+  assert.equal(applied.successful, 1);
+  assert.deepEqual(applied.report.offersToUpdate[0].changes.total_price, {
+    before: 999,
+    after: "44.98",
+  });
+  assert.equal(supabase.tables.offers[1].price, 39.99);
+  assert.equal(supabase.tables.offers[1].shipping_cost, 4.99);
+  assert.equal(supabase.tables.offers[1].total_price, 44.98);
+  assert.equal(supabase.tables.price_history.length, 1);
+
+  const rerun = await runImportRowsRaw([fixture.rows[1]], { mode: "feed", dryRun: true });
+  assert.equal(rerun.report.offersToUpdate.length, 0);
+  assert.equal(rerun.report.offersUnchanged.length, 1);
+  assert.equal(supabase.tables.price_history.length, 1);
+});
+
+test("external_options key order is canonically equal and does not cause an update", async () => {
+  const { fixture, seed } = stage2Seed({ withMappings: true, withOffers: true });
+  seed.retailer_products[1].external_options = { Flavour: "Vanilla", Size: "1kg" };
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.rows[1]], { mode: "feed", dryRun: true });
+  assert.equal(result.report.retailerProductsToUpdate.length, 0);
+  assert.equal(result.report.retailerProductsUnchanged.length, 1);
+  assert.deepEqual(result.report.retailerProductsUnchanged[0].changes, {});
+});
+
+test("manual import strictly blocks invalid shared input fields", async () => {
+  const scenarios = [
+    { in_stock: "maybe" },
+    { url: "", aw_deep_link: "", affiliate_url: "", external_url: "", merchant_deep_link: "" },
+    { price: "not-a-price" },
+    { external_options: "{broken" },
+  ];
+  for (const overrides of scenarios) {
+    const supabase = createMockSupabase();
+    setSupabaseForTests(supabase);
+    const result = await runImportRowsRaw([baseFeedRow(overrides)], {
+      mode: "manual",
+      dryRun: true,
+    });
+    assert.equal(result.report.approvedRows.length, 0);
+    assert.equal(result.blockedRows.length, 1);
+    assert.equal(supabase.writes.length, 0);
+  }
+});
+
+test("programmatic CSV writes are disabled in favour of the artifact workflow", async () => {
+  const supabase = createMockSupabase();
+  setSupabaseForTests(supabase);
+  await assert.rejects(
+    runImportRowsRaw([baseFeedRow()], { mode: "feed" }),
+    /artifact approval workflow/i
+  );
+  await assert.rejects(
+    runImportRowsRaw([baseFeedRow(), baseFeedRow()], {
+      mode: "feed",
+      pilotApply: true,
+      approvalId: "approval-1",
+    }),
+    /artifact approval workflow/i
+  );
+  await assert.rejects(
+    runImportRowsRaw([baseFeedRow()], { mode: "feed", pilotApply: true }),
+    /artifact approval workflow/i
+  );
+  await assert.rejects(
+    runImportRowsRaw([baseFeedRow()], {
+      mode: "feed",
+      pilotApply: true,
+      approvalIds: ["approval-1", "approval-2"],
+    }),
+    /artifact approval workflow/i
+  );
+});
+
+test("canonical JSON rejects undefined and decimal strings cover cross-runtime vectors", () => {
+  for (const [input, expected] of [
+    ["0.0000001", "0.0000001"],
+    ["0.000001", "0.000001"],
+    ["1e21", "1000000000000000000000"],
+    ["1000.0", "1000"],
+    [-0, "0"],
+  ]) {
+    assert.equal(normalizeDecimalString(input), expected);
+  }
+  assert.throws(() => canonicalJson({ value: undefined }), /undefined is not allowed/);
+  assert.throws(() => canonicalJson([undefined]), /undefined is not allowed/);
+  assert.equal(canonicalJson({ value: null }), '{"value":null}');
+});
+
+test("dry-run artifact is the sole immutable input for approval and pilot apply", async () => {
+  const supabase = createMockSupabase();
+  setSupabaseForTests(supabase);
+  const rowA = baseFeedRow();
+  const rowB = baseFeedRow({ price: "31.25" });
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "supplementscout-artifact-workflow-"));
+  const sourceA = Buffer.from(JSON.stringify(rowA));
+  const sourceBPath = path.join(directory, "source-b.json");
+  fs.writeFileSync(sourceBPath, JSON.stringify(rowB));
+  try {
+    const dryRunA = await runImportRowsRaw([rowA], { mode: "feed", dryRun: true });
+    const artifactAPath = path.join(directory, "artifact-a.json");
+    const artifactA = writeDryRunArtifact([rowA], dryRunA, {
+      artifactPath: artifactAPath,
+      runId: "artifact-run-a",
+      sourceBytes: sourceA,
+      sourceFileName: "source-a.json",
+      environmentMarker: "test",
+    });
+    const entryA = artifactA.artifact.plans[0];
+    assert.equal(artifactA.artifact.row_count, "1");
+    assert.equal(entryA.resolved_plan.offer.values.price, "29.99");
+    assert.equal(typeof entryA.resolved_plan.retailer.id, "string");
+    assert.equal(supabase.writes.length, 0);
+
+    const approvedA = await approveArtifactPlan({
+      artifactPath: artifactAPath,
+      planFingerprint: entryA.plan_fingerprint,
+    });
+    assert.equal(approvedA.artifactSha256, artifactA.artifactSha256);
+    assert.equal(approvedA.sourceRowFingerprint, entryA.source_row_fingerprint);
+    assert.ok(approvedA.expiresAt);
+    assert.equal(supabase.writes.length, 0);
+
+    const dryRunB = await runImportRowsRaw([rowB], { mode: "feed", dryRun: true });
+    const artifactBPath = path.join(directory, "artifact-b.json");
+    const artifactB = writeDryRunArtifact([rowB], dryRunB, {
+      artifactPath: artifactBPath,
+      runId: "artifact-run-b",
+      sourceContent: JSON.stringify(rowB),
+      sourceFileName: "source-b.json",
+      environmentMarker: "test",
+    });
+    await assert.rejects(
+      applyArtifactPlan({
+        artifactPath: artifactBPath,
+        planFingerprint: artifactB.artifact.plans[0].plan_fingerprint,
+        approvalId: approvedA.approvalId,
+        pilotApply: true,
+      }),
+      /artifact_sha256 mismatch/
+    );
+    await assert.rejects(
+      approveArtifactPlan({
+        artifactPath: artifactAPath,
+        planFingerprint: entryA.plan_fingerprint,
+        sourcePath: sourceBPath,
+      }),
+      /Source file SHA-256/
+    );
+
+    fs.appendFileSync(artifactAPath, " ");
+    await assert.rejects(
+      applyArtifactPlan({
+        artifactPath: artifactAPath,
+        planFingerprint: entryA.plan_fingerprint,
+        approvalId: approvedA.approvalId,
+        pilotApply: true,
+      }),
+      /artifact SHA-256 mismatch/i
+    );
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
   }
 });
