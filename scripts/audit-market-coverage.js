@@ -4,20 +4,19 @@ const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config({ path: path.resolve(".env.local"), quiet: true });
 
 const OUT = path.resolve("tmp/market-coverage");
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !serviceRoleKey) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
+function createAuditClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
+  }
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }
 
-const supabase = createClient(
-  supabaseUrl,
-  serviceRoleKey,
-  { auth: { persistSession: false, autoRefreshToken: false } }
-);
-
-async function fetchAll(table, columns = "*") {
+async function fetchAll(supabase, table, columns = "*") {
   const rows = [];
   let expectedCount = null;
   for (let from = 0; ; from += 1000) {
@@ -53,6 +52,20 @@ const delivered = (offer) => {
   return Number.isFinite(price) && price > 0 && Number.isFinite(shipping) && shipping >= 0 ? price + shipping : null;
 };
 const isPublicOffer = (offer, activeIds) => activeIds.has(key(offer.product_id)) && offer.in_stock === true && n(offer.price) > 0 && delivered(offer) !== null;
+function coverageCounts(offers) {
+  const retailerIds = new Set(
+    offers
+      .map((offer) => offer.retailer_id)
+      .filter((retailerId) => retailerId !== null && retailerId !== undefined)
+      .map(key)
+  );
+  return {
+    active_offer_count: offers.length,
+    active_retailer_count: retailerIds.size,
+    has_2_plus_retailers: retailerIds.size >= 2,
+    has_3_plus_retailers: retailerIds.size >= 3,
+  };
+}
 const group = (rows, getKey) => rows.reduce((map, row) => {
   const k = getKey(row);
   if (!map.has(k)) map.set(k, []);
@@ -90,10 +103,11 @@ function scorePriority(row, brandCounts, categoryCounts, historyCount, clicks) {
   return round(100 * (0.2 * brandPopularity + 0.15 * categoryPopularity + 0.15 * quality + 0.2 * verified + 0.1 * highPrice + 0.1 * history + 0.1 * activity), 1);
 }
 
-(async () => {
+async function runAudit() {
+  const supabase = createAuditClient();
   const [products, retailers, offers, retailerProducts, priceHistory, clicks] = await Promise.all([
-    fetchAll("products"), fetchAll("retailers"), fetchAll("offers"),
-    fetchAll("retailer_products"), fetchAll("price_history"), fetchAll("outbound_clicks"),
+    fetchAll(supabase, "products"), fetchAll(supabase, "retailers"), fetchAll(supabase, "offers"),
+    fetchAll(supabase, "retailer_products"), fetchAll(supabase, "price_history"), fetchAll(supabase, "outbound_clicks"),
   ]);
   const activeProducts = products.filter((p) => p.is_active === true && p.merged_into_product_id == null && p.merged_at == null);
   const activeIds = new Set(activeProducts.map((p) => key(p.id)));
@@ -105,9 +119,10 @@ function scorePriority(row, brandCounts, categoryCounts, historyCount, clicks) {
   const retailerById = new Map(retailers.map((r) => [key(r.id), r]));
   const historyByOffer = group(priceHistory, (h) => key(h.offer_id));
   const clicksByProduct = group(clicks, (c) => key(c.product_id));
-  const offerCounts = activeProducts.map((p) => (publicByProduct.get(key(p.id)) || []).length);
-  const distribution = [0, 1, 2, 3, 4].map((count) => ({ bucket: String(count), products: offerCounts.filter((n) => n === count).length }));
-  distribution.push({ bucket: "5+", products: offerCounts.filter((n) => n >= 5).length });
+  const offerCounts = activeProducts.map((p) => coverageCounts(publicByProduct.get(key(p.id)) || []).active_offer_count);
+  const retailerCounts = activeProducts.map((p) => coverageCounts(publicByProduct.get(key(p.id)) || []).active_retailer_count);
+  const distribution = [0, 1, 2, 3, 4].map((count) => ({ bucket: String(count), products: retailerCounts.filter((n) => n === count).length }));
+  distribution.push({ bucket: "5+", products: retailerCounts.filter((n) => n >= 5).length });
   const brandCounts = new Map(), categoryCounts = new Map();
   for (const p of activeProducts) {
     brandCounts.set(p.brand || "Unknown", (brandCounts.get(p.brand || "Unknown") || 0) + 1);
@@ -126,54 +141,67 @@ function scorePriority(row, brandCounts, categoryCounts, historyCount, clicks) {
       serving_count_verified: product.serving_count_verified, unit_count: product.unit_count,
       net_weight_g: product.net_weight_g, net_volume_ml: product.net_volume_ml,
       unit_pricing_verified: product.unit_pricing_verified, nutrition_verified: product.nutrition_verified,
-      active_offer_count: po.length,
+      ...coverageCounts(po),
       retailer_names: [...new Set(po.map((o) => retailerById.get(key(o.retailer_id))?.name || `Retailer ${o.retailer_id}`))].sort(),
       lowest_price: po.length ? Math.min(...po.map((o) => n(o.price))) : null,
       lowest_shipping: po.length ? Math.min(...po.map((o) => n(o.shipping_cost))) : null,
       lowest_delivered_price: round(lowest), highest_delivered_price: round(highest),
       delivered_price_spread: lowest === null ? null : round(highest - lowest),
-      has_2_plus_offers: po.length >= 2, has_3_plus_offers: po.length >= 3,
       last_offer_check: latest(po.map((o) => o.last_checked_at)),
       price_history_rows: historyCount, outbound_clicks: (clicksByProduct.get(key(product.id)) || []).length,
       data_quality_notes: qualityNotes(product, po),
     };
   });
   const withOffers = productCoverage.filter((p) => p.active_offer_count > 0).sort((a, b) =>
-    b.active_offer_count - a.active_offer_count || (b.delivered_price_spread || 0) - (a.delivered_price_spread || 0) || a.product_name.localeCompare(b.product_name));
+    b.active_retailer_count - a.active_retailer_count || b.active_offer_count - a.active_offer_count || (b.delivered_price_spread || 0) - (a.delivered_price_spread || 0) || a.product_name.localeCompare(b.product_name));
 
   const aggregateDimension = (field) => [...group(productCoverage, (p) => p[field] || "Unknown")].map(([name, rows]) => {
-    const counts = rows.map((r) => r.active_offer_count);
-    const offers = counts.reduce((a, b) => a + b, 0);
-    return { name, products: rows.length, products_0: counts.filter((n) => n === 0).length,
-      products_1: counts.filter((n) => n === 1).length, products_2_plus: counts.filter((n) => n >= 2).length,
-      products_3_plus: counts.filter((n) => n >= 3).length, offers,
-      average_offers: round(offers / rows.length), coverage_2_plus_pct: pct(counts.filter((n) => n >= 2).length, rows.length),
+    const counts = rows.map((r) => r.active_retailer_count);
+    const offerRows = rows.reduce((sum, row) => sum + row.active_offer_count, 0);
+    return { name, products: rows.length, products_0_retailers: counts.filter((n) => n === 0).length,
+      products_1_retailer: counts.filter((n) => n === 1).length, products_2_plus_retailers: counts.filter((n) => n >= 2).length,
+      products_3_plus_retailers: counts.filter((n) => n >= 3).length, active_offer_rows: offerRows,
+      average_retailers: round(counts.reduce((a, b) => a + b, 0) / rows.length), coverage_2_plus_pct: pct(counts.filter((n) => n >= 2).length, rows.length),
       coverage_3_plus_pct: pct(counts.filter((n) => n >= 3).length, rows.length) };
   });
   const brands = aggregateDimension("brand");
   const categories = aggregateDimension("category");
   const bestBrands = [...brands].filter((b) => b.products >= 2).sort((a, b) => b.coverage_2_plus_pct - a.coverage_2_plus_pct || b.products - a.products).slice(0, 20);
   const weakMajorBrands = [...brands].filter((b) => b.products >= 3).sort((a, b) => b.products - a.products || a.coverage_2_plus_pct - b.coverage_2_plus_pct).slice(0, 20);
-  const opportunityBrands = [...brands].map((b) => ({ ...b, opportunity_score: round(b.products_1 * (1 + b.products / activeProducts.length) + b.products_0 * 0.5, 1) })).sort((a, b) => b.opportunity_score - a.opportunity_score).slice(0, 20);
+  const opportunityBrands = [...brands].map((b) => ({ ...b, opportunity_score: round(b.products_1_retailer * (1 + b.products / activeProducts.length) + b.products_0_retailers * 0.5, 1) })).sort((a, b) => b.opportunity_score - a.opportunity_score).slice(0, 20);
 
   const retailerRows = retailers.map((retailer) => {
     const ro = publicByRetailer.get(key(retailer.id)) || [];
     const uniqueProducts = new Set(ro.map((o) => key(o.product_id)));
     let sole = 0, second = 0, thirdPlus = 0, cheapestPrice = 0, cheapestDelivered = 0;
     const relative = [];
-    for (const o of ro) {
-      const productOffers = publicByProduct.get(key(o.product_id)) || [];
-      if (productOffers.length === 1) sole++;
-      const ordered = [...productOffers].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime() || Number(a.id) - Number(b.id));
-      const position = ordered.findIndex((x) => key(x.id) === key(o.id)) + 1;
+    for (const productId of uniqueProducts) {
+      const productOffers = publicByProduct.get(productId) || [];
+      const firstOfferByRetailer = new Map();
+      for (const offer of productOffers) {
+        const retailerId = key(offer.retailer_id);
+        const existing = firstOfferByRetailer.get(retailerId);
+        if (!existing || new Date(offer.created_at).getTime() < new Date(existing.created_at).getTime() ||
+            (offer.created_at === existing.created_at && Number(offer.id) < Number(existing.id))) {
+          firstOfferByRetailer.set(retailerId, offer);
+        }
+      }
+      if (firstOfferByRetailer.size === 1) sole++;
+      const ordered = [...firstOfferByRetailer.values()].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime() || Number(a.id) - Number(b.id));
+      const position = ordered.findIndex((offer) => key(offer.retailer_id) === key(retailer.id)) + 1;
       if (position === 2) second++;
       if (position >= 3) thirdPlus++;
       const minPrice = Math.min(...productOffers.map((x) => n(x.price)));
       const minDelivered = Math.min(...productOffers.map(delivered));
-      if (n(o.price) === minPrice) cheapestPrice++;
-      if (delivered(o) === minDelivered) cheapestDelivered++;
+      const ownOffers = productOffers.filter((offer) => key(offer.retailer_id) === key(retailer.id));
+      if (ownOffers.some((offer) => n(offer.price) === minPrice)) cheapestPrice++;
+      if (ownOffers.some((offer) => delivered(offer) === minDelivered)) cheapestDelivered++;
       const competitors = productOffers.filter((x) => key(x.retailer_id) !== key(retailer.id)).map(delivered);
-      if (competitors.length) relative.push((delivered(o) - Math.min(...competitors)) * 100 / Math.min(...competitors));
+      if (competitors.length) {
+        const ownBest = Math.min(...ownOffers.map(delivered));
+        const competitorBest = Math.min(...competitors);
+        relative.push((ownBest - competitorBest) * 100 / competitorBest);
+      }
     }
     const all = allByRetailer.get(key(retailer.id)) || [];
     const checks = ro.map((o) => o.last_checked_at).filter(Boolean);
@@ -201,27 +229,30 @@ function scorePriority(row, brandCounts, categoryCounts, historyCount, clicks) {
   overlap.sort((a, b) => b.common_products - a.common_products || b.overlap_smaller_pct - a.overlap_smaller_pct);
 
   for (const row of productCoverage) row.priority_score = scorePriority(row, brandCounts, categoryCounts, row.price_history_rows, row.outbound_clicks);
-  const oneOfferPriority = productCoverage.filter((p) => p.active_offer_count === 1).sort((a, b) => b.priority_score - a.priority_score).slice(0, 50);
-  const twoOfferPriority = productCoverage.filter((p) => p.active_offer_count === 2).sort((a, b) => b.priority_score - a.priority_score).slice(0, 50);
-  const largestSpreads = productCoverage.filter((p) => p.active_offer_count >= 2).sort((a, b) => b.delivered_price_spread - a.delivered_price_spread).slice(0, 30);
-  const oneOfferGoodData = productCoverage.filter((p) => p.active_offer_count === 1 && p.serving_count_verified != null && p.unit_count != null && (p.net_weight_g != null || p.net_volume_ml != null) && p.product_format && p.unit_pricing_verified === true).sort((a, b) => b.priority_score - a.priority_score).slice(0, 30);
+  const oneRetailerPriority = productCoverage.filter((p) => p.active_retailer_count === 1).sort((a, b) => b.priority_score - a.priority_score).slice(0, 50);
+  const twoRetailerPriority = productCoverage.filter((p) => p.active_retailer_count === 2).sort((a, b) => b.priority_score - a.priority_score).slice(0, 50);
+  const largestSpreads = productCoverage.filter((p) => p.active_retailer_count >= 2).sort((a, b) => b.delivered_price_spread - a.delivered_price_spread).slice(0, 30);
+  const oneRetailerGoodData = productCoverage.filter((p) => p.active_retailer_count === 1 && p.serving_count_verified != null && p.unit_count != null && (p.net_weight_g != null || p.net_volume_ml != null) && p.product_format && p.unit_pricing_verified === true).sort((a, b) => b.priority_score - a.priority_score).slice(0, 30);
   const kpi = {
     total_active_products: activeProducts.length, total_active_public_offers: publicOffers.length,
-    active_retailers: activeRetailerRows.length, products_with_0_offers: offerCounts.filter((x) => x === 0).length,
-    products_with_1_offer: offerCounts.filter((x) => x === 1).length,
-    products_with_2_plus_offers: offerCounts.filter((x) => x >= 2).length,
-    products_with_3_plus_offers: offerCounts.filter((x) => x >= 3).length,
-    products_with_4_plus_offers: offerCounts.filter((x) => x >= 4).length,
-    percentage_with_1_plus: pct(offerCounts.filter((x) => x >= 1).length, activeProducts.length),
-    percentage_with_2_plus: pct(offerCounts.filter((x) => x >= 2).length, activeProducts.length),
-    percentage_with_3_plus: pct(offerCounts.filter((x) => x >= 3).length, activeProducts.length),
-    percentage_with_4_plus: pct(offerCounts.filter((x) => x >= 4).length, activeProducts.length),
-    average_offers_per_product: round(publicOffers.length / activeProducts.length), median_offers_per_product: median(offerCounts),
-    maximum_offers_per_product: Math.max(...offerCounts),
+    active_retailers: activeRetailerRows.length, products_with_0_retailers: retailerCounts.filter((x) => x === 0).length,
+    products_with_1_retailer: retailerCounts.filter((x) => x === 1).length,
+    products_with_2_plus_retailers: retailerCounts.filter((x) => x >= 2).length,
+    products_with_3_plus_retailers: retailerCounts.filter((x) => x >= 3).length,
+    products_with_4_plus_retailers: retailerCounts.filter((x) => x >= 4).length,
+    percentage_with_1_plus_retailers: pct(retailerCounts.filter((x) => x >= 1).length, activeProducts.length),
+    percentage_with_2_plus_retailers: pct(retailerCounts.filter((x) => x >= 2).length, activeProducts.length),
+    percentage_with_3_plus_retailers: pct(retailerCounts.filter((x) => x >= 3).length, activeProducts.length),
+    percentage_with_4_plus_retailers: pct(retailerCounts.filter((x) => x >= 4).length, activeProducts.length),
+    average_active_offer_rows_per_product: round(publicOffers.length / activeProducts.length),
+    average_active_retailers_per_product: round(retailerCounts.reduce((a, b) => a + b, 0) / activeProducts.length),
+    median_active_retailers_per_product: median(retailerCounts),
+    maximum_active_offer_rows_per_product: Math.max(...offerCounts),
+    maximum_active_retailers_per_product: Math.max(...retailerCounts),
   };
-  const topCoveredBrand = [...brands].filter((b) => b.products >= 3).sort((a, b) => b.coverage_2_plus_pct - a.coverage_2_plus_pct || b.offers - a.offers)[0];
+  const topCoveredBrand = [...brands].filter((b) => b.products >= 3).sort((a, b) => b.coverage_2_plus_pct - a.coverage_2_plus_pct || b.active_offer_rows - a.active_offer_rows)[0];
   const weakestMajorBrand = [...brands].filter((b) => b.products >= 5).sort((a, b) => a.coverage_2_plus_pct - b.coverage_2_plus_pct || b.products - a.products)[0];
-  const topCategory = [...categories].filter((c) => c.products >= 3).sort((a, b) => b.coverage_2_plus_pct - a.coverage_2_plus_pct || b.offers - a.offers)[0];
+  const topCategory = [...categories].filter((c) => c.products >= 3).sort((a, b) => b.coverage_2_plus_pct - a.coverage_2_plus_pct || b.active_offer_rows - a.active_offer_rows)[0];
   const weakCategory = [...categories].filter((c) => c.products >= 5).sort((a, b) => a.coverage_2_plus_pct - b.coverage_2_plus_pct || b.products - a.products)[0];
   Object.assign(kpi, { top_covered_brand: topCoveredBrand?.name, weakest_major_brand: weakestMajorBrand?.name,
     top_covered_category: topCategory?.name, weakest_major_category: weakCategory?.name,
@@ -231,11 +262,11 @@ function scorePriority(row, brandCounts, categoryCounts, historyCount, clicks) {
     const factor = index + 1;
     const newProducts = [15, 35, 60][index];
     const targetProducts = activeProducts.length + newProducts;
-    const twoPlus = Math.min(activeProducts.length, kpi.products_with_2_plus_offers + Math.round(kpi.products_with_1_offer * 0.12 * factor));
-    const threePlus = Math.min(twoPlus, kpi.products_with_3_plus_offers + Math.round(kpi.products_with_2_plus_offers * 0.18 * factor));
-    const targetOffers = publicOffers.length + newProducts + (twoPlus - kpi.products_with_2_plus_offers) + (threePlus - kpi.products_with_3_plus_offers);
+    const twoPlus = Math.min(activeProducts.length, kpi.products_with_2_plus_retailers + Math.round(kpi.products_with_1_retailer * 0.12 * factor));
+    const threePlus = Math.min(twoPlus, kpi.products_with_3_plus_retailers + Math.round(kpi.products_with_2_plus_retailers * 0.18 * factor));
+    const targetRetailerLinks = retailerCounts.reduce((a, b) => a + b, 0) + newProducts + (twoPlus - kpi.products_with_2_plus_retailers) + (threePlus - kpi.products_with_3_plus_retailers);
     return { days, retailers: activeRetailerRows.length + factor, active_products: targetProducts,
-      products_2_plus: twoPlus, products_3_plus: threePlus, average_offers_per_product: round(targetOffers / targetProducts),
+      products_2_plus_retailers: twoPlus, products_3_plus_retailers: threePlus, average_retailers_per_product: round(targetRetailerLinks / targetProducts),
       real_comparison_pct: pct(twoPlus, targetProducts) };
   });
   const businessVerdict = {
@@ -252,10 +283,10 @@ function scorePriority(row, brandCounts, categoryCounts, historyCount, clicks) {
       offer: "in_stock=true, price>0, shipping_cost is finite and >=0 (matches public delivered-price normalization)",
       retailer: "no is_active column exists; active means at least one public offer" },
     source_counts: { products: products.length, retailers: retailers.length, offers: offers.length, retailer_products: retailerProducts.length, price_history: priceHistory.length, outbound_clicks: clicks.length },
-    kpi, distribution, product_coverage: withOffers, zero_offer_products: productCoverage.filter((p) => p.active_offer_count === 0),
+    kpi, retailer_distribution: distribution, product_coverage: withOffers, zero_retailer_products: productCoverage.filter((p) => p.active_retailer_count === 0),
     brands: { all: brands.sort((a,b)=>b.products-a.products), best_covered: bestBrands, weak_major: weakMajorBrands, highest_opportunity: opportunityBrands },
-    categories: { all: categories.sort((a,b)=>b.products-a.products), best_covered: [...categories].sort((a,b)=>b.coverage_2_plus_pct-a.coverage_2_plus_pct), weakest: [...categories].sort((a,b)=>a.coverage_2_plus_pct-b.coverage_2_plus_pct), highest_opportunity: [...categories].sort((a,b)=>b.products_1-a.products_1) },
-    retailers: retailerRows, overlap, priorities: { one_offer_top_50: oneOfferPriority, two_offer_top_50: twoOfferPriority, largest_spreads_top_30: largestSpreads, one_offer_good_data_top_30: oneOfferGoodData },
+    categories: { all: categories.sort((a,b)=>b.products-a.products), best_covered: [...categories].sort((a,b)=>b.coverage_2_plus_pct-a.coverage_2_plus_pct), weakest: [...categories].sort((a,b)=>a.coverage_2_plus_pct-b.coverage_2_plus_pct), highest_opportunity: [...categories].sort((a,b)=>b.products_1_retailer-a.products_1_retailer) },
+    retailers: retailerRows, overlap, priorities: { one_retailer_top_50: oneRetailerPriority, two_retailer_top_50: twoRetailerPriority, largest_spreads_top_30: largestSpreads, one_retailer_good_data_top_30: oneRetailerGoodData },
     future_retailer_data: { candidates: [], note: "No dataset for a not-yet-connected retailer was found. Existing repository feeds belong to current retailers; no speculative estimate made." },
     targets, business_verdict: businessVerdict, methodology_notes: [
       "Second/third+ retailer contribution is ordered by offers.created_at, then id; it is not a causal onboarding audit.",
@@ -265,34 +296,40 @@ function scorePriority(row, brandCounts, categoryCounts, historyCount, clicks) {
     ],
   };
 
-  const productColumns = ["product_id","product_name","slug","brand","category","active_offer_count","retailer_names","lowest_price","lowest_shipping","lowest_delivered_price","highest_delivered_price","delivered_price_spread","has_2_plus_offers","has_3_plus_offers","last_offer_check","data_quality_notes","priority_score"];
+  const productColumns = ["product_id","product_name","slug","brand","category","active_offer_count","active_retailer_count","retailer_names","lowest_price","lowest_shipping","lowest_delivered_price","highest_delivered_price","delivered_price_spread","has_2_plus_retailers","has_3_plus_retailers","last_offer_check","data_quality_notes","priority_score"];
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "market-coverage-report.json"), JSON.stringify(report, null, 2) + "\n");
   fs.writeFileSync(path.join(OUT, "product-coverage.csv"), [productColumns.join(","), ...withOffers.map((r) => productColumns.map((c) => csvCell(Array.isArray(r[c]) ? r[c].join("; ") : r[c])).join(","))].join("\n") + "\n");
-  const compactProduct = (r) => [r.product_id, r.product_name, r.brand, r.category, r.active_offer_count, r.retailer_names.join(", "), r.lowest_delivered_price, r.delivered_price_spread, r.priority_score];
-  const compactDimension = (r) => [r.name,r.products,r.products_0,r.products_1,r.products_2_plus,r.products_3_plus,r.offers,r.average_offers,r.coverage_2_plus_pct,r.coverage_3_plus_pct];
+  const compactProduct = (r) => [r.product_id, r.product_name, r.brand, r.category, r.active_offer_count, r.active_retailer_count, r.retailer_names.join(", "), r.lowest_delivered_price, r.delivered_price_spread, r.priority_score];
+  const compactDimension = (r) => [r.name,r.products,r.products_0_retailers,r.products_1_retailer,r.products_2_plus_retailers,r.products_3_plus_retailers,r.active_offer_rows,r.average_retailers,r.coverage_2_plus_pct,r.coverage_3_plus_pct];
   const md = [
     "# SupplementScout market coverage audit", "", `Generated: ${report.generated_at}`, "",
     "## A. Executive summary", "", `Active canonical products: **${kpi.total_active_products}**; public offers: **${kpi.total_active_public_offers}**; active retailers: **${kpi.active_retailers}**.`,
-    `Products with real comparison (2+): **${kpi.products_with_2_plus_offers} (${kpi.percentage_with_2_plus}%)**; 3+: **${kpi.products_with_3_plus_offers} (${kpi.percentage_with_3_plus}%)**.`, "",
+    `Products with real comparison (2+ retailers): **${kpi.products_with_2_plus_retailers} (${kpi.percentage_with_2_plus_retailers}%)**; 3+: **${kpi.products_with_3_plus_retailers} (${kpi.percentage_with_3_plus_retailers}%)**.`, "",
     "## B. Main KPI", "", mdTable(["Metric","Value"], Object.entries(kpi).map(([a,b])=>[a,b])), "",
-    "## C. Offer distribution", "", mdTable(["Offers","Products"], distribution.map(r=>[r.bucket,r.products])), "",
+    "## C. Retailer coverage distribution", "", mdTable(["Distinct retailers","Products"], distribution.map(r=>[r.bucket,r.products])), "",
     "## D. Brands", "", "### Best covered", "", mdTable(["Brand","Products","0","1","2+","3+","Offers","Avg","2+ %","3+ %"], bestBrands.map(compactDimension)), "",
     "### Weak major brands", "", mdTable(["Brand","Products","0","1","2+","3+","Offers","Avg","2+ %","3+ %"], weakMajorBrands.map(compactDimension)), "",
     "### Highest overlap opportunity", "", mdTable(["Brand","Products","0","1","2+","3+","Offers","Avg","2+ %","3+ %"], opportunityBrands.map(compactDimension)), "",
     "## E. Categories", "", mdTable(["Category","Products","0","1","2+","3+","Offers","Avg","2+ %","3+ %"], categories.map(compactDimension)), "",
     "## F. Retailers", "", mdTable(["Retailer","Public offers","Products","Sole","Second","Third+","Avg % vs competitor","Cheapest delivered","OOS","Last checked","Value score"], retailerRows.map(r=>[r.retailer_name,r.active_public_offers,r.unique_canonical_products,r.sole_offer_products,r.second_offer_additions_by_created_at,r.third_plus_additions_by_created_at,r.avg_pct_vs_cheapest_competitor,r.cheapest_delivered_price_count,r.out_of_stock_offers,r.last_checked_at,r.value_score])), "",
     "## G. Retailer overlap", "", mdTable(["A","B","Common","Only A","Only B","Overlap smaller %","Overlap larger %"], overlap.map(r=>[r.retailer_a,r.retailer_b,r.common_products,r.only_a,r.only_b,r.overlap_smaller_pct,r.overlap_larger_pct])), "",
-    "## H. Priority products", "", "### Top 50 with one offer", "", mdTable(["ID","Product","Brand","Category","Offers","Retailers","Lowest delivered","Spread","Score"], oneOfferPriority.map(compactProduct)), "",
-    "### Top 50 with two offers", "", mdTable(["ID","Product","Brand","Category","Offers","Retailers","Lowest delivered","Spread","Score"], twoOfferPriority.map(compactProduct)), "",
-    "### Top 30 delivered-price spreads", "", mdTable(["ID","Product","Brand","Category","Offers","Retailers","Lowest delivered","Spread","Score"], largestSpreads.map(compactProduct)), "",
-    "### Top 30 one-offer products with complete verified pricing data", "", oneOfferGoodData.length ? mdTable(["ID","Product","Brand","Category","Offers","Retailers","Lowest delivered","Spread","Score"], oneOfferGoodData.map(compactProduct)) : "No products met every strict criterion.", "",
+    "## H. Priority products", "", "### Top 50 with one retailer", "", mdTable(["ID","Product","Brand","Category","Offer rows","Retailers","Retailer names","Lowest delivered","Spread","Score"], oneRetailerPriority.map(compactProduct)), "",
+    "### Top 50 with two retailers", "", mdTable(["ID","Product","Brand","Category","Offer rows","Retailers","Retailer names","Lowest delivered","Spread","Score"], twoRetailerPriority.map(compactProduct)), "",
+    "### Top 30 delivered-price spreads", "", mdTable(["ID","Product","Brand","Category","Offer rows","Retailers","Retailer names","Lowest delivered","Spread","Score"], largestSpreads.map(compactProduct)), "",
+    "### Top 30 one-retailer products with complete verified pricing data", "", oneRetailerGoodData.length ? mdTable(["ID","Product","Brand","Category","Offer rows","Retailers","Retailer names","Lowest delivered","Spread","Score"], oneRetailerGoodData.map(compactProduct)) : "No products met every strict criterion.", "",
     "## I. Future retailer evidence", "", report.future_retailer_data.note, "",
-    "## J. 30/60/90-day targets", "", mdTable(["Days","Retailers","Products","2+","3+","Avg offers","Comparison %"], targets.map(t=>[t.days,t.retailers,t.active_products,t.products_2_plus,t.products_3_plus,t.average_offers_per_product,t.real_comparison_pct])), "",
+    "## J. 30/60/90-day targets", "", mdTable(["Days","Retailers","Products","2+ retailers","3+ retailers","Avg retailers","Comparison %"], targets.map(t=>[t.days,t.retailers,t.active_products,t.products_2_plus_retailers,t.products_3_plus_retailers,t.average_retailers_per_product,t.real_comparison_pct])), "",
     "## K. Business verdict and next small step", "", mdTable(["Question","Answer"], [["Current position",businessVerdict.current_position],["Largest problem",businessVerdict.largest_coverage_problem],["Next retailer",businessVerdict.next_retailer_recommendation],["Strategy",businessVerdict.strategy],["Work mix",Object.entries(businessVerdict.work_mix).map(([k,v])=>`${k}: ${v}`).join(", ")],["Next small step",businessVerdict.next_small_step]]), "",
-    "## Full product coverage table", "", mdTable(["ID","Product","Brand","Category","Offers","Retailers","Lowest delivered","Spread","Score"], withOffers.map(compactProduct)), "",
+    "## Full product coverage table", "", mdTable(["ID","Product","Brand","Category","Offer rows","Retailers","Retailer names","Lowest delivered","Spread","Score"], withOffers.map(compactProduct)), "",
     "## Methodology notes", "", ...report.methodology_notes.map(n=>`- ${n}`), "",
   ].join("\n");
   fs.writeFileSync(path.join(OUT, "market-coverage-report.md"), md);
   console.log(JSON.stringify({ kpi, top_retailers: retailerRows.slice(0,3), files: ["market-coverage-report.json","market-coverage-report.md","product-coverage.csv"] }, null, 2));
-})().catch((error) => { console.error(error.message); process.exitCode = 1; });
+}
+
+module.exports = { coverageCounts, isPublicOffer, runAudit };
+
+if (require.main === module) {
+  runAudit().catch((error) => { console.error(error.message); process.exitCode = 1; });
+}

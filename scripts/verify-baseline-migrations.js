@@ -15,6 +15,7 @@ const candidatePath = path.join(
 );
 const approvedBaselineSha256 =
   "A604C181255CC49E6DFA527145EAA8B3BA30767B6860A5B09FD43A32A2E08C95";
+const stage2MigrationName = "20260713130000_product_variants_stage2.sql";
 
 const expectedLegacy = new Map([
   ["20260630_add_duplicate_protections.sql", "383265B5E9551044F787AD59434F3212AEB031EE09EA42E0C601D4B045AFA664"],
@@ -40,11 +41,16 @@ function sqlFiles(directory) {
 }
 
 const active = sqlFiles(migrationsDir);
-assert.equal(active.length, 1, "exactly one active SQL migration is required");
+assert.ok(active.length >= 1, "at least one active SQL migration is required");
 
 const baselineMatch = active[0].match(/^(\d{14})_baseline_current_public_schema\.sql$/);
-assert.ok(baselineMatch, "the active baseline must use a unique 14-digit timestamp");
+assert.ok(baselineMatch, "the guarded baseline must be the first active migration");
 const activeVersion = baselineMatch[1];
+const postBaseline = active.slice(1);
+assert.ok(
+  postBaseline.includes(stage2MigrationName),
+  `${stage2MigrationName} must be recognized as a post-baseline migration`,
+);
 
 const timestampParts = activeVersion.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/);
 const timestampDate = new Date(`${timestampParts[1]}-${timestampParts[2]}-${timestampParts[3]}T${timestampParts[4]}:${timestampParts[5]}:${timestampParts[6]}Z`);
@@ -68,6 +74,33 @@ assert.equal(
   new Set(fourteenDigitVersions).size,
   fourteenDigitVersions.length,
   "14-digit migration versions must be unique",
+);
+
+const activeVersions = active.map((name) => {
+  const match = name.match(/^(\d{14})_[a-z0-9_]+\.sql$/);
+  assert.ok(match, `${name} must use a 14-digit timestamp and SQL migration name`);
+  const version = match[1];
+  const parts = version.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/);
+  const date = new Date(`${parts[1]}-${parts[2]}-${parts[3]}T${parts[4]}:${parts[5]}:${parts[6]}Z`);
+  assert.equal(
+    date.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14),
+    version,
+    `${name} timestamp is not a valid calendar timestamp`,
+  );
+  return version;
+});
+assert.deepEqual(
+  activeVersions,
+  [...activeVersions].sort(),
+  "active migration timestamps must be strictly increasing",
+);
+assert.ok(
+  activeVersions.slice(1).every((version) => version > activeVersion),
+  "every post-baseline migration must be newer than the baseline",
+);
+assert.ok(
+  active.every((name) => !expectedLegacy.has(name)),
+  "legacy migrations must remain outside the active migrations folder",
 );
 
 for (const [name, expectedHash] of expectedLegacy) {
@@ -175,6 +208,174 @@ function normalizeStatement(statement) {
     .trim();
 }
 
+const managedSchemas = [
+  "auth",
+  "storage",
+  "realtime",
+  "extensions",
+  "stage1_validation",
+];
+const managedSchemaPattern = managedSchemas.join("|");
+
+function withoutSqlStringValues(statement) {
+  return statement.replace(/'(?:''|[^'])*'/g, "''");
+}
+
+function maskSingleQuotedValues(statement) {
+  let masked = "";
+  let index = 0;
+  while (index < statement.length) {
+    if (statement[index] !== "'") {
+      masked += statement[index];
+      index += 1;
+      continue;
+    }
+    masked += "x";
+    index += 1;
+    while (index < statement.length) {
+      if (statement[index] === "'" && statement[index + 1] === "'") {
+        masked += "xx";
+        index += 2;
+      } else if (statement[index] === "'") {
+        masked += "x";
+        index += 1;
+        break;
+      } else {
+        masked += "x";
+        index += 1;
+      }
+    }
+  }
+  return masked;
+}
+
+function searchPathAssignments(statement) {
+  const masked = maskSingleQuotedValues(statement);
+  const assignments = [];
+  const pattern = /\bSET\s+(?:LOCAL\s+)?(?:"search_path"|search_path)\s*(?:TO|=)\s*/gi;
+  for (const match of masked.matchAll(pattern)) {
+    const valueStart = match.index + match[0].length;
+    const maskedTail = masked.slice(valueStart);
+    const boundary = maskedTail.search(
+      /\s+(?:AS\s+\$dollar\$|LANGUAGE\b|TRANSFORM\b|WINDOW\b|IMMUTABLE\b|STABLE\b|VOLATILE\b|LEAKPROOF\b|SECURITY\b|PARALLEL\b|COST\b|ROWS\b|SUPPORT\b|SET\s+(?!LOCAL\s+)?(?:"?[a-z_][a-z0-9_]*"?)\s*(?:TO|=)|RESET\b)/i,
+    );
+    const valueEnd = boundary === -1 ? statement.length : valueStart + boundary;
+    assignments.push(statement.slice(valueStart, valueEnd));
+  }
+  return assignments;
+}
+
+function policyVisibleSql(sql) {
+  let visible = "";
+  let index = 0;
+  while (index < sql.length) {
+    if (sql.startsWith("--", index)) {
+      const end = sql.indexOf("\n", index + 2);
+      index = end === -1 ? sql.length : end;
+      visible += " ";
+      continue;
+    }
+    if (sql.startsWith("/*", index)) {
+      let depth = 1;
+      index += 2;
+      while (index < sql.length && depth > 0) {
+        if (sql.startsWith("/*", index)) { depth += 1; index += 2; }
+        else if (sql.startsWith("*/", index)) { depth -= 1; index += 2; }
+        else index += 1;
+      }
+      assert.equal(depth, 0, "unterminated SQL block comment");
+      visible += " ";
+      continue;
+    }
+    if (sql[index] === "'") {
+      index += 1;
+      while (index < sql.length) {
+        if (sql[index] === "'" && sql[index + 1] === "'") { index += 2; continue; }
+        if (sql[index] === "'") { index += 1; break; }
+        index += 1;
+      }
+      visible += " '' ";
+      continue;
+    }
+    visible += sql[index];
+    index += 1;
+  }
+  return normalizeStatement(visible);
+}
+
+function assertNoManagedSchemaOperations(name, migrationSql) {
+  for (const statement of topLevelStatements(migrationSql)) {
+    const normalized = normalizeStatement(statement);
+    const policyText = withoutSqlStringValues(normalized);
+    const mutating = /^(?:CREATE|ALTER|DROP|GRANT|REVOKE|INSERT|UPDATE|DELETE|COPY)\b/i.test(policyText);
+    const qualifiedManagedObject = new RegExp(`\\b(?:${managedSchemaPattern})\\s*\\.`, "i");
+    const managedSchemaTarget = new RegExp(
+      `\\b(?:SCHEMA|IN\\s+SCHEMA)\\s+(?:IF\\s+(?:NOT\\s+)?EXISTS\\s+)?(?:${managedSchemaPattern})\\b`,
+      "i",
+    );
+
+    assert.ok(
+      !(mutating && (qualifiedManagedObject.test(policyText) || managedSchemaTarget.test(policyText))),
+      `${name} changes data, privileges, or an object in a managed schema: ${normalized.slice(0, 180)}`,
+    );
+
+    for (const assignment of searchPathAssignments(normalized)) {
+      const unquotedSearchPath = assignment.replace(/["']/g, "");
+      assert.doesNotMatch(
+        unquotedSearchPath,
+        new RegExp(`(?:^|[,=\\s])(?:${managedSchemaPattern})(?:$|[,;\\s])`, "i"),
+        `${name} sets search_path to a managed schema`,
+      );
+    }
+  }
+
+  // Keep dollar-quoted function/DO bodies visible. This catches managed-schema
+  // operations hidden inside PL/pgSQL while comments and string data stay inert.
+  const bodyPolicyText = policyVisibleSql(migrationSql);
+  const qualified = `(?:${managedSchemaPattern})\\s*\\.`;
+  const managedTarget = `(?:${managedSchemaPattern})(?:\\s*\\.|\\b)`;
+  const objectOperation = new RegExp(
+    `\\b(?:CREATE|ALTER|DROP)\\s+(?:TABLE|TYPE|FUNCTION|VIEW|POLICY|TRIGGER|INDEX|SCHEMA)\\s+(?:IF\\s+(?:NOT\\s+)?EXISTS\\s+)?${managedTarget}`,
+    "i",
+  );
+  const dmlOperation = new RegExp(
+    `\\b(?:INSERT\\s+INTO|UPDATE|DELETE\\s+FROM|COPY)\\s+(?:ONLY\\s+)?${qualified}`,
+    "i",
+  );
+  const privilegeOperation = new RegExp(
+    `\\b(?:GRANT|REVOKE)\\b[^;]*\\bON\\s+(?:(?:TABLE|FUNCTION|SEQUENCE|SCHEMA)\\s+)?(?:${managedSchemaPattern})(?:\\s*\\.|\\b)`,
+    "i",
+  );
+  assert.doesNotMatch(bodyPolicyText, objectOperation, `${name} changes an object in a managed schema`);
+  assert.doesNotMatch(bodyPolicyText, dmlOperation, `${name} changes data in a managed schema`);
+  assert.doesNotMatch(bodyPolicyText, privilegeOperation, `${name} changes privileges in a managed schema`);
+}
+
+if (process.argv[2] === "--test-managed-schema-fixture") {
+  assert.equal(process.argv.length, 4, "managed-schema fixture mode requires exactly one file");
+  const fixturePath = path.resolve(process.argv[3]);
+  assertNoManagedSchemaOperations(
+    path.basename(fixturePath),
+    fs.readFileSync(fixturePath, "utf8"),
+  );
+  console.log(`PASS managed-schema fixture ${path.basename(fixturePath)}`);
+  process.exit(0);
+}
+assert.equal(process.argv.length, 2, "baseline validator accepts no runtime arguments");
+
+const activeSql = new Map(
+  active.map((name) => [name, fs.readFileSync(path.join(migrationsDir, name), "utf8")]),
+);
+
+for (const [name, migrationSql] of activeSql) {
+  assert.doesNotMatch(
+    migrationSql,
+    /(?:postgres(?:ql)?:\/\/\S+|\b(?:password|api[_-]?key|secret[_-]?key)\s*[=:]\s*\S+|\bsb_secret_[A-Za-z0-9_-]+|\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.)/i,
+    `${name} contains a potential secret`,
+  );
+  assertNoManagedSchemaOperations(name, migrationSql);
+}
+
 const statements = topLevelStatements(baseline);
 for (const statement of statements) {
   const normalized = normalizeStatement(statement);
@@ -204,11 +405,13 @@ assert.doesNotMatch(
   /^CREATE\s+SCHEMA.*\b(?:auth|storage|realtime|extensions)\b/im,
   "baseline creates a managed Supabase schema",
 );
-assert.doesNotMatch(
-  baseline,
-  /(?:postgres(?:ql)?:\/\/\S+|\b(?:password|api[_-]?key|secret[_-]?key)\s*[=:]\s*\S+|\bsb_secret_[A-Za-z0-9_-]+|\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.)/i,
-  "baseline contains a potential secret",
-);
+for (const name of postBaseline) {
+  assert.doesNotMatch(
+    activeSql.get(name),
+    /baseline cannot be executed on an existing environment/i,
+    `${name} must not require the baseline empty-database preflight`,
+  );
+}
 
 assert.match(
   normalizeStatement(statements[0]),
@@ -245,4 +448,5 @@ assert.match(
 
 console.log(`PASS baseline migration ${active[0]}`);
 console.log(`SHA-256 ${approvedBaselineSha256}`);
+console.log(`Post-baseline migrations: ${postBaseline.length}`);
 console.log(`Legacy migrations preserved: ${legacy.length}`);

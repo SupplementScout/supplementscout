@@ -111,6 +111,7 @@ export type ProductSearchResult = {
   cheapestOffer: SearchOffer;
   validOffers: SearchOffer[];
   availableOfferCount: number;
+  availableRetailerCount: number;
   verifiedCostPer5gCreatine: number | null;
   verifiedCostPer25gProtein: number | null;
   verifiedPricePerKg: number | null;
@@ -694,6 +695,14 @@ export function normalizeSearchOffers(offers: RawOffer[]) {
     );
 }
 
+export function countAvailableRetailers(offers: SearchOffer[]) {
+  return new Set(
+    offers
+      .map((offer) => offer.retailer?.id || "")
+      .filter(Boolean)
+  ).size;
+}
+
 function normalizeProduct(
   product: RawProduct,
   query: string,
@@ -734,6 +743,7 @@ function normalizeProduct(
     cheapestOffer,
     validOffers,
     availableOfferCount: validOffers.length,
+    availableRetailerCount: countAvailableRetailers(validOffers),
     verifiedCostPer5gCreatine: getVerifiedCostPer5gCreatine(
       cheapestOffer.deliveredPrice,
       product.serving_count_verified,

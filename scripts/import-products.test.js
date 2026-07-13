@@ -131,6 +131,7 @@ function createMockSupabase(seed = {}) {
         slug: "biotech-usa-iso-whey-zero-1816g",
       },
     ],
+    product_variants: seed.product_variants || [],
     retailer_products: seed.retailer_products || [],
     offers: seed.offers || [],
     price_history: seed.price_history || [],
@@ -216,7 +217,9 @@ function createMockSupabase(seed = {}) {
         const existing = tables[this.table].find((row) =>
           this.table === "retailer_products"
             ? row.retailer_id === this.payload.retailer_id &&
-              row.external_url === this.payload.external_url
+              (this.payload.external_variant_id
+                ? row.external_variant_id === this.payload.external_variant_id
+                : row.external_url === this.payload.external_url)
             : false
         );
 
@@ -225,8 +228,12 @@ function createMockSupabase(seed = {}) {
           return existing;
         }
 
-        tables[this.table].push({ ...this.payload });
-        return this.payload;
+        const row = {
+          ...this.payload,
+          id: this.payload.id || `${this.table}-${tables[this.table].length + 1}`,
+        };
+        tables[this.table].push(row);
+        return row;
       }
 
       return null;
@@ -2138,4 +2145,406 @@ test("manual import path still performs retailer, product, offer, and price hist
   assert.equal(supabase.writes.some((write) => write.table === "products"), true);
   assert.equal(supabase.writes.some((write) => write.table === "offers"), true);
   assert.equal(supabase.writes.some((write) => write.table === "price_history"), true);
+});
+
+function discountStage2Fixture() {
+  const retailer = {
+    id: "discount-retailer",
+    name: "Discount Supplements",
+    slug: "discount-supplements",
+  };
+  const product = {
+    id: "discount-product",
+    name: "Applied Nutrition ISO-XP Whey Protein",
+    slug: "applied-nutrition-iso-xp-whey-protein",
+    brand: "Applied Nutrition",
+    category: "Whey Protein",
+    product_format: "powder",
+    gtin: "canonical-product-gtin",
+  };
+  const productVariants = [
+    {
+      id: "pv-chocolate-500g",
+      product_id: product.id,
+      variant_key: "chocolate-500g",
+      display_name: "Chocolate / 500g",
+      flavour_code: "chocolate",
+      flavour_label: "Chocolate",
+      size_value: 500,
+      size_unit: "g",
+      pack_count: 1,
+      product_format: "powder",
+      is_active: true,
+      is_default: false,
+    },
+    {
+      id: "pv-vanilla-1kg",
+      product_id: product.id,
+      variant_key: "vanilla-1000g",
+      display_name: "Vanilla / 1kg",
+      flavour_code: "vanilla",
+      flavour_label: "Vanilla",
+      size_value: 1000,
+      size_unit: "g",
+      pack_count: 1,
+      product_format: "powder",
+      is_active: true,
+      is_default: false,
+    },
+  ];
+  const shared = {
+    retailer_name: retailer.name,
+    retailer_website: "https://www.discount-supplements.co.uk",
+    external_product_id: "shopify-product-9001",
+    product_name: product.name,
+    brand: product.brand,
+    category: product.category,
+    description: "Applied Nutrition ISO-XP whey protein powder",
+    image: "https://cdn.shopify.com/s/files/discount/iso-xp.webp",
+    slug: product.slug,
+    shipping_known: "true",
+    shipping_cost: "4.99",
+    in_stock: "true",
+    is_for_sale: "true",
+    product_format: "powder",
+    pack_count: "1",
+  };
+  const rows = [
+    baseCanonicalFeedRow({
+      ...shared,
+      external_variant_id: "shopify-variant-chocolate-500g",
+      external_sku: "ISOXP-CHOC-500",
+      external_options: JSON.stringify({ Size: "500g", Flavour: "Chocolate" }),
+      variant_name: "Chocolate / 500g",
+      external_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-chocolate-500g",
+      affiliate_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-chocolate-500g",
+      external_gtin: "retailer-gtin-chocolate",
+      price: "24.99",
+      size: "500",
+      size_unit: "g",
+      flavour: "Chocolate",
+    }),
+    baseCanonicalFeedRow({
+      ...shared,
+      external_variant_id: "shopify-variant-vanilla-1kg",
+      external_sku: "ISOXP-VAN-1000",
+      external_options: JSON.stringify({ Size: "1kg", Flavour: "Vanilla" }),
+      variant_name: "Vanilla / 1kg",
+      external_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-vanilla-1kg",
+      affiliate_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-vanilla-1kg",
+      external_gtin: "retailer-gtin-vanilla",
+      price: "39.99",
+      size: "1000",
+      size_unit: "g",
+      flavour: "Vanilla",
+    }),
+  ];
+
+  return { product, productVariants, retailer, rows };
+}
+
+function stage2Seed({ withMappings = false, withOffers = false } = {}) {
+  const fixture = discountStage2Fixture();
+  const retailerProducts = withMappings
+    ? fixture.rows.map((row, index) => ({
+        id: `rp-${index + 1}`,
+        retailer_id: fixture.retailer.id,
+        product_id: fixture.product.id,
+        product_variant_id: fixture.productVariants[index].id,
+        external_product_id: row.external_product_id,
+        external_variant_id: row.external_variant_id,
+        external_sku: row.external_sku,
+        external_options: JSON.parse(row.external_options),
+        external_gtin: row.external_gtin,
+        external_url: row.external_url,
+      }))
+    : [];
+  const offers = withOffers
+    ? fixture.rows.map((row, index) => ({
+        id: `offer-${index + 1}`,
+        product_id: fixture.product.id,
+        retailer_id: fixture.retailer.id,
+        retailer_product_id: retailerProducts[index].id,
+        product_variant_id: fixture.productVariants[index].id,
+        price: Number(row.price),
+        shipping_cost: 4.99,
+        total_price: Number(row.price) + 4.99,
+        url: row.affiliate_url,
+        in_stock: true,
+      }))
+    : [];
+
+  return {
+    fixture,
+    seed: {
+      retailers: [fixture.retailer],
+      products: [{ ...fixture.product }],
+      product_variants: fixture.productVariants.map((variant) => ({ ...variant })),
+      retailer_products: retailerProducts,
+      offers,
+      price_history: [],
+    },
+  };
+}
+
+test("Stage 2 retailer product payload preserves Shopify variant identity and retailer-only GTIN", () => {
+  const { fixture } = stage2Seed();
+  const row = fixture.rows[0];
+  const payload = buildRetailerProductPayload({
+    row,
+    retailerId: fixture.retailer.id,
+    productId: fixture.product.id,
+    name: row.product_name,
+    slug: row.slug,
+    offerUrl: row.affiliate_url,
+    matchMethod: "external_variant_id",
+    matchConfidence: 100,
+  });
+
+  assert.equal(payload.external_product_id, row.external_product_id);
+  assert.equal(payload.external_variant_id, row.external_variant_id);
+  assert.equal(payload.external_sku, row.external_sku);
+  assert.deepEqual(payload.external_options, JSON.parse(row.external_options));
+  assert.equal(payload.external_gtin, row.external_gtin);
+  assert.equal(Object.hasOwn(payload, "gtin"), false);
+});
+
+test("Stage 2 identity distinguishes two Shopify variants where product plus retailer does not", () => {
+  const { fixture } = stage2Seed();
+  const legacyKeys = new Set(
+    fixture.rows.map(() => `${fixture.product.id}:${fixture.retailer.id}`)
+  );
+  const stage2Keys = new Set(
+    fixture.rows.map(
+      (row) => `${fixture.retailer.id}:${row.external_variant_id}`
+    )
+  );
+
+  assert.equal(legacyKeys.size, 1);
+  assert.equal(stage2Keys.size, 2);
+});
+
+test("Stage 2 dry-run plans two retailer products and two offers for one retailer and canonical product", async () => {
+  const { fixture, seed } = stage2Seed();
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(fixture.rows, { mode: "feed", dryRun: true });
+
+  assert.equal(result.report.collisionGroups.length, 0);
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.equal(result.report.retailerProductsToCreate.length, 2);
+  assert.equal(result.report.offersToCreate.length, 2);
+  assert.equal(result.planned, 2);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("Stage 2 apply creates separate linked retailer products and offers without changing products.gtin", async () => {
+  const { fixture, seed } = stage2Seed();
+  const originalProduct = structuredClone(seed.products[0]);
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(fixture.rows, { mode: "feed" });
+
+  assert.equal(result.successful, 2);
+  assert.equal(supabase.tables.retailer_products.length, 2);
+  assert.equal(supabase.tables.offers.length, 2);
+  assert.equal(new Set(supabase.tables.retailer_products.map((row) => row.id)).size, 2);
+  assert.equal(new Set(supabase.tables.retailer_products.map((row) => row.external_variant_id)).size, 2);
+  for (let index = 0; index < fixture.rows.length; index += 1) {
+    const row = fixture.rows[index];
+    const mapping = supabase.tables.retailer_products.find(
+      (candidate) => candidate.external_variant_id === row.external_variant_id
+    );
+    const offer = supabase.tables.offers.find(
+      (candidate) => candidate.retailer_product_id === mapping?.id
+    );
+
+    assert(mapping);
+    assert(offer);
+    assert.equal(mapping.external_product_id, row.external_product_id);
+    assert.equal(mapping.external_sku, row.external_sku);
+    assert.deepEqual(mapping.external_options, JSON.parse(row.external_options));
+    assert.equal(mapping.external_gtin, row.external_gtin);
+    assert.equal(mapping.product_variant_id, fixture.productVariants[index].id);
+    assert.equal(offer.product_variant_id, fixture.productVariants[index].id);
+  }
+  assert.deepEqual(supabase.tables.products[0], originalProduct);
+});
+
+test("Stage 2 rerun is idempotent and looks up offers by retailer product identity", async () => {
+  const { fixture, seed } = stage2Seed({ withMappings: true, withOffers: true });
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(fixture.rows, { mode: "feed", dryRun: true });
+
+  assert.equal(result.report.retailerProductsToCreate.length, 0);
+  assert.equal(result.report.offersToCreate.length, 0);
+  assert.equal(result.report.offersToUpdate.length, 0);
+  assert.equal(result.report.offersUnchanged.length, 2);
+  assert.equal(
+    supabase.operations.some(
+      (operation) =>
+        operation.type === "read" &&
+        operation.table === "retailer_products" &&
+        operation.filters.some((filter) => filter.field === "external_variant_id")
+    ),
+    true
+  );
+  assert.equal(
+    supabase.operations.some(
+      (operation) =>
+        operation.type === "read" &&
+        operation.table === "offers" &&
+        operation.filters.some((filter) => filter.field === "retailer_product_id")
+    ),
+    true
+  );
+  assert.equal(
+    supabase.operations.some(
+      (operation) =>
+        operation.type === "read" &&
+        operation.table === "offers" &&
+        operation.filters.some((filter) => filter.field === "product_id") &&
+        operation.filters.some((filter) => filter.field === "retailer_id")
+    ),
+    false
+  );
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("Stage 2 price update changes only the selected Shopify variant offer", async () => {
+  const { fixture, seed } = stage2Seed({ withMappings: true, withOffers: true });
+  const originalFirstOffer = structuredClone(seed.offers[0]);
+  const updatedVanilla = { ...fixture.rows[1], price: "37.49" };
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([updatedVanilla], { mode: "feed" });
+
+  assert.equal(result.successful, 1);
+  assert.deepEqual(supabase.tables.offers[0], originalFirstOffer);
+  assert.equal(supabase.tables.offers[1].price, 37.49);
+  assert.equal(supabase.tables.offers[1].retailer_product_id, "rp-2");
+  const offerUpdate = supabase.writes.find(
+    (write) => write.table === "offers" && write.operation === "update"
+  );
+  assert.deepEqual(
+    Object.keys(offerUpdate.payload).sort(),
+    ["last_checked_at", "price", "total_price"].sort()
+  );
+});
+
+test("Stage 2 stock and URL updates remain scoped to the selected Shopify variant", async () => {
+  const scenarios = [
+    {
+      overrides: { in_stock: "false" },
+      expected: { in_stock: false },
+      keys: ["in_stock", "last_checked_at"],
+    },
+    {
+      overrides: {
+        affiliate_url: "https://www.discount-supplements.co.uk/products/iso-xp-vanilla-new?variant=shopify-variant-vanilla-1kg",
+      },
+      expected: {
+        url: "https://www.discount-supplements.co.uk/products/iso-xp-vanilla-new?variant=shopify-variant-vanilla-1kg",
+      },
+      keys: ["last_checked_at", "url"],
+    },
+  ];
+
+  for (const scenario of scenarios) {
+    const { fixture, seed } = stage2Seed({ withMappings: true, withOffers: true });
+    const originalFirstOffer = structuredClone(seed.offers[0]);
+    const supabase = createMockSupabase(seed);
+    setSupabaseForTests(supabase);
+
+    const result = await runImportRows(
+      [{ ...fixture.rows[1], ...scenario.overrides }],
+      { mode: "feed" }
+    );
+
+    assert.equal(result.successful, 1);
+    assert.deepEqual(supabase.tables.offers[0], originalFirstOffer);
+    assert.equal(supabase.tables.offers[1].retailer_product_id, "rp-2");
+    for (const [field, value] of Object.entries(scenario.expected)) {
+      assert.equal(supabase.tables.offers[1][field], value);
+    }
+    const offerUpdate = supabase.writes.find(
+      (write) => write.table === "offers" && write.operation === "update"
+    );
+    assert.deepEqual(Object.keys(offerUpdate.payload).sort(), scenario.keys.sort());
+  }
+});
+
+test("Stage 2 resolves flavour and size evidence to the exact canonical product variant", async () => {
+  const { fixture, seed } = stage2Seed();
+
+  for (let index = 0; index < fixture.rows.length; index += 1) {
+    const isolatedSeed = {
+      ...seed,
+      products: seed.products.map((row) => ({ ...row })),
+      product_variants: seed.product_variants.map((row) => ({ ...row })),
+      retailer_products: [],
+      offers: [],
+      price_history: [],
+    };
+    const supabase = createMockSupabase(isolatedSeed);
+    setSupabaseForTests(supabase);
+
+    const result = await runImportRows([fixture.rows[index]], { mode: "feed" });
+    const mapping = supabase.tables.retailer_products[0];
+    const offer = supabase.tables.offers[0];
+
+    assert.equal(result.successful, 1);
+    assert.equal(mapping.product_variant_id, fixture.productVariants[index].id);
+    assert.equal(offer.retailer_product_id, mapping.id);
+    assert.equal(offer.product_variant_id, fixture.productVariants[index].id);
+  }
+});
+
+test("Stage 2 dry-run blocks missing and ambiguous canonical variant resolution", async () => {
+  const { fixture, seed } = stage2Seed();
+  const cases = [
+    {
+      label: "missing",
+      variants: seed.product_variants.slice(1),
+      reason: /missing canonical product_variant/i,
+    },
+    {
+      label: "ambiguous",
+      variants: [
+        seed.product_variants[0],
+        {
+          ...seed.product_variants[0],
+          id: "pv-chocolate-500g-duplicate",
+          variant_key: "chocolate-500g-duplicate",
+        },
+      ],
+      reason: /ambiguous canonical product_variant/i,
+    },
+  ];
+
+  for (const scenario of cases) {
+    const supabase = createMockSupabase({
+      ...seed,
+      product_variants: scenario.variants,
+      retailer_products: [],
+      offers: [],
+      price_history: [],
+    });
+    setSupabaseForTests(supabase);
+
+    const result = await runImportRows([fixture.rows[0]], {
+      mode: "feed",
+      dryRun: true,
+    });
+
+    assert.equal(result.report.approvedRows.length, 0, scenario.label);
+    assert.equal(result.report.ambiguousRows.length, 1, scenario.label);
+    assert.match(result.report.ambiguousRows[0].reason, scenario.reason);
+    assert.equal(supabase.writes.length, 0);
+  }
 });

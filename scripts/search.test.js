@@ -55,6 +55,17 @@ function loadProductsModule(mockSupabase = {}) {
   return mod.exports;
 }
 
+test("public search distinguishes raw offers from distinct available retailers", () => {
+  const { countAvailableRetailers } = loadProductsModule();
+  const offers = [
+    { id: "1", retailer: { id: "retailer-1", name: "One", slug: "one" } },
+    { id: "2", retailer: { id: "retailer-1", name: "One", slug: "one" } },
+    { id: "3", retailer: { id: "retailer-2", name: "Two", slug: "two" } },
+  ];
+  assert.equal(offers.length, 3);
+  assert.equal(countAvailableRetailers(offers), 2);
+});
+
 function loadSearchUrlModule() {
   const filename = path.join(process.cwd(), "app", "lib", "searchUrl.ts");
   const source = fs.readFileSync(filename, "utf8");
