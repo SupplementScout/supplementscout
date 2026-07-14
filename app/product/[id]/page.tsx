@@ -1,4 +1,5 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
+import RetailerOfferCard from "../../components/RetailerOfferCard";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -19,7 +20,17 @@ import {
   buildProductMetadataDescription,
   buildProductSummary,
 } from "../../lib/productPresentation";
+import {
+  getBestProductOffer,
+  getOfferVariantLabel,
+  groupProductOffers,
+  productOfferHref,
+  type ProductOffer,
+  type ProductOfferRetailer,
+  type ProductOfferVariant,
+} from "../../lib/productOfferGroups";
 import { supabase } from "../../lib/supabase";
+import { supabaseAdmin } from "../../lib/supabaseAdmin";
 
 type ProductRouteProduct = {
   id: string;
@@ -45,6 +56,24 @@ type ProductRouteProduct = {
   nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
 };
+
+type ProductOfferQueryRow = Omit<
+  ProductOffer,
+  "retailer" | "product_variant" | "external_options"
+> & {
+  retailer_product_id: number | string;
+  retailer: ProductOfferRetailer | ProductOfferRetailer[] | null;
+};
+
+type ProductOfferEnrichmentRow = {
+  id: number | string;
+  external_options: Record<string, unknown> | null;
+  product_variant: ProductOfferVariant | ProductOfferVariant[] | null;
+};
+
+function relationOne<T>(value: T | T[] | null | undefined) {
+  return Array.isArray(value) ? value[0] || null : value || null;
+}
 
 function isProductIdValue(value: string) {
   return /^[1-9][0-9]*$/.test(value);
@@ -176,7 +205,56 @@ export default async function ProductPage({
     .eq("in_stock", true)
     .order("price", { ascending: true });
 
-  const offerIds = offers?.map((offer) => offer.id) || [];
+  const offerRows = (offers || []) as unknown as ProductOfferQueryRow[];
+  const retailerProductIds = offerRows.map((offer) => offer.retailer_product_id);
+  const { data: retailerProducts } = retailerProductIds.length > 0
+    ? await supabaseAdmin
+      .from("retailer_products")
+      .select(`
+        id,
+        external_options,
+        product_variant:product_variants!retailer_products_variant_product_fkey (
+          id,
+          variant_key,
+          display_name,
+          flavour_label,
+          size_value,
+          size_unit,
+          is_default
+        )
+      `)
+      .in("id", retailerProductIds)
+    : { data: [] };
+  const enrichmentByRetailerProductId = new Map(
+    ((retailerProducts || []) as unknown as ProductOfferEnrichmentRow[]).map(
+      (retailerProduct) => [String(retailerProduct.id), retailerProduct]
+    )
+  );
+
+  const productOffers = offerRows.map(
+    (offer): ProductOffer => {
+      const retailerProduct = enrichmentByRetailerProductId.get(
+        String(offer.retailer_product_id)
+      );
+
+      return {
+        id: offer.id,
+        retailer_id: offer.retailer_id,
+        product_variant_id: offer.product_variant_id,
+        price: offer.price,
+        shipping_cost: offer.shipping_cost,
+        total_price: offer.total_price,
+        in_stock: offer.in_stock,
+        url: offer.url,
+        last_checked_at: offer.last_checked_at,
+        retailer: relationOne(offer.retailer),
+        product_variant: relationOne(retailerProduct?.product_variant),
+        external_options: retailerProduct?.external_options || null,
+      };
+    }
+  );
+
+  const offerIds = productOffers.map((offer) => offer.id);
 
   let lowestHistoricalPrice: number | null = null;
   let averageHistoricalPrice: number | null = null;
@@ -258,7 +336,7 @@ export default async function ProductPage({
     }));
   }
 
-  const sortedOffers = [...(offers || [])].sort((a, b) => {
+  const sortedOffers = [...productOffers].sort((a, b) => {
     const deliveredA = knownDeliveredPrice(a);
     const deliveredB = knownDeliveredPrice(b);
     const totalA = deliveredA?.totalPrice ?? Number.POSITIVE_INFINITY;
@@ -269,7 +347,8 @@ export default async function ProductPage({
 
     return totalA - totalB || priceA - priceB || String(a.id).localeCompare(String(b.id));
   });
-  const cheapestOffer = sortedOffers[0] || null;
+  const retailerOfferGroups = groupProductOffers(sortedOffers);
+  const cheapestOffer = getBestProductOffer(sortedOffers);
   const cheapestDeliveredPrice = cheapestOffer
     ? knownDeliveredPrice(cheapestOffer)
     : null;
@@ -434,6 +513,9 @@ export default async function ProductPage({
                   )}
                   {cheapestOffer && (
                     <div className="mt-3 min-w-0 max-w-full space-y-1 break-words text-sm font-medium text-[#4B5563] [overflow-wrap:anywhere]">
+                      {getOfferVariantLabel(cheapestOffer) && (
+                        <p>Variant: {getOfferVariantLabel(cheapestOffer)}</p>
+                      )}
                       <p>
                         Product: {formatProductPrice(cheapestOffer.price)}
                       </p>
@@ -450,7 +532,7 @@ export default async function ProductPage({
 
                 {cheapestOffer ? (
                   <a
-                    href={`/go/${String(cheapestOffer.id)}?source=product_best_offer`}
+                    href={productOfferHref(cheapestOffer.id, "product_best_offer")}
                     target="_blank"
                     rel="sponsored nofollow noopener noreferrer"
                     className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-2xl bg-black px-6 py-4 text-center font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto sm:px-8"
@@ -598,59 +680,18 @@ export default async function ProductPage({
             <div className="mt-8 w-full min-w-0 max-w-full rounded-2xl border bg-white p-5 sm:rounded-3xl sm:p-8">
               <h2 className="text-2xl font-bold text-gray-900">All offers</h2>
 
+              {sortedOffers.length > 0 && (
+                <p className="mt-2 text-sm text-gray-600">
+                  {sortedOffers.length} offer{sortedOffers.length === 1 ? "" : "s"} from{" "}
+                  {retailerOfferGroups.length} retailer
+                  {retailerOfferGroups.length === 1 ? "" : "s"}
+                </p>
+              )}
+
               <div className="mt-6 space-y-3">
-                {offers && offers.length > 0 ? (
-                  sortedOffers.map((offer) => (
-                    <div
-                      key={offer.id}
-                      className="flex w-full min-w-0 max-w-full flex-col gap-4 rounded-2xl border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
-                    >
-                      <div className="min-w-0 max-w-full">
-                        <p className="min-w-0 max-w-full break-words font-semibold text-gray-900 [overflow-wrap:anywhere]">
-                          {offer.retailer?.name || "Unknown retailer"}
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-gray-700">
-                          {offer.in_stock ? "In stock" : "Out of stock"}
-                        </p>
-                        {offer.last_checked_at && (
-                          <p className="mt-1 text-xs text-gray-600">
-                            Price checked:{" "}
-                            {new Date(offer.last_checked_at).toLocaleDateString("en-GB", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            })}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex min-w-0 max-w-full flex-col gap-4 sm:flex-row sm:items-center">
-                        <div className="min-w-0 max-w-full break-words text-left [overflow-wrap:anywhere] sm:text-right">
-                          <p className="text-sm font-medium text-gray-700">
-                            Product: {formatProductPrice(offer.price)}
-                          </p>
-
-                          <p className="text-sm font-medium text-gray-700">
-                            {formatShipping(offer.shipping_cost)}
-                          </p>
-
-                          <p className="mt-1 text-2xl font-bold text-gray-900">
-                            {knownDeliveredPrice(offer)
-                              ? formatCurrency(knownDeliveredPrice(offer)!.totalPrice)
-                              : "Total unknown"}
-                          </p>
-                        </div>
-
-                        <a
-                          href={`/go/${String(offer.id)}?source=product_offer_list`}
-                          target="_blank"
-                          rel="sponsored nofollow noopener noreferrer"
-                          className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl bg-black px-5 py-3 text-center text-sm font-semibold text-white sm:w-auto"
-                        >
-                          View deal
-                        </a>
-                      </div>
-                    </div>
+                {retailerOfferGroups.length > 0 ? (
+                  retailerOfferGroups.map((group) => (
+                    <RetailerOfferCard key={group.retailerKey} group={group} />
                   ))
                 ) : (
                   <p className="text-sm font-medium text-gray-700">No offers available.</p>
