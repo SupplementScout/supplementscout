@@ -14,10 +14,25 @@ concurrency:
 
 jobs:
   retailer-dry-run:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    # This Environment must use a deployment branch policy that permits only main.
+    # The policy protects secrets even if a workflow on another branch removes the job guard.
+    environment: production-readonly
 
     steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          case "$GITHUB_EVENT_NAME" in
+            schedule|workflow_dispatch) ;;
+            *) exit 1 ;;
+          esac
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+
       - name: Checkout repository
         uses: actions/checkout@v6
 
@@ -33,25 +48,26 @@ jobs:
       - name: Test retailer adapters
         run: node --test scripts/adapters/*.test.js
 
-      - name: Run Fit House dry-run
+      - name: Fetch Discount Supplements full snapshot
+        run: node scripts/adapters/discount-supplements-shopify.js --full-snapshot
+
+      - name: Classify Discount Supplements and dry-run existing mappings
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/adapters/fit-house-shopify.js
+          SUPPLEMENTSCOUT_STAGE1_READ_ONLY: "true"
+        run: node scripts/adapters/discount-supplements-stage1.js
 
-      - name: Run KIOR JSON-only dry-run
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/adapters/kior-shopify.js
-
-      - name: Validate final reports
-        env:
-          RUN_TRIGGER: ${{ github.event_name == 'schedule' && 'scheduled' || 'manual' }}
+      - name: Summarize Discount Supplements Stage 1
+        if: always()
         run: |
-          echo "Trigger: $RUN_TRIGGER" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          node scripts/adapters/validate-scheduled-reports.js >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-report.json ]; then
+            node scripts/adapters/discount-supplements-stage1.js --summary >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Discount Supplements — Stage 1 read-only" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> ❌ Stage 1 report was not produced; the snapshot or preflight failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload final reports and generated feeds
         if: always()
@@ -61,7 +77,13 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
           path: |
-            tmp/retailer-feeds/fit-house/fit-house-adapter-report.json
-            tmp/retailer-feeds/fit-house/fit-house-canonical-generated.csv
-            tmp/retailer-feeds/kior/kior-adapter-report.json
-            tmp/retailer-feeds/kior/kior-canonical-generated.csv
+            tmp/retailer-feeds/discount-supplements/discount-supplements-raw-full.json
+            tmp/retailer-feeds/discount-supplements/discount-supplements-normalized-full.csv
+            tmp/retailer-feeds/discount-supplements/discount-supplements-full-run-report.json
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-classification.json
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-classification.csv
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-existing-mappings.csv
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-plan-*.json
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-plan-*.json.sha256
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-import-report-*.json
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-report.json
