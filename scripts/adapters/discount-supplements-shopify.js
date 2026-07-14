@@ -12,7 +12,12 @@ const TEMPLATE_PATH = path.join(ROOT, "data/templates/retailer-feed-template.csv
 const OUTPUT_DIR = path.join(ROOT, "tmp/retailer-feeds/discount-supplements");
 const CSV_PATH = path.join(OUTPUT_DIR, "discount-supplements-canonical-generated.csv");
 const REPORT_PATH = path.join(OUTPUT_DIR, "discount-supplements-adapter-report.json");
+const RAW_FULL_PATH = path.join(OUTPUT_DIR, "discount-supplements-raw-full.json");
+const NORMALIZED_FULL_PATH = path.join(OUTPUT_DIR, "discount-supplements-normalized-full.csv");
+const FULL_REPORT_PATH = path.join(OUTPUT_DIR, "discount-supplements-full-run-report.json");
 const EXPECTED_COUNT = 3;
+// A public Shopify catalog listing may remain for sale while its current inventory is unavailable.
+const CATALOG_LISTING_IS_FOR_SALE = "true";
 const EXPECTED_ACTIONS = new Map([
   ["cnp-creatine-monohydrate-250g", "unchanged"],
   ["applied-nutrition-creatine-120-capsules", "create"],
@@ -33,11 +38,16 @@ const APPROVED = [
   { shopify_product_id: "16106741498234", shopify_variant_id: "56887361470842", expected_variant_count: 1, expected_handle: "trained-by-jp-berberine-60-caps", expected_product_title: "Trained By JP TBJP Berberine 60 Caps", expected_variant_title: "60 Caps", expected_option1: "60 Caps", expected_option2: null, expected_option3: null, expected_sku: "TBJP-0100", expected_barcode: null, expected_unit_count: 60, expected_row_action: "create", canonical_product_id: 688, canonical_name: "TBJP Berberine 60 Capsules", canonical_slug: "tbjp-berberine-60-capsules", brand: "TBJP", category: "Health Supplements", product_format: "capsule", variant_name: "60 Capsules", size: null, size_unit: null, flavour: null, pack_count: 1, is_for_sale: true, approved_price: 12.99, approved_in_stock: true },
 ];
 
-function validateConfig(config) {
+function validateSourceConfig(config) {
   if (config?.schema_version !== 1 || config.source_url !== "https://www.discount-supplements.co.uk/products.json?limit=250") fail("Unexpected config schema or Shopify source URL");
   if (config.guardrails?.fetch_timeout_ms !== 15000 || config.guardrails.max_response_bytes !== 5242880 || config.guardrails.max_pages !== 20) fail("Unexpected fetch guardrails");
   const retailer = config.retailer;
   if (retailer?.id !== 4 || retailer.name !== "Discount Supplements" || retailer.slug !== "discount-supplements" || retailer.website !== "https://www.discount-supplements.co.uk") fail("Unexpected retailer identity");
+}
+
+function validateConfig(config) {
+  validateSourceConfig(config);
+  const retailer = config.retailer;
   if (JSON.stringify(retailer.vendor_aliases) !== JSON.stringify(["CNP", "Applied Nutrition", "TBJP"])) fail("Unexpected vendor aliases");
   if (config.shipping?.known !== true || config.shipping.cost !== 4.99 || config.shipping.free_shipping_threshold !== 80 || !config.shipping.approval_note) fail("Unexpected shipping config");
   if (!Array.isArray(config.products) || config.products.length !== EXPECTED_COUNT) fail(`Config must contain exactly ${EXPECTED_COUNT} approved products`);
@@ -62,6 +72,159 @@ async function fetchCatalog(config, fetchImpl) {
     if (required.size === 0 || payload.products.length < 250) break;
   }
   return { products };
+}
+
+async function fetchFullCatalog(config, fetchImpl) {
+  const products = [], pageProductCounts = [];
+  let complete = false;
+  for (let page = 1; page <= config.guardrails.max_pages; page += 1) {
+    let payload;
+    try {
+      payload = await fetchJson(`${config.source_url}&page=${page}`, {
+        timeoutMs: config.guardrails.fetch_timeout_ms,
+        maxBytes: config.guardrails.max_response_bytes,
+        fetchImpl,
+      });
+    } catch (error) {
+      if (page > 1 && error?.message === "Shopify products array is empty") {
+        pageProductCounts.push(0);
+        complete = true;
+        break;
+      }
+      throw error;
+    }
+    if (!payload || !Array.isArray(payload.products)) fail(`Invalid Shopify products page ${page}`);
+    pageProductCounts.push(payload.products.length);
+    products.push(...payload.products);
+    if (payload.products.length < 250) {
+      complete = true;
+      break;
+    }
+  }
+  if (!complete) fail(`Full catalog pagination exceeded ${config.guardrails.max_pages} pages`);
+  if (products.length < 10) fail(`Suspiciously low full catalog product count: ${products.length}`);
+  const productIds = products.map((product) => id(product?.id, "Shopify product ID"));
+  if (new Set(productIds).size !== productIds.length) fail("Duplicate Shopify product ID across pages");
+  return { products, pageProductCounts };
+}
+
+const NORMALIZED_FULL_HEADER = [
+  "retailer_name", "retailer_website", "external_product_id", "external_variant_id",
+  "external_sku", "external_options", "external_gtin", "product_name", "variant_name",
+  "brand", "category", "handle", "external_url", "price", "in_stock", "is_for_sale",
+  "image", "product_updated_at", "variant_updated_at",
+];
+
+function normalizePrice(value, variantId) {
+  const normalized = String(value ?? "").trim();
+  if (!/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(normalized) || !/[1-9]/.test(normalized)) {
+    fail(`Invalid Shopify price for variant ${variantId}: ${JSON.stringify(normalized)}`);
+  }
+  return normalized;
+}
+
+function productContext(productId, title) {
+  const safeTitle = String(title ?? "").trim().slice(0, 160);
+  return safeTitle ? `${productId} (${JSON.stringify(safeTitle)})` : productId;
+}
+
+function buildNormalizedFull({ config, shopify }) {
+  if (!shopify || !Array.isArray(shopify.products)) fail("Invalid full Shopify catalog");
+  const rows = [], variantIds = new Set(), productVariantCounts = [];
+  for (const product of shopify.products) {
+    const productId = id(product?.id, "Shopify product ID");
+    const context = productContext(productId, product?.title);
+    const handle = String(product.handle || "").trim();
+    if (!handle) fail(`Missing Shopify handle for product ${productId}`);
+    if (!Array.isArray(product.variants) || product.variants.length === 0) fail(`Missing or empty Shopify variants for product ${context}`);
+    productVariantCounts.push({ product_id: productId, variant_count: product.variants.length });
+    for (const variant of product.variants) {
+      const variantId = id(variant?.id, "Shopify variant ID");
+      if (variantIds.has(variantId)) fail(`Duplicate Shopify variant ID: ${variantId}`);
+      variantIds.add(variantId);
+      if (String(variant.product_id ?? product.id) !== productId) fail(`Shopify variant ownership mismatch: ${variantId}`);
+      const price = normalizePrice(variant.price, variantId);
+      const url = `${config.retailer.website}/products/${handle}?variant=${variantId}`;
+      if (!validHttps(url, "www.discount-supplements.co.uk") || new URL(url).searchParams.get("variant") !== variantId) fail(`Invalid direct variant URL for ${variantId}`);
+      const options = {};
+      for (let position = 1; position <= 3; position += 1) {
+        const value = evidence(variant[`option${position}`]);
+        if (value === null) continue;
+        const option = (product.options || []).find((candidate) => Number(candidate?.position) === position) || product.options?.[position - 1];
+        const name = String(option?.name || `Option${position}`).trim();
+        options[name] = value;
+      }
+      const image = String(variant.featured_image?.src || variant.featured_image || product.image?.src || product.images?.[0]?.src || "").trim();
+      rows.push({
+        retailer_name: config.retailer.name,
+        retailer_website: config.retailer.website,
+        external_product_id: productId,
+        external_variant_id: variantId,
+        external_sku: evidence(variant.sku) || "",
+        external_options: JSON.stringify(options),
+        external_gtin: evidence(variant.barcode) || "",
+        product_name: String(product.title || "").trim(),
+        variant_name: String(variant.title || "").trim(),
+        brand: String(product.vendor || "").trim(),
+        category: String(product.product_type || "").trim(),
+        handle,
+        external_url: url,
+        price,
+        in_stock: String(Boolean(variant.available)),
+        is_for_sale: CATALOG_LISTING_IS_FOR_SALE,
+        image,
+        product_updated_at: String(product.updated_at || "").trim(),
+        variant_updated_at: String(variant.updated_at || "").trim(),
+      });
+    }
+  }
+  if (rows.length !== variantIds.size) fail("Full snapshot did not preserve every unique Shopify variant");
+  return { rows, productVariantCounts, invalidRecordCount: 0, csv: serializeCsv(NORMALIZED_FULL_HEADER, rows) };
+}
+
+async function fullSnapshotMain(deps = {}) {
+  const config = deps.config ?? JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8")); validateSourceConfig(config);
+  const rawPath = deps.rawPath ?? RAW_FULL_PATH;
+  const normalizedPath = deps.normalizedPath ?? NORMALIZED_FULL_PATH;
+  const reportPath = deps.reportPath ?? FULL_REPORT_PATH;
+  const startedAt = new Date().toISOString();
+  const shopify = await (deps.fetchFullCatalog || fetchFullCatalog)(config, deps.fetchImpl);
+  const built = buildNormalizedFull({ config, shopify });
+  const raw = `${JSON.stringify({ source_url: config.source_url, page_product_counts: shopify.pageProductCounts, products: shopify.products }, null, 2)}\n`;
+  const rowsWithSku = built.rows.filter((row) => row.external_sku).length;
+  const rowsWithGtin = built.rows.filter((row) => row.external_gtin).length;
+  const rowsWithOptions = built.rows.filter((row) => row.external_options !== "{}").length;
+  const inStock = built.rows.filter((row) => row.in_stock === "true").length;
+  const reportBase = {
+    source_url: config.source_url,
+    started_at: startedAt,
+    completed_at: new Date().toISOString(),
+    page_count: shopify.pageProductCounts.length,
+    page_product_counts: shopify.pageProductCounts,
+    shopify_product_count: shopify.products.length,
+    shopify_variant_count: built.rows.length,
+    in_stock_count: inStock,
+    out_of_stock_count: built.rows.length - inStock,
+    with_sku_count: rowsWithSku,
+    with_gtin_count: rowsWithGtin,
+    with_options_count: rowsWithOptions,
+    invalid_record_count: built.invalidRecordCount,
+    duplicate_external_variant_id_count: 0,
+    product_variant_counts: built.productVariantCounts,
+    output_hashes: {
+      raw_json_sha256: sha256(raw),
+      normalized_csv_sha256: sha256(built.csv),
+    },
+    database_writes: 0,
+    importer_run: false,
+  };
+  const report = reportBase;
+  atomicWrite(rawPath, raw);
+  atomicWrite(normalizedPath, built.csv);
+  atomicWrite(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  // The final report file hash is emitted after writing; embedding it in that file would be cyclic.
+  (deps.log ?? console.log)(JSON.stringify({ ...report, report_file_sha256: sha256(fs.readFileSync(reportPath)) }, null, 2));
+  return { rawPath, normalizedPath, reportPath, report, rows: built.rows };
 }
 
 function buildCanonical({ config, shopify, templateHeader }) {
@@ -149,7 +312,9 @@ function runImporter(csvPath, spawn = spawnSync) {
 }
 
 async function main(deps = {}) {
-  const argv = deps.argv ?? process.argv.slice(2); if (argv.length) fail("Discount Supplements adapter does not accept CLI arguments");
+  const argv = deps.argv ?? process.argv.slice(2);
+  if (argv.length === 1 && argv[0] === "--full-snapshot") return fullSnapshotMain(deps);
+  if (argv.length) fail("Discount Supplements adapter does not accept CLI arguments other than --full-snapshot");
   const csvPath = deps.csvPath ?? CSV_PATH, reportPath = deps.reportPath ?? REPORT_PATH; fs.rmSync(reportPath, { force: true });
   const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8")); validateConfig(config);
   const shopify = await (deps.fetchCatalog || fetchCatalog)(config, deps.fetchImpl);
@@ -171,4 +336,8 @@ async function main(deps = {}) {
 }
 
 if (require.main === module) main().catch((error) => { console.error(`Discount Supplements adapter failed: ${error.message}`); process.exitCode = 1; });
-module.exports = { CSV_PATH, REPORT_PATH, buildCanonical, fetchCatalog, main, runImporter, validateConfig, validateProductionTargets };
+module.exports = {
+  CSV_PATH, FULL_REPORT_PATH, NORMALIZED_FULL_PATH, RAW_FULL_PATH, REPORT_PATH,
+  buildCanonical, buildNormalizedFull, fetchCatalog, fetchFullCatalog, fullSnapshotMain,
+  main, normalizePrice, runImporter, validateConfig, validateProductionTargets, validateSourceConfig,
+};

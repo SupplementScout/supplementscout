@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -21,6 +22,35 @@ function productFixture(item) {
 }
 const catalog = () => ({ products: config.products.map(productFixture) });
 const build = (shopify = catalog(), customConfig = config) => adapter.buildCanonical({ config: customConfig, shopify, templateHeader: header });
+function fullProduct(overrides = {}) {
+  const product = {
+    id: 9001,
+    title: "Multi Whey",
+    handle: "multi-whey",
+    vendor: "Example",
+    product_type: "Protein",
+    updated_at: "2026-07-14T10:00:00Z",
+    options: [
+      { name: "Size", position: 1, values: ["1kg"] },
+      { name: "Flavour", position: 2, values: ["Chocolate"] },
+    ],
+    images: [{ src: "https://cdn.shopify.com/multi.webp" }],
+    variants: [{ id: 9101, product_id: 9001, title: "1kg / Chocolate", option1: "1kg", option2: "Chocolate", option3: null, sku: "MULTI-1", barcode: null, price: "19.99", available: true, updated_at: "2026-07-14T10:01:00Z" }],
+  };
+  return { ...product, ...overrides };
+}
+function pageProducts(start, count) {
+  return Array.from({ length: count }, (_, index) => ({ id: start + index }));
+}
+function pagedFetch(pages) {
+  return async (url) => {
+    const page = Number(new URL(url).searchParams.get("page"));
+    const value = pages[page - 1];
+    if (value instanceof Response) return value;
+    return new Response(JSON.stringify({ products: value ?? [] }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+}
+function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
 const expectedRows = [
   { rowNumber: 2, slug: "cnp-creatine-monohydrate-250g", offerAction: "unchanged" },
   { rowNumber: 3, slug: "applied-nutrition-creatine-120-capsules", offerAction: "create" },
@@ -46,6 +76,32 @@ test("config contains exactly three immutable approved mappings", () => {
   assert.deepEqual(config.products.map((item) => item.expected_unit_count), [null, 120, 60]);
   assert.deepEqual(config.products.map((item) => item.pack_count), [1, 1, 1]);
   assert.deepEqual(config.retailer.vendor_aliases, ["CNP", "Applied Nutrition", "TBJP"]);
+});
+
+test("full snapshot validates only public source config while canonical validation remains closed", async (t) => {
+  const publicOnlyConfig = structuredClone(config);
+  publicOnlyConfig.products = [];
+  publicOnlyConfig.retailer.vendor_aliases = [];
+  delete publicOnlyConfig.shipping;
+  assert.throws(() => adapter.validateConfig(publicOnlyConfig), /vendor aliases|shipping|approved products/);
+  assert.doesNotThrow(() => adapter.validateSourceConfig(publicOnlyConfig));
+
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "discount-source-config-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const products = Array.from({ length: 10 }, (_, index) => fullProduct({
+    id: 10000 + index,
+    handle: `product-${index}`,
+    variants: [{ ...fullProduct().variants[0], id: 20000 + index, product_id: 10000 + index }],
+  }));
+  const result = await adapter.fullSnapshotMain({
+    config: publicOnlyConfig,
+    rawPath: path.join(directory, "raw.json"),
+    normalizedPath: path.join(directory, "normalized.csv"),
+    reportPath: path.join(directory, "report.json"),
+    fetchFullCatalog: async () => ({ products, pageProductCounts: [10] }),
+    log: () => {},
+  });
+  assert.equal(result.rows.length, 10);
 });
 
 test("config source, retailer and every canonical identity remain immutable", () => {
@@ -152,6 +208,197 @@ test("fetchCatalog paginates until all three approved products are present", asy
   assert.equal(result.products.filter((product) => config.products.some((item) => item.shopify_product_id === String(product.id))).length, 3);
 });
 
+test("fetchFullCatalog handles exact 250 + 92 pagination", async () => {
+  const result = await adapter.fetchFullCatalog(config, pagedFetch([pageProducts(1, 250), pageProducts(251, 92)]));
+  assert.deepEqual(result.pageProductCounts, [250, 92]);
+  assert.equal(result.products.length, 342);
+});
+
+test("fetchFullCatalog handles 250 + 250 + 92 without off-by-one", async () => {
+  const result = await adapter.fetchFullCatalog(config, pagedFetch([pageProducts(1, 250), pageProducts(251, 250), pageProducts(501, 92)]));
+  assert.deepEqual(result.pageProductCounts, [250, 250, 92]);
+  assert.equal(result.products.length, 592);
+});
+
+test("fetchFullCatalog accepts an empty terminal page after full pages", async () => {
+  const result = await adapter.fetchFullCatalog(config, pagedFetch([pageProducts(1, 250), pageProducts(251, 250), []]));
+  assert.deepEqual(result.pageProductCounts, [250, 250, 0]);
+  assert.equal(result.products.length, 500);
+});
+
+test("fetchFullCatalog rejects empty, malformed, HTML and invalid products payloads", async (t) => {
+  const cases = [
+    ["empty catalog", new Response(JSON.stringify({ products: [] }), { status: 200 })],
+    ["malformed JSON", new Response("{not-json", { status: 200, headers: { "content-type": "application/json" } })],
+    ["HTML challenge", new Response("<html>challenge</html>", { status: 200, headers: { "content-type": "text/html" } })],
+    ["missing products", new Response(JSON.stringify({ catalog: [] }), { status: 200 })],
+    ["non-array products", new Response(JSON.stringify({ products: {} }), { status: 200 })],
+  ];
+  for (const [name, response] of cases) {
+    await t.test(name, async () => {
+      await assert.rejects(adapter.fetchFullCatalog(config, async () => response.clone()), /products array|valid JSON/);
+    });
+  }
+});
+
+test("HTTP error on page two fails without replacing existing outputs", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "discount-http-fail-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const paths = [path.join(directory, "raw.json"), path.join(directory, "normalized.csv"), path.join(directory, "report.json")];
+  for (const outputPath of paths) fs.writeFileSync(outputPath, "previous-success\n");
+  let call = 0;
+  const fetchImpl = async () => {
+    call += 1;
+    if (call === 1) return new Response(JSON.stringify({ products: pageProducts(1, 250) }), { status: 200 });
+    return new Response("unavailable", { status: 503 });
+  };
+  await assert.rejects(adapter.fullSnapshotMain({ rawPath: paths[0], normalizedPath: paths[1], reportPath: paths[2], fetchImpl, log: () => {} }), /HTTP 503/);
+  assert.deepEqual(paths.map((outputPath) => fs.readFileSync(outputPath, "utf8")), ["previous-success\n", "previous-success\n", "previous-success\n"]);
+});
+
+test("buildNormalizedFull preserves every variant, stock state, options and direct URL", () => {
+  const product = {
+    id: 9001,
+    title: "Multi Whey",
+    handle: "multi-whey",
+    vendor: "Example",
+    product_type: "Protein",
+    updated_at: "2026-07-14T10:00:00Z",
+    options: [
+      { name: "Size", position: 1, values: ["1kg", "2kg"] },
+      { name: "Flavour", position: 2, values: ["Chocolate", "Vanilla"] },
+    ],
+    images: [{ src: "https://cdn.shopify.com/multi.webp" }],
+    variants: [
+      { id: 9101, product_id: 9001, title: "1kg / Chocolate", option1: "1kg", option2: "Chocolate", option3: null, sku: "MULTI-1", barcode: "5010000000001", price: "29.99", available: true, updated_at: "2026-07-14T10:01:00Z" },
+      { id: 9102, product_id: 9001, title: "2kg / Vanilla", option1: "2kg", option2: "Vanilla", option3: null, sku: "MULTI-2", barcode: null, price: "49.99", available: false, updated_at: "2026-07-14T10:02:00Z" },
+    ],
+  };
+  const result = adapter.buildNormalizedFull({ config, shopify: { products: [product] } });
+  assert.equal(result.rows.length, 2);
+  assert.deepEqual(result.rows.map((row) => row.external_variant_id), ["9101", "9102"]);
+  assert.deepEqual(result.rows.map((row) => row.in_stock), ["true", "false"]);
+  assert.deepEqual(result.rows.map((row) => row.is_for_sale), ["true", "true"]);
+  assert.deepEqual(JSON.parse(result.rows[0].external_options), { Size: "1kg", Flavour: "Chocolate" });
+  assert.equal(result.rows[1].external_url, "https://www.discount-supplements.co.uk/products/multi-whey?variant=9102");
+  const reordered = structuredClone(product);
+  reordered.options.reverse();
+  assert.deepEqual(JSON.parse(adapter.buildNormalizedFull({ config, shopify: { products: [reordered] } }).rows[0].external_options), { Size: "1kg", Flavour: "Chocolate" });
+  const duplicate = structuredClone(product);
+  duplicate.variants[1].id = duplicate.variants[0].id;
+  assert.throws(() => adapter.buildNormalizedFull({ config, shopify: { products: [duplicate] } }), /Duplicate Shopify variant ID/);
+});
+
+test("buildNormalizedFull rejects missing, null, object and empty variants", () => {
+  for (const variants of [undefined, null, {}, []]) {
+    const product = fullProduct();
+    if (variants === undefined) delete product.variants;
+    else product.variants = variants;
+    assert.throws(
+      () => adapter.buildNormalizedFull({ config, shopify: { products: [product] } }),
+      /Missing or empty Shopify variants for product 9001 \("Multi Whey"\)/,
+    );
+  }
+});
+
+test("buildNormalizedFull rejects missing or invalid product and variant IDs", () => {
+  for (const productId of [undefined, null, "", " ", "invalid"]) {
+    const product = fullProduct();
+    if (productId === undefined) delete product.id;
+    else product.id = productId;
+    assert.throws(() => adapter.buildNormalizedFull({ config, shopify: { products: [product] } }), /Invalid Shopify product ID/);
+  }
+  for (const variantId of [undefined, null, "", " ", "invalid"]) {
+    const product = fullProduct();
+    if (variantId === undefined) delete product.variants[0].id;
+    else product.variants[0].id = variantId;
+    assert.throws(() => adapter.buildNormalizedFull({ config, shopify: { products: [product] } }), /Invalid Shopify variant ID/);
+  }
+  const duplicate = fullProduct({ variants: [fullProduct().variants[0], { ...fullProduct().variants[0] }] });
+  assert.throws(() => adapter.buildNormalizedFull({ config, shopify: { products: [duplicate] } }), /Duplicate Shopify variant ID/);
+});
+
+test("buildNormalizedFull accepts only positive plain decimal prices", () => {
+  for (const price of ["19.99", "19", "0.01"]) {
+    const product = fullProduct();
+    product.variants[0].price = price;
+    assert.equal(adapter.buildNormalizedFull({ config, shopify: { products: [product] } }).rows[0].price, price);
+  }
+  for (const price of [undefined, null, "", " ", "free", "NaN", "Infinity", "0", "-1", -1, "1e2", "19.99 GBP"]) {
+    const product = fullProduct();
+    if (price === undefined) delete product.variants[0].price;
+    else product.variants[0].price = price;
+    assert.throws(() => adapter.buildNormalizedFull({ config, shopify: { products: [product] } }), /Invalid Shopify price/);
+  }
+});
+
+test("fullSnapshotMain writes raw, normalized and report outputs without importer or database", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "discount-full-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const products = Array.from({ length: 10 }, (_, index) => ({
+    id: 10000 + index,
+    title: `Product ${index}`,
+    handle: `product-${index}`,
+    vendor: "Example",
+    product_type: "Supplements",
+    updated_at: "2026-07-14T10:00:00Z",
+    options: [{ name: "Title", position: 1, values: ["Default Title"] }],
+    images: [{ src: "https://cdn.shopify.com/example.webp" }],
+    variants: [{ id: 20000 + index, product_id: 10000 + index, title: "Default Title", option1: "Default Title", option2: null, option3: null, sku: `SKU-${index}`, barcode: null, price: "9.99", available: index % 2 === 0 }],
+  }));
+  let stdoutReport;
+  const result = await adapter.fullSnapshotMain({
+    rawPath: path.join(directory, "raw.json"),
+    normalizedPath: path.join(directory, "normalized.csv"),
+    reportPath: path.join(directory, "report.json"),
+    fetchFullCatalog: async () => ({ products, pageProductCounts: [10] }),
+    log: (value) => { stdoutReport = JSON.parse(value); },
+  });
+  assert.equal(result.rows.length, 10);
+  assert.equal(result.report.shopify_product_count, 10);
+  assert.equal(result.report.shopify_variant_count, 10);
+  assert.equal(result.report.in_stock_count, 5);
+  assert.equal(result.report.out_of_stock_count, 5);
+  assert.equal(result.report.database_writes, 0);
+  assert.equal(result.report.importer_run, false);
+  assert.equal(result.report.invalid_record_count, 0);
+  assert(fs.existsSync(result.rawPath));
+  assert(fs.existsSync(result.normalizedPath));
+  assert(fs.existsSync(result.reportPath));
+  assert.equal(result.report.output_hashes.raw_json_sha256, sha256(fs.readFileSync(result.rawPath)));
+  assert.equal(result.report.output_hashes.normalized_csv_sha256, sha256(fs.readFileSync(result.normalizedPath)));
+  assert.equal(stdoutReport.report_file_sha256, sha256(fs.readFileSync(result.reportPath)));
+  assert.equal(Object.hasOwn(result.report, "report_file_sha256"), false);
+});
+
+test("fullSnapshotMain fails fast on an invalid record and writes no successful outputs", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "discount-invalid-record-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const products = Array.from({ length: 10 }, (_, index) => fullProduct({
+    id: 50000 + index,
+    handle: `invalid-product-${index}`,
+    variants: [{ ...fullProduct().variants[0], id: 60000 + index, product_id: 50000 + index }],
+  }));
+  products[5].variants[0].price = "free";
+  const paths = [path.join(directory, "raw.json"), path.join(directory, "normalized.csv"), path.join(directory, "report.json")];
+  await assert.rejects(adapter.fullSnapshotMain({
+    rawPath: paths[0],
+    normalizedPath: paths[1],
+    reportPath: paths[2],
+    fetchFullCatalog: async () => ({ products, pageProductCounts: [10] }),
+    log: () => {},
+  }), /Invalid Shopify price/);
+  assert.deepEqual(paths.map((outputPath) => fs.existsSync(outputPath)), [false, false, false]);
+});
+
+test("full snapshot CLI defaults stay in ignored tmp and never target canonical-generated CSV", () => {
+  const expectedDirectory = path.join(ROOT, "tmp/retailer-feeds/discount-supplements");
+  for (const outputPath of [adapter.RAW_FULL_PATH, adapter.NORMALIZED_FULL_PATH, adapter.FULL_REPORT_PATH]) {
+    assert.equal(path.dirname(outputPath), expectedDirectory);
+    assert.notEqual(outputPath, adapter.CSV_PATH);
+  }
+});
+
 test("mixed batch accepts one unchanged and two creates regardless of row order", () => {
   const result = runImporterFixture({ rows: [expectedRows[2], expectedRows[0], expectedRows[1]] });
   assert.equal(result.lifecycleState, "MIXED_BATCH"); assert.equal(result.database_writes, 0);
@@ -243,4 +490,30 @@ test("hermetic main happy path writes a successful mixed-batch report", async (t
   assert.equal(result.report.product_drifts.length, 0); assert.equal(result.report.importer_row_results.length, 3);
 });
 
-test("main rejects CLI arguments", async () => { await assert.rejects(adapter.main({ argv: ["--dry-run"] }), /does not accept CLI arguments/); });
+test("main routes only the exact --full-snapshot CLI flag to public snapshot mode", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "discount-cli-full-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const publicOnlyConfig = structuredClone(config);
+  publicOnlyConfig.products = [];
+  const products = Array.from({ length: 10 }, (_, index) => fullProduct({
+    id: 30000 + index,
+    handle: `cli-product-${index}`,
+    variants: [{ ...fullProduct().variants[0], id: 40000 + index, product_id: 30000 + index }],
+  }));
+  const result = await adapter.main({
+    argv: ["--full-snapshot"],
+    config: publicOnlyConfig,
+    rawPath: path.join(directory, "raw.json"),
+    normalizedPath: path.join(directory, "normalized.csv"),
+    reportPath: path.join(directory, "report.json"),
+    fetchFullCatalog: async () => ({ products, pageProductCounts: [10] }),
+    runImporter: () => { throw new Error("canonical importer must not run"); },
+    validateProduction: async () => { throw new Error("Supabase validation must not run"); },
+    log: () => {},
+  });
+  assert.equal(result.rows.length, 10);
+
+  for (const argv of [["--full-snapshot", "--apply"], ["--apply", "--full-snapshot"], ["--full-snapshot", "--unknown"], ["--apply"], ["--dry-run"]]) {
+    await assert.rejects(adapter.main({ argv }), /does not accept CLI arguments/);
+  }
+});
