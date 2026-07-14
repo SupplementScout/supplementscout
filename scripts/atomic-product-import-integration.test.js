@@ -12,6 +12,7 @@ const {
   setSupabaseForTests,
   writeDryRunArtifact,
 } = require("./import-products");
+const { canonicalJson } = require("./lib/canonical-json");
 
 const root = path.resolve(__dirname, "..");
 const baseline = path.join(root, "supabase/migrations/20260712211120_baseline_current_public_schema.sql");
@@ -19,6 +20,7 @@ const stage2 = path.join(root, "supabase/migrations/20260713130000_product_varia
 const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migration_test.sql");
 const atomicMigration = path.join(root, "supabase/migrations/20260713180000_atomic_product_import_rpc.sql");
 const approvalMigration = path.join(root, "supabase/migrations/20260713190000_approved_import_plan_ledger.sql");
+const legacyUpgradeMigration = path.join(root, "supabase/migrations/20260713200000_legacy_mapping_upgrade_rpc.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const forbiddenRefs = ["aftboxmrdgyhizicfsfu", "dlsbwshkzdsvzubjftbv"];
 const image = "postgres:17-alpine";
@@ -110,6 +112,12 @@ function writeNodePlanArtifact(directory, name, row, item) {
   });
 }
 
+function refreshPlanFingerprint(plan) {
+  plan.meta.plan_fingerprint = null;
+  plan.meta.plan_fingerprint = crypto.createHash("md5").update(canonicalJson(plan)).digest("hex");
+  return plan;
+}
+
 function waitForPostgres(container) {
   for (let attempt = 0; attempt < 80; attempt += 1) {
     const logs = run("docker", ["logs", container], 5_000);
@@ -127,6 +135,7 @@ function waitForPostgres(container) {
 test("atomic import execution and approval ledger expose only guarded service-role RPCs", () => {
   const sql = require("node:fs").readFileSync(atomicMigration, "utf8");
   const approvalSql = require("node:fs").readFileSync(approvalMigration, "utf8");
+  const legacySql = require("node:fs").readFileSync(legacyUpgradeMigration, "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
   assert.match(sql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
@@ -148,6 +157,13 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.match(approvalSql, /validate_product_import_plan_read_only/i);
   assert.doesNotMatch(approvalSql, /perform public\.apply_product_import_plan/i);
   assert.doesNotMatch(approvalSql, /grant option/i);
+  assert.match(legacySql, /^begin;/i);
+  assert.match(legacySql, /atomic_import_is_legacy_mapping_upgrade/i);
+  assert.match(legacySql, /meta,operation_type.*legacy_mapping_upgrade/is);
+  assert.match(legacySql, /exactly one retailer\/product mapping|count\(\*\).*retailer_products/is);
+  assert.match(legacySql, /revoke all on function public\.atomic_import_is_legacy_mapping_upgrade/i);
+  assert.doesNotMatch(legacySql, /grant execute[^;]+service_role/i);
+  assert.doesNotMatch(legacySql, /\bexecute\s+format|import_test_failpoint/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -188,8 +204,10 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, stage2), "apply Stage 2");
     requireSuccess(psqlFile(container, database, atomicMigration), "apply atomic import migration");
     requireSuccess(psqlFile(container, database, approvalMigration), "apply approved import plan ledger migration");
+    requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "apply legacy mapping upgrade migration");
     requireSuccess(psqlFile(container, database, atomicMigration), "reapply atomic import migration idempotently");
     requireSuccess(psqlFile(container, database, approvalMigration), "reapply approval ledger migration idempotently");
+    requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "reapply legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",
@@ -201,6 +219,11 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       "insert into public.products(id,name,slug,brand,category,product_format,is_active) values(920001,'Micro Dose Product','micro-dose-product','Integration Brand','Health Supplements','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(920001,920001,'micro-0-1mcg','0.1 mcg',0.0000001,'g',1,'capsule',true,false); update public.offers set total_price=999 where retailer_product_id=(select id from public.retailer_products where external_variant_id='manual-default');",
     ]);
     requireSuccess(fixtureInsert, "create Node decimal integration fixture");
+    const legacyFixtureInsert = exec(container, [
+      "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+      "update public.retailers set name='Discount Supplements',slug='discount-supplements',website='https://www.discount-supplements.co.uk' where id=4; insert into public.products(id,name,slug,brand,category,product_format,is_active) values(407,'CNP Creatine Monohydrate 250g','cnp-creatine-monohydrate-250g','CNP','Creatine',null,true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(386,407,'default','Default',null,null,null,null,true,true); insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(948,4,407,386,'CNP Creatine Monohydrate 250g','cnp-creatine-monohydrate-250g',null,'https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234',null,null,null,null,'slug',90,'2026-07-12T12:37:52.563+00:00'); insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(762,407,4,948,386,12.99,4.99,17.98,true,'https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234','2026-07-12T12:37:52.674+00:00');",
+    ]);
+    requireSuccess(legacyFixtureInsert, "create exact legacy mapping 948 fixture");
     const state = psqlJson(container, database, `select jsonb_build_object(
       'retailer',(select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website) from public.retailers where id=1),
       'mass_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=900001),
@@ -297,6 +320,11 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
           offerPlan: scenario.offerPlan || { action: "create", createsPriceHistory: true }, mode: scenario.mode,
         };
         const artifact = writeNodePlanArtifact(artifactDirectory, scenario.name, scenario.row, item);
+        assert.equal(artifact.artifact.plans[0].operation_type, "standard_import");
+        assert.equal(
+          artifact.artifact.plans[0].operation_type,
+          artifact.artifact.plans[0].resolved_plan.meta.operation_type
+        );
         const fingerprint = artifact.artifact.plans[0].plan_fingerprint;
         const approved = await approveArtifactPlan({ artifactPath: artifact.artifactPath, planFingerprint: fingerprint });
         const applied = await applyArtifactPlan({
@@ -305,6 +333,134 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
         });
         assert.equal(applied.successful, 1);
       }
+
+      const legacyState = psqlJson(container, database, `select jsonb_build_object(
+        'retailer',(select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website) from public.retailers where id=4),
+        'product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=407),
+        'variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=386),
+        'mapping',(select jsonb_build_object('id',id,'retailer_id',retailer_id,'product_id',product_id,'product_variant_id',product_variant_id,'updated_at',updated_at,'external_product_id',external_product_id,'external_variant_id',external_variant_id,'external_sku',external_sku,'external_options',external_options,'external_name',external_name,'external_slug',external_slug,'external_gtin',external_gtin,'external_url',external_url,'match_method',match_method,'match_confidence',match_confidence) from public.retailer_products where id=948),
+        'offer',(select jsonb_build_object('id',id,'product_id',product_id,'retailer_id',retailer_id,'product_variant_id',product_variant_id,'retailer_product_id',retailer_product_id,'price',price,'shipping_cost',shipping_cost,'total_price',total_price,'in_stock',in_stock,'url',url,'last_checked_at',last_checked_at) from public.offers where id=762)
+      );`);
+      const legacyUrl = legacyState.mapping.external_url;
+      const legacyRow = {
+        retailer_name: "Discount Supplements", retailer_website: "https://www.discount-supplements.co.uk",
+        product_name: "CNP Creatine Monohydrate 250g", slug: "cnp-creatine-monohydrate-250g",
+        brand: "CNP", category: "Creatine", external_product_id: "6788065329348",
+        external_variant_id: "54879874810234", external_sku: "CNP-0508",
+        external_options: JSON.stringify({ Size: "250g", Flavour: "Unflavoured" }),
+        external_gtin: "", variant_name: "250g / Unflavoured", size: "250 g",
+        flavour: "Unflavoured", product_format: "powder", pack_count: "1",
+        price: "12.99", shipping_cost: "4.99", in_stock: "true",
+        external_url: legacyUrl, affiliate_url: legacyUrl,
+        legacy_mapping_upgrade: "true", retailer_product_id: "948",
+        expected_retailer_product_updated_at: legacyState.mapping.updated_at,
+      };
+      const legacyAfter = {
+        external_product_id: "6788065329348", external_variant_id: "54879874810234",
+        external_sku: "CNP-0508", external_options: { Size: "250g", Flavour: "Unflavoured" },
+        external_gtin: null,
+      };
+      const legacyItem = {
+        row: legacyRow, rowNumber: 2, retailer: legacyState.retailer,
+        product: legacyState.product, productVariant: legacyState.variant,
+        mapping: legacyState.mapping, existingOffer: legacyState.offer,
+        offerPlan: { action: "unchanged", createsPriceHistory: false }, mode: "feed",
+        legacyMappingUpgrade: {
+          operationType: "legacy_mapping_upgrade",
+          controls: { mappingId: "948", expectedUpdatedAt: legacyState.mapping.updated_at },
+          after: legacyAfter, alreadyCompleted: false, exactUrl: legacyUrl,
+          approvedEvidence: {
+            product_name: legacyRow.product_name, brand: legacyRow.brand, size: "250 g",
+            flavour: legacyRow.flavour, product_format: legacyRow.product_format,
+            pack_count: legacyRow.pack_count, ...legacyAfter, external_url: legacyUrl,
+          },
+        },
+      };
+      const legacyArtifact = writeNodePlanArtifact(
+        artifactDirectory, "legacy-mapping-948", legacyRow, legacyItem
+      );
+      const legacyFingerprint = legacyArtifact.artifact.plans[0].plan_fingerprint;
+      const legacyPlan = legacyArtifact.artifact.plans[0].resolved_plan;
+      assert.equal(legacyArtifact.artifact.plans[0].operation_type, "legacy_mapping_upgrade");
+      assert.equal(legacyPlan.meta.operation_type, "legacy_mapping_upgrade");
+      const helperCases = [
+        ["missing operation type", (plan) => { delete plan.meta.operation_type; }, "f"],
+        ["null operation type", (plan) => { plan.meta.operation_type = null; }, "f"],
+        ["standard import", (plan) => { plan.meta.operation_type = "standard_import"; }, "f"],
+        ["valid legacy mapping upgrade", () => {}, "t"],
+        ["missing plan kind", (plan) => { delete plan.meta.plan_kind; }, "f"],
+        ["null plan kind", (plan) => { plan.meta.plan_kind = null; }, "f"],
+        ["disallowed plan kind", (plan) => { plan.meta.plan_kind = "manual"; }, "f"],
+      ];
+      for (const [label, mutate, expected] of helperCases) {
+        const plan = structuredClone(legacyPlan);
+        mutate(plan);
+        const helperResult = exec(container, [
+          "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+          "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(plan))}::jsonb);`,
+        ]);
+        requireSuccess(helperResult, `legacy helper case: ${label}`);
+        assert.equal(helperResult.stdout.trim(), expected, label);
+      }
+      const tamperedPlans = [
+        ["missing operation type", (plan) => { delete plan.meta.operation_type; }],
+        ["null operation type", (plan) => { plan.meta.operation_type = null; }],
+        ["boolean operation type", (plan) => { plan.meta.operation_type = true; }],
+        ["number operation type", (plan) => { plan.meta.operation_type = 1; }],
+        ["unknown operation type", (plan) => { plan.meta.operation_type = "unknown_import"; }],
+        ["legacy shape marked standard", (plan) => { plan.meta.operation_type = "standard_import"; }],
+        ["legacy operation type on manual plan", (plan) => { plan.meta.plan_kind = "manual"; }],
+        ["stale mapping timestamp", (plan) => { plan.expected_state.retailer_product.updated_at = "2026-07-12T12:37:51+00:00"; }],
+        ["mapping URL", (plan) => { plan.retailer_product.values.external_url += "-changed"; }],
+        ["mapping confidence", (plan) => { plan.retailer_product.values.match_confidence = "91"; }],
+        ["mapping variant", (plan) => { plan.retailer_product.values.product_variant_id = "999"; }],
+        ["offer price", (plan) => { plan.offer.values.price = "13.99"; plan.offer.values.total_price = "18.98"; }],
+        ["offer stock", (plan) => { plan.offer.values.in_stock = false; }],
+        ["offer action", (plan) => { plan.offer.action = "update"; }],
+        ["price history", (plan) => { plan.price_history.action = "create"; }],
+      ];
+      for (const [label, mutate] of tamperedPlans) {
+        const plan = structuredClone(legacyPlan);
+        mutate(plan);
+        refreshPlanFingerprint(plan);
+        const rejected = exec(container, [
+          "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+          "-c", `select public.validate_product_import_plan_read_only(${sqlLiteral(JSON.stringify(plan))}::jsonb);`,
+        ]);
+        assert.notEqual(rejected.status, 0, `legacy RPC accepted hidden change: ${label}`);
+      }
+      const legacyApproved = await approveArtifactPlan({
+        artifactPath: legacyArtifact.artifactPath,
+        planFingerprint: legacyFingerprint,
+      });
+      const legacyApplied = await applyArtifactPlan({
+        artifactPath: legacyArtifact.artifactPath,
+        planFingerprint: legacyFingerprint,
+        approvalId: legacyApproved.approvalId,
+        pilotApply: true,
+      });
+      assert.equal(legacyApplied.successful, 1);
+      const legacyCheck = psqlJson(container, database, `select jsonb_build_object(
+        'mapping',(select jsonb_build_object('product_id',product_id,'retailer_id',retailer_id,'product_variant_id',product_variant_id,'external_product_id',external_product_id,'external_variant_id',external_variant_id,'external_sku',external_sku,'external_options',external_options,'external_gtin',external_gtin,'external_url',external_url) from public.retailer_products where id=948),
+        'offer',(select jsonb_build_object('product_id',product_id,'retailer_id',retailer_id,'retailer_product_id',retailer_product_id,'product_variant_id',product_variant_id,'price',price,'shipping_cost',shipping_cost,'total_price',total_price,'in_stock',in_stock,'url',url,'last_checked_at',last_checked_at) from public.offers where id=762),
+        'history_count',(select count(*) from public.price_history where offer_id=762),
+        'mapping_count',(select count(*) from public.retailer_products where retailer_id=4 and product_id=407),
+        'offer_count',(select count(*) from public.offers where retailer_id=4 and product_id=407)
+      );`);
+      assert.deepEqual(legacyCheck.mapping, {
+        product_id: 407, retailer_id: 4, product_variant_id: 386,
+        external_product_id: "6788065329348", external_variant_id: "54879874810234",
+        external_sku: "CNP-0508", external_options: { Size: "250g", Flavour: "Unflavoured" },
+        external_gtin: null, external_url: legacyUrl,
+      });
+      assert.deepEqual(legacyCheck.offer, {
+        product_id: 407, retailer_id: 4, retailer_product_id: 948, product_variant_id: 386,
+        price: 12.99, shipping_cost: 4.99, total_price: 17.98, in_stock: true,
+        url: legacyUrl, last_checked_at: legacyState.offer.last_checked_at,
+      });
+      assert.equal(legacyCheck.history_count, 0);
+      assert.equal(legacyCheck.mapping_count, 1);
+      assert.equal(legacyCheck.offer_count, 1);
     } finally {
       fs.rmSync(artifactDirectory, { recursive: true, force: true });
     }

@@ -76,7 +76,7 @@ declare
 begin
   v_plan := jsonb_build_object(
     'meta', jsonb_build_object(
-      'version', 2, 'plan_kind', 'feed',
+      'version', 2, 'plan_kind', 'feed', 'operation_type', 'standard_import',
       'source_row_fingerprint', v_source, 'plan_fingerprint', null
     ),
     'product', jsonb_build_object(

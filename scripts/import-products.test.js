@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -17,6 +18,7 @@ const {
   getRetailerProductUrl,
   isAmbiguousFeedRow,
   isProductGtinVerified,
+  loadDryRunArtifact,
   parseArgs,
   parseFlavour,
   parsePackCount,
@@ -1146,6 +1148,7 @@ test("safe-create emits a closed v2 plan with integrity fingerprints and approva
   ]);
   assert.equal(plan.meta.version, "2");
   assert.equal(plan.meta.plan_kind, "feed");
+  assert.equal(plan.meta.operation_type, "standard_import");
   assert.match(plan.meta.source_row_fingerprint, /^[0-9a-f]{64}$/);
   assert.match(plan.meta.plan_fingerprint, /^[0-9a-f]{32}$/);
   assert.equal(plan.approval.approved, true);
@@ -2774,6 +2777,217 @@ function stage2Seed({ withMappings = false, withOffers = false } = {}) {
   };
 }
 
+function legacyMapping948Fixture() {
+  const updatedAt = "2026-07-12T12:37:52.563+00:00";
+  const url = "https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234";
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Discount Supplements",
+    retailer_website: "https://www.discount-supplements.co.uk",
+    external_product_id: "6788065329348",
+    external_variant_id: "54879874810234",
+    external_sku: "CNP-0508",
+    external_options: JSON.stringify({ Size: "250g", Flavour: "Unflavoured" }),
+    product_name: "CNP Creatine Monohydrate 250g",
+    variant_name: "250g / Unflavoured",
+    brand: "CNP",
+    category: "Creatine",
+    slug: "cnp-creatine-monohydrate-250g",
+    external_url: url,
+    affiliate_url: url,
+    external_gtin: "",
+    price: "12.99",
+    shipping_known: "true",
+    shipping_cost: "4.99",
+    in_stock: "true",
+    is_for_sale: "true",
+    size: "250",
+    size_unit: "g",
+    flavour: "Unflavoured",
+    product_format: "powder",
+    pack_count: "1",
+    legacy_mapping_upgrade: "true",
+    retailer_product_id: "948",
+    expected_retailer_product_updated_at: updatedAt,
+  });
+  const mapping = {
+    id: 948,
+    retailer_id: 4,
+    product_id: 407,
+    product_variant_id: 386,
+    external_product_id: null,
+    external_variant_id: null,
+    external_sku: null,
+    external_options: null,
+    external_name: row.product_name,
+    external_slug: row.slug,
+    external_gtin: null,
+    external_url: url,
+    match_method: "slug",
+    match_confidence: 90,
+    updated_at: updatedAt,
+  };
+  const offer = {
+    id: 762,
+    product_id: 407,
+    retailer_id: 4,
+    retailer_product_id: 948,
+    product_variant_id: 386,
+    price: 12.99,
+    shipping_cost: 4.99,
+    total_price: 17.98,
+    in_stock: true,
+    url,
+    last_checked_at: "2026-07-12T12:37:52.674+00:00",
+  };
+  const seed = {
+    retailers: [{ id: 4, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" }],
+    products: [{ id: 407, name: row.product_name, slug: row.slug, brand: "CNP", category: "Creatine", gtin: null, is_active: true, merged_into_product_id: null, product_format: null }],
+    product_variants: [{ id: 386, product_id: 407, variant_key: "default", display_name: "Default", flavour_code: null, flavour_label: null, size_value: null, size_unit: null, pack_count: null, product_format: null, is_default: true, is_active: true }],
+    retailer_products: [mapping],
+    offers: [offer],
+    price_history: [],
+  };
+  return { row, seed, mapping, offer, url, updatedAt };
+}
+
+test("legacy mapping upgrade fixture 948 produces one exact update and no offer write", async () => {
+  const fixture = legacyMapping948Fixture();
+  const supabase = createMockSupabase(structuredClone(fixture.seed));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+
+  assert.equal(result.blockedRows.length, 0);
+  assert.equal(result.report.approvedRows.length, 1);
+  const item = result.report.approvedRows[0];
+  const plan = item.importPlan;
+  assert.equal(plan.meta.operation_type, "legacy_mapping_upgrade");
+  assert.equal(item.product.id, 407);
+  assert.equal(item.productVariant.id, 386);
+  assert.equal(item.mapping.id, 948);
+  assert.equal(item.existingOffer.id, 762);
+  assert.equal(plan.retailer_product.action, "update");
+  assert.equal(plan.retailer_product.id, "948");
+  assert.equal(plan.offer.action, "noop");
+  assert.equal(plan.offer.id, "762");
+  assert.equal(plan.price_history.action, "noop");
+  assert.equal(plan.product.action, "existing");
+  assert.equal(plan.product_variant.action, "existing");
+  assert.equal(plan.product_variant.id, "386");
+  assert.equal(plan.expected_state.retailer_product.id, "948");
+  assert.equal(plan.expected_state.retailer_product.product_id, "407");
+  assert.equal(plan.expected_state.retailer_product.retailer_id, "4");
+  assert.equal(plan.expected_state.retailer_product.product_variant_id, "386");
+  assert.equal(plan.expected_state.retailer_product.updated_at, fixture.updatedAt);
+  assert.equal(plan.expected_state.retailer_product.external_variant_id, null);
+  assert.deepEqual(plan.retailer_product.values, {
+    external_product_id: "6788065329348",
+    external_variant_id: "54879874810234",
+    external_sku: "CNP-0508",
+    external_options: { Size: "250g", Flavour: "Unflavoured" },
+    external_name: fixture.mapping.external_name,
+    external_slug: fixture.mapping.external_slug,
+    external_gtin: null,
+    external_url: fixture.url,
+    match_method: "slug",
+    match_confidence: "90",
+    product_variant_id: "386",
+  });
+  assert.equal(result.report.retailerProductsToCreate.length, 0);
+  assert.equal(result.report.retailerProductsToUpdate.length, 1);
+  assert.equal(result.report.offersToCreate.length, 0);
+  assert.equal(result.report.offersToUpdate.length, 0);
+  assert.equal(result.report.offersUnchanged.length, 1);
+  assert.equal(supabase.writes.length, 0);
+
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "legacy-mapping-948-"));
+  try {
+    const written = writeDryRunArtifact([fixture.row], result, {
+      artifactPath: path.join(directory, "legacy-948.json"),
+      sourceContent: JSON.stringify(fixture.row),
+      sourceFileName: "legacy-948.json",
+      environmentMarker: "test",
+    });
+    const entry = written.artifact.plans[0];
+    assert.equal(entry.operation_type, "legacy_mapping_upgrade");
+    assert.equal(entry.operation_type, entry.resolved_plan.meta.operation_type);
+    assert.equal(entry.retailer_product_id, "948");
+    assert.deepEqual(entry.before, plan.expected_state.retailer_product);
+    assert.deepEqual(entry.after, plan.retailer_product.values);
+    assert.equal(entry.exact_url_evidence, fixture.url);
+    assert.equal(entry.expected_updated_at, fixture.updatedAt);
+
+    const mismatchedArtifact = structuredClone(written.artifact);
+    mismatchedArtifact.plans[0].operation_type = "standard_import";
+    const mismatchedPath = path.join(directory, "legacy-948-mismatched.json");
+    const mismatchedBytes = Buffer.from(`${JSON.stringify(mismatchedArtifact, null, 2)}\n`);
+    fs.writeFileSync(mismatchedPath, mismatchedBytes);
+    fs.writeFileSync(
+      `${mismatchedPath}.sha256`,
+      `${crypto.createHash("sha256").update(mismatchedBytes).digest("hex")}\n`
+    );
+    assert.throws(
+      () => loadDryRunArtifact(mismatchedPath),
+      /artifact plan metadata mismatch/i
+    );
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("legacy mapping upgrade fixture 948 fails closed for every identity and mutation guard", async () => {
+  const scenarios = [
+    ["operation type cannot enable legacy without the input flag", ({ row }) => { delete row.legacy_mapping_upgrade; row.operation_type = "legacy_mapping_upgrade"; }, /operation_type is derived/i],
+    ["missing flag keeps the existing block", ({ row }) => { delete row.legacy_mapping_upgrade; delete row.retailer_product_id; delete row.expected_retailer_product_updated_at; }, /conflicting variant evidence/i],
+    ["missing mapping id", ({ row }) => { delete row.retailer_product_id; }, /requires retailer_product_id/i],
+    ["missing expected timestamp", ({ row }) => { delete row.expected_retailer_product_updated_at; }, /requires expected_retailer_product_updated_at/i],
+    ["stale timestamp", ({ row }) => { row.expected_retailer_product_updated_at = "2026-07-12T12:37:51.000+00:00"; }, /updated_at is stale/i],
+    ["different URL", ({ row }) => { row.external_url += "-different"; row.affiliate_url = row.external_url; }, /exact external_url/i],
+    ["existing different external variant", ({ seed }) => { seed.retailer_products[0].external_variant_id = "other-variant"; }, /null legacy external_variant_id/i],
+    ["external variant collision", ({ seed }) => { seed.retailer_products.push({ ...seed.retailer_products[0], id: 949, product_id: 999, external_variant_id: "54879874810234", external_url: "https://example.test/other" }); }, /external_variant_id conflicts/i],
+    ["second retailer product", ({ seed }) => { seed.retailer_products.push({ ...seed.retailer_products[0], id: 949, external_url: "https://example.test/other" }); }, /exactly one retailer\/product mapping/i],
+    ["second offer", ({ seed }) => { seed.offers.push({ ...seed.offers[0], id: 763, retailer_product_id: 949 }); }, /exactly one retailer\/product offer/i],
+    ["offer points to another mapping", ({ seed }) => { seed.offers[0].retailer_product_id = 949; }, /offer identity mismatch/i],
+    ["offer points to another variant", ({ seed }) => { seed.offers[0].product_variant_id = 999; }, /offer identity mismatch/i],
+    ["attempted product variant change", ({ row }) => { row.product_variant_id = "999"; }, /cannot change product_variant_id/i],
+    ["different size evidence", ({ row }) => { row.external_options = JSON.stringify({ Size: "1kg", Flavour: "Unflavoured" }); }, /conflicting variant evidence/i],
+    ["different flavour evidence", ({ row }) => { row.external_options = JSON.stringify({ Size: "250g", Flavour: "Chocolate" }); }, /conflicting variant evidence/i],
+    ["price change", ({ row }) => { row.price = "13.99"; }, /cannot change offer/i],
+    ["stock change", ({ row }) => { row.in_stock = "false"; }, /cannot change offer/i],
+  ];
+
+  for (const [label, mutate, reason] of scenarios) {
+    const fixture = legacyMapping948Fixture();
+    mutate(fixture);
+    const supabase = createMockSupabase(fixture.seed);
+    setSupabaseForTests(supabase);
+    const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+    assert.equal(result.report.approvedRows.length, 0, label);
+    assert.equal(result.blockedRows.length, 1, label);
+    assert.match(result.blockedRows[0].block_reason, reason, label);
+    assert.equal(supabase.writes.length, 0, label);
+  }
+});
+
+test("legacy mapping upgrade rerun is an exact idempotent noop", async () => {
+  const fixture = legacyMapping948Fixture();
+  Object.assign(fixture.seed.retailer_products[0], {
+    external_product_id: fixture.row.external_product_id,
+    external_variant_id: fixture.row.external_variant_id,
+    external_sku: fixture.row.external_sku,
+    external_options: JSON.parse(fixture.row.external_options),
+    external_gtin: null,
+  });
+  const supabase = createMockSupabase(fixture.seed);
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+  assert.equal(result.blockedRows.length, 0);
+  assert.equal(result.report.approvedRows[0].importPlan.retailer_product.action, "noop");
+  assert.equal(result.report.approvedRows[0].importPlan.meta.operation_type, "legacy_mapping_upgrade");
+  assert.equal(result.report.approvedRows[0].importPlan.offer.action, "noop");
+  assert.equal(result.report.approvedRows[0].importPlan.price_history.action, "noop");
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("Stage 2 retailer product payload preserves Shopify variant identity and retailer-only GTIN", () => {
   const { fixture } = stage2Seed();
   const row = fixture.rows[0];
@@ -3270,6 +3484,8 @@ test("dry-run artifact is the sole immutable input for approval and pilot apply"
     });
     const entryA = artifactA.artifact.plans[0];
     assert.equal(artifactA.artifact.row_count, "1");
+    assert.equal(entryA.operation_type, "standard_import");
+    assert.equal(entryA.operation_type, entryA.resolved_plan.meta.operation_type);
     assert.equal(entryA.resolved_plan.offer.values.price, "29.99");
     assert.equal(typeof entryA.resolved_plan.retailer.id, "string");
     assert.equal(supabase.writes.length, 0);

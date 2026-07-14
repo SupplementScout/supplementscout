@@ -163,14 +163,26 @@ function buildDryRunArtifact(rows, result, options = {}) {
   const plans = (result.report?.approvedRows || []).map((item) => {
     const plan = serializeImportPlan(item.importPlan);
     const retailerId = plan.retailer.action === "existing" ? plan.retailer.id : null;
-    return {
+    const entry = {
       row_number: String(item.rowNumber),
       source_row_fingerprint: plan.meta.source_row_fingerprint,
       plan_fingerprint: plan.meta.plan_fingerprint,
       retailer_id: retailerId,
       plan_kind: plan.meta.plan_kind,
+      operation_type: plan.meta.operation_type,
       resolved_plan: plan,
     };
+    if (item.legacyMappingUpgrade) {
+      entry.retailer_product_id = String(item.mapping.id);
+      entry.before = normalizeNumbersToDecimalStrings(
+        expectedMappingState(item.mapping)
+      );
+      entry.after = plan.retailer_product.values;
+      entry.exact_url_evidence = item.legacyMappingUpgrade.exactUrl;
+      entry.expected_updated_at = item.legacyMappingUpgrade.controls.expectedUpdatedAt;
+      entry.approved_evidence_summary = item.legacyMappingUpgrade.approvedEvidence;
+    }
+    return entry;
   });
   const artifact = {
     artifact_version: String(IMPORT_ARTIFACT_VERSION),
@@ -246,6 +258,8 @@ function loadDryRunArtifact(artifactPath) {
     if (!plan || entry.plan_fingerprint !== plan.meta?.plan_fingerprint
         || entry.source_row_fingerprint !== plan.meta?.source_row_fingerprint
         || entry.plan_kind !== plan.meta?.plan_kind
+        || entry.operation_type !== plan.meta?.operation_type
+        || !["standard_import", "legacy_mapping_upgrade"].includes(entry.operation_type)
         || entry.plan_fingerprint !== planFingerprint(plan)
         || !MD5_PATTERN.test(entry.plan_fingerprint)
         || !SHA256_PATTERN.test(entry.source_row_fingerprint)) {
@@ -256,6 +270,25 @@ function loadDryRunArtifact(artifactPath) {
     const sourceRow = artifact.source_rows.find((row) => row.row_number === entry.row_number);
     if (!sourceRow || sourceRow.source_row_fingerprint !== entry.source_row_fingerprint) {
       throw new Error("Dry-run artifact plan/source row mismatch");
+    }
+    if (entry.operation_type === "legacy_mapping_upgrade") {
+      const source = sourceRow.normalized_source_row || {};
+      if (
+        String(source.legacy_mapping_upgrade ?? "").trim().toLowerCase() !== "true" ||
+        String(source.retailer_product_id ?? "").trim() !== String(plan.retailer_product?.id) ||
+        String(source.expected_retailer_product_updated_at ?? "").trim() !== entry.expected_updated_at ||
+        entry.retailer_product_id !== String(plan.retailer_product?.id) ||
+        plan.retailer_product?.action === "create" ||
+        entry.expected_updated_at !== entry.before?.updated_at ||
+        entry.exact_url_evidence !== entry.before?.external_url ||
+        entry.exact_url_evidence !== entry.after?.external_url ||
+        canonicalJson(entry.before) !== canonicalJson(plan.expected_state?.retailer_product) ||
+        canonicalJson(entry.after) !== canonicalJson(plan.retailer_product?.values) ||
+        plan.offer?.action !== "noop" ||
+        plan.price_history?.action !== "noop"
+      ) {
+        throw new Error("Dry-run artifact legacy mapping upgrade metadata mismatch");
+      }
     }
   }
   return { artifact, artifactPath: resolvedPath, artifactSha256 };
@@ -705,6 +738,37 @@ function buildRetailerProductPayload({
 
 function optionalIdentifier(value) {
   return String(value ?? "").trim() || null;
+}
+
+function parseLegacyMappingUpgradeControls(row) {
+  if (rowHasColumn(row, "operation_type")) {
+    throw new Error("operation_type is derived by the importer and cannot be supplied");
+  }
+  const hasFlag = rowHasColumn(row, "legacy_mapping_upgrade");
+  const hasMappingId = rowHasColumn(row, "retailer_product_id");
+  const hasExpectedUpdatedAt = rowHasColumn(
+    row,
+    "expected_retailer_product_updated_at"
+  );
+  if (!hasFlag && !hasMappingId && !hasExpectedUpdatedAt) return null;
+
+  const enabled = String(row.legacy_mapping_upgrade ?? "").trim().toLowerCase();
+  if (enabled !== "true") {
+    throw new Error("legacy mapping upgrade requires legacy_mapping_upgrade=true");
+  }
+  const mappingId = optionalIdentifier(row.retailer_product_id);
+  if (!mappingId || !/^\d+$/.test(mappingId) || mappingId === "0") {
+    throw new Error("legacy mapping upgrade requires retailer_product_id");
+  }
+  const expectedUpdatedAt = String(
+    row.expected_retailer_product_updated_at ?? ""
+  ).trim();
+  if (!expectedUpdatedAt || !Number.isFinite(Date.parse(expectedUpdatedAt))) {
+    throw new Error(
+      "legacy mapping upgrade requires expected_retailer_product_updated_at"
+    );
+  }
+  return { mappingId, expectedUpdatedAt };
 }
 
 function parseExternalOptions(value) {
@@ -1244,6 +1308,95 @@ async function findRetailerMapping(retailerId, row) {
   return mapping;
 }
 
+async function findRetailerMappingById(mappingId) {
+  const { data, error } = await getSupabase()
+    .from("retailer_products")
+    .select(
+      "id, retailer_id, product_id, product_variant_id, external_name, external_slug, external_gtin, external_url, external_product_id, external_variant_id, external_sku, external_options, match_method, match_confidence, updated_at"
+    )
+    .eq("id", mappingId)
+    .limit(2);
+  if (error) throw error;
+  if ((data || []).length !== 1) {
+    throw new Error("legacy mapping upgrade retailer_product_id is missing or ambiguous");
+  }
+  return data[0];
+}
+
+async function findRetailerProductPeers(retailerId, productId) {
+  const { data, error } = await getSupabase()
+    .from("retailer_products")
+    .select(
+      "id, retailer_id, product_id, product_variant_id, external_variant_id, external_url"
+    )
+    .eq("retailer_id", retailerId)
+    .eq("product_id", productId)
+    .limit(3);
+  if (error) throw error;
+  return data || [];
+}
+
+async function findExternalVariantPeers(retailerId, externalVariantId) {
+  const { data, error } = await getSupabase()
+    .from("retailer_products")
+    .select("id, retailer_id, product_id, product_variant_id, external_variant_id")
+    .eq("retailer_id", retailerId)
+    .eq("external_variant_id", externalVariantId)
+    .limit(3);
+  if (error) throw error;
+  return data || [];
+}
+
+async function findOffersForRetailerProduct(retailerId, productId) {
+  const { data, error } = await getSupabase()
+    .from("offers")
+    .select(
+      "id, product_id, retailer_id, product_variant_id, retailer_product_id, price, shipping_cost, total_price, in_stock, url, last_checked_at"
+    )
+    .eq("retailer_id", retailerId)
+    .eq("product_id", productId)
+    .limit(3);
+  if (error) throw error;
+  return data || [];
+}
+
+function exactLegacyExternalOptions(row) {
+  const options = parseExternalOptions(row.external_options);
+  if (!options) {
+    throw new Error("legacy mapping upgrade requires external_options");
+  }
+  const optionKeys = Object.keys(options).sort();
+  if (
+    optionKeys.length !== 2 ||
+    optionKeys[0] !== "Flavour" ||
+    optionKeys[1] !== "Size"
+  ) {
+    throw new Error("legacy mapping upgrade external_options must contain exactly Size and Flavour");
+  }
+  const evidence = collectCanonicalVariantEvidence(row);
+  if (!evidence.size || !evidence.flavour) {
+    throw new Error("legacy mapping upgrade requires matching size and flavour evidence");
+  }
+  return { options, evidence };
+}
+
+function legacyIdentityAfter(row) {
+  const { options } = exactLegacyExternalOptions(row);
+  return {
+    external_product_id: optionalIdentifier(row.external_product_id),
+    external_variant_id: optionalIdentifier(row.external_variant_id),
+    external_sku: optionalIdentifier(row.external_sku),
+    external_options: options,
+    external_gtin: getExternalGtin(row),
+  };
+}
+
+function isCompletedLegacyIdentity(mapping, after) {
+  return ["external_product_id", "external_variant_id", "external_sku", "external_gtin"]
+    .every((field) => valuesEqual(mapping[field], after[field])) &&
+    valuesEqual(mapping.external_options, after.external_options);
+}
+
 function normalizedEvidenceValues(values, parser, key = (value) => value) {
   const parsed = values
     .filter((value) => value !== undefined && value !== null && String(value).trim())
@@ -1335,7 +1488,12 @@ function collectCanonicalVariantEvidence(row) {
   };
 }
 
-async function resolveCanonicalProductVariant(row, productId, mapping = null) {
+async function resolveCanonicalProductVariant(
+  row,
+  productId,
+  mapping = null,
+  options = {}
+) {
   const supabase = getSupabase();
   const evidence = collectCanonicalVariantEvidence(row);
   const { data, error } = await supabase
@@ -1365,6 +1523,34 @@ async function resolveCanonicalProductVariant(row, productId, mapping = null) {
     );
     if (!mappedVariant) {
       throw new Error("conflicting variant evidence: retailer product mapping");
+    }
+    if (options.legacyMappingUpgrade) {
+      if (nonDefaultVariants.length > 0) {
+        throw new Error(
+          "legacy mapping upgrade cannot use a default variant when non-default variants exist"
+        );
+      }
+      const mappedFlavour =
+        parseFlavour(mappedVariant.flavour_code) ||
+        parseFlavour(mappedVariant.flavour_label);
+      const mappedSize = parseSize(
+        mappedVariant.size_value && mappedVariant.size_unit
+          ? `${mappedVariant.size_value}${mappedVariant.size_unit}`
+          : ""
+      );
+      const mappedFormat = parseProductFormat(mappedVariant.product_format);
+      if (
+        (mappedFlavour && evidence.flavour !== mappedFlavour) ||
+        (mappedSize && sizeKey(evidence.size) !== sizeKey(mappedSize)) ||
+        (mappedVariant.pack_count !== null &&
+          Number(mappedVariant.pack_count) !== 1 &&
+          Number(evidence.packCount) !== Number(mappedVariant.pack_count)) ||
+        (mappedFormat && evidence.productFormat !== mappedFormat)
+      ) {
+        throw new Error("legacy mapping upgrade evidence points to a different variant");
+      }
+      exactLegacyExternalOptions(row);
+      return mappedVariant;
     }
     if (mappedVariant.is_default) {
       if (nonDefaultVariants.length > 0 || evidence.discriminatingSupplied) {
@@ -1453,6 +1639,125 @@ async function resolveCanonicalProductVariant(row, productId, mapping = null) {
     throw new Error("ambiguous canonical product_variant");
   }
   return candidates[0];
+}
+
+async function validateLegacyMappingUpgrade({
+  row,
+  controls,
+  retailer,
+  product,
+  mapping,
+  productVariant,
+}) {
+  if (String(mapping.id) !== controls.mappingId) {
+    throw new Error("legacy mapping upgrade resolved a different retailer_product_id");
+  }
+  if (String(mapping.updated_at) !== controls.expectedUpdatedAt) {
+    throw new Error("legacy mapping upgrade expected updated_at is stale");
+  }
+  if (mapping.retailer_id !== retailer.id || mapping.product_id !== product.id) {
+    throw new Error("legacy mapping upgrade mapping ownership mismatch");
+  }
+  if (mapping.product_variant_id !== productVariant.id) {
+    throw new Error("legacy mapping upgrade product_variant_id mismatch");
+  }
+  if (
+    rowHasColumn(row, "product_variant_id") &&
+    optionalIdentifier(row.product_variant_id) !== String(productVariant.id)
+  ) {
+    throw new Error("legacy mapping upgrade cannot change product_variant_id");
+  }
+  if (!product.is_active || product.merged_into_product_id !== null) {
+    throw new Error("legacy mapping upgrade requires an active unmerged canonical product");
+  }
+  if (!productVariant.is_active) {
+    throw new Error("legacy mapping upgrade requires an active product_variant");
+  }
+  const incomingUrl = required(getRetailerProductUrl(row), "external_url", 0);
+  if (incomingUrl !== mapping.external_url) {
+    throw new Error("legacy mapping upgrade requires exact external_url match");
+  }
+  if (
+    String(row.product_name || "").trim() !== String(product.name || "").trim() ||
+    String(row.product_name || "").trim() !== String(mapping.external_name || "").trim() ||
+    String(row.brand || "").trim().toLowerCase() !==
+      String(product.brand || "").trim().toLowerCase() ||
+    String(row.slug || "").trim() !== String(product.slug || "").trim()
+  ) {
+    throw new Error("legacy mapping upgrade incoming product identity mismatch");
+  }
+
+  const after = legacyIdentityAfter(row);
+  if (!after.external_product_id || !after.external_variant_id || !after.external_sku) {
+    throw new Error("legacy mapping upgrade requires complete external identity evidence");
+  }
+  const alreadyCompleted = isCompletedLegacyIdentity(mapping, after);
+  if (mapping.external_variant_id !== null && !alreadyCompleted) {
+    throw new Error("legacy mapping upgrade requires a null legacy external_variant_id");
+  }
+  for (const field of ["external_product_id", "external_sku", "external_gtin"]) {
+    if (mapping[field] !== null && !valuesEqual(mapping[field], after[field])) {
+      throw new Error(`legacy mapping upgrade existing ${field} conflicts with evidence`);
+    }
+  }
+  if (
+    mapping.external_options !== null &&
+    !valuesEqual(mapping.external_options, after.external_options)
+  ) {
+    throw new Error("legacy mapping upgrade existing external_options conflicts with evidence");
+  }
+
+  const mappingPeers = await findRetailerProductPeers(retailer.id, product.id);
+  if (mappingPeers.length !== 1 || String(mappingPeers[0].id) !== String(mapping.id)) {
+    throw new Error("legacy mapping upgrade requires exactly one retailer/product mapping");
+  }
+  const variantPeers = await findExternalVariantPeers(
+    retailer.id,
+    after.external_variant_id
+  );
+  if (
+    variantPeers.some((peer) => String(peer.id) !== String(mapping.id)) ||
+    (!alreadyCompleted && variantPeers.length > 0)
+  ) {
+    throw new Error("legacy mapping upgrade external_variant_id conflicts with another mapping");
+  }
+  const offers = await findOffersForRetailerProduct(retailer.id, product.id);
+  if (offers.length !== 1) {
+    throw new Error("legacy mapping upgrade requires exactly one retailer/product offer");
+  }
+  const offer = offers[0];
+  if (
+    String(offer.retailer_product_id) !== String(mapping.id) ||
+    String(offer.product_variant_id) !== String(productVariant.id)
+  ) {
+    throw new Error("legacy mapping upgrade offer identity mismatch");
+  }
+  const offerPlan = buildOfferPlan(row, offer);
+  if (offerPlan.action !== "unchanged") {
+    throw new Error("legacy mapping upgrade cannot change offer price, stock or URL");
+  }
+  return {
+    operationType: "legacy_mapping_upgrade",
+    controls,
+    after,
+    alreadyCompleted,
+    exactUrl: incomingUrl,
+    approvedEvidence: {
+      product_name: String(row.product_name || "").trim(),
+      brand: String(row.brand || "").trim(),
+      size: String(row.size || "").trim(),
+      flavour: String(row.flavour || row.flavor || "").trim(),
+      product_format: String(row.product_format || "").trim(),
+      pack_count: String(row.pack_count || "").trim(),
+      external_product_id: after.external_product_id,
+      external_variant_id: after.external_variant_id,
+      external_sku: after.external_sku,
+      external_options: after.external_options,
+      external_gtin: after.external_gtin,
+      external_url: incomingUrl,
+    },
+    offer,
+  };
 }
 
 const RETAILER_PRODUCT_PLAN_FIELDS = [
@@ -1564,7 +1869,10 @@ function buildVariantEvidence(row, mapping) {
 }
 
 function buildAtomicImportPlan(item) {
-  const { row, retailer, product, productVariant, mapping, existingOffer, offerPlan } = item;
+  const {
+    row, retailer, product, productVariant, mapping, existingOffer, offerPlan,
+    legacyMappingUpgrade,
+  } = item;
   const now = new Date().toISOString();
   const rawProductData = product ? null : buildProductData(row, item.rowNumber, "feed");
   if (rawProductData) rawProductData.gtin = null;
@@ -1574,17 +1882,24 @@ function buildAtomicImportPlan(item) {
         nutrition_verified: false,
       })
     : null;
-  const rawMappingValues = buildRetailerProductPayload({
-    row,
-    retailerId: retailer?.id,
-    productId: product?.id,
-    productVariantId: productVariant?.id,
-    name: required(row.product_name, "product_name", item.rowNumber),
-    slug: required(row.slug, "slug", item.rowNumber),
-    offerUrl: required(getRetailerProductUrl(row), "url", item.rowNumber),
-    matchMethod: getProductLevelGtin(row, "feed") ? "gtin" : "slug",
-    matchConfidence: getProductLevelGtin(row, "feed") ? 100 : 90,
-  });
+  const rawMappingValues = legacyMappingUpgrade
+    ? {
+        ...mapping,
+        ...legacyMappingUpgrade.after,
+        product_variant_id: mapping.product_variant_id,
+        external_url: mapping.external_url,
+      }
+    : buildRetailerProductPayload({
+        row,
+        retailerId: retailer?.id,
+        productId: product?.id,
+        productVariantId: productVariant?.id,
+        name: required(row.product_name, "product_name", item.rowNumber),
+        slug: required(row.slug, "slug", item.rowNumber),
+        offerUrl: required(getRetailerProductUrl(row), "url", item.rowNumber),
+        matchMethod: getProductLevelGtin(row, "feed") ? "gtin" : "slug",
+        matchConfidence: getProductLevelGtin(row, "feed") ? 100 : 90,
+      });
   const mappingValues = completeObject(rawMappingValues, RETAILER_PRODUCT_PLAN_FIELDS);
   const mappingChanged = Boolean(
     mapping &&
@@ -1597,14 +1912,18 @@ function buildAtomicImportPlan(item) {
   const incomingShipping = decimalOrNull(getInputShippingValue(row), "shipping_cost");
   const shippingCost =
     incomingShipping === null && existingOffer ? existingShipping : incomingShipping;
-  const offerValues = {
-    price,
-    shipping_cost: shippingCost,
-    total_price: shippingCost === null ? null : addDecimalStrings(price, shippingCost),
-    url: required(getOfferUrl(row), "url", item.rowNumber),
-    in_stock: parseRequiredBoolean(row.in_stock, "in_stock"),
-    last_checked_at: now,
-  };
+  const offerValues = legacyMappingUpgrade
+    ? completeObject(existingOffer, [
+        "price", "shipping_cost", "total_price", "url", "in_stock", "last_checked_at",
+      ])
+    : {
+        price,
+        shipping_cost: shippingCost,
+        total_price: shippingCost === null ? null : addDecimalStrings(price, shippingCost),
+        url: required(getOfferUrl(row), "url", item.rowNumber),
+        in_stock: parseRequiredBoolean(row.in_stock, "in_stock"),
+        last_checked_at: now,
+      };
 
   const sourceFingerprint = sourceRowFingerprint(row);
   let approval = {
@@ -1628,6 +1947,9 @@ function buildAtomicImportPlan(item) {
     meta: {
       version: 2,
       plan_kind: item.mode || "feed",
+      operation_type: legacyMappingUpgrade
+        ? "legacy_mapping_upgrade"
+        : "standard_import",
       source_row_fingerprint: sourceFingerprint,
       plan_fingerprint: null,
     },
@@ -1660,12 +1982,16 @@ function buildAtomicImportPlan(item) {
       values: mappingValues,
     },
     offer: {
-      action: existingOffer ? offerPlan.action === "unchanged" ? "noop" : "update" : "create",
+      action: existingOffer
+        ? legacyMappingUpgrade || offerPlan.action === "unchanged" ? "noop" : "update"
+        : "create",
       ...(existingOffer ? { id: existingOffer.id } : {}),
       values: offerValues,
     },
     price_history: {
-      action: offerPlan.createsPriceHistory ? "create" : "noop",
+      action: legacyMappingUpgrade
+        ? "noop"
+        : offerPlan.createsPriceHistory ? "create" : "noop",
     },
     approval,
     expected_state: {
@@ -1727,6 +2053,15 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     ...validateFeedRowForWrites(shippingNormalizedRow, rowNumber, { safeCreate }),
     ...shippingErrors,
   ];
+  let legacyControls = null;
+  try {
+    legacyControls = parseLegacyMappingUpgradeControls(shippingNormalizedRow);
+    if (legacyControls && options.totalRows !== 1) {
+      throw new Error("legacy mapping upgrade requires exactly one input row");
+    }
+  } catch (error) {
+    validationErrors.push(error?.message || String(error));
+  }
   try {
     parseExternalOptions(shippingNormalizedRow.external_options);
   } catch (error) {
@@ -1742,11 +2077,17 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   let plannedProduct = null;
   let existingOffer = null;
   let productVariant = null;
+  let legacyMappingUpgrade = null;
   let variantResolutionError = null;
 
   if (retailer) {
     try {
-      mapping = await findRetailerMapping(retailer.id, shippingNormalizedRow);
+      mapping = legacyControls
+        ? await findRetailerMappingById(legacyControls.mappingId)
+        : await findRetailerMapping(retailer.id, shippingNormalizedRow);
+      if (legacyControls && mapping.retailer_id !== retailer.id) {
+        throw new Error("legacy mapping upgrade retailer_id mismatch");
+      }
     } catch (error) {
       validationErrors.push(error?.message || String(error));
     }
@@ -1769,7 +2110,8 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
       productVariant = await resolveCanonicalProductVariant(
         shippingNormalizedRow,
         product.id,
-        mapping
+        mapping,
+        { legacyMappingUpgrade: Boolean(legacyControls) }
       );
     } catch (error) {
       variantResolutionError = error?.message || String(error);
@@ -1816,9 +2158,23 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     retailer?.id &&
     product?.id
   ) {
-    existingOffer = await findExistingOfferForPreflight(
-      mapping?.id
-    );
+    if (legacyControls) {
+      try {
+        legacyMappingUpgrade = await validateLegacyMappingUpgrade({
+          row: shippingNormalizedRow,
+          controls: legacyControls,
+          retailer,
+          product,
+          mapping,
+          productVariant,
+        });
+        existingOffer = legacyMappingUpgrade.offer;
+      } catch (error) {
+        validationErrors.push(error?.message || String(error));
+      }
+    } else {
+      existingOffer = await findExistingOfferForPreflight(mapping?.id);
+    }
   }
 
   const offerPlan =
@@ -1841,6 +2197,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     validationErrors,
     shippingInferredFromPolicy,
     mode: "feed",
+    legacyMappingUpgrade,
   };
 
   return resolved;
@@ -1850,7 +2207,10 @@ async function preflightFeedRows(rows, options = {}) {
   const resolvedRows = [];
 
   for (let index = 0; index < rows.length; index += 1) {
-    resolvedRows.push(await resolveFeedRow(rows[index], index + 2, options));
+    resolvedRows.push(await resolveFeedRow(rows[index], index + 2, {
+      ...options,
+      totalRows: rows.length,
+    }));
   }
 
   return analyzeFeedRows(resolvedRows, {
