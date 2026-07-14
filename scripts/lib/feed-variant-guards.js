@@ -37,6 +37,13 @@ function normalizeComparableText(value = "") {
     .trim();
 }
 
+function normalizeFlavour(value = "") {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  return normalizeComparableText(value) || null;
+}
+
 function parseMultipack(value = "") {
   const text = String(value).toLowerCase();
   const match = text.match(
@@ -192,6 +199,24 @@ function parseFlavour(value = "") {
 }
 
 function parseVariantIdentity(rowOrName) {
+  let explicitFlavour = null;
+  if (typeof rowOrName !== "string") {
+    let externalOptions = rowOrName.external_options;
+    if (typeof externalOptions === "string" && externalOptions.trim()) {
+      try {
+        externalOptions = JSON.parse(externalOptions);
+      } catch {
+        externalOptions = null;
+      }
+    }
+    if (externalOptions && typeof externalOptions === "object" && !Array.isArray(externalOptions)) {
+      const option = Object.entries(externalOptions).find(([name]) =>
+        ["flavour", "flavor"].includes(String(name).trim().toLowerCase())
+      );
+      explicitFlavour = normalizeFlavour(option?.[1]);
+    }
+    explicitFlavour ||= normalizeFlavour(rowOrName.flavour || rowOrName.flavor);
+  }
   const text =
     typeof rowOrName === "string"
       ? rowOrName
@@ -214,7 +239,7 @@ function parseVariantIdentity(rowOrName) {
           .join(" ");
 
   return {
-    flavour: parseFlavour(text),
+    flavour: explicitFlavour || parseFlavour(text),
     size: parseSize(text),
     packCount: parsePackCount(text),
     productFormat: parseProductFormat(text),
@@ -297,6 +322,15 @@ function assessVariantCompatibility(row, product) {
 }
 
 function rowIdentityKey(row) {
+  const externalVariantId = String(row.external_variant_id || "").trim();
+  if (externalVariantId) {
+    const retailerIdentity = String(row.retailer_id || "").trim() || [
+      normalizeComparableText(row.retailer_name || ""),
+      normalizeComparableText(row.retailer_website || ""),
+    ].join("|");
+    return `external-variant|${retailerIdentity}|${externalVariantId}`;
+  }
+
   const identity = parseVariantIdentity(row);
 
   return [
@@ -308,6 +342,18 @@ function rowIdentityKey(row) {
     getExternalGtin(row) || "unknown-gtin",
     normalizeComparableText(row.url || ""),
   ].join("|");
+}
+
+function rowDedupeSignature(row) {
+  const normalized = JSON.parse(JSON.stringify(row));
+  if (typeof normalized.external_options === "string" && normalized.external_options.trim()) {
+    try {
+      normalized.external_options = JSON.parse(normalized.external_options);
+    } catch {
+      // Invalid JSON is rejected by the importer; preserve it here for drift detection.
+    }
+  }
+  return canonicalJson(normalized);
 }
 
 function isAmbiguousFeedRow(row) {
@@ -447,6 +493,7 @@ function analyzeFeedRows(resolvedRows, options = {}) {
   const report = createPreflightReport();
   const approvedCandidates = [];
   const dedupeKeys = new Map();
+  const conflictingDedupeRowNumbers = new Set();
   const plannedRetailerSlugs = new Set();
   const block = (entry) => {
     report.blockedRows.push(entry);
@@ -459,16 +506,42 @@ function analyzeFeedRows(resolvedRows, options = {}) {
     const externalGtin = getExternalGtin(row);
     const productLevelGtin = getProductLevelGtin(row, "feed");
 
-    if (dedupeKeys.has(rowIdentityKey(row))) {
-      report.deduplicatedRows.push({
-        rowNumber,
-        productName,
-        duplicateOfRowNumber: dedupeKeys.get(rowIdentityKey(row)),
-      });
+    const dedupeKey = rowIdentityKey(row);
+    const dedupeSignature = rowDedupeSignature(row);
+    const duplicate = dedupeKeys.get(dedupeKey);
+    if (duplicate) {
+      if (duplicate.signature !== dedupeSignature) {
+        const conflicts = [{
+          rowNumber,
+          productName,
+          reason: "duplicate variant identity has conflicting source row data",
+          duplicateOfRowNumber: duplicate.rowNumber,
+        }, {
+          rowNumber: duplicate.rowNumber,
+          productName: duplicate.productName,
+          reason: "duplicate variant identity has conflicting source row data",
+          duplicateOfRowNumber: rowNumber,
+        }].filter((conflict) => !conflictingDedupeRowNumbers.has(conflict.rowNumber));
+        for (const conflict of conflicts) {
+          conflictingDedupeRowNumbers.add(conflict.rowNumber);
+          report.invalidRows.push(conflict);
+          report.blockedRows.push(conflict);
+        }
+      } else {
+        report.deduplicatedRows.push({
+          rowNumber,
+          productName,
+          duplicateOfRowNumber: duplicate.rowNumber,
+        });
+      }
       continue;
     }
 
-    dedupeKeys.set(rowIdentityKey(row), rowNumber);
+    dedupeKeys.set(dedupeKey, {
+      rowNumber,
+      productName,
+      signature: dedupeSignature,
+    });
 
     if (item.variantResolutionError) {
       const blocked = {
@@ -644,7 +717,9 @@ function analyzeFeedRows(resolvedRows, options = {}) {
   }
 
   report.approvedRows = approvedCandidates.filter(
-    (item) => !collisionRowNumbers.has(item.rowNumber)
+    (item) =>
+      !collisionRowNumbers.has(item.rowNumber) &&
+      !conflictingDedupeRowNumbers.has(item.rowNumber)
   );
 
   if (planBuilder) {
@@ -850,6 +925,7 @@ module.exports = {
   isSafeCreateRowAmbiguous,
   isProductGtinVerified,
   normalizeComparableText,
+  normalizeFlavour,
   parseFlavour,
   parsePackCount,
   parseProductFormat,

@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
+const { parse } = require("csv-parse/sync");
 
 const {
   applyArtifactPlan,
@@ -28,6 +29,7 @@ const {
   parseSize,
   parseVariantIdentity,
   normalizeCategory,
+  normalizeFlavour,
   normalizeCanonicalRetailerFeedRows,
   normalizeShippingForImport,
   priceHistoryTotal,
@@ -37,7 +39,10 @@ const {
   validatePilotApply,
   writeDryRunArtifact,
 } = require("./import-products");
-const { isSafeCreateRowAmbiguous } = require("./lib/feed-variant-guards");
+const {
+  isSafeCreateRowAmbiguous,
+  rowIdentityKey,
+} = require("./lib/feed-variant-guards");
 const {
   canonicalJson,
   normalizeDecimalString,
@@ -2777,6 +2782,160 @@ function stage2Seed({ withMappings = false, withOffers = false } = {}) {
   };
 }
 
+const BATCH_A_PRODUCTS = {
+  17: {
+    name: "Optimum Nutrition Gold Standard Pre-Workout 330g",
+    slug: "optimum-nutrition-gold-standard-pre-workout-330g",
+    brand: "Optimum Nutrition",
+    category: "Pre Workout",
+    externalProductId: "4666319241263",
+    price: "20.99",
+    size: 330,
+    path: "optimum-nutrition-gold-standard-pre-workout-330g",
+  },
+  36: {
+    name: "Applied Nutrition Amino Fuel EAA 390g",
+    slug: "applied-nutrition-amino-fuel-eaa-390g",
+    brand: "Applied Nutrition",
+    category: "Amino Acids",
+    externalProductId: "7078560301252",
+    price: "18.99",
+    size: 390,
+    path: "applied-nutrition-amino-fuel-eaa-390g",
+  },
+  38: {
+    name: "Applied Nutrition Pump Pre Workout 375g",
+    slug: "applied-nutrition-pump-pre-workout-375g",
+    brand: "Applied Nutrition",
+    category: "Pre Workout",
+    externalProductId: "7060933935300",
+    price: "18.99",
+    size: 375,
+    path: "applied-pump-3g-pre-workout-375g",
+  },
+  80: {
+    name: "Optimum Nutrition Amino Energy 270g",
+    slug: "optimum-nutrition-amino-energy-270g",
+    brand: "Optimum Nutrition",
+    category: "Amino Acids",
+    externalProductId: "4666259931183",
+    price: "21.99",
+    size: 270,
+    path: "optimum-nutrition-amin-o-energy-270g",
+  },
+  178: {
+    name: "Applied Nutrition ISO-XP 1.8kg",
+    slug: "applied-nutrition-iso-xp-18kg",
+    brand: "Applied Nutrition",
+    category: "Whey Protein",
+    externalProductId: "7562236985540",
+    price: "69.99",
+    size: 1800,
+    optionSize: "1.8kg",
+    displaySize: "1.8kg",
+    path: "applied-nutrition-iso-xp-whey-isolate-1-8kg",
+  },
+  248: {
+    name: "Optimum Nutrition 100% Isolate 930g",
+    slug: "optimum-nutrition-100-isolate-930g",
+    brand: "Optimum Nutrition",
+    category: "Health Supplements",
+    externalProductId: "4666280181807",
+    price: "49.99",
+    size: 930,
+    path: "optimum-nutrition-gold-standard-100-isolate-903g",
+  },
+};
+
+const BATCH_A_VARIANTS = [
+  [732, 178, "43894716432580", "APNU-0659", "Banana"],
+  [733, 178, "42855717994692", "APNU-0635", "Chocolate"],
+  [734, 178, "42855718027460", "APNU-0636", "Strawberry"],
+  [735, 178, "42855718060228", "APNU-0637", "Vanilla"],
+  [726, 38, "41231522627780", "APNU-0367", "Fruit Burst"],
+  [727, 38, "41231522660548", "APNU-0368", "Icy Blue Razz"],
+  [728, 38, "41859737485508", "APNU-0539", "Rainbow Unicorn"],
+  [718, 36, "41292466880708", "APNU-0400", "Candy Ice Blast"],
+  [719, 36, "55756327977338", "APNU-0740", "Cherry Limeade"],
+  [720, 36, "55756328010106", "APNU-0741", "Cola Millions"],
+  [721, 36, "41292466913476", "APNU-0401", "Fruit Burst"],
+  [722, 36, "41859721396420", "APNU-0510", "Fruit Salad"],
+  [723, 36, "41292466979012", "APNU-0402", "Icy Blue Razz"],
+  [724, 36, "55756328042874", "APNU-0742", "Pineapple Millions"],
+  [725, 36, "55756328075642", "APNU-0743", "Raspberry Mojito"],
+  [714, 17, "32611701260335", "OPNU-0303", "Blue Raspberry"],
+  [715, 17, "37383501349060", "OPNU-0130", "Fruit Punch"],
+  [716, 17, "37383501381828", "OPNU-0127", "Green Apple"],
+  [717, 17, "37383501480132", "OPNU-0128", "Watermelon"],
+  [729, 80, "37383496892612", "OPNU-0007", "Fruit Fusion"],
+  [730, 80, "37383496958148", "OPNU-0209", "Lemon Lime"],
+  [731, 80, "37383497023684", "OPNU-0006", "Orange"],
+  [736, 248, "32397723271215", "OPNU-0290", "Chocolate"],
+  [737, 248, "32397723303983", "OPNU-0291", "Strawberry"],
+  [738, 248, "32397723336751", "OPNU-0292", "Vanilla"],
+];
+
+function batchA25Fixture() {
+  const products = Object.entries(BATCH_A_PRODUCTS).map(([id, product]) => ({
+    id: Number(id),
+    name: product.name,
+    slug: product.slug,
+    brand: product.brand,
+    category: product.category,
+    gtin: null,
+    is_active: true,
+    merged_into_product_id: null,
+    product_format: "powder",
+  }));
+  const defaultVariants = products.map((product) => ({
+    id: `default-${product.id}`,
+    product_id: product.id,
+    variant_key: "default",
+    display_name: "Default",
+    flavour_code: null,
+    flavour_label: null,
+    size_value: null,
+    size_unit: null,
+    pack_count: null,
+    product_format: null,
+    is_active: true,
+    is_default: true,
+  }));
+  const productVariants = BATCH_A_VARIANTS.map(
+    ([id, productId, externalVariantId, sku, flavour]) => {
+      const product = BATCH_A_PRODUCTS[productId];
+      return {
+        id,
+        product_id: productId,
+        variant_key: `${normalizeFlavour(flavour).replace(/ /g, "-")}-${product.size}g`,
+        display_name: `${flavour} / ${product.displaySize || `${product.size}g`}`,
+        flavour_code: normalizeFlavour(flavour),
+        flavour_label: flavour,
+        size_value: product.size,
+        size_unit: "g",
+        pack_count: 1,
+        product_format: "powder",
+        is_active: true,
+        is_default: false,
+        externalVariantId,
+        sku,
+      };
+    }
+  );
+  const rows = parse(
+    fs.readFileSync(
+      path.join(
+        __dirname,
+        "test-fixtures",
+        "discount-supplements-batch-a-25-variants.csv"
+      ),
+      "utf8"
+    ),
+    { columns: true, skip_empty_lines: true, trim: true }
+  );
+  return { products, productVariants: [...defaultVariants, ...productVariants], rows };
+}
+
 function legacyMapping948Fixture() {
   const updatedAt = "2026-07-12T12:37:52.563+00:00";
   const url = "https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234";
@@ -3263,6 +3422,149 @@ test("Stage 2 resolves flavour and size evidence to the exact canonical product 
     assert.equal(offer.retailer_product_id, mapping.id);
     assert.equal(offer.product_variant_id, fixture.productVariants[index].id);
   }
+});
+
+test("explicit Shopify flavour evidence preserves full multi-word identity", () => {
+  const flavours = [
+    "Fruit Burst",
+    "Fruit Fusion",
+    "Fruit Punch",
+    "Fruit Salad",
+    "Icy Blue Razz",
+    "Blue Raspberry",
+    "Rainbow Unicorn",
+    "Candy Ice Blast",
+    "Green Apple",
+    "Watermelon",
+    "Pineapple Millions",
+    "Cola Millions",
+    "Cherry Limeade",
+    "Raspberry Mojito",
+  ];
+  const normalized = flavours.map(normalizeFlavour);
+
+  assert.equal(new Set(normalized).size, flavours.length);
+  assert.notEqual(normalizeFlavour("Fruit Burst"), normalizeFlavour("Fruit Fusion"));
+  assert.notEqual(normalizeFlavour("Fruit Burst"), normalizeFlavour("Fruit Punch"));
+  assert.notEqual(normalizeFlavour("Fruit Burst"), normalizeFlavour("Fruit Salad"));
+  assert.notEqual(normalizeFlavour("Blue Raspberry"), normalizeFlavour("Icy Blue Razz"));
+  assert.notEqual(normalizeFlavour("Cola Millions"), normalizeFlavour("Pineapple Millions"));
+
+  for (const flavour of flavours) {
+    const row = {
+      retailer_name: "Discount Supplements",
+      retailer_website: "https://www.discount-supplements.co.uk",
+      external_variant_id: `variant-${normalizeFlavour(flavour).replace(/ /g, "-")}`,
+      external_options: JSON.stringify({ Size: "390g", Flavour: flavour }),
+      flavour,
+      product_name: "Applied Nutrition Amino Fuel EAA 390g",
+      product_format: "powder",
+    };
+    assert.equal(parseVariantIdentity(row).flavour, normalizeFlavour(flavour));
+    assert.match(rowIdentityKey(row), new RegExp(`\\|${row.external_variant_id}$`));
+  }
+});
+
+test("Batch A exact 25-row fixture produces 25 isolated create plans", async () => {
+  const fixture = batchA25Fixture();
+  const supabase = createMockSupabase({
+    retailers: [{
+      id: 4,
+      name: "Discount Supplements",
+      slug: "discount-supplements",
+      website: "https://www.discount-supplements.co.uk",
+    }],
+    products: fixture.products,
+    product_variants: fixture.productVariants,
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRowsRaw(fixture.rows, { mode: "feed", dryRun: true });
+  const plans = result.report.approvedRows.map((item) => item.importPlan);
+  const externalVariantIds = plans.map(
+    (plan) => plan.retailer_product.values.external_variant_id
+  );
+  const planFingerprints = plans.map((plan) => plan.meta.plan_fingerprint);
+
+  assert.equal(result.planned, 25);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.deduplicatedRows.length, 0);
+  assert.equal(new Set(externalVariantIds).size, 25);
+  assert.equal(new Set(planFingerprints).size, 25);
+  assert.equal(plans.every((plan) => plan.meta.operation_type === "standard_import"), true);
+  assert.equal(plans.every((plan) => plan.retailer_product.action === "create"), true);
+  assert.equal(plans.every((plan) => plan.offer.action === "create"), true);
+  assert.equal(plans.every((plan) => plan.price_history.action === "create"), true);
+
+  for (let index = 0; index < plans.length; index += 1) {
+    const expectedVariant = fixture.productVariants.find(
+      (variant) => variant.externalVariantId === fixture.rows[index].external_variant_id
+    );
+    assert.equal(plans[index].product_variant.id, String(expectedVariant.id));
+    assert.equal(
+      plans[index].product_variant.evidence.flavour,
+      normalizeFlavour(fixture.rows[index].flavour)
+    );
+  }
+
+  const formerlyProblematicRows = [5, 6, 7, 8, 11, 12, 13, 14, 17, 18, 19];
+  for (const rowNumber of formerlyProblematicRows) {
+    const item = result.report.approvedRows.find((row) => row.rowNumber === rowNumber + 1);
+    assert(item, `source row ${rowNumber} must produce a plan`);
+    assert.equal(
+      item.importPlan.product_variant.evidence.flavour,
+      normalizeFlavour(fixture.rows[rowNumber - 1].flavour)
+    );
+  }
+});
+
+test("Shopify flavour conflicts and external variant duplicate drift are fail-closed", async () => {
+  const fixture = batchA25Fixture();
+  const seed = {
+    retailers: [{ id: 4, name: "Discount Supplements", slug: "discount-supplements" }],
+    products: fixture.products,
+    product_variants: fixture.productVariants,
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  };
+
+  let supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+  const mismatch = await runImportRowsRaw([{
+    ...fixture.rows[4],
+    flavour: "Fruit Fusion",
+  }], { mode: "feed", dryRun: true });
+  assert.equal(mismatch.report.approvedRows.length, 0);
+  assert.match(mismatch.report.blockedRows[0].block_reason, /conflicting variant evidence/i);
+
+  supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+  const identical = await runImportRowsRaw(
+    [fixture.rows[4], structuredClone(fixture.rows[4])],
+    { mode: "feed", dryRun: true }
+  );
+  assert.equal(identical.report.approvedRows.length, 1);
+  assert.equal(identical.report.deduplicatedRows.length, 1);
+
+  supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+  const drift = await runImportRowsRaw(
+    [fixture.rows[4], { ...fixture.rows[4], price: "19.99" }],
+    { mode: "feed", dryRun: true }
+  );
+  assert.equal(drift.report.approvedRows.length, 0);
+  assert.equal(drift.report.deduplicatedRows.length, 0);
+  assert.equal(drift.report.blockedRows.length, 2);
+  assert.equal(
+    drift.report.blockedRows.every((row) =>
+      /duplicate variant identity has conflicting source row data/i.test(row.block_reason)
+    ),
+    true
+  );
 });
 
 test("Stage 2 dry-run blocks missing and ambiguous canonical variant resolution", async () => {

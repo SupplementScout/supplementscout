@@ -21,6 +21,7 @@ const {
   isAmbiguousFeedRow,
   isSafeCreateRowAmbiguous,
   isProductGtinVerified,
+  normalizeFlavour,
   parseFlavour,
   parsePackCount,
   parseProductFormat,
@@ -1429,15 +1430,26 @@ function collectCanonicalVariantEvidence(row) {
     }
   }
   const variantText = [row.variant_name, row.variant].filter(Boolean);
-  const flavours = normalizedEvidenceValues(
-    [
-      row.flavour,
-      row.flavor,
-      ...variantText,
-      ...externalOptionValues(options, ["flavour", "flavor"]),
-    ],
-    parseFlavour
+  const optionFlavours = normalizedEvidenceValues(
+    externalOptionValues(options, ["flavour", "flavor"]),
+    normalizeFlavour
   );
+  const csvFlavours = normalizedEvidenceValues(
+    [row.flavour, row.flavor],
+    normalizeFlavour
+  );
+  const fallbackFlavours = normalizedEvidenceValues(variantText, parseFlavour);
+  const explicitFlavourConflict =
+    optionFlavours.length > 1 ||
+    csvFlavours.length > 1 ||
+    (optionFlavours.length === 1 &&
+      csvFlavours.length === 1 &&
+      optionFlavours[0] !== csvFlavours[0]);
+  const flavours = optionFlavours.length > 0
+    ? optionFlavours
+    : csvFlavours.length > 0
+      ? csvFlavours
+      : fallbackFlavours;
   const sizes = normalizedEvidenceValues(
     [
       row.size,
@@ -1465,7 +1477,7 @@ function collectCanonicalVariantEvidence(row) {
   );
   const conflicts = [];
 
-  if (flavours.length > 1) conflicts.push("flavour");
+  if (explicitFlavourConflict || flavours.length > 1) conflicts.push("flavour");
   if (sizes.length > 1) conflicts.push("size");
   if (packCounts.length > 1) conflicts.push("pack count");
   if (formats.length > 1) conflicts.push("product format");
@@ -1531,8 +1543,8 @@ async function resolveCanonicalProductVariant(
         );
       }
       const mappedFlavour =
-        parseFlavour(mappedVariant.flavour_code) ||
-        parseFlavour(mappedVariant.flavour_label);
+        normalizeFlavour(mappedVariant.flavour_code) ||
+        normalizeFlavour(mappedVariant.flavour_label);
       const mappedSize = parseSize(
         mappedVariant.size_value && mappedVariant.size_unit
           ? `${mappedVariant.size_value}${mappedVariant.size_unit}`
@@ -1560,8 +1572,8 @@ async function resolveCanonicalProductVariant(
     }
 
     const mappedFlavour =
-      parseFlavour(mappedVariant.flavour_code) ||
-      parseFlavour(mappedVariant.flavour_label);
+      normalizeFlavour(mappedVariant.flavour_code) ||
+      normalizeFlavour(mappedVariant.flavour_label);
     const mappedSize = parseSize(
       mappedVariant.size_value && mappedVariant.size_unit
         ? `${mappedVariant.size_value}${mappedVariant.size_unit}`
@@ -1602,7 +1614,7 @@ async function resolveCanonicalProductVariant(
 
   let candidates = nonDefaultVariants.filter((variant) => {
       const variantFlavour =
-        parseFlavour(variant.flavour_code) || parseFlavour(variant.flavour_label);
+        normalizeFlavour(variant.flavour_code) || normalizeFlavour(variant.flavour_label);
       const variantSize = parseSize(
         variant.size_value && variant.size_unit
           ? `${variant.size_value}${variant.size_unit}`
@@ -2681,6 +2693,7 @@ module.exports = {
   parseExternalOptions,
   preflightFeedRows,
   normalizeCategory,
+  normalizeFlavour,
   normalizeCanonicalRetailerFeedRows,
   normalizeSourceRow,
   normalizeShippingForImport,
