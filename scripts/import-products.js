@@ -1863,10 +1863,14 @@ function expectedOfferState(offer) {
   ]);
 }
 
-function buildVariantEvidence(row, mapping) {
+function buildVariantEvidence(row, mapping, productVariant = null) {
   const evidence = collectCanonicalVariantEvidence(row);
+  const canonicalFlavour =
+    productVariant && evidence.flavour
+      ? productVariant.flavour_code || productVariant.flavour_label || evidence.flavour
+      : evidence.flavour;
   return {
-    flavour: evidence.flavour,
+    flavour: canonicalFlavour,
     size_value: evidence.size?.value === undefined
       ? null
       : normalizeDecimalString(evidence.size.value, "size_value"),
@@ -1972,7 +1976,7 @@ function buildAtomicImportPlan(item) {
       ? {
           action: "existing",
           id: productVariant.id,
-          evidence: buildVariantEvidence(row, mapping),
+          evidence: buildVariantEvidence(row, mapping, productVariant),
         }
       : {
           action: "create_default",

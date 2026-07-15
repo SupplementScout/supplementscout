@@ -3755,19 +3755,22 @@ test("canonical feed rows accept explicit servings as count size evidence", asyn
   const { fixture, seed } = stage2Seed();
   fixture.rows[1] = {
     ...fixture.rows[1],
-    external_variant_id: "shopify-variant-vanilla-25-servings",
-    external_sku: "ISOXP-VAN-25SERV",
-    external_options: JSON.stringify({ Size: "25 servings", Flavour: "Vanilla" }),
-    variant_name: "Vanilla / 25 servings",
-    external_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-vanilla-25-servings",
-    affiliate_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-vanilla-25-servings",
+    external_variant_id: "shopify-variant-sberry-peaches-25-servings",
+    external_sku: "ISOXP-SBERRY-25SERV",
+    external_options: JSON.stringify({ Size: "25 servings", Flavour: "S'Berry & Peaches" }),
+    variant_name: "S'Berry & Peaches / 25 servings",
+    external_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-sberry-peaches-25-servings",
+    affiliate_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-sberry-peaches-25-servings",
     size: "25",
     size_unit: "servings",
+    flavour: "S'Berry & Peaches",
   };
   seed.product_variants[1] = {
     ...seed.product_variants[1],
-    variant_key: "vanilla-25-servings",
-    display_name: "Vanilla / 25 servings",
+    variant_key: "s-berry-and-peaches-25-servings",
+    display_name: "S'Berry & Peaches / 25 servings",
+    flavour_code: "s'berry and peaches",
+    flavour_label: "S'Berry & Peaches",
     size_value: 25,
     size_unit: "servings",
   };
@@ -3782,6 +3785,7 @@ test("canonical feed rows accept explicit servings as count size evidence", asyn
 
   assert.equal(accepted.report.approvedRows.length, 1);
   assert.equal(accepted.report.blockedRows.length, 0);
+  assert.equal(accepted.report.approvedRows[0].importPlan.product_variant.evidence.flavour, "s'berry and peaches");
   assert.equal(accepted.report.approvedRows[0].importPlan.product_variant.evidence.size_value, "25");
   assert.equal(accepted.report.approvedRows[0].importPlan.product_variant.evidence.size_unit, "servings");
 });
