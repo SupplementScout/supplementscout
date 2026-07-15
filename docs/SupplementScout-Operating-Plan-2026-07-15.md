@@ -285,18 +285,18 @@ Old staging refs must not be reused:
 
 ## 7. Current production state
 
-Latest confirmed production counts after reduced Batch G:
+Latest confirmed production counts after completed Batch G milestone:
 
 - `products`: 755
-- `product_variants`: 998
-- `retailer_products`: 980
-- `offers`: 979
-- `price_history`: 988
+- `product_variants`: 1000
+- `retailer_products`: 982
+- `offers`: 981
+- `price_history`: 990
 
 Current catalogue expansion milestone:
 
-- progress: **198 / 200**
-- remaining: **2**
+- progress: **200 / 200**
+- remaining: **0**
 
 Production `SAFE_UPDATE` automation remains disabled.
 
@@ -484,6 +484,11 @@ Technical default variants created for new products do not count toward the 200 
   - 47 Fit House mappings
   - 47 Fit House offers
   - 47 price history rows
+- replacement production apply completed:
+  - 2 additional Fit House mappings
+  - 2 additional Fit House offers
+  - 2 additional price history rows
+  - GYM HIGH Whey Pro Synergy 600g Banana and Strawberry variants
 - 2 reviewed records remain `MANUAL_REVIEW` and were excluded from apply:
   - 7Nutrition Beta-Alanine 250g
   - Applied Nutrition L-Glutamine Powder 250g
@@ -491,13 +496,14 @@ Technical default variants created for new products do not count toward the 200 
   - Shopify source variant was `Default Title`,
   - no explicit flavour evidence,
   - mapping to non-default canonical variant `Unflavoured / 250g` did not satisfy the fail-closed identity contract.
-- public UI smoke test passed for Batch G product families.
+- public UI smoke test passed for Batch G product families and the final replacement product page.
 
 Milestone arithmetic:
 
 - previous milestone progress: 151 / 200
 - Batch G applied source offers: 47
-- current progress: **198 / 200**
+- Batch G replacement source offers: 2
+- current progress: **200 / 200**
 
 Technical default variants and unapplied manual-review variants do not count toward the 200 source-variant/offer milestone.
 
@@ -505,18 +511,16 @@ Technical default variants and unapplied manual-review variants do not count tow
 
 ## 10. Current known issues and gaps
 
-### 10.1 Last 2 variants
+### 10.1 200 milestone complete
 
-The remaining 2 should be selected as safe replacements for the two reduced Batch G exclusions. They should not be random standalone products.
+The 200 source-variant/offer milestone is complete. Do not enable `SAFE_UPDATE` automatically as a result; it still requires separate review and explicit approval.
 
-Priority:
+Immediate post-milestone priority:
 
-1. explicit source identity evidence,
-2. additional retailer for an existing product,
-3. missing flavours or sizes for popular products,
-4. products that reach two or three active retailers,
-5. popular categories with strong commercial value,
-6. new canonical products only when identity is highly certain.
+1. Reconcile 520 Whey Okay legacy mappings.
+2. Resolve products 751 and 752 manual image review.
+3. Establish Whey Okay automation only after reconciliation.
+4. Review and explicitly approve safe `SAFE_UPDATE` automation separately.
 
 ### 10.2 Whey Okay reconciliation
 
@@ -677,12 +681,11 @@ Work should proceed sequentially. Do not open all projects at once.
 
 Current priority order:
 
-1. Select two safe replacement variants/offers with strong identity evidence.
-2. Complete the 200-variant/offer confidence milestone.
-3. Reconcile 520 Whey Okay legacy mappings.
-4. Establish an automatic Whey Okay source through EKM API or an authorised feed.
-5. Enable safe `SAFE_UPDATE` automation for existing approved mappings only.
-6. Add the basic analytics foundation.
+1. Reconcile 520 Whey Okay legacy mappings.
+2. Establish an automatic Whey Okay source through EKM API or an authorised feed.
+3. Enable safe `SAFE_UPDATE` automation for existing approved mappings only after explicit review.
+4. Resolve products 751 and 752 manual image review.
+5. Add the basic analytics foundation.
 
 ## Phase 0: operating control
 
@@ -703,8 +706,8 @@ Definition of done:
 
 ## Phase 1: finish the 200 milestone with value
 
-**Current:** 198 / 200
-**Remaining:** 2
+**Current:** 200 / 200
+**Remaining:** 0
 
 Selection priority:
 
@@ -877,16 +880,15 @@ Keep this Operating Plan current after each major milestone.
 
 ### Next task
 
-Select two safe replacement variants/offers using strong source identity evidence, cross-retailer coverage and catalogue quality, not raw count.
+Begin Whey Okay reconciliation for the 520 legacy mappings.
 
 ### Then
 
-1. Complete the 200-variant/offer milestone.
-2. Reconcile 520 Whey Okay legacy mappings.
-3. Resolve products 751 and 752 manual image review.
-4. Establish Whey Okay automation through EKM API or an authorised feed.
-5. Enable safe-update automation for existing approved mappings.
-6. Add basic analytics.
+1. Reconcile 520 Whey Okay legacy mappings.
+2. Resolve products 751 and 752 manual image review.
+3. Establish Whey Okay automation through EKM API or an authorised feed.
+4. Enable safe-update automation for existing approved mappings after separate approval.
+5. Add basic analytics.
 
 ### Tomorrow / deferred near-term
 
@@ -1002,7 +1004,7 @@ SupplementScout is healthy when:
 Current binding decisions:
 
 - Finish 200 high-quality variants/offers before production `SAFE_UPDATE`.
-- Current progress is 198 / 200.
+- Current progress is 200 / 200.
 - eBay is postponed.
 - Whey Okay automation comes after reconciliation.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
@@ -1028,6 +1030,11 @@ Current binding decisions:
 - Progress is 198 / 200.
 - 2 Batch G records remain manual review due to missing explicit source flavour evidence.
 - Next step is to find two safe replacement records, then begin Whey Okay reconciliation.
+- `SAFE_UPDATE` still disabled.
+- Batch G replacement production PASS: 2 additional Fit House mappings/offers/history added for GYM HIGH Whey Pro Synergy 600g.
+- Progress is 200 / 200.
+- 200 source-variant/offer milestone complete.
+- Next priority is Whey Okay reconciliation.
 - `SAFE_UPDATE` still disabled.
 
 ---
