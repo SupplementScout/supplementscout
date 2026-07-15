@@ -3020,7 +3020,7 @@ function batchA25Fixture() {
   return { products, productVariants: [...defaultVariants, ...productVariants], rows };
 }
 
-function legacyMapping948Fixture() {
+function legacyMapping948Fixture({ offerOverrides = {} } = {}) {
   const updatedAt = "2026-07-12T12:37:52.563+00:00";
   const url = "https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234";
   const row = baseCanonicalFeedRow({
@@ -3081,6 +3081,7 @@ function legacyMapping948Fixture() {
     in_stock: true,
     url,
     last_checked_at: "2026-07-12T12:37:52.674+00:00",
+    ...offerOverrides,
   };
   const seed = {
     retailers: [{ id: 4, name: "Discount Supplements", slug: "discount-supplements", website: "https://www.discount-supplements.co.uk" }],
@@ -3177,6 +3178,51 @@ test("legacy mapping upgrade fixture 948 produces one exact update and no offer 
   }
 });
 
+test("legacy mapping upgrade treats historical null total_price as mapping-only noop", async () => {
+  const fixture = legacyMapping948Fixture({ offerOverrides: { total_price: null } });
+  const supabase = createMockSupabase(structuredClone(fixture.seed));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+
+  assert.equal(result.blockedRows.length, 0);
+  assert.equal(result.report.approvedRows.length, 1);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.meta.operation_type, "legacy_mapping_upgrade");
+  assert.equal(plan.retailer_product.action, "update");
+  assert.equal(plan.offer.action, "noop");
+  assert.equal(plan.offer.values.total_price, null);
+  assert.equal(plan.expected_state.offer.total_price, null);
+  assert.equal(plan.price_history.action, "noop");
+  assert.equal(result.report.offersToUpdate.length, 0);
+  assert.equal(result.report.offersUnchanged.length, 1);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("standard import still treats historical null total_price as offer drift", async () => {
+  const { result, supabase } = await applyExistingOffer({}, { total_price: null });
+  const offerUpdate = supabase.writes.find((write) => write.table === "offers");
+  const historyWrite = supabase.writes.find((write) => write.table === "price_history");
+
+  assert.equal(result.successful, 1);
+  assert.equal(result.rowLevelOffers[0].offerAction, "update");
+  assert.equal(offerUpdate.payload.total_price, 29.99);
+  assert.equal(historyWrite.payload.total_price, 29.99);
+});
+
+test("legacy mapping upgrade with existing correct total_price remains mapping-only noop", async () => {
+  const fixture = legacyMapping948Fixture();
+  const supabase = createMockSupabase(structuredClone(fixture.seed));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+
+  assert.equal(result.blockedRows.length, 0);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.meta.operation_type, "legacy_mapping_upgrade");
+  assert.equal(plan.offer.action, "noop");
+  assert.equal(plan.offer.values.total_price, "17.98");
+  assert.equal(plan.price_history.action, "noop");
+});
+
 test("legacy mapping upgrade fixture 948 fails closed for every identity and mutation guard", async () => {
   const scenarios = [
     ["operation type cannot enable legacy without the input flag", ({ row }) => { delete row.legacy_mapping_upgrade; row.operation_type = "legacy_mapping_upgrade"; }, /operation_type is derived/i],
@@ -3195,7 +3241,9 @@ test("legacy mapping upgrade fixture 948 fails closed for every identity and mut
     ["different size evidence", ({ row }) => { row.external_options = JSON.stringify({ Size: "1kg", Flavour: "Unflavoured" }); }, /conflicting variant evidence/i],
     ["different flavour evidence", ({ row }) => { row.external_options = JSON.stringify({ Size: "250g", Flavour: "Chocolate" }); }, /conflicting variant evidence/i],
     ["price change", ({ row }) => { row.price = "13.99"; }, /cannot change offer/i],
+    ["shipping change", ({ row }) => { row.shipping_cost = "5.99"; }, /cannot change offer/i],
     ["stock change", ({ row }) => { row.in_stock = "false"; }, /cannot change offer/i],
+    ["non-null total drift", ({ seed }) => { seed.offers[0].total_price = 99.99; }, /cannot change offer/i],
   ];
 
   for (const [label, mutate, reason] of scenarios) {

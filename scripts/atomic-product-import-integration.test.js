@@ -22,6 +22,7 @@ const atomicMigration = path.join(root, "supabase/migrations/20260713180000_atom
 const approvalMigration = path.join(root, "supabase/migrations/20260713190000_approved_import_plan_ledger.sql");
 const legacyUpgradeMigration = path.join(root, "supabase/migrations/20260713200000_legacy_mapping_upgrade_rpc.sql");
 const standaloneLegacyUpgradeMigration = path.join(root, "supabase/migrations/20260716000000_support_standalone_legacy_mapping_upgrade.sql");
+const legacyNullTotalMigration = path.join(root, "supabase/migrations/20260716002000_allow_legacy_mapping_upgrade_null_total_noop.sql");
 const formatNormalizationMigration = path.join(root, "supabase/migrations/20260715234500_align_approval_product_format_normalization.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const forbiddenRefs = ["aftboxmrdgyhizicfsfu", "dlsbwshkzdsvzubjftbv"];
@@ -138,6 +139,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const sql = require("node:fs").readFileSync(atomicMigration, "utf8");
   const approvalSql = require("node:fs").readFileSync(approvalMigration, "utf8");
   const legacySql = require("node:fs").readFileSync(legacyUpgradeMigration, "utf8");
+  const legacyNullTotalSql = require("node:fs").readFileSync(legacyNullTotalMigration, "utf8");
   const formatSql = require("node:fs").readFileSync(formatNormalizationMigration, "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
@@ -167,6 +169,13 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.match(legacySql, /revoke all on function public\.atomic_import_is_legacy_mapping_upgrade/i);
   assert.doesNotMatch(legacySql, /grant execute[^;]+service_role/i);
   assert.doesNotMatch(legacySql, /\bexecute\s+format|import_test_failpoint/i);
+  assert.match(legacyNullTotalSql, /^begin;/i);
+  assert.match(legacyNullTotalSql, /legacy_mapping_upgrade/i);
+  assert.match(legacyNullTotalSql, /expected_state,offer,total_price/i);
+  assert.match(legacyNullTotalSql, /alter function public\.validate_product_import_plan_read_only\(jsonb\) owner to postgres/i);
+  assert.doesNotMatch(legacyNullTotalSql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(legacyNullTotalSql, /\bupdate\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(legacyNullTotalSql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
   assert.match(formatSql, /^begin;/i);
   assert.match(formatSql, /atomic_import_normalize_product_format/i);
   assert.match(formatSql, /ready_to_drink[\s\S]+liquid/i);
@@ -222,11 +231,13 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, approvalMigration), "apply approved import plan ledger migration");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "apply legacy mapping upgrade migration");
     requireSuccess(psqlFile(container, database, standaloneLegacyUpgradeMigration), "apply standalone legacy mapping upgrade migration");
+    requireSuccess(psqlFile(container, database, legacyNullTotalMigration), "apply legacy mapping null total migration");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "apply approval format normalization migration");
     requireSuccess(psqlFile(container, database, atomicMigration), "reapply atomic import migration idempotently");
     requireSuccess(psqlFile(container, database, approvalMigration), "reapply approval ledger migration idempotently");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "reapply legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, standaloneLegacyUpgradeMigration), "reapply standalone legacy mapping upgrade migration idempotently");
+    requireSuccess(psqlFile(container, database, legacyNullTotalMigration), "reapply legacy mapping null total migration idempotently");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "reapply approval format normalization migration idempotently");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
@@ -269,7 +280,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(legacyFixtureInsert, "create exact legacy mapping 948 fixture");
     const standaloneLegacyFixtureInsert = exec(container, [
       "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
-      "update public.retailers set name='Whey Okay',slug='whey-okay',website='https://wheyokay.com' where id=3; insert into public.products(id,name,slug,brand,category,product_format,is_active) values(940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps','BioTech USA','Vitamins & Minerals','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(940001,940001,'default','Default',null,null,null,null,true,true); insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(940001,3,940001,940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps',null,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp',null,null,null,null,'slug',90,'2026-07-15T10:00:00.000+00:00'); insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(940001,940001,3,940001,940001,9.99,3.99,13.98,true,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp','2026-07-15T10:00:01.000+00:00');",
+      "update public.retailers set name='Whey Okay',slug='whey-okay',website='https://wheyokay.com' where id=3; insert into public.products(id,name,slug,brand,category,product_format,is_active) values(940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps','BioTech USA','Vitamins & Minerals','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(940001,940001,'default','Default',null,null,null,null,true,true); insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(940001,3,940001,940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps',null,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp',null,null,null,null,'slug',90,'2026-07-15T10:00:00.000+00:00'); insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(940001,940001,3,940001,940001,9.99,3.99,null,true,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp','2026-07-15T10:00:01.000+00:00');",
     ]);
     requireSuccess(standaloneLegacyFixtureInsert, "create standalone Whey Okay legacy mapping fixture");
     const state = psqlJson(container, database, `select jsonb_build_object(
@@ -638,6 +649,9 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       const standalonePlan = standaloneArtifact.artifact.plans[0].resolved_plan;
       assert.equal(standalonePlan.meta.operation_type, "legacy_mapping_upgrade");
       assert.equal(standalonePlan.retailer_product.values.external_options, null);
+      assert.equal(standalonePlan.offer.action, "noop");
+      assert.equal(standalonePlan.offer.values.total_price, null);
+      assert.equal(standalonePlan.price_history.action, "noop");
       assert.equal(standalonePlan.product_variant.evidence.external_options, null);
       assert.equal(standalonePlan.product_variant.evidence.flavour, null);
       assert.equal(standalonePlan.product_variant.evidence.size_value, null);
@@ -661,6 +675,21 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
         ["source options", (plan) => {
           plan.retailer_product.values.external_options = { Flavour: "Default" };
           plan.product_variant.evidence.external_options = { Flavour: "Default" };
+        }],
+        ["plan writes historical null total_price", (plan) => {
+          plan.offer.values.total_price = "13.98";
+        }],
+        ["offer price", (plan) => {
+          plan.offer.values.price = "10.99";
+        }],
+        ["offer stock", (plan) => {
+          plan.offer.values.in_stock = false;
+        }],
+        ["offer url", (plan) => {
+          plan.offer.values.url = `${plan.offer.values.url}?changed=true`;
+        }],
+        ["price history", (plan) => {
+          plan.price_history.action = "create";
         }],
       ];
       for (const [label, mutate] of standaloneTamperedPlans) {
@@ -737,7 +766,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       assert.deepEqual(standaloneCheck.offer, {
         product_id: 940001, retailer_id: 3, retailer_product_id: 940001,
         product_variant_id: 940001, price: 9.99, shipping_cost: 3.99,
-        total_price: 13.98, in_stock: true, url: standaloneUrl,
+        total_price: null, in_stock: true, url: standaloneUrl,
         last_checked_at: standaloneState.offer.last_checked_at,
       });
       assert.equal(standaloneCheck.history_count, 0);

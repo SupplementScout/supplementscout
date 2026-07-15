@@ -1154,7 +1154,7 @@ async function findExistingOfferForPreflight(retailerProductId) {
   return data?.[0] || null;
 }
 
-function buildOfferPlan(row, existingOffer) {
+function buildOfferPlan(row, existingOffer, options = {}) {
   if (!existingOffer) {
     return {
       action: "create",
@@ -1174,9 +1174,17 @@ function buildOfferPlan(row, existingOffer) {
     incomingShipping === null ? existingShipping : incomingShipping;
   const priceChanged = existingPrice !== incomingPrice;
   const shippingChanged = existingShipping !== effectiveShipping;
+  const existingTotalPrice = decimalOrNull(existingOffer.total_price, "existing total_price");
+  const derivedTotalPrice =
+    effectiveShipping === null ? null : addDecimalStrings(incomingPrice, effectiveShipping);
+  const historicalNullTotalNoop =
+    Boolean(options.allowLegacyNullTotalNoop) &&
+    existingTotalPrice === null &&
+    derivedTotalPrice !== null &&
+    existingPrice === incomingPrice &&
+    existingShipping === effectiveShipping;
   const totalPriceChanged =
-    decimalOrNull(existingOffer.total_price, "existing total_price") !==
-    (effectiveShipping === null ? null : addDecimalStrings(incomingPrice, effectiveShipping));
+    !historicalNullTotalNoop && existingTotalPrice !== derivedTotalPrice;
   const stockChanged =
     Boolean(existingOffer.in_stock) !== parseRequiredBoolean(row.in_stock, "in_stock");
   const urlChanged = String(existingOffer.url || "") !== getOfferUrl(row);
@@ -1784,7 +1792,9 @@ async function validateLegacyMappingUpgrade({
   ) {
     throw new Error("legacy mapping upgrade offer identity mismatch");
   }
-  const offerPlan = buildOfferPlan(row, offer);
+  const offerPlan = buildOfferPlan(row, offer, {
+    allowLegacyNullTotalNoop: true,
+  });
   if (offerPlan.action !== "unchanged") {
     throw new Error("legacy mapping upgrade cannot change offer price, stock or URL");
   }
@@ -2239,7 +2249,9 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
 
   const offerPlan =
     validationErrors.length === 0 && !variantResolutionError
-      ? buildOfferPlan(shippingNormalizedRow, existingOffer)
+      ? buildOfferPlan(shippingNormalizedRow, existingOffer, {
+          allowLegacyNullTotalNoop: Boolean(legacyMappingUpgrade),
+        })
       : null;
 
   const resolved = {
