@@ -344,7 +344,11 @@ Completed:
 - standard import operation type,
 - legacy mapping upgrade RPC,
 - read-only validators,
-- format, flavour, size, servings and count evidence handling.
+- format, flavour, size, servings and count evidence handling,
+- parser and approval normalization for:
+  - `ready_to_drink` / `liquid`,
+  - `snack`,
+  - servings and count evidence.
 
 ### 8.4 Retailer UI
 
@@ -387,10 +391,10 @@ Completed:
 - working Shopify adapter/source,
 - CSV and live Shopify comparison,
 - Batch F canonical catalogue work,
-- Batch F image work,
+- Batch F image work, including 12 verified canonical image backfills,
 - Batch F 36 production mappings/offers/history,
 - RTD, snack and servings evidence support,
-- public UI verification.
+- public UI verification for Batch F.
 
 Fit House is not yet in a scheduled update workflow.
 
@@ -419,7 +423,7 @@ Current problem:
 - no external options,
 - mappings point to default variants.
 
-Whey Okay must undergo reconciliation before automated updates.
+Whey Okay reconciliation has not started. The 520 legacy mappings must be reconciled before automated updates or EKM-based automation.
 
 ---
 
@@ -454,8 +458,11 @@ Whey Okay must undergo reconciliation before automated updates.
 
 ### Batch F
 
-- canonical catalogue and image preparation completed earlier in the Batch F flow
+- canonical catalogue and image preparation completed
+- 12 canonical `products.image` backfills verified for products 742-750 and 753-755
+- products 751 and 752 remain manual image review with `image = null`
 - 36 Fit House mappings/offers/history applied successfully
+- public UI smoke test passed
 - final production counts confirmed
 
 Milestone arithmetic:
@@ -500,7 +507,17 @@ A prior audit found 14 active canonical products without images:
 - 12 had exact packshots suitable for automated backfill,
 - 2 Diet Whey products required manual image selection.
 
-Batch F included image-related catalogue work, but the exact current missing-image count must be re-audited before further implementation.
+Batch F image backfill has been verified:
+
+- products 742-750 and 753-755 have exact approved canonical image URLs,
+- migration `20260715230000_seed_fit_house_batch_f_catalog_and_backfill_images.sql` performed the backfill,
+- commit `49ca31c` introduced the migration,
+- staging and production both contain the migration once in the ledger.
+
+Open image work:
+
+- product 751, Applied Nutrition Diet Whey Protein 1.8kg, remains `MANUAL_IMAGE_REVIEW`,
+- product 752, Applied Nutrition Diet Whey Protein 1kg, remains `MANUAL_IMAGE_REVIEW`.
 
 Root architectural issue:
 
@@ -535,8 +552,7 @@ Not yet enabled:
 
 - automatic production `SAFE_UPDATE`,
 - Fit House scheduled Stage 1,
-- Whey Okay automated source,
-- automated canonical image backfill.
+- Whey Okay automated source.
 
 ### 10.6 Temporary scripts and process repetition
 
@@ -630,9 +646,18 @@ A production write must have an explicit scope. Approval for one batch or artifa
 
 Work should proceed sequentially. Do not open all projects at once.
 
+Current priority order:
+
+1. Select the final 49 high-value variants/offers for business value and cross-retailer coverage.
+2. Complete the 200-variant/offer confidence milestone.
+3. Reconcile 520 Whey Okay legacy mappings.
+4. Establish an automatic Whey Okay source through EKM API or an authorised feed.
+5. Enable safe `SAFE_UPDATE` automation for existing approved mappings only.
+6. Add the basic analytics foundation.
+
 ## Phase 0: operating control
 
-**Status:** this document completes the first step.
+**Status:** in progress and maintained through this document.
 
 Actions:
 
@@ -675,16 +700,19 @@ Definition of done:
 
 Actions:
 
-1. Re-audit current products without images.
-2. Confirm whether the 12 approved backfills are now present.
-3. Resolve the two manual Diet Whey images.
-4. Enforce image handling for every future new canonical product.
-5. Define image priority:
+1. Resolve the two manual Diet Whey images.
+2. Enforce image handling for every future new canonical product.
+3. Define image priority:
    - existing canonical image,
    - verified manufacturer packshot,
    - approved exact retailer packshot,
    - placeholder.
-6. Never overwrite an approved canonical image automatically.
+4. Never overwrite an approved canonical image automatically.
+
+Done:
+
+- 12 approved Batch F image backfills are present and verified on staging and production.
+- Public product pages and search/card rendering passed smoke checks for those 12 products.
 
 Definition of done:
 
@@ -816,7 +844,7 @@ Target experience:
 
 ### Current active task
 
-Create and adopt this Operating Plan as the project source of truth.
+Keep this Operating Plan current after each major milestone.
 
 ### Next task
 
@@ -824,11 +852,12 @@ Select the highest-value final 49 variants/offers using cross-retailer coverage 
 
 ### Then
 
-1. final milestone quality audit,
-2. image audit and cleanup,
-3. Whey Okay reconciliation,
-4. basic analytics,
-5. safe-update automation.
+1. Complete the 200-variant/offer milestone.
+2. Resolve products 751 and 752 manual image review.
+3. Reconcile 520 Whey Okay legacy mappings.
+4. Establish Whey Okay automation through EKM API or an authorised feed.
+5. Enable safe-update automation for existing approved mappings.
+6. Add basic analytics.
 
 ### Tomorrow / deferred near-term
 
@@ -955,7 +984,20 @@ Current binding decisions:
 
 ---
 
-## 18. How to use this document
+## 18. Changelog
+
+### 2026-07-15
+
+- Batch F production PASS.
+- Progress is 151 / 200.
+- 36 Fit House mappings/offers/history added.
+- 12 canonical images verified.
+- 2 Diet Whey images remain manual.
+- `SAFE_UPDATE` still disabled.
+
+---
+
+## 19. How to use this document
 
 At the start of every new project chat or Codex session:
 
