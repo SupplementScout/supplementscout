@@ -419,13 +419,13 @@ Authoritative export findings:
 
 Current problem:
 
-- 460 legacy mappings still require reconciliation,
+- 450 legacy mappings still require reconciliation,
 - many legacy mappings still have no external product IDs,
 - many legacy mappings still have no external variant IDs,
 - many legacy mappings still have no external options,
 - many legacy mappings point to default variants.
 
-The first controlled Whey Okay reconciliation pilot, Batch 2.1 and Batch 3 have completed for 60 total standalone legacy mappings. The remaining 460 legacy mappings must be reconciled before automated updates or EKM-based automation.
+The first controlled Whey Okay reconciliation pilot, Batch 2.1, Batch 3 and reduced Batch 4 have completed for 70 total standalone legacy mappings. The remaining 450 legacy mappings must be reconciled before automated updates or EKM-based automation.
 
 ---
 
@@ -519,7 +519,7 @@ The 200 source-variant/offer milestone is complete. Do not enable `SAFE_UPDATE` 
 
 Immediate post-milestone priority:
 
-1. Reconcile the remaining 460 Whey Okay legacy mappings.
+1. Reconcile the remaining 450 Whey Okay legacy mappings.
 2. Resolve products 751 and 752 manual image review.
 3. Establish Whey Okay automation only after reconciliation.
 4. Review and explicitly approve safe `SAFE_UPDATE` automation separately.
@@ -534,18 +534,26 @@ Completed:
 - 10 standalone legacy mappings upgraded with stable EKM identity,
 - Whey Okay reconciliation Batch 2.1 with 25 additional standalone mappings enriched,
 - Whey Okay reconciliation Batch 3 with 25 additional standalone mappings enriched,
+- Whey Okay reconciliation reduced Batch 4 with 10 additional standalone mappings enriched,
 - one-row approval/apply pattern verified on staging and production,
 - approval replay protection verified.
 
 Remaining:
 
-- 460 legacy mappings still require reconciliation.
+- 450 legacy mappings still require reconciliation.
 
 Batch 2.1 excluded these records because dry-run required complete external identity evidence:
 
 - `retailer_product_id` 368, EKM 2184, Natures Aid Iron Bisglycinate 14mg 90 Tablets,
 - `retailer_product_id` 102, EKM 518, Time 4 Creatine Blend 240 caps,
 - `retailer_product_id` 406, EKM 3105, Solgar Omega 3-6-9 Fish, Flax, Borage 60 Softgels.
+
+Batch 4 excluded these records because dry-run required complete external identity evidence:
+
+- `retailer_product_id` 418, EKM 3083, Reflex Nutrition Creapure Creatine 90 Capsules,
+- `retailer_product_id` 444, EKM 3428, KIOR Health KSM-66 Ashwagandha+ 60 Caps.
+
+Further Batch 4 candidate records after the first 10 were not processed.
 
 Known problem cases include:
 
@@ -702,7 +710,7 @@ Work should proceed sequentially. Do not open all projects at once.
 
 Current priority order:
 
-1. Reconcile the remaining 460 Whey Okay legacy mappings.
+1. Reconcile the remaining 450 Whey Okay legacy mappings.
 2. Establish an automatic Whey Okay source through EKM API or an authorised feed.
 3. Enable safe `SAFE_UPDATE` automation for existing approved mappings only after explicit review.
 4. Resolve products 751 and 752 manual image review.
@@ -799,7 +807,7 @@ Use the existing legacy mapping upgrade RPC and approval model.
 
 Pilot status:
 
-- 60 standalone legacy mappings have been upgraded successfully,
+- 70 standalone legacy mappings have been upgraded successfully,
 - continue with larger but still reviewable sequential one-row approval batches,
 - do not use a multi-row artifact unless separately reviewed and approved.
 
@@ -907,11 +915,11 @@ Keep this Operating Plan current after each major milestone.
 
 ### Next task
 
-Continue Whey Okay reconciliation for the remaining 460 legacy mappings.
+Continue Whey Okay reconciliation for the remaining 450 legacy mappings.
 
 ### Then
 
-1. Reconcile the remaining 460 Whey Okay legacy mappings.
+1. Reconcile the remaining 450 Whey Okay legacy mappings.
 2. Resolve products 751 and 752 manual image review.
 3. Establish Whey Okay automation through EKM API or an authorised feed.
 4. Enable safe-update automation for existing approved mappings after separate approval.
@@ -1034,7 +1042,7 @@ Current binding decisions:
 - Current progress is 200 / 200.
 - eBay is postponed.
 - Whey Okay automation comes after reconciliation.
-- Whey Okay standalone pilot, Batch 2.1 and Batch 3 upgraded 60 total legacy mappings; 460 remain.
+- Whey Okay standalone pilot, Batch 2.1, Batch 3 and reduced Batch 4 upgraded 70 total legacy mappings; 450 remain.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
 - Do not duplicate already completed work.
@@ -1073,6 +1081,11 @@ Current binding decisions:
 - Total Whey Okay legacy mappings reconciled: 60.
 - Remaining Whey Okay legacy mappings: 460.
 - Batch 3 had no new incomplete-evidence exclusions; higher-risk candidates were left out fail-closed.
+- Whey Okay reconciliation reduced Batch 4 PASS: 10 additional one-row upgrades applied on staging and production.
+- Total Whey Okay legacy mappings reconciled: 70.
+- Remaining Whey Okay legacy mappings: 450.
+- Batch 4 excluded retailer_products 418 and 444 due to incomplete external identity evidence.
+- Further Batch 4 candidate records were not processed after the reduced 10-row PASS set.
 - Continue reconciliation in larger sequential one-row approval batches; do not enable Whey Okay automation yet.
 - `SAFE_UPDATE` still disabled.
 
