@@ -21,6 +21,7 @@ const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migra
 const atomicMigration = path.join(root, "supabase/migrations/20260713180000_atomic_product_import_rpc.sql");
 const approvalMigration = path.join(root, "supabase/migrations/20260713190000_approved_import_plan_ledger.sql");
 const legacyUpgradeMigration = path.join(root, "supabase/migrations/20260713200000_legacy_mapping_upgrade_rpc.sql");
+const formatNormalizationMigration = path.join(root, "supabase/migrations/20260715234500_align_approval_product_format_normalization.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const forbiddenRefs = ["aftboxmrdgyhizicfsfu", "dlsbwshkzdsvzubjftbv"];
 const image = "postgres:17-alpine";
@@ -136,6 +137,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const sql = require("node:fs").readFileSync(atomicMigration, "utf8");
   const approvalSql = require("node:fs").readFileSync(approvalMigration, "utf8");
   const legacySql = require("node:fs").readFileSync(legacyUpgradeMigration, "utf8");
+  const formatSql = require("node:fs").readFileSync(formatNormalizationMigration, "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
   assert.match(sql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
@@ -164,6 +166,19 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.match(legacySql, /revoke all on function public\.atomic_import_is_legacy_mapping_upgrade/i);
   assert.doesNotMatch(legacySql, /grant execute[^;]+service_role/i);
   assert.doesNotMatch(legacySql, /\bexecute\s+format|import_test_failpoint/i);
+  assert.match(formatSql, /^begin;/i);
+  assert.match(formatSql, /atomic_import_normalize_product_format/i);
+  assert.match(formatSql, /ready_to_drink[\s\S]+liquid/i);
+  assert.match(formatSql, /ready-to-drink[\s\S]+liquid/i);
+  assert.match(formatSql, /ready to drink[\s\S]+liquid/i);
+  assert.match(formatSql, /public\.atomic_import_normalize_product_format\(v_evidence->>'product_format'\)/i);
+  assert.match(formatSql, /public\.atomic_import_normalize_product_format\(v_variant\.product_format\)/i);
+  assert.match(formatSql, /format comparison target not found/i);
+  assert.match(formatSql, /alter function public\.validate_product_import_plan_read_only\(jsonb\) owner to postgres/i);
+  assert.match(formatSql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
+  assert.doesNotMatch(formatSql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(formatSql, /\bupdate\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(formatSql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -205,18 +220,43 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, atomicMigration), "apply atomic import migration");
     requireSuccess(psqlFile(container, database, approvalMigration), "apply approved import plan ledger migration");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "apply legacy mapping upgrade migration");
+    requireSuccess(psqlFile(container, database, formatNormalizationMigration), "apply approval format normalization migration");
     requireSuccess(psqlFile(container, database, atomicMigration), "reapply atomic import migration idempotently");
     requireSuccess(psqlFile(container, database, approvalMigration), "reapply approval ledger migration idempotently");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "reapply legacy mapping upgrade migration idempotently");
+    requireSuccess(psqlFile(container, database, formatNormalizationMigration), "reapply approval format normalization migration idempotently");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",
       `atomic_import_expected_database=${database}`,
     ]), "run 60 atomic import and approval-ledger SQL scenarios");
 
+    const formatContracts = [
+      ["ready_to_drink", "liquid", "true"],
+      ["ready-to-drink", "liquid", "true"],
+      ["ready to drink", "liquid", "true"],
+      ["liquid", "liquid", "true"],
+      ["powder", "powder", "true"],
+      ["capsule", "capsules", "true"],
+      ["tablet", "tablets", "true"],
+      ["gummy", "gummies", "true"],
+      ["liquid", "powder", "false"],
+      ["liquid", "capsules", "false"],
+      ["ready_to_drink", "powder", "false"],
+      ["bar", "liquid", "false"],
+    ];
+    for (const [left, right, expected] of formatContracts) {
+      const result = exec(container, [
+        "psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", database, "-tAc",
+        `select (public.atomic_import_normalize_product_format(${sqlLiteral(left)}) = public.atomic_import_normalize_product_format(${sqlLiteral(right)}))::text`,
+      ]);
+      requireSuccess(result, `format normalization contract ${left} vs ${right}`);
+      assert.equal(result.stdout.trim(), expected, `${left} vs ${right}`);
+    }
+
     const fixtureInsert = exec(container, [
       "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
-      "insert into public.products(id,name,slug,brand,category,product_format,is_active) values(920001,'Micro Dose Product','micro-dose-product','Integration Brand','Health Supplements','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(920001,920001,'micro-0-1mcg','0.1 mcg',0.0000001,'g',1,'capsule',true,false); update public.offers set total_price=999 where retailer_product_id=(select id from public.retailer_products where external_variant_id='manual-default');",
+      "insert into public.products(id,name,slug,brand,category,product_format,is_active) values(920001,'Micro Dose Product','micro-dose-product','Integration Brand','Health Supplements','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(920001,920001,'micro-0-1mcg','0.1 mcg',0.0000001,'g',1,'capsule',true,false); insert into public.products(id,name,slug,brand,category,product_format,is_active) values(930001,'RTD Product','rtd-product','Integration Brand','Health Supplements','liquid',true); insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default) values(930001,930001,'chocolate-330ml','Chocolate / 330ml','chocolate','Chocolate',330,'ml',1,'ready_to_drink',true,false),(930002,930001,'chocolate-330ml-liquid','Chocolate / 330ml Liquid','chocolate','Chocolate',330,'ml',1,'liquid',true,false),(930003,930001,'chocolate-330ml-powder','Chocolate / 330ml Powder','chocolate','Chocolate',330,'ml',1,'powder',true,false),(930004,930001,'chocolate-330ml-capsules','Chocolate / 330ml Capsules','chocolate','Chocolate',330,'ml',1,'capsules',true,false),(930005,930001,'chocolate-330ml-bar','Chocolate / 330ml Bar','chocolate','Chocolate',330,'ml',1,'bar',true,false); update public.offers set total_price=999 where retailer_product_id=(select id from public.retailer_products where external_variant_id='manual-default');",
     ]);
     requireSuccess(fixtureInsert, "create Node decimal integration fixture");
     const legacyFixtureInsert = exec(container, [
@@ -230,6 +270,9 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       'mass_variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=900002),
       'micro_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=920001),
       'micro_variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=920001),
+      'rtd_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=930001),
+      'rtd_variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=930001),
+      'rtd_variants',(select jsonb_agg(jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) order by id) from public.product_variants where product_id=930001),
       'manual_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=2010),
       'manual_variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=2010)
       ,'drift_mapping',(select to_jsonb(rp)-'created_at' from public.retailer_products rp where external_variant_id='manual-default')
@@ -254,6 +297,23 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
             price: "29.99", shipping_cost: "1.25",
             in_stock: "true", external_url: "https://local.test/node-discount-1kg",
             affiliate_url: "https://affiliate.local/node-discount-1kg",
+          },
+        },
+        {
+          name: "rtd-liquid-evidence",
+          mode: "feed",
+          product: state.rtd_product,
+          variant: state.rtd_variant,
+          row: {
+            retailer_name: state.retailer.name, retailer_website: state.retailer.website,
+            product_name: state.rtd_product.name, slug: "node-rtd-product",
+            brand: state.rtd_product.brand, category: state.rtd_product.category,
+            external_product_id: "node-rtd-product", external_variant_id: "node-rtd-chocolate-330ml",
+            external_sku: "node-rtd-sku", external_options: '{"Flavor":"Chocolate"}',
+            flavour: "Chocolate", size: "330ml", product_format: "liquid",
+            price: "2.50", shipping_cost: "3.99",
+            in_stock: "true", external_url: "https://local.test/node-rtd-chocolate-330ml",
+            affiliate_url: "https://affiliate.local/node-rtd-chocolate-330ml",
           },
         },
         {
@@ -326,6 +386,52 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
           artifact.artifact.plans[0].resolved_plan.meta.operation_type
         );
         const fingerprint = artifact.artifact.plans[0].plan_fingerprint;
+        if (scenario.name === "rtd-liquid-evidence") {
+          const rtdPlan = artifact.artifact.plans[0].resolved_plan;
+          const rtdVariantById = new Map(state.rtd_variants.map((variant) => [Number(variant.id), variant]));
+          const validatorCases = [
+            ["artifact ready_to_drink vs DB ready_to_drink", "ready_to_drink", 930001, true],
+            ["artifact ready-to-drink vs DB ready_to_drink", "ready-to-drink", 930001, true],
+            ["artifact ready to drink vs DB ready_to_drink", "ready to drink", 930001, true],
+            ["artifact liquid vs DB ready_to_drink", "liquid", 930001, true],
+            ["artifact ready_to_drink vs DB liquid", "ready_to_drink", 930002, true],
+            ["artifact liquid vs DB powder", "liquid", 930003, false],
+            ["artifact liquid vs DB capsules", "liquid", 930004, false],
+            ["artifact ready_to_drink vs DB powder", "ready_to_drink", 930003, false],
+            ["artifact bar vs DB ready_to_drink", "bar", 930001, false],
+            ["artifact bar vs DB liquid", "bar", 930002, false],
+            ["missing artifact format vs DB ready_to_drink", null, 930001, false],
+          ];
+          for (const [label, evidenceFormat, variantId, shouldPass] of validatorCases) {
+            const plan = structuredClone(rtdPlan);
+            const expectedVariant = rtdVariantById.get(variantId);
+            assert.ok(expectedVariant, `missing RTD fixture variant ${variantId}`);
+            plan.product_variant.id = String(variantId);
+            plan.expected_state.product_variant = {
+              ...expectedVariant,
+              id: String(expectedVariant.id),
+              product_id: String(expectedVariant.product_id),
+              size_value: String(expectedVariant.size_value),
+              pack_count: String(expectedVariant.pack_count),
+            };
+            plan.retailer_product.values.product_variant_id = String(variantId);
+            if (evidenceFormat === null) {
+              delete plan.product_variant.evidence.product_format;
+            } else {
+              plan.product_variant.evidence.product_format = evidenceFormat;
+            }
+            refreshPlanFingerprint(plan);
+            const validated = exec(container, [
+              "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+              "-c", `select public.validate_product_import_plan_read_only(${sqlLiteral(JSON.stringify(plan))}::jsonb);`,
+            ]);
+            if (shouldPass) {
+              requireSuccess(validated, `RTD validator alias case: ${label}`);
+            } else {
+              assert.notEqual(validated.status, 0, `RTD validator accepted conflicting format: ${label}`);
+            }
+          }
+        }
         const approved = await approveArtifactPlan({ artifactPath: artifact.artifactPath, planFingerprint: fingerprint });
         const applied = await applyArtifactPlan({
           artifactPath: artifact.artifactPath, planFingerprint: fingerprint,
