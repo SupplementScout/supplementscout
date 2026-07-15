@@ -751,7 +751,8 @@ function parseLegacyMappingUpgradeControls(row) {
     row,
     "expected_retailer_product_updated_at"
   );
-  if (!hasFlag && !hasMappingId && !hasExpectedUpdatedAt) return null;
+  const hasStandalone = rowHasColumn(row, "legacy_mapping_standalone");
+  if (!hasFlag && !hasMappingId && !hasExpectedUpdatedAt && !hasStandalone) return null;
 
   const enabled = String(row.legacy_mapping_upgrade ?? "").trim().toLowerCase();
   if (enabled !== "true") {
@@ -769,7 +770,28 @@ function parseLegacyMappingUpgradeControls(row) {
       "legacy mapping upgrade requires expected_retailer_product_updated_at"
     );
   }
-  return { mappingId, expectedUpdatedAt };
+  const standalone = String(row.legacy_mapping_standalone ?? "")
+    .trim()
+    .toLowerCase();
+  const standaloneEnabled = standalone === "true";
+  if (standalone && !["true", "false"].includes(standalone)) {
+    throw new Error("legacy mapping standalone proof must be true or false");
+  }
+  if (standaloneEnabled) {
+    if (String(row.legacy_standalone_sellable_count ?? "").trim() !== "1") {
+      throw new Error("standalone legacy mapping upgrade requires exactly one sellable source row");
+    }
+    for (const [field, message] of [
+      ["legacy_standalone_has_options", "standalone legacy mapping upgrade forbids source options"],
+      ["legacy_duplicate_source_listing", "standalone legacy mapping upgrade forbids duplicate source listings"],
+      ["legacy_identity_drift", "standalone legacy mapping upgrade forbids identity drift"],
+    ]) {
+      if (String(row[field] ?? "").trim().toLowerCase() !== "false") {
+        throw new Error(message);
+      }
+    }
+  }
+  return { mappingId, expectedUpdatedAt, standalone: standaloneEnabled };
 }
 
 function parseExternalOptions(value) {
@@ -1361,8 +1383,24 @@ async function findOffersForRetailerProduct(retailerId, productId) {
   return data || [];
 }
 
-function exactLegacyExternalOptions(row) {
+function exactLegacyExternalOptions(row, controls = null) {
   const options = parseExternalOptions(row.external_options);
+  const evidence = collectCanonicalVariantEvidence(row);
+  if (controls?.standalone) {
+    if (options !== null) {
+      throw new Error("standalone legacy mapping upgrade requires null external_options");
+    }
+    if (evidence.flavour || evidence.size || evidence.discriminatingSupplied) {
+      throw new Error("standalone legacy mapping upgrade forbids flavour or size evidence");
+    }
+    if (
+      optionalIdentifier(row.external_product_id) !==
+      optionalIdentifier(row.external_variant_id)
+    ) {
+      throw new Error("standalone legacy mapping upgrade requires matching EKM product and variant IDs");
+    }
+    return { options: null, evidence, standalone: true };
+  }
   if (!options) {
     throw new Error("legacy mapping upgrade requires external_options");
   }
@@ -1374,15 +1412,14 @@ function exactLegacyExternalOptions(row) {
   ) {
     throw new Error("legacy mapping upgrade external_options must contain exactly Size and Flavour");
   }
-  const evidence = collectCanonicalVariantEvidence(row);
   if (!evidence.size || !evidence.flavour) {
     throw new Error("legacy mapping upgrade requires matching size and flavour evidence");
   }
-  return { options, evidence };
+  return { options, evidence, standalone: false };
 }
 
-function legacyIdentityAfter(row) {
-  const { options } = exactLegacyExternalOptions(row);
+function legacyIdentityAfter(row, controls = null) {
+  const { options } = exactLegacyExternalOptions(row, controls);
   return {
     external_product_id: optionalIdentifier(row.external_product_id),
     external_variant_id: optionalIdentifier(row.external_variant_id),
@@ -1561,7 +1598,7 @@ async function resolveCanonicalProductVariant(
       ) {
         throw new Error("legacy mapping upgrade evidence points to a different variant");
       }
-      exactLegacyExternalOptions(row);
+      exactLegacyExternalOptions(row, options.legacyMappingUpgrade);
       return mappedVariant;
     }
     if (mappedVariant.is_default) {
@@ -1667,6 +1704,9 @@ async function validateLegacyMappingUpgrade({
   if (String(mapping.updated_at) !== controls.expectedUpdatedAt) {
     throw new Error("legacy mapping upgrade expected updated_at is stale");
   }
+  if (controls.standalone && String(retailer.slug || "").trim() !== "whey-okay") {
+    throw new Error("standalone legacy mapping upgrade is limited to Whey Okay");
+  }
   if (mapping.retailer_id !== retailer.id || mapping.product_id !== product.id) {
     throw new Error("legacy mapping upgrade mapping ownership mismatch");
   }
@@ -1699,7 +1739,7 @@ async function validateLegacyMappingUpgrade({
     throw new Error("legacy mapping upgrade incoming product identity mismatch");
   }
 
-  const after = legacyIdentityAfter(row);
+  const after = legacyIdentityAfter(row, controls);
   if (!after.external_product_id || !after.external_variant_id || !after.external_sku) {
     throw new Error("legacy mapping upgrade requires complete external identity evidence");
   }
@@ -1767,6 +1807,10 @@ async function validateLegacyMappingUpgrade({
       external_options: after.external_options,
       external_gtin: after.external_gtin,
       external_url: incomingUrl,
+      legacy_mapping_standalone: controls.standalone,
+      legacy_standalone_sellable_count: controls.standalone
+        ? String(row.legacy_standalone_sellable_count || "").trim()
+        : "",
     },
     offer,
   };
@@ -2125,9 +2169,9 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     try {
       productVariant = await resolveCanonicalProductVariant(
         shippingNormalizedRow,
-        product.id,
-        mapping,
-        { legacyMappingUpgrade: Boolean(legacyControls) }
+      product.id,
+      mapping,
+        { legacyMappingUpgrade: legacyControls || false }
       );
     } catch (error) {
       variantResolutionError = error?.message || String(error);

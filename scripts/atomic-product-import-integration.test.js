@@ -21,6 +21,7 @@ const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migra
 const atomicMigration = path.join(root, "supabase/migrations/20260713180000_atomic_product_import_rpc.sql");
 const approvalMigration = path.join(root, "supabase/migrations/20260713190000_approved_import_plan_ledger.sql");
 const legacyUpgradeMigration = path.join(root, "supabase/migrations/20260713200000_legacy_mapping_upgrade_rpc.sql");
+const standaloneLegacyUpgradeMigration = path.join(root, "supabase/migrations/20260716000000_support_standalone_legacy_mapping_upgrade.sql");
 const formatNormalizationMigration = path.join(root, "supabase/migrations/20260715234500_align_approval_product_format_normalization.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const forbiddenRefs = ["aftboxmrdgyhizicfsfu", "dlsbwshkzdsvzubjftbv"];
@@ -220,10 +221,12 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, atomicMigration), "apply atomic import migration");
     requireSuccess(psqlFile(container, database, approvalMigration), "apply approved import plan ledger migration");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "apply legacy mapping upgrade migration");
+    requireSuccess(psqlFile(container, database, standaloneLegacyUpgradeMigration), "apply standalone legacy mapping upgrade migration");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "apply approval format normalization migration");
     requireSuccess(psqlFile(container, database, atomicMigration), "reapply atomic import migration idempotently");
     requireSuccess(psqlFile(container, database, approvalMigration), "reapply approval ledger migration idempotently");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "reapply legacy mapping upgrade migration idempotently");
+    requireSuccess(psqlFile(container, database, standaloneLegacyUpgradeMigration), "reapply standalone legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "reapply approval format normalization migration idempotently");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
@@ -264,6 +267,11 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       "update public.retailers set name='Discount Supplements',slug='discount-supplements',website='https://www.discount-supplements.co.uk' where id=4; insert into public.products(id,name,slug,brand,category,product_format,is_active) values(407,'CNP Creatine Monohydrate 250g','cnp-creatine-monohydrate-250g','CNP','Creatine',null,true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(386,407,'default','Default',null,null,null,null,true,true); insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(948,4,407,386,'CNP Creatine Monohydrate 250g','cnp-creatine-monohydrate-250g',null,'https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234',null,null,null,null,'slug',90,'2026-07-12T12:37:52.563+00:00'); insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(762,407,4,948,386,12.99,4.99,17.98,true,'https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234','2026-07-12T12:37:52.674+00:00');",
     ]);
     requireSuccess(legacyFixtureInsert, "create exact legacy mapping 948 fixture");
+    const standaloneLegacyFixtureInsert = exec(container, [
+      "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+      "update public.retailers set name='Whey Okay',slug='whey-okay',website='https://wheyokay.com' where id=3; insert into public.products(id,name,slug,brand,category,product_format,is_active) values(940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps','BioTech USA','Vitamins & Minerals','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(940001,940001,'default','Default',null,null,null,null,true,true); insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(940001,3,940001,940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps',null,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp',null,null,null,null,'slug',90,'2026-07-15T10:00:00.000+00:00'); insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(940001,940001,3,940001,940001,9.99,3.99,13.98,true,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp','2026-07-15T10:00:01.000+00:00');",
+    ]);
+    requireSuccess(standaloneLegacyFixtureInsert, "create standalone Whey Okay legacy mapping fixture");
     const state = psqlJson(container, database, `select jsonb_build_object(
       'retailer',(select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website) from public.retailers where id=1),
       'mass_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=900001),
@@ -567,6 +575,174 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       assert.equal(legacyCheck.history_count, 0);
       assert.equal(legacyCheck.mapping_count, 1);
       assert.equal(legacyCheck.offer_count, 1);
+
+      const standaloneState = psqlJson(container, database, `select jsonb_build_object(
+        'retailer',(select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website) from public.retailers where id=3),
+        'product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=940001),
+        'variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=940001),
+        'mapping',(select jsonb_build_object('id',id,'retailer_id',retailer_id,'product_id',product_id,'product_variant_id',product_variant_id,'updated_at',updated_at,'external_product_id',external_product_id,'external_variant_id',external_variant_id,'external_sku',external_sku,'external_options',external_options,'external_name',external_name,'external_slug',external_slug,'external_gtin',external_gtin,'external_url',external_url,'match_method',match_confidence) from public.retailer_products where id=940001),
+        'offer',(select jsonb_build_object('id',id,'product_id',product_id,'retailer_id',retailer_id,'product_variant_id',product_variant_id,'retailer_product_id',retailer_product_id,'price',price,'shipping_cost',shipping_cost,'total_price',total_price,'in_stock',in_stock,'url',url,'last_checked_at',last_checked_at) from public.offers where id=940001)
+      );`);
+      standaloneState.mapping.match_method = "slug";
+      standaloneState.mapping.match_confidence = 90;
+      const standaloneUrl = standaloneState.mapping.external_url;
+      const standaloneRow = {
+        retailer_name: "Whey Okay", retailer_website: "https://wheyokay.com",
+        product_name: "BioTech USA Magnesium Chelate 60 Caps",
+        slug: "biotech-usa-magnesium-chelate-60-caps",
+        brand: "BioTech USA", category: "Vitamins & Minerals",
+        external_product_id: "668", external_variant_id: "668",
+        external_sku: "BIO-MAG-60", external_options: null,
+        external_gtin: "", variant_name: "", size: "", flavour: "",
+        product_format: "capsule", pack_count: "", price: "9.99",
+        shipping_cost: "3.99", in_stock: "true",
+        external_url: standaloneUrl, affiliate_url: standaloneUrl,
+        legacy_mapping_upgrade: "true", legacy_mapping_standalone: "true",
+        legacy_standalone_sellable_count: "1",
+        legacy_standalone_has_options: "false",
+        legacy_duplicate_source_listing: "false",
+        legacy_identity_drift: "false",
+        retailer_product_id: "940001",
+        expected_retailer_product_updated_at: standaloneState.mapping.updated_at,
+      };
+      const standaloneAfter = {
+        external_product_id: "668", external_variant_id: "668",
+        external_sku: "BIO-MAG-60", external_options: null,
+        external_gtin: null,
+      };
+      const standaloneItem = {
+        row: standaloneRow, rowNumber: 2, retailer: standaloneState.retailer,
+        product: standaloneState.product, productVariant: standaloneState.variant,
+        mapping: standaloneState.mapping, existingOffer: standaloneState.offer,
+        offerPlan: { action: "unchanged", createsPriceHistory: false }, mode: "feed",
+        legacyMappingUpgrade: {
+          operationType: "legacy_mapping_upgrade",
+          controls: {
+            mappingId: "940001",
+            expectedUpdatedAt: standaloneState.mapping.updated_at,
+            standalone: true,
+          },
+          after: standaloneAfter, alreadyCompleted: false, exactUrl: standaloneUrl,
+          approvedEvidence: {
+            product_name: standaloneRow.product_name, brand: standaloneRow.brand,
+            size: "", flavour: "", product_format: standaloneRow.product_format,
+            pack_count: "", ...standaloneAfter, external_url: standaloneUrl,
+            legacy_mapping_standalone: true, legacy_standalone_sellable_count: "1",
+          },
+        },
+      };
+      const standaloneArtifact = writeNodePlanArtifact(
+        artifactDirectory, "legacy-standalone-whey-okay-940001", standaloneRow, standaloneItem
+      );
+      const standaloneFingerprint = standaloneArtifact.artifact.plans[0].plan_fingerprint;
+      const standalonePlan = standaloneArtifact.artifact.plans[0].resolved_plan;
+      assert.equal(standalonePlan.meta.operation_type, "legacy_mapping_upgrade");
+      assert.equal(standalonePlan.retailer_product.values.external_options, null);
+      assert.equal(standalonePlan.product_variant.evidence.external_options, null);
+      assert.equal(standalonePlan.product_variant.evidence.flavour, null);
+      assert.equal(standalonePlan.product_variant.evidence.size_value, null);
+      const standaloneHelper = exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+        "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(standalonePlan))}::jsonb);`,
+      ]);
+      requireSuccess(standaloneHelper, "standalone legacy helper accepts exact standalone plan");
+      assert.equal(standaloneHelper.stdout.trim(), "t");
+      const standaloneTamperedPlans = [
+        ["two source variants / product and variant IDs differ", (plan) => {
+          plan.retailer_product.values.external_variant_id = "669";
+        }],
+        ["flavour evidence", (plan) => {
+          plan.product_variant.evidence.flavour = "vanilla";
+        }],
+        ["size evidence", (plan) => {
+          plan.product_variant.evidence.size_value = "60";
+          plan.product_variant.evidence.size_unit = "capsule";
+        }],
+        ["source options", (plan) => {
+          plan.retailer_product.values.external_options = { Flavour: "Default" };
+          plan.product_variant.evidence.external_options = { Flavour: "Default" };
+        }],
+      ];
+      for (const [label, mutate] of standaloneTamperedPlans) {
+        const plan = structuredClone(standalonePlan);
+        mutate(plan);
+        refreshPlanFingerprint(plan);
+        const rejected = exec(container, [
+          "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+          "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(plan))}::jsonb);`,
+        ]);
+        requireSuccess(rejected, `standalone helper rejection: ${label}`);
+        assert.equal(rejected.stdout.trim(), "f", `standalone helper accepted ${label}`);
+      }
+      requireSuccess(exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+        "insert into public.product_variants(id,product_id,variant_key,display_name,is_active,is_default) values(940002,940001,'capsule-non-default','Capsule Non Default',true,false);",
+      ]), "create non-default canonical variant blocker");
+      const nonDefaultRejected = exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+        "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(standalonePlan))}::jsonb);`,
+      ]);
+      requireSuccess(nonDefaultRejected, "standalone helper rejects active non-default canonical variant");
+      assert.equal(nonDefaultRejected.stdout.trim(), "f");
+      requireSuccess(exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+        "delete from public.product_variants where id=940002;",
+      ]), "remove non-default canonical variant blocker");
+      const duplicateOfferConstraint = exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+        "insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(940002,940001,3,940001,940001,9.99,3.99,13.98,true,'https://wheyokay.com/duplicate-offer','2026-07-15T10:00:02.000+00:00');",
+      ]);
+      assert.notEqual(duplicateOfferConstraint.status, 0, "schema accepted duplicate offer for one retailer_product_id");
+      assert.match(output(duplicateOfferConstraint), /offers_retailer_product_unique/);
+
+      requireSuccess(exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+        "insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(940002,3,940001,940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps',null,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-duplicate-940002-p.asp',null,null,null,null,'slug',90,'2026-07-15T10:00:03.000+00:00');",
+      ]), "create duplicate standalone retailer/product mapping blocker");
+      const duplicateMappingRejected = exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+        "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(standalonePlan))}::jsonb);`,
+      ]);
+      requireSuccess(duplicateMappingRejected, "standalone helper rejects duplicate retailer/product mapping");
+      assert.equal(duplicateMappingRejected.stdout.trim(), "f");
+      requireSuccess(exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+        "delete from public.retailer_products where id=940002;",
+      ]), "remove duplicate standalone retailer/product mapping blocker");
+
+      const standaloneApproved = await approveArtifactPlan({
+        artifactPath: standaloneArtifact.artifactPath,
+        planFingerprint: standaloneFingerprint,
+      });
+      const standaloneApplied = await applyArtifactPlan({
+        artifactPath: standaloneArtifact.artifactPath,
+        planFingerprint: standaloneFingerprint,
+        approvalId: standaloneApproved.approvalId,
+        pilotApply: true,
+      });
+      assert.equal(standaloneApplied.successful, 1);
+      const standaloneCheck = psqlJson(container, database, `select jsonb_build_object(
+        'mapping',(select jsonb_build_object('product_id',product_id,'retailer_id',retailer_id,'product_variant_id',product_variant_id,'external_product_id',external_product_id,'external_variant_id',external_variant_id,'external_sku',external_sku,'external_options',external_options,'external_gtin',external_gtin,'external_url',external_url) from public.retailer_products where id=940001),
+        'offer',(select jsonb_build_object('product_id',product_id,'retailer_id',retailer_id,'retailer_product_id',retailer_product_id,'product_variant_id',product_variant_id,'price',price,'shipping_cost',shipping_cost,'total_price',total_price,'in_stock',in_stock,'url',url,'last_checked_at',last_checked_at) from public.offers where id=940001),
+        'history_count',(select count(*) from public.price_history where offer_id=940001),
+        'mapping_count',(select count(*) from public.retailer_products where retailer_id=3 and product_id=940001),
+        'offer_count',(select count(*) from public.offers where retailer_id=3 and product_id=940001)
+      );`);
+      assert.deepEqual(standaloneCheck.mapping, {
+        product_id: 940001, retailer_id: 3, product_variant_id: 940001,
+        external_product_id: "668", external_variant_id: "668",
+        external_sku: "BIO-MAG-60", external_options: null,
+        external_gtin: null, external_url: standaloneUrl,
+      });
+      assert.deepEqual(standaloneCheck.offer, {
+        product_id: 940001, retailer_id: 3, retailer_product_id: 940001,
+        product_variant_id: 940001, price: 9.99, shipping_cost: 3.99,
+        total_price: 13.98, in_stock: true, url: standaloneUrl,
+        last_checked_at: standaloneState.offer.last_checked_at,
+      });
+      assert.equal(standaloneCheck.history_count, 0);
+      assert.equal(standaloneCheck.mapping_count, 1);
+      assert.equal(standaloneCheck.offer_count, 1);
     } finally {
       fs.rmSync(artifactDirectory, { recursive: true, force: true });
     }
