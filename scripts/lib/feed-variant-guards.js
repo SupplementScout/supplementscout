@@ -71,7 +71,7 @@ function parseSize(value = "") {
     };
   }
 
-  const match = text.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|mg|mcg|iu|l|ml)\b/);
+  const match = text.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|mg|mcg|iu|l|ml|servings?|serves?)\b/);
 
   if (!match) {
     return null;
@@ -98,6 +98,10 @@ function parseSize(value = "") {
 
   if (unit === "iu") {
     return { value: amount, unit: "iu", dimension: "potency" };
+  }
+
+  if (unit === "serving" || unit === "servings" || unit === "serve" || unit === "serves") {
+    return { value: amount, unit: "servings", dimension: "count" };
   }
 
   if (unit === "l") {
@@ -168,6 +172,10 @@ function parseProductFormat(value = "") {
     return "bar";
   }
 
+  if (/\bsnacks?\b/.test(text)) {
+    return "snack";
+  }
+
   if (/\b(powder|whey|protein|isolate|casein|mass gainer|pre workout|creatine)\b/.test(text)) {
     return "powder";
   }
@@ -232,6 +240,7 @@ function parseVariantIdentity(rowOrName) {
           rowOrName.flavour,
           rowOrName.flavor,
           rowOrName.size,
+          rowOrName.size_unit,
           rowOrName.product_format,
           rowOrName.unit_type,
           rowOrName.evidence_name,

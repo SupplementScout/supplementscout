@@ -796,7 +796,7 @@ function parseExternalOptions(value) {
 
 function parseExplicitSize(value) {
   const text = String(value ?? "").trim();
-  if (!/^\d+(?:[.,]\d+)?\s*(?:kg|g|mg|mcg|iu|l|ml)$/i.test(text)) {
+  if (!/^\d+(?:[.,]\d+)?\s*(?:kg|g|mg|mcg|iu|l|ml|servings?|serves?)$/i.test(text)) {
     return null;
   }
   return parseSize(text);

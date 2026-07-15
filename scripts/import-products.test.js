@@ -814,7 +814,16 @@ test("variant parsing extracts conservative flavour, size, pack count, and forma
   assert.equal(parseProductFormat("Barebells High Protein Milkshake 330ml"), "liquid");
   assert.equal(parseProductFormat("Strawberry Milkshake / 25 servings"), null);
   assert.equal(parseProductFormat("whey powder"), "powder");
+  assert.equal(parseProductFormat("snack"), "snack");
   assert.equal(parseProductFormat("unclear merch item"), null);
+  assert.deepEqual(parseSize("50 servings"), { value: "50", unit: "servings", dimension: "count" });
+  assert.deepEqual(parseSize("20 serves"), { value: "20", unit: "servings", dimension: "count" });
+  assert.deepEqual(parseVariantIdentity({ size: "30", size_unit: "servings" }).size, {
+    value: "30",
+    unit: "servings",
+    dimension: "count",
+  });
+  assert.notEqual(parseVariantIdentity({ size: "30", size_unit: "servings" }).size.unit, "g");
 });
 
 test("908g feed row does not match 2.27kg product", () => {
@@ -3740,6 +3749,41 @@ test("size normalization uses base mass and volume units and rejects invalid evi
     assert.equal(blocked.report.approvedRows.length, 0);
     assert.equal(blocked.report.blockedRows.length, 1);
   }
+});
+
+test("canonical feed rows accept explicit servings as count size evidence", async () => {
+  const { fixture, seed } = stage2Seed();
+  fixture.rows[1] = {
+    ...fixture.rows[1],
+    external_variant_id: "shopify-variant-vanilla-25-servings",
+    external_sku: "ISOXP-VAN-25SERV",
+    external_options: JSON.stringify({ Size: "25 servings", Flavour: "Vanilla" }),
+    variant_name: "Vanilla / 25 servings",
+    external_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-vanilla-25-servings",
+    affiliate_url: "https://www.discount-supplements.co.uk/products/iso-xp?variant=shopify-variant-vanilla-25-servings",
+    size: "25",
+    size_unit: "servings",
+  };
+  seed.product_variants[1] = {
+    ...seed.product_variants[1],
+    variant_key: "vanilla-25-servings",
+    display_name: "Vanilla / 25 servings",
+    size_value: 25,
+    size_unit: "servings",
+  };
+
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const accepted = await runImportRowsRaw([fixture.rows[1]], {
+    mode: "feed",
+    dryRun: true,
+  });
+
+  assert.equal(accepted.report.approvedRows.length, 1);
+  assert.equal(accepted.report.blockedRows.length, 0);
+  assert.equal(accepted.report.approvedRows[0].importPlan.product_variant.evidence.size_value, "25");
+  assert.equal(accepted.report.approvedRows[0].importPlan.product_variant.evidence.size_unit, "servings");
 });
 
 test("total_price-only drift updates once, records one history row, then becomes noop", async () => {
