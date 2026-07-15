@@ -63,7 +63,7 @@ const IMPORT_HEADER = [
 const CLASSIFICATION_HEADER = [
   "classification", "block_reason", "retailer_product_id", "offer_id", "product_id",
   "product_variant_id", "external_product_id", "external_variant_id", "product_name",
-  "variant_name", "in_stock", "price", "changes", "external_url",
+  "variant_name", "in_stock", "price", "changes", "source_variant_evidence", "external_url",
 ];
 
 function fail(message) {
@@ -268,17 +268,46 @@ function sizeMatches(sourceValue, variant) {
   );
 }
 
-function variantIdentityErrors(row, mapping, variant, variantsForProduct) {
+function sourceVariantEvidence(row) {
+  const options = parseObject(row.external_options, "external_options");
+  const evidence = {
+    flavours: optionValue(options, ["flavour", "flavor"]),
+    sizes: optionValue(options, ["size", "weight"]),
+    counts: optionValue(options, ["pack", "pack_count", "count", "quantity"]),
+    formats: optionValue(options, ["format", "product_format"]),
+    other_options: {},
+  };
+  const known = new Set([
+    "flavour", "flavor", "size", "weight", "pack", "pack_count", "count", "quantity",
+    "format", "product_format",
+  ]);
+  const technical = new Set(["vendor", "sku", "url", "available", "availability"]);
+  for (const [name, rawValue] of Object.entries(options)) {
+    const key = String(name).trim();
+    const normalizedKey = key.toLowerCase();
+    const value = optional(rawValue);
+    if (!value || known.has(normalizedKey) || technical.has(normalizedKey)) continue;
+    if (normalizedKey === "title" && ["title", "default title"].includes(value.toLowerCase())) continue;
+    evidence.other_options[key] = value;
+  }
+  return {
+    discriminating: Boolean(
+      evidence.flavours.length || evidence.sizes.length || evidence.counts.length ||
+      evidence.formats.length || Object.keys(evidence.other_options).length
+    ),
+    evidence,
+  };
+}
+
+function variantIdentityErrors(row, mapping, variant) {
   const errors = [];
   const options = parseObject(row.external_options, "external_options");
   const flavours = optionValue(options, ["flavour", "flavor"]);
-  const sizes = optionValue(options, ["size"]);
+  const sizes = optionValue(options, ["size", "weight"]);
+  const sourceEvidence = sourceVariantEvidence(row);
   if (flavours.length > 1 || sizes.length > 1) errors.push("ambiguous Shopify option identity");
   if (variant.is_default === true) {
-    const hasActiveNonDefault = variantsForProduct.some((item) => item.is_active === true && item.is_default !== true);
-    if (hasActiveNonDefault && (flavours.length || sizes.length)) {
-      errors.push("variant evidence cannot remain on the default variant when active non-default variants exist");
-    }
+    if (sourceEvidence.discriminating) errors.push("default canonical variant conflicts with source variant evidence");
   } else {
     if (flavours.length) {
       const sourceFlavour = normalizeFlavour(flavours[0]);
@@ -290,7 +319,7 @@ function variantIdentityErrors(row, mapping, variant, variantsForProduct) {
     if (sizes.length && !sizeMatches(sizes[0], variant)) errors.push("Shopify size does not match canonical variant");
   }
   if (String(mapping.product_id) !== String(variant.product_id)) errors.push("mapping and canonical variant product_id differ");
-  return errors;
+  return { errors, sourceEvidence: sourceEvidence.discriminating ? sourceEvidence.evidence : null };
 }
 
 function importRow(row, mapping, offer, product, variant, config) {
@@ -341,6 +370,7 @@ function entryBase(row) {
     in_stock: row ? exactBoolean(row.in_stock, "in_stock") : null,
     price: optional(row?.price),
     changes: [],
+    source_variant_evidence: null,
     external_url: optional(row?.external_url),
   };
 }
@@ -381,12 +411,6 @@ function classifyCatalog({ rows, state, config }) {
   }
   const productsById = new Map(state.products.map((item) => [String(item.id), item]));
   const variantsById = new Map(state.productVariants.map((item) => [String(item.id), item]));
-  const variantsByProduct = new Map();
-  for (const variant of state.productVariants) {
-    const key = String(variant.product_id);
-    if (!variantsByProduct.has(key)) variantsByProduct.set(key, []);
-    variantsByProduct.get(key).push(variant);
-  }
   const entries = [];
   const importRows = [];
   const seenSourceVariantIds = new Set();
@@ -430,7 +454,8 @@ function classifyCatalog({ rows, state, config }) {
       String(offer.retailer_product_id) !== String(mapping.id) ||
       Number(offer.retailer_id) !== RETAILER_ID
     )) identityErrors.push("offer identity differs from mapping identity");
-    if (variant) identityErrors.push(...variantIdentityErrors(row, mapping, variant, variantsByProduct.get(String(mapping.product_id)) || []));
+    const variantIdentity = variant ? variantIdentityErrors(row, mapping, variant) : null;
+    if (variantIdentity) identityErrors.push(...variantIdentity.errors);
     if (urlMappings.some((candidate) => String(candidate.id) !== String(mapping.id))) identityErrors.push("variant URL collides with another mapping");
     if (identityErrors.length) {
       entries.push({
@@ -441,6 +466,7 @@ function classifyCatalog({ rows, state, config }) {
         product_variant_id: mapping.product_variant_id,
         classification: "IDENTITY_CONFLICT",
         block_reason: identityErrors.join("; "),
+        source_variant_evidence: variantIdentity?.sourceEvidence ?? null,
       });
       continue;
     }
@@ -505,6 +531,9 @@ function classifyCatalog({ rows, state, config }) {
   );
   const counts = countClassifications(entries);
   const missingFromSourceCount = counts.MISSING_FROM_SOURCE;
+  const excludedIdentityConflicts = entries.filter(
+    (entry) => entry.classification === "IDENTITY_CONFLICT" && entry.retailer_product_id !== null
+  ).length;
   return {
     entries,
     importRows,
@@ -512,6 +541,7 @@ function classifyCatalog({ rows, state, config }) {
     sourceVariantClassificationTotal,
     snapshotVariantCount: rows.length,
     missingFromSourceCount,
+    excludedIdentityConflicts,
     totalReportRows: entries.length,
     existingMappingsChecked: retailerMappings.filter((mapping) => optional(mapping.external_variant_id)).length,
   };
@@ -580,6 +610,10 @@ function runImporterDryRun(csvPath, options = {}) {
 function validateDryRun(dryRun, expectedRows) {
   const plans = dryRun.artifact.plans || [];
   const blockedRows = dryRun.artifact.blocked_rows || [];
+  const importerInputRows = Number(dryRun.artifact.row_count);
+  if (!Number.isInteger(importerInputRows) || importerInputRows !== expectedRows) {
+    fail(`Stage 1 importer input row count must equal ${expectedRows} eligible rows`);
+  }
   if (plans.length !== expectedRows || blockedRows.length !== 0 || dryRun.deduplicated !== 0) {
     fail(`Stage 1 dry-run must produce ${expectedRows} plans, zero blocked rows and zero deduplicated rows`);
   }
@@ -607,6 +641,9 @@ function classificationCsv(entries) {
   return serializeCsv(CLASSIFICATION_HEADER, entries.map((entry) => ({
     ...entry,
     changes: entry.changes.join("|"),
+    source_variant_evidence: entry.source_variant_evidence
+      ? JSON.stringify(entry.source_variant_evidence)
+      : "",
   })));
 }
 
@@ -666,6 +703,8 @@ function renderSummary(report) {
     `| In stock | ${summaryCount(report.snapshot?.in_stock, "in stock")} |`,
     `| Out of stock | ${summaryCount(report.snapshot?.out_of_stock, "out of stock")} |`,
     `| Existing mappings checked | ${summaryCount(report.existing_mappings_checked, "existing mappings checked")} |`,
+    `| Eligible importer rows | ${summaryCount(report.eligible_importer_rows, "eligible importer rows")} |`,
+    `| Excluded identity conflicts | ${summaryCount(report.excluded_identity_conflicts, "excluded identity conflicts")} |`,
     `| Source variant classification total | ${summaryCount(report.source_variant_classification_total, "source variant classification total")} |`,
     `| Snapshot variant count | ${summaryCount(report.snapshot_variant_count, "snapshot variant count")} |`,
     ...CLASSIFICATIONS.filter((name) => name !== "MISSING_FROM_SOURCE").map((name) => `| ${name} | ${summaryCount(c[name], name)} |`),
@@ -677,7 +716,8 @@ function renderSummary(report) {
     `| Stock-only changes | ${summaryCount(changes.stock_only_changes, "stock-only changes")} |`,
     `| URL-only changes | ${summaryCount(changes.url_only_changes, "URL-only changes")} |`,
     `| Mapping metadata changes | ${summaryCount(changes.mapping_metadata_changes, "mapping metadata changes")} |`,
-    `| Dry-run plans | ${summaryCount(d.plans, "dry-run plans")} |`,
+    `| Expected plans | ${summaryCount(d.expected_plans, "expected plans")} |`,
+    `| Actual plans | ${summaryCount(d.actual_plans, "actual plans")} |`,
     `| Retailer product update | ${summaryCount(a.mapping_update, "retailer product update")} |`,
     `| Retailer product noop | ${summaryCount(a.mapping_noop, "retailer product noop")} |`,
     `| Offer update | ${summaryCount(a.offer_update, "offer update")} |`,
@@ -687,6 +727,8 @@ function renderSummary(report) {
     `| Blocked rows | ${summaryCount(d.blocked_rows, "blocked rows")} |`,
     `| Deduplicated rows | ${summaryCount(d.deduplicated_rows, "deduplicated rows")} |`,
     `| Database writes | ${summaryCount(report.database_writes, "database writes")} |`,
+    "",
+    "> Existing mappings can exceed eligible importer rows because identity conflicts are excluded before importer execution.",
     "",
     "> Stage 1 generated review artifacts only. Approval and production apply were not invoked.",
     "",
@@ -768,6 +810,8 @@ async function main(options = {}) {
       maximum_drop_ratio: MAX_COUNT_DROP_RATIO,
     },
     existing_mappings_checked: classified.existingMappingsChecked,
+    eligible_importer_rows: classified.importRows.length,
+    excluded_identity_conflicts: classified.excludedIdentityConflicts,
     classification_counts: classified.counts,
     source_variant_classification_total: classified.sourceVariantClassificationTotal,
     snapshot_variant_count: classified.snapshotVariantCount,
@@ -777,6 +821,8 @@ async function main(options = {}) {
     dry_run: {
       run_id: dryRun.runId,
       plans: dryRun.artifact.plans.length,
+      expected_plans: classified.importRows.length,
+      actual_plans: dryRun.artifact.plans.length,
       blocked_rows: dryRun.artifact.blocked_rows.length,
       deduplicated_rows: dryRun.deduplicated,
       actions,

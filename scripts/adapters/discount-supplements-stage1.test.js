@@ -9,6 +9,7 @@ const {
   assertReadOnlyEnvironment,
   assertReadOnlyImporterArgs,
   classifyCatalog,
+  IMPORT_HEADER,
   main,
   renderSummary,
   runImporterDryRun,
@@ -74,6 +75,35 @@ function productionState(overrides = {}) {
 
 function classify(row = sourceRow(), state = productionState()) {
   return classifyCatalog({ rows: [row], state, config: config() });
+}
+
+function defaultVariantCase(options) {
+  const row = sourceRow({
+    external_options: JSON.stringify(options),
+    variant_name: Object.keys(options).length ? Object.values(options).join(" / ") : "Default Title",
+  });
+  const state = productionState();
+  state.productVariants[0] = {
+    id: 386,
+    product_id: 7,
+    variant_key: "default",
+    display_name: "Default",
+    flavour_code: null,
+    flavour_label: null,
+    size_value: null,
+    size_unit: null,
+    pack_count: null,
+    product_format: null,
+    is_active: true,
+    is_default: true,
+  };
+  state.retailerProducts[0] = {
+    ...state.retailerProducts[0],
+    product_variant_id: 386,
+    external_options: options,
+  };
+  state.offers[0] = { ...state.offers[0], product_variant_id: 386 };
+  return { row, state };
 }
 
 test("no change remains NO_CHANGE and builds one existing-mapping import row", () => {
@@ -169,6 +199,63 @@ test("identity conflicts fail closed before importer selection", () => {
   const duplicateResult = classify(sourceRow(), duplicate);
   assert.equal(duplicateResult.entries[0].classification, "IDENTITY_CONFLICT");
   assert.match(duplicateResult.entries[0].block_reason, /not unique/);
+});
+
+test("default variant with flavour evidence is one identity conflict and never enters importer CSV", () => {
+  const { row, state } = defaultVariantCase({ Flavour: "Unflavoured" });
+  const result = classify(row, state);
+  assert.equal(result.entries.length, 1);
+  assert.equal(result.entries[0].classification, "IDENTITY_CONFLICT");
+  assert.match(result.entries[0].block_reason, /default canonical variant conflicts with source variant evidence/);
+  assert.equal(result.entries[0].retailer_product_id, 951);
+  assert.equal(result.entries[0].product_id, 7);
+  assert.equal(result.entries[0].product_variant_id, 386);
+  assert.equal(result.entries[0].external_variant_id, "56719096316282");
+  assert.deepEqual(result.entries[0].source_variant_evidence.flavours, ["Unflavoured"]);
+  assert.doesNotMatch(JSON.stringify(result.entries[0]), /service-role-test-secret/);
+  assert.equal(result.importRows.length, 0);
+  assert.equal(serializeCsv(IMPORT_HEADER, result.importRows).trim(), IMPORT_HEADER.join(","));
+});
+
+test("default variant with size evidence is excluded before importer selection", () => {
+  const { row, state } = defaultVariantCase({ Size: "250g" });
+  const result = classify(row, state);
+  assert.equal(result.counts.IDENTITY_CONFLICT, 1);
+  assert.deepEqual(result.entries[0].source_variant_evidence.sizes, ["250g"]);
+  assert.equal(result.importRows.length, 0);
+});
+
+test("default variant with size and flavour produces one conflict, not two", () => {
+  const { row, state } = defaultVariantCase({ Size: "250g", Flavour: "Unflavoured" });
+  const result = classify(row, state);
+  assert.equal(result.entries.length, 1);
+  assert.equal(result.counts.IDENTITY_CONFLICT, 1);
+  assert.equal(
+    result.entries[0].block_reason.split("default canonical variant conflicts with source variant evidence").length - 1,
+    1
+  );
+  assert.equal(result.importRows.length, 0);
+});
+
+test("default variant without discriminating evidence remains eligible", () => {
+  const { row, state } = defaultVariantCase({ Title: "Default Title" });
+  const result = classify(row, state);
+  assert.equal(result.entries[0].classification, "NO_CHANGE");
+  assert.equal(result.entries[0].source_variant_evidence, null);
+  assert.equal(result.importRows.length, 1);
+});
+
+test("non-default variant accepts matching evidence and rejects mismatching evidence", () => {
+  const matching = classify();
+  assert.equal(matching.entries[0].classification, "NO_CHANGE");
+  assert.equal(matching.importRows.length, 1);
+
+  const mismatching = classify(sourceRow({
+    external_options: JSON.stringify({ Size: "2kg", Flavour: "Vanilla" }),
+  }));
+  assert.equal(mismatching.entries[0].classification, "IDENTITY_CONFLICT");
+  assert.match(mismatching.entries[0].block_reason, /flavour does not match canonical variant/);
+  assert.equal(mismatching.importRows.length, 0);
 });
 
 function snapshotFixture(options = {}) {
@@ -286,7 +373,11 @@ test("importer runner requires a real artifact sidecar and only accepts existing
   };
   const spawn = (_executable, args, spawnOptions) => {
     assert.deepEqual(args.slice(1, 3), ["--mode=feed", "--dry-run"]);
-    const artifact = { plans: [{ operation_type: "standard_import", resolved_plan: plan }], blocked_rows: [] };
+    const artifact = {
+      row_count: 1,
+      plans: [{ operation_type: "standard_import", resolved_plan: plan }],
+      blocked_rows: [],
+    };
     fs.writeFileSync(artifactPath, `${JSON.stringify(artifact)}\n`);
     fs.writeFileSync(`${artifactPath}.sha256`, `${crypto.createHash("sha256").update(fs.readFileSync(artifactPath)).digest("hex")}\n`);
     fs.writeFileSync(machineReportPath, JSON.stringify({ runId: spawnOptions.env.SUPPLEMENTSCOUT_IMPORT_RUN_ID }));
@@ -304,26 +395,98 @@ test("importer runner requires a real artifact sidecar and only accepts existing
   assert.throws(() => validateDryRun(unsafe, 1), /outside existing-mapping/);
 });
 
-function validDryRun() {
+function validDryRun(planCount = 1) {
+  const resolvedPlan = {
+    meta: { operation_type: "standard_import" },
+    product: { action: "existing" },
+    product_variant: { action: "existing" },
+    retailer: { action: "existing" },
+    retailer_product: { action: "noop" },
+    offer: { action: "noop" },
+    price_history: { action: "noop" },
+  };
   return {
     artifact: {
-      plans: [{
+      row_count: planCount,
+      plans: Array.from({ length: planCount }, () => ({
         operation_type: "standard_import",
-        resolved_plan: {
-          meta: { operation_type: "standard_import" },
-          product: { action: "existing" },
-          product_variant: { action: "existing" },
-          retailer: { action: "existing" },
-          retailer_product: { action: "noop" },
-          offer: { action: "noop" },
-          price_history: { action: "noop" },
-        },
-      }],
+        resolved_plan: structuredClone(resolvedPlan),
+      })),
       blocked_rows: [],
     },
     deduplicated: 0,
   };
 }
+
+function catalogWithOneDefaultConflict(count = 28) {
+  const state = productionState();
+  const defaultVariant = {
+    id: 386,
+    product_id: 7,
+    variant_key: "default",
+    display_name: "Default",
+    flavour_code: null,
+    flavour_label: null,
+    size_value: null,
+    size_unit: null,
+    pack_count: null,
+    product_format: null,
+    is_active: true,
+    is_default: true,
+  };
+  state.productVariants.push(defaultVariant);
+  state.retailerProducts = [];
+  state.offers = [];
+  const rows = [];
+  for (let index = 0; index < count; index += 1) {
+    const externalVariantId = String(56000000000000 + index);
+    const url = `https://www.discount-supplements.co.uk/products/hermetic?variant=${externalVariantId}`;
+    const externalOptions = index === 0
+      ? { Size: "250g", Flavour: "Unflavoured" }
+      : { Size: "2kg", Flavour: "Chocolate" };
+    const productVariantId = index === 0 ? defaultVariant.id : 712;
+    rows.push(sourceRow({
+      external_variant_id: externalVariantId,
+      external_options: JSON.stringify(externalOptions),
+      external_url: url,
+    }));
+    state.retailerProducts.push({
+      ...productionState().retailerProducts[0],
+      id: 1000 + index,
+      product_variant_id: productVariantId,
+      external_variant_id: externalVariantId,
+      external_options: externalOptions,
+      external_url: url,
+    });
+    state.offers.push({
+      ...productionState().offers[0],
+      id: 2000 + index,
+      retailer_product_id: 1000 + index,
+      product_variant_id: productVariantId,
+      url,
+    });
+  }
+  return classifyCatalog({ rows, state, config: config() });
+}
+
+test("eligible importer rows dynamically exclude one conflict from 28 mappings", () => {
+  const classified = catalogWithOneDefaultConflict();
+  assert.equal(classified.existingMappingsChecked, 28);
+  assert.equal(classified.counts.IDENTITY_CONFLICT, 1);
+  assert.equal(classified.excludedIdentityConflicts, 1);
+  assert.equal(classified.importRows.length, 27);
+
+  const exact = validDryRun(27);
+  assert.doesNotThrow(() => validateDryRun(exact, classified.importRows.length));
+
+  const short = validDryRun(26);
+  short.artifact.row_count = 27;
+  assert.throws(() => validateDryRun(short, classified.importRows.length), /must produce 27 plans/);
+
+  const blocked = validDryRun(27);
+  blocked.artifact.blocked_rows.push({ row: 1 });
+  assert.throws(() => validateDryRun(blocked, classified.importRows.length), /zero blocked rows/);
+});
 
 test("every create action outside price history is blocked independently", () => {
   for (const field of ["product", "product_variant", "retailer", "retailer_product", "offer"]) {
@@ -365,6 +528,8 @@ test("summary contains complete counters and separates source variants from data
   const report = {
     snapshot: { products: 342, variants: 1007, in_stock: 711, out_of_stock: 296 },
     existing_mappings_checked: 25,
+    eligible_importer_rows: 15,
+    excluded_identity_conflicts: 10,
     classification_counts: {
       NO_CHANGE: 900, SAFE_UPDATE: 20, NEW_VARIANT_REVIEW: 30, NEW_PRODUCT_REVIEW: 25,
       IDENTITY_CONFLICT: 10, SOURCE_ERROR: 2, OUT_OF_STOCK: 20, MISSING_FROM_SOURCE: 3,
@@ -380,12 +545,14 @@ test("summary contains complete counters and separates source variants from data
     },
     dry_run: {
       plans: 25,
+      expected_plans: 15,
+      actual_plans: 15,
       blocked_rows: 0,
       deduplicated_rows: 0,
       actions: {
-        mapping_update: 12, mapping_noop: 13,
-        offer_update: 14, offer_noop: 11,
-        price_history_create: 15, price_history_noop: 10,
+        mapping_update: 7, mapping_noop: 8,
+        offer_update: 9, offer_noop: 6,
+        price_history_create: 10, price_history_noop: 5,
       },
     },
     database_writes: 0,
@@ -395,12 +562,14 @@ test("summary contains complete counters and separates source variants from data
     assert.match(summary, new RegExp(label));
   }
   for (const expected of [
+    "Existing mappings checked | 25", "Eligible importer rows | 15",
+    "Excluded identity conflicts | 10", "Expected plans | 15", "Actual plans | 15",
     "Source variant classification total | 1007", "Snapshot variant count | 1007",
     "Missing from source \(database-only\) | 3", "Total report rows | 1010",
     "Price changes | 4", "Shipping changes | 6", "Total-only changes | 8",
     "Stock-only changes | 9", "URL-only changes | 10", "Mapping metadata changes | 11",
-    "Retailer product update | 12", "Retailer product noop | 13", "Offer update | 14",
-    "Offer noop | 11", "Price history create | 15", "Price history noop | 10",
+    "Retailer product update | 7", "Retailer product noop | 8", "Offer update | 9",
+    "Offer noop | 6", "Price history create | 10", "Price history noop | 5",
     "Blocked rows | 0", "Deduplicated rows | 0",
   ]) assert.match(summary, new RegExp(expected));
   assert.doesNotMatch(summary, /service-role-test-secret/);
@@ -454,7 +623,11 @@ test("hermetic Stage 1 main writes only review artifacts and a zero-write machin
       fs.writeFileSync(machineReportPath, "{}\n");
       return {
         runId: "hermetic-run",
-        artifact: { plans: [{ operation_type: "standard_import", resolved_plan: plan }], blocked_rows: [] },
+        artifact: {
+          row_count: 1,
+          plans: [{ operation_type: "standard_import", resolved_plan: plan }],
+          blocked_rows: [],
+        },
         artifactPath,
         artifactSha256: "a".repeat(64),
         sidecarPath,
