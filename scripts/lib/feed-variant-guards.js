@@ -157,7 +157,10 @@ function parseProductFormat(value = "") {
     return "tablet";
   }
 
-  if (/\b(liquid|ready\s*to\s*drink|ready-to-drink|drink|shot|ml|litre|liter)\b/.test(text)) {
+  if (
+    /\b(liquid|ready\s*to\s*drink|ready[-_\s]*to[-_\s]*drink|drink|shot|litre|liter)\b/.test(text) ||
+    /\b\d+(?:[.,]\d+)?\s*ml\b/.test(text)
+  ) {
     return "liquid";
   }
 

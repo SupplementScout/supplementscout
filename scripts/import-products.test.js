@@ -804,6 +804,15 @@ test("variant parsing extracts conservative flavour, size, pack count, and forma
   assert.equal(parseProductFormat("soft gels"), "softgel");
   assert.equal(parseProductFormat("ready to drink liquid 500ml"), "liquid");
   assert.equal(parseProductFormat("ready-to-drink"), "liquid");
+  assert.equal(parseProductFormat("ready_to_drink"), "liquid");
+  assert.equal(parseProductFormat("330ml"), "liquid");
+  assert.equal(parseProductFormat("330 ml"), "liquid");
+  assert.equal(parseProductFormat("500ml"), "liquid");
+  assert.equal(parseProductFormat("500mg"), null);
+  assert.equal(parseProductFormat("SKU330mlX"), null);
+  assert.equal(parseProductFormat("https://example.test/products/barebells-330mlx"), null);
+  assert.equal(parseProductFormat("Barebells High Protein Milkshake 330ml"), "liquid");
+  assert.equal(parseProductFormat("Strawberry Milkshake / 25 servings"), null);
   assert.equal(parseProductFormat("whey powder"), "powder");
   assert.equal(parseProductFormat("unclear merch item"), null);
 });
@@ -2541,6 +2550,72 @@ test("Fit House-like format-only evidence resolves one neutral default", async (
     [defaultVariant()]
   );
   assert.equal(result.report.approvedRows.length, 1);
+});
+
+test("Fit House Barebells milkshake resolves ready_to_drink canonical variant", async () => {
+  const chocolate330 = {
+    ...defaultVariant({ id: "pv-barebells-chocolate", is_default: false }),
+    variant_key: "chocolate-330ml",
+    display_name: "Chocolate / 330ml",
+    flavour_code: "chocolate",
+    flavour_label: "Chocolate",
+    size_value: 330,
+    size_unit: "ml",
+    pack_count: 1,
+    product_format: "ready_to_drink",
+  };
+  const result = await resolveDefaultFixture(
+    {
+      product_name: "Barebells High Protein Milkshake 330ml",
+      slug: "barebells-high-protein-milkshake-330ml",
+      brand: "Barebells",
+      category: "Protein Bars",
+      external_options: JSON.stringify({ Flavor: "Chocolate" }),
+      variant_name: "Chocolate / 330ml",
+      size: "330ml",
+      size_unit: "",
+      flavour: "Chocolate",
+      product_format: "",
+      pack_count: "1",
+    },
+    [defaultVariant(), chocolate330]
+  );
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.id, "pv-barebells-chocolate");
+});
+
+test("liquid evidence still blocks a powder canonical variant", async () => {
+  const chocolatePowder = {
+    ...defaultVariant({ id: "pv-chocolate-powder", is_default: false }),
+    variant_key: "chocolate-330ml",
+    display_name: "Chocolate / 330ml",
+    flavour_code: "chocolate",
+    flavour_label: "Chocolate",
+    size_value: 330,
+    size_unit: "ml",
+    pack_count: 1,
+    product_format: "powder",
+  };
+  const result = await resolveDefaultFixture(
+    {
+      product_name: "Barebells High Protein Milkshake 330ml",
+      slug: "barebells-high-protein-milkshake-330ml",
+      brand: "Barebells",
+      category: "Protein Bars",
+      external_options: JSON.stringify({ Flavor: "Chocolate" }),
+      variant_name: "Chocolate / 330ml",
+      size: "330ml",
+      size_unit: "",
+      flavour: "Chocolate",
+      product_format: "",
+      pack_count: "1",
+    },
+    [defaultVariant(), chocolatePowder]
+  );
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.equal(result.report.blockedRows.length, 1);
+  assert.match(result.report.blockedRows[0].reason, /format conflict|canonical product_variant/i);
 });
 
 test("default fallback is fail-closed for non-default, missing, and duplicate defaults", async () => {
