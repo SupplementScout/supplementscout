@@ -285,18 +285,18 @@ Old staging refs must not be reused:
 
 ## 7. Current production state
 
-Latest confirmed production counts after Batch F:
+Latest confirmed production counts after reduced Batch G:
 
-- `products`: 737
-- `product_variants`: 931
-- `retailer_products`: 933
-- `offers`: 932
-- `price_history`: 941
+- `products`: 755
+- `product_variants`: 998
+- `retailer_products`: 980
+- `offers`: 979
+- `price_history`: 988
 
 Current catalogue expansion milestone:
 
-- progress: **151 / 200**
-- remaining: **49**
+- progress: **198 / 200**
+- remaining: **2**
 
 Production `SAFE_UPDATE` automation remains disabled.
 
@@ -473,21 +473,50 @@ Milestone arithmetic:
 
 Technical default variants created for new products do not count toward the 200 source-variant milestone.
 
+### Batch G
+
+- canonical catalogue deployed:
+  - 18 new canonical products
+  - 67 `product_variants`
+  - 18 technical default variants
+  - 49 reviewed source variants
+- reduced production offer apply completed:
+  - 47 Fit House mappings
+  - 47 Fit House offers
+  - 47 price history rows
+- 2 reviewed records remain `MANUAL_REVIEW` and were excluded from apply:
+  - 7Nutrition Beta-Alanine 250g
+  - Applied Nutrition L-Glutamine Powder 250g
+- exclusion reason:
+  - Shopify source variant was `Default Title`,
+  - no explicit flavour evidence,
+  - mapping to non-default canonical variant `Unflavoured / 250g` did not satisfy the fail-closed identity contract.
+- public UI smoke test passed for Batch G product families.
+
+Milestone arithmetic:
+
+- previous milestone progress: 151 / 200
+- Batch G applied source offers: 47
+- current progress: **198 / 200**
+
+Technical default variants and unapplied manual-review variants do not count toward the 200 source-variant/offer milestone.
+
 ---
 
 ## 10. Current known issues and gaps
 
-### 10.1 Last 49 variants
+### 10.1 Last 2 variants
 
-The remaining 49 should not be random standalone products.
+The remaining 2 should be selected as safe replacements for the two reduced Batch G exclusions. They should not be random standalone products.
 
 Priority:
 
-1. additional retailer for an existing product,
-2. missing flavours or sizes for popular products,
-3. products that reach two or three active retailers,
-4. popular categories with strong commercial value,
-5. new canonical products only when identity is highly certain.
+1. explicit source identity evidence,
+2. additional retailer for an existing product,
+3. missing flavours or sizes for popular products,
+4. products that reach two or three active retailers,
+5. popular categories with strong commercial value,
+6. new canonical products only when identity is highly certain.
 
 ### 10.2 Whey Okay reconciliation
 
@@ -648,7 +677,7 @@ Work should proceed sequentially. Do not open all projects at once.
 
 Current priority order:
 
-1. Select the final 49 high-value variants/offers for business value and cross-retailer coverage.
+1. Select two safe replacement variants/offers with strong identity evidence.
 2. Complete the 200-variant/offer confidence milestone.
 3. Reconcile 520 Whey Okay legacy mappings.
 4. Establish an automatic Whey Okay source through EKM API or an authorised feed.
@@ -674,8 +703,8 @@ Definition of done:
 
 ## Phase 1: finish the 200 milestone with value
 
-**Current:** 151 / 200  
-**Remaining:** 49
+**Current:** 198 / 200
+**Remaining:** 2
 
 Selection priority:
 
@@ -848,13 +877,13 @@ Keep this Operating Plan current after each major milestone.
 
 ### Next task
 
-Select the highest-value final 49 variants/offers using cross-retailer coverage and catalogue quality, not raw count.
+Select two safe replacement variants/offers using strong source identity evidence, cross-retailer coverage and catalogue quality, not raw count.
 
 ### Then
 
 1. Complete the 200-variant/offer milestone.
-2. Resolve products 751 and 752 manual image review.
-3. Reconcile 520 Whey Okay legacy mappings.
+2. Reconcile 520 Whey Okay legacy mappings.
+3. Resolve products 751 and 752 manual image review.
 4. Establish Whey Okay automation through EKM API or an authorised feed.
 5. Enable safe-update automation for existing approved mappings.
 6. Add basic analytics.
@@ -973,7 +1002,7 @@ SupplementScout is healthy when:
 Current binding decisions:
 
 - Finish 200 high-quality variants/offers before production `SAFE_UPDATE`.
-- Current progress is 151 / 200.
+- Current progress is 198 / 200.
 - eBay is postponed.
 - Whey Okay automation comes after reconciliation.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
@@ -993,6 +1022,12 @@ Current binding decisions:
 - 36 Fit House mappings/offers/history added.
 - 12 canonical images verified.
 - 2 Diet Whey images remain manual.
+- `SAFE_UPDATE` still disabled.
+- Batch G canonical catalog deployed: 18 products and 67 product variants.
+- Reduced Batch G production offer apply PASS: 47 Fit House mappings/offers/history added.
+- Progress is 198 / 200.
+- 2 Batch G records remain manual review due to missing explicit source flavour evidence.
+- Next step is to find two safe replacement records, then begin Whey Okay reconciliation.
 - `SAFE_UPDATE` still disabled.
 
 ---
