@@ -263,6 +263,18 @@ test("real Batch B migration scenarios on disposable PostgreSQL", { skip: !docke
     assert.deepEqual(snapshot(container), inactiveProduct);
 
     recreateDatabase(container);
+    sql(container, "delete from price_history where offer_id=205; delete from offers where product_id=481; delete from retailer_products where product_id=481; delete from product_variants where product_id=481; delete from products where id=481");
+    const missingProduct = snapshot(container);
+    expectBlocked(container, "missing canonical product");
+    assert.deepEqual(snapshot(container), missingProduct);
+
+    recreateDatabase(container);
+    sql(container, "delete from product_variants where id=475");
+    const missingDefault = snapshot(container);
+    expectBlocked(container, "missing default variant");
+    assert.deepEqual(snapshot(container), missingDefault);
+
+    recreateDatabase(container);
     insertInventory(container, expectedInventory.slice(0, 5));
     requireSuccess(applyMigration(container), "exact partial target completion");
     assert.deepEqual(targetRows(container), independentInventory);
