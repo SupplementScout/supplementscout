@@ -405,7 +405,9 @@ Completed:
 - authoritative full CSV analysis,
 - catalogue structure audit,
 - stable EKM key discovery,
-- identification of legacy mapping problem.
+- identification of legacy mapping problem,
+- standalone legacy mapping upgrade tooling,
+- 10-row standalone legacy mapping pilot using one-row approvals.
 
 Authoritative export findings:
 
@@ -417,13 +419,13 @@ Authoritative export findings:
 
 Current problem:
 
-- 520 legacy mappings,
-- no external product IDs,
-- no external variant IDs,
-- no external options,
-- mappings point to default variants.
+- 510 legacy mappings still require reconciliation,
+- many legacy mappings still have no external product IDs,
+- many legacy mappings still have no external variant IDs,
+- many legacy mappings still have no external options,
+- many legacy mappings point to default variants.
 
-Whey Okay reconciliation has not started. The 520 legacy mappings must be reconciled before automated updates or EKM-based automation.
+The first controlled Whey Okay reconciliation pilot has completed for 10 standalone legacy mappings. The remaining 510 legacy mappings must be reconciled before automated updates or EKM-based automation.
 
 ---
 
@@ -525,6 +527,17 @@ Immediate post-milestone priority:
 ### 10.2 Whey Okay reconciliation
 
 This is the largest current data project.
+
+Completed:
+
+- standalone legacy mapping upgrade RPC/tooling,
+- 10 standalone legacy mappings upgraded with stable EKM identity,
+- one-row approval/apply pattern verified on staging and production,
+- approval replay protection verified.
+
+Remaining:
+
+- 510 legacy mappings still require reconciliation.
 
 Known problem cases include:
 
@@ -759,7 +772,7 @@ This becomes the main data project after the 200 milestone and immediate image c
 
 ### Step A: parent-product reconciliation
 
-For all 520 legacy mappings:
+For the remaining legacy mappings:
 
 - map current EKM product ID,
 - verify parent URL,
@@ -775,6 +788,12 @@ For all 520 legacy mappings:
 ### Step C: controlled legacy mapping upgrades
 
 Use the existing legacy mapping upgrade RPC and approval model.
+
+Pilot status:
+
+- 10 standalone legacy mappings have been upgraded successfully,
+- continue with larger but still reviewable sequential one-row approval batches,
+- do not use a multi-row artifact unless separately reviewed and approved.
 
 ### Step D: automatic source
 
@@ -880,11 +899,11 @@ Keep this Operating Plan current after each major milestone.
 
 ### Next task
 
-Begin Whey Okay reconciliation for the 520 legacy mappings.
+Continue Whey Okay reconciliation for the remaining 510 legacy mappings.
 
 ### Then
 
-1. Reconcile 520 Whey Okay legacy mappings.
+1. Reconcile the remaining 510 Whey Okay legacy mappings.
 2. Resolve products 751 and 752 manual image review.
 3. Establish Whey Okay automation through EKM API or an authorised feed.
 4. Enable safe-update automation for existing approved mappings after separate approval.
@@ -1007,6 +1026,7 @@ Current binding decisions:
 - Current progress is 200 / 200.
 - eBay is postponed.
 - Whey Okay automation comes after reconciliation.
+- Whey Okay standalone pilot upgraded 10 legacy mappings; 510 remain.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
 - Do not duplicate already completed work.
@@ -1035,6 +1055,10 @@ Current binding decisions:
 - Progress is 200 / 200.
 - 200 source-variant/offer milestone complete.
 - Next priority is Whey Okay reconciliation.
+- `SAFE_UPDATE` still disabled.
+- Whey Okay standalone legacy mapping pilot PASS: 10 one-row upgrades applied on staging and production.
+- Remaining Whey Okay legacy mappings: 510.
+- Continue reconciliation in larger sequential one-row approval batches; do not enable Whey Okay automation yet.
 - `SAFE_UPDATE` still disabled.
 
 ---
