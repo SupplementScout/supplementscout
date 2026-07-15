@@ -83,9 +83,16 @@ function applyMigration(container) {
 }
 
 function waitForPostgres(container) {
+  let consecutiveReady = 0;
   for (let attempt = 0; attempt < 80; attempt += 1) {
-    const result = exec(container, ["pg_isready", "-U", "postgres", "-d", "postgres"], 5_000);
-    if (result.status === 0) return;
+    const ready = exec(container, ["pg_isready", "-U", "postgres", "-d", "postgres"], 5_000);
+    const canConnect = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-tAc", "select 1"], 5_000);
+    if (ready.status === 0 && canConnect.status === 0 && canConnect.stdout.trim() === "1") {
+      consecutiveReady += 1;
+      if (consecutiveReady >= 3) return;
+    } else {
+      consecutiveReady = 0;
+    }
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
   assert.fail("disposable PostgreSQL did not become ready");
