@@ -421,13 +421,13 @@ Authoritative export findings:
 
 Current problem:
 
-- 442 legacy mappings still require reconciliation,
+- 441 legacy mappings still require reconciliation,
 - many legacy mappings still have no external product IDs,
 - many legacy mappings still have no external variant IDs,
 - many legacy mappings still have no external options,
 - many legacy mappings point to default variants.
 
-The first controlled Whey Okay reconciliation pilot, Batch 2.1, Batch 3, reduced Batch 4 and the reduced optioned pilot have completed for 78 total legacy mappings. The remaining 442 legacy mappings must be reconciled before automated updates or EKM-based automation.
+The first controlled Whey Okay reconciliation pilot, Batch 2.1, Batch 3, reduced Batch 4, the reduced optioned pilot and the final Easy optioned cleanup have completed for 79 total legacy mappings. The remaining 441 legacy mappings must be reconciled before automated updates or EKM-based automation.
 
 ---
 
@@ -521,7 +521,7 @@ The 200 source-variant/offer milestone is complete. Do not enable `SAFE_UPDATE` 
 
 Immediate post-milestone priority:
 
-1. Reconcile the remaining 442 Whey Okay legacy mappings.
+1. Reconcile the remaining 441 Whey Okay legacy mappings.
 2. Resolve products 751 and 752 manual image review.
 3. Establish Whey Okay automation only after reconciliation.
 4. Review and explicitly approve safe `SAFE_UPDATE` automation separately.
@@ -539,12 +539,13 @@ Completed:
 - Whey Okay reconciliation reduced Batch 4 with 10 additional standalone mappings enriched,
 - product_format evidence fix for optioned Whey Okay artifacts,
 - reduced optioned Whey Okay pilot with 8 additional mappings enriched,
+- final Easy optioned cleanup with 1 additional mapping enriched,
 - one-row approval/apply pattern verified on staging and production,
 - approval replay protection verified.
 
 Remaining:
 
-- 442 legacy mappings still require reconciliation.
+- 441 legacy mappings still require reconciliation.
 
 Batch 2.1 excluded these records because dry-run required complete external identity evidence:
 
@@ -563,6 +564,11 @@ Reduced optioned pilot exclusions:
 
 - `retailer_product_id` 191 remains in canonical variant review because the required target canonical variant is missing,
 - `retailer_product_id` 150 remains in flavour manual review because source flavour `Orange Cooler` is not the same as canonical `Orange`.
+
+Final Easy optioned cleanup:
+
+- `retailer_product_id` 482, EKM 3908, Lenny & Larry Fitzels Pretzels 85g `Everything Bagel`, was applied on staging and production,
+- `retailer_product_id` 409 remains in flavour manual review because source flavour `Apple` is not the same as canonical `Apple & Cherry`.
 
 Known problem cases include:
 
@@ -1051,7 +1057,7 @@ Current binding decisions:
 - Current progress is 200 / 200.
 - eBay is postponed.
 - Whey Okay automation comes after reconciliation.
-- Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4 and reduced optioned pilot upgraded 78 total legacy mappings; 442 remain.
+- Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4, reduced optioned pilot and final Easy optioned cleanup upgraded 79 total legacy mappings; 441 remain.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
 - Do not duplicate already completed work.
@@ -1101,6 +1107,10 @@ Current binding decisions:
 - Total Whey Okay legacy mappings reconciled: 78.
 - Remaining Whey Okay legacy mappings: 442.
 - `retailer_product_id` 191 remains canonical variant review; `retailer_product_id` 150 remains flavour manual review.
+- Final Easy optioned cleanup PASS: `retailer_product_id` 482 applied on staging and production.
+- Total Whey Okay legacy mappings reconciled: 79.
+- Remaining Whey Okay legacy mappings: 441.
+- `retailer_product_id` 409 remains flavour manual review because source flavour `Apple` does not exactly match canonical `Apple & Cherry`.
 - Continue reconciliation in larger sequential one-row approval batches; do not enable Whey Okay automation yet.
 - `SAFE_UPDATE` still disabled.
 
