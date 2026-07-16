@@ -407,6 +407,8 @@ Completed:
 - stable EKM key discovery,
 - identification of legacy mapping problem,
 - standalone legacy mapping upgrade tooling,
+- optioned legacy mapping upgrade tooling for Flavour-only plus parent-size evidence,
+- historical `total_price = null` support for optioned identity-only offer updates,
 - 10-row standalone legacy mapping pilot using one-row approvals.
 
 Authoritative export findings:
@@ -419,13 +421,13 @@ Authoritative export findings:
 
 Current problem:
 
-- 450 legacy mappings still require reconciliation,
+- 442 legacy mappings still require reconciliation,
 - many legacy mappings still have no external product IDs,
 - many legacy mappings still have no external variant IDs,
 - many legacy mappings still have no external options,
 - many legacy mappings point to default variants.
 
-The first controlled Whey Okay reconciliation pilot, Batch 2.1, Batch 3 and reduced Batch 4 have completed for 70 total standalone legacy mappings. The remaining 450 legacy mappings must be reconciled before automated updates or EKM-based automation.
+The first controlled Whey Okay reconciliation pilot, Batch 2.1, Batch 3, reduced Batch 4 and the reduced optioned pilot have completed for 78 total legacy mappings. The remaining 442 legacy mappings must be reconciled before automated updates or EKM-based automation.
 
 ---
 
@@ -519,7 +521,7 @@ The 200 source-variant/offer milestone is complete. Do not enable `SAFE_UPDATE` 
 
 Immediate post-milestone priority:
 
-1. Reconcile the remaining 450 Whey Okay legacy mappings.
+1. Reconcile the remaining 442 Whey Okay legacy mappings.
 2. Resolve products 751 and 752 manual image review.
 3. Establish Whey Okay automation only after reconciliation.
 4. Review and explicitly approve safe `SAFE_UPDATE` automation separately.
@@ -535,12 +537,14 @@ Completed:
 - Whey Okay reconciliation Batch 2.1 with 25 additional standalone mappings enriched,
 - Whey Okay reconciliation Batch 3 with 25 additional standalone mappings enriched,
 - Whey Okay reconciliation reduced Batch 4 with 10 additional standalone mappings enriched,
+- product_format evidence fix for optioned Whey Okay artifacts,
+- reduced optioned Whey Okay pilot with 8 additional mappings enriched,
 - one-row approval/apply pattern verified on staging and production,
 - approval replay protection verified.
 
 Remaining:
 
-- 450 legacy mappings still require reconciliation.
+- 442 legacy mappings still require reconciliation.
 
 Batch 2.1 excluded these records because dry-run required complete external identity evidence:
 
@@ -554,6 +558,11 @@ Batch 4 excluded these records because dry-run required complete external identi
 - `retailer_product_id` 444, EKM 3428, KIOR Health KSM-66 Ashwagandha+ 60 Caps.
 
 Further Batch 4 candidate records after the first 10 were not processed.
+
+Reduced optioned pilot exclusions:
+
+- `retailer_product_id` 191 remains in canonical variant review because the required target canonical variant is missing,
+- `retailer_product_id` 150 remains in flavour manual review because source flavour `Orange Cooler` is not the same as canonical `Orange`.
 
 Known problem cases include:
 
@@ -1042,7 +1051,7 @@ Current binding decisions:
 - Current progress is 200 / 200.
 - eBay is postponed.
 - Whey Okay automation comes after reconciliation.
-- Whey Okay standalone pilot, Batch 2.1, Batch 3 and reduced Batch 4 upgraded 70 total legacy mappings; 450 remain.
+- Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4 and reduced optioned pilot upgraded 78 total legacy mappings; 442 remain.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
 - Do not duplicate already completed work.
@@ -1086,6 +1095,12 @@ Current binding decisions:
 - Remaining Whey Okay legacy mappings: 450.
 - Batch 4 excluded retailer_products 418 and 444 due to incomplete external identity evidence.
 - Further Batch 4 candidate records were not processed after the reduced 10-row PASS set.
+- Optioned Whey Okay tooling PASS: Flavour-only plus parent-size evidence, identity-only mapping/offer variant movement, and historical null total support are deployed.
+- Product format evidence fix for optioned artifacts PASS: all 8 final records had source `product_format = powder` evidence.
+- Reduced optioned Whey Okay pilot PASS: 8 additional mappings applied on staging and production.
+- Total Whey Okay legacy mappings reconciled: 78.
+- Remaining Whey Okay legacy mappings: 442.
+- `retailer_product_id` 191 remains canonical variant review; `retailer_product_id` 150 remains flavour manual review.
 - Continue reconciliation in larger sequential one-row approval batches; do not enable Whey Okay automation yet.
 - `SAFE_UPDATE` still disabled.
 
