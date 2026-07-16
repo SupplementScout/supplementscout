@@ -285,10 +285,10 @@ Old staging refs must not be reused:
 
 ## 7. Current production state
 
-Latest confirmed production counts after Whey Okay Medium Batch 2 canonical deployment and reduced reconciliation apply:
+Latest confirmed production counts after Whey Okay Medium Batch 3 canonical deployment and reduced reconciliation apply:
 
 - `products`: 755
-- `product_variants`: 1050
+- `product_variants`: 1069
 - `retailer_products`: 982
 - `offers`: 981
 - `price_history`: 990
@@ -421,13 +421,13 @@ Authoritative export findings:
 
 Current problem:
 
-- 393 legacy mappings still require reconciliation,
+- 383 legacy mappings still require reconciliation,
 - many legacy mappings still have no external product IDs,
 - many legacy mappings still have no external variant IDs,
 - many legacy mappings still have no external options,
 - many legacy mappings point to default variants.
 
-The first controlled Whey Okay reconciliation pilot, Batch 2.1, Batch 3, reduced Batch 4, the reduced optioned pilot, the final Easy optioned cleanup and reduced Medium Batches 1-2 have completed for 127 total legacy mappings. The remaining 393 legacy mappings must be reconciled before automated updates or EKM-based automation.
+The first controlled Whey Okay reconciliation pilot, Batch 2.1, Batch 3, reduced Batch 4, the reduced optioned pilot, the final Easy optioned cleanup and reduced Medium Batches 1-3 have completed for 137 total legacy mappings. The remaining 383 legacy mappings must be reconciled before automated updates or EKM-based automation.
 
 ---
 
@@ -521,7 +521,7 @@ The 200 source-variant/offer milestone is complete. Do not enable `SAFE_UPDATE` 
 
 Immediate post-milestone priority:
 
-1. Reconcile the remaining 393 Whey Okay legacy mappings.
+1. Reconcile the remaining 383 Whey Okay legacy mappings.
 2. Resolve products 751 and 752 manual image review.
 3. Establish Whey Okay automation only after reconciliation.
 4. Review and explicitly approve safe `SAFE_UPDATE` automation separately.
@@ -544,16 +544,22 @@ Completed:
 - reduced Whey Okay Medium Batch 1 reconciliation with 24 additional mappings enriched,
 - Whey Okay Medium Batch 2 canonical seed with 25 active non-default canonical variants,
 - reduced Whey Okay Medium Batch 2 reconciliation with 24 additional mappings enriched,
+- Whey Okay Medium Batch 3 canonical seed with 19 active non-default canonical variants,
+- reduced Whey Okay Medium Batch 3 reconciliation with 10 additional mappings enriched,
 - one-row approval/apply pattern verified on staging and production,
 - approval replay protection verified.
 
 Remaining:
 
-- 393 legacy mappings still require reconciliation.
-- Medium reconciliation has 27 legacy mappings remaining:
-  - 25 require canonical variant seeds,
-  - 2 have active canonical variants but remain unresolved: `retailer_product_id` 179 in `PACK_COUNT_REVIEW` and `retailer_product_id` 358 in `FORMAT_REVIEW`.
-- `retailer_product_id` 483 remains excluded with unresolved count/servings identity and was not seeded in Medium Batch 2.
+- 383 legacy mappings still require reconciliation.
+- The final Medium audit covers all 75 original mappings exactly once: 58 `RECONCILED`, 2 `PACK_COUNT_REVIEW`, 5 `FORMAT_REVIEW`, 1 `IDENTITY_CONFLICT`, 9 `MANUAL_REVIEW`, and 0 `DUPLICATE`/`EXCLUDE`.
+- The 17 unresolved Medium mappings are fully classified:
+  - `PACK_COUNT_REVIEW`: `retailer_product_id` 179 (Clif Bar Energy Bar 12x68g) and 172 (Optimum Nutrition Protein Crisp Bar 10x65g),
+  - `FORMAT_REVIEW`: `retailer_product_id` 358 (Love Vegan Protein Bite), 367 (Grenade Carb Killa Protein Spread), 499 (Medi-Evil Creatine Monohydrate Shots Powder), 472 (High5 Energy Drink with Protein), and 323 (High5 Energy Gel),
+  - `IDENTITY_CONFLICT`: `retailer_product_id` 483 (Applied Nutrition Creatine Gummies; unresolved count/servings identity),
+  - `MANUAL_REVIEW` for incomplete external identity evidence: `retailer_product_id` 178, 183, 535, 455, 450, 484, 421, 230, and 129.
+- Eleven Medium mappings have seeded canonical variants but remain unresolved: `retailer_product_id` 179, 358, 178, 183, 535, 455, 450, 484, 421, 230, and 129.
+- Six mappings still require a specialised or reviewed canonical seed: `retailer_product_id` 172, 367, 499, 472, 323, and 483. Each is explicitly blocked in a named review queue; no ordinary seed candidate remains unclassified.
 
 Batch 2.1 excluded these records because dry-run required complete external identity evidence:
 
@@ -733,7 +739,7 @@ Work should proceed sequentially. Do not open all projects at once.
 
 Current priority order:
 
-1. Reconcile the remaining 393 Whey Okay legacy mappings.
+1. Reconcile the remaining 383 Whey Okay legacy mappings.
 2. Establish an automatic Whey Okay source through EKM API or an authorised feed.
 3. Enable safe `SAFE_UPDATE` automation for existing approved mappings only after explicit review.
 4. Resolve products 751 and 752 manual image review.
@@ -938,11 +944,11 @@ Keep this Operating Plan current after each major milestone.
 
 ### Next task
 
-Continue Whey Okay reconciliation for the remaining 393 legacy mappings.
+Continue Whey Okay reconciliation for the remaining 383 legacy mappings, starting with the next evidence-complete group outside the closed Medium inventory.
 
 ### Then
 
-1. Reconcile the remaining 393 Whey Okay legacy mappings.
+1. Reconcile the remaining 383 Whey Okay legacy mappings.
 2. Resolve products 751 and 752 manual image review.
 3. Establish Whey Okay automation through EKM API or an authorised feed.
 4. Enable safe-update automation for existing approved mappings after separate approval.
@@ -1065,7 +1071,7 @@ Current binding decisions:
 - Current progress is 200 / 200.
 - eBay is postponed.
 - Whey Okay automation comes after reconciliation.
-- Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4, reduced optioned pilot, final Easy optioned cleanup and reduced Medium Batches 1-2 upgraded 127 total legacy mappings; 393 remain.
+- Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4, reduced optioned pilot, final Easy optioned cleanup and reduced Medium Batches 1-3 upgraded 137 total legacy mappings; 383 remain.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
 - Do not duplicate already completed work.
@@ -1140,6 +1146,14 @@ Current binding decisions:
 - Remaining Whey Okay legacy mappings: 393.
 - Medium remaining legacy mappings: 27; 25 require canonical variant seeds and 2 have seeded-but-unresolved canonical variants (`rp179` pack-count review and `rp358` format review).
 - Prices, shipping, totals, stock, URLs, clicks and price history remained unchanged.
+- `SAFE_UPDATE` still disabled.
+- Whey Okay Medium Batch 3 canonical seed DONE: 19 active non-default canonical variants deployed on staging and production.
+- Reduced Whey Okay Medium Batch 3 reconciliation PASS: 10 mappings and their offers moved from the expected default variants to matching canonical variants on staging and production.
+- Nine seeded mappings (`rp178`, `rp183`, `rp535`, `rp455`, `rp450`, `rp484`, `rp421`, `rp230`, `rp129`) remain `MANUAL_REVIEW` because dry-run correctly required complete external identity evidence; no approval was created for them.
+- Final Medium audit: 75/75 classified, comprising 58 `RECONCILED`, 2 `PACK_COUNT_REVIEW`, 5 `FORMAT_REVIEW`, 1 `IDENTITY_CONFLICT`, 9 `MANUAL_REVIEW`, and 0 `DUPLICATE`/`EXCLUDE`.
+- Total Whey Okay legacy mappings reconciled: 137.
+- Remaining Whey Okay legacy mappings: 383.
+- Prices, shipping, totals, stock, URLs, last-checked timestamps, clicks and price history remained unchanged during Batch 3 reconciliation.
 - `SAFE_UPDATE` still disabled.
 
 ---
