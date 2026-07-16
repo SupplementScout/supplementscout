@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 15 July 2026  
+**Status date:** 16 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -519,16 +519,11 @@ Technical default variants and unapplied manual-review variants do not count tow
 
 The 200 source-variant/offer milestone is complete. Do not enable `SAFE_UPDATE` automatically as a result; it still requires separate review and explicit approval.
 
-Immediate post-milestone priority:
-
-1. Reconcile the remaining 383 Whey Okay legacy mappings.
-2. Resolve products 751 and 752 manual image review.
-3. Establish Whey Okay automation only after reconciliation.
-4. Review and explicitly approve safe `SAFE_UPDATE` automation separately.
+Immediate post-milestone priority is the **Commercial Coverage Sprint**: add high-confidence offers from additional retailers to increase multi-retailer coverage, public usefulness and affiliate readiness. The remaining Whey Okay reconciliation and its existing review queues are preserved but paused until the sprint checkpoint.
 
 ### 10.2 Whey Okay reconciliation
 
-This is the largest current data project.
+This remains the largest open reconciliation project, but it is currently **PAUSED** during the Commercial Coverage Sprint. Existing classifications and review queues must be preserved unchanged. Resume after the sprint checkpoint, or earlier only if a documented commercial or data-safety reason justifies it.
 
 Completed:
 
@@ -657,6 +652,14 @@ Repeated logic should gradually move into:
 - custom Codex skills,
 - a documented standard batch command.
 
+### 10.7 Retailer Import Control Plane
+
+The read-only architecture audit confirmed that the current importer, normalized feed contract, matching guards, dry-run artifacts, validator, approval ledger and atomic apply RPC are the approved reusable core. A durable Retailer Import Control Plane and `/admin/imports` remain the accepted long-term architecture for import runs, review queues and decisions.
+
+Status: **ARCHITECTURE APPROVED, IMPLEMENTATION DEFERRED**.
+
+Do not implement the control plane during the Commercial Coverage Sprint. Reconsider it after two or three completed retailer imports, or earlier if manual handling becomes a clear bottleneck. Do not create a second importer, approval ledger, validator or apply mechanism.
+
 ---
 
 ## 11. Operating rules
@@ -739,11 +742,88 @@ Work should proceed sequentially. Do not open all projects at once.
 
 Current priority order:
 
-1. Reconcile the remaining 383 Whey Okay legacy mappings.
-2. Establish an automatic Whey Okay source through EKM API or an authorised feed.
-3. Enable safe `SAFE_UPDATE` automation for existing approved mappings only after explicit review.
-4. Resolve products 751 and 752 manual image review.
-5. Add the basic analytics foundation.
+1. Run the Commercial Coverage Sprint, one retailer at a time.
+2. Hold a checkpoint after two or three new retailers or five to eight working days, whichever occurs first.
+3. Decide at the checkpoint whether to continue the current method or resume the Retailer Import Control Plane.
+4. Resume the remaining 383 Whey Okay legacy mappings after the sprint or an earlier justified checkpoint.
+5. Establish an automatic Whey Okay source through EKM API or an authorised feed only after reconciliation resumes and the source contract is reviewed.
+6. Keep scheduled price/stock updates and `SAFE_UPDATE` deferred until a separate phase, repeated clean runs and explicit approval.
+7. Retain images, analytics and comparison value features in the queue.
+
+## Commercial Coverage Sprint
+
+**Status:** ACTIVE
+
+**Business objective:** Increase multi-retailer coverage, useful price comparisons, affiliate readiness and catalogue authority as quickly as the existing safety pipeline permits.
+
+Operating method:
+
+1. Accept retailer CSV files already received.
+2. Before processing a source, check for an existing adapter, parser or helper that can be reused.
+3. Work on exactly one retailer at a time.
+4. Prioritise existing canonical products, especially products with one active retailer that can gain a second or third.
+5. Prefer popular products and categories, in-stock rows, exact flavour/size/count/format identity and working affiliate URLs.
+6. Apply high-confidence rows first through the existing approved pipeline.
+7. Give every isolated conflict a final, specific review status.
+8. Allow a safe reduced batch when isolated conflicts do not affect the remaining records.
+9. Never weaken identity guards to increase batch size.
+10. Apply on staging before production and complete public and affiliate QA before closing a retailer.
+
+Definition of done for each retailer:
+
+- source file and SHA recorded,
+- adapter/reuse audit completed,
+- complete inventory classified,
+- safe records applied through the existing dry-run, validator, approval and atomic apply pipeline,
+- every conflict has a final status,
+- staging and production verified,
+- public product pages smoke-tested,
+- delivered prices and retailer URLs verified,
+- affiliate tracking verified or its absence explicitly recorded,
+- coverage metrics and deltas recorded,
+- this Operating Plan updated before the next retailer starts.
+
+Commercial coverage baseline to record before the first new retailer:
+
+- products with one active retailer,
+- products with two active retailers,
+- products with three or more active retailers,
+- active offers,
+- in-stock offers,
+- products with valid affiliate links,
+- outbound clicks,
+- affiliate revenue, if available.
+
+At the first checkpoint, assess coverage growth, import speed, conflict volume, public usefulness, affiliate readiness, whether the current manual method still scales and whether to resume the Retailer Import Control Plane.
+
+One active stage rule:
+
+- exactly one retailer may be active at a time,
+- do not start the Retailer Import Control Plane workbench, EKM automation, `SAFE_UPDATE` or another large Whey Okay reconciliation batch in parallel,
+- update this Operating Plan after every retailer,
+- start the next retailer only after the current retailer meets its definition of done.
+
+Out of scope during the sprint:
+
+- a new importer or separate application,
+- `/admin/imports`,
+- new approval, validator or apply mechanisms,
+- EKM automation,
+- scheduled production updates,
+- `SAFE_UPDATE`.
+
+### Project Control Board
+
+| Workstream | Status | Current state | Resume trigger | Next action |
+|---|---|---|---|---|
+| Commercial Coverage Sprint | ACTIVE | Existing safe importer and retailer adapters are ready for controlled CSV batches | Ends or is reassessed at the first sprint checkpoint | Select and audit the highest-commercial-value retailer CSV already received |
+| Whey Okay reconciliation | PAUSED | 137/520 reconciled; 383 remain; Medium 75/75 classified | Sprint completion or earlier justified checkpoint | Preserve current classifications and review queues |
+| Retailer Import Control Plane | ARCHITECTURE APPROVED, IMPLEMENTATION DEFERRED | Existing architecture audited; no implementation started | Two or three retailers completed, or manual processing becomes a clear bottleneck | Reassess the minimal durable control-plane scope |
+| EKM automation | DEFERRED | No production EKM adapter; current normalized/import pipeline is reusable | Whey Okay reconciliation resumes and source/API contract is approved | Later build acquisition only, reusing the current pipeline |
+| `SAFE_UPDATE` | DISABLED | Classification exists; automatic production apply remains off | Separate reviewed phase after repeated clean runs and explicit approval | No action during the sprint |
+| Analytics | QUEUED | Outbound clicks exist; broader baseline is incomplete | Commercial sprint checkpoint or a dedicated analytics phase | Record available coverage and affiliate baseline metrics |
+| Images/catalogue quality | QUEUED | 12 backfills verified; products 751 and 752 remain manual review | After the active retailer closes or at a prioritised quality checkpoint | Preserve the two manual image tasks |
+| Comparison value features | QUEUED | Product and delivered-price foundations exist | Stable retailer coverage and analytics | Do not implement during the sprint |
 
 ## Phase 0: operating control
 
@@ -813,7 +893,9 @@ Definition of done:
 
 ## Phase 3: Whey Okay reconciliation
 
-This becomes the main data project after the 200 milestone and immediate image cleanup.
+**Status:** PAUSED during the Commercial Coverage Sprint.
+
+This remains a defined data project after the 200 milestone. All existing classifications and review queues remain authoritative; no large reconciliation batch should run in parallel with the active retailer.
 
 ### Step A: parent-product reconciliation
 
@@ -940,28 +1022,28 @@ Target experience:
 
 ### Current active task
 
-Keep this Operating Plan current after each major milestone.
+Run the **Commercial Coverage Sprint** using the existing approved import pipeline, with exactly one retailer active at a time.
 
 ### Next task
 
-Continue Whey Okay reconciliation for the remaining 383 legacy mappings, starting with the next evidence-complete group outside the closed Medium inventory.
+Select and audit the highest-commercial-value retailer CSV already received, prioritising product overlap and affiliate readiness.
 
 ### Then
 
-1. Reconcile the remaining 383 Whey Okay legacy mappings.
-2. Resolve products 751 and 752 manual image review.
-3. Establish Whey Okay automation through EKM API or an authorised feed.
-4. Enable safe-update automation for existing approved mappings after separate approval.
-5. Add basic analytics.
+1. Close that retailer completely, including staging, production, public QA, affiliate QA, metrics and this document update.
+2. Start the next retailer only after the previous retailer is closed.
+3. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
+4. At the checkpoint, decide whether to continue the sprint or resume the Retailer Import Control Plane.
+5. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
 
-### Tomorrow / deferred near-term
+### Deferred near-term
 
 Create two custom Codex skills:
 
 1. `SupplementScout Retailer Import Operations`
 2. `SupplementScout Images & Catalog Quality`
 
-These should encode stable operating rules and reduce repeated long prompts.
+These should encode stable operating rules and reduce repeated long prompts, but must not run in parallel with the active retailer.
 
 ---
 
@@ -977,7 +1059,7 @@ Do not start these now:
 - advanced GA4 implementation,
 - broad AI assistant,
 - autonomous creation of new canonical products,
-- additional unrelated retailers,
+- unprioritised retailers outside the controlled Commercial Coverage Sprint,
 - large frontend redesign.
 
 ---
@@ -1070,12 +1152,17 @@ Current binding decisions:
 - Finish 200 high-quality variants/offers before production `SAFE_UPDATE`.
 - Current progress is 200 / 200.
 - eBay is postponed.
-- Whey Okay automation comes after reconciliation.
+- Commercial Coverage Sprint is the sole active workstream and processes one retailer at a time.
+- Whey Okay reconciliation is paused at 137/520 with all 383 remaining mappings and current review queues preserved.
+- Whey Okay automation comes after reconciliation resumes; EKM acquisition must reuse the current normalized/import pipeline.
 - Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4, reduced optioned pilot, final Easy optioned cleanup and reduced Medium Batches 1-3 upgraded 137 total legacy mappings; 383 remain.
+- Retailer Import Control Plane is the approved long-term architecture, but implementation is deferred until the sprint checkpoint or a demonstrated manual-processing bottleneck.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
+- Scheduled price/stock updates remain deferred.
+- `SAFE_UPDATE` remains disabled until a separate phase, repeated clean runs and explicit approval.
 - Do not duplicate already completed work.
-- Build two custom SupplementScout skills tomorrow, not during today’s core implementation work.
+- Build the two custom SupplementScout skills later, not in parallel with the active retailer.
 - Do not run many major initiatives in parallel.
 
 ---
@@ -1155,6 +1242,12 @@ Current binding decisions:
 - Remaining Whey Okay legacy mappings: 383.
 - Prices, shipping, totals, stock, URLs, last-checked timestamps, clicks and price history remained unchanged during Batch 3 reconciliation.
 - `SAFE_UPDATE` still disabled.
+- Architecture decision: the Retailer Import Control Plane remains the approved long-term direction, but its implementation is deferred.
+- Commercial Coverage Sprint is now the active business priority to increase multi-retailer coverage, public usefulness, affiliate traffic readiness and commercial potential.
+- Remaining Whey Okay reconciliation is paused at 137/520 with 383 mappings and all current review queues preserved.
+- The sprint will process one retailer at a time through the existing importer, validator, approval ledger, staging and production apply pipeline.
+- First checkpoint is after two or three new retailers or five to eight working days, whichever occurs first.
+- EKM automation, scheduled price/stock updates and `SAFE_UPDATE` remain deferred; `SAFE_UPDATE` remains disabled.
 
 ---
 
