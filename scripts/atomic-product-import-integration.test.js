@@ -24,6 +24,7 @@ const legacyUpgradeMigration = path.join(root, "supabase/migrations/202607132000
 const standaloneLegacyUpgradeMigration = path.join(root, "supabase/migrations/20260716000000_support_standalone_legacy_mapping_upgrade.sql");
 const legacyNullTotalMigration = path.join(root, "supabase/migrations/20260716002000_allow_legacy_mapping_upgrade_null_total_noop.sql");
 const formatNormalizationMigration = path.join(root, "supabase/migrations/20260715234500_align_approval_product_format_normalization.sql");
+const optionedLegacyUpgradeMigration = path.join(root, "supabase/migrations/20260716003000_support_optioned_legacy_mapping_upgrade.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const forbiddenRefs = ["aftboxmrdgyhizicfsfu", "dlsbwshkzdsvzubjftbv"];
 const image = "postgres:17-alpine";
@@ -141,6 +142,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const legacySql = require("node:fs").readFileSync(legacyUpgradeMigration, "utf8");
   const legacyNullTotalSql = require("node:fs").readFileSync(legacyNullTotalMigration, "utf8");
   const formatSql = require("node:fs").readFileSync(formatNormalizationMigration, "utf8");
+  const optionedLegacySql = require("node:fs").readFileSync(optionedLegacyUpgradeMigration, "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
   assert.match(sql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
@@ -189,6 +191,20 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.doesNotMatch(formatSql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
   assert.doesNotMatch(formatSql, /\bupdate\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
   assert.doesNotMatch(formatSql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.match(optionedLegacySql, /^begin;/i);
+  assert.match(optionedLegacySql, /optioned case/i);
+  assert.match(optionedLegacySql, /v_expected_variant_id is distinct from v_variant_id/i);
+  assert.match(optionedLegacySql, /product_variant_id = nullif\(p_plan#>>'\{retailer_product,values,product_variant_id\}'/i);
+  assert.match(optionedLegacySql, /mapping variant guard target not found/i);
+  assert.match(optionedLegacySql, /offer variant guard target not found/i);
+  assert.match(optionedLegacySql, /v_offer_action = 'identity_update'/i);
+  assert.match(optionedLegacySql, /v_offer_action in \('update','noop','identity_update'\)/i);
+  assert.match(optionedLegacySql, /update public\.offers set\s+product_variant_id = v_variant_id/i);
+  assert.match(optionedLegacySql, /alter function public\.atomic_import_is_legacy_mapping_upgrade\(jsonb\) owner to postgres/i);
+  assert.match(optionedLegacySql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
+  assert.doesNotMatch(optionedLegacySql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(optionedLegacySql, /\bupdate\s+public\.(products|product_variants|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(optionedLegacySql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -233,12 +249,14 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, standaloneLegacyUpgradeMigration), "apply standalone legacy mapping upgrade migration");
     requireSuccess(psqlFile(container, database, legacyNullTotalMigration), "apply legacy mapping null total migration");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "apply approval format normalization migration");
+    requireSuccess(psqlFile(container, database, optionedLegacyUpgradeMigration), "apply optioned legacy mapping upgrade migration");
     requireSuccess(psqlFile(container, database, atomicMigration), "reapply atomic import migration idempotently");
     requireSuccess(psqlFile(container, database, approvalMigration), "reapply approval ledger migration idempotently");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "reapply legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, standaloneLegacyUpgradeMigration), "reapply standalone legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, legacyNullTotalMigration), "reapply legacy mapping null total migration idempotently");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "reapply approval format normalization migration idempotently");
+    requireSuccess(psqlFile(container, database, optionedLegacyUpgradeMigration), "reapply optioned legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",
@@ -283,6 +301,11 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       "update public.retailers set name='Whey Okay',slug='whey-okay',website='https://wheyokay.com' where id=3; insert into public.products(id,name,slug,brand,category,product_format,is_active) values(940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps','BioTech USA','Vitamins & Minerals','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(940001,940001,'default','Default',null,null,null,null,true,true); insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(940001,3,940001,940001,'BioTech USA Magnesium Chelate 60 Caps','biotech-usa-magnesium-chelate-60-caps',null,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp',null,null,null,null,'slug',90,'2026-07-15T10:00:00.000+00:00'); insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(940001,940001,3,940001,940001,9.99,3.99,null,true,'https://wheyokay.com/biotech-usa-magnesium-chelate-60-caps-668-p.asp','2026-07-15T10:00:01.000+00:00');",
     ]);
     requireSuccess(standaloneLegacyFixtureInsert, "create standalone Whey Okay legacy mapping fixture");
+    const optionedLegacyFixtureInsert = exec(container, [
+      "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
+      "insert into public.products(id,name,slug,brand,category,product_format,is_active) values(950001,'Time 4 Mass 6000g','time-4-mass-6000g','Time 4 Nutrition','Mass Gainer','powder',true); insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default) values(950001,950001,'default','Default',null,null,null,null,null,null,true,true),(950002,950001,'banana-6000g','Banana / 6000g','banana','Banana',6000,'g',1,'powder',true,false),(950003,950001,'chocolate-6000g','Chocolate / 6000g','chocolate','Chocolate',6000,'g',1,'powder',true,false); insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_name,external_slug,external_gtin,external_url,external_product_id,external_variant_id,external_sku,external_options,match_method,match_confidence,updated_at) values(950001,3,950001,950001,'Time 4 Mass 6000g','time-4-mass-6000g',null,'https://wheyokay.com/time-4-mass-6000g-banana-686-p.asp?variant=687',null,null,null,null,'slug',90,'2026-07-15T11:00:00.000+00:00'); insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values(950001,950001,3,950001,950001,39.99,4.99,44.98,true,'https://wheyokay.com/time-4-mass-6000g-banana-686-p.asp?variant=687','2026-07-15T11:00:01.000+00:00');",
+    ]);
+    requireSuccess(optionedLegacyFixtureInsert, "create optioned Whey Okay legacy mapping fixture");
     const state = psqlJson(container, database, `select jsonb_build_object(
       'retailer',(select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website) from public.retailers where id=1),
       'mass_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=900001),
@@ -586,6 +609,149 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       assert.equal(legacyCheck.history_count, 0);
       assert.equal(legacyCheck.mapping_count, 1);
       assert.equal(legacyCheck.offer_count, 1);
+
+      const optionedState = psqlJson(container, database, `select jsonb_build_object(
+        'retailer',(select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website) from public.retailers where id=3),
+        'product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=950001),
+        'target_variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=950002),
+        'mapping',(select jsonb_build_object('id',id,'retailer_id',retailer_id,'product_id',product_id,'product_variant_id',product_variant_id,'updated_at',updated_at,'external_product_id',external_product_id,'external_variant_id',external_variant_id,'external_sku',external_sku,'external_options',external_options,'external_name',external_name,'external_slug',external_slug,'external_gtin',external_gtin,'external_url',external_url,'match_method',match_confidence) from public.retailer_products where id=950001),
+        'offer',(select jsonb_build_object('id',id,'product_id',product_id,'retailer_id',retailer_id,'product_variant_id',product_variant_id,'retailer_product_id',retailer_product_id,'price',price,'shipping_cost',shipping_cost,'total_price',total_price,'in_stock',in_stock,'url',url,'last_checked_at',last_checked_at) from public.offers where id=950001)
+      );`);
+      optionedState.mapping.match_method = "slug";
+      optionedState.mapping.match_confidence = 90;
+      const optionedUrl = optionedState.mapping.external_url;
+      const optionedRow = {
+        retailer_name: "Whey Okay", retailer_website: "https://wheyokay.com",
+        product_name: "Time 4 Mass 6000g", slug: "time-4-mass-6000g",
+        brand: "Time 4 Nutrition", category: "Mass Gainer",
+        product_id: "950001", product_variant_id: "950002",
+        external_product_id: "686", external_variant_id: "687",
+        external_sku: "T4M-BAN-6000",
+        external_options: '{"Size":"6000g","Flavour":"Banana"}',
+        external_gtin: "", variant_name: "Banana / 6000g",
+        size: "6000g", size_unit: "g", flavour: "Banana",
+        product_format: "powder", pack_count: "1", price: "39.99",
+        shipping_cost: "4.99", in_stock: "true",
+        external_url: optionedUrl, affiliate_url: optionedUrl,
+        legacy_mapping_upgrade: "true", legacy_mapping_optioned: "true",
+        legacy_duplicate_source_listing: "false",
+        legacy_identity_drift: "false",
+        retailer_product_id: "950001",
+        expected_retailer_product_updated_at: optionedState.mapping.updated_at,
+      };
+      const optionedAfter = {
+        external_product_id: "686", external_variant_id: "687",
+        external_sku: "T4M-BAN-6000",
+        external_options: { Size: "6000g", Flavour: "Banana" },
+        external_gtin: null,
+      };
+      const optionedItem = {
+        row: optionedRow, rowNumber: 2, retailer: optionedState.retailer,
+        product: optionedState.product, productVariant: optionedState.target_variant,
+        mapping: optionedState.mapping, existingOffer: optionedState.offer,
+        offerPlan: { action: "unchanged", createsPriceHistory: false }, mode: "feed",
+        legacyMappingUpgrade: {
+          operationType: "legacy_mapping_upgrade",
+          controls: {
+            mappingId: "950001",
+            expectedUpdatedAt: optionedState.mapping.updated_at,
+            standalone: false,
+            optioned: true,
+          },
+          after: optionedAfter, alreadyCompleted: false, exactUrl: optionedUrl,
+          approvedEvidence: {
+            product_name: optionedRow.product_name, brand: optionedRow.brand,
+            size: optionedRow.size, flavour: optionedRow.flavour,
+            product_format: optionedRow.product_format, pack_count: optionedRow.pack_count,
+            ...optionedAfter, external_url: optionedUrl,
+            legacy_mapping_optioned: true,
+          },
+        },
+      };
+      const optionedArtifact = writeNodePlanArtifact(
+        artifactDirectory, "legacy-optioned-whey-okay-950001", optionedRow, optionedItem
+      );
+      const optionedFingerprint = optionedArtifact.artifact.plans[0].plan_fingerprint;
+      const optionedPlan = optionedArtifact.artifact.plans[0].resolved_plan;
+      assert.equal(optionedPlan.meta.operation_type, "legacy_mapping_upgrade");
+      assert.equal(optionedPlan.product_variant.id, "950002");
+      assert.equal(optionedPlan.expected_state.retailer_product.product_variant_id, "950001");
+      assert.equal(optionedPlan.retailer_product.values.product_variant_id, "950002");
+      assert.equal(optionedPlan.offer.action, "identity_update");
+      assert.equal(optionedPlan.expected_state.offer.product_variant_id, "950001");
+      assert.equal(optionedPlan.offer.values.product_variant_id, "950002");
+      assert.equal(optionedPlan.price_history.action, "noop");
+      const optionedHelper = exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+        "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(optionedPlan))}::jsonb);`,
+      ]);
+      requireSuccess(optionedHelper, "optioned legacy helper accepts exact default to non-default plan");
+      assert.equal(optionedHelper.stdout.trim(), "t");
+      const optionedTamperedPlans = [
+        ["same product and variant IDs", (plan) => { plan.retailer_product.values.external_variant_id = "686"; }],
+        ["missing size", (plan) => { delete plan.retailer_product.values.external_options.Size; delete plan.product_variant.evidence.external_options.Size; }],
+        ["flavour mismatch", (plan) => { plan.product_variant.evidence.flavour = "chocolate"; }],
+        ["size mismatch", (plan) => { plan.product_variant.evidence.size_value = "5000"; }],
+        ["format mismatch", (plan) => { plan.product_variant.evidence.product_format = "capsules"; }],
+        ["wrong target product", (plan) => { plan.product_variant.id = "950003"; plan.retailer_product.values.product_variant_id = "950003"; }],
+        ["offer update", (plan) => { plan.offer.action = "update"; }],
+        ["offer price drift", (plan) => { plan.offer.values.price = "40.99"; }],
+        ["history create", (plan) => { plan.price_history.action = "create"; }],
+      ];
+      for (const [label, mutate] of optionedTamperedPlans) {
+        const plan = structuredClone(optionedPlan);
+        mutate(plan);
+        refreshPlanFingerprint(plan);
+        const rejected = exec(container, [
+          "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+          "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(plan))}::jsonb);`,
+        ]);
+        requireSuccess(rejected, `optioned helper rejection: ${label}`);
+        assert.equal(rejected.stdout.trim(), "f", `optioned helper accepted ${label}`);
+      }
+      const optionedApproved = await approveArtifactPlan({
+        artifactPath: optionedArtifact.artifactPath,
+        planFingerprint: optionedFingerprint,
+      });
+      const optionedApplied = await applyArtifactPlan({
+        artifactPath: optionedArtifact.artifactPath,
+        planFingerprint: optionedFingerprint,
+        approvalId: optionedApproved.approvalId,
+        pilotApply: true,
+      });
+      assert.equal(optionedApplied.successful, 1);
+      await assert.rejects(
+        () => applyArtifactPlan({
+          artifactPath: optionedArtifact.artifactPath,
+          planFingerprint: optionedFingerprint,
+          approvalId: optionedApproved.approvalId,
+          pilotApply: true,
+        }),
+        /approved import plan already consumed/i
+      );
+      const optionedCheck = psqlJson(container, database, `select jsonb_build_object(
+        'mapping',(select jsonb_build_object('product_id',product_id,'retailer_id',retailer_id,'product_variant_id',product_variant_id,'external_product_id',external_product_id,'external_variant_id',external_variant_id,'external_sku',external_sku,'external_options',external_options,'external_gtin',external_gtin,'external_url',external_url) from public.retailer_products where id=950001),
+        'offer',(select jsonb_build_object('product_id',product_id,'retailer_id',retailer_id,'retailer_product_id',retailer_product_id,'product_variant_id',product_variant_id,'price',price,'shipping_cost',shipping_cost,'total_price',total_price,'in_stock',in_stock,'url',url,'last_checked_at',last_checked_at) from public.offers where id=950001),
+        'history_count',(select count(*) from public.price_history where offer_id=950001),
+        'mapping_count',(select count(*) from public.retailer_products where retailer_id=3 and product_id=950001),
+        'offer_count',(select count(*) from public.offers where retailer_id=3 and product_id=950001)
+      );`);
+      assert.deepEqual(optionedCheck.mapping, {
+        product_id: 950001, retailer_id: 3, product_variant_id: 950002,
+        external_product_id: "686", external_variant_id: "687",
+        external_sku: "T4M-BAN-6000",
+        external_options: { Size: "6000g", Flavour: "Banana" },
+        external_gtin: null, external_url: optionedUrl,
+      });
+      assert.deepEqual(optionedCheck.offer, {
+        product_id: 950001, retailer_id: 3, retailer_product_id: 950001,
+        product_variant_id: 950002, price: 39.99, shipping_cost: 4.99,
+        total_price: 44.98, in_stock: true, url: optionedUrl,
+        last_checked_at: optionedState.offer.last_checked_at,
+      });
+      assert.equal(optionedCheck.history_count, 0);
+      assert.equal(optionedCheck.mapping_count, 1);
+      assert.equal(optionedCheck.offer_count, 1);
 
       const standaloneState = psqlJson(container, database, `select jsonb_build_object(
         'retailer',(select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website) from public.retailers where id=3),

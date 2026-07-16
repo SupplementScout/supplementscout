@@ -285,7 +285,7 @@ function loadDryRunArtifact(artifactPath) {
         entry.exact_url_evidence !== entry.after?.external_url ||
         canonicalJson(entry.before) !== canonicalJson(plan.expected_state?.retailer_product) ||
         canonicalJson(entry.after) !== canonicalJson(plan.retailer_product?.values) ||
-        plan.offer?.action !== "noop" ||
+        !["noop", "identity_update"].includes(plan.offer?.action) ||
         plan.price_history?.action !== "noop"
       ) {
         throw new Error("Dry-run artifact legacy mapping upgrade metadata mismatch");
@@ -752,7 +752,8 @@ function parseLegacyMappingUpgradeControls(row) {
     "expected_retailer_product_updated_at"
   );
   const hasStandalone = rowHasColumn(row, "legacy_mapping_standalone");
-  if (!hasFlag && !hasMappingId && !hasExpectedUpdatedAt && !hasStandalone) return null;
+  const hasOptioned = rowHasColumn(row, "legacy_mapping_optioned");
+  if (!hasFlag && !hasMappingId && !hasExpectedUpdatedAt && !hasStandalone && !hasOptioned) return null;
 
   const enabled = String(row.legacy_mapping_upgrade ?? "").trim().toLowerCase();
   if (enabled !== "true") {
@@ -777,6 +778,16 @@ function parseLegacyMappingUpgradeControls(row) {
   if (standalone && !["true", "false"].includes(standalone)) {
     throw new Error("legacy mapping standalone proof must be true or false");
   }
+  const optioned = String(row.legacy_mapping_optioned ?? "")
+    .trim()
+    .toLowerCase();
+  const optionedEnabled = optioned === "true";
+  if (optioned && !["true", "false"].includes(optioned)) {
+    throw new Error("legacy mapping optioned proof must be true or false");
+  }
+  if (standaloneEnabled && optionedEnabled) {
+    throw new Error("legacy mapping upgrade cannot be both standalone and optioned");
+  }
   if (standaloneEnabled) {
     if (String(row.legacy_standalone_sellable_count ?? "").trim() !== "1") {
       throw new Error("standalone legacy mapping upgrade requires exactly one sellable source row");
@@ -791,7 +802,17 @@ function parseLegacyMappingUpgradeControls(row) {
       }
     }
   }
-  return { mappingId, expectedUpdatedAt, standalone: standaloneEnabled };
+  if (optionedEnabled) {
+    for (const [field, message] of [
+      ["legacy_duplicate_source_listing", "optioned legacy mapping upgrade forbids duplicate source listings"],
+      ["legacy_identity_drift", "optioned legacy mapping upgrade forbids identity drift"],
+    ]) {
+      if (String(row[field] ?? "").trim().toLowerCase() !== "false") {
+        throw new Error(message);
+      }
+    }
+  }
+  return { mappingId, expectedUpdatedAt, standalone: standaloneEnabled, optioned: optionedEnabled };
 }
 
 function parseExternalOptions(value) {
@@ -1391,6 +1412,18 @@ async function findOffersForRetailerProduct(retailerId, productId) {
   return data || [];
 }
 
+async function fetchProductVariantById(productVariantId) {
+  const { data, error } = await getSupabase()
+    .from("product_variants")
+    .select(
+      "id, product_id, variant_key, display_name, flavour_code, flavour_label, size_value, size_unit, pack_count, product_format, is_active, is_default"
+    )
+    .eq("id", productVariantId)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
 function exactLegacyExternalOptions(row, controls = null) {
   const options = parseExternalOptions(row.external_options);
   const evidence = collectCanonicalVariantEvidence(row);
@@ -1423,7 +1456,12 @@ function exactLegacyExternalOptions(row, controls = null) {
   if (!evidence.size || !evidence.flavour) {
     throw new Error("legacy mapping upgrade requires matching size and flavour evidence");
   }
-  return { options, evidence, standalone: false };
+  if (controls?.optioned && (
+    optionalIdentifier(row.external_product_id) === optionalIdentifier(row.external_variant_id)
+  )) {
+    throw new Error("optioned legacy mapping upgrade requires distinct EKM product and variant IDs");
+  }
+  return { options, evidence, standalone: false, optioned: Boolean(controls?.optioned) };
 }
 
 function legacyIdentityAfter(row, controls = null) {
@@ -1582,6 +1620,52 @@ async function resolveCanonicalProductVariant(
       throw new Error("conflicting variant evidence: retailer product mapping");
     }
     if (options.legacyMappingUpgrade) {
+      if (options.legacyMappingUpgrade.optioned) {
+        if (!mappedVariant.is_default) {
+          throw new Error("optioned legacy mapping upgrade requires current default variant");
+        }
+        exactLegacyExternalOptions(row, options.legacyMappingUpgrade);
+        let targetCandidates = nonDefaultVariants.filter((variant) => {
+          const variantFlavour =
+            normalizeFlavour(variant.flavour_code) || normalizeFlavour(variant.flavour_label);
+          const variantSize = parseSize(
+            variant.size_value && variant.size_unit
+              ? `${variant.size_value}${variant.size_unit}`
+              : ""
+          );
+          const variantFormat = parseProductFormat(variant.product_format);
+          const evidenceMatches =
+            evidence.flavour &&
+            evidence.flavour === variantFlavour &&
+            evidence.size &&
+            sizeKey(evidence.size) === sizeKey(variantSize) &&
+            (evidence.packCount === null ||
+              Number(evidence.packCount) === Number(variant.pack_count)) &&
+            (!evidence.productFormat || !variantFormat || evidence.productFormat === variantFormat);
+          const distinguishingFeaturesConfirmed =
+            variantFlavour &&
+            evidence.flavour === variantFlavour &&
+            variantSize &&
+            sizeKey(evidence.size) === sizeKey(variantSize) &&
+            (variant.pack_count === null ||
+              Number(variant.pack_count) === 1 ||
+              Number(evidence.packCount) === Number(variant.pack_count));
+          return evidenceMatches && distinguishingFeaturesConfirmed;
+        });
+        if (rowHasColumn(row, "product_variant_id")) {
+          const requestedVariantId = optionalIdentifier(row.product_variant_id);
+          targetCandidates = targetCandidates.filter(
+            (variant) => String(variant.id) === requestedVariantId
+          );
+        }
+        if (targetCandidates.length === 0) {
+          throw new Error("missing canonical product_variant");
+        }
+        if (targetCandidates.length > 1) {
+          throw new Error("ambiguous canonical product_variant");
+        }
+        return targetCandidates[0];
+      }
       if (nonDefaultVariants.length > 0) {
         throw new Error(
           "legacy mapping upgrade cannot use a default variant when non-default variants exist"
@@ -1683,7 +1767,7 @@ async function resolveCanonicalProductVariant(
       return evidenceMatches && distinguishingFeaturesConfirmed;
     });
 
-  if (mapping?.product_variant_id) {
+  if (mapping?.product_variant_id && !options.legacyMappingUpgrade?.optioned) {
     candidates = candidates.filter(
       (variant) => variant.id === mapping.product_variant_id
     );
@@ -1712,13 +1796,36 @@ async function validateLegacyMappingUpgrade({
   if (String(mapping.updated_at) !== controls.expectedUpdatedAt) {
     throw new Error("legacy mapping upgrade expected updated_at is stale");
   }
-  if (controls.standalone && String(retailer.slug || "").trim() !== "whey-okay") {
-    throw new Error("standalone legacy mapping upgrade is limited to Whey Okay");
+  if (
+    (controls.standalone || controls.optioned) &&
+    String(retailer.slug || "").trim() !== "whey-okay"
+  ) {
+    throw new Error("legacy mapping upgrade extension is limited to Whey Okay");
   }
   if (mapping.retailer_id !== retailer.id || mapping.product_id !== product.id) {
     throw new Error("legacy mapping upgrade mapping ownership mismatch");
   }
-  if (mapping.product_variant_id !== productVariant.id) {
+  if (controls.optioned) {
+    if (mapping.product_variant_id === productVariant.id) {
+      throw new Error("optioned legacy mapping upgrade requires current default to target non-default change");
+    }
+    const currentVariant = await fetchProductVariantById(mapping.product_variant_id);
+    if (
+      !currentVariant ||
+      currentVariant.product_id !== product.id ||
+      !currentVariant.is_active ||
+      !currentVariant.is_default
+    ) {
+      throw new Error("optioned legacy mapping upgrade requires current mapping on active default variant");
+    }
+    if (
+      productVariant.product_id !== product.id ||
+      productVariant.is_default ||
+      !productVariant.is_active
+    ) {
+      throw new Error("optioned legacy mapping upgrade requires active non-default target variant");
+    }
+  } else if (mapping.product_variant_id !== productVariant.id) {
     throw new Error("legacy mapping upgrade product_variant_id mismatch");
   }
   if (
@@ -1788,7 +1895,9 @@ async function validateLegacyMappingUpgrade({
   const offer = offers[0];
   if (
     String(offer.retailer_product_id) !== String(mapping.id) ||
-    String(offer.product_variant_id) !== String(productVariant.id)
+    (controls.optioned
+      ? String(offer.product_variant_id) !== String(mapping.product_variant_id)
+      : String(offer.product_variant_id) !== String(productVariant.id))
   ) {
     throw new Error("legacy mapping upgrade offer identity mismatch");
   }
@@ -1818,6 +1927,7 @@ async function validateLegacyMappingUpgrade({
       external_gtin: after.external_gtin,
       external_url: incomingUrl,
       legacy_mapping_standalone: controls.standalone,
+      legacy_mapping_optioned: controls.optioned,
       legacy_standalone_sellable_count: controls.standalone
         ? String(row.legacy_standalone_sellable_count || "").trim()
         : "",
@@ -1956,7 +2066,9 @@ function buildAtomicImportPlan(item) {
     ? {
         ...mapping,
         ...legacyMappingUpgrade.after,
-        product_variant_id: mapping.product_variant_id,
+        product_variant_id: legacyMappingUpgrade.controls.optioned
+          ? productVariant.id
+          : mapping.product_variant_id,
         external_url: mapping.external_url,
       }
     : buildRetailerProductPayload({
@@ -1983,9 +2095,14 @@ function buildAtomicImportPlan(item) {
   const shippingCost =
     incomingShipping === null && existingOffer ? existingShipping : incomingShipping;
   const offerValues = legacyMappingUpgrade
-    ? completeObject(existingOffer, [
-        "price", "shipping_cost", "total_price", "url", "in_stock", "last_checked_at",
-      ])
+    ? {
+        ...completeObject(existingOffer, [
+          "price", "shipping_cost", "total_price", "url", "in_stock", "last_checked_at",
+        ]),
+        ...(legacyMappingUpgrade.controls.optioned
+          ? { product_variant_id: productVariant.id }
+          : {}),
+      }
     : {
         price,
         shipping_cost: shippingCost,
@@ -2053,7 +2170,9 @@ function buildAtomicImportPlan(item) {
     },
     offer: {
       action: existingOffer
-        ? legacyMappingUpgrade || offerPlan.action === "unchanged" ? "noop" : "update"
+        ? legacyMappingUpgrade?.controls.optioned
+          ? "identity_update"
+          : (legacyMappingUpgrade || offerPlan.action === "unchanged" ? "noop" : "update")
         : "create",
       ...(existingOffer ? { id: existingOffer.id } : {}),
       values: offerValues,

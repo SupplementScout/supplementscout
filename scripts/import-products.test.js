@@ -3094,6 +3094,113 @@ function legacyMapping948Fixture({ offerOverrides = {} } = {}) {
   return { row, seed, mapping, offer, url, updatedAt };
 }
 
+function optionedLegacyMappingFixture({
+  rowOverrides = {},
+  seedMutate = null,
+  offerOverrides = {},
+} = {}) {
+  const updatedAt = "2026-07-15T20:00:00.000+00:00";
+  const url = "https://www.wheyokay.co.uk/time-4-mass-6000g-banana-686-p.asp?variant=687";
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Whey Okay",
+    retailer_website: "https://www.wheyokay.co.uk",
+    external_product_id: "686",
+    external_variant_id: "687",
+    external_sku: "T4M-BAN-6000",
+    external_options: JSON.stringify({ Size: "6000g", Flavour: "Banana" }),
+    product_name: "Time 4 Mass 6000g",
+    variant_name: "Banana / 6000g",
+    brand: "Time 4 Nutrition",
+    category: "Mass Gainer",
+    slug: "time-4-mass-6000g",
+    external_url: url,
+    affiliate_url: url,
+    external_gtin: "",
+    price: "39.99",
+    shipping_known: "true",
+    shipping_cost: "4.99",
+    in_stock: "true",
+    is_for_sale: "true",
+    size: "6000",
+    size_unit: "g",
+    flavour: "Banana",
+    product_format: "powder",
+    pack_count: "1",
+    product_id: "124",
+    product_variant_id: "771",
+    legacy_mapping_upgrade: "true",
+    legacy_mapping_optioned: "true",
+    legacy_duplicate_source_listing: "false",
+    legacy_identity_drift: "false",
+    retailer_product_id: "161",
+    expected_retailer_product_updated_at: updatedAt,
+    ...rowOverrides,
+  });
+  const mapping = {
+    id: 161,
+    retailer_id: 3,
+    product_id: 124,
+    product_variant_id: 700,
+    external_product_id: null,
+    external_variant_id: null,
+    external_sku: null,
+    external_options: null,
+    external_name: row.product_name,
+    external_slug: row.slug,
+    external_gtin: null,
+    external_url: url,
+    match_method: "slug",
+    match_confidence: 90,
+    updated_at: updatedAt,
+  };
+  const offer = {
+    id: 1610,
+    product_id: 124,
+    retailer_id: 3,
+    retailer_product_id: 161,
+    product_variant_id: 700,
+    price: 39.99,
+    shipping_cost: 4.99,
+    total_price: 44.98,
+    in_stock: true,
+    url,
+    last_checked_at: "2026-07-15T20:01:00.000+00:00",
+    ...offerOverrides,
+  };
+  const seed = {
+    retailers: [{ id: 3, name: "Whey Okay", slug: "whey-okay", website: "https://www.wheyokay.co.uk" }],
+    products: [{
+      id: 124, name: row.product_name, slug: row.slug, brand: "Time 4 Nutrition",
+      category: "Mass Gainer", gtin: null, is_active: true,
+      merged_into_product_id: null, product_format: "powder",
+    }],
+    product_variants: [
+      {
+        id: 700, product_id: 124, variant_key: "default", display_name: "Default",
+        flavour_code: null, flavour_label: null, size_value: null, size_unit: null,
+        pack_count: null, product_format: null, is_default: true, is_active: true,
+      },
+      {
+        id: 771, product_id: 124, variant_key: "banana-6000g",
+        display_name: "Banana / 6000g", flavour_code: "banana",
+        flavour_label: "Banana", size_value: 6000, size_unit: "g",
+        pack_count: 1, product_format: "powder", is_default: false, is_active: true,
+      },
+      {
+        id: 772, product_id: 124, variant_key: "chocolate-6000g",
+        display_name: "Chocolate / 6000g", flavour_code: "chocolate",
+        flavour_label: "Chocolate", size_value: 6000, size_unit: "g",
+        pack_count: 1, product_format: "powder", is_default: false, is_active: true,
+      },
+    ],
+    retailer_products: [mapping],
+    offers: [offer],
+    price_history: [],
+  };
+  if (seedMutate) seedMutate(seed);
+  return { row, seed, mapping, offer, url, updatedAt };
+}
+
 test("legacy mapping upgrade fixture 948 produces one exact update and no offer write", async () => {
   const fixture = legacyMapping948Fixture();
   const supabase = createMockSupabase(structuredClone(fixture.seed));
@@ -3175,6 +3282,75 @@ test("legacy mapping upgrade fixture 948 produces one exact update and no offer 
     );
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("optioned legacy mapping upgrade moves current default mapping to exact existing non-default variant", async () => {
+  const fixture = optionedLegacyMappingFixture();
+  const supabase = createMockSupabase(structuredClone(fixture.seed));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+
+  assert.equal(result.blockedRows.length, 0);
+  assert.equal(result.report.approvedRows.length, 1);
+  const item = result.report.approvedRows[0];
+  const plan = item.importPlan;
+  assert.equal(plan.meta.operation_type, "legacy_mapping_upgrade");
+  assert.equal(item.mapping.id, 161);
+  assert.equal(item.productVariant.id, 771);
+  assert.equal(plan.product_variant.id, "771");
+  assert.equal(plan.expected_state.product_variant.is_default, false);
+  assert.equal(plan.expected_state.retailer_product.product_variant_id, "700");
+  assert.equal(plan.retailer_product.values.product_variant_id, "771");
+  assert.equal(plan.retailer_product.values.external_product_id, "686");
+  assert.equal(plan.retailer_product.values.external_variant_id, "687");
+  assert.deepEqual(plan.retailer_product.values.external_options, {
+    Size: "6000g",
+    Flavour: "Banana",
+  });
+  assert.equal(plan.product_variant.evidence.flavour, "banana");
+  assert.equal(plan.product_variant.evidence.size_value, "6000");
+  assert.equal(plan.product_variant.evidence.size_unit, "g");
+  assert.equal(plan.offer.action, "identity_update");
+  assert.equal(plan.expected_state.offer.product_variant_id, "700");
+  assert.equal(plan.offer.values.product_variant_id, "771");
+  assert.equal(plan.offer.values.price, "39.99");
+  assert.equal(plan.price_history.action, "noop");
+  assert.equal(result.report.retailerProductsToUpdate.length, 1);
+  assert.equal(result.report.offersToUpdate.length, 0);
+  assert.equal(result.report.offersUnchanged.length, 1);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("optioned legacy mapping upgrade fails closed for identity and mutation guards", async () => {
+  const scenarios = [
+    ["missing optioned flag keeps default/non-default block", ({ row }) => { delete row.legacy_mapping_optioned; }, /cannot use a default variant/i],
+    ["standalone and optioned are mutually exclusive", ({ row }) => { row.legacy_mapping_standalone = "true"; }, /cannot be both standalone and optioned/i],
+    ["missing duplicate source proof", ({ row }) => { delete row.legacy_duplicate_source_listing; }, /duplicate source listings/i],
+    ["identity drift proof true", ({ row }) => { row.legacy_identity_drift = "true"; }, /identity drift/i],
+    ["matching product and variant IDs", ({ row }) => { row.external_variant_id = row.external_product_id; }, /distinct EKM product and variant IDs/i],
+    ["missing size option", ({ row }) => { row.external_options = JSON.stringify({ Flavour: "Banana" }); }, /exactly Size and Flavour/i],
+    ["missing flavour option", ({ row }) => { row.external_options = JSON.stringify({ Size: "6000g" }); }, /exactly Size and Flavour/i],
+    ["flavour mismatch", ({ row }) => { row.flavour = "Chocolate"; row.external_options = JSON.stringify({ Size: "6000g", Flavour: "Chocolate" }); }, /missing canonical product_variant/i],
+    ["size mismatch", ({ row }) => { row.size = "5000"; row.external_options = JSON.stringify({ Size: "5000g", Flavour: "Banana" }); }, /conflicting variant evidence: size/i],
+    ["target default", ({ row }) => { row.product_variant_id = "700"; }, /missing canonical product_variant/i],
+    ["target inactive", ({ seed }) => { seed.product_variants.find((variant) => variant.id === 771).is_active = false; }, /missing canonical product_variant/i],
+    ["current mapping no longer on default", ({ seed }) => { seed.retailer_products[0].product_variant_id = 772; }, /requires current default variant/i],
+    ["offer update", ({ row }) => { row.price = "41.99"; }, /cannot change offer/i],
+    ["offer identity drift", ({ seed }) => { seed.offers[0].retailer_product_id = 999; }, /offer identity mismatch/i],
+    ["second mapping", ({ seed }) => { seed.retailer_products.push({ ...seed.retailer_products[0], id: 162, external_url: "https://example.test/other" }); }, /exactly one retailer\/product mapping/i],
+  ];
+
+  for (const [label, mutate, reason] of scenarios) {
+    const fixture = optionedLegacyMappingFixture();
+    mutate(fixture);
+    const supabase = createMockSupabase(fixture.seed);
+    setSupabaseForTests(supabase);
+    const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+    assert.equal(result.report.approvedRows.length, 0, label);
+    assert.equal(result.blockedRows.length, 1, label);
+    assert.match(result.blockedRows[0].block_reason, reason, label);
+    assert.equal(supabase.writes.length, 0, label);
   }
 });
 
