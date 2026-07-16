@@ -811,8 +811,35 @@ function parseLegacyMappingUpgradeControls(row) {
         throw new Error(message);
       }
     }
+    const optionTupleMode = String(row.legacy_option_tuple_mode ?? "").trim();
+    if (optionTupleMode && optionTupleMode !== "flavour_only_parent_size") {
+      throw new Error("optioned legacy mapping upgrade has unsupported option tuple mode");
+    }
+    if (optionTupleMode === "flavour_only_parent_size") {
+      const parentSizeValue = String(row.legacy_parent_size_value ?? "").trim();
+      const parentSizeUnit = String(row.legacy_parent_size_unit ?? "").trim().toLowerCase();
+      if (!parentSizeValue || !parentSizeUnit || !parseExplicitSize(`${parentSizeValue}${parentSizeUnit}`)) {
+        throw new Error("optioned legacy mapping upgrade requires exact parent size evidence");
+      }
+      if (!String(row.legacy_parent_size_source ?? "").trim()) {
+        throw new Error("optioned legacy mapping upgrade requires parent size proof source");
+      }
+      if (String(row.legacy_parent_size_all_variants_same ?? "").trim().toLowerCase() !== "true") {
+        throw new Error("optioned legacy mapping upgrade requires parent size to be constant for source variants");
+      }
+    }
   }
-  return { mappingId, expectedUpdatedAt, standalone: standaloneEnabled, optioned: optionedEnabled };
+  return {
+    mappingId,
+    expectedUpdatedAt,
+    standalone: standaloneEnabled,
+    optioned: optionedEnabled,
+    optionTupleMode: optionedEnabled ? String(row.legacy_option_tuple_mode ?? "").trim() : "",
+    parentSizeValue: String(row.legacy_parent_size_value ?? "").trim(),
+    parentSizeUnit: String(row.legacy_parent_size_unit ?? "").trim().toLowerCase(),
+    parentSizeSource: String(row.legacy_parent_size_source ?? "").trim(),
+    parentSizeAllVariantsSame: String(row.legacy_parent_size_all_variants_same ?? "").trim().toLowerCase() === "true",
+  };
 }
 
 function parseExternalOptions(value) {
@@ -1446,6 +1473,27 @@ function exactLegacyExternalOptions(row, controls = null) {
     throw new Error("legacy mapping upgrade requires external_options");
   }
   const optionKeys = Object.keys(options).sort();
+  if (controls?.optioned && controls.optionTupleMode === "flavour_only_parent_size") {
+    if (optionKeys.length !== 1 || optionKeys[0] !== "Flavour") {
+      throw new Error("optioned legacy mapping upgrade flavour-only mode requires exactly Flavour external option");
+    }
+    if (!evidence.size || !evidence.flavour) {
+      throw new Error("optioned legacy mapping upgrade requires parent size and flavour evidence");
+    }
+    const parentSize = parseSize(`${controls.parentSizeValue}${controls.parentSizeUnit}`);
+    if (!parentSize || sizeKey(parentSize) !== sizeKey(evidence.size)) {
+      throw new Error("optioned legacy mapping upgrade parent size evidence mismatch");
+    }
+    if (!controls.parentSizeSource || !controls.parentSizeAllVariantsSame) {
+      throw new Error("optioned legacy mapping upgrade requires constant parent size proof");
+    }
+    if (
+      optionalIdentifier(row.external_product_id) === optionalIdentifier(row.external_variant_id)
+    ) {
+      throw new Error("optioned legacy mapping upgrade requires distinct EKM product and variant IDs");
+    }
+    return { options, evidence, standalone: false, optioned: true, optionTupleMode: controls.optionTupleMode };
+  }
   if (
     optionKeys.length !== 2 ||
     optionKeys[0] !== "Flavour" ||
@@ -2029,11 +2077,12 @@ function expectedOfferState(offer) {
 
 function buildVariantEvidence(row, mapping, productVariant = null) {
   const evidence = collectCanonicalVariantEvidence(row);
+  const optionTupleMode = String(row.legacy_option_tuple_mode ?? "").trim();
   const canonicalFlavour =
     productVariant && evidence.flavour
       ? productVariant.flavour_code || productVariant.flavour_label || evidence.flavour
       : evidence.flavour;
-  return {
+  const variantEvidence = {
     flavour: canonicalFlavour,
     size_value: evidence.size?.value === undefined
       ? null
@@ -2046,6 +2095,15 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
     external_options: parseExternalOptions(row.external_options),
     approved_mapping_id: mapping?.id ?? null,
   };
+  if (optionTupleMode === "flavour_only_parent_size") {
+    variantEvidence.legacy_option_tuple_mode = optionTupleMode;
+    variantEvidence.legacy_parent_size_value = String(row.legacy_parent_size_value ?? "").trim();
+    variantEvidence.legacy_parent_size_unit = String(row.legacy_parent_size_unit ?? "").trim().toLowerCase();
+    variantEvidence.legacy_parent_size_source = String(row.legacy_parent_size_source ?? "").trim();
+    variantEvidence.legacy_parent_size_all_variants_same =
+      String(row.legacy_parent_size_all_variants_same ?? "").trim().toLowerCase() === "true";
+  }
+  return variantEvidence;
 }
 
 function buildAtomicImportPlan(item) {

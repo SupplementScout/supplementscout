@@ -3322,6 +3322,40 @@ test("optioned legacy mapping upgrade moves current default mapping to exact exi
   assert.equal(supabase.writes.length, 0);
 });
 
+test("optioned legacy mapping upgrade accepts flavour-only source option with parent size evidence", async () => {
+  const fixture = optionedLegacyMappingFixture({
+    rowOverrides: {
+      external_options: JSON.stringify({ Flavour: "Banana" }),
+      legacy_option_tuple_mode: "flavour_only_parent_size",
+      legacy_parent_size_value: "6000",
+      legacy_parent_size_unit: "g",
+      legacy_parent_size_source: "parent_product_title",
+      legacy_parent_size_all_variants_same: "true",
+    },
+  });
+  const supabase = createMockSupabase(structuredClone(fixture.seed));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+
+  assert.equal(result.blockedRows.length, 0);
+  assert.equal(result.report.approvedRows.length, 1);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.retailer_product.values.product_variant_id, "771");
+  assert.deepEqual(plan.retailer_product.values.external_options, { Flavour: "Banana" });
+  assert.deepEqual(plan.product_variant.evidence.external_options, { Flavour: "Banana" });
+  assert.equal(plan.product_variant.evidence.size_value, "6000");
+  assert.equal(plan.product_variant.evidence.size_unit, "g");
+  assert.equal(plan.product_variant.evidence.legacy_option_tuple_mode, "flavour_only_parent_size");
+  assert.equal(plan.product_variant.evidence.legacy_parent_size_value, "6000");
+  assert.equal(plan.product_variant.evidence.legacy_parent_size_unit, "g");
+  assert.equal(plan.product_variant.evidence.legacy_parent_size_source, "parent_product_title");
+  assert.equal(plan.product_variant.evidence.legacy_parent_size_all_variants_same, true);
+  assert.equal(plan.offer.action, "identity_update");
+  assert.equal(plan.offer.values.product_variant_id, "771");
+  assert.equal(plan.price_history.action, "noop");
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("optioned legacy mapping upgrade fails closed for identity and mutation guards", async () => {
   const scenarios = [
     ["missing optioned flag keeps default/non-default block", ({ row }) => { delete row.legacy_mapping_optioned; }, /cannot use a default variant/i],
@@ -3343,6 +3377,38 @@ test("optioned legacy mapping upgrade fails closed for identity and mutation gua
 
   for (const [label, mutate, reason] of scenarios) {
     const fixture = optionedLegacyMappingFixture();
+    mutate(fixture);
+    const supabase = createMockSupabase(fixture.seed);
+    setSupabaseForTests(supabase);
+    const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+    assert.equal(result.report.approvedRows.length, 0, label);
+    assert.equal(result.blockedRows.length, 1, label);
+    assert.match(result.blockedRows[0].block_reason, reason, label);
+    assert.equal(supabase.writes.length, 0, label);
+  }
+});
+
+test("optioned legacy mapping flavour-only parent-size mode fails closed for parent size drift", async () => {
+  const scenarios = [
+    ["missing parent size", ({ row }) => { row.legacy_parent_size_value = ""; }, /parent size evidence/i],
+    ["parent size mismatch", ({ row }) => { row.legacy_parent_size_value = "5000"; }, /parent size evidence mismatch/i],
+    ["missing parent proof source", ({ row }) => { row.legacy_parent_size_source = ""; }, /parent size proof source/i],
+    ["mixed parent sizes", ({ row }) => { row.legacy_parent_size_all_variants_same = "false"; }, /parent size to be constant/i],
+    ["hidden size option", ({ row }) => { row.external_options = JSON.stringify({ Size: "6000g", Flavour: "Banana" }); }, /requires exactly Flavour external option/i],
+    ["missing flavour option", ({ row }) => { row.external_options = JSON.stringify({}); }, /requires exactly Flavour external option/i],
+  ];
+
+  for (const [label, mutate, reason] of scenarios) {
+    const fixture = optionedLegacyMappingFixture({
+      rowOverrides: {
+        external_options: JSON.stringify({ Flavour: "Banana" }),
+        legacy_option_tuple_mode: "flavour_only_parent_size",
+        legacy_parent_size_value: "6000",
+        legacy_parent_size_unit: "g",
+        legacy_parent_size_source: "parent_product_title",
+        legacy_parent_size_all_variants_same: "true",
+      },
+    });
     mutate(fixture);
     const supabase = createMockSupabase(fixture.seed);
     setSupabaseForTests(supabase);

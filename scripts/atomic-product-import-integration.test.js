@@ -25,6 +25,7 @@ const standaloneLegacyUpgradeMigration = path.join(root, "supabase/migrations/20
 const legacyNullTotalMigration = path.join(root, "supabase/migrations/20260716002000_allow_legacy_mapping_upgrade_null_total_noop.sql");
 const formatNormalizationMigration = path.join(root, "supabase/migrations/20260715234500_align_approval_product_format_normalization.sql");
 const optionedLegacyUpgradeMigration = path.join(root, "supabase/migrations/20260716003000_support_optioned_legacy_mapping_upgrade.sql");
+const optionedParentSizeMigration = path.join(root, "supabase/migrations/20260716004000_support_optioned_parent_size_evidence.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const forbiddenRefs = ["aftboxmrdgyhizicfsfu", "dlsbwshkzdsvzubjftbv"];
 const image = "postgres:17-alpine";
@@ -143,6 +144,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const legacyNullTotalSql = require("node:fs").readFileSync(legacyNullTotalMigration, "utf8");
   const formatSql = require("node:fs").readFileSync(formatNormalizationMigration, "utf8");
   const optionedLegacySql = require("node:fs").readFileSync(optionedLegacyUpgradeMigration, "utf8");
+  const optionedParentSizeSql = require("node:fs").readFileSync(optionedParentSizeMigration, "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
   assert.match(sql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
@@ -205,6 +207,13 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.doesNotMatch(optionedLegacySql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
   assert.doesNotMatch(optionedLegacySql, /\bupdate\s+public\.(products|product_variants|price_history|approved_import_plans)/i);
   assert.doesNotMatch(optionedLegacySql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.match(optionedParentSizeSql, /^begin;/i);
+  assert.match(optionedParentSizeSql, /flavour_only_parent_size/i);
+  assert.match(optionedParentSizeSql, /legacy_parent_size_all_variants_same/i);
+  assert.match(optionedParentSizeSql, /atomic_import_is_legacy_mapping_upgrade\(jsonb\)/i);
+  assert.doesNotMatch(optionedParentSizeSql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(optionedParentSizeSql, /\bupdate\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.doesNotMatch(optionedParentSizeSql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -250,6 +259,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, legacyNullTotalMigration), "apply legacy mapping null total migration");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "apply approval format normalization migration");
     requireSuccess(psqlFile(container, database, optionedLegacyUpgradeMigration), "apply optioned legacy mapping upgrade migration");
+    requireSuccess(psqlFile(container, database, optionedParentSizeMigration), "apply optioned parent-size evidence migration");
     requireSuccess(psqlFile(container, database, atomicMigration), "reapply atomic import migration idempotently");
     requireSuccess(psqlFile(container, database, approvalMigration), "reapply approval ledger migration idempotently");
     requireSuccess(psqlFile(container, database, legacyUpgradeMigration), "reapply legacy mapping upgrade migration idempotently");
@@ -257,6 +267,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, legacyNullTotalMigration), "reapply legacy mapping null total migration idempotently");
     requireSuccess(psqlFile(container, database, formatNormalizationMigration), "reapply approval format normalization migration idempotently");
     requireSuccess(psqlFile(container, database, optionedLegacyUpgradeMigration), "reapply optioned legacy mapping upgrade migration idempotently");
+    requireSuccess(psqlFile(container, database, optionedParentSizeMigration), "reapply optioned parent-size evidence migration idempotently");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",
@@ -671,8 +682,50 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       const optionedArtifact = writeNodePlanArtifact(
         artifactDirectory, "legacy-optioned-whey-okay-950001", optionedRow, optionedItem
       );
-      const optionedFingerprint = optionedArtifact.artifact.plans[0].plan_fingerprint;
       const optionedPlan = optionedArtifact.artifact.plans[0].resolved_plan;
+      const parentSizeOptionedRow = {
+        ...optionedRow,
+        external_options: '{"Flavour":"Banana"}',
+        legacy_option_tuple_mode: "flavour_only_parent_size",
+        legacy_parent_size_value: "6000",
+        legacy_parent_size_unit: "g",
+        legacy_parent_size_source: "parent_product_title",
+        legacy_parent_size_all_variants_same: "true",
+      };
+      const parentSizeOptionedAfter = {
+        ...optionedAfter,
+        external_options: { Flavour: "Banana" },
+      };
+      const parentSizeOptionedItem = {
+        ...optionedItem,
+        row: parentSizeOptionedRow,
+        legacyMappingUpgrade: {
+          ...optionedItem.legacyMappingUpgrade,
+          controls: {
+            ...optionedItem.legacyMappingUpgrade.controls,
+            optionTupleMode: "flavour_only_parent_size",
+            parentSizeValue: "6000",
+            parentSizeUnit: "g",
+            parentSizeSource: "parent_product_title",
+            parentSizeAllVariantsSame: true,
+          },
+          after: parentSizeOptionedAfter,
+          approvedEvidence: {
+            ...optionedItem.legacyMappingUpgrade.approvedEvidence,
+            ...parentSizeOptionedAfter,
+            legacy_option_tuple_mode: "flavour_only_parent_size",
+            legacy_parent_size_value: "6000",
+            legacy_parent_size_unit: "g",
+            legacy_parent_size_source: "parent_product_title",
+            legacy_parent_size_all_variants_same: true,
+          },
+        },
+      };
+      const parentSizeOptionedArtifact = writeNodePlanArtifact(
+        artifactDirectory, "legacy-optioned-parent-size-whey-okay-950001", parentSizeOptionedRow, parentSizeOptionedItem
+      );
+      const parentSizeOptionedFingerprint = parentSizeOptionedArtifact.artifact.plans[0].plan_fingerprint;
+      const parentSizeOptionedPlan = parentSizeOptionedArtifact.artifact.plans[0].resolved_plan;
       assert.equal(optionedPlan.meta.operation_type, "legacy_mapping_upgrade");
       assert.equal(optionedPlan.product_variant.id, "950002");
       assert.equal(optionedPlan.expected_state.retailer_product.product_variant_id, "950001");
@@ -709,21 +762,62 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
         requireSuccess(rejected, `optioned helper rejection: ${label}`);
         assert.equal(rejected.stdout.trim(), "f", `optioned helper accepted ${label}`);
       }
+      assert.equal(parentSizeOptionedPlan.meta.operation_type, "legacy_mapping_upgrade");
+      assert.equal(parentSizeOptionedPlan.product_variant.id, "950002");
+      assert.equal(parentSizeOptionedPlan.expected_state.retailer_product.product_variant_id, "950001");
+      assert.equal(parentSizeOptionedPlan.retailer_product.values.product_variant_id, "950002");
+      assert.deepEqual(parentSizeOptionedPlan.retailer_product.values.external_options, { Flavour: "Banana" });
+      assert.deepEqual(parentSizeOptionedPlan.product_variant.evidence.external_options, { Flavour: "Banana" });
+      assert.equal(parentSizeOptionedPlan.product_variant.evidence.legacy_option_tuple_mode, "flavour_only_parent_size");
+      assert.equal(parentSizeOptionedPlan.product_variant.evidence.legacy_parent_size_value, "6000");
+      assert.equal(parentSizeOptionedPlan.product_variant.evidence.legacy_parent_size_unit, "g");
+      assert.equal(parentSizeOptionedPlan.product_variant.evidence.legacy_parent_size_source, "parent_product_title");
+      assert.equal(parentSizeOptionedPlan.product_variant.evidence.legacy_parent_size_all_variants_same, true);
+      assert.equal(parentSizeOptionedPlan.offer.action, "identity_update");
+      assert.equal(parentSizeOptionedPlan.expected_state.offer.product_variant_id, "950001");
+      assert.equal(parentSizeOptionedPlan.offer.values.product_variant_id, "950002");
+      assert.equal(parentSizeOptionedPlan.price_history.action, "noop");
+      const parentSizeOptionedHelper = exec(container, [
+        "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+        "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(parentSizeOptionedPlan))}::jsonb);`,
+      ]);
+      requireSuccess(parentSizeOptionedHelper, "optioned parent-size helper accepts flavour-only source option plan");
+      assert.equal(parentSizeOptionedHelper.stdout.trim(), "t");
+      const parentSizeTamperedPlans = [
+        ["parent size mismatch", (plan) => { plan.product_variant.evidence.legacy_parent_size_value = "5000"; }],
+        ["missing parent proof source", (plan) => { delete plan.product_variant.evidence.legacy_parent_size_source; }],
+        ["mixed parent sizes", (plan) => { plan.product_variant.evidence.legacy_parent_size_all_variants_same = false; }],
+        ["hidden source Size option", (plan) => { plan.retailer_product.values.external_options.Size = "6000g"; plan.product_variant.evidence.external_options.Size = "6000g"; }],
+        ["missing flavour option", (plan) => { delete plan.retailer_product.values.external_options.Flavour; delete plan.product_variant.evidence.external_options.Flavour; }],
+        ["flavour mismatch", (plan) => { plan.product_variant.evidence.flavour = "chocolate"; }],
+        ["size mismatch", (plan) => { plan.product_variant.evidence.size_value = "5000"; }],
+      ];
+      for (const [label, mutate] of parentSizeTamperedPlans) {
+        const plan = structuredClone(parentSizeOptionedPlan);
+        mutate(plan);
+        refreshPlanFingerprint(plan);
+        const rejected = exec(container, [
+          "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database,
+          "-tAc", `select public.atomic_import_is_legacy_mapping_upgrade(${sqlLiteral(JSON.stringify(plan))}::jsonb);`,
+        ]);
+        requireSuccess(rejected, `optioned parent-size helper rejection: ${label}`);
+        assert.equal(rejected.stdout.trim(), "f", `optioned parent-size helper accepted ${label}`);
+      }
       const optionedApproved = await approveArtifactPlan({
-        artifactPath: optionedArtifact.artifactPath,
-        planFingerprint: optionedFingerprint,
+        artifactPath: parentSizeOptionedArtifact.artifactPath,
+        planFingerprint: parentSizeOptionedFingerprint,
       });
       const optionedApplied = await applyArtifactPlan({
-        artifactPath: optionedArtifact.artifactPath,
-        planFingerprint: optionedFingerprint,
+        artifactPath: parentSizeOptionedArtifact.artifactPath,
+        planFingerprint: parentSizeOptionedFingerprint,
         approvalId: optionedApproved.approvalId,
         pilotApply: true,
       });
       assert.equal(optionedApplied.successful, 1);
       await assert.rejects(
         () => applyArtifactPlan({
-          artifactPath: optionedArtifact.artifactPath,
-          planFingerprint: optionedFingerprint,
+          artifactPath: parentSizeOptionedArtifact.artifactPath,
+          planFingerprint: parentSizeOptionedFingerprint,
           approvalId: optionedApproved.approvalId,
           pilotApply: true,
         }),
@@ -740,7 +834,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
         product_id: 950001, retailer_id: 3, product_variant_id: 950002,
         external_product_id: "686", external_variant_id: "687",
         external_sku: "T4M-BAN-6000",
-        external_options: { Size: "6000g", Flavour: "Banana" },
+        external_options: { Flavour: "Banana" },
         external_gtin: null, external_url: optionedUrl,
       });
       assert.deepEqual(optionedCheck.offer, {
