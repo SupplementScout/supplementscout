@@ -664,13 +664,21 @@ Repeated logic should gradually move into:
 
 The read-only architecture audit confirmed that the current importer, normalized feed contract, matching guards, dry-run artifacts, validator, row-level approval ledger and atomic apply RPC are the approved reusable core. The parent/child Retailer Import Control Plane is now implemented as the orchestration layer above that reusable core; it is not a second importer, validator, row-level approval ledger or business apply mechanism.
 
-Status: **PHASE 1 AND PHASE 2 COMPLETE; BUSINESS EXECUTOR DEFERRED**.
+Status: **PHASES 1, 2 AND 3 COMPLETE LOCALLY; STAGING CANARY READINESS AND DESIGN REVIEW NEXT**.
 
 Retailer Snapshot Bulk Import Phase 1 completed the read-only framework: 10 JSON contracts, 64 reason codes, 20 stable `RSBI_*` errors, `RSBI-CJ1` fingerprints, deterministic classification, parent/child plan builders, deterministic 50/100 partitioning, validators and review queue JSON/CSV. The full Jon's snapshot reproduced the frozen baseline without differences and made no Supabase writes. Commit: `53446ce6ed755f484e25551a757d4d0161e8a290`.
 
 Phase 2 completed the control-ledger migration with three control tables, 11 public lifecycle RPCs and six internal functions. Parent/child lifecycle, locking, approval expiry, approval consumption, replay protection, resume and rollback metadata are implemented behind a local-only runtime guard. Phase 2 made no business-table, staging or production writes. Commit: `94d1bf56991485a682a6eda4bce628229e614579`.
 
-The next bounded phase is **Phase 3 staging canary executor design and disposable PostgreSQL implementation**. It must reuse the existing row plans, validators, row-level approvals and atomic write logic. Its first task may design and implement a bounded child-batch business executor only on disposable PostgreSQL; it may not apply to staging or production. A staging canary requires a later, separate review and explicit approval.
+### Retailer Snapshot Phase 3 — COMPLETE
+
+Phase 3 completed the local bounded child-batch business executor. It reuses Phase 1 row plans, the Phase 2 parent/child lifecycle, the existing read-only validator, the existing row-level approval ledger and the existing atomic apply RPC. It performs no direct business-table DML. Child execution is transactional: a failed row plan or exact expected-delta mismatch rolls back the entire child, including generated and consumed row approvals. Replay protection and concurrency locking are tested.
+
+Hard environment guards restrict execution to explicitly authorised disposable local PostgreSQL databases. The executor intentionally rejects staging, production, Supabase hosts and protected database identities; its local-only boundary must not be weakened. The 10-row local canary, 50-row child, mid-child rollback, delta-mismatch rollback, replay and concurrency tests passed. Full regression passed 600/600. Staging writes and production writes remained zero. Commit: `6a754f0e7c942dde550e029056e15f940aa56b3a`.
+
+The separate stale product presentation test cleanup passed 64/64 presentation tests and is recorded in commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`. It is not part of the Phase 3 implementation.
+
+The next bounded phase is **Staging Canary Readiness and Design Review**. It is a read-only readiness and design task, not a staging apply. Any staging apply requires a later, separate task and explicit approval.
 
 ---
 
@@ -755,8 +763,8 @@ Work should proceed sequentially. Do not open all projects at once.
 Current priority order:
 
 1. Run the Commercial Coverage Sprint, one retailer at a time.
-2. Design and locally implement the bounded Retailer Snapshot Bulk Import Phase 3 child-batch business executor on disposable PostgreSQL, without staging or production apply.
-3. Review Retailer Snapshot Bulk Import Phase 3 results separately before deciding whether to approve a staging canary.
+2. Complete the **Staging Canary Readiness and Design Review** without staging or production apply.
+3. Resolve the real Jon's canary fixture, GTIN and canonical identity evidence, exact deltas, approval boundaries, migration readiness and committed-batch recovery decision before requesting any staging canary approval.
 4. Hold the Commercial Coverage Sprint checkpoint after two or three new retailers or five to eight working days, whichever occurs first.
 5. Resume the remaining 383 Whey Okay legacy mappings after the sprint or an earlier justified checkpoint.
 6. Establish an automatic Whey Okay source through EKM API or an authorised feed only after reconciliation resumes and the source contract is reviewed.
@@ -771,7 +779,7 @@ The primary metric is the number of canonical products with offers from at least
 
 Every import must preserve the approved separation of canonical products, variants, retailer mappings and offers, including offer-specific price history. Do not pursue an artificial product count at the expense of identity, variant accuracy, offer quality or auditability. Do not start AI product or assistant implementation, new admin panels or large automation implementation during this sprint; bounded SEO and AI citation-readiness work remains required.
 
-The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and initial production rollout are complete, and Retailer Snapshot Bulk Import Phases 1 and 2 are complete. The next operational task is Phase 3 staging canary executor design and disposable PostgreSQL implementation, stopping before any staging apply.
+The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and initial production rollout are complete, and Retailer Snapshot Bulk Import Phases 1, 2 and 3 are complete locally. The next operational task is the Staging Canary Readiness and Design Review, stopping before any staging apply.
 
 ## Jon's Supplements current state
 
@@ -812,9 +820,66 @@ Implementation status:
 
 - **Phase 1 — COMPLETE:** read-only snapshot, classification, deterministic plans, validators and review artifacts; commit `53446ce6ed755f484e25551a757d4d0161e8a290`.
 - **Phase 2 — COMPLETE:** parent/child control ledger, lifecycle RPCs, concurrency controls, resume and rollback metadata, with local-only runtime and zero business-table writes; commit `94d1bf56991485a682a6eda4bce628229e614579`.
-- **Phase 3 — NEXT:** design and implement a bounded child-batch business executor using the existing row plans, validators and atomic write logic, tested only on disposable PostgreSQL. The first Phase 3 task excludes staging apply, production apply, scheduled sync and admin UI.
+- **Phase 3 — COMPLETE:** local bounded child-batch executor reusing the existing row plans, Phase 2 lifecycle, read-only validator, row-level approval ledger and atomic apply RPC. It has no direct business-table DML; transactional rollback, exact deltas, replay, concurrency and local-only environment guards passed. Full regression: 600/600. Staging and production writes: zero. Commit `6a754f0e7c942dde550e029056e15f940aa56b3a`.
+- **Presentation test cleanup — COMPLETE, separate from Phase 3:** stale product presentation expectation fixed; presentation tests 64/64. Commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`.
 
 Before any write-bearing Jon's rollout, GTIN enrichment and canonical-creation proposals require separate review. Staging canary apply, production canary apply and production bulk rollout remain separate approval boundaries.
+
+### Staging canary blockers
+
+These requirements must all be resolved before the first staging apply. Completing the readiness and design review does not authorise that apply.
+
+#### A. GTIN enrichment
+
+- The current full snapshot contains 768 records without GTIN.
+- Every real canary record must have closed identity.
+- Missing, invalid, shared and conflicting GTIN evidence must be explicitly classified.
+- A missing GTIN may be accepted only with documented alternate identity proof.
+
+#### B. Real Jon's canary fixture
+
+- The Phase 3 local fixture is synthetic and is not sufficient for staging.
+- Select exactly 10 real Jon's records, preferring `SAFE_EXISTING_VARIANT` and individually confirmed `SAFE_NEW_CANONICAL_PRODUCT` records.
+- Exclude family candidates, ambiguous records, duplicate identity, deferred policy, out-of-stock records, bundles, single bars and multipacks without closed identity.
+
+#### C. Canonical creation review
+
+- The 335 family candidates still require canonical family review and seed decisions and cannot enter the first canary automatically.
+- The 70 safe-new-simple candidates require individual identity confirmation before any staging write.
+
+#### D. Staging-capable executor design
+
+- The local-only executor cannot be redirected to staging.
+- Design a separate staging-capable execution path without weakening the local guards.
+- Production target, ref, credentials and host must be unconditionally blocked.
+- A staging approval or artifact must be cryptographically and operationally unusable on production.
+
+#### E. Migration and schema readiness
+
+- Verify the complete staging migration ledger.
+- Confirm Phase 1, Phase 2 and Phase 3 schema compatibility, including required tables, RPCs, constraints, RLS and grants.
+- Make no staging schema or migration change before a separate review and explicit approval.
+
+#### F. Expected deltas
+
+- For the exact 10 records, approve expected deltas for `retailers`, `products`, `product_variants`, `retailer_products`, `offers` and `price_history`.
+- Distinguish every create, update, reuse and noop outcome.
+
+#### G. Approval boundaries
+
+- Use separate immutable artifacts and approvals for the source snapshot, GTIN enrichment, canonical decisions, staging parent plan, staging child plan and apply.
+- Every approval must be fingerprint-bound, target-specific, short-lived, single-use and replay-protected.
+
+#### H. Recovery and rollback
+
+- Transactional rollback of a failed child is proven.
+- Committed-batch business rollback is not implemented.
+- Before staging apply, approve either (1) a complete committed-batch rollback manifest containing created IDs and update before-state, or (2) an explicit, tested recovery procedure bounded to the 10-record canary.
+- No decision means no staging apply.
+
+#### I. Freshness
+
+- Immediately before approval and apply, require a fresh source snapshot, fresh canonical snapshot, matching fingerprints, no schema drift, no price or stock drift, an unexpired approval and `SAFE_UPDATE=false`.
 
 ## SEO and AI Search Visibility
 
@@ -901,7 +966,7 @@ Commercial coverage baseline to record before the first new retailer:
 - outbound clicks,
 - affiliate revenue, if available.
 
-At the first checkpoint, assess coverage growth, import speed, conflict volume, public usefulness, affiliate readiness and the evidence from the implemented control ledger and future Phase 3 local executor tests.
+At the first checkpoint, assess coverage growth, import speed, conflict volume, public usefulness, affiliate readiness and the evidence from the implemented control ledger and completed Phase 3 local executor tests.
 
 One active stage rule:
 
@@ -915,7 +980,7 @@ Out of scope during the sprint:
 - a new importer or separate application,
 - `/admin/imports`,
 - replacement approval ledgers, validators or atomic apply mechanisms,
-- staging or production execution of the Phase 3 child-batch executor,
+- staging-capable executor implementation and staging or production execution,
 - EKM automation,
 - scheduled production updates,
 - `SAFE_UPDATE`.
@@ -924,12 +989,18 @@ Out of scope during the sprint:
 
 | Workstream | Status | Current state | Resume trigger | Next action |
 |---|---|---|---|---|
-| Commercial Coverage Sprint | ACTIVE | Jon's initial rollout is complete; Retailer Snapshot Phases 1 and 2 are complete | Ends or is reassessed at the first sprint checkpoint | Run Phase 3 design and local implementation without staging apply |
+| Commercial Coverage Sprint | ACTIVE | Jon's initial rollout and Retailer Snapshot Phases 1-3 local work are complete | Ends or is reassessed at the first sprint checkpoint | Run the Staging Canary Readiness and Design Review without staging apply |
 | Whey Okay reconciliation | PAUSED | 137/520 reconciled; 383 remain; Medium 75/75 classified | Sprint completion or earlier justified checkpoint | Preserve current classifications and review queues |
-| Retailer Snapshot Phase 1 | COMPLETED | Read-only framework, deterministic classification/plans and review artifacts reproduce the Jon's baseline | Complete | Reuse unchanged in Phase 3 |
-| Retailer Snapshot Phase 2 | COMPLETED | Three-table parent/child ledger and lifecycle runtime pass local disposable-PostgreSQL validation | Complete | Reuse as the Phase 3 control layer |
-| Retailer Snapshot Phase 3 | NEXT | Business executor is not implemented; no staging or production apply is authorised | Phase 1 and Phase 2 complete | Design and implement locally on disposable PostgreSQL only |
-| Jon's GTIN enrichment | REQUIRED BEFORE WRITE-BEARING ROLLOUT | Phase 1 classification is complete; enrichment remains review-only | Before a separately approved staging canary | Enrich and review GTIN evidence separately from Phase 3 local implementation |
+| Retailer Snapshot Phase 1 | COMPLETE | Read-only framework, deterministic classification/plans and review artifacts reproduce the Jon's baseline | Complete | Reuse unchanged |
+| Retailer Snapshot Phase 2 | COMPLETE | Three-table parent/child ledger and lifecycle runtime pass local disposable-PostgreSQL validation | Complete | Reuse as the control layer |
+| Retailer Snapshot Phase 3 | COMPLETE | Local bounded executor passes transactional, delta, replay, concurrency and local-environment tests; staging and production writes remain zero | Complete | Preserve its intentional local-only boundary |
+| Staging Canary Readiness and Design Review | NEXT | No staging-capable execution path or approved real fixture exists | Phase 3 complete | Perform read-only readiness audit and design; stop before apply |
+| Staging Canary Apply | BLOCKED | Not authorised | Readiness blockers resolved and separate explicit approval | No apply in the readiness/design task |
+| Production Canary | DEFERRED | No staging canary evidence or production approval exists | Successful reviewed staging canary and separate explicit approval | No action now |
+| Scheduled Sync | DEFERRED | No bulk scheduled apply is authorised | Successful canaries, repeated clean runs and separate automation approval | Keep disabled |
+| Jon's GTIN enrichment for canary | REQUIRED | Full snapshot has 768 records without GTIN | Before staging canary approval | Enrich the selected scope and classify all GTIN evidence |
+| Real Jon's 10-record fixture | REQUIRED | Current Phase 3 fixture is synthetic | Before staging canary approval | Select and seal exactly 10 real, closed-identity records |
+| Committed-batch recovery decision | REQUIRED | Failed-child rollback passes; committed-batch rollback is not implemented | Before staging canary approval | Approve rollback manifest or bounded tested recovery procedure |
 | `/creatine` SEO page | PRIORITY QUEUED | First priority SEO page; content/data contract is prepared, but no route is implemented | Separate reviewed SEO implementation task | Preserve as the first priority page; do not implement in this task |
 | EKM automation | DEFERRED | No production EKM adapter; current normalized/import pipeline is reusable | Whey Okay reconciliation resumes and source/API contract is approved | Later build acquisition only, reusing the current pipeline |
 | `SAFE_UPDATE` | DISABLED | Classification exists; automatic production apply remains off | Separate reviewed phase after repeated clean runs and explicit approval | No action during the sprint |
@@ -937,7 +1008,7 @@ Out of scope during the sprint:
 | Images/catalogue quality | QUEUED | 12 backfills verified; products 751 and 752 remain manual review | After the active retailer closes or at a prioritised quality checkpoint | Preserve the two manual image tasks |
 | Comparison value features | QUEUED | Product and delivered-price foundations exist | Stable retailer coverage and analytics | Do not implement during the sprint |
 
-The numbered programme roadmap below predates the Retailer Snapshot Bulk Import phase sequence. Its labels are retained for historical continuity; unqualified references to the immediate **Phase 3** mean Retailer Snapshot Bulk Import Phase 3, not the paused legacy Whey Okay roadmap phase.
+The numbered programme roadmap below predates the Retailer Snapshot Bulk Import phase sequence. Its labels are retained for historical continuity; references to completed **Retailer Snapshot Phase 3** do not mean the paused legacy Whey Okay roadmap phase.
 
 ## Legacy roadmap Phase 0: operating control
 
@@ -1140,13 +1211,13 @@ Run the **Commercial Coverage Sprint** with exactly one primary retailer/data im
 
 ### Next task
 
-Execute **Phase 3 staging canary executor design and disposable PostgreSQL implementation**. Design and locally implement a bounded child-batch business executor that reuses the existing row plans, validators, row-level approval ledger and atomic write logic. Stop before staging apply.
+Execute the **Staging Canary Readiness and Design Review**. Audit staging readiness read-only and design a staging-capable execution path with hard no-production guards. Select a real 10-record Jon's fixture; close its GTIN and canonical identity evidence; define exact expected deltas, target-specific approval boundaries, migration-ledger checks and the committed-batch recovery decision. Stop before staging apply.
 
 ### Then
 
-1. Complete Phase 3 design, implementation and tests only on disposable PostgreSQL, with no staging or production connection.
-2. Review the bounded executor, GTIN enrichment evidence and canonical-creation proposals before requesting any staging canary approval.
-3. Run a staging canary only under a separate task and explicit approval.
+1. Complete the read-only staging readiness audit and staging execution-path design without connecting to or changing staging or production.
+2. Resolve every blocker in the Staging canary blockers section before requesting staging canary approval.
+3. Run a staging canary only under a separate later task and explicit approval.
 4. Run any production canary and later bulk rollout only under further separate approvals.
 5. Close Jon's completely, including public QA, affiliate QA, metrics and this document update, before starting the next retailer.
 6. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
@@ -1167,17 +1238,18 @@ These should encode stable operating rules and reduce repeated long prompts, but
 
 Do not start these now:
 
+- staging-capable executor implementation,
 - staging canary apply,
 - production canary apply,
 - production bulk rollout for the remaining Jon's catalogue,
-- GTIN enrichment for a write-bearing rollout,
-- review or apply of canonical-creation proposals,
 - scheduled retailer synchronization,
+- committed-batch rollback automation,
 - admin review UI and `/admin/imports`,
 - automated canonical merge,
 - automatic deletion or deactivation,
 - affiliate automation,
 - shipping discovery,
+- full catalogue family rollout,
 - eBay integration,
 - mobile app,
 - retailer self-service portal,
@@ -1285,11 +1357,15 @@ Current binding decisions:
 - Whey Okay reconciliation is paused at 137/520 with all 383 remaining mappings and current review queues preserved.
 - Whey Okay automation comes after reconciliation resumes; EKM acquisition must reuse the current normalized/import pipeline.
 - Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4, reduced optioned pilot, final Easy optioned cleanup and reduced Medium Batches 1-3 upgraded 137 total legacy mappings; 383 remain.
-- Option B has been implemented as the read-only Retailer Snapshot framework and parent/child control plane in Phases 1 and 2.
-- The Retailer Import Control Plane is implemented and is no longer deferred; its business-table executor remains a separate Phase 3.
-- The first Phase 3 task is design and local implementation on disposable PostgreSQL only; it may not write to staging or production.
+- Retailer Snapshot Phases 1, 2 and 3 are complete locally; the framework, control plane and bounded local business executor are no longer deferred.
+- Phase 3 completed in commit `6a754f0e7c942dde550e029056e15f940aa56b3a`; its local-only boundary remains intentional and must not be weakened.
+- The stale product presentation test cleanup is separate from Phase 3 and completed in commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`.
+- The immediate next task is the Staging Canary Readiness and Design Review, not staging apply.
+- A separate staging-capable execution path and approval boundary are required; the local executor cannot be redirected to staging.
+- The synthetic local canary is not sufficient for staging.
+- Committed-batch business rollback remains unresolved.
 - Staging canary, production canary and production bulk rollout each require later, separate review and explicit approval.
-- GTIN enrichment and canonical-creation proposals require review before a write-bearing Jon's rollout.
+- No staging apply is allowed without a real 10-record fixture, GTIN and canonical identity review, exact approved deltas and an approved recovery decision.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
 - Scheduled price/stock updates remain deferred.
@@ -1376,7 +1452,7 @@ Current binding decisions:
 - Remaining Whey Okay legacy mappings: 383.
 - Prices, shipping, totals, stock, URLs, last-checked timestamps, clicks and price history remained unchanged during Batch 3 reconciliation.
 - `SAFE_UPDATE` still disabled.
-- Architecture decision: the Retailer Import Control Plane remains the approved long-term direction, but its implementation is deferred.
+- Historical decision, superseded later on 2026-07-17: at this point the Retailer Import Control Plane remained the approved long-term direction and its implementation was still deferred.
 - Commercial Coverage Sprint is now the active business priority to increase multi-retailer coverage, public usefulness, affiliate traffic readiness and commercial potential.
 - Remaining Whey Okay reconciliation is paused at 137/520 with 383 mappings and all current review queues preserved.
 - The sprint will process one retailer at a time through the existing importer, validator, approval ledger, staging and production apply pipeline.
@@ -1394,11 +1470,16 @@ Current binding decisions:
 - The five Jon's product families each moved from zero to one active retailer; none moved into multi-retailer coverage.
 - Retailer Snapshot Bulk Import is now the required strategy for the remaining Jon's catalogue.
 - SEO and AI-search visibility became a permanent daily parallel growth workstream; the AI decision assistant remains deferred.
-- At the start of 2026-07-17, the immediate next task was to design, but not implement, the reusable Retailer Snapshot Bulk Import workflow; that historical design step led to the completed Phase 1 and Phase 2 work below.
+- Historical context: at the start of 2026-07-17, the immediate next task was to design, but not implement, the reusable Retailer Snapshot Bulk Import workflow; that earlier instruction was superseded by the completed Phase 1, Phase 2 and Phase 3 work recorded below.
 - Retailer Snapshot Bulk Import Phase 1 completed in commit `53446ce6ed755f484e25551a757d4d0161e8a290`: read-only framework, 10 JSON contracts, 64 reason codes, 20 stable errors, deterministic classification/plans, validators and review artifacts reproduced the Jon's baseline with no Supabase writes.
 - Retailer Snapshot Bulk Import Phase 2 completed in commit `94d1bf56991485a682a6eda4bce628229e614579`: three control tables, 11 public lifecycle RPCs, six internal functions, locking, expiry, replay protection, resume and rollback metadata passed disposable-PostgreSQL tests with no business-table, staging or production writes.
-- Option B is implemented through the framework and control plane; the control plane is no longer deferred.
-- Business-table execution remains a separate Phase 3. The immediate next task is Phase 3 staging canary executor design and disposable PostgreSQL implementation, with no staging apply in that task.
+- Retailer Snapshot Bulk Import Phase 3 completed in commit `6a754f0e7c942dde550e029056e15f940aa56b3a`: the bounded local child-batch executor reuses Phase 1 plans, Phase 2 lifecycle, the read-only validator, row-level approvals and atomic apply without direct business-table DML.
+- Phase 3 local tests passed for a synthetic 10-row canary, 50-row child, mid-child rollback, delta-mismatch rollback, replay and concurrency; full regression passed 600/600, with zero staging and production writes.
+- The separate presentation test cleanup completed in commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`; presentation tests passed 64/64. This cleanup is not part of Phase 3.
+- The Phase 3 executor remains intentionally local-only. Its synthetic canary does not authorise or sufficiently prove staging readiness.
+- Committed-batch business rollback remains unresolved; only failed-child transactional rollback is proven.
+- The immediate next task is the Staging Canary Readiness and Design Review. It stops before staging apply.
+- No staging apply may occur without an approved real 10-record Jon's fixture, GTIN and canonical identity review, exact expected deltas, target-specific approvals, migration readiness and a committed-batch recovery decision.
 - `SAFE_UPDATE` remains disabled.
 
 ---
