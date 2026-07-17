@@ -1,0 +1,15 @@
+module.exports = Object.freeze({
+  schema_version: 1,
+  retailer: Object.freeze({ id: "jons-supplements", name: "Jon's Supplements", slug: "jons-supplements", website: "https://jonssupplements.co.uk" }),
+  source_policy: Object.freeze({ types: ["SHOPIFY_JSON", "SHOPIFY_CSV"], json_authority: ["external_ids", "availability", "price", "url", "image"], csv_authority: ["sku", "gtin", "grams"], source_freshness_hours: 24 }),
+  shipping_policy: Object.freeze({ known: true, currency: "GBP", free_threshold: "90", below_threshold: "3.99", at_or_above_threshold: "0", source: "MANUAL_USER_CONFIRMED" }),
+  affiliate_policy: Object.freeze({ status: "NOT_CONFIGURED", network: null, affiliate_id: null, direct_urls_are_affiliate: false }),
+  category_policy: Object.freeze({ allow: ["Protein", "Creatine", "Pre-Workout", "Amino Acids", "Vitamins", "Health Supplements"], deny: ["Clothing", "Equipment"], unexpected: "DEFER" }),
+  bundle_policy: "DEFER", single_bar_policy: "DEFER", multipack_policy: "DEFER",
+  missing_sku_policy: "MANUAL_REVIEW", missing_gtin_policy: "ALLOW_READ_ONLY_CLASSIFICATION",
+  external_id_requirements: Object.freeze({ product: true, variant: true, string_only: true }),
+  guardrails: Object.freeze({ preferred_batch_size: 50, max_batch_size: 100, minimum_source_count_ratio: 0.9, catastrophic_source_count_ratio: 0.75, max_oos_ratio: 0.35, max_oos_increase_percentage_points: 0.15, max_changed_record_ratio: 0.25, max_new_category_ratio: 0.02, max_missing_sku_ratio: 0.3, max_duplicate_external_id_ratio: 0, price_change_soft_ratio: 0.3, price_change_hard_ratio: 0.6, price_change_hard_absolute_gbp: "20.00", mass_price_change_ratio: 0.2, source_freshness_hours: 24, canonical_snapshot_freshness_minutes: 15, parent_approval_expiry_minutes: 120, child_approval_expiry_minutes: 30, production_canary_size: 10, staging_required: true, production_canary_required: true, rollback_checkpoint_required: true }),
+  approved_normalizations: Object.freeze({ format: Object.freeze({ capsules: "capsule", caps: "capsule", tablets: "tablet", powder: "powder" }), flavour: Object.freeze({ "strawberry creme": "strawberry cream", "vanilla creme": "vanilla cream" }), units: Object.freeze({ kg: "g", l: "ml" }) }),
+  deferred_families: Object.freeze([]), blocked_records: Object.freeze([]),
+  oos_policy: Object.freeze({ action: "SKIP_OOS", include_in_parent_plan: false, retain_for_review: true }),
+});
