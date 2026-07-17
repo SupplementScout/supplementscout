@@ -28,6 +28,9 @@ const optionedLegacyUpgradeMigration = path.join(root, "supabase/migrations/2026
 const optionedParentSizeMigration = path.join(root, "supabase/migrations/20260716004000_support_optioned_parent_size_evidence.sql");
 const optionedNullTotalMigration = path.join(root, "supabase/migrations/20260716005000_allow_optioned_legacy_identity_update_null_total.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
+const controlLedgerMigration = path.join(root, "supabase/migrations/20260717120000_create_retailer_catalogue_control_ledger.sql");
+const childExecutorMigration = path.join(root, "supabase/migrations/20260717130000_add_local_retailer_catalogue_child_executor.sql");
+const childExecutorTest = path.join(root, "supabase/test/retailer_catalogue_child_executor_integration_test.sql");
 const forbiddenRefs = ["aftboxmrdgyhizicfsfu", "dlsbwshkzdsvzubjftbv"];
 const image = "postgres:17-alpine";
 
@@ -284,6 +287,12 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       "atomic_import_test_host=127.0.0.1",
       `atomic_import_expected_database=${database}`,
     ]), "run 60 atomic import and approval-ledger SQL scenarios");
+    requireSuccess(psqlFile(container, database, controlLedgerMigration), "apply retailer catalogue control ledger");
+    requireSuccess(psqlFile(container, database, childExecutorMigration), "apply local child executor");
+    requireSuccess(psqlFile(container, database, childExecutorTest, [
+      "phase3_test_database_confirmed=1",
+      `phase3_expected_database=${database}`,
+    ]), "run Phase 3 child executor scenarios");
 
     const formatContracts = [
       ["ready_to_drink", "liquid", "true"],
