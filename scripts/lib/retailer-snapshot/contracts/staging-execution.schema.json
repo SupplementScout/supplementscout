@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supplementscout.local/contracts/retailer-catalogue-staging-execution-v1.json",
+  "title": "RetailerCatalogueStagingExecutionRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","target_environment","staging_project_ref","staging_database_identity","parent_plan_id","child_plan_id","fixture_id","fixture_fingerprint","fixture_approval_id","parent_plan_fingerprint","child_plan_fingerprint","source_snapshot_fingerprint","canonical_snapshot_fingerprint","migration_ledger_fingerprint","adapter_fingerprint","policy_fingerprint","code_commit","expected_deltas","row_plans","approval_expiry","requested_at","explicit_allow","request_fingerprint"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "target_environment": { "const": "STAGING" },
+    "staging_project_ref": { "const": "hxnrsyyqffztlvcrtgbf" },
+    "staging_database_identity": { "const": "supplementscout-staging:hxnrsyyqffztlvcrtgbf" },
+    "parent_plan_id": { "type": "string", "format": "uuid" },
+    "child_plan_id": { "type": "string", "format": "uuid" },
+    "fixture_id": { "type": "string" }, "fixture_fingerprint": { "$ref": "#/$defs/sha256" }, "fixture_approval_id": { "type": "string", "format": "uuid" },
+    "parent_plan_fingerprint": { "$ref": "#/$defs/sha256" }, "child_plan_fingerprint": { "$ref": "#/$defs/sha256" }, "source_snapshot_fingerprint": { "$ref": "#/$defs/sha256" }, "canonical_snapshot_fingerprint": { "$ref": "#/$defs/sha256" }, "migration_ledger_fingerprint": { "$ref": "#/$defs/sha256" }, "adapter_fingerprint": { "$ref": "#/$defs/sha256" }, "policy_fingerprint": { "$ref": "#/$defs/sha256" },
+    "code_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }, "expected_deltas": { "$ref": "#/$defs/deltas" }, "row_plans": { "type": "array", "minItems": 1, "maxItems": 10 }, "approval_expiry": { "type": "string", "format": "date-time" }, "requested_at": { "type": "string", "format": "date-time" }, "explicit_allow": { "const": true }, "request_fingerprint": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": { "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "deltas": { "type": "object", "additionalProperties": false, "required": ["retailers","products","product_variants","retailer_products","offers","price_history"], "properties": { "retailers":{"type":"integer"},"products":{"type":"integer"},"product_variants":{"type":"integer"},"retailer_products":{"type":"integer"},"offers":{"type":"integer"},"price_history":{"type":"integer"} } } }
+}
