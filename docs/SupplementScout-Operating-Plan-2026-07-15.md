@@ -750,6 +750,16 @@ Current priority order:
 6. Keep scheduled price/stock updates and `SAFE_UPDATE` deferred until a separate phase, repeated clean runs and explicit approval.
 7. Retain images, analytics and comparison value features in the queue.
 
+## Commercial Data Expansion and Competitive Response
+
+The **Commercial Coverage Sprint** remains the current priority. Use [Retailer Data Source Registry](Retailer-Data-Source-Registry.md) as the operational registry for retailer data-source decisions and [WheyWise Competitive Intelligence Analysis](Competitive-Intelligence/WheyWise-Analysis-2026-07.md) as supporting competitive intelligence; this Operating Plan remains the single source of truth for project direction.
+
+The primary metric is the number of canonical products with offers from at least two active retailers. Expand coverage in this order: (1) existing CSV files and feeds, (2) affiliate feeds, (3) existing or shared platform adapters, and (4) a retailer-specific scraper only when none of the earlier options exists. Before building anything new, verify whether the required integration, adapter, parser, helper or rule already exists and reuse it where safe.
+
+Every import must preserve the approved separation of canonical products, variants, retailer mappings and offers, including offer-specific price history. Do not pursue an artificial product count at the expense of identity, variant accuracy, offer quality or auditability. Do not start AI work, new admin panels or large automation work during this sprint.
+
+After this documentation update, the next operational task is to select the next retailer from the existing CSV files and complete its source and reuse audit before import work begins.
+
 ## Commercial Coverage Sprint
 
 **Status:** ACTIVE
