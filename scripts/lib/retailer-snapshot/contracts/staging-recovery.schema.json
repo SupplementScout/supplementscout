@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supplementscout.local/contracts/retailer-catalogue-staging-recovery-v1.json",
+  "title": "RetailerCatalogueStagingRecoveryRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","target_environment","staging_project_ref","staging_database_identity","package_id","package_fingerprint","child_plan_id","parent_plan_fingerprint","child_plan_fingerprint","recovery_approval_id","execution_fingerprint","rollback_manifest_fingerprint","requested_at","explicit_allow","request_fingerprint"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "target_environment": { "const": "STAGING" },
+    "staging_project_ref": { "const": "hxnrsyyqffztlvcrtgbf" },
+    "staging_database_identity": { "const": "supplementscout-staging:hxnrsyyqffztlvcrtgbf" },
+    "package_id": { "type": "string", "format": "uuid" },
+    "package_fingerprint": { "$ref": "#/$defs/sha256" },
+    "child_plan_id": { "type": "string", "format": "uuid" },
+    "parent_plan_fingerprint": { "$ref": "#/$defs/sha256" },
+    "child_plan_fingerprint": { "$ref": "#/$defs/sha256" },
+    "recovery_approval_id": { "type": "string", "format": "uuid" },
+    "execution_fingerprint": { "$ref": "#/$defs/sha256" },
+    "rollback_manifest_fingerprint": { "$ref": "#/$defs/sha256" },
+    "requested_at": { "type": "string", "format": "date-time" },
+    "explicit_allow": { "const": true },
+    "request_fingerprint": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": { "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+}
