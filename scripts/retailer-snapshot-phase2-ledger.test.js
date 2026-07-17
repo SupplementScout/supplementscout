@@ -1,0 +1,9 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const test = require("node:test");
+const { guardEnvironment, parseArgs, sqlLiteral } = require("./retailer-snapshot-phase2-ledger");
+
+const valid = { command:"status",allowLocalLedger:true,target:"local-postgres","database-url":"postgresql://postgres@127.0.0.1/ledger" };
+test("Phase 2 environment guard accepts only explicit local PostgreSQL",()=>{assert.equal(guardEnvironment(valid,{}).target,"LOCAL_POSTGRES");assert.throws(()=>guardEnvironment({...valid,allowLocalLedger:false},{}),/allow-local-ledger/);assert.throws(()=>guardEnvironment({...valid,target:"staging"},{}),/local-postgres/);assert.throws(()=>guardEnvironment({...valid,"database-url":"postgresql://postgres@example.com/ledger"},{}),/local PostgreSQL/);assert.throws(()=>guardEnvironment({...valid,"database-url":"https://aftboxmrdgyhizicfsfu.supabase.co"},{}),/forbidden/);assert.throws(()=>guardEnvironment({...valid,"database-url":"postgresql://postgres@hxnrsyyqffztlvcrtgbf.supabase.co/postgres"},{}),/forbidden/);assert.throws(()=>guardEnvironment(valid,{SAFE_UPDATE:"true"}),/SAFE_UPDATE/);});
+test("CLI parser and SQL literal preserve explicit values without ID coercion",()=>{const parsed=parseArgs(["status","--allow-local-ledger","--target=local-postgres","--parent-id=9007199254740993"]);assert.equal(parsed["parent-id"],"9007199254740993");assert.equal(sqlLiteral("a'b"),"'a''b'");});
+test("runtime contains no Supabase client or business-table DML",()=>{const text=fs.readFileSync(require.resolve("./retailer-snapshot-phase2-ledger"),"utf8");assert.doesNotMatch(text,/@supabase\/supabase-js|service.?role/i);assert.doesNotMatch(text,/\b(?:insert\s+into|update|delete\s+from)\s+(?:public\.)?(?:products|product_variants|retailers|retailer_products|offers|price_history)\b/i);});
