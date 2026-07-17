@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 16 July 2026<br>
+**Status date:** 17 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -285,13 +285,21 @@ Old staging refs must not be reused:
 
 ## 7. Current production state
 
-Latest confirmed production counts after Whey Okay Medium Batch 3 canonical deployment and reduced reconciliation apply:
+Latest confirmed production counts after the Jon's Supplements rollout:
 
-- `products`: 755
-- `product_variants`: 1069
-- `retailer_products`: 982
-- `offers`: 981
-- `price_history`: 990
+- `products`: 760
+- `product_variants`: 1098
+- `retailer_products`: 1008
+- `offers`: 1007
+- `price_history`: 1016
+
+Latest product-level commercial coverage snapshot, counting distinct retailers with an in-stock offer for each active, unmerged canonical product:
+
+- active canonical products: 759,
+- products with at least one active retailer: 605,
+- products with at least two active retailers: 63,
+- products with at least three active retailers: 3,
+- products with at least four active retailers: 0.
 
 Current catalogue expansion milestone:
 
@@ -756,9 +764,85 @@ The **Commercial Coverage Sprint** remains the current priority. Use [Retailer D
 
 The primary metric is the number of canonical products with offers from at least two active retailers. Expand coverage in this order: (1) existing CSV files and feeds, (2) affiliate feeds, (3) existing or shared platform adapters, and (4) a retailer-specific scraper only when none of the earlier options exists. Before building anything new, verify whether the required integration, adapter, parser, helper or rule already exists and reuse it where safe.
 
-Every import must preserve the approved separation of canonical products, variants, retailer mappings and offers, including offer-specific price history. Do not pursue an artificial product count at the expense of identity, variant accuracy, offer quality or auditability. Do not start AI work, new admin panels or large automation work during this sprint.
+Every import must preserve the approved separation of canonical products, variants, retailer mappings and offers, including offer-specific price history. Do not pursue an artificial product count at the expense of identity, variant accuracy, offer quality or auditability. Do not start AI product or assistant implementation, new admin panels or large automation implementation during this sprint; bounded SEO and AI citation-readiness work remains required.
 
-After this documentation update, the next operational task is to select the next retailer from the existing CSV files and complete its source and reuse audit before import work begins.
+The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and production rollout are complete. The next operational task is now to design the reusable Retailer Snapshot Bulk Import workflow for the remaining Jon's catalogue, without implementing it yet.
+
+## Jon's Supplements current state
+
+**Status:** PILOT AND INITIAL PRODUCTION ROLLOUT COMPLETE
+
+- The Shopify CSV and public Shopify JSON were audited with an exact source join.
+- The Jon's adapter is complete and pushed.
+- Retailer ID 10 exists on staging and production as `Jon's Supplements` / `jon-s-supplements` / `https://jonssupplements.co.uk`.
+- Shipping is GBP 3.99 below GBP 90 and free from GBP 90.
+- Per4m Mult Vita+Min and TBJP Oh Mega Pharma Pro production rollouts are complete.
+- Canonical family seeds are complete for PER4M EAA Xtra 420g, PER4M Pre-Workout Stim 570g and PER4M Creatine Sherbet 310g.
+- The three seeded families have 24 Jon's flavour mappings, offers and price-history rows on staging and production: EAA 10, Pre-Workout 9 and Creatine Sherbet 5.
+- The current production retailer total is 5 canonical products, 24 flavour variants, 26 mappings, 26 offers and 26 price-history rows. All 26 offers are in stock.
+- The five Jon's product families each moved from zero to one active retailer. The rollout did not yet increase the primary two-retailer coverage metric.
+- Excluded or deferred: Strawberry Lime because of a shared SKU; five out-of-stock variants; Project AD unresolved; Protein Bars deferred; PER4M Whey deferred for later bulk processing.
+- `SAFE_UPDATE` remains disabled.
+
+## Retailer Snapshot Bulk Import Strategy
+
+Do not continue importing large retailer catalogues one product at a time.
+
+For large Shopify retailers:
+
+1. Freeze one complete source snapshot.
+2. Calculate immutable source hashes.
+3. Classify every record as `safe existing match`, `safe new product`, `safe new variant`, `ambiguous`, `blocked` or `out of stock`.
+4. Import only safe records.
+5. Quarantine ambiguous and blocked records.
+6. Use family- or catalogue-level canonical seeds where necessary.
+7. Use large mapping, offer and price-history batches.
+8. Validate on staging.
+9. Roll out to production in controlled bulk operations.
+10. Add scheduled Shopify synchronization after the initial bulk import and a separate automation review.
+
+The Jon's pilot proved the adapter workflow, immutable artifacts, approval ledger, atomic apply, rollback, idempotency, retailer reuse, family-level canonical seeds and multi-row offer rollout. Further Jon's work must use this bulk snapshot strategy. This changes batch scope, not the safety contract: canonical products and variants remain reviewed, ambiguous data remains quarantined, and staging and production approvals remain separate.
+
+## SEO and AI Search Visibility
+
+SEO and AI-search visibility are a permanent parallel growth workstream. Every working day should include:
+
+1. one primary product, data, retailer or engineering task,
+2. one completed SEO or AI-search visibility task.
+
+The visibility goal covers Google Search, Google AI Overviews and AI Mode, Bing and Copilot, ChatGPT Search, Gemini and other AI answer engines.
+
+Evaluate every major page or feature against three questions:
+
+1. Does it help the user make a decision?
+2. Can it rank in traditional search?
+3. Can an AI system understand and cite it accurately?
+
+This workstream improves the discoverability and citation quality of the existing product; it does not authorise building the deferred AI decision assistant.
+
+## AI Citation Readiness
+
+Important pages require:
+
+- a direct answer near the top,
+- clear headings matching real user questions,
+- factual comparison tables,
+- visible calculation methodology,
+- a last-updated date,
+- source provenance,
+- explicit uncertainty and limitations,
+- stable canonical URLs,
+- valid structured data,
+- strong internal linking,
+- server-rendered HTML,
+- no unsupported marketing claims,
+- no thin mass-generated content.
+
+Priority page types are category pages, brand pages, product pages with multiple retailer offers, price and value comparisons, ingredient and dosage comparisons, methodology pages and best-for-goal pages.
+
+## Parallel growth rule
+
+Do not postpone SEO until catalogue coverage is complete. Coverage, SEO and AI citation readiness must grow together, while only one primary product, data, retailer or engineering task is active at a time.
 
 ## Commercial Coverage Sprint
 
@@ -768,9 +852,9 @@ After this documentation update, the next operational task is to select the next
 
 Operating method:
 
-1. Accept retailer CSV files already received.
+1. Accept retailer CSV files and complete retailer snapshots already received.
 2. Before processing a source, check for an existing adapter, parser or helper that can be reused.
-3. Work on exactly one retailer at a time.
+3. Work on exactly one retailer at a time, using catalogue-level classification and safe bulk batches rather than a product-by-product catalogue process.
 4. Prioritise existing canonical products, especially products with one active retailer that can gain a second or third.
 5. Prefer popular products and categories, in-stock rows, exact flavour/size/count/format identity and working affiliate URLs.
 6. Apply high-confidence rows first through the existing approved pipeline.
@@ -826,7 +910,7 @@ Out of scope during the sprint:
 
 | Workstream | Status | Current state | Resume trigger | Next action |
 |---|---|---|---|---|
-| Commercial Coverage Sprint | ACTIVE | Existing safe importer and retailer adapters are ready for controlled CSV batches | Ends or is reassessed at the first sprint checkpoint | Select and audit the highest-commercial-value retailer CSV already received |
+| Commercial Coverage Sprint | ACTIVE | Jon's initial rollout is complete; the remaining catalogue requires a reusable bulk snapshot design | Ends or is reassessed at the first sprint checkpoint | Design the Retailer Snapshot Bulk Import workflow for the remaining Jon's catalogue; do not implement it yet |
 | Whey Okay reconciliation | PAUSED | 137/520 reconciled; 383 remain; Medium 75/75 classified | Sprint completion or earlier justified checkpoint | Preserve current classifications and review queues |
 | Retailer Import Control Plane | ARCHITECTURE APPROVED, IMPLEMENTATION DEFERRED | Existing architecture audited; no implementation started | Two or three retailers completed, or manual processing becomes a clear bottleneck | Reassess the minimal durable control-plane scope |
 | EKM automation | DEFERRED | No production EKM adapter; current normalized/import pipeline is reusable | Whey Okay reconciliation resumes and source/API contract is approved | Later build acquisition only, reusing the current pipeline |
@@ -1032,19 +1116,21 @@ Target experience:
 
 ### Current active task
 
-Run the **Commercial Coverage Sprint** using the existing approved import pipeline, with exactly one retailer active at a time.
+Run the **Commercial Coverage Sprint** with exactly one primary retailer/data implementation active at a time, alongside the daily SEO and AI-search visibility workstream.
 
 ### Next task
 
-Select and audit the highest-commercial-value retailer CSV already received, prioritising product overlap and affiliate readiness.
+Design the reusable **Retailer Snapshot Bulk Import** workflow for the remaining Jon's catalogue. Stop at the reviewed design; do not implement the bulk importer in this task.
 
 ### Then
 
-1. Close that retailer completely, including staging, production, public QA, affiliate QA, metrics and this document update.
-2. Start the next retailer only after the previous retailer is closed.
-3. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
-4. At the checkpoint, decide whether to continue the sprint or resume the Retailer Import Control Plane.
-5. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
+1. Review and approve the reusable workflow before implementation.
+2. Apply the approved workflow to the remaining Jon's snapshot in safe bulk classifications and batches.
+3. Close Jon's completely, including staging, production, public QA, affiliate QA, metrics and this document update.
+4. Start the next retailer only after Jon's is closed.
+5. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
+6. At the checkpoint, decide whether to continue the sprint or resume the Retailer Import Control Plane.
+7. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
 
 ### Deferred near-term
 
@@ -1162,7 +1248,9 @@ Current binding decisions:
 - Finish 200 high-quality variants/offers before production `SAFE_UPDATE`.
 - Current progress is 200 / 200.
 - eBay is postponed.
-- Commercial Coverage Sprint is the sole active workstream and processes one retailer at a time.
+- Commercial Coverage Sprint is the primary active product/data workstream and processes one retailer at a time; SEO and AI-search visibility run alongside it as a bounded daily growth workstream.
+- Large retailer catalogues must use the Retailer Snapshot Bulk Import strategy rather than continuing product by product.
+- Jon's initial rollout is complete: 5 products, 24 flavour variants, 26 mappings, 26 offers and 26 price-history rows on production; the remaining catalogue is deferred to the bulk snapshot workflow.
 - Whey Okay reconciliation is paused at 137/520 with all 383 remaining mappings and current review queues preserved.
 - Whey Okay automation comes after reconciliation resumes; EKM acquisition must reuse the current normalized/import pipeline.
 - Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4, reduced optioned pilot, final Easy optioned cleanup and reduced Medium Batches 1-3 upgraded 137 total legacy mappings; 383 remain.
@@ -1174,6 +1262,7 @@ Current binding decisions:
 - Do not duplicate already completed work.
 - Build the two custom SupplementScout skills later, not in parallel with the active retailer.
 - Do not run many major initiatives in parallel.
+- Do not postpone SEO until catalogue coverage is complete; coverage, SEO and AI citation readiness grow together.
 
 ---
 
@@ -1258,6 +1347,20 @@ Current binding decisions:
 - The sprint will process one retailer at a time through the existing importer, validator, approval ledger, staging and production apply pipeline.
 - First checkpoint is after two or three new retailers or five to eight working days, whichever occurs first.
 - EKM automation, scheduled price/stock updates and `SAFE_UPDATE` remain deferred; `SAFE_UPDATE` remains disabled.
+
+### 2026-07-17
+
+- Jon's Supplements adapter, staging pilot and initial production rollout completed.
+- Retailer ID 10 now has 5 products, 24 flavour variants, 26 mappings, 26 offers and 26 price-history rows; all 26 offers are in stock.
+- Per4m Mult Vita+Min and TBJP Oh Mega Pharma Pro production rollouts completed.
+- Canonical family seeds and 24-row staging/production offer rollouts completed for PER4M EAA Xtra 420g, PER4M Pre-Workout Stim 570g and PER4M Creatine Sherbet 310g.
+- Strawberry Lime, five OOS variants, unresolved Project AD, Protein Bars and PER4M Whey remain explicitly excluded or deferred.
+- Post-rollout product coverage is 605 products at one or more active retailers, 63 at two or more, 3 at three or more and 0 at four or more, across 759 active canonical products.
+- The five Jon's product families each moved from zero to one active retailer; none moved into multi-retailer coverage.
+- Retailer Snapshot Bulk Import is now the required strategy for the remaining Jon's catalogue.
+- SEO and AI-search visibility became a permanent daily parallel growth workstream; the AI decision assistant remains deferred.
+- Immediate next task: design, but do not implement, the reusable Retailer Snapshot Bulk Import workflow for the remaining Jon's catalogue.
+- `SAFE_UPDATE` remains disabled.
 
 ---
 
