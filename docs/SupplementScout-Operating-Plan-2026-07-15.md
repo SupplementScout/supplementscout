@@ -662,11 +662,15 @@ Repeated logic should gradually move into:
 
 ### 10.7 Retailer Import Control Plane
 
-The read-only architecture audit confirmed that the current importer, normalized feed contract, matching guards, dry-run artifacts, validator, approval ledger and atomic apply RPC are the approved reusable core. A durable Retailer Import Control Plane and `/admin/imports` remain the accepted long-term architecture for import runs, review queues and decisions.
+The read-only architecture audit confirmed that the current importer, normalized feed contract, matching guards, dry-run artifacts, validator, row-level approval ledger and atomic apply RPC are the approved reusable core. The parent/child Retailer Import Control Plane is now implemented as the orchestration layer above that reusable core; it is not a second importer, validator, row-level approval ledger or business apply mechanism.
 
-Status: **ARCHITECTURE APPROVED, IMPLEMENTATION DEFERRED**.
+Status: **PHASE 1 AND PHASE 2 COMPLETE; BUSINESS EXECUTOR DEFERRED**.
 
-Do not implement the control plane during the Commercial Coverage Sprint. Reconsider it after two or three completed retailer imports, or earlier if manual handling becomes a clear bottleneck. Do not create a second importer, approval ledger, validator or apply mechanism.
+Retailer Snapshot Bulk Import Phase 1 completed the read-only framework: 10 JSON contracts, 64 reason codes, 20 stable `RSBI_*` errors, `RSBI-CJ1` fingerprints, deterministic classification, parent/child plan builders, deterministic 50/100 partitioning, validators and review queue JSON/CSV. The full Jon's snapshot reproduced the frozen baseline without differences and made no Supabase writes. Commit: `53446ce6ed755f484e25551a757d4d0161e8a290`.
+
+Phase 2 completed the control-ledger migration with three control tables, 11 public lifecycle RPCs and six internal functions. Parent/child lifecycle, locking, approval expiry, approval consumption, replay protection, resume and rollback metadata are implemented behind a local-only runtime guard. Phase 2 made no business-table, staging or production writes. Commit: `94d1bf56991485a682a6eda4bce628229e614579`.
+
+The next bounded phase is **Phase 3 staging canary executor design and disposable PostgreSQL implementation**. It must reuse the existing row plans, validators, row-level approvals and atomic write logic. Its first task may design and implement a bounded child-batch business executor only on disposable PostgreSQL; it may not apply to staging or production. A staging canary requires a later, separate review and explicit approval.
 
 ---
 
@@ -751,12 +755,13 @@ Work should proceed sequentially. Do not open all projects at once.
 Current priority order:
 
 1. Run the Commercial Coverage Sprint, one retailer at a time.
-2. Hold a checkpoint after two or three new retailers or five to eight working days, whichever occurs first.
-3. Decide at the checkpoint whether to continue the current method or resume the Retailer Import Control Plane.
-4. Resume the remaining 383 Whey Okay legacy mappings after the sprint or an earlier justified checkpoint.
-5. Establish an automatic Whey Okay source through EKM API or an authorised feed only after reconciliation resumes and the source contract is reviewed.
-6. Keep scheduled price/stock updates and `SAFE_UPDATE` deferred until a separate phase, repeated clean runs and explicit approval.
-7. Retain images, analytics and comparison value features in the queue.
+2. Design and locally implement the bounded Retailer Snapshot Bulk Import Phase 3 child-batch business executor on disposable PostgreSQL, without staging or production apply.
+3. Review Retailer Snapshot Bulk Import Phase 3 results separately before deciding whether to approve a staging canary.
+4. Hold the Commercial Coverage Sprint checkpoint after two or three new retailers or five to eight working days, whichever occurs first.
+5. Resume the remaining 383 Whey Okay legacy mappings after the sprint or an earlier justified checkpoint.
+6. Establish an automatic Whey Okay source through EKM API or an authorised feed only after reconciliation resumes and the source contract is reviewed.
+7. Keep scheduled price/stock updates and `SAFE_UPDATE` deferred until a separate phase, repeated clean runs and explicit approval.
+8. Retain images, analytics and comparison value features in the queue.
 
 ## Commercial Data Expansion and Competitive Response
 
@@ -766,7 +771,7 @@ The primary metric is the number of canonical products with offers from at least
 
 Every import must preserve the approved separation of canonical products, variants, retailer mappings and offers, including offer-specific price history. Do not pursue an artificial product count at the expense of identity, variant accuracy, offer quality or auditability. Do not start AI product or assistant implementation, new admin panels or large automation implementation during this sprint; bounded SEO and AI citation-readiness work remains required.
 
-The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and production rollout are complete. The next operational task is now to design the reusable Retailer Snapshot Bulk Import workflow for the remaining Jon's catalogue, without implementing it yet.
+The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and initial production rollout are complete, and Retailer Snapshot Bulk Import Phases 1 and 2 are complete. The next operational task is Phase 3 staging canary executor design and disposable PostgreSQL implementation, stopping before any staging apply.
 
 ## Jon's Supplements current state
 
@@ -802,6 +807,14 @@ For large Shopify retailers:
 10. Add scheduled Shopify synchronization after the initial bulk import and a separate automation review.
 
 The Jon's pilot proved the adapter workflow, immutable artifacts, approval ledger, atomic apply, rollback, idempotency, retailer reuse, family-level canonical seeds and multi-row offer rollout. Further Jon's work must use this bulk snapshot strategy. This changes batch scope, not the safety contract: canonical products and variants remain reviewed, ambiguous data remains quarantined, and staging and production approvals remain separate.
+
+Implementation status:
+
+- **Phase 1 — COMPLETE:** read-only snapshot, classification, deterministic plans, validators and review artifacts; commit `53446ce6ed755f484e25551a757d4d0161e8a290`.
+- **Phase 2 — COMPLETE:** parent/child control ledger, lifecycle RPCs, concurrency controls, resume and rollback metadata, with local-only runtime and zero business-table writes; commit `94d1bf56991485a682a6eda4bce628229e614579`.
+- **Phase 3 — NEXT:** design and implement a bounded child-batch business executor using the existing row plans, validators and atomic write logic, tested only on disposable PostgreSQL. The first Phase 3 task excludes staging apply, production apply, scheduled sync and admin UI.
+
+Before any write-bearing Jon's rollout, GTIN enrichment and canonical-creation proposals require separate review. Staging canary apply, production canary apply and production bulk rollout remain separate approval boundaries.
 
 ## SEO and AI Search Visibility
 
@@ -888,12 +901,12 @@ Commercial coverage baseline to record before the first new retailer:
 - outbound clicks,
 - affiliate revenue, if available.
 
-At the first checkpoint, assess coverage growth, import speed, conflict volume, public usefulness, affiliate readiness, whether the current manual method still scales and whether to resume the Retailer Import Control Plane.
+At the first checkpoint, assess coverage growth, import speed, conflict volume, public usefulness, affiliate readiness and the evidence from the implemented control ledger and future Phase 3 local executor tests.
 
 One active stage rule:
 
 - exactly one retailer may be active at a time,
-- do not start the Retailer Import Control Plane workbench, EKM automation, `SAFE_UPDATE` or another large Whey Okay reconciliation batch in parallel,
+- do not start a staging/production bulk executor rollout, EKM automation, `SAFE_UPDATE` or another large Whey Okay reconciliation batch in parallel,
 - update this Operating Plan after every retailer,
 - start the next retailer only after the current retailer meets its definition of done.
 
@@ -901,7 +914,8 @@ Out of scope during the sprint:
 
 - a new importer or separate application,
 - `/admin/imports`,
-- new approval, validator or apply mechanisms,
+- replacement approval ledgers, validators or atomic apply mechanisms,
+- staging or production execution of the Phase 3 child-batch executor,
 - EKM automation,
 - scheduled production updates,
 - `SAFE_UPDATE`.
@@ -910,16 +924,22 @@ Out of scope during the sprint:
 
 | Workstream | Status | Current state | Resume trigger | Next action |
 |---|---|---|---|---|
-| Commercial Coverage Sprint | ACTIVE | Jon's initial rollout is complete; the remaining catalogue requires a reusable bulk snapshot design | Ends or is reassessed at the first sprint checkpoint | Design the Retailer Snapshot Bulk Import workflow for the remaining Jon's catalogue; do not implement it yet |
+| Commercial Coverage Sprint | ACTIVE | Jon's initial rollout is complete; Retailer Snapshot Phases 1 and 2 are complete | Ends or is reassessed at the first sprint checkpoint | Run Phase 3 design and local implementation without staging apply |
 | Whey Okay reconciliation | PAUSED | 137/520 reconciled; 383 remain; Medium 75/75 classified | Sprint completion or earlier justified checkpoint | Preserve current classifications and review queues |
-| Retailer Import Control Plane | ARCHITECTURE APPROVED, IMPLEMENTATION DEFERRED | Existing architecture audited; no implementation started | Two or three retailers completed, or manual processing becomes a clear bottleneck | Reassess the minimal durable control-plane scope |
+| Retailer Snapshot Phase 1 | COMPLETED | Read-only framework, deterministic classification/plans and review artifacts reproduce the Jon's baseline | Complete | Reuse unchanged in Phase 3 |
+| Retailer Snapshot Phase 2 | COMPLETED | Three-table parent/child ledger and lifecycle runtime pass local disposable-PostgreSQL validation | Complete | Reuse as the Phase 3 control layer |
+| Retailer Snapshot Phase 3 | NEXT | Business executor is not implemented; no staging or production apply is authorised | Phase 1 and Phase 2 complete | Design and implement locally on disposable PostgreSQL only |
+| Jon's GTIN enrichment | REQUIRED BEFORE WRITE-BEARING ROLLOUT | Phase 1 classification is complete; enrichment remains review-only | Before a separately approved staging canary | Enrich and review GTIN evidence separately from Phase 3 local implementation |
+| `/creatine` SEO page | PRIORITY QUEUED | First priority SEO page; content/data contract is prepared, but no route is implemented | Separate reviewed SEO implementation task | Preserve as the first priority page; do not implement in this task |
 | EKM automation | DEFERRED | No production EKM adapter; current normalized/import pipeline is reusable | Whey Okay reconciliation resumes and source/API contract is approved | Later build acquisition only, reusing the current pipeline |
 | `SAFE_UPDATE` | DISABLED | Classification exists; automatic production apply remains off | Separate reviewed phase after repeated clean runs and explicit approval | No action during the sprint |
 | Analytics | QUEUED | Outbound clicks exist; broader baseline is incomplete | Commercial sprint checkpoint or a dedicated analytics phase | Record available coverage and affiliate baseline metrics |
 | Images/catalogue quality | QUEUED | 12 backfills verified; products 751 and 752 remain manual review | After the active retailer closes or at a prioritised quality checkpoint | Preserve the two manual image tasks |
 | Comparison value features | QUEUED | Product and delivered-price foundations exist | Stable retailer coverage and analytics | Do not implement during the sprint |
 
-## Phase 0: operating control
+The numbered programme roadmap below predates the Retailer Snapshot Bulk Import phase sequence. Its labels are retained for historical continuity; unqualified references to the immediate **Phase 3** mean Retailer Snapshot Bulk Import Phase 3, not the paused legacy Whey Okay roadmap phase.
+
+## Legacy roadmap Phase 0: operating control
 
 **Status:** in progress and maintained through this document.
 
@@ -936,7 +956,7 @@ Definition of done:
 - no conflicting roadmap across chats,
 - clear current task, next task and deferred list.
 
-## Phase 1: finish the 200 milestone with value
+## Legacy roadmap Phase 1: finish the 200 milestone with value
 
 **Current:** 200 / 200
 **Remaining:** 0
@@ -960,7 +980,7 @@ Definition of done:
 - no unresolved import blockers,
 - final catalogue quality report.
 
-## Phase 2: catalogue quality and images
+## Legacy roadmap Phase 2: catalogue quality and images
 
 Actions:
 
@@ -985,7 +1005,7 @@ Definition of done:
 - future new-product pipeline requires an image decision,
 - automated backfill limited to null/empty canonical images and exact identity.
 
-## Phase 3: Whey Okay reconciliation
+## Legacy roadmap Phase 3: Whey Okay reconciliation
 
 **Status:** PAUSED during the Commercial Coverage Sprint.
 
@@ -1031,7 +1051,7 @@ Definition of done:
 - automatic full snapshot works,
 - no manual CSV upload is required for routine updates.
 
-## Phase 4: retailer automation
+## Legacy roadmap Phase 4: retailer automation
 
 ### Discount Supplements
 
@@ -1057,7 +1077,7 @@ Definition of done:
 - new products and variants remain review-only,
 - clear alerting for missing-from-source and identity drift.
 
-## Phase 5: analytics foundation
+## Legacy roadmap Phase 5: analytics foundation
 
 Minimal stack:
 
@@ -1081,7 +1101,7 @@ Definition of done:
 - know which searches return no results,
 - use evidence to prioritise catalogue and UX work.
 
-## Phase 6: comparison value features
+## Legacy roadmap Phase 6: comparison value features
 
 After catalogue freshness and analytics are stable:
 
@@ -1097,7 +1117,7 @@ After catalogue freshness and analytics are stable:
 
 Before implementing each feature, verify whether it already exists anywhere in the codebase.
 
-## Phase 7: AI decision assistant
+## Legacy roadmap Phase 7: AI decision assistant
 
 Build only when product data is sufficiently structured.
 
@@ -1120,16 +1140,16 @@ Run the **Commercial Coverage Sprint** with exactly one primary retailer/data im
 
 ### Next task
 
-Design the reusable **Retailer Snapshot Bulk Import** workflow for the remaining Jon's catalogue. Stop at the reviewed design; do not implement the bulk importer in this task.
+Execute **Phase 3 staging canary executor design and disposable PostgreSQL implementation**. Design and locally implement a bounded child-batch business executor that reuses the existing row plans, validators, row-level approval ledger and atomic write logic. Stop before staging apply.
 
 ### Then
 
-1. Review and approve the reusable workflow before implementation.
-2. Apply the approved workflow to the remaining Jon's snapshot in safe bulk classifications and batches.
-3. Close Jon's completely, including staging, production, public QA, affiliate QA, metrics and this document update.
-4. Start the next retailer only after Jon's is closed.
-5. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
-6. At the checkpoint, decide whether to continue the sprint or resume the Retailer Import Control Plane.
+1. Complete Phase 3 design, implementation and tests only on disposable PostgreSQL, with no staging or production connection.
+2. Review the bounded executor, GTIN enrichment evidence and canonical-creation proposals before requesting any staging canary approval.
+3. Run a staging canary only under a separate task and explicit approval.
+4. Run any production canary and later bulk rollout only under further separate approvals.
+5. Close Jon's completely, including public QA, affiliate QA, metrics and this document update, before starting the next retailer.
+6. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
 7. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
 
 ### Deferred near-term
@@ -1147,6 +1167,17 @@ These should encode stable operating rules and reduce repeated long prompts, but
 
 Do not start these now:
 
+- staging canary apply,
+- production canary apply,
+- production bulk rollout for the remaining Jon's catalogue,
+- GTIN enrichment for a write-bearing rollout,
+- review or apply of canonical-creation proposals,
+- scheduled retailer synchronization,
+- admin review UI and `/admin/imports`,
+- automated canonical merge,
+- automatic deletion or deactivation,
+- affiliate automation,
+- shipping discovery,
 - eBay integration,
 - mobile app,
 - retailer self-service portal,
@@ -1254,7 +1285,11 @@ Current binding decisions:
 - Whey Okay reconciliation is paused at 137/520 with all 383 remaining mappings and current review queues preserved.
 - Whey Okay automation comes after reconciliation resumes; EKM acquisition must reuse the current normalized/import pipeline.
 - Whey Okay standalone pilot, Batch 2.1, Batch 3, reduced Batch 4, reduced optioned pilot, final Easy optioned cleanup and reduced Medium Batches 1-3 upgraded 137 total legacy mappings; 383 remain.
-- Retailer Import Control Plane is the approved long-term architecture, but implementation is deferred until the sprint checkpoint or a demonstrated manual-processing bottleneck.
+- Option B has been implemented as the read-only Retailer Snapshot framework and parent/child control plane in Phases 1 and 2.
+- The Retailer Import Control Plane is implemented and is no longer deferred; its business-table executor remains a separate Phase 3.
+- The first Phase 3 task is design and local implementation on disposable PostgreSQL only; it may not write to staging or production.
+- Staging canary, production canary and production bulk rollout each require later, separate review and explicit approval.
+- GTIN enrichment and canonical-creation proposals require review before a write-bearing Jon's rollout.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
 - New products and variants remain review-only.
 - Scheduled price/stock updates remain deferred.
@@ -1359,7 +1394,11 @@ Current binding decisions:
 - The five Jon's product families each moved from zero to one active retailer; none moved into multi-retailer coverage.
 - Retailer Snapshot Bulk Import is now the required strategy for the remaining Jon's catalogue.
 - SEO and AI-search visibility became a permanent daily parallel growth workstream; the AI decision assistant remains deferred.
-- Immediate next task: design, but do not implement, the reusable Retailer Snapshot Bulk Import workflow for the remaining Jon's catalogue.
+- At the start of 2026-07-17, the immediate next task was to design, but not implement, the reusable Retailer Snapshot Bulk Import workflow; that historical design step led to the completed Phase 1 and Phase 2 work below.
+- Retailer Snapshot Bulk Import Phase 1 completed in commit `53446ce6ed755f484e25551a757d4d0161e8a290`: read-only framework, 10 JSON contracts, 64 reason codes, 20 stable errors, deterministic classification/plans, validators and review artifacts reproduced the Jon's baseline with no Supabase writes.
+- Retailer Snapshot Bulk Import Phase 2 completed in commit `94d1bf56991485a682a6eda4bce628229e614579`: three control tables, 11 public lifecycle RPCs, six internal functions, locking, expiry, replay protection, resume and rollback metadata passed disposable-PostgreSQL tests with no business-table, staging or production writes.
+- Option B is implemented through the framework and control plane; the control plane is no longer deferred.
+- Business-table execution remains a separate Phase 3. The immediate next task is Phase 3 staging canary executor design and disposable PostgreSQL implementation, with no staging apply in that task.
 - `SAFE_UPDATE` remains disabled.
 
 ---
