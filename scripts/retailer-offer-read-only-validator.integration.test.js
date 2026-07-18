@@ -36,6 +36,15 @@ test("only a non-login non-inheriting validation role receives the wrapper grant
   assert.match(migration, /Staging validator role required/);
 });
 
+test("membership checks distinguish outgoing escalation from safe incoming administration", () => {
+  assert.match(scenario, /member=\(select oid from pg_roles where rolname='retailer_catalogue_staging_validator'\)/);
+  assert.match(scenario, /roleid=\(select oid from pg_roles where rolname='retailer_catalogue_staging_validator'\)/);
+  assert.match(scenario, /not admin_option or inherit_option or set_option/);
+  for (const role of ["postgres", "service_role", "retailer_catalogue_staging_approver", "retailer_catalogue_staging_executor"])
+    assert.match(scenario, new RegExp(`pg_has_role\\('retailer_catalogue_staging_validator','${role}','SET'\\)`));
+  assert.match(scenario, /membership_direction_safe/);
+});
+
 test("validation expiry is capped at 15 minutes without changing approval semantics", () => {
   assert.match(migration, /validation_expires_at[\s\S]+now\(\)\+interval '15 minutes'/i);
   assert.doesNotMatch(migration, /create or replace function public\.(?:approve_retailer_offer_sync_batch|execute_retailer_offer_sync_batch|recover_retailer_offer_sync_batch)/i);
@@ -48,6 +57,7 @@ test("disposable scenario covers 26 rows, zero writes and every required negativ
     "price_drift", "stock_drift", "url_drift", "identity_drift", "source_collapse", "mass_oos",
     "reordered_rows", "duplicate_row", "expired_package", "wrong_role",
     "write_rpc_inaccessible",
+    "membership_direction_safe",
   ]) assert.match(scenario, new RegExp(token));
   assert.match(scenario, /'business_writes',0,'control_writes',0,'price_history_writes',0/);
   assert.match(scenario, /'skips',0/);

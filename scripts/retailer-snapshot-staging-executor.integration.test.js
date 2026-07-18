@@ -78,7 +78,7 @@ test("staging executor full fixture and recovery on network-isolated disposable 
     const readOnlyResult = psqlFile(container, database, files.readOnlyValidatorTest);
     ok(readOnlyResult, "read-only mixed-batch validator scenarios");
     assert.match(output(readOnlyResult), /"result"\s*:\s*"PASS"/); assert.match(output(readOnlyResult), /"rows_validated"\s*:\s*26/);
-    assert.match(output(readOnlyResult), /"cases"\s*:\s*16/); assert.match(output(readOnlyResult), /"last_checked_at_updates"\s*:\s*26/);
+    assert.match(output(readOnlyResult), /"cases"\s*:\s*17/); assert.match(output(readOnlyResult), /"last_checked_at_updates"\s*:\s*26/);
     assert.match(output(readOnlyResult), /"business_writes"\s*:\s*0/); assert.match(output(readOnlyResult), /"control_writes"\s*:\s*0/);
     assert.match(output(readOnlyResult), /"failures"\s*:\s*0/); assert.match(output(readOnlyResult), /"skips"\s*:\s*0/);
     const compatibility = psql(container, database, "select to_regprocedure('public.execute_staging_retailer_catalogue_child(jsonb)') is not null as old_executor_preserved, to_regprocedure('public.execute_retailer_offer_sync_batch(jsonb)') is not null as mixed_executor_installed");

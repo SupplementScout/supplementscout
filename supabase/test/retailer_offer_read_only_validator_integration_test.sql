@@ -231,6 +231,19 @@ declare v_role pg_roles%rowtype;
 begin
   select * into strict v_role from pg_roles where rolname='retailer_catalogue_staging_validator';
   if v_role.rolcanlogin or v_role.rolinherit or v_role.rolsuper or v_role.rolcreatedb or v_role.rolcreaterole or v_role.rolreplication or v_role.rolbypassrls then raise exception 'validator role attributes unsafe'; end if;
+  if exists(
+       select 1 from pg_auth_members
+       where member=(select oid from pg_roles where rolname='retailer_catalogue_staging_validator'))
+     or exists(
+       select 1 from pg_auth_members
+       where roleid=(select oid from pg_roles where rolname='retailer_catalogue_staging_validator')
+         and (not admin_option or inherit_option or set_option))
+     or pg_has_role('retailer_catalogue_staging_validator','postgres','SET')
+     or pg_has_role('retailer_catalogue_staging_validator','service_role','SET')
+     or pg_has_role('retailer_catalogue_staging_validator','retailer_catalogue_staging_approver','SET')
+     or pg_has_role('retailer_catalogue_staging_validator','retailer_catalogue_staging_executor','SET') then
+    raise exception 'validator role membership direction or SET ROLE boundary unsafe';
+  end if;
   if not has_function_privilege('retailer_catalogue_staging_validator','public.validate_retailer_offer_sync_batch_read_only(jsonb)','EXECUTE')
      or not has_function_privilege('retailer_catalogue_staging_validator','public.retailer_offer_sync_validate_batch_read_only_internal(jsonb)','EXECUTE')
      or has_function_privilege('retailer_catalogue_staging_validator','public.approve_retailer_offer_sync_batch(jsonb)','EXECUTE')
@@ -251,10 +264,11 @@ begin
          'public.retailer_catalogue_apply_runs','public.retailer_catalogue_staging_recovery_manifests',
          'public.retailer_catalogue_staging_recovery_approvals','public.retailer_catalogue_staging_recovery_audit',
          'public.retailer_offer_sync_batch_approvals']) table_name,
-         unnest(array['INSERT','UPDATE','DELETE']) privilege
+         unnest(array['SELECT','INSERT','UPDATE','DELETE','TRUNCATE']) privilege
        where has_table_privilege('retailer_catalogue_staging_validator',table_name,privilege)) then
     raise exception 'validator role privilege boundary unsafe';
   end if;
+  insert into public.read_only_validator_test_results values('membership_direction_safe','PASS',null,true);
   insert into public.read_only_validator_test_results values('write_rpc_inaccessible','PASS',null,true);
 end
 $security$;
