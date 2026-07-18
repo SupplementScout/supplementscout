@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 17 July 2026<br>
+**Status date:** 18 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -664,11 +664,11 @@ Repeated logic should gradually move into:
 
 The read-only architecture audit confirmed that the current importer, normalized feed contract, matching guards, dry-run artifacts, validator, row-level approval ledger and atomic apply RPC are the approved reusable core. The parent/child Retailer Import Control Plane is now implemented as the orchestration layer above that reusable core; it is not a second importer, validator, row-level approval ledger or business apply mechanism.
 
-Status: **PHASES 1, 2 AND 3 COMPLETE LOCALLY; STAGING CANARY READINESS AND DESIGN REVIEW NEXT**.
+Status: **PHASES 1, 2 AND 3 COMPLETE; STAGING MIGRATIONS AND POST-MIGRATION READINESS COMPLETE; CANARY DRY-RUN DESIGN AND FRESH SOURCE REFRESH NEXT**.
 
 Retailer Snapshot Bulk Import Phase 1 completed the read-only framework: 10 JSON contracts, 64 reason codes, 20 stable `RSBI_*` errors, `RSBI-CJ1` fingerprints, deterministic classification, parent/child plan builders, deterministic 50/100 partitioning, validators and review queue JSON/CSV. The full Jon's snapshot reproduced the frozen baseline without differences and made no Supabase writes. Commit: `53446ce6ed755f484e25551a757d4d0161e8a290`.
 
-Phase 2 completed the control-ledger migration with three control tables, 11 public lifecycle RPCs and six internal functions. Parent/child lifecycle, locking, approval expiry, approval consumption, replay protection, resume and rollback metadata are implemented behind a local-only runtime guard. Phase 2 made no business-table, staging or production writes. Commit: `94d1bf56991485a682a6eda4bce628229e614579`.
+Phase 2 completed the control-ledger migration with three control tables, 11 public lifecycle RPCs and six internal functions. Parent/child lifecycle, locking, approval expiry, approval consumption, replay protection, resume and rollback metadata were first validated behind a local-only runtime guard. The implementation task made no business-table, staging or production writes. Commit: `94d1bf56991485a682a6eda4bce628229e614579`. The reviewed control-ledger schema was later deployed to staging by Task 6 Migration A.
 
 ### Retailer Snapshot Phase 3 — COMPLETE
 
@@ -678,7 +678,38 @@ Hard environment guards restrict execution to explicitly authorised disposable l
 
 The separate stale product presentation test cleanup passed 64/64 presentation tests and is recorded in commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`. It is not part of the Phase 3 implementation.
 
-The next bounded phase is **Staging Canary Readiness and Design Review**. It is a read-only readiness and design task, not a staging apply. Any staging apply requires a later, separate task and explicit approval.
+### Staging Migration Task 6 — COMPLETE
+
+- Migration A was applied and validated on staging.
+- Migration B was applied and validated on staging.
+- Runner V2 used the whole-query path; the defective replacement-string path was not reused.
+- Source, executed and migration-ledger text SHA-256 equality was confirmed for both migrations.
+- Final staging migration count: 27.
+- Final staging migration fingerprint: `2c36d09244f4c81f0727ad50dd62fad21c9c8037aee66342eed0662037d3081a`.
+- Eight control/staging tables, the required functions and the staging roles were created.
+- RLS, forced RLS, grants, indexes, constraints, owners, function security boundaries and `search_path` were validated.
+- Business-table deltas were zero.
+- No approval, parent plan, child plan, dry-run, apply run or recovery was created.
+- Production connections, reads and writes were zero.
+
+The first Task 6 attempt is historical only: it failed before `COMMIT`, rolled back safely and changed no persistent staging state. Its runner root cause was fixed, its package was superseded and a fresh immutable package authorised the successful retry.
+
+### Post-Migration Readiness Review — COMPLETE
+
+Result: **READY FOR CANARY DRY-RUN DESIGN**.
+
+- Schema readiness: **PASS**.
+- Migration readiness: **PASS**.
+- Role/grants readiness: **PASS**.
+- Empty control-plane readiness: **PASS**.
+- Fixture identity readiness: **PASS WITH CONDITIONS**.
+- Expected delta readiness: **PASS**.
+- Stale approval readiness: **PASS WITH CONDITIONS**.
+- Recovery readiness: **PASS**.
+
+The 10-record fixture still matches staging: seven existing mapping/offer no-ops are unchanged and three proposed mappings remain absent. Expected deltas remain retailers 0, products +2, product variants +2, retailer products +3, offers +3 and price history +3. The conditions are a fresh live source refresh before dry-run artifacts, continued alternate-identity review for the Conteh record without GTIN and non-reuse of the eight expired approvals.
+
+The next bounded task is **Canary Dry-Run Design and Fresh Source Refresh**. It may refresh and freeze source evidence and design dry-run artifacts, but it must stop without executing a dry-run, creating an approval or applying any plan.
 
 ---
 
@@ -763,8 +794,8 @@ Work should proceed sequentially. Do not open all projects at once.
 Current priority order:
 
 1. Run the Commercial Coverage Sprint, one retailer at a time.
-2. Complete the **Staging Canary Readiness and Design Review** without staging or production apply.
-3. Resolve the real Jon's canary fixture, GTIN and canonical identity evidence, exact deltas, approval boundaries, migration readiness and committed-batch recovery decision before requesting any staging canary approval.
+2. Complete **Canary Dry-Run Design and Fresh Source Refresh** without executing a dry-run, creating an approval or applying a plan.
+3. Revalidate the real Jon's 10-record fixture, GTIN and alternate identity evidence, exact deltas, target binding, migration fingerprint and recovery boundary before requesting a separate dry-run execution task.
 4. Hold the Commercial Coverage Sprint checkpoint after two or three new retailers or five to eight working days, whichever occurs first.
 5. Resume the remaining 383 Whey Okay legacy mappings after the sprint or an earlier justified checkpoint.
 6. Establish an automatic Whey Okay source through EKM API or an authorised feed only after reconciliation resumes and the source contract is reviewed.
@@ -779,7 +810,7 @@ The primary metric is the number of canonical products with offers from at least
 
 Every import must preserve the approved separation of canonical products, variants, retailer mappings and offers, including offer-specific price history. Do not pursue an artificial product count at the expense of identity, variant accuracy, offer quality or auditability. Do not start AI product or assistant implementation, new admin panels or large automation implementation during this sprint; bounded SEO and AI citation-readiness work remains required.
 
-The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and initial production rollout are complete, and Retailer Snapshot Bulk Import Phases 1, 2 and 3 are complete locally. The next operational task is the Staging Canary Readiness and Design Review, stopping before any staging apply.
+The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and initial production rollout are complete; Retailer Snapshot Bulk Import Phases 1, 2 and 3, the staging executor migrations and the post-migration readiness review are complete. The next operational task is **Canary Dry-Run Design and Fresh Source Refresh**, stopping before dry-run execution, approval creation or apply.
 
 ## Jon's Supplements current state
 
@@ -819,67 +850,38 @@ The Jon's pilot proved the adapter workflow, immutable artifacts, approval ledge
 Implementation status:
 
 - **Phase 1 — COMPLETE:** read-only snapshot, classification, deterministic plans, validators and review artifacts; commit `53446ce6ed755f484e25551a757d4d0161e8a290`.
-- **Phase 2 — COMPLETE:** parent/child control ledger, lifecycle RPCs, concurrency controls, resume and rollback metadata, with local-only runtime and zero business-table writes; commit `94d1bf56991485a682a6eda4bce628229e614579`.
+- **Phase 2 — COMPLETE:** parent/child control ledger, lifecycle RPCs, concurrency controls, resume and rollback metadata were validated locally in commit `94d1bf56991485a682a6eda4bce628229e614579`; the reviewed control schema is now deployed on staging through Migration A.
 - **Phase 3 — COMPLETE:** local bounded child-batch executor reusing the existing row plans, Phase 2 lifecycle, read-only validator, row-level approval ledger and atomic apply RPC. It has no direct business-table DML; transactional rollback, exact deltas, replay, concurrency and local-only environment guards passed. Full regression: 600/600. Staging and production writes: zero. Commit `6a754f0e7c942dde550e029056e15f940aa56b3a`.
+- **Staging executor framework — COMPLETE:** Migration B deployed the staging-only roles, target and migration-ledger guards, approval wrappers, bounded executor and recovery framework. Task 6 validated the schema without invoking an executor RPC.
+- **Post-migration readiness review — COMPLETE:** schema, migration, role/grant, empty-state, expected-delta and recovery readiness passed; fixture and stale-approval readiness passed with the fresh-source and non-reuse conditions recorded below.
 - **Presentation test cleanup — COMPLETE, separate from Phase 3:** stale product presentation expectation fixed; presentation tests 64/64. Commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`.
 
 Before any write-bearing Jon's rollout, GTIN enrichment and canonical-creation proposals require separate review. Staging canary apply, production canary apply and production bulk rollout remain separate approval boundaries.
 
-### Staging canary blockers
+### Blockers before canary dry-run execution
 
-These requirements must all be resolved before the first staging apply. Completing the readiness and design review does not authorise that apply.
+The earlier staging migration and readiness blockers are resolved: a real 10-record fixture is sealed, the staging executor framework is deployed, Migration A and B are validated, the control plane is empty and bounded recovery objects are present. Those completed reviews do not authorise dry-run execution or approval creation.
 
-#### A. GTIN enrichment
+Every condition below is mandatory before a separately authorised canary dry-run execution:
 
-- The current full snapshot contains 768 records without GTIN.
-- Every real canary record must have closed identity.
-- Missing, invalid, shared and conflicting GTIN evidence must be explicitly classified.
-- A missing GTIN may be accepted only with documented alternate identity proof.
+- acquire a fresh Shopify source,
+- acquire fresh CSV/GTIN enrichment,
+- freeze fresh source hashes,
+- capture a fresh staging canonical snapshot,
+- revalidate prices and stock,
+- confirm all 10 records are still in stock,
+- confirm no external identity collisions,
+- confirm no canonical collisions,
+- confirm the staging migration fingerprint remains `2c36d09244f4c81f0727ad50dd62fad21c9c8037aee66342eed0662037d3081a`,
+- confirm the code commit is unchanged or explicitly rebind every generated artifact to the reviewed replacement commit,
+- regenerate the fixture fingerprint if any source field changes,
+- recalculate exact expected deltas,
+- preserve the eight expired approvals as non-reusable,
+- keep `SAFE_UPDATE=false` or unset.
 
-#### B. Real Jon's canary fixture
+The design task must freshly confirm GTIN evidence for nine records and the documented alternate identity for the Conteh record without GTIN. It must compare source drift and canonical drift, design immutable dry-run artifacts and stop. No dry-run execution, approval, parent/child plan creation or apply is permitted in that task.
 
-- The Phase 3 local fixture is synthetic and is not sufficient for staging.
-- Select exactly 10 real Jon's records, preferring `SAFE_EXISTING_VARIANT` and individually confirmed `SAFE_NEW_CANONICAL_PRODUCT` records.
-- Exclude family candidates, ambiguous records, duplicate identity, deferred policy, out-of-stock records, bundles, single bars and multipacks without closed identity.
-
-#### C. Canonical creation review
-
-- The 335 family candidates still require canonical family review and seed decisions and cannot enter the first canary automatically.
-- The 70 safe-new-simple candidates require individual identity confirmation before any staging write.
-
-#### D. Staging-capable executor design
-
-- The local-only executor cannot be redirected to staging.
-- Design a separate staging-capable execution path without weakening the local guards.
-- Production target, ref, credentials and host must be unconditionally blocked.
-- A staging approval or artifact must be cryptographically and operationally unusable on production.
-
-#### E. Migration and schema readiness
-
-- Verify the complete staging migration ledger.
-- Confirm Phase 1, Phase 2 and Phase 3 schema compatibility, including required tables, RPCs, constraints, RLS and grants.
-- Make no staging schema or migration change before a separate review and explicit approval.
-
-#### F. Expected deltas
-
-- For the exact 10 records, approve expected deltas for `retailers`, `products`, `product_variants`, `retailer_products`, `offers` and `price_history`.
-- Distinguish every create, update, reuse and noop outcome.
-
-#### G. Approval boundaries
-
-- Use separate immutable artifacts and approvals for the source snapshot, GTIN enrichment, canonical decisions, staging parent plan, staging child plan and apply.
-- Every approval must be fingerprint-bound, target-specific, short-lived, single-use and replay-protected.
-
-#### H. Recovery and rollback
-
-- Transactional rollback of a failed child is proven.
-- Committed-batch business rollback is not implemented.
-- Before staging apply, approve either (1) a complete committed-batch rollback manifest containing created IDs and update before-state, or (2) an explicit, tested recovery procedure bounded to the 10-record canary.
-- No decision means no staging apply.
-
-#### I. Freshness
-
-- Immediately before approval and apply, require a fresh source snapshot, fresh canonical snapshot, matching fingerprints, no schema drift, no price or stock drift, an unexpired approval and `SAFE_UPDATE=false`.
+Any later approval must remain fingerprint-bound, exact-target-specific, short-lived, single-use and replay-protected. Staging canary apply, production canary and production bulk rollout remain separate approval boundaries.
 
 ## SEO and AI Search Visibility
 
@@ -980,7 +982,7 @@ Out of scope during the sprint:
 - a new importer or separate application,
 - `/admin/imports`,
 - replacement approval ledgers, validators or atomic apply mechanisms,
-- staging-capable executor implementation and staging or production execution,
+- canary dry-run execution, approval creation and staging or production apply,
 - EKM automation,
 - scheduled production updates,
 - `SAFE_UPDATE`.
@@ -989,18 +991,22 @@ Out of scope during the sprint:
 
 | Workstream | Status | Current state | Resume trigger | Next action |
 |---|---|---|---|---|
-| Commercial Coverage Sprint | ACTIVE | Jon's initial rollout and Retailer Snapshot Phases 1-3 local work are complete | Ends or is reassessed at the first sprint checkpoint | Run the Staging Canary Readiness and Design Review without staging apply |
+| Commercial Coverage Sprint | ACTIVE | Jon's initial rollout, Retailer Snapshot Phases 1-3, staging migrations and post-migration readiness are complete | Ends or is reassessed at the first sprint checkpoint | Run Canary Dry-Run Design and Fresh Source Refresh without dry-run execution |
 | Whey Okay reconciliation | PAUSED | 137/520 reconciled; 383 remain; Medium 75/75 classified | Sprint completion or earlier justified checkpoint | Preserve current classifications and review queues |
 | Retailer Snapshot Phase 1 | COMPLETE | Read-only framework, deterministic classification/plans and review artifacts reproduce the Jon's baseline | Complete | Reuse unchanged |
-| Retailer Snapshot Phase 2 | COMPLETE | Three-table parent/child ledger and lifecycle runtime pass local disposable-PostgreSQL validation | Complete | Reuse as the control layer |
+| Retailer Snapshot Phase 2 | COMPLETE | Three-table parent/child ledger and lifecycle runtime passed local validation and the schema is deployed on staging | Complete | Reuse as the control layer |
 | Retailer Snapshot Phase 3 | COMPLETE | Local bounded executor passes transactional, delta, replay, concurrency and local-environment tests; staging and production writes remain zero | Complete | Preserve its intentional local-only boundary |
-| Staging Canary Readiness and Design Review | NEXT | No staging-capable execution path or approved real fixture exists | Phase 3 complete | Perform read-only readiness audit and design; stop before apply |
-| Staging Canary Apply | BLOCKED | Not authorised | Readiness blockers resolved and separate explicit approval | No apply in the readiness/design task |
+| Task 6 staging migrations | COMPLETE | Migration A and B applied through runner V2; final ledger count 27 and fingerprint sealed | Complete | Do not rerun or reuse the migration package |
+| Post-migration readiness | COMPLETE | Readiness verdict is READY FOR CANARY DRY-RUN DESIGN | Complete | Preserve the zero-row control-plane baseline |
+| Canary Dry-Run Design and Fresh Source Refresh | NEXT | Real 10-record fixture is sealed; live source evidence now requires refresh | Post-migration readiness complete | Refresh source evidence and design artifacts; stop before dry-run execution |
+| Canary Dry-Run Execution | BLOCKED | Not authorised and fresh design artifacts do not yet exist | Fresh-source design review complete and separate explicit authorisation | No execution in the design task |
+| Approval Creation | BLOCKED | No canary approval package is authorised | Successful separately authorised dry-run and a further reviewed approval task | Create nothing now |
+| Staging Canary Apply | BLOCKED | Not authorised | Successful reviewed dry-run, fresh approval package and separate explicit approval | No apply in the design or dry-run task |
 | Production Canary | DEFERRED | No staging canary evidence or production approval exists | Successful reviewed staging canary and separate explicit approval | No action now |
 | Scheduled Sync | DEFERRED | No bulk scheduled apply is authorised | Successful canaries, repeated clean runs and separate automation approval | Keep disabled |
-| Jon's GTIN enrichment for canary | REQUIRED | Full snapshot has 768 records without GTIN | Before staging canary approval | Enrich the selected scope and classify all GTIN evidence |
-| Real Jon's 10-record fixture | REQUIRED | Current Phase 3 fixture is synthetic | Before staging canary approval | Select and seal exactly 10 real, closed-identity records |
-| Committed-batch recovery decision | REQUIRED | Failed-child rollback passes; committed-batch rollback is not implemented | Before staging canary approval | Approve rollback manifest or bounded tested recovery procedure |
+| Jon's canary source and GTIN refresh | REQUIRED | Frozen fixture has nine exact GTINs and one reviewed alternate identity; live evidence is not fresh | Before dry-run execution | Refresh Shopify, CSV/GTIN, price, stock and identity evidence |
+| Real Jon's 10-record fixture | COMPLETE WITH REFRESH CONDITION | Exact fixture is sealed and still matches staging | Regenerate if any source field changes | Rebind only after fresh source comparison |
+| Bounded recovery framework | COMPLETE FOR READINESS | Recovery tables and target/expiry/replay/shared-state guards exist; no recovery was invoked | Before apply, bind an exact manifest and approval in a separate task | Do not invoke recovery now |
 | `/creatine` SEO page | PRIORITY QUEUED | First priority SEO page; content/data contract is prepared, but no route is implemented | Separate reviewed SEO implementation task | Preserve as the first priority page; do not implement in this task |
 | EKM automation | DEFERRED | No production EKM adapter; current normalized/import pipeline is reusable | Whey Okay reconciliation resumes and source/API contract is approved | Later build acquisition only, reusing the current pipeline |
 | `SAFE_UPDATE` | DISABLED | Classification exists; automatic production apply remains off | Separate reviewed phase after repeated clean runs and explicit approval | No action during the sprint |
@@ -1211,17 +1217,18 @@ Run the **Commercial Coverage Sprint** with exactly one primary retailer/data im
 
 ### Next task
 
-Execute the **Staging Canary Readiness and Design Review**. Audit staging readiness read-only and design a staging-capable execution path with hard no-production guards. Select a real 10-record Jon's fixture; close its GTIN and canonical identity evidence; define exact expected deltas, target-specific approval boundaries, migration-ledger checks and the committed-batch recovery decision. Stop before staging apply.
+Execute **Canary Dry-Run Design and Fresh Source Refresh**. Freshly acquire the live Jon's Shopify source and CSV/GTIN enrichment; freeze new source hashes; revalidate prices, stock, GTIN and the Conteh alternate identity; compare source and canonical drift; recalculate exact expected deltas; and design immutable dry-run artifacts. Stop without executing a dry-run, creating an approval or applying a plan.
 
 ### Then
 
-1. Complete the read-only staging readiness audit and staging execution-path design without connecting to or changing staging or production.
-2. Resolve every blocker in the Staging canary blockers section before requesting staging canary approval.
-3. Run a staging canary only under a separate later task and explicit approval.
-4. Run any production canary and later bulk rollout only under further separate approvals.
-5. Close Jon's completely, including public QA, affiliate QA, metrics and this document update, before starting the next retailer.
-6. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
-7. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
+1. Complete the fresh-source and dry-run artifact design task without dry-run execution or database writes.
+2. Review the regenerated fixture, exact deltas and artifact design before authorising a separate canary dry-run execution task.
+3. Create no approval until a successful reviewed dry-run has its own later approval task.
+4. Run a staging canary only under a separate later task and explicit approval.
+5. Run any production canary and later bulk rollout only under further separate approvals.
+6. Close Jon's completely, including public QA, affiliate QA, metrics and this document update, before starting the next retailer.
+7. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
+8. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
 
 ### Deferred near-term
 
@@ -1238,12 +1245,14 @@ These should encode stable operating rules and reduce repeated long prompts, but
 
 Do not start these now:
 
-- staging-capable executor implementation,
+- canary dry-run execution,
+- approval creation,
 - staging canary apply,
 - production canary apply,
 - production bulk rollout for the remaining Jon's catalogue,
 - scheduled retailer synchronization,
 - committed-batch rollback automation,
+- cleanup of the eight expired approvals,
 - admin review UI and `/admin/imports`,
 - automated canonical merge,
 - automatic deletion or deactivation,
@@ -1360,10 +1369,14 @@ Current binding decisions:
 - Retailer Snapshot Phases 1, 2 and 3 are complete locally; the framework, control plane and bounded local business executor are no longer deferred.
 - Phase 3 completed in commit `6a754f0e7c942dde550e029056e15f940aa56b3a`; its local-only boundary remains intentional and must not be weakened.
 - The stale product presentation test cleanup is separate from Phase 3 and completed in commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`.
-- The immediate next task is the Staging Canary Readiness and Design Review, not staging apply.
-- A separate staging-capable execution path and approval boundary are required; the local executor cannot be redirected to staging.
-- The synthetic local canary is not sufficient for staging.
-- Committed-batch business rollback remains unresolved.
+- Task 6 staging migrations are complete: Migration A and B are applied and validated, with final ledger count 27 and fingerprint `2c36d09244f4c81f0727ad50dd62fad21c9c8037aee66342eed0662037d3081a`.
+- The post-migration readiness review is complete with verdict **READY FOR CANARY DRY-RUN DESIGN**.
+- The immediate next task is **Canary Dry-Run Design and Fresh Source Refresh**, not dry-run execution, approval creation or apply.
+- The Phase 3 local executor cannot be redirected to staging; the deployed staging framework retains separate target-specific roles, guards and approval boundaries.
+- The real 10-record fixture is sealed and matches staging, subject to a fresh live-source, price, stock, GTIN and alternate-identity refresh before dry-run execution.
+- The bounded recovery framework is deployed and readiness-audited; an exact canary recovery manifest and approval remain later apply-stage boundaries.
+- The eight expired approvals are non-reusable and cleanup remains a separate deferred maintenance task.
+- No canary dry-run, approval or apply may occur without fresh source hashes, a fresh staging canonical snapshot, recalculated deltas and a reviewed fixture fingerprint.
 - Staging canary, production canary and production bulk rollout each require later, separate review and explicit approval.
 - No staging apply is allowed without a real 10-record fixture, GTIN and canonical identity review, exact approved deltas and an approved recovery decision.
 - Fit House and Discount Supplements should become automated through staged, fail-closed workflows.
@@ -1477,9 +1490,23 @@ Current binding decisions:
 - Phase 3 local tests passed for a synthetic 10-row canary, 50-row child, mid-child rollback, delta-mismatch rollback, replay and concurrency; full regression passed 600/600, with zero staging and production writes.
 - The separate presentation test cleanup completed in commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`; presentation tests passed 64/64. This cleanup is not part of Phase 3.
 - The Phase 3 executor remains intentionally local-only. Its synthetic canary does not authorise or sufficiently prove staging readiness.
-- Committed-batch business rollback remains unresolved; only failed-child transactional rollback is proven.
-- The immediate next task is the Staging Canary Readiness and Design Review. It stops before staging apply.
+- Historical state at the close of 2026-07-17: committed-batch business rollback remained unresolved and only failed-child transactional rollback was proven. This was superseded on 2026-07-18 by the deployed, readiness-audited bounded recovery framework; an exact recovery manifest and approval are still required before apply.
+- Historical next task at the close of 2026-07-17: the Staging Canary Readiness and Design Review. This was completed and superseded on 2026-07-18.
 - No staging apply may occur without an approved real 10-record Jon's fixture, GTIN and canonical identity review, exact expected deltas, target-specific approvals, migration readiness and a committed-batch recovery decision.
+- `SAFE_UPDATE` remains disabled.
+
+### 2026-07-18
+
+- The first Task 6 attempt failed before `COMMIT` and rolled back safely; staging migration count, schema and business state remained unchanged.
+- Root cause was JavaScript replacement-string handling in the migration runner. Runner V2 fixed the boundary with whole-query execution, callback replacement and parameterised ledger text.
+- The failed package was marked `SUPERSEDED_AFTER_FAILED_ATTEMPT`; a fresh immutable package was issued and separately authorised.
+- Task 6 retry passed: Migration A and Migration B were applied and validated on staging.
+- Source, executed and ledger migration text SHA-256 values matched for both migrations.
+- Final staging migration count is 27 and fingerprint is `2c36d09244f4c81f0727ad50dd62fad21c9c8037aee66342eed0662037d3081a`.
+- Eight control/staging tables, required functions and staging roles are deployed; RLS, forced RLS, grants, constraints, indexes, owners and security boundaries passed.
+- Business-table deltas were zero; no approvals, plans, dry-runs, apply runs or recoveries were created; production was untouched.
+- The read-only post-migration readiness review passed with verdict **READY FOR CANARY DRY-RUN DESIGN**.
+- The next task is **Canary Dry-Run Design and Fresh Source Refresh**. No dry-run execution, approval creation or apply is allowed without a fresh live source, CSV/GTIN enrichment, source hashes, staging canonical snapshot, price/stock validation, drift comparison, recalculated deltas and regenerated fixture binding when required.
 - `SAFE_UPDATE` remains disabled.
 
 ---
