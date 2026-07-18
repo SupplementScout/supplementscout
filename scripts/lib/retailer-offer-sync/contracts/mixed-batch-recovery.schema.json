@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"supplementscout://retailer-offer-sync/mixed-batch-recovery/v1",
+  "type":"object","additionalProperties":false,
+  "required":["schema_version","child_plan_id","execution_fingerprint","artifact_fingerprint","before_rows","applied_rows","created_price_history_ids","recovery_fingerprint"],
+  "properties":{
+    "schema_version":{"const":1},"child_plan_id":{"type":"string","format":"uuid"},
+    "execution_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"},"artifact_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "before_rows":{"type":"array","minItems":1,"maxItems":50},"applied_rows":{"type":"array","minItems":1,"maxItems":50},
+    "created_price_history_ids":{"type":"array","maxItems":50,"uniqueItems":true},"recovery_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+  }
+}

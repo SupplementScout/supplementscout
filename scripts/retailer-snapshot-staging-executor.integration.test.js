@@ -25,6 +25,9 @@ const files = {
   phase2: "supabase/migrations/20260717120000_create_retailer_catalogue_control_ledger.sql",
   staging: "supabase/migrations/20260717140000_add_staging_retailer_catalogue_executor.sql",
   stagingTest: "supabase/test/staging_retailer_catalogue_executor_integration_test.sql",
+  verified: "supabase/migrations/20260718150000_add_verified_no_change_offer_refresh.sql",
+  mixed: "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql",
+  mixedTest: "supabase/test/retailer_offer_mixed_batch_executor_integration_test.sql",
 };
 assert.equal(process.argv.length, 2, "staging integration runner accepts no connection arguments");
 function run(command, args, timeout = 180_000) { return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout }); }
@@ -64,6 +67,14 @@ test("staging executor full fixture and recovery on network-isolated disposable 
     const result = psqlFile(container, database, files.stagingTest, ["staging_executor_test_database_confirmed=1", `staging_executor_expected_database=${database}`]);
     ok(result, "staging executor scenarios");
     assert.match(output(result), /"result"\s*:\s*"PASS"/); assert.match(output(result), /"isolated_guard_cases"\s*:\s*19/); assert.match(output(result), /"guard_failures"\s*:\s*0/); assert.match(output(result), /"committed_recoveries"\s*:\s*4/);
+    ok(psqlFile(container, database, files.verified), "verified no-change migration after old canary");
+    ok(recordMigration(container, database, "20260718150000_add_verified_no_change_offer_refresh"), "record verified no-change");
+    ok(psqlFile(container, database, files.mixed), "mixed-batch migration after old canary");
+    ok(recordMigration(container, database, "20260718160000_add_retailer_offer_mixed_batch_executor"), "record mixed-batch");
+    const compatibility = psql(container, database, "select to_regprocedure('public.execute_staging_retailer_catalogue_child(jsonb)') is not null as old_executor_preserved, to_regprocedure('public.execute_retailer_offer_sync_batch(jsonb)') is not null as mixed_executor_installed");
+    ok(compatibility, "old and mixed executor compatibility"); assert.match(output(compatibility), /t\s*\|\s*t/);
+    const mixedResult = psqlFile(container, database, files.mixedTest);
+    ok(mixedResult, "mixed-batch 26-row apply, replay and recovery"); assert.match(output(mixedResult), /"result"\s*:\s*"PASS"/);
 
     const prepareDependencies = (target) => {
       ok(exec(container, ["createdb", "-U", "postgres", target]), `create ${target}`);

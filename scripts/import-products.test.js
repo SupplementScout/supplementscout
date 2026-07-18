@@ -33,6 +33,7 @@ const {
   normalizeCanonicalRetailerFeedRows,
   normalizeShippingForImport,
   priceHistoryTotal,
+  resolvePlanTimestamp,
   runImportRows: runImportRowsRaw,
   setSupabaseForTests,
   shouldLogCategoryNormalization,
@@ -47,6 +48,14 @@ const {
   canonicalJson,
   normalizeDecimalString,
 } = require("./lib/canonical-json");
+
+test("mixed planning accepts one exact source capture while legacy planning still uses current UTC time", () => {
+  const capture = "2026-07-18T16:09:19.507Z";
+  assert.equal(resolvePlanTimestamp(capture), capture);
+  assert.match(resolvePlanTimestamp(), /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  assert.throws(() => resolvePlanTimestamp("2026-07-18T16:09:19Z"), /exact UTC RFC3339/);
+  assert.throws(() => resolvePlanTimestamp("not-a-timestamp"), /Invalid time value/);
+});
 
 async function runImportRows(rows, options = {}) {
   if (options.dryRun) {

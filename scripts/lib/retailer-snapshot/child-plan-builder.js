@@ -7,6 +7,18 @@ function countDeltas(rowPlans) {
   return out;
 }
 
+function countMixedDeltas(rowPlans) {
+  const row_count_deltas = { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 };
+  const logical_field_deltas = { offer_price_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_stock_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0, last_checked_at_updates: 0 };
+  for (const plan of rowPlans) {
+    const delta = plan.expected_deltas;
+    if (!delta) continue;
+    for (const key of Object.keys(row_count_deltas)) row_count_deltas[key] += delta.row_count_deltas[key];
+    for (const key of Object.keys(logical_field_deltas)) logical_field_deltas[key] += delta.logical_field_deltas[key];
+  }
+  return { row_count_deltas, logical_field_deltas };
+}
+
 function buildChildPlan({ parentPlanId, parentCoreFingerprint, batchIndex, batchCount, records, rowPlans }) {
   const provisional = { child_plan_id: "00000000-0000-4000-8000-000000000000", parent_plan_id: parentPlanId, batch_index: batchIndex, batch_count: batchCount, dependency_group: [...new Set(records.map((record) => record.dependency_group))].join("|"), rollback_group: [...new Set(records.map((record) => record.rollback_group))].join("|"), record_ids: records.map((record) => String(record.source_record_id)), row_plans: rowPlans, expected_state: { parent_core_fingerprint: parentCoreFingerprint }, expected_deltas: countDeltas(rowPlans), preconditions: [{ code: "PARENT_CORE_MATCH", fingerprint: parentCoreFingerprint }], postconditions: [{ code: "EXACT_DELTAS", deltas: countDeltas(rowPlans) }], rollback_operations: rowPlans.map((plan) => ({ source_record_id: plan.source_record_id, ownership: plan.rollback_ownership })), child_plan_fingerprint: null, status: "PLANNED" };
   provisional.child_plan_fingerprint = fingerprintChildPlan(provisional);
@@ -14,4 +26,4 @@ function buildChildPlan({ parentPlanId, parentCoreFingerprint, batchIndex, batch
   return provisional;
 }
 
-module.exports = { buildChildPlan, countDeltas, hashUuid };
+module.exports = { buildChildPlan, countDeltas, countMixedDeltas, hashUuid };

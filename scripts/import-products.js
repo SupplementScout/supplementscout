@@ -2151,12 +2151,19 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
   return variantEvidence;
 }
 
+function resolvePlanTimestamp(sourceCapturedAt) {
+  if (sourceCapturedAt === undefined) return new Date().toISOString();
+  const normalized = new Date(sourceCapturedAt).toISOString();
+  if (normalized !== sourceCapturedAt) throw new Error("sourceCapturedAt must be an exact UTC RFC3339 timestamp");
+  return normalized;
+}
+
 function buildAtomicImportPlan(item) {
   const {
     row, retailer, product, productVariant, mapping, existingOffer, offerPlan,
     legacyMappingUpgrade,
   } = item;
-  const now = new Date().toISOString();
+  const now = resolvePlanTimestamp(item.sourceCapturedAt);
   const rawProductData = product ? null : buildProductData(row, item.rowNumber, "feed");
   if (rawProductData) rawProductData.gtin = null;
   const productData = rawProductData
@@ -2983,6 +2990,7 @@ module.exports = {
   priceHistoryTotal,
   runImport,
   runImportRows,
+  resolvePlanTimestamp,
   loadDryRunArtifact,
   selectArtifactPlan,
   serializeImportPlan,

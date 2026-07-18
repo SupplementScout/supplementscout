@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "required_result": {"fail": 0, "skip": 0},
+  "suites": [
+    {
+      "suite": "source_and_classifier_unit",
+      "cases": [
+        {"id": "SRC-01", "scenario": "paginated Shopify snapshot with exactly 26 target variants", "expected": "26 unique exact joins and sealed hashes"},
+        {"id": "SRC-02", "scenario": "HTTP error, timeout, HTML, malformed JSON or oversized response", "expected": "BLOCK_SOURCE_ANOMALY; no artifacts marked ready"},
+        {"id": "SRC-03", "scenario": "25/26 target variants present", "expected": "whole run BLOCKED; never infer OOS"},
+        {"id": "SRC-04", "scenario": "duplicate Shopify variant ID across pages", "expected": "BLOCK_IDENTITY_DRIFT"},
+        {"id": "SRC-05", "scenario": "Shopify product ownership mismatch", "expected": "BLOCK_IDENTITY_DRIFT"},
+        {"id": "SRC-06", "scenario": "stale or future source capture", "expected": "BLOCK_SOURCE_ANOMALY"},
+        {"id": "CLS-01", "scenario": "all 26 exact", "expected": "26 VERIFY_NO_CHANGE"},
+        {"id": "CLS-02", "scenario": "price only", "expected": "UPDATE_PRICE and one price-history delta"},
+        {"id": "CLS-03", "scenario": "stock true to false and false to true", "expected": "UPDATE_STOCK in both directions"},
+        {"id": "CLS-04", "scenario": "price and stock", "expected": "UPDATE_PRICE_AND_STOCK"},
+        {"id": "CLS-05", "scenario": "URL only with same IDs and valid host", "expected": "UPDATE_URL"},
+        {"id": "CLS-06", "scenario": "URL plus price and/or stock", "expected": "UPDATE_PRICE_STOCK_URL with exact changed_fields bitmap"},
+        {"id": "CLS-07", "scenario": "URL hostname or variant query mismatch", "expected": "BLOCK_IDENTITY_DRIFT or BLOCK_SOURCE_ANOMALY"},
+        {"id": "CLS-08", "scenario": "shipping threshold crossed by price", "expected": "derived shipping/total deltas and exactly one history row"},
+        {"id": "CLS-09", "scenario": "shipping policy fingerprint changes without price", "expected": "run SUPERSEDED/BLOCKED; no shipping-only action"},
+        {"id": "CLS-10", "scenario": "artifact rebuilt from same inputs", "expected": "byte-identical canonical payload and fingerprints"}
+      ]
+    },
+    {
+      "suite": "guardrail_unit",
+      "cases": [
+        {"id": "GRD-01", "scenario": "three of 26 newly OOS", "expected": "allowed if all other guards pass"},
+        {"id": "GRD-02", "scenario": "four of 26 newly OOS", "expected": "whole run BLOCKED"},
+        {"id": "GRD-03", "scenario": "total OOS ratio above 35 percent", "expected": "whole run BLOCKED"},
+        {"id": "GRD-04", "scenario": "changed records above 25 percent", "expected": "whole run BLOCKED"},
+        {"id": "GRD-05", "scenario": "price changes reach 20 percent of records", "expected": "mass price guard BLOCKED"},
+        {"id": "GRD-06", "scenario": "single price change at least 60 percent or GBP 20", "expected": "hard price anomaly BLOCKED"},
+        {"id": "GRD-07", "scenario": "any duplicate external ID", "expected": "whole run BLOCKED"},
+        {"id": "GRD-08", "scenario": "wrong retailer, target ref, database identity or SAFE_UPDATE true", "expected": "fail before plan/approval/apply"}
+      ]
+    },
+    {
+      "suite": "mixed_batch_postgresql_integration",
+      "cases": [
+        {"id": "PG-01", "scenario": "26 VERIFY_NO_CHANGE", "expected": "one commit; 26 last_checked updates; zero history"},
+        {"id": "PG-02", "scenario": "mixed verify, price, stock, price+stock, URL and URL-composite actions", "expected": "one commit with exact field and history deltas"},
+        {"id": "PG-03", "scenario": "row 26 stale expected state", "expected": "all business writes and all row approval creation/consumption roll back"},
+        {"id": "PG-04", "scenario": "row 26 invalid expected delta", "expected": "whole transaction rolls back"},
+        {"id": "PG-05", "scenario": "deterministic offer locks under shuffled request order", "expected": "lock/apply order is ascending offer ID and result fingerprint is stable"},
+        {"id": "PG-06", "scenario": "two concurrent executions of one child", "expected": "one succeeds; one replay/concurrency blocked; no duplicate history"},
+        {"id": "PG-07", "scenario": "expired batch or row approval", "expected": "zero business deltas"},
+        {"id": "PG-08", "scenario": "row approval metadata/fingerprint mismatch", "expected": "whole transaction rolls back"},
+        {"id": "PG-09", "scenario": "source_captured_at not newer or not equal across rows", "expected": "whole child rejected"},
+        {"id": "PG-10", "scenario": "server now differs from source capture", "expected": "stored last_checked_at and history checked_at equal source capture"},
+        {"id": "PG-11", "scenario": "connection result lost after commit", "expected": "status resolves APPLIED and replay performs zero writes"},
+        {"id": "PG-12", "scenario": "connection lost before commit", "expected": "transaction rolls back and status remains safely retryable after revalidation"},
+        {"id": "PG-13", "scenario": "batch size 50", "expected": "atomic success"},
+        {"id": "PG-14", "scenario": "batch size 51", "expected": "closed-schema/size rejection before writes"},
+        {"id": "PG-15", "scenario": "unexpected product, variant, mapping or offer row-count delta", "expected": "whole transaction rolls back"},
+        {"id": "PG-16", "scenario": "unrelated retailer fingerprint changes during apply", "expected": "postcondition failure and rollback"}
+      ]
+    },
+    {
+      "suite": "recovery_postgresql_integration",
+      "cases": [
+        {"id": "RCV-01", "scenario": "recover no-change-only batch", "expected": "restore 26 prior last_checked timestamps"},
+        {"id": "RCV-02", "scenario": "recover mixed price/stock/URL batch", "expected": "delete only owned history IDs and restore exact before-state"},
+        {"id": "RCV-03", "scenario": "applied offer changed after batch", "expected": "recovery blocked by after-state fingerprint"},
+        {"id": "RCV-04", "scenario": "owned price-history row missing or altered", "expected": "recovery blocked without partial reverse"},
+        {"id": "RCV-05", "scenario": "expired, mismatched or replayed recovery approval", "expected": "zero recovery writes"},
+        {"id": "RCV-06", "scenario": "failure at final reverse operation", "expected": "entire recovery transaction rolls back"},
+        {"id": "RCV-07", "scenario": "unrelated retailer/shared canonical state changed", "expected": "shared data protected; recovery blocked where ownership conflict exists"},
+        {"id": "RCV-08", "scenario": "successful recovery replay", "expected": "RSBI_REPLAY_BLOCKED and zero writes"},
+        {"id": "RCV-09", "scenario": "exact post-recovery validation", "expected": "baseline fingerprint restored, owned history absent, counts exact"}
+      ]
+    },
+    {
+      "suite": "security_and_regression",
+      "cases": [
+        {"id": "SEC-01", "scenario": "anon/authenticated/service_role direct generic executor invocation", "expected": "revoked; dedicated role required"},
+        {"id": "SEC-02", "scenario": "dedicated roles attempt direct table DML", "expected": "denied"},
+        {"id": "SEC-03", "scenario": "production indicator in staging package", "expected": "fail closed"},
+        {"id": "SEC-04", "scenario": "canonical create/update action in v1 batch", "expected": "unsupported action rejection"},
+        {"id": "SEC-05", "scenario": "existing atomic importer regression", "expected": "all current tests pass unchanged"},
+        {"id": "SEC-06", "scenario": "existing verified no-change regression", "expected": "all current tests pass unchanged"},
+        {"id": "SEC-07", "scenario": "old 10-record staging canary package", "expected": "existing contract remains byte/behavior compatible"},
+        {"id": "SEC-08", "scenario": "tracked worktree and migration diff audit", "expected": "only reviewed files; no secrets or env files"}
+      ]
+    }
+  ]
+}

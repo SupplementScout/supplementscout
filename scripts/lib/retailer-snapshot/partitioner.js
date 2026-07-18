@@ -1,7 +1,12 @@
 const { fingerprintChildPlan } = require("./fingerprints");
 const { fail } = require("./errors");
 
-const PHASE = Object.freeze({ CREATE_CANONICAL_FAMILY: 0, CREATE_CANONICAL_PRODUCT: 0, CREATE_CANONICAL_VARIANT: 0, CREATE_MAPPING_AND_OFFER: 1, UPDATE_OFFER: 2, NOOP: 2 });
+const PHASE = Object.freeze({
+  CREATE_CANONICAL_FAMILY: 0, CREATE_CANONICAL_PRODUCT: 0, CREATE_CANONICAL_VARIANT: 0,
+  CREATE_MAPPING_AND_OFFER: 1, UPDATE_OFFER: 2, NOOP: 2,
+  VERIFY_NO_CHANGE: 2, UPDATE_PRICE: 2, UPDATE_STOCK: 2, UPDATE_PRICE_AND_STOCK: 2,
+  UPDATE_URL: 2, UPDATE_PRICE_STOCK_URL: 2, BLOCK_IDENTITY_DRIFT: 9, BLOCK_SOURCE_ANOMALY: 9,
+});
 const compare = (a, b) => (PHASE[a.proposed_action] ?? 9) - (PHASE[b.proposed_action] ?? 9) || String(a.normalized_brand || "").localeCompare(String(b.normalized_brand || "")) || String(a.normalized_product_family || "").localeCompare(String(b.normalized_product_family || "")) || String(a.dependency_group).localeCompare(String(b.dependency_group), "en", { numeric: true }) || String(a.source_record_id).localeCompare(String(b.source_record_id), "en", { numeric: true });
 
 function partitionRecords(records, { preferred = 50, maximum = 100 } = {}) {

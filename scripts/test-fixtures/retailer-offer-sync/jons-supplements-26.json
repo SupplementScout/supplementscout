@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "retailer_slug": "jons-supplements",
+  "captured_at": "2026-07-18T16:09:19.507Z",
+  "source_manifest_sha256": "072cf6f258fb6f4dedb448bef8e0cedad664bec36f64623387cb5257dc1805fe",
+  "inventory_fingerprint": "c27db401555db7747c97e68eab1c9cb114bb85d8132aa7f42f78b92703598372",
+  "groups": [
+    {"external_product_id":"10904679186770","product_handle":"per4m-creatine-sherbet-100-servings","offer_ids":["995","1017","1011","994","1005"],"retailer_product_ids":["1181","1203","1197","1180","1191"],"external_variant_ids":["53868239389010","53868239421778","53868239454546","53868239487314","53868239520082"],"price":"16.99"},
+    {"external_product_id":"10850777465170","product_handle":"per4m-eaa-xtra-420g","offer_ids":["997","1013","996","1006","1016","1003","999","1000","1015","1007"],"retailer_product_ids":["1183","1199","1182","1192","1202","1189","1185","1186","1201","1193"],"external_variant_ids":["53687090151762","53687090184530","53687090217298","53687090250066","53687090282834","53687090348370","53687090381138","53687090413906","53687090446674","53687090479442"],"price":"23.49"},
+    {"external_product_id":"10913416249682","product_handle":"per4m-mult-vita-min-multivitamins-30-capsules","offer_ids":["992"],"retailer_product_ids":["1178"],"external_variant_ids":["53896427798866"],"price":"12.99"},
+    {"external_product_id":"10921949692242","product_handle":"per4m-pre-workout-stim-570g","offer_ids":["998","1014","1002","1012","1010","1001","1004","1009","1008"],"retailer_product_ids":["1184","1200","1188","1198","1196","1187","1190","1195","1194"],"external_variant_ids":["53925321310546","53925321277778","53925321408850","53925321507154","53925321539922","53925321572690","53925321605458","53925321638226","53925321703762"],"price":"32.49"},
+    {"external_product_id":"10114493514066","product_handle":"trained-by-jp-oh-mega-pharma-pro-180-capsules","offer_ids":["993"],"retailer_product_ids":["1179"],"external_variant_ids":["50927006581074"],"price":"29.99"}
+  ],
+  "defaults": {"shipping_cost":"3.99","in_stock":true,"last_checked_at":"2026-07-16T16:00:00.000Z"}
+}

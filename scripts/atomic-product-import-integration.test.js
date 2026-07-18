@@ -152,6 +152,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const optionedParentSizeSql = require("node:fs").readFileSync(optionedParentSizeMigration, "utf8");
   const optionedNullTotalSql = require("node:fs").readFileSync(optionedNullTotalMigration, "utf8");
   const verifiedNoChangeSql = require("node:fs").readFileSync(verifiedNoChangeMigration, "utf8");
+  const mixedBatchSql = require("node:fs").readFileSync(path.join(root, "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql"), "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
   assert.match(sql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
@@ -234,6 +235,12 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.match(verifiedNoChangeSql, /update public\.offers set last_checked_at/i);
   assert.doesNotMatch(verifiedNoChangeSql, /update public\.offers set[^;]*(price|in_stock|url|product_id|retailer_id|product_variant_id|retailer_product_id)\s*=/i);
   assert.doesNotMatch(verifiedNoChangeSql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(mixedBatchSql, /^begin;/i);
+  assert.match(mixedBatchSql, /apply_approved_product_import_plan/i);
+  assert.match(mixedBatchSql, /jsonb_array_length\(p_manifest->'rows'\)/i);
+  assert.match(mixedBatchSql, /order by \(value->>'offer_id'\)::bigint/i);
+  assert.match(mixedBatchSql, /RSBI_REPLAY_BLOCKED/i);
+  assert.doesNotMatch(mixedBatchSql, /\b(insert into|update)\s+public\.(products|product_variants)\b/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {

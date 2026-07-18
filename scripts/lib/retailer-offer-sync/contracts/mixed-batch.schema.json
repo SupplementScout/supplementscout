@@ -1,0 +1,19 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"supplementscout://retailer-offer-sync/mixed-batch/v1",
+  "type":"object","additionalProperties":false,
+  "required":["schema_version","kind","retailer_slug","retailer_id","target_environment","target_project_ref","target_database_identity","source_snapshot_fingerprint","adapter_fingerprint","policy_fingerprint","code_commit","expected_state_fingerprint","source_captured_at","state","block","action_manifest_fingerprint","expected_deltas","rows","artifact_fingerprint"],
+  "properties":{
+    "schema_version":{"const":1},"kind":{"const":"retailer-existing-offer-mixed-batch-execution"},
+    "retailer_slug":{"type":"string","pattern":"^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "retailer_id":{"type":"string","pattern":"^[1-9][0-9]*$"},"target_environment":{"enum":["STAGING","PRODUCTION"]},
+    "target_project_ref":{"type":"string"},"target_database_identity":{"type":"string"},
+    "source_snapshot_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"},"adapter_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"},"policy_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"},"code_commit":{"type":"string","pattern":"^[0-9a-f]{40}$"},"expected_state_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "source_captured_at":{"type":"string","format":"date-time"},
+    "action_manifest_fingerprint":{"type":["string","null"],"pattern":"^[0-9a-f]{64}$"},
+    "state":{"enum":["DRY_RUN_READY","BLOCKED"]},"block":{"type":["object","null"]},
+    "expected_deltas":{"type":["object","null"]},
+    "rows":{"type":"array","maxItems":50,"items":{"type":"object","required":["offer_id","retailer_product_id","external_product_id","external_variant_id","action","changed_fields","source_captured_at","expected_deltas","atomic_plan"]}},
+    "artifact_fingerprint":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+  }
+}
