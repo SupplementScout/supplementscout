@@ -120,7 +120,7 @@ export default function Home() {
         </nav>
 
         <Link
-          href={searchHref("Creatine")}
+          href="/creatine"
           className="rounded-full bg-zinc-950 px-5 py-2 text-sm font-semibold text-white"
         >
           Find Deals
@@ -151,7 +151,7 @@ export default function Home() {
           {popularSearches.map((item) => (
             <Link
               key={item}
-              href={searchHref(item)}
+              href={item === "Creatine" ? "/creatine" : searchHref(item)}
               className="rounded-full border border-zinc-200 px-3.5 py-2 text-sm text-zinc-700 hover:border-zinc-950 sm:px-4"
             >
               {item}
