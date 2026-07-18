@@ -260,7 +260,7 @@ function loadDryRunArtifact(artifactPath) {
         || entry.source_row_fingerprint !== plan.meta?.source_row_fingerprint
         || entry.plan_kind !== plan.meta?.plan_kind
         || entry.operation_type !== plan.meta?.operation_type
-        || !["standard_import", "legacy_mapping_upgrade"].includes(entry.operation_type)
+        || !["standard_import", "legacy_mapping_upgrade", "verify_offer_no_change"].includes(entry.operation_type)
         || entry.plan_fingerprint !== planFingerprint(plan)
         || !MD5_PATTERN.test(entry.plan_fingerprint)
         || !SHA256_PATTERN.test(entry.source_row_fingerprint)) {
@@ -289,6 +289,51 @@ function loadDryRunArtifact(artifactPath) {
         plan.price_history?.action !== "noop"
       ) {
         throw new Error("Dry-run artifact legacy mapping upgrade metadata mismatch");
+      }
+    }
+    if (entry.operation_type === "verify_offer_no_change") {
+      const source = sourceRow.normalized_source_row || {};
+      const target = source.target || {};
+      const sourceEvidence = source.source || {};
+      const expected = plan.expected_state || {};
+      const values = plan.offer?.values || {};
+      if (
+        entry.plan_kind !== "feed" ||
+        plan.meta?.target_environment?.toLowerCase() !== artifact.environment_marker ||
+        source.source_snapshot_sha256 !== plan.meta?.source_snapshot_sha256 ||
+        source.source_captured_at !== plan.meta?.source_captured_at ||
+        plan.meta?.source_row_fingerprint !== sourceRow.source_row_fingerprint ||
+        plan.product?.action !== "existing" ||
+        plan.product_variant?.action !== "existing" ||
+        plan.retailer?.action !== "existing" ||
+        plan.retailer_product?.action !== "noop" ||
+        plan.offer?.action !== "verify_no_change" ||
+        plan.price_history?.action !== "noop" ||
+        plan.approval?.approved !== false ||
+        plan.approval?.approval_type !== "none" ||
+        canonicalJson(expected) !== canonicalJson(target) ||
+        canonicalJson(plan.retailer_product?.values) !== canonicalJson(target.retailer_product) ||
+        plan.product?.id !== target.product?.id ||
+        plan.product_variant?.id !== target.product_variant?.id ||
+        plan.retailer?.id !== target.retailer?.id ||
+        plan.retailer_product?.id !== target.retailer_product?.id ||
+        plan.offer?.id !== target.offer?.id ||
+        plan.product_variant?.evidence?.external_product_id !== sourceEvidence.external_product_id ||
+        plan.product_variant?.evidence?.external_variant_id !== sourceEvidence.external_variant_id ||
+        target.retailer_product?.external_product_id !== sourceEvidence.external_product_id ||
+        target.retailer_product?.external_variant_id !== sourceEvidence.external_variant_id ||
+        target.retailer_product?.external_url !== sourceEvidence.url ||
+        target.offer?.url !== sourceEvidence.url ||
+        target.offer?.price !== sourceEvidence.price ||
+        target.offer?.in_stock !== sourceEvidence.in_stock ||
+        values.price !== target.offer?.price ||
+        values.shipping_cost !== target.offer?.shipping_cost ||
+        values.total_price !== target.offer?.total_price ||
+        values.in_stock !== target.offer?.in_stock ||
+        values.url !== target.offer?.url ||
+        values.last_checked_at !== source.source_captured_at
+      ) {
+        throw new Error("Dry-run artifact verified no-change metadata mismatch");
       }
     }
   }
@@ -2927,6 +2972,7 @@ module.exports = {
   parseStrictBoolean,
   parseSize,
   parseVariantIdentity,
+  planFingerprint,
   parseExternalOptions,
   preflightFeedRows,
   normalizeCategory,
@@ -2939,8 +2985,10 @@ module.exports = {
   runImportRows,
   loadDryRunArtifact,
   selectArtifactPlan,
+  serializeImportPlan,
   setSupabaseForTests,
   shouldLogCategoryNormalization,
+  sourceRowFingerprint,
   validatePilotApply,
   writeDryRunArtifact,
 };

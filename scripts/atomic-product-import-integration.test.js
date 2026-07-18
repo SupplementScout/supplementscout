@@ -27,6 +27,7 @@ const formatNormalizationMigration = path.join(root, "supabase/migrations/202607
 const optionedLegacyUpgradeMigration = path.join(root, "supabase/migrations/20260716003000_support_optioned_legacy_mapping_upgrade.sql");
 const optionedParentSizeMigration = path.join(root, "supabase/migrations/20260716004000_support_optioned_parent_size_evidence.sql");
 const optionedNullTotalMigration = path.join(root, "supabase/migrations/20260716005000_allow_optioned_legacy_identity_update_null_total.sql");
+const verifiedNoChangeMigration = path.join(root, "supabase/migrations/20260718150000_add_verified_no_change_offer_refresh.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const controlLedgerMigration = path.join(root, "supabase/migrations/20260717120000_create_retailer_catalogue_control_ledger.sql");
 const childExecutorMigration = path.join(root, "supabase/migrations/20260717130000_add_local_retailer_catalogue_child_executor.sql");
@@ -150,6 +151,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const optionedLegacySql = require("node:fs").readFileSync(optionedLegacyUpgradeMigration, "utf8");
   const optionedParentSizeSql = require("node:fs").readFileSync(optionedParentSizeMigration, "utf8");
   const optionedNullTotalSql = require("node:fs").readFileSync(optionedNullTotalMigration, "utf8");
+  const verifiedNoChangeSql = require("node:fs").readFileSync(verifiedNoChangeMigration, "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
   assert.match(sql, /alter function public\.apply_product_import_plan\(jsonb\) owner to postgres/i);
@@ -226,6 +228,12 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.doesNotMatch(optionedNullTotalSql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
   assert.doesNotMatch(optionedNullTotalSql, /\bupdate\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
   assert.doesNotMatch(optionedNullTotalSql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.match(verifiedNoChangeSql, /^begin;/i);
+  assert.match(verifiedNoChangeSql, /verify_offer_no_change/i);
+  assert.match(verifiedNoChangeSql, /verified_offer_refresh_actual_target/i);
+  assert.match(verifiedNoChangeSql, /update public\.offers set last_checked_at/i);
+  assert.doesNotMatch(verifiedNoChangeSql, /update public\.offers set[^;]*(price|in_stock|url|product_id|retailer_id|product_variant_id|retailer_product_id)\s*=/i);
+  assert.doesNotMatch(verifiedNoChangeSql, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history)/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -282,6 +290,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, optionedLegacyUpgradeMigration), "reapply optioned legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, optionedParentSizeMigration), "reapply optioned parent-size evidence migration idempotently");
     requireSuccess(psqlFile(container, database, optionedNullTotalMigration), "reapply optioned identity-update null-total migration idempotently");
+    requireSuccess(psqlFile(container, database, verifiedNoChangeMigration), "apply verified no-change offer refresh migration");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",

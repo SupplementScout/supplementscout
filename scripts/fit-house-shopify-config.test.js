@@ -56,17 +56,35 @@ test("Fit House config has the approved top-level contract", () => {
   });
 });
 
-test("Fit House config contains exactly 73 unique approved mappings", () => {
-  assert.equal(config.products.length, 73);
+test("Fit House config contains 73 standard mappings and 12 verification-only variants", () => {
+  const standard = config.products.filter((product) => product.verification_only !== true);
+  const verificationOnly = config.products.filter((product) => product.verification_only === true);
+  assert.equal(config.products.length, 85);
+  assert.equal(standard.length, 73);
+  assert.equal(verificationOnly.length, 12);
 
   for (const field of [
     "shopify_product_id",
-    "shopify_variant_id",
     "canonical_slug",
     "expected_handle",
   ]) {
-    const values = config.products.map((product) => product[field]);
+    const values = standard.map((product) => product[field]);
     assert.equal(new Set(values).size, 73, `${field} must be unique`);
+  }
+  assert.equal(new Set(config.products.map((product) => product.shopify_variant_id)).size, 85);
+  assert.equal(new Set(verificationOnly.map((product) => product.canonical_variant_id)).size, 12);
+});
+
+test("verification-only entries have exact external and canonical variant evidence", () => {
+  const entries = config.products.filter((product) => product.verification_only === true);
+  assert.equal(entries.length, 12);
+  for (const item of entries) {
+    assert.match(item.shopify_product_id, /^\d+$/);
+    assert.match(item.shopify_variant_id, /^\d+$/);
+    assert.equal(Number.isInteger(item.canonical_product_id), true);
+    assert.equal(Number.isInteger(item.canonical_variant_id), true);
+    assert.equal(typeof item.expected_source_variant_title, "string");
+    assert.ok(item.expected_source_variant_title.length > 0);
   }
 });
 
@@ -335,7 +353,7 @@ test("shipping and newly approved vendor aliases remain exact", () => {
 });
 
 test("approved batches exclude separately deferred products", () => {
-  const serialized = JSON.stringify(config.products).toLowerCase();
+  const serialized = JSON.stringify(config.products.filter((product) => product.verification_only !== true)).toLowerCase();
   assert.equal(serialized.includes("shilajit"), false);
   assert.equal(serialized.includes("ostrovit-creatine-monohydrate-300g"), false);
   for (const slug of ["osavi-cod-liver-oil-d3-250ml-lemon"]) {

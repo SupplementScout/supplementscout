@@ -12,6 +12,8 @@ const OUTPUT_DIR = path.join(ROOT, "tmp/retailer-feeds/fit-house");
 const CSV_PATH = path.join(OUTPUT_DIR, "fit-house-canonical-generated.csv");
 const REPORT_PATH = path.join(OUTPUT_DIR, "fit-house-adapter-report.json");
 const EXPECTED_PRODUCT_COUNT = 73;
+const EXPECTED_VERIFICATION_ONLY_COUNT = 12;
+const EXPECTED_CONFIG_COUNT = EXPECTED_PRODUCT_COUNT + EXPECTED_VERIFICATION_ONLY_COUNT;
 const BATCH_ONE_COUNT = 10;
 const BATCH_TWO_COUNT = 12;
 const BATCH_THREE_COUNT = 16;
@@ -55,13 +57,19 @@ function validateConfig(config) {
     fail("Missing vendor aliases");
   }
   if (config.shipping?.known !== true || config.shipping.cost !== 3.99) fail("Unexpected shipping config");
-  if (!Array.isArray(config.products) || config.products.length !== EXPECTED_PRODUCT_COUNT) {
-    fail(`Config must contain exactly ${EXPECTED_PRODUCT_COUNT} approved products`);
+  if (!Array.isArray(config.products) || config.products.length !== EXPECTED_CONFIG_COUNT) {
+    fail(`Config must contain exactly ${EXPECTED_CONFIG_COUNT} approved entries`);
   }
-  assertUnique(config.products, "shopify_product_id", "configured Shopify product ID");
+  const standardProducts = config.products.filter((item) => item.verification_only !== true);
+  const verificationOnlyProducts = config.products.filter((item) => item.verification_only === true);
+  if (standardProducts.length !== EXPECTED_PRODUCT_COUNT || verificationOnlyProducts.length !== EXPECTED_VERIFICATION_ONLY_COUNT) {
+    fail(`Config must contain exactly ${EXPECTED_PRODUCT_COUNT} standard products and ${EXPECTED_VERIFICATION_ONLY_COUNT} verification-only entries`);
+  }
+  assertUnique(standardProducts, "shopify_product_id", "configured Shopify product ID");
   assertUnique(config.products, "shopify_variant_id", "configured Shopify variant ID");
-  assertUnique(config.products, "canonical_slug", "canonical slug");
-  assertUnique(config.products, "expected_handle", "expected handle");
+  assertUnique(standardProducts, "canonical_slug", "canonical slug");
+  assertUnique(standardProducts, "expected_handle", "expected handle");
+  assertUnique(verificationOnlyProducts, "canonical_variant_id", "verification-only canonical variant ID");
   for (const item of config.products) {
     normalizeId(item.shopify_product_id, "configured product ID");
     normalizeId(item.shopify_variant_id, "configured variant ID");
@@ -72,6 +80,13 @@ function validateConfig(config) {
     }
     if (!Number.isFinite(item.approved_price) || item.approved_price <= 0) fail(`Invalid approved price for ${item.shopify_product_id}`);
     if (item.pack_count !== 1) fail(`Fit House pack_count must be 1 for ${item.shopify_product_id}`);
+    if (item.verification_only === true) {
+      normalizeId(item.canonical_product_id, "verification-only canonical product ID");
+      normalizeId(item.canonical_variant_id, "verification-only canonical variant ID");
+      if (typeof item.expected_source_variant_title !== "string" || !item.expected_source_variant_title.trim()) {
+        fail(`Missing expected source variant title for ${item.shopify_variant_id}`);
+      }
+    }
   }
   const batchFour = config.products.slice(BATCH_FOUR_START, BATCH_FIVE_START);
   if (batchFour.length !== BATCH_FOUR_COUNT || batchFour.some((item) => item.canonical_product_id !== null)) {
@@ -81,7 +96,7 @@ function validateConfig(config) {
   if (batchFive.length !== BATCH_FIVE_COUNT || batchFive.some((item) => item.canonical_product_id !== null)) {
     fail("Batch five must contain exactly 20 new canonical product mappings");
   }
-  const existingCanonicalAdditions = config.products.slice(EXISTING_CANONICAL_ADDITIONS_START);
+  const existingCanonicalAdditions = standardProducts.slice(EXISTING_CANONICAL_ADDITIONS_START);
   const shredMode = existingCanonicalAdditions[0];
   if (
     existingCanonicalAdditions.length !== EXISTING_CANONICAL_ADDITIONS_COUNT ||
@@ -183,6 +198,8 @@ function buildCanonical({ config, shopify, templateHeader }) {
   validateConfig(config);
   if (!shopify || !Array.isArray(shopify.products) || shopify.products.length === 0) fail("Shopify products array is empty");
   const indexed = indexSource(shopify.products);
+  const standardProducts = config.products.filter((item) => item.verification_only !== true);
+  const verificationOnlyProducts = config.products.filter((item) => item.verification_only === true);
   const configuredIds = new Set(config.products.map((item) => String(item.shopify_product_id)));
   const report = {
     unmapped_products: shopify.products.filter((product) => !configuredIds.has(String(product.id))).map((product) => ({ product_id: String(product.id), title: product.title, handle: product.handle })),
@@ -190,7 +207,7 @@ function buildCanonical({ config, shopify, templateHeader }) {
   };
   const rows = [];
 
-  for (const item of config.products) {
+  for (const item of standardProducts) {
     const productId = String(item.shopify_product_id);
     const product = indexed.get(productId);
     if (!product) { report.missing_configured_products.push(productId); continue; }
@@ -222,6 +239,36 @@ function buildCanonical({ config, shopify, templateHeader }) {
     });
   }
 
+  const verificationOnlyRows = [];
+  for (const item of verificationOnlyProducts) {
+    const productId = String(item.shopify_product_id);
+    const product = indexed.get(productId);
+    if (!product) fail(`Missing verification-only Shopify product: ${productId}`);
+    if (product.handle !== item.expected_handle) fail(`Verification-only Shopify handle changed for ${productId}`);
+    if (!config.retailer.vendor_aliases.includes(product.vendor)) fail(`Verification-only Shopify vendor mismatch for ${productId}`);
+    const variant = product.variants.find((candidate) => String(candidate.id) === String(item.shopify_variant_id));
+    if (!variant) fail(`Verification-only variant ${item.shopify_variant_id} is missing for product ${productId}`);
+    if (String(variant.product_id ?? product.id) !== productId) fail(`Verification-only variant product ID mismatch for ${item.shopify_variant_id}`);
+    if (String(variant.title ?? "") !== item.expected_source_variant_title) fail(`Verification-only source variant title changed for ${item.shopify_variant_id}`);
+    const price = Number(variant.price);
+    if (!Number.isFinite(price) || price !== item.approved_price) fail(`Verification-only price changed for ${item.shopify_variant_id}`);
+    if (Boolean(variant.available) !== item.approved_in_stock) fail(`Verification-only stock changed for ${item.shopify_variant_id}`);
+    const sourceUpdatedAt = variant.updated_at || product.updated_at || "";
+    if (!validIsoTimestamp(sourceUpdatedAt)) fail(`Invalid verification-only source_updated_at for ${item.shopify_variant_id}`);
+    const url = `${config.retailer.website}/products/${product.handle}?variant=${item.shopify_variant_id}`;
+    if (!validHttpsUrl(url, "fithouse.uk")) fail(`Invalid verification-only URL for ${item.shopify_variant_id}`);
+    verificationOnlyRows.push({
+      external_product_id: productId,
+      external_variant_id: String(item.shopify_variant_id),
+      canonical_product_id: item.canonical_product_id,
+      canonical_variant_id: item.canonical_variant_id,
+      external_url: url,
+      price,
+      in_stock: Boolean(variant.available),
+      source_updated_at: sourceUpdatedAt,
+    });
+  }
+
   if (report.missing_configured_products.length) fail(`Missing configured Shopify products: ${report.missing_configured_products.join(", ")}`);
   if (report.handle_changes.length) fail(`Shopify handle changes detected: ${JSON.stringify(report.handle_changes)}`);
   if (report.vendor_mismatches.length) fail(`Shopify vendor mismatches detected: ${JSON.stringify(report.vendor_mismatches)}`);
@@ -230,7 +277,7 @@ function buildCanonical({ config, shopify, templateHeader }) {
   const excessive = report.price_changes.filter((change) => change.percent > 25);
   if (excessive.length) fail(`Price change exceeds 25%: ${JSON.stringify(excessive)}`);
   validateGeneratedRows(rows, templateHeader);
-  return { rows, ...report, csv: serializeCsv(templateHeader, rows) };
+  return { rows, verificationOnlyRows, ...report, csv: serializeCsv(templateHeader, rows) };
 }
 
 function importerCommand(csvPath) {
@@ -275,7 +322,7 @@ function importerCount(output, label) {
 
 function batchOfferCounts(config, rowLevelOffers) {
   if (!Array.isArray(rowLevelOffers)) fail("Importer row-level offer report is missing");
-  const approvedSlugs = config.products.map((item) => item.canonical_slug);
+  const approvedSlugs = config.products.filter((item) => item.verification_only !== true).map((item) => item.canonical_slug);
   const approved = new Set(approvedSlugs);
   const bySlug = new Map();
   for (const item of rowLevelOffers) {
@@ -342,7 +389,10 @@ async function main(deps = {}) {
     run_timestamp: new Date().toISOString(), source_url: config.source_url,
     source_products_count: shopify.products.length,
     source_variants_count: shopify.products.reduce((total, product) => total + product.variants.length, 0),
-    configured_products_count: config.products.length, mapped_count: built.rows.length,
+    configured_products_count: EXPECTED_PRODUCT_COUNT,
+    verification_only_entries_count: built.verificationOnlyRows.length,
+    configured_entries_count: config.products.length,
+    mapped_count: built.rows.length,
     unmapped_products_count: built.unmapped_products.length, unmapped_products: built.unmapped_products,
     canonical_rows_count: built.rows.length,
     in_stock_count: built.rows.filter((row) => row.in_stock === "true").length,
