@@ -28,6 +28,8 @@ const files = {
   verified: "supabase/migrations/20260718150000_add_verified_no_change_offer_refresh.sql",
   mixed: "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql",
   mixedTest: "supabase/test/retailer_offer_mixed_batch_executor_integration_test.sql",
+  readOnlyValidator: "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql",
+  readOnlyValidatorTest: "supabase/test/retailer_offer_read_only_validator_integration_test.sql",
 };
 assert.equal(process.argv.length, 2, "staging integration runner accepts no connection arguments");
 function run(command, args, timeout = 180_000) { return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout }); }
@@ -71,6 +73,14 @@ test("staging executor full fixture and recovery on network-isolated disposable 
     ok(recordMigration(container, database, "20260718150000_add_verified_no_change_offer_refresh"), "record verified no-change");
     ok(psqlFile(container, database, files.mixed), "mixed-batch migration after old canary");
     ok(recordMigration(container, database, "20260718160000_add_retailer_offer_mixed_batch_executor"), "record mixed-batch");
+    ok(psqlFile(container, database, files.readOnlyValidator), "read-only mixed-batch validator migration");
+    ok(recordMigration(container, database, "20260718170000_add_read_only_mixed_batch_validator"), "record read-only validator");
+    const readOnlyResult = psqlFile(container, database, files.readOnlyValidatorTest);
+    ok(readOnlyResult, "read-only mixed-batch validator scenarios");
+    assert.match(output(readOnlyResult), /"result"\s*:\s*"PASS"/); assert.match(output(readOnlyResult), /"rows_validated"\s*:\s*26/);
+    assert.match(output(readOnlyResult), /"cases"\s*:\s*16/); assert.match(output(readOnlyResult), /"last_checked_at_updates"\s*:\s*26/);
+    assert.match(output(readOnlyResult), /"business_writes"\s*:\s*0/); assert.match(output(readOnlyResult), /"control_writes"\s*:\s*0/);
+    assert.match(output(readOnlyResult), /"failures"\s*:\s*0/); assert.match(output(readOnlyResult), /"skips"\s*:\s*0/);
     const compatibility = psql(container, database, "select to_regprocedure('public.execute_staging_retailer_catalogue_child(jsonb)') is not null as old_executor_preserved, to_regprocedure('public.execute_retailer_offer_sync_batch(jsonb)') is not null as mixed_executor_installed");
     ok(compatibility, "old and mixed executor compatibility"); assert.match(output(compatibility), /t\s*\|\s*t/);
     const mixedResult = psqlFile(container, database, files.mixedTest);
