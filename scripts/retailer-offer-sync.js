@@ -4,12 +4,26 @@ const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier
 const { sealArtifact } = require("./lib/retailer-offer-sync/artifacts");
 const { projectShopifyVariants } = require("./lib/shopify-snapshot-reader");
 
+const MIGRATION_FINGERPRINT_ALGORITHM = "SHA-256";
+const MIGRATION_FINGERPRINT_VERSION = "RSBI-CJ1";
+
+function migrationBinding(input) {
+  const versions = input.expectedMigrationVersions;
+  const fingerprint = input.expectedMigrationFingerprint;
+  if (!Array.isArray(versions) || versions.length < 1 || new Set(versions).size !== versions.length || versions.some((value) => !/^\d+_[a-z0-9_]+$/.test(value))) throw new Error("Expected migration versions are required and must be exact unique identifiers");
+  if (!/^[0-9a-f]{64}$/.test(String(fingerprint || ""))) throw new Error("Expected migration fingerprint is required");
+  if (input.migrationFingerprintAlgorithm !== MIGRATION_FINGERPRINT_ALGORITHM || input.migrationFingerprintVersion !== MIGRATION_FINGERPRINT_VERSION) throw new Error("Migration fingerprint algorithm/version mismatch");
+  return { expected_migration_versions: [...versions], expected_migration_fingerprint: fingerprint, migration_fingerprint_algorithm: MIGRATION_FINGERPRINT_ALGORITHM, migration_fingerprint_version: MIGRATION_FINGERPRINT_VERSION };
+}
+
 function buildDryRun(input) {
   if (!input.sourceVariants && input.shopifySnapshot) input = { ...input, sourceVariants: projectShopifyVariants(input.shopifySnapshot, { shippingCost: input.shippingCost }) };
+  const ledger = migrationBinding(input);
   const classification = classifyExistingOffers(input);
   return sealArtifact({
     kind: "retailer-existing-offer-mixed-batch", retailer_slug: input.retailerSlug, retailer_id: String(input.retailerId),
     target_environment: input.targetEnvironment, target_project_ref: input.targetProjectRef, target_database_identity: input.targetDatabaseIdentity,
+    ...ledger,
     source_snapshot_fingerprint: input.sourceSnapshotFingerprint, adapter_fingerprint: input.adapterFingerprint,
     policy_fingerprint: input.policyFingerprint, code_commit: input.codeCommit, expected_state_fingerprint: input.expectedStateFingerprint,
     source_captured_at: input.sourceCapturedAt, state: classification.state, block: classification.state === "BLOCKED" ? classification : null,
@@ -31,10 +45,10 @@ function buildExecutionArtifact(dryRun, atomicPlansByOfferId) {
   });
 }
 
-async function executeApprovedBatch({ rpc, approvalId, artifact }) {
+async function executeApprovedBatch({ rpc, approvalId, executionFingerprint, artifact, requestedAt = new Date().toISOString() }) {
   if (typeof rpc !== "function") throw new Error("Approved apply requires an injected RPC transport");
-  if (!approvalId || artifact.kind !== "retailer-existing-offer-mixed-batch-execution" || artifact.state !== "DRY_RUN_READY" || !artifact.artifact_fingerprint || artifact.rows.some((row) => !row.atomic_plan)) throw new Error("Apply requires a sealed ready execution artifact and separate approval ID");
-  return rpc("execute_retailer_offer_sync_batch", { p_request: { schema_version: 1, approval_id: approvalId, artifact } });
+  if (!approvalId || !/^[0-9a-f]{64}$/.test(String(executionFingerprint || "")) || artifact.kind !== "retailer-existing-offer-mixed-batch-execution" || artifact.state !== "DRY_RUN_READY" || !artifact.artifact_fingerprint || artifact.rows.some((row) => !row.atomic_plan)) throw new Error("Apply requires a sealed ready execution artifact, execution fingerprint and separate approval ID");
+  return rpc("execute_retailer_offer_sync_batch", { p_request: { schema_version: 1, approval_id: approvalId, execution_fingerprint: executionFingerprint, staging_project_ref: artifact.target_project_ref, staging_database_identity: artifact.target_database_identity, expected_migration_versions: artifact.expected_migration_versions, expected_migration_fingerprint: artifact.expected_migration_fingerprint, migration_fingerprint_algorithm: artifact.migration_fingerprint_algorithm, migration_fingerprint_version: artifact.migration_fingerprint_version, requested_at: requestedAt, explicit_allow: true } });
 }
 
 function parseArgs(args) {
@@ -61,4 +75,4 @@ if (require.main === module) {
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
 
-module.exports = { buildDryRun, buildExecutionArtifact, executeApprovedBatch, parseArgs };
+module.exports = { MIGRATION_FINGERPRINT_ALGORITHM, MIGRATION_FINGERPRINT_VERSION, buildDryRun, buildExecutionArtifact, executeApprovedBatch, migrationBinding, parseArgs };

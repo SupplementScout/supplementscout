@@ -26,6 +26,10 @@ create table public.retailer_offer_sync_batch_approvals (
   target_environment text not null check(target_environment='STAGING'),
   project_ref text not null check(project_ref='hxnrsyyqffztlvcrtgbf'),
   database_identity text not null,
+  expected_migration_versions jsonb not null check(jsonb_typeof(expected_migration_versions)='array' and jsonb_array_length(expected_migration_versions)>0),
+  expected_migration_fingerprint text not null check(expected_migration_fingerprint~'^[0-9a-f]{64}$'),
+  migration_fingerprint_algorithm text not null check(migration_fingerprint_algorithm='SHA-256'),
+  migration_fingerprint_version text not null check(migration_fingerprint_version='RSBI-CJ1'),
   approved_manifest jsonb not null check(jsonb_typeof(approved_manifest)='object'),
   expected_deltas jsonb not null check(jsonb_typeof(expected_deltas)='object'),
   approved_by text not null,
@@ -44,15 +48,33 @@ revoke all on table public.retailer_offer_sync_batch_approvals from public,anon,
 alter table public.retailer_catalogue_staging_recovery_manifests
   add column mixed_batch_artifact_fingerprint text check(mixed_batch_artifact_fingerprint is null or mixed_batch_artifact_fingerprint ~ '^[0-9a-f]{64}$'),
   add column mixed_batch_before_state jsonb check(mixed_batch_before_state is null or jsonb_typeof(mixed_batch_before_state)='array'),
-  add column mixed_batch_applied_state jsonb check(mixed_batch_applied_state is null or jsonb_typeof(mixed_batch_applied_state)='array');
+  add column mixed_batch_applied_state jsonb check(mixed_batch_applied_state is null or jsonb_typeof(mixed_batch_applied_state)='array'),
+  add column mixed_batch_migration_versions jsonb check(mixed_batch_migration_versions is null or jsonb_typeof(mixed_batch_migration_versions)='array'),
+  add column mixed_batch_expected_migration_fingerprint text check(mixed_batch_expected_migration_fingerprint is null or mixed_batch_expected_migration_fingerprint~'^[0-9a-f]{64}$'),
+  add column mixed_batch_migration_fingerprint_algorithm text check(mixed_batch_migration_fingerprint_algorithm is null or mixed_batch_migration_fingerprint_algorithm='SHA-256'),
+  add column mixed_batch_migration_fingerprint_version text check(mixed_batch_migration_fingerprint_version is null or mixed_batch_migration_fingerprint_version='RSBI-CJ1'),
+  add column mixed_batch_execution_migration_fingerprint text check(mixed_batch_execution_migration_fingerprint is null or mixed_batch_execution_migration_fingerprint~'^[0-9a-f]{64}$');
+
+alter table public.retailer_catalogue_staging_recovery_approvals
+  add column mixed_batch_expected_migration_versions jsonb check(mixed_batch_expected_migration_versions is null or jsonb_typeof(mixed_batch_expected_migration_versions)='array'),
+  add column mixed_batch_expected_migration_fingerprint text check(mixed_batch_expected_migration_fingerprint is null or mixed_batch_expected_migration_fingerprint~'^[0-9a-f]{64}$'),
+  add column mixed_batch_migration_fingerprint_algorithm text check(mixed_batch_migration_fingerprint_algorithm is null or mixed_batch_migration_fingerprint_algorithm='SHA-256'),
+  add column mixed_batch_migration_fingerprint_version text check(mixed_batch_migration_fingerprint_version is null or mixed_batch_migration_fingerprint_version='RSBI-CJ1'),
+  add column mixed_batch_original_execution_migration_fingerprint text check(mixed_batch_original_execution_migration_fingerprint is null or mixed_batch_original_execution_migration_fingerprint~'^[0-9a-f]{64}$');
 
 create or replace function public.retailer_offer_sync_validate_manifest(p_manifest jsonb)
 returns jsonb language plpgsql stable security definer set search_path=pg_catalog,public,pg_temp as $validate$
 declare v_row jsonb; v_count integer; v_capture timestamptz; v_last bigint:=0; v_offer bigint; v_plan jsonb; v_price boolean; v_stock boolean; v_url boolean; v_shipping boolean; v_total boolean; v_expected_action text; v_expected_row jsonb; v_aggregate jsonb:=jsonb_build_object('row_count_deltas',jsonb_build_object('products',0,'product_variants',0,'retailer_products',0,'offers',0,'price_history',0),'logical_field_deltas',jsonb_build_object('offer_price_updates',0,'offer_shipping_updates',0,'offer_total_updates',0,'offer_stock_updates',0,'offer_url_updates',0,'mapping_url_updates',0,'mapping_updated_at_updates',0,'last_checked_at_updates',0));
 begin
-  if not public.atomic_import_has_exact_keys(p_manifest,array['schema_version','kind','retailer_slug','retailer_id','target_environment','target_project_ref','target_database_identity','source_snapshot_fingerprint','adapter_fingerprint','policy_fingerprint','code_commit','expected_state_fingerprint','source_captured_at','state','block','rows','expected_deltas','action_manifest_fingerprint','artifact_fingerprint'])
+  if not public.atomic_import_has_exact_keys(p_manifest,array['schema_version','kind','retailer_slug','retailer_id','target_environment','target_project_ref','target_database_identity','expected_migration_versions','expected_migration_fingerprint','migration_fingerprint_algorithm','migration_fingerprint_version','source_snapshot_fingerprint','adapter_fingerprint','policy_fingerprint','code_commit','expected_state_fingerprint','source_captured_at','state','block','rows','expected_deltas','action_manifest_fingerprint','artifact_fingerprint'])
      or p_manifest->>'schema_version'<>'1' or jsonb_typeof(p_manifest->'rows')<>'array' then
     perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid mixed-batch manifest keys');
+  end if;
+  if jsonb_typeof(p_manifest->'expected_migration_versions') is distinct from 'array' or jsonb_array_length(p_manifest->'expected_migration_versions')<1
+     or exists(select 1 from jsonb_array_elements_text(p_manifest->'expected_migration_versions') v where v!~'^[0-9]+_[a-z0-9_]+$')
+     or (select count(*) from jsonb_array_elements_text(p_manifest->'expected_migration_versions'))<>(select count(distinct value) from jsonb_array_elements_text(p_manifest->'expected_migration_versions'))
+     or p_manifest->>'expected_migration_fingerprint'!~'^[0-9a-f]{64}$' or p_manifest->>'migration_fingerprint_algorithm'<>'SHA-256' or p_manifest->>'migration_fingerprint_version'<>'RSBI-CJ1' then
+    perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Missing or invalid mixed migration binding');
   end if;
   v_count:=jsonb_array_length(p_manifest->'rows');
   if v_count<1 or v_count>50 then perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Mixed child size must be 1..50'); end if;
@@ -110,9 +132,9 @@ $validate$;
 
 create or replace function public.retailer_offer_sync_approve_batch_internal(p_request jsonb)
 returns jsonb language plpgsql volatile security definer set search_path=pg_catalog,public,pg_temp as $approve$
-declare v_child public.retailer_catalogue_child_plans%rowtype; v_parent public.retailer_catalogue_parent_plans%rowtype; v_id uuid; v_manifest jsonb; v_parent_approval jsonb; v_child_approval jsonb; v_execution text;
+declare v_child public.retailer_catalogue_child_plans%rowtype; v_parent public.retailer_catalogue_parent_plans%rowtype; v_id uuid; v_manifest jsonb; v_parent_approval jsonb; v_child_approval jsonb; v_execution text; v_actual_migration text;
 begin
-  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','child_plan_id','parent_plan_fingerprint','child_plan_fingerprint','artifact','execution_fingerprint','approved_by','expires_at','staging_project_ref','staging_database_identity']) then
+  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','child_plan_id','parent_plan_fingerprint','child_plan_fingerprint','artifact','execution_fingerprint','expected_migration_versions','expected_migration_fingerprint','migration_fingerprint_algorithm','migration_fingerprint_version','approved_by','expires_at','staging_project_ref','staging_database_identity']) then
     perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid mixed approval keys');
   end if;
   if p_request->>'schema_version'<>'1' or p_request->>'execution_fingerprint'!~'^[0-9a-f]{64}$' or (p_request->>'expires_at')::timestamptz<=now() or (p_request->>'expires_at')::timestamptz>now()+interval '15 minutes' then
@@ -120,6 +142,13 @@ begin
   end if;
   perform public.retailer_catalogue_staging_runtime_guard('STAGING',p_request->>'staging_project_ref',p_request->>'staging_database_identity');
   v_manifest:=p_request->'artifact'; perform public.retailer_offer_sync_validate_manifest(v_manifest);
+  if p_request->'expected_migration_versions' is distinct from v_manifest->'expected_migration_versions'
+     or p_request->>'expected_migration_fingerprint' is distinct from v_manifest->>'expected_migration_fingerprint'
+     or p_request->>'migration_fingerprint_algorithm' is distinct from v_manifest->>'migration_fingerprint_algorithm'
+     or p_request->>'migration_fingerprint_version' is distinct from v_manifest->>'migration_fingerprint_version' then
+    perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Approval migration binding does not match artifact');
+  end if;
+  v_actual_migration:=public.retailer_catalogue_assert_migration_ledger(v_manifest->'expected_migration_versions',v_manifest->>'expected_migration_fingerprint');
   select * into v_child from public.retailer_catalogue_child_plans where id=(p_request->>'child_plan_id')::uuid for update;
   if not found then perform public.retailer_catalogue_raise('RSBI_EXPECTED_STATE_MISMATCH','Child not found'); end if;
   select * into v_parent from public.retailer_catalogue_parent_plans where id=v_child.parent_plan_id for update;
@@ -129,13 +158,13 @@ begin
      or v_manifest->>'target_project_ref' is distinct from p_request->>'staging_project_ref' or v_manifest->>'target_database_identity' is distinct from p_request->>'staging_database_identity' then
     perform public.retailer_catalogue_raise('RSBI_CHILD_FINGERPRINT_MISMATCH','Approved child does not exactly bind the artifact');
   end if;
-  v_execution:=public.retailer_catalogue_sha256_json(jsonb_build_object('child_plan_id',v_child.id,'artifact_fingerprint',v_manifest->>'artifact_fingerprint','target_environment','STAGING','project_ref',p_request->>'staging_project_ref','database_identity',p_request->>'staging_database_identity'));
+  v_execution:=public.retailer_catalogue_sha256_json(jsonb_build_object('child_plan_id',v_child.id,'artifact_fingerprint',v_manifest->>'artifact_fingerprint','target_environment','STAGING','project_ref',p_request->>'staging_project_ref','database_identity',p_request->>'staging_database_identity','expected_migration_versions',v_manifest->'expected_migration_versions','expected_migration_fingerprint',v_manifest->>'expected_migration_fingerprint','migration_fingerprint_algorithm',v_manifest->>'migration_fingerprint_algorithm','migration_fingerprint_version',v_manifest->>'migration_fingerprint_version'));
   if v_execution is distinct from p_request->>'execution_fingerprint' then perform public.retailer_catalogue_raise('RSBI_CHILD_FINGERPRINT_MISMATCH','Execution fingerprint is not deterministic'); end if;
   v_parent_approval:=public.approve_retailer_catalogue_parent_plan(v_parent.id,v_parent.parent_plan_fingerprint,trim(p_request->>'approved_by'),(p_request->>'expires_at')::timestamptz);
   v_child_approval:=public.approve_retailer_catalogue_child_plan(v_child.id,(v_parent_approval->>'approval_id')::uuid,v_parent.parent_plan_fingerprint,v_child.child_plan_fingerprint,(p_request->>'expires_at')::timestamptz);
-  insert into public.retailer_offer_sync_batch_approvals(child_plan_id,artifact_fingerprint,execution_fingerprint,target_environment,project_ref,database_identity,approved_manifest,expected_deltas,approved_by,expires_at)
-  values(v_child.id,v_manifest->>'artifact_fingerprint',p_request->>'execution_fingerprint','STAGING',p_request->>'staging_project_ref',p_request->>'staging_database_identity',v_manifest,v_manifest->'expected_deltas',trim(p_request->>'approved_by'),(p_request->>'expires_at')::timestamptz) returning id into v_id;
-  return jsonb_build_object('approval_id',v_id,'parent_approval_id',v_parent_approval->>'approval_id','child_approval_id',v_child_approval->>'approval_id','child_plan_id',v_child.id,'status','APPROVED','row_count',jsonb_array_length(v_manifest->'rows'),'business_writes',0);
+  insert into public.retailer_offer_sync_batch_approvals(child_plan_id,artifact_fingerprint,execution_fingerprint,target_environment,project_ref,database_identity,expected_migration_versions,expected_migration_fingerprint,migration_fingerprint_algorithm,migration_fingerprint_version,approved_manifest,expected_deltas,approved_by,expires_at)
+  values(v_child.id,v_manifest->>'artifact_fingerprint',p_request->>'execution_fingerprint','STAGING',p_request->>'staging_project_ref',p_request->>'staging_database_identity',v_manifest->'expected_migration_versions',v_actual_migration,v_manifest->>'migration_fingerprint_algorithm',v_manifest->>'migration_fingerprint_version',v_manifest,v_manifest->'expected_deltas',trim(p_request->>'approved_by'),(p_request->>'expires_at')::timestamptz) returning id into v_id;
+  return jsonb_build_object('approval_id',v_id,'parent_approval_id',v_parent_approval->>'approval_id','child_approval_id',v_child_approval->>'approval_id','child_plan_id',v_child.id,'status','APPROVED','row_count',jsonb_array_length(v_manifest->'rows'),'actual_migration_fingerprint',v_actual_migration,'business_writes',0);
 end
 $approve$;
 
@@ -159,14 +188,21 @@ $state$;
 
 create or replace function public.retailer_offer_sync_execute_batch_internal(p_request jsonb)
 returns jsonb language plpgsql volatile security definer set search_path=pg_catalog,public,pg_temp as $execute$
-declare v_approval public.retailer_offer_sync_batch_approvals%rowtype; v_child public.retailer_catalogue_child_plans%rowtype; v_parent public.retailer_catalogue_parent_plans%rowtype; v_row jsonb; v_plan jsonb; v_row_approval jsonb; v_row_result jsonb; v_run jsonb; v_run_id uuid; v_before jsonb:='[]'; v_after jsonb:='[]'; v_history_ids jsonb:='[]'; v_approval_ids jsonb:='[]'; v_before_counts jsonb; v_after_counts jsonb; v_expected_history integer; v_actual_history integer; v_result jsonb; v_manifest_id uuid; v_actual_deltas jsonb; v_price_updates integer; v_shipping_updates integer; v_total_updates integer; v_stock_updates integer; v_offer_url_updates integer; v_mapping_url_updates integer; v_mapping_time_updates integer; v_checked_updates integer; v_other_before text; v_protected_before text;
+declare v_approval public.retailer_offer_sync_batch_approvals%rowtype; v_child public.retailer_catalogue_child_plans%rowtype; v_parent public.retailer_catalogue_parent_plans%rowtype; v_row jsonb; v_plan jsonb; v_row_approval jsonb; v_row_result jsonb; v_run jsonb; v_run_id uuid; v_before jsonb:='[]'; v_after jsonb:='[]'; v_history_ids jsonb:='[]'; v_approval_ids jsonb:='[]'; v_before_counts jsonb; v_after_counts jsonb; v_expected_history integer; v_actual_history integer; v_result jsonb; v_manifest_id uuid; v_actual_deltas jsonb; v_price_updates integer; v_shipping_updates integer; v_total_updates integer; v_stock_updates integer; v_offer_url_updates integer; v_mapping_url_updates integer; v_mapping_time_updates integer; v_checked_updates integer; v_other_before text; v_protected_before text; v_actual_migration text;
 begin
-  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','approval_id','execution_fingerprint','staging_project_ref','staging_database_identity','requested_at','explicit_allow']) or coalesce((p_request->>'explicit_allow')::boolean,false)=false then
+  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','approval_id','execution_fingerprint','expected_migration_versions','expected_migration_fingerprint','migration_fingerprint_algorithm','migration_fingerprint_version','staging_project_ref','staging_database_identity','requested_at','explicit_allow']) or coalesce((p_request->>'explicit_allow')::boolean,false)=false then
     perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid mixed execution request');
   end if;
   perform public.retailer_catalogue_staging_runtime_guard('STAGING',p_request->>'staging_project_ref',p_request->>'staging_database_identity');
   select * into v_approval from public.retailer_offer_sync_batch_approvals where id=(p_request->>'approval_id')::uuid for update;
   if not found then perform public.retailer_catalogue_raise('RSBI_APPROVAL_MISMATCH','Batch approval not found'); end if;
+  if p_request->'expected_migration_versions' is distinct from v_approval.expected_migration_versions
+     or p_request->>'expected_migration_fingerprint' is distinct from v_approval.expected_migration_fingerprint
+     or p_request->>'migration_fingerprint_algorithm' is distinct from v_approval.migration_fingerprint_algorithm
+     or p_request->>'migration_fingerprint_version' is distinct from v_approval.migration_fingerprint_version then
+    perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Mixed execution migration binding mismatch');
+  end if;
+  v_actual_migration:=public.retailer_catalogue_assert_migration_ledger(v_approval.expected_migration_versions,v_approval.expected_migration_fingerprint);
   if v_approval.consumed_at is not null then return coalesce(v_approval.result,'{}')||jsonb_build_object('code','RSBI_REPLAY_BLOCKED','noop',true,'business_writes',0); end if;
   if v_approval.expires_at<=now() or v_approval.execution_fingerprint is distinct from p_request->>'execution_fingerprint' then perform public.retailer_catalogue_raise('RSBI_APPROVAL_EXPIRED','Batch approval expired or mismatched'); end if;
   perform public.retailer_offer_sync_validate_manifest(v_approval.approved_manifest);
@@ -209,10 +245,10 @@ begin
      or public.retailer_catalogue_other_retailer_fingerprint(v_child.retailer_id) is distinct from v_other_before or public.retailer_catalogue_protected_shared_fingerprint() is distinct from v_protected_before then
     perform public.retailer_catalogue_raise('RSBI_EXPECTED_DELTA_MISMATCH','Exact mixed batch deltas mismatch');
   end if;
-  v_result:=jsonb_build_object('status','APPLIED','child_plan_id',v_child.id,'run_id',v_run_id,'row_approvals_created',jsonb_array_length(v_approval_ids),'row_approvals_consumed',jsonb_array_length(v_approval_ids),'expected_deltas',v_approval.expected_deltas,'price_history_delta',v_actual_history,'execution_fingerprint',v_approval.execution_fingerprint,'business_writes',jsonb_array_length(v_approval.approved_manifest->'rows'));
+  v_result:=jsonb_build_object('status','APPLIED','child_plan_id',v_child.id,'run_id',v_run_id,'row_approvals_created',jsonb_array_length(v_approval_ids),'row_approvals_consumed',jsonb_array_length(v_approval_ids),'expected_deltas',v_approval.expected_deltas,'price_history_delta',v_actual_history,'execution_fingerprint',v_approval.execution_fingerprint,'actual_migration_fingerprint',v_actual_migration,'business_writes',jsonb_array_length(v_approval.approved_manifest->'rows'));
   perform public.complete_retailer_catalogue_child_apply(v_run_id,v_parent.parent_plan_fingerprint,v_child.child_plan_fingerprint,v_after_counts,v_result,'retailer_offer_sync');
-  insert into public.retailer_catalogue_staging_recovery_manifests(package_id,package_fingerprint,child_plan_id,apply_run_id,dependency_group,execution_fingerprint,rollback_manifest_fingerprint,created_product_ids,created_variant_ids,created_mapping_ids,created_offer_ids,created_price_history_ids,updated_before_state,ownership,reverse_dependency_order,before_counts,other_retailer_fingerprint,protected_shared_fingerprint,orphan_counts,applied_owned_state_fingerprint,mixed_batch_artifact_fingerprint,mixed_batch_before_state,mixed_batch_applied_state)
-  values(v_approval.id,v_approval.artifact_fingerprint,v_child.id,v_run_id,v_child.dependency_group,v_approval.execution_fingerprint,public.retailer_catalogue_sha256_json(jsonb_build_object('before',v_before,'after',v_after,'history',v_history_ids)),'[]','[]','[]','[]',v_history_ids,v_before,jsonb_build_object('kind','MIXED_EXISTING_OFFER_UPDATE','price_history_state',(select coalesce(jsonb_agg(jsonb_build_object('id',ph.id::text,'offer_id',ph.offer_id::text,'price',public.atomic_import_decimal_string(ph.price),'shipping_cost',case when ph.shipping_cost is null then null else to_jsonb(public.atomic_import_decimal_string(ph.shipping_cost)) end,'total_price',case when ph.total_price is null then null else to_jsonb(public.atomic_import_decimal_string(ph.total_price)) end,'checked_at',to_char(ph.checked_at at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')) order by ph.id),'[]'::jsonb) from public.price_history ph where ph.id in(select value::bigint from jsonb_array_elements_text(v_history_ids)))),'[]',v_before_counts,v_other_before,v_protected_before,public.retailer_catalogue_orphan_counts(),public.retailer_catalogue_sha256_json(v_after),v_approval.artifact_fingerprint,v_before,v_after) returning id into v_manifest_id;
+  insert into public.retailer_catalogue_staging_recovery_manifests(package_id,package_fingerprint,child_plan_id,apply_run_id,dependency_group,execution_fingerprint,rollback_manifest_fingerprint,created_product_ids,created_variant_ids,created_mapping_ids,created_offer_ids,created_price_history_ids,updated_before_state,ownership,reverse_dependency_order,before_counts,other_retailer_fingerprint,protected_shared_fingerprint,orphan_counts,applied_owned_state_fingerprint,mixed_batch_artifact_fingerprint,mixed_batch_before_state,mixed_batch_applied_state,mixed_batch_migration_versions,mixed_batch_expected_migration_fingerprint,mixed_batch_migration_fingerprint_algorithm,mixed_batch_migration_fingerprint_version,mixed_batch_execution_migration_fingerprint)
+  values(v_approval.id,v_approval.artifact_fingerprint,v_child.id,v_run_id,v_child.dependency_group,v_approval.execution_fingerprint,public.retailer_catalogue_sha256_json(jsonb_build_object('before',v_before,'after',v_after,'history',v_history_ids)),'[]','[]','[]','[]',v_history_ids,v_before,jsonb_build_object('kind','MIXED_EXISTING_OFFER_UPDATE','price_history_state',(select coalesce(jsonb_agg(jsonb_build_object('id',ph.id::text,'offer_id',ph.offer_id::text,'price',public.atomic_import_decimal_string(ph.price),'shipping_cost',case when ph.shipping_cost is null then null else to_jsonb(public.atomic_import_decimal_string(ph.shipping_cost)) end,'total_price',case when ph.total_price is null then null else to_jsonb(public.atomic_import_decimal_string(ph.total_price)) end,'checked_at',to_char(ph.checked_at at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')) order by ph.id),'[]'::jsonb) from public.price_history ph where ph.id in(select value::bigint from jsonb_array_elements_text(v_history_ids)))),'[]',v_before_counts,v_other_before,v_protected_before,public.retailer_catalogue_orphan_counts(),public.retailer_catalogue_sha256_json(v_after),v_approval.artifact_fingerprint,v_before,v_after,v_approval.expected_migration_versions,v_approval.expected_migration_fingerprint,v_approval.migration_fingerprint_algorithm,v_approval.migration_fingerprint_version,v_actual_migration) returning id into v_manifest_id;
   v_result:=v_result||jsonb_build_object('recovery_manifest_id',v_manifest_id);
   update public.retailer_offer_sync_batch_approvals set consumed_at=now(),result=v_result where id=v_approval.id;
   return v_result;
@@ -229,16 +265,23 @@ $execute_wrapper$;
 
 create or replace function public.retailer_offer_sync_approve_recovery_internal(p_request jsonb)
 returns jsonb language plpgsql volatile security definer set search_path=pg_catalog,public,pg_temp as $approve_recovery$
-declare v_manifest public.retailer_catalogue_staging_recovery_manifests%rowtype; v_id uuid;
+declare v_manifest public.retailer_catalogue_staging_recovery_manifests%rowtype; v_id uuid; v_actual_migration text;
 begin
-  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','recovery_manifest_id','rollback_manifest_fingerprint','approved_by','expires_at','staging_project_ref','staging_database_identity']) then perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid mixed recovery approval'); end if;
+  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','recovery_manifest_id','rollback_manifest_fingerprint','expected_migration_versions','expected_migration_fingerprint','migration_fingerprint_algorithm','migration_fingerprint_version','original_execution_migration_fingerprint','approved_by','expires_at','staging_project_ref','staging_database_identity']) then perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid mixed recovery approval'); end if;
   if (p_request->>'expires_at')::timestamptz<=now() or (p_request->>'expires_at')::timestamptz>now()+interval '15 minutes' then perform public.retailer_catalogue_raise('RSBI_APPROVAL_EXPIRED','Recovery approval expiry must be within 15 minutes'); end if;
   perform public.retailer_catalogue_staging_runtime_guard('STAGING',p_request->>'staging_project_ref',p_request->>'staging_database_identity');
   select * into v_manifest from public.retailer_catalogue_staging_recovery_manifests where id=(p_request->>'recovery_manifest_id')::uuid and mixed_batch_artifact_fingerprint is not null for update;
   if not found or v_manifest.status<>'READY' or v_manifest.rollback_manifest_fingerprint is distinct from p_request->>'rollback_manifest_fingerprint' then perform public.retailer_catalogue_raise('RSBI_ROLLBACK_OWNERSHIP_CONFLICT','Mixed recovery manifest mismatch'); end if;
-  insert into public.retailer_catalogue_staging_recovery_approvals(recovery_manifest_id,package_id,package_fingerprint,project_ref,database_identity,child_plan_id,execution_fingerprint,rollback_manifest_fingerprint,expected_recovery_state,expected_recovery_state_fingerprint,approved_by,expires_at)
-  values(v_manifest.id,v_manifest.package_id,v_manifest.package_fingerprint,p_request->>'staging_project_ref',p_request->>'staging_database_identity',v_manifest.child_plan_id,v_manifest.execution_fingerprint,v_manifest.rollback_manifest_fingerprint,v_manifest.mixed_batch_before_state,public.retailer_catalogue_sha256_json(v_manifest.mixed_batch_before_state),trim(p_request->>'approved_by'),(p_request->>'expires_at')::timestamptz) returning id into v_id;
-  return jsonb_build_object('recovery_approval_id',v_id,'status','APPROVED','business_writes',0);
+  if p_request->'expected_migration_versions' is distinct from v_manifest.mixed_batch_migration_versions
+     or p_request->>'expected_migration_fingerprint' is distinct from v_manifest.mixed_batch_expected_migration_fingerprint
+     or p_request->>'migration_fingerprint_algorithm' is distinct from v_manifest.mixed_batch_migration_fingerprint_algorithm
+     or p_request->>'migration_fingerprint_version' is distinct from v_manifest.mixed_batch_migration_fingerprint_version
+     or p_request->>'original_execution_migration_fingerprint' is distinct from v_manifest.mixed_batch_execution_migration_fingerprint then perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Mixed recovery migration binding mismatch'); end if;
+  v_actual_migration:=public.retailer_catalogue_assert_migration_ledger(v_manifest.mixed_batch_migration_versions,v_manifest.mixed_batch_expected_migration_fingerprint);
+  if v_actual_migration is distinct from v_manifest.mixed_batch_execution_migration_fingerprint then perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Migration ledger changed since original execution'); end if;
+  insert into public.retailer_catalogue_staging_recovery_approvals(recovery_manifest_id,package_id,package_fingerprint,project_ref,database_identity,child_plan_id,execution_fingerprint,rollback_manifest_fingerprint,expected_recovery_state,expected_recovery_state_fingerprint,approved_by,expires_at,mixed_batch_expected_migration_versions,mixed_batch_expected_migration_fingerprint,mixed_batch_migration_fingerprint_algorithm,mixed_batch_migration_fingerprint_version,mixed_batch_original_execution_migration_fingerprint)
+  values(v_manifest.id,v_manifest.package_id,v_manifest.package_fingerprint,p_request->>'staging_project_ref',p_request->>'staging_database_identity',v_manifest.child_plan_id,v_manifest.execution_fingerprint,v_manifest.rollback_manifest_fingerprint,v_manifest.mixed_batch_before_state,public.retailer_catalogue_sha256_json(v_manifest.mixed_batch_before_state),trim(p_request->>'approved_by'),(p_request->>'expires_at')::timestamptz,v_manifest.mixed_batch_migration_versions,v_manifest.mixed_batch_expected_migration_fingerprint,v_manifest.mixed_batch_migration_fingerprint_algorithm,v_manifest.mixed_batch_migration_fingerprint_version,v_manifest.mixed_batch_execution_migration_fingerprint) returning id into v_id;
+  return jsonb_build_object('recovery_approval_id',v_id,'status','APPROVED','actual_migration_fingerprint',v_actual_migration,'business_writes',0);
 end
 $approve_recovery$;
 
@@ -252,13 +295,22 @@ $approve_recovery_wrapper$;
 
 create or replace function public.retailer_offer_sync_recover_batch_internal(p_request jsonb)
 returns jsonb language plpgsql volatile security definer set search_path=pg_catalog,public,pg_temp as $recover$
-declare v_approval public.retailer_catalogue_staging_recovery_approvals%rowtype; v_manifest public.retailer_catalogue_staging_recovery_manifests%rowtype; v_row jsonb; v_current jsonb; v_child public.retailer_catalogue_child_plans%rowtype; v_parent public.retailer_catalogue_parent_plans%rowtype; v_original public.retailer_catalogue_apply_runs%rowtype; v_recovery_run uuid; v_attempt integer; v_parent_status text; v_history_actual jsonb;
+declare v_approval public.retailer_catalogue_staging_recovery_approvals%rowtype; v_manifest public.retailer_catalogue_staging_recovery_manifests%rowtype; v_row jsonb; v_current jsonb; v_child public.retailer_catalogue_child_plans%rowtype; v_parent public.retailer_catalogue_parent_plans%rowtype; v_original public.retailer_catalogue_apply_runs%rowtype; v_recovery_run uuid; v_attempt integer; v_parent_status text; v_history_actual jsonb; v_actual_migration text;
 begin
-  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','recovery_approval_id','staging_project_ref','staging_database_identity','explicit_allow']) or coalesce((p_request->>'explicit_allow')::boolean,false)=false then perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid mixed recovery request'); end if;
+  if not public.atomic_import_has_exact_keys(p_request,array['schema_version','recovery_approval_id','expected_migration_versions','expected_migration_fingerprint','migration_fingerprint_algorithm','migration_fingerprint_version','original_execution_migration_fingerprint','staging_project_ref','staging_database_identity','explicit_allow']) or coalesce((p_request->>'explicit_allow')::boolean,false)=false then perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid mixed recovery request'); end if;
   perform public.retailer_catalogue_staging_runtime_guard('STAGING',p_request->>'staging_project_ref',p_request->>'staging_database_identity');
   select * into v_approval from public.retailer_catalogue_staging_recovery_approvals where id=(p_request->>'recovery_approval_id')::uuid for update;
-  if not found or v_approval.consumed_at is not null or v_approval.expires_at<=now() then perform public.retailer_catalogue_raise('RSBI_REPLAY_BLOCKED','Recovery approval missing, expired or consumed'); end if;
+  if not found then perform public.retailer_catalogue_raise('RSBI_REPLAY_BLOCKED','Recovery approval missing'); end if;
+  if p_request->'expected_migration_versions' is distinct from v_approval.mixed_batch_expected_migration_versions
+     or p_request->>'expected_migration_fingerprint' is distinct from v_approval.mixed_batch_expected_migration_fingerprint
+     or p_request->>'migration_fingerprint_algorithm' is distinct from v_approval.mixed_batch_migration_fingerprint_algorithm
+     or p_request->>'migration_fingerprint_version' is distinct from v_approval.mixed_batch_migration_fingerprint_version
+     or p_request->>'original_execution_migration_fingerprint' is distinct from v_approval.mixed_batch_original_execution_migration_fingerprint then perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Mixed recovery execution migration binding mismatch'); end if;
+  v_actual_migration:=public.retailer_catalogue_assert_migration_ledger(v_approval.mixed_batch_expected_migration_versions,v_approval.mixed_batch_expected_migration_fingerprint);
+  if v_actual_migration is distinct from v_approval.mixed_batch_original_execution_migration_fingerprint then perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Migration ledger changed since original execution'); end if;
+  if v_approval.consumed_at is not null or v_approval.expires_at<=now() then perform public.retailer_catalogue_raise('RSBI_REPLAY_BLOCKED','Recovery approval expired or consumed'); end if;
   select * into v_manifest from public.retailer_catalogue_staging_recovery_manifests where id=v_approval.recovery_manifest_id for update;
+  if v_manifest.mixed_batch_migration_versions is distinct from v_approval.mixed_batch_expected_migration_versions or v_manifest.mixed_batch_expected_migration_fingerprint is distinct from v_approval.mixed_batch_expected_migration_fingerprint or v_manifest.mixed_batch_execution_migration_fingerprint is distinct from v_approval.mixed_batch_original_execution_migration_fingerprint then perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Mixed recovery manifest migration binding mismatch'); end if;
   if v_manifest.status<>'READY' or public.retailer_catalogue_sha256_json(v_manifest.mixed_batch_applied_state) is distinct from v_manifest.applied_owned_state_fingerprint then perform public.retailer_catalogue_raise('RSBI_ROLLBACK_OWNERSHIP_CONFLICT','Recovery evidence mismatch'); end if;
   select * into v_child from public.retailer_catalogue_child_plans where id=v_manifest.child_plan_id for update; select * into v_parent from public.retailer_catalogue_parent_plans where id=v_child.parent_plan_id for update; select * into v_original from public.retailer_catalogue_apply_runs where id=v_manifest.apply_run_id for update;
   if v_child.status<>'APPLIED' or v_original.status<>'SUCCEEDED' or public.retailer_catalogue_other_retailer_fingerprint(v_child.retailer_id) is distinct from v_manifest.other_retailer_fingerprint or public.retailer_catalogue_protected_shared_fingerprint() is distinct from v_manifest.protected_shared_fingerprint or public.retailer_catalogue_orphan_counts() is distinct from v_manifest.orphan_counts then perform public.retailer_catalogue_raise('RSBI_ROLLBACK_OWNERSHIP_CONFLICT','Shared or unrelated state drift blocks recovery'); end if;

@@ -18,3 +18,9 @@ test("only dedicated staging roles receive executor and recovery RPC grants", ()
   assert.doesNotMatch(sql, /grant execute[^;]+(anon|authenticated|service_role)/i);
   assert.match(sql, /aftboxmrdgyhizicfsfu|project_ref='hxnrsyyqffztlvcrtgbf'/);
 });
+test("approval execution and recovery bind the exact server-asserted migration ledger", () => {
+  for (const field of ["expected_migration_versions","expected_migration_fingerprint","migration_fingerprint_algorithm","migration_fingerprint_version"]) assert.match(sql, new RegExp(field));
+  assert.equal((sql.match(/retailer_catalogue_assert_migration_ledger/g) || []).length, 4);
+  assert.match(sql, /mixed_batch_original_execution_migration_fingerprint/);
+  assert.match(sql, /RSBI_SOURCE_HASH_MISMATCH/);
+});

@@ -20,7 +20,7 @@ function inventory() {
 }
 function input(changes = () => {}) {
   const data = inventory(); changes(data);
-  return { ...data, policy: { store_url: config.store_url, ...config.guardrails }, retailerSlug: config.retailer_slug, retailerId: "9001", targetEnvironment: "STAGING", targetProjectRef: "hxnrsyyqffztlvcrtgbf", targetDatabaseIdentity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf", sourceSnapshotFingerprint: fixture.source_manifest_sha256, adapterFingerprint: "a".repeat(64), policyFingerprint: "b".repeat(64), codeCommit: "bc9ae1630c56cd7daeda3f94f93d9b6cfaedd7c8", expectedStateFingerprint: fixture.inventory_fingerprint, sourceCapturedAt: fixture.captured_at, now: new Date("2026-07-18T17:00:00.000Z"), sourceProductCount: 5, previousSourceProductCount: 5 };
+  return { ...data, policy: { store_url: config.store_url, ...config.guardrails }, retailerSlug: config.retailer_slug, retailerId: "9001", targetEnvironment: "STAGING", targetProjectRef: "hxnrsyyqffztlvcrtgbf", targetDatabaseIdentity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf", expectedMigrationVersions: ["20260718150000_add_verified_no_change_offer_refresh", "20260718160000_add_retailer_offer_mixed_batch_executor"], expectedMigrationFingerprint: "9".repeat(64), migrationFingerprintAlgorithm: "SHA-256", migrationFingerprintVersion: "RSBI-CJ1", sourceSnapshotFingerprint: fixture.source_manifest_sha256, adapterFingerprint: "a".repeat(64), policyFingerprint: "b".repeat(64), codeCommit: "bc9ae1630c56cd7daeda3f94f93d9b6cfaedd7c8", expectedStateFingerprint: fixture.inventory_fingerprint, sourceCapturedAt: fixture.captured_at, now: new Date("2026-07-18T17:00:00.000Z"), sourceProductCount: 5, previousSourceProductCount: 5 };
 }
 
 test("closed action enum and changed-field bitmap cover all six executable actions", () => {
@@ -64,11 +64,14 @@ test("artifact ordering and state transitions are stable and closed", () => {
 test("CLI is dry-run only and approved execution needs injected RPC and approval", async () => {
   assert.throws(() => parseArgs([]), /requires/); assert.throws(() => parseArgs(["--input=x", "--output=outside.json"]), /inside tmp/);
   const dryRun = buildDryRun(input());
+  assert.throws(() => buildDryRun({ ...input(), expectedMigrationVersions: undefined }), /migration versions/);
+  assert.throws(() => buildDryRun({ ...input(), expectedMigrationFingerprint: undefined }), /migration fingerprint/);
   await assert.rejects(executeApprovedBatch({ approvalId: "approval", artifact: dryRun, rpc: async () => ({}) }), /execution artifact/);
   const plans = Object.fromEntries(dryRun.rows.map((row) => [row.offer_id, { meta: { operation_type: "verify_offer_no_change" } }]));
   const artifact = buildExecutionArtifact(dryRun, plans);
-  const calls = []; const result = await executeApprovedBatch({ approvalId: "approval", artifact, rpc: async (...args) => { calls.push(args); return { data: "ok" }; } });
+  const calls = []; const result = await executeApprovedBatch({ approvalId: "approval", executionFingerprint: "8".repeat(64), artifact, rpc: async (...args) => { calls.push(args); return { data: "ok" }; } });
   assert.equal(result.data, "ok"); assert.equal(calls[0][0], "execute_retailer_offer_sync_batch");
+  assert.deepEqual(calls[0][1].p_request.expected_migration_versions, artifact.expected_migration_versions); assert.equal(calls[0][1].p_request.expected_migration_fingerprint, artifact.expected_migration_fingerprint);
 });
 
 module.exports = { input, inventory };

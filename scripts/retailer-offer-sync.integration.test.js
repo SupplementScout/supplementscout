@@ -16,9 +16,19 @@ test("executor validates and locks every row before beginning or writing", () =>
   const validation = executor.indexOf("perform public.validate_product_import_plan_read_only(v_row->'atomic_plan')");
   const begin = executor.indexOf("public.begin_retailer_catalogue_child_apply");
   const apply = executor.indexOf("public.apply_approved_product_import_plan");
-  assert.ok(validation > 0 && validation < begin && begin < apply); assert.match(executor, /order by \(value->>'offer_id'\)::bigint/g);
+  const approvalLock = executor.indexOf("for update");
+  const ledger = executor.indexOf("retailer_catalogue_assert_migration_ledger");
+  const replay = executor.indexOf("v_approval.consumed_at is not null");
+  assert.ok(approvalLock > 0 && approvalLock < ledger && ledger < replay && validation < begin && begin < apply); assert.match(executor, /order by \(value->>'offer_id'\)::bigint/g);
 });
 test("approval, exact deltas, 50-row cap and replay are fail-closed", () => {
   assert.match(migration, /v_count<1 or v_count>50/); assert.match(migration, /RSBI_EXPECTED_DELTA_MISMATCH/); assert.match(migration, /RSBI_REPLAY_BLOCKED/);
   assert.match(migration, /jsonb_array_length\(v_approval_ids\).*jsonb_array_length\(v_approval\.approved_manifest->'rows'\)/s);
+});
+test("twelve isolated ledger negatives prove stable errors and zero unexpected state", () => {
+  assert.match(postgresScenario, /for v_case in 1\.\.8 loop/);
+  for (const id of [9,10,11,12]) assert.match(postgresScenario, new RegExp(`values\\(${id},`));
+  assert.match(postgresScenario, /ledger_negative_cases/);
+  assert.match(postgresScenario, /RSBI_SOURCE_SCHEMA_MISMATCH/);
+  assert.match(postgresScenario, /RSBI_SOURCE_HASH_MISMATCH/);
 });

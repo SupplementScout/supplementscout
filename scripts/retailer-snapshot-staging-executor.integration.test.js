@@ -75,6 +75,11 @@ test("staging executor full fixture and recovery on network-isolated disposable 
     ok(compatibility, "old and mixed executor compatibility"); assert.match(output(compatibility), /t\s*\|\s*t/);
     const mixedResult = psqlFile(container, database, files.mixedTest);
     ok(mixedResult, "mixed-batch 26-row apply, replay and recovery"); assert.match(output(mixedResult), /"result"\s*:\s*"PASS"/);
+    assert.match(output(mixedResult), /"ledger_negative_cases"\s*:\s*12/); assert.match(output(mixedResult), /"ledger_negative_failures"\s*:\s*0/);
+
+    const mixedRerun = psqlFile(container, database, files.mixed);
+    assert.notEqual(mixedRerun.status, 0, "mixed migration rerun unexpectedly succeeded");
+    assert.match(output(mixedRerun), /mixed-batch executor is already installed; rerun rejected/);
 
     const prepareDependencies = (target) => {
       ok(exec(container, ["createdb", "-U", "postgres", target]), `create ${target}`);
@@ -90,6 +95,12 @@ test("staging executor full fixture and recovery on network-isolated disposable 
     const wrongOrderResult = psqlFile(container, wrongOrder, files.staging);
     assert.notEqual(wrongOrderResult.status, 0, "wrong-order migration unexpectedly succeeded");
     assert.match(output(wrongOrderResult), /requires atomic importer, approval ledger, and Phase 2 control ledger/);
+
+    const mixedWrongOrder = "supplementscout_stage2_test_atomic_import_mixed_wo";
+    prepareDependencies(mixedWrongOrder); ok(psqlFile(container, mixedWrongOrder, files.phase2), `${mixedWrongOrder} Phase 2`); ok(psqlFile(container, mixedWrongOrder, files.staging), `${mixedWrongOrder} staging executor`);
+    const mixedWrongOrderResult = psqlFile(container, mixedWrongOrder, files.mixed);
+    assert.notEqual(mixedWrongOrderResult.status, 0, "mixed migration without verified no-change unexpectedly succeeded");
+    assert.match(output(mixedWrongOrderResult), /requires atomic, verified no-change, Phase 2 and staging executor migrations/);
 
     const rerun = psqlFile(container, database, files.staging);
     assert.notEqual(rerun.status, 0, "migration rerun unexpectedly succeeded");
