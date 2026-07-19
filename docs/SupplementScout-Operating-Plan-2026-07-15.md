@@ -7,6 +7,205 @@
 
 ---
 
+## 0. Binding audit reset - 19 July 2026
+
+This section records the full-project audit requested before further implementation. It is the binding execution reset. Where an older status, priority or proposed implementation elsewhere in this document conflicts with this section, this section wins. Historical sections remain as evidence, not as authority to restart completed work.
+
+### 0.1 Executive decision
+
+The repository has delivered a real public comparison product and a substantial data/control foundation. The current constraint is not the absence of another update framework. It is obtaining commercially useful overlapping retailer sources, configuring the mappings already approved, enabling the existing sync path in production, and removing unnecessary approval friction.
+
+**Fast Lane verdict: FAST LANE WOULD DUPLICATE EXISTING WORK.**
+
+The existing mixed-batch retailer offer-sync path already reads a retailer snapshot, normalises and matches existing identities, classifies all supported changes, blocks drift and source anomalies, produces sealed dry-run and execution artefacts, locks and applies atomically, updates `last_checked`, writes price history only for delivered-price changes, prohibits new catalogue rows, prevents replay and emits a recovery manifest. It has been deployed to staging and used successfully for a 26-offer Jon's Supplements no-change run. Production enablement is prepared but not deployed. The next move is therefore to simplify and operate this path, not build a competing path.
+
+Audit scope and evidence:
+
+- audited Git history from 28 June to 19 July 2026: 224 commits, 288 touched files, 83,047 insertions and 5,256 deletions;
+- commit-subject triage grouped 83 commits around retailer/data work, 49 around public/growth work, 18 around duplicate/merge work, 6 around infrastructure, 6 around maintenance and 62 mixed/other; these are audit heuristics, not delivery-time estimates;
+- inspected the public application, catalogue model, adapters/importers, migrations, tests, deployment configuration, approval ledgers and recovery tooling;
+- queried production and staging read-only, with transaction-level read-only protection for direct database checks;
+- checked the live public site, `robots.txt`, sitemap, search, product, creatine and outbound-click routes;
+- made no production or staging writes during this audit.
+
+### 0.2 Exact environment inventory
+
+Counts are point-in-time audit counts from 19 July 2026. "Local" is code and artefact state, not a third business database, so business-row counts are intentionally not invented.
+
+| Measure | Production | Staging | Local/repository |
+|---|---:|---:|---|
+| Products | 760 | 760 | no authoritative local business database |
+| Active canonical products | 759 | 759 | n/a |
+| Product variants | 1,098 | 1,098 | n/a |
+| Retailers | 8 | 8 | adapter/config support described below |
+| Retailer-product mappings | 1,008 | 1,008 | n/a |
+| Offers | 1,007 | 1,007 | n/a |
+| Price-history rows | 1,016 | 1,016 | n/a |
+| Public in-stock delivered offers | 849 | same cloned business state | n/a |
+| Products with no live offer | 154 | 154 | n/a |
+| Products with exactly one retailer | 542 | 542 | n/a |
+| Products with exactly two retailers | 60 | 60 | n/a |
+| Products with three or more retailers | 3 | 3 | n/a |
+| Approved import plans | 392 | 425 | artefacts and test fixtures only |
+| Applied schema migrations | 25 | 31 | 33 migrations added during audit window; latest production package remains repository-only |
+| Outbound clicks | 1,448, including 29 in the last 7 days | not treated as public usage | route/tests present |
+| Search events | 691 | not treated as public usage | report/tests present |
+
+Production retailer state:
+
+| Retailer | Mappings | All offers | Public in-stock offers | Covered products | Out of stock | Latest checked |
+|---|---:|---:|---:|---:|---:|---|
+| GYM HIGH | 25 | 24 | 23 | 23 | 1 | 2026-06-30 20:10 UTC |
+| Whey Okay | 520 | 520 | 365 | 365 | 155 | 2026-06-29 15:53 UTC |
+| Discount Supplements | 146 | 146 | 145 | 34 | 1 | 2026-07-15 12:00 UTC |
+| Dolphin Fitness | 2 | 2 | 2 | 2 | 0 | 2026-06-28 14:32 UTC |
+| Simply Supplements | 120 | 120 | 120 | 120 | 0 | 2026-07-08 06:18 UTC |
+| KIOR | 11 | 11 | 10 | 10 | 1 | 2026-07-11 07:27 UTC |
+| Fit House | 158 | 158 | 158 | 112 | 0 | 2026-07-15 18:45 UTC |
+| Jon's Supplements | 26 | 26 | 26 | 5 | 0 | 2026-07-17 07:24 UTC |
+
+Additional factual state:
+
+- production contains one completed product merge, one merge-history record and 32 ignored duplicate pairs;
+- no retailer has an `affiliate_id` or `affiliate_network` configured, so clicks are tracked but affiliate monetisation is not yet evidenced;
+- production has the base import approval ledger but not the mixed-sync control objects, restricted roles or `20260719100000` production enablement migration; `SAFE_UPDATE` is not enabled;
+- staging has the generic mixed-sync stack and recorded the successful 26-offer Jon's run: 26 `last_checked` changes, zero price, shipping, stock, URL, mapping, identity or price-history deltas, replay blocked, recovery manifest ready and unused;
+- no separate public staging web deployment was evidenced. "Staging" in this audit means the staging database and controlled execution workflow;
+- local-only work includes the original Phase 1 snapshot classifier, the disposable-local Phase 3 executor and its recovery proofs. Phase 2's control concepts were subsequently deployed to staging. The selective `20260719100000` production enablement package is also repository-only. These local capabilities are evidence and reusable tooling, not deployed product behaviour;
+- the Jon's source snapshot contains 224 products and roughly 843 variants. Phase-one classification found 70 safe-new candidates, 90 ambiguous, 21 duplicate-identity, 31 policy-deferred and 335 multi-variant-deferred rows. Those safe-new rows grow the catalogue but do not automatically improve multi-retailer coverage;
+- Whey Okay has 137 reconciled mappings and 383 legacy mappings remaining. The full export evidence contains 538 products and 1,706 sellable variants, but there is no committed authorised EKM adapter/feed and direct HTML acquisition was blocked;
+- the current Fit House adapter covers 85 configured entries and its latest audit proposed one mapping/offer create and 72 unchanged rows, with no new product creates;
+- KIOR has 11 approved configured products from a much larger export. Expansion is a review/config task, not a new importer;
+- Discount Supplements has a daily read-only Stage 1 workflow. It classifies and produces artefacts but performs no scheduled production write.
+
+### 0.3 Completed subsystem inventory
+
+| Subsystem | What exists and completion | Deployment and actual use | Direct growth/value assessment |
+|---|---|---|---|
+| Public product | Search, suggestions, filters, sorting, canonical product pages, retailer grouping, delivered-price display, price history, conditional verified unit metrics, category landing pages and click redirects. Core comparison journey is substantially complete; AI decision assistant is deferred. | Live in production. Search has 691 recorded events and outbound redirects 1,448 clicks. | Directly valuable now. Improve data freshness and traffic before adding a new product framework. |
+| Catalogue/data model | Canonical products, variants, retailer mappings, offers, history, merge state and import approvals. | Deployed in production and staging; 760 products, 1,098 variants and 1,007 offers. | Necessary foundation and already supporting the public product. |
+| Retailer imports | Generic CSV/feed importer plus Shopify adapters for Discount Supplements, Fit House, KIOR and Jon's; committed feed evidence for Simply Supplements. Whey Okay still lacks an authorised repeatable source. | Used to populate all eight production retailers. Discount Stage 1 is scheduled read-only. | Valuable, but the active constraint is source/config coverage rather than importer code. |
+| Mapping and variants | External IDs, GTIN/SKU/slug evidence, canonical variant matching, variant-aware mappings and mapping-only plans. | Deployed and used across 1,008 mappings. | Necessary foundation. Reuse it; do not create a second matching model. |
+| Duplicate/merge | Authenticated duplicate review, merge preview/decision, ignore/restore, merge history and supporting RPCs. | Live; one merge and 32 ignored pairs prove use. | Useful maintenance capability. Freeze feature expansion unless duplicate rate becomes a measured blocker. |
+| Offer refresh | Standard atomic importer; narrow verified no-change refresh; generic mixed price/stock/URL refresh with source, identity, mass-change and target guards. | Standard importer is production-used. Narrow and mixed refresh are staging-deployed; mixed path passed the Jon's staging run. Mixed production package is prepared, not applied. | High value once operated. The narrow and mixed paths overlap; standardise operationally on mixed sync for approved existing mappings. |
+| Price history | History is written on price/shipping/delivered-total changes and suppressed for unchanged timestamps. | 1,016 rows in both environments; public chart is live. | Direct user value and trust signal. Keep. |
+| Unit pricing | Verified per-serving, per-unit, per-kg, per-litre, protein and creatine comparison metrics. | Live conditionally where verified inputs exist. | Valuable differentiator; expand verified inputs through normal data work, not a separate feature project. |
+| Staging/deploy | Staging database branch, migration ledgers, target attestation, sealed artefacts, controlled executor and verification. | Used for the Jon's 26-offer run. No separate public staging UI was evidenced. | Sufficient for the next operating phase. No new environment framework is required. |
+| Approval/control plane | Row-plan approvals in production plus staging parent/child batches, validators, roles, expiry, target/source/code/state fingerprints and replay protection. | Base ledger is heavily populated; advanced stack has one proved staging use and is not in production. | Safety foundation, but over-engineered relative to current throughput. Retain and freeze; require one business approval per environment stage. |
+| Recovery | Pre-write manifests, exact expected deltas, transaction rollback, replay guards and disposable/local recovery tests. | Manifest generated in staging; recovery was ready but not needed. | Keep as insurance. Do not extend without a real failure mode. |
+| SEO | Robots/sitemap, canonical metadata, five indexed category pages and prelaunch creatine decision page. | Live sitemap has 768 URLs: 9 static and 759 products. `/creatine` is canonical and structured but intentionally `noindex` and omitted from the sitemap. | High growth potential. Fresh overlapping offers and indexing are the remaining work, not a new SEO framework. |
+| Analytics/affiliate | Search-event reports, server-side outbound click recording, bot filtering and redirect route. | Live and used. No affiliate retailer identifiers/networks are configured. | Analytics is valuable now; affiliate revenue readiness is incomplete for commercial/process reasons. |
+
+### 0.4 Existing read, classify and update mechanisms
+
+The standard importer in `scripts/import-products.js` normalises CSV/feed rows, matches retailer products and variants using external IDs and reviewed identity evidence, and classifies creates, updates and unchanged rows. Its atomic plan updates price, shipping, delivered total, stock, URL and `last_checked`; it writes history only when delivered-price inputs change. Production writes cannot be driven directly from CSV: an immutable dry run must enter the approval ledger and the database apply function validates it.
+
+The narrow `scripts/verified-no-change-offer-refresh.js` path proves exact existing mappings and unchanged price, stock and URL, binds source age/hash and target, changes only `last_checked`, creates no history and rejects drift. It is deployed to staging, not production.
+
+The generic `scripts/retailer-offer-sync.js` path and `scripts/lib/retailer-offer-sync/` classifier support `VERIFY_NO_CHANGE`, `UPDATE_PRICE`, `UPDATE_STOCK`, `UPDATE_PRICE_AND_STOCK`, `UPDATE_URL` and `UPDATE_PRICE_STOCK_URL`. They block stale/collapsed/incomplete source snapshots, ambiguous external IDs, product/SKU/domain drift, unsupported shipping-only drift, hard price anomalies, mass out-of-stock, mass-change and mass-price events. The action contract requires zero product, variant, mapping and offer row-count deltas; only existing rows are updated. The executor locks the complete batch before writes, applies all rows in one transaction, verifies exact deltas, records one batch approval, prevents replay and preserves a recovery manifest.
+
+The reuse decision is anchored in exact implementation points: `buildOfferPlan` and `buildAtomicImportPlan` in `scripts/import-products.js`; `buildDryRun` in `scripts/retailer-offer-sync.js`; `classifyExistingOffers` in `scripts/lib/retailer-offer-sync/classifier.js`; and the staging RPCs `validate_retailer_offer_sync_batch_read_only`, `approve_retailer_offer_sync_batch`, `execute_retailer_offer_sync_batch` and `recover_retailer_offer_sync_batch`. `scripts/retailer-offer-sync.test.js`, `scripts/retailer-offer-sync-matrix.test.js`, `scripts/retailer-offer-sync.integration.test.js`, `scripts/retailer-offer-mixed-batch-migration.integration.test.js`, `scripts/retailer-offer-sync-recovery.integration.test.js` and the verified-no-change tests exercise the relevant contracts.
+
+The Discount Supplements Stage 1 workflow is intentionally read-only: it acquires and classifies source data and emits a dry-run artefact. It is not an automatic production updater.
+
+Supported tests cover action classification, source and identity drift, guardrails, sealed artefacts, all six executable actions, lock-before-write, exact delta caps, negative ledger cases, replay prevention, no-change refresh and recovery. This is enough evidence to operate the current path manually; further framework work is frozen.
+
+### 0.5 Three-week value assessment
+
+The last three weeks produced about 88,303 changed lines. That is evidence of a large delivery burst, not a productivity KPI. The following percentages are rough audit estimates by capability surface, not measured developer time:
+
+- **Directly valuable now - roughly 45%:** public comparison/search UX, SEO pages, retailer/catalogue additions, verified metrics, price history and live analytics.
+- **Necessary foundation - roughly 35-40%:** variants and mappings, atomic import planning, approval ledger, duplicate/merge safety and staging verification.
+- **Useful but premature or over-engineered - roughly 15-20%:** advanced parent/child control lifecycle, dedicated roles, multiple fingerprints/attestations, validator, expiry and recovery orchestration beyond the first proved staging use. Retain it, but freeze expansion.
+- **Duplicated or overlapping - roughly 5-10%:** narrow no-change refresh versus the generic mixed path, plus numerous one-off batch scripts and artefacts that should no longer be treated as architecture. Do not delete them during the growth sprint; archive/consolidate later.
+- **Incomplete but valuable:** production enablement of approved-mapping sync, fresh prices at scale, affiliate deep links, creatine indexing, real retailer source-registry entries and commercially prioritised Whey Okay reconciliation.
+- **No longer needed:** a new Fast Lane framework, another scheduler/control plane, or another matching/import architecture.
+
+### 0.6 Ranked bottlenecks
+
+| Rank | Bottleneck | Type | Why it blocks growth | Immediate response |
+|---:|---|---|---|---|
+| 1 | No secured broad, overlapping, affiliate-capable retailer source | Source/commercial/process | New catalogue-only rows do not improve comparison depth or revenue. | Secure one authorised feed/API/export and prioritise products already in the catalogue. |
+| 2 | Existing mapped offers are not being refreshed through the proved path in production | Deployment/process | Prices age while usable code remains staging-only. | Close the Jon's production decision, then reuse mixed sync retailer by retailer. |
+| 3 | Too many technical approval stages and control-plane concepts | Unnecessary governance/process | Human attention is spent proving the machinery rather than approving a business batch. | One explicit approval for the whole staging stage and one for the whole production stage; keep internal checks automatic. |
+| 4 | Whey Okay and large-catalogue identity debt | Data/source | 383 legacy mappings remain and no repeatable authorised source exists. | Reconcile only commercially overlapping priority rows after the source contract is solved. |
+| 5 | Creatine freshness evidence is incomplete | Source/data | The page is built but launch logic remains prelaunch: 30 of 61 offers had fresh source evidence and 31 lacked an approved fresh source at the last review. | Refresh approved Discount/Fit/Jon's rows, make a factual launch decision, then change the two central launch flags. |
+| 6 | No affiliate IDs/networks or proved deep links | Commercial/process | Redirect analytics do not prove commissionable traffic. | Complete retailer programmes and update links through the existing import path. |
+| 7 | Retailer registry is a template rather than an operational portfolio | Process | Source ownership, overlap and next action are not visible in one place. | Populate it with all eight retailers, source status, overlap, owner and commercial status. |
+
+The answer to each common execution question follows directly: adding a retailer is blocked first by an authorised source and overlap selection; adding 25-50 useful offers is blocked by a broad overlapping source, not importer code; approved mappings can already be automated after production enablement; the next SEO page can reuse current templates and is mainly a content/data task; affiliate clicks require programme/deep-link configuration and traffic, not another redirect service.
+
+### 0.7 Public-product readiness
+
+The live site is a credible search and price-comparison product today. It has indexable canonical product/category pages, search suggestions and filters, retailer/variant offer groups, delivered prices, price history, conditional verified unit economics, sitemap/robots coverage and measured outbound use. Product pages do not yet emit Product JSON-LD, and AI decision assistance remains deferred; neither is the current growth blocker.
+
+The creatine page is implemented as a deterministic decision page with canonical metadata and structured data, but it is deliberately `noindex, follow` and absent from the sitemap. Its launch contract requires at least 10 products, 8 offers, 2 retailers, 3 multi-retailer products and acceptable freshness. Historical build evidence exceeded the coverage thresholds at 41 products, 61 offers and 6 retailers, but freshness/source evidence was incomplete. Launch only after re-running that evidence; do not weaken the threshold merely to index it.
+
+### 0.8 Plan A - next 48 hours
+
+| Task and visible result | Estimate | Dependency | Reuse versus new code |
+|---|---:|---|---|
+| Revalidate and, with one explicit production-stage approval, execute the existing Jon's 26-offer production package. Result: 26 current timestamps with exact verified deltas. | 2-3 operator hours | Package/source/production state still match; explicit production approval | Reuse existing code entirely; regenerate artefacts if expired. |
+| Run the mixed/no-change path against every currently approved fresh Discount, Fit House and Jon's creatine mapping. Result: an updated freshness report and the maximum defensible share of the 61 offers refreshed. | 4-8 hours | Approved source snapshots and one approval per environment stage | Existing path plus reviewed config/data; no new framework. |
+| Re-run the creatine launch contract and, only if it passes, switch the central indexing and sitemap flags and deploy. Result: `/creatine` becomes an indexable sitemap URL. | 1-2 hours | Freshness contract passes | Two small existing launch-state edits are the only expected product code. |
+| Populate the source registry for all eight retailers and choose the next source by overlap and affiliate readiness. Result: one owned, dated acquisition decision. | 2 hours | Commercial/source information | Documentation/process only. |
+| If an authorised overlapping source is already available, process 25-50 high-confidence existing-product offers. Otherwise process the next 25-50 Jon's safe catalogue candidates but record that this grows breadth, not 2+ coverage. | 6-12 hours | Source availability and business approval | Existing adapters/importer; reviewed config/data only. |
+| Validate the first approved affiliate deep links through the live redirect path. Result: commission-capable tracked links for at least one retailer. | 2-4 hours | Affiliate credentials/programme approval | Existing redirect/analytics; data/config change only. |
+
+No 48-hour task may create a new sync framework, migration family, approval layer or scheduler.
+
+### 0.9 Plan B - next 7 days
+
+| Task and visible result | Estimate | Dependency | Reuse versus new code |
+|---|---:|---|---|
+| Import 25-50 high-confidence second-retailer offers. Result: a visible increase from 63 products at 2+ retailers. | 8-16 hours | One authorised broad-overlap source and reviewed matches | Reuse importer/matching/approval code; adapter configuration first, small source adapter only if the platform is unsupported. |
+| Refresh every configured Discount Supplements, Fit House and Jon's mapping. Result: current timestamps and an exact changed/unchanged report. | 8-12 hours | Two clean manual stages and fresh approved snapshots | Reuse mixed sync entirely; configuration only. |
+| Launch `/creatine`, or publish the precise missing-source list with owners if blocked. Result: an indexable sitemap page or a finite acquisition queue. | 2-4 hours | Existing launch contract and freshness evidence | Reuse page/audit; at most the existing central launch-state edit. |
+| Put at least one retailer on verified affiliate deep links. Result: commission-capable tracked outbound clicks in the weekly report. | 4-8 hours | Affiliate programme approval and IDs | Reuse redirect/analytics and importer; no new service. |
+| Expand KIOR or Jon's through reviewed configuration. Result: 25-50 additional catalogue offers, reported separately from overlap growth. | 8-12 hours | Fresh source and identity review | Reuse adapters/importer; configuration/data only. |
+| Draft and ship one next high-intent landing page. Result: one canonical, measured search entry point. | 6-10 hours | Query/content choice and adequate offer coverage | Reuse creatine/category patterns; one page/config entry plus content is the only expected new code. |
+
+Expected focused effort is roughly 36-62 hours plus external source/affiliate lead time.
+
+### 0.10 Plan C - next 30 days
+
+| Task and visible result | Estimate | Dependency | Reuse versus new code |
+|---|---:|---|---|
+| Onboard three commercially useful retailers. Result: at least 100 additional products with a second retailer and 25 with a third. | 40-70 hours | Authorised sources, commercial priority and match review | Reuse the source/adaptor/import playbook; only genuinely unsupported source formats justify a small adapter. |
+| Enable approved-existing-mapping refresh retailer by retailer. Result: a repeatable freshness cadence with exact reports. | 12-20 hours | Two clean manual runs for each retailer and separate production approval | Reuse mixed sync. A simple schedule is considered only if manual operation becomes the measured blocker. |
+| Reconcile the highest-overlap 50-100 Whey Okay legacy rows. Result: a measured coverage gain, not merely a smaller backlog. | 20-35 hours | Authorised repeatable Whey source | Reuse identity/mapping tools; no bulk-reconciliation framework. |
+| Publish three to four additional decision/category pages. Result: new indexed entry points measured by impressions, search events and outbound clicks. | 24-40 hours | Query demand, adequate offer coverage and reviewed content | Reuse established templates; page/content code only. |
+| Complete priority-retailer affiliate coverage and weekly commercial reporting. Result: tracked affiliate-capable clicks and revenue/commission outcomes. | 12-24 hours | External programme approvals and reporting access | Reuse redirects/admin analytics; small reporting fields only if an outcome cannot be recorded today. |
+| Review decision-query evidence and keep AI deferred unless a unique gap is proved. Result: a written go/no-go backed by traffic and query data. | 3-5 hours | Four weeks of usable analytics | Analysis only; no AI implementation by default. |
+
+### 0.11 Binding freeze and operating rules
+
+Freeze immediately:
+
+- all new import, matching, sync, scheduler, migration-orchestration, control-plane and recovery frameworks;
+- approval/control-plane feature expansion, dedicated-role expansion and new fingerprints/attestations unless a real failed batch proves a gap;
+- duplicate/merge feature expansion;
+- indiscriminate Whey Okay reconciliation and catalogue growth that does not serve coverage, freshness, SEO or affiliate value;
+- AI assistant implementation.
+
+Minimal infrastructure work remains justified only to apply the already-reviewed production enablement package, correct a defect exposed by a real batch, add a genuinely required source configuration/adapter, or switch the existing central page-launch state. Each exception must be smaller than the business batch it unblocks and must reuse the existing contracts.
+
+Operating rules:
+
+1. One retailer/data implementation is primary at a time. SEO/content may run alongside it only when it does not change the data architecture.
+2. Use one explicit business approval for the complete staging stage and one for the complete production stage. Internal validations remain automatic checks, not separate human approval projects.
+3. No new products or variants are permitted in an approved-existing-mapping refresh. The enforced row-count deltas remain zero for products, variants, mappings and offers.
+4. History is created only for a real delivered-price input change. `last_checked` advances for every successfully verified row.
+5. Every batch remains source-, code-, config-, target- and state-bound; drift or anomaly blocks the entire atomic batch.
+6. Prefer configuration and reviewed data over code. Add code only when a real source batch cannot be represented by an existing path.
+7. Check before build: search the repository, migration ledger, deployed environment and relevant tests before proposing any new path; record why reuse or a small extension is insufficient.
+8. Measure weekly: fresh public offers, products at 2+ and 3+ retailers, indexable decision pages, search events, outbound clicks, affiliate-capable clicks and revenue.
+9. This section must be updated after each weekly checkpoint with evidence, not aspiration.
+
+### 0.12 Audit read/write proof
+
+Production and staging access during the audit was read-only. The production market-coverage audit and the guarded production supplemental query read counts and usage state only. Direct staging and production supplemental sessions explicitly reported transaction read-only mode; the staging audit reported zero writes. Live-site checks were HTTP GET requests. Local generated audit artefacts are ignored files and are not part of this plan change. No migration was applied, no approval was created, no offer/product row was changed and no production or staging deployment occurred.
+
 ## 1. Product identity
 
 **Name:** SupplementScout  
@@ -789,18 +988,17 @@ A production write must have an explicit scope. Approval for one batch or artifa
 
 ## 12. Priority roadmap
 
-Work should proceed sequentially. Do not open all projects at once.
+The binding priority order is now section 0.8 through section 0.10. Work proceeds sequentially, with one primary retailer/data implementation at a time.
 
 Current priority order:
 
-1. Run the Commercial Coverage Sprint, one retailer at a time.
-2. Complete **Canary Dry-Run Design and Fresh Source Refresh** without executing a dry-run, creating an approval or applying a plan.
-3. Revalidate the real Jon's 10-record fixture, GTIN and alternate identity evidence, exact deltas, target binding, migration fingerprint and recovery boundary before requesting a separate dry-run execution task.
-4. Hold the Commercial Coverage Sprint checkpoint after two or three new retailers or five to eight working days, whichever occurs first.
-5. Resume the remaining 383 Whey Okay legacy mappings after the sprint or an earlier justified checkpoint.
-6. Establish an automatic Whey Okay source through EKM API or an authorised feed only after reconciliation resumes and the source contract is reviewed.
-7. Keep scheduled price/stock updates and `SAFE_UPDATE` deferred until a separate phase, repeated clean runs and explicit approval.
-8. Retain images, analytics and comparison value features in the queue.
+1. Close the existing Jon's production-package decision; do not design another update path.
+2. Refresh approved mapped offers through the existing mixed-sync path and make the evidence-based `/creatine` launch decision.
+3. Secure and import one broad, overlapping, affiliate-capable retailer source, targeting products already represented by one retailer.
+4. Configure affiliate deep links for the existing tracked redirect path.
+5. Expand catalogue breadth through existing reviewed adapter configurations only where it serves search demand or commercial coverage.
+6. Resume only the commercially prioritised Whey Okay legacy rows after an authorised repeatable source exists.
+7. Keep automatic writes and a scheduler deferred until two clean manual runs per retailer and a separate measured-need decision.
 
 ## Commercial Data Expansion and Competitive Response
 
@@ -1221,21 +1419,20 @@ Target experience:
 
 ### Current active task
 
-Hold the reviewed Jon's production enablement and 26-offer rollout package ready for one explicit approval, with no production writes until that approval is given. Keep exactly one primary retailer/data implementation active at a time alongside the daily SEO and AI-search visibility workstream.
+Execute Plan A in section 0.8: close the reviewed Jon's production decision, refresh currently approved creatine mappings through the existing path, and make the factual `/creatine` launch decision. No production write occurs without the explicit approval required for that complete production stage.
 
 ### Next task
 
-If explicitly approved before expiry, execute the single reviewed Jon's production enablement and 26-offer timestamp-refresh rollout package. Without that approval, execute nothing and refresh the package if the source, production state, migration ledger, package expiry or commit binding changes.
+Secure one authorised broad-overlap retailer source and process 25-50 high-confidence existing-product offers through the standard importer. If no such source is available, use a reviewed Jon's or KIOR configuration batch for catalogue breadth and state clearly that it does not improve multi-retailer depth.
 
 ### Then
 
-1. Preserve the single production-specific migration and package; do not redirect or weaken staging-only guards.
-2. Before any execution, recheck package freshness, production ledger 25/fingerprint `ba5d4c8581b185d5412fa4f41a3cbeacf40547f507e124962f922d4aa71772b0`, retailer ID 10 and source binding.
-3. Obtain one explicit approval for the whole Jon's production enablement and 26-offer timestamp-refresh rollout. No implicit or partial approval is enough.
-4. If approved, follow the package stages exactly: migration, restricted login provisioning, target attestations, production-bound read-only validator, approval creation, apply, verification and recovery close.
-5. Abort on any freshness, fingerprint, role, attestation, validator, expected-delta, replay, expiry or identity mismatch.
-6. After Jon's is closed, freeze infrastructure work unless a real blocker appears; continue with the next retailer, multi-retailer coverage and `/creatine` indexing readiness.
-7. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
+1. Preserve the production package and existing safety guards; refresh artefacts if any source, state, ledger, expiry or commit binding changes.
+2. Use one approval for each complete environment stage, with all existing drift, identity, exact-delta, replay and recovery checks retained internally.
+3. Populate the retailer source registry and select future sources by overlap, freshness and affiliate readiness.
+4. Launch `/creatine` only when its existing freshness contract passes.
+5. Freeze infrastructure and control-plane work unless a real batch exposes a specific unsupported requirement.
+6. Review the measured growth indicators weekly and update section 0 with evidence.
 
 ### Deferred near-term
 
