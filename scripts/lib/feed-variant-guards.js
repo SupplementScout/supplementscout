@@ -282,9 +282,68 @@ function valuesConflict(left, right) {
   return left !== null && right !== null && left !== right;
 }
 
+function explicitProductFormat(value) {
+  if (value === undefined || value === null || String(value).trim() === "") {
+    return null;
+  }
+  return parseProductFormat(value);
+}
+
+function productFormatEvidenceText(rowOrName) {
+  if (typeof rowOrName === "string") return rowOrName;
+  return [
+    rowOrName.product_name,
+    rowOrName.external_name,
+    rowOrName.name,
+    rowOrName.description,
+    rowOrName.variant,
+    rowOrName.flavour,
+    rowOrName.flavor,
+    rowOrName.size,
+    rowOrName.size_unit,
+    rowOrName.unit_type,
+    rowOrName.evidence_name,
+    rowOrName.evidence_size,
+    rowOrName.evidence_format,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function parseClearProductFormatEvidence(value = "") {
+  const text = String(value).toLowerCase();
+
+  if (/\bsoft\s*gels?\b/.test(text)) return "softgel";
+  if (/\b(capsules?|caps?)\b/.test(text)) return "capsule";
+  if (/\b(tablets?|tabs?)\b/.test(text)) return "tablet";
+  if (/\bmultivitamins?\b/.test(text)) return "tablet";
+  if (
+    /\b(liquid|ready\s*to\s*drink|ready[-_\s]*to[-_\s]*drink|drink|shot|litre|liter)\b/.test(text) ||
+    /\b\d+(?:[.,]\d+)?\s*ml\b/.test(text)
+  ) {
+    return "liquid";
+  }
+  if (/\b(bars?|protein bars?)\b/.test(text)) return "bar";
+  if (/\bsnacks?\b/.test(text)) return "snack";
+  if (/\bpowder\b/.test(text)) return "powder";
+
+  return null;
+}
+
 function assessVariantCompatibility(row, product) {
   const rowIdentity = parseVariantIdentity(row);
-  const productIdentity = parseVariantIdentity(product.name || "");
+  const productIdentity = {
+    ...parseVariantIdentity(product.name || ""),
+    productFormat:
+      explicitProductFormat(product.product_format) ||
+      parseVariantIdentity(product.name || "").productFormat,
+  };
+  const rowExplicitFormat = explicitProductFormat(row.product_format);
+  const productStoredFormat = explicitProductFormat(product.product_format);
+  const rowTitleFormat = parseClearProductFormatEvidence(productFormatEvidenceText(row));
+  const productTitleFormat = parseClearProductFormatEvidence(product.name || "");
+  const rowFallbackFormat = rowIdentity.productFormat;
+  const productFallbackFormat = parseVariantIdentity(product.name || "").productFormat;
   const reasons = [];
   const warnings = [];
 
@@ -317,8 +376,43 @@ function assessVariantCompatibility(row, product) {
     warnings.push("incomplete pack-count evidence");
   }
 
-  if (valuesConflict(rowIdentity.productFormat, productIdentity.productFormat)) {
+  const rowFormatInvalid =
+    row.product_format !== undefined &&
+    row.product_format !== null &&
+    String(row.product_format).trim() !== "" &&
+    !rowExplicitFormat;
+  const productFormatInvalid =
+    product.product_format !== undefined &&
+    product.product_format !== null &&
+    String(product.product_format).trim() !== "" &&
+    !productStoredFormat;
+
+  if (rowFormatInvalid || productFormatInvalid) {
     reasons.push("format conflict");
+  }
+  if (valuesConflict(rowExplicitFormat, rowTitleFormat)) {
+    reasons.push("format conflict");
+  }
+  if (valuesConflict(productStoredFormat, productTitleFormat)) {
+    reasons.push("format conflict");
+  }
+  if (valuesConflict(rowExplicitFormat, productStoredFormat)) {
+    reasons.push("format conflict");
+  }
+
+  if (!reasons.includes("format conflict")) {
+    const rowFormat =
+      rowExplicitFormat ||
+      (productStoredFormat ? rowTitleFormat : rowFallbackFormat);
+    const productFormat =
+      productStoredFormat ||
+      (rowExplicitFormat ? productTitleFormat : productFallbackFormat);
+
+    if (valuesConflict(rowFormat, productFormat)) {
+      reasons.push("format conflict");
+    } else if (!rowFormat || !productFormat) {
+      warnings.push("incomplete format evidence");
+    }
   } else if (!rowIdentity.productFormat || !productIdentity.productFormat) {
     warnings.push("incomplete format evidence");
   }

@@ -1111,6 +1111,110 @@ test("powder does not match capsules", () => {
   assert(compatibility.reasons.includes("format conflict"));
 });
 
+test("explicit product_format agrees with stored product_format when title has only serving evidence", () => {
+  const compatibility = assessVariantCompatibility(
+    {
+      product_name: "Strom Sports Creatine HCL - 80 Servings",
+      brand: "Strom",
+      product_format: "capsule",
+    },
+    {
+      name: "Strom Sports Creatine HCL - 80 Servings",
+      brand: "Strom",
+      product_format: "capsule",
+    }
+  );
+
+  assert.equal(compatibility.compatible, true);
+  assert.equal(compatibility.reasons.includes("format conflict"), false);
+});
+
+test("explicit product_format agrees with stored product_format when title has no format evidence", () => {
+  const compatibility = assessVariantCompatibility(
+    {
+      product_name: "Example Daily Support",
+      brand: "Example",
+      product_format: "capsule",
+    },
+    {
+      name: "Example Daily Support",
+      brand: "Example",
+      product_format: "capsule",
+    }
+  );
+
+  assert.equal(compatibility.compatible, true);
+  assert.equal(compatibility.reasons.includes("format conflict"), false);
+});
+
+test("explicit product_format still blocks stored format conflicts", () => {
+  const compatibility = assessVariantCompatibility(
+    {
+      product_name: "Example Daily Support",
+      brand: "Example",
+      product_format: "capsule",
+    },
+    {
+      name: "Example Daily Support",
+      brand: "Example",
+      product_format: "powder",
+    }
+  );
+
+  assert.equal(compatibility.compatible, false);
+  assert(compatibility.reasons.includes("format conflict"));
+});
+
+test("explicit product_format still blocks clear conflicting title evidence", () => {
+  const compatibility = assessVariantCompatibility(
+    {
+      product_name: "Example Creatine Capsules 120 Capsules",
+      brand: "Example",
+      product_format: "powder",
+    },
+    {
+      name: "Example Creatine Powder",
+      brand: "Example",
+      product_format: "powder",
+    }
+  );
+
+  assert.equal(compatibility.compatible, false);
+  assert(compatibility.reasons.includes("format conflict"));
+});
+
+test("title-derived product_format behaviour is preserved without explicit format", () => {
+  const compatibility = assessVariantCompatibility(
+    {
+      product_name: "Example Daily Capsules",
+      brand: "Example",
+    },
+    {
+      name: "Example Daily Capsules",
+      brand: "Example",
+    }
+  );
+
+  assert.equal(compatibility.compatible, true);
+  assert.equal(compatibility.reasons.includes("format conflict"), false);
+});
+
+test("missing explicit and title format evidence remains compatible with warning", () => {
+  const compatibility = assessVariantCompatibility(
+    {
+      product_name: "Example Daily Support",
+      brand: "Example",
+    },
+    {
+      name: "Example Daily Support",
+      brand: "Example",
+    }
+  );
+
+  assert.equal(compatibility.compatible, true);
+  assert(compatibility.warnings.includes("incomplete format evidence"));
+});
+
 test("missing optional variant data lowers evidence but does not block compatibility", () => {
   const compatibility = assessVariantCompatibility(
     {
