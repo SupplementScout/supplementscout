@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 18 July 2026<br>
+**Status date:** 19 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -810,11 +810,11 @@ The primary metric is the number of canonical products with offers from at least
 
 Every import must preserve the approved separation of canonical products, variants, retailer mappings and offers, including offer-specific price history. Do not pursue an artificial product count at the expense of identity, variant accuracy, offer quality or auditability. Do not start AI product or assistant implementation, new admin panels or large automation implementation during this sprint; bounded SEO and AI citation-readiness work remains required.
 
-The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and initial production rollout are complete; Retailer Snapshot Bulk Import Phases 1, 2 and 3, the staging executor migrations and the post-migration readiness review are complete. The next operational task is **Canary Dry-Run Design and Fresh Source Refresh**, stopping before dry-run execution, approval creation or apply.
+The first retailer selected from the existing CSV files was Jon's Supplements. Its pilot and initial production rollout are complete, and the exact 26-existing-offer staging automation apply passed. The consolidated production readiness review is **NOT READY** because production-targeted executor/validator migrations do not yet exist, production roles/logins and target attestations are absent, and the repository retailer slug differs from production. The next operational task is the bounded design and review of those real production blockers, stopping before every production migration, login, attestation, validator, approval or apply action.
 
 ## Jon's Supplements current state
 
-**Status:** PILOT AND INITIAL PRODUCTION ROLLOUT COMPLETE
+**Status:** PILOT AND INITIAL PRODUCTION ROLLOUT COMPLETE; 26-OFFER STAGING AUTOMATION PASS; PRODUCTION AUTOMATION NOT READY
 
 - The Shopify CSV and public Shopify JSON were audited with an exact source join.
 - The Jon's adapter is complete and pushed.
@@ -824,6 +824,9 @@ The first retailer selected from the existing CSV files was Jon's Supplements. I
 - Canonical family seeds are complete for PER4M EAA Xtra 420g, PER4M Pre-Workout Stim 570g and PER4M Creatine Sherbet 310g.
 - The three seeded families have 24 Jon's flavour mappings, offers and price-history rows on staging and production: EAA 10, Pre-Workout 9 and Creatine Sherbet 5.
 - The current production retailer total is 5 canonical products, 24 flavour variants, 26 mappings, 26 offers and 26 price-history rows. All 26 offers are in stock.
+- The exact 26-existing-offer staging apply passed: 26 `last_checked_at` updates at source capture `2026-07-19T09:33:56.316Z`; price, shipping, stock, URL, mapping and price-history deltas were all zero; the approval was consumed and the recovery manifest is ready.
+- The production readiness review found ledger 25 with fingerprint `ba5d4c8581b185d5412fa4f41a3cbeacf40547f507e124962f922d4aa71772b0`; the six repo-parity migrations after it are staging-bound and are not an authorised production migration set.
+- Production roles/logins, target attestations and a production-bound read-only mixed-batch validator are absent. Repository slug `jons-supplements` also differs from production slug `jon-s-supplements`; these findings must be resolved through a separate reviewed task.
 - The five Jon's product families each moved from zero to one active retailer. The rollout did not yet increase the primary two-retailer coverage metric.
 - Excluded or deferred: Strawberry Lime because of a shared SKU; five out-of-stock variants; Project AD unresolved; Protein Bars deferred; PER4M Whey deferred for later bulk processing.
 - `SAFE_UPDATE` remains disabled.
@@ -854,9 +857,11 @@ Implementation status:
 - **Phase 3 — COMPLETE:** local bounded child-batch executor reusing the existing row plans, Phase 2 lifecycle, read-only validator, row-level approval ledger and atomic apply RPC. It has no direct business-table DML; transactional rollback, exact deltas, replay, concurrency and local-only environment guards passed. Full regression: 600/600. Staging and production writes: zero. Commit `6a754f0e7c942dde550e029056e15f940aa56b3a`.
 - **Staging executor framework — COMPLETE:** Migration B deployed the staging-only roles, target and migration-ledger guards, approval wrappers, bounded executor and recovery framework. Task 6 validated the schema without invoking an executor RPC.
 - **Post-migration readiness review — COMPLETE:** schema, migration, role/grant, empty-state, expected-delta and recovery readiness passed; fixture and stale-approval readiness passed with the fresh-source and non-reuse conditions recorded below.
+- **Exact 26-offer staging apply — COMPLETE:** one whole-stage approval covered the exact 26 existing offers; apply succeeded with 26 timestamp-only refreshes, zero commercial/identity/history deltas, consumed approval and ready recovery manifest.
+- **Production readiness review — NOT READY:** production data and fresh source are exact at 26/26 with `VERIFY_NO_CHANGE ×26`, but no production-compatible executor/validator migration set, roles/logins or attestations exist, and the retailer slug contract is inconsistent.
 - **Presentation test cleanup — COMPLETE, separate from Phase 3:** stale product presentation expectation fixed; presentation tests 64/64. Commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`.
 
-Before any write-bearing Jon's rollout, GTIN enrichment and canonical-creation proposals require separate review. Staging canary apply, production canary apply and production bulk rollout remain separate approval boundaries.
+Before any write-bearing Jon's rollout, GTIN enrichment and canonical-creation proposals require separate review. Staging and production remain separate approval boundaries. Within each boundary, use one approval for the whole reviewed stage rather than fragmented per-step approvals.
 
 ### Blockers before canary dry-run execution
 
@@ -1213,21 +1218,21 @@ Target experience:
 
 ### Current active task
 
-Run the **Commercial Coverage Sprint** with exactly one primary retailer/data implementation active at a time, alongside the daily SEO and AI-search visibility workstream.
+Resolve the real Jon's production automation blockers through design and review only, with no production writes. Keep exactly one primary retailer/data implementation active at a time alongside the daily SEO and AI-search visibility workstream.
 
 ### Next task
 
-Execute **Canary Dry-Run Design and Fresh Source Refresh**. Freshly acquire the live Jon's Shopify source and CSV/GTIN enrichment; freeze new source hashes; revalidate prices, stock, GTIN and the Conteh alternate identity; compare source and canonical drift; recalculate exact expected deltas; and design immutable dry-run artifacts. Stop without executing a dry-run, creating an approval or applying a plan.
+Design and review a production-targeted control/executor/validator migration set and resolve the Jon's retailer-slug contract drift. The design must preserve target identity, migration-ledger binding, semantic source binding, dedicated roles, atomicity, replay protection and recovery readiness. Stop before migration, login, attestation, validator, approval or apply execution.
 
 ### Then
 
-1. Complete the fresh-source and dry-run artifact design task without dry-run execution or database writes.
-2. Review the regenerated fixture, exact deltas and artifact design before authorising a separate canary dry-run execution task.
-3. Create no approval until a successful reviewed dry-run has its own later approval task.
-4. Run a staging canary only under a separate later task and explicit approval.
-5. Run any production canary and later bulk rollout only under further separate approvals.
-6. Close Jon's completely, including public QA, affiliate QA, metrics and this document update, before starting the next retailer.
-7. Hold the checkpoint after two or three retailers or five to eight working days, whichever occurs first.
+1. Produce production-specific migrations and contracts; do not redirect or weaken staging-only guards.
+2. Review and test them locally, including exact migration fingerprints, roles, attestations, validator replay and recovery boundaries.
+3. Request one explicit approval for the whole production migration stage; later stages each receive one whole-stage approval.
+4. After migrations, separately provision and verify the three restricted production logins and exact attestations.
+5. Run a production-bound read-only 26-row validator only under a separate authorised stage, then build a fresh immutable rollout package.
+6. Apply the exact 26-offer production refresh only after a later explicit whole-stage approval and exact preflight.
+7. After Jon's is closed, freeze infrastructure work unless a real blocker appears; continue with the next retailer, multi-retailer coverage and `/creatine` indexing readiness.
 8. Resume Whey Okay reconciliation, EKM work, scheduled updates and `SAFE_UPDATE` only according to the Project Control Board.
 
 ### Deferred near-term
@@ -1371,7 +1376,10 @@ Current binding decisions:
 - The stale product presentation test cleanup is separate from Phase 3 and completed in commit `2bc6a8c82c191b1bf935fdcf61fc5cd3296638b7`.
 - Task 6 staging migrations are complete: Migration A and B are applied and validated, with final ledger count 27 and fingerprint `2c36d09244f4c81f0727ad50dd62fad21c9c8037aee66342eed0662037d3081a`.
 - The post-migration readiness review is complete with verdict **READY FOR CANARY DRY-RUN DESIGN**.
-- The immediate next task is **Canary Dry-Run Design and Fresh Source Refresh**, not dry-run execution, approval creation or apply.
+- Historical state before the 26-offer staging pass: the immediate next task was **Canary Dry-Run Design and Fresh Source Refresh**. This was completed and superseded on 2026-07-19.
+- The exact 26-offer staging apply passed, while the consolidated production readiness review is **NOT READY** due to missing production-targeted migrations, roles/logins, attestations and validator plus retailer-slug contract drift.
+- The next authorised boundary is production migration/contract design and review only. No production migration, login, attestation, validator, approval, apply or recovery is authorised.
+- Use one approval per whole reviewed stage. After Jon's production closure, freeze infrastructure unless a real blocker exists, then move to the next retailer, multi-retailer coverage and `/creatine` indexing readiness.
 - The Phase 3 local executor cannot be redirected to staging; the deployed staging framework retains separate target-specific roles, guards and approval boundaries.
 - The real 10-record fixture is sealed and matches staging, subject to a fresh live-source, price, stock, GTIN and alternate-identity refresh before dry-run execution.
 - The bounded recovery framework is deployed and readiness-audited; an exact canary recovery manifest and approval remain later apply-stage boundaries.
@@ -1507,6 +1515,17 @@ Current binding decisions:
 - Business-table deltas were zero; no approvals, plans, dry-runs, apply runs or recoveries were created; production was untouched.
 - The read-only post-migration readiness review passed with verdict **READY FOR CANARY DRY-RUN DESIGN**.
 - The next task is **Canary Dry-Run Design and Fresh Source Refresh**. No dry-run execution, approval creation or apply is allowed without a fresh live source, CSV/GTIN enrichment, source hashes, staging canonical snapshot, price/stock validation, drift comparison, recalculated deltas and regenerated fixture binding when required.
+- `SAFE_UPDATE` remains disabled.
+
+### 2026-07-19
+
+- Jon's exact 26-existing-offer staging apply PASS: 26 `last_checked_at` updates using source capture `2026-07-19T09:33:56.316Z`; price, shipping, stock, offer URL, mapping URL and price-history deltas were zero.
+- The staging apply succeeded, its one whole-stage approval was consumed, recovery manifest state is ready, and production was untouched.
+- Fresh production/source audit confirmed retailer ID 10, 26 mappings, 26 offers, no duplicate or incomplete identity, Shopify coverage 26/26 and `VERIFY_NO_CHANGE ×26`.
+- Production readiness verdict: **NOT READY FOR JON'S PRODUCTION ROLLOUT APPROVAL**. Production ledger is 25; the existing six later repo migrations reproduce staging ledger 31 but contain staging-only guards and are not a valid production rollout set.
+- Missing production capabilities: production-specific control/executor/validator/expiry-close migrations, validator/approver/executor roles and logins, both target attestations, a production-bound read-only validator, and a resolved retailer-slug contract.
+- Next authorised boundary: design and review those blockers only. No production migration, login, attestation, validator, approval, apply or recovery is authorised.
+- Use one approval per whole stage. After Jon's is closed, freeze infrastructure unless a real blocker exists; then continue with the next retailer, multi-retailer coverage and `/creatine` indexing readiness.
 - `SAFE_UPDATE` remains disabled.
 
 ---
