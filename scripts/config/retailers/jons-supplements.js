@@ -1,6 +1,6 @@
 module.exports = Object.freeze({
   schema_version: 1,
-  retailer: Object.freeze({ id: "jons-supplements", name: "Jon's Supplements", slug: "jons-supplements", website: "https://jonssupplements.co.uk" }),
+  retailer: Object.freeze({ id: "jon-s-supplements", name: "Jon's Supplements", slug: "jon-s-supplements", website: "https://jonssupplements.co.uk" }),
   source_policy: Object.freeze({ types: ["SHOPIFY_JSON", "SHOPIFY_CSV"], json_authority: ["external_ids", "availability", "price", "url", "image"], csv_authority: ["sku", "gtin", "grams"], source_freshness_hours: 24 }),
   shipping_policy: Object.freeze({ known: true, currency: "GBP", free_threshold: "90", below_threshold: "3.99", at_or_above_threshold: "0", source: "MANUAL_USER_CONFIRMED" }),
   affiliate_policy: Object.freeze({ status: "NOT_CONFIGURED", network: null, affiliate_id: null, direct_urls_are_affiliate: false }),

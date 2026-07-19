@@ -21,7 +21,7 @@ function inferReasonCodes(record, canonical, context = {}) {
   if (!external.external_variant_id) codes.push("VARIANT_MISSING_EXTERNAL_VARIANT_ID");
   if (!external.external_sku && !record.sku) codes.push("IDENTITY_MISSING_SKU");
   if (!external.external_gtin && !record.gtin) codes.push("IDENTITY_MISSING_GTIN");
-  const retailerId = context.retailer_id || record.retailer_id || "jons-supplements";
+  const retailerId = context.retailer_id || record.retailer_id || "jon-s-supplements";
   const mappingKey = `${retailerId}|${external.external_variant_id || record.external_variant_id || ""}`;
   if ((canonical?.indexes?.external_variant_id?.[mappingKey] || []).length === 1) codes.push("IDENTITY_EXACT_EXTERNAL_VARIANT");
   if (context.canonical_candidates?.length > 1) codes.push("CONFLICT_MULTIPLE_CANONICAL_CANDIDATES");

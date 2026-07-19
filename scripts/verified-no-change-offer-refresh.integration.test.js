@@ -57,9 +57,11 @@ function psqlJson(container, database, sql) {
   return JSON.parse(result.stdout.trim());
 }
 function waitForPostgres(container) {
+  let consecutive = 0;
   for (let attempt = 0; attempt < 80; attempt += 1) {
     const result = exec(container, ["psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1"], 5_000);
-    if (result.status === 0 && result.stdout.trim() === "1") return;
+    consecutive = result.status === 0 && result.stdout.trim() === "1" ? consecutive + 1 : 0;
+    if (consecutive === 3) return;
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
   assert.fail("disposable PostgreSQL did not become ready");

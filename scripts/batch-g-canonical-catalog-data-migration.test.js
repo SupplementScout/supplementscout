@@ -24,8 +24,11 @@ function psql(container, args, timeout = 120_000) { return exec(container, ["psq
 function sql(container, statement) { return requireSuccess(psql(container, ["-At", "-c", statement]), "SQL statement").stdout.trim(); }
 function applyMigration(container) { return psql(container, ["-f", `/workspace/${path.relative(root, migration).replaceAll("\\", "/")}`]); }
 function waitForPostgres(container) {
+  let consecutive = 0;
   for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres", "-d", "postgres"], 5_000).status === 0) return;
+    const result = exec(container, ["psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1"], 5_000);
+    consecutive = result.status === 0 && result.stdout.trim() === "1" ? consecutive + 1 : 0;
+    if (consecutive === 3) return;
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
   assert.fail("disposable PostgreSQL did not become ready");
