@@ -458,6 +458,7 @@ function createPreflightReport() {
     exclusions: [],
     newRetailersToCreate: [],
     newProductsToCreate: [],
+    productVariantsToCreate: [],
     retailerProductsToCreate: [],
     retailerProductsToUpdate: [],
     retailerProductsUnchanged: [],
@@ -572,7 +573,7 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       continue;
     }
 
-    if (safeCreate) {
+    if (safeCreate && !item.productVariant?.planned_create) {
       const exclusionReasons = getSafeCreateExclusionReasons(row);
 
       if (exclusionReasons.length > 0) {
@@ -699,11 +700,18 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       String(item.row.external_variant_id || "").trim()
     );
     const canonicalVariantIds = group.map((item) => item.productVariant?.id || null);
+    const plannedVariantKeys = group.map((item) =>
+      item.productVariant?.planned_create
+        ? `${item.productVariant.product_id}:${item.productVariant.variant_key}`
+        : null
+    );
     const hasDistinctResolvedVariants =
       externalVariantIds.every(Boolean) &&
-      canonicalVariantIds.every(Boolean) &&
+      canonicalVariantIds
+        .map((id, index) => id || plannedVariantKeys[index])
+        .every(Boolean) &&
       new Set(externalVariantIds).size === group.length &&
-      new Set(canonicalVariantIds).size === group.length;
+      new Set(canonicalVariantIds.map((id, index) => id || plannedVariantKeys[index])).size === group.length;
 
     if (hasDistinctResolvedVariants) {
       continue;
@@ -771,6 +779,15 @@ function analyzeFeedRows(resolvedRows, options = {}) {
         rowNumber: item.rowNumber,
         productName,
         slug: item.plannedProduct.slug,
+      });
+    }
+
+    if (item.importPlan?.product_variant.action === "create_variant") {
+      report.productVariantsToCreate.push({
+        rowNumber: item.rowNumber,
+        productName,
+        productId: item.product.id,
+        values: item.importPlan.product_variant.values,
       });
     }
 
@@ -911,6 +928,7 @@ function formatPreflightReport(report) {
     `  shipping inferred from retailer policy: ${report.shippingInferredFromPolicy.length}`,
     `  new retailers would be created: ${report.newRetailersToCreate.length}`,
     `  new products would be created: ${report.newProductsToCreate.length}`,
+    `  product_variants would be created: ${report.productVariantsToCreate.length}`,
     `  retailer_products would be created: ${report.retailerProductsToCreate.length}`,
     `  retailer_products would be updated: ${report.retailerProductsToUpdate.length}`,
     `  retailer_products unchanged: ${report.retailerProductsUnchanged.length}`,

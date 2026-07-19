@@ -186,6 +186,59 @@ function baseCanonicalFeedRow(overrides = {}) {
   };
 }
 
+function createVariantFixture(rowOverrides = {}, seedOverrides = {}) {
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Example Nutrition",
+    retailer_website: "https://example.test",
+    external_product_id: "prod_100",
+    external_variant_id: "var_100_choc",
+    external_sku: "SKU-CHOC-500",
+    external_options: JSON.stringify({ Flavour: "Chocolate" }),
+    product_name: "Example Creatine Monohydrate 500g",
+    variant_name: "Chocolate / 500g",
+    slug: "example-creatine-monohydrate-500g",
+    flavour: "Chocolate",
+    size: "500",
+    size_unit: "g",
+    product_format: "powder",
+    pack_count: "1",
+    ...rowOverrides,
+  });
+  const seed = {
+    retailers: [{ id: "r1", name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test" }],
+    products: [{
+      id: "p100",
+      name: "Example Creatine Monohydrate 500g",
+      brand: "Example Nutrition",
+      category: "Creatine",
+      gtin: null,
+      slug: "example-creatine-monohydrate-500g",
+      is_active: true,
+      merged_into_product_id: null,
+      product_format: "powder",
+    }],
+    product_variants: [{
+      id: "pv-default",
+      product_id: "p100",
+      variant_key: "default",
+      display_name: "Default",
+      flavour_code: null,
+      flavour_label: null,
+      size_value: null,
+      size_unit: null,
+      pack_count: null,
+      product_format: "powder",
+      is_active: true,
+      is_default: true,
+    }],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+    ...seedOverrides,
+  };
+  return { row, seed };
+}
+
 function createMockSupabase(seed = {}) {
   const tables = {
     retailers: seed.retailers || [
@@ -456,6 +509,17 @@ function createMockSupabase(seed = {}) {
           tables.product_variants.push(row);
           writes.push({ table: "product_variants", operation: "insert", payload: row });
           productVariantId = row.id;
+        } else if (plan.product_variant.action === "create_variant") {
+          const row = {
+            ...materializeDecimalFields(plan.product_variant.values, ["size_value", "pack_count"]),
+            id: `product_variants-${tables.product_variants.length + 1}`,
+            product_id: productId,
+            is_active: true,
+            is_default: false,
+          };
+          tables.product_variants.push(row);
+          writes.push({ table: "product_variants", operation: "insert", payload: row });
+          productVariantId = row.id;
         }
         if (seed.rpc_failure_at === "after_default_variant") {
           throw new Error("after default variant");
@@ -688,6 +752,164 @@ function assertFitHouseApprovedScope(config, rows) {
     throw new Error("Fit House preflight rows must exactly match approved config");
   }
 }
+
+test("feed safe-create plans a missing non-default variant under an existing product", async () => {
+  const { row, seed } = createVariantFixture();
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.productVariantsToCreate.length, 1);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product.action, "existing");
+  assert.equal(plan.product.id, "p100");
+  assert.equal(plan.product_variant.action, "create_variant");
+  assert.equal(plan.product_variant.values.display_name, "Chocolate / 500g");
+  assert.equal(plan.product_variant.values.flavour_code, "chocolate");
+  assert.equal(plan.product_variant.values.size_value, "500");
+  assert.equal(plan.retailer_product.action, "create");
+  assert.equal(plan.offer.action, "create");
+  assert.equal(plan.price_history.action, "create");
+  assert.equal(plan.expected_state.product_variant, null);
+});
+
+test("create_variant apply creates variant, mapping, offer and initial price history without creating product", async () => {
+  const { row, seed } = createVariantFixture();
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const beforeProducts = supabase.tables.products.length;
+  const result = await runImportRows([row], { mode: "feed", safeCreate: true });
+  assert.equal(result.successful, 1);
+  assert.equal(result.failed, 0);
+  assert.equal(supabase.tables.products.length, beforeProducts);
+  assert.equal(supabase.tables.product_variants.length, 2);
+  assert.equal(supabase.tables.retailer_products.length, 1);
+  assert.equal(supabase.tables.offers.length, 1);
+  assert.equal(supabase.tables.price_history.length, 1);
+  const createdVariant = supabase.tables.product_variants.find((variant) => variant.id !== "pv-default");
+  assert.equal(createdVariant.product_id, "p100");
+  assert.equal(createdVariant.is_default, false);
+  assert.equal(supabase.tables.retailer_products[0].product_variant_id, createdVariant.id);
+  assert.equal(supabase.tables.offers[0].product_variant_id, createdVariant.id);
+});
+
+test("create_variant reuses an equivalent existing variant instead of creating a duplicate", async () => {
+  const base = createVariantFixture();
+  const { row, seed } = createVariantFixture({}, {
+    product_variants: [
+      base.seed.product_variants[0],
+      {
+        id: "pv-choc",
+        product_id: "p100",
+        variant_key: "chocolate-500g",
+        display_name: "Chocolate / 500g",
+        flavour_code: "chocolate",
+        flavour_label: "Chocolate",
+        size_value: 500,
+        size_unit: "g",
+        pack_count: 1,
+        product_format: "powder",
+        is_active: true,
+        is_default: false,
+      },
+    ],
+  });
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.productVariantsToCreate.length, 0);
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.action, "existing");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.id, "pv-choc");
+});
+
+test("create_variant blocks duplicate Shopify variant ID and missing source identity", async () => {
+  const duplicateVariant = createVariantFixture({}, {
+    retailer_products: [{
+      id: "rp-existing",
+      retailer_id: "r1",
+      product_id: "p100",
+      product_variant_id: "pv-default",
+      external_variant_id: "var_100_choc",
+      external_url: "https://example.test/old",
+      external_sku: "OTHER-SKU",
+    }],
+  });
+  let supabase = createMockSupabase(duplicateVariant.seed);
+  setSupabaseForTests(supabase);
+  let result = await runImportRows([duplicateVariant.row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.match(result.report.blockedRows[0].block_reason, /conflicting variant evidence|missing canonical product_variant/);
+
+  const missingIdentity = createVariantFixture({ external_variant_id: "", external_sku: "" });
+  supabase = createMockSupabase(missingIdentity.seed);
+  setSupabaseForTests(supabase);
+  await assert.rejects(
+    () => runImportRows([missingIdentity.row], { mode: "feed", safeCreate: true, dryRun: true }),
+    /missing external_variant_id/
+  );
+});
+
+test("create_variant blocks inactive or merged products and rolls back injected failures", async () => {
+  const inactive = createVariantFixture({}, {
+    products: [{ ...createVariantFixture().seed.products[0], is_active: false }],
+  });
+  let supabase = createMockSupabase(inactive.seed);
+  setSupabaseForTests(supabase);
+  let result = await runImportRows([inactive.row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.blockedRows[0].block_reason, "canonical product is inactive or merged");
+
+  const fixture = createVariantFixture({}, { rpc_failure_at: "after_retailer_product" });
+  supabase = createMockSupabase(fixture.seed);
+  setSupabaseForTests(supabase);
+  result = await runImportRows([fixture.row], { mode: "feed", safeCreate: true });
+  assert.equal(result.successful, 0);
+  assert.equal(result.failed, 1);
+  assert.equal(supabase.tables.product_variants.length, 1);
+  assert.equal(supabase.tables.retailer_products.length, 0);
+  assert.equal(supabase.tables.offers.length, 0);
+  assert.equal(supabase.tables.price_history.length, 0);
+});
+
+test("create_variant batch allows repeated retailer SKU when Shopify variant identity is distinct", async () => {
+  const first = createVariantFixture().row;
+  const second = createVariantFixture({
+    external_variant_id: "var_100_vanilla",
+    external_options: JSON.stringify({ Flavour: "Vanilla" }),
+    variant_name: "Vanilla / 500g",
+    flavour: "Vanilla",
+  }).row;
+  const supabase = createMockSupabase(createVariantFixture().seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([first, second], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.productVariantsToCreate.length, 2);
+});
+
+test("create_variant batch blocks duplicate planned canonical variant identities", async () => {
+  const first = createVariantFixture().row;
+  const second = createVariantFixture({
+    external_variant_id: "var_100_choc_alt",
+    external_sku: "SKU-CHOC-500-ALT",
+    external_options: JSON.stringify({ Flavour: "Chocolate!" }),
+    variant_name: "Chocolate! / 500g",
+    flavour: "Chocolate!",
+  }).row;
+  const supabase = createMockSupabase(createVariantFixture().seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([first, second], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.equal(result.report.blockedRows.length, 2);
+  assert.equal(result.report.blockedRows[0].block_reason, "multiple unresolved feed variants share one retailer-product identity");
+});
 
 test("normalizes pre-workout variants to Pre Workout", () => {
   assert.equal(normalizeCategory("Pre-Workout"), "Pre Workout");

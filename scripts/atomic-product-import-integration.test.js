@@ -28,6 +28,7 @@ const optionedLegacyUpgradeMigration = path.join(root, "supabase/migrations/2026
 const optionedParentSizeMigration = path.join(root, "supabase/migrations/20260716004000_support_optioned_parent_size_evidence.sql");
 const optionedNullTotalMigration = path.join(root, "supabase/migrations/20260716005000_allow_optioned_legacy_identity_update_null_total.sql");
 const verifiedNoChangeMigration = path.join(root, "supabase/migrations/20260718150000_add_verified_no_change_offer_refresh.sql");
+const existingProductVariantImportMigration = path.join(root, "supabase/migrations/20260719193000_support_existing_product_variant_import.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const controlLedgerMigration = path.join(root, "supabase/migrations/20260717120000_create_retailer_catalogue_control_ledger.sql");
 const childExecutorMigration = path.join(root, "supabase/migrations/20260717130000_add_local_retailer_catalogue_child_executor.sql");
@@ -152,6 +153,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const optionedParentSizeSql = require("node:fs").readFileSync(optionedParentSizeMigration, "utf8");
   const optionedNullTotalSql = require("node:fs").readFileSync(optionedNullTotalMigration, "utf8");
   const verifiedNoChangeSql = require("node:fs").readFileSync(verifiedNoChangeMigration, "utf8");
+  const existingProductVariantImportSql = require("node:fs").readFileSync(existingProductVariantImportMigration, "utf8");
   const mixedBatchSql = require("node:fs").readFileSync(path.join(root, "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql"), "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
@@ -241,6 +243,19 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.match(mixedBatchSql, /order by \(value->>'offer_id'\)::bigint/i);
   assert.match(mixedBatchSql, /RSBI_REPLAY_BLOCKED/i);
   assert.doesNotMatch(mixedBatchSql, /\b(insert into|update)\s+public\.(products|product_variants)\b/i);
+  assert.match(existingProductVariantImportSql, /^begin;/i);
+  assert.match(existingProductVariantImportSql, /product_variant,action}' <> 'create_variant'/i);
+  assert.match(existingProductVariantImportSql, /atomic_import_validate_standard_plan_core/i);
+  assert.match(existingProductVariantImportSql, /validate_verified_offer_no_change_plan/i);
+  assert.match(existingProductVariantImportSql, /insert into public\.product_variants/i);
+  assert.match(existingProductVariantImportSql, /insert into public\.retailer_products/i);
+  assert.match(existingProductVariantImportSql, /insert into public\.offers/i);
+  assert.match(existingProductVariantImportSql, /insert into public\.price_history/i);
+  assert.match(existingProductVariantImportSql, /pg_advisory_xact_lock[\s\S]+external_variant_id/i);
+  assert.match(existingProductVariantImportSql, /pg_advisory_xact_lock[\s\S]+external_sku/i);
+  assert.match(existingProductVariantImportSql, /pg_advisory_xact_lock[\s\S]+external_url/i);
+  assert.doesNotMatch(existingProductVariantImportSql, /rename to/i);
+  assert.doesNotMatch(existingProductVariantImportSql, /grant execute[^;]+to\s+(anon|authenticated|public)\s*;/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -298,6 +313,8 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, optionedParentSizeMigration), "reapply optioned parent-size evidence migration idempotently");
     requireSuccess(psqlFile(container, database, optionedNullTotalMigration), "reapply optioned identity-update null-total migration idempotently");
     requireSuccess(psqlFile(container, database, verifiedNoChangeMigration), "apply verified no-change offer refresh migration");
+    requireSuccess(psqlFile(container, database, existingProductVariantImportMigration), "apply existing-product variant import migration");
+    requireSuccess(psqlFile(container, database, existingProductVariantImportMigration), "reapply existing-product variant import migration idempotently");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",
@@ -335,7 +352,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
 
     const fixtureInsert = exec(container, [
       "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c",
-      "insert into public.products(id,name,slug,brand,category,product_format,is_active) values(920001,'Micro Dose Product','micro-dose-product','Integration Brand','Health Supplements','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(920001,920001,'micro-0-1mcg','0.1 mcg',0.0000001,'g',1,'capsule',true,false); insert into public.products(id,name,slug,brand,category,product_format,is_active) values(930001,'RTD Product','rtd-product','Integration Brand','Health Supplements','liquid',true); insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default) values(930001,930001,'chocolate-330ml','Chocolate / 330ml','chocolate','Chocolate',330,'ml',1,'ready_to_drink',true,false),(930002,930001,'chocolate-330ml-liquid','Chocolate / 330ml Liquid','chocolate','Chocolate',330,'ml',1,'liquid',true,false),(930003,930001,'chocolate-330ml-powder','Chocolate / 330ml Powder','chocolate','Chocolate',330,'ml',1,'powder',true,false),(930004,930001,'chocolate-330ml-capsules','Chocolate / 330ml Capsules','chocolate','Chocolate',330,'ml',1,'capsules',true,false),(930005,930001,'chocolate-330ml-bar','Chocolate / 330ml Bar','chocolate','Chocolate',330,'ml',1,'bar',true,false); update public.offers set total_price=999 where retailer_product_id=(select id from public.retailer_products where external_variant_id='manual-default');",
+      "insert into public.products(id,name,slug,brand,category,product_format,is_active) values(920001,'Micro Dose Product','micro-dose-product','Integration Brand','Health Supplements','capsule',true); insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values(920001,920001,'micro-0-1mcg','0.1 mcg',0.0000001,'g',1,'capsule',true,false); insert into public.products(id,name,slug,brand,category,product_format,is_active) values(930001,'RTD Product','rtd-product','Integration Brand','Health Supplements','liquid',true); insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default) values(930001,930001,'chocolate-330ml','Chocolate / 330ml','chocolate','Chocolate',330,'ml',1,'ready_to_drink',true,false),(930002,930001,'chocolate-330ml-liquid','Chocolate / 330ml Liquid','chocolate','Chocolate',330,'ml',1,'liquid',true,false),(930003,930001,'chocolate-330ml-powder','Chocolate / 330ml Powder','chocolate','Chocolate',330,'ml',1,'powder',true,false),(930004,930001,'chocolate-330ml-capsules','Chocolate / 330ml Capsules','chocolate','Chocolate',330,'ml',1,'capsules',true,false),(930005,930001,'chocolate-330ml-bar','Chocolate / 330ml Bar','chocolate','Chocolate',330,'ml',1,'bar',true,false); insert into public.products(id,name,slug,brand,category,product_format,is_active) values(970001,'Variant Create Product','variant-create-product','Integration Brand','Protein Powder','powder',true); insert into public.product_variants(id,product_id,variant_key,display_name,product_format,is_active,is_default) values(970001,970001,'default','Default','powder',true,true); update public.offers set total_price=999 where retailer_product_id=(select id from public.retailer_products where external_variant_id='manual-default');",
     ]);
     requireSuccess(fixtureInsert, "create Node decimal integration fixture");
     const legacyFixtureInsert = exec(container, [
@@ -362,6 +379,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
       'rtd_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=930001),
       'rtd_variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=930001),
       'rtd_variants',(select jsonb_agg(jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) order by id) from public.product_variants where product_id=930001),
+      'variant_create_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=970001),
       'manual_product',(select jsonb_build_object('id',id,'name',name,'slug',slug,'brand',brand,'category',category,'is_active',is_active,'merged_into_product_id',merged_into_product_id,'product_format',product_format) from public.products where id=2010),
       'manual_variant',(select jsonb_build_object('id',id,'product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where id=2010)
       ,'drift_mapping',(select to_jsonb(rp)-'created_at' from public.retailer_products rp where external_variant_id='manual-default')
@@ -420,6 +438,36 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
             price: "0.000001", shipping_cost: "0.0000001",
             in_stock: "true", external_url: "https://local.test/node-micro-dose",
             affiliate_url: "https://affiliate.local/node-micro-dose",
+          },
+        },
+        {
+          name: "create-new-existing-product-variant",
+          mode: "feed",
+          product: state.variant_create_product,
+          variant: {
+            planned_create: true,
+            product_id: state.variant_create_product.id,
+            variant_key: "berry-500g",
+            display_name: "Berry / 500g",
+            flavour_code: "berry",
+            flavour_label: "Berry",
+            size_value: "500",
+            size_unit: "g",
+            pack_count: "1",
+            product_format: "powder",
+            is_active: true,
+            is_default: false,
+          },
+          row: {
+            retailer_name: state.retailer.name, retailer_website: state.retailer.website,
+            product_name: state.variant_create_product.name, slug: "node-create-variant-product",
+            brand: state.variant_create_product.brand, category: state.variant_create_product.category,
+            external_product_id: "node-create-variant-product", external_variant_id: "node-create-variant-berry-500g",
+            external_sku: "node-create-variant-sku", external_options: '{"Size":"500g","Flavour":"Berry"}',
+            variant_name: "Berry / 500g", flavour: "Berry", size: "500g", product_format: "powder",
+            price: "24.99", shipping_cost: "3.99",
+            in_stock: "true", external_url: "https://local.test/node-create-variant-berry-500g",
+            affiliate_url: "https://affiliate.local/node-create-variant-berry-500g",
           },
         },
         {
@@ -527,6 +575,34 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
           approvalId: approved.approvalId, pilotApply: true,
         });
         assert.equal(applied.successful, 1);
+        if (scenario.name === "create-new-existing-product-variant") {
+          const createVariantCheck = psqlJson(container, database, `select jsonb_build_object(
+            'product_count',(select count(*) from public.products where id=970001),
+            'variant_count',(select count(*) from public.product_variants where product_id=970001),
+            'created_variant',(select jsonb_build_object('product_id',product_id,'variant_key',variant_key,'display_name',display_name,'flavour_code',flavour_code,'flavour_label',flavour_label,'size_value',size_value,'size_unit',size_unit,'pack_count',pack_count,'product_format',product_format,'is_active',is_active,'is_default',is_default) from public.product_variants where product_id=970001 and variant_key='berry-500g'),
+            'mapping_count',(select count(*) from public.retailer_products where external_variant_id='node-create-variant-berry-500g'),
+            'offer_count',(select count(*) from public.offers o join public.retailer_products rp on rp.id=o.retailer_product_id where rp.external_variant_id='node-create-variant-berry-500g'),
+            'history_count',(select count(*) from public.price_history ph join public.offers o on o.id=ph.offer_id join public.retailer_products rp on rp.id=o.retailer_product_id where rp.external_variant_id='node-create-variant-berry-500g')
+          );`);
+          assert.equal(createVariantCheck.product_count, 1);
+          assert.equal(createVariantCheck.variant_count, 2);
+          assert.deepEqual(createVariantCheck.created_variant, {
+            product_id: 970001,
+            variant_key: "berry-500g",
+            display_name: "Berry / 500g",
+            flavour_code: "berry",
+            flavour_label: "Berry",
+            size_value: 500,
+            size_unit: "g",
+            pack_count: 1,
+            product_format: "powder",
+            is_active: true,
+            is_default: false,
+          });
+          assert.equal(createVariantCheck.mapping_count, 1);
+          assert.equal(createVariantCheck.offer_count, 1);
+          assert.equal(createVariantCheck.history_count, 1);
+        }
       }
 
       const legacyState = psqlJson(container, database, `select jsonb_build_object(

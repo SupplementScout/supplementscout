@@ -1867,6 +1867,15 @@ async function resolveCanonicalProductVariant(
   }
 
   if (candidates.length === 0) {
+    if (options.allowMissingVariantCreate && !mapping) {
+      return planMissingProductVariant(
+        row,
+        options.product || { id: productId, is_active: true, merged_into_product_id: null },
+        activeVariants,
+        options.rowNumber || 0,
+        evidence
+      );
+    }
     throw new Error("missing canonical product_variant");
   }
   if (candidates.length > 1) {
@@ -2101,6 +2110,117 @@ function expectedVariantState(variant) {
   });
 }
 
+function normalizeVariantDisplayIdentity(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function variantSizeKeyFromFields(variant) {
+  return sizeKey(parseSize(
+    variant?.size_value && variant?.size_unit
+      ? `${variant.size_value}${variant.size_unit}`
+      : ""
+  ));
+}
+
+function buildPlannedVariantValues(row, product, rowNumber, evidence) {
+  const rawFlavourLabel = String(row.flavour || row.flavor || "").trim();
+  const flavourLabel = rawFlavourLabel || String(row.variant_name || "").split("/")[0].trim();
+  const flavourCode = normalizeFlavour(flavourLabel);
+  if (!flavourLabel || !flavourCode || !evidence.flavour) {
+    throw new Error("create_variant requires explicit flavour evidence");
+  }
+  if (!evidence.size?.value || !evidence.size?.unit) {
+    throw new Error("create_variant requires explicit size evidence");
+  }
+  if (rowHasColumn(row, "product_variant_id") && optionalIdentifier(row.product_variant_id)) {
+    throw new Error("create_variant cannot supply product_variant_id");
+  }
+  if (!optionalIdentifier(row.external_product_id) || !optionalIdentifier(row.external_variant_id)) {
+    throw new Error("create_variant requires external product and variant identity");
+  }
+  if (!optionalIdentifier(row.external_sku)) {
+    throw new Error("create_variant requires external SKU evidence");
+  }
+
+  const sizeValue = normalizeDecimalString(evidence.size.value, "size_value");
+  const sizeUnit = evidence.size.unit;
+  const packCount = evidence.packCount === null
+    ? "1"
+    : normalizeDecimalString(evidence.packCount, "pack_count");
+  const productFormat = evidence.productFormat || product?.product_format || null;
+  const displayName = String(row.variant_name || "").trim() ||
+    `${flavourLabel} / ${sizeValue}${sizeUnit}`;
+  if (normalizeVariantDisplayIdentity(displayName) === "default") {
+    throw new Error("create_variant cannot create a default variant");
+  }
+  const variantKey = [
+    slugifyRetailerName(flavourLabel),
+    `${sizeValue}${sizeUnit}`,
+    Number(packCount) === 1 ? "" : `${packCount}-pack`,
+  ].filter(Boolean).join("-");
+
+  return {
+    variant_key: required(variantKey, "variant_key", rowNumber),
+    display_name: required(displayName, "variant_name", rowNumber),
+    flavour_code: flavourCode,
+    flavour_label: flavourLabel,
+    size_value: sizeValue,
+    size_unit: sizeUnit,
+    pack_count: packCount,
+    product_format: productFormat,
+  };
+}
+
+function variantMatchesPlannedValues(variant, values) {
+  const variantFlavour = normalizeFlavour(variant.flavour_code) ||
+    normalizeFlavour(variant.flavour_label);
+  const valuesFlavour = normalizeFlavour(values.flavour_code) ||
+    normalizeFlavour(values.flavour_label);
+  const variantSize = variantSizeKeyFromFields(variant);
+  const valuesSize = sizeKey(parseSize(`${values.size_value}${values.size_unit}`));
+  return (
+    variantFlavour &&
+    valuesFlavour &&
+    variantFlavour === valuesFlavour &&
+    variantSize === valuesSize &&
+    Number(variant.pack_count ?? 1) === Number(values.pack_count ?? 1)
+  );
+}
+
+function planMissingProductVariant(row, product, activeVariants, rowNumber, evidence) {
+  if (product?.is_active === false || product.merged_into_product_id != null) {
+    throw new Error("create_variant requires an active unmerged canonical product");
+  }
+  const defaultVariants = activeVariants.filter((variant) => variant.is_default);
+  if (defaultVariants.length !== 1) {
+    throw new Error("create_variant requires exactly one active default product_variant");
+  }
+  const values = buildPlannedVariantValues(row, product, rowNumber, evidence);
+  const normalizedDisplay = normalizeVariantDisplayIdentity(values.display_name);
+  const normalizedVariantKey = normalizeVariantDisplayIdentity(values.variant_key);
+  const duplicate = activeVariants.find((variant) =>
+    normalizeVariantDisplayIdentity(variant.display_name) === normalizedDisplay ||
+    normalizeVariantDisplayIdentity(variant.variant_key) === normalizedVariantKey ||
+    variantMatchesPlannedValues(variant, values)
+  );
+  if (duplicate) {
+    throw new Error("equivalent canonical product_variant already exists");
+  }
+  return {
+    ...values,
+    id: null,
+    product_id: product.id,
+    is_active: true,
+    is_default: false,
+    planned_create: true,
+  };
+}
+
 function expectedMappingState(mapping) {
   if (!mapping) return null;
   return completeObject(mapping, [
@@ -2185,7 +2305,7 @@ function buildAtomicImportPlan(item) {
         row,
         retailerId: retailer?.id,
         productId: product?.id,
-        productVariantId: productVariant?.id,
+        productVariantId: productVariant?.planned_create ? null : productVariant?.id,
         name: required(row.product_name, "product_name", item.rowNumber),
         slug: required(row.slug, "slug", item.rowNumber),
         offerUrl: required(getRetailerProductUrl(row), "url", item.rowNumber),
@@ -2254,7 +2374,16 @@ function buildAtomicImportPlan(item) {
       ? { action: "existing", id: product.id }
       : { action: "create", values: productData },
     product_variant: product
-      ? {
+      ? productVariant?.planned_create
+        ? {
+            action: "create_variant",
+            values: completeObject(productVariant, [
+              "variant_key", "display_name", "flavour_code", "flavour_label",
+              "size_value", "size_unit", "pack_count", "product_format",
+            ]),
+            evidence: buildVariantEvidence(row, mapping, productVariant),
+          }
+        : {
           action: "existing",
           id: productVariant.id,
           evidence: buildVariantEvidence(row, mapping, productVariant),
@@ -2296,7 +2425,7 @@ function buildAtomicImportPlan(item) {
     expected_state: {
       product: expectedProductState(product),
       retailer: expectedRetailerState(retailer),
-      product_variant: expectedVariantState(productVariant),
+      product_variant: productVariant?.planned_create ? null : expectedVariantState(productVariant),
       retailer_product: expectedMappingState(mapping),
       offer: expectedOfferState(existingOffer),
     },
@@ -2405,12 +2534,23 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   }
 
   if (validationErrors.length === 0 && product?.id) {
+    if (product.is_active === false || product.merged_into_product_id != null) {
+      validationErrors.push("canonical product is inactive or merged");
+    }
+  }
+
+  if (validationErrors.length === 0 && product?.id) {
     try {
       productVariant = await resolveCanonicalProductVariant(
         shippingNormalizedRow,
-      product.id,
-      mapping,
-        { legacyMappingUpgrade: legacyControls || false }
+        product.id,
+        mapping,
+        {
+          legacyMappingUpgrade: legacyControls || false,
+          allowMissingVariantCreate: Boolean(safeCreate && !legacyControls),
+          product,
+          rowNumber,
+        }
       );
     } catch (error) {
       variantResolutionError = error?.message || String(error);
