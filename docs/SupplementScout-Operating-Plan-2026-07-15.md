@@ -11,6 +11,14 @@
 
 This section records the full-project audit requested before further implementation. It is the binding execution reset. Where an older status, priority or proposed implementation elsewhere in this document conflicts with this section, this section wins. Historical sections remain as evidence, not as authority to restart completed work.
 
+### 0.0 Latest execution update - 19 July 2026
+
+`/creatine` is launched and indexable. Its current-price ranking, retailer ranking and JSON-LD use fresh offers only; stale/no-source offers remain excluded from current-price claims.
+
+Daily creatine offer refresh is active via the existing GitHub Actions scheduling method in `.github/workflows/creatine-offer-refresh.yml`. It runs once per day at `03:17 UTC`, which is `03:17 Europe/London` in winter and `04:17 Europe/London` during British Summer Time. The exact automatic scope is 35 existing approved creatine offers only: Fit House 18, Discount Supplements 12 and Jon's Supplements 5. The job may update only price, stock, offer URL, `last_checked_at`, and price history when delivered-price inputs genuinely change. It must not create products, variants, retailer mappings, retailers, merges, deletions or identity repairs.
+
+No-source creatine retailers remain excluded from the automatic refresh: Whey Okay 22, GYM HIGH 3 and Simply Supplements 1. The next product/data step is Jon's catalogue review and one reviewed 25-50 offer catalogue-growth batch using the existing importer; increasing 2+ retailer coverage still requires another authorised overlapping source.
+
 ### 0.1 Executive decision
 
 The repository has delivered a real public comparison product and a substantial data/control foundation. The current constraint is not the absence of another update framework. It is obtaining commercially useful overlapping retailer sources, configuring the mappings already approved, enabling the existing sync path in production, and removing unnecessary approval friction.

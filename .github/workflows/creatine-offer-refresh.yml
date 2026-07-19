@@ -1,0 +1,82 @@
+name: Creatine Offer Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: creatine-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  creatine-offer-refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          case "$GITHUB_EVENT_NAME" in
+            schedule|workflow_dispatch) ;;
+            *) exit 1 ;;
+          esac
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test creatine refresh contract
+        run: node --test scripts/creatine-offer-refresh.test.js scripts/retailer-offer-sync.test.js
+
+      - name: Dry-run authorised creatine offers
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/creatine-offer-refresh.js --dry-run
+
+      - name: Apply safe authorised creatine refresh
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/creatine-offer-refresh.js --apply
+
+      - name: Summarize creatine refresh
+        if: always()
+        run: |
+          if [ -f tmp/creatine-offer-refresh/creatine-offer-refresh-apply.md ]; then
+            cat tmp/creatine-offer-refresh/creatine-offer-refresh-apply.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f tmp/creatine-offer-refresh/creatine-offer-refresh-dry-run.md ]; then
+            cat tmp/creatine-offer-refresh/creatine-offer-refresh-dry-run.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Daily creatine offer refresh" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> Refresh report was not produced; preflight failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload creatine refresh reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: creatine-offer-refresh-reports
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            tmp/creatine-offer-refresh/creatine-offer-refresh-*.json
+            tmp/creatine-offer-refresh/creatine-offer-refresh-*.md
