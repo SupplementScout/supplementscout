@@ -19,12 +19,15 @@ function migrationBinding(input) {
 function buildDryRun(input) {
   if (!input.sourceVariants && input.shopifySnapshot) input = { ...input, sourceVariants: projectShopifyVariants(input.shopifySnapshot, { shippingCost: input.shippingCost }) };
   const ledger = migrationBinding(input);
+  const semanticSourceFingerprint = input.semanticSourceFingerprint || input.sourceSnapshotFingerprint;
+  const rawSourceFingerprint = input.rawSourceFingerprint || input.sourceSnapshotFingerprint;
+  if (!/^[0-9a-f]{64}$/.test(String(semanticSourceFingerprint || "")) || !/^[0-9a-f]{64}$/.test(String(rawSourceFingerprint || ""))) throw new Error("Raw and semantic source fingerprints are required");
   const classification = classifyExistingOffers(input);
   return sealArtifact({
     kind: "retailer-existing-offer-mixed-batch", retailer_slug: input.retailerSlug, retailer_id: String(input.retailerId),
     target_environment: input.targetEnvironment, target_project_ref: input.targetProjectRef, target_database_identity: input.targetDatabaseIdentity,
     ...ledger,
-    source_snapshot_fingerprint: input.sourceSnapshotFingerprint, adapter_fingerprint: input.adapterFingerprint,
+    source_snapshot_fingerprint: semanticSourceFingerprint, adapter_fingerprint: input.adapterFingerprint,
     policy_fingerprint: input.policyFingerprint, code_commit: input.codeCommit, expected_state_fingerprint: input.expectedStateFingerprint,
     source_captured_at: input.sourceCapturedAt, state: classification.state, block: classification.state === "BLOCKED" ? classification : null,
     action_manifest_fingerprint: classification.action_manifest_fingerprint || null,

@@ -10,6 +10,70 @@ function sha256(value) {
   return crypto.createHash("sha256").update(typeof value === "string" ? value : canonical(value)).digest("hex");
 }
 
+function compareIdentity(left, right) {
+  const a = String(left ?? "");
+  const b = String(right ?? "");
+  if (/^\d+$/.test(a) && /^\d+$/.test(b)) return BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0;
+  return a.localeCompare(b);
+}
+
+function semanticShopifySnapshot(snapshot) {
+  if (!snapshot || !Array.isArray(snapshot.products)) throw new Error("A Shopify product snapshot is required");
+  const productIds = new Set();
+  const variantIds = new Set();
+  const products = snapshot.products.map((product) => {
+    const productId = String(product?.id ?? "");
+    if (!productId || productIds.has(productId)) throw new Error("Shopify semantic snapshot contains a missing or duplicate product ID");
+    productIds.add(productId);
+    const rawVariants = product.variants || [];
+    const productFields = { ...product };
+    delete productFields.updated_at;
+    delete productFields.variants;
+    if (!Array.isArray(rawVariants)) throw new Error("Shopify semantic snapshot contains malformed variants");
+    const variants = rawVariants.map((variant) => {
+      const variantId = String(variant?.id ?? "");
+      if (!variantId || variantIds.has(variantId)) throw new Error("Shopify semantic snapshot contains a missing or duplicate variant ID");
+      variantIds.add(variantId);
+      const variantFields = { ...variant };
+      delete variantFields.updated_at;
+      return variantFields;
+    }).sort((left, right) => compareIdentity(left.id, right.id));
+    return { ...productFields, variants };
+  }).sort((left, right) => compareIdentity(left.id, right.id));
+  return { store_origin: snapshot.store_origin || null, products };
+}
+
+function shopifySnapshotFingerprints(snapshot) {
+  const rawProjection = {
+    captured_at: snapshot.captured_at,
+    store_origin: snapshot.store_origin,
+    pages: snapshot.pages,
+    products: snapshot.products,
+  };
+  return {
+    raw_source_fingerprint: sha256(rawProjection),
+    semantic_source_fingerprint: sha256(semanticShopifySnapshot(snapshot)),
+  };
+}
+
+function compareShopifySnapshots(boundSnapshot, freshSnapshot) {
+  const bound = shopifySnapshotFingerprints(boundSnapshot);
+  const fresh = shopifySnapshotFingerprints(freshSnapshot);
+  return {
+    raw_match: bound.raw_source_fingerprint === fresh.raw_source_fingerprint,
+    semantic_match: bound.semantic_source_fingerprint === fresh.semantic_source_fingerprint,
+    non_semantic_raw_drift: bound.raw_source_fingerprint !== fresh.raw_source_fingerprint && bound.semantic_source_fingerprint === fresh.semantic_source_fingerprint,
+    bound,
+    fresh,
+  };
+}
+
+function assertSemanticShopifySnapshot(boundSnapshot, freshSnapshot) {
+  const comparison = compareShopifySnapshots(boundSnapshot, freshSnapshot);
+  if (!comparison.semantic_match) throw new Error("Semantic Shopify source drift");
+  return comparison;
+}
+
 function assertHttpsStoreUrl(storeUrl) {
   const url = new URL(storeUrl);
   if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) throw new Error("Shopify store URL must be a credential-free HTTPS origin");
@@ -20,6 +84,7 @@ function projectShopifyVariants(snapshot, { shippingCost = null } = {}) {
   const rows = [];
   for (const product of snapshot.products || []) for (const variant of product.variants || []) rows.push({
     external_product_id: String(product.id), external_variant_id: String(variant.id), product_handle: String(product.handle || ""),
+    external_sku: variant.sku == null || String(variant.sku).trim() === "" ? null : String(variant.sku),
     price: String(variant.price), shipping_cost: shippingCost, in_stock: Boolean(variant.available),
     source_updated_at: product.updated_at || null,
   });
@@ -61,10 +126,11 @@ async function readShopifySnapshot({ storeUrl, fetchImpl = globalThis.fetch, pag
         variantIds.add(id);
       }
       const projection = { captured_at: capturedAt, store_origin: origin.origin, pages, products };
-      return { ...projection, snapshot_sha256: sha256(projection) };
+      const fingerprints = shopifySnapshotFingerprints(projection);
+      return { ...projection, snapshot_sha256: fingerprints.raw_source_fingerprint, ...fingerprints };
     }
   }
   throw new Error("Shopify pagination exceeded the configured maximum");
 }
 
-module.exports = { canonical, projectShopifyVariants, readShopifySnapshot, sha256 };
+module.exports = { assertSemanticShopifySnapshot, canonical, compareShopifySnapshots, projectShopifyVariants, readShopifySnapshot, semanticShopifySnapshot, sha256, shopifySnapshotFingerprints };

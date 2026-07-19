@@ -20,7 +20,7 @@ function inventory() {
 }
 function input(changes = () => {}) {
   const data = inventory(); changes(data);
-  return { ...data, policy: { store_url: config.store_url, ...config.guardrails }, retailerSlug: config.retailer_slug, retailerId: "9001", targetEnvironment: "STAGING", targetProjectRef: "hxnrsyyqffztlvcrtgbf", targetDatabaseIdentity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf", expectedMigrationVersions: ["20260718150000_add_verified_no_change_offer_refresh", "20260718160000_add_retailer_offer_mixed_batch_executor"], expectedMigrationFingerprint: "9".repeat(64), migrationFingerprintAlgorithm: "SHA-256", migrationFingerprintVersion: "RSBI-CJ1", sourceSnapshotFingerprint: fixture.source_manifest_sha256, adapterFingerprint: "a".repeat(64), policyFingerprint: "b".repeat(64), codeCommit: "bc9ae1630c56cd7daeda3f94f93d9b6cfaedd7c8", expectedStateFingerprint: fixture.inventory_fingerprint, sourceCapturedAt: fixture.captured_at, now: new Date("2026-07-18T17:00:00.000Z"), sourceProductCount: 5, previousSourceProductCount: 5 };
+  return { ...data, policy: { store_url: config.store_url, ...config.guardrails }, retailerSlug: config.retailer_slug, retailerId: "9001", targetEnvironment: "STAGING", targetProjectRef: "hxnrsyyqffztlvcrtgbf", targetDatabaseIdentity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf", expectedMigrationVersions: ["20260718150000_add_verified_no_change_offer_refresh", "20260718160000_add_retailer_offer_mixed_batch_executor"], expectedMigrationFingerprint: "9".repeat(64), migrationFingerprintAlgorithm: "SHA-256", migrationFingerprintVersion: "RSBI-CJ1", sourceSnapshotFingerprint: fixture.source_manifest_sha256, rawSourceFingerprint: "7".repeat(64), semanticSourceFingerprint: fixture.source_manifest_sha256, adapterFingerprint: "a".repeat(64), policyFingerprint: "b".repeat(64), codeCommit: "bc9ae1630c56cd7daeda3f94f93d9b6cfaedd7c8", expectedStateFingerprint: fixture.inventory_fingerprint, sourceCapturedAt: fixture.captured_at, now: new Date("2026-07-18T17:00:00.000Z"), sourceProductCount: 5, previousSourceProductCount: 5 };
 }
 
 test("closed action enum and changed-field bitmap cover all six executable actions", () => {
@@ -46,9 +46,22 @@ test("single price, stock, combined, URL and composite changes classify exactly"
 test("identity, coverage, freshness and source-collapse anomalies block the whole run", () => {
   assert.equal(classifyExistingOffers(input((d) => d.sourceVariants.pop())).state, "BLOCKED");
   assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].external_product_id = "wrong"; })).action, "BLOCK_IDENTITY_DRIFT");
+  assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].external_sku = "unexpected"; })).action, "BLOCK_IDENTITY_DRIFT");
   assert.equal(classifyExistingOffers({ ...input(), sourceCapturedAt: "2026-07-16T00:00:00.000Z" }).state, "BLOCKED");
   assert.equal(classifyExistingOffers({ ...input(), sourceProductCount: 4, previousSourceProductCount: 5 }).reason, "SOURCE_COLLAPSE");
   assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].shipping_cost = "0.00"; })).reason, "SHIPPING_POLICY_DRIFT");
+});
+test("execution artifacts bind semantic source fingerprints and reject semantic package reuse", () => {
+  const first = buildDryRun(input());
+  const changed = buildDryRun({ ...input(), semanticSourceFingerprint: "6".repeat(64) });
+  const metadataOnly = input((data) => data.sourceVariants.forEach((row) => { row.source_updated_at = "2026-07-19T01:00:00.000Z"; }));
+  metadataOnly.rawSourceFingerprint = "5".repeat(64);
+  const metadataOnlyArtifact = buildDryRun(metadataOnly);
+  assert.equal(first.source_snapshot_fingerprint, fixture.source_manifest_sha256);
+  assert.equal(changed.source_snapshot_fingerprint, "6".repeat(64));
+  assert.notEqual(first.artifact_fingerprint, changed.artifact_fingerprint);
+  assert.equal(metadataOnlyArtifact.artifact_fingerprint, first.artifact_fingerprint);
+  assert.throws(() => buildDryRun({ ...input(), semanticSourceFingerprint: "bad" }), /Raw and semantic source fingerprints/);
 });
 test("OOS, changed-row, mass-price and hard-price guardrails fail closed", () => {
   assert.equal(classifyExistingOffers(input((d) => d.sourceVariants.slice(0, 3).forEach((r) => { r.in_stock = false; }))).state, "DRY_RUN_READY");
