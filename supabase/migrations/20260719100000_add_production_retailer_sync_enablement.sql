@@ -540,8 +540,14 @@ alter table public.retailer_catalogue_apply_runs add constraint retailer_catalog
 
 do $roles$
 begin
-  if not exists(select 1 from pg_roles where rolname='retailer_catalogue_production_approver') then create role retailer_catalogue_production_approver nologin; end if;
-  if not exists(select 1 from pg_roles where rolname='retailer_catalogue_production_executor') then create role retailer_catalogue_production_executor nologin; end if;
+  if not exists(select 1 from pg_roles where rolname='retailer_catalogue_production_approver') then
+    create role retailer_catalogue_production_approver
+      nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+  end if;
+  if not exists(select 1 from pg_roles where rolname='retailer_catalogue_production_executor') then
+    create role retailer_catalogue_production_executor
+      nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+  end if;
 end
 $roles$;
 
@@ -2266,13 +2272,9 @@ grant execute on function public.retailer_offer_sync_close_expired_approval_inte
   to retailer_catalogue_production_approver;
 
 -- Final production security boundary. Runtime entrypoints are role-separated;
--- internal SECURITY DEFINER functions remain inaccessible to callers.
-alter role retailer_catalogue_production_validator
-  nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
-alter role retailer_catalogue_production_approver
-  nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
-alter role retailer_catalogue_production_executor
-  nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+-- internal SECURITY DEFINER functions remain inaccessible to callers. All three
+-- group roles are created directly with their final fail-closed attributes so a
+-- CREATEROLE migration operator never needs a superuser-only attribute change.
 
 revoke retailer_catalogue_production_validator from retailer_catalogue_production_approver, retailer_catalogue_production_executor;
 revoke retailer_catalogue_production_approver from retailer_catalogue_production_validator, retailer_catalogue_production_executor;

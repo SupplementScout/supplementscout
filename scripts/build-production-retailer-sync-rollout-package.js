@@ -5,6 +5,7 @@ const { canonicalJson } = require("./lib/canonical-json");
 
 const ROOT = path.resolve(__dirname, "..");
 const MIGRATION_FILE = "supabase/migrations/20260719100000_add_production_retailer_sync_enablement.sql";
+const BUILDER_FILE = "scripts/build-production-retailer-sync-rollout-package.js";
 const CURRENT_FINGERPRINT = "ba5d4c8581b185d5412fa4f41a3cbeacf40547f507e124962f922d4aa71772b0";
 const EXPECTED_FINGERPRINT = "a0015032fc8b3b4fbf829ea0d0f1eb1dfdcaf1893d68dc875f21558c6a587152";
 const PRODUCTION_REF = "aftboxmrdgyhizicfsfu";
@@ -29,9 +30,10 @@ function buildPackage() {
     kind:"jons-production-one-stage-rollout",
     state:"READY_FOR_ONE_EXPLICIT_APPROVAL",
     package_id:uuidFromHash(seed),
-    created_at:"2026-07-19T12:00:00.000Z",
+    created_at:"2026-07-19T12:50:00.000Z",
     expires_at:"2026-07-20T09:58:27.691Z",
-    prepared_from_head:"c860bc609817468a563eea62497462476ce296b6",
+    prepared_from_head:"5a92aa1d4c32aa13737fa7303dccf22330519272",
+    head_contract:"Base audited HEAD; the rollout commit must descend from it, local/origin/remote HEAD must agree, and every bound artefact hash must match.",
     target:{
       environment:"PRODUCTION",
       project_ref:PRODUCTION_REF,
@@ -47,6 +49,9 @@ function buildPackage() {
     migration:{
       strategy:"SELECTIVE_SINGLE_PRODUCTION_ENABLEMENT_BUNDLE",
       runner_contract:"Apply only the named production bundle after exact ledger-25 preflight; never apply or mark the six staging-only identifiers.",
+      role_deployment:"CREATE_FINAL_FAIL_CLOSED_ATTRIBUTES_IN_BUNDLE_NO_BOOTSTRAP_NO_POST_CREATE_ATTRIBUTE_CHANGE",
+      role_operator_requirement:"CREATEROLE is sufficient; no superuser-only role attribute operation remains.",
+      bootstrap_artifact:null,
       current_count:25,
       current_fingerprint:CURRENT_FINGERPRINT,
       current_ledger:currentLedger,
@@ -85,9 +90,9 @@ function buildPackage() {
       {table:"verified_offer_refresh_targets",row:{id:true,target_environment:"PRODUCTION",project_ref:PRODUCTION_REF,database_system_identifier:"7642734024280108049",database_oid:"5",is_active:true,attested_by:"retailer_catalogue_database_targets:EXPLICIT_PRODUCTION_ROLLOUT_OPERATOR",attested_at:"SAME_AUTHORISED_TRANSACTION_TIMESTAMP"}},
     ],
     roles:[
-      {role:"retailer_catalogue_production_validator",attributes:["NOLOGIN","NOINHERIT","NOSUPERUSER","NOCREATEDB","NOCREATEROLE","NOREPLICATION","NOBYPASSRLS"],login:"supplementscout_production_validator_login",allowed_execute:["validate_retailer_offer_sync_batch_read_only(jsonb)"],direct_business_dml:false},
-      {role:"retailer_catalogue_production_approver",attributes:["NOLOGIN","NOINHERIT","NOSUPERUSER","NOCREATEDB","NOCREATEROLE","NOREPLICATION","NOBYPASSRLS"],login:"supplementscout_production_approver_login",allowed_execute:["approve_retailer_offer_sync_batch(jsonb)","approve_retailer_offer_sync_recovery(jsonb)","close_expired_retailer_offer_sync_approval(jsonb)"],direct_business_dml:false},
-      {role:"retailer_catalogue_production_executor",attributes:["NOLOGIN","NOINHERIT","NOSUPERUSER","NOCREATEDB","NOCREATEROLE","NOREPLICATION","NOBYPASSRLS"],login:"supplementscout_production_executor_login",allowed_execute:["execute_retailer_offer_sync_batch(jsonb)","recover_retailer_offer_sync_batch(jsonb)"],direct_business_dml:false},
+      {role:"retailer_catalogue_production_validator",attributes:["NOLOGIN","NOINHERIT","NOSUPERUSER","NOCREATEDB","NOCREATEROLE","NOREPLICATION","NOBYPASSRLS"],login:"supplementscout_production_validator_login",schema_usage:["public"],execute_grants:["validate_retailer_offer_sync_batch_read_only(jsonb)","retailer_offer_sync_validate_batch_read_only_internal(jsonb)"],direct_business_dml:false},
+      {role:"retailer_catalogue_production_approver",attributes:["NOLOGIN","NOINHERIT","NOSUPERUSER","NOCREATEDB","NOCREATEROLE","NOREPLICATION","NOBYPASSRLS"],login:"supplementscout_production_approver_login",schema_usage:["public"],execute_grants:["approve_retailer_offer_sync_batch(jsonb)","approve_retailer_offer_sync_recovery(jsonb)","close_expired_retailer_offer_sync_approval(jsonb)","retailer_offer_sync_approve_batch_internal(jsonb)","retailer_offer_sync_approve_recovery_internal(jsonb)","retailer_offer_sync_close_expired_approval_internal(jsonb)"],direct_business_dml:false},
+      {role:"retailer_catalogue_production_executor",attributes:["NOLOGIN","NOINHERIT","NOSUPERUSER","NOCREATEDB","NOCREATEROLE","NOREPLICATION","NOBYPASSRLS"],login:"supplementscout_production_executor_login",schema_usage:["public"],execute_grants:["execute_retailer_offer_sync_batch(jsonb)","recover_retailer_offer_sync_batch(jsonb)","retailer_offer_sync_execute_batch_internal(jsonb)","retailer_offer_sync_recover_batch_internal(jsonb)"],direct_business_dml:false},
     ],
     membership_contract:{inherit_option:false,set_option:true,admin_option:false,cross_role_membership:false,service_role_exposure:false,credential_storage:"outside repository with operator-only ACL"},
     source:{
@@ -146,6 +151,7 @@ function buildPackage() {
       "Stop immediately on every abort condition and preserve evidence.",
     ],
     production_actions_executed:[],
+    provenance:{builder_file:BUILDER_FILE,builder_sha256:sha256(fs.readFileSync(path.join(ROOT,BUILDER_FILE)))},
     package_fingerprint:null,
   };
   packageCore.package_fingerprint=sha256(canonicalJson(packageCore));

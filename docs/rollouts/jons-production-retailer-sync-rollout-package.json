@@ -2,10 +2,11 @@
   "schema_version": 1,
   "kind": "jons-production-one-stage-rollout",
   "state": "READY_FOR_ONE_EXPLICIT_APPROVAL",
-  "package_id": "3989396e-748b-4d23-84e1-ac0170548079",
-  "created_at": "2026-07-19T12:00:00.000Z",
+  "package_id": "21ca3d80-14a7-4f91-8c86-cff0ba1c61d6",
+  "created_at": "2026-07-19T12:50:00.000Z",
   "expires_at": "2026-07-20T09:58:27.691Z",
-  "prepared_from_head": "c860bc609817468a563eea62497462476ce296b6",
+  "prepared_from_head": "5a92aa1d4c32aa13737fa7303dccf22330519272",
+  "head_contract": "Base audited HEAD; the rollout commit must descend from it, local/origin/remote HEAD must agree, and every bound artefact hash must match.",
   "target": {
     "environment": "PRODUCTION",
     "project_ref": "aftboxmrdgyhizicfsfu",
@@ -21,6 +22,9 @@
   "migration": {
     "strategy": "SELECTIVE_SINGLE_PRODUCTION_ENABLEMENT_BUNDLE",
     "runner_contract": "Apply only the named production bundle after exact ledger-25 preflight; never apply or mark the six staging-only identifiers.",
+    "role_deployment": "CREATE_FINAL_FAIL_CLOSED_ATTRIBUTES_IN_BUNDLE_NO_BOOTSTRAP_NO_POST_CREATE_ATTRIBUTE_CHANGE",
+    "role_operator_requirement": "CREATEROLE is sufficient; no superuser-only role attribute operation remains.",
+    "bootstrap_artifact": null,
     "current_count": 25,
     "current_fingerprint": "ba5d4c8581b185d5412fa4f41a3cbeacf40547f507e124962f922d4aa71772b0",
     "current_ledger": [
@@ -180,7 +184,7 @@
         "ordinal": 1,
         "identifier": "20260719100000_add_production_retailer_sync_enablement",
         "file": "supabase/migrations/20260719100000_add_production_retailer_sync_enablement.sql",
-        "sha256": "ef45a78b0285d73cbc72cedf127d34ef08a8ad2b9c40076fa84e2051d3b85bd1",
+        "sha256": "0c1db39a193c98fb7cd41cfc3b75a03b35ebd59d429fe873e431aadb1aabadf9",
         "executed": false
       }
     ],
@@ -459,8 +463,12 @@
         "NOBYPASSRLS"
       ],
       "login": "supplementscout_production_validator_login",
-      "allowed_execute": [
-        "validate_retailer_offer_sync_batch_read_only(jsonb)"
+      "schema_usage": [
+        "public"
+      ],
+      "execute_grants": [
+        "validate_retailer_offer_sync_batch_read_only(jsonb)",
+        "retailer_offer_sync_validate_batch_read_only_internal(jsonb)"
       ],
       "direct_business_dml": false
     },
@@ -476,10 +484,16 @@
         "NOBYPASSRLS"
       ],
       "login": "supplementscout_production_approver_login",
-      "allowed_execute": [
+      "schema_usage": [
+        "public"
+      ],
+      "execute_grants": [
         "approve_retailer_offer_sync_batch(jsonb)",
         "approve_retailer_offer_sync_recovery(jsonb)",
-        "close_expired_retailer_offer_sync_approval(jsonb)"
+        "close_expired_retailer_offer_sync_approval(jsonb)",
+        "retailer_offer_sync_approve_batch_internal(jsonb)",
+        "retailer_offer_sync_approve_recovery_internal(jsonb)",
+        "retailer_offer_sync_close_expired_approval_internal(jsonb)"
       ],
       "direct_business_dml": false
     },
@@ -495,9 +509,14 @@
         "NOBYPASSRLS"
       ],
       "login": "supplementscout_production_executor_login",
-      "allowed_execute": [
+      "schema_usage": [
+        "public"
+      ],
+      "execute_grants": [
         "execute_retailer_offer_sync_batch(jsonb)",
-        "recover_retailer_offer_sync_batch(jsonb)"
+        "recover_retailer_offer_sync_batch(jsonb)",
+        "retailer_offer_sync_execute_batch_internal(jsonb)",
+        "retailer_offer_sync_recover_batch_internal(jsonb)"
       ],
       "direct_business_dml": false
     }
@@ -1649,5 +1668,9 @@
     "Stop immediately on every abort condition and preserve evidence."
   ],
   "production_actions_executed": [],
-  "package_fingerprint": "d4637bf98249207af01001e3fd5b70c76b4f616010089c287354237905493e06"
+  "provenance": {
+    "builder_file": "scripts/build-production-retailer-sync-rollout-package.js",
+    "builder_sha256": "69de1c1562087fde37a0acee35563016f8e17ae3ae94722798a159fd8f163eb3"
+  },
+  "package_fingerprint": "0e6ae6cbfaf67d361e150b3047c0b0fd827bbb1f3e5d5a8383af44f80c1c42f5"
 }

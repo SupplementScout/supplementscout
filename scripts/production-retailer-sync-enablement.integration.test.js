@@ -85,6 +85,9 @@ function exec(container, args, options = {}) {
 function psql(container, database, sql) {
   return exec(container, ["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U","postgres","-d",database,"-tA","-c",sql]);
 }
+function psqlAs(container, database, user, sql) {
+  return exec(container, ["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U",user,"-d",database,"-tA","-c",sql]);
+}
 function psqlFile(container, database, file, variables = []) {
   const args = ["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1",...variables.flatMap((value) => ["-v",value]),"-U","postgres","-d",database,"-f",`/workspace/${path.relative(ROOT,file).replaceAll("\\","/")}`];
   return exec(container, args);
@@ -168,6 +171,9 @@ test("production enablement is one transactional bundle and preserves staging mi
   assert.match(sql,/retailer_catalogue_production_validator/);
   assert.match(sql,/target_environment='PRODUCTION'/);
   assert.match(sql,/project_ref='aftboxmrdgyhizicfsfu'/);
+  assert.doesNotMatch(sql,/\balter\s+role\b/i);
+  for(const role of ["validator","approver","executor"])
+    assert.match(sql,new RegExp(`create role retailer_catalogue_production_${role}\\s+nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls`,`i`));
   assert.doesNotMatch(sql,/insert into public\.verified_offer_refresh_targets/i);
   const expected={
     "20260717120000_create_retailer_catalogue_control_ledger.sql":"df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -219,6 +225,13 @@ test("production sequence passes exact identity and fails staging, drift, order,
     waitForPostgres(container);
     const base="supplementscout_stage2_test_production_enablement";
     requireSuccess(exec(container,["createdb","-U","postgres",base]),"create base database");
+    requireSuccess(psql(container,base,"create role management_sql_operator_probe login createrole nosuperuser nocreatedb noreplication nobypassrls"),"create management SQL operator probe");
+    const finalAttributes="nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls";
+    requireSuccess(psqlAs(container,base,"management_sql_operator_probe",`create role direct_final_role_probe ${finalAttributes}`),"management operator direct final CREATE ROLE");
+    requireSuccess(psqlAs(container,base,"management_sql_operator_probe","create role late_alter_role_probe nologin"),"management operator initial CREATE ROLE");
+    requireFailure(psqlAs(container,base,"management_sql_operator_probe",`alter role late_alter_role_probe ${finalAttributes}`),"management operator ALTER ROLE superuser attribute",/Only roles with the SUPERUSER attribute may change the SUPERUSER attribute/i);
+    const directRole=json(container,base,"select row_to_json(r)::text from (select rolcanlogin,rolinherit,rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls from pg_roles where rolname='direct_final_role_probe') r");
+    assert.deepEqual(directRole,{rolcanlogin:false,rolinherit:false,rolsuper:false,rolcreatedb:false,rolcreaterole:false,rolreplication:false,rolbypassrls:false});
     requireSuccess(psql(container,base,"do $roles$ begin if not exists(select 1 from pg_roles where rolname='anon')then create role anon nologin;end if;if not exists(select 1 from pg_roles where rolname='authenticated')then create role authenticated nologin;end if;if not exists(select 1 from pg_roles where rolname='service_role')then create role service_role nologin;end if;end $roles$;"),"create roles");
     requireSuccess(psqlFile(container,base,PREREQUISITES[0]),"baseline");
     requireSuccess(psqlFile(container,base,STAGE2_SETUP,["stage2_test_database_confirmed=1","stage2_test_host=127.0.0.1",`stage2_expected_database=${base}`,"stage2_scenario=success"]),"stage2 fixture");
