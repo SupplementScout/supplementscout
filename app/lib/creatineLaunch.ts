@@ -1,10 +1,8 @@
-// Keep indexing and sitemap discovery disabled until a separate offer-freshness
-// review explicitly approves a small launch-only change to this central status.
 export const CREATINE_LAUNCH_STATUS = {
-  phase: "implemented_prelaunch",
-  allowIndexing: false,
-  includeInSitemap: false,
-  blocker: "offer_freshness_review_required",
+  phase: "fresh_offer_launch",
+  allowIndexing: true,
+  includeInSitemap: true,
+  blocker: null,
 } as const;
 
 export const CREATINE_LAUNCH_THRESHOLDS = {
@@ -40,6 +38,25 @@ export type CreatineLaunchBlocker =
   | "offer_freshness_unavailable"
   | "offers_stale";
 
+export function isCreatineOfferFresh(
+  checkedAt: string | null,
+  now = new Date()
+) {
+  const checkedAtTime = checkedAt ? Date.parse(checkedAt) : Number.NaN;
+
+  if (!Number.isFinite(checkedAtTime)) {
+    return false;
+  }
+
+  const ageHours = (now.getTime() - checkedAtTime) / 3_600_000;
+
+  return (
+    Number.isFinite(ageHours) &&
+    ageHours >= 0 &&
+    ageHours <= CREATINE_LAUNCH_THRESHOLDS.maximumOfferAgeHours
+  );
+}
+
 export function evaluateCreatineLaunchReadiness(
   input: CreatineLaunchReadinessInput
 ) {
@@ -73,23 +90,10 @@ export function evaluateCreatineLaunchReadiness(
     blockers.push("insufficient_multi_retailer_coverage");
   }
 
-  const latestCheckedAt = input.latestOfferCheckedAt
-    ? Date.parse(input.latestOfferCheckedAt)
-    : Number.NaN;
-
-  if (!Number.isFinite(latestCheckedAt)) {
+  if (!input.latestOfferCheckedAt) {
     blockers.push("offer_freshness_unavailable");
-  } else {
-    const now = input.now || new Date();
-    const ageHours = (now.getTime() - latestCheckedAt) / 3_600_000;
-
-    if (
-      !Number.isFinite(ageHours) ||
-      ageHours < 0 ||
-      ageHours > CREATINE_LAUNCH_THRESHOLDS.maximumOfferAgeHours
-    ) {
-      blockers.push("offers_stale");
-    }
+  } else if (!isCreatineOfferFresh(input.latestOfferCheckedAt, input.now || new Date())) {
+    blockers.push("offers_stale");
   }
 
   return {

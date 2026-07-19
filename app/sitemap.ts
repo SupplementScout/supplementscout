@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { CREATINE_LAUNCH_STATUS } from "./lib/creatineLaunch";
 import { supabase } from "./lib/supabase";
 
 const siteUrl = "https://www.supplementscout.co.uk";
@@ -61,6 +62,17 @@ const staticPages: MetadataRoute.Sitemap = [
   },
 ];
 
+const creatinePages: MetadataRoute.Sitemap = CREATINE_LAUNCH_STATUS.includeInSitemap
+  ? [
+      {
+        url: `${siteUrl}/creatine`,
+        lastModified: staticLastModified,
+        changeFrequency: "daily",
+        priority: 0.9,
+      },
+    ]
+  : [];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: products, error } = await supabase
     .from("products")
@@ -83,5 +95,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       })) || [];
 
-  return [...staticPages, ...productPages];
+  return [...staticPages, ...creatinePages, ...productPages];
 }

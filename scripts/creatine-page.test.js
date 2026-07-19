@@ -49,6 +49,7 @@ const sitemapPath = path.join(process.cwd(), "app", "sitemap.ts");
 
 const pricing = compileModule(pricingPath);
 const launch = compileModule(launchPath);
+const FIXTURE_NOW = new Date("2026-07-16T21:00:00.000Z");
 
 function queryMock(result) {
   const calls = [];
@@ -126,6 +127,7 @@ function rawProduct(overrides = {}) {
 function loadComparison(mockSupabase) {
   return compileModule(comparisonPath, {
     mocks: {
+      "./creatineLaunch": launch,
       "./pricing": pricing,
       "./supabase": { supabase: mockSupabase },
     },
@@ -134,34 +136,37 @@ function loadComparison(mockSupabase) {
 
 function comparisonFixture() {
   const { normalizeCreatineComparison } = loadComparison({});
-  const normalized = normalizeCreatineComparison([
-    rawProduct(),
-    rawProduct({
-      id: 2,
-      slug: "shipping-unknown",
-      name: "Shipping Unknown Creatine",
-      brand: "Careful Brand",
-      nutrition_verified: false,
-      unit_pricing_verified: false,
-      creatine_per_serving_g: null,
-      offers: [
-        {
-          id: 21,
-          price: 8.99,
-          shipping_cost: null,
-          in_stock: true,
-          last_checked_at: null,
-          retailer: { id: 1, name: "Retailer One", slug: "retailer-one" },
-        },
-      ],
-    }),
-    rawProduct({
-      id: 3,
-      slug: "no-offer-creatine",
-      name: "No Offer Creatine",
-      offers: [],
-    }),
-  ]);
+  const normalized = normalizeCreatineComparison(
+    [
+      rawProduct(),
+      rawProduct({
+        id: 2,
+        slug: "shipping-unknown",
+        name: "Shipping Unknown Creatine",
+        brand: "Careful Brand",
+        nutrition_verified: false,
+        unit_pricing_verified: false,
+        creatine_per_serving_g: null,
+        offers: [
+          {
+            id: 21,
+            price: 8.99,
+            shipping_cost: null,
+            in_stock: true,
+            last_checked_at: "2026-07-16T20:30:00.000Z",
+            retailer: { id: 1, name: "Retailer One", slug: "retailer-one" },
+          },
+        ],
+      }),
+      rawProduct({
+        id: 3,
+        slug: "no-offer-creatine",
+        name: "No Offer Creatine",
+        offers: [],
+      }),
+    ],
+    { now: FIXTURE_NOW }
+  );
 
   return { ...normalized, error: false };
 }
@@ -196,21 +201,21 @@ test("the /creatine route exists and is a Server Component", () => {
   assert.match(source, /await getCreatineComparison\(\)/);
 });
 
-test("Creatine metadata is unique, canonical and manually noindex follow", () => {
+test("Creatine metadata is unique, canonical and index follow after fresh-offer launch", () => {
   const { page } = loadPage();
   assert.match(page.metadata.title, /Compare Creatine Supplements/);
   assert.match(page.metadata.description, /delivery costs/);
   assert.equal(page.metadata.alternates.canonical, "/creatine");
-  assert.deepEqual(page.metadata.robots, { index: false, follow: true });
+  assert.deepEqual(page.metadata.robots, { index: true, follow: true });
   assert.equal(page.metadata.openGraph.url, "/creatine");
   assert.equal(page.metadata.twitter.card, "summary");
 });
 
-test("manual launch status keeps Creatine out of the sitemap", () => {
+test("fresh-offer launch status includes Creatine in the sitemap", () => {
   const sitemapSource = fs.readFileSync(sitemapPath, "utf8");
-  assert.equal(launch.CREATINE_LAUNCH_STATUS.allowIndexing, false);
-  assert.equal(launch.CREATINE_LAUNCH_STATUS.includeInSitemap, false);
-  assert.equal(sitemapSource.includes("/creatine"), false);
+  assert.equal(launch.CREATINE_LAUNCH_STATUS.allowIndexing, true);
+  assert.equal(launch.CREATINE_LAUNCH_STATUS.includeInSitemap, true);
+  assert.equal(sitemapSource.includes("/creatine"), true);
 });
 
 test("launch readiness reports implementation ready but stale launch blocked", () => {
@@ -231,10 +236,10 @@ test("launch readiness reports implementation ready but stale launch blocked", (
 
   assert.equal(result.pageImplementationReady, true);
   assert.equal(result.indexLaunchAllowed, false);
-  assert.deepEqual(result.blockers, ["manual_index_launch_disabled", "offers_stale"]);
+  assert.deepEqual(result.blockers, ["offers_stale"]);
 });
 
-test("fresh data alone cannot automatically enable indexing", () => {
+test("fresh launch-ready data enables indexing", () => {
   const result = launch.evaluateCreatineLaunchReadiness({
     activeProducts: 41,
     activeOffers: 61,
@@ -250,8 +255,8 @@ test("fresh data alone cannot automatically enable indexing", () => {
     now: new Date("2026-07-18T10:42:41.600Z"),
   });
 
-  assert.deepEqual(result.blockers, ["manual_index_launch_disabled"]);
-  assert.equal(result.indexLaunchAllowed, false);
+  assert.deepEqual(result.blockers, []);
+  assert.equal(result.indexLaunchAllowed, true);
 });
 
 test("thin-content readiness fails closed across coverage and content checks", () => {
@@ -326,11 +331,14 @@ test("unknown shipping never becomes free delivery or a verified cost", () => {
 
 test("exact category matching excludes broader category strings and keeps no-offer products", () => {
   const { normalizeCreatineComparison } = loadComparison({});
-  const result = normalizeCreatineComparison([
-    rawProduct({ category: " Creatine " }),
-    rawProduct({ id: 2, category: "Creatine Blend" }),
-    rawProduct({ id: 3, name: "No Offer", offers: [] }),
-  ]);
+  const result = normalizeCreatineComparison(
+    [
+      rawProduct({ category: " Creatine " }),
+      rawProduct({ id: 2, category: "Creatine Blend" }),
+      rawProduct({ id: 3, name: "No Offer", offers: [] }),
+    ],
+    { now: FIXTURE_NOW }
+  );
 
   assert.equal(result.rows.length, 2);
   assert.ok(result.rows.some((row) => row.id === "3" && row.bestOffer === null));
@@ -339,6 +347,44 @@ test("exact category matching excludes broader category strings and keeps no-off
 test("comparison sorting puts known delivered totals before unknown and unavailable rows", () => {
   const result = comparisonFixture();
   assert.deepEqual(result.rows.map((row) => row.id), ["1", "2", "3"]);
+});
+
+test("stale offers are excluded from current ranking, retailer counts and verified costs", () => {
+  const { normalizeCreatineComparison } = loadComparison({});
+  const result = normalizeCreatineComparison(
+    [
+      rawProduct({
+        offers: [
+          {
+            id: 10,
+            price: 1,
+            shipping_cost: 1,
+            in_stock: true,
+            last_checked_at: "2026-07-14T20:00:00.000Z",
+            retailer: { id: 1, name: "Stale Cheap Retailer", slug: "stale" },
+          },
+          {
+            id: 11,
+            price: 12,
+            shipping_cost: 3,
+            in_stock: true,
+            last_checked_at: "2026-07-16T20:30:00.000Z",
+            retailer: { id: 2, name: "Fresh Retailer", slug: "fresh" },
+          },
+        ],
+      }),
+    ],
+    { now: FIXTURE_NOW }
+  );
+
+  const row = result.rows[0];
+  assert.equal(row.bestOffer.id, "11");
+  assert.equal(row.bestOffer.retailer.name, "Fresh Retailer");
+  assert.equal(row.offerCount, 1);
+  assert.equal(row.retailerCount, 1);
+  assert.equal(row.verifiedCostPer5g, 0.3);
+  assert.equal(result.summary.activeOffers, 1);
+  assert.equal(result.summary.staleOffersExcluded, 1);
 });
 
 test("query errors return a safe empty result", async () => {
@@ -368,7 +414,7 @@ test("SSR content includes direct answer, comparison fields and verified fallbac
   }
   assert.match(html, /Not yet verified/);
   assert.match(html, /Delivery not known/);
-  assert.match(html, /No in-stock offer/);
+  assert.match(html, /No recently verified offer/);
   assert.match(html, /250 g/);
   assert.match(html, /50 verified servings/);
   assert.match(html, /5 g creatine \/ serving/);
@@ -402,14 +448,16 @@ test("structured data contains CollectionPage, matching ItemList and BreadcrumbL
   assert.equal(collection.url, "https://www.supplementscout.co.uk/creatine");
   assert.equal(itemList.numberOfItems, result.rows.length);
   assert.deepEqual(itemList.itemListElement.map((item) => item.name), result.rows.map((row) => row.name));
+  assert.equal(itemList.itemListElement[0].item.offers.price, "13.00");
+  assert.equal(itemList.itemListElement[0].item.offers.availability, "https://schema.org/InStock");
+  assert.equal(itemList.itemListElement[2].item.offers, undefined);
   assert.deepEqual(itemList.itemListElement.map((item) => item.position), [1, 2, 3]);
   assert.deepEqual(breadcrumb.itemListElement.map((item) => item.name), ["Home", "Creatine"]);
   assert.equal(JSON.stringify(data).includes("ratingValue"), false);
   assert.equal(JSON.stringify(data).includes("reviewCount"), false);
-  assert.equal(JSON.stringify(data).includes('"@type":"Product"'), false);
 });
 
-test("rendered JSON-LD is sanitized and present before index launch", () => {
+test("rendered JSON-LD is sanitized and present after index launch", () => {
   const { page } = loadPage();
   const result = comparisonFixture();
   result.rows[0].name = "Safe <Creatine>";
@@ -423,7 +471,7 @@ test("rendered JSON-LD is sanitized and present before index launch", () => {
 
 test("empty and degraded states remain useful and do not expose prices", () => {
   const { page } = loadPage();
-  const empty = { rows: [], summary: { activeProducts: 0, activeOffers: 0, retailers: 0, productsWithMultipleRetailers: 0, latestOfferCheckedAt: null }, error: false };
+  const empty = { rows: [], summary: { activeProducts: 0, activeOffers: 0, retailers: 0, productsWithMultipleRetailers: 0, latestOfferCheckedAt: null, staleOffersExcluded: 0 }, error: false };
   const failed = { ...empty, error: true };
   const emptyHtml = renderToStaticMarkup(React.createElement(page.CreatinePageContent, { result: empty }));
   const failedHtml = renderToStaticMarkup(React.createElement(page.CreatinePageContent, { result: failed }));

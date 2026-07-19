@@ -92,6 +92,27 @@ export function buildCreatineStructuredData(rows: CreatineComparisonRow[], lastU
         itemListElement: rows.map((row, index) => ({
           "@type": "ListItem",
           position: index + 1,
+          item: {
+            "@type": "Product",
+            name: row.name,
+            url: `${siteUrl}${row.productUrl}`,
+            ...(row.bestOffer
+              ? {
+                  offers: {
+                    "@type": "Offer",
+                    priceCurrency: "GBP",
+                    price: row.bestOffer.productPrice.toFixed(2),
+                    availability: "https://schema.org/InStock",
+                    seller: row.bestOffer.retailer?.name
+                      ? {
+                          "@type": "Organization",
+                          name: row.bestOffer.retailer.name,
+                        }
+                      : undefined,
+                  },
+                }
+              : {}),
+          },
           name: row.name,
           url: `${siteUrl}${row.productUrl}`,
         })),
@@ -196,7 +217,8 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
           </p>
           {!result.error && (
             <p className="mt-4 text-sm leading-6 text-zinc-600">
-              Current coverage: {result.summary.activeProducts} active product{result.summary.activeProducts === 1 ? "" : "s"}, {result.summary.activeOffers} in-stock offer{result.summary.activeOffers === 1 ? "" : "s"} and {result.summary.retailers} retailer{result.summary.retailers === 1 ? "" : "s"}.
+              Current coverage: {result.summary.activeProducts} active product{result.summary.activeProducts === 1 ? "" : "s"}, {result.summary.activeOffers} recently verified in-stock offer{result.summary.activeOffers === 1 ? "" : "s"} and {result.summary.retailers} current retailer{result.summary.retailers === 1 ? "" : "s"}.
+              {result.summary.staleOffersExcluded > 0 ? ` ${result.summary.staleOffersExcluded} older in-stock offer${result.summary.staleOffersExcluded === 1 ? " is" : "s are"} excluded from current-price ranking until refreshed.` : ""}
             </p>
           )}
         </div>
@@ -267,10 +289,10 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
                           <span>Delivery not known</span>
                         )}
                       </td>
-                      <td className="px-4 py-4">{row.retailerCount} retailer{row.retailerCount === 1 ? "" : "s"}<span className="mt-1 block text-xs text-zinc-600">{row.offerCount} in-stock offer{row.offerCount === 1 ? "" : "s"}</span></td>
+                      <td className="px-4 py-4">{row.retailerCount} retailer{row.retailerCount === 1 ? "" : "s"}<span className="mt-1 block text-xs text-zinc-600">{row.offerCount} recently verified offer{row.offerCount === 1 ? "" : "s"}</span></td>
                       <td className="px-4 py-4 font-semibold">{row.verifiedCostPer5g === null ? "Not yet verified" : formatCurrency(row.verifiedCostPer5g)}</td>
                       <td className="px-4 py-4">
-                        <span className={offer ? "font-semibold text-emerald-700" : "font-semibold text-zinc-600"}>{offer ? "In stock" : "No in-stock offer"}</span>
+                        <span className={offer ? "font-semibold text-emerald-700" : "font-semibold text-zinc-600"}>{offer ? "Recently verified in stock" : "No recently verified offer"}</span>
                         <span className="mt-1 block text-xs text-zinc-600">{checkedAt ? `Checked ${checkedAt}` : "Check time unavailable"}</span>
                       </td>
                       <td className="px-4 py-4"><Link href={row.productUrl} className="inline-flex min-h-11 items-center rounded-lg bg-zinc-950 px-4 font-semibold text-white hover:bg-zinc-800">Compare details</Link></td>
@@ -287,7 +309,7 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-2">
           <div>
             <h2 className="text-2xl font-bold">How this creatine comparison works</h2>
-            <p className="mt-3 leading-7 text-zinc-700">For each canonical product, we compare active in-stock retailer offers. Offers with a known product price and delivery charge are ordered by total delivered price. An offer with unknown delivery cannot outrank an offer with a known delivered total.</p>
+            <p className="mt-3 leading-7 text-zinc-700">For each canonical product, we compare recently verified active in-stock retailer offers. Older offer prices are excluded from current-price ranking until they are refreshed. Offers with a known product price and delivery charge are ordered by total delivered price. An offer with unknown delivery cannot outrank an offer with a known delivered total.</p>
             <p className="mt-3 leading-7 text-zinc-700">Cost per 5 g uses the shared verified-pricing calculation. It requires verified unit pricing and nutrition data, positive creatine per serving, a known delivered price, and either verified servings or complete powder weight and serving-size data. Products that do not meet every requirement are marked “Not yet verified”.</p>
             <p className="mt-3 text-sm leading-6 text-zinc-600">Retailer data is checked when source updates are processed; we show the latest timestamp supplied by the qualifying offers rather than claiming a fixed update frequency.</p>
           </div>

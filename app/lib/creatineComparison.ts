@@ -4,6 +4,7 @@ import {
   getVerifiedCostPer5gCreatine,
   type DeliveredPrice,
 } from "./pricing";
+import { isCreatineOfferFresh } from "./creatineLaunch";
 import { supabase } from "./supabase";
 
 const CREATINE_QUERY_LIMIT = 1000;
@@ -76,6 +77,7 @@ export type CreatineComparisonSummary = {
   retailers: number;
   productsWithMultipleRetailers: number;
   latestOfferCheckedAt: string | null;
+  staleOffersExcluded: number;
 };
 
 export type CreatineComparisonResult = {
@@ -124,7 +126,10 @@ function latestTimestamp(values: Array<string | null>) {
   }, null);
 }
 
-function normalizeOffer(offer: RawCreatineOffer): CreatineComparisonOffer | null {
+function normalizeOffer(
+  offer: RawCreatineOffer,
+  now = new Date()
+): CreatineComparisonOffer | null {
   if (offer.in_stock !== true) {
     return null;
   }
@@ -132,6 +137,10 @@ function normalizeOffer(offer: RawCreatineOffer): CreatineComparisonOffer | null
   const productPrice = getKnownProductPrice(offer.price);
 
   if (productPrice === null) {
+    return null;
+  }
+
+  if (!isCreatineOfferFresh(offer.last_checked_at, now)) {
     return null;
   }
 
@@ -155,6 +164,14 @@ function normalizeOffer(offer: RawCreatineOffer): CreatineComparisonOffer | null
         ? offer.last_checked_at
         : null,
   };
+}
+
+function isCurrentPriceCandidate(offer: RawCreatineOffer, now = new Date()) {
+  return (
+    offer.in_stock === true &&
+    getKnownProductPrice(offer.price) !== null &&
+    isCreatineOfferFresh(offer.last_checked_at, now)
+  );
 }
 
 function offerSort(
@@ -209,15 +226,17 @@ export function creatineComparisonRowSort(
 }
 
 export function normalizeCreatineComparison(
-  products: RawCreatineProduct[]
+  products: RawCreatineProduct[],
+  options: { now?: Date } = {}
 ): Omit<CreatineComparisonResult, "error"> {
+  const now = options.now || new Date();
   const exactProducts = products.filter(
     (product) => product.category?.trim().toLowerCase() === "creatine"
   );
 
   const rows = exactProducts.map<CreatineComparisonRow>((product) => {
     const offers = (product.offers || [])
-      .map(normalizeOffer)
+      .map((offer) => normalizeOffer(offer, now))
       .filter((offer): offer is CreatineComparisonOffer => offer !== null)
       .sort(offerSort);
     const bestOffer = offers[0] || null;
@@ -259,15 +278,23 @@ export function normalizeCreatineComparison(
   const retailerIds = new Set<string>();
   let activeOffers = 0;
   let productsWithMultipleRetailers = 0;
+  let staleOffersExcluded = 0;
   const offerCheckedAt: Array<string | null> = [];
 
   for (const product of exactProducts) {
     const offers = (product.offers || [])
-      .map(normalizeOffer)
+      .map((offer) => normalizeOffer(offer, now))
       .filter((offer): offer is CreatineComparisonOffer => offer !== null);
+    const staleOffers = (product.offers || []).filter(
+      (offer) =>
+        offer.in_stock === true &&
+        getKnownProductPrice(offer.price) !== null &&
+        !isCurrentPriceCandidate(offer, now)
+    );
     const productRetailers = new Set<string>();
 
     activeOffers += offers.length;
+    staleOffersExcluded += staleOffers.length;
     offerCheckedAt.push(...offers.map((offer) => offer.lastCheckedAt));
 
     for (const offer of offers) {
@@ -290,6 +317,7 @@ export function normalizeCreatineComparison(
       retailers: retailerIds.size,
       productsWithMultipleRetailers,
       latestOfferCheckedAt: latestTimestamp(offerCheckedAt),
+      staleOffersExcluded,
     },
   };
 }
@@ -345,6 +373,7 @@ export async function getCreatineComparison(): Promise<CreatineComparisonResult>
         retailers: 0,
         productsWithMultipleRetailers: 0,
         latestOfferCheckedAt: null,
+        staleOffersExcluded: 0,
       },
       error: true,
     };
