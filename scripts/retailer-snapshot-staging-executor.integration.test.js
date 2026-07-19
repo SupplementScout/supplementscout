@@ -30,6 +30,8 @@ const files = {
   mixedTest: "supabase/test/retailer_offer_mixed_batch_executor_integration_test.sql",
   readOnlyValidator: "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql",
   readOnlyValidatorTest: "supabase/test/retailer_offer_read_only_validator_integration_test.sql",
+  expiredClose: "supabase/migrations/20260719090000_add_expired_retailer_offer_sync_approval_close.sql",
+  expiredCloseTest: "supabase/test/retailer_offer_expired_approval_close_integration_test.sql",
 };
 assert.equal(process.argv.length, 2, "staging integration runner accepts no connection arguments");
 function run(command, args, timeout = 180_000) { return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout }); }
@@ -86,6 +88,15 @@ test("staging executor full fixture and recovery on network-isolated disposable 
     const mixedResult = psqlFile(container, database, files.mixedTest);
     ok(mixedResult, "mixed-batch 26-row apply, replay and recovery"); assert.match(output(mixedResult), /"result"\s*:\s*"PASS"/);
     assert.match(output(mixedResult), /"ledger_negative_cases"\s*:\s*12/); assert.match(output(mixedResult), /"ledger_negative_failures"\s*:\s*0/);
+    ok(psqlFile(container, database, files.expiredClose), "expired approval close migration");
+    ok(recordMigration(container, database, "20260719090000_add_expired_retailer_offer_sync_approval_close"), "record expired approval close");
+    const expiredCloseResult = psqlFile(container, database, files.expiredCloseTest);
+    ok(expiredCloseResult, "expired approval close scenarios"); assert.match(output(expiredCloseResult), /"result"\s*:\s*"PASS"/);
+    assert.match(output(expiredCloseResult), /"cases"\s*:\s*20/); assert.match(output(expiredCloseResult), /"failures"\s*:\s*0/); assert.match(output(expiredCloseResult), /"skips"\s*:\s*0/);
+
+    const expiredCloseRerun = psqlFile(container, database, files.expiredClose);
+    assert.notEqual(expiredCloseRerun.status, 0, "expired approval close migration rerun unexpectedly succeeded");
+    assert.match(output(expiredCloseRerun), /expired mixed approval close is already installed; rerun rejected/);
 
     const mixedRerun = psqlFile(container, database, files.mixed);
     assert.notEqual(mixedRerun.status, 0, "mixed migration rerun unexpectedly succeeded");
