@@ -2126,6 +2126,302 @@ test("safe-create only allows approved supplement categories", async () => {
   }
 });
 
+test("safe-create allows only Marek-reviewed Jon's supplement families beyond the base allowlist", async () => {
+  const cases = [
+    {
+      product_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+      slug: "efectiv-whey-protein-60-serving-1-8kg",
+      brand: "Efectiv",
+      category: "Whey Protein",
+    },
+    {
+      product_name: "Efectiv Grass Fed Whey Protein Isolate 2kg",
+      slug: "efectiv-grass-fed-whey-protein-isolate-2kg",
+      brand: "Efectiv",
+      category: "Whey Protein",
+    },
+    {
+      product_name: "PER4M Egg White Protein 1.8kg",
+      slug: "per4m-egg-white-protein-1-8kg",
+      brand: "Per4m",
+      category: "Whey Protein",
+    },
+    {
+      product_name: "Gas Mark 10 Pitbull Pump Pre Workout 25 Servings",
+      slug: "gas-mark-10-pitbull-pump-pre-workout-25-servings",
+      brand: "Gas Mark 10",
+      category: "Pre Workout",
+    },
+    {
+      product_name: "Conteh Sports Mega Pump Elite 30 Servings",
+      slug: "conteh-sports-mega-pump-elite-30-servings",
+      brand: "Conteh Sports",
+      category: "Pre Workout",
+    },
+    {
+      product_name: "Conteh Sports Essential Gains EAA 465g",
+      slug: "conteh-sports-essential-gains-eaa-465g",
+      brand: "Conteh Sports",
+      category: "Amino Acids",
+    },
+    {
+      product_name: "PER4M Greens 150g",
+      slug: "per4m-greens-150g",
+      brand: "Per4m",
+      category: "Health Supplements",
+    },
+    {
+      product_name: "Strom Sports Cream of Rice 2kg",
+      slug: "strom-sports-cream-of-rice-2kg",
+      brand: "Strom",
+      category: "Health Supplements",
+    },
+    {
+      product_name: "Apex Formulas Cream of Oats 2kg",
+      slug: "apex-formulas-cream-of-oats-2kg",
+      brand: "Apex Formulas",
+      category: "Health Supplements",
+    },
+    {
+      product_name: "PER4M Protein Pancakes 16 Servings",
+      slug: "per4m-protein-pancakes-16-servings",
+      brand: "Per4m",
+      category: "Health Supplements",
+    },
+  ];
+
+  for (const [index, item] of cases.entries()) {
+    const supabase = createMockSupabase({
+      retailers: [],
+      products: [],
+      retailer_products: [],
+      offers: [],
+      price_history: [],
+    });
+    setSupabaseForTests(supabase);
+
+    const result = await runImportRows(
+      [baseSafeCreateFeedRow({
+        ...item,
+        product_format: "powder",
+        evidence_format: "powder",
+        external_gtin: "",
+        external_id: `JONS-PRODUCT-${index}`,
+        merchant_product_id: `JONS-PRODUCT-${index}`,
+        aw_product_id: `JONS-AW-${index}`,
+        external_name: item.product_name,
+        external_url: `https://jonssupplements.co.uk/products/${item.slug}?variant=${5000 + index}`,
+        merchant_deep_link: `https://jonssupplements.co.uk/products/${item.slug}?variant=${5000 + index}`,
+        aw_deep_link: `https://jonssupplements.co.uk/products/${item.slug}?variant=${5000 + index}`,
+        affiliate_url: `https://jonssupplements.co.uk/products/${item.slug}?variant=${5000 + index}`,
+        url: `https://jonssupplements.co.uk/products/${item.slug}?variant=${5000 + index}`,
+      })],
+      { mode: "feed", safeCreate: true, dryRun: true }
+    );
+
+    assert.equal(result.report.approvedRows.length, 1, item.product_name);
+    assert.equal(result.report.exclusions.length, 0, item.product_name);
+    assert.equal(result.report.ambiguousRows.length, 0, item.product_name);
+    assert.equal(supabase.writes.length, 0);
+  }
+});
+
+test("safe-create keeps reviewed-family negative safeguards fail-closed", async () => {
+  const blockedCases = [
+    {
+      name: "bundle/free item",
+      overrides: {
+        product_name: "Efectiv Whey Protein 60 Serving 1.8kg Plus Free Shaker",
+        slug: "efectiv-whey-protein-plus-free-shaker",
+        brand: "Efectiv",
+        category: "Whey Protein",
+        product_format: "powder",
+        evidence_format: "powder",
+      },
+      reportKey: "exclusions",
+    },
+    {
+      name: "dated/BBE title",
+      overrides: {
+        product_name: "Efectiv Whey Protein 60 Serving 1.8kg BBE 08/26",
+        slug: "efectiv-whey-protein-bbe",
+        brand: "Efectiv",
+        category: "Whey Protein",
+        product_format: "powder",
+        evidence_format: "powder",
+      },
+      reportKey: "exclusions",
+    },
+    {
+      name: "unsupported unrelated category",
+      overrides: {
+        product_name: "Example Lifting Straps",
+        slug: "example-lifting-straps",
+        brand: "Example",
+        category: "Accessories",
+        product_format: "",
+        evidence_format: "",
+      },
+      reportKey: "exclusions",
+    },
+    {
+      name: "missing source URL identity",
+      overrides: {
+        product_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+        slug: "efectiv-whey-protein-missing-url",
+        brand: "Efectiv",
+        category: "Whey Protein",
+        product_format: "powder",
+        evidence_format: "powder",
+        external_url: "",
+        merchant_deep_link: "",
+        aw_deep_link: "",
+        affiliate_url: "",
+        url: "",
+      },
+      reportKey: "invalidRows",
+    },
+    {
+      name: "conflicting product format",
+      overrides: {
+        product_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+        slug: "efectiv-whey-protein-capsules",
+        brand: "Efectiv",
+        category: "Whey Protein",
+        product_format: "capsule",
+        evidence_format: "capsules",
+      },
+      reportKey: "exclusions",
+    },
+    {
+      name: "unclear formula/version",
+      overrides: {
+        product_name: "HR Labs DEFIB V3 480g",
+        slug: "hr-labs-defib-v3-480g",
+        brand: "HR Labs",
+        category: "Pre Workout",
+        product_format: "powder",
+        evidence_format: "powder",
+      },
+      reportKey: "exclusions",
+    },
+  ];
+
+  for (const { name, overrides, reportKey } of blockedCases) {
+    const supabase = createMockSupabase({
+      retailers: [],
+      products: [],
+      retailer_products: [],
+      offers: [],
+      price_history: [],
+    });
+    setSupabaseForTests(supabase);
+
+    const result = await runImportRows(
+      [baseSafeCreateFeedRow({
+        ...overrides,
+        external_name: overrides.product_name,
+      })],
+      { mode: "feed", safeCreate: true, dryRun: true }
+    );
+
+    assert.equal(result.report.approvedRows.length, 0, name);
+    assert.equal(result.report[reportKey].length, 1, name);
+    assert.equal(supabase.writes.length, 0);
+  }
+
+  const duplicateSupabase = createMockSupabase({
+    retailers: [],
+    products: [{
+      id: "existing-whey",
+      name: "Efectiv Whey Protein 60 Serving 1.8kg",
+      slug: "existing-efectiv-whey-protein",
+      brand: "Efectiv",
+      category: "Whey Protein",
+      gtin: null,
+    }],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(duplicateSupabase);
+  const duplicateResult = await runImportRows(
+    [baseSafeCreateFeedRow({
+      product_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+      slug: "efectiv-whey-protein-60-serving-1-8kg",
+      brand: "Efectiv",
+      category: "Whey Protein",
+      product_format: "powder",
+      evidence_format: "powder",
+      external_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+    })],
+    { mode: "feed", safeCreate: true, dryRun: true }
+  );
+
+  assert.equal(duplicateResult.report.approvedRows.length, 0);
+  assert.equal(duplicateResult.report.invalidRows.length, 1);
+  assert.match(duplicateResult.report.invalidRows[0].reasons.join(" "), /possible duplicate product/);
+  assert.equal(duplicateSupabase.writes.length, 0);
+
+  const duplicateVariantSupabase = createMockSupabase({
+    retailers: [],
+    products: [],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(duplicateVariantSupabase);
+  const duplicateVariantRows = [
+    baseSafeCreateFeedRow({
+      product_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+      slug: "efectiv-whey-protein-60-serving-1-8kg",
+      brand: "Efectiv",
+      category: "Whey Protein",
+      product_format: "powder",
+      evidence_format: "powder",
+      external_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+      external_product_id: "jons-product-1",
+      external_variant_id: "jons-variant-1",
+      price: "29.99",
+    }),
+    baseSafeCreateFeedRow({
+      product_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+      slug: "efectiv-whey-protein-60-serving-1-8kg",
+      brand: "Efectiv",
+      category: "Whey Protein",
+      product_format: "powder",
+      evidence_format: "powder",
+      external_name: "Efectiv Whey Protein 60 Serving 1.8kg",
+      external_product_id: "jons-product-1",
+      external_variant_id: "jons-variant-1",
+      price: "31.99",
+    }),
+  ];
+  const duplicateVariantResult = await runImportRows(duplicateVariantRows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(duplicateVariantResult.report.approvedRows.length, 0);
+  assert.equal(duplicateVariantResult.report.invalidRows.length, 2);
+  assert.equal(duplicateVariantSupabase.writes.length, 0);
+
+  const brandConflict = assessVariantCompatibility(
+    { product_name: "Apex Formulas Cream of Oats 2kg", brand: "Wrong Brand", product_format: "powder" },
+    { name: "Apex Formulas Cream of Oats 2kg", brand: "Apex Formulas", product_format: "powder" }
+  );
+  assert.equal(brandConflict.compatible, false);
+  assert(brandConflict.reasons.includes("brand conflict"));
+
+  const sizeConflict = assessVariantCompatibility(
+    { product_name: "Efectiv Whey Protein 1kg", brand: "Efectiv", product_format: "powder" },
+    { name: "Efectiv Whey Protein 60 Serving 1.8kg", brand: "Efectiv", product_format: "powder" }
+  );
+  assert.equal(sizeConflict.compatible, false);
+  assert(sizeConflict.reasons.includes("size conflict"));
+});
+
 test("safe-create dry-run reports planned rows instead of skipped approved rows", async () => {
   const safeSupabase = createMockSupabase({
     retailers: [],

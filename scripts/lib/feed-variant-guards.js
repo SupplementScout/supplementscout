@@ -487,6 +487,57 @@ const SAFE_CREATE_ALLOWED_CATEGORIES = new Set([
   "Creatine",
 ]);
 
+const REVIEWED_SAFE_CREATE_FAMILIES = [
+  {
+    categories: ["Whey Protein"],
+    pattern: /\befectiv\s+whey\s+protein\b/i,
+  },
+  {
+    categories: ["Whey Protein"],
+    pattern: /\bgrass[-\s]*fed\s+whey\s+protein\s+isolate\b|\bwhey\s+(protein\s+)?isolate\b/i,
+  },
+  {
+    categories: ["Whey Protein"],
+    pattern: /\bmountain\s+joe'?s\s+shake\s+a\s+whey\b/i,
+  },
+  {
+    categories: ["Whey Protein"],
+    pattern: /\begg\s+white\s+protein\b/i,
+  },
+  {
+    categories: ["Pre Workout"],
+    pattern: /\bpitbull\s+pump\b|\bmega\s+pump\s+elite\b|\bpump\s+pre[-\s]*workout\b/i,
+  },
+  {
+    categories: ["Pre Workout"],
+    pattern: /\bdefib\s+original\b|\bmvpre\s+365\b|\bhypermax'?d\s+out\b|\bpharma\s+grade\s+pre\b/i,
+  },
+  {
+    categories: ["Amino Acids"],
+    pattern: /\bessential\s+gains\s+eaa\b/i,
+  },
+  {
+    categories: ["Health Supplements"],
+    pattern: /\bgreens\b/i,
+  },
+  {
+    allowCreamWord: true,
+    categories: ["Health Supplements"],
+    pattern: /\bcream\s+of\s+rice\b/i,
+  },
+  {
+    allowCreamWord: true,
+    categories: ["Health Supplements"],
+    pattern: /\bcream\s+of\s+oats\b/i,
+  },
+  {
+    categories: ["Health Supplements"],
+    pattern: /\bprotein\s+pancakes?\b/i,
+  },
+];
+
+const SAFE_CREATE_CREAM_EXCLUSION_PATTERN = /\bcream\b/i;
+
 const EXCLUDED_SAFE_CREATE_PATTERNS = [
   /\bcbd\b/i,
   /\bhemp\b/i,
@@ -497,21 +548,16 @@ const EXCLUDED_SAFE_CREATE_PATTERNS = [
   /\bkitten\b/i,
   /\bmedical\s*tests?\b/i,
   /\btest\s*kits?\b/i,
+  /\b(bundle|stack|with\s+free|plus\s+free|bbe|dated|best\s+before)\b/i,
   /\bmassage\b/i,
   /\btopical\b/i,
-  /\bcream\b/i,
+  SAFE_CREATE_CREAM_EXCLUSION_PATTERN,
   /\blotion\b/i,
   /\bgel\b/i,
 ];
 
-function getSafeCreateExclusionReasons(row) {
-  const category = String(row.category || "").trim();
-
-  if (!SAFE_CREATE_ALLOWED_CATEGORIES.has(category)) {
-    return ["category is not allowed for safe-create"];
-  }
-
-  const text = [
+function safeCreateEvidenceText(row) {
+  return [
     row.product_name,
     row.external_name,
     row.name,
@@ -519,11 +565,64 @@ function getSafeCreateExclusionReasons(row) {
     row.raw_category,
     row.merchant_category,
     row.description,
+    row.evidence_name,
+    row.evidence_size,
+    row.evidence_format,
+    row.product_format,
+    row.size,
+    row.size_unit,
+    row.servings ? `${row.servings} servings` : null,
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+function reviewedSafeCreateFamily(row) {
+  const category = String(row.category || "").trim();
+  const text = safeCreateEvidenceText(row);
+  const family = REVIEWED_SAFE_CREATE_FAMILIES.find((candidate) =>
+    candidate.categories.includes(category) && candidate.pattern.test(text)
+  );
+
+  if (!family) {
+    return null;
+  }
+
+  return {
+    ...family,
+    hasClearCountOrSize: Boolean(parseSize(text)),
+    hasPowderFormat:
+      explicitProductFormat(row.product_format) === "powder" ||
+      (!explicitProductFormat(row.product_format) && parseProductFormat(text) === "powder"),
+  };
+}
+
+function getSafeCreateExclusionReasons(row) {
+  const category = String(row.category || "").trim();
+  const reviewedFamily = reviewedSafeCreateFamily(row);
+
+  if (!SAFE_CREATE_ALLOWED_CATEGORIES.has(category) && !reviewedFamily) {
+    return ["category is not allowed for safe-create"];
+  }
+
+  if (reviewedFamily && !reviewedFamily.hasPowderFormat) {
+    return ["unsupported reviewed product format"];
+  }
+
+  if (reviewedFamily && !reviewedFamily.hasClearCountOrSize) {
+    return ["reviewed safe-create requires clear size or serving count"];
+  }
+
+  const text = safeCreateEvidenceText(row);
 
   for (const pattern of EXCLUDED_SAFE_CREATE_PATTERNS) {
+    if (
+      pattern === SAFE_CREATE_CREAM_EXCLUSION_PATTERN &&
+      reviewedFamily?.allowCreamWord
+    ) {
+      continue;
+    }
+
     if (pattern.test(text)) {
       return ["excluded product type"];
     }
