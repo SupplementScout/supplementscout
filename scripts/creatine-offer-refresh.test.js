@@ -9,6 +9,7 @@ const {
   applyRefreshPlan,
   assertExecutionEnvironment,
   authorisedOfferIds,
+  buildRefreshPlan,
   classifyRetailerScope,
   parseArgs,
   plannedValues,
@@ -30,9 +31,9 @@ function env(overrides = {}) {
   };
 }
 
-function row({ offerId = 952, retailerId = 1, retailerProductId = 1952, productId = 7, variantId = 107, externalProductId = "p1", externalVariantId = "v1", sku = "sku-1", price = "10.00", shipping = "3.99", url = "https://fithouse.uk/products/example?variant=v1" } = {}) {
+function row({ offerId = 952, retailerId = 1, retailerName = "Fit House", retailerSlug = "fit-house", retailerWebsite = "https://fithouse.uk", retailerProductId = 1952, productId = 7, variantId = 107, externalProductId = "p1", externalVariantId = "v1", sku = "sku-1", price = "10.00", shipping = "3.99", url = "https://fithouse.uk/products/example?variant=v1" } = {}) {
   return {
-    retailer: { id: retailerId, name: "Fit House", slug: "fit-house", website: "https://fithouse.uk" },
+    retailer: { id: retailerId, name: retailerName, slug: retailerSlug, website: retailerWebsite },
     product: { id: productId, name: "Example Creatine", category: "Creatine", is_active: true, merged_into_product_id: null, merged_at: null },
     variant: { id: variantId, product_id: productId, display_name: "Default", is_active: true },
     mapping: { id: retailerProductId, retailer_id: retailerId, product_id: productId, product_variant_id: variantId, external_product_id: externalProductId, external_variant_id: externalVariantId, external_sku: sku, external_url: url },
@@ -75,6 +76,115 @@ function shopifySnapshotForRows(rows, mutate = () => {}) {
       return product;
     }),
   };
+}
+
+function retailerRows(retailerName, retailerId, retailerSlug, scope) {
+  return scope.offerIds.map((offerId, index) => {
+    const externalVariantId = `${retailerSlug}-v-${index}`;
+    const handle = `${retailerSlug}-creatine-${index}`;
+    return row({
+      offerId,
+      retailerId,
+      retailerName,
+      retailerSlug,
+      retailerWebsite: scope.storeUrl,
+      retailerProductId: 10_000 + Number(offerId),
+      productId: retailerId * 100 + index,
+      variantId: retailerId * 1000 + index,
+      externalProductId: `${retailerSlug}-p-${index}`,
+      externalVariantId,
+      sku: retailerName === "Jon's Supplements" ? null : `${retailerSlug}-sku-${index}`,
+      shipping: scope.shippingCost,
+      url: `${scope.storeUrl}/products/${handle}?variant=${externalVariantId}`,
+    });
+  });
+}
+
+function paddedShopifySnapshot({ rows, storeOrigin, productCount, variantCount, availableCount, targetAvailable = true }) {
+  let variants = 0;
+  let available = 0;
+  const products = rows.map((entry) => {
+    const handle = new URL(entry.offer.url).pathname.split("/").pop();
+    variants += 1;
+    if (targetAvailable) available += 1;
+    return {
+      id: entry.mapping.external_product_id,
+      handle,
+      title: entry.product.name,
+      variants: [{
+        id: entry.mapping.external_variant_id,
+        product_id: entry.mapping.external_product_id,
+        sku: entry.mapping.external_sku,
+        price: entry.offer.price,
+        available: targetAvailable,
+        title: entry.variant.display_name,
+      }],
+    };
+  });
+  while (products.length < productCount) {
+    const index = products.length;
+    const isAvailable = available < availableCount;
+    products.push({
+      id: `filler-p-${index}`,
+      handle: `filler-${index}`,
+      title: `Filler ${index}`,
+      variants: [{ id: `filler-v-${index}-0`, product_id: `filler-p-${index}`, sku: `filler-sku-${index}-0`, price: "1.00", available: isAvailable, title: "Default" }],
+    });
+    variants += 1;
+    if (isAvailable) available += 1;
+  }
+  let fillerVariant = 1;
+  while (variants < variantCount) {
+    const product = products[products.length - 1];
+    const isAvailable = available < availableCount;
+    product.variants.push({ id: `filler-extra-${fillerVariant}`, product_id: product.id, sku: `filler-extra-sku-${fillerVariant}`, price: "1.00", available: isAvailable, title: `Extra ${fillerVariant}` });
+    variants += 1;
+    fillerVariant += 1;
+    if (isAvailable) available += 1;
+  }
+  return {
+    captured_at: "2026-07-19T03:17:00.000Z",
+    store_origin: storeOrigin,
+    market_country: null,
+    pages: [{ page: 1, count: productCount, sha256: "a".repeat(64) }],
+    snapshot_sha256: "b".repeat(64),
+    products,
+  };
+}
+
+function clientFromState(state) {
+  const tables = {
+    retailers: state.retailers,
+    products: state.products,
+    product_variants: state.variants,
+    retailer_products: state.mappings,
+    offers: state.offers,
+    price_history: state.price_history || [],
+  };
+  return {
+    from(table) {
+      return {
+        select(_columns, options = {}) {
+          if (options.count === "exact" && options.head === true) return Promise.resolve({ count: tables[table].length, error: null });
+          return this;
+        },
+        range(from, to) {
+          return Promise.resolve({ data: tables[table].slice(from, to + 1).map((entry) => ({ ...entry })), error: null });
+        },
+      };
+    },
+  };
+}
+
+function creatinePlanState() {
+  const fitRows = retailerRows("Fit House", 1, "fit-house", RETAILER_SCOPE["Fit House"]);
+  const discountRows = retailerRows("Discount Supplements", 2, "discount-supplements", RETAILER_SCOPE["Discount Supplements"]);
+  const jonsRows = retailerRows("Jon's Supplements", 10, "jons-supplements", RETAILER_SCOPE["Jon's Supplements"]);
+  return { fitRows, discountRows, jonsRows, state: stateFromRows([...fitRows, ...discountRows, ...jonsRows]) };
+}
+
+function responseForSnapshot(snapshot) {
+  return { ok: true, headers: { get: () => "0" }, json: async () => ({ products: snapshot.products }) };
 }
 
 function planRows() {
@@ -295,6 +405,125 @@ test("existing classifier is reused for no-change, price, url and blockers", () 
   });
   assert.equal(hardPrice.classification.reason, "HARD_PRICE_ANOMALY");
   assert.equal(policyFor(scope).required_matched_offers, 7);
+});
+
+test("Jon's source requests GB market while Fit House and Discount stay unchanged", async () => {
+  const { fitRows, discountRows, jonsRows, state } = creatinePlanState();
+  const calls = [];
+  const snapshots = new Map([
+    ["https://fithouse.uk", paddedShopifySnapshot({ rows: fitRows, storeOrigin: "https://fithouse.uk", productCount: 85, variantCount: 85, availableCount: 85 })],
+    ["https://www.discount-supplements.co.uk", paddedShopifySnapshot({ rows: discountRows, storeOrigin: "https://www.discount-supplements.co.uk", productCount: 12, variantCount: 12, availableCount: 12 })],
+    ["https://jonssupplements.co.uk", paddedShopifySnapshot({ rows: jonsRows, storeOrigin: "https://jonssupplements.co.uk", productCount: 224, variantCount: 844, availableCount: 581 })],
+  ]);
+  const fetchImpl = async (url) => {
+    calls.push(new URL(url.href));
+    return responseForSnapshot(snapshots.get(new URL(url.href).origin));
+  };
+  const plan = await buildRefreshPlan({ client: clientFromState(state), fetchImpl, now: new Date("2026-07-19T03:17:00.000Z") });
+  assert.equal(plan.status, "DRY_RUN_READY");
+  assert.equal(plan.classified_rows.length, 35);
+  assert.deepEqual(plan.classification_counts, { VERIFY_NO_CHANGE: 35 });
+  assert.equal(plan.blockers.length, 0);
+  assert.equal(calls.find((url) => url.origin === "https://jonssupplements.co.uk").searchParams.get("country"), "GB");
+  assert.equal(calls.find((url) => url.origin === "https://fithouse.uk").searchParams.has("country"), false);
+  assert.equal(calls.find((url) => url.origin === "https://www.discount-supplements.co.uk").searchParams.has("country"), false);
+  assert.equal(plan.retailer_results.find((entry) => entry.retailer === "Jon's Supplements").source.market_country, "GB");
+});
+
+test("Jon's market availability collapse is SOURCE_DEGRADED before MASS_OOS", () => {
+  const { jonsRows, state } = creatinePlanState();
+  const scope = RETAILER_SCOPE["Jon's Supplements"];
+  const collapsed = classifyRetailerScope({
+    retailerName: "Jon's Supplements",
+    scope,
+    state,
+    snapshot: paddedShopifySnapshot({ rows: jonsRows, storeOrigin: scope.storeUrl, productCount: 224, variantCount: 844, availableCount: 1, targetAvailable: false }),
+    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
+    now: new Date("2026-07-19T03:17:00.000Z"),
+  });
+  assert.equal(collapsed.classification.reason, "SOURCE_DEGRADED");
+  assert.equal(collapsed.classification.action, "BLOCK_SOURCE_ANOMALY");
+  assert.equal(collapsed.classification.detail.in_stock_variant_count, 1);
+  assert.equal(collapsed.classified_rows.length, 0);
+
+  const genuineOos = classifyRetailerScope({
+    retailerName: "Jon's Supplements",
+    scope,
+    state,
+    snapshot: paddedShopifySnapshot({ rows: jonsRows, storeOrigin: scope.storeUrl, productCount: 224, variantCount: 844, availableCount: 581, targetAvailable: false }),
+    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
+    now: new Date("2026-07-19T03:17:00.000Z"),
+  });
+  assert.equal(genuineOos.classification.reason, "MASS_OOS");
+});
+
+test("Jon's SOURCE_DEGRADED retry remains fail-closed even when retry is normal", async () => {
+  const { fitRows, discountRows, jonsRows, state } = creatinePlanState();
+  const normal = new Map([
+    ["https://fithouse.uk", paddedShopifySnapshot({ rows: fitRows, storeOrigin: "https://fithouse.uk", productCount: 85, variantCount: 85, availableCount: 85 })],
+    ["https://www.discount-supplements.co.uk", paddedShopifySnapshot({ rows: discountRows, storeOrigin: "https://www.discount-supplements.co.uk", productCount: 12, variantCount: 12, availableCount: 12 })],
+    ["https://jonssupplements.co.uk", paddedShopifySnapshot({ rows: jonsRows, storeOrigin: "https://jonssupplements.co.uk", productCount: 224, variantCount: 844, availableCount: 581 })],
+  ]);
+  const collapsed = paddedShopifySnapshot({ rows: jonsRows, storeOrigin: "https://jonssupplements.co.uk", productCount: 224, variantCount: 844, availableCount: 1, targetAvailable: false });
+  let jonsCalls = 0;
+  const fetchImpl = async (url) => {
+    const origin = new URL(url.href).origin;
+    if (origin === "https://jonssupplements.co.uk") {
+      jonsCalls += 1;
+      return responseForSnapshot(jonsCalls === 1 ? collapsed : normal.get(origin));
+    }
+    return responseForSnapshot(normal.get(origin));
+  };
+  const plan = await buildRefreshPlan({ client: clientFromState(state), fetchImpl, now: new Date("2026-07-19T03:17:00.000Z") });
+  assert.equal(plan.status, "BLOCKED");
+  assert.equal(plan.classified_rows.length, 30);
+  assert.equal(plan.blockers[0].retailer, "Jon's Supplements");
+  assert.equal(plan.blockers[0].classification.reason, "SOURCE_DEGRADED");
+  assert.equal(plan.blockers[0].classification.detail.retry_state, "DRY_RUN_READY");
+  assert.equal(jonsCalls, 2);
+});
+
+test("Jon's SOURCE_DEGRADED retry stays blocked when both responses collapse", async () => {
+  const { fitRows, discountRows, jonsRows, state } = creatinePlanState();
+  const collapsed = paddedShopifySnapshot({ rows: jonsRows, storeOrigin: "https://jonssupplements.co.uk", productCount: 224, variantCount: 844, availableCount: 1, targetAvailable: false });
+  const snapshots = new Map([
+    ["https://fithouse.uk", paddedShopifySnapshot({ rows: fitRows, storeOrigin: "https://fithouse.uk", productCount: 85, variantCount: 85, availableCount: 85 })],
+    ["https://www.discount-supplements.co.uk", paddedShopifySnapshot({ rows: discountRows, storeOrigin: "https://www.discount-supplements.co.uk", productCount: 12, variantCount: 12, availableCount: 12 })],
+    ["https://jonssupplements.co.uk", collapsed],
+  ]);
+  const plan = await buildRefreshPlan({ client: clientFromState(state), fetchImpl: async (url) => responseForSnapshot(snapshots.get(new URL(url.href).origin)), now: new Date("2026-07-19T03:17:00.000Z") });
+  assert.equal(plan.status, "BLOCKED");
+  assert.equal(plan.blockers[0].classification.reason, "SOURCE_DEGRADED");
+  assert.equal(plan.blockers[0].classification.detail.retry_reason, "SOURCE_DEGRADED");
+});
+
+test("HTML challenge and missing target variant remain blocked without stock coercion", async () => {
+  const { jonsRows, state } = creatinePlanState();
+  const scope = RETAILER_SCOPE["Jon's Supplements"];
+  await assert.rejects(
+    buildRefreshPlan({
+      client: clientFromState(stateFromRows([...retailerRows("Fit House", 1, "fit-house", RETAILER_SCOPE["Fit House"]), ...retailerRows("Discount Supplements", 2, "discount-supplements", RETAILER_SCOPE["Discount Supplements"]), ...jonsRows])),
+      fetchImpl: async (url) => {
+        const origin = new URL(url.href).origin;
+        if (origin === "https://jonssupplements.co.uk") return { ok: true, headers: { get: () => "0" }, text: async () => "<html>challenge</html>" };
+        const rows = origin === "https://fithouse.uk" ? retailerRows("Fit House", 1, "fit-house", RETAILER_SCOPE["Fit House"]) : retailerRows("Discount Supplements", 2, "discount-supplements", RETAILER_SCOPE["Discount Supplements"]);
+        return responseForSnapshot(paddedShopifySnapshot({ rows, storeOrigin: origin, productCount: origin === "https://fithouse.uk" ? 85 : 12, variantCount: origin === "https://fithouse.uk" ? 85 : 12, availableCount: origin === "https://fithouse.uk" ? 85 : 12 }));
+      },
+      now: new Date("2026-07-19T03:17:00.000Z"),
+    }),
+    /Malformed Shopify products JSON/,
+  );
+  const missing = paddedShopifySnapshot({ rows: jonsRows.slice(1), storeOrigin: scope.storeUrl, productCount: 224, variantCount: 844, availableCount: 581 });
+  const result = classifyRetailerScope({
+    retailerName: "Jon's Supplements",
+    scope,
+    state,
+    snapshot: missing,
+    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
+    now: new Date("2026-07-19T03:17:00.000Z"),
+  });
+  assert.equal(result.classification.reason, "IDENTITY_DRIFT");
+  assert.equal(result.source.in_stock_variant_count, 581);
 });
 
 test("apply updates only offers, mapping URLs and price history, and replay is idempotent", async () => {

@@ -80,6 +80,13 @@ function assertHttpsStoreUrl(storeUrl) {
   return url;
 }
 
+function normalizeMarketCountry(marketCountry) {
+  if (marketCountry === null || marketCountry === undefined || String(marketCountry).trim() === "") return null;
+  const value = String(marketCountry).trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(value)) throw new Error("Shopify market country must be a two-letter ISO country code");
+  return value;
+}
+
 function projectShopifyVariants(snapshot, { shippingCost = null } = {}) {
   const rows = [];
   for (const product of snapshot.products || []) for (const variant of product.variants || []) rows.push({
@@ -91,20 +98,29 @@ function projectShopifyVariants(snapshot, { shippingCost = null } = {}) {
   return rows;
 }
 
-async function readShopifySnapshot({ storeUrl, fetchImpl = globalThis.fetch, pageLimit = 250, maximumPages = 100, maximumPageBytes = 10_000_000, timeoutMs = 15_000, capturedAt = new Date().toISOString() }) {
+async function readShopifySnapshot({ storeUrl, fetchImpl = globalThis.fetch, pageLimit = 250, maximumPages = 100, maximumPageBytes = 10_000_000, timeoutMs = 15_000, capturedAt = new Date().toISOString(), marketCountry = null, noCache = false }) {
   if (typeof fetchImpl !== "function") throw new Error("A fetch implementation is required");
   if (!Number.isInteger(pageLimit) || pageLimit < 1 || pageLimit > 250) throw new Error("Shopify page limit must be 1..250");
   const origin = assertHttpsStoreUrl(storeUrl);
+  const country = normalizeMarketCountry(marketCountry);
   const products = [];
   const pages = [];
   for (let page = 1; page <= maximumPages; page += 1) {
     const url = new URL("/products.json", origin);
     url.searchParams.set("limit", String(pageLimit));
     url.searchParams.set("page", String(page));
+    if (country) url.searchParams.set("country", country);
+    if (noCache) url.searchParams.set("_ss_no_cache", `${Date.now()}-${page}`);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(new Error("Shopify snapshot request timed out")), timeoutMs);
     let response;
-    try { response = await fetchImpl(url, { headers: { accept: "application/json" }, redirect: "error", signal: controller.signal }); }
+    try {
+      response = await fetchImpl(url, {
+        headers: noCache ? { accept: "application/json", "cache-control": "no-cache", pragma: "no-cache" } : { accept: "application/json" },
+        redirect: "error",
+        signal: controller.signal,
+      });
+    }
     finally { clearTimeout(timer); }
     if (!response.ok) throw new Error(`Shopify snapshot request failed (${response.status})`);
     const declaredLength = Number(response.headers?.get?.("content-length") || 0);
@@ -125,7 +141,7 @@ async function readShopifySnapshot({ storeUrl, fetchImpl = globalThis.fetch, pag
         if (!id || variantIds.has(id)) throw new Error("Shopify snapshot contains a missing or duplicate variant ID");
         variantIds.add(id);
       }
-      const projection = { captured_at: capturedAt, store_origin: origin.origin, pages, products };
+      const projection = { captured_at: capturedAt, store_origin: origin.origin, market_country: country, no_cache: Boolean(noCache), pages, products };
       const fingerprints = shopifySnapshotFingerprints(projection);
       return { ...projection, snapshot_sha256: fingerprints.raw_source_fingerprint, ...fingerprints };
     }
@@ -133,4 +149,4 @@ async function readShopifySnapshot({ storeUrl, fetchImpl = globalThis.fetch, pag
   throw new Error("Shopify pagination exceeded the configured maximum");
 }
 
-module.exports = { assertSemanticShopifySnapshot, canonical, compareShopifySnapshots, projectShopifyVariants, readShopifySnapshot, semanticShopifySnapshot, sha256, shopifySnapshotFingerprints };
+module.exports = { assertSemanticShopifySnapshot, canonical, compareShopifySnapshots, normalizeMarketCountry, projectShopifyVariants, readShopifySnapshot, semanticShopifySnapshot, sha256, shopifySnapshotFingerprints };

@@ -35,8 +35,16 @@ const RETAILER_SCOPE = Object.freeze({
   "Jon's Supplements": Object.freeze({
     expectedCount: 5,
     storeUrl: "https://jonssupplements.co.uk",
+    marketCountry: "GB",
     shippingCost: "3.99",
     previousSourceProductCount: 224,
+    previousSourceVariantCount: 844,
+    sourceAvailabilityGuard: Object.freeze({
+      minimumVariantCount: 100,
+      maximumAvailableVariantCount: 10,
+      maximumAvailableVariantRatio: 0.02,
+    }),
+    retryOnSourceDegraded: true,
     offerIds: Object.freeze([1013, 1014, 1015, 1016, 1017]),
   }),
 });
@@ -202,6 +210,59 @@ function indexRawSource(snapshot) {
   return { byVariant, duplicates };
 }
 
+function blockSourceAnomaly(reason, detail = {}) {
+  return { state: "BLOCKED", action: "BLOCK_SOURCE_ANOMALY", reason, detail };
+}
+
+function sourceSummary({ scope, snapshot, sourceVariants, sourceCapturedAt }) {
+  const rawIndex = indexRawSource(snapshot);
+  return {
+    store_url: scope.storeUrl,
+    market_country: scope.marketCountry || snapshot.market_country || null,
+    product_count: snapshot.products.length,
+    variant_count: sourceVariants.length,
+    in_stock_variant_count: sourceVariants.filter((row) => row.in_stock).length,
+    duplicate_variant_ids: rawIndex.duplicates,
+    captured_at: sourceCapturedAt,
+    snapshot_sha256: snapshot.snapshot_sha256,
+  };
+}
+
+function detectAvailabilityCollapse({ scope, rows, snapshot, sourceVariants }) {
+  const guard = scope.sourceAvailabilityGuard;
+  if (!guard) return null;
+  const variantCount = sourceVariants.length;
+  if (variantCount < guard.minimumVariantCount) return null;
+  const productCount = snapshot.products.length;
+  const productCountPlausible = !scope.previousSourceProductCount || productCount / scope.previousSourceProductCount >= policyFor(scope).full_snapshot_minimum_source_count_ratio;
+  const variantCountPlausible = !scope.previousSourceVariantCount || variantCount / scope.previousSourceVariantCount >= 0.9;
+  if (!productCountPlausible || !variantCountPlausible) return null;
+  const availableCount = sourceVariants.filter((row) => row.in_stock).length;
+  const availableRatio = availableCount / Math.max(1, variantCount);
+  const byVariant = new Map(sourceVariants.map((row) => [String(row.external_variant_id), row]));
+  const targetVariants = rows.map((row) => {
+    const source = byVariant.get(String(row.mapping.external_variant_id));
+    return {
+      offer_id: String(row.offer.id),
+      external_variant_id: String(row.mapping.external_variant_id),
+      target_in_stock: bool(row.offer.in_stock),
+      source_found: Boolean(source),
+      source_in_stock: source ? bool(source.in_stock) : null,
+    };
+  });
+  const allCurrentTargetsNewOos = targetVariants.length > 0 && targetVariants.every((row) => row.target_in_stock && row.source_found && row.source_in_stock === false);
+  const availableCollapsed = availableCount <= guard.maximumAvailableVariantCount || availableRatio <= guard.maximumAvailableVariantRatio;
+  if (!availableCollapsed || !allCurrentTargetsNewOos) return null;
+  return blockSourceAnomaly("SOURCE_DEGRADED", {
+    product_count: productCount,
+    variant_count: variantCount,
+    in_stock_variant_count: availableCount,
+    available_variant_ratio: Number(availableRatio.toFixed(4)),
+    market_country: scope.marketCountry || snapshot.market_country || null,
+    target_variants: targetVariants,
+  });
+}
+
 function summarizeActions(rows) {
   const counts = {};
   for (const row of rows) counts[row.action] = (counts[row.action] || 0) + 1;
@@ -291,8 +352,8 @@ function scopeRowsForRetailer({ retailerName, scope, state }) {
 function classifyRetailerScope({ retailerName, scope, state, snapshot, sourceCapturedAt, now }) {
   const rows = scopeRowsForRetailer({ retailerName, scope, state });
   const sourceVariants = projectShopifyVariants(snapshot, { shippingCost: scope.shippingCost });
-  const rawIndex = indexRawSource(snapshot);
-  const classification = classifyExistingOffers({
+  const degraded = detectAvailabilityCollapse({ scope, rows, snapshot, sourceVariants });
+  const classification = degraded || classifyExistingOffers({
     targets: rows.map(targetFor),
     sourceVariants,
     policy: policyFor(scope),
@@ -322,19 +383,53 @@ function classifyRetailerScope({ retailerName, scope, state, snapshot, sourceCap
       });
     }
   }
+  const source = sourceSummary({ scope, snapshot, sourceVariants, sourceCapturedAt });
   return {
     retailer: retailerName,
-    source: {
-      store_url: scope.storeUrl,
-      product_count: snapshot.products.length,
-      variant_count: sourceVariants.length,
-      in_stock_variant_count: sourceVariants.filter((row) => row.in_stock).length,
-      duplicate_variant_ids: rawIndex.duplicates,
-      captured_at: sourceCapturedAt,
-      snapshot_sha256: snapshot.snapshot_sha256,
-    },
+    source,
     classification,
     classified_rows: classifiedRows,
+  };
+}
+
+async function readRetailerSnapshot({ scope, sourceCapturedAt, fetchImpl, noCache = false }) {
+  return readShopifySnapshot({
+    storeUrl: scope.storeUrl,
+    pageLimit: 250,
+    maximumPages: 20,
+    timeoutMs: 20_000,
+    capturedAt: sourceCapturedAt,
+    fetchImpl,
+    marketCountry: scope.marketCountry || null,
+    noCache,
+  });
+}
+
+async function classifyRetailerScopeWithRetry({ retailerName, scope, state, sourceCapturedAt, now, fetchImpl }) {
+  const snapshot = await readRetailerSnapshot({ scope, sourceCapturedAt, fetchImpl });
+  const result = classifyRetailerScope({ retailerName, scope, state, snapshot, sourceCapturedAt, now });
+  if (result.classification.reason !== "SOURCE_DEGRADED" || !scope.retryOnSourceDegraded) return result;
+  const retrySnapshot = await readRetailerSnapshot({ scope, sourceCapturedAt, fetchImpl, noCache: true });
+  const retryResult = classifyRetailerScope({ retailerName, scope, state, snapshot: retrySnapshot, sourceCapturedAt, now });
+  return {
+    ...result,
+    source: {
+      ...result.source,
+      retry: {
+        source: retryResult.source,
+        classification: retryResult.classification.state === "DRY_RUN_READY"
+          ? { state: retryResult.classification.state, counts: summarizeActions(retryResult.classification.rows) }
+          : retryResult.classification,
+      },
+    },
+    classification: blockSourceAnomaly("SOURCE_DEGRADED", {
+      ...result.classification.detail,
+      retry_state: retryResult.classification.state,
+      retry_reason: retryResult.classification.reason || null,
+      retry_in_stock_variant_count: retryResult.source.in_stock_variant_count,
+      retry_snapshot_sha256: retryResult.source.snapshot_sha256,
+    }),
+    classified_rows: [],
   };
 }
 
@@ -344,15 +439,7 @@ async function buildRefreshPlan({ client, fetchImpl = globalThis.fetch, now = ne
   const retailerResults = [];
   const classifiedRows = [];
   for (const [retailerName, scope] of Object.entries(RETAILER_SCOPE)) {
-    const snapshot = await readShopifySnapshot({
-      storeUrl: scope.storeUrl,
-      pageLimit: 250,
-      maximumPages: 20,
-      timeoutMs: 20_000,
-      capturedAt: sourceCapturedAt,
-      fetchImpl,
-    });
-    const result = classifyRetailerScope({ retailerName, scope, state, snapshot, sourceCapturedAt, now });
+    const result = await classifyRetailerScopeWithRetry({ retailerName, scope, state, sourceCapturedAt, now, fetchImpl });
     retailerResults.push({
       retailer: retailerName,
       expected_offers: scope.expectedCount,
