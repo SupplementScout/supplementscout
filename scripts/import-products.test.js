@@ -775,6 +775,58 @@ test("feed safe-create plans a missing non-default variant under an existing pro
   assert.equal(plan.expected_state.product_variant, null);
 });
 
+test("feed safe-create plans a verified Shopify create_variant row without SKU", async () => {
+  const { row, seed } = createVariantFixture({
+    product_id: "p100",
+    brand: "",
+    external_product_id: "10538625761618",
+    external_variant_id: "53629499965778",
+    external_sku: "",
+    external_gtin: "",
+    external_options: JSON.stringify({ Flavour: "Chocolate", Size: "500g" }),
+    external_url: "https://example.test/products/example-creatine?variant=53629499965778",
+    affiliate_url: "https://example.test/products/example-creatine?variant=53629499965778",
+  });
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product_variant.action, "create_variant");
+  assert.equal(plan.retailer_product.values.external_sku, null);
+  assert.equal(plan.retailer_product.values.external_variant_id, "53629499965778");
+});
+
+test("feed safe-create keeps SKU mandatory outside strict Shopify no-SKU create_variant evidence", async () => {
+  const nonShopify = createVariantFixture({
+    external_sku: "",
+    external_options: JSON.stringify({ Flavour: "Chocolate", Size: "500g" }),
+  });
+  let supabase = createMockSupabase(nonShopify.seed);
+  setSupabaseForTests(supabase);
+  let result = await runImportRows([nonShopify.row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.match(result.report.blockedRows[0].block_reason, /strict Shopify product and variant identity/);
+
+  const bundle = createVariantFixture({
+    external_product_id: "10538625761618",
+    external_variant_id: "53629499965778",
+    external_sku: "",
+    external_gtin: "",
+    external_options: JSON.stringify({ Flavour: "Chocolate", Size: "500g" }),
+    external_url: "https://example.test/products/example-creatine?variant=53629499965778",
+    affiliate_url: "https://example.test/products/example-creatine?variant=53629499965778",
+    product_name: "Example Creatine Monohydrate 500g Bundle",
+  });
+  supabase = createMockSupabase(bundle.seed);
+  setSupabaseForTests(supabase);
+  result = await runImportRows([bundle.row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.match(result.report.blockedRows[0].block_reason, /bundle\/free\/BBE\/dated/);
+});
+
 test("create_variant apply creates variant, mapping, offer and initial price history without creating product", async () => {
   const { row, seed } = createVariantFixture();
   const supabase = createMockSupabase(seed);

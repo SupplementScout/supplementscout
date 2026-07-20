@@ -644,7 +644,7 @@ function isCanonicalRetailerFeedRow(row) {
   );
 }
 
-function normalizeCanonicalRetailerFeedRows(rows) {
+function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
     return rows;
   }
@@ -671,8 +671,16 @@ function normalizeCanonicalRetailerFeedRows(rows) {
 
   return rows.map((row, index) => {
     const rowNumber = index + 2;
+    const existingProductVariantCandidate =
+      options.safeCreate &&
+      optionalIdentifier(row.product_id) &&
+      optionalIdentifier(row.external_product_id) &&
+      optionalIdentifier(row.external_variant_id);
 
     for (const column of CANONICAL_RETAILER_FEED_REQUIRED_COLUMNS) {
+      if (column === "brand" && existingProductVariantCandidate) {
+        continue;
+      }
       required(row[column], column, rowNumber);
     }
 
@@ -1118,7 +1126,14 @@ function validateFeedRowForWrites(row, rowNumber, options = {}) {
   capture(() => required(row.product_name, "product_name", rowNumber));
   capture(() => required(row.slug, "slug", rowNumber));
   capture(() => required(getOfferUrl(row), "url", rowNumber));
-  capture(() => required(row.brand, "brand", rowNumber));
+  const existingProductVariantCandidate =
+    options.safeCreate &&
+    optionalIdentifier(row.product_id) &&
+    optionalIdentifier(row.external_product_id) &&
+    optionalIdentifier(row.external_variant_id);
+  if (!existingProductVariantCandidate) {
+    capture(() => required(row.brand, "brand", rowNumber));
+  }
   capture(() => required(row.category, "category", rowNumber));
   capture(() => {
     parseRequiredBoolean(row.in_stock, "in_stock");
@@ -2119,6 +2134,78 @@ function normalizeVariantDisplayIdentity(value) {
     .trim();
 }
 
+const SHOPIFY_NUMERIC_ID_PATTERN = /^[0-9]{10,}$/;
+const NO_SKU_SOURCE_EXCLUSION_PATTERN =
+  /\b(bundle|stack|with\s+free|plus\s+free|free\s+item|bbe|dated|best\s+before|short\s+date|short\s+dated)\b/i;
+
+function isLikelyShopifyVariantUrl(row, externalVariantId) {
+  const directUrl = getDirectRetailerProductUrl(row) || getRetailerProductUrl(row);
+  const retailerWebsite = String(row.retailer_website || "").trim();
+  if (!directUrl || !retailerWebsite) return false;
+
+  try {
+    const parsedUrl = new URL(directUrl);
+    const parsedRetailer = new URL(retailerWebsite);
+    return (
+      parsedUrl.hostname === parsedRetailer.hostname &&
+      parsedUrl.pathname.includes("/products/") &&
+      parsedUrl.searchParams.get("variant") === externalVariantId
+    );
+  } catch {
+    return false;
+  }
+}
+
+function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, productFormat) {
+  const externalProductId = optionalIdentifier(row.external_product_id);
+  const externalVariantId = optionalIdentifier(row.external_variant_id);
+  const externalOptions = parseExternalOptions(row.external_options);
+  const sourceText = [
+    row.product_name,
+    row.external_name,
+    row.variant_name,
+    row.description,
+  ].filter(Boolean).join(" ");
+
+  if (!externalProductId || !externalVariantId) {
+    throw new Error("create_variant without SKU requires external product and variant identity");
+  }
+  if (
+    !SHOPIFY_NUMERIC_ID_PATTERN.test(externalProductId) ||
+    !SHOPIFY_NUMERIC_ID_PATTERN.test(externalVariantId) ||
+    externalProductId === externalVariantId ||
+    !isLikelyShopifyVariantUrl(row, externalVariantId)
+  ) {
+    throw new Error("create_variant without SKU requires strict Shopify product and variant identity");
+  }
+  if (product?.is_active === false || product?.merged_into_product_id != null) {
+    throw new Error("create_variant without SKU requires an active unmerged canonical product");
+  }
+  if (!evidence.flavour) {
+    throw new Error("create_variant without SKU requires explicit flavour evidence");
+  }
+  if (!evidence.size?.value || !evidence.size?.unit) {
+    throw new Error("create_variant without SKU requires explicit size evidence");
+  }
+  if (
+    !externalOptions ||
+    externalOptionValues(externalOptions, ["flavour", "flavor"]).length !== 1 ||
+    externalOptionValues(externalOptions, ["size"]).length !== 1
+  ) {
+    throw new Error("create_variant without SKU requires exact Shopify option flavour and size evidence");
+  }
+  if (
+    product?.product_format &&
+    productFormat &&
+    product.product_format !== productFormat
+  ) {
+    throw new Error("create_variant without SKU product format mismatch");
+  }
+  if (NO_SKU_SOURCE_EXCLUSION_PATTERN.test(sourceText)) {
+    throw new Error("create_variant without SKU source row is bundle/free/BBE/dated");
+  }
+}
+
 function variantSizeKeyFromFields(variant) {
   return sizeKey(parseSize(
     variant?.size_value && variant?.size_unit
@@ -2143,9 +2230,6 @@ function buildPlannedVariantValues(row, product, rowNumber, evidence) {
   if (!optionalIdentifier(row.external_product_id) || !optionalIdentifier(row.external_variant_id)) {
     throw new Error("create_variant requires external product and variant identity");
   }
-  if (!optionalIdentifier(row.external_sku)) {
-    throw new Error("create_variant requires external SKU evidence");
-  }
 
   const sizeValue = normalizeDecimalString(evidence.size.value, "size_value");
   const sizeUnit = evidence.size.unit;
@@ -2157,6 +2241,9 @@ function buildPlannedVariantValues(row, product, rowNumber, evidence) {
     `${flavourLabel} / ${sizeValue}${sizeUnit}`;
   if (normalizeVariantDisplayIdentity(displayName) === "default") {
     throw new Error("create_variant cannot create a default variant");
+  }
+  if (!optionalIdentifier(row.external_sku)) {
+    assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, productFormat);
   }
   const variantKey = [
     slugifyRetailerName(flavourLabel),
@@ -2828,7 +2915,7 @@ async function runImportRows(rows, options = {}) {
   validatePilotApply(rows, options);
 
   if (mode === "feed") {
-    rows = normalizeCanonicalRetailerFeedRows(rows);
+    rows = normalizeCanonicalRetailerFeedRows(rows, { safeCreate });
   }
 
   if (mode === "feed") {
