@@ -1356,6 +1356,11 @@ async function findProductById(productId) {
 }
 
 async function findProductForFeedRow(row) {
+  const explicitProductId = optionalIdentifier(row.product_id);
+  if (explicitProductId) {
+    return findProductById(explicitProductId);
+  }
+
   const supabase = getSupabase();
   const productLevelGtin = getProductLevelGtin(row, "feed");
 

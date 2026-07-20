@@ -779,6 +779,7 @@ test("feed safe-create plans a verified Shopify create_variant row without SKU",
   const { row, seed } = createVariantFixture({
     product_id: "p100",
     brand: "",
+    slug: "shopify-source-handle-not-canonical-slug",
     external_product_id: "10538625761618",
     external_variant_id: "53629499965778",
     external_sku: "",
