@@ -71,10 +71,26 @@ end
 $rewrite$;
 
 alter function public.atomic_import_safe_create_category_allowed(text,text,text) owner to postgres;
-grant execute on function public.atomic_import_safe_create_category_allowed(text,text,text) to service_role;
-grant execute on function public.atomic_import_safe_create_category_allowed(text,text,text) to retailer_catalogue_staging_approver;
-grant execute on function public.atomic_import_safe_create_category_allowed(text,text,text) to retailer_catalogue_staging_executor;
-grant execute on function public.atomic_import_safe_create_category_allowed(text,text,text) to retailer_catalogue_production_approver;
-grant execute on function public.atomic_import_safe_create_category_allowed(text,text,text) to retailer_catalogue_production_executor;
+
+do $grants$
+declare
+  v_role text;
+begin
+  foreach v_role in array array[
+    'service_role',
+    'retailer_catalogue_staging_approver',
+    'retailer_catalogue_staging_executor',
+    'retailer_catalogue_production_approver',
+    'retailer_catalogue_production_executor'
+  ] loop
+    if exists (select 1 from pg_roles where rolname = v_role) then
+      execute format(
+        'grant execute on function public.atomic_import_safe_create_category_allowed(text,text,text) to %I',
+        v_role
+      );
+    end if;
+  end loop;
+end
+$grants$;
 
 commit;
