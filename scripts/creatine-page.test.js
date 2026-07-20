@@ -194,6 +194,16 @@ function loadPage(result = comparisonFixture()) {
   return { page, loaderCalls: () => loaderCalls };
 }
 
+function structuredDataItemList(data) {
+  return data["@graph"].find((entry) => entry["@type"] === "ItemList");
+}
+
+function structuredDataProducts(data) {
+  return structuredDataItemList(data).itemListElement
+    .map((item) => item.item)
+    .filter((item) => item["@type"] === "Product");
+}
+
 test("the /creatine route exists and is a Server Component", () => {
   const source = fs.readFileSync(pagePath, "utf8");
   assert.equal(fs.existsSync(pagePath), true);
@@ -403,7 +413,7 @@ test("query errors return a safe empty result", async () => {
   }
 });
 
-test("SSR content includes direct answer, comparison fields and verified fallback", () => {
+test("SSR content includes direct answer, comparison fields, stale catalogue rows and verified fallback", () => {
   const { page } = loadPage();
   const html = renderToStaticMarkup(React.createElement(page.CreatinePageContent, { result: comparisonFixture() }));
 
@@ -415,6 +425,7 @@ test("SSR content includes direct answer, comparison fields and verified fallbac
   assert.match(html, /Not yet verified/);
   assert.match(html, /Delivery not known/);
   assert.match(html, /No recently verified offer/);
+  assert.match(html, /No Offer Creatine/);
   assert.match(html, /250 g/);
   assert.match(html, /50 verified servings/);
   assert.match(html, /5 g creatine \/ serving/);
@@ -444,17 +455,78 @@ test("structured data contains CollectionPage, matching ItemList and BreadcrumbL
   const collection = graphByType.get("CollectionPage");
   const itemList = graphByType.get("ItemList");
   const breadcrumb = graphByType.get("BreadcrumbList");
+  const freshRows = result.rows.filter((row) => row.bestOffer !== null);
 
   assert.equal(collection.url, "https://www.supplementscout.co.uk/creatine");
-  assert.equal(itemList.numberOfItems, result.rows.length);
-  assert.deepEqual(itemList.itemListElement.map((item) => item.name), result.rows.map((row) => row.name));
+  assert.equal(itemList.numberOfItems, freshRows.length);
+  assert.deepEqual(itemList.itemListElement.map((item) => item.name), freshRows.map((row) => row.name));
   assert.equal(itemList.itemListElement[0].item.offers.price, "13.00");
   assert.equal(itemList.itemListElement[0].item.offers.availability, "https://schema.org/InStock");
-  assert.equal(itemList.itemListElement[2].item.offers, undefined);
-  assert.deepEqual(itemList.itemListElement.map((item) => item.position), [1, 2, 3]);
+  assert.equal(itemList.itemListElement.some((item) => item.name === "No Offer Creatine"), false);
+  assert.deepEqual(itemList.itemListElement.map((item) => item.position), [1, 2]);
   assert.deepEqual(breadcrumb.itemListElement.map((item) => item.name), ["Home", "Creatine"]);
   assert.equal(JSON.stringify(data).includes("ratingValue"), false);
   assert.equal(JSON.stringify(data).includes("reviewCount"), false);
+});
+
+test("Product structured data is emitted only for products with fresh current offers", () => {
+  const { page } = loadPage();
+  const result = comparisonFixture();
+  const data = page.buildCreatineStructuredData(result.rows, result.summary.latestOfferCheckedAt);
+  const products = structuredDataProducts(data);
+
+  assert.equal(products.length, 2);
+  assert.deepEqual(products.map((product) => product.name), [
+    "Verified Creatine 250g",
+    "Shipping Unknown Creatine",
+  ]);
+  assert.equal(products.some((product) => product.name === "No Offer Creatine"), false);
+
+  for (const product of products) {
+    assert.ok(product.offers || product.review || product.aggregateRating);
+    assert.equal(product.offers["@type"], "Offer");
+    assert.equal(product.offers.priceCurrency, "GBP");
+    assert.match(product.offers.price, /^\d+\.\d{2}$/);
+    assert.equal(product.offers.availability, "https://schema.org/InStock");
+  }
+});
+
+test("stale-only products stay visible in HTML but stale prices do not enter JSON-LD", () => {
+  const { normalizeCreatineComparison } = loadComparison({});
+  const { page } = loadPage();
+  const result = {
+    ...normalizeCreatineComparison(
+      [
+        rawProduct({
+          id: 100,
+          slug: "stale-only-creatine",
+          name: "Stale Only Creatine",
+          offers: [
+            {
+              id: 1001,
+              price: 1.23,
+              shipping_cost: 0,
+              in_stock: true,
+              last_checked_at: "2026-07-14T20:00:00.000Z",
+              retailer: { id: 100, name: "Old Retailer", slug: "old-retailer" },
+            },
+          ],
+        }),
+      ],
+      { now: FIXTURE_NOW }
+    ),
+    error: false,
+  };
+
+  const data = page.buildCreatineStructuredData(result.rows, result.summary.latestOfferCheckedAt);
+  const html = renderToStaticMarkup(React.createElement(page.CreatinePageContent, { result }));
+  const json = JSON.stringify(data);
+
+  assert.match(html, /Stale Only Creatine/);
+  assert.match(html, /No recently verified offer/);
+  assert.equal(structuredDataProducts(data).length, 0);
+  assert.equal(json.includes("Stale Only Creatine"), false);
+  assert.equal(json.includes("1.23"), false);
 });
 
 test("rendered JSON-LD is sanitized and present after index launch", () => {

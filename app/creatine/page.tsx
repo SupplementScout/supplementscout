@@ -67,6 +67,10 @@ function formatCheckedAt(value: string | null) {
 export function buildCreatineStructuredData(rows: CreatineComparisonRow[], lastUpdated: string | null) {
   const itemListId = `${pageUrl}#products`;
   const breadcrumbId = `${pageUrl}#breadcrumb`;
+  const structuredDataRows = rows.filter(
+    (row): row is CreatineComparisonRow & { bestOffer: NonNullable<CreatineComparisonRow["bestOffer"]> } =>
+      row.bestOffer !== null
+  );
   const collectionPage: Record<string, unknown> = {
     "@type": "CollectionPage",
     "@id": pageUrl,
@@ -88,30 +92,26 @@ export function buildCreatineStructuredData(rows: CreatineComparisonRow[], lastU
       {
         "@type": "ItemList",
         "@id": itemListId,
-        numberOfItems: rows.length,
-        itemListElement: rows.map((row, index) => ({
+        numberOfItems: structuredDataRows.length,
+        itemListElement: structuredDataRows.map((row, index) => ({
           "@type": "ListItem",
           position: index + 1,
           item: {
             "@type": "Product",
             name: row.name,
             url: `${siteUrl}${row.productUrl}`,
-            ...(row.bestOffer
-              ? {
-                  offers: {
-                    "@type": "Offer",
-                    priceCurrency: "GBP",
-                    price: row.bestOffer.productPrice.toFixed(2),
-                    availability: "https://schema.org/InStock",
-                    seller: row.bestOffer.retailer?.name
-                      ? {
-                          "@type": "Organization",
-                          name: row.bestOffer.retailer.name,
-                        }
-                      : undefined,
-                  },
-                }
-              : {}),
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "GBP",
+              price: row.bestOffer.productPrice.toFixed(2),
+              availability: "https://schema.org/InStock",
+              seller: row.bestOffer.retailer?.name
+                ? {
+                    "@type": "Organization",
+                    name: row.bestOffer.retailer.name,
+                  }
+                : undefined,
+            },
           },
           name: row.name,
           url: `${siteUrl}${row.productUrl}`,
