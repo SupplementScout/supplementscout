@@ -320,6 +320,7 @@ test("workflow is scheduled, main-only, secret-backed and has no public trigger"
   assert.match(workflow, /cron:\s*"17 3 \* \* \*"/);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/);
+  assert.match(workflow, /environment:\s*production-readonly/);
   assert.doesNotMatch(workflow, /pull_request|repository_dispatch|workflow_run/);
   assert.match(workflow, /permissions:\s*\n\s+contents: read/);
   assert.match(workflow, /node scripts\/creatine-offer-refresh\.js --dry-run/);
