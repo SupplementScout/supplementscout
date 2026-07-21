@@ -41,6 +41,7 @@ const {
   writeDryRunArtifact,
 } = require("./import-products");
 const {
+  getSafeCreateExclusionReasons,
   isSafeCreateRowAmbiguous,
   rowIdentityKey,
 } = require("./lib/feed-variant-guards");
@@ -4060,6 +4061,33 @@ test("Fit House Barebells milkshake resolves ready_to_drink canonical variant", 
   assert.equal(result.report.approvedRows.length, 1);
   assert.equal(result.report.blockedRows.length, 0);
   assert.equal(result.report.approvedRows[0].importPlan.product_variant.id, "pv-barebells-chocolate");
+});
+
+test("exact reviewed PER4M 12 x 62g bar family passes the final safe-create guard", () => {
+  assert.deepEqual(getSafeCreateExclusionReasons({
+    product_name: "PER4M Protein Bars Box of 12 x 62g",
+    category: "Protein Bars",
+    product_format: "bar",
+    size: "62",
+    size_unit: "g",
+  }), []);
+});
+
+test("reviewed bar guard remains exact and blocks wrong format or unrelated bars", () => {
+  assert.deepEqual(getSafeCreateExclusionReasons({
+    product_name: "PER4M Protein Bars Box of 12 x 62g",
+    category: "Protein Bars",
+    product_format: "powder",
+    size: "62",
+    size_unit: "g",
+  }), ["unsupported reviewed product format"]);
+  assert.deepEqual(getSafeCreateExclusionReasons({
+    product_name: "Unreviewed Protein Bars Box of 12 x 62g",
+    category: "Protein Bars",
+    product_format: "bar",
+    size: "62",
+    size_unit: "g",
+  }), ["category is not allowed for safe-create"]);
 });
 
 test("liquid evidence still blocks a powder canonical variant", async () => {

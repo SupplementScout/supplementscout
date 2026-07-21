@@ -534,6 +534,11 @@ const REVIEWED_SAFE_CREATE_FAMILIES = [
     categories: ["Health Supplements"],
     pattern: /\bprotein\s+pancakes?\b/i,
   },
+  {
+    allowedFormats: ["bar"],
+    categories: ["Protein Bars"],
+    pattern: /\bper4m\s+protein\s+bars\s+box\s+of\s+12\s+x\s+62g\b/i,
+  },
 ];
 
 const SAFE_CREATE_CREAM_EXCLUSION_PATTERN = /\bcream\b/i;
@@ -591,9 +596,9 @@ function reviewedSafeCreateFamily(row) {
   return {
     ...family,
     hasClearCountOrSize: Boolean(parseSize(text)),
-    hasPowderFormat:
-      explicitProductFormat(row.product_format) === "powder" ||
-      (!explicitProductFormat(row.product_format) && parseProductFormat(text) === "powder"),
+    hasSupportedFormat: (family.allowedFormats || ["powder"]).includes(
+      explicitProductFormat(row.product_format) || parseProductFormat(text)
+    ),
   };
 }
 
@@ -605,7 +610,7 @@ function getSafeCreateExclusionReasons(row) {
     return ["category is not allowed for safe-create"];
   }
 
-  if (reviewedFamily && !reviewedFamily.hasPowderFormat) {
+  if (reviewedFamily && !reviewedFamily.hasSupportedFormat) {
     return ["unsupported reviewed product format"];
   }
 
