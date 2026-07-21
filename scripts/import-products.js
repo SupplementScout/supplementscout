@@ -2161,6 +2161,124 @@ function isLikelyShopifyVariantUrl(row, externalVariantId) {
   }
 }
 
+const REVIEWED_PARENT_VARIANT_POLICY = new Map([
+  ["CNP Loaded Beef Protein 1.8kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "1800:g" }],
+  ["CNP Loaded ISO Collagen Protein 2kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "2000:g" }],
+  ["CNP Peptide Whey Protein Blend 2.27kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "2270:g" }],
+  ["CNP Premium Whey 2kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "2000:g" }],
+  ["CNP Premium Whey 900g", { brand: "CNP", category: "Whey Protein", format: "powder", size: "900:g" }],
+  ["CNP Whey Isolate 1.8kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "1800:g" }],
+  ["Strom StimuMAX Black Edition 360g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "360:g" }],
+  ["Strom StimuMAX Extreme Pre Workout 390g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "390:g" }],
+  ["Strom StimuMAX OG Pre Workout 360g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "360:g" }],
+  ["Strom StimuMAX PRO Pre Workout 360g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "360:g" }],
+  ["Strom VascuMAX PRO 470g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "470:g" }],
+]);
+
+function reviewedSizeKey(evidence) {
+  if (!evidence?.size?.value || !evidence?.size?.unit) return null;
+  return `${normalizeDecimalString(evidence.size.value, "size_value")}:${evidence.size.unit}`;
+}
+
+function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
+  const productName = required(row.product_name, "product_name", rowNumber);
+  const policy = REVIEWED_PARENT_VARIANT_POLICY.get(productName);
+  if (!policy) {
+    throw new Error("reviewed parent explicit-variant policy does not allow this canonical family");
+  }
+
+  const externalProductId = optionalIdentifier(row.external_product_id);
+  const externalVariantId = optionalIdentifier(row.external_variant_id);
+  const externalOptions = parseExternalOptions(row.external_options);
+
+  if (slugifyRetailerName(required(row.retailer_name, "retailer_name", rowNumber)) !== "jon-s-supplements") {
+    throw new Error("reviewed parent explicit-variant policy is Jon's-only");
+  }
+  if (!SHOPIFY_NUMERIC_ID_PATTERN.test(externalProductId || "") || !SHOPIFY_NUMERIC_ID_PATTERN.test(externalVariantId || "")) {
+    throw new Error("reviewed parent explicit-variant requires Shopify product and variant IDs");
+  }
+  if (externalProductId === externalVariantId || !isLikelyShopifyVariantUrl(row, externalVariantId)) {
+    throw new Error("reviewed parent explicit-variant requires strict Shopify variant URL identity");
+  }
+  if (optionalIdentifier(row.product_id) || optionalIdentifier(row.product_variant_id)) {
+    throw new Error("reviewed parent explicit-variant cannot supply canonical IDs");
+  }
+  if (required(row.brand, "brand", rowNumber) !== policy.brand) {
+    throw new Error("reviewed parent explicit-variant brand mismatch");
+  }
+  if (normalizeCategory(required(row.category, "category", rowNumber)) !== policy.category) {
+    throw new Error("reviewed parent explicit-variant category mismatch");
+  }
+  if (!evidence.flavour) {
+    throw new Error("reviewed parent explicit-variant requires explicit flavour");
+  }
+  if (reviewedSizeKey(evidence) !== policy.size) {
+    throw new Error("reviewed parent explicit-variant exact size mismatch");
+  }
+  if (evidence.productFormat !== policy.format || String(row.product_format || "").trim() !== policy.format) {
+    throw new Error("reviewed parent explicit-variant product format mismatch");
+  }
+  if (!parseRequiredBoolean(row.in_stock, "in_stock") || !parseRequiredBoolean(row.is_for_sale, "is_for_sale")) {
+    throw new Error("reviewed parent explicit-variant requires in-stock for-sale source row");
+  }
+
+  const optionFlavours = externalOptionValues(externalOptions, ["flavour", "flavor"]);
+  if (optionFlavours.length !== 1 || normalizeFlavour(optionFlavours[0]) !== evidence.flavour) {
+    throw new Error("reviewed parent explicit-variant requires exact Shopify flavour option");
+  }
+  const optionSizes = externalOptionValues(externalOptions, ["size"]);
+  if (optionSizes.length > 0 && (
+    optionSizes.length !== 1 ||
+    sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size)
+  )) {
+    throw new Error("reviewed parent explicit-variant Shopify size option mismatch");
+  }
+
+  if (NO_SKU_SOURCE_EXCLUSION_PATTERN.test([
+    row.product_name,
+    row.external_name,
+    row.variant_name,
+    row.description,
+    row.external_url,
+  ].filter(Boolean).join(" "))) {
+    throw new Error("reviewed parent explicit-variant source row is bundle/free/BBE/dated");
+  }
+  if (/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\s*[-–]\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/i.test(productName)) {
+    throw new Error("reviewed parent explicit-variant product name cannot contain a size range");
+  }
+
+  return { ...policy, productName };
+}
+
+async function findRetailerMappingBySku(retailerId, sku) {
+  const externalSku = optionalIdentifier(sku);
+  if (!externalSku) return null;
+  const { data, error } = await getSupabase()
+    .from("retailer_products")
+    .select("id, retailer_id, product_id, product_variant_id, external_sku, external_variant_id")
+    .eq("retailer_id", retailerId)
+    .eq("external_sku", externalSku)
+    .limit(2);
+  if (error) throw error;
+  if ((data || []).length > 1) throw new Error("ambiguous retailer product external_sku");
+  return data?.[0] || null;
+}
+
+async function findExternalGtinPeer(retailerId, externalGtin, externalVariantId) {
+  const gtin = optionalIdentifier(externalGtin);
+  if (!gtin) return null;
+  const { data, error } = await getSupabase()
+    .from("retailer_products")
+    .select("id, retailer_id, external_gtin, external_variant_id")
+    .eq("external_gtin", gtin)
+    .limit(2);
+  if (error) throw error;
+  return (data || []).find((row) =>
+    Number(row.retailer_id) !== Number(retailerId) ||
+    String(row.external_variant_id || "") !== String(externalVariantId || "")
+  ) || null;
+}
+
 function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, productFormat) {
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -2265,6 +2383,34 @@ function buildPlannedVariantValues(row, product, rowNumber, evidence) {
     size_unit: sizeUnit,
     pack_count: packCount,
     product_format: productFormat,
+  };
+}
+
+function planReviewedParentVariant(row, rowNumber, evidence) {
+  const productValues = completeObject(
+    { ...buildProductData(row, rowNumber, "feed"), gtin: null },
+    PRODUCT_PLAN_VALUE_FIELDS,
+    { unit_pricing_verified: false, nutrition_verified: false }
+  );
+  const pseudoProduct = {
+    id: null,
+    name: productValues.name,
+    is_active: true,
+    merged_into_product_id: null,
+    product_format: productValues.product_format,
+  };
+  const variantValues = buildPlannedVariantValues(row, pseudoProduct, rowNumber, evidence);
+  return {
+    product: { ...productValues, planned_create: true },
+    variant: {
+      ...variantValues,
+      id: null,
+      product_id: null,
+      is_active: true,
+      is_default: false,
+      planned_create: true,
+      reviewed_parent_variant_create: true,
+    },
   };
 }
 
@@ -2375,8 +2521,9 @@ function buildAtomicImportPlan(item) {
     row, retailer, product, productVariant, mapping, existingOffer, offerPlan,
     legacyMappingUpgrade,
   } = item;
+  const reviewedParentVariantCreate = Boolean(productVariant?.reviewed_parent_variant_create);
   const now = resolvePlanTimestamp(item.sourceCapturedAt);
-  const rawProductData = product ? null : buildProductData(row, item.rowNumber, "feed");
+  const rawProductData = product ? null : (item.plannedProduct?.planned_create ? item.plannedProduct : buildProductData(row, item.rowNumber, "feed"));
   if (rawProductData) rawProductData.gtin = null;
   const productData = rawProductData
     ? completeObject(rawProductData, PRODUCT_PLAN_VALUE_FIELDS, {
@@ -2442,11 +2589,13 @@ function buildAtomicImportPlan(item) {
   if (!product) {
     approval = {
       approved: true,
-      approval_type: "safe_create",
+      approval_type: reviewedParentVariantCreate
+        ? "reviewed_parent_variant_safe_create"
+        : "safe_create",
       approved_category: productData.category,
       source_row_fingerprint: sourceFingerprint,
       canonical_name: productData.name,
-      has_variant_evidence: false,
+      has_variant_evidence: reviewedParentVariantCreate,
       approval_fingerprint: null,
     };
     approval.approval_fingerprint = approvalFingerprint(approval);
@@ -2464,8 +2613,20 @@ function buildAtomicImportPlan(item) {
     },
     product: product
       ? { action: "existing", id: product.id }
-      : { action: "create", values: productData },
-    product_variant: product
+      : {
+          action: reviewedParentVariantCreate ? "create_or_reuse_reviewed" : "create",
+          values: productData,
+        },
+    product_variant: reviewedParentVariantCreate
+      ? {
+          action: "create_reviewed_variant",
+          values: completeObject(productVariant, [
+            "variant_key", "display_name", "flavour_code", "flavour_label",
+            "size_value", "size_unit", "pack_count", "product_format",
+          ]),
+          evidence: buildVariantEvidence(row, mapping, productVariant),
+        }
+      : product
       ? productVariant?.planned_create
         ? {
             action: "create_variant",
@@ -2599,6 +2760,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   let productVariant = null;
   let legacyMappingUpgrade = null;
   let variantResolutionError = null;
+  let reviewedParentVariantCreate = false;
 
   if (retailer) {
     try {
@@ -2614,6 +2776,9 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
 
     if (mapping) {
       product = await findProductById(mapping.product_id);
+      if (!product) {
+        validationErrors.push("retailer product mapping has missing canonical product");
+      }
     }
   }
 
@@ -2654,9 +2819,32 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
       ...validateSafeCreateCanonicalAvailability(shippingNormalizedRow)
     );
     try {
-      if (collectCanonicalVariantEvidence(shippingNormalizedRow).discriminatingSupplied) {
-        variantResolutionError =
-          "safe-create requires manual approval for flavour or size variants";
+      const evidence = collectCanonicalVariantEvidence(shippingNormalizedRow);
+      if (evidence.discriminatingSupplied) {
+        assertReviewedParentVariantPolicy(shippingNormalizedRow, rowNumber, evidence);
+        if (!retailer?.id) {
+          throw new Error("reviewed parent explicit-variant requires existing active retailer");
+        }
+        const skuPeer = await findRetailerMappingBySku(retailer.id, shippingNormalizedRow.external_sku);
+        if (
+          skuPeer &&
+          String(skuPeer.external_variant_id || "") !==
+            String(optionalIdentifier(shippingNormalizedRow.external_variant_id) || "")
+        ) {
+          throw new Error("reviewed parent explicit-variant SKU conflict");
+        }
+        const gtinPeer = await findExternalGtinPeer(
+          retailer.id,
+          getExternalGtin(shippingNormalizedRow),
+          optionalIdentifier(shippingNormalizedRow.external_variant_id)
+        );
+        if (gtinPeer) {
+          throw new Error("reviewed parent explicit-variant GTIN conflict");
+        }
+        const planned = planReviewedParentVariant(shippingNormalizedRow, rowNumber, evidence);
+        plannedProduct = planned.product;
+        productVariant = planned.variant;
+        reviewedParentVariantCreate = true;
       }
     } catch (error) {
       variantResolutionError = error?.message || String(error);
@@ -2669,7 +2857,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     }
 
     if (!product) {
-      plannedProduct = planProduct(shippingNormalizedRow);
+      plannedProduct = plannedProduct || planProduct(shippingNormalizedRow);
 
       if (!isSafeCreateRowAmbiguous(shippingNormalizedRow)) {
         const conflict = await findSimilarProductConflict(shippingNormalizedRow);
@@ -2726,6 +2914,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     existingOffer,
     productVariant,
     variantResolutionError,
+    reviewedParentVariantCreate,
     offerPlan,
     validationErrors,
     shippingInferredFromPolicy,

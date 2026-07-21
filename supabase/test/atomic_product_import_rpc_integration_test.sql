@@ -43,7 +43,7 @@ declare
   v_approval jsonb;
 begin
   p_plan := public.atomic_test_decimalize(p_plan);
-  if p_plan#>>'{approval,approval_type}' = 'safe_create' then
+  if p_plan#>>'{approval,approval_type}' in ('safe_create','reviewed_parent_variant_safe_create') then
     v_approval := jsonb_set(p_plan->'approval', '{approval_fingerprint}', 'null'::jsonb, false);
     v_approval := jsonb_set(
       v_approval,
@@ -60,6 +60,109 @@ begin
     to_jsonb(md5(public.atomic_import_canonical_json(p_plan))),
     false
   );
+end;
+$$;
+
+create or replace function public.atomic_test_reviewed_parent_variant_plan(
+  p_product_name text,
+  p_slug text,
+  p_brand text,
+  p_category text,
+  p_format text,
+  p_size_value text,
+  p_size_unit text,
+  p_flavour text,
+  p_external_product_id text,
+  p_external_variant_id text,
+  p_external_sku text default null,
+  p_external_gtin text default null
+) returns jsonb
+language plpgsql
+as $$
+declare
+  v_source text := repeat('c', 64);
+  v_plan jsonb;
+begin
+  v_plan := jsonb_build_object(
+    'meta', jsonb_build_object(
+      'version', 2, 'plan_kind', 'feed', 'operation_type', 'standard_import',
+      'source_row_fingerprint', v_source, 'plan_fingerprint', null
+    ),
+    'product', jsonb_build_object(
+      'action', 'create_or_reuse_reviewed',
+      'values', jsonb_build_object(
+        'name', p_product_name, 'slug', p_slug, 'brand', p_brand,
+        'category', p_category, 'price', '49.99',
+        'image', null, 'description', null, 'servings', null,
+        'net_weight_g', null, 'net_volume_ml', null,
+        'serving_count_verified', null, 'serving_size_g', null,
+        'serving_size_ml', null, 'protein_per_serving_g', null,
+        'creatine_per_serving_g', null, 'unit_count', null,
+        'unit_type', null, 'product_format', p_format,
+        'unit_pricing_verified', false, 'nutrition_verified', false,
+        'gtin', null
+      )
+    ),
+    'product_variant', jsonb_build_object(
+      'action', 'create_reviewed_variant',
+      'values', jsonb_build_object(
+        'variant_key', public.atomic_import_normalized_identity(p_flavour) || '-' || p_size_value || p_size_unit,
+        'display_name', p_flavour || ' / ' || p_size_value || p_size_unit,
+        'flavour_code', p_flavour, 'flavour_label', p_flavour,
+        'size_value', p_size_value, 'size_unit', p_size_unit,
+        'pack_count', '1', 'product_format', p_format
+      ),
+      'evidence', jsonb_build_object(
+        'flavour', p_flavour, 'size_value', p_size_value, 'size_unit', p_size_unit,
+        'pack_count', '1', 'product_format', p_format,
+        'external_options', jsonb_build_object('Flavour', p_flavour, 'Size', p_size_value || p_size_unit),
+        'approved_mapping_id', null
+      )
+    ),
+    'retailer', jsonb_build_object('action', 'existing', 'id', 1),
+    'retailer_product', jsonb_build_object(
+      'action', 'create',
+      'values', jsonb_build_object(
+        'external_product_id', p_external_product_id,
+        'external_variant_id', p_external_variant_id,
+        'external_sku', p_external_sku,
+        'external_options', jsonb_build_object('Flavour', p_flavour, 'Size', p_size_value || p_size_unit),
+        'external_name', p_product_name || ' ' || p_flavour,
+        'external_slug', p_slug,
+        'external_gtin', p_external_gtin,
+        'external_url', 'https://local.test/products/' || p_slug || '?variant=' || p_external_variant_id,
+        'match_method', 'reviewed_parent_variant',
+        'match_confidence', '95',
+        'product_variant_id', null
+      )
+    ),
+    'offer', jsonb_build_object(
+      'action', 'create',
+      'values', jsonb_build_object(
+        'price', '49.99', 'shipping_cost', '3.99', 'total_price', '53.98',
+        'url', 'https://affiliate.local/products/' || p_slug || '?variant=' || p_external_variant_id,
+        'in_stock', true, 'last_checked_at', '2026-07-21T10:00:00Z'
+      )
+    ),
+    'price_history', jsonb_build_object('action', 'create'),
+    'approval', jsonb_build_object(
+      'approved', true, 'approval_type', 'reviewed_parent_variant_safe_create',
+      'approved_category', p_category,
+      'source_row_fingerprint', v_source, 'canonical_name', p_product_name,
+      'has_variant_evidence', true, 'approval_fingerprint', null
+    ),
+    'expected_state', jsonb_build_object(
+      'product', null,
+      'retailer', (
+        select jsonb_build_object('id',id,'name',name,'slug',slug,'website',website)
+        from public.retailers where id = 1
+      ),
+      'product_variant', null,
+      'retailer_product', null,
+      'offer', null
+    )
+  );
+  return public.atomic_test_finalize_plan(v_plan);
 end;
 $$;
 
@@ -711,6 +814,68 @@ begin
   exception when others then
     if sqlerrm='expected invalid artifact SHA rejection' then raise; end if;
   end;
+end $$;
+
+-- Reviewed parent + explicit variant safe-create policy.
+update public.retailers
+set name='Jon''s Supplements', slug='jon-s-supplements', website='https://local.test'
+where id=1;
+
+select public.atomic_test_apply(public.atomic_test_reviewed_parent_variant_plan(
+  'CNP Premium Whey 2kg','cnp-premium-whey-2kg','CNP','Whey Protein','powder',
+  '2000','g','Cereal Milk','10032290431314','50602336321874','CNP09007',null
+));
+select public.atomic_test_apply(public.atomic_test_reviewed_parent_variant_plan(
+  'CNP Premium Whey 2kg','cnp-premium-whey-2kg','CNP','Whey Protein','powder',
+  '2000','g','Banana','10032290431314','50602336256338','CNP09004',null
+));
+do $$
+declare v_product_id bigint;
+begin
+  select id into strict v_product_id from public.products where slug='cnp-premium-whey-2kg';
+  if (select count(*) from public.products where slug='cnp-premium-whey-2kg') <> 1
+     or (select count(*) from public.product_variants where product_id=v_product_id) <> 2
+     or (select count(*) from public.product_variants where product_id=v_product_id and is_default) <> 0
+     or (select count(*) from public.retailer_products where product_id=v_product_id) <> 2
+     or (select count(*) from public.offers where product_id=v_product_id) <> 2
+     or (select count(*) from public.price_history ph join public.offers o on o.id=ph.offer_id where o.product_id=v_product_id) <> 2 then
+    raise exception 'reviewed parent explicit-variant positive assertions failed';
+  end if;
+end $$;
+
+do $$
+declare v_bad jsonb;
+begin
+  v_bad := public.atomic_test_reviewed_parent_variant_plan(
+    'Trained By JP ISO PRO 2kg','trained-by-jp-iso-pro-2kg','Trained By JP','Whey Protein','powder',
+    '2000','g','Vanilla','10000000000001','50000000000001','TBJP001',null
+  );
+  perform public.atomic_test_expect_failure(v_bad,'unreviewed family');
+
+  v_bad := public.atomic_test_reviewed_parent_variant_plan(
+    'CNP Premium Whey 2kg','cnp-premium-whey-2kg','CNP','Whey Protein','powder',
+    '2000','g','Cereal Milk','10032290431314','50602336321874','CNP09099',null
+  );
+  perform public.atomic_test_expect_failure(v_bad,'duplicate Shopify variant');
+
+  v_bad := public.atomic_test_reviewed_parent_variant_plan(
+    'Strom StimuMAX PRO Pre Workout 360g','strom-stimumax-pro-pre-workout-360g','Strom','Pre Workout','powder',
+    '360','g','Strawberry Kiwi','10020406231378','50566788415826','STM15002','1234567890123'
+  );
+  insert into public.retailer_products(retailer_id,product_id,product_variant_id,external_name,external_url,external_variant_id,external_gtin,match_method,match_confidence)
+  values(1,2010,2010,'GTIN conflict fixture','https://local.test/products/gtin-conflict?variant=49999999999999','49999999999999','1234567890123','fixture',1);
+  perform public.atomic_test_expect_failure(v_bad,'GTIN conflict');
+
+  v_bad := public.atomic_test_reviewed_parent_variant_plan(
+    'Strom StimuMAX OG Pre Workout 360g','strom-stimumax-og-pre-workout-360g','Strom','Pre Workout','powder',
+    '360','g','Cola','10101107884370','50884219863378','STM041',null
+  );
+  perform set_config('app.atomic_test_failpoint','after_product',true);
+  perform public.atomic_test_expect_apply_failure(v_bad,'reviewed parent rollback');
+  perform set_config('app.atomic_test_failpoint','',true);
+  if exists(select 1 from public.products where slug='strom-stimumax-og-pre-workout-360g') then
+    raise exception 'reviewed parent rollback left product';
+  end if;
 end $$;
 
 -- Final owner, SECURITY DEFINER, volatility, search_path, RLS and ACL.

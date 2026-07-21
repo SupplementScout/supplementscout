@@ -701,6 +701,7 @@ function analyzeFeedRows(resolvedRows, options = {}) {
   const dedupeKeys = new Map();
   const conflictingDedupeRowNumbers = new Set();
   const plannedRetailerSlugs = new Set();
+  const plannedProductSlugs = new Set();
   const block = (entry) => {
     report.blockedRows.push(entry);
     return entry;
@@ -967,7 +968,8 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       });
     }
 
-    if (item.plannedProduct) {
+    if (item.plannedProduct && !plannedProductSlugs.has(item.plannedProduct.slug)) {
+      plannedProductSlugs.add(item.plannedProduct.slug);
       report.newProductsToCreate.push({
         rowNumber: item.rowNumber,
         productName,
@@ -975,11 +977,12 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       });
     }
 
-    if (item.importPlan?.product_variant.action === "create_variant") {
+    if (["create_variant", "create_reviewed_variant"].includes(item.importPlan?.product_variant.action)) {
       report.productVariantsToCreate.push({
         rowNumber: item.rowNumber,
         productName,
-        productId: item.product.id,
+        productId: item.product?.id || null,
+        productSlug: item.plannedProduct?.slug || null,
         values: item.importPlan.product_variant.values,
       });
     }

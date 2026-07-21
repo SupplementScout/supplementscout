@@ -67,7 +67,18 @@ async function runImportRows(rows, options = {}) {
   const failedRows = [];
   for (const item of preflight.report.approvedRows || []) {
     const row = rows[item.rowNumber - 2];
-    const singlePreflight = await runImportRowsRaw([row], { ...options, dryRun: true });
+    const singlePreflight = {
+      ...preflight,
+      report: {
+        ...preflight.report,
+        approvedRows: [{
+          ...item,
+          rowNumber: 2,
+        }],
+      },
+      blockedRows: [],
+      skipped: 0,
+    };
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), "supplementscout-plan-test-"));
     const artifactPath = path.join(directory, "plan.json");
     try {
@@ -237,6 +248,50 @@ function createVariantFixture(rowOverrides = {}, seedOverrides = {}) {
     ...seedOverrides,
   };
   return { row, seed };
+}
+
+function baseReviewedParentVariantRow(overrides = {}) {
+  return baseCanonicalFeedRow({
+    retailer_name: "Jon's Supplements",
+    retailer_website: "https://jonssupplements.co.uk",
+    external_product_id: "10032290431314",
+    external_variant_id: "50602336321874",
+    external_sku: "CNP09007",
+    external_options: JSON.stringify({ Flavour: "Cereal Milk" }),
+    product_name: "CNP Premium Whey 2kg",
+    variant_name: "Cereal Milk / 2000g",
+    brand: "CNP",
+    category: "Whey Protein",
+    description: "",
+    image: "https://cdn.shopify.com/s/files/1/0956/0047/6498/files/cnp-whey.webp",
+    slug: "cnp-premium-whey-2kg",
+    external_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336321874",
+    affiliate_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336321874",
+    external_gtin: "",
+    price: "49.99",
+    shipping_known: "true",
+    shipping_cost: "3.99",
+    in_stock: "true",
+    is_for_sale: "true",
+    size: "2000",
+    size_unit: "g",
+    flavour: "Cereal Milk",
+    product_format: "powder",
+    pack_count: "1",
+    ...overrides,
+  });
+}
+
+function reviewedSeed(overrides = {}) {
+  return {
+    retailers: [{ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements", website: "https://jonssupplements.co.uk" }],
+    products: [],
+    product_variants: [],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+    ...overrides,
+  };
 }
 
 function createMockSupabase(seed = {}) {
@@ -473,7 +528,31 @@ function createMockSupabase(seed = {}) {
         }
 
         let productId = plan.product.id;
-        if (plan.product.action === "create") {
+        if (plan.product.action === "create_or_reuse_reviewed") {
+          const existing = tables.products.find((product) =>
+            product.slug === plan.product.values.slug ||
+            String(product.name).toLowerCase() === String(plan.product.values.name).toLowerCase()
+          );
+          if (existing) {
+            productId = existing.id;
+          } else {
+            const row = {
+              ...materializeDecimalFields(plan.product.values, [
+                "price", "servings", "net_weight_g", "net_volume_ml", "serving_count_verified",
+                "serving_size_g", "serving_size_ml", "protein_per_serving_g",
+                "creatine_per_serving_g", "unit_count",
+              ]),
+              id: `products-${tables.products.length + 1}`,
+              gtin: null,
+              is_active: true,
+              merged_into_product_id: null,
+              merged_at: null,
+            };
+            tables.products.push(row);
+            writes.push({ table: "products", operation: "insert", payload: row });
+            productId = row.id;
+          }
+        } else if (plan.product.action === "create") {
           const row = {
             ...materializeDecimalFields(plan.product.values, [
               "price", "servings", "net_weight_g", "net_volume_ml", "serving_count_verified",
@@ -509,7 +588,7 @@ function createMockSupabase(seed = {}) {
           tables.product_variants.push(row);
           writes.push({ table: "product_variants", operation: "insert", payload: row });
           productVariantId = row.id;
-        } else if (plan.product_variant.action === "create_variant") {
+        } else if (["create_variant", "create_reviewed_variant"].includes(plan.product_variant.action)) {
           const row = {
             ...materializeDecimalFields(plan.product_variant.values, ["size_value", "pack_count"]),
             id: `product_variants-${tables.product_variants.length + 1}`,
@@ -1372,6 +1451,286 @@ test("safe-create blocks canonical feed rows with flavour and size evidence", as
   assert.equal(result.report.approvedRows.length, 0);
   assert.equal(result.report.blockedRows.length, 1);
   assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's parent plus explicit variant safe-create plans one parent and one named variant", async () => {
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([baseReviewedParentVariantRow()], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 1);
+  assert.equal(result.report.productVariantsToCreate.length, 1);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product.action, "create_or_reuse_reviewed");
+  assert.equal(plan.product_variant.action, "create_reviewed_variant");
+  assert.equal(plan.product_variant.values.display_name, "Cereal Milk / 2000g");
+  assert.notEqual(plan.product_variant.values.variant_key, "default");
+  assert.equal(plan.approval.approval_type, "reviewed_parent_variant_safe_create");
+  assert.equal(plan.approval.has_variant_evidence, true);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's multiple flavours under one new parent count parent once", async () => {
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+
+  const rows = [
+    baseReviewedParentVariantRow(),
+    baseReviewedParentVariantRow({
+      external_variant_id: "50602336256338",
+      external_sku: "CNP09004",
+      external_options: JSON.stringify({ Flavour: "Banana" }),
+      variant_name: "Banana / 2000g",
+      flavour: "Banana",
+      external_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336256338",
+      affiliate_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336256338",
+    }),
+  ];
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.equal(result.report.newProductsToCreate.length, 1);
+  assert.equal(result.report.productVariantsToCreate.length, 2);
+  assert.deepEqual(
+    result.report.productVariantsToCreate.map((row) => row.values.display_name).sort(),
+    ["Banana / 2000g", "Cereal Milk / 2000g"]
+  );
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's CNP sizes/families and Strom versions stay separate", async () => {
+  const rows = [
+    baseReviewedParentVariantRow({
+      product_name: "CNP Premium Whey 900g",
+      slug: "cnp-premium-whey-900g",
+      external_product_id: "10032497394002",
+      external_variant_id: "50603324637522",
+      external_sku: "CNP09056",
+      external_options: JSON.stringify({ Flavour: "Banana" }),
+      variant_name: "Banana / 900g",
+      flavour: "Banana",
+      size: "900",
+      external_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-900g?variant=50603324637522",
+      affiliate_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-900g?variant=50603324637522",
+    }),
+    baseReviewedParentVariantRow(),
+    baseReviewedParentVariantRow({
+      product_name: "CNP Whey Isolate 1.8kg",
+      slug: "cnp-whey-isolate-1-8kg",
+      external_product_id: "10136944968018",
+      external_variant_id: "51006403641682",
+      external_sku: "CNP48013",
+      external_options: JSON.stringify({ Size: "1.8kg", Flavour: "Cereal Milk" }),
+      variant_name: "Cereal Milk / 1800g",
+      flavour: "Cereal Milk",
+      size: "1800",
+      external_url: "https://jonssupplements.co.uk/products/cnp-whey-protein-isolate-100-whey-isolate-powder-900g-1-8kg-v2?variant=51006403641682",
+      affiliate_url: "https://jonssupplements.co.uk/products/cnp-whey-protein-isolate-100-whey-isolate-powder-900g-1-8kg-v2?variant=51006403641682",
+    }),
+    baseReviewedParentVariantRow({
+      product_name: "Strom StimuMAX OG Pre Workout 360g",
+      slug: "strom-stimumax-og-pre-workout-360g",
+      brand: "Strom",
+      category: "Pre Workout",
+      external_product_id: "10101107884370",
+      external_variant_id: "50884219863378",
+      external_sku: "STM041",
+      external_options: JSON.stringify({ Flavour: "Cola" }),
+      variant_name: "Cola / 360g",
+      flavour: "Cola",
+      size: "360",
+      price: "23.99",
+      external_url: "https://jonssupplements.co.uk/products/strom-stimumax-og-pre-workout-360g-30-servings?variant=50884219863378",
+      affiliate_url: "https://jonssupplements.co.uk/products/strom-stimumax-og-pre-workout-360g-30-servings?variant=50884219863378",
+    }),
+    baseReviewedParentVariantRow({
+      product_name: "Strom StimuMAX PRO Pre Workout 360g",
+      slug: "strom-stimumax-pro-pre-workout-360g",
+      brand: "Strom",
+      category: "Pre Workout",
+      external_product_id: "10020406231378",
+      external_variant_id: "50566788415826",
+      external_sku: "STM15002",
+      external_options: JSON.stringify({ Flavour: "Strawberry Kiwi" }),
+      variant_name: "Strawberry Kiwi / 360g",
+      flavour: "Strawberry Kiwi",
+      size: "360",
+      price: "29.95",
+      external_url: "https://jonssupplements.co.uk/products/strom-stimumax-pro-pre-workout-360g-30-servings?variant=50566788415826",
+      affiliate_url: "https://jonssupplements.co.uk/products/strom-stimumax-pro-pre-workout-360g-30-servings?variant=50566788415826",
+    }),
+  ];
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 5);
+  assert.equal(result.report.newProductsToCreate.length, 5);
+  assert.deepEqual(
+    result.report.newProductsToCreate.map((row) => row.slug).sort(),
+    [
+      "cnp-premium-whey-2kg",
+      "cnp-premium-whey-900g",
+      "cnp-whey-isolate-1-8kg",
+      "strom-stimumax-og-pre-workout-360g",
+      "strom-stimumax-pro-pre-workout-360g",
+    ]
+  );
+});
+
+test("reviewed Jon's parent explicit-variant policy keeps hard blockers closed", async () => {
+  const cases = [
+    ["missing Shopify variant ID", { external_variant_id: "", external_url: "https://jonssupplements.co.uk/products/cnp?variant=" }, /missing external_variant_id|requires Shopify product and variant IDs/],
+    ["missing exact size", { size: "", variant_name: "Cereal Milk", external_options: JSON.stringify({ Flavour: "Cereal Milk" }) }, /exact size mismatch|explicit size evidence/],
+    ["missing flavour", { flavour: "", variant_name: "2000g", external_options: JSON.stringify({ Size: "2kg" }) }, /requires explicit flavour/],
+    ["inactive canonical parent collision", {}, /inactive|merged|collision|possible duplicate/],
+    ["SKU conflict", { external_variant_id: "50602336354642", external_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336354642" }, /SKU conflict/],
+    ["GTIN conflict", { external_gtin: "1234567890123" }, /GTIN conflict/],
+    ["brand mismatch", { brand: "Wrong" }, /brand mismatch/],
+    ["family mismatch", { product_name: "CNP Full Tilt Pre Workout 435g", slug: "cnp-full-tilt-pre-workout-435g" }, /does not allow this canonical family/],
+    ["bundle/free", { product_name: "CNP Premium Whey 2kg Plus Free Shaker" }, /does not allow this canonical family|bundle/],
+    ["unsupported category", { category: "Accessories" }, /category mismatch/],
+    ["mixed format", { product_format: "capsule" }, /product format mismatch|conflicting variant evidence/],
+    ["unreviewed family", { product_name: "Trained By JP ISO PRO 2kg", slug: "trained-by-jp-iso-pro-2kg", brand: "Trained By JP" }, /does not allow this canonical family/],
+  ];
+
+  for (const [name, overrides, pattern] of cases) {
+    const seed = reviewedSeed();
+    if (name === "inactive canonical parent collision") {
+      seed.products = [{
+        id: "p-existing",
+        name: "CNP Premium Whey 2kg",
+        slug: "cnp-premium-whey-2kg",
+        brand: "CNP",
+        category: "Whey Protein",
+        gtin: null,
+        is_active: false,
+        merged_into_product_id: null,
+        product_format: "powder",
+      }];
+      seed.product_variants = [{
+        id: "pv-existing",
+        product_id: "p-existing",
+        variant_key: "default",
+        display_name: "Default",
+        is_active: true,
+        is_default: true,
+      }];
+    }
+    if (name === "SKU conflict") {
+      seed.retailer_products = [{
+        id: "rp-existing",
+        retailer_id: "10",
+        product_id: "p-other",
+        product_variant_id: "pv-other",
+        external_sku: "CNP09007",
+        external_variant_id: "different",
+      }];
+    }
+    if (name === "GTIN conflict") {
+      seed.retailer_products = [{
+        id: "rp-existing",
+        retailer_id: "99",
+        product_id: "p-other",
+        product_variant_id: "pv-other",
+        external_gtin: "1234567890123",
+        external_variant_id: "different",
+      }];
+    }
+    const supabase = createMockSupabase(seed);
+    setSupabaseForTests(supabase);
+    try {
+      const result = await runImportRows([baseReviewedParentVariantRow(overrides)], {
+        mode: "feed",
+        safeCreate: true,
+        dryRun: true,
+      });
+      assert.equal(result.report.approvedRows.length, 0, name);
+      assert.match(result.report.blockedRows[0].block_reason || result.report.blockedRows[0].reason || (result.report.blockedRows[0].reasons || []).join("; "), pattern, name);
+      assert.equal(supabase.writes.length, 0, name);
+    } catch (error) {
+      assert.match(error?.message || String(error), pattern, name);
+      assert.equal(supabase.writes.length, 0, name);
+    }
+  }
+});
+
+test("reviewed Jon's parent explicit-variant batch blocks duplicate planned flavour", async () => {
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const rows = [
+    baseReviewedParentVariantRow(),
+    baseReviewedParentVariantRow({
+      external_variant_id: "50602336354642",
+      external_sku: "CNP09001",
+      external_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336354642",
+      affiliate_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336354642",
+    }),
+  ];
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.equal(result.report.collisionGroups.length, 1);
+  assert.match(result.report.blockedRows[0].block_reason, /multiple unresolved feed variants/);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's parent explicit-variant batch blocks duplicate Shopify variant ID", async () => {
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const rows = [
+    baseReviewedParentVariantRow(),
+    baseReviewedParentVariantRow({
+      external_sku: "CNP-DIFFERENT",
+      flavour: "Banana",
+      variant_name: "Banana / 2000g",
+      external_options: JSON.stringify({ Flavour: "Banana" }),
+    }),
+  ];
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.equal(result.report.invalidRows.length, 2);
+  assert.match(result.report.blockedRows[0].block_reason, /duplicate variant identity/);
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's parent explicit-variant apply is idempotent through exact parent reuse", async () => {
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+
+  const rows = [
+    baseReviewedParentVariantRow(),
+    baseReviewedParentVariantRow({
+      external_variant_id: "50602336256338",
+      external_sku: "CNP09004",
+      external_options: JSON.stringify({ Flavour: "Banana" }),
+      variant_name: "Banana / 2000g",
+      flavour: "Banana",
+      external_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336256338",
+      affiliate_url: "https://jonssupplements.co.uk/products/cnp-professional-premium-whey-protein-2kg?variant=50602336256338",
+    }),
+  ];
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true });
+
+  assert.equal(result.successful, 2);
+  assert.equal(result.failed, 0);
+  assert.equal(supabase.tables.products.length, 1);
+  assert.equal(supabase.tables.product_variants.length, 2);
+  assert.equal(supabase.tables.retailer_products.length, 2);
+  assert.equal(supabase.tables.offers.length, 2);
+  assert.equal(supabase.tables.price_history.length, 2);
+  assert.equal(
+    supabase.tables.product_variants.some((variant) => variant.display_name === "Default"),
+    false
+  );
 });
 
 test("canonical signature triggers full required-header validation", async () => {
