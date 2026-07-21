@@ -31,6 +31,7 @@ const verifiedNoChangeMigration = path.join(root, "supabase/migrations/202607181
 const existingProductVariantImportMigration = path.join(root, "supabase/migrations/20260719193000_support_existing_product_variant_import.sql");
 const reviewedParentVariantImportMigration = path.join(root, "supabase/migrations/20260721100000_support_reviewed_parent_explicit_variant_safe_create.sql");
 const reviewedTbjpParentVariantMigration = path.join(root, "supabase/migrations/20260721113000_allow_reviewed_tbjp_parent_variants.sql");
+const reviewedPreworkoutParentVariantMigration = path.join(root, "supabase/migrations/20260721125000_allow_reviewed_jons_preworkout_parent_variants.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const controlLedgerMigration = path.join(root, "supabase/migrations/20260717120000_create_retailer_catalogue_control_ledger.sql");
 const childExecutorMigration = path.join(root, "supabase/migrations/20260717130000_add_local_retailer_catalogue_child_executor.sql");
@@ -282,6 +283,16 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.match(reviewedTbjpParentVariantSql, /Trained By JP DNFM PRE 40 Servings/i);
   assert.doesNotMatch(reviewedTbjpParentVariantSql, /\b(create role|create user|grant|revoke)\b/i);
   assert.doesNotMatch(reviewedTbjpParentVariantSql, /\b(insert|update|delete)\s+into?\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  const reviewedPreworkoutParentVariantSql = fs.readFileSync(reviewedPreworkoutParentVariantMigration, "utf8");
+  assert.match(reviewedPreworkoutParentVariantSql, /ABE All Black Everything Pre-Workout 375g/i);
+  assert.match(reviewedPreworkoutParentVariantSql, /PER4M Energy Pre Workout 390g/i);
+  assert.match(reviewedPreworkoutParentVariantSql, /HR Labs DEFIB V3 Pre-Workout 420g/i);
+  assert.match(reviewedPreworkoutParentVariantSql, /Gas Mark 10 No Games Pre Workout 30 Servings/i);
+  assert.match(reviewedPreworkoutParentVariantSql, /Innovapharm MVPRE 3\.0 Pre Workout 437g/i);
+  assert.doesNotMatch(reviewedPreworkoutParentVariantSql, /DEFIB Original/i);
+  assert.doesNotMatch(reviewedPreworkoutParentVariantSql, /MVPRE Pre-Workout 3\.0 40\/20 servings/i);
+  assert.doesNotMatch(reviewedPreworkoutParentVariantSql, /\b(create role|create user|grant|revoke)\b/i);
+  assert.doesNotMatch(reviewedPreworkoutParentVariantSql, /\b(insert|update|delete)\s+into?\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -343,6 +354,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, existingProductVariantImportMigration), "reapply existing-product variant import migration idempotently");
     requireSuccess(psqlFile(container, database, reviewedParentVariantImportMigration), "apply reviewed parent explicit-variant migration");
     requireSuccess(psqlFile(container, database, reviewedTbjpParentVariantMigration), "apply reviewed TBJP parent explicit-variant allowlist migration");
+    requireSuccess(psqlFile(container, database, reviewedPreworkoutParentVariantMigration), "apply reviewed Jon's pre-workout parent explicit-variant allowlist migration");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",

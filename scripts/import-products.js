@@ -2180,6 +2180,11 @@ const REVIEWED_PARENT_VARIANT_POLICY = new Map([
   ["Trained By JP DNFM PRE 40 Servings", { brand: "Trained By JP", category: "Pre Workout", format: "powder", size: "40:servings" }],
   ["Trained By JP PrePare Pro 400g", { brand: "Trained By JP", category: "Pre Workout", format: "powder", size: "400:g" }],
   ["Trained By JP Pumpage Pre Workout 400g", { brand: "Trained By JP", category: "Pre Workout", format: "powder", size: "400:g" }],
+  ["ABE All Black Everything Pre-Workout 375g", { brand: "ABE All", category: "Pre Workout", format: "powder", size: "375:g" }],
+  ["PER4M Energy Pre Workout 390g", { brand: "PER4M", category: "Pre Workout", format: "powder", size: "390:g" }],
+  ["HR Labs DEFIB V3 Pre-Workout 420g", { brand: "HR Labs", category: "Pre Workout", format: "powder", size: "420:g" }],
+  ["Gas Mark 10 No Games Pre Workout 30 Servings", { brand: "Gas Mark 10", category: "Pre Workout", format: "powder", size: "30:servings" }],
+  ["Innovapharm MVPRE 3.0 Pre Workout 437g", { brand: "Innovapharm", category: "Pre Workout", format: "powder", size: "437:g" }],
 ]);
 
 function reviewedSizeKey(evidence) {

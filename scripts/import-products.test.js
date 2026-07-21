@@ -372,6 +372,83 @@ function tbjpReviewedParentVariantRow(productName, overrides = {}) {
   });
 }
 
+function preworkoutReviewedParentVariantRow(productName, overrides = {}) {
+  const configs = {
+    "ABE All Black Everything Pre-Workout 375g": {
+      brand: "ABE All",
+      variant: "Baddy Berry",
+      size: "375g",
+      external_product_id: "10281884975442",
+      external_variant_id: "51591755137362",
+      external_sku: "",
+      url: "https://jonssupplements.co.uk/products/abe-all-black-everything-pre-workout-375g?variant=51591755137362",
+      price: "20.99",
+    },
+    "PER4M Energy Pre Workout 390g": {
+      brand: "PER4M",
+      variant: "Cherry Fizz",
+      size: "390g",
+      external_product_id: "10414854668626",
+      external_variant_id: "52087824122194",
+      external_sku: "PFM24001",
+      url: "https://jonssupplements.co.uk/products/per4m-energy-pre-workout-390g?variant=52087824122194",
+      price: "19.95",
+    },
+    "HR Labs DEFIB V3 Pre-Workout 420g": {
+      brand: "HR Labs",
+      variant: "Cherryade",
+      size: "420g",
+      external_product_id: "10289985454418",
+      external_variant_id: "51634233737554",
+      external_sku: "",
+      url: "https://jonssupplements.co.uk/products/hr-labs-defib-v3-pre-workout-420g?variant=51634233737554",
+      price: "31.49",
+    },
+    "Gas Mark 10 No Games Pre Workout 30 Servings": {
+      brand: "Gas Mark 10",
+      variant: "Apple Mango",
+      size: "30 servings",
+      external_product_id: "10289980834130",
+      external_variant_id: "51634167284050",
+      external_sku: "GMK01001",
+      url: "https://jonssupplements.co.uk/products/gas-mark-10-no-games-pre-workout-30-servings?variant=51634167284050",
+      price: "36.99",
+      servings: "30",
+    },
+    "Innovapharm MVPRE 3.0 Pre Workout 437g": {
+      brand: "Innovapharm",
+      variant: "Jungle Juice",
+      size: "437g",
+      external_product_id: "10076138045778",
+      external_variant_id: "50786195177810",
+      external_sku: "INP01006",
+      url: "https://jonssupplements.co.uk/products/innovapharm-mvpre-3-0-pre-workout-437g?variant=50786195177810",
+      price: "34.99",
+    },
+  };
+  const config = configs[productName];
+  if (!config) throw new Error(`missing pre-workout test config: ${productName}`);
+  return baseReviewedParentVariantRow({
+    product_name: productName,
+    slug: productName.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    brand: config.brand,
+    category: "Pre Workout",
+    external_product_id: config.external_product_id,
+    external_variant_id: config.external_variant_id,
+    external_sku: config.external_sku,
+    external_options: JSON.stringify({ Flavour: config.variant, Size: config.size }),
+    variant_name: `${config.variant} / ${config.size}`,
+    flavour: config.variant,
+    size: config.size,
+    size_unit: "",
+    servings: config.servings || "",
+    price: config.price,
+    external_url: config.url,
+    affiliate_url: config.url,
+    ...overrides,
+  });
+}
+
 function reviewedSeed(overrides = {}) {
   return {
     retailers: [{ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements", website: "https://jonssupplements.co.uk" }],
@@ -1742,6 +1819,83 @@ test("reviewed Jon's TBJP exact family, size and formula blockers remain closed"
     ["brand mismatch", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { brand: "TBJP Nutrition" }), /brand mismatch/],
     ["bundle/free", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { product_name: "Trained By JP Pumpage Pre Workout 400g Plus Free Shaker" }), /does not allow this canonical family|bundle/],
     ["out of stock", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { in_stock: "false" }), /requires in-stock for-sale source row/],
+  ];
+
+  for (const [name, row, pattern] of cases) {
+    const supabase = createMockSupabase(reviewedSeed());
+    setSupabaseForTests(supabase);
+    const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+
+    assert.equal(result.report.approvedRows.length, 0, name);
+    assert.equal(result.report.blockedRows.length, 1, name);
+    assert.match(result.report.blockedRows[0].reason, pattern, name);
+  }
+});
+
+test("reviewed Jon's pre-workout parent explicit-variant allowlist covers only Marek-approved families", async () => {
+  const productNames = [
+    "ABE All Black Everything Pre-Workout 375g",
+    "PER4M Energy Pre Workout 390g",
+    "HR Labs DEFIB V3 Pre-Workout 420g",
+    "Gas Mark 10 No Games Pre Workout 30 Servings",
+    "Innovapharm MVPRE 3.0 Pre Workout 437g",
+  ];
+  const rows = productNames.map((productName) => preworkoutReviewedParentVariantRow(productName));
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 5);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 5);
+  assert.equal(result.report.productVariantsToCreate.length, 5);
+  assert.deepEqual(
+    result.report.newProductsToCreate.map((row) => row.productName).sort(),
+    productNames.sort()
+  );
+  assert(result.report.productVariantsToCreate.every((row) => row.values.display_name !== "Default"));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's pre-workout multiple flavours under one parent count parent once", async () => {
+  const rows = [
+    preworkoutReviewedParentVariantRow("PER4M Energy Pre Workout 390g"),
+    preworkoutReviewedParentVariantRow("PER4M Energy Pre Workout 390g", {
+      external_variant_id: "52087824154962",
+      external_sku: "PFM24002",
+      external_options: JSON.stringify({ Flavour: "Pineapple Rings", Size: "390g" }),
+      variant_name: "Pineapple Rings / 390g",
+      flavour: "Pineapple Rings",
+      external_url: "https://jonssupplements.co.uk/products/per4m-energy-pre-workout-390g?variant=52087824154962",
+      affiliate_url: "https://jonssupplements.co.uk/products/per4m-energy-pre-workout-390g?variant=52087824154962",
+    }),
+  ];
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.equal(result.report.newProductsToCreate.length, 1);
+  assert.equal(result.report.productVariantsToCreate.length, 2);
+  assert.deepEqual(
+    result.report.productVariantsToCreate.map((row) => row.values.display_name).sort(),
+    ["Cherry Fizz / 390g", "Pineapple Rings / 390g"]
+  );
+});
+
+test("reviewed Jon's pre-workout exact family, size and formula blockers remain closed", async () => {
+  const cases = [
+    ["DEFIB V3 mixed with Original", preworkoutReviewedParentVariantRow("HR Labs DEFIB V3 Pre-Workout 420g", { product_name: "HR Labs DEFIB Original Pre-Workout 420g", slug: "hr-labs-defib-original-pre-workout-420g" }), /does not allow this canonical family/],
+    ["DEFIB V3 wrong size", preworkoutReviewedParentVariantRow("HR Labs DEFIB V3 Pre-Workout 420g", { size: "480g", external_options: JSON.stringify({ Flavour: "Cherryade", Size: "480g" }), variant_name: "Cherryade / 480g" }), /exact size mismatch/],
+    ["MVPRE 3.0 mixed with legacy family", preworkoutReviewedParentVariantRow("Innovapharm MVPRE 3.0 Pre Workout 437g", { product_name: "Innovapharm MVPRE Pre-Workout 3.0 40/20 servings", slug: "innovapharm-mvpre-pre-workout-3-0-40-20-servings" }), /does not allow this canonical family|exact size mismatch/],
+    ["No Games wrong serving count", preworkoutReviewedParentVariantRow("Gas Mark 10 No Games Pre Workout 30 Servings", { size: "40 servings", servings: "40", external_options: JSON.stringify({ Flavour: "Apple Mango", Size: "40 servings" }), variant_name: "Apple Mango / 40 servings" }), /exact size mismatch/],
+    ["missing flavour", preworkoutReviewedParentVariantRow("PER4M Energy Pre Workout 390g", { flavour: "", external_options: JSON.stringify({ Size: "390g" }), variant_name: "390g" }), /requires explicit flavour/],
+    ["brand mismatch", preworkoutReviewedParentVariantRow("ABE All Black Everything Pre-Workout 375g", { brand: "ABE" }), /brand mismatch/],
+    ["bundle/free", preworkoutReviewedParentVariantRow("PER4M Energy Pre Workout 390g", { product_name: "PER4M Energy Pre Workout 390g Plus Free Shaker" }), /does not allow this canonical family|bundle/],
+    ["out of stock", preworkoutReviewedParentVariantRow("Gas Mark 10 No Games Pre Workout 30 Servings", { in_stock: "false" }), /requires in-stock for-sale source row/],
+    ["unreviewed ABE product", preworkoutReviewedParentVariantRow("ABE All Black Everything Pre-Workout 375g", { product_name: "ABE Energy 315g", slug: "abe-energy-315g" }), /does not allow this canonical family/],
   ];
 
   for (const [name, row, pattern] of cases) {
