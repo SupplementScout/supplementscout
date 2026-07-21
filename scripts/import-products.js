@@ -2204,6 +2204,11 @@ const REVIEWED_PARENT_VARIANT_POLICY = new Map([
   ["Conteh Sports The Pump 414g", { brand: "Conteh Sports", category: "Pre Workout", format: "powder", size: "414:g" }],
   ["Efectiv Nutrition Legacy Pre-Workout 380g", { brand: "Efectiv", category: "Pre Workout", format: "powder", size: "380:g" }],
   ["Strom Sports VelosiWhey ISO 1kg", { brand: "Strom", category: "Whey Protein", format: "powder", size: "1000:g" }],
+  ["Strom Sports FocusMax 36 Servings", { brand: "Strom", category: "Health Supplements", format: "powder", size: "36:servings" }],
+  ["Strom Sports GlutathioneMAX 200g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "200:g" }],
+  ["Strom Sports SystolMAX 495g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "495:g" }],
+  ["Strom Sports DigestMax 480g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "480:g" }],
+  ["Strom MSM (Methylsulfonylmethane) 83 Servings", { brand: "Strom", category: "Health Supplements", format: "powder", size: "83:servings" }],
 ]);
 
 function reviewedSizeKey(evidence) {

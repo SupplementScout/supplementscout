@@ -518,6 +518,11 @@ function nutritionReviewedParentVariantRow(productName, overrides = {}) {
     "Conteh Sports The Pump 414g": { brand: "Conteh Sports", category: "Pre Workout", size: "414g", variant: "Berry", productId: "10564078928210", variantId: "52614983319890", handle: "conteh-sports-the-pump-414g" },
     "Efectiv Nutrition Legacy Pre-Workout 380g": { brand: "Efectiv", category: "Pre Workout", size: "380g", variant: "Tropical Storm", productId: "10143716700498", variantId: "51022738686290", handle: "efectiv-nutrition-legacy-pre-workout-380g" },
     "Strom Sports VelosiWhey ISO 1kg": { brand: "Strom", category: "Whey Protein", size: "1kg", variant: "Chocolate Caramel", productId: "10102141780306", variantId: "50886508511570", handle: "strom-sports-nutrition-velosiwhey-iso-1kg" },
+    "Strom Sports FocusMax 36 Servings": { brand: "Strom", category: "Health Supplements", size: "36 servings", variant: "Raspberry Cloud", productId: "10373913674066", variantId: "51945135538514", handle: "strom-sports-focusmax-36-servings-raspberry-cloud" },
+    "Strom Sports GlutathioneMAX 200g": { brand: "Strom", category: "Health Supplements", size: "200g", variant: "Cherry", productId: "10101053983058", variantId: "50816375128402", handle: "strom-sports-glutathionemax-200g" },
+    "Strom Sports SystolMAX 495g": { brand: "Strom", category: "Health Supplements", size: "495g", variant: "Blueberry Lemonade", productId: "10109726097746", variantId: "50844865560914", handle: "strom-sports-systolmax-495g-blueberry-lemonade" },
+    "Strom Sports DigestMax 480g": { brand: "Strom", category: "Health Supplements", size: "480g", variant: "Raspberry", productId: "10073152258386", variantId: "50781349183826", handle: "strom-sports-digestmax-480g" },
+    "Strom MSM (Methylsulfonylmethane) 83 Servings": { brand: "Strom", category: "Health Supplements", size: "83 servings", variant: "Lemon Lime", productId: "10031241298258", variantId: "50598594347346", handle: "strom-msm-methylsulfonylmethane-83-servings-lemon-lime" },
   };
   const config = configs[productName];
   if (!config) throw new Error(`missing nutrition test config: ${productName}`);
@@ -2144,6 +2149,47 @@ test("reviewed whey flavour names may contain cream without allowing topical cre
     }),
     ["excluded product type"],
   );
+});
+
+test("reviewed Strom health-support families preserve exact named formula boundaries", async () => {
+  const names = [
+    "Strom Sports FocusMax 36 Servings",
+    "Strom Sports GlutathioneMAX 200g",
+    "Strom Sports SystolMAX 495g",
+    "Strom Sports DigestMax 480g",
+    "Strom MSM (Methylsulfonylmethane) 83 Servings",
+  ];
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const result = await runImportRows(names.map(nutritionReviewedParentVariantRow), { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, names.length);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, names.length);
+  assert.equal(result.report.productVariantsToCreate.length, names.length);
+  assert.ok(result.report.productVariantsToCreate.every((row) => row.values.display_name !== "Default"));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Strom health-support products cannot cross formula, size, format, or scope", async () => {
+  const cases = [
+    ["DigestMax into FocusMax", nutritionReviewedParentVariantRow("Strom Sports DigestMax 480g", { product_name: "Strom Sports FocusMax 480g" }), /does not allow this canonical family/],
+    ["GlutathioneMAX into LipidMax", nutritionReviewedParentVariantRow("Strom Sports GlutathioneMAX 200g", { product_name: "Strom Sports LipidMax 200g" }), /does not allow this canonical family/],
+    ["wrong size", nutritionReviewedParentVariantRow("Strom Sports SystolMAX 495g", { size: "400g", external_options: JSON.stringify({ Flavour: "Blueberry Lemonade", Size: "400g" }) }), /exact size mismatch|conflicting variant evidence/],
+    ["wrong format", nutritionReviewedParentVariantRow("Strom Sports GlutathioneMAX 200g", { product_format: "capsule" }), /product format mismatch|conflicting variant evidence/],
+    ["unreviewed Strom", nutritionReviewedParentVariantRow("Strom Sports DigestMax 480g", { product_name: "Strom Sports UnknownMAX 480g" }), /does not allow this canonical family/],
+    ["missing flavour", nutritionReviewedParentVariantRow("Strom Sports FocusMax 36 Servings", { flavour: "", external_options: JSON.stringify({ Size: "36 servings" }) }), /requires explicit flavour|requires exact Shopify flavour option/],
+    ["OOS", nutritionReviewedParentVariantRow("Strom MSM (Methylsulfonylmethane) 83 Servings", { in_stock: "false" }), /requires in-stock for-sale source row/],
+    ["bundle", nutritionReviewedParentVariantRow("Strom Sports DigestMax 480g", { product_name: "Strom Sports DigestMax 480g Plus Free Shaker" }), /does not allow this canonical family|bundle/],
+  ];
+  for (const [name, row, pattern] of cases) {
+    const supabase = createMockSupabase(reviewedSeed());
+    setSupabaseForTests(supabase);
+    const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+    assert.equal(result.report.approvedRows.length, 0, name);
+    assert.equal(result.report.blockedRows.length, 1, name);
+    assert.match(result.report.blockedRows[0].block_reason || result.report.blockedRows[0].reason, pattern, name);
+    assert.equal(supabase.writes.length, 0, name);
+  }
 });
 
 test("reviewed Jon's parent explicit-variant policy keeps hard blockers closed", async () => {
