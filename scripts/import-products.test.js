@@ -503,6 +503,47 @@ function hydrationBarReviewedParentVariantRow(productName, overrides = {}) {
   });
 }
 
+function nutritionReviewedParentVariantRow(productName, overrides = {}) {
+  const configs = {
+    "Strom Sports CarbMax 1.5kg": { brand: "Strom", category: "Health Supplements", size: "1.5kg", variant: "Cherry", productId: "10031206334802", variantId: "50598468845906", handle: "strom-sports-carbmax-1-5kg-50-servings" },
+    "Strom Sports MealMAX 2.5kg": { brand: "Strom", category: "Health Supplements", size: "2.5kg", variant: "Chocolate", productId: "10085611667794", variantId: "50824956641618", handle: "strom-sports-mealmax-2-5kg" },
+    "Strom Sports PerforMAX 900g": { brand: "Strom", category: "Health Supplements", size: "900g", variant: "Cherry", productId: "10085613699410", variantId: "50824993636690", handle: "strom-sports-performax-900g" },
+    "PER4M Plant Protein 2kg": { brand: "PER4M", category: "Whey Protein", size: "2kg", variant: "Choconut", productId: "10109459431762", variantId: "50913923465554", handle: "per4m-plant-protein-2kg" },
+    "Efectiv Hydration Electrolytes 330g": { brand: "Efectiv", category: "Health Supplements", size: "330g", variant: "Fresh Orange", productId: "10079896273234", variantId: "50804634059090", handle: "efectiv-hydration-electrolytes-330g" },
+    "Strom Sports VelosiWhey 1.2kg": { brand: "Strom", category: "Whey Protein", size: "1.2kg", variant: "Custard Cream", productId: "10085538722130", variantId: "50824854176082", handle: "strom-sports-velosiwhey-1-2kg" },
+    "Time 4 Pre Workout Professional 300g": { brand: "Time 4", category: "Pre Workout", size: "300g", variant: "Bubble Gum", productId: "10064791257426", variantId: "50756488954194", handle: "time-4-pre-workout-professional-300g" },
+    "Conteh Sports Conviction ELITE Pre-Workout 375g": { brand: "Conteh Sports", category: "Pre Workout", size: "375g", variant: "Candy Apple", productId: "10286448578898", variantId: "51591944044882", handle: "conteh-sports-conviction-elite-pre-workout-375g" },
+    "CNP Professional Full Tilt V2 Stim Pre Workout 570g": { brand: "CNP", category: "Pre Workout", size: "570g", variant: "Cherry Berry Bomb", productId: "10094528242002", variantId: "50845123576146", handle: "cnp-professional-full-tilt-v2-stim-pre-workout-570g" },
+    "Strom Sports Nihpro Hydrolysed Protein Isolate 40 Servings": { brand: "Strom", category: "Whey Protein", size: "40 servings", variant: "Chocolate Cake Batter", productId: "10297152606546", variantId: "51680643875154", handle: "strom-sports-nihpro-hydrolysed-protein-isolate-40-servings" },
+    "Conteh Sports The Pump 414g": { brand: "Conteh Sports", category: "Pre Workout", size: "414g", variant: "Berry", productId: "10564078928210", variantId: "52614983319890", handle: "conteh-sports-the-pump-414g" },
+    "Efectiv Nutrition Legacy Pre-Workout 380g": { brand: "Efectiv", category: "Pre Workout", size: "380g", variant: "Tropical Storm", productId: "10143716700498", variantId: "51022738686290", handle: "efectiv-nutrition-legacy-pre-workout-380g" },
+    "Strom Sports VelosiWhey ISO 1kg": { brand: "Strom", category: "Whey Protein", size: "1kg", variant: "Chocolate Caramel", productId: "10102141780306", variantId: "50886508511570", handle: "strom-sports-nutrition-velosiwhey-iso-1kg" },
+  };
+  const config = configs[productName];
+  if (!config) throw new Error(`missing nutrition test config: ${productName}`);
+  const url = `https://jonssupplements.co.uk/products/${config.handle}?variant=${config.variantId}`;
+  return baseReviewedParentVariantRow({
+    product_name: productName,
+    slug: productName.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    brand: config.brand,
+    category: config.category,
+    product_format: "powder",
+    external_product_id: config.productId,
+    external_variant_id: config.variantId,
+    external_sku: `SKU-${config.variantId}`,
+    external_options: JSON.stringify({ Flavour: config.variant, Size: config.size }),
+    variant_name: `${config.variant} / ${config.size}`,
+    flavour: config.variant,
+    size: config.size,
+    size_unit: "",
+    servings: config.size.endsWith("servings") ? config.size.split(" ")[0] : "",
+    pack_count: "1",
+    external_url: url,
+    affiliate_url: url,
+    ...overrides,
+  });
+}
+
 function reviewedSeed(overrides = {}) {
   return {
     retailers: [{ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements", website: "https://jonssupplements.co.uk" }],
@@ -2009,6 +2050,81 @@ test("reviewed Jon's hydration and bar family boundaries remain closed", async (
     assert.match(result.report.blockedRows[0].block_reason || result.report.blockedRows[0].reason, pattern, name);
     assert.equal(supabase.writes.length, 0, name);
   }
+});
+
+test("reviewed Jon's nutrition allowlist covers only the thirteen approved canonical families", async () => {
+  const productNames = [
+    "Strom Sports CarbMax 1.5kg", "Strom Sports MealMAX 2.5kg", "Strom Sports PerforMAX 900g",
+    "PER4M Plant Protein 2kg", "Efectiv Hydration Electrolytes 330g", "Strom Sports VelosiWhey 1.2kg",
+    "Time 4 Pre Workout Professional 300g", "Conteh Sports Conviction ELITE Pre-Workout 375g",
+    "CNP Professional Full Tilt V2 Stim Pre Workout 570g", "Strom Sports Nihpro Hydrolysed Protein Isolate 40 Servings",
+    "Conteh Sports The Pump 414g", "Efectiv Nutrition Legacy Pre-Workout 380g", "Strom Sports VelosiWhey ISO 1kg",
+  ];
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const result = await runImportRows(productNames.map(nutritionReviewedParentVariantRow), { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 13);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 13);
+  assert.equal(result.report.productVariantsToCreate.length, 13);
+  assert.ok(result.report.productVariantsToCreate.every((row) => row.values.display_name !== "Default"));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed parent no-SKU row may use exact parent-policy size with an exact Shopify flavour option", async () => {
+  const row = nutritionReviewedParentVariantRow("Conteh Sports The Pump 414g", {
+    external_sku: "",
+    external_options: JSON.stringify({ Flavour: "Berry" }),
+  });
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.productVariantsToCreate[0].values.display_name, "Berry / 414g");
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed nutrition families preserve exact family, size, and formula boundaries", async () => {
+  const cases = [
+    ["CarbMax cannot collapse into MealMAX", nutritionReviewedParentVariantRow("Strom Sports CarbMax 1.5kg", { product_name: "Strom Sports MealMAX 1.5kg" }), /does not allow this canonical family/],
+    ["MealMAX exact size", nutritionReviewedParentVariantRow("Strom Sports MealMAX 2.5kg", { size: "1.5kg", external_options: JSON.stringify({ Flavour: "Chocolate", Size: "1.5kg" }) }), /exact size mismatch|conflicting variant evidence/],
+    ["PerforMAX exact size", nutritionReviewedParentVariantRow("Strom Sports PerforMAX 900g", { size: "1.5kg", external_options: JSON.stringify({ Flavour: "Cherry", Size: "1.5kg" }) }), /exact size mismatch|conflicting variant evidence/],
+    ["Plant Protein stays separate from whey", nutritionReviewedParentVariantRow("PER4M Plant Protein 2kg", { product_name: "PER4M Whey Protein 2kg" }), /does not allow this canonical family/],
+    ["Hydration stays separate from EAA", nutritionReviewedParentVariantRow("Efectiv Hydration Electrolytes 330g", { product_name: "Efectiv EAA 330g" }), /does not allow this canonical family/],
+    ["missing flavour", nutritionReviewedParentVariantRow("Strom Sports VelosiWhey 1.2kg", { flavour: "", external_options: JSON.stringify({ Size: "1.2kg" }) }), /requires explicit flavour/],
+    ["OOS", nutritionReviewedParentVariantRow("Time 4 Pre Workout Professional 300g", { in_stock: "false" }), /requires in-stock for-sale source row/],
+    ["bundle", nutritionReviewedParentVariantRow("Conteh Sports The Pump 414g", { product_name: "Conteh Sports The Pump 414g Plus Free Shaker" }), /does not allow this canonical family|bundle/],
+  ];
+  for (const [name, row, pattern] of cases) {
+    const supabase = createMockSupabase(reviewedSeed());
+    setSupabaseForTests(supabase);
+    const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+    assert.equal(result.report.approvedRows.length, 0, name);
+    assert.equal(result.report.blockedRows.length, 1, name);
+    assert.match(result.report.blockedRows[0].block_reason || result.report.blockedRows[0].reason, pattern, name);
+    assert.equal(supabase.writes.length, 0, name);
+  }
+});
+
+test("SARM and peptide catalogue identities are permanently excluded without blocking protein peptides", async () => {
+  for (const product_name of [
+    "Optimised Research Labs AN-VAR Oxandro 60 Capsules",
+    "Research Ostarine MK-2866 60 Capsules",
+    "BPC-157 Peptide 10mg",
+  ]) {
+    assert.deepEqual(getSafeCreateExclusionReasons({ product_name, category: "Health Supplements", product_format: "capsule", size: "60 capsules" }), ["prohibited catalogue type: SARM or peptide"]);
+  }
+  assert.doesNotMatch(
+    (getSafeCreateExclusionReasons({ product_name: "CNP Peptide Whey Protein Blend 2.27kg", category: "Whey Protein", product_format: "powder", size: "2.27kg" }) || []).join(" "),
+    /prohibited catalogue type/i
+  );
+  const row = nutritionReviewedParentVariantRow("Strom Sports VelosiWhey 1.2kg", { product_name: "Research RAD-140 1.2kg" });
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.match(result.report.blockedRows[0].reason, /prohibited catalogue type/);
 });
 
 test("reviewed Jon's parent explicit-variant policy keeps hard blockers closed", async () => {

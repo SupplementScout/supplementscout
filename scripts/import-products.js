@@ -18,6 +18,7 @@ const {
   formatPreflightReport,
   getExternalGtin,
   getProductLevelGtin,
+  getProhibitedCatalogueTypeReason,
   isAmbiguousFeedRow,
   isSafeCreateRowAmbiguous,
   isProductGtinVerified,
@@ -2190,6 +2191,19 @@ const REVIEWED_PARENT_VARIANT_POLICY = new Map([
   ["PER4M Protein Bars Box of 12 x 62g", { brand: "PER4M", category: "Protein Bars", format: "bar", size: "62:g", packCount: 12 }],
   ["Strom Sports HydraMax 420g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "420:g" }],
   ["Strom Sports HydraMax 1.08kg", { brand: "Strom", category: "Health Supplements", format: "powder", size: "1080:g" }],
+  ["Strom Sports CarbMax 1.5kg", { brand: "Strom", category: "Health Supplements", format: "powder", size: "1500:g" }],
+  ["Strom Sports MealMAX 2.5kg", { brand: "Strom", category: "Health Supplements", format: "powder", size: "2500:g" }],
+  ["Strom Sports PerforMAX 900g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "900:g" }],
+  ["PER4M Plant Protein 2kg", { brand: "PER4M", category: "Whey Protein", format: "powder", size: "2000:g" }],
+  ["Efectiv Hydration Electrolytes 330g", { brand: "Efectiv", category: "Health Supplements", format: "powder", size: "330:g" }],
+  ["Strom Sports VelosiWhey 1.2kg", { brand: "Strom", category: "Whey Protein", format: "powder", size: "1200:g" }],
+  ["Time 4 Pre Workout Professional 300g", { brand: "Time 4", category: "Pre Workout", format: "powder", size: "300:g" }],
+  ["Conteh Sports Conviction ELITE Pre-Workout 375g", { brand: "Conteh Sports", category: "Pre Workout", format: "powder", size: "375:g" }],
+  ["CNP Professional Full Tilt V2 Stim Pre Workout 570g", { brand: "CNP", category: "Pre Workout", format: "powder", size: "570:g" }],
+  ["Strom Sports Nihpro Hydrolysed Protein Isolate 40 Servings", { brand: "Strom", category: "Whey Protein", format: "powder", size: "40:servings" }],
+  ["Conteh Sports The Pump 414g", { brand: "Conteh Sports", category: "Pre Workout", format: "powder", size: "414:g" }],
+  ["Efectiv Nutrition Legacy Pre-Workout 380g", { brand: "Efectiv", category: "Pre Workout", format: "powder", size: "380:g" }],
+  ["Strom Sports VelosiWhey ISO 1kg", { brand: "Strom", category: "Whey Protein", format: "powder", size: "1000:g" }],
 ]);
 
 function reviewedSizeKey(evidence) {
@@ -2199,6 +2213,10 @@ function reviewedSizeKey(evidence) {
 
 function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   const productName = required(row.product_name, "product_name", rowNumber);
+  const prohibitedReason = getProhibitedCatalogueTypeReason(row);
+  if (prohibitedReason) {
+    throw new Error(prohibitedReason);
+  }
   const policy = REVIEWED_PARENT_VARIANT_POLICY.get(productName);
   if (!policy) {
     throw new Error("reviewed parent explicit-variant policy does not allow this canonical family");
@@ -2299,7 +2317,7 @@ async function findExternalGtinPeer(retailerId, externalGtin, externalVariantId)
   ) || null;
 }
 
-function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, productFormat) {
+function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, productFormat, options = {}) {
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
   const externalOptions = parseExternalOptions(row.external_options);
@@ -2330,10 +2348,12 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
   if (!evidence.size?.value || !evidence.size?.unit) {
     throw new Error("create_variant without SKU requires explicit size evidence");
   }
+  const optionFlavours = externalOptionValues(externalOptions, ["flavour", "flavor"]);
+  const optionSizes = externalOptionValues(externalOptions, ["size"]);
   if (
     !externalOptions ||
-    externalOptionValues(externalOptions, ["flavour", "flavor"]).length !== 1 ||
-    externalOptionValues(externalOptions, ["size"]).length !== 1
+    optionFlavours.length !== 1 ||
+    (!options.allowReviewedParentTitleSize && optionSizes.length !== 1)
   ) {
     throw new Error("create_variant without SKU requires exact Shopify option flavour and size evidence");
   }
@@ -2357,7 +2377,7 @@ function variantSizeKeyFromFields(variant) {
   ));
 }
 
-function buildPlannedVariantValues(row, product, rowNumber, evidence) {
+function buildPlannedVariantValues(row, product, rowNumber, evidence, options = {}) {
   const rawFlavourLabel = String(row.flavour || row.flavor || "").trim();
   const flavourLabel = rawFlavourLabel || String(row.variant_name || "").split("/")[0].trim();
   const flavourCode = normalizeFlavour(flavourLabel);
@@ -2386,7 +2406,7 @@ function buildPlannedVariantValues(row, product, rowNumber, evidence) {
     throw new Error("create_variant cannot create a default variant");
   }
   if (!optionalIdentifier(row.external_sku)) {
-    assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, productFormat);
+    assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, productFormat, options);
   }
   const variantKey = [
     slugifyRetailerName(flavourLabel),
@@ -2419,7 +2439,9 @@ function planReviewedParentVariant(row, rowNumber, evidence) {
     merged_into_product_id: null,
     product_format: productValues.product_format,
   };
-  const variantValues = buildPlannedVariantValues(row, pseudoProduct, rowNumber, evidence);
+  const variantValues = buildPlannedVariantValues(row, pseudoProduct, rowNumber, evidence, {
+    allowReviewedParentTitleSize: true,
+  });
   return {
     product: { ...productValues, planned_create: true },
     variant: {

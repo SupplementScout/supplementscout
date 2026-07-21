@@ -539,9 +539,23 @@ const REVIEWED_SAFE_CREATE_FAMILIES = [
     categories: ["Protein Bars"],
     pattern: /\bper4m\s+protein\s+bars\s+box\s+of\s+12\s+x\s+62g\b/i,
   },
+  {
+    categories: ["Whey Protein"],
+    pattern: /\b(?:per4m\s+plant\s+protein\s+2kg|strom\s+sports\s+velosiwhey\s+1\.2kg|strom\s+sports\s+nihpro\s+hydrolysed\s+protein\s+isolate\s+40\s+servings|strom\s+sports\s+velosiwhey\s+iso\s+1kg)\b/i,
+  },
+  {
+    categories: ["Pre Workout"],
+    pattern: /\b(?:time\s+4\s+pre\s+workout\s+professional\s+300g|conteh\s+sports\s+conviction\s+elite\s+pre-workout\s+375g|cnp\s+professional\s+full\s+tilt\s+v2\s+stim\s+pre\s+workout\s+570g|conteh\s+sports\s+the\s+pump\s+414g|efectiv\s+nutrition\s+legacy\s+pre-workout\s+380g)\b/i,
+  },
 ];
 
 const SAFE_CREATE_CREAM_EXCLUSION_PATTERN = /\bcream\b/i;
+
+const PROHIBITED_CATALOGUE_TYPE_PATTERNS = [
+  /\b(?:sarms?|ostarine|mk[-\s]?2866|ligandrol|lgd[-\s]?4033|testolone|rad[-\s]?140|andarine|s[-\s]?4|cardarine|gw[-\s]?501516|ibutamoren|mk[-\s]?677|yk[-\s]?11|acp[-\s]?105|s[-\s]?23|sr[-\s]?9009)\b/i,
+  /\b(?:bpc[-\s]?157|tb[-\s]?500|cjc[-\s]?1295|ipamorelin|ghrp[-\s]?[246]|hexarelin|sermorelin|tesamorelin|melanotan|retatrutide)\b/i,
+  /\boptimised\s+research\s+labs\s+(?:vi-ron|de-bol|20-hydrox|deep-sleep\s+rem-08|an-var|pct-ex|zma-ex|t5-xs)\b/i,
+];
 
 const EXCLUDED_SAFE_CREATE_PATTERNS = [
   /\bcbd\b/i,
@@ -582,6 +596,13 @@ function safeCreateEvidenceText(row) {
     .join(" ");
 }
 
+function getProhibitedCatalogueTypeReason(row) {
+  const text = safeCreateEvidenceText(row);
+  return PROHIBITED_CATALOGUE_TYPE_PATTERNS.some((pattern) => pattern.test(text))
+    ? "prohibited catalogue type: SARM or peptide"
+    : null;
+}
+
 function reviewedSafeCreateFamily(row) {
   const category = String(row.category || "").trim();
   const text = safeCreateEvidenceText(row);
@@ -603,6 +624,11 @@ function reviewedSafeCreateFamily(row) {
 }
 
 function getSafeCreateExclusionReasons(row) {
+  const prohibitedReason = getProhibitedCatalogueTypeReason(row);
+  if (prohibitedReason) {
+    return [prohibitedReason];
+  }
+
   const category = String(row.category || "").trim();
   const reviewedFamily = reviewedSafeCreateFamily(row);
 
@@ -1151,6 +1177,7 @@ module.exports = {
   formatPreflightReport,
   getExternalGtin,
   getProductLevelGtin,
+  getProhibitedCatalogueTypeReason,
   getSafeCreateExclusionReasons,
   isAmbiguousFeedRow,
   isSafeCreateRowAmbiguous,
