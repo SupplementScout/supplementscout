@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, "..");
 const image = "postgres:17-alpine";
 const password = "hydration-bar-local-only";
 const migration = "supabase/migrations/20260721190000_allow_reviewed_jons_hydration_bar_parent_variants.sql";
+const validatorMigration = "supabase/migrations/20260721191000_allow_reviewed_bar_format_in_parent_import.sql";
 
 function run(command, args, timeout = 120_000) {
   return spawnSync(command, args, { cwd: root, encoding: "utf8", timeout });
@@ -40,10 +41,17 @@ test("reviewed hydration/bar allowlist migration passes exact families and block
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-c", `
       create schema if not exists public;
       create function public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text) returns boolean language sql immutable as $fn$ select false $fn$;
-      create function public.validate_product_import_plan_read_only(jsonb) returns jsonb language sql as $fn$ select '{}'::jsonb $fn$;
+      create function public.validate_product_import_plan_read_only(p_plan jsonb) returns jsonb language plpgsql as $fn$
+      declare v_product_values jsonb;
+      begin
+        v_product_values := p_plan#>'{product,values}';
+        if v_product_values->>'product_format' <> 'powder' then raise exception 'powder only'; end if;
+        return '{}'::jsonb;
+      end $fn$;
       create function public.apply_product_import_plan(jsonb) returns jsonb language sql as $fn$ select '{}'::jsonb $fn$;
     `]), "create exact preflight functions");
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-f", `/workspace/${migration}`]), "apply hydration/bar migration");
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-f", `/workspace/${validatorMigration}`]), "apply reviewed bar validator migration");
     const result = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-A", "-t", "-U", "postgres", "-c", `
       select jsonb_build_object(
         'exact_passes', (
@@ -72,6 +80,10 @@ test("reviewed hydration/bar allowlist migration passes exact families and block
       wrong_category_blocked: true,
       unreviewed_blocked: true,
     });
+    const validator = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-A", "-t", "-U", "postgres", "-c", `
+      select public.validate_product_import_plan_read_only(jsonb_build_object('product',jsonb_build_object('values',jsonb_build_object('product_format','bar'))));
+    `]);
+    ok(validator, "bar plan reaches the existing exact-family validator path");
   } catch (error) { failure = error; }
   finally {
     const cleanup = run("docker", ["rm", "--force", container], 30_000);
