@@ -5,6 +5,8 @@ import { supabase } from "./lib/supabase";
 const siteUrl = "https://www.supplementscout.co.uk";
 const staticLastModified = "2026-07-08";
 
+export const dynamic = "force-dynamic";
+
 const staticPages: MetadataRoute.Sitemap = [
   {
     url: siteUrl,
