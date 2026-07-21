@@ -2173,6 +2173,13 @@ const REVIEWED_PARENT_VARIANT_POLICY = new Map([
   ["Strom StimuMAX OG Pre Workout 360g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "360:g" }],
   ["Strom StimuMAX PRO Pre Workout 360g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "360:g" }],
   ["Strom VascuMAX PRO 470g", { brand: "Strom", category: "Pre Workout", format: "powder", size: "470:g" }],
+  ["Trained By JP ISO PRO 1.8kg", { brand: "Trained By JP", category: "Whey Protein", format: "powder", size: "1800:g" }],
+  ["Trained By JP Performance Isolate Tri Blend 2kg", { brand: "Trained By JP", category: "Whey Protein", format: "powder", size: "2000:g" }],
+  ["Trained By JP Performance Protein 1kg", { brand: "Trained By JP", category: "Whey Protein", format: "powder", size: "1000:g" }],
+  ["Trained By JP Performance Protein 2kg", { brand: "Trained By JP", category: "Whey Protein", format: "powder", size: "2000:g" }],
+  ["Trained By JP DNFM PRE 40 Servings", { brand: "Trained By JP", category: "Pre Workout", format: "powder", size: "40:servings" }],
+  ["Trained By JP PrePare Pro 400g", { brand: "Trained By JP", category: "Pre Workout", format: "powder", size: "400:g" }],
+  ["Trained By JP Pumpage Pre Workout 400g", { brand: "Trained By JP", category: "Pre Workout", format: "powder", size: "400:g" }],
 ]);
 
 function reviewedSizeKey(evidence) {

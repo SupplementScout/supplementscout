@@ -282,6 +282,96 @@ function baseReviewedParentVariantRow(overrides = {}) {
   });
 }
 
+function tbjpReviewedParentVariantRow(productName, overrides = {}) {
+  const configs = {
+    "Trained By JP ISO PRO 1.8kg": {
+      variant: "Vanilla",
+      size: "1.8kg",
+      external_product_id: "10088772632914",
+      external_variant_id: "50838844440914",
+      external_sku: "TBJ06011",
+      url: "https://jonssupplements.co.uk/products/trained-by-jp-iso-pro-1-8kg?variant=50838844440914",
+      category: "Whey Protein",
+    },
+    "Trained By JP Performance Isolate Tri Blend 2kg": {
+      variant: "Coffee Caramel",
+      size: "2kg",
+      external_product_id: "10272336970066",
+      external_variant_id: "51546965377362",
+      external_sku: "TBJ14015",
+      url: "https://jonssupplements.co.uk/products/trained-by-jp-performance-isolate-tri-blend-2kg?variant=51546965377362",
+      category: "Whey Protein",
+    },
+    "Trained By JP Performance Protein 1kg": {
+      variant: "Chocolate Caramel",
+      size: "1kg",
+      external_product_id: "10088760148306",
+      external_variant_id: "50838720446802",
+      external_sku: "",
+      url: "https://jonssupplements.co.uk/products/trained-by-jp-performance-protein-1kg?variant=50838720446802",
+      category: "Whey Protein",
+    },
+    "Trained By JP Performance Protein 2kg": {
+      variant: "Vanilla Ice Cream",
+      size: "2kg",
+      external_product_id: "10088752939346",
+      external_variant_id: "50883922198866",
+      external_sku: "TBJ04006",
+      url: "https://jonssupplements.co.uk/products/trained-by-jp-performance-protein-2kg?variant=50883922198866",
+      category: "Whey Protein",
+    },
+    "Trained By JP DNFM PRE 40 Servings": {
+      variant: "Apple Sourz",
+      size: "40 servings",
+      external_product_id: "10022207160658",
+      external_variant_id: "50570816651602",
+      external_sku: "TBJ11001",
+      url: "https://jonssupplements.co.uk/products/dnfm-high-stim-pre-workout-40-servings?variant=50570816651602",
+      category: "Pre Workout",
+      servings: "40",
+    },
+    "Trained By JP PrePare Pro 400g": {
+      variant: "Blue Slushie",
+      size: "400g",
+      external_product_id: "10088778432850",
+      external_variant_id: "50838880878930",
+      external_sku: "TBJ08004",
+      url: "https://jonssupplements.co.uk/products/trained-by-jp-prepare-pro-400g?variant=50838880878930",
+      category: "Pre Workout",
+    },
+    "Trained By JP Pumpage Pre Workout 400g": {
+      variant: "Sour Peach Ring",
+      size: "400g",
+      external_product_id: "10022280986962",
+      external_variant_id: "51000351097170",
+      external_sku: "TBJ09008",
+      url: "https://jonssupplements.co.uk/products/trained-by-jp-pumpage-pre-workout-400g-40-servings?variant=51000351097170",
+      category: "Pre Workout",
+    },
+  };
+  const config = configs[productName];
+  if (!config) throw new Error(`missing TBJP test config: ${productName}`);
+  return baseReviewedParentVariantRow({
+    product_name: productName,
+    slug: productName.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    brand: "Trained By JP",
+    category: config.category,
+    external_product_id: config.external_product_id,
+    external_variant_id: config.external_variant_id,
+    external_sku: config.external_sku,
+    external_options: JSON.stringify({ Flavour: config.variant, Size: config.size }),
+    variant_name: `${config.variant} / ${config.size}`,
+    flavour: config.variant,
+    size: config.size,
+    size_unit: "",
+    servings: config.servings || "",
+    price: config.category === "Whey Protein" ? "59.49" : "34.99",
+    external_url: config.url,
+    affiliate_url: config.url,
+    ...overrides,
+  });
+}
+
 function reviewedSeed(overrides = {}) {
   return {
     retailers: [{ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements", website: "https://jonssupplements.co.uk" }],
@@ -1583,6 +1673,86 @@ test("reviewed Jon's CNP sizes/families and Strom versions stay separate", async
       "strom-stimumax-pro-pre-workout-360g",
     ]
   );
+});
+
+test("reviewed Jon's TBJP parent explicit-variant allowlist covers only approved families", async () => {
+  const productNames = [
+    "Trained By JP ISO PRO 1.8kg",
+    "Trained By JP Performance Isolate Tri Blend 2kg",
+    "Trained By JP Performance Protein 1kg",
+    "Trained By JP Performance Protein 2kg",
+    "Trained By JP DNFM PRE 40 Servings",
+    "Trained By JP PrePare Pro 400g",
+    "Trained By JP Pumpage Pre Workout 400g",
+  ];
+  const rows = productNames.map((productName) => tbjpReviewedParentVariantRow(productName));
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 7);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 7);
+  assert.equal(result.report.productVariantsToCreate.length, 7);
+  assert.deepEqual(
+    result.report.newProductsToCreate.map((row) => row.productName).sort(),
+    productNames.sort()
+  );
+  assert(result.report.productVariantsToCreate.every((row) => row.values.display_name !== "Default"));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's TBJP multiple flavours under one parent count parent once", async () => {
+  const rows = [
+    tbjpReviewedParentVariantRow("Trained By JP Performance Protein 2kg"),
+    tbjpReviewedParentVariantRow("Trained By JP Performance Protein 2kg", {
+      external_variant_id: "50838709633362",
+      external_sku: "TBJ025",
+      external_options: JSON.stringify({ Flavour: "Chocolate Orange", Size: "2kg" }),
+      variant_name: "Chocolate Orange / 2kg",
+      flavour: "Chocolate Orange",
+      external_url: "https://jonssupplements.co.uk/products/trained-by-jp-performance-protein-2kg?variant=50838709633362",
+      affiliate_url: "https://jonssupplements.co.uk/products/trained-by-jp-performance-protein-2kg?variant=50838709633362",
+    }),
+  ];
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.equal(result.report.newProductsToCreate.length, 1);
+  assert.equal(result.report.productVariantsToCreate.length, 2);
+  assert.deepEqual(
+    result.report.productVariantsToCreate.map((row) => row.values.display_name).sort(),
+    ["Chocolate Orange / 2kg", "Vanilla Ice Cream / 2kg"]
+  );
+});
+
+test("reviewed Jon's TBJP exact family, size and formula blockers remain closed", async () => {
+  const cases = [
+    ["ISO PRO mixed with Tri Blend size", tbjpReviewedParentVariantRow("Trained By JP ISO PRO 1.8kg", { size: "2kg", external_options: JSON.stringify({ Flavour: "Vanilla", Size: "2kg" }), variant_name: "Vanilla / 2kg" }), /exact size mismatch/],
+    ["Performance Protein 1kg mixed with 2kg", tbjpReviewedParentVariantRow("Trained By JP Performance Protein 1kg", { size: "2kg", external_options: JSON.stringify({ Flavour: "Chocolate Caramel", Size: "2kg" }), variant_name: "Chocolate Caramel / 2kg" }), /exact size mismatch/],
+    ["DNFM mixed with PrePare Pro", tbjpReviewedParentVariantRow("Trained By JP DNFM PRE 40 Servings", { product_name: "Trained By JP PrePare Pro 400g", slug: "trained-by-jp-prepare-pro-400g" }), /exact size mismatch|requires strict Shopify variant URL identity/],
+    ["Pumpage mixed with stimulant pre-workout", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { product_name: "Trained By JP DNFM PRE 40 Servings", slug: "trained-by-jp-dnfm-pre-40-servings" }), /exact size mismatch|requires strict Shopify variant URL identity/],
+    ["unreviewed TBJP family", tbjpReviewedParentVariantRow("Trained By JP ISO PRO 1.8kg", { product_name: "Trained By JP Hydration 300g", slug: "trained-by-jp-hydration-300g" }), /does not allow this canonical family/],
+    ["missing size", tbjpReviewedParentVariantRow("Trained By JP PrePare Pro 400g", { size: "", external_options: JSON.stringify({ Flavour: "Blue Slushie" }), variant_name: "Blue Slushie" }), /exact size mismatch|invalid size evidence/],
+    ["missing flavour", tbjpReviewedParentVariantRow("Trained By JP PrePare Pro 400g", { flavour: "", external_options: JSON.stringify({ Size: "400g" }), variant_name: "400g" }), /requires explicit flavour/],
+    ["brand mismatch", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { brand: "TBJP Nutrition" }), /brand mismatch/],
+    ["bundle/free", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { product_name: "Trained By JP Pumpage Pre Workout 400g Plus Free Shaker" }), /does not allow this canonical family|bundle/],
+    ["out of stock", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { in_stock: "false" }), /requires in-stock for-sale source row/],
+  ];
+
+  for (const [name, row, pattern] of cases) {
+    const supabase = createMockSupabase(reviewedSeed());
+    setSupabaseForTests(supabase);
+    const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+
+    assert.equal(result.report.approvedRows.length, 0, name);
+    assert.equal(result.report.blockedRows.length, 1, name);
+    assert.match(result.report.blockedRows[0].reason, pattern, name);
+  }
 });
 
 test("reviewed Jon's parent explicit-variant policy keeps hard blockers closed", async () => {

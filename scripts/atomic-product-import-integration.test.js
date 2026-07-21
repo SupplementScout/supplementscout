@@ -30,6 +30,7 @@ const optionedNullTotalMigration = path.join(root, "supabase/migrations/20260716
 const verifiedNoChangeMigration = path.join(root, "supabase/migrations/20260718150000_add_verified_no_change_offer_refresh.sql");
 const existingProductVariantImportMigration = path.join(root, "supabase/migrations/20260719193000_support_existing_product_variant_import.sql");
 const reviewedParentVariantImportMigration = path.join(root, "supabase/migrations/20260721100000_support_reviewed_parent_explicit_variant_safe_create.sql");
+const reviewedTbjpParentVariantMigration = path.join(root, "supabase/migrations/20260721113000_allow_reviewed_tbjp_parent_variants.sql");
 const integrationTest = path.join(root, "supabase/test/atomic_product_import_rpc_integration_test.sql");
 const controlLedgerMigration = path.join(root, "supabase/migrations/20260717120000_create_retailer_catalogue_control_ledger.sql");
 const childExecutorMigration = path.join(root, "supabase/migrations/20260717130000_add_local_retailer_catalogue_child_executor.sql");
@@ -156,6 +157,7 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   const verifiedNoChangeSql = require("node:fs").readFileSync(verifiedNoChangeMigration, "utf8");
   const existingProductVariantImportSql = require("node:fs").readFileSync(existingProductVariantImportMigration, "utf8");
   const reviewedParentVariantImportSql = require("node:fs").readFileSync(reviewedParentVariantImportMigration, "utf8");
+  const reviewedTbjpParentVariantSql = require("node:fs").readFileSync(reviewedTbjpParentVariantMigration, "utf8");
   const mixedBatchSql = require("node:fs").readFileSync(path.join(root, "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql"), "utf8");
   assert.match(sql, /^begin;/i);
   assert.match(sql, /security definer/i);
@@ -275,6 +277,11 @@ test("atomic import execution and approval ledger expose only guarded service-ro
   assert.match(reviewedParentVariantImportSql, /insert into public\.price_history/i);
   assert.doesNotMatch(reviewedParentVariantImportSql, /create role|create user|grant execute[^;]+to\s+(anon|authenticated|public)\s*;/i);
   assert.doesNotMatch(reviewedParentVariantImportSql, /\bdelete\s+from\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
+  assert.match(reviewedTbjpParentVariantSql, /Trained By JP ISO PRO 1\.8kg/i);
+  assert.match(reviewedTbjpParentVariantSql, /Trained By JP Performance Isolate Tri Blend 2kg/i);
+  assert.match(reviewedTbjpParentVariantSql, /Trained By JP DNFM PRE 40 Servings/i);
+  assert.doesNotMatch(reviewedTbjpParentVariantSql, /\b(create role|create user|grant|revoke)\b/i);
+  assert.doesNotMatch(reviewedTbjpParentVariantSql, /\b(insert|update|delete)\s+into?\s+public\.(products|product_variants|retailer_products|offers|price_history|approved_import_plans)/i);
 });
 
 test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, async () => {
@@ -335,6 +342,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, existingProductVariantImportMigration), "apply existing-product variant import migration");
     requireSuccess(psqlFile(container, database, existingProductVariantImportMigration), "reapply existing-product variant import migration idempotently");
     requireSuccess(psqlFile(container, database, reviewedParentVariantImportMigration), "apply reviewed parent explicit-variant migration");
+    requireSuccess(psqlFile(container, database, reviewedTbjpParentVariantMigration), "apply reviewed TBJP parent explicit-variant allowlist migration");
     requireSuccess(psqlFile(container, database, integrationTest, [
       "atomic_import_test_database_confirmed=1",
       "atomic_import_test_host=127.0.0.1",
