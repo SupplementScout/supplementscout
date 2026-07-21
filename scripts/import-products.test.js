@@ -2127,6 +2127,25 @@ test("SARM and peptide catalogue identities are permanently excluded without blo
   assert.match(result.report.blockedRows[0].reason, /prohibited catalogue type/);
 });
 
+test("reviewed whey flavour names may contain cream without allowing topical cream products", () => {
+  const reviewedFlavour = nutritionReviewedParentVariantRow("Strom Sports VelosiWhey 1.2kg", {
+    external_name: "Strom Sports VelosiWhey 1.2kg - Custard Cream",
+    flavour: "Custard Cream",
+    variant_name: "Custard Cream / 1.2kg",
+  });
+
+  assert.deepEqual(getSafeCreateExclusionReasons(reviewedFlavour), []);
+  assert.deepEqual(
+    getSafeCreateExclusionReasons({
+      product_name: "Generic Skin Cream 120g",
+      category: "Health Supplements",
+      product_format: "powder",
+      size: "120g",
+    }),
+    ["excluded product type"],
+  );
+});
+
 test("reviewed Jon's parent explicit-variant policy keeps hard blockers closed", async () => {
   const cases = [
     ["missing Shopify variant ID", { external_variant_id: "", external_url: "https://jonssupplements.co.uk/products/cnp?variant=" }, /missing external_variant_id|requires Shopify product and variant IDs/],

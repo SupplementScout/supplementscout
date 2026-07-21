@@ -540,6 +540,7 @@ const REVIEWED_SAFE_CREATE_FAMILIES = [
     pattern: /\bper4m\s+protein\s+bars\s+box\s+of\s+12\s+x\s+62g\b/i,
   },
   {
+    allowCreamWord: true,
     categories: ["Whey Protein"],
     pattern: /\b(?:per4m\s+plant\s+protein\s+2kg|strom\s+sports\s+velosiwhey\s+1\.2kg|strom\s+sports\s+nihpro\s+hydrolysed\s+protein\s+isolate\s+40\s+servings|strom\s+sports\s+velosiwhey\s+iso\s+1kg)\b/i,
   },
