@@ -2185,6 +2185,11 @@ const REVIEWED_PARENT_VARIANT_POLICY = new Map([
   ["HR Labs DEFIB V3 Pre-Workout 420g", { brand: "HR Labs", category: "Pre Workout", format: "powder", size: "420:g" }],
   ["Gas Mark 10 No Games Pre Workout 30 Servings", { brand: "Gas Mark 10", category: "Pre Workout", format: "powder", size: "30:servings" }],
   ["Innovapharm MVPRE 3.0 Pre Workout 437g", { brand: "Innovapharm", category: "Pre Workout", format: "powder", size: "437:g" }],
+  ["Conteh Sports Hydra Flow 300g", { brand: "Conteh Sports", category: "Health Supplements", format: "powder", size: "300:g" }],
+  ["PER4M Hydrate Electrolyte Mix 210g", { brand: "PER4M", category: "Health Supplements", format: "powder", size: "210:g" }],
+  ["PER4M Protein Bars Box of 12 x 62g", { brand: "PER4M", category: "Protein Bars", format: "bar", size: "62:g", packCount: 12 }],
+  ["Strom Sports HydraMax 420g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "420:g" }],
+  ["Strom Sports HydraMax 1.08kg", { brand: "Strom", category: "Health Supplements", format: "powder", size: "1080:g" }],
 ]);
 
 function reviewedSizeKey(evidence) {
@@ -2226,6 +2231,9 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   }
   if (reviewedSizeKey(evidence) !== policy.size) {
     throw new Error("reviewed parent explicit-variant exact size mismatch");
+  }
+  if (policy.packCount !== undefined && Number(evidence.packCount) !== policy.packCount) {
+    throw new Error("reviewed parent explicit-variant exact pack count mismatch");
   }
   if (evidence.productFormat !== policy.format || String(row.product_format || "").trim() !== policy.format) {
     throw new Error("reviewed parent explicit-variant product format mismatch");

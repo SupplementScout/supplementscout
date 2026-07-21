@@ -449,6 +449,59 @@ function preworkoutReviewedParentVariantRow(productName, overrides = {}) {
   });
 }
 
+function hydrationBarReviewedParentVariantRow(productName, overrides = {}) {
+  const configs = {
+    "Conteh Sports Hydra Flow 300g": {
+      brand: "Conteh Sports", category: "Health Supplements", format: "powder",
+      variant: "Mango", size: "300g", productId: "10341391466834", variantId: "51821171442002", sku: "CTH08003",
+      handle: "conteh-sports-hydra-flow-300g", price: "24.99", packCount: "1",
+    },
+    "PER4M Hydrate Electrolyte Mix 210g": {
+      brand: "PER4M", category: "Health Supplements", format: "powder",
+      variant: "Blackberry", size: "210g", productId: "10460316533074", variantId: "52233394258258", sku: "PFM15015",
+      handle: "per4m-hydrate-electrolyte-mix-210g", price: "21.99", packCount: "1",
+    },
+    "PER4M Protein Bars Box of 12 x 62g": {
+      brand: "PER4M", category: "Protein Bars", format: "bar",
+      variant: "Caramel Biscuit Box Of 12", size: "62g", productId: "10020052500818", variantId: "50565656609106", sku: "PFM26010",
+      handle: "per4m-protein-bars-20g-per-bar", price: "23.99", packCount: "12",
+    },
+    "Strom Sports HydraMax 420g": {
+      brand: "Strom", category: "Health Supplements", format: "powder",
+      variant: "Acai Berry", size: "420g", productId: "10476113887570", variantId: "52294365413714", sku: "STM07055",
+      handle: "strom-sports-hydramax-420g", price: "29.99", packCount: "1",
+    },
+    "Strom Sports HydraMax 1.08kg": {
+      brand: "Strom", category: "Health Supplements", format: "powder",
+      variant: "Acai Berry", size: "1.08kg", productId: "10031181627730", variantId: "50598416744786", sku: "STM07007",
+      handle: "strom-sports-hydramax-1-08kg", price: "49.99", packCount: "1",
+    },
+  };
+  const config = configs[productName];
+  if (!config) throw new Error(`missing hydration/bar test config: ${productName}`);
+  const url = `https://jonssupplements.co.uk/products/${config.handle}?variant=${config.variantId}`;
+  return baseReviewedParentVariantRow({
+    product_name: productName,
+    slug: productName.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    brand: config.brand,
+    category: config.category,
+    product_format: config.format,
+    external_product_id: config.productId,
+    external_variant_id: config.variantId,
+    external_sku: config.sku,
+    external_options: JSON.stringify({ Flavour: config.variant, Size: config.size, ...(config.packCount === "12" ? { Pack: "12" } : {}) }),
+    variant_name: `${config.variant} / ${config.size}`,
+    flavour: config.variant,
+    size: config.size,
+    size_unit: "",
+    pack_count: config.packCount,
+    price: config.price,
+    external_url: url,
+    affiliate_url: url,
+    ...overrides,
+  });
+}
+
 function reviewedSeed(overrides = {}) {
   return {
     retailers: [{ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements", website: "https://jonssupplements.co.uk" }],
@@ -1906,6 +1959,54 @@ test("reviewed Jon's pre-workout exact family, size and formula blockers remain 
     assert.equal(result.report.approvedRows.length, 0, name);
     assert.equal(result.report.blockedRows.length, 1, name);
     assert.match(result.report.blockedRows[0].reason, pattern, name);
+  }
+});
+
+test("reviewed Jon's hydration and bar allowlist covers only the five approved canonical families", async () => {
+  const productNames = [
+    "Conteh Sports Hydra Flow 300g",
+    "PER4M Hydrate Electrolyte Mix 210g",
+    "PER4M Protein Bars Box of 12 x 62g",
+    "Strom Sports HydraMax 420g",
+    "Strom Sports HydraMax 1.08kg",
+  ];
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const result = await runImportRows(productNames.map(hydrationBarReviewedParentVariantRow), {
+    mode: "feed", safeCreate: true, dryRun: true,
+  });
+
+  assert.equal(result.report.approvedRows.length, 5);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 5);
+  assert.equal(result.report.productVariantsToCreate.length, 5);
+  assert.equal(
+    result.report.productVariantsToCreate.find((row) => row.productName === "PER4M Protein Bars Box of 12 x 62g").values.pack_count,
+    "12"
+  );
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("reviewed Jon's hydration and bar family boundaries remain closed", async () => {
+  const cases = [
+    ["HydraMax sizes mixed", hydrationBarReviewedParentVariantRow("Strom Sports HydraMax 420g", { size: "1080g", external_options: JSON.stringify({ Flavour: "Acai Berry", Size: "1.08kg" }) }), /exact size mismatch|conflicting variant evidence/],
+    ["bar pack count missing", hydrationBarReviewedParentVariantRow("PER4M Protein Bars Box of 12 x 62g", { pack_count: "", variant_name: "Caramel Biscuit Box Of 12 / 62g" }), /exact pack count mismatch/],
+    ["bar weight conflict", hydrationBarReviewedParentVariantRow("PER4M Protein Bars Box of 12 x 62g", { size: "60g", external_options: JSON.stringify({ Flavour: "Caramel Biscuit Box Of 12", Size: "60g", Pack: "12" }) }), /exact size mismatch|conflicting variant evidence/],
+    ["bars collapsed with powder", hydrationBarReviewedParentVariantRow("PER4M Protein Bars Box of 12 x 62g", { product_format: "powder" }), /product format mismatch|conflicting variant evidence/],
+    ["unreviewed hydration family", hydrationBarReviewedParentVariantRow("Conteh Sports Hydra Flow 300g", { product_name: "Conteh Sports Hydra Flow 500g", slug: "conteh-sports-hydra-flow-500g" }), /does not allow this canonical family/],
+    ["missing flavour", hydrationBarReviewedParentVariantRow("PER4M Hydrate Electrolyte Mix 210g", { flavour: "", external_options: JSON.stringify({ Size: "210g" }), variant_name: "210g" }), /requires explicit flavour/],
+    ["bundle", hydrationBarReviewedParentVariantRow("Strom Sports HydraMax 420g", { product_name: "Strom Sports HydraMax 420g Plus Free Shaker" }), /does not allow this canonical family|bundle/],
+    ["OOS", hydrationBarReviewedParentVariantRow("Conteh Sports Hydra Flow 300g", { in_stock: "false" }), /requires in-stock for-sale source row/],
+  ];
+
+  for (const [name, row, pattern] of cases) {
+    const supabase = createMockSupabase(reviewedSeed());
+    setSupabaseForTests(supabase);
+    const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+    assert.equal(result.report.approvedRows.length, 0, name);
+    assert.equal(result.report.blockedRows.length, 1, name);
+    assert.match(result.report.blockedRows[0].block_reason || result.report.blockedRows[0].reason, pattern, name);
+    assert.equal(supabase.writes.length, 0, name);
   }
 });
 
