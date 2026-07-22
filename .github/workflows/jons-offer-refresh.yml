@@ -44,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Test Jon's automation contracts
-        run: node --test scripts/jons-offer-refresh.test.js scripts/jons-sync-plan-registration.test.js scripts/retailer-offer-sync.test.js scripts/reviewed-jons-stock-only-override.test.js scripts/adapters/jons-supplements.test.js scripts/creatine-offer-refresh.test.js
+        run: node --test scripts/jons-offer-refresh.test.js scripts/jons-sequential-sync-renewal.test.js scripts/jons-sync-plan-registration.test.js scripts/retailer-offer-sync.test.js scripts/reviewed-jons-stock-only-override.test.js scripts/adapters/jons-supplements.test.js scripts/creatine-offer-refresh.test.js
 
       - name: Dry-run all approved Jon's offers
         env:
