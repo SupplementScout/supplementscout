@@ -4,12 +4,13 @@ const path=require("node:path");
 const {execFileSync}=require("node:child_process");
 const {Client}=require("pg");
 const {createClient}=require("@supabase/supabase-js");
-const {readShopifySnapshot,projectShopifyVariants,sha256,canonical}=require("./lib/shopify-snapshot-reader");
+const {readShopifySnapshot,projectShopifyVariants,sha256}=require("./lib/shopify-snapshot-reader");
 const {classifyExistingOffers}=require("./lib/retailer-offer-sync/classifier");
 const {sealArtifact}=require("./lib/retailer-offer-sync/artifacts");
 const {buildVerifiedNoChangePlan}=require("./verified-no-change-offer-refresh");
 const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing-offer-plan");
 const {migrationLedgerFingerprint}=require("./lib/retailer-snapshot/staging-execution-contract");
+const {canonicalJson}=require("./lib/canonical-json");
 const config=require("../config/retailers/jons-supplements-offer-sync.json");
 
 const ROOT=path.resolve(__dirname,"..");
@@ -24,7 +25,7 @@ function loadEnvFile(file){if(!fs.existsSync(file))return{};const out={};for(con
 function loadEnvironment(){Object.assign(process.env,Object.fromEntries(Object.entries(loadEnvFile(path.join(ROOT,".env.local"))).filter(([key])=>!process.env[key])))}
 function roleCredential(target,kind){const direct=process.env[`JONS_SYNC_${kind.toUpperCase()}_DATABASE_URL`];let url=direct;if(!url){const file=target==="production"?path.join(process.env.USERPROFILE||"", ".supplementscout","credentials",`production-${kind}.env`):path.join(ROOT,`.env.staging.${kind}.local`);const values=loadEnvFile(file);url=Object.entries(values).find(([key])=>key.endsWith("_DATABASE_URL"))?.[1]}invariant(url,`missing ${kind} database URL`);const parsed=new URL(url);parsed.searchParams.delete("sslmode");invariant(!parsed.href.includes(TARGETS[target==="production"?"staging":"production"].ref),`${kind} opposite target`);return parsed.href}
 function git(...args){return execFileSync("git",args,{cwd:ROOT,encoding:"utf8",timeout:30000}).trim()}
-function canonicalHash(value){return sha256(canonical(value))}
+function canonicalHash(value){return sha256(canonicalJson(JSON.parse(JSON.stringify(value))))}
 function uuid(){return crypto.randomUUID()}
 function write(name,value){fs.mkdirSync(OUT,{recursive:true});fs.writeFileSync(path.join(OUT,name),`${JSON.stringify(value,null,2)}\n`)}
 function migrationBinding(environment){const ids=fs.readdirSync(path.join(ROOT,"supabase","migrations")).filter(name=>/^\d+_[a-z0-9_]+\.sql$/.test(name)).sort().map(name=>name.slice(0,-4));return{versions:ids,fingerprint:migrationLedgerFingerprint(ids,environment)}}
@@ -86,4 +87,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={buildRun,guardrailsFor,migrationBinding,parseArgs,registrationRequest,sumDeltas,verificationRecord};
+module.exports={buildRun,canonicalHash,guardrailsFor,migrationBinding,parseArgs,registrationRequest,sumDeltas,verificationRecord};
