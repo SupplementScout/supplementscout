@@ -19,6 +19,19 @@ Daily creatine offer refresh is active via the existing GitHub Actions schedulin
 
 No-source creatine retailers remain excluded from the automatic refresh: Whey Okay 22, GYM HIGH 3 and Simply Supplements 1. The next product/data step is Jon's catalogue review and one reviewed 25-50 offer catalogue-growth batch using the existing importer; increasing 2+ retailer coverage still requires another authorised overlapping source.
 
+### 0.0.1 Jon's catalogue closeout - 22 July 2026
+
+This update supersedes older Jon's catalogue-growth and production-enablement next actions elsewhere in this document. Historical sections remain evidence only.
+
+- The authoritative Jon's source remains the public Shopify snapshot captured with explicit `GB` market context. The closeout source contains 224 products and 844 variants.
+- The final reviewed batch passed staging and production with exact deltas: products `+34`, active products `+34`, product variants `+51`, retailer mappings `+51`, offers `+51`, price history `+51`, retailers `0`, recovery calls `0`.
+- Production and staging now both have 918 products, 917 active products, 1,569 variants, 1,488 mappings, 1,487 offers and 1,496 price-history rows. Jon's has 506 mappings and 506 offers, up from 455.
+- The real post-apply importer dry-run returned 51/51 current/unchanged, 0 blocked, 0 skipped, 0 failed and all new deltas 0. Active import, offer-sync and catalogue approvals/runs are 0.
+- The final 844-row ledger reconciles exactly: 506 `MAPPED_APPROVED`, 8 `EXCLUDE_PROHIBITED`, 318 `EXCLUDE_OOS_BUNDLE_BBE_OR_NONPRODUCT`, 10 `EXCEPTION_UNRESOLVED`, 2 `DEFER_LOW_VALUE`, and 0 unclassified.
+- SARMs and real peptide products remain permanently excluded. Ordinary collagen, hydrolysed protein and normal protein-peptide wording remain allowed when ordinary identity safeguards pass.
+- Jon's catalogue closeout is complete for the reviewed safe scope: all rows are mapped or deliberately classified. This is catalogue completion, not operational completion.
+- The next Jon's step is all-mapped-offer automatic refresh using the existing Shopify snapshot and sync safety contract. It must preserve exact Shopify identity, GB market context, source-collapse and mass-change guards, and must never create products, variants or mappings during routine refresh.
+
 ### 0.1 Executive decision
 
 The repository has delivered a real public comparison product and a substantial data/control foundation. The current constraint is not the absence of another update framework. It is obtaining commercially useful overlapping retailer sources, configuring the mappings already approved, enabling the existing sync path in production, and removing unnecessary approval friction.

@@ -1,6 +1,6 @@
 # SupplementScout Retailer Data Source Registry
 
-_Last updated: 17 July 2026_
+_Last updated: 22 July 2026_
 
 ## Purpose
 
@@ -304,6 +304,16 @@ Primary commercial coverage metric:
 
 Products with at least 2 active retailers.
 
+## Jon's Supplements current record - 22 July 2026
+
+- Retailer ID: `10`; domain: `jonssupplements.co.uk`; platform/source: public Shopify product JSON through the existing Shopify snapshot reader.
+- Every capture must explicitly request the `GB` market context. A non-GB or collapsed market response is not acceptable evidence for price, stock or catalogue completeness.
+- Fresh closeout source: 224 products and 844 variants. Production now has 506 exact Jon's mappings and 506 offers.
+- Catalogue closeout ledger: 506 `MAPPED_APPROVED`, 8 `EXCLUDE_PROHIBITED`, 318 `EXCLUDE_OOS_BUNDLE_BBE_OR_NONPRODUCT`, 10 `EXCEPTION_UNRESOLVED`, 2 `DEFER_LOW_VALUE`, and 0 unclassified variants.
+- SARMs and real peptide products are permanently prohibited. Ordinary collagen, hydrolysed protein and normal protein-peptide wording are not prohibited by that rule.
+- Catalogue status: closed for the reviewed safe scope. Every source variant is mapped, excluded, deferred or retained in the explicit exception ledger.
+- Operational status: **not complete**. The next Jon's task is to validate and activate an all-mapped-offer automatic refresh using the existing snapshot/sync controls; routine automation must not create catalogue identities or weaken mass-change and source-collapse guards.
+
 ## Initial registry template
 
 | Retailer | Platform | Source | Affiliate network | Feed | Overlap | Commercial score | Integration score | Status | Next action |
@@ -321,3 +331,9 @@ Record major decisions below.
 - Existing CSV imports remain the first route during the current Commercial Coverage Sprint.
 - Platform adapters, affiliate feeds, and automated collection will follow after the commercial coverage milestone unless a reusable low-risk source is already available.
 - EKM automation, a new admin imports interface, SAFE_UPDATE, and complex remaining legacy cleanup remain deferred unless the main operating plan changes.
+
+### 22 July 2026
+
+- The final reviewed Jon's catalogue closeout applied 51 rows on staging and production: 34 products, 51 variants, 51 mappings, 51 offers and 51 initial price-history rows.
+- Production Jon's coverage moved from 455 to 506 mappings/offers; post-apply importer idempotency was 51/51 unchanged with zero new deltas.
+- The remaining operational step is all-Jon's automatic refresh validation, not another catalogue-import framework.
