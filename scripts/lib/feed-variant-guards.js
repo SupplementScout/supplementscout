@@ -548,6 +548,10 @@ const REVIEWED_SAFE_CREATE_FAMILIES = [
     categories: ["Pre Workout"],
     pattern: /\b(?:time\s+4\s+pre\s+workout\s+professional\s+300g|conteh\s+sports\s+conviction\s+elite\s+pre-workout\s+375g|cnp\s+professional\s+full\s+tilt\s+v2\s+stim\s+pre\s+workout\s+570g|conteh\s+sports\s+the\s+pump\s+414g|efectiv\s+nutrition\s+legacy\s+pre-workout\s+380g)\b/i,
   },
+  {
+    categories: ["Pre Workout"],
+    pattern: /\bcellucor\s+c4\s+ripped\s+180g\b/i,
+  },
 ];
 
 const SAFE_CREATE_CREAM_EXCLUSION_PATTERN = /\bcream\b/i;

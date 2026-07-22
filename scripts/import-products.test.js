@@ -1174,6 +1174,43 @@ test("feed safe-create keeps SKU mandatory outside strict Shopify no-SKU create_
   assert.match(result.report.blockedRows[0].block_reason, /bundle\/free\/BBE\/dated/);
 });
 
+test("strict Shopify no-SKU identity may add a variant when the reviewed parent has no active default", async () => {
+  const fixture = createVariantFixture({
+    product_id: "p100",
+    brand: "",
+    external_product_id: "10460316533074",
+    external_variant_id: "52233394127186",
+    external_sku: "",
+    external_gtin: "",
+    external_options: JSON.stringify({ Flavour: "Lemon Sherbert Fizz", Size: "500g" }),
+    flavour: "Lemon Sherbert Fizz",
+    variant_name: "Lemon Sherbert Fizz / 500g",
+    external_url: "https://example.test/products/example-creatine?variant=52233394127186",
+    affiliate_url: "https://example.test/products/example-creatine?variant=52233394127186",
+  }, { product_variants: [{
+    id: "pv-vanilla", product_id: "p100", variant_key: "vanilla-500g", display_name: "Vanilla / 500g",
+    flavour_code: "vanilla", flavour_label: "Vanilla", size_value: 500, size_unit: "g", pack_count: 1,
+    product_format: "powder", is_active: true, is_default: false,
+  }] });
+  let supabase = createMockSupabase(fixture.seed);
+  setSupabaseForTests(supabase);
+  let result = await runImportRows([fixture.row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.productVariantsToCreate.length, 1);
+
+  supabase = createMockSupabase(fixture.seed);
+  setSupabaseForTests(supabase);
+  result = await runImportRows([{ ...fixture.row, external_sku: "DUPLICATE-SKU" }], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.match(result.report.blockedRows[0].block_reason, /exactly one active default/);
+
+  supabase = createMockSupabase({ ...fixture.seed, product_variants: [defaultVariant({ product_id: "p100" }), defaultVariant({ id: "pv-default-2", product_id: "p100" })] });
+  setSupabaseForTests(supabase);
+  result = await runImportRows([fixture.row], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.match(result.report.blockedRows[0].block_reason, /exactly one active default/);
+});
+
 test("create_variant apply creates variant, mapping, offer and initial price history without creating product", async () => {
   const { row, seed } = createVariantFixture();
   const supabase = createMockSupabase(seed);
@@ -1913,7 +1950,7 @@ test("reviewed Jon's TBJP exact family, size and formula blockers remain closed"
     ["Performance Protein 1kg mixed with 2kg", tbjpReviewedParentVariantRow("Trained By JP Performance Protein 1kg", { size: "2kg", external_options: JSON.stringify({ Flavour: "Chocolate Caramel", Size: "2kg" }), variant_name: "Chocolate Caramel / 2kg" }), /exact size mismatch/],
     ["DNFM mixed with PrePare Pro", tbjpReviewedParentVariantRow("Trained By JP DNFM PRE 40 Servings", { product_name: "Trained By JP PrePare Pro 400g", slug: "trained-by-jp-prepare-pro-400g" }), /exact size mismatch|requires strict Shopify variant URL identity/],
     ["Pumpage mixed with stimulant pre-workout", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { product_name: "Trained By JP DNFM PRE 40 Servings", slug: "trained-by-jp-dnfm-pre-40-servings" }), /exact size mismatch|requires strict Shopify variant URL identity/],
-    ["unreviewed TBJP family", tbjpReviewedParentVariantRow("Trained By JP ISO PRO 1.8kg", { product_name: "Trained By JP Hydration 300g", slug: "trained-by-jp-hydration-300g" }), /does not allow this canonical family/],
+    ["wrong category for newly reviewed TBJP family", tbjpReviewedParentVariantRow("Trained By JP ISO PRO 1.8kg", { product_name: "Trained By JP Hydration 300g", slug: "trained-by-jp-hydration-300g" }), /category mismatch/],
     ["missing size", tbjpReviewedParentVariantRow("Trained By JP PrePare Pro 400g", { size: "", external_options: JSON.stringify({ Flavour: "Blue Slushie" }), variant_name: "Blue Slushie" }), /exact size mismatch|invalid size evidence/],
     ["missing flavour", tbjpReviewedParentVariantRow("Trained By JP PrePare Pro 400g", { flavour: "", external_options: JSON.stringify({ Size: "400g" }), variant_name: "400g" }), /requires explicit flavour/],
     ["brand mismatch", tbjpReviewedParentVariantRow("Trained By JP Pumpage Pre Workout 400g", { brand: "TBJP Nutrition" }), /brand mismatch/],
@@ -2074,6 +2111,46 @@ test("reviewed Jon's nutrition allowlist covers only the thirteen approved canon
   assert.equal(result.report.productVariantsToCreate.length, 13);
   assert.ok(result.report.productVariantsToCreate.every((row) => row.values.display_name !== "Default"));
   assert.equal(supabase.writes.length, 0);
+});
+
+test("final Jon's closeout reviewed-parent allowlist covers only the exact eight approved families", async () => {
+  const configs = [
+    ["CNP ProDough Protein Bars Box of 12 x 60g", "CNP", "Protein Bars", "bar", "60g", "Biscuit Spread", "12"],
+    ["Efectiv Whey Protein 2kg", "Efectiv", "Whey Protein", "powder", "2000g", "Honey Nut Cereal", "1"],
+    ["PER4M Hydrate Unflavoured 159g", "PER4M", "Health Supplements", "powder", "159g", "Unflavoured", "1"],
+    ["Strom Sports LipidMax 400g", "Strom", "Health Supplements", "powder", "400g", "Passion Fruit", "1"],
+    ["Time 4 Whey Protein Professional 1.8kg", "Time 4", "Whey Protein", "powder", "1800g", "Jaffa Cake", "1"],
+    ["Trained By JP Collagen Powder 300g", "Trained By JP", "Health Supplements", "powder", "300g", "Peach", "1"],
+    ["Trained By JP Hydration 300g", "Trained By JP", "Health Supplements", "powder", "300g", "Pink Lemonade", "1"],
+    ["Trained By JP Join-In 210g", "Trained By JP", "Health Supplements", "powder", "210g", "Cherry", "1"],
+  ];
+  const rows = configs.map(([name, brand, category, format, size, flavour, pack], index) => {
+    const externalVariantId = String(53000000000000 + index);
+    const externalProductId = String(52000000000000 + index);
+    return baseReviewedParentVariantRow({
+      product_name: name, slug: `final-family-${index}`, brand, category, product_format: format,
+      external_product_id: externalProductId, external_variant_id: externalVariantId,
+      external_sku: `FINAL-${index}`, external_options: JSON.stringify({ Flavour: flavour, Size: size, ...(pack === "12" ? { Pack: pack } : {}) }),
+      variant_name: `${flavour} / ${size}`, flavour, size, size_unit: "", pack_count: pack,
+      external_url: `https://jonssupplements.co.uk/products/final-family-${index}?variant=${externalVariantId}`,
+      affiliate_url: `https://jonssupplements.co.uk/products/final-family-${index}?variant=${externalVariantId}`,
+    });
+  });
+  const supabase = createMockSupabase(reviewedSeed());
+  setSupabaseForTests(supabase);
+  const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(result.report.approvedRows.length, 8);
+  assert.equal(result.report.blockedRows.length, 0);
+
+  const wrongSize = { ...rows[1], size: "1800g", external_options: JSON.stringify({ Flavour: "Honey Nut Cereal", Size: "1800g" }), variant_name: "Honey Nut Cereal / 1800g" };
+  const blocked = await runImportRows([wrongSize], { mode: "feed", safeCreate: true, dryRun: true });
+  assert.equal(blocked.report.approvedRows.length, 0);
+  assert.match(blocked.report.blockedRows[0].block_reason, /exact size mismatch/);
+});
+
+test("Cellucor C4 Ripped safe-create exception is exact", () => {
+  assert.deepEqual(getSafeCreateExclusionReasons({ product_name: "Cellucor C4 Ripped 180g", category: "Pre Workout", product_format: "powder", size: "180g" }), []);
+  assert.deepEqual(getSafeCreateExclusionReasons({ product_name: "Cellucor C4 Original 180g", category: "Pre Workout", product_format: "powder", size: "180g" }), ["category is not allowed for safe-create"]);
 });
 
 test("reviewed parent no-SKU row may use exact parent-policy size with an exact Shopify flavour option", async () => {

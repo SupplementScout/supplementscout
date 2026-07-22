@@ -2209,6 +2209,14 @@ const REVIEWED_PARENT_VARIANT_POLICY = new Map([
   ["Strom Sports SystolMAX 495g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "495:g" }],
   ["Strom Sports DigestMax 480g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "480:g" }],
   ["Strom MSM (Methylsulfonylmethane) 83 Servings", { brand: "Strom", category: "Health Supplements", format: "powder", size: "83:servings" }],
+  ["CNP ProDough Protein Bars Box of 12 x 60g", { brand: "CNP", category: "Protein Bars", format: "bar", size: "60:g", packCount: 12 }],
+  ["Efectiv Whey Protein 2kg", { brand: "Efectiv", category: "Whey Protein", format: "powder", size: "2000:g" }],
+  ["PER4M Hydrate Unflavoured 159g", { brand: "PER4M", category: "Health Supplements", format: "powder", size: "159:g" }],
+  ["Strom Sports LipidMax 400g", { brand: "Strom", category: "Health Supplements", format: "powder", size: "400:g" }],
+  ["Time 4 Whey Protein Professional 1.8kg", { brand: "Time 4", category: "Whey Protein", format: "powder", size: "1800:g" }],
+  ["Trained By JP Collagen Powder 300g", { brand: "Trained By JP", category: "Health Supplements", format: "powder", size: "300:g" }],
+  ["Trained By JP Hydration 300g", { brand: "Trained By JP", category: "Health Supplements", format: "powder", size: "300:g" }],
+  ["Trained By JP Join-In 210g", { brand: "Trained By JP", category: "Health Supplements", format: "powder", size: "210:g" }],
 ]);
 
 function reviewedSizeKey(evidence) {
@@ -2482,7 +2490,9 @@ function planMissingProductVariant(row, product, activeVariants, rowNumber, evid
     throw new Error("create_variant requires an active unmerged canonical product");
   }
   const defaultVariants = activeVariants.filter((variant) => variant.is_default);
-  if (defaultVariants.length !== 1) {
+  const strictNoSkuWithoutDefault =
+    defaultVariants.length === 0 && !optionalIdentifier(row.external_sku);
+  if (defaultVariants.length > 1 || (defaultVariants.length === 0 && !strictNoSkuWithoutDefault)) {
     throw new Error("create_variant requires exactly one active default product_variant");
   }
   const values = buildPlannedVariantValues(row, product, rowNumber, evidence);
