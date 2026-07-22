@@ -312,7 +312,10 @@ Products with at least 2 active retailers.
 - Catalogue closeout ledger: 506 `MAPPED_APPROVED`, 8 `EXCLUDE_PROHIBITED`, 318 `EXCLUDE_OOS_BUNDLE_BBE_OR_NONPRODUCT`, 10 `EXCEPTION_UNRESOLVED`, 2 `DEFER_LOW_VALUE`, and 0 unclassified variants.
 - SARMs and real peptide products are permanently prohibited. Ordinary collagen, hydrolysed protein and normal protein-peptide wording are not prohibited by that rule.
 - Catalogue status: closed for the reviewed safe scope. Every source variant is mapped, excluded, deferred or retained in the explicit exception ledger.
-- Operational status: **not complete**. The next Jon's task is to validate and activate an all-mapped-offer automatic refresh using the existing snapshot/sync controls; routine automation must not create catalogue identities or weaken mass-change and source-collapse guards.
+- Reviewed stock correction: the exact eight authorised staging and production offers changed only from in stock to out of stock and received a fresh check timestamp. Price, URL, mappings, products, variants and price history changed by 0; approvals were consumed and recovery was not invoked.
+- Full post-correction verification: 506/506 mapped offers matched the fresh GB source and classified `VERIFY_NO_CHANGE`; missing mappings, identity drift, duplicate source identities, source errors and blockers were all 0. The verified source contained 224 products, 844 variants and 575 available variants. The remaining 338 source variants are discovery-only, so `506 + 338 = 844` reconciles the source exactly.
+- Operational status: **blocked at automation access**. The existing production validator, approver and executor credentials cannot register the required parent/child control plans. The existing administrative route can register them locally but is not present in GitHub Actions. A direct service-role update would bypass the approved safety contract, so no daily schedule is active and no guard has been weakened.
+- Smallest next decision: separately authorise an existing GitHub-accessible administrative plan-registration credential/path, or a narrowly reviewed plan-registration RPC/grant for the existing control plane. Routine automation must still use explicit `GB` market context, exact Shopify identity and the existing source-collapse and mass-change guards, and must never create products, variants or mappings.
 
 ## Initial registry template
 
@@ -336,4 +339,4 @@ Record major decisions below.
 
 - The final reviewed Jon's catalogue closeout applied 51 rows on staging and production: 34 products, 51 variants, 51 mappings, 51 offers and 51 initial price-history rows.
 - Production Jon's coverage moved from 455 to 506 mappings/offers; post-apply importer idempotency was 51/51 unchanged with zero new deltas.
-- The remaining operational step is all-Jon's automatic refresh validation, not another catalogue-import framework.
+- The reviewed eight-offer stock-only correction and full 506-offer dry-run passed on both environments. The remaining operational blocker is GitHub access to the existing parent/child plan-registration path, not source quality, catalogue identity or another importer framework.
