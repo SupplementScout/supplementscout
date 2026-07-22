@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 19 July 2026<br>
+**Status date:** 22 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -29,11 +29,12 @@ This update supersedes older Jon's catalogue-growth and production-enablement ne
 - The real post-apply importer dry-run returned 51/51 current/unchanged, 0 blocked, 0 skipped, 0 failed and all new deltas 0. Active import, offer-sync and catalogue approvals/runs are 0.
 - The final 844-row ledger reconciles exactly: 506 `MAPPED_APPROVED`, 8 `EXCLUDE_PROHIBITED`, 318 `EXCLUDE_OOS_BUNDLE_BBE_OR_NONPRODUCT`, 10 `EXCEPTION_UNRESOLVED`, 2 `DEFER_LOW_VALUE`, and 0 unclassified.
 - SARMs and real peptide products remain permanently excluded. Ordinary collagen, hydrolysed protein and normal protein-peptide wording remain allowed when ordinary identity safeguards pass.
-- Jon's catalogue closeout is complete for the reviewed safe scope: all rows are mapped or deliberately classified. This is catalogue completion, not operational completion.
+- Jon's catalogue closeout is complete for the reviewed safe scope: all rows are mapped or deliberately classified. Operational automation is also complete as described below.
 - The reviewed stock-only closeout passed on staging and production for the exact eight authorised offers: stock changed from `true` to `false` for 8, freshness changed for 8, and price, URL, mappings, products, variants and price history changed by 0. Approvals were consumed and recovery calls were 0.
 - A fresh full-catalogue dry-run then matched all 506 Jon's mappings and classified all 506 as `VERIFY_NO_CHANGE`, with 0 missing mappings, identity changes, duplicate source identities, source errors or blockers. The same GB source contained 224 products, 844 variants and 575 available variants; the other 338 source variants remain discovery-only and reconcile exactly with the 506 mappings.
-- Operational automation remains blocked. The approved validator/approver/executor credentials cannot register the required parent and child control plans, while the existing administrative plan-registration path is local and is not available to the GitHub Actions environment. Direct service-role business updates would bypass the approved contract. Do not add a privileged GitHub credential, grant or plan-registration RPC without a separate reviewed authority decision.
-- Until that access decision is made, no all-Jon's daily schedule is active. The intended automation must preserve exact Shopify identity, explicit GB market context, source-collapse and mass-change guards, and must never create products, variants or mappings during routine refresh.
+- Jon's operational automation is complete. The protected GitHub Environment `production-readonly` contains the three existing, separate least-privilege production connection URLs for `retailer_catalogue_production_validator`, `retailer_catalogue_production_approver` and `retailer_catalogue_production_executor`; no new login, role or broad grant was created. The narrow registration RPC creates an immutable parent and 11 ordered children, and sequential approval permits only the next legal unchanged child.
+- Manual GitHub run [`29931897205`](https://github.com/SupplementScout/supplementscout/actions/runs/29931897205) passed on commit `f28d462a45e11f01437365a579c5ad7fa696ad86`. Environment access, 59 contract tests, source capture, discovery, dry-run, registration, validator, all 11 sequential approvals/applies, fresh idempotency and artifact upload passed. Scope was 506 mappings/offers; all classified `VERIFY_NO_CHANGE`, freshness changed for 506, price/stock/URL/history and catalogue row counts changed by 0, discovery reported 338, blockers were 0, the parent finished `COMPLETED`, children finished 11/11 `APPLIED`, active plans/approvals/runs were 0 and recovery was 0.
+- `.github/workflows/jons-offer-refresh.yml` is active on `main` through both `workflow_dispatch` and the daily `04:47 UTC` schedule (`05:47 Europe/London` during British Summer Time). The next scheduled run after the validated 22 July run is 23 July 2026 at `04:47 UTC` / `05:47 Europe/London`. Tests and a dry-run remain hard gates; explicit `GB` market context, exact source identity, source-collapse and mass-change guards remain unchanged; routine execution cannot create products, variants or mappings. No routine manual Jon's refresh is required.
 
 ### 0.1 Executive decision
 
