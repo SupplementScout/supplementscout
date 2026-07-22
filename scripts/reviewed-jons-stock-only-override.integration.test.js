@@ -7,6 +7,7 @@ const test = require("node:test");
 const ROOT = path.resolve(__dirname, "..");
 const MIGRATION = "supabase/migrations/20260722120000_add_reviewed_jons_stock_only_override.sql";
 const BINDING_FIX = "supabase/migrations/20260722121000_fix_reviewed_stock_only_plan_binding.sql";
+const RETRY_FIX = "supabase/migrations/20260722122000_allow_reviewed_stock_only_retry_after_expiry.sql";
 const IMAGE = "postgres:17-alpine";
 const scope = {
   offer_ids: ["1013", "1016", "1029", "1046", "1176", "1243", "1276", "1375"],
@@ -31,7 +32,7 @@ create extension pgcrypto;
 create role anon nologin; create role authenticated nologin; create role service_role nologin;
 create role retailer_catalogue_staging_validator nologin; create role retailer_catalogue_staging_approver nologin; create role retailer_catalogue_staging_executor nologin;
 create role retailer_catalogue_production_validator nologin; create role retailer_catalogue_production_approver nologin; create role retailer_catalogue_production_executor nologin;
-create table public.retailer_offer_sync_batch_approvals(id uuid primary key default gen_random_uuid(),artifact_fingerprint text not null,approved_manifest jsonb not null,expires_at timestamptz not null);
+create table public.retailer_offer_sync_batch_approvals(id uuid primary key default gen_random_uuid(),artifact_fingerprint text not null,approved_manifest jsonb not null,expires_at timestamptz not null,consumed_at timestamptz,result jsonb,closed_at timestamptz,close_result jsonb);
 create function public.atomic_import_has_exact_keys(p jsonb,k text[]) returns boolean language sql immutable as $$select jsonb_typeof(p)='object' and (select array_agg(key order by key) from jsonb_object_keys(p) key)=(select array_agg(x order by x) from unnest(k)x)$$;
 create function public.retailer_catalogue_raise(c text,m text) returns void language plpgsql as $$begin raise exception '%: %',c,m;end$$;
 create function public.retailer_catalogue_sha256_json(v jsonb) returns text language sql immutable as $$select encode(digest(convert_to(v::text,'UTF8'),'sha256'),'hex')$$;
@@ -82,6 +83,7 @@ test("reviewed exact-eight SQL contract applies, blocks mutations, consumes once
     ok(sql(container,setupSql()),"setup");
     ok(exec(container,["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U","postgres","-d","postgres","-f",`/workspace/${MIGRATION}`]),"migration");
     ok(exec(container,["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U","postgres","-d","postgres","-f",`/workspace/${BINDING_FIX}`]),"binding fix");
+    ok(exec(container,["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U","postgres","-d","postgres","-f",`/workspace/${RETRY_FIX}`]),"retry fix");
     const base=hashContract(container,fixture());
     assert.match(ok(sql(container,helperSql(base)),"exact contract").stdout,/"valid": true/);
 
