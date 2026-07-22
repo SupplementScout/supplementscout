@@ -430,6 +430,42 @@ test("Jon's source requests GB market while Fit House and Discount stay unchange
   assert.equal(plan.retailer_results.find((entry) => entry.retailer === "Jon's Supplements").source.market_country, "GB");
 });
 
+test("full 35-offer run treats Jon's historical OOS rows as unchanged", async () => {
+  const { fitRows, discountRows, jonsRows } = creatinePlanState();
+  for (const entry of jonsRows.slice(0, 2)) entry.offer.in_stock = false;
+  const state = stateFromRows([...fitRows, ...discountRows, ...jonsRows]);
+  const jonsSnapshot = paddedShopifySnapshot({ rows: jonsRows, storeOrigin: "https://jonssupplements.co.uk", productCount: 224, variantCount: 844, availableCount: 575 });
+  for (const product of jonsSnapshot.products.slice(0, 2)) product.variants[0].available = false;
+  const snapshots = new Map([
+    ["https://fithouse.uk", paddedShopifySnapshot({ rows: fitRows, storeOrigin: "https://fithouse.uk", productCount: 85, variantCount: 85, availableCount: 85 })],
+    ["https://www.discount-supplements.co.uk", paddedShopifySnapshot({ rows: discountRows, storeOrigin: "https://www.discount-supplements.co.uk", productCount: 12, variantCount: 12, availableCount: 12 })],
+    ["https://jonssupplements.co.uk", jonsSnapshot],
+  ]);
+  const plan = await buildRefreshPlan({ client: clientFromState(state), fetchImpl: async (url) => responseForSnapshot(snapshots.get(new URL(url.href).origin)), now: new Date("2026-07-19T03:17:00.000Z") });
+  assert.equal(plan.status, "DRY_RUN_READY");
+  assert.equal(plan.classified_rows.length, 35);
+  assert.deepEqual(plan.classification_counts, { VERIFY_NO_CHANGE: 35 });
+  assert.equal(plan.blockers.length, 0);
+});
+
+test("Jon's all-OOS historical baseline does not trigger repeated MASS_OOS", () => {
+  const { jonsRows } = creatinePlanState();
+  for (const entry of jonsRows) entry.offer.in_stock = false;
+  const scope = RETAILER_SCOPE["Jon's Supplements"];
+  const snapshot = paddedShopifySnapshot({ rows: jonsRows, storeOrigin: scope.storeUrl, productCount: 224, variantCount: 844, availableCount: 575, targetAvailable: false });
+  const result = classifyRetailerScope({
+    retailerName: "Jon's Supplements",
+    scope,
+    state: stateFromRows(jonsRows),
+    snapshot,
+    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
+    now: new Date("2026-07-19T03:17:00.000Z"),
+  });
+  assert.equal(result.classification.state, "DRY_RUN_READY");
+  assert.equal(result.classified_rows.length, 5);
+  assert.equal(result.classified_rows.every((row) => row.action === "VERIFY_NO_CHANGE"), true);
+});
+
 test("Jon's market availability collapse is SOURCE_DEGRADED before MASS_OOS", () => {
   const { jonsRows, state } = creatinePlanState();
   const scope = RETAILER_SCOPE["Jon's Supplements"];

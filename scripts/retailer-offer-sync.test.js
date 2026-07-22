@@ -70,6 +70,42 @@ test("OOS, changed-row, mass-price and hard-price guardrails fail closed", () =>
   assert.equal(classifyExistingOffers(input((d) => d.sourceVariants.slice(0, 6).forEach((r) => { r.price = (Number(r.price) + 0.1).toFixed(2); }))).reason, "MASS_PRICE");
   assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].price = "40.00"; })).reason, "HARD_PRICE_ANOMALY");
 });
+test("MASS_OOS ignores an unchanged historical OOS baseline but blocks genuine new transitions", () => {
+  function fiveOfferInput(previousOos) {
+    const scenario = input((data) => {
+      data.targets = data.targets.slice(0, 5);
+      data.sourceVariants = data.sourceVariants.slice(0, 5);
+      for (let index = 0; index < previousOos; index += 1) {
+        data.targets[index].in_stock = false;
+        data.sourceVariants[index].in_stock = false;
+      }
+    });
+    scenario.policy = { ...scenario.policy, required_matched_offers: 5 };
+    return scenario;
+  }
+
+  const twoHistoricalOos = classifyExistingOffers(fiveOfferInput(2));
+  assert.equal(twoHistoricalOos.state, "DRY_RUN_READY");
+  assert.equal(twoHistoricalOos.rows.every((row) => row.action === "VERIFY_NO_CHANGE"), true);
+
+  const allHistoricalOos = classifyExistingOffers(fiveOfferInput(5));
+  assert.equal(allHistoricalOos.state, "DRY_RUN_READY");
+  assert.equal(allHistoricalOos.rows.every((row) => row.action === "VERIFY_NO_CHANGE"), true);
+
+  const restock = fiveOfferInput(1);
+  restock.sourceVariants[0].in_stock = true;
+  const restockResult = classifyExistingOffers(restock);
+  assert.equal(restockResult.state, "DRY_RUN_READY");
+  assert.equal(restockResult.rows.find((row) => row.offer_id === restock.targets[0].offer_id).action, "UPDATE_STOCK");
+
+  for (const count of [4, 5]) {
+    const scenario = fiveOfferInput(0);
+    scenario.sourceVariants.slice(0, count).forEach((source) => { source.in_stock = false; });
+    const blocked = classifyExistingOffers(scenario);
+    assert.equal(blocked.reason, "MASS_OOS");
+    assert.equal(blocked.detail.new_oos, count);
+  }
+});
 test("artifact ordering and state transitions are stable and closed", () => {
   assert.deepEqual(sortRows([{ offer_id: "10" }, { offer_id: "2" }]).map((x) => x.offer_id), ["2", "10"]);
   assert.equal(fingerprint({ b: 2, a: 1 }), fingerprint({ a: 1, b: 2 })); assert.equal(canTransition("DRY_RUN_READY", "APPROVED"), true); assert.equal(transition("APPLYING", "APPLIED"), "APPLIED"); assert.throws(() => transition("BLOCKED", "APPROVED"), /Forbidden/);

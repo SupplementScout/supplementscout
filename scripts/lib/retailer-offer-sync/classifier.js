@@ -44,7 +44,8 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
   const newOos = rows.filter((row) => row.target.in_stock && !row.source.in_stock).length;
   const totalOos = rows.filter((row) => !row.source.in_stock).length;
   const oldOos = rows.filter((row) => !row.target.in_stock).length;
-  if (newOos >= policy.mass_oos_block_count || totalOos / rows.length > policy.maximum_total_oos_ratio || (totalOos - oldOos) / rows.length > policy.maximum_oos_increase_percentage_points) return block("MASS_OOS", { new_oos: newOos });
+  const oosIncrease = totalOos - oldOos;
+  if (newOos > 0 && (newOos >= policy.mass_oos_block_count || totalOos / rows.length > policy.maximum_total_oos_ratio || oosIncrease / rows.length > policy.maximum_oos_increase_percentage_points)) return block("MASS_OOS", { new_oos: newOos, total_oos: totalOos, previous_oos: oldOos, oos_increase: oosIncrease });
   if (changed / rows.length > policy.maximum_changed_record_ratio) return block("MASS_CHANGE", { changed });
   if (priceChanged / rows.length >= policy.mass_price_change_block_ratio) return block("MASS_PRICE", { price_changed: priceChanged });
   const result = { state: "DRY_RUN_READY", rows, expected_deltas: sumDeltas(rows) };
