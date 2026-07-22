@@ -1,4 +1,7 @@
+"use client";
+
 import type { SearchFilters, SearchSort } from "../lib/products";
+import { sendAnalyticsEvent } from "../lib/analytics";
 
 const sortOptions: Array<{ value: SearchSort; label: string }> = [
   { value: "relevance", label: "Relevance" },
@@ -17,7 +20,14 @@ export default function SearchSort({
   filters: SearchFilters;
 }) {
   return (
-    <form action="/search" className="flex items-center gap-3">
+    <form
+      action="/search"
+      className="flex items-center gap-3"
+      onSubmit={(event) => {
+        const value = new FormData(event.currentTarget).get("sort") as SearchSort | null;
+        if (value) sendAnalyticsEvent("sort_used", { sort_option: value });
+      }}
+    >
       <input type="hidden" name="q" value={query} />
       {filters.category && (
         <input type="hidden" name="category" value={filters.category} />

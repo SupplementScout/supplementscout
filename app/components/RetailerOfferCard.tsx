@@ -11,6 +11,8 @@ import {
   type ProductOfferGroup,
 } from "../lib/productOfferGroups";
 import { formatCurrency, getKnownProductPrice } from "../lib/pricing";
+import { sendAnalyticsEvent } from "../lib/analytics";
+import type { ProductAnalyticsContext } from "./ProductAnalytics";
 
 function formatShipping(value: number | string | null) {
   if (value === null || value === "") return "Delivery unknown";
@@ -39,7 +41,15 @@ function VariantPrice({ offer }: { offer: ProductOffer }) {
   );
 }
 
-export default function RetailerOfferCard({ group }: { group: ProductOfferGroup }) {
+export default function RetailerOfferCard({
+  group,
+  product,
+  position,
+}: {
+  group: ProductOfferGroup;
+  product: ProductAnalyticsContext;
+  position: number;
+}) {
   const [selectedOfferId, setSelectedOfferId] = useState(
     String(group.offers[0]?.id || "")
   );
@@ -156,6 +166,19 @@ export default function RetailerOfferCard({ group }: { group: ProductOfferGroup 
           href={productOfferHref(selectedOffer.id, "product_offer_list")}
           target="_blank"
           rel="sponsored nofollow noopener noreferrer"
+          onClick={() => {
+            const offerPrice = Number(selectedOffer.price);
+            sendAnalyticsEvent("retailer_offer_click", {
+              ...product,
+              variant_id: String(selectedOffer.product_variant_id),
+              retailer_id: selectedOffer.retailer?.id ? String(selectedOffer.retailer.id) : undefined,
+              retailer_name: selectedOffer.retailer?.name || undefined,
+              offer_price: Number.isFinite(offerPrice) ? offerPrice : undefined,
+              position,
+              source_page: "product_offer_list",
+              is_affiliate: false,
+            });
+          }}
           className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl bg-black px-5 py-3 text-center text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
         >
           View deal{selectedVariantLabel ? ` · ${selectedVariantLabel}` : ""}

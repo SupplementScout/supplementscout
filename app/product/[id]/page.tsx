@@ -1,5 +1,10 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
 import RetailerOfferCard from "../../components/RetailerOfferCard";
+import {
+  ProductViewAnalytics,
+  RetailerOfferLink,
+  type ProductAnalyticsContext,
+} from "../../components/ProductAnalytics";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -425,9 +430,18 @@ export default async function ProductPage({
   );
   const productSummary = buildProductSummary(product);
   const keyFacts = buildProductKeyFacts(product);
+  const productAnalytics: ProductAnalyticsContext = {
+    product_id: String(product.id),
+    product_name: product.name,
+    ...(product.category ? { category: product.category } : {}),
+  };
 
   return (
     <main className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-zinc-50">
+      <ProductViewAnalytics
+        product={productAnalytics}
+        variantId={cheapestOffer ? String(cheapestOffer.product_variant_id) : undefined}
+      />
       <div className="mx-auto w-full min-w-0 max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:py-12">
         <Link href="/" className="text-sm font-medium text-[#4B5563] hover:text-[#111827]">
           ← Back to search
@@ -531,14 +545,22 @@ export default async function ProductPage({
                 </div>
 
                 {cheapestOffer ? (
-                  <a
+                  <RetailerOfferLink
                     href={productOfferHref(cheapestOffer.id, "product_best_offer")}
-                    target="_blank"
-                    rel="sponsored nofollow noopener noreferrer"
+                    event={{
+                      ...productAnalytics,
+                      variant_id: String(cheapestOffer.product_variant_id),
+                      retailer_id: cheapestOffer.retailer?.id ? String(cheapestOffer.retailer.id) : undefined,
+                      retailer_name: cheapestOffer.retailer?.name || undefined,
+                      offer_price: getKnownProductPrice(cheapestOffer.price) ?? undefined,
+                      position: 1,
+                      source_page: "product_best_offer",
+                      is_affiliate: false,
+                    }}
                     className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-2xl bg-black px-6 py-4 text-center font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto sm:px-8"
                   >
                     View Deal
-                  </a>
+                  </RetailerOfferLink>
                 ) : (
                   <button
                     disabled
@@ -690,8 +712,8 @@ export default async function ProductPage({
 
               <div className="mt-6 space-y-3">
                 {retailerOfferGroups.length > 0 ? (
-                  retailerOfferGroups.map((group) => (
-                    <RetailerOfferCard key={group.retailerKey} group={group} />
+                  retailerOfferGroups.map((group, index) => (
+                    <RetailerOfferCard key={group.retailerKey} group={group} product={productAnalytics} position={index + 1} />
                   ))
                 ) : (
                   <p className="text-sm font-medium text-gray-700">No offers available.</p>

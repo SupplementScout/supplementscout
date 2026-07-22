@@ -7,6 +7,7 @@ import SearchFilters from "../components/SearchFilters";
 import SearchInput from "../components/SearchInput";
 import SearchPagination from "../components/SearchPagination";
 import SearchSort from "../components/SearchSort";
+import SearchAnalyticsEvents from "../components/SearchAnalyticsEvents";
 import {
   normalizeSearchQuery,
   normalizeSearchFilters,
@@ -149,6 +150,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
         {hasQuery && (
           <>
+            {!error && <SearchAnalyticsEvents resultCount={totalCount} hasFilters={hasActiveFilters} />}
             <div className="mt-6 flex flex-col gap-4 md:mt-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">

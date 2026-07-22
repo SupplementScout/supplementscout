@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type {
   SearchFacetOption,
@@ -6,6 +8,7 @@ import type {
   SearchSort,
 } from "../lib/products";
 import { searchUrl } from "../lib/searchUrl";
+import { sendAnalyticsEvent } from "../lib/analytics";
 
 type SearchFiltersProps = {
   query: string;
@@ -54,6 +57,10 @@ function FilterOptionList({
                   updates: {
                     [filterKey]: isSelected ? "" : option.value,
                   },
+                })}
+                onClick={() => sendAnalyticsEvent("filter_used", {
+                  filter_name: filterKey,
+                  filter_action: isSelected ? "remove" : "apply",
                 })}
                 className={`flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm ${
                   isSelected

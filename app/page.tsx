@@ -212,6 +212,12 @@ export default function Home() {
             <Link href="/affiliate-disclosure" className="hover:text-zinc-950">
               Affiliate Disclosure
             </Link>
+            <Link href="/privacy" className="hover:text-zinc-950">
+              Privacy
+            </Link>
+            <Link href="/cookies" className="hover:text-zinc-950">
+              Cookies
+            </Link>
             <Link href="/contact" className="hover:text-zinc-950">
               Contact
             </Link>
