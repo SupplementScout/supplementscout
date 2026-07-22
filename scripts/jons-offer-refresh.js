@@ -92,4 +92,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={buildRun,canonicalHash,executionRow,guardrailsFor,migrationBinding,parseArgs,registrationRequest,sumDeltas,verificationRecord};
+module.exports={buildRun,canonicalHash,executionRow,guardrailsFor,migrationBinding,parseArgs,readState,registrationRequest,sumDeltas,verificationRecord};
