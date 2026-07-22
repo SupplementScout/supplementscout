@@ -6,6 +6,7 @@ const { fingerprint } = require("./lib/retailer-offer-sync/artifacts");
 const { REVIEWED_JONS_STOCK_ONLY, bindReviewedContract, buildReviewedStockOnlyContract } = require("./lib/retailer-offer-sync/reviewed-stock-only");
 
 const migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260722120000_add_reviewed_jons_stock_only_override.sql"), "utf8");
+const bindingFix = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260722121000_fix_reviewed_stock_only_plan_binding.sql"), "utf8");
 const HASH = "4".repeat(64);
 const artifact = {
   target_environment: "PRODUCTION",
@@ -80,4 +81,14 @@ test("only exact staging and production identities are encoded", () => {
   assert.deepEqual(new Set(REVIEWED_JONS_STOCK_ONLY.PRODUCTION.external_variant_ids), new Set(REVIEWED_JONS_STOCK_ONLY.STAGING.external_variant_ids));
   assert.match(migration, /jons-reviewed-eight-oos-2026-07-22-production/);
   assert.match(migration, /jons-reviewed-eight-oos-2026-07-22-staging/);
+});
+
+test("follow-up binding fix preserves artifact snapshot binding and standard atomic meta compatibility", () => {
+  assert.match(bindingFix, /Standard importer plans deliberately use a closed meta schema/);
+  assert.match(bindingFix, /replace\(v_definition,v_incompatible_check,''\)/);
+  assert.match(bindingFix, /atomic_plan,meta,source_snapshot_sha256/);
+  assert.doesNotMatch(bindingFix, /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.doesNotMatch(bindingFix, /alter\s+role|create\s+role|grant\s+/i);
+  assert.match(migration, /p_request->>'source_snapshot_fingerprint' is distinct from v_artifact->>'source_snapshot_fingerprint'/);
+  assert.match(migration, /snapshot_b_fingerprint[\s\S]+source_snapshot_fingerprint/);
 });

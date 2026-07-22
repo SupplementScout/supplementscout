@@ -6,6 +6,7 @@ const test = require("node:test");
 
 const ROOT = path.resolve(__dirname, "..");
 const MIGRATION = "supabase/migrations/20260722120000_add_reviewed_jons_stock_only_override.sql";
+const BINDING_FIX = "supabase/migrations/20260722121000_fix_reviewed_stock_only_plan_binding.sql";
 const IMAGE = "postgres:17-alpine";
 const scope = {
   offer_ids: ["1013", "1016", "1029", "1046", "1176", "1243", "1276", "1375"],
@@ -50,7 +51,7 @@ function row(index, environment, capturedAt) {
     changed_fields: { price: false, stock: true, url: false, blocked: false }, source_captured_at: capturedAt,
     expected_deltas: { row_count_deltas: { products:0, product_variants:0, retailer_products:0, offers:0, price_history:0 }, logical_field_deltas: { offer_price_updates:0, offer_shipping_updates:0, offer_total_updates:0, offer_stock_updates:1, offer_url_updates:0, mapping_url_updates:0, mapping_updated_at_updates:0, last_checked_at_updates:1 } },
     atomic_plan: {
-      meta: { operation_type:"standard_import", source_snapshot_sha256:"a".repeat(64), source_captured_at:capturedAt },
+      meta: { version:"2", plan_kind:"feed", operation_type:"standard_import", source_row_fingerprint:"c".repeat(64), plan_fingerprint:"d".repeat(32) },
       product:{action:"existing"}, product_variant:{action:"existing"}, retailer:{action:"existing",id:"10"},
       retailer_product:{action:"noop",id:mapping,values:{external_url:url}},
       offer:{action:"update",id:offer,values:{price:"10.00",shipping_cost:"0.00",total_price:"10.00",in_stock:false,url,last_checked_at:capturedAt}},
@@ -80,6 +81,7 @@ test("reviewed exact-eight SQL contract applies, blocks mutations, consumes once
     ok(run("docker",["run","--detach","--rm","--name",container,"--network","none","-e","POSTGRES_HOST_AUTH_METHOD=trust","-v",`${ROOT}:/workspace:ro`,IMAGE]),"start"); wait(container);
     ok(sql(container,setupSql()),"setup");
     ok(exec(container,["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U","postgres","-d","postgres","-f",`/workspace/${MIGRATION}`]),"migration");
+    ok(exec(container,["psql","-X","--no-psqlrc","-v","ON_ERROR_STOP=1","-U","postgres","-d","postgres","-f",`/workspace/${BINDING_FIX}`]),"binding fix");
     const base=hashContract(container,fixture());
     assert.match(ok(sql(container,helperSql(base)),"exact contract").stdout,/"valid": true/);
 
