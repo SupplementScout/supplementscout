@@ -23,7 +23,7 @@ test('final closeout DB policy accepts exact families and permits only strict no
       create function public.atomic_import_reviewed_parent_variant_allowed(p_name text,p_brand text,p_category text,p_format text,p_size_value text,p_size_unit text) returns boolean language sql immutable as $fn$
         select exists(select 1 from (values ('Strom MSM (Methylsulfonylmethane) 83 Servings','Strom','Health Supplements','powder','83','servings')) a(name,brand,category,format,size_value,size_unit)
           where a.name=p_name and a.brand=p_brand and a.category=p_category and a.format=p_format and a.size_value=p_size_value and a.size_unit=p_size_unit) $fn$;
-      create function public.validate_product_import_plan_read_only(p_plan jsonb) returns jsonb language plpgsql as $fn$
+      create function public.atomic_import_validate_variant_plan_core(p_plan jsonb) returns jsonb language plpgsql as $fn$
       declare v_product_id bigint := (p_plan->>'product_id')::bigint; v_external_sku text := nullif(p_plan->>'external_sku','');
       begin
         if (select count(*) from public.product_variants where product_id=v_product_id and is_active and is_default) <> 1 then
@@ -31,6 +31,7 @@ test('final closeout DB policy accepts exact families and permits only strict no
         end if;
         return '{"valid":true}'::jsonb;
       end $fn$;
+      create function public.validate_product_import_plan_read_only(p_plan jsonb) returns jsonb language sql as $fn$ select public.atomic_import_validate_variant_plan_core(p_plan) $fn$;
       create function public.apply_product_import_plan(p_plan jsonb) returns jsonb language plpgsql as $fn$ begin perform public.validate_product_import_plan_read_only(p_plan); return '{"applied":true}'::jsonb; end $fn$;
     `]),'create policy stubs');
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${migration}`]),'apply migration');

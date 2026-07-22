@@ -7,6 +7,7 @@ do $preflight$
 begin
   if to_regprocedure('public.atomic_import_safe_create_category_allowed(text,text,text)') is null
      or to_regprocedure('public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text)') is null
+     or to_regprocedure('public.atomic_import_validate_variant_plan_core(jsonb)') is null
      or to_regprocedure('public.validate_product_import_plan_read_only(jsonb)') is null
      or to_regprocedure('public.apply_product_import_plan(jsonb)') is null then
     raise exception 'existing reviewed importer policy is missing';
@@ -73,7 +74,7 @@ $reviewed_parent_policy$;
 
 do $no_sku_without_default$
 declare
-  v_definition text := pg_get_functiondef('public.validate_product_import_plan_read_only(jsonb)'::regprocedure);
+  v_definition text := pg_get_functiondef('public.atomic_import_validate_variant_plan_core(jsonb)'::regprocedure);
   v_original text := 'if (select count(*) from public.product_variants where product_id=v_product_id and is_active and is_default) <> 1 then';
   v_replacement text := 'if (select count(*) from public.product_variants where product_id=v_product_id and is_active and is_default) > 1
      or ((select count(*) from public.product_variants where product_id=v_product_id and is_active and is_default) = 0
@@ -89,7 +90,7 @@ $no_sku_without_default$;
 
 alter function public.atomic_import_safe_create_category_allowed(text,text,text) owner to postgres;
 alter function public.atomic_import_reviewed_parent_variant_allowed(text,text,text,text,text,text) owner to postgres;
-alter function public.validate_product_import_plan_read_only(jsonb) owner to postgres;
+alter function public.atomic_import_validate_variant_plan_core(jsonb) owner to postgres;
 
 do $postflight$
 begin
@@ -104,7 +105,7 @@ begin
      or not public.atomic_import_reviewed_parent_variant_allowed('Trained By JP Hydration 300g','Trained By JP','Health Supplements','powder','300','g')
      or not public.atomic_import_reviewed_parent_variant_allowed('Trained By JP Join-In 210g','Trained By JP','Health Supplements','powder','210','g')
      or public.atomic_import_reviewed_parent_variant_allowed('Efectiv Whey Protein 1.8kg','Efectiv','Whey Protein','powder','1800','g')
-     or position('and v_external_sku is not null) then' in pg_get_functiondef('public.validate_product_import_plan_read_only(jsonb)'::regprocedure)) = 0
+     or position('and v_external_sku is not null) then' in pg_get_functiondef('public.atomic_import_validate_variant_plan_core(jsonb)'::regprocedure)) = 0
      or position('perform public.validate_product_import_plan_read_only(p_plan)' in pg_get_functiondef('public.apply_product_import_plan(jsonb)'::regprocedure)) = 0 then
     raise exception 'final Jon''s closeout policy verification failed';
   end if;
