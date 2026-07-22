@@ -45,6 +45,12 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/hydration`,
+    lastModified: staticLastModified,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/about`,
     lastModified: staticLastModified,
     changeFrequency: "monthly",

@@ -18,7 +18,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Hydration & Electrolyte Supplements UK",
   description,
-  robots: { index: false, follow: true },
+  robots: { index: true, follow: true },
   alternates: { canonical: "/hydration" },
   openGraph: {
     title: "Hydration & Electrolyte Supplements UK | SupplementScout",

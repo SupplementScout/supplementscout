@@ -140,12 +140,12 @@ function loadPage(result = fixtureResult()) {
   return { page, calls: () => calls };
 }
 
-test("the /hydration route is a noindex canonical Server Component", () => {
+test("the /hydration route is an indexable canonical Server Component", () => {
   const { page } = loadPage();
   const source = fs.readFileSync(pagePath, "utf8");
   assert.equal(source.includes('"use client"'), false);
   assert.equal(page.metadata.alternates.canonical, "/hydration");
-  assert.deepEqual(page.metadata.robots, { index: false, follow: true });
+  assert.deepEqual(page.metadata.robots, { index: true, follow: true });
   assert.match(page.metadata.title, /Hydration & Electrolyte/);
 });
 
@@ -213,9 +213,23 @@ test("future indexability gate remains closed without multi-retailer products", 
   assert.ok(readiness.blockers.includes("insufficient_comparison_retailers"));
 });
 
-test("hydration is intentionally absent from the sitemap", () => {
+test("live hydration coverage satisfies the existing indexability gate", () => {
+  const comparison = loadComparison();
+  const summary = {
+    ...fixtureResult().summary,
+    freshOffers: 37,
+    freshRetailersAcrossComparisons: 3,
+    productsWithMultipleFreshRetailers: 5,
+  };
+  assert.deepEqual(comparison.evaluateHydrationIndexability(summary, true), {
+    indexable: true,
+    blockers: [],
+  });
+});
+
+test("hydration appears exactly once in the sitemap", () => {
   const sitemap = fs.readFileSync(sitemapPath, "utf8");
-  assert.equal(sitemap.includes("/hydration"), false);
+  assert.equal((sitemap.match(/`\$\{siteUrl\}\/hydration`/g) || []).length, 1);
 });
 
 test("structured data contains valid ItemList and Breadcrumb but no Product", () => {
