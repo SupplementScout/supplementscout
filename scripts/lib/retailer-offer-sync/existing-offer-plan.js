@@ -11,6 +11,7 @@ const OFFER_KEYS = ["id", "product_id", "retailer_id", "product_variant_id", "re
 function select(value, keys) { return Object.fromEntries(keys.map((key) => [key, value[key] ?? null])); }
 function decimal(value) { return value === null || value === undefined ? null : normalizeDecimalString(value); }
 function id(value, label) { const out=String(value ?? ""); if (!/^\d+$/.test(out)) throw new Error(`${label} must be an ID`); return out; }
+function databaseTimestamp(value,label){const text=value instanceof Date?value.toISOString():String(value??"");if(!text||!Number.isFinite(Date.parse(text)))throw new Error(`${label} must be a timestamp`);return text}
 
 function normalizeState(input) {
   const product=select(input.product,PRODUCT_KEYS),retailer=select(input.retailer,RETAILER_KEYS),variant=select(input.variant,VARIANT_KEYS),mapping=select(input.mapping,MAPPING_KEYS),offer=select(input.offer,OFFER_KEYS);
@@ -19,8 +20,8 @@ function normalizeState(input) {
   variant.product_id=id(variant.product_id,"variant.product_id");variant.size_value=decimal(variant.size_value);variant.pack_count=variant.pack_count==null?null:String(variant.pack_count);
   mapping.retailer_id=id(mapping.retailer_id,"mapping.retailer_id");mapping.product_id=id(mapping.product_id,"mapping.product_id");mapping.product_variant_id=id(mapping.product_variant_id,"mapping.product_variant_id");mapping.match_confidence=decimal(mapping.match_confidence);
   offer.product_id=id(offer.product_id,"offer.product_id");offer.retailer_id=id(offer.retailer_id,"offer.retailer_id");offer.product_variant_id=id(offer.product_variant_id,"offer.product_variant_id");offer.retailer_product_id=id(offer.retailer_product_id,"offer.retailer_product_id");offer.price=decimal(offer.price);offer.shipping_cost=decimal(offer.shipping_cost);offer.total_price=decimal(offer.total_price);
-  const updatedAt=new Date(input.mapping.updated_at).toISOString();
-  const checkedAt=new Date(offer.last_checked_at).toISOString();
+  const updatedAt=databaseTimestamp(input.mapping.updated_at,"mapping.updated_at");
+  const checkedAt=databaseTimestamp(offer.last_checked_at,"offer.last_checked_at");
   if (!product.is_active||product.merged_into_product_id!==null||!variant.is_active||variant.product_id!==product.id||mapping.product_id!==product.id||offer.product_id!==product.id||mapping.product_variant_id!==variant.id||offer.product_variant_id!==variant.id||mapping.retailer_id!==retailer.id||offer.retailer_id!==retailer.id||offer.retailer_product_id!==mapping.id) throw new Error("existing offer identity mismatch");
   return {product,retailer,variant,mapping,offer:{...offer,last_checked_at:checkedAt},mapping_updated_at:updatedAt};
 }
