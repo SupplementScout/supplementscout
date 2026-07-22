@@ -4,6 +4,7 @@ const path=require("node:path");
 const test=require("node:test");
 
 const migration=fs.readFileSync(path.join(__dirname,"../supabase/migrations/20260722140000_renew_and_resume_sequential_sync_plans.sql"),"utf8");
+const automation=fs.readFileSync(path.join(__dirname,"jons-offer-refresh.js"),"utf8");
 
 function nextChild(parent,children){
   if(!["APPROVED","PARTIALLY_APPLIED"].includes(parent.status)||parent.expired)throw new Error("parent blocked");
@@ -75,4 +76,11 @@ test("SQL patch preserves exact hashes, dependency ordering, replay and expiry g
   assert.doesNotMatch(migration,/create\s+(?:role|user)/i);
   assert.doesNotMatch(migration,/^\s*grant\s/im);
   assert.doesNotMatch(migration,/MASS_OOS|MASS_PRICE|MASS_CHANGE|SOURCE_DEGRADED/);
+});
+
+test("automation reuses one registered expiry across every sequential child",()=>{
+  const sequence=automation.slice(automation.indexOf("async function approveAndExecute"),automation.indexOf("async function main"));
+  assert.match(sequence,/expiresAt=registration\.expires_at/);
+  assert.match(sequence,/registered approval expiry is invalid/);
+  assert.doesNotMatch(sequence,/for\([^)]*\)\{[^}]*expiresAt=new Date/s);
 });
