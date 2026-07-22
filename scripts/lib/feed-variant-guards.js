@@ -552,6 +552,21 @@ const REVIEWED_SAFE_CREATE_FAMILIES = [
     categories: ["Pre Workout"],
     pattern: /\bcellucor\s+c4\s+ripped\s+180g\b/i,
   },
+  {
+    allowedFormats: ["bar"],
+    categories: ["Protein Bars"],
+    pattern: /\bcnp\s+prodough\s+protein\s+bars\s+box\s+of\s+12\s+x\s+60g\b/i,
+  },
+  {
+    allowCreamWord: true,
+    categories: ["Whey Protein"],
+    pattern: /\btime\s+4\s+whey\s+protein\s+professional\s+1\.8kg\b/i,
+  },
+  {
+    allowCreamWord: true,
+    categories: ["Whey Protein"],
+    pattern: /\btrained\s+by\s+jp\s+performance\s+protein\s+(?:1kg|2kg)\b/i,
+  },
 ];
 
 const SAFE_CREATE_CREAM_EXCLUSION_PATTERN = /\bcream\b/i;

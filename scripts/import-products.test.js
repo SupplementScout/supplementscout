@@ -2153,6 +2153,18 @@ test("Cellucor C4 Ripped safe-create exception is exact", () => {
   assert.deepEqual(getSafeCreateExclusionReasons({ product_name: "Cellucor C4 Original 180g", category: "Pre Workout", product_format: "powder", size: "180g" }), ["category is not allowed for safe-create"]);
 });
 
+test("final reviewed variant families remain eligible on idempotent feed reruns", () => {
+  const reviewed = [
+    { product_name: "CNP ProDough Protein Bars Box of 12 x 60g", category: "Protein Bars", product_format: "bar", size: "60g" },
+    { product_name: "Time 4 Whey Protein Professional 1.8kg", external_name: "Time 4 Whey Protein Professional 1.8kg / Custard Cream", category: "Whey Protein", product_format: "powder", size: "1800g" },
+    { product_name: "Trained By JP Performance Protein 1kg", category: "Whey Protein", product_format: "powder", size: "1000g" },
+    { product_name: "Trained By JP Performance Protein 2kg", category: "Whey Protein", product_format: "powder", size: "2000g" },
+  ];
+  for (const row of reviewed) assert.deepEqual(getSafeCreateExclusionReasons(row), [], row.product_name);
+  assert.deepEqual(getSafeCreateExclusionReasons({ product_name: "Unreviewed Protein Bars Box of 12 x 60g", category: "Protein Bars", product_format: "bar", size: "60g" }), ["category is not allowed for safe-create"]);
+  assert.deepEqual(getSafeCreateExclusionReasons({ product_name: "Time 4 Whey Protein Professional 2.5kg", category: "Whey Protein", product_format: "powder", size: "2500g" }), ["category is not allowed for safe-create"]);
+});
+
 test("reviewed parent no-SKU row may use exact parent-policy size with an exact Shopify flavour option", async () => {
   const row = nutritionReviewedParentVariantRow("Conteh Sports The Pump 414g", {
     external_sku: "",
