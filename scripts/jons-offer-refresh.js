@@ -28,7 +28,11 @@ function git(...args){return execFileSync("git",args,{cwd:ROOT,encoding:"utf8",t
 function canonicalHash(value){return sha256(canonicalJson(JSON.parse(JSON.stringify(value))))}
 function uuid(){return crypto.randomUUID()}
 function write(name,value){fs.mkdirSync(OUT,{recursive:true});fs.writeFileSync(path.join(OUT,name),`${JSON.stringify(value,null,2)}\n`)}
-function migrationBinding(environment){const ids=fs.readdirSync(path.join(ROOT,"supabase","migrations")).filter(name=>/^\d+_[a-z0-9_]+\.sql$/.test(name)).sort().map(name=>name.slice(0,-4));return{versions:ids,fingerprint:migrationLedgerFingerprint(ids,environment)}}
+const ENVIRONMENT_MIGRATION_EXCLUSIONS={
+  STAGING:new Set(["20260717130000_add_local_retailer_catalogue_child_executor","20260719100000_add_production_retailer_sync_enablement"]),
+  PRODUCTION:new Set(["20260717120000_create_retailer_catalogue_control_ledger","20260717130000_add_local_retailer_catalogue_child_executor","20260717140000_add_staging_retailer_catalogue_executor","20260718150000_add_verified_no_change_offer_refresh","20260718160000_add_retailer_offer_mixed_batch_executor","20260718170000_add_read_only_mixed_batch_validator","20260719090000_add_expired_retailer_offer_sync_approval_close"]),
+};
+function migrationBinding(environment){const excluded=ENVIRONMENT_MIGRATION_EXCLUSIONS[environment];invariant(excluded,`unsupported migration environment ${environment}`);const ids=fs.readdirSync(path.join(ROOT,"supabase","migrations")).filter(name=>/^\d+_[a-z0-9_]+\.sql$/.test(name)).sort().map(name=>name.slice(0,-4)).filter(id=>!excluded.has(id));return{versions:ids,fingerprint:migrationLedgerFingerprint(ids,environment)}}
 async function all(client,table,columns,filter){const out=[];for(let from=0;;from+=1000){let query=client.from(table).select(columns).range(from,from+999);if(filter)query=filter(query);const{data,error}=await query;if(error)throw error;out.push(...(data||[]));if(!data||data.length<1000)return out}}
 function money(value){return value==null?null:Number(value).toFixed(2)}
 function timestamp(value){return value instanceof Date?value.toISOString():value}
