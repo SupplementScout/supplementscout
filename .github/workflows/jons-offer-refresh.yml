@@ -1,0 +1,93 @@
+name: Jon's Offer Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 4 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jons-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  jons-offer-refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production-readonly
+
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          case "$GITHUB_EVENT_NAME" in
+            schedule|workflow_dispatch) ;;
+            *) exit 1 ;;
+          esac
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Jon's automation contracts
+        run: node --test scripts/jons-offer-refresh.test.js scripts/jons-sync-plan-registration.test.js scripts/retailer-offer-sync.test.js scripts/reviewed-jons-stock-only-override.test.js scripts/adapters/jons-supplements.test.js scripts/creatine-offer-refresh.test.js
+
+      - name: Dry-run all approved Jon's offers
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JONS_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          JONS_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          JONS_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/jons-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Apply all approved Jon's offer refresh
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JONS_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          JONS_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          JONS_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/jons-offer-refresh.js --target=production --mode=apply
+
+      - name: Verify idempotency with a fresh source capture
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JONS_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          JONS_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          JONS_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/jons-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Publish workflow summary
+        if: always()
+        run: |
+          echo "## Jon's approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/jons-offer-refresh/production-apply.json ]; then
+            node -e 'const r=require("./tmp/jons-offer-refresh/production-apply.json"); console.log(`- Apply: ${r.result}\n- Scope: ${r.scope.offers} offers\n- Actions: ${JSON.stringify(r.classification)}\n- Discovery-only variants: ${r.discovery.new_variants}\n- SAFE_UPDATE: ${r.safe_update}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Apply report unavailable; workflow failed closed before completion." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Jon's refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jons-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: error
+          path: tmp/jons-offer-refresh/*.json
