@@ -176,14 +176,6 @@ function parseProductFormat(value = "") {
     return "snack";
   }
 
-  if (/\bspreads?\b/.test(text)) {
-    return "spread";
-  }
-
-  if (/\bgumm(?:y|ies)\b/.test(text)) {
-    return "gummy";
-  }
-
   if (/\b(powder|whey|protein|isolate|casein|mass gainer|pre workout|creatine)\b/.test(text)) {
     return "powder";
   }
@@ -333,8 +325,6 @@ function parseClearProductFormatEvidence(value = "") {
   }
   if (/\b(bars?|protein bars?)\b/.test(text)) return "bar";
   if (/\bsnacks?\b/.test(text)) return "snack";
-  if (/\bspreads?\b/.test(text)) return "spread";
-  if (/\bgumm(?:y|ies)\b/.test(text)) return "gummy";
   if (/\bpowder\b/.test(text)) return "powder";
 
   return null;
