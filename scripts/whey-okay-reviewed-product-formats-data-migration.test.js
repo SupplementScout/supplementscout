@@ -105,14 +105,28 @@ function fixtureSql(overrides = new Map()) {
 
 function waitForPostgres(container) {
   for (let attempt = 0; attempt < 80; attempt += 1) {
+    const logs = run("docker", ["logs", container], 5_000);
     if (
-      dockerExec(
-        container,
-        ["pg_isready", "-U", "postgres", "-d", "postgres"],
-        5_000,
-      ).status === 0
+      /PostgreSQL init process complete; ready for start up\./i.test(
+        combined(logs),
+      )
     ) {
-      return;
+      const query = dockerExec(
+        container,
+        [
+          "psql",
+          "-X",
+          "--no-psqlrc",
+          "-U",
+          "postgres",
+          "-d",
+          "postgres",
+          "-tAc",
+          "select 1",
+        ],
+        5_000,
+      );
+      if (query.status === 0 && query.stdout.trim() === "1") return;
     }
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
