@@ -685,10 +685,8 @@ const REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES = new Map(
 );
 
 function applyReviewedCanonicalFeedCorrections(row) {
-  const {
-    __reviewed_whey_okay_format_identity: _untrustedReviewedIdentity,
-    ...sourceRow
-  } = row;
+  const sourceRow = { ...row };
+  delete sourceRow.__reviewed_whey_okay_format_identity;
   row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
