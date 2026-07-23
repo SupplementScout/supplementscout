@@ -176,6 +176,14 @@ function parseProductFormat(value = "") {
     return "snack";
   }
 
+  if (/\bspreads?\b/.test(text)) {
+    return "spread";
+  }
+
+  if (/\bgumm(?:y|ies)\b/.test(text)) {
+    return "gummy";
+  }
+
   if (/\b(powder|whey|protein|isolate|casein|mass gainer|pre workout|creatine)\b/.test(text)) {
     return "powder";
   }
@@ -325,6 +333,8 @@ function parseClearProductFormatEvidence(value = "") {
   }
   if (/\b(bars?|protein bars?)\b/.test(text)) return "bar";
   if (/\bsnacks?\b/.test(text)) return "snack";
+  if (/\bspreads?\b/.test(text)) return "spread";
+  if (/\bgumm(?:y|ies)\b/.test(text)) return "gummy";
   if (/\bpowder\b/.test(text)) return "powder";
 
   return null;
@@ -334,13 +344,16 @@ function assessVariantCompatibility(row, product) {
   const rowExplicitFormat = explicitProductFormat(row.product_format);
   const productStoredFormat = explicitProductFormat(product.product_format);
   const reviewedIdentity = row.__reviewed_whey_okay_format_identity;
+  const reviewedPackCount = reviewedIdentity
+    ? parsePackCount(row.pack_count ? `pack of ${row.pack_count}` : "")
+    : null;
+  const reviewedSize = reviewedIdentity ? parseSize(row.size || "") : null;
+  if (reviewedSize && reviewedPackCount > 1) reviewedSize.perUnit = true;
   const rowIdentity = reviewedIdentity
     ? {
         flavour: normalizeFlavour(row.flavour || ""),
-        size: parseSize(row.size || ""),
-        packCount: parsePackCount(
-          row.pack_count ? `pack of ${row.pack_count}` : ""
-        ),
+        size: reviewedSize,
+        packCount: reviewedPackCount,
         productFormat: rowExplicitFormat,
       }
     : parseVariantIdentity(row);

@@ -323,4 +323,27 @@ test("reviewed Whey Okay format identity uses exact structured evidence only aft
     }).reasons,
     ["format conflict"]
   );
+
+  const multipack = applyReviewedCanonicalFeedCorrections({
+    retailer_name: "Whey Okay",
+    external_product_id: "1005",
+    external_variant_id: "1009",
+    external_sku: "722252387486",
+    external_gtin: "722252387486",
+    product_name: "Clif Bar Energy Bar 12x68g",
+    brand: "Clif Bar",
+    flavour: "Chocolate Chip",
+    size: "68 g",
+    size_unit: "g",
+    pack_count: "12",
+    product_format: "snack",
+  });
+  assert.deepEqual(
+    assessVariantCompatibility(multipack, {
+      name: "Clif Bar Energy Bar 12x68g",
+      brand: "Clif Bar",
+      product_format: "snack",
+    }).reasons,
+    []
+  );
 });
