@@ -331,15 +331,26 @@ function parseClearProductFormatEvidence(value = "") {
 }
 
 function assessVariantCompatibility(row, product) {
-  const rowIdentity = parseVariantIdentity(row);
-  const productIdentity = {
-    ...parseVariantIdentity(product.name || ""),
-    productFormat:
-      explicitProductFormat(product.product_format) ||
-      parseVariantIdentity(product.name || "").productFormat,
-  };
   const rowExplicitFormat = explicitProductFormat(row.product_format);
   const productStoredFormat = explicitProductFormat(product.product_format);
+  const reviewedIdentity = row.__reviewed_whey_okay_format_identity;
+  const rowIdentity = reviewedIdentity
+    ? {
+        flavour: normalizeFlavour(row.flavour || ""),
+        size: parseSize(row.size || ""),
+        packCount: parsePackCount(
+          row.pack_count ? `pack of ${row.pack_count}` : ""
+        ),
+        productFormat: rowExplicitFormat,
+      }
+    : parseVariantIdentity(row);
+  const productIdentity = {
+    ...parseVariantIdentity(product.name || ""),
+    productFormat: reviewedIdentity
+      ? productStoredFormat
+      : productStoredFormat ||
+        parseVariantIdentity(product.name || "").productFormat,
+  };
   const rowTitleFormat = parseClearProductFormatEvidence(productFormatEvidenceText(row));
   const productTitleFormat = parseClearProductFormatEvidence(product.name || "");
   const rowFallbackFormat = rowIdentity.productFormat;
@@ -390,13 +401,16 @@ function assessVariantCompatibility(row, product) {
   if (rowFormatInvalid || productFormatInvalid) {
     reasons.push("format conflict");
   }
-  if (valuesConflict(rowExplicitFormat, rowTitleFormat)) {
+  if (!reviewedIdentity && valuesConflict(rowExplicitFormat, rowTitleFormat)) {
     reasons.push("format conflict");
   }
-  if (valuesConflict(productStoredFormat, productTitleFormat)) {
+  if (!reviewedIdentity && valuesConflict(productStoredFormat, productTitleFormat)) {
     reasons.push("format conflict");
   }
   if (valuesConflict(rowExplicitFormat, productStoredFormat)) {
+    reasons.push("format conflict");
+  }
+  if (reviewedIdentity && !productStoredFormat) {
     reasons.push("format conflict");
   }
 

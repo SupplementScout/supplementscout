@@ -647,7 +647,49 @@ const CANONICAL_RETAILER_FEED_FORBIDDEN_COLUMNS = [
 
 const REVIEWED_NOCCO_RTD_VARIANT_IDS = new Set(["1790", "1791", "1792", "1796"]);
 
+const REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES = new Map(
+  [
+    ["11", "12,13,14,15,17,4006,4007,4008,4009", "BioTech USA Iso Whey Zero 1816g", "1816", "g", "powder"],
+    ["18", "20,21,22,23,1146,4039,4040,4041,4042,4043", "USN Blue Lab 100% Whey Premium Protein 2kg", "2000", "g", "powder"],
+    ["33", "35,36,37,38,39,40,41,42", "BioTech USA Iso Whey Zero 908g", "908", "g", "powder"],
+    ["55", "59", "Optimum Nutrition Gold Standard Pre-Workout 330g", "330", "g", "powder"],
+    ["101", "103", "PEScience High Volume 252g", "252", "g", "powder"],
+    ["191", "193,194,195,1915,1916", "PEScience Amino IV 375g", "375", "g", "powder"],
+    ["211", "214,2624,2625,3991", "Ghost Legend V4 Pre-Workout 660g", "660", "g", "powder"],
+    ["289", "291,292", "BioTech USA Micellar Casein 908g", "908", "g", "powder"],
+    ["387", "390,391,393", "Optimum Nutrition Amino Energy 270g", "270", "g", "powder"],
+    ["638", "641", "Grenade Defend BCAA 390g", "390", "g", "powder"],
+    ["658", "660,661,662,663,665,3894", "5% Nutrition Rich Piana  All Day You May 465g", "465", "g", "powder"],
+    ["686", "3691", "Applied Nutrition Critical Mass Gainer 6kg", "6000", "g", "powder"],
+    ["855", "857,858", "Optimum Nutrition Protein Crisp Bar 10x65g", "65", "g", "snack"],
+    ["987", "1001,1002", "Lenny & Larry's Complete Vegan Cookie  113g", "113", "g", "snack"],
+    ["1005", "1009,1010,1011", "Clif Bar Energy Bar 12x68g", "68", "g", "snack"],
+    ["1113", "1118", "Applied Nutrition ISO-XP 1.8kg", "1800", "g", "powder"],
+    ["1774", "1776,1777,1778,1780,1782,1784,1785,2399,2400", "Grenade Carb Killa Protein Bar 60g", "60", "g", "snack"],
+    ["1896", "1898,1899", "Love Vegan High Energy Protein Bite 45g", "45", "g", "snack"],
+    ["1946", "1948,1949", "BioTech USA Black Blood CAF+ 300g", "300", "g", "powder"],
+    ["1952", "1954,1955,4005", "BioTech USA Black Blood NOX+ 330g", "330", "g", "powder"],
+    ["2160", "2162,2163,2164", "Grenade Carb Killa Protein Spread 360g", "360", "g", "spread"],
+    ["2418", "2422,2423,2424,2425,2426", "Applied Nutrition Clear Whey Protein 875g", "875", "g", "powder"],
+    ["3465", "3467,3468", "USN QHUSH Black Pre-workout 220g", "220", "g", "powder"],
+    ["3477", "3479", "Naughty Boy Winter Soldier Sick Pump 325g", "325", "g", "powder"],
+    ["3552", "3554,3555", "Reflex Nutrition Clear Whey Isolate 510g 17 Servings", "510", "g", "powder"],
+    ["3789", "3791,3792,3793,3794,3795,3796", "Mutant Madness Pre Workout 225g", "225", "g", "powder"],
+    ["3952", "3954", "Creatine Gummies 400g 80 Gummies  Applied Nutrition", "400", "g", "gummy"],
+  ].flatMap(([parentId, variantIds, productName, size, sizeUnit, productFormat]) =>
+    variantIds.split(",").map((variantId) => [
+      `${parentId}:${variantId}`,
+      { productName, size, sizeUnit, productFormat },
+    ])
+  )
+);
+
 function applyReviewedCanonicalFeedCorrections(row) {
+  const {
+    __reviewed_whey_okay_format_identity: _untrustedReviewedIdentity,
+    ...sourceRow
+  } = row;
+  row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
   const productName = String(row.product_name || "").trim();
@@ -655,6 +697,22 @@ function applyReviewedCanonicalFeedCorrections(row) {
   const size = String(row.size || "").trim();
   const sizeUnit = String(row.size_unit || "").trim().toLowerCase();
   const description = String(row.description || "");
+  const reviewedWheyIdentity = REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES.get(
+    `${externalProductId}:${externalVariantId}`
+  );
+  const normalizedInputSize = size.toLowerCase();
+  const isExactReviewedWheyFormatIdentity =
+    slugifyRetailerName(String(row.retailer_name || "")) === "whey-okay" &&
+    reviewedWheyIdentity &&
+    productName === reviewedWheyIdentity.productName &&
+    (normalizedInputSize === reviewedWheyIdentity.size ||
+      normalizedInputSize ===
+        `${reviewedWheyIdentity.size} ${reviewedWheyIdentity.sizeUnit}`) &&
+    sizeUnit === reviewedWheyIdentity.sizeUnit &&
+    String(row.product_format || "").trim().toLowerCase() ===
+      reviewedWheyIdentity.productFormat &&
+    optionalIdentifier(row.external_sku) &&
+    optionalIdentifier(row.external_gtin);
   const isExactReviewedNoccoRtd =
     slugifyRetailerName(String(row.retailer_name || "")) === "whey-okay" &&
     externalProductId === "1788" &&
@@ -665,6 +723,18 @@ function applyReviewedCanonicalFeedCorrections(row) {
     sizeUnit === "ml" &&
     /\bcarbonated water\b/i.test(description) &&
     /\bpre and post workout drink\b/i.test(description);
+
+  if (isExactReviewedWheyFormatIdentity) {
+    row = {
+      ...row,
+      __reviewed_whey_okay_format_identity: {
+        contract: "whey-okay-format-groups-2026-07-23",
+        product_format: reviewedWheyIdentity.productFormat,
+        size: reviewedWheyIdentity.size,
+        size_unit: reviewedWheyIdentity.sizeUnit,
+      },
+    };
+  }
 
   if (!isExactReviewedNoccoRtd) return row;
   const currentFormat = String(row.product_format || "").trim().toLowerCase();

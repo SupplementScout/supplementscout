@@ -10,6 +10,9 @@ const {
   sha256Canonical,
   validateSharedParentPeerCohort,
 } = require("./lib/retailer-shared-parent-identity");
+const {
+  assessVariantCompatibility,
+} = require("./lib/feed-variant-guards");
 
 function plannedPeer(overrides = {}) {
   return {
@@ -244,5 +247,80 @@ test("NOCCO RTD correction is limited to the four evidence-backed EKM variants",
       product_format: "liquid",
     }).product_format,
     "liquid"
+  );
+});
+
+test("reviewed Whey Okay format identities are closed to exact source keys and evidence", () => {
+  const base = {
+    retailer_name: "Whey Okay",
+    external_product_id: "855",
+    external_variant_id: "857",
+    external_sku: "SKU-857",
+    external_gtin: "GTIN-857",
+    product_name: "Optimum Nutrition Protein Crisp Bar 10x65g",
+    size: "65 g",
+    size_unit: "g",
+    product_format: "snack",
+  };
+  assert.equal(
+    applyReviewedCanonicalFeedCorrections(base)
+      .__reviewed_whey_okay_format_identity.contract,
+    "whey-okay-format-groups-2026-07-23"
+  );
+  for (const changed of [
+    { external_variant_id: "9999" },
+    { product_format: "bar" },
+    { size: "60 g" },
+    { product_name: "Different product" },
+    { retailer_name: "Different retailer" },
+  ]) {
+    assert.equal(
+      applyReviewedCanonicalFeedCorrections({ ...base, ...changed })
+        .__reviewed_whey_okay_format_identity,
+      undefined
+    );
+  }
+  assert.equal(
+    applyReviewedCanonicalFeedCorrections({
+      ...base,
+      external_variant_id: "9999",
+      __reviewed_whey_okay_format_identity: { contract: "untrusted" },
+    }).__reviewed_whey_okay_format_identity,
+    undefined
+  );
+});
+
+test("reviewed Whey Okay format identity uses exact structured evidence only after canonical format is set", () => {
+  const row = applyReviewedCanonicalFeedCorrections({
+    retailer_name: "Whey Okay",
+    external_product_id: "1952",
+    external_variant_id: "1954",
+    external_sku: "5999076253777",
+    external_gtin: "5999076253777",
+    product_name: "BioTech USA Black Blood NOX+ 330g",
+    brand: "BioTech USA",
+    flavour: "Blueberry-Lime",
+    size: "330 g",
+    size_unit: "g",
+    pack_count: "1",
+    product_format: "powder",
+    description:
+      "Serving size 9.5g. Mix two servings with water to make a ready-to-drink product.",
+  });
+  assert.deepEqual(
+    assessVariantCompatibility(row, {
+      name: "BioTech USA Black Blood NOX+ 330g",
+      brand: "BioTech USA",
+      product_format: "powder",
+    }).reasons,
+    []
+  );
+  assert.deepEqual(
+    assessVariantCompatibility(row, {
+      name: "BioTech USA Black Blood NOX+ 330g",
+      brand: "BioTech USA",
+      product_format: null,
+    }).reasons,
+    ["format conflict"]
   );
 });
