@@ -1394,7 +1394,21 @@ async function findProductForFeedRow(row) {
   return data;
 }
 
-async function findRetailerMapping(retailerId, row) {
+function retailerUrlAddressesVariant(url, externalVariantId) {
+  const identity = optionalIdentifier(externalVariantId);
+  if (!identity) return false;
+  try {
+    const parsed = new URL(required(url, "url", 0));
+    if ([...parsed.searchParams.values()].some((value) => value === identity)) {
+      return true;
+    }
+    return parsed.pathname.split(/[^A-Za-z0-9]+/).includes(identity);
+  } catch {
+    return false;
+  }
+}
+
+async function resolveRetailerMappingIdentity(retailerId, row) {
   const supabase = getSupabase();
   const externalVariantId = optionalIdentifier(row.external_variant_id);
   let query = supabase
@@ -1414,23 +1428,6 @@ async function findRetailerMapping(retailerId, row) {
     throw error;
   }
 
-  if (externalVariantId && (data || []).length === 0) {
-    const urlResult = await supabase
-      .from("retailer_products")
-      .select(
-        "id, retailer_id, product_id, product_variant_id, external_name, external_slug, external_gtin, external_url, external_product_id, external_variant_id, external_sku, external_options, match_method, match_confidence, updated_at"
-      )
-      .eq("retailer_id", retailerId)
-      .eq("external_url", required(getRetailerProductUrl(row), "url", 0))
-      .limit(2);
-
-    if (urlResult.error) {
-      throw urlResult.error;
-    }
-
-    data = urlResult.data;
-  }
-
   if ((data || []).length > 1) {
     throw new Error(
       externalVariantId
@@ -1439,18 +1436,239 @@ async function findRetailerMapping(retailerId, row) {
     );
   }
 
-  const mapping = data?.[0] || null;
+  const exactMapping = data?.[0] || null;
+  if (exactMapping) {
+    return {
+      mapping: exactMapping,
+      urlPeers: [],
+      sharedParentIdentityRequired: false,
+    };
+  }
 
+  if (externalVariantId) {
+    const urlResult = await supabase
+      .from("retailer_products")
+      .select(
+        "id, retailer_id, product_id, product_variant_id, external_name, external_slug, external_gtin, external_url, external_product_id, external_variant_id, external_sku, external_options, match_method, match_confidence, updated_at"
+      )
+      .eq("retailer_id", retailerId)
+      .eq("external_url", required(getRetailerProductUrl(row), "url", 0));
+
+    if (urlResult.error) {
+      throw urlResult.error;
+    }
+
+    const urlPeers = urlResult.data || [];
+    const variantAddressedUrl = retailerUrlAddressesVariant(
+      getRetailerProductUrl(row),
+      externalVariantId
+    );
+    if (variantAddressedUrl) {
+      if (urlPeers.length > 1) {
+        throw new Error("ambiguous retailer product external_url");
+      }
+      const urlMapping = urlPeers[0] || null;
+      if (
+        urlMapping?.external_variant_id &&
+        String(urlMapping.external_variant_id) !== externalVariantId
+      ) {
+        throw new Error(
+          "variant-addressed retailer URL belongs to a different external_variant_id"
+        );
+      }
+      return {
+        mapping: urlMapping,
+        urlPeers: [],
+        sharedParentIdentityRequired: false,
+      };
+    }
+    const externalProductId = optionalIdentifier(row.external_product_id);
+    const sharedParentIdentityRequired = Boolean(
+      externalProductId &&
+      externalProductId !== externalVariantId &&
+      optionalIdentifier(row.product_id) &&
+      optionalIdentifier(row.product_variant_id)
+    );
+    if (!sharedParentIdentityRequired) {
+      if (urlPeers.length > 1) {
+        throw new Error("ambiguous retailer product external_url");
+      }
+      const urlMapping = urlPeers[0] || null;
+      if (
+        urlMapping?.external_variant_id &&
+        String(urlMapping.external_variant_id) !== externalVariantId
+      ) {
+        throw new Error(
+          "retailer product URL belongs to a different external_variant_id"
+        );
+      }
+      return {
+        mapping: urlMapping,
+        urlPeers: [],
+        sharedParentIdentityRequired: false,
+      };
+    }
+    return {
+      mapping: null,
+      urlPeers,
+      sharedParentIdentityRequired,
+    };
+  }
+
+  return {
+    mapping: null,
+    urlPeers: [],
+    sharedParentIdentityRequired: false,
+  };
+}
+
+async function findRetailerIdentityPeers(retailerId, field, value) {
+  const identity = optionalIdentifier(value);
+  if (!identity) return [];
+  const { data, error } = await getSupabase()
+    .from("retailer_products")
+    .select(
+      "id, retailer_id, product_id, product_variant_id, external_product_id, external_variant_id, external_sku, external_gtin, external_options, external_url"
+    )
+    .eq("retailer_id", retailerId)
+    .eq(field, identity)
+    .limit(3);
+  if (error) throw error;
+  return data || [];
+}
+
+function exactSourceOptions(row) {
+  const options = parseExternalOptions(row.external_options);
+  return options && Object.keys(options).length > 0 ? options : null;
+}
+
+async function validateNewRetailerMappingIdentity({
+  row,
+  retailer,
+  product,
+  productVariant,
+  urlPeers = [],
+}) {
+  const externalProductId = optionalIdentifier(row.external_product_id);
+  const externalVariantId = optionalIdentifier(row.external_variant_id);
+  if (!externalProductId || !externalVariantId) {
+    throw new Error(
+      "new retailer mapping requires exact external_product_id and external_variant_id"
+    );
+  }
   if (
-    mapping?.external_variant_id &&
-    mapping.external_variant_id !== externalVariantId
+    (
+      urlPeers.length > 0 ||
+      (
+        optionalIdentifier(row.external_product_id) !==
+        optionalIdentifier(row.external_variant_id) &&
+        !retailerUrlAddressesVariant(
+          getRetailerProductUrl(row),
+          row.external_variant_id
+        )
+      )
+    ) &&
+    (
+      optionalIdentifier(row.product_id) !== String(product.id) ||
+      optionalIdentifier(row.product_variant_id) !== String(productVariant.id)
+    )
   ) {
     throw new Error(
-      "retailer product URL belongs to a different external_variant_id"
+      "shared parent URL requires explicit exact canonical product and variant IDs"
+    );
+  }
+  if (
+    product.is_active === false ||
+    product.merged_into_product_id != null ||
+    productVariant.is_active === false ||
+    String(productVariant.product_id) !== String(product.id)
+  ) {
+    throw new Error(
+      "new retailer mapping requires an active unmerged canonical product and active variant"
     );
   }
 
-  return mapping;
+  for (const peer of urlPeers) {
+    if (String(peer.retailer_id) !== String(retailer.id)) {
+      throw new Error("shared parent URL retailer identity conflict");
+    }
+    if (
+      peer.external_product_id &&
+      String(peer.external_product_id) !== externalProductId
+    ) {
+      throw new Error("shared parent URL external product ID drift");
+    }
+    if (
+      peer.external_variant_id &&
+      String(peer.external_variant_id) === externalVariantId
+    ) {
+      throw new Error("shared parent URL duplicate external variant ID");
+    }
+    if (String(peer.product_id) !== String(product.id)) {
+      throw new Error("shared parent URL canonical product conflict");
+    }
+  }
+
+  const [skuPeers, gtinPeers, canonicalPeers, parentPeers] = await Promise.all([
+    findRetailerIdentityPeers(retailer.id, "external_sku", row.external_sku),
+    findRetailerIdentityPeers(retailer.id, "external_gtin", getExternalGtin(row)),
+    findRetailerIdentityPeers(
+      retailer.id,
+      "product_variant_id",
+      productVariant.id
+    ),
+    findRetailerIdentityPeers(
+      retailer.id,
+      "external_product_id",
+      externalProductId
+    ),
+  ]);
+  if (skuPeers.length > 0) {
+    throw new Error("new retailer mapping external SKU collision");
+  }
+  if (gtinPeers.length > 0) {
+    throw new Error("new retailer mapping external GTIN collision");
+  }
+  if (canonicalPeers.length > 0) {
+    throw new Error(
+      "new retailer mapping canonical variant collision or external variant ID drift"
+    );
+  }
+  if (
+    parentPeers.some((peer) => String(peer.product_id) !== String(product.id))
+  ) {
+    throw new Error("external parent ID canonical product drift");
+  }
+  const incomingOptions = exactSourceOptions(row);
+  if (
+    incomingOptions &&
+    parentPeers.some((peer) =>
+      peer.external_variant_id &&
+      String(peer.external_variant_id) !== externalVariantId &&
+      valuesEqual(peer.external_options, incomingOptions)
+    )
+  ) {
+    throw new Error("new retailer mapping exact option tuple collision");
+  }
+}
+
+function validateExistingRetailerMappingIdentity(row, mapping) {
+  const externalProductId = optionalIdentifier(row.external_product_id);
+  const externalVariantId = optionalIdentifier(row.external_variant_id);
+  if (
+    mapping.external_product_id &&
+    externalProductId &&
+    String(mapping.external_product_id) !== externalProductId
+  ) {
+    throw new Error("retailer mapping external product ID drift");
+  }
+  if (
+    mapping.external_variant_id &&
+    externalVariantId &&
+    String(mapping.external_variant_id) !== externalVariantId
+  ) {
+    throw new Error("retailer mapping external variant ID drift");
+  }
 }
 
 async function findRetailerMappingById(mappingId) {
@@ -2815,15 +3033,32 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   let plannedProduct = null;
   let existingOffer = null;
   let productVariant = null;
+  let mappingResolution = {
+    mapping: null,
+    urlPeers: [],
+    sharedParentIdentityRequired: false,
+  };
   let legacyMappingUpgrade = null;
   let variantResolutionError = null;
   let reviewedParentVariantCreate = false;
 
   if (retailer) {
     try {
-      mapping = legacyControls
-        ? await findRetailerMappingById(legacyControls.mappingId)
-        : await findRetailerMapping(retailer.id, shippingNormalizedRow);
+      if (legacyControls) {
+        mapping = await findRetailerMappingById(legacyControls.mappingId);
+      } else {
+        mappingResolution = await resolveRetailerMappingIdentity(
+          retailer.id,
+          shippingNormalizedRow
+        );
+        mapping = mappingResolution.mapping;
+        if (mapping) {
+          validateExistingRetailerMappingIdentity(
+            shippingNormalizedRow,
+            mapping
+          );
+        }
+      }
       if (legacyControls && mapping.retailer_id !== retailer.id) {
         throw new Error("legacy mapping upgrade retailer_id mismatch");
       }
@@ -2868,6 +3103,29 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
       );
     } catch (error) {
       variantResolutionError = error?.message || String(error);
+    }
+  }
+
+  if (
+    validationErrors.length === 0 &&
+    !variantResolutionError &&
+    retailer?.id &&
+    product?.id &&
+    productVariant?.id &&
+    !mapping &&
+    !legacyControls &&
+    mappingResolution.sharedParentIdentityRequired
+  ) {
+    try {
+      await validateNewRetailerMappingIdentity({
+        row: shippingNormalizedRow,
+        retailer,
+        product,
+        productVariant,
+        urlPeers: mappingResolution.urlPeers,
+      });
+    } catch (error) {
+      validationErrors.push(error?.message || String(error));
     }
   }
 
@@ -2977,9 +3235,89 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     shippingInferredFromPolicy,
     mode: "feed",
     legacyMappingUpgrade,
+    sharedParentUrlPeers: mappingResolution.urlPeers,
+    sharedParentIdentityRequired:
+      mappingResolution.sharedParentIdentityRequired,
   };
 
   return resolved;
+}
+
+function addBatchIdentityCollisionErrors(resolvedRows) {
+  const groups = new Map();
+  const sharedUrlGroups = new Map();
+  const add = (kind, key, item) => {
+    if (!key) return;
+    const groupKey = `${kind}:${key}`;
+    if (!groups.has(groupKey)) groups.set(groupKey, { kind, items: [] });
+    groups.get(groupKey).items.push(item);
+  };
+
+  for (const item of resolvedRows) {
+    const retailerId = item.retailer?.id;
+    const externalVariantId = optionalIdentifier(item.row.external_variant_id);
+    if (
+      !retailerId ||
+      !externalVariantId ||
+      item.mapping ||
+      !item.sharedParentIdentityRequired
+    ) continue;
+    const sku = optionalIdentifier(item.row.external_sku);
+    const gtin = getExternalGtin(item.row);
+    const externalProductId = optionalIdentifier(item.row.external_product_id);
+    const sharedUrlKey = `${retailerId}|${required(
+      getRetailerProductUrl(item.row),
+      "url",
+      item.rowNumber
+    )}`;
+    if (!sharedUrlGroups.has(sharedUrlKey)) sharedUrlGroups.set(sharedUrlKey, []);
+    sharedUrlGroups.get(sharedUrlKey).push(item);
+    let options = null;
+    try {
+      options = exactSourceOptions(item.row);
+    } catch {
+      continue;
+    }
+    const canonicalVariantId = item.productVariant?.id;
+    add("external SKU", sku ? `${retailerId}|${sku}` : null, item);
+    add("external GTIN", gtin ? `${retailerId}|${gtin}` : null, item);
+    add(
+      "exact option tuple",
+      externalProductId && options
+        ? `${retailerId}|${externalProductId}|${canonicalJson(options)}`
+        : null,
+      item
+    );
+    add(
+      "canonical variant",
+      canonicalVariantId ? `${retailerId}|${canonicalVariantId}` : null,
+      item
+    );
+  }
+
+  for (const items of sharedUrlGroups.values()) {
+    const externalProductIds = new Set(
+      items.map((item) => optionalIdentifier(item.row.external_product_id))
+    );
+    if (items.length < 2 || externalProductIds.size < 2) continue;
+    for (const item of items) {
+      item.validationErrors.push(
+        "batch shared parent URL external product ID drift"
+      );
+    }
+  }
+
+  for (const { kind, items } of groups.values()) {
+    const externalVariantIds = new Set(
+      items.map((item) => optionalIdentifier(item.row.external_variant_id))
+    );
+    if (items.length < 2 || externalVariantIds.size < 2) continue;
+    for (const item of items) {
+      item.validationErrors.push(
+        `batch source identity ${kind} collision across distinct external variant IDs`
+      );
+    }
+  }
 }
 
 async function preflightFeedRows(rows, options = {}) {
@@ -2992,6 +3330,7 @@ async function preflightFeedRows(rows, options = {}) {
     }));
   }
 
+  addBatchIdentityCollisionErrors(resolvedRows);
   return analyzeFeedRows(resolvedRows, {
     ...options,
     planBuilder: buildAtomicImportPlan,
@@ -3017,9 +3356,16 @@ async function resolveManualImportPlan(row, rowNumber) {
   );
   let mapping = null;
   let product = null;
+  let mappingResolution = {
+    mapping: null,
+    urlPeers: [],
+    sharedParentIdentityRequired: false,
+  };
 
   if (retailer) {
-    mapping = await findRetailerMapping(retailer.id, row);
+    mappingResolution = await resolveRetailerMappingIdentity(retailer.id, row);
+    mapping = mappingResolution.mapping;
+    if (mapping) validateExistingRetailerMappingIdentity(row, mapping);
     if (mapping) product = await findProductById(mapping.product_id);
   }
   if (!product) product = await findProductForFeedRow(row);
@@ -3030,6 +3376,19 @@ async function resolveManualImportPlan(row, rowNumber) {
     );
   }
   const productVariant = await resolveCanonicalProductVariant(row, product.id, mapping);
+  if (
+    !mapping &&
+    retailer &&
+    mappingResolution.sharedParentIdentityRequired
+  ) {
+    await validateNewRetailerMappingIdentity({
+      row,
+      retailer,
+      product,
+      productVariant,
+      urlPeers: mappingResolution.urlPeers,
+    });
+  }
 
   const existingOffer = product && retailer
     ? await findExistingOfferForPreflight(mapping?.id)

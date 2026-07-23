@@ -4632,6 +4632,77 @@ function stage2Seed({ withMappings = false, withOffers = false } = {}) {
   };
 }
 
+function ekmSharedParentFixture({ mappedVariants = 1 } = {}) {
+  const fixture = discountStage2Fixture();
+  const retailer = {
+    id: 3,
+    name: "Whey Okay",
+    slug: "whey-okay",
+    website: "https://wheyokay.com",
+  };
+  const parentUrl = "https://wheyokay.com/exact-shared-parent-9000-p.asp";
+  const rows = fixture.rows.map((row, index) => ({
+    ...row,
+    retailer_name: retailer.name,
+    retailer_website: retailer.website,
+    product_id: fixture.product.id,
+    product_variant_id: fixture.productVariants[index].id,
+    external_product_id: "9000",
+    external_variant_id: String(9001 + index),
+    external_sku: `EKM-SKU-${index + 1}`,
+    external_gtin: `0500000000000${index + 1}`,
+    external_url: parentUrl,
+    affiliate_url: parentUrl,
+  }));
+  const retailerProducts = rows.slice(0, mappedVariants).map((row, index) => ({
+    id: `ekm-mapping-${index + 1}`,
+    retailer_id: retailer.id,
+    product_id: fixture.product.id,
+    product_variant_id: fixture.productVariants[index].id,
+    external_product_id: row.external_product_id,
+    external_variant_id: row.external_variant_id,
+    external_sku: row.external_sku,
+    external_gtin: row.external_gtin,
+    external_options: JSON.parse(row.external_options),
+    external_name: row.product_name,
+    external_slug: row.slug,
+    external_url: parentUrl,
+    match_method: "slug",
+    match_confidence: 90,
+    updated_at: "2026-07-23T12:00:00.000Z",
+  }));
+  const offers = retailerProducts.map((mapping, index) => ({
+    id: `ekm-offer-${index + 1}`,
+    retailer_id: retailer.id,
+    product_id: fixture.product.id,
+    product_variant_id: fixture.productVariants[index].id,
+    retailer_product_id: mapping.id,
+    price: Number(rows[index].price),
+    shipping_cost: Number(rows[index].shipping_cost),
+    total_price: priceHistoryTotal(
+      rows[index].price,
+      rows[index].shipping_cost
+    ),
+    in_stock: true,
+    url: parentUrl,
+    last_checked_at: "2026-07-23T12:00:00.000Z",
+  }));
+  return {
+    fixture,
+    parentUrl,
+    retailer,
+    rows,
+    seed: {
+      retailers: [retailer],
+      products: [{ ...fixture.product }],
+      product_variants: fixture.productVariants.map((variant) => ({ ...variant })),
+      retailer_products: retailerProducts,
+      offers,
+      price_history: [],
+    },
+  };
+}
+
 const BATCH_A_PRODUCTS = {
   17: {
     name: "Optimum Nutrition Gold Standard Pre-Workout 330g",
@@ -5285,6 +5356,231 @@ test("legacy mapping upgrade rerun is an exact idempotent noop", async () => {
   assert.equal(result.report.approvedRows[0].importPlan.offer.action, "noop");
   assert.equal(result.report.approvedRows[0].importPlan.price_history.action, "noop");
   assert.equal(supabase.writes.length, 0);
+});
+
+test("EKM shared-parent URL creates an exact sibling only from distinct complete source identity", async () => {
+  const { rows, seed } = ekmSharedParentFixture();
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRowsRaw([rows[1]], {
+    mode: "feed",
+    dryRun: true,
+  });
+
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product.id, String(seed.products[0].id));
+  assert.equal(plan.product_variant.id, String(seed.product_variants[1].id));
+  assert.equal(plan.retailer_product.action, "create");
+  assert.equal(plan.retailer_product.values.external_product_id, "9000");
+  assert.equal(plan.retailer_product.values.external_variant_id, "9002");
+  assert.equal(plan.offer.action, "create");
+  assert.equal(plan.price_history.action, "create");
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("EKM shared-parent identity collisions remain fail-closed", async () => {
+  const scenarios = [
+    ["duplicate variant ID", ({ rows }) => {
+      rows[1].external_variant_id = rows[0].external_variant_id;
+    }, /missing canonical product_variant|conflicting variant evidence/i],
+    ["SKU collision", ({ rows }) => {
+      rows[1].external_sku = rows[0].external_sku;
+    }, /external SKU collision/i],
+    ["GTIN collision", ({ rows }) => {
+      rows[1].external_gtin = rows[0].external_gtin;
+    }, /external GTIN collision/i],
+    ["option tuple collision", ({ rows, seed }) => {
+      seed.retailer_products[0].external_options =
+        JSON.parse(rows[1].external_options);
+    }, /option tuple collision/i],
+    ["parent ID drift", ({ seed }) => {
+      seed.retailer_products[0].external_product_id = "different-parent";
+    }, /external product ID drift/i],
+    ["variant ID drift", ({ seed }) => {
+      seed.retailer_products[0].product_variant_id =
+        seed.product_variants[1].id;
+    }, /canonical variant collision|variant ID drift/i],
+    ["inactive canonical variant", ({ seed }) => {
+      seed.product_variants[1].is_active = false;
+    }, /missing canonical product_variant/i],
+    ["merged canonical product", ({ seed }) => {
+      seed.products[0].merged_into_product_id = "merged-product";
+    }, /inactive or merged/i],
+  ];
+
+  {
+    const fixture = ekmSharedParentFixture();
+    fixture.rows[1].external_variant_id = "";
+    const supabase = createMockSupabase(fixture.seed);
+    setSupabaseForTests(supabase);
+    await assert.rejects(
+      runImportRowsRaw([fixture.rows[1]], { mode: "feed", dryRun: true }),
+      /missing external_variant_id/i
+    );
+    assert.equal(supabase.writes.length, 0);
+  }
+
+  for (const [label, mutate, reason] of scenarios) {
+    const fixture = ekmSharedParentFixture();
+    mutate(fixture);
+    const supabase = createMockSupabase(fixture.seed);
+    setSupabaseForTests(supabase);
+    const result = await runImportRowsRaw([fixture.rows[1]], {
+      mode: "feed",
+      dryRun: true,
+    });
+    assert.equal(result.report.approvedRows.length, 0, label);
+    assert.equal(result.report.blockedRows.length, 1, label);
+    assert.match(
+      result.report.blockedRows[0].reason ||
+        result.report.blockedRows[0].reasons?.join(" ") ||
+        "",
+      reason,
+      label
+    );
+    assert.equal(supabase.writes.length, 0, label);
+  }
+});
+
+test("EKM shared-parent batch blocks duplicate SKU, GTIN, option and canonical identities", async () => {
+  const mutations = [
+    ["SKU", (rows) => { rows[1].external_sku = rows[0].external_sku; }],
+    ["GTIN", (rows) => { rows[1].external_gtin = rows[0].external_gtin; }],
+    ["option tuple", (rows) => { rows[1].external_options = rows[0].external_options; }],
+    ["parent drift", (rows) => { rows[1].external_product_id = "other-parent"; }],
+    ["canonical variant", (rows) => {
+      rows[1].product_variant_id = rows[0].product_variant_id;
+      rows[1].variant_name = rows[0].variant_name;
+      rows[1].size = rows[0].size;
+      rows[1].flavour = rows[0].flavour;
+      rows[1].external_options = rows[0].external_options;
+    }],
+  ];
+  for (const [label, mutate] of mutations) {
+    const fixture = ekmSharedParentFixture({ mappedVariants: 0 });
+    mutate(fixture.rows);
+    fixture.seed.retailer_products.push({
+      id: "legacy-parent-peer",
+      retailer_id: fixture.retailer.id,
+      product_id: fixture.fixture.product.id,
+      product_variant_id: "legacy-default",
+      external_product_id: null,
+      external_variant_id: null,
+      external_sku: null,
+      external_gtin: null,
+      external_options: null,
+      external_url: fixture.parentUrl,
+    });
+    const supabase = createMockSupabase(fixture.seed);
+    setSupabaseForTests(supabase);
+    const result = await runImportRowsRaw(fixture.rows, {
+      mode: "feed",
+      dryRun: true,
+    });
+    assert.equal(result.report.approvedRows.length, 0, label);
+    assert.equal(result.report.blockedRows.length, 2, label);
+    assert.equal(
+      result.report.blockedRows.some((row) =>
+        (row.reasons || [row.reason]).some((reason) =>
+          /batch (?:source identity .* collision|shared parent URL external product ID drift)/i
+            .test(reason)
+        )
+      ),
+      true,
+      label
+    );
+  }
+});
+
+test("EKM shared-parent evidence preserves exact flavour and size separation", async () => {
+  const { rows, seed } = ekmSharedParentFixture();
+  const supabase = createMockSupabase(seed);
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([rows[1]], {
+    mode: "feed",
+    dryRun: true,
+  });
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product_variant.id, String(seed.product_variants[1].id));
+  assert.equal(plan.product_variant.evidence.flavour, "vanilla");
+  assert.equal(plan.product_variant.evidence.size_value, "1000");
+  assert.equal(plan.product_variant.evidence.size_unit, "g");
+});
+
+test("EKM shared-parent pack and format evidence selects only the exact variant", async () => {
+  const fixture = ekmSharedParentFixture();
+  const baseVariant = fixture.seed.product_variants[1];
+  const exactVariant = {
+    ...baseVariant,
+    id: "pv-vanilla-1kg-2-pack-capsule",
+    variant_key: "vanilla-1kg-2-pack-capsule",
+    display_name: "Vanilla / 1kg / 2 pack / Capsule",
+    pack_count: 2,
+    product_format: "capsule",
+  };
+  fixture.seed.products[0].product_format = null;
+  fixture.seed.product_variants[1] = exactVariant;
+  fixture.rows[1] = {
+    ...fixture.rows[1],
+    product_variant_id: exactVariant.id,
+    external_options: JSON.stringify({
+      Size: "1kg",
+      Flavour: "Vanilla",
+      Pack: "2",
+      Format: "Capsule",
+    }),
+    variant_name: exactVariant.display_name,
+    pack_count: "2",
+    product_format: "capsule",
+  };
+  const supabase = createMockSupabase(fixture.seed);
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.rows[1]], {
+    mode: "feed",
+    dryRun: true,
+  });
+  assert.equal(result.report.approvedRows.length, 1);
+  const evidence = result.report.approvedRows[0].importPlan.product_variant.evidence;
+  assert.equal(evidence.pack_count, "2");
+  assert.equal(evidence.product_format, "capsule");
+  assert.equal(
+    result.report.approvedRows[0].importPlan.product_variant.id,
+    exactVariant.id
+  );
+});
+
+test("EKM shared-parent rerun is idempotent and variant-addressed Shopify semantics stay unchanged", async () => {
+  const ekm = ekmSharedParentFixture({ mappedVariants: 2 });
+  let supabase = createMockSupabase(ekm.seed);
+  setSupabaseForTests(supabase);
+  const rerun = await runImportRowsRaw(ekm.rows, {
+    mode: "feed",
+    dryRun: true,
+  });
+  assert.equal(rerun.report.approvedRows.length, 2);
+  assert.equal(rerun.report.retailerProductsUnchanged.length, 2);
+  assert.equal(rerun.report.offersUnchanged.length, 2);
+  assert.equal(rerun.report.priceHistoryRowsToCreate.length, 0);
+  assert.equal(supabase.writes.length, 0);
+
+  const shopify = stage2Seed({ withMappings: true, withOffers: true });
+  shopify.seed.retailer_products[0].external_product_id = null;
+  shopify.seed.retailer_products[0].external_variant_id = null;
+  supabase = createMockSupabase(shopify.seed);
+  setSupabaseForTests(supabase);
+  const unchanged = await runImportRowsRaw([shopify.fixture.rows[0]], {
+    mode: "feed",
+    dryRun: true,
+  });
+  assert.equal(unchanged.report.approvedRows.length, 1);
+  assert.equal(
+    unchanged.report.approvedRows[0].importPlan.retailer_product.action,
+    "update"
+  );
+  assert.equal(unchanged.report.approvedRows[0].mapping.id, "rp-1");
 });
 
 test("Stage 2 retailer product payload preserves Shopify variant identity and retailer-only GTIN", () => {
