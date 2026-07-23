@@ -2,6 +2,19 @@
   "schema_version": 1,
   "retailer_slug": "jon-s-supplements",
   "store_url": "https://jonssupplements.co.uk",
+  "source_baseline": {
+    "product_count": 224,
+    "variant_count": 844,
+    "minimum_count_ratio": 0.9,
+    "genuine_collapse_ratio": 0.75
+  },
+  "source_fetch": {
+    "maximum_attempts": 3,
+    "retry_base_delay_ms": 250,
+    "timeout_ms": 20000,
+    "maximum_pages": 20,
+    "user_agent": "SupplementScout-Jons-Refresh/1.0"
+  },
   "expected_offer_count": 26,
   "target_inventory_fingerprint": "c27db401555db7747c97e68eab1c9cb114bb85d8132aa7f42f78b92703598372",
   "guardrails": {

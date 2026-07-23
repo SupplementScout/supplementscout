@@ -32,10 +32,18 @@ test("only validator roles receive execute and direct tables remain ungranted",(
 
 test("workflow is protected, scheduled, dispatchable and uses role-separated credentials",()=>{
   assert.match(workflow,/workflow_dispatch:/);
+  assert.match(workflow,/operation:\s*\n[\s\S]*default: dry-run/);
+  assert.match(workflow,/validation_context:/);
   assert.match(workflow,/cron: "47 4 \* \* \*"/);
   assert.match(workflow,/environment: production-readonly/);
   for(const secret of ["JONS_SYNC_VALIDATOR_DATABASE_URL","JONS_SYNC_APPROVER_DATABASE_URL","JONS_SYNC_EXECUTOR_DATABASE_URL"])assert.match(workflow,new RegExp(`secrets\\.${secret}`));
   assert.match(workflow,/--target=production --mode=dry-run/);
   assert.match(workflow,/--target=production --mode=apply/);
+  assert.match(workflow,/github\.event_name == 'schedule' \|\| inputs\.operation == 'apply'/);
+  assert.match(workflow,/JONS_REFRESH_PHASE: preflight/);
+  assert.match(workflow,/JONS_REFRESH_TRIGGER_TYPE:/);
+  assert.match(workflow,/if-no-files-found: warn/);
+  assert.match(workflow,/name: Upload Jon's refresh evidence\s*\n\s*if: always\(\)/);
+  assert.match(workflow,/mkdir -p tmp\/jons-offer-refresh/);
   assert.doesNotMatch(workflow,/^\s*SAFE_UPDATE\s*:/m);
 });

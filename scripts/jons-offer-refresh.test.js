@@ -1,7 +1,10 @@
 const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const os=require("node:os");
+const path=require("node:path");
 const test=require("node:test");
 const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing-offer-plan");
-const {canonicalHash,executionRow,guardrailsFor,migrationBinding,parseArgs,sumDeltas,verificationRecord}=require("./jons-offer-refresh");
+const {RefreshError,canonicalHash,executionRow,guardrailsFor,migrationBinding,parseArgs,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord}=require("./jons-offer-refresh");
 
 const rowDelta=(stock=0)=>({row_count_deltas:{products:0,product_variants:0,retailer_products:0,offers:0,price_history:0},logical_field_deltas:{offer_price_updates:0,offer_shipping_updates:0,offer_total_updates:0,offer_stock_updates:stock,offer_url_updates:0,mapping_url_updates:0,mapping_updated_at_updates:0,last_checked_at_updates:1}});
 const state={product:{id:1,name:"Test",is_active:true,merged_into_product_id:null,product_format:"powder"},variant:{id:2,product_id:1,variant_key:"default",display_name:"Default",flavour_code:null,flavour_label:null,size_value:"300",size_unit:"g",pack_count:null,product_format:"powder",is_active:true,is_default:true},retailer:{id:10,name:"Jon's Supplements",slug:"jon-s-supplements",website:"https://jonssupplements.co.uk"},mapping:{id:3,retailer_id:10,product_id:1,product_variant_id:2,external_product_id:"100",external_variant_id:"200",external_sku:"SKU",external_options:null,external_name:"Test",external_slug:"test",external_gtin:null,external_url:"https://jonssupplements.co.uk/products/test?variant=200",match_method:"EXACT",match_confidence:"1",updated_at:"2026-07-22T10:00:00Z"},offer:{id:4,product_id:1,retailer_id:10,product_variant_id:2,retailer_product_id:3,price:"10.00",shipping_cost:"3.99",total_price:"13.99",in_stock:true,url:"https://jonssupplements.co.uk/products/test?variant=200",last_checked_at:"2026-07-22T10:00:00Z"}};
@@ -17,3 +20,30 @@ test("verification records serialize PostgreSQL timestamp values",()=>{const rec
 test("control hashes use the JSON value sent to PostgreSQL",()=>{assert.equal(canonicalHash({timestamp:new Date("2026-07-22T10:00:00Z"),omitted:undefined}),canonicalHash({timestamp:"2026-07-22T10:00:00.000Z"}))});
 test("migration bindings exclude only environment-specific ledgers",()=>{const staging=migrationBinding("STAGING").versions,production=migrationBinding("PRODUCTION").versions;assert.equal(staging.includes("20260717140000_add_staging_retailer_catalogue_executor"),true);assert.equal(staging.includes("20260719100000_add_production_retailer_sync_enablement"),false);assert.equal(production.includes("20260717140000_add_staging_retailer_catalogue_executor"),false);assert.equal(production.includes("20260719100000_add_production_retailer_sync_enablement"),true);assert.equal(staging.at(-1),"20260722140000_renew_and_resume_sequential_sync_plans");assert.equal(production.at(-1),"20260722140000_renew_and_resume_sequential_sync_plans")});
 test("execution rows use the validator closed schema",()=>{const input={offer_id:"1",retailer_product_id:"2",external_product_id:"3",external_variant_id:"4",action:"VERIFY_NO_CHANGE",changed_fields:{},source_captured_at:"now",expected_deltas:{},atomic_plan:{},source:{diagnostic:true},target:{diagnostic:true},policy_fingerprint:"a"};assert.deepEqual(Object.keys(executionRow(input)).sort(),["offer_id","retailer_product_id","external_product_id","external_variant_id","action","changed_fields","source_captured_at","expected_deltas","atomic_plan"].sort())});
+
+function sourceCounts(productCount,variantCount,{complete=true}={}){
+  const products=Array.from({length:productCount},(_,index)=>({id:index+1,variants:[]}));
+  for(let index=0;index<variantCount;index++)products[index%Math.max(1,productCount)]?.variants.push({id:index+1});
+  return{snapshot:{products,source_diagnostic:{pagination_completed:complete}},variants:Array.from({length:variantCount},(_,index)=>({external_variant_id:String(index+1)}) )};
+}
+test("source health accepts baseline and catalogue growth without weakening the 90 percent guard",()=>{
+  for(const [products,variants] of [[224,844],[225,847]]){const value=sourceCounts(products,variants);const result=sourceHealth(value.snapshot,value.variants);assert.equal(result.result,"PASS");assert.ok(result.observed_ratio>=1)}
+});
+test("source health distinguishes incomplete, degraded and genuine collapse",()=>{
+  let value=sourceCounts(0,0);assert.equal(sourceHealth(value.snapshot,value.variants).code,"SOURCE_INCOMPLETE");
+  value=sourceCounts(210,740);assert.equal(sourceHealth(value.snapshot,value.variants).code,"SOURCE_DEGRADED");
+  value=sourceCounts(100,400);assert.equal(sourceHealth(value.snapshot,value.variants).code,"GENUINE_SOURCE_COLLAPSE");
+  value=sourceCounts(224,844,{complete:false});assert.equal(sourceHealth(value.snapshot,value.variants).code,"SOURCE_INCOMPLETE");
+});
+test("diagnostic artifact is written on success",async()=>{
+  const outDir=fs.mkdtempSync(path.join(os.tmpdir(),"jons-refresh-success-"));
+  const completed=await runWithDiagnostic(["--target=production","--mode=dry-run"],{outDir,operation:async(_args,diagnostic)=>{diagnostic.approved_mapping_count=506;diagnostic.mappings_matched=506;diagnostic.validator_result="PASS";return{result:"PASS"}}});
+  const artifact=JSON.parse(fs.readFileSync(completed.diagnostic_path,"utf8"));
+  assert.equal(artifact.result,"PASS");assert.equal(artifact.approved_mapping_count,506);assert.equal(artifact.mappings_matched,506);assert.equal(artifact.database_writes_completed,0);
+});
+test("diagnostic artifact is written before a guard failure and records zero writes",async()=>{
+  const outDir=fs.mkdtempSync(path.join(os.tmpdir(),"jons-refresh-failure-"));
+  await assert.rejects(runWithDiagnostic(["--target=production","--mode=dry-run"],{outDir,operation:async()=>{throw new RefreshError("SOURCE_INCOMPLETE","pagination incomplete","SOURCE_GUARD")}}),/pagination incomplete/);
+  const artifact=JSON.parse(fs.readFileSync(path.join(outDir,"production-dry-run-diagnostic.json"),"utf8"));
+  assert.equal(artifact.result,"FAIL");assert.equal(artifact.failure_stage,"SOURCE_GUARD");assert.equal(artifact.error_code,"SOURCE_INCOMPLETE");assert.equal(artifact.database_writes_attempted,0);assert.equal(artifact.database_writes_completed,0);assert.equal(artifact.approvals_created,0);assert.equal(artifact.recovery_calls,0);
+});

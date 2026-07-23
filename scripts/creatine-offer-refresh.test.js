@@ -184,7 +184,14 @@ function creatinePlanState() {
 }
 
 function responseForSnapshot(snapshot) {
-  return { ok: true, headers: { get: () => "0" }, json: async () => ({ products: snapshot.products }) };
+  const body = JSON.stringify({ products: snapshot.products });
+  return {
+    ok: true,
+    status: 200,
+    redirected: false,
+    headers: { get: (name) => name.toLowerCase() === "content-type" ? "application/json; charset=utf-8" : name.toLowerCase() === "content-length" ? String(Buffer.byteLength(body)) : null },
+    text: async () => body,
+  };
 }
 
 function planRows() {
@@ -541,13 +548,13 @@ test("HTML challenge and missing target variant remain blocked without stock coe
       client: clientFromState(stateFromRows([...retailerRows("Fit House", 1, "fit-house", RETAILER_SCOPE["Fit House"]), ...retailerRows("Discount Supplements", 2, "discount-supplements", RETAILER_SCOPE["Discount Supplements"]), ...jonsRows])),
       fetchImpl: async (url) => {
         const origin = new URL(url.href).origin;
-        if (origin === "https://jonssupplements.co.uk") return { ok: true, headers: { get: () => "0" }, text: async () => "<html>challenge</html>" };
+        if (origin === "https://jonssupplements.co.uk") return { ok: true, status: 200, headers: { get: (name) => name.toLowerCase() === "content-type" ? "text/html" : null }, text: async () => "<html>challenge</html>" };
         const rows = origin === "https://fithouse.uk" ? retailerRows("Fit House", 1, "fit-house", RETAILER_SCOPE["Fit House"]) : retailerRows("Discount Supplements", 2, "discount-supplements", RETAILER_SCOPE["Discount Supplements"]);
         return responseForSnapshot(paddedShopifySnapshot({ rows, storeOrigin: origin, productCount: origin === "https://fithouse.uk" ? 85 : 12, variantCount: origin === "https://fithouse.uk" ? 85 : 12, availableCount: origin === "https://fithouse.uk" ? 85 : 12 }));
       },
       now: new Date("2026-07-19T03:17:00.000Z"),
     }),
-    /Malformed Shopify products JSON/,
+    /non-JSON content type/,
   );
   const missing = paddedShopifySnapshot({ rows: jonsRows.slice(1), storeOrigin: scope.storeUrl, productCount: 224, variantCount: 844, availableCount: 581 });
   const result = classifyRetailerScope({
