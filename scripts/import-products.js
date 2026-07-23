@@ -13,6 +13,12 @@ const {
   omitUndefinedObjectFields,
 } = require("./lib/canonical-json");
 const {
+  attachSharedParentIdentityContracts,
+  normalizeSharedParentPeer,
+  peerFromMapping,
+  validateSharedParentPeerCohort,
+} = require("./lib/retailer-shared-parent-identity");
+const {
   analyzeFeedRows,
   assessVariantCompatibility,
   formatPreflightReport,
@@ -639,6 +645,38 @@ const CANONICAL_RETAILER_FEED_FORBIDDEN_COLUMNS = [
   "nutrition_verified",
 ];
 
+const REVIEWED_NOCCO_RTD_VARIANT_IDS = new Set(["1790", "1791", "1792", "1796"]);
+
+function applyReviewedCanonicalFeedCorrections(row) {
+  const externalProductId = optionalIdentifier(row.external_product_id);
+  const externalVariantId = optionalIdentifier(row.external_variant_id);
+  const productName = String(row.product_name || "").trim();
+  const brand = String(row.brand || "").trim().toLowerCase();
+  const size = String(row.size || "").trim();
+  const sizeUnit = String(row.size_unit || "").trim().toLowerCase();
+  const description = String(row.description || "");
+  const isExactReviewedNoccoRtd =
+    slugifyRetailerName(String(row.retailer_name || "")) === "whey-okay" &&
+    externalProductId === "1788" &&
+    REVIEWED_NOCCO_RTD_VARIANT_IDS.has(externalVariantId) &&
+    brand === "nocco" &&
+    productName === "Nocco BCAA Drink 330ml" &&
+    size === "330" &&
+    sizeUnit === "ml" &&
+    /\bcarbonated water\b/i.test(description) &&
+    /\bpre and post workout drink\b/i.test(description);
+
+  if (!isExactReviewedNoccoRtd) return row;
+  const currentFormat = String(row.product_format || "").trim().toLowerCase();
+  if (currentFormat === "liquid") return row;
+  if (currentFormat !== "powder") {
+    throw new Error(
+      "reviewed NOCCO RTD correction requires the known powder misclassification"
+    );
+  }
+  return { ...row, product_format: "liquid" };
+}
+
 function isCanonicalRetailerFeedRow(row) {
   return CANONICAL_RETAILER_FEED_SIGNATURE_COLUMNS.every((column) =>
     rowHasColumn(row, column)
@@ -720,13 +758,13 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       .filter(Boolean)
       .join(" ");
 
-    return {
+    return applyReviewedCanonicalFeedCorrections({
       ...row,
       variant: variantEvidence,
       size: normalizedSize,
       shipping_cost: shippingCost,
       delivery_cost: undefined,
-    };
+    });
   });
 }
 
@@ -1486,8 +1524,7 @@ async function resolveRetailerMappingIdentity(retailerId, row) {
     const sharedParentIdentityRequired = Boolean(
       externalProductId &&
       externalProductId !== externalVariantId &&
-      optionalIdentifier(row.product_id) &&
-      optionalIdentifier(row.product_variant_id)
+      optionalIdentifier(row.product_id)
     );
     if (!sharedParentIdentityRequired) {
       if (urlPeers.length > 1) {
@@ -1570,7 +1607,10 @@ async function validateNewRetailerMappingIdentity({
     ) &&
     (
       optionalIdentifier(row.product_id) !== String(product.id) ||
-      optionalIdentifier(row.product_variant_id) !== String(productVariant.id)
+      (
+        !productVariant.planned_create &&
+        optionalIdentifier(row.product_variant_id) !== String(productVariant.id)
+      )
     )
   ) {
     throw new Error(
@@ -1588,26 +1628,23 @@ async function validateNewRetailerMappingIdentity({
     );
   }
 
-  for (const peer of urlPeers) {
-    if (String(peer.retailer_id) !== String(retailer.id)) {
-      throw new Error("shared parent URL retailer identity conflict");
-    }
-    if (
-      peer.external_product_id &&
-      String(peer.external_product_id) !== externalProductId
-    ) {
-      throw new Error("shared parent URL external product ID drift");
-    }
-    if (
-      peer.external_variant_id &&
-      String(peer.external_variant_id) === externalVariantId
-    ) {
-      throw new Error("shared parent URL duplicate external variant ID");
-    }
-    if (String(peer.product_id) !== String(product.id)) {
-      throw new Error("shared parent URL canonical product conflict");
-    }
-  }
+  const incomingPeer = normalizeSharedParentPeer({
+    retailer_id: retailer.id,
+    external_product_id: externalProductId,
+    external_variant_id: externalVariantId,
+    product_id: product.id,
+    product_variant_id: productVariant.planned_create ? null : productVariant.id,
+    canonical_variant: productVariant.planned_create ? productVariant : null,
+    external_sku: row.external_sku,
+    external_gtin: getExternalGtin(row),
+    external_options: exactSourceOptions(row),
+    external_url: getRetailerProductUrl(row),
+    legacy: false,
+  });
+  validateSharedParentPeerCohort([
+    ...urlPeers.map(peerFromMapping),
+    incomingPeer,
+  ]);
 
   const [skuPeers, gtinPeers, canonicalPeers, parentPeers] = await Promise.all([
     findRetailerIdentityPeers(retailer.id, "external_sku", row.external_sku),
@@ -2934,6 +2971,9 @@ function buildAtomicImportPlan(item) {
       action: mapping ? (mappingChanged ? "update" : "noop") : "create",
       ...(mapping ? { id: mapping.id } : {}),
       values: mappingValues,
+      ...(item.sharedParentIdentityContract
+        ? { identity_contract: item.sharedParentIdentityContract }
+        : {}),
     },
     offer: {
       action: existingOffer
@@ -3111,7 +3151,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     !variantResolutionError &&
     retailer?.id &&
     product?.id &&
-    productVariant?.id &&
+    productVariant &&
     !mapping &&
     !legacyControls &&
     mappingResolution.sharedParentIdentityRequired
@@ -3334,6 +3374,7 @@ async function preflightFeedRows(rows, options = {}) {
   return analyzeFeedRows(resolvedRows, {
     ...options,
     planBuilder: buildAtomicImportPlan,
+    prepareApprovedRows: attachSharedParentIdentityContracts,
   });
 }
 
@@ -3795,6 +3836,7 @@ if (require.main === module) {
 
 module.exports = {
   IMPORT_ARTIFACT_VERSION,
+  applyReviewedCanonicalFeedCorrections,
   applyArtifactPlan,
   approveArtifactPlan,
   assessVariantCompatibility,

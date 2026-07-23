@@ -987,6 +987,10 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       !conflictingDedupeRowNumbers.has(item.rowNumber)
   );
 
+  if (options.prepareApprovedRows) {
+    options.prepareApprovedRows(report.approvedRows);
+  }
+
   if (planBuilder) {
     for (const item of report.approvedRows) {
       item.importPlan = planBuilder(item);

@@ -5381,6 +5381,47 @@ test("EKM shared-parent URL creates an exact sibling only from distinct complete
   assert.equal(supabase.writes.length, 0);
 });
 
+test("EKM shared-parent URL seals a planned canonical variant without a pre-existing variant ID", async () => {
+  const parentUrl = "https://wheyokay.com/planned-shared-parent-100-p.asp";
+  const fixture = createVariantFixture({
+    product_id: "p100",
+    external_url: parentUrl,
+    affiliate_url: parentUrl,
+  });
+  fixture.seed.retailer_products.push({
+    id: "existing-parent-sibling",
+    retailer_id: "r1",
+    product_id: "p100",
+    product_variant_id: "pv-default",
+    external_product_id: "prod_100",
+    external_variant_id: "var_100_default",
+    external_sku: "SKU-DEFAULT-500",
+    external_gtin: "5012345678900",
+    external_options: { Flavour: "Unflavoured" },
+    external_url: parentUrl,
+  });
+  const supabase = createMockSupabase(fixture.seed);
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRowsRaw([fixture.row], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product_variant.action, "create_variant");
+  assert.equal(plan.retailer_product.values.product_variant_id, null);
+  assert.equal(plan.retailer_product.identity_contract.version, "1");
+  assert.equal(
+    plan.retailer_product.identity_contract.approved_url_peers.length,
+    2
+  );
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("EKM shared-parent identity collisions remain fail-closed", async () => {
   const scenarios = [
     ["duplicate variant ID", ({ rows }) => {
