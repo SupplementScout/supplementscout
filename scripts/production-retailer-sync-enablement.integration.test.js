@@ -201,8 +201,33 @@ test("one-stage rollout package is immutable, complete, unexecuted, and binds al
   const packageFile=path.join(ROOT,"docs/rollouts/jons-production-retailer-sync-rollout-package.json");
   const packageBytes=fs.readFileSync(packageFile);
   const packageData=JSON.parse(packageBytes);
-  const rebuilt=require("./build-production-retailer-sync-rollout-package").buildPackage();
-  assert.deepEqual(packageData,rebuilt);
+  const packageRelative=path.relative(ROOT,packageFile).replaceAll("\\","/");
+  const provenanceCommit=requireSuccess(
+    run("git",["log","-1","--format=%H","--",packageRelative]),
+    "resolve historical rollout package commit",
+  ).stdout.trim();
+  assert.match(provenanceCommit,/^[0-9a-f]{40}$/);
+  const historicalBytes=(relative) => requireSuccess(
+    spawnSync("git",["show",`${provenanceCommit}:${relative}`],{cwd:ROOT,timeout:180_000}),
+    `read historical rollout input ${relative}`,
+  ).stdout;
+  assert.equal(
+    crypto.createHash("sha256").update(historicalBytes(packageData.source.policy_file)).digest("hex"),
+    packageData.source.policy_sha256,
+    "historical package must bind the policy bytes from its own rollout commit, not mutable current policy",
+  );
+  assert.equal(
+    crypto.createHash("sha256").update(historicalBytes(packageData.source.adapter_file)).digest("hex"),
+    packageData.source.adapter_sha256,
+  );
+  assert.equal(
+    crypto.createHash("sha256").update(historicalBytes(packageData.migration.sequence[0].file)).digest("hex"),
+    packageData.migration.sequence[0].sha256,
+  );
+  assert.equal(
+    crypto.createHash("sha256").update(historicalBytes(packageData.provenance.builder_file)).digest("hex"),
+    packageData.provenance.builder_sha256,
+  );
   const unsealed={...packageData,package_fingerprint:null};
   assert.equal(crypto.createHash("sha256").update(require("./lib/canonical-json").canonicalJson(unsealed)).digest("hex"),packageData.package_fingerprint);
   assert.equal(packageData.migration.current_count,25); assert.equal(packageData.migration.expected_count,26);

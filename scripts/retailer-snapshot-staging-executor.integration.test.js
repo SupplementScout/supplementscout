@@ -26,6 +26,9 @@ const files = {
   staging: "supabase/migrations/20260717140000_add_staging_retailer_catalogue_executor.sql",
   stagingTest: "supabase/test/staging_retailer_catalogue_executor_integration_test.sql",
   verified: "supabase/migrations/20260718150000_add_verified_no_change_offer_refresh.sql",
+  existingVariant: "supabase/migrations/20260719193000_support_existing_product_variant_import.sql",
+  noSkuVariant: "supabase/migrations/20260720113000_support_verified_shopify_variants_without_sku.sql",
+  reviewedParentVariant: "supabase/migrations/20260721100000_support_reviewed_parent_explicit_variant_safe_create.sql",
   mixed: "supabase/migrations/20260718160000_add_retailer_offer_mixed_batch_executor.sql",
   mixedTest: "supabase/test/retailer_offer_mixed_batch_executor_integration_test.sql",
   readOnlyValidator: "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql",
@@ -65,14 +68,20 @@ test("staging executor full fixture and recovery on network-isolated disposable 
     ok(psqlFile(container, database, files.optioned), "optioned migration"); ok(recordMigration(container, database, "20260716003000_support_optioned_legacy_mapping_upgrade"), "record optioned");
     ok(psqlFile(container, database, files.parentSize), "parent-size migration"); ok(recordMigration(container, database, "20260716004000_support_optioned_parent_size_evidence"), "record parent-size");
     ok(psqlFile(container, database, files.optionedNull), "optioned null-total migration"); ok(recordMigration(container, database, "20260716005000_allow_optioned_legacy_identity_update_null_total"), "record optioned null-total");
-    ok(psqlFile(container, database, files.atomicTest, ["atomic_import_test_database_confirmed=1", "atomic_import_test_host=127.0.0.1", `atomic_import_expected_database=${database}`]), "atomic contract scenarios");
+    ok(psqlFile(container, database, files.verified), "verified no-change migration");
+    ok(recordMigration(container, database, "20260718150000_add_verified_no_change_offer_refresh"), "record verified no-change");
+    ok(psqlFile(container, database, files.existingVariant), "existing-variant importer migration");
+    ok(recordMigration(container, database, "20260719193000_support_existing_product_variant_import"), "record existing-variant importer");
+    ok(psqlFile(container, database, files.noSkuVariant), "verified no-SKU Shopify variant migration");
+    ok(recordMigration(container, database, "20260720113000_support_verified_shopify_variants_without_sku"), "record no-SKU variant importer");
+    ok(psqlFile(container, database, files.reviewedParentVariant), "reviewed-parent explicit-variant migration");
+    ok(recordMigration(container, database, "20260721100000_support_reviewed_parent_explicit_variant_safe_create"), "record reviewed-parent importer");
+    ok(psqlFile(container, database, files.atomicTest, ["atomic_import_test_database_confirmed=1", "atomic_import_test_host=127.0.0.1", `atomic_import_expected_database=${database}`]), "current atomic contract scenarios");
     ok(psqlFile(container, database, files.phase2), "Phase 2 migration"); ok(recordMigration(container, database, "20260717120000_create_retailer_catalogue_control_ledger"), "record Phase 2");
     ok(psqlFile(container, database, files.staging), "staging executor migration"); ok(recordMigration(container, database, "20260717140000_add_staging_retailer_catalogue_executor"), "record staging executor");
     const result = psqlFile(container, database, files.stagingTest, ["staging_executor_test_database_confirmed=1", `staging_executor_expected_database=${database}`]);
     ok(result, "staging executor scenarios");
     assert.match(output(result), /"result"\s*:\s*"PASS"/); assert.match(output(result), /"isolated_guard_cases"\s*:\s*19/); assert.match(output(result), /"guard_failures"\s*:\s*0/); assert.match(output(result), /"committed_recoveries"\s*:\s*4/);
-    ok(psqlFile(container, database, files.verified), "verified no-change migration after old canary");
-    ok(recordMigration(container, database, "20260718150000_add_verified_no_change_offer_refresh"), "record verified no-change");
     ok(psqlFile(container, database, files.mixed), "mixed-batch migration after old canary");
     ok(recordMigration(container, database, "20260718160000_add_retailer_offer_mixed_batch_executor"), "record mixed-batch");
     ok(psqlFile(container, database, files.readOnlyValidator), "read-only mixed-batch validator migration");
