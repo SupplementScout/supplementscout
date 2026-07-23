@@ -305,6 +305,22 @@ The platform should eventually provide:
 - AI-assisted recommendations,
 - a simple “Help me choose” flow based on two or three questions.
 
+### Agreed public UX direction
+
+SupplementScout should use a search-first homepage. The first screen should contain one main search field and no more than two primary actions:
+
+1. Search
+2. Help Me Choose
+
+Users should be able to describe their goals in natural language. Help Me Choose should ask no more than two or three questions, then return a ranked recommendation with:
+
+- reasons for the recommendation,
+- total delivered price,
+- key value metrics,
+- alternative options.
+
+Advanced filters should remain available below the main experience, but must not dominate the first screen.
+
 ---
 
 ## 3. Business model
