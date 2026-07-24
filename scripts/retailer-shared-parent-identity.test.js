@@ -378,6 +378,10 @@ test("Q1/Q2 reviewed format evidence is hash-locked to exactly 13 approved EKM i
     size_unit: "g",
     allow_missing_canonical_product_format: true,
   });
+  assert.deepEqual(reviewed.__reviewed_whey_okay_q1_q2_package_identity, {
+    contract: "whey-okay-q1-q2-package-2026-07-24",
+    source_file_sha256: sourceFileSha256,
+  });
   assert.deepEqual(
     assessVariantCompatibility(reviewed, {
       id: 128,
@@ -439,6 +443,10 @@ test("Q1 exact EKM 4162:4163 resolves only to reviewed existing canonical varian
     size_value: "225",
     size_unit: "g",
     pack_count: "1",
+  });
+  assert.deepEqual(corrected.__reviewed_whey_okay_q1_q2_package_identity, {
+    contract: "whey-okay-q1-q2-package-2026-07-24",
+    source_file_sha256: sourceFileSha256,
   });
 
   for (const [changed, options = { sourceFileSha256 }] of [

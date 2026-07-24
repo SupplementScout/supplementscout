@@ -750,6 +750,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const sourceRow = { ...row };
   delete sourceRow.__reviewed_whey_okay_format_identity;
   delete sourceRow.__reviewed_whey_okay_existing_variant_identity;
+  delete sourceRow.__reviewed_whey_okay_q1_q2_package_identity;
   row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -845,6 +846,20 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     };
   }
 
+  if (
+    String(options.sourceFileSha256 || "").toLowerCase() ===
+      WHEY_OKAY_Q1_Q2_PACKAGE_SHA256 &&
+    slugifyRetailerName(String(row.retailer_name || "")) === "whey-okay"
+  ) {
+    row = {
+      ...row,
+      __reviewed_whey_okay_q1_q2_package_identity: {
+        contract: "whey-okay-q1-q2-package-2026-07-24",
+        source_file_sha256: WHEY_OKAY_Q1_Q2_PACKAGE_SHA256,
+      },
+    };
+  }
+
   if (!isExactReviewedNoccoRtd) return row;
   const currentFormat = String(row.product_format || "").trim().toLowerCase();
   if (currentFormat === "liquid") return row;
@@ -865,6 +880,14 @@ function isCanonicalRetailerFeedRow(row) {
 function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
     return rows;
+  }
+  if (
+    String(options.sourceFileSha256 || "").toLowerCase() ===
+    WHEY_OKAY_Q1_Q2_PACKAGE_SHA256
+  ) {
+    if (rows.length !== 51) {
+      throw new Error("Whey Okay Q1/Q2 package contract requires exactly 51 rows");
+    }
   }
 
   const headerRow = rows[0];

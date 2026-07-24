@@ -850,7 +850,11 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       continue;
     }
 
-    if (safeCreate && !item.productVariant?.planned_create) {
+    if (
+      safeCreate &&
+      !item.productVariant?.planned_create &&
+      !row.__reviewed_whey_okay_q1_q2_package_identity
+    ) {
       const exclusionReasons = getSafeCreateExclusionReasons(row);
 
       if (exclusionReasons.length > 0) {
