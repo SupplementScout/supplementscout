@@ -980,7 +980,9 @@ function writeRunReports(args, run, base) {
   write(`${prefix}-change-summary.json`, {
     result: "PASS",
     classification: base.classification,
-    changes: changeSummary(run.classification.rows),
+    changes: changeSummary(
+      run.artifacts.flatMap((artifact) => artifact.rows),
+    ),
   });
 }
 async function executeRefresh(args, diagnostic) {

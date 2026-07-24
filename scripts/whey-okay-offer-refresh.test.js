@@ -12,6 +12,7 @@ const {
 const {
   RefreshError,
   balancedExecutionBatches,
+  changeSummary,
   deliveredTotalForSourcePrice,
   guardrailsFor,
   loadManifest,
@@ -363,6 +364,46 @@ test("execution batches distribute current and new OOS rows without weakening gu
       ).length <= 1,
     );
   }
+});
+
+test("change summary reads sealed execution rows with their atomic plans", () => {
+  assert.deepEqual(
+    changeSummary([
+      {
+        action: "UPDATE_STOCK",
+        external_product_id: "100",
+        external_variant_id: "101",
+        retailer_product_id: "4",
+        offer_id: "5",
+        changed_fields: {
+          price: false,
+          stock: true,
+          url: false,
+          blocked: false,
+        },
+        atomic_plan: {
+          expected_state: { offer: { in_stock: true } },
+          offer: { values: { in_stock: false } },
+        },
+      },
+    ]),
+    [
+      {
+        source_key: "100:101",
+        mapping_id: "4",
+        offer_id: "5",
+        action: "UPDATE_STOCK",
+        changed_fields: {
+          price: false,
+          stock: true,
+          url: false,
+          blocked: false,
+        },
+        before: { in_stock: true },
+        after: { in_stock: false },
+      },
+    ],
+  );
 });
 
 test("validator guard evidence retains full-manifest safety limits", () => {
