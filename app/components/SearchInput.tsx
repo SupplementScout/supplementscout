@@ -50,6 +50,7 @@ export default function SearchInput({
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suggestionListRef = useRef<HTMLDivElement>(null);
   const normalizedQuery = normalizeQuery(query);
   const shouldSuggest = normalizedQuery.length >= 2;
   const groupedSuggestions = useMemo(
@@ -81,8 +82,8 @@ export default function SearchInput({
       : "min-h-14 rounded-2xl bg-zinc-950 px-8 font-semibold text-white sm:min-h-16 sm:px-10";
   const dropdownClassName =
     variant === "compact"
-      ? "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 overflow-hidden rounded-lg border border-zinc-200 bg-white text-left shadow-2xl"
-      : "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left shadow-2xl";
+      ? "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[min(65vh,28rem)] overflow-y-auto overscroll-contain rounded-lg border border-zinc-200 bg-white text-left shadow-2xl"
+      : "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[min(65vh,28rem)] overflow-y-auto overscroll-contain rounded-2xl border border-zinc-200 bg-white text-left shadow-2xl";
 
   useEffect(() => {
     if (!shouldSuggest) {
@@ -127,6 +128,16 @@ export default function SearchInput({
       clearTimeout(timeout);
     };
   }, [normalizedQuery, shouldSuggest]);
+
+  useEffect(() => {
+    if (!isOpen || highlightedIndex < 0) return;
+
+    suggestionListRef.current
+      ?.querySelector<HTMLElement>(
+        `[data-suggestion-index="${highlightedIndex}"]`
+      )
+      ?.scrollIntoView({ block: "nearest" });
+  }, [highlightedIndex, isOpen]);
 
   function clearBlurTimeout() {
     if (blurTimeoutRef.current) {
@@ -245,6 +256,7 @@ export default function SearchInput({
 
       {isOpen && shouldSuggest && (suggestions.length > 0 || isLoading) && (
         <div
+          ref={suggestionListRef}
           id="search-suggestions"
           role="listbox"
           className={dropdownClassName}
@@ -277,6 +289,7 @@ export default function SearchInput({
                       href={suggestion.href}
                       role="option"
                       aria-selected={isHighlighted}
+                      data-suggestion-index={suggestionIndex}
                       onMouseDown={(event) => event.preventDefault()}
                       onMouseEnter={() => setHighlightedIndex(suggestionIndex)}
                       className={`block min-h-12 px-4 py-3 text-sm font-medium sm:px-5 ${
