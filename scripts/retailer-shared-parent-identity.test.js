@@ -347,3 +347,116 @@ test("reviewed Whey Okay format identity uses exact structured evidence only aft
     []
   );
 });
+
+test("Q1/Q2 reviewed format evidence is hash-locked to exactly 13 approved EKM identities", () => {
+  const sourceFileSha256 =
+    "2358a0effe447256b0fe10e56c80be6f611e0068defaa66ee004aeea13729b13";
+  const base = {
+    retailer_name: "Whey Okay",
+    retailer_website: "https://wheyokay.com",
+    external_product_id: "714",
+    external_variant_id: "716",
+    external_sku: "5907222544297",
+    external_gtin: "5907222544297",
+    product_id: "128",
+    product_name: "7Nutrition Bodybuilder 1.5kg",
+    brand: "7Nutrition",
+    flavour: "Vanilla Ice",
+    size: "1500 g",
+    size_unit: "g",
+    pack_count: "1",
+    product_format: "powder",
+  };
+  const reviewed = applyReviewedCanonicalFeedCorrections(base, {
+    sourceFileSha256,
+  });
+  assert.deepEqual(reviewed.__reviewed_whey_okay_format_identity, {
+    contract: "whey-okay-reviewed-format-q1-q2-2026-07-24",
+    canonical_product_id: "128",
+    product_format: "powder",
+    size: "1500",
+    size_unit: "g",
+    allow_missing_canonical_product_format: true,
+  });
+  assert.deepEqual(
+    assessVariantCompatibility(reviewed, {
+      id: 128,
+      name: "7Nutrition Bodybuilder 1.5kg",
+      brand: "7Nutrition",
+      product_format: null,
+    }).reasons,
+    []
+  );
+
+  for (const [changed, options = { sourceFileSha256 }] of [
+    [{ external_variant_id: "9999" }],
+    [{ external_sku: "different" }],
+    [{ external_gtin: "different" }],
+    [{ product_id: "129" }],
+    [{ product_name: "Different family" }],
+    [{ size: "1600 g" }],
+    [{ product_format: "snack" }],
+    [{}, { sourceFileSha256: "0".repeat(64) }],
+  ]) {
+    assert.equal(
+      applyReviewedCanonicalFeedCorrections(
+        { ...base, ...changed },
+        options
+      ).__reviewed_whey_okay_format_identity,
+      undefined
+    );
+  }
+});
+
+test("Q1 exact EKM 4162:4163 resolves only to reviewed existing canonical variant 977", () => {
+  const sourceFileSha256 =
+    "2358a0effe447256b0fe10e56c80be6f611e0068defaa66ee004aeea13729b13";
+  const base = {
+    retailer_name: "Whey Okay",
+    external_product_id: "4162",
+    external_variant_id: "4163",
+    external_sku: "8594073170446",
+    external_gtin: "8594073170446",
+    product_id: "528",
+    product_name: "Nutrend  Pump Pre-Workout",
+    flavour: "Tropical Blend",
+    size: "225 g",
+    size_unit: "g",
+    product_format: "powder",
+  };
+  const corrected = applyReviewedCanonicalFeedCorrections(base, {
+    sourceFileSha256,
+  });
+  assert.equal(corrected.product_variant_id, "977");
+  assert.equal(corrected.product_format, "powder");
+  assert.deepEqual(corrected.__reviewed_whey_okay_existing_variant_identity, {
+    contract: "whey-okay-existing-variant-q1-2026-07-24",
+    canonical_product_id: "528",
+    canonical_product_variant_id: "977",
+    variant_key: "tropical-blend-225g",
+    display_name: "Tropical Blend / 225g",
+    flavour_code: "tropical blend",
+    size_value: "225",
+    size_unit: "g",
+    pack_count: "1",
+  });
+
+  for (const [changed, options = { sourceFileSha256 }] of [
+    [{ external_variant_id: "4165" }],
+    [{ external_sku: "different" }],
+    [{ external_gtin: "different" }],
+    [{ product_id: "529" }],
+    [{ product_name: "Different family" }],
+    [{ flavour: "Rainbow" }],
+    [{ size: "226 g" }],
+    [{}, { sourceFileSha256: "0".repeat(64) }],
+  ]) {
+    assert.equal(
+      applyReviewedCanonicalFeedCorrections(
+        { ...base, ...changed },
+        options
+      ).__reviewed_whey_okay_existing_variant_identity,
+      undefined
+    );
+  }
+});

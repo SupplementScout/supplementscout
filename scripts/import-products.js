@@ -646,6 +646,68 @@ const CANONICAL_RETAILER_FEED_FORBIDDEN_COLUMNS = [
 ];
 
 const REVIEWED_NOCCO_RTD_VARIANT_IDS = new Set(["1790", "1791", "1792", "1796"]);
+const WHEY_OKAY_Q1_Q2_PACKAGE_SHA256 =
+  "2358a0effe447256b0fe10e56c80be6f611e0068defaa66ee004aeea13729b13";
+const WHEY_OKAY_Q1_Q2_REVIEW_PATH = path.join(
+  process.cwd(),
+  "data/verified/whey-okay-reviewed-format-q1-q2-2026-07-24.json"
+);
+const WHEY_OKAY_Q1_Q2_REVIEW_SHA256 =
+  "cc483cf1071c0da136f6244289dbd74b34daf1309416a3603e093769a15946a4";
+
+function loadWheyOkayQ1Q2ReviewedFormatEvidence() {
+  const bytes = fs.readFileSync(WHEY_OKAY_Q1_Q2_REVIEW_PATH);
+  if (sha256Bytes(bytes) !== WHEY_OKAY_Q1_Q2_REVIEW_SHA256) {
+    throw new Error("Whey Okay Q1/Q2 reviewed-format evidence SHA-256 mismatch");
+  }
+  const evidence = JSON.parse(bytes);
+  if (
+    evidence.contract !== "whey-okay-reviewed-format-q1-q2-2026-07-24" ||
+    String(evidence.package_csv_sha256 || "").toLowerCase() !==
+      WHEY_OKAY_Q1_Q2_PACKAGE_SHA256 ||
+    evidence.decision?.question !== "Q2" ||
+    evidence.decision?.approved_format !== "powder" ||
+    evidence.decision?.approved_rows !== 13 ||
+    !Array.isArray(evidence.rows) ||
+    evidence.rows.length !== 13
+  ) {
+    throw new Error("invalid Whey Okay Q1/Q2 reviewed-format evidence contract");
+  }
+  const rows = new Map();
+  for (const row of evidence.rows) {
+    const key = `${optionalIdentifier(row.external_product_id)}:${optionalIdentifier(
+      row.external_variant_id
+    )}`;
+    if (
+      rows.has(key) ||
+      !optionalIdentifier(row.external_sku) ||
+      !optionalIdentifier(row.external_gtin) ||
+      !optionalIdentifier(row.product_id) ||
+      !String(row.product_name || "").trim() ||
+      !String(row.size || "").trim() ||
+      String(row.size_unit || "").trim().toLowerCase() !== "g" ||
+      String(row.product_format || "").trim().toLowerCase() !== "powder"
+    ) {
+      throw new Error("invalid Whey Okay Q1/Q2 reviewed-format evidence row");
+    }
+    rows.set(key, {
+      contract: evidence.contract,
+      productId: String(row.product_id),
+      productName: String(row.product_name),
+      externalSku: String(row.external_sku),
+      externalGtin: String(row.external_gtin),
+      size: String(row.size),
+      sizeUnit: "g",
+      productFormat: "powder",
+      sourceFileSha256: WHEY_OKAY_Q1_Q2_PACKAGE_SHA256,
+      allowMissingCanonicalProductFormat: true,
+    });
+  }
+  return rows;
+}
+
+const REVIEWED_WHEY_OKAY_Q1_Q2_FORMAT_IDENTITIES =
+  loadWheyOkayQ1Q2ReviewedFormatEvidence();
 
 const REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES = new Map(
   [
@@ -684,9 +746,10 @@ const REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES = new Map(
   )
 );
 
-function applyReviewedCanonicalFeedCorrections(row) {
+function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const sourceRow = { ...row };
   delete sourceRow.__reviewed_whey_okay_format_identity;
+  delete sourceRow.__reviewed_whey_okay_existing_variant_identity;
   row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -695,13 +758,19 @@ function applyReviewedCanonicalFeedCorrections(row) {
   const size = String(row.size || "").trim();
   const sizeUnit = String(row.size_unit || "").trim().toLowerCase();
   const description = String(row.description || "");
-  const reviewedWheyIdentity = REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES.get(
-    `${externalProductId}:${externalVariantId}`
-  );
+  const sourceKey = `${externalProductId}:${externalVariantId}`;
+  const reviewedWheyIdentity =
+    REVIEWED_WHEY_OKAY_Q1_Q2_FORMAT_IDENTITIES.get(sourceKey) ||
+    REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES.get(sourceKey);
   const normalizedInputSize = size.toLowerCase();
   const isExactReviewedWheyFormatIdentity =
     slugifyRetailerName(String(row.retailer_name || "")) === "whey-okay" &&
     reviewedWheyIdentity &&
+    (!reviewedWheyIdentity.sourceFileSha256 ||
+      String(options.sourceFileSha256 || "").toLowerCase() ===
+        reviewedWheyIdentity.sourceFileSha256) &&
+    (!reviewedWheyIdentity.productId ||
+      optionalIdentifier(row.product_id) === reviewedWheyIdentity.productId) &&
     productName === reviewedWheyIdentity.productName &&
     (normalizedInputSize === reviewedWheyIdentity.size ||
       normalizedInputSize ===
@@ -709,8 +778,12 @@ function applyReviewedCanonicalFeedCorrections(row) {
     sizeUnit === reviewedWheyIdentity.sizeUnit &&
     String(row.product_format || "").trim().toLowerCase() ===
       reviewedWheyIdentity.productFormat &&
-    optionalIdentifier(row.external_sku) &&
-    optionalIdentifier(row.external_gtin);
+    (reviewedWheyIdentity.externalSku
+      ? optionalIdentifier(row.external_sku) === reviewedWheyIdentity.externalSku
+      : optionalIdentifier(row.external_sku)) &&
+    (reviewedWheyIdentity.externalGtin
+      ? optionalIdentifier(row.external_gtin) === reviewedWheyIdentity.externalGtin
+      : optionalIdentifier(row.external_gtin));
   const isExactReviewedNoccoRtd =
     slugifyRetailerName(String(row.retailer_name || "")) === "whey-okay" &&
     externalProductId === "1788" &&
@@ -726,10 +799,48 @@ function applyReviewedCanonicalFeedCorrections(row) {
     row = {
       ...row,
       __reviewed_whey_okay_format_identity: {
-        contract: "whey-okay-format-groups-2026-07-23",
+        contract:
+          reviewedWheyIdentity.contract ||
+          "whey-okay-format-groups-2026-07-23",
+        canonical_product_id: reviewedWheyIdentity.productId || null,
         product_format: reviewedWheyIdentity.productFormat,
         size: reviewedWheyIdentity.size,
         size_unit: reviewedWheyIdentity.sizeUnit,
+        allow_missing_canonical_product_format: Boolean(
+          reviewedWheyIdentity.allowMissingCanonicalProductFormat
+        ),
+      },
+    };
+  }
+
+  const isExactReviewedExistingVariant =
+    slugifyRetailerName(String(row.retailer_name || "")) === "whey-okay" &&
+    sourceKey === "4162:4163" &&
+    String(options.sourceFileSha256 || "").toLowerCase() ===
+      WHEY_OKAY_Q1_Q2_PACKAGE_SHA256 &&
+    optionalIdentifier(row.product_id) === "528" &&
+    productName === "Nutrend  Pump Pre-Workout" &&
+    optionalIdentifier(row.external_sku) === "8594073170446" &&
+    optionalIdentifier(row.external_gtin) === "8594073170446" &&
+    (normalizedInputSize === "225" || normalizedInputSize === "225 g") &&
+    sizeUnit === "g" &&
+    String(row.product_format || "").trim().toLowerCase() === "powder" &&
+    normalizeFlavour(row.flavour) === "tropical blend";
+
+  if (isExactReviewedExistingVariant) {
+    row = {
+      ...row,
+      product_variant_id: "977",
+      __reviewed_whey_okay_existing_variant_identity: {
+        contract: "whey-okay-existing-variant-q1-2026-07-24",
+        canonical_product_id: "528",
+        canonical_product_variant_id: "977",
+        variant_key: "tropical-blend-225g",
+        display_name: "Tropical Blend / 225g",
+        flavour_code: "tropical blend",
+        size_value: "225",
+        size_unit: "g",
+        pack_count: "1",
       },
     };
   }
@@ -826,13 +937,16 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       .filter(Boolean)
       .join(" ");
 
-    return applyReviewedCanonicalFeedCorrections({
-      ...row,
-      variant: variantEvidence,
-      size: normalizedSize,
-      shipping_cost: shippingCost,
-      delivery_cost: undefined,
-    });
+    return applyReviewedCanonicalFeedCorrections(
+      {
+        ...row,
+        variant: variantEvidence,
+        size: normalizedSize,
+        shipping_cost: shippingCost,
+        delivery_cost: undefined,
+      },
+      options
+    );
   });
 }
 
@@ -1987,14 +2101,23 @@ function collectCanonicalVariantEvidence(row) {
     ],
     parsePackCount
   );
+  const reviewedFormat = row.__reviewed_whey_okay_format_identity;
   const formats = normalizedEvidenceValues(
-    [
-      row.product_format,
-      ...variantText,
-      ...externalOptionValues(options, ["format", "product_format"]),
-    ],
+    reviewedFormat
+      ? [row.product_format]
+      : [
+          row.product_format,
+          ...variantText,
+          ...externalOptionValues(options, ["format", "product_format"]),
+        ],
     parseProductFormat
   );
+  if (
+    reviewedFormat &&
+    formats[0] !== reviewedFormat.product_format
+  ) {
+    throw new Error("reviewed format evidence mismatch");
+  }
   const conflicts = [];
 
   if (explicitFlavourConflict || flavours.length > 1) conflicts.push("flavour");
@@ -2187,13 +2310,23 @@ async function resolveCanonicalProductVariant(
           : ""
       );
       const variantFormat = parseProductFormat(variant.product_format);
+      const reviewedExistingVariant =
+        row.__reviewed_whey_okay_existing_variant_identity;
+      const reviewedMissingVariantFormat =
+        reviewedExistingVariant &&
+        String(variant.id) ===
+          String(reviewedExistingVariant.canonical_product_variant_id) &&
+        !variantFormat &&
+        evidence.productFormat === "powder";
 
       const evidenceMatches =
         (!evidence.flavour || evidence.flavour === variantFlavour) &&
         (!evidence.size || sizeKey(evidence.size) === sizeKey(variantSize)) &&
         (evidence.packCount === null ||
           Number(evidence.packCount) === Number(variant.pack_count)) &&
-        (!evidence.productFormat || evidence.productFormat === variantFormat);
+        (!evidence.productFormat ||
+          evidence.productFormat === variantFormat ||
+          reviewedMissingVariantFormat);
       const distinguishingFeaturesConfirmed =
         (!variantFlavour || evidence.flavour === variantFlavour) &&
         (!variantSize || sizeKey(evidence.size) === sizeKey(variantSize)) &&
@@ -3634,7 +3767,10 @@ async function runImportRows(rows, options = {}) {
   validatePilotApply(rows, options);
 
   if (mode === "feed") {
-    rows = normalizeCanonicalRetailerFeedRows(rows, { safeCreate });
+    rows = normalizeCanonicalRetailerFeedRows(rows, {
+      safeCreate,
+      sourceFileSha256: options.sourceFileSha256,
+    });
   }
 
   if (mode === "feed") {
@@ -3823,7 +3959,10 @@ async function runImport(options = parseArgs(process.argv.slice(2))) {
   });
 
   console.log(`Found ${rows.length} CSV row(s).`);
-  const result = await runImportRows(rows, options);
+  const result = await runImportRows(rows, {
+    ...options,
+    sourceFileSha256: sha256Bytes(Buffer.from(csvContent, "utf8")),
+  });
 
   if (options.dryRun) {
     const artifactResult = writeDryRunArtifact(rows, result, {

@@ -1,0 +1,158 @@
+{
+  "contract": "whey-okay-reviewed-format-q1-q2-2026-07-24",
+  "package_csv_sha256": "2358A0EFFE447256B0FE10E56C80BE6F611E0068DEFAA66EE004AEEA13729B13",
+  "retailer": {
+    "name": "Whey Okay",
+    "website": "https://wheyokay.com"
+  },
+  "decision": {
+    "question": "Q2",
+    "approved_format": "powder",
+    "approved_rows": 13
+  },
+  "rows": [
+    {
+      "external_product_id": "714",
+      "external_variant_id": "716",
+      "external_sku": "5907222544297",
+      "external_gtin": "5907222544297",
+      "product_id": "128",
+      "product_name": "7Nutrition Bodybuilder 1.5kg",
+      "size": "1500",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "714",
+      "external_variant_id": "717",
+      "external_sku": "5907222544136",
+      "external_gtin": "5907222544136",
+      "product_id": "128",
+      "product_name": "7Nutrition Bodybuilder 1.5kg",
+      "size": "1500",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "714",
+      "external_variant_id": "720",
+      "external_sku": "5907222544402",
+      "external_gtin": "5907222544402",
+      "product_id": "128",
+      "product_name": "7Nutrition Bodybuilder 1.5kg",
+      "size": "1500",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "731",
+      "external_variant_id": "733",
+      "external_sku": "5056555205044",
+      "external_gtin": "5056555205044",
+      "product_id": "132",
+      "product_name": "Applied Nutrition Critical Mass Lean Mass Gainz 2.4kg",
+      "size": "2400",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "731",
+      "external_variant_id": "734",
+      "external_sku": "5056555205068",
+      "external_gtin": "5056555205068",
+      "product_id": "132",
+      "product_name": "Applied Nutrition Critical Mass Lean Mass Gainz 2.4kg",
+      "size": "2400",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "731",
+      "external_variant_id": "735",
+      "external_sku": "5056555205075",
+      "external_gtin": "5056555205075",
+      "product_id": "132",
+      "product_name": "Applied Nutrition Critical Mass Lean Mass Gainz 2.4kg",
+      "size": "2400",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "731",
+      "external_variant_id": "3903",
+      "external_sku": "5056555205082",
+      "external_gtin": "5056555205082",
+      "product_id": "132",
+      "product_name": "Applied Nutrition Critical Mass Lean Mass Gainz 2.4kg",
+      "size": "2400",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "2215",
+      "external_variant_id": "2217",
+      "external_sku": "8030908005304",
+      "external_gtin": "8030908005304",
+      "product_id": "328",
+      "product_name": "Per4m Isolate Zero 900g",
+      "size": "900",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "2215",
+      "external_variant_id": "2219",
+      "external_sku": "8030908005298",
+      "external_gtin": "8030908005298",
+      "product_id": "328",
+      "product_name": "Per4m Isolate Zero 900g",
+      "size": "900",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "3472",
+      "external_variant_id": "3474",
+      "external_sku": "5902114040369",
+      "external_gtin": "5902114040369",
+      "product_id": "450",
+      "product_name": "Trec Vitargo Electro Energy 1050g",
+      "size": "1050",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "3472",
+      "external_variant_id": "3475",
+      "external_sku": "5902114040338",
+      "external_gtin": "5902114040338",
+      "product_id": "450",
+      "product_name": "Trec Vitargo Electro Energy 1050g",
+      "size": "1050",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "4162",
+      "external_variant_id": "4165",
+      "external_sku": "8594073170477",
+      "external_gtin": "8594073170477",
+      "product_id": "528",
+      "product_name": "Nutrend  Pump Pre-Workout",
+      "size": "225",
+      "size_unit": "g",
+      "product_format": "powder"
+    },
+    {
+      "external_product_id": "4162",
+      "external_variant_id": "4166",
+      "external_sku": "8594073170453",
+      "external_gtin": "8594073170453",
+      "product_id": "528",
+      "product_name": "Nutrend  Pump Pre-Workout",
+      "size": "225",
+      "size_unit": "g",
+      "product_format": "powder"
+    }
+  ]
+}

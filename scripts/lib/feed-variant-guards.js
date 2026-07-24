@@ -333,7 +333,11 @@ function parseClearProductFormatEvidence(value = "") {
 function assessVariantCompatibility(row, product) {
   const rowExplicitFormat = explicitProductFormat(row.product_format);
   const productStoredFormat = explicitProductFormat(product.product_format);
-  const reviewedIdentity = row.__reviewed_whey_okay_format_identity;
+  const reviewedFormatIdentity = row.__reviewed_whey_okay_format_identity;
+  const reviewedExistingVariantIdentity =
+    row.__reviewed_whey_okay_existing_variant_identity;
+  const reviewedIdentity =
+    reviewedFormatIdentity || reviewedExistingVariantIdentity;
   const reviewedPackCount = reviewedIdentity
     ? parsePackCount(row.pack_count ? `pack of ${row.pack_count}` : "")
     : null;
@@ -344,13 +348,20 @@ function assessVariantCompatibility(row, product) {
         flavour: normalizeFlavour(row.flavour || ""),
         size: reviewedSize,
         packCount: reviewedPackCount,
-        productFormat: rowExplicitFormat,
+        productFormat: reviewedExistingVariantIdentity
+          ? null
+          : rowExplicitFormat,
       }
     : parseVariantIdentity(row);
   const productIdentity = {
     ...parseVariantIdentity(product.name || ""),
-    productFormat: reviewedIdentity
-      ? productStoredFormat
+    productFormat: reviewedExistingVariantIdentity
+      ? null
+      : reviewedIdentity
+      ? productStoredFormat ||
+        (reviewedIdentity.allow_missing_canonical_product_format
+          ? explicitProductFormat(reviewedIdentity.product_format)
+          : null)
       : productStoredFormat ||
         parseVariantIdentity(product.name || "").productFormat,
   };
@@ -413,7 +424,11 @@ function assessVariantCompatibility(row, product) {
   if (valuesConflict(rowExplicitFormat, productStoredFormat)) {
     reasons.push("format conflict");
   }
-  if (reviewedIdentity && !productStoredFormat) {
+  if (
+    reviewedFormatIdentity &&
+    !productStoredFormat &&
+    !reviewedFormatIdentity.allow_missing_canonical_product_format
+  ) {
     reasons.push("format conflict");
   }
 
