@@ -11,6 +11,7 @@ const {
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
   RefreshError,
+  deliveredTotalForSourcePrice,
   guardrailsFor,
   loadManifest,
   parseArgs,
@@ -205,7 +206,7 @@ test("source collapse, MASS_OOS, MASS_PRICE and MASS_CHANGE fail closed", () => 
   );
 });
 
-test("shipping and null total remain unchanged during a genuine price update", () => {
+test("a genuine price update preserves shipping and calculates delivered total", () => {
   const state = {
     product: {
       id: 1,
@@ -272,7 +273,11 @@ test("shipping and null total remain unchanged during a genuine price update", (
       external_variant_id: "101",
       price: "11.00",
       shipping_cost: "3.99",
-      total_price: null,
+      total_price: deliveredTotalForSourcePrice("11.00", {
+        price: state.offer.price,
+        shipping_cost: state.offer.shipping_cost,
+        total_price: state.offer.total_price,
+      }),
       in_stock: true,
       url: state.offer.url,
     },
@@ -280,8 +285,19 @@ test("shipping and null total remain unchanged during a genuine price update", (
     sourceSnapshotFingerprint: "a".repeat(64),
   });
   assert.equal(built.plan.offer.values.shipping_cost, "3.99");
-  assert.equal(built.plan.offer.values.total_price, null);
+  assert.equal(built.plan.offer.values.total_price, "14.99");
   assert.equal(built.plan.price_history.action, "create");
+});
+
+test("delivered total remains untouched when the source price does not change", () => {
+  assert.equal(
+    deliveredTotalForSourcePrice("10.00", {
+      price: "10.00",
+      shipping_cost: "3.99",
+      total_price: null,
+    }),
+    null,
+  );
 });
 
 test("URL updates bind both mapping and offer to the approved source URL", () => {

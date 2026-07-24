@@ -245,6 +245,13 @@ async function readState(target) {
 function money(value) {
   return value == null ? null : Number(value).toFixed(2);
 }
+function deliveredTotalForSourcePrice(sourcePrice, target) {
+  const price = money(sourcePrice);
+  if (price === target.price || target.shipping_cost === null) {
+    return target.total_price;
+  }
+  return (Number(price) + Number(target.shipping_cost)).toFixed(2);
+}
 function targetFor(record) {
   return {
     offer_id: String(record.offer.id),
@@ -264,12 +271,13 @@ function targetFor(record) {
 function sourceFor(record, sourceByKey) {
   const source = sourceByKey.get(record.source_key);
   invariant(source, `missing approved feed identity ${record.source_key}`);
+  const target = targetFor(record);
   return {
     ...source,
     external_sku: null,
     product_handle: null,
-    shipping_cost: money(record.offer.shipping_cost),
-    total_price: money(record.offer.total_price),
+    shipping_cost: target.shipping_cost,
+    total_price: deliveredTotalForSourcePrice(source.price, target),
   };
 }
 function sourceHealth(feed) {
@@ -460,7 +468,9 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     product_handle: null,
     shipping_cost:
       targetByKey.get(row.source_key)?.shipping_cost || row.feed_shipping_cost,
-    total_price: targetByKey.get(row.source_key)?.total_price ?? null,
+    total_price: targetByKey.has(row.source_key)
+      ? deliveredTotalForSourcePrice(row.price, targetByKey.get(row.source_key))
+      : null,
   }));
   const policy = {
     ...config.guardrails,
@@ -1112,6 +1122,7 @@ module.exports = {
   artifactPrefix,
   buildRun,
   changeSummary,
+  deliveredTotalForSourcePrice,
   diagnosticTemplate,
   guardrailsFor,
   loadManifest,
