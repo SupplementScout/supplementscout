@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "retailer_id": 3,
+  "retailer_name": "Whey Okay",
+  "retailer_slug": "whey-okay",
+  "store_url": "https://wheyokay.com",
+  "source_url": "https://wheyokay.com/ekmps/shops/2ab763/data/ekm_p_2ab763.txt",
+  "source_classification": "FULL_AUTOMATIC_SOURCE",
+  "manifest_path": "config/retailers/whey-okay-approved-offer-manifest.json",
+  "manifest_sha256": "54D828AF0E3C20F548708832E0A7AD9DCAF74B1CBC6AB043ED7696D6F7C4D731",
+  "approved_mapping_count": 586,
+  "legacy_mapping_count": 284,
+  "source_baseline": {
+    "product_count": 520,
+    "row_count": 1678,
+    "in_stock_count": 1012,
+    "out_of_stock_count": 666,
+    "minimum_count_ratio": 0.9,
+    "genuine_collapse_ratio": 0.75
+  },
+  "source_fetch": {
+    "maximum_attempts": 3,
+    "retry_base_delay_ms": 250,
+    "timeout_ms": 20000,
+    "maximum_redirects": 3,
+    "user_agent": "SupplementScout-Whey-Okay-Refresh/1.0"
+  },
+  "guardrails": {
+    "required_matched_offers": 586,
+    "source_freshness_hours": 24,
+    "future_clock_skew_minutes": 5,
+    "full_snapshot_minimum_source_count_ratio": 0.9,
+    "maximum_total_oos_ratio": 0.2,
+    "maximum_oos_increase_percentage_points": 0.05,
+    "maximum_changed_record_ratio": 0.2,
+    "mass_price_change_block_ratio": 0.1,
+    "per_row_price_hard_block_ratio": 0.6,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "mass_oos_block_count": 30,
+    "ignore_source_sku": true,
+    "source_url_mode": "provided",
+    "allowed_url_hosts": [
+      "wheyokay.com"
+    ]
+  },
+  "shipping_policy": {
+    "mode": "preserve_stored_first_rollout",
+    "audited_difference_count": 31,
+    "previously_expected_difference_count": 28
+  },
+  "schedule": {
+    "cron_utc": "17 2 * * *",
+    "reason": "Runs after the observed approximately 01:01 UTC EKM feed generation and before other daily retailer refreshes."
+  },
+  "reviewed_exception_mapping_ids": [
+    11,
+    150,
+    191,
+    249
+  ]
+}

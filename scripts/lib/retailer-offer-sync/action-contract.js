@@ -16,7 +16,7 @@ function actionForChanges({ price = false, stock = false, url = false }) {
   return "VERIFY_NO_CHANGE";
 }
 
-function deltasForChanges(changed, { shippingChanged = false } = {}) {
+function deltasForChanges(changed, { shippingChanged = false, totalChanged = changed.price } = {}) {
   const executable = !changed.blocked;
   return {
     row_count_deltas: { ...ZERO_ROWS, price_history: executable && changed.price ? 1 : 0 },
@@ -24,7 +24,7 @@ function deltasForChanges(changed, { shippingChanged = false } = {}) {
       ...ZERO_FIELDS,
       offer_price_updates: executable && changed.price ? 1 : 0,
       offer_shipping_updates: executable && changed.price && shippingChanged ? 1 : 0,
-      offer_total_updates: executable && changed.price ? 1 : 0,
+      offer_total_updates: executable && totalChanged ? 1 : 0,
       offer_stock_updates: executable && changed.stock ? 1 : 0,
       offer_url_updates: executable && changed.url ? 1 : 0,
       mapping_url_updates: executable && changed.url ? 1 : 0,

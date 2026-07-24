@@ -1,0 +1,125 @@
+name: Whey Okay Offer Refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Dry-run only unless an explicitly authorised apply is required"
+        required: true
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+      validation_context:
+        description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
+        required: true
+        default: workflow_dispatch
+        type: choice
+        options:
+          - workflow_dispatch
+          - schedule
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: whey-okay-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  whey-okay-offer-refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: production-readonly
+
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          case "$GITHUB_EVENT_NAME" in
+            schedule|workflow_dispatch) ;;
+            *) exit 1 ;;
+          esac
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Initialize diagnostic path
+        run: mkdir -p tmp/whey-okay-offer-refresh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Whey Okay automation contracts
+        run: >
+          node --test
+          scripts/ekm-google-product-feed-reader.test.js
+          scripts/whey-okay-offer-refresh.test.js
+          scripts/whey-okay-sync-plan-registration.test.js
+          scripts/retailer-offer-sync.test.js
+          scripts/retailer-offer-sync-matrix.test.js
+          scripts/jons-offer-refresh.test.js
+          scripts/jons-sync-plan-registration.test.js
+          scripts/adapters/jons-supplements.test.js
+
+      - name: Dry-run all approved Whey Okay offers
+        env:
+          WHEY_OKAY_REFRESH_PHASE: preflight
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/whey-okay-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Apply all approved Whey Okay offer refreshes
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          WHEY_OKAY_REFRESH_PHASE: apply
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/whey-okay-offer-refresh.js --target=production --mode=apply
+
+      - name: Verify idempotency with a fresh source capture
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          WHEY_OKAY_REFRESH_PHASE: idempotency
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/whey-okay-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Publish workflow summary
+        if: always()
+        run: |
+          echo "## Whey Okay approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/whey-okay-offer-refresh/production-apply-apply.json ]; then
+            node -e 'const r=require("./tmp/whey-okay-offer-refresh/production-apply-apply.json"); console.log(`- Apply: ${r.result}\n- Manifest: ${r.manifest.sha256}\n- Scope: ${r.scope.offers} offers\n- Actions: ${JSON.stringify(r.classification)}\n- Discovery-only rows: ${r.discovery.new_rows}\n- Shipping mutations: ${r.shipping_differences.mutations}\n- SAFE_UPDATE: ${r.safe_update}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Apply report unavailable; dry-run-only or workflow failed closed before apply." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Whey Okay refresh evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/whey-okay-offer-refresh/*.json

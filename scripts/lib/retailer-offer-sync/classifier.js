@@ -20,14 +20,18 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     if (candidates.length !== 1) return block("IDENTITY_DRIFT", { offer_id: target.offer_id, matches: candidates.length });
     const source = candidates[0];
     if (String(source.external_product_id) !== String(target.external_product_id)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id });
-    if (identityValue(source.external_sku) !== identityValue(target.external_sku)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id, field: "external_sku" });
+    if (!policy.ignore_source_sku && identityValue(source.external_sku) !== identityValue(target.external_sku)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id, field: "external_sku" });
     let sourceUrl;
-    try { sourceUrl = canonicalVariantUrl(policy.store_url, source.product_handle, source.external_variant_id); } catch { return block("INVALID_URL"); }
-    if (new URL(sourceUrl).hostname !== new URL(policy.store_url).hostname) return block("INVALID_URL_DOMAIN");
+    try { sourceUrl = policy.source_url_mode === "provided" ? new URL(source.url).href : canonicalVariantUrl(policy.store_url, source.product_handle, source.external_variant_id); } catch { return block("INVALID_URL"); }
+    const allowedHosts = new Set((policy.allowed_url_hosts || [new URL(policy.store_url).hostname]).map((value) => String(value).toLowerCase().replace(/^www\./, "")));
+    if (!allowedHosts.has(new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ""))) return block("INVALID_URL_DOMAIN");
     const price = money(source.price) !== money(target.price);
     const stock = Boolean(source.in_stock) !== Boolean(target.in_stock);
     const url = sourceUrl !== target.url || sourceUrl !== target.external_url;
     const shipping = source.shipping_cost !== target.shipping_cost;
+    const totalChanged = source.total_price === undefined
+      ? price
+      : identityValue(source.total_price) !== identityValue(target.total_price);
     if (shipping && !price) return block("SHIPPING_POLICY_DRIFT", { offer_id: target.offer_id });
     const absolute = Math.abs(money(source.price) - money(target.price)) / 100;
     const ratio = Math.abs(money(source.price) - money(target.price)) / Math.max(1, money(target.price));
@@ -37,7 +41,7 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
       external_product_id: String(source.external_product_id), external_variant_id: String(source.external_variant_id), external_sku: identityValue(source.external_sku),
       product_handle: source.product_handle, price: String(source.price), shipping_cost: source.shipping_cost, in_stock: Boolean(source.in_stock),
     };
-    rows.push({ offer_id: String(target.offer_id), retailer_product_id: String(target.retailer_product_id), external_product_id: String(target.external_product_id), external_variant_id: String(target.external_variant_id), action: actionForChanges(changed_fields), changed_fields, source_captured_at: sourceCapturedAt, source: semanticSource, target, expected_deltas: deltasForChanges(changed_fields, { shippingChanged: source.shipping_cost !== target.shipping_cost }) });
+    rows.push({ offer_id: String(target.offer_id), retailer_product_id: String(target.retailer_product_id), external_product_id: String(target.external_product_id), external_variant_id: String(target.external_variant_id), action: actionForChanges(changed_fields), changed_fields, source_captured_at: sourceCapturedAt, source: semanticSource, target, expected_deltas: deltasForChanges(changed_fields, { shippingChanged: source.shipping_cost !== target.shipping_cost, totalChanged }) });
   }
   const changed = rows.filter((row) => row.action !== "VERIFY_NO_CHANGE").length;
   const priceChanged = rows.filter((row) => row.changed_fields.price).length;
