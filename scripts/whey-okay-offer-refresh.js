@@ -307,6 +307,47 @@ function sourceHealth(feed) {
   }
   return { result: "PASS", code: null, ...evidence };
 }
+function balancedExecutionBatches(rows, maximumBatchSize = 50) {
+  invariant(
+    Number.isInteger(maximumBatchSize) && maximumBatchSize > 0,
+    "invalid maximum batch size",
+  );
+  if (rows.length === 0) return [];
+  const batchCount = Math.ceil(rows.length / maximumBatchSize);
+  const batches = Array.from({ length: batchCount }, () => []);
+  const newOos = [];
+  const existingOos = [];
+  const inStock = [];
+  for (const row of rows) {
+    const before = Boolean(row.atomic_plan.expected_state.offer.in_stock);
+    const after = Boolean(row.atomic_plan.offer.values.in_stock);
+    if (!after && before) newOos.push(row);
+    else if (!after) existingOos.push(row);
+    else inStock.push(row);
+  }
+  let cursor = 0;
+  for (const group of [newOos, existingOos, inStock]) {
+    for (const row of group) {
+      while (batches[cursor % batchCount].length >= maximumBatchSize) {
+        cursor += 1;
+      }
+      batches[cursor % batchCount].push(row);
+      cursor += 1;
+    }
+  }
+  for (const batch of batches) {
+    batch.sort((left, right) => Number(left.offer_id) - Number(right.offer_id));
+    invariant(
+      batch.length > 0 && batch.length <= maximumBatchSize,
+      "balanced batch size drift",
+    );
+  }
+  invariant(
+    batches.reduce((count, batch) => count + batch.length, 0) === rows.length,
+    "balanced batch coverage drift",
+  );
+  return batches;
+}
 function guardrailsFor(rows, sourceProducts, policyFingerprint) {
   const changed = rows.filter((row) => row.action !== "VERIFY_NO_CHANGE");
   const newOos = rows.filter(
@@ -572,8 +613,8 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     });
   }
   const artifacts = [];
-  for (let offset = 0; offset < rows.length; offset += 50) {
-    const part = rows.slice(offset, offset + 50).map(executionRow);
+  for (const batch of balancedExecutionBatches(rows, 50)) {
+    const part = batch.map(executionRow);
     const expected = sumDeltas(part);
     const actionManifestFingerprint = canonicalHash({
       state: "DRY_RUN_READY",
@@ -1120,6 +1161,7 @@ if (require.main === module) {
 module.exports = {
   RefreshError,
   artifactPrefix,
+  balancedExecutionBatches,
   buildRun,
   changeSummary,
   deliveredTotalForSourcePrice,

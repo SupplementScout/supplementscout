@@ -11,6 +11,7 @@ const {
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
   RefreshError,
+  balancedExecutionBatches,
   deliveredTotalForSourcePrice,
   guardrailsFor,
   loadManifest,
@@ -323,6 +324,45 @@ test("source health separates healthy, degraded and collapsed feeds", () => {
     sourceHealth({ product_count: 100, row_count: 200 }).code,
     "GENUINE_SOURCE_COLLAPSE",
   );
+});
+
+test("execution batches distribute current and new OOS rows without weakening guards", () => {
+  const rows = Array.from({ length: 586 }, (_, index) => {
+    const previousInStock = index >= 59;
+    const nextInStock = index >= 62;
+    return {
+      offer_id: String(index + 1),
+      atomic_plan: {
+        expected_state: { offer: { in_stock: previousInStock } },
+        offer: { values: { in_stock: nextInStock } },
+      },
+    };
+  });
+  const batches = balancedExecutionBatches(rows, 50);
+  assert.equal(batches.length, 12);
+  assert.equal(
+    batches.reduce((count, batch) => count + batch.length, 0),
+    586,
+  );
+  assert.equal(
+    new Set(batches.flat().map((row) => row.offer_id)).size,
+    586,
+  );
+  for (const batch of batches) {
+    assert.ok(batch.length <= 50);
+    assert.ok(
+      batch.filter((row) => !row.atomic_plan.offer.values.in_stock).length /
+        batch.length <
+        0.2,
+    );
+    assert.ok(
+      batch.filter(
+        (row) =>
+          row.atomic_plan.expected_state.offer.in_stock &&
+          !row.atomic_plan.offer.values.in_stock,
+      ).length <= 1,
+    );
+  }
 });
 
 test("validator guard evidence retains full-manifest safety limits", () => {
