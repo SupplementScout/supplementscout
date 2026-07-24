@@ -36,7 +36,7 @@
     "mass_price_change_block_ratio": 0.1,
     "per_row_price_hard_block_ratio": 0.6,
     "per_row_price_hard_block_absolute_gbp": "20.00",
-    "mass_oos_block_count": 30,
+    "mass_oos_block_count": 4,
     "ignore_source_sku": true,
     "source_url_mode": "provided",
     "allowed_url_hosts": [
