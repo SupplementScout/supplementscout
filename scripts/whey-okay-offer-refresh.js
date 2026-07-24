@@ -245,9 +245,13 @@ async function readState(target) {
 function money(value) {
   return value == null ? null : Number(value).toFixed(2);
 }
-function deliveredTotalForSourcePrice(sourcePrice, target) {
-  const price = money(sourcePrice);
-  if (price === target.price || target.shipping_cost === null) {
+function deliveredTotalForSourceUpdate(source, target) {
+  const price = money(source.price);
+  const updateRequired =
+    price !== target.price ||
+    Boolean(source.in_stock) !== target.in_stock ||
+    String(source.url) !== String(target.url);
+  if (!updateRequired || target.shipping_cost === null) {
     return target.total_price;
   }
   return (Number(price) + Number(target.shipping_cost)).toFixed(2);
@@ -277,7 +281,7 @@ function sourceFor(record, sourceByKey) {
     external_sku: null,
     product_handle: null,
     shipping_cost: target.shipping_cost,
-    total_price: deliveredTotalForSourcePrice(source.price, target),
+    total_price: deliveredTotalForSourceUpdate(source, target),
   };
 }
 function sourceHealth(feed) {
@@ -469,7 +473,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     shipping_cost:
       targetByKey.get(row.source_key)?.shipping_cost || row.feed_shipping_cost,
     total_price: targetByKey.has(row.source_key)
-      ? deliveredTotalForSourcePrice(row.price, targetByKey.get(row.source_key))
+      ? deliveredTotalForSourceUpdate(row, targetByKey.get(row.source_key))
       : null,
   }));
   const policy = {
@@ -1122,7 +1126,7 @@ module.exports = {
   artifactPrefix,
   buildRun,
   changeSummary,
-  deliveredTotalForSourcePrice,
+  deliveredTotalForSourceUpdate,
   diagnosticTemplate,
   guardrailsFor,
   loadManifest,
