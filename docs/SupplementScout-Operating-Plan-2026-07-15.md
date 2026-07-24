@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 22 July 2026<br>
+**Status date:** 24 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -36,7 +36,22 @@ This update supersedes older Jon's catalogue-growth and production-enablement ne
 - Manual GitHub run [`29931897205`](https://github.com/SupplementScout/supplementscout/actions/runs/29931897205) passed on commit `f28d462a45e11f01437365a579c5ad7fa696ad86`. Environment access, 59 contract tests, source capture, discovery, dry-run, registration, validator, all 11 sequential approvals/applies, fresh idempotency and artifact upload passed. Scope was 506 mappings/offers; all classified `VERIFY_NO_CHANGE`, freshness changed for 506, price/stock/URL/history and catalogue row counts changed by 0, discovery reported 338, blockers were 0, the parent finished `COMPLETED`, children finished 11/11 `APPLIED`, active plans/approvals/runs were 0 and recovery was 0.
 - `.github/workflows/jons-offer-refresh.yml` is active on `main` through both `workflow_dispatch` and the daily `04:47 UTC` schedule (`05:47 Europe/London` during British Summer Time). The next scheduled run after the validated 22 July run is 23 July 2026 at `04:47 UTC` / `05:47 Europe/London`. Tests and a dry-run remain hard gates; explicit `GB` market context, exact source identity, source-collapse and mass-change guards remain unchanged; routine execution cannot create products, variants or mappings. No routine manual Jon's refresh is required.
 
-### 0.0.2 Consent-aware public analytics - 22 July 2026
+### 0.0.2 Whey Okay exact-manifest automation - 24 July 2026
+
+This update supersedes older statements that Whey Okay lacks an authorised repeatable source or that all legacy reconciliation must finish before exact-mapping automation.
+
+- The authorised source is the public EKM Google Product Feed at `https://wheyokay.com/ekmps/shops/2ab763/data/ekm_p_2ab763.txt`, classified `FULL_AUTOMATIC_SOURCE`. The reusable reader requires HTTP success, safe same-host HTTPS redirects, UTF-8 tab-delimited data, the exact 48-column schema, exact EKM parent and variant IDs, valid Whey Okay URLs, parseable price and availability, and `Last-Modified` freshness within 24 hours. It does not depend on the feed's blank GTIN, MPN or size fields.
+- The immutable automatic scope is exactly 586 existing mappings and 586 existing offers in `config/retailers/whey-okay-approved-offer-manifest.json`, SHA-256 `54D828AF0E3C20F548708832E0A7AD9DCAF74B1CBC6AB043ED7696D6F7C4D731`. The frozen evidence state was 527 active and 59 monitored-OOS rows. Duplicate source identities, duplicate canonical semantic targets and missing feed identities were all 0.
+- All 284 remaining legacy mappings are outside automation. Mapping IDs `11`, `150`, `191` and `249` are explicit reviewed rebind exceptions and remain untouched. The permanent Q3/Q4 fail-closed exceptions, apparel and every unapproved discovery row are also excluded. Routine refresh cannot create, remap, merge, delete or recover products, variants, mappings or offers.
+- The first controlled staging and production refresh both passed. Each processed 586 rows through 12 guarded children: 580 verified no-change, five stock changes and one price change. Products, active products, variants, mappings, offers and retailers had row-count delta 0. Offer URL, mapping URL and shipping mutations were 0. All 586 offers received a fresh `last_checked_at`; one real price change created one price-history row and established its delivered total.
+- Exact first-refresh changes were: source `2418:2419`, mapping `371`, offer `342`, price `£39.87 -> £47.18`, preserved shipping `£3.99`, delivered total `£51.17`; sources `3070:3070`, `3665:3665` and `3904:3904` changed in stock to out of stock; sources `531:531` and `3304:3304` returned to stock. Staging and production idempotency then returned 586/586 `VERIFY_NO_CHANGE`, history delta 0, approvals fully consumed and recovery 0.
+- The feed audit found 31 current feed-versus-stored shipping differences, compared with the earlier expectation of 28. They are reported separately and remain deferred; first-rollout stored shipping was preserved for all 586 rows.
+- Guard baselines are 520 source products and 1,678 source rows. Counts below 90% block as degraded and below 75% block as genuine collapse. Further guards enforce complete manifest coverage, unique identities, no more than three new OOS rows, total OOS at most 20%, OOS increase at most five percentage points, changed rows at most 20%, price-changed rows below 10%, per-row price movement below both the 60% and £20 hard limits, and URL host `wheyokay.com`. Child packaging distributes OOS rows deterministically without weakening these thresholds. Missing approved rows, source failure, stale or malformed feeds block before writes; new rows are discovery-only.
+- The workflow `.github/workflows/whey-okay-offer-refresh.yml` is active on `main`, defaults `workflow_dispatch` to dry-run and runs daily at `02:17 UTC` (`03:17 Europe/London` during British Summer Time), after the observed approximately `01:01 UTC` feed generation. It uses the existing separate least-privilege validator, approver and executor credentials in the protected `production-readonly` Environment, never a service-role bypass, and keeps `SAFE_UPDATE` unset.
+- Manual GitHub dry-runs [`30074666550`](https://github.com/SupplementScout/supplementscout/actions/runs/30074666550) and [`30074733707`](https://github.com/SupplementScout/supplementscout/actions/runs/30074733707), plus scheduled-context dry-run [`30074802757`](https://github.com/SupplementScout/supplementscout/actions/runs/30074802757), passed on commit `c5eae74bf072d1b93b206fd2853075c0485a3b7a`. Each passed 120/120 tests, the full 586-row production validation and evidence upload while apply remained skipped.
+- Operational status is **TECHNICALLY COMPLETE — AWAITING SCHEDULED PROOF**. It becomes **WHEY OKAY OPERATIONALLY COMPLETE** only after real cron runs at `2026-07-25 02:17 UTC` and `2026-07-26 02:17 UTC` both pass with complete artifacts, 586/586 manifest coverage and no unexplained warning or unsafe write.
+
+### 0.0.3 Consent-aware public analytics - 22 July 2026
 
 - GA4 is integrated through `NEXT_PUBLIC_GA_MEASUREMENT_ID` and is disabled safely when the variable is absent. Google Tag Manager and advertising tracking are not used.
 - UK visitors receive equal Accept all and Reject non-essential choices, a separate analytics preference and a persistent way to reopen settings. Consent Mode v2 defaults analytics and all advertising signals to denied; accepting grants analytics only, while rejecting or withdrawing keeps every advertising signal denied.
@@ -655,6 +670,8 @@ Completed:
 Fit House is not yet in a scheduled update workflow.
 
 ### 8.7 Whey Okay
+
+Current authority is section 0.0.2. The reconciliation history below is retained as historical evidence and must not be read as disabling the approved 586-row exact-manifest automation.
 
 Completed:
 

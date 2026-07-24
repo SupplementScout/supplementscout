@@ -1,6 +1,6 @@
 # SupplementScout Retailer Data Source Registry
 
-_Last updated: 22 July 2026_
+_Last updated: 24 July 2026_
 
 ## Purpose
 
@@ -304,6 +304,20 @@ Primary commercial coverage metric:
 
 Products with at least 2 active retailers.
 
+## Whey Okay current record - 24 July 2026
+
+- Retailer ID: `3`; domain: `wheyokay.com`; platform/source: EKM Google Product Feed at `https://wheyokay.com/ekmps/shops/2ab763/data/ekm_p_2ab763.txt`.
+- Source classification: `FULL_AUTOMATIC_SOURCE` for the immutable exact-mapping manifest only. Reader requirements are HTTP success, safe same-host HTTPS redirects, UTF-8 TSV, exactly 48 columns, exact EKM parent/variant identity, valid price and availability, Whey Okay URL identity and `Last-Modified` age no greater than 24 hours.
+- Approved automatic manifest: 586 existing mappings/offers; SHA-256 `54D828AF0E3C20F548708832E0A7AD9DCAF74B1CBC6AB043ED7696D6F7C4D731`. It had 527 active and 59 monitored-OOS rows when frozen. Identity and canonical-target duplicates were 0 and approved feed coverage was 586/586.
+- Outside automation: all 284 legacy mappings; reviewed mapping exceptions `11`, `150`, `191` and `249`; permanent Q3/Q4 exceptions; apparel; and every unapproved discovery row. The automatic path cannot create or remap catalogue identities.
+- Refresh fields: price, stock, approved offer/mapping URL and `last_checked_at`; price history only for a genuine price or approved delivered-price change. Stored shipping is preserved during the first rollout.
+- First staging and production refresh: 580 no-change, 5 stock changes, 1 price change, 586 freshness updates, history `+1`, all catalogue row-count deltas 0, URL changes 0, shipping mutations 0, approvals consumed and recovery 0. Fresh idempotency was 586/586 no-change in both environments.
+- Shipping review: the fresh feed has 31 feed-versus-stored differences rather than the previously expected 28. All 31 are report-only and deferred.
+- Source/guard baselines: 520 products, 1,678 rows, 90% minimum count ratio, 75% collapse boundary, at most 3 new OOS, total OOS at most 20%, OOS increase at most 5 percentage points, changed rows at most 20%, price changes below 10%, per-row price hard blocks at 60% or £20, and URL host restricted to `wheyokay.com`. Any missing approved row blocks; source failure produces zero writes; new rows remain discovery-only.
+- Workflow: `.github/workflows/whey-okay-offer-refresh.yml`, daily `02:17 UTC` (`03:17 Europe/London` during British Summer Time), plus dry-run-by-default manual dispatch. It uses separate scoped validator, approver and executor credentials, uploads evidence with `if: always()`, has no service-role path and keeps `SAFE_UPDATE` unset.
+- Manual production dry-runs [`30074666550`](https://github.com/SupplementScout/supplementscout/actions/runs/30074666550) and [`30074733707`](https://github.com/SupplementScout/supplementscout/actions/runs/30074733707), plus scheduled-context dry-run [`30074802757`](https://github.com/SupplementScout/supplementscout/actions/runs/30074802757), passed on commit `c5eae74bf072d1b93b206fd2853075c0485a3b7a`, including 120/120 contract tests, 586-row validation and artifacts.
+- Status: **TECHNICALLY COMPLETE — AWAITING SCHEDULED PROOF** until the real `25 July 2026 02:17 UTC` and `26 July 2026 02:17 UTC` cron runs pass.
+
 ## Jon's Supplements current record - 22 July 2026
 
 - Retailer ID: `10`; domain: `jonssupplements.co.uk`; platform/source: public Shopify product JSON through the existing Shopify snapshot reader.
@@ -340,3 +354,9 @@ Record major decisions below.
 - The final reviewed Jon's catalogue closeout applied 51 rows on staging and production: 34 products, 51 variants, 51 mappings, 51 offers and 51 initial price-history rows.
 - Production Jon's coverage moved from 455 to 506 mappings/offers; post-apply importer idempotency was 51/51 unchanged with zero new deltas.
 - The reviewed eight-offer stock-only correction and full 506-offer dry-run passed on both environments. The subsequent GitHub parent/child run passed for all 506 offers, its daily schedule is active, and Jon's is operationally complete without a new sync framework or routine manual refresh.
+
+### 24 July 2026
+
+- Whey Okay's EKM Google Product Feed became the authorised `FULL_AUTOMATIC_SOURCE` for the immutable 586-row exact-mapping manifest.
+- Staging and production apply plus 586/586 idempotency passed. The 284 legacy mappings, four reviewed rebind exceptions and permanent exclusions remain outside automation.
+- The daily `02:17 UTC` workflow is active. Manual production and scheduled-context dry-runs are the technical proof; operational completion still requires two consecutive real cron passes.
