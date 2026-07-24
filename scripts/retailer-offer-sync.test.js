@@ -22,6 +22,40 @@ function input(changes = () => {}) {
   const data = inventory(); changes(data);
   return { ...data, policy: { store_url: config.store_url, ...config.guardrails }, retailerSlug: config.retailer_slug, retailerId: "9001", targetEnvironment: "STAGING", targetProjectRef: "hxnrsyyqffztlvcrtgbf", targetDatabaseIdentity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf", expectedMigrationVersions: ["20260718150000_add_verified_no_change_offer_refresh", "20260718160000_add_retailer_offer_mixed_batch_executor"], expectedMigrationFingerprint: "9".repeat(64), migrationFingerprintAlgorithm: "SHA-256", migrationFingerprintVersion: "RSBI-CJ1", sourceSnapshotFingerprint: fixture.source_manifest_sha256, rawSourceFingerprint: "7".repeat(64), semanticSourceFingerprint: fixture.source_manifest_sha256, adapterFingerprint: "a".repeat(64), policyFingerprint: "b".repeat(64), codeCommit: "bc9ae1630c56cd7daeda3f94f93d9b6cfaedd7c8", expectedStateFingerprint: fixture.inventory_fingerprint, sourceCapturedAt: fixture.captured_at, now: new Date("2026-07-18T17:00:00.000Z"), sourceProductCount: 5, previousSourceProductCount: 5 };
 }
+function sizedInput(count, scopeName = `TEST_SCOPE_${count}`) {
+  const scenario = input();
+  while (scenario.targets.length < count) {
+    const index = scenario.targets.length;
+    const template = scenario.targets[index % fixture.groups.length];
+    const externalProductId = `extra-product-${index}`;
+    const externalVariantId = `extra-variant-${index}`;
+    const url = `${config.store_url}/products/extra-${index}?variant=${externalVariantId}`;
+    scenario.targets.push({
+      ...template,
+      offer_id: String(900_000 + index),
+      retailer_product_id: String(800_000 + index),
+      external_product_id: externalProductId,
+      external_variant_id: externalVariantId,
+      external_sku: null,
+      url,
+      external_url: url,
+    });
+    scenario.sourceVariants.push({
+      external_product_id: externalProductId,
+      external_variant_id: externalVariantId,
+      external_sku: null,
+      product_handle: `extra-${index}`,
+      price: template.price,
+      shipping_cost: template.shipping_cost,
+      in_stock: template.in_stock,
+    });
+  }
+  scenario.targets = scenario.targets.slice(0, count);
+  scenario.sourceVariants = scenario.sourceVariants.slice(0, count);
+  scenario.policy = { ...scenario.policy, required_matched_offers: count };
+  scenario.guardScope = { name: scopeName, retailer: "Test Retailer" };
+  return scenario;
+}
 
 test("closed action enum and changed-field bitmap cover all six executable actions", () => {
   assert.equal(ACTIONS.length, 8);
@@ -32,6 +66,8 @@ test("full 26-row Jon's fixture classifies as deterministic verified no-change",
   const first = buildDryRun(input()); const second = buildDryRun(input());
   assert.equal(first.state, "DRY_RUN_READY"); assert.equal(first.rows.length, 26); assert.equal(first.rows.every((row) => row.action === "VERIFY_NO_CHANGE"), true);
   assert.equal(first.expected_deltas.logical_field_deltas.last_checked_at_updates, 26); assert.equal(first.expected_deltas.row_count_deltas.price_history, 0); assert.equal(first.artifact_fingerprint, second.artifact_fingerprint);
+  const classification = classifyExistingOffers(input());
+  assert.equal(classification.action_manifest_fingerprint, fingerprint({ state: classification.state, rows: classification.rows, expected_deltas: classification.expected_deltas }));
 });
 test("single price, stock, combined, URL and composite changes classify exactly", () => {
   const scenarios = [
@@ -105,6 +141,53 @@ test("MASS_OOS ignores an unchanged historical OOS baseline but blocks genuine n
     assert.equal(blocked.reason, "MASS_OOS");
     assert.equal(blocked.detail.new_oos, count);
   }
+});
+test("30 of 30 VERIFY_NO_CHANGE rows reconcile to zero changes and cannot produce MASS_CHANGE", () => {
+  const result = classifyExistingOffers(sizedInput(30, "CREATINE_HEALTHY_30"));
+  assert.equal(result.state, "DRY_RUN_READY");
+  assert.equal(result.rows.length, 30);
+  assert.equal(result.rows.every((row) => row.action === "VERIFY_NO_CHANGE"), true);
+  assert.equal(result.guard_evidence.scope_name, "CREATINE_HEALTHY_30");
+  assert.equal(result.guard_evidence.total, 30);
+  assert.equal(result.guard_evidence.no_change, 30);
+  assert.equal(result.guard_evidence.changed, 0);
+  assert.equal(result.guard_evidence.changed_ratio, 0);
+  assert.equal(result.guard_evidence.reconciled_total, 30);
+  assert.equal(result.guard_evidence.guards.find((guard) => guard.guard === "MASS_CHANGE").result, "PASS");
+});
+test("guard evidence counts one real change exactly once and preserves the MASS_CHANGE boundary", () => {
+  const atBoundary = sizedInput(4, "BOUNDARY_25_PERCENT");
+  atBoundary.targets[0].in_stock = false;
+  const boundaryResult = classifyExistingOffers(atBoundary);
+  assert.equal(boundaryResult.state, "DRY_RUN_READY");
+  assert.equal(boundaryResult.guard_evidence.changed, 1);
+  assert.equal(boundaryResult.guard_evidence.action_counts.UPDATE_STOCK, 1);
+  assert.equal(boundaryResult.guard_evidence.changed_ratio, 0.25);
+  assert.equal(boundaryResult.guard_evidence.guards.find((guard) => guard.guard === "MASS_CHANGE").result, "PASS");
+
+  const aboveBoundary = sizedInput(4, "ABOVE_BOUNDARY");
+  aboveBoundary.targets[0].in_stock = false;
+  aboveBoundary.targets[1].in_stock = false;
+  const blocked = classifyExistingOffers(aboveBoundary);
+  assert.equal(blocked.reason, "MASS_CHANGE");
+  assert.equal(blocked.rows.length, 4);
+  assert.equal(blocked.guard_evidence.changed, 2);
+  assert.equal(blocked.guard_evidence.reconciled, true);
+  assert.equal(Object.values(blocked.guard_evidence.action_counts).reduce((sum, count) => sum + count, 0), 4);
+});
+test("sequential classifications and stale blocked artifacts cannot leak guard state", () => {
+  const blockedInput = sizedInput(5, "JONS_CHILD_5");
+  blockedInput.targets[0].in_stock = false;
+  blockedInput.targets[1].in_stock = false;
+  const blocked = classifyExistingOffers(blockedInput);
+  assert.equal(blocked.reason, "MASS_CHANGE");
+  assert.equal(JSON.parse(JSON.stringify(blocked)).guard_evidence.changed, 2);
+
+  const fresh = classifyExistingOffers(sizedInput(5, "JONS_CHILD_5"));
+  assert.equal(fresh.state, "DRY_RUN_READY");
+  assert.equal(fresh.guard_evidence.changed, 0);
+  assert.equal(fresh.guard_evidence.guards.find((guard) => guard.guard === "MASS_CHANGE").result, "PASS");
+  assert.deepEqual(fresh.guard_evidence.scope_row_ids, fresh.rows.map((row) => String(row.offer_id)));
 });
 test("artifact ordering and state transitions are stable and closed", () => {
   assert.deepEqual(sortRows([{ offer_id: "10" }, { offer_id: "2" }]).map((x) => x.offer_id), ["2", "10"]);

@@ -357,13 +357,17 @@ function classifyRetailerScope({ retailerName, scope, state, snapshot, sourceCap
     targets: rows.map(targetFor),
     sourceVariants,
     policy: policyFor(scope),
+    guardScope: {
+      name: `CREATINE_${retailerName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${scope.expectedCount}`,
+      retailer: retailerName,
+    },
     sourceCapturedAt,
     now,
     sourceProductCount: snapshot.products.length,
     previousSourceProductCount: scope.previousSourceProductCount,
   });
   const classifiedRows = [];
-  if (classification.state === "DRY_RUN_READY") {
+  if (Array.isArray(classification.rows)) {
     const sourceByVariant = new Map(sourceVariants.map((source) => [String(source.external_variant_id), source]));
     for (const classified of classification.rows) {
       const local = rows.find((row) => String(row.offer.id) === String(classified.offer_id));
@@ -451,6 +455,7 @@ async function buildRefreshPlan({ client, fetchImpl = globalThis.fetch, now = ne
             counts: summarizeActions(result.classification.rows),
             expected_deltas: result.classification.expected_deltas,
             action_manifest_fingerprint: result.classification.action_manifest_fingerprint,
+            guard_evidence: result.classification.guard_evidence,
           }
         : result.classification,
     });
@@ -461,11 +466,16 @@ async function buildRefreshPlan({ client, fetchImpl = globalThis.fetch, now = ne
     generated_at: sourceCapturedAt,
     project_ref: EXPECTED_PRODUCTION_REF,
     safe_update: process.env.SAFE_UPDATE || "UNSET",
+    state_origin: "FRESH_DATABASE_AND_SOURCE_READS",
+    prior_artifact_input: false,
     scope: Object.fromEntries(Object.entries(RETAILER_SCOPE).map(([name, scope]) => [name, { expected_count: scope.expectedCount, offer_ids: [...scope.offerIds] }])),
     status: blockers.length === 0 && classifiedRows.length === 35 ? "DRY_RUN_READY" : "BLOCKED",
     retailer_results: retailerResults,
     classification_counts: summarizeActions(classifiedRows),
     classified_rows: classifiedRows.sort((left, right) => Number(left.offer_id) - Number(right.offer_id)),
+    guard_scopes: retailerResults
+      .map((entry) => entry.classification.guard_evidence)
+      .filter(Boolean),
     blockers,
   };
   if (plan.status === "DRY_RUN_READY") assertSafePlan(plan);
@@ -643,7 +653,22 @@ async function run(options = {}) {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const plan = await buildRefreshPlan({ client, fetchImpl: options.fetchImpl || globalThis.fetch, now: options.now || new Date() });
-  const report = { generated_at: new Date().toISOString(), mode, project_ref: projectRef, status: plan.status, plan, blockers: plan.blockers };
+  const report = {
+    generated_at: new Date().toISOString(),
+    mode,
+    project_ref: projectRef,
+    status: plan.status,
+    workflow_run_context: {
+      repository: env.GITHUB_REPOSITORY || "SupplementScout/supplementscout",
+      run_id: env.GITHUB_RUN_ID || null,
+      run_attempt: env.GITHUB_RUN_ATTEMPT || null,
+      event_name: env.GITHUB_EVENT_NAME || "local",
+      ref: env.GITHUB_REF || null,
+      trigger_type: env.CREATINE_REFRESH_TRIGGER_TYPE || env.GITHUB_EVENT_NAME || "local",
+    },
+    plan,
+    blockers: plan.blockers,
+  };
   if (mode === "apply") {
     if (plan.status !== "DRY_RUN_READY") {
       report.status = "BLOCKED";

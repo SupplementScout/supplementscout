@@ -455,6 +455,35 @@ test("full 35-offer run treats Jon's historical OOS rows as unchanged", async ()
   assert.equal(plan.blockers.length, 0);
 });
 
+test("mixed retailer parent preserves healthy 30-row evidence and names the exact blocked Jon's child", async () => {
+  const { fitRows, discountRows, jonsRows } = creatinePlanState();
+  for (const entry of jonsRows.slice(0, 2)) entry.offer.in_stock = false;
+  const state = stateFromRows([...fitRows, ...discountRows, ...jonsRows]);
+  const snapshots = new Map([
+    ["https://fithouse.uk", paddedShopifySnapshot({ rows: fitRows, storeOrigin: "https://fithouse.uk", productCount: 85, variantCount: 85, availableCount: 85 })],
+    ["https://www.discount-supplements.co.uk", paddedShopifySnapshot({ rows: discountRows, storeOrigin: "https://www.discount-supplements.co.uk", productCount: 12, variantCount: 12, availableCount: 12 })],
+    ["https://jonssupplements.co.uk", paddedShopifySnapshot({ rows: jonsRows, storeOrigin: "https://jonssupplements.co.uk", productCount: 224, variantCount: 844, availableCount: 581 })],
+  ]);
+  const plan = await buildRefreshPlan({
+    client: clientFromState(state),
+    fetchImpl: async (url) => responseForSnapshot(snapshots.get(new URL(url.href).origin)),
+    now: new Date("2026-07-19T03:17:00.000Z"),
+  });
+  assert.equal(plan.status, "BLOCKED");
+  assert.equal(plan.classified_rows.length, 35);
+  assert.deepEqual(plan.classification_counts, { VERIFY_NO_CHANGE: 33, UPDATE_STOCK: 2 });
+  assert.equal(plan.blockers.length, 1);
+  assert.equal(plan.blockers[0].retailer, "Jon's Supplements");
+  assert.equal(plan.blockers[0].classification.reason, "MASS_CHANGE");
+  assert.equal(plan.blockers[0].classification.guard_evidence.scope_name, "CREATINE_JON_S_SUPPLEMENTS_5");
+  assert.equal(plan.blockers[0].classification.guard_evidence.total, 5);
+  assert.equal(plan.blockers[0].classification.guard_evidence.changed, 2);
+  assert.equal(plan.blockers[0].classification.guard_evidence.scope_row_ids.length, 5);
+  assert.equal(plan.retailer_results.find((entry) => entry.retailer === "Fit House").classification.counts.VERIFY_NO_CHANGE, 18);
+  assert.equal(plan.retailer_results.find((entry) => entry.retailer === "Discount Supplements").classification.counts.VERIFY_NO_CHANGE, 12);
+  assert.equal(plan.guard_scopes.length, 3);
+});
+
 test("Jon's all-OOS historical baseline does not trigger repeated MASS_OOS", () => {
   const { jonsRows } = creatinePlanState();
   for (const entry of jonsRows) entry.offer.in_stock = false;
@@ -597,6 +626,10 @@ test("workflow is scheduled, main-only, secret-backed and has no public trigger"
   assert.match(workflow, /permissions:\s*\n\s+contents: read/);
   assert.match(workflow, /node scripts\/creatine-offer-refresh\.js --dry-run/);
   assert.match(workflow, /node scripts\/creatine-offer-refresh\.js --apply/);
+  assert.match(workflow, /operation:[\s\S]*default:\s*dry-run/);
+  assert.match(workflow, /validation_context:[\s\S]*workflow_dispatch[\s\S]*schedule/);
+  assert.match(workflow, /if:\s*\$\{\{\s*github\.event_name == 'schedule' \|\| inputs\.operation == 'apply'\s*\}\}/);
+  assert.match(workflow, /CREATINE_REFRESH_TRIGGER_TYPE:/);
   assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{\s*secrets\.SUPABASE_SERVICE_ROLE_KEY\s*\}\}/);
   assert.match(workflow, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{\s*secrets\.NEXT_PUBLIC_SUPABASE_URL\s*\}\}/);
 });

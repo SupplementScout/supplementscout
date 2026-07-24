@@ -2,6 +2,23 @@ name: Creatine Offer Refresh
 
 on:
   workflow_dispatch:
+    inputs:
+      operation:
+        description: "Dry-run only unless an explicitly authorised apply is required"
+        required: true
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+      validation_context:
+        description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
+        required: true
+        default: workflow_dispatch
+        type: choice
+        options:
+          - workflow_dispatch
+          - schedule
   schedule:
     - cron: "17 3 * * *"
 
@@ -50,12 +67,15 @@ jobs:
 
       - name: Dry-run authorised creatine offers
         env:
+          CREATINE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/creatine-offer-refresh.js --dry-run
 
       - name: Apply safe authorised creatine refresh
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
+          CREATINE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/creatine-offer-refresh.js --apply
