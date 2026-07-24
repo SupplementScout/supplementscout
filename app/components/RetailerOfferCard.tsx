@@ -12,6 +12,7 @@ import {
 } from "../lib/productOfferGroups";
 import { formatCurrency, getKnownProductPrice } from "../lib/pricing";
 import { sendAnalyticsEvent } from "../lib/analytics";
+import { calculateDeliveredSavings } from "../lib/productOfferPresentation";
 import type { ProductAnalyticsContext } from "./ProductAnalytics";
 
 function formatShipping(value: number | string | null) {
@@ -45,10 +46,14 @@ export default function RetailerOfferCard({
   group,
   product,
   position,
+  isBestDeliveredPrice = false,
+  nextComparableDeliveredTotal = null,
 }: {
   group: ProductOfferGroup;
   product: ProductAnalyticsContext;
   position: number;
+  isBestDeliveredPrice?: boolean;
+  nextComparableDeliveredTotal?: number | null;
 }) {
   const [selectedOfferId, setSelectedOfferId] = useState(
     String(group.offers[0]?.id || "")
@@ -63,6 +68,17 @@ export default function RetailerOfferCard({
     ? displayLabels.get(String(selectedOffer.id)) || null
     : getOfferVariantLabel(selectedOffer);
   const selectedDeliveredTotal = getOfferDeliveredTotal(selectedOffer);
+  const selectedIsBestDeliveredPrice =
+    isBestDeliveredPrice &&
+    selectedDeliveredTotal !== null &&
+    group.lowestDeliveredTotal !== null &&
+    Math.abs(selectedDeliveredTotal - group.lowestDeliveredTotal) < 0.005;
+  const deliveredSavings = selectedIsBestDeliveredPrice
+    ? calculateDeliveredSavings(
+      selectedDeliveredTotal,
+      nextComparableDeliveredTotal
+    )
+    : null;
 
   return (
     <article className="w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 p-4 sm:p-5">
@@ -95,6 +111,18 @@ export default function RetailerOfferCard({
         </div>
 
         <div className="min-w-0 text-left sm:text-right">
+          {selectedIsBestDeliveredPrice && (
+            <div className="mb-2 flex flex-wrap items-center gap-2 sm:justify-end">
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800">
+                Best delivered price
+              </span>
+              {deliveredSavings !== null && (
+                <span className="text-xs font-bold text-emerald-700">
+                  Save {formatCurrency(deliveredSavings)}
+                </span>
+              )}
+            </div>
+          )}
           <p className="text-sm font-medium text-gray-700">
             Product: {formatProductPrice(selectedOffer.price)}
           </p>

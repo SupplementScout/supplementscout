@@ -63,6 +63,19 @@ function loadRetailerOfferCard() {
       };
     }
 
+    if (parent === mod && request === "../lib/productOfferPresentation") {
+      return {
+        calculateDeliveredSavings: (best, next) =>
+          best !== null && next !== null && next > best
+            ? Number((next - best).toFixed(2))
+            : null,
+      };
+    }
+
+    if (parent === mod && request === "../lib/analytics") {
+      return { sendAnalyticsEvent: () => {} };
+    }
+
     return originalLoad.call(this, request, parent, isMain);
   };
 
@@ -87,9 +100,15 @@ function offer(overrides = {}) {
       ? overrides.retailer_id
       : "4",
     product_variant_id: overrides.product_variant_id || "712",
-    price: overrides.price ?? "89.95",
-    shipping_cost: overrides.shipping_cost ?? "4.99",
-    total_price: overrides.total_price ?? "94.94",
+    price: Object.prototype.hasOwnProperty.call(overrides, "price")
+      ? overrides.price
+      : "89.95",
+    shipping_cost: Object.prototype.hasOwnProperty.call(overrides, "shipping_cost")
+      ? overrides.shipping_cost
+      : "4.99",
+    total_price: Object.prototype.hasOwnProperty.call(overrides, "total_price")
+      ? overrides.total_price
+      : "94.94",
     in_stock: overrides.in_stock ?? true,
     url: overrides.url || `https://retailer.test/product?variant=${id}`,
     last_checked_at: "2026-07-14T12:00:00Z",
@@ -119,6 +138,12 @@ function offer(overrides = {}) {
     },
   };
 }
+
+const productAnalytics = {
+  product_id: "12",
+  product_name: "Example Whey",
+  category: "Whey Protein",
+};
 
 test("same retailer Chocolate and Vanilla become one shared-price group", () => {
   const groups = groupProductOffers([
@@ -177,7 +202,7 @@ test("same product price with different shipping exposes per-variant delivered t
   assert.equal(group.offers[0].id, "offer-low-shipping");
 });
 
-test("two retailers produce two cards and preserve offer and retailer counts", () => {
+test("three retailers produce three ordered cards and preserve offer and retailer counts", () => {
   const offers = [
     offer(),
     offer({ id: "offer-vanilla", flavour: "Vanilla", product_variant_id: "713" }),
@@ -187,11 +212,22 @@ test("two retailers produce two cards and preserve offer and retailer counts", (
       retailer_name: "Other Retailer",
       retailer: { id: "5", name: "Other Retailer", slug: "other", website: null, logo: null },
     }),
+    offer({
+      id: "offer-third",
+      retailer_id: "6",
+      retailer_name: "Third Retailer",
+      price: "93.95",
+      retailer: { id: "6", name: "Third Retailer", slug: "third", website: null, logo: null },
+    }),
   ];
   const groups = groupProductOffers(offers);
 
-  assert.equal(offers.length, 3);
-  assert.equal(groups.length, 2);
+  assert.equal(offers.length, 4);
+  assert.equal(groups.length, 3);
+  assert.deepEqual(
+    groups.map((group) => group.retailer.name),
+    ["Discount Supplements", "Other Retailer", "Third Retailer"]
+  );
 });
 
 test("default variant never renders the text Default", () => {
@@ -308,7 +344,7 @@ test("malformed offers without retailer identity never share an undefined group"
   ]);
 });
 
-test("Best UK Price keeps real-offer ranking and correct variant tracking ID", () => {
+test("Best delivered price keeps real-offer ranking and correct variant tracking ID", () => {
   const winner = offer({
     id: "offer-winner",
     flavour: "Vanilla",
@@ -367,7 +403,13 @@ test("client card renders one accessible card, two chips and the selected tracki
     offer({ id: "chocolate-id", flavour: "Chocolate" }),
     offer({ id: "vanilla-id", flavour: "Vanilla" }),
   ])[0];
-  const html = renderToStaticMarkup(React.createElement(RetailerOfferCard, { group }));
+  const html = renderToStaticMarkup(
+    React.createElement(RetailerOfferCard, {
+      group,
+      product: productAnalytics,
+      position: 1,
+    })
+  );
 
   assert.equal((html.match(/<article/g) || []).length, 1);
   assert.equal((html.match(/<button/g) || []).length, 2);
@@ -390,8 +432,20 @@ test("rendered duplicate and missing labels remain visually distinct", () => {
     offer({ id: "missing-a", product_variant: null, external_options: {} }),
     offer({ id: "missing-b", product_variant: null, external_options: {} }),
   ])[0];
-  const duplicateHtml = renderToStaticMarkup(React.createElement(RetailerOfferCard, { group: duplicateGroup }));
-  const missingHtml = renderToStaticMarkup(React.createElement(RetailerOfferCard, { group: missingGroup }));
+  const duplicateHtml = renderToStaticMarkup(
+    React.createElement(RetailerOfferCard, {
+      group: duplicateGroup,
+      product: productAnalytics,
+      position: 1,
+    })
+  );
+  const missingHtml = renderToStaticMarkup(
+    React.createElement(RetailerOfferCard, {
+      group: missingGroup,
+      product: productAnalytics,
+      position: 2,
+    })
+  );
 
   assert.match(duplicateHtml, /Chocolate \/ 2kg · Option 1/);
   assert.match(duplicateHtml, /Chocolate \/ 2kg · Option 2/);
@@ -407,7 +461,13 @@ test("fourteen long variant labels render without hiding chips", () => {
     product_variant_id: String(1000 + index),
   }));
   const group = groupProductOffers(offers)[0];
-  const html = renderToStaticMarkup(React.createElement(RetailerOfferCard, { group }));
+  const html = renderToStaticMarkup(
+    React.createElement(RetailerOfferCard, {
+      group,
+      product: productAnalytics,
+      position: 1,
+    })
+  );
 
   assert.equal((html.match(/<button/g) || []).length, 14);
   assert.match(html, /Pineapple Millions Special Edition 14/);
@@ -433,7 +493,89 @@ test("selection helpers update price, delivered total and CTA for each offer", (
   assert.equal(getOfferDeliveredTotal(selectGroupOffer(group, "vanilla-offer")), 97.94);
 });
 
-test("product page keeps in-stock filtering and uses variant-aware Best UK Price", () => {
+test("best retailer card shows its delivered-price badge and comparable saving", () => {
+  const RetailerOfferCard = loadRetailerOfferCard();
+  const groups = groupProductOffers([
+    offer({
+      id: "best-offer",
+      price: "89.95",
+      shipping_cost: "4.99",
+    }),
+    offer({
+      id: "next-retailer-offer",
+      retailer_id: "5",
+      retailer_name: "Other Retailer",
+      price: "94.95",
+      shipping_cost: "4.99",
+      retailer: {
+        id: "5",
+        name: "Other Retailer",
+        slug: "other",
+        website: null,
+        logo: null,
+      },
+    }),
+  ]);
+  const html = renderToStaticMarkup(
+    React.createElement(RetailerOfferCard, {
+      group: groups[0],
+      product: productAnalytics,
+      position: 1,
+      isBestDeliveredPrice: true,
+      nextComparableDeliveredTotal: groups[1].lowestDeliveredTotal,
+    })
+  );
+
+  assert.equal(groups[0].retailer.name, "Discount Supplements");
+  assert.equal(groups[1].retailer.name, "Other Retailer");
+  assert.match(html, /Best delivered price/);
+  assert.match(html, /Save £5\.00/);
+});
+
+test("saving is hidden when comparison delivery or selected delivery is unknown", () => {
+  const RetailerOfferCard = loadRetailerOfferCard();
+  const knownGroup = groupProductOffers([offer({ id: "known-offer" })])[0];
+  const unknownGroup = groupProductOffers([
+    offer({ id: "unknown-offer", shipping_cost: null, total_price: null }),
+  ])[0];
+  const knownHtml = renderToStaticMarkup(
+    React.createElement(RetailerOfferCard, {
+      group: knownGroup,
+      product: productAnalytics,
+      position: 1,
+      isBestDeliveredPrice: true,
+      nextComparableDeliveredTotal: null,
+    })
+  );
+  const unknownHtml = renderToStaticMarkup(
+    React.createElement(RetailerOfferCard, {
+      group: unknownGroup,
+      product: productAnalytics,
+      position: 1,
+      isBestDeliveredPrice: true,
+      nextComparableDeliveredTotal: 99.94,
+    })
+  );
+
+  assert.doesNotMatch(knownHtml, /Save £/);
+  assert.doesNotMatch(unknownHtml, /Best delivered price|Save £/);
+});
+
+test("selected variant drives displayed price, checked date, analytics and CTA link", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "RetailerOfferCard.tsx"),
+    "utf8"
+  );
+
+  assert.match(source, /formatProductPrice\(selectedOffer\.price\)/);
+  assert.match(source, /formatShipping\(selectedOffer\.shipping_cost\)/);
+  assert.match(source, /selectedOffer\.last_checked_at/);
+  assert.match(source, /productOfferHref\(selectedOffer\.id, "product_offer_list"\)/);
+  assert.match(source, /variant_id: String\(selectedOffer\.product_variant_id\)/);
+  assert.match(source, /retailer_name: selectedOffer\.retailer\?\.name/);
+});
+
+test("product page keeps in-stock filtering and uses a variant-aware best delivered price", () => {
   const page = fs.readFileSync(
     path.join(process.cwd(), "app", "product", "[id]", "page.tsx"),
     "utf8"
@@ -443,6 +585,11 @@ test("product page keeps in-stock filtering and uses variant-aware Best UK Price
   assert.match(page, /const \{ data: offers \} = await supabase/);
   assert.match(page, /await supabaseAdmin[\s\S]*\.from\("retailer_products"\)/);
   assert.match(page, /getBestProductOffer\(sortedOffers\)/);
-  assert.match(page, /Variant: \{getOfferVariantLabel\(cheapestOffer\)\}/);
+  assert.match(page, /BestOfferPricePresentation|buildBestOfferPricePresentation/);
+  assert.match(page, /Variant: \{cheapestVariantLabel\}/);
+  assert.match(page, /`Price checked \$\{cheapestOfferCheckedAt\}`/);
+  assert.match(page, /View offer at/);
   assert.match(page, /productOfferHref\(cheapestOffer\.id, "product_best_offer"\)/);
+  assert.match(page, /source_page: "product_best_offer"/);
+  assert.equal((page.match(/<RetailerOfferLink\b/g) || []).length, 1);
 });

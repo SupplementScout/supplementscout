@@ -26,6 +26,10 @@ import {
   buildProductSummary,
 } from "../../lib/productPresentation";
 import {
+  buildBestOfferPricePresentation,
+  formatOfferCheckedDate,
+} from "../../lib/productOfferPresentation";
+import {
   getBestProductOffer,
   getOfferVariantLabel,
   groupProductOffers,
@@ -107,24 +111,62 @@ function knownDeliveredPrice(offer: {
   });
 }
 
-function formatShipping(value: number | string | null) {
-  if (value === null || value === "") {
-    return "Delivery unknown";
-  }
-
-  const shipping = Number(value);
-
-  if (!Number.isFinite(shipping) || shipping < 0) {
-    return "Delivery unknown";
-  }
-
-  return `Delivery: ${formatCurrency(shipping)}`;
-}
-
-function formatProductPrice(value: number | string | null) {
-  const price = getKnownProductPrice(value);
-
-  return price === null ? "Price unavailable" : formatCurrency(price);
+function PriceHistorySummary({
+  lowestHistoricalPrice,
+  lowestPriceDate,
+  averageHistoricalPrice,
+  averageDifferencePercent,
+  historyCount,
+  priceRating,
+}: {
+  lowestHistoricalPrice: number | null;
+  lowestPriceDate: string | null;
+  averageHistoricalPrice: number | null;
+  averageDifferencePercent: number | null;
+  historyCount: number;
+  priceRating: string | null;
+}) {
+  return (
+    <>
+      {lowestHistoricalPrice !== null && (
+        <p className="mt-2 text-sm font-medium text-[#4B5563]">
+          Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
+        </p>
+      )}
+      {lowestPriceDate && (
+        <p className="mt-1 text-xs text-[#6B7280]">
+          Recorded on{" "}
+          {new Date(lowestPriceDate).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
+      )}
+      {averageHistoricalPrice !== null && (
+        <p className="mt-1 text-sm text-[#4B5563]">
+          Average recorded price: £{averageHistoricalPrice.toFixed(2)}
+        </p>
+      )}
+      {averageDifferencePercent !== null && (
+        <p className="mt-1 text-sm font-semibold text-[#111827]">
+          {averageDifferencePercent <= 0
+            ? `${Math.abs(averageDifferencePercent).toFixed(1)}% below average`
+            : `${averageDifferencePercent.toFixed(1)}% above average`}
+        </p>
+      )}
+      {historyCount > 0 && (
+        <p className="mt-1 text-xs text-[#6B7280]">
+          Based on {historyCount} price record{historyCount === 1 ? "" : "s"}
+        </p>
+      )}
+      {priceRating && (
+        <p className="mt-2 text-sm font-semibold text-[#111827]">
+          Price rating: {priceRating}
+        </p>
+      )}
+    </>
+  );
 }
 
 export async function generateMetadata({
@@ -358,6 +400,19 @@ export default async function ProductPage({
     ? knownDeliveredPrice(cheapestOffer)
     : null;
   const cheapestTotal = cheapestDeliveredPrice?.totalPrice ?? null;
+  const bestOfferPrice = cheapestOffer
+    ? buildBestOfferPricePresentation(cheapestOffer)
+    : null;
+  const cheapestOfferCheckedAt = cheapestOffer
+    ? formatOfferCheckedDate(cheapestOffer.last_checked_at)
+    : null;
+  const comparableDeliveredTotals = retailerOfferGroups
+    .map((group) => group.lowestDeliveredTotal)
+    .filter((total): total is number => total !== null);
+  const nextComparableDeliveredTotal =
+    comparableDeliveredTotals.length > 1
+      ? comparableDeliveredTotals[1]
+      : null;
 
   let priceRating: string | null = null;
 
@@ -435,6 +490,24 @@ export default async function ProductPage({
     product_name: product.name,
     ...(product.category ? { category: product.category } : {}),
   };
+  const cheapestVariantLabel = cheapestOffer
+    ? getOfferVariantLabel(cheapestOffer)
+    : null;
+  const hasPriceHistorySummary =
+    lowestHistoricalPrice !== null ||
+    lowestPriceDate !== null ||
+    averageHistoricalPrice !== null ||
+    averageDifferencePercent !== null ||
+    historyCount > 0 ||
+    priceRating !== null;
+  const priceHistorySummaryProps = {
+    lowestHistoricalPrice,
+    lowestPriceDate,
+    averageHistoricalPrice,
+    averageDifferencePercent,
+    historyCount,
+    priceRating,
+  };
 
   return (
     <main className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-zinc-50">
@@ -448,128 +521,120 @@ export default async function ProductPage({
         </Link>
 
         <div className="mt-5 grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:mt-8 lg:grid-cols-2 lg:gap-10">
-          <div className="flex h-[340px] min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:h-[400px] sm:p-6 lg:aspect-square lg:h-auto lg:p-0 lg:shadow">
+          <div
+            data-product-image
+            className="order-2 flex h-[220px] min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:h-[280px] sm:p-6 lg:order-none lg:aspect-square lg:h-auto lg:p-0 lg:shadow"
+          >
             {product.image ? (
+              // Product images are remote, data-driven URLs and must preserve the full package.
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={product.image}
                 alt={product.name}
-                className="max-h-[260px] min-w-0 max-w-full rounded-3xl object-contain sm:max-h-[300px] lg:h-full lg:max-h-none lg:p-8"
+                className="max-h-[170px] min-w-0 max-w-full rounded-3xl object-contain sm:max-h-[220px] lg:h-full lg:max-h-none lg:p-8"
               />
             ) : (
               <span className="text-[#6B7280]">Product Image</span>
             )}
           </div>
 
-          <div className="w-full min-w-0 max-w-full">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#6B7280] sm:text-sm">
-              {product.category}
-            </p>
+          <div className="contents lg:block">
+            <div
+              data-product-purchase
+              className="order-1 w-full min-w-0 max-w-full lg:order-none"
+            >
+              {product.brand && (
+                <p className="min-w-0 max-w-full break-words text-xs font-semibold uppercase tracking-widest text-[#6B7280] [overflow-wrap:anywhere] sm:text-sm">
+                  {product.brand}
+                </p>
+              )}
 
-            <h1 className="mt-2 min-w-0 max-w-full break-words text-[38px] font-extrabold leading-[1.08] text-[#111827] [overflow-wrap:anywhere] sm:mt-3 sm:text-5xl lg:text-5xl">
-              {product.name}
-            </h1>
+              <h1 className="mt-2 min-w-0 max-w-full break-words text-[34px] font-extrabold leading-[1.08] text-[#111827] [overflow-wrap:anywhere] sm:mt-3 sm:text-5xl lg:text-5xl">
+                {product.name}
+              </h1>
 
-            <p className="mt-2 min-w-0 max-w-full break-words text-base font-medium text-[#4B5563] [overflow-wrap:anywhere] sm:mt-3 sm:text-lg">
-              {product.brand}
-            </p>
+              {cheapestVariantLabel && (
+                <p className="mt-2 min-w-0 max-w-full break-words text-sm font-medium text-[#4B5563] [overflow-wrap:anywhere] sm:mt-3 sm:text-base">
+                  Variant: {cheapestVariantLabel}
+                </p>
+              )}
 
-            <div className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
-              <div className="flex min-w-0 max-w-full flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                <div className="min-w-0 max-w-full">
-                  <p className="text-sm font-semibold text-[#4B5563]">Best UK Price</p>
-
-                  {cheapestTotal !== null ? (
-                    <div className="mt-1 text-[56px] font-extrabold leading-none text-[#111827] sm:text-6xl lg:text-5xl">
-                      {formatCurrency(cheapestTotal)}
+              <div className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
+                <div className="grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                  <div className="min-w-0 max-w-full">
+                    <p className="text-sm font-semibold text-[#4B5563]">
+                      {bestOfferPrice?.label || "Price unavailable"}
+                    </p>
+                    <div className="mt-1 break-words text-[48px] font-extrabold leading-none text-[#111827] [overflow-wrap:anywhere] sm:text-6xl lg:text-5xl">
+                      {bestOfferPrice?.primaryPrice || "Price unavailable"}
                     </div>
+                    {bestOfferPrice && (
+                      <p className="mt-3 break-words text-sm font-semibold text-[#111827] [overflow-wrap:anywhere]">
+                        {bestOfferPrice.breakdown}
+                      </p>
+                    )}
+
+                    {cheapestOffer && (
+                      <div className="mt-4 min-w-0 max-w-full space-y-1 border-t border-zinc-200 pt-4 text-sm text-[#4B5563]">
+                        <p className="break-words font-semibold text-[#111827] [overflow-wrap:anywhere]">
+                          {cheapestOffer.retailer?.name || "Unknown retailer"}
+                        </p>
+                        <p>
+                          {cheapestOfferCheckedAt
+                            ? `Price checked ${cheapestOfferCheckedAt}`
+                            : "Price check date unavailable"}
+                        </p>
+                        <p>You’ll continue to the retailer’s external store.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {cheapestOffer ? (
+                    <RetailerOfferLink
+                      href={productOfferHref(cheapestOffer.id, "product_best_offer")}
+                      event={{
+                        ...productAnalytics,
+                        variant_id: String(cheapestOffer.product_variant_id),
+                        retailer_id: cheapestOffer.retailer?.id ? String(cheapestOffer.retailer.id) : undefined,
+                        retailer_name: cheapestOffer.retailer?.name || undefined,
+                        offer_price: getKnownProductPrice(cheapestOffer.price) ?? undefined,
+                        position: 1,
+                        source_page: "product_best_offer",
+                        is_affiliate: false,
+                      }}
+                      className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-2xl bg-black px-6 py-3 text-center font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 lg:w-auto lg:min-w-48 lg:px-8"
+                    >
+                      View offer at{" "}
+                      {cheapestOffer.retailer?.name || "retailer"}
+                    </RetailerOfferLink>
                   ) : (
-                    <div className="mt-2 text-3xl font-extrabold leading-tight text-[#111827] sm:text-4xl">
-                      Total unknown
-                    </div>
-                  )}
-                  {lowestHistoricalPrice !== null && (
-                    <p className="mt-2 text-sm font-medium text-[#4B5563]">
-                      Lowest recorded price: £{lowestHistoricalPrice.toFixed(2)}
-                    </p>
-                  )}
-                  {lowestPriceDate && (
-                    <p className="mt-1 text-xs text-[#6B7280]">
-                      Recorded on{" "}
-                      {new Date(lowestPriceDate).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                  )}
-                  {averageHistoricalPrice !== null && (
-                    <p className="mt-1 text-sm text-[#4B5563]">
-                      Average recorded price: £{averageHistoricalPrice.toFixed(2)}
-                    </p>
-                  )}
-                  {averageDifferencePercent !== null && (
-                    <p className="mt-1 text-sm font-semibold text-[#111827]">
-                      {averageDifferencePercent <= 0
-                        ? `${Math.abs(averageDifferencePercent).toFixed(1)}% below average`
-                        : `${averageDifferencePercent.toFixed(1)}% above average`}
-                    </p>
+                    <button
+                      disabled
+                      className="min-h-12 w-full cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-3 font-semibold text-[#4B5563] lg:w-auto"
+                    >
+                      No offer available
+                    </button>
                   )}
 
-                  {historyCount > 0 && (
-                    <p className="mt-1 text-xs text-[#6B7280]">
-                      Based on {historyCount} price record{historyCount === 1 ? "" : "s"}
-                    </p>
-                  )}
-                  {priceRating && (
-                    <p className="mt-2 text-sm font-semibold text-[#111827]">
-                      Price rating: {priceRating}
-                    </p>
-                  )}
-                  {cheapestOffer && (
-                    <div className="mt-3 min-w-0 max-w-full space-y-1 break-words text-sm font-medium text-[#4B5563] [overflow-wrap:anywhere]">
-                      {getOfferVariantLabel(cheapestOffer) && (
-                        <p>Variant: {getOfferVariantLabel(cheapestOffer)}</p>
-                      )}
-                      <p>
-                        Product: {formatProductPrice(cheapestOffer.price)}
-                      </p>
-                      <p>
-                        {formatShipping(cheapestOffer.shipping_cost)}
-                      </p>
-                      <p>
-                        Sold by {cheapestOffer.retailer?.name || "Unknown retailer"}
-                      </p>
+                  {hasPriceHistorySummary && (
+                    <div className="hidden lg:block">
+                      <PriceHistorySummary {...priceHistorySummaryProps} />
                     </div>
                   )}
-
                 </div>
-
-                {cheapestOffer ? (
-                  <RetailerOfferLink
-                    href={productOfferHref(cheapestOffer.id, "product_best_offer")}
-                    event={{
-                      ...productAnalytics,
-                      variant_id: String(cheapestOffer.product_variant_id),
-                      retailer_id: cheapestOffer.retailer?.id ? String(cheapestOffer.retailer.id) : undefined,
-                      retailer_name: cheapestOffer.retailer?.name || undefined,
-                      offer_price: getKnownProductPrice(cheapestOffer.price) ?? undefined,
-                      position: 1,
-                      source_page: "product_best_offer",
-                      is_affiliate: false,
-                    }}
-                    className="flex min-h-12 w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-2xl bg-black px-6 py-4 text-center font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto sm:px-8"
-                  >
-                    View Deal
-                  </RetailerOfferLink>
-                ) : (
-                  <button
-                    disabled
-                    className="min-h-12 w-full cursor-not-allowed rounded-2xl bg-zinc-300 px-8 py-4 font-semibold text-[#4B5563] sm:w-auto"
-                  >
-                    No offer available
-                  </button>
-                )}              </div>
+              </div>
             </div>
+
+            <div
+              data-product-details
+              className="order-3 w-full min-w-0 max-w-full lg:order-none"
+            >
+              {hasPriceHistorySummary && (
+                <section className="w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6 lg:hidden">
+                  <h2 className="text-lg font-bold text-gray-900">Price context</h2>
+                  <PriceHistorySummary {...priceHistorySummaryProps} />
+                </section>
+              )}
 
             <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Product Summary</h2>
@@ -713,13 +778,25 @@ export default async function ProductPage({
               <div className="mt-6 space-y-3">
                 {retailerOfferGroups.length > 0 ? (
                   retailerOfferGroups.map((group, index) => (
-                    <RetailerOfferCard key={group.retailerKey} group={group} product={productAnalytics} position={index + 1} />
+                    <RetailerOfferCard
+                      key={group.retailerKey}
+                      group={group}
+                      product={productAnalytics}
+                      position={index + 1}
+                      isBestDeliveredPrice={
+                        index === 0 && group.lowestDeliveredTotal !== null
+                      }
+                      nextComparableDeliveredTotal={
+                        index === 0 ? nextComparableDeliveredTotal : null
+                      }
+                    />
                   ))
                 ) : (
                   <p className="text-sm font-medium text-gray-700">No offers available.</p>
                 )}
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

@@ -337,9 +337,17 @@ test("product page constrains mobile offer cards and long content without horizo
 
   assert.match(pageSource, /grid-cols-\[minmax\(0,1fr\)\]/);
   assert.match(pageSource, /overflow-x-clip/);
-  assert.match(pageSource, /<RetailerOfferCard key=\{group\.retailerKey\} group=\{group\} \/>/);
+  assert.match(
+    pageSource,
+    /<RetailerOfferCard[\s\S]*key=\{group\.retailerKey\}[\s\S]*group=\{group\}[\s\S]*product=\{productAnalytics\}[\s\S]*position=\{index \+ 1\}/
+  );
   assert.match(pageSource, /break-words[^\"]*\[overflow-wrap:anywhere\]/);
   assert.doesNotMatch(pageSource, /className="flex items-center gap-4"/);
+  assert.match(pageSource, /className="contents lg:block"/);
+  assert.match(pageSource, /data-product-purchase[\s\S]*order-1[\s\S]*lg:order-none/);
+  assert.match(pageSource, /data-product-image[\s\S]*order-2[\s\S]*h-\[220px\]/);
+  assert.match(pageSource, /data-product-details[\s\S]*order-3[\s\S]*lg:order-none/);
+  assert.match(pageSource, /max-h-\[170px\][^\"]*object-contain/);
   assert.match(retailerOfferCardSource, /<article className="w-full min-w-0 max-w-full/);
   assert.match(retailerOfferCardSource, /flex min-w-0 flex-col gap-4 sm:flex-row/);
   assert.match(retailerOfferCardSource, /w-full min-w-0 max-w-full shrink-0 items-center justify-center rounded-xl/);
