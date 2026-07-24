@@ -3,11 +3,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import ActiveSearchFilters from "../components/ActiveSearchFilters";
 import ProductResultCard from "../components/ProductResultCard";
-import SearchFilters from "../components/SearchFilters";
 import SearchInput from "../components/SearchInput";
 import SearchPagination from "../components/SearchPagination";
-import SearchSort from "../components/SearchSort";
 import SearchAnalyticsEvents from "../components/SearchAnalyticsEvents";
+import SearchResultsLayout from "../components/SearchResultsLayout";
 import {
   normalizeSearchQuery,
   normalizeSearchFilters,
@@ -28,6 +27,12 @@ type SearchPageProps = {
     page?: string | string[];
   }>;
 };
+
+const popularSearchSuggestions = [
+  { label: "Creatine", query: "creatine" },
+  { label: "Whey protein", query: "whey protein" },
+  { label: "Vitamin D", query: "vitamin d" },
+];
 
 export async function generateMetadata({
   searchParams,
@@ -151,96 +156,132 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         {hasQuery && (
           <>
             {!error && <SearchAnalyticsEvents resultCount={totalCount} hasFilters={hasActiveFilters} />}
-            <div className="mt-6 flex flex-col gap-4 md:mt-8 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                  Search results
-                </p>
-                <h1 className="mt-1.5 text-2xl font-bold text-zinc-950 sm:text-3xl md:text-4xl">
-                  {query}
-                </h1>
-                {!error && (
-                  <p className="mt-2 text-sm text-zinc-600">
-                    {totalCount} product{totalCount === 1 ? "" : "s"} found
-                  </p>
-                )}
-                {!error && totalCount > 0 && (
-                  <p className="mt-1 text-sm text-zinc-500">
-                    Showing {startResult}-{endResult} of {totalCount}
-                  </p>
-                )}
-                {!error && totalCount > 0 && metadata.correctedQuery && (
-                  <p className="mt-1 text-sm font-medium text-zinc-700">
-                    Showing results for &ldquo;{metadata.appliedQuery}&rdquo;
-                  </p>
-                )}
-                {!error && hasActiveFilters && (
-                  <p className="mt-1 text-sm text-zinc-500">
-                    Filtered from {unfilteredCount} product
-                    {unfilteredCount === 1 ? "" : "s"} with an in-stock
-                    delivered offer
-                  </p>
-                )}
-                {!error && unfilteredCount >= resultLimit && resultLimit > 0 && (
-                  <p className="mt-1 text-xs text-zinc-400">
-                    Search is currently limited to the first {resultLimit} matched
-                    products for this MVP.
-                  </p>
-                )}
-              </div>
-
-              <SearchSort query={query} sort={sort} filters={filters} />
-            </div>
-
-            <ActiveSearchFilters
-              query={query}
-              sort={sort}
-              filters={filters}
-              facets={facets}
-            />
-
             {error && (
-              <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5 text-red-700 md:mt-8">
-                <p className="font-semibold">Search failed.</p>
-                <p className="mt-1 text-sm">
-                  Please try again or use a shorter search phrase.
-                </p>
-              </div>
-            )}
-
-            {!error && totalCount === 0 && (
-              <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-6 text-center sm:p-8 md:mt-8">
-                <h2 className="text-2xl font-bold">
-                  {hasActiveFilters ? "No filtered results found" : "No results found"}
-                </h2>
-                <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
-                  {hasActiveFilters
-                    ? "No products match this combination of filters. Remove a filter or clear all filters to broaden the search."
-                    : (
-                        <>
-                          No products found for &ldquo;{query}&rdquo;. Try searching
-                          for an ingredient, brand or category, for example
-                          vitamin D, omega 3 or creatine.
-                        </>
-                      )}
-                </p>
-              </div>
+              <>
+                <div className="mt-6 md:mt-8">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                    Search results
+                  </p>
+                  <h1 className="mt-1.5 break-words text-2xl font-bold text-zinc-950 sm:text-3xl md:text-4xl">
+                    {query}
+                  </h1>
+                </div>
+                <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5 text-red-700 md:mt-8">
+                  <p className="font-semibold">Search failed.</p>
+                  <p className="mt-1 text-sm">
+                    Please try again or use a shorter search phrase.
+                  </p>
+                </div>
+              </>
             )}
 
             {!error && (
-              <div className="mt-5 grid gap-5 lg:mt-8 lg:grid-cols-[280px_1fr] lg:gap-6">
-                <SearchFilters
-                  query={query}
-                  sort={sort}
-                  filters={filters}
-                  facets={facets}
-                />
+              <SearchResultsLayout
+                query={query}
+                sort={sort}
+                filters={filters}
+                facets={facets}
+                totalCount={totalCount}
+                heading={
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                      Search results
+                    </p>
+                    <h1 className="mt-1.5 break-words text-2xl font-bold text-zinc-950 sm:text-3xl md:text-4xl">
+                      {query}
+                    </h1>
+                    <p className="mt-2 hidden text-sm text-zinc-600 lg:block">
+                      {totalCount} product{totalCount === 1 ? "" : "s"} found
+                    </p>
+                    {totalCount > 0 && (
+                      <p className="mt-1 hidden text-sm text-zinc-500 lg:block">
+                        Showing {startResult}-{endResult} of {totalCount}
+                      </p>
+                    )}
+                    {totalCount > 0 && metadata.correctedQuery && (
+                      <p className="mt-1 text-sm font-medium text-zinc-700">
+                        Showing results for &ldquo;{metadata.appliedQuery}&rdquo;
+                      </p>
+                    )}
+                    {hasActiveFilters && (
+                      <p className="mt-1 hidden text-sm text-zinc-500 lg:block">
+                        Filtered from {unfilteredCount} product
+                        {unfilteredCount === 1 ? "" : "s"} with an in-stock
+                        delivered offer
+                      </p>
+                    )}
+                    {unfilteredCount >= resultLimit && resultLimit > 0 && (
+                      <p className="mt-1 hidden text-xs text-zinc-400 lg:block">
+                        Search is currently limited to the first {resultLimit} matched
+                        products for this MVP.
+                      </p>
+                    )}
+                  </div>
+                }
+                activeFilters={
+                  <ActiveSearchFilters
+                    query={query}
+                    sort={sort}
+                    filters={filters}
+                    facets={facets}
+                  />
+                }
+              >
+                {totalCount === 0 ? (
+                  <div className="rounded-lg border border-zinc-200 bg-white p-6 text-center sm:p-8">
+                    <h2 className="text-2xl font-bold">
+                      {hasActiveFilters ? "No filtered results found" : "No results found"}
+                    </h2>
+                    <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
+                      {hasActiveFilters
+                        ? "No products match this combination of filters. Clear the filters to broaden the search."
+                        : `No products found for “${query}”. Try another ingredient, brand or category.`}
+                    </p>
 
-                {results.length > 0 && (
+                    {metadata.correctedQuery && (
+                      <p className="mt-4 text-sm text-zinc-600">
+                        We also checked &ldquo;{metadata.correctedQuery}&rdquo;.
+                      </p>
+                    )}
+
+                    <div className="mt-5 flex flex-wrap justify-center gap-2">
+                      {popularSearchSuggestions.map((suggestion) => (
+                        <Link
+                          key={suggestion.query}
+                          href={searchUrl({
+                            query: suggestion.query,
+                            sort: "relevance",
+                            filters: { category: "", brand: "", retailer: "" },
+                          })}
+                          className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 hover:border-zinc-950"
+                        >
+                          {suggestion.label}
+                        </Link>
+                      ))}
+                    </div>
+
+                    {hasActiveFilters && (
+                      <Link
+                        href={searchUrl({
+                          query,
+                          sort,
+                          filters: { category: "", brand: "", retailer: "" },
+                        })}
+                        className="mt-5 inline-flex min-h-11 items-center font-semibold text-zinc-800 underline underline-offset-4"
+                      >
+                        Clear filters
+                      </Link>
+                    )}
+                  </div>
+                ) : (
                   <div>
                     <div className="space-y-3 sm:space-y-4">
                       {results.map((product) => (
-                        <ProductResultCard key={product.id} product={product} />
+                        <ProductResultCard
+                          key={product.id}
+                          product={product}
+                          searchMobileFirst
+                        />
                       ))}
                     </div>
 
@@ -253,7 +294,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     />
                   </div>
                 )}
-              </div>
+              </SearchResultsLayout>
             )}
           </>
         )}

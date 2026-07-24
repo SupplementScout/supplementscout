@@ -1,7 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { SearchFilters, SearchSort } from "../lib/products";
 import { sendAnalyticsEvent } from "../lib/analytics";
+import { searchUrl } from "../lib/searchUrl";
 
 const sortOptions: Array<{ value: SearchSort; label: string }> = [
   { value: "relevance", label: "Relevance" },
@@ -19,31 +21,31 @@ export default function SearchSort({
   sort: SearchSort;
   filters: SearchFilters;
 }) {
+  const router = useRouter();
+
   return (
-    <form
-      action="/search"
-      className="flex items-center gap-3"
-      onSubmit={(event) => {
-        const value = new FormData(event.currentTarget).get("sort") as SearchSort | null;
-        if (value) sendAnalyticsEvent("sort_used", { sort_option: value });
-      }}
-    >
-      <input type="hidden" name="q" value={query} />
-      {filters.category && (
-        <input type="hidden" name="category" value={filters.category} />
-      )}
-      {filters.brand && <input type="hidden" name="brand" value={filters.brand} />}
-      {filters.retailer && (
-        <input type="hidden" name="retailer" value={filters.retailer} />
-      )}
+    <div className="flex min-w-0 items-center gap-2">
       <label htmlFor="search-sort" className="text-sm font-medium text-zinc-600">
         Sort
       </label>
       <select
         id="search-sort"
         name="sort"
-        defaultValue={sort}
-        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-900"
+        value={sort}
+        onChange={(event) => {
+          const value = event.target.value as SearchSort;
+
+          sendAnalyticsEvent("sort_used", { sort_option: value });
+          router.push(
+            searchUrl({
+              query,
+              sort,
+              filters,
+              updates: { sort: value },
+            })
+          );
+        }}
+        className="min-h-11 min-w-0 max-w-[152px] rounded-lg border border-zinc-300 bg-white px-2 text-sm font-medium text-zinc-900 sm:max-w-none sm:px-3"
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>
@@ -51,12 +53,6 @@ export default function SearchSort({
           </option>
         ))}
       </select>
-      <button
-        type="submit"
-        className="rounded-lg border border-zinc-950 px-3 py-2 text-sm font-semibold text-zinc-950"
-      >
-        Apply
-      </button>
-    </form>
+    </div>
   );
 }
