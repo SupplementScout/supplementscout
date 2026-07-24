@@ -11,7 +11,7 @@ const {
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
   RefreshError,
-  deliveredTotalForSourceUpdate,
+  deliveredTotalForSourcePrice,
   guardrailsFor,
   loadManifest,
   parseArgs,
@@ -273,20 +273,11 @@ test("a genuine price update preserves shipping and calculates delivered total",
       external_variant_id: "101",
       price: "11.00",
       shipping_cost: "3.99",
-      total_price: deliveredTotalForSourceUpdate(
-        {
-          price: "11.00",
-          in_stock: true,
-          url: state.offer.url,
-        },
-        {
+      total_price: deliveredTotalForSourcePrice("11.00", {
         price: state.offer.price,
         shipping_cost: state.offer.shipping_cost,
         total_price: state.offer.total_price,
-          in_stock: state.offer.in_stock,
-          url: state.offer.url,
-        },
-      ),
+      }),
       in_stock: true,
       url: state.offer.url,
     },
@@ -300,33 +291,12 @@ test("a genuine price update preserves shipping and calculates delivered total",
 
 test("delivered total remains untouched when the source price does not change", () => {
   assert.equal(
-    deliveredTotalForSourceUpdate(
-      { price: "10.00", in_stock: true, url: "https://wheyokay.com/test" },
-      {
-        price: "10.00",
-        shipping_cost: "3.99",
-        total_price: null,
-        in_stock: true,
-        url: "https://wheyokay.com/test",
-      },
-    ),
+    deliveredTotalForSourcePrice("10.00", {
+      price: "10.00",
+      shipping_cost: "3.99",
+      total_price: null,
+    }),
     null,
-  );
-});
-
-test("a stock update establishes delivered total without changing shipping", () => {
-  assert.equal(
-    deliveredTotalForSourceUpdate(
-      { price: "10.00", in_stock: false, url: "https://wheyokay.com/test" },
-      {
-        price: "10.00",
-        shipping_cost: "3.99",
-        total_price: null,
-        in_stock: true,
-        url: "https://wheyokay.com/test",
-      },
-    ),
-    "13.99",
   );
 });
 

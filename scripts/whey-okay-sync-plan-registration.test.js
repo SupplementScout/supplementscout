@@ -14,6 +14,20 @@ const workflow = fs.readFileSync(
   path.join(process.cwd(), ".github/workflows/whey-okay-offer-refresh.yml"),
   "utf8",
 );
+const nullTotalMigration = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "supabase/migrations/20260724120000_allow_whey_null_total_non_price_refresh.sql",
+  ),
+  "utf8",
+);
+const nullTotalRollback = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "supabase/rollbacks/20260724120000_allow_whey_null_total_non_price_refresh.sql",
+  ),
+  "utf8",
+);
 
 test("migration reuses control ledgers through narrow state and registration RPCs", () => {
   assert.match(
@@ -65,6 +79,25 @@ test("only validator roles receive new RPC execute permission", () => {
     migration,
     /grant\s+(?:insert|update|delete|all)\s+on\s+(?:table\s+)?public\./i,
   );
+});
+
+test("historical null-total support is scoped to Whey non-price updates and is reversible", () => {
+  assert.match(nullTotalMigration, /p_plan#>>'\{retailer,id\}' = '3'/);
+  assert.match(nullTotalMigration, /v_offer_action = 'update'/);
+  assert.match(nullTotalMigration, /v_history_action = 'noop'/);
+  assert.match(
+    nullTotalMigration,
+    /offer,values,price[\s\S]*expected_state,offer,price/,
+  );
+  assert.match(
+    nullTotalMigration,
+    /offer,values,shipping_cost[\s\S]*expected_state,offer,shipping_cost/,
+  );
+  assert.doesNotMatch(
+    nullTotalMigration,
+    /\b(?:insert into|update|delete from|merge|truncate)\s+public\./i,
+  );
+  assert.match(nullTotalRollback, /execute replace\(v_definition, v_extended, v_original\)/);
 });
 
 test("workflow is scheduled, dry-run by default and role-separated without service role", () => {
