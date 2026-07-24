@@ -132,12 +132,10 @@ async function roleCall(target, kind, readOnly, body) {
     ).rows[0].value;
     invariant(safeUpdate == null, "SAFE_UPDATE must remain unset");
     await client.query(readOnly ? "begin read only" : "begin");
-    if (!readOnly) {
-      await client.query(
-        `select set_config('app.retailer_catalogue_${target}_marker','1',true),
-                set_config('app.retailer_catalogue_allow','1',true)`,
-      );
-    }
+    await client.query(
+      `select set_config('app.retailer_catalogue_${target}_marker','1',true),
+              set_config('app.retailer_catalogue_allow','1',true)`,
+    );
     await client.query(`set role retailer_catalogue_${target}_${kind}`);
     const identity = (
       await client.query(
