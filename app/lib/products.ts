@@ -333,10 +333,6 @@ function orderedWildcardQueryVariants(query: string) {
     .split(" ")
     .filter(Boolean);
 
-  if (tokens.length < 2 || tokens.length > 5) {
-    return [];
-  }
-
   const compactDoseIndex = tokens.findIndex((token) =>
     /^\d{4,6}(?:mg|iu)$/.test(token)
   );
@@ -351,6 +347,25 @@ function orderedWildcardQueryVariants(query: string) {
   const hasGlucosamine = tokens.includes("glucosamine");
   const hasSulphate = tokens.includes("sulphate") || tokens.includes("sulfate");
   const hasTabletFormat = tokens.some((token) => /^tablets?$/.test(token));
+
+  if (tokens.length === 2 && !hasDose && !(hasGlucosamine && hasSulphate && hasTabletFormat)) {
+    const containsAshwagandhaVariant = tokens.some((token) =>
+      /\b(ashwagandha|ashwaganda)\b/.test(token)
+    );
+
+    if (
+      tokens.every((token) => token.length >= 4) &&
+      (tokens.includes("kior") || containsAshwagandhaVariant)
+    ) {
+      return [`${tokens[0]}%${tokens[1]}`];
+    }
+
+    return [];
+  }
+
+  if (tokens.length < 2 || tokens.length > 5) {
+    return [];
+  }
 
   if (!hasDose && !(hasGlucosamine && hasSulphate && hasTabletFormat)) {
     return [];
@@ -385,14 +400,56 @@ function vitaminDk2SearchVariants(query: string) {
   return [];
 }
 
+function expandSearchTermVariants(query: string) {
+  const normalized = normalizeWhitespace(query);
+  const variants = new Set([normalized]);
+
+  if (normalized.includes("ashwagandha")) {
+    variants.add(normalized.replace(/ashwagandha/g, "ashwaganda"));
+  }
+
+  if (normalized.includes("ashwaganda")) {
+    variants.add(normalized.replace(/ashwaganda/g, "ashwagandha"));
+  }
+
+  if (
+    normalized.includes("kior") &&
+    /\b(ashwagandha|ashwaganda)\b/.test(normalized)
+  ) {
+    variants.add("ashwaganda");
+  }
+
+  const withoutDashes = normalized.replace(/-/g, "");
+  if (withoutDashes !== normalized) {
+    variants.add(withoutDashes);
+  }
+
+  const compactAlphaNumericMatch = normalized.match(/^([a-z]+)(\d+)$/i);
+  if (compactAlphaNumericMatch) {
+    variants.add(`${compactAlphaNumericMatch[1]}-${compactAlphaNumericMatch[2]}`);
+  }
+
+  const dashedAlphaNumericMatch = normalized.match(/^([a-z]+)-(\d+)$/i);
+  if (dashedAlphaNumericMatch) {
+    variants.add(`${dashedAlphaNumericMatch[1]}${dashedAlphaNumericMatch[2]}`);
+  }
+
+  return Array.from(variants);
+}
+
 export function searchQueryVariants(query: string) {
+  const normalizedQuery = normalizeWhitespace(query);
+  const safeNormalizedQuery = sanitizeSupabaseOrTerm(normalizedQuery);
+  const safeCorrectedQuery = sanitizeSupabaseOrTerm(correctedSearchQuery(query));
+
   const exactVariants = [
-    query,
-    normalizeWhitespace(query),
-    correctedSearchQuery(query),
-    ...(goalSearchMapping(query)?.variants || []),
-    ...vitaminDk2SearchVariants(query),
-  ].filter((value) => value.length > 0);
+    safeNormalizedQuery,
+    safeCorrectedQuery,
+    ...(goalSearchMapping(normalizedQuery)?.variants || []),
+    ...vitaminDk2SearchVariants(safeNormalizedQuery),
+  ]
+    .filter((value) => value.length > 0)
+    .flatMap(expandSearchTermVariants);
   const dosageVariants = exactVariants.flatMap(dosageFormatVariants);
   const wildcardVariants = [...exactVariants, ...dosageVariants].flatMap(
     orderedWildcardQueryVariants
@@ -430,6 +487,7 @@ function buildSearchFilter(query: string) {
       `name.ilike.%${variant}%`,
       `brand.ilike.%${variant}%`,
       `category.ilike.%${variant}%`,
+      `description.ilike.%${variant}%`,
     ])
     .join(",");
 }

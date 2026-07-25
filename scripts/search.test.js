@@ -314,13 +314,26 @@ const cases = [
   ["creatine", ["creatine"]],
   ["magnesum", ["magnesum", "magnesium"]],
   ["magnesium", ["magnesium"]],
+  ["ashwagandha", ["ashwagandha", "ashwaganda"]],
+  [
+    "kior ashwagandha",
+    [
+      "kior ashwagandha",
+      "kior ashwaganda",
+      "ashwaganda",
+      "kior%ashwagandha",
+      "kior%ashwaganda",
+    ],
+  ],
+  ["ksm66", ["ksm66", "ksm-66"]],
+  ["ksm-66", ["ksm-66", "ksm66"]],
   ["vit d", ["vit d", "vitamin d"]],
   ["vit d k2", ["vit d k2", "vitamin d k2", "vitamin d%k2", "vitamin d3%k2"]],
   ["vitamin d", ["vitamin d"]],
   ["vitamin d k2", ["vitamin d k2", "vitamin d%k2", "vitamin d3%k2"]],
   ["vitamin d3 k2", ["vitamin d3 k2", "vitamin d3%k2"]],
   ["d3 k2", ["d3 k2", "d3%k2", "vitamin d3%k2"]],
-  ["omega3", ["omega3", "omega 3"]],
+  ["omega3", ["omega3", "omega-3", "omega 3"]],
   ["omega 3", ["omega 3"]],
   ["glucosamin", ["glucosamin", "glucosamine"]],
   ["glucosamine", ["glucosamine"]],
@@ -338,12 +351,10 @@ test("search query variants include conservative typo and shortcut corrections",
 
 test("search query variants normalize extra whitespace and deduplicate variants", () => {
   assert.deepEqual(searchQueryVariants("  whey   protien  "), [
-    "  whey   protien  ",
     "whey protien",
     "whey protein",
   ]);
   assert.deepEqual(searchQueryVariants("  magnesium  "), [
-    "  magnesium  ",
     "magnesium",
   ]);
 });
@@ -356,7 +367,6 @@ test("search query variants include conservative glucosamine dosage variants", (
     "glucosamine%sulphate%1%000mg",
   ]);
   assert.deepEqual(searchQueryVariants("glucosamine sulphate 1,000mg"), [
-    "glucosamine sulphate 1,000mg",
     "glucosamine sulphate 1 000mg",
     "glucosamine sulphate 1000mg",
     "glucosamine%sulphate%1%000mg",
@@ -369,7 +379,6 @@ test("search query variants include conservative glucosamine dosage variants", (
     "glucosamine%1%000mg",
   ]);
   assert.deepEqual(searchQueryVariants("glucosamine 1,000mg"), [
-    "glucosamine 1,000mg",
     "glucosamine 1 000mg",
     "glucosamine 1000mg",
     "glucosamine%1%000mg",
@@ -439,7 +448,8 @@ test("risky goal-like terms are not mapped", () => {
     "treat",
     "prevent",
   ]) {
-    assert.deepEqual(searchQueryVariants(query), [query], query);
+    const expected = [query];
+    assert.deepEqual(searchQueryVariants(query), expected, query);
     assert.equal(buildSearchQueryPlan(query).searchMode, "standard_ilike", query);
   }
 });
@@ -587,6 +597,49 @@ test("searchProducts sanitizes raw user percent before building search filter", 
   assert.equal(searchFilter.includes("magnesium citrate"), true);
 });
 
+test("searchProducts includes description ilike filters for ashwagandha variants", async () => {
+  let searchFilter = "";
+  const { searchProducts: searchProductsWithCapturedFilter } = loadProductsModule({
+    from: () => {
+      const query = {
+        select: () => query,
+        eq: () => query,
+        is: () => query,
+        gt: () => query,
+        or: (filter) => {
+          searchFilter = filter;
+
+          return query;
+        },
+        order: () => query,
+        range: () => ({ data: [], error: null }),
+      };
+
+      return query;
+    },
+  });
+
+  await searchProductsWithCapturedFilter("ashwagandha", "relevance");
+  assert.equal(searchFilter.includes("description.ilike.%ashwagandha%"), true);
+
+  searchFilter = "";
+  await searchProductsWithCapturedFilter("ksm66", "relevance");
+  assert.equal(
+    searchFilter.includes("description.ilike.%ksm-66%") ||
+    searchFilter.includes("description.ilike.%ksm66%"),
+    true
+  );
+
+  searchFilter = "";
+  await searchProductsWithCapturedFilter("kior ashwagandha", "relevance");
+  assert.equal(
+    searchFilter.includes("description.ilike.%kior%ashwagandha%") ||
+    searchFilter.includes("description.ilike.%kior%ashwaganda%") ||
+    searchFilter.includes("description.ilike.%ashwaganda%"),
+    true
+  );
+});
+
 test("normalizeSearchSort accepts price per serving and rejects unknown values", () => {
   assert.equal(
     normalizeSearchSort("price_per_serving_asc"),
@@ -711,6 +764,17 @@ test("buildSearchQueryPlan returns corrected Simply Supplements metadata", () =>
     matchStatus: "none",
     searchMode: "standard_ilike",
   });
+});
+
+test("buildSearchQueryPlan keeps KSM compact and dashed variants", () => {
+  assert.deepEqual(buildSearchQueryPlan("ksm66").queryVariants, [
+    "ksm66",
+    "ksm-66",
+  ]);
+  assert.deepEqual(buildSearchQueryPlan("ksm-66").queryVariants, [
+    "ksm-66",
+    "ksm66",
+  ]);
 });
 
 test("buildSearchQueryPlan keeps vitamin d k2 as a special variant search", () => {
