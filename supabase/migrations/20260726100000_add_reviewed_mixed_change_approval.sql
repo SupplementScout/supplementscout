@@ -76,11 +76,11 @@ begin
     authorization_id,target_environment,retailer_id,reviewed_manifest_sha256,
     reviewed_source_fingerprint,reviewed_scope_hash,row_count,expected_deltas,authorized_by)
   values(
-    'jons-15-31d56c91b6d12b5c-'||lower(v_environment),v_environment,10,
-    '31d56c91b6d12b5cc3468efb5b7c039e7d96df8d3553efe9cf37e9b08c8efe93',
-    '49fc2da13ee9fd2fbec5d3a905dea3719ec76ff9cc6a4c1b1e3f51c01ef200fb',
-    '04abae31e1c94a3a7d10f1f12f8d4faba3a405369c53a66ba98b499918aa0b50',
-    15,v_expected_deltas,'user-authorized-reviewed-manifest-2026-07-26');
+    'jons-15-15a1a71238af5fa6-'||lower(v_environment),v_environment,10,
+    '15a1a71238af5fa6cb08a334b859230c8cc0944cb2856c0572ef9abbd0c380a5',
+    'a27e9a90f0a2e51e4c375da84f9cfb237384ab2b29db2e2c29725f57979831e5',
+    '2be0472d80c495cee1b9a930bbbe8537c744d0f0d84ea110ec98ea20693e5f6b',
+    15,v_expected_deltas,'user-authorized-targeted-rereview-2026-07-26');
 end
 $register_reviewed_jons_15$;
 

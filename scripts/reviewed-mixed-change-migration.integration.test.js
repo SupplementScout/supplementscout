@@ -154,8 +154,8 @@ $$;
 
 function reviewedFixture() {
   const reviewed = loadReviewedMixedChangeManifest(
-    path.join(ROOT, "tmp/jons-15-review/jons-15-reviewed-manifest.json"),
-    "31d56c91b6d12b5cc3468efb5b7c039e7d96df8d3553efe9cf37e9b08c8efe93",
+    path.join(ROOT, "tmp/jons-15-review/jons-15-reviewed-manifest-a27e9a90.json"),
+    "15a1a71238af5fa6cb08a334b859230c8cc0944cb2856c0572ef9abbd0c380a5",
   );
   const capturedAt = new Date().toISOString();
   const rows = reviewed.reviewed_rows.map((row, index) => {
@@ -304,8 +304,28 @@ test("reviewed mixed-change migration parses, registers and validates only the e
     wait(container);
     ok(sql(container, setupSql()), "setup");
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MIGRATION}`]), "migration");
+    const beforeRerun = ok(sql(container, `
+      select
+        (select count(*) from public.retailer_offer_sync_reviewed_mixed_change_definitions)
+        ||':'||
+        (select count(*) from pg_proc where proname like '%reviewed_mixed_change%')
+        ||':'||
+        (select count(*) from public.retailer_offer_sync_reviewed_mixed_change_bindings);
+    `), "pre-rerun state");
+    const rerun = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MIGRATION}`]);
+    assert.notEqual(rerun.status, 0);
+    assert.match(output(rerun), /already installed; rerun rejected/);
+    const afterRerun = ok(sql(container, `
+      select
+        (select count(*) from public.retailer_offer_sync_reviewed_mixed_change_definitions)
+        ||':'||
+        (select count(*) from pg_proc where proname like '%reviewed_mixed_change%')
+        ||':'||
+        (select count(*) from public.retailer_offer_sync_reviewed_mixed_change_bindings);
+    `), "post-rerun state");
+    assert.equal(afterRerun.stdout.trim(), beforeRerun.stdout.trim());
     const definition = ok(sql(container, "select authorization_id||':'||target_environment||':'||row_count from public.retailer_offer_sync_reviewed_mixed_change_definitions;"), "definition");
-    assert.equal(definition.stdout.trim(), "jons-15-31d56c91b6d12b5c-production:PRODUCTION:15");
+    assert.equal(definition.stdout.trim(), "jons-15-15a1a71238af5fa6-production:PRODUCTION:15");
     const ordinary = ok(sql(container, "select public.retailer_offer_sync_validate_batch_read_only_internal('{}'::jsonb);"), "ordinary dispatch");
     assert.match(ordinary.stdout, /ordinary/);
     const functions = ok(sql(container, "select count(*) from pg_proc where proname like '%reviewed_mixed_change%';"), "function surface");

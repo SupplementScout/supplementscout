@@ -12,8 +12,8 @@ const {
   loadReviewedMixedChangeManifest,
 } = require("./lib/retailer-offer-sync/reviewed-mixed-change");
 
-const manifestFile = path.resolve("tmp/jons-15-review/jons-15-reviewed-manifest.json");
-const manifestSha = "31d56c91b6d12b5cc3468efb5b7c039e7d96df8d3553efe9cf37e9b08c8efe93";
+const manifestFile = path.resolve("tmp/jons-15-review/jons-15-reviewed-manifest-a27e9a90.json");
+const manifestSha = "15a1a71238af5fa6cb08a334b859230c8cc0944cb2856c0572ef9abbd0c380a5";
 const migration = fs.readFileSync(path.resolve("supabase/migrations/20260726100000_add_reviewed_mixed_change_approval.sql"), "utf8");
 const rollback = fs.readFileSync(path.resolve("supabase/rollbacks/20260726100000_add_reviewed_mixed_change_approval.sql"), "utf8");
 
@@ -50,7 +50,7 @@ function artifact(reviewed, overrides = {}) {
 
 test("immutable Jon's manifest loads only at the required raw-byte SHA", () => {
   const reviewed = loadReviewedMixedChangeManifest(manifestFile, manifestSha);
-  assert.equal(reviewed.reviewed_scope_hash, "04abae31e1c94a3a7d10f1f12f8d4faba3a405369c53a66ba98b499918aa0b50");
+  assert.equal(reviewed.reviewed_scope_hash, "2be0472d80c495cee1b9a930bbbe8537c744d0f0d84ea110ec98ea20693e5f6b");
   assert.equal(reviewed.reviewed_rows.length, 15);
   assert.deepEqual(
     reviewed.reviewed_rows.reduce((counts, row) => ({ ...counts, [row.action]: (counts[row.action] || 0) + 1 }), {}),
@@ -75,7 +75,7 @@ test("reviewed contract binds stable Shopify identity, exact values, deltas, sou
   assert.deepEqual(artifactReviewedRows(sealed), reviewed.reviewed_rows);
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const contract = buildReviewedMixedChangeContract({ reviewed, artifact: sealed, targetEnvironment: "STAGING", expiresAt });
-  assert.equal(contract.authorization_id, "jons-15-31d56c91b6d12b5c-staging");
+  assert.equal(contract.authorization_id, "jons-15-15a1a71238af5fa6-staging");
   assert.equal(contract.reviewed_manifest_sha256, manifestSha);
   assert.equal(contract.reviewed_scope_hash, reviewed.reviewed_scope_hash);
   assert.equal(contract.reviewed_contract_hash, fingerprint(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "reviewed_contract_hash"))));
@@ -130,8 +130,8 @@ test("migration preserves ordinary and prior reviewed dispatch while adding no b
 test("SQL validator is registry, raw-manifest, stable-scope, source, before/after and delta bound", () => {
   for (const token of [
     manifestSha,
-    "49fc2da13ee9fd2fbec5d3a905dea3719ec76ff9cc6a4c1b1e3f51c01ef200fb",
-    "04abae31e1c94a3a7d10f1f12f8d4faba3a405369c53a66ba98b499918aa0b50",
+    "a27e9a90f0a2e51e4c375da84f9cfb237384ab2b29db2e2c29725f57979831e5",
+    "2be0472d80c495cee1b9a930bbbe8537c744d0f0d84ea110ec98ea20693e5f6b",
     "reviewed_manifest_sha256",
     "reviewed_source_fingerprint",
     "reviewed_scope_hash",
