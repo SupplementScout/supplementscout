@@ -131,20 +131,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production post-registration contract selects the reconciliation", () => {
+test("production post-reconciliation contract has no pending migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [
-    {
-      filename:
-        "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
-      sha256:
-        "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
-    },
-  ]);
-  assert.equal(contract.ledgerCount, 58);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 59);
   assert.equal(
     contract.ledgerFingerprint,
-    "9d0140bee19c1ee4542c59a2e8b12ee935ee0168453879ba23643752ec2977f4",
+    "bb365f594464301d1e74c045c18c4ba37c43a37bf9d2716630392f0cbd0bd54a",
   );
 });
 
@@ -221,7 +214,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects only the reconciliation", () => {
+test("production binds its exact post-reconciliation ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -247,22 +240,14 @@ test("production binds its exact ledger and selects only the reconciliation", ()
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 58);
+  assert.equal(result.ledger_count, 59);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 59);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(
-    result.pending_file,
-    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
-  );
-  assert.equal(
-    result.pending_sha256,
-    "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
-  );
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
