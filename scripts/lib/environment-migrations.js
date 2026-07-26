@@ -1,0 +1,60 @@
+const fs = require("node:fs");
+const path = require("node:path");
+const {
+  migrationLedgerFingerprint,
+} = require("./retailer-snapshot/staging-execution-contract");
+
+const ROOT = path.resolve(__dirname, "../..");
+const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
+const EXCLUSIONS = Object.freeze({
+  STAGING: Object.freeze([
+    "20260717130000_add_local_retailer_catalogue_child_executor",
+    "20260719100000_add_production_retailer_sync_enablement",
+  ]),
+  PRODUCTION: Object.freeze([
+    "20260717120000_create_retailer_catalogue_control_ledger",
+    "20260717130000_add_local_retailer_catalogue_child_executor",
+    "20260717140000_add_staging_retailer_catalogue_executor",
+    "20260718150000_add_verified_no_change_offer_refresh",
+    "20260718160000_add_retailer_offer_mixed_batch_executor",
+    "20260718170000_add_read_only_mixed_batch_validator",
+    "20260719090000_add_expired_retailer_offer_sync_approval_close",
+  ]),
+});
+
+function migrationIdentifier(filename) {
+  if (!MIGRATION_FILE.test(filename)) {
+    throw new Error(`invalid migration filename ${filename}`);
+  }
+  return filename.slice(0, -4);
+}
+
+function excludedMigrationIds(environment) {
+  const excluded = EXCLUSIONS[environment];
+  if (!excluded) throw new Error(`unsupported migration environment ${environment}`);
+  return new Set(excluded);
+}
+
+function migrationBinding(
+  environment,
+  migrationFiles = fs.readdirSync(path.join(ROOT, "supabase", "migrations")),
+) {
+  const excluded = excludedMigrationIds(environment);
+  const versions = migrationFiles
+    .filter((name) => MIGRATION_FILE.test(name))
+    .sort()
+    .map(migrationIdentifier)
+    .filter((identifier) => !excluded.has(identifier));
+  return {
+    versions,
+    fingerprint: migrationLedgerFingerprint(versions, environment),
+  };
+}
+
+module.exports = {
+  EXCLUSIONS,
+  MIGRATION_FILE,
+  excludedMigrationIds,
+  migrationBinding,
+  migrationIdentifier,
+};
