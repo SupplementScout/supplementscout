@@ -11,13 +11,21 @@ const OUTPUT = path.join(
   ROOT,
   "data",
   "verified",
+  "variant-nutrition-reviewed-batch-2-v2.json",
+);
+const REJECTED_V1 = path.join(
+  ROOT,
+  "data",
+  "verified",
   "variant-nutrition-reviewed-batch-2.json",
 );
+const REJECTED_V1_SHA256 =
+  "fcb820a878a95cda7368961980409fe88203a4dfa063c387edf8a4b5bddaf3b5";
 
 const REVIEWED_VARIANTS = Object.freeze([
   Object.freeze({
     product_id: "767",
-    expected_product_name: "OstroVit Creatine 300g",
+    expected_product_name: "OstroVit Creatine Monohydrate 300g",
     variant_id: "930",
     expected_variant_key: "orange-300g",
     expected_display_name: "Orange / 300g",
@@ -32,7 +40,7 @@ const REVIEWED_VARIANTS = Object.freeze([
   }),
   Object.freeze({
     product_id: "767",
-    expected_product_name: "OstroVit Creatine 300g",
+    expected_product_name: "OstroVit Creatine Monohydrate 300g",
     variant_id: "931",
     expected_variant_key: "unflavored-300g",
     expected_display_name: "Unflavored / 300g",
@@ -47,7 +55,7 @@ const REVIEWED_VARIANTS = Object.freeze([
   }),
   Object.freeze({
     product_id: "780",
-    expected_product_name: "OstroVit Creatine 1000g",
+    expected_product_name: "OstroVit Creatine Monohydrate 1000g",
     variant_id: "980",
     expected_variant_key: "lemon-1000g",
     expected_display_name: "lemon / 1000g",
@@ -62,7 +70,7 @@ const REVIEWED_VARIANTS = Object.freeze([
   }),
   Object.freeze({
     product_id: "781",
-    expected_product_name: "OstroVit Creatine 500g",
+    expected_product_name: "OstroVit Creatine Monohydrate 500g",
     variant_id: "982",
     expected_variant_key: "green-apple-500g",
     expected_display_name: "Green apple / 500g",
@@ -77,7 +85,7 @@ const REVIEWED_VARIANTS = Object.freeze([
   }),
   Object.freeze({
     product_id: "781",
-    expected_product_name: "OstroVit Creatine 500g",
+    expected_product_name: "OstroVit Creatine Monohydrate 500g",
     variant_id: "983",
     expected_variant_key: "mango-500g",
     expected_display_name: "Mango / 500g",
@@ -145,6 +153,10 @@ function build() {
 }
 
 function main() {
+  invariant(
+    sha256(fs.readFileSync(REJECTED_V1)) === REJECTED_V1_SHA256,
+    "rejected immutable v1 manifest SHA-256 mismatch",
+  );
   const output = build();
   if (fs.existsSync(OUTPUT)) {
     invariant(
@@ -156,6 +168,7 @@ function main() {
   }
   console.log(JSON.stringify({
     status: "PASS",
+    rejected_v1_manifest_sha256: REJECTED_V1_SHA256,
     reviewed_manifest: path.relative(ROOT, OUTPUT).replaceAll("\\", "/"),
     reviewed_manifest_sha256: sha256(Buffer.from(output)),
     reviewed_scope_hash: JSON.parse(output).reviewed_scope_hash,

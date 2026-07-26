@@ -12,7 +12,7 @@ const {
 } = require("./lib/reviewed-variant-nutrition");
 
 const output = path.resolve(
-  "data/verified/variant-nutrition-reviewed-batch-2.json",
+  "data/verified/variant-nutrition-reviewed-batch-2-v2.json",
 );
 
 test("reviewed nutrition batch 2 is deterministic and exactly scoped", () => {
@@ -28,6 +28,14 @@ test("reviewed nutrition batch 2 is deterministic and exactly scoped", () => {
   assert.deepEqual(
     [...new Set(manifest.changes.map((row) => row.product_id))],
     ["767", "780", "781"],
+  );
+  assert.deepEqual(
+    [...new Set(manifest.changes.map((row) => row.expected_product_name))],
+    [
+      "OstroVit Creatine Monohydrate 300g",
+      "OstroVit Creatine Monohydrate 1000g",
+      "OstroVit Creatine Monohydrate 500g",
+    ],
   );
   assert.ok(
     manifest.changes.every(
