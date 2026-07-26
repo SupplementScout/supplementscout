@@ -13,6 +13,8 @@ const {
 const ROOT = path.resolve(__dirname, "..");
 const MIGRATION = "supabase/migrations/20260726100000_add_reviewed_mixed_change_approval.sql";
 const ROLLBACK = "supabase/rollbacks/20260726100000_add_reviewed_mixed_change_approval.sql";
+const SCOPED_MIGRATION = "supabase/migrations/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql";
+const SCOPED_ROLLBACK = "supabase/rollbacks/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql";
 const IMAGE = "postgres:17-alpine";
 
 function run(command, args, options = {}) {
@@ -41,8 +43,14 @@ function literal(value) {
   return `'${text.replaceAll("'", "''")}'::jsonb`;
 }
 function wait(container) {
+  let consecutive = 0;
   for (let index = 0; index < 80; index += 1) {
-    if (exec(container, ["pg_isready", "-U", "postgres"]).status === 0) return;
+    if (exec(container, ["pg_isready", "-U", "postgres"]).status === 0) {
+      consecutive += 1;
+      if (consecutive === 2) return;
+    } else {
+      consecutive = 0;
+    }
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
   assert.fail("PostgreSQL unavailable");
@@ -239,6 +247,55 @@ function reviewedFixture() {
   return { artifact, contract, expiresAt };
 }
 
+function scopedReviewedFixture() {
+  const base = reviewedFixture();
+  const reviewed = loadReviewedMixedChangeManifest(
+    path.join(ROOT, "tmp/jons-15-review/jons-15-reviewed-manifest-scoped-8c08e919.json"),
+    "2b14b0d7b09ab70f41aacb1907bd1718d605cab9fcde0246dc7b7a7f167718c2",
+  );
+  const rows = base.artifact.rows.map((row) => ({
+    ...row,
+    atomic_plan: {
+      ...row.atomic_plan,
+      expected_state: {
+        retailer_product: { updated_at: "2026-07-26T08:00:00.000000Z" },
+        offer: {
+          ...row.atomic_plan.expected_state.offer,
+          last_checked_at: "2026-07-26T08:00:00.000000Z",
+        },
+      },
+    },
+  }));
+  const core = {
+    ...base.artifact,
+    target_environment: "STAGING",
+    target_project_ref: "hxnrsyyqffztlvcrtgbf",
+    target_database_identity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+    source_snapshot_fingerprint:
+      reviewed.manifest.scoped_source_contract.observed_full_source_fingerprint,
+    rows,
+  };
+  delete core.artifact_fingerprint;
+  const artifact = { ...core, artifact_fingerprint: fingerprint(core) };
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const scoped = reviewed.manifest.scoped_source_contract;
+  const contract = buildReviewedMixedChangeContract({
+    reviewed,
+    artifact,
+    targetEnvironment: "STAGING",
+    expiresAt,
+    scopedSourceEvidence: {
+      full_source_fingerprint: scoped.observed_full_source_fingerprint,
+      reviewed_full_source_fingerprint: scoped.reviewed_full_source_fingerprint,
+      mapped_scope_fingerprint: scoped.mapped_scope_fingerprint,
+      mapped_scope_row_count: scoped.mapped_scope_row_count,
+      unmapped_source_delta: scoped.unmapped_source_delta,
+      unmapped_source_delta_hash: scoped.unmapped_source_delta_hash,
+    },
+  });
+  return { artifact, contract, expiresAt };
+}
+
 function registrationFixture(fixture) {
   const parentId = crypto.randomUUID();
   const childId = crypto.randomUUID();
@@ -417,6 +474,139 @@ test("reviewed mixed-change rollback restores ordinary dispatch before any bindi
     assert.match(ordinary.stdout, /ordinary/);
     const removed = ok(sql(container, "select to_regclass('public.retailer_offer_sync_reviewed_mixed_change_definitions') is null;"), "removed");
     assert.equal(removed.stdout.trim(), "t");
+  } finally {
+    run("docker", ["rm", "-f", container], { timeout: 30_000 });
+  }
+});
+
+test("scoped reviewed migration preserves v1, validates v2 and rejects collisions and reruns", { skip: !dockerAvailable() && "Docker unavailable" }, () => {
+  const container = `reviewed-scoped-${crypto.randomBytes(5).toString("hex")}`;
+  try {
+    ok(run("docker", ["run", "--detach", "--rm", "--name", container, "--network", "none", "-e", "POSTGRES_HOST_AUTH_METHOD=trust", "-v", `${ROOT}:/workspace:ro`, IMAGE]), "start");
+    wait(container);
+    ok(sql(container, setupSql()), "setup");
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MIGRATION}`]), "base migration");
+    ok(sql(container, `
+      alter table public.retailers add column website text;
+      update public.retailers set website='https://jonssupplements.co.uk' where id=10;
+      alter table public.retailer_products
+        add column external_sku text,
+        add column external_gtin text,
+        add column external_url text;
+      create or replace function public.retailer_catalogue_actual_database_target() returns jsonb
+      language sql stable as $$
+        select '{"target_environment":"STAGING"}'::jsonb
+      $$;
+      update public.retailer_offer_sync_reviewed_mixed_change_definitions
+      set authorization_id='jons-15-15a1a71238af5fa6-staging',target_environment='STAGING';
+    `), "staging fixture");
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${SCOPED_MIGRATION}`]), "scoped migration");
+    const definitions = ok(sql(container, `
+      select string_agg(authorization_id||':'||contract_version,',' order by contract_version)
+      from public.retailer_offer_sync_reviewed_mixed_change_definitions;
+    `), "scoped definitions");
+    assert.equal(
+      definitions.stdout.trim(),
+      "jons-15-15a1a71238af5fa6-staging:1,jons-15-2b14b0d7b09ab70f-staging:2",
+    );
+    const fixture = scopedReviewedFixture();
+    const exact = ok(sql(container, `
+      select public.retailer_offer_sync_validate_reviewed_mixed_change_contract(
+        ${literal(fixture.artifact)},${literal(fixture.contract)},'${fixture.expiresAt}'::timestamptz);
+    `), "scoped exact contract");
+    assert.match(exact.stdout, /"contract_version": 2/);
+    assert.match(exact.stdout, /"valid": true/);
+    const stalePrecondition = structuredClone(fixture.contract);
+    stalePrecondition.execution_preconditions[0].mapping_updated_at =
+      "2026-07-26T07:59:59.000000Z";
+    stalePrecondition.reviewed_change_scope_hash = fingerprint({
+      reviewed_rows: stalePrecondition.reviewed_rows,
+      execution_preconditions: stalePrecondition.execution_preconditions,
+      expected_deltas: stalePrecondition.expected_deltas,
+    });
+    delete stalePrecondition.reviewed_contract_hash;
+    stalePrecondition.reviewed_contract_hash = fingerprint(stalePrecondition);
+    const preconditionBlocked = sql(container, `
+      select public.retailer_offer_sync_validate_reviewed_mixed_change_contract(
+        ${literal(fixture.artifact)},${literal(stalePrecondition)},'${fixture.expiresAt}'::timestamptz);
+    `);
+    assert.notEqual(preconditionBlocked.status, 0);
+    assert.match(output(preconditionBlocked), /RSBI_EXPECTED_STATE_MISMATCH/);
+    ok(sql(container, `
+      insert into public.retailer_products(
+        id,retailer_id,product_id,product_variant_id,external_product_id,
+        external_variant_id,external_sku,external_gtin,external_url)
+      values(9999,10,1,1,'900','901','SPT14001',null,'https://example.test/collision');
+    `), "collision fixture");
+    const collision = sql(container, `
+      select public.retailer_offer_sync_validate_reviewed_mixed_change_contract(
+        ${literal(fixture.artifact)},${literal(fixture.contract)},'${fixture.expiresAt}'::timestamptz);
+    `);
+    assert.notEqual(collision.status, 0);
+    assert.match(output(collision), /RSBI_DUPLICATE_IDENTITY/);
+    ok(sql(container, "delete from public.retailer_products where id=9999;"), "remove collision fixture");
+    const approvalRequest = {
+      schema_version: 1,
+      child_plan_id: crypto.randomUUID(),
+      parent_plan_fingerprint: "a".repeat(64),
+      child_plan_fingerprint: fixture.artifact.artifact_fingerprint,
+      artifact: fixture.artifact,
+      execution_fingerprint: "b".repeat(64),
+      expected_migration_versions: [
+        "20260726100000_add_reviewed_mixed_change_approval",
+        "20260726120000_add_scoped_reviewed_mixed_change_fingerprints",
+      ],
+      expected_migration_fingerprint: "c".repeat(64),
+      migration_fingerprint_algorithm: "SHA-256",
+      migration_fingerprint_version: "RSBI-CJ1",
+      approved_by: "scoped-integration-test",
+      expires_at: fixture.expiresAt,
+      staging_project_ref: "hxnrsyyqffztlvcrtgbf",
+      staging_database_identity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+      reviewed_mixed_change_contract: fixture.contract,
+    };
+    const approved = JSON.parse(ok(sql(container, `
+      select public.retailer_offer_sync_approve_batch_internal(${literal(approvalRequest)})::text;
+    `), "scoped approve").stdout.trim());
+    const executionRequest = {
+      schema_version: 1,
+      approval_id: approved.approval_id,
+      execution_fingerprint: approvalRequest.execution_fingerprint,
+      expected_migration_versions: approvalRequest.expected_migration_versions,
+      expected_migration_fingerprint: approvalRequest.expected_migration_fingerprint,
+      migration_fingerprint_algorithm: "SHA-256",
+      migration_fingerprint_version: "RSBI-CJ1",
+      staging_project_ref: approvalRequest.staging_project_ref,
+      staging_database_identity: approvalRequest.staging_database_identity,
+      requested_at: new Date().toISOString(),
+      explicit_allow: true,
+    };
+    assert.match(
+      ok(sql(container, `
+        select public.retailer_offer_sync_execute_batch_internal(${literal(executionRequest)});
+      `), "scoped execute").stdout,
+      /APPLIED/,
+    );
+    const replay = sql(container, `
+      select public.retailer_offer_sync_execute_batch_internal(${literal(executionRequest)});
+    `);
+    assert.notEqual(replay.status, 0);
+    assert.match(output(replay), /RSBI_REPLAY_BLOCKED/);
+    const beforeRerun = ok(sql(container, `
+      select count(*)||':'||(select count(*) from pg_proc where proname like '%reviewed_mixed_change%')
+      from public.retailer_offer_sync_reviewed_mixed_change_definitions;
+    `), "scoped pre-rerun");
+    const rerun = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${SCOPED_MIGRATION}`]);
+    assert.notEqual(rerun.status, 0);
+    assert.match(output(rerun), /already installed; rerun rejected/);
+    const afterRerun = ok(sql(container, `
+      select count(*)||':'||(select count(*) from pg_proc where proname like '%reviewed_mixed_change%')
+      from public.retailer_offer_sync_reviewed_mixed_change_definitions;
+    `), "scoped post-rerun");
+    assert.equal(afterRerun.stdout.trim(), beforeRerun.stdout.trim());
+    const rollbackBlocked = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${SCOPED_ROLLBACK}`]);
+    assert.notEqual(rollbackBlocked.status, 0);
+    assert.match(output(rollbackBlocked), /rollback is forbidden after any scoped reviewed approval binding/);
   } finally {
     run("docker", ["rm", "-f", container], { timeout: 30_000 });
   }

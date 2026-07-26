@@ -9,7 +9,7 @@ const {classifyExistingOffers}=require("./lib/retailer-offer-sync/classifier");
 const {sealArtifact}=require("./lib/retailer-offer-sync/artifacts");
 const {buildVerifiedNoChangePlan}=require("./verified-no-change-offer-refresh");
 const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing-offer-plan");
-const {bindReviewedMixedChangeContract,buildReviewedMixedChangeContract,loadReviewedMixedChangeManifest}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
+const {bindReviewedMixedChangeContract,buildReviewedMixedChangeContract,buildScopedSourceEvidence,loadReviewedMixedChangeManifest}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
 const {migrationBinding}=require("./lib/environment-migrations");
 const {canonicalJson}=require("./lib/canonical-json");
 const config=require("../config/retailers/jons-supplements-offer-sync.json");
@@ -123,6 +123,15 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   invariant(new Set(sourceVariants.map(row=>String(row.external_variant_id))).size===sourceVariants.length,"duplicate source identity");
   const duplicateSku=new Map();for(const row of sourceVariants)if(row.external_sku)duplicateSku.set(row.external_sku,(duplicateSku.get(row.external_sku)||0)+1);
   const targets=state.records.map(targetFor),targetByVariant=new Map(targets.map(row=>[row.external_variant_id,row]));for(const row of sourceVariants){const targetRow=targetByVariant.get(String(row.external_variant_id));if(targetRow&&targetRow.external_sku===null&&row.external_sku&&duplicateSku.get(row.external_sku)>1)row.external_sku=null}
+  let scopedSourceEvidence=null;
+  if(reviewed?.scoped){
+    try{
+      scopedSourceEvidence=buildScopedSourceEvidence({reviewed,snapshot,sourceVariants,records:state.records,storeUrl:config.store_url});
+      if(diagnostic)diagnostic.scoped_source_evidence={full_source_fingerprint:scopedSourceEvidence.full_source_fingerprint,reviewed_full_source_fingerprint:scopedSourceEvidence.reviewed_full_source_fingerprint,mapped_scope_fingerprint:scopedSourceEvidence.mapped_scope_fingerprint,mapped_scope_row_count:scopedSourceEvidence.mapped_scope_row_count,unmapped_source_delta_hash:scopedSourceEvidence.unmapped_source_delta_hash,unmapped_source_delta:scopedSourceEvidence.unmapped_source_delta,collision_checks:scopedSourceEvidence.collision_checks};
+    }catch(error){
+      throw new RefreshError("REVIEWED_MANIFEST_DRIFT",error.message,"REVIEWED_CONTRACT",{reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint});
+    }
+  }
   const policy={...config.guardrails,required_matched_offers:506,store_url:config.store_url};
   const classification=classifyExistingOffers({targets,sourceVariants,policy,guardScope:{name:"JONS_FULL_506",retailer:"Jon's Supplements"},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count});
   if(diagnostic){
@@ -137,7 +146,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
     const expected=reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
     if(classification.reason!=="MASS_OOS"
        || classification.rows.length!==506
-       || snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256
+       || (!reviewed.scoped&&snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256)
        || JSON.stringify(stable)!==JSON.stringify(expected)){
       throw new RefreshError("REVIEWED_MANIFEST_DRIFT","live Jon's source/state differs from reviewed mixed-change manifest","REVIEWED_CONTRACT",{classifier_reason:classification.reason||null,reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint,reviewed_scope:expected,live_scope:stable});
     }
@@ -153,8 +162,8 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   const discovery={new_variants:[...sourceIds].filter(id=>!mappedIds.has(id)),missing_variants:[...mappedIds].filter(id=>!sourceIds.has(id))};
   if(diagnostic){diagnostic.mappings_matched=manifest.length-discovery.missing_variants.length;diagnostic.mappings_missing=discovery.missing_variants.length;diagnostic.guard_results.push({guard:"APPROVED_MAPPING_COVERAGE",result:discovery.missing_variants.length===0?"PASS":"BLOCK",expected:manifest.length,matched:diagnostic.mappings_matched,missing:discovery.missing_variants.length})}
   const reviewedExpiresAt=reviewed?new Date(Date.now()+14*60000).toISOString():null;
-  const reviewedContract=reviewed?buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt}):null;
-  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash(manifest),binding,head,discovery,reviewed,reviewedExpiresAt,reviewedContract};
+  const reviewedContract=reviewed?buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt,scopedSourceEvidence}):null;
+  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash(manifest),binding,head,discovery,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence};
 }
 
 async function roleCall(target,kind,readOnly,body){const spec=TARGETS[target],client=new Client({connectionString:roleCredential(target,kind),ssl:{rejectUnauthorized:false},application_name:`jons-offer-refresh-${kind}`,options:"-c statement_timeout=120000"});await client.connect();try{await client.query(readOnly?"begin read only":"begin");await client.query(`select set_config('app.safe_update','false',true),set_config('app.retailer_catalogue_${target}_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)`);await client.query(`set role retailer_catalogue_${target}_${kind}`);const who=(await client.query("select current_user,session_user,current_setting('transaction_read_only') ro")).rows[0];invariant(who.current_user===`retailer_catalogue_${target}_${kind}`,`${kind} role mismatch`);if(readOnly)invariant(who.ro==="on",`${kind} transaction is not read-only`);const result=await body(client,spec);await client.query(readOnly?"rollback":"commit");return{result,identity:who}}catch(error){try{await client.query("rollback")}catch{}throw error}finally{await client.end()}}
@@ -181,7 +190,7 @@ async function executeRefresh(args,diagnostic){
   diagnostic.validator_result="PASS";
   diagnostic.guard_results.push({guard:"VALIDATOR",result:"PASS",batches:validations.length});
   const appliedExpected=run.artifacts.reduce((total,artifact)=>{for(const key of Object.keys(total.row_count_deltas))total.row_count_deltas[key]+=artifact.expected_deltas.row_count_deltas[key];for(const key of Object.keys(total.logical_field_deltas))total.logical_field_deltas[key]+=artifact.expected_deltas.logical_field_deltas[key];return total},{row_count_deltas:{...ZERO_ROWS},logical_field_deltas:{...ZERO_LOGICAL}});
-  const base={result:"PASS",mode:args.mode,target:args.target,project_ref:spec.ref,source:{country:"GB",products:run.snapshot.products.length,variants:run.sourceVariants.length,available:run.sourceVariants.filter(row=>row.in_stock).length,fingerprint:run.snapshot.semantic_source_fingerprint,diagnostic:run.snapshot.source_diagnostic},scope:{mappings:506,offers:506,children:run.artifacts.length,rows:run.artifacts.reduce((sum,artifact)=>sum+artifact.rows.length,0)},classification:counts,expected_deltas:appliedExpected,reviewed_mixed_change:reviewed?{manifest_sha256:reviewed.sha256,scope_hash:reviewed.reviewed_scope_hash,authorization_id:run.reviewedContract.authorization_id}:null,discovery:{new_variants:run.discovery.new_variants.length,missing_variants:0},validator_batches:validations.length,safe_update:"unset"};
+  const base={result:"PASS",mode:args.mode,target:args.target,project_ref:spec.ref,source:{country:"GB",products:run.snapshot.products.length,variants:run.sourceVariants.length,available:run.sourceVariants.filter(row=>row.in_stock).length,fingerprint:run.snapshot.semantic_source_fingerprint,diagnostic:run.snapshot.source_diagnostic},scope:{mappings:506,offers:506,children:run.artifacts.length,rows:run.artifacts.reduce((sum,artifact)=>sum+artifact.rows.length,0)},classification:counts,expected_deltas:appliedExpected,reviewed_mixed_change:reviewed?{manifest_sha256:reviewed.sha256,scope_hash:reviewed.reviewed_scope_hash,authorization_id:run.reviewedContract.authorization_id,contract_kind:run.reviewedContract.kind,full_source_fingerprint:run.reviewedContract.full_source_fingerprint||run.reviewedContract.reviewed_source_fingerprint,mapped_scope_fingerprint:run.reviewedContract.mapped_scope_fingerprint||null,reviewed_change_scope_hash:run.reviewedContract.reviewed_change_scope_hash||run.reviewedContract.reviewed_scope_hash,unmapped_source_delta_hash:run.reviewedContract.unmapped_source_delta_hash||null}:null,discovery:{new_variants:run.discovery.new_variants.length,missing_variants:0},validator_batches:validations.length,safe_update:"unset"};
   if(args.mode==="dry-run"){write(`${args.target}-dry-run.json`,base);return base}
   diagnostic.database_writes_attempted=1;
   const registration=registrationRequest(run),registered=await register(run,registration);

@@ -2,9 +2,11 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { fingerprint } = require("./artifacts");
+const { semanticShopifySnapshot, sha256 } = require("../shopify-snapshot-reader");
 
 const MANIFEST_KIND = "jons-existing-offer-15-change-reviewed-manifest";
 const CONTRACT_KIND = "retailer-reviewed-mixed-change-v1";
+const SCOPED_CONTRACT_KIND = "retailer-reviewed-mixed-change-v2";
 const SHA256 = /^[0-9a-f]{64}$/;
 const ACTIONS = new Set(["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK", "UPDATE_URL", "UPDATE_PRICE_STOCK_URL"]);
 const EXPECTED_MANIFEST_KEYS = Object.freeze([
@@ -12,6 +14,16 @@ const EXPECTED_MANIFEST_KEYS = Object.freeze([
   "target_environment", "target_project_ref", "retailer_id", "retailer_slug",
   "source_country", "source_capture_sha256", "production_state_sha256",
   "row_count", "immutable_scope_offer_ids", "expected_deltas", "rows",
+]);
+const EXPECTED_SCOPED_MANIFEST_KEYS = Object.freeze([...EXPECTED_MANIFEST_KEYS, "scoped_source_contract"]);
+const EXPECTED_SCOPED_SOURCE_KEYS = Object.freeze([
+  "schema_version", "reviewed_full_source_fingerprint", "observed_full_source_fingerprint",
+  "reviewed_product_count", "reviewed_variant_count", "observed_product_count",
+  "observed_variant_count", "mapped_scope_row_count", "mapped_scope_fingerprint",
+  "unmapped_source_delta", "unmapped_source_delta_hash",
+]);
+const EXPECTED_UNMAPPED_DELTA_KEYS = Object.freeze([
+  "added_products", "removed_products", "added_variants", "removed_variants",
 ]);
 const EXPECTED_ROW_KEYS = Object.freeze([
   "offer_id", "mapping_id", "canonical_product_id", "canonical_product",
@@ -95,6 +107,209 @@ function stableReviewedRows(manifest) {
   });
 }
 
+function identity(value) {
+  return value == null || String(value).trim() === "" ? null : String(value);
+}
+
+function compareShopifyIdentity(left, right) {
+  const a = String(left);
+  const b = String(right);
+  if (/^\d+$/.test(a) && /^\d+$/.test(b)) {
+    return BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0;
+  }
+  return a.localeCompare(b);
+}
+
+function canonicalVariantUrl(storeUrl, productHandle, variantId) {
+  const url = new URL(`/products/${productHandle}`, storeUrl);
+  url.searchParams.set("variant", String(variantId));
+  return url.href;
+}
+
+function mappedSourceRows({ snapshot, sourceVariants, records, storeUrl }) {
+  if (!snapshot || !Array.isArray(snapshot.products) || !Array.isArray(sourceVariants)
+      || !Array.isArray(records) || records.length === 0) {
+    throw new Error("mapped source scope inputs are required");
+  }
+  const rawByVariant = new Map();
+  for (const product of snapshot.products) {
+    for (const variant of product.variants || []) {
+      const key = String(variant.id);
+      if (!key || rawByVariant.has(key)) throw new Error("source parse anomaly: duplicate Shopify variant identity");
+      rawByVariant.set(key, { product, variant });
+    }
+  }
+  const sourceByVariant = new Map();
+  for (const row of sourceVariants) {
+    const key = String(row.external_variant_id);
+    if (!key || sourceByVariant.has(key)) throw new Error("source parse anomaly: duplicate projected variant identity");
+    sourceByVariant.set(key, row);
+  }
+  return records.map((record) => {
+    const variantId = String(record.mapping.external_variant_id);
+    const productId = String(record.mapping.external_product_id);
+    const source = sourceByVariant.get(variantId);
+    const raw = rawByVariant.get(variantId);
+    if (!source || !raw || String(source.external_product_id) !== productId
+        || String(raw.product.id) !== productId) {
+      throw new Error("mapped Shopify identity is missing or changed");
+    }
+    const shipping = Number(source.shipping_cost || 0).toFixed(2);
+    const price = Number(source.price).toFixed(2);
+    return {
+      external_product_id: productId,
+      external_variant_id: variantId,
+      external_sku: identity(source.external_sku),
+      external_gtin: identity(raw.variant.barcode),
+      price,
+      shipping_cost: shipping,
+      total_price: (Number(price) + Number(shipping)).toFixed(2),
+      in_stock: Boolean(source.in_stock),
+      url: canonicalVariantUrl(storeUrl, source.product_handle, variantId),
+    };
+  }).sort((left, right) => {
+    const product = compareShopifyIdentity(left.external_product_id, right.external_product_id);
+    return product || compareShopifyIdentity(left.external_variant_id, right.external_variant_id);
+  });
+}
+
+function validateDeltaEntry(entry, kind) {
+  if (!entry || typeof entry !== "object" || Array.isArray(entry)
+      || !/^\d+$/.test(String(entry.product_id || ""))) {
+    throw new Error(`invalid unmapped ${kind} delta entry`);
+  }
+  if (kind === "variant" && (!/^\d+$/.test(String(entry.variant_id || ""))
+      || !entry.semantic_variant || typeof entry.semantic_variant !== "object")) {
+    throw new Error("invalid unmapped variant delta entry");
+  }
+  if (kind === "product" && (!entry.semantic_product || typeof entry.semantic_product !== "object"
+      || String(entry.semantic_product.id) !== String(entry.product_id))) {
+    throw new Error("invalid unmapped product delta entry");
+  }
+}
+
+function reverseUnmappedSourceDelta(snapshot, delta) {
+  if (!exactKeys(delta, EXPECTED_UNMAPPED_DELTA_KEYS)
+      || !EXPECTED_UNMAPPED_DELTA_KEYS.every((key) => Array.isArray(delta[key]))) {
+    throw new Error("unmapped source delta schema mismatch");
+  }
+  const semantic = structuredClone(semanticShopifySnapshot(snapshot));
+  for (const entry of delta.added_products) {
+    validateDeltaEntry(entry, "product");
+    const index = semantic.products.findIndex((product) => String(product.id) === String(entry.product_id));
+    if (index < 0 || JSON.stringify(semantic.products[index]) !== JSON.stringify(entry.semantic_product)) {
+      throw new Error("declared added product does not exactly match live source");
+    }
+    semantic.products.splice(index, 1);
+  }
+  for (const entry of delta.removed_products) {
+    validateDeltaEntry(entry, "product");
+    if (semantic.products.some((product) => String(product.id) === String(entry.product_id))) {
+      throw new Error("declared removed product still exists");
+    }
+    semantic.products.push(structuredClone(entry.semantic_product));
+  }
+  for (const entry of delta.added_variants) {
+    validateDeltaEntry(entry, "variant");
+    const product = semantic.products.find((row) => String(row.id) === String(entry.product_id));
+    const index = product?.variants?.findIndex((variant) => String(variant.id) === String(entry.variant_id)) ?? -1;
+    if (!product || index < 0 || JSON.stringify(product.variants[index]) !== JSON.stringify(entry.semantic_variant)) {
+      throw new Error("declared added variant does not exactly match live source");
+    }
+    product.variants.splice(index, 1);
+  }
+  for (const entry of delta.removed_variants) {
+    validateDeltaEntry(entry, "variant");
+    const product = semantic.products.find((row) => String(row.id) === String(entry.product_id));
+    if (!product || product.variants.some((variant) => String(variant.id) === String(entry.variant_id))) {
+      throw new Error("declared removed variant cannot be restored");
+    }
+    product.variants.push(structuredClone(entry.semantic_variant));
+  }
+  semantic.products.sort((left, right) => compareShopifyIdentity(left.id, right.id));
+  for (const product of semantic.products) {
+    product.variants.sort((left, right) => compareShopifyIdentity(left.id, right.id));
+  }
+  return semantic;
+}
+
+function deltaIdentityRows(delta, storeUrl) {
+  const rows = [];
+  for (const entry of [...delta.added_products, ...delta.removed_products]) {
+    validateDeltaEntry(entry, "product");
+    for (const variant of entry.semantic_product.variants || []) rows.push({
+      external_product_id: String(entry.product_id),
+      external_variant_id: String(variant.id),
+      external_sku: identity(variant.sku),
+      external_gtin: identity(variant.barcode),
+      url: canonicalVariantUrl(storeUrl, entry.semantic_product.handle, variant.id),
+    });
+  }
+  for (const entry of [...delta.added_variants, ...delta.removed_variants]) {
+    validateDeltaEntry(entry, "variant");
+    rows.push({
+      external_product_id: String(entry.product_id),
+      external_variant_id: String(entry.variant_id),
+      external_sku: identity(entry.semantic_variant.sku),
+      external_gtin: identity(entry.semantic_variant.barcode),
+      url: String(entry.url),
+    });
+  }
+  return rows;
+}
+
+function assertNoMappedCollision(deltaRows, mappedRows) {
+  for (const delta of deltaRows) {
+    const collision = mappedRows.find((mapped) =>
+      mapped.external_product_id === delta.external_product_id
+      || mapped.external_variant_id === delta.external_variant_id
+      || (delta.external_sku && mapped.external_sku === delta.external_sku)
+      || (delta.external_gtin && mapped.external_gtin === delta.external_gtin)
+      || mapped.url === delta.url);
+    if (collision) throw new Error("unmapped source delta collides with mapped Shopify identity");
+  }
+}
+
+function buildScopedSourceEvidence({ reviewed, snapshot, sourceVariants, records, storeUrl }) {
+  const scoped = reviewed.manifest.scoped_source_contract;
+  if (!scoped) throw new Error("scoped reviewed source contract is required");
+  const mappedRows = mappedSourceRows({ snapshot, sourceVariants, records, storeUrl });
+  const mappedFingerprint = fingerprint(mappedRows);
+  const fullFingerprint = sha256(semanticShopifySnapshot(snapshot));
+  const productCount = snapshot.products.length;
+  const variantCount = snapshot.products.reduce((count, product) => count + (product.variants || []).length, 0);
+  if (fullFingerprint !== scoped.observed_full_source_fingerprint
+      || productCount !== scoped.observed_product_count
+      || variantCount !== scoped.observed_variant_count
+      || mappedRows.length !== scoped.mapped_scope_row_count
+      || mappedFingerprint !== scoped.mapped_scope_fingerprint) {
+    throw new Error("scoped reviewed source fingerprint mismatch");
+  }
+  const reconstructed = reverseUnmappedSourceDelta(snapshot, scoped.unmapped_source_delta);
+  const reconstructedFingerprint = sha256(reconstructed);
+  const reconstructedProducts = reconstructed.products.length;
+  const reconstructedVariants = reconstructed.products.reduce(
+    (count, product) => count + (product.variants || []).length, 0,
+  );
+  if (reconstructedFingerprint !== scoped.reviewed_full_source_fingerprint
+      || reconstructedProducts !== scoped.reviewed_product_count
+      || reconstructedVariants !== scoped.reviewed_variant_count) {
+    throw new Error("unmapped source delta does not reconstruct reviewed full source");
+  }
+  const deltaRows = deltaIdentityRows(scoped.unmapped_source_delta, storeUrl);
+  assertNoMappedCollision(deltaRows, mappedRows);
+  return Object.freeze({
+    full_source_fingerprint: fullFingerprint,
+    reviewed_full_source_fingerprint: reconstructedFingerprint,
+    mapped_scope_fingerprint: mappedFingerprint,
+    mapped_scope_row_count: mappedRows.length,
+    mapped_scope_rows: mappedRows,
+    unmapped_source_delta: scoped.unmapped_source_delta,
+    unmapped_source_delta_hash: scoped.unmapped_source_delta_hash,
+    collision_checks: "PASS",
+  });
+}
+
 function loadReviewedMixedChangeManifest(file, requiredSha256) {
   if (!SHA256.test(String(requiredSha256 || ""))) throw new Error("reviewed manifest SHA-256 is required");
   const resolved = path.resolve(file);
@@ -102,7 +317,8 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
   const actualSha256 = sha256Bytes(bytes);
   if (actualSha256 !== requiredSha256) throw new Error("reviewed manifest SHA-256 mismatch");
   const manifest = JSON.parse(bytes.toString("utf8"));
-  if (!exactKeys(manifest, EXPECTED_MANIFEST_KEYS)
+  const scoped = exactKeys(manifest, EXPECTED_SCOPED_MANIFEST_KEYS);
+  if (!(exactKeys(manifest, EXPECTED_MANIFEST_KEYS) || scoped)
       || manifest.schema_version !== 1
       || manifest.kind !== MANIFEST_KIND
       || manifest.target_environment !== "PRODUCTION"
@@ -119,6 +335,24 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
       || JSON.stringify(manifest.expected_deltas) !== JSON.stringify(EXPECTED_DELTAS)) {
     throw new Error("reviewed manifest contract mismatch");
   }
+  if (scoped) {
+    const contract = manifest.scoped_source_contract;
+    if (!exactKeys(contract, EXPECTED_SCOPED_SOURCE_KEYS)
+        || contract.schema_version !== 1
+        || ![contract.reviewed_full_source_fingerprint, contract.observed_full_source_fingerprint,
+          contract.mapped_scope_fingerprint, contract.unmapped_source_delta_hash].every((value) => SHA256.test(value))
+        || contract.reviewed_full_source_fingerprint !== manifest.source_capture_sha256
+        || !Number.isInteger(contract.reviewed_product_count)
+        || !Number.isInteger(contract.reviewed_variant_count)
+        || !Number.isInteger(contract.observed_product_count)
+        || !Number.isInteger(contract.observed_variant_count)
+        || !Number.isInteger(contract.mapped_scope_row_count)
+        || contract.mapped_scope_row_count !== 506
+        || !exactKeys(contract.unmapped_source_delta, EXPECTED_UNMAPPED_DELTA_KEYS)
+        || fingerprint(contract.unmapped_source_delta) !== contract.unmapped_source_delta_hash) {
+      throw new Error("scoped reviewed source contract mismatch");
+    }
+  }
   const reviewedRows = stableReviewedRows(manifest);
   if (new Set(reviewedRows.map((row) => row.external_variant_id)).size !== reviewedRows.length) {
     throw new Error("reviewed manifest has duplicate Shopify variant identity");
@@ -129,6 +363,7 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
     manifest,
     reviewed_rows: reviewedRows,
     reviewed_scope_hash: fingerprint(reviewedRows),
+    scoped,
   });
 }
 
@@ -182,11 +417,25 @@ function expectedArtifactDeltas(manifest) {
   };
 }
 
-function buildReviewedMixedChangeContract({ reviewed, artifact, targetEnvironment, expiresAt }) {
+function reviewedExecutionPreconditions(artifact) {
+  return artifact.rows.map((row) => ({
+    external_product_id: String(row.external_product_id),
+    external_variant_id: String(row.external_variant_id),
+    offer_id: String(row.offer_id),
+    retailer_product_id: String(row.retailer_product_id),
+    mapping_updated_at: String(row.atomic_plan.expected_state.retailer_product.updated_at),
+    offer_last_checked_at: String(row.atomic_plan.expected_state.offer.last_checked_at),
+  })).sort((left, right) => compareShopifyIdentity(left.external_variant_id, right.external_variant_id));
+}
+
+function buildReviewedMixedChangeContract({
+  reviewed, artifact, targetEnvironment, expiresAt, scopedSourceEvidence = null,
+}) {
   if (!["STAGING", "PRODUCTION"].includes(targetEnvironment)
       || artifact.target_environment !== targetEnvironment
       || artifact.retailer_id !== reviewed.manifest.retailer_id
-      || artifact.source_snapshot_fingerprint !== reviewed.manifest.source_capture_sha256
+      || (!reviewed.scoped
+        && artifact.source_snapshot_fingerprint !== reviewed.manifest.source_capture_sha256)
       || artifact.rows.length !== reviewed.manifest.row_count
       || JSON.stringify(artifactReviewedRows(artifact)) !== JSON.stringify(reviewed.reviewed_rows)
       || JSON.stringify(artifact.expected_deltas) !== JSON.stringify(expectedArtifactDeltas(reviewed.manifest))) {
@@ -215,6 +464,34 @@ function buildReviewedMixedChangeContract({ reviewed, artifact, targetEnvironmen
     expires_at: expiresAt,
     artifact_fingerprint: artifact.artifact_fingerprint,
   };
+  if (reviewed.scoped) {
+    if (!scopedSourceEvidence
+        || scopedSourceEvidence.full_source_fingerprint !== artifact.source_snapshot_fingerprint
+        || scopedSourceEvidence.mapped_scope_fingerprint
+          !== reviewed.manifest.scoped_source_contract.mapped_scope_fingerprint
+        || scopedSourceEvidence.unmapped_source_delta_hash
+          !== reviewed.manifest.scoped_source_contract.unmapped_source_delta_hash) {
+      throw new Error("scoped source evidence differs from reviewed mixed-change manifest");
+    }
+    const executionPreconditions = reviewedExecutionPreconditions(artifact);
+    const reviewedChangeScope = {
+      reviewed_rows: reviewed.reviewed_rows,
+      execution_preconditions: executionPreconditions,
+      expected_deltas: expectedArtifactDeltas(reviewed.manifest),
+    };
+    Object.assign(core, {
+      schema_version: 2,
+      kind: SCOPED_CONTRACT_KIND,
+      full_source_fingerprint: scopedSourceEvidence.full_source_fingerprint,
+      reviewed_full_source_fingerprint: scopedSourceEvidence.reviewed_full_source_fingerprint,
+      mapped_scope_fingerprint: scopedSourceEvidence.mapped_scope_fingerprint,
+      mapped_scope_row_count: scopedSourceEvidence.mapped_scope_row_count,
+      unmapped_source_delta: scopedSourceEvidence.unmapped_source_delta,
+      unmapped_source_delta_hash: scopedSourceEvidence.unmapped_source_delta_hash,
+      reviewed_change_scope_hash: fingerprint(reviewedChangeScope),
+      execution_preconditions: executionPreconditions,
+    });
+  }
   return { ...core, reviewed_contract_hash: fingerprint(core) };
 }
 
@@ -225,11 +502,16 @@ function bindReviewedMixedChangeContract(request, contract) {
 
 module.exports = {
   CONTRACT_KIND,
+  SCOPED_CONTRACT_KIND,
   EXPECTED_DELTAS,
   artifactReviewedRows,
   bindReviewedMixedChangeContract,
+  buildScopedSourceEvidence,
   buildReviewedMixedChangeContract,
   expectedArtifactDeltas,
   loadReviewedMixedChangeManifest,
+  mappedSourceRows,
+  reverseUnmappedSourceDelta,
+  reviewedExecutionPreconditions,
   stableReviewedRows,
 };
