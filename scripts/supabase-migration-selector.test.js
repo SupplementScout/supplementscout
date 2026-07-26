@@ -131,19 +131,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production post-reconciliation contract selects only nutrition migrations", () => {
+test("production post-reconciliation contract has no pending migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(
-    contract.pending.map(({ filename }) => filename),
-    [
-      "20260726200000_allow_public_read_active_product_variants.sql",
-      "20260726210000_add_reviewed_variant_nutrition_apply.sql",
-    ],
-  );
-  assert.equal(contract.ledgerCount, 59);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 61);
   assert.equal(
     contract.ledgerFingerprint,
-    "bb365f594464301d1e74c045c18c4ba37c43a37bf9d2716630392f0cbd0bd54a",
+    "07f6a3691ce8d85e61e296830e6e8a9f8d363c3cbab44265cdfb7bf06f8fcac7",
   );
 });
 
@@ -246,15 +240,12 @@ test("production binds its exact post-reconciliation ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 59);
+  assert.equal(result.ledger_count, 61);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(
-    result.pending,
-    contract.pending.map(({ filename }) => filename.slice(0, -4)),
-  );
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 61);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 2);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
 });
