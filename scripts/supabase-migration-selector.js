@@ -13,6 +13,13 @@ const DEFAULT_SOURCE_DIR = path.join(ROOT, "supabase", "migrations");
 const DEFAULT_CONFIG_FILE = path.join(ROOT, "supabase", "config.toml");
 const DEFAULT_WORKDIR = path.join(ROOT, "tmp", "supabase-staging-selected");
 const DEFAULT_ENV_FILE = path.join(ROOT, ".env.staging.audit.local");
+const DEFAULT_PRODUCTION_WORKDIR = path.join(ROOT, "tmp", "supabase-production-selected");
+const DEFAULT_PRODUCTION_ENV_FILE = path.join(
+  process.env.USERPROFILE || "",
+  ".supplementscout",
+  "credentials",
+  "production-owner.env",
+);
 const SHA256 = /^[0-9a-f]{64}$/;
 
 const CONTRACTS = Object.freeze({
@@ -20,6 +27,9 @@ const CONTRACTS = Object.freeze({
     environment: "STAGING",
     projectRef: "hxnrsyyqffztlvcrtgbf",
     databaseIdentity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+    projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
+    databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
+    requiredDatabaseUser: "postgres",
     ledgerCount: 57,
     ledgerFingerprint:
       "d599f4cbe1071f6333fe01141530737b50315157799c37a0ab7dd6c0453c658c",
@@ -29,10 +39,47 @@ const CONTRACTS = Object.freeze({
       "20260719100000_add_production_retailer_sync_enablement.sql":
         "0c1db39a193c98fb7cd41cfc3b75a03b35ebd59d429fe873e431aadb1aabadf9",
     }),
-    pending: Object.freeze({
+    pending: Object.freeze([Object.freeze({
       filename: "20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql",
       sha256: "75903b43f913c246e36852e4a6b93e2b4807c1c3405164541eee9357c8c840d6",
+    })]),
+  }),
+  PRODUCTION: Object.freeze({
+    environment: "PRODUCTION",
+    projectRef: "aftboxmrdgyhizicfsfu",
+    databaseIdentity: "supplementscout-production:aftboxmrdgyhizicfsfu",
+    projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
+    databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
+    requiredDatabaseUser: "postgres",
+    ledgerCount: 51,
+    ledgerFingerprint:
+      "b9f45bcb9233ae0e8fa5a9154ec8c500df89b39a6d1c078eb59bf0e2ccf74be1",
+    excluded: Object.freeze({
+      "20260717120000_create_retailer_catalogue_control_ledger.sql":
+        "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
+      "20260717130000_add_local_retailer_catalogue_child_executor.sql":
+        "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
+      "20260717140000_add_staging_retailer_catalogue_executor.sql":
+        "6dbdc5c2912c9c04a8c24e7905b7c705711c2f1b68b2eff51fab85e132f56512",
+      "20260718150000_add_verified_no_change_offer_refresh.sql":
+        "9c97854bc8469e1ba376e25803a4c82c81de69c701df6e65870bb0fafefd97e2",
+      "20260718160000_add_retailer_offer_mixed_batch_executor.sql":
+        "29098f16a10e0aaab2e1fdca1dadf33791ad470e3bfe0cc46bd7b24e60b0f7d1",
+      "20260718170000_add_read_only_mixed_batch_validator.sql":
+        "09ece7d68328ee7e383375f6d13f55933e7c18be88137fa0108046d69f121510",
+      "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
+        "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260726100000_add_reviewed_mixed_change_approval.sql",
+        sha256: "43a36d100e8a90e06418300c249fbcf3789a8a37a003c6c0028a26c10e523f06",
+      }),
+      Object.freeze({
+        filename: "20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql",
+        sha256: "75903b43f913c246e36852e4a6b93e2b4807c1c3405164541eee9357c8c840d6",
+      }),
+    ]),
   }),
 });
 
@@ -73,6 +120,13 @@ function ledgerIdentifier(row) {
   return `${row.version}_${row.name}`;
 }
 
+function validateDatabaseOwner(contract, identity) {
+  invariant(
+    identity?.current_user === contract.requiredDatabaseUser,
+    `${contract.environment} selector requires database owner ${contract.requiredDatabaseUser}`,
+  );
+}
+
 function validateSelection({
   environment,
   projectRef,
@@ -107,13 +161,17 @@ function validateSelection({
     const actual = sha256File(file);
     invariant(SHA256.test(actual) && actual === expected, `excluded migration SHA-256 mismatch: ${filename}`);
   }
-  const pendingFile = path.join(sourceDir, contract.pending.filename);
-  invariant(fs.existsSync(pendingFile), "expected pending migration is missing");
-  const pendingHash = sha256File(pendingFile);
-  invariant(
-    SHA256.test(pendingHash) && pendingHash === contract.pending.sha256,
-    `pending migration SHA-256 mismatch: ${contract.pending.filename}`,
-  );
+  const pendingHashes = {};
+  for (const pending of contract.pending) {
+    const pendingFile = path.join(sourceDir, pending.filename);
+    invariant(fs.existsSync(pendingFile), `expected pending migration is missing: ${pending.filename}`);
+    const pendingHash = sha256File(pendingFile);
+    invariant(
+      SHA256.test(pendingHash) && pendingHash === pending.sha256,
+      `pending migration SHA-256 mismatch: ${pending.filename}`,
+    );
+    pendingHashes[pending.filename] = pendingHash;
+  }
 
   const excluded = excludedMigrationIds(environment);
   const selectedFiles = allFiles.filter(
@@ -137,16 +195,23 @@ function validateSelection({
 
   const remoteSet = new Set(remoteIdentifiers);
   const pending = selectedIdentifiers.filter((identifier) => !remoteSet.has(identifier));
-  invariant(pending.length <= 1, `more than one pending migration: ${pending.join(",")}`);
-  invariant(pending.length === 1, "expected pending migration is missing");
-  const expectedPending = migrationIdentifier(contract.pending.filename);
-  invariant(pending[0] === expectedPending, `unexpected local migration: ${pending[0]}`);
+  const expectedPending = contract.pending.map(({ filename }) => migrationIdentifier(filename));
+  invariant(
+    pending.length === expectedPending.length,
+    `pending migration count mismatch: ${pending.join(",")}`,
+  );
+  invariant(
+    pending.every((identifier, index) => identifier === expectedPending[index]),
+    `unexpected local migration sequence: ${pending.join(",")}`,
+  );
   const ledgerFingerprint = ledgerRowsFingerprint(remoteLedger);
   invariant(
     ledgerFingerprint === contract.ledgerFingerprint,
     "remote ledger fingerprint mismatch",
   );
 
+  const pendingFiles = contract.pending.map(({ filename }) => filename);
+  const singlePending = contract.pending.length === 1;
   return {
     result: "PASS",
     environment,
@@ -158,9 +223,11 @@ function validateSelection({
     selected_files: selectedFiles,
     remote_only: [],
     unexpected_local: [],
-    pending: [expectedPending],
-    pending_file: contract.pending.filename,
-    pending_sha256: pendingHash,
+    pending: expectedPending,
+    pending_files: pendingFiles,
+    pending_sha256s: pendingHashes,
+    pending_file: singlePending ? pendingFiles[0] : null,
+    pending_sha256: singlePending ? pendingHashes[pendingFiles[0]] : null,
   };
 }
 
@@ -225,6 +292,8 @@ function materializeSelectedWorkdir({
         ledger_fingerprint: selection.ledger_fingerprint,
         excluded_files: selection.excluded_files,
         pending: selection.pending,
+        pending_files: selection.pending_files,
+        pending_sha256s: selection.pending_sha256s,
         pending_file: selection.pending_file,
         pending_sha256: selection.pending_sha256,
         selected_file_count: selection.selected_files.length,
@@ -258,11 +327,16 @@ function parseArgs(argv) {
     values[match[1]] = match[2];
   }
   invariant(values.environment && values["project-ref"], "--environment and --project-ref are required");
+  const production = values.environment === "PRODUCTION";
   return {
     environment: values.environment,
     projectRef: values["project-ref"],
-    workdir: values.workdir ? path.resolve(values.workdir) : DEFAULT_WORKDIR,
-    envFile: values["env-file"] ? path.resolve(values["env-file"]) : DEFAULT_ENV_FILE,
+    workdir: values.workdir
+      ? path.resolve(values.workdir)
+      : production ? DEFAULT_PRODUCTION_WORKDIR : DEFAULT_WORKDIR,
+    envFile: values["env-file"]
+      ? path.resolve(values["env-file"])
+      : production ? DEFAULT_PRODUCTION_ENV_FILE : DEFAULT_ENV_FILE,
   };
 }
 
@@ -301,13 +375,15 @@ async function readRemoteState(databaseUrl) {
 async function main(argv = process.argv.slice(2)) {
   invariant(!process.env.SAFE_UPDATE, "process SAFE_UPDATE must be unset");
   const options = parseArgs(argv);
+  const contract = selectorContract(options.environment);
   const env = loadEnvFile(options.envFile);
   invariant(
-    env.SUPPLEMENTSCOUT_STAGING_PROJECT_REF === options.projectRef,
+    env[contract.projectRefEnvironmentKey] === options.projectRef,
     "environment file project ref mismatch",
   );
-  invariant(env.SUPPLEMENTSCOUT_STAGING_DATABASE_URL, "staging database URL is missing");
-  const remote = await readRemoteState(env.SUPPLEMENTSCOUT_STAGING_DATABASE_URL);
+  invariant(env[contract.databaseUrlEnvironmentKey], `${options.environment} database URL is missing`);
+  const remote = await readRemoteState(env[contract.databaseUrlEnvironmentKey]);
+  validateDatabaseOwner(contract, remote.identity);
   const selection = validateSelection({
     environment: options.environment,
     projectRef: options.projectRef,
@@ -343,5 +419,6 @@ module.exports = {
   readRemoteState,
   selectorContract,
   sha256File,
+  validateDatabaseOwner,
   validateSelection,
 };

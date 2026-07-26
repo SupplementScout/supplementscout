@@ -7,7 +7,9 @@ const {
   CONTRACTS,
   ledgerRowsFingerprint,
   materializeSelectedWorkdir,
+  parseArgs,
   sha256File,
+  validateDatabaseOwner,
   validateSelection,
 } = require("./supabase-migration-selector");
 
@@ -37,11 +39,12 @@ function sourceCopy() {
 
 function currentRemoteLedger(sourceDir = SOURCE) {
   const excluded = new Set(Object.keys(CONTRACT.excluded));
+  const pending = new Set(CONTRACT.pending.map(({ filename }) => filename));
   return fs.readdirSync(sourceDir)
     .filter((filename) =>
       /^\d{14}_[a-z0-9_]+\.sql$/.test(filename) &&
       !excluded.has(filename) &&
-      filename !== CONTRACT.pending.filename)
+      !pending.has(filename))
     .sort()
     .map((filename) => {
       const identifier = filename.slice(0, -4);
@@ -124,22 +127,22 @@ test("a changed excluded migration SHA fails closed", () => {
 
 test("a changed pending migration SHA fails closed", () => {
   const sourceDir = sourceCopy();
-  fs.appendFileSync(path.join(sourceDir, CONTRACT.pending.filename), "\n-- drift\n");
+  fs.appendFileSync(path.join(sourceDir, CONTRACT.pending[0].filename), "\n-- drift\n");
   assert.throws(() => validateSelection(validInput({ sourceDir })), /pending migration SHA-256 mismatch/);
 });
 
 test("an additional pending migration fails closed", () => {
   const sourceDir = sourceCopy();
   fs.copyFileSync(
-    path.join(sourceDir, CONTRACT.pending.filename),
+    path.join(sourceDir, CONTRACT.pending[0].filename),
     path.join(sourceDir, "20260726110000_unexpected_pending.sql"),
   );
-  assert.throws(() => validateSelection(validInput({ sourceDir })), /more than one pending migration/);
+  assert.throws(() => validateSelection(validInput({ sourceDir })), /pending migration count mismatch/);
 });
 
 test("a missing expected pending migration fails closed", () => {
   const sourceDir = sourceCopy();
-  fs.rmSync(path.join(sourceDir, CONTRACT.pending.filename));
+  fs.rmSync(path.join(sourceDir, CONTRACT.pending[0].filename));
   assert.throws(() => validateSelection(validInput({ sourceDir })), /expected pending migration is missing/);
 });
 
@@ -189,12 +192,90 @@ test("materialization preserves every original migration byte-for-byte", () => {
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
-  const copiedPending = path.join(workdir, "supabase", "migrations", CONTRACT.pending.filename);
-  assert.equal(sha256File(copiedPending), CONTRACT.pending.sha256);
+  const copiedPending = path.join(workdir, "supabase", "migrations", CONTRACT.pending[0].filename);
+  assert.equal(sha256File(copiedPending), CONTRACT.pending[0].sha256);
 });
 
 test("the frozen fixture reproduces the approved staging ledger fingerprint", () => {
   const rows = currentRemoteLedger();
   assert.equal(rows.length, CONTRACT.ledgerCount);
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
+});
+
+test("production binds its exact pre-reviewed ledger and ordered v1 then v2 pending sequence", () => {
+  const contract = CONTRACTS.PRODUCTION;
+  const excluded = new Set(Object.keys(contract.excluded));
+  const pending = new Set(contract.pending.map(({ filename }) => filename));
+  const remoteLedger = fs.readdirSync(SOURCE)
+    .filter((filename) =>
+      /^\d{14}_[a-z0-9_]+\.sql$/.test(filename) &&
+      !excluded.has(filename) &&
+      !pending.has(filename))
+    .sort()
+    .map((filename) => {
+      const identifier = filename.slice(0, -4);
+      const split = identifier.indexOf("_");
+      return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+    });
+  const result = validateSelection({
+    environment: "PRODUCTION",
+    projectRef: contract.projectRef,
+    databaseTarget: {
+      target_environment: "PRODUCTION",
+      project_ref: contract.projectRef,
+      database_identity: contract.databaseIdentity,
+    },
+    remoteLedger,
+    sourceDir: SOURCE,
+  });
+  assert.equal(result.ledger_count, 51);
+  assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
+  assert.deepEqual(result.pending, [
+    "20260726100000_add_reviewed_mixed_change_approval",
+    "20260726120000_add_scoped_reviewed_mixed_change_fingerprints",
+  ]);
+  assert.equal(result.selected_files.length, 53);
+  assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
+  assert.equal(Object.keys(result.pending_sha256s).length, 2);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+});
+
+test("production exclusions are exact and do not exclude its enablement migration", () => {
+  const contract = CONTRACTS.PRODUCTION;
+  assert.equal(Object.keys(contract.excluded).length, 7);
+  assert.ok(!Object.hasOwn(
+    contract.excluded,
+    "20260719100000_add_production_retailer_sync_enablement.sql",
+  ));
+  assert.equal(contract.requiredDatabaseUser, "postgres");
+  assert.equal(contract.databaseUrlEnvironmentKey, "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL");
+});
+
+test("production CLI defaults to an explicit owner credential and production workdir", () => {
+  const parsed = parseArgs([
+    "--environment=PRODUCTION",
+    `--project-ref=${CONTRACTS.PRODUCTION.projectRef}`,
+  ]);
+  assert.equal(path.basename(parsed.envFile), "production-owner.env");
+  assert.equal(path.basename(parsed.workdir), "supabase-production-selected");
+});
+
+test("production owner guard rejects service role and accepts postgres only", () => {
+  const contract = CONTRACTS.PRODUCTION;
+  assert.throws(
+    () => validateDatabaseOwner(contract, { current_user: "service_role" }),
+    /requires database owner postgres/,
+  );
+  assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
+});
+
+test("single-pending staging output preserves legacy pending fields", () => {
+  const result = validateSelection(validInput());
+  assert.equal(result.pending_file, CONTRACT.pending[0].filename);
+  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
+  assert.deepEqual(result.pending_files, [CONTRACT.pending[0].filename]);
+  assert.deepEqual(result.pending_sha256s, {
+    [CONTRACT.pending[0].filename]: CONTRACT.pending[0].sha256,
+  });
 });
