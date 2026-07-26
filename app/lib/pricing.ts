@@ -197,7 +197,10 @@ export function getVerifiedCostPer25gProtein(
   servingCountVerified: number | string | null,
   proteinPerServingG: number | string | null,
   unitPricingVerified: boolean | null,
-  nutritionVerified: boolean | null
+  nutritionVerified: boolean | null,
+  netWeightG: number | string | null = null,
+  servingSizeG: number | string | null = null,
+  productFormat: string | null = null
 ) {
   if (
     unitPricingVerified !== true ||
@@ -211,28 +214,52 @@ export function getVerifiedCostPer25gProtein(
     return null;
   }
 
-  if (
-    servingCountVerified === null ||
-    servingCountVerified === "" ||
-    proteinPerServingG === null ||
-    proteinPerServingG === ""
-  ) {
+  if (proteinPerServingG === null || proteinPerServingG === "") {
     return null;
   }
 
-  const servings = Number(servingCountVerified);
   const proteinPerServing = Number(proteinPerServingG);
 
-  if (
-    !Number.isFinite(servings) ||
-    servings <= 0 ||
-    !Number.isFinite(proteinPerServing) ||
-    proteinPerServing <= 0
-  ) {
+  if (!Number.isFinite(proteinPerServing) || proteinPerServing <= 0) {
     return null;
   }
 
-  const totalPackageProtein = proteinPerServing * servings;
+  let totalPackageProtein: number;
+
+  if (servingCountVerified !== null && servingCountVerified !== "") {
+    const servings = Number(servingCountVerified);
+
+    if (!Number.isFinite(servings) || !Number.isInteger(servings) || servings <= 0) {
+      return null;
+    }
+
+    totalPackageProtein = proteinPerServing * servings;
+  } else {
+    if (
+      productFormat !== "powder" ||
+      netWeightG === null ||
+      netWeightG === "" ||
+      servingSizeG === null ||
+      servingSizeG === ""
+    ) {
+      return null;
+    }
+
+    const netWeight = Number(netWeightG);
+    const servingSize = Number(servingSizeG);
+
+    if (
+      !Number.isFinite(netWeight) ||
+      netWeight <= 0 ||
+      !Number.isFinite(servingSize) ||
+      servingSize <= 0 ||
+      proteinPerServing > servingSize
+    ) {
+      return null;
+    }
+
+    totalPackageProtein = (netWeight / servingSize) * proteinPerServing;
+  }
 
   if (!Number.isFinite(totalPackageProtein) || totalPackageProtein <= 0) {
     return null;

@@ -29,6 +29,7 @@ import {
   buildBestOfferPricePresentation,
   formatOfferCheckedDate,
 } from "../../lib/productOfferPresentation";
+import { getEffectiveNutritionMetrics } from "../../lib/nutritionMetrics";
 import {
   getBestProductOffer,
   getOfferVariantLabel,
@@ -267,6 +268,8 @@ export default async function ProductPage({
           flavour_label,
           size_value,
           size_unit,
+          product_format,
+          nutrition_override,
           is_default
         )
       `)
@@ -439,49 +442,56 @@ export default async function ProductPage({
         ? ((cheapestTotal - averageHistoricalPrice) / averageHistoricalPrice) * 100
         : null;
   }
-  const cheapestValidDeliveredPrice =
-    sortedOffers
-      .map((offer) => knownDeliveredPrice(offer))
-      .filter((price): price is NonNullable<typeof price> => price !== null)
-      .sort((left, right) => left.totalPrice - right.totalPrice)[0] || null;
+  const cheapestMetricOffer =
+    sortedOffers.find((offer) => knownDeliveredPrice(offer) !== null) || null;
+  const cheapestValidDeliveredPrice = cheapestMetricOffer
+    ? knownDeliveredPrice(cheapestMetricOffer)
+    : null;
+  const effectiveMetrics = getEffectiveNutritionMetrics(
+    product,
+    cheapestMetricOffer?.product_variant || null
+  );
   const verifiedPricePerServing = getVerifiedPricePerServing(
     cheapestValidDeliveredPrice,
-    product.serving_count_verified
+    effectiveMetrics.serving_count_verified
   );
   const verifiedPricePerUnit = getVerifiedPricePerUnit(
     cheapestValidDeliveredPrice,
     product.unit_count,
     product.unit_type,
-    product.unit_pricing_verified
+    effectiveMetrics.unit_pricing_verified
   );
   const verifiedPricePerKg = getVerifiedPricePerKg(
     cheapestValidDeliveredPrice,
-    product.net_weight_g,
-    product.product_format,
-    product.unit_pricing_verified
+    effectiveMetrics.net_weight_g,
+    effectiveMetrics.product_format,
+    effectiveMetrics.unit_pricing_verified
   );
   const verifiedPricePerLitre = getVerifiedPricePerLitre(
     cheapestValidDeliveredPrice,
     product.net_volume_ml,
-    product.product_format,
-    product.unit_pricing_verified
+    effectiveMetrics.product_format,
+    effectiveMetrics.unit_pricing_verified
   );
   const verifiedCostPer25gProtein = getVerifiedCostPer25gProtein(
     cheapestValidDeliveredPrice,
-    product.serving_count_verified,
-    product.protein_per_serving_g,
-    product.unit_pricing_verified,
-    product.nutrition_verified
+    effectiveMetrics.serving_count_verified,
+    effectiveMetrics.protein_per_serving_g,
+    effectiveMetrics.unit_pricing_verified,
+    effectiveMetrics.nutrition_verified,
+    effectiveMetrics.net_weight_g,
+    effectiveMetrics.serving_size_g,
+    effectiveMetrics.product_format
   );
   const verifiedCostPer5gCreatine = getVerifiedCostPer5gCreatine(
     cheapestValidDeliveredPrice,
-    product.serving_count_verified,
-    product.creatine_per_serving_g,
-    product.unit_pricing_verified,
-    product.nutrition_verified,
-    product.net_weight_g,
-    product.serving_size_g,
-    product.product_format
+    effectiveMetrics.serving_count_verified,
+    effectiveMetrics.creatine_per_serving_g,
+    effectiveMetrics.unit_pricing_verified,
+    effectiveMetrics.nutrition_verified,
+    effectiveMetrics.net_weight_g,
+    effectiveMetrics.serving_size_g,
+    effectiveMetrics.product_format
   );
   const productSummary = buildProductSummary(product);
   const keyFacts = buildProductKeyFacts(product);

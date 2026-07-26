@@ -37,6 +37,12 @@ function loadProductsModule(mockSupabase = {}) {
       };
     }
 
+    if (parent === mod && request === "./nutritionMetrics") {
+      return {
+        getEffectiveNutritionMetrics: (product) => product,
+      };
+    }
+
     if (parent === mod && request === "./supabase") {
       return { supabase: mockSupabase };
     }

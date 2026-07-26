@@ -41,7 +41,20 @@ const CONTRACTS = Object.freeze({
       "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql":
         "57d7b193c42cd9950f7a6d6b91a18cc10ee1b7545242c96bcaa24edcfea91959",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename:
+          "20260726200000_allow_public_read_active_product_variants.sql",
+        sha256:
+          "04c5a3bc7746c497040e3f2b5e496332d76a5c4d340acc63d7d7d8e08d92653d",
+      }),
+      Object.freeze({
+        filename:
+          "20260726210000_add_reviewed_variant_nutrition_apply.sql",
+        sha256:
+          "ad165f24cc4f72f879645320116ffbade5dc51ab5a09f1a2cf2a5a2f9d0cd0ec",
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -69,7 +82,20 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename:
+          "20260726200000_allow_public_read_active_product_variants.sql",
+        sha256:
+          "04c5a3bc7746c497040e3f2b5e496332d76a5c4d340acc63d7d7d8e08d92653d",
+      }),
+      Object.freeze({
+        filename:
+          "20260726210000_add_reviewed_variant_nutrition_apply.sql",
+        sha256:
+          "ad165f24cc4f72f879645320116ffbade5dc51ab5a09f1a2cf2a5a2f9d0cd0ec",
+      }),
+    ]),
   }),
 });
 

@@ -7,6 +7,8 @@ export type ProductOfferVariant = {
   flavour_label: string | null;
   size_value: OfferScalar;
   size_unit: string | null;
+  product_format?: string | null;
+  nutrition_override?: Record<string, unknown> | null;
   is_default: boolean | null;
 };
 

@@ -25,6 +25,22 @@ function loadPricingModule() {
 }
 
 const pricingModule = loadPricingModule();
+const nutritionMetricsModule = (() => {
+  const filename = path.join(process.cwd(), "app", "lib", "nutritionMetrics.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+  return mod.exports;
+})();
 
 function loadProductsModule() {
   const filename = path.join(process.cwd(), "app", "lib", "products.ts");
@@ -42,6 +58,10 @@ function loadProductsModule() {
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && request === "./pricing") {
       return pricingModule;
+    }
+
+    if (parent === mod && request === "./nutritionMetrics") {
+      return nutritionMetricsModule;
     }
 
     if (parent === mod && request === "./supabase") {
@@ -66,6 +86,7 @@ const {
   getDeliveredPrice,
   getKnownProductPrice,
   getVerifiedCostPer5gCreatine,
+  getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
   getVerifiedPricePerLitre,
   getVerifiedPricePerServing,
@@ -126,6 +147,59 @@ test("creatine cost keeps the verified serving-count path unchanged", () => {
     ),
     0.2
   );
+});
+
+test("protein cost keeps the verified serving-count path unchanged", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 40, shipping_cost: 0 });
+
+  assert.equal(
+    getVerifiedCostPer25gProtein(deliveredPrice, 80, 25, true, true),
+    0.5
+  );
+});
+
+test("protein cost can use verified powder weight and serving composition", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 40, shipping_cost: 0 });
+  const result = getVerifiedCostPer25gProtein(
+    deliveredPrice,
+    null,
+    24,
+    true,
+    true,
+    2000,
+    30,
+    "powder"
+  );
+
+  assert.ok(Math.abs(result - (40 / 1600) * 25) < 1e-12);
+});
+
+test("protein powder fallback fails closed for invalid or unverified inputs", () => {
+  const deliveredPrice = getDeliveredPrice({ price: 40, shipping_cost: 0 });
+  const calculate = (
+    unitVerified,
+    nutritionVerified,
+    netWeight,
+    servingSize,
+    protein,
+    format = "powder"
+  ) => getVerifiedCostPer25gProtein(
+    deliveredPrice,
+    null,
+    protein,
+    unitVerified,
+    nutritionVerified,
+    netWeight,
+    servingSize,
+    format
+  );
+
+  assert.equal(calculate(false, true, 2000, 30, 24), null);
+  assert.equal(calculate(true, false, 2000, 30, 24), null);
+  assert.equal(calculate(true, true, null, 30, 24), null);
+  assert.equal(calculate(true, true, 2000, null, 24), null);
+  assert.equal(calculate(true, true, 2000, 30, 31), null);
+  assert.equal(calculate(true, true, 2000, 30, 24, "bar"), null);
 });
 
 test("creatine cost can use verified powder weight and serving composition", () => {

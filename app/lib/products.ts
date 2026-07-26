@@ -7,6 +7,9 @@ import {
   getVerifiedPricePerServing,
   type DeliveredPrice,
 } from "./pricing";
+import {
+  getEffectiveNutritionMetrics,
+} from "./nutritionMetrics";
 import { supabase } from "./supabase";
 
 export type SearchSort =
@@ -45,6 +48,7 @@ export type SearchOffer = {
   url: string | null;
   in_stock: boolean | null;
   retailer: SearchRetailer | null;
+  product_variant: RawProductVariant | null;
   deliveredPrice: DeliveredPrice;
 };
 
@@ -134,6 +138,14 @@ export type RawOffer = {
   url: string | null;
   in_stock: boolean | null;
   retailer: RawRetailer | RawRetailer[] | null;
+  product_variant?: RawProductVariant | RawProductVariant[] | null;
+};
+
+type RawProductVariant = {
+  size_value: number | string | null;
+  size_unit: string | null;
+  product_format: string | null;
+  nutrition_override: Record<string, unknown> | null;
 };
 
 type RawProduct = {
@@ -742,6 +754,9 @@ export function normalizeSearchOffers(offers: RawOffer[]) {
         url: offer.url,
         in_stock: offer.in_stock,
         retailer: normalizeRetailer(offer.retailer),
+        product_variant: Array.isArray(offer.product_variant)
+          ? offer.product_variant[0] || null
+          : offer.product_variant || null,
         deliveredPrice,
       };
     })
@@ -780,6 +795,10 @@ function normalizeProduct(
   if (!cheapestOffer) {
     return null;
   }
+  const effectiveMetrics = getEffectiveNutritionMetrics(
+    product,
+    cheapestOffer.product_variant
+  );
 
   return {
     id: String(product.id),
@@ -788,52 +807,55 @@ function normalizeProduct(
     brand: product.brand,
     category: product.category,
     image: product.image,
-    net_weight_g: product.net_weight_g,
+    net_weight_g: effectiveMetrics.net_weight_g,
     net_volume_ml: product.net_volume_ml,
-    product_format: product.product_format,
-    serving_size_g: product.serving_size_g,
+    product_format: effectiveMetrics.product_format,
+    serving_size_g: effectiveMetrics.serving_size_g,
     serving_size_ml: product.serving_size_ml,
-    protein_per_serving_g: product.protein_per_serving_g,
-    creatine_per_serving_g: product.creatine_per_serving_g,
-    serving_count_verified: product.serving_count_verified,
-    nutrition_verified: product.nutrition_verified,
-    unit_pricing_verified: product.unit_pricing_verified,
+    protein_per_serving_g: effectiveMetrics.protein_per_serving_g,
+    creatine_per_serving_g: effectiveMetrics.creatine_per_serving_g,
+    serving_count_verified: effectiveMetrics.serving_count_verified,
+    nutrition_verified: effectiveMetrics.nutrition_verified,
+    unit_pricing_verified: effectiveMetrics.unit_pricing_verified,
     cheapestOffer,
     validOffers,
     availableOfferCount: validOffers.length,
     availableRetailerCount: countAvailableRetailers(validOffers),
     verifiedCostPer5gCreatine: getVerifiedCostPer5gCreatine(
       cheapestOffer.deliveredPrice,
-      product.serving_count_verified,
-      product.creatine_per_serving_g,
-      product.unit_pricing_verified,
-      product.nutrition_verified,
-      product.net_weight_g,
-      product.serving_size_g,
-      product.product_format
+      effectiveMetrics.serving_count_verified,
+      effectiveMetrics.creatine_per_serving_g,
+      effectiveMetrics.unit_pricing_verified,
+      effectiveMetrics.nutrition_verified,
+      effectiveMetrics.net_weight_g,
+      effectiveMetrics.serving_size_g,
+      effectiveMetrics.product_format
     ),
     verifiedCostPer25gProtein: getVerifiedCostPer25gProtein(
       cheapestOffer.deliveredPrice,
-      product.serving_count_verified,
-      product.protein_per_serving_g,
-      product.unit_pricing_verified,
-      product.nutrition_verified
+      effectiveMetrics.serving_count_verified,
+      effectiveMetrics.protein_per_serving_g,
+      effectiveMetrics.unit_pricing_verified,
+      effectiveMetrics.nutrition_verified,
+      effectiveMetrics.net_weight_g,
+      effectiveMetrics.serving_size_g,
+      effectiveMetrics.product_format
     ),
     verifiedPricePerKg: getVerifiedPricePerKg(
       cheapestOffer.deliveredPrice,
-      product.net_weight_g,
-      product.product_format,
-      product.unit_pricing_verified
+      effectiveMetrics.net_weight_g,
+      effectiveMetrics.product_format,
+      effectiveMetrics.unit_pricing_verified
     ),
     verifiedPricePerLitre: getVerifiedPricePerLitre(
       cheapestOffer.deliveredPrice,
       product.net_volume_ml,
-      product.product_format,
-      product.unit_pricing_verified
+      effectiveMetrics.product_format,
+      effectiveMetrics.unit_pricing_verified
     ),
     verifiedPricePerServing: getVerifiedPricePerServing(
       cheapestOffer.deliveredPrice,
-      product.serving_count_verified
+      effectiveMetrics.serving_count_verified
     ),
     relevanceScore: searchPlan
       ? scoreProductForSearch(product, searchPlan)
@@ -1032,6 +1054,12 @@ export async function searchProducts(
           shipping_cost,
           url,
           in_stock,
+          product_variant:product_variants!offers_product_variant_id_fkey (
+            size_value,
+            size_unit,
+            product_format,
+            nutrition_override
+          ),
           retailer:retailers (
             id,
             name,
@@ -1296,6 +1324,12 @@ export async function getLandingProducts(
           shipping_cost,
           url,
           in_stock,
+          product_variant:product_variants!offers_product_variant_id_fkey (
+            size_value,
+            size_unit,
+            product_format,
+            nutrition_override
+          ),
           retailer:retailers (
             id,
             name,

@@ -14,10 +14,20 @@ const expectedSha = "214ace99e775f443692a19410a3b6e19e076472371f070cd10dd5bbaa0c
 
 test("migration is hash-bound and transactional", () => {
   assert.equal(crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"), expectedSha);
-  assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
-  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 62);
-  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, []);
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 58);
+  const expectedNutritionPending = [
+    {
+      filename: "20260726200000_allow_public_read_active_product_variants.sql",
+      sha256: "04c5a3bc7746c497040e3f2b5e496332d76a5c4d340acc63d7d7d8e08d92653d",
+    },
+    {
+      filename: "20260726210000_add_reviewed_variant_nutrition_apply.sql",
+      sha256: "ad165f24cc4f72f879645320116ffbade5dc51ab5a09f1a2cf2a5a2f9d0cd0ec",
+    },
+  ];
+  assert.deepEqual(selector.CONTRACTS.STAGING.pending, expectedNutritionPending);
+  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 63);
+  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, expectedNutritionPending);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 59);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });
