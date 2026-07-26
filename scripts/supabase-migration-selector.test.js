@@ -72,13 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging happy path selects only the Whey Pro Synergy reconciliation", () => {
+test("staging happy path binds the post-reconciliation ledger", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 62);
+  assert.equal(result.ledger_count, 63);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 63);
 });
 
@@ -296,21 +294,10 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("one-pending staging output populates collection and singleton fields", () => {
+test("zero-pending staging output clears collection and singleton fields", () => {
   const result = validateSelection(validInput());
-  assert.equal(
-    result.pending_file,
-    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
-  );
-  assert.equal(
-    result.pending_sha256,
-    "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
-  );
-  assert.deepEqual(result.pending_files, [
-    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
-  ]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql":
-      "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });

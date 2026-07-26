@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 62,
+    ledgerCount: 63,
     ledgerFingerprint:
-      "3e56cee9b27868682f5caf239bbc303eef232161b2daf3453341ba155f0ebdab",
+      "85a6866c85f5424189c3598413824025d8021330871d49d7d7ed318512a8598c",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -41,14 +41,7 @@ const CONTRACTS = Object.freeze({
       "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql":
         "57d7b193c42cd9950f7a6d6b91a18cc10ee1b7545242c96bcaa24edcfea91959",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename:
-          "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
-        sha256:
-          "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
