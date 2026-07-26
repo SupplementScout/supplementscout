@@ -131,34 +131,14 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("a changed production pending migration SHA fails closed", () => {
+test("production post-closeout contract has no pending migration hashes", () => {
   const contract = CONTRACTS.PRODUCTION;
-  const sourceDir = sourceCopy();
-  fs.appendFileSync(path.join(sourceDir, contract.pending[0].filename), "\n-- drift\n");
-  const excluded = new Set(Object.keys(contract.excluded));
-  const pending = new Set(contract.pending.map(({ filename }) => filename));
-  const remoteLedger = fs.readdirSync(SOURCE)
-    .filter((filename) =>
-      /^\d{14}_[a-z0-9_]+\.sql$/.test(filename) &&
-      !excluded.has(filename) &&
-      !pending.has(filename))
-    .sort()
-    .map((filename) => {
-      const identifier = filename.slice(0, -4);
-      const split = identifier.indexOf("_");
-      return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
-    });
-  assert.throws(() => validateSelection({
-    environment: "PRODUCTION",
-    projectRef: contract.projectRef,
-    databaseTarget: {
-      target_environment: "PRODUCTION",
-      project_ref: contract.projectRef,
-      database_identity: contract.databaseIdentity,
-    },
-    remoteLedger,
-    sourceDir,
-  }), /pending migration SHA-256 mismatch/);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 57);
+  assert.equal(
+    contract.ledgerFingerprint,
+    "ff3a4fb43781bb3ac468382e0dac47fa1d37045225b9483dae84d96fcda29014",
+  );
 });
 
 test("an additional pending migration fails closed", () => {
@@ -234,7 +214,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-definition ledger and Fit House migrations pending", () => {
+test("production binds its exact post-Fit-House ledger with no pending migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -260,15 +240,12 @@ test("production binds its exact post-definition ledger and Fit House migrations
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 55);
+  assert.equal(result.ledger_count, 57);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260726150000_seed_reviewed_fit_house_catalogue_closeout",
-    "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 57);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 2);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
 });

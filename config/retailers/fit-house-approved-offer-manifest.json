@@ -1,0 +1,1157 @@
+{
+  "schema_version": 1,
+  "manifest_type": "fit_house_approved_offer_scope",
+  "retailer": {
+    "id": 9,
+    "slug": "fit-house",
+    "source_platform": "SHOPIFY"
+  },
+  "approved_mapping_count": 286,
+  "shipping_cost_gbp": "3.99",
+  "rows": [
+    {
+      "external_product_id": "8142828896496",
+      "external_variant_id": "43567036858608"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "43571891831024"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "43571891929328"
+    },
+    {
+      "external_product_id": "8147386859760",
+      "external_variant_id": "43582249337072"
+    },
+    {
+      "external_product_id": "8147521536240",
+      "external_variant_id": "43582640783600"
+    },
+    {
+      "external_product_id": "8147551846640",
+      "external_variant_id": "43582764876016"
+    },
+    {
+      "external_product_id": "8147560530160",
+      "external_variant_id": "43582806327536"
+    },
+    {
+      "external_product_id": "8147819069680",
+      "external_variant_id": "43583989973232"
+    },
+    {
+      "external_product_id": "8147819069680",
+      "external_variant_id": "43583990006000"
+    },
+    {
+      "external_product_id": "8151692148976",
+      "external_variant_id": "43599921152240"
+    },
+    {
+      "external_product_id": "8163807887600",
+      "external_variant_id": "43643596734704"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "43816860909808"
+    },
+    {
+      "external_product_id": "8245425144048",
+      "external_variant_id": "43977956917488"
+    },
+    {
+      "external_product_id": "8262988988656",
+      "external_variant_id": "44061761044720"
+    },
+    {
+      "external_product_id": "8151663378672",
+      "external_variant_id": "44066061582576"
+    },
+    {
+      "external_product_id": "8264696103152",
+      "external_variant_id": "44066164769008"
+    },
+    {
+      "external_product_id": "8264696103152",
+      "external_variant_id": "44066164801776"
+    },
+    {
+      "external_product_id": "8271072821488",
+      "external_variant_id": "44085204025584"
+    },
+    {
+      "external_product_id": "8271486812400",
+      "external_variant_id": "44086506455280"
+    },
+    {
+      "external_product_id": "8271509946608",
+      "external_variant_id": "44086559310064"
+    },
+    {
+      "external_product_id": "8271543730416",
+      "external_variant_id": "44086631203056"
+    },
+    {
+      "external_product_id": "8273427333360",
+      "external_variant_id": "44092616311024"
+    },
+    {
+      "external_product_id": "8273802395888",
+      "external_variant_id": "44093690675440"
+    },
+    {
+      "external_product_id": "8273802395888",
+      "external_variant_id": "44093690708208"
+    },
+    {
+      "external_product_id": "8279887610096",
+      "external_variant_id": "44112057598192"
+    },
+    {
+      "external_product_id": "8279896031472",
+      "external_variant_id": "44112097902832"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "44122716045552"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "44147173720304"
+    },
+    {
+      "external_product_id": "8291604234480",
+      "external_variant_id": "44147266650352"
+    },
+    {
+      "external_product_id": "8291604234480",
+      "external_variant_id": "44147266683120"
+    },
+    {
+      "external_product_id": "8291604234480",
+      "external_variant_id": "44147266715888"
+    },
+    {
+      "external_product_id": "8291615637744",
+      "external_variant_id": "44147305251056"
+    },
+    {
+      "external_product_id": "8291618619632",
+      "external_variant_id": "44147312591088"
+    },
+    {
+      "external_product_id": "8293829509360",
+      "external_variant_id": "44155400061168"
+    },
+    {
+      "external_product_id": "8318573084912",
+      "external_variant_id": "44220208349424"
+    },
+    {
+      "external_product_id": "8318574264560",
+      "external_variant_id": "44220211134704"
+    },
+    {
+      "external_product_id": "8318574264560",
+      "external_variant_id": "44220211167472"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "44260636721392"
+    },
+    {
+      "external_product_id": "8333086884080",
+      "external_variant_id": "44260687118576"
+    },
+    {
+      "external_product_id": "8333749092592",
+      "external_variant_id": "44263526629616"
+    },
+    {
+      "external_product_id": "8334171177200",
+      "external_variant_id": "44264725479664"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "44264927658224"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "44264927690992"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "44264927723760"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "44264927756528"
+    },
+    {
+      "external_product_id": "8264696103152",
+      "external_variant_id": "44267064164592"
+    },
+    {
+      "external_product_id": "8334867103984",
+      "external_variant_id": "44267408589040"
+    },
+    {
+      "external_product_id": "8334867103984",
+      "external_variant_id": "44267408851184"
+    },
+    {
+      "external_product_id": "8339449184496",
+      "external_variant_id": "44283614494960"
+    },
+    {
+      "external_product_id": "8341423587568",
+      "external_variant_id": "44288495091952"
+    },
+    {
+      "external_product_id": "8472175935728",
+      "external_variant_id": "44962322710768"
+    },
+    {
+      "external_product_id": "8472257462512",
+      "external_variant_id": "44963073982704"
+    },
+    {
+      "external_product_id": "8472257462512",
+      "external_variant_id": "44963074015472"
+    },
+    {
+      "external_product_id": "8472287346928",
+      "external_variant_id": "44963358540016"
+    },
+    {
+      "external_product_id": "8472287346928",
+      "external_variant_id": "44963358572784"
+    },
+    {
+      "external_product_id": "8479801114864",
+      "external_variant_id": "45001872048368"
+    },
+    {
+      "external_product_id": "8493486047472",
+      "external_variant_id": "45060015816944"
+    },
+    {
+      "external_product_id": "8493491585264",
+      "external_variant_id": "45060053762288"
+    },
+    {
+      "external_product_id": "8493494370544",
+      "external_variant_id": "45060077060336"
+    },
+    {
+      "external_product_id": "8493540278512",
+      "external_variant_id": "45060374167792"
+    },
+    {
+      "external_product_id": "8493548634352",
+      "external_variant_id": "45060399366384"
+    },
+    {
+      "external_product_id": "8511380390128",
+      "external_variant_id": "45127862452464"
+    },
+    {
+      "external_product_id": "8511414534384",
+      "external_variant_id": "45128091402480"
+    },
+    {
+      "external_product_id": "8520928100592",
+      "external_variant_id": "45150301618416"
+    },
+    {
+      "external_product_id": "8522813571312",
+      "external_variant_id": "45160981823728"
+    },
+    {
+      "external_product_id": "8544510640368",
+      "external_variant_id": "45221064147184"
+    },
+    {
+      "external_product_id": "8640456491248",
+      "external_variant_id": "45643095507184"
+    },
+    {
+      "external_product_id": "8640456491248",
+      "external_variant_id": "45643095539952"
+    },
+    {
+      "external_product_id": "8640456491248",
+      "external_variant_id": "45643095572720"
+    },
+    {
+      "external_product_id": "8640456491248",
+      "external_variant_id": "45643095605488"
+    },
+    {
+      "external_product_id": "8685915111664",
+      "external_variant_id": "45768723693808"
+    },
+    {
+      "external_product_id": "8685938376944",
+      "external_variant_id": "45768791982320"
+    },
+    {
+      "external_product_id": "8693101330672",
+      "external_variant_id": "45780585939184"
+    },
+    {
+      "external_product_id": "8273802395888",
+      "external_variant_id": "45781468872944"
+    },
+    {
+      "external_product_id": "8273802395888",
+      "external_variant_id": "45781468905712"
+    },
+    {
+      "external_product_id": "8774010274032",
+      "external_variant_id": "45932414894320"
+    },
+    {
+      "external_product_id": "8776286798064",
+      "external_variant_id": "45938772279536"
+    },
+    {
+      "external_product_id": "8776311636208",
+      "external_variant_id": "45938991890672"
+    },
+    {
+      "external_product_id": "8776332837104",
+      "external_variant_id": "45939205177584"
+    },
+    {
+      "external_product_id": "8776401649904",
+      "external_variant_id": "45939994951920"
+    },
+    {
+      "external_product_id": "8788565557488",
+      "external_variant_id": "45978523566320"
+    },
+    {
+      "external_product_id": "8788669104368",
+      "external_variant_id": "45978786463984"
+    },
+    {
+      "external_product_id": "8788669104368",
+      "external_variant_id": "45978786496752"
+    },
+    {
+      "external_product_id": "8816824549616",
+      "external_variant_id": "46035332563184"
+    },
+    {
+      "external_product_id": "8816846504176",
+      "external_variant_id": "46035423396080"
+    },
+    {
+      "external_product_id": "8858639925488",
+      "external_variant_id": "46135418913008"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "46256932225264"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "46256932258032"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "46256932290800"
+    },
+    {
+      "external_product_id": "8905761685744",
+      "external_variant_id": "46257717706992"
+    },
+    {
+      "external_product_id": "8318574264560",
+      "external_variant_id": "46323185549552"
+    },
+    {
+      "external_product_id": "8929298252016",
+      "external_variant_id": "46323272614128"
+    },
+    {
+      "external_product_id": "8151663378672",
+      "external_variant_id": "46405976883440"
+    },
+    {
+      "external_product_id": "8964644765936",
+      "external_variant_id": "46442695885040"
+    },
+    {
+      "external_product_id": "8964658397424",
+      "external_variant_id": "46442719936752"
+    },
+    {
+      "external_product_id": "8964678058224",
+      "external_variant_id": "46442757226736"
+    },
+    {
+      "external_product_id": "8964683825392",
+      "external_variant_id": "46442768204016"
+    },
+    {
+      "external_product_id": "8968956084464",
+      "external_variant_id": "46453444935920"
+    },
+    {
+      "external_product_id": "8969071853808",
+      "external_variant_id": "46453750563056"
+    },
+    {
+      "external_product_id": "9041428283632",
+      "external_variant_id": "46620421816560"
+    },
+    {
+      "external_product_id": "9043234947312",
+      "external_variant_id": "46625321287920"
+    },
+    {
+      "external_product_id": "9043234947312",
+      "external_variant_id": "46625321320688"
+    },
+    {
+      "external_product_id": "9048878940400",
+      "external_variant_id": "46640043753712"
+    },
+    {
+      "external_product_id": "9058975187184",
+      "external_variant_id": "46667614945520"
+    },
+    {
+      "external_product_id": "9059083157744",
+      "external_variant_id": "46668144247024"
+    },
+    {
+      "external_product_id": "9060070064368",
+      "external_variant_id": "46672200106224"
+    },
+    {
+      "external_product_id": "9060343709936",
+      "external_variant_id": "46673002004720"
+    },
+    {
+      "external_product_id": "8147819069680",
+      "external_variant_id": "46717176381680"
+    },
+    {
+      "external_product_id": "9075701973232",
+      "external_variant_id": "46717945544944"
+    },
+    {
+      "external_product_id": "9075701973232",
+      "external_variant_id": "46717945577712"
+    },
+    {
+      "external_product_id": "9076807237872",
+      "external_variant_id": "46722065432816"
+    },
+    {
+      "external_product_id": "9076807237872",
+      "external_variant_id": "46722065465584"
+    },
+    {
+      "external_product_id": "9097931817200",
+      "external_variant_id": "46780983836912"
+    },
+    {
+      "external_product_id": "9107302351088",
+      "external_variant_id": "46807172317424"
+    },
+    {
+      "external_product_id": "9107338264816",
+      "external_variant_id": "46807233691888"
+    },
+    {
+      "external_product_id": "9107359072496",
+      "external_variant_id": "46807277764848"
+    },
+    {
+      "external_product_id": "8264696103152",
+      "external_variant_id": "46849622868208"
+    },
+    {
+      "external_product_id": "9123317678320",
+      "external_variant_id": "46849789100272"
+    },
+    {
+      "external_product_id": "9123689627888",
+      "external_variant_id": "46850321645808"
+    },
+    {
+      "external_product_id": "9123689627888",
+      "external_variant_id": "46850321678576"
+    },
+    {
+      "external_product_id": "8640456491248",
+      "external_variant_id": "46876330950896"
+    },
+    {
+      "external_product_id": "8640456491248",
+      "external_variant_id": "46876330983664"
+    },
+    {
+      "external_product_id": "8334867103984",
+      "external_variant_id": "46876488302832"
+    },
+    {
+      "external_product_id": "9131842830576",
+      "external_variant_id": "46876549447920"
+    },
+    {
+      "external_product_id": "9131870388464",
+      "external_variant_id": "46876612100336"
+    },
+    {
+      "external_product_id": "9131870388464",
+      "external_variant_id": "46876612133104"
+    },
+    {
+      "external_product_id": "9157293146352",
+      "external_variant_id": "46935452745968"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556653296"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556686064"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556718832"
+    },
+    {
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556751600"
+    },
+    {
+      "external_product_id": "9168643719408",
+      "external_variant_id": "46969317228784"
+    },
+    {
+      "external_product_id": "9168824172784",
+      "external_variant_id": "46969725714672"
+    },
+    {
+      "external_product_id": "8147819069680",
+      "external_variant_id": "46969740820720"
+    },
+    {
+      "external_product_id": "9176635834608",
+      "external_variant_id": "46992502718704"
+    },
+    {
+      "external_product_id": "9176724177136",
+      "external_variant_id": "46992608657648"
+    },
+    {
+      "external_product_id": "9176758845680",
+      "external_variant_id": "46992653418736"
+    },
+    {
+      "external_product_id": "9179043856624",
+      "external_variant_id": "47000406130928"
+    },
+    {
+      "external_product_id": "9347422978288",
+      "external_variant_id": "47199447482608"
+    },
+    {
+      "external_product_id": "9347422978288",
+      "external_variant_id": "47199447515376"
+    },
+    {
+      "external_product_id": "9347422978288",
+      "external_variant_id": "47199447548144"
+    },
+    {
+      "external_product_id": "9347456499952",
+      "external_variant_id": "47199527305456"
+    },
+    {
+      "external_product_id": "9347509354736",
+      "external_variant_id": "47199606571248"
+    },
+    {
+      "external_product_id": "9347614343408",
+      "external_variant_id": "47199795413232"
+    },
+    {
+      "external_product_id": "9347657269488",
+      "external_variant_id": "47199875530992"
+    },
+    {
+      "external_product_id": "9347715301616",
+      "external_variant_id": "47200433537264"
+    },
+    {
+      "external_product_id": "9370163708144",
+      "external_variant_id": "47256749310192"
+    },
+    {
+      "external_product_id": "9370261913840",
+      "external_variant_id": "47256925995248"
+    },
+    {
+      "external_product_id": "9370350092528",
+      "external_variant_id": "47257040322800"
+    },
+    {
+      "external_product_id": "9370350092528",
+      "external_variant_id": "47257040355568"
+    },
+    {
+      "external_product_id": "9389627310320",
+      "external_variant_id": "47321493537008"
+    },
+    {
+      "external_product_id": "9389627310320",
+      "external_variant_id": "47321493569776"
+    },
+    {
+      "external_product_id": "8640456491248",
+      "external_variant_id": "47464460976368"
+    },
+    {
+      "external_product_id": "9076807237872",
+      "external_variant_id": "47551964315888"
+    },
+    {
+      "external_product_id": "8264696103152",
+      "external_variant_id": "47593676472560"
+    },
+    {
+      "external_product_id": "8147819069680",
+      "external_variant_id": "47593698590960"
+    },
+    {
+      "external_product_id": "8291604234480",
+      "external_variant_id": "47789290488048"
+    },
+    {
+      "external_product_id": "8291604234480",
+      "external_variant_id": "47789290520816"
+    },
+    {
+      "external_product_id": "8147819069680",
+      "external_variant_id": "47789301268720"
+    },
+    {
+      "external_product_id": "9554213830896",
+      "external_variant_id": "47792261431536"
+    },
+    {
+      "external_product_id": "9554213830896",
+      "external_variant_id": "47792261464304"
+    },
+    {
+      "external_product_id": "9554213830896",
+      "external_variant_id": "47792261497072"
+    },
+    {
+      "external_product_id": "9554508546288",
+      "external_variant_id": "47792854565104"
+    },
+    {
+      "external_product_id": "9554508546288",
+      "external_variant_id": "47792854597872"
+    },
+    {
+      "external_product_id": "9581492404464",
+      "external_variant_id": "47863085334768"
+    },
+    {
+      "external_product_id": "9581492404464",
+      "external_variant_id": "47863085367536"
+    },
+    {
+      "external_product_id": "9581492404464",
+      "external_variant_id": "47863085400304"
+    },
+    {
+      "external_product_id": "9581492404464",
+      "external_variant_id": "47863085433072"
+    },
+    {
+      "external_product_id": "9581492404464",
+      "external_variant_id": "47863085465840"
+    },
+    {
+      "external_product_id": "8334299660528",
+      "external_variant_id": "47879414481136"
+    },
+    {
+      "external_product_id": "9587112902896",
+      "external_variant_id": "47879468417264"
+    },
+    {
+      "external_product_id": "9587112902896",
+      "external_variant_id": "47879468450032"
+    },
+    {
+      "external_product_id": "9587128631536",
+      "external_variant_id": "47879495516400"
+    },
+    {
+      "external_product_id": "9587174310128",
+      "external_variant_id": "47879854227696"
+    },
+    {
+      "external_product_id": "9587174310128",
+      "external_variant_id": "47879854260464"
+    },
+    {
+      "external_product_id": "9587282706672",
+      "external_variant_id": "47880946942192"
+    },
+    {
+      "external_product_id": "9587282706672",
+      "external_variant_id": "47880946974960"
+    },
+    {
+      "external_product_id": "9587342606576",
+      "external_variant_id": "47881357754608"
+    },
+    {
+      "external_product_id": "9587342606576",
+      "external_variant_id": "47881357787376"
+    },
+    {
+      "external_product_id": "9587378782448",
+      "external_variant_id": "47881440166128"
+    },
+    {
+      "external_product_id": "9587378782448",
+      "external_variant_id": "47881440198896"
+    },
+    {
+      "external_product_id": "8151663378672",
+      "external_variant_id": "47959205445872"
+    },
+    {
+      "external_product_id": "8318574264560",
+      "external_variant_id": "47976539259120"
+    },
+    {
+      "external_product_id": "9623289856240",
+      "external_variant_id": "47984405840112"
+    },
+    {
+      "external_product_id": "9623289856240",
+      "external_variant_id": "47984405872880"
+    },
+    {
+      "external_product_id": "9623289856240",
+      "external_variant_id": "47984405905648"
+    },
+    {
+      "external_product_id": "9623362011376",
+      "external_variant_id": "47984607690992"
+    },
+    {
+      "external_product_id": "9623365091568",
+      "external_variant_id": "47984623288560"
+    },
+    {
+      "external_product_id": "9623373840624",
+      "external_variant_id": "47984666542320"
+    },
+    {
+      "external_product_id": "9623375118576",
+      "external_variant_id": "47984670376176"
+    },
+    {
+      "external_product_id": "9623376527600",
+      "external_variant_id": "47984677028080"
+    },
+    {
+      "external_product_id": "9623385932016",
+      "external_variant_id": "47984711958768"
+    },
+    {
+      "external_product_id": "9624501813488",
+      "external_variant_id": "47987919782128"
+    },
+    {
+      "external_product_id": "9673589522672",
+      "external_variant_id": "48119163355376"
+    },
+    {
+      "external_product_id": "9673589522672",
+      "external_variant_id": "48119163388144"
+    },
+    {
+      "external_product_id": "9673598861552",
+      "external_variant_id": "48119187570928"
+    },
+    {
+      "external_product_id": "9673598861552",
+      "external_variant_id": "48119187603696"
+    },
+    {
+      "external_product_id": "9673598861552",
+      "external_variant_id": "48119187636464"
+    },
+    {
+      "external_product_id": "9673666920688",
+      "external_variant_id": "48119537729776"
+    },
+    {
+      "external_product_id": "9673666920688",
+      "external_variant_id": "48119537762544"
+    },
+    {
+      "external_product_id": "9673935388912",
+      "external_variant_id": "48120936431856"
+    },
+    {
+      "external_product_id": "9673935388912",
+      "external_variant_id": "48120936464624"
+    },
+    {
+      "external_product_id": "9673940762864",
+      "external_variant_id": "48120966807792"
+    },
+    {
+      "external_product_id": "9673940762864",
+      "external_variant_id": "48120966840560"
+    },
+    {
+      "external_product_id": "9673940762864",
+      "external_variant_id": "48120966873328"
+    },
+    {
+      "external_product_id": "9673951019248",
+      "external_variant_id": "48121139658992"
+    },
+    {
+      "external_product_id": "9673952952560",
+      "external_variant_id": "48121193038064"
+    },
+    {
+      "external_product_id": "9674414915824",
+      "external_variant_id": "48123945124080"
+    },
+    {
+      "external_product_id": "9674414915824",
+      "external_variant_id": "48123945156848"
+    },
+    {
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051685616"
+    },
+    {
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051718384"
+    },
+    {
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051751152"
+    },
+    {
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051783920"
+    },
+    {
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051816688"
+    },
+    {
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051849456"
+    },
+    {
+      "external_product_id": "9674436903152",
+      "external_variant_id": "48124151038192"
+    },
+    {
+      "external_product_id": "9674436903152",
+      "external_variant_id": "48124151070960"
+    },
+    {
+      "external_product_id": "9674436903152",
+      "external_variant_id": "48124151103728"
+    },
+    {
+      "external_product_id": "9675385569520",
+      "external_variant_id": "48126623252720"
+    },
+    {
+      "external_product_id": "9675385569520",
+      "external_variant_id": "48126623285488"
+    },
+    {
+      "external_product_id": "9675385569520",
+      "external_variant_id": "48126623318256"
+    },
+    {
+      "external_product_id": "9675385569520",
+      "external_variant_id": "48126623351024"
+    },
+    {
+      "external_product_id": "9675414634736",
+      "external_variant_id": "48126659231984"
+    },
+    {
+      "external_product_id": "9675414634736",
+      "external_variant_id": "48126659264752"
+    },
+    {
+      "external_product_id": "9675546099952",
+      "external_variant_id": "48126841454832"
+    },
+    {
+      "external_product_id": "9675546099952",
+      "external_variant_id": "48126841487600"
+    },
+    {
+      "external_product_id": "9676465242352",
+      "external_variant_id": "48129499693296"
+    },
+    {
+      "external_product_id": "9676465242352",
+      "external_variant_id": "48129499726064"
+    },
+    {
+      "external_product_id": "9676552831216",
+      "external_variant_id": "48129619263728"
+    },
+    {
+      "external_product_id": "9676552831216",
+      "external_variant_id": "48129619296496"
+    },
+    {
+      "external_product_id": "9368900960496",
+      "external_variant_id": "48129621721328"
+    },
+    {
+      "external_product_id": "9678084636912",
+      "external_variant_id": "48135716733168"
+    },
+    {
+      "external_product_id": "9678084636912",
+      "external_variant_id": "48135716765936"
+    },
+    {
+      "external_product_id": "9678084636912",
+      "external_variant_id": "48135716798704"
+    },
+    {
+      "external_product_id": "9678084636912",
+      "external_variant_id": "48135716831472"
+    },
+    {
+      "external_product_id": "9678096761072",
+      "external_variant_id": "48135749271792"
+    },
+    {
+      "external_product_id": "9678103445744",
+      "external_variant_id": "48135761395952"
+    },
+    {
+      "external_product_id": "9680364208368",
+      "external_variant_id": "48142829453552"
+    },
+    {
+      "external_product_id": "9680391831792",
+      "external_variant_id": "48142863401200"
+    },
+    {
+      "external_product_id": "9706776264944",
+      "external_variant_id": "48219037106416"
+    },
+    {
+      "external_product_id": "9706779279600",
+      "external_variant_id": "48219074199792"
+    },
+    {
+      "external_product_id": "9710810628336",
+      "external_variant_id": "48227374006512"
+    },
+    {
+      "external_product_id": "10013177610480",
+      "external_variant_id": "49688603295984"
+    },
+    {
+      "external_product_id": "10013177610480",
+      "external_variant_id": "49688603328752"
+    },
+    {
+      "external_product_id": "10017193754864",
+      "external_variant_id": "49704079851760"
+    },
+    {
+      "external_product_id": "10017193754864",
+      "external_variant_id": "49704079884528"
+    },
+    {
+      "external_product_id": "8318573084912",
+      "external_variant_id": "49704171536624"
+    },
+    {
+      "external_product_id": "10019781017840",
+      "external_variant_id": "49715237028080"
+    },
+    {
+      "external_product_id": "10019781017840",
+      "external_variant_id": "49715237060848"
+    },
+    {
+      "external_product_id": "10019820470512",
+      "external_variant_id": "49715305840880"
+    },
+    {
+      "external_product_id": "10021385273584",
+      "external_variant_id": "49719663067376"
+    },
+    {
+      "external_product_id": "10021385273584",
+      "external_variant_id": "49719663100144"
+    },
+    {
+      "external_product_id": "10024895742192",
+      "external_variant_id": "49735378960624"
+    },
+    {
+      "external_product_id": "10028457820400",
+      "external_variant_id": "49744956850416"
+    },
+    {
+      "external_product_id": "10028467093744",
+      "external_variant_id": "49744981426416"
+    },
+    {
+      "external_product_id": "10028475810032",
+      "external_variant_id": "49745019797744"
+    },
+    {
+      "external_product_id": "10028500615408",
+      "external_variant_id": "49745097097456"
+    },
+    {
+      "external_product_id": "9673935388912",
+      "external_variant_id": "49745126916336"
+    },
+    {
+      "external_product_id": "9673666920688",
+      "external_variant_id": "49745173315824"
+    },
+    {
+      "external_product_id": "10028522373360",
+      "external_variant_id": "49745185112304"
+    },
+    {
+      "external_product_id": "10028522373360",
+      "external_variant_id": "49745185145072"
+    },
+    {
+      "external_product_id": "10028557009136",
+      "external_variant_id": "49745349804272"
+    },
+    {
+      "external_product_id": "10028561989872",
+      "external_variant_id": "49745363337456"
+    },
+    {
+      "external_product_id": "10033393893616",
+      "external_variant_id": "49763835314416"
+    },
+    {
+      "external_product_id": "10033449271536",
+      "external_variant_id": "49764030906608"
+    },
+    {
+      "external_product_id": "10034753143024",
+      "external_variant_id": "49768736948464"
+    },
+    {
+      "external_product_id": "9174925803760",
+      "external_variant_id": "49768841904368"
+    },
+    {
+      "external_product_id": "10043002323184",
+      "external_variant_id": "49791491735792"
+    },
+    {
+      "external_product_id": "10043002323184",
+      "external_variant_id": "49791491768560"
+    },
+    {
+      "external_product_id": "10043011399920",
+      "external_variant_id": "49791502319856"
+    },
+    {
+      "external_product_id": "10043011399920",
+      "external_variant_id": "49791502352624"
+    },
+    {
+      "external_product_id": "10043022704880",
+      "external_variant_id": "49791520309488"
+    },
+    {
+      "external_product_id": "10043022704880",
+      "external_variant_id": "49791520342256"
+    },
+    {
+      "external_product_id": "10043022704880",
+      "external_variant_id": "49791520375024"
+    },
+    {
+      "external_product_id": "10043022704880",
+      "external_variant_id": "49791520407792"
+    },
+    {
+      "external_product_id": "10043022704880",
+      "external_variant_id": "49791520440560"
+    },
+    {
+      "external_product_id": "10043065172208",
+      "external_variant_id": "49791610257648"
+    },
+    {
+      "external_product_id": "10043065172208",
+      "external_variant_id": "49791610290416"
+    },
+    {
+      "external_product_id": "10077991993584",
+      "external_variant_id": "49935647015152"
+    },
+    {
+      "external_product_id": "10077997170928",
+      "external_variant_id": "49936354246896"
+    },
+    {
+      "external_product_id": "10079982584048",
+      "external_variant_id": "49957954257136"
+    },
+    {
+      "external_product_id": "10079982944496",
+      "external_variant_id": "49957958156528"
+    },
+    {
+      "external_product_id": "10081661419760",
+      "external_variant_id": "49962294247664"
+    },
+    {
+      "external_product_id": "10081679147248",
+      "external_variant_id": "49962376200432"
+    },
+    {
+      "external_product_id": "10081729544432",
+      "external_variant_id": "49962647093488"
+    },
+    {
+      "external_product_id": "10083619340528",
+      "external_variant_id": "49968397811952"
+    }
+  ]
+}
