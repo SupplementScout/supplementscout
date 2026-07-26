@@ -88,15 +88,43 @@ function ownerDatabaseUrl(options) {
   return parsed.href;
 }
 
+async function resolveTargetChanges(client, reviewedChanges) {
+  const targetChanges = [];
+  for (const row of reviewedChanges) {
+    const result = await client.query(`
+      select p.id::text product_id,v.id::text variant_id
+      from public.products p
+      join public.product_variants v on v.product_id=p.id
+      where p.name=$1
+        and v.variant_key=$2
+        and v.display_name=$3
+        and p.is_active
+        and v.is_active
+        and p.merged_into_product_id is null
+        and p.merged_at is null
+      order by p.id,v.id
+    `, [
+      row.expected_product_name,
+      row.expected_variant_key,
+      row.expected_display_name,
+    ]);
+    invariant(
+      result.rows.length === 1,
+      `target identity resolution failed for ${row.expected_product_name} / ${row.expected_variant_key}`,
+    );
+    targetChanges.push({
+      ...row,
+      product_id: result.rows[0].product_id,
+      variant_id: result.rows[0].variant_id,
+    });
+  }
+  return targetChanges;
+}
+
 async function execute(options, connectionString) {
   invariant(process.env.SAFE_UPDATE === undefined, "SAFE_UPDATE must be unset");
   const reviewed = loadReviewedManifest(options.manifest, options.manifestSha256);
   const target = TARGETS[options.target];
-  const contract = buildReviewedContract({
-    reviewed,
-    targetEnvironment: target.environment,
-    authorizationId: options.authorizationId,
-  });
   const dryRun = options.mode === "dry-run";
   const client = new Client({
     connectionString,
@@ -121,6 +149,16 @@ async function execute(options, connectionString) {
       "trusted database target mismatch",
     );
     if (dryRun) invariant(identity.read_only === "on", "dry-run transaction is not read-only");
+    const targetChanges = await resolveTargetChanges(
+      client,
+      reviewed.manifest.changes,
+    );
+    const contract = buildReviewedContract({
+      reviewed,
+      targetEnvironment: target.environment,
+      authorizationId: options.authorizationId,
+      targetChanges,
+    });
     const result = (await client.query(
       "select public.apply_reviewed_product_variant_nutrition($1::jsonb,$2::boolean) result",
       [contract, dryRun],
@@ -184,4 +222,5 @@ module.exports = {
   loadEnvFile,
   ownerDatabaseUrl,
   parseArgs,
+  resolveTargetChanges,
 };

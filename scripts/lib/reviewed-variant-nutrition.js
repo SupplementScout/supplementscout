@@ -196,6 +196,7 @@ function buildReviewedContract({
   reviewed,
   targetEnvironment,
   authorizationId,
+  targetChanges = reviewed.manifest.changes,
 }) {
   invariant(
     targetEnvironment === "STAGING" || targetEnvironment === "PRODUCTION",
@@ -205,16 +206,40 @@ function buildReviewedContract({
     /^[a-z0-9][a-z0-9._:-]{7,199}$/.test(authorizationId),
     "reviewed contract authorization ID is invalid",
   );
+  invariant(
+    Array.isArray(targetChanges) &&
+      targetChanges.length === reviewed.manifest.changes.length,
+    "target-bound reviewed scope is invalid",
+  );
+  for (const [index, targetRow] of targetChanges.entries()) {
+    const reviewedRow = reviewed.manifest.changes[index];
+    invariant(
+      POSITIVE_ID.test(targetRow.product_id) &&
+        POSITIVE_ID.test(targetRow.variant_id),
+      "target-bound reviewed identity is invalid",
+    );
+    for (const key of CHANGE_KEYS.filter(
+      (name) => name !== "product_id" && name !== "variant_id",
+    )) {
+      invariant(
+        JSON.stringify(targetRow[key]) === JSON.stringify(reviewedRow[key]),
+        `target-bound reviewed row ${index + 1} changed ${key}`,
+      );
+    }
+  }
+  const sortedTargetChanges = [...targetChanges].sort((left, right) =>
+    BigInt(left.variant_id) < BigInt(right.variant_id) ? -1 : 1,
+  );
   const core = {
     schema_version: 1,
     kind: "reviewed-product-variant-nutrition-v1",
     authorization_id: authorizationId,
     target_environment: targetEnvironment,
     reviewed_manifest_sha256: reviewed.sha256,
-    reviewed_scope_hash: reviewed.manifest.reviewed_scope_hash,
+    reviewed_scope_hash: fingerprint(sortedTargetChanges),
     authorized_by: reviewed.manifest.authorized_by,
     authorized_at: reviewed.manifest.authorized_at,
-    changes: reviewed.manifest.changes,
+    changes: sortedTargetChanges,
   };
   return { ...core, reviewed_contract_hash: fingerprint(core) };
 }

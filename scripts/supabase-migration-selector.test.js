@@ -74,12 +74,9 @@ test.after(() => {
 
 test("staging happy path binds the post-reconciliation ledger", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 63);
+  assert.equal(result.ledger_count, 65);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(
-    result.pending,
-    CONTRACT.pending.map(({ filename }) => filename.slice(0, -4)),
-  );
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 65);
 });
 
@@ -291,13 +288,10 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("multi-pending staging output clears singleton fields", () => {
+test("zero-pending staging output clears pending fields", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.deepEqual(
-    result.pending_files,
-    CONTRACT.pending.map(({ filename }) => filename),
-  );
-  assert.equal(Object.keys(result.pending_sha256s).length, 2);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });

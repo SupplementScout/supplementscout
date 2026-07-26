@@ -93,6 +93,40 @@ test("environment-specific contracts bind manifest, scope and authorization", ()
   );
 });
 
+test("target-specific IDs cannot alter any reviewed nutrition evidence", () => {
+  const value = manifest();
+  const reviewed = {
+    manifest: value,
+    sha256: "a".repeat(64),
+  };
+  const targetChanges = value.changes.map((row) => ({
+    ...row,
+    product_id: "20",
+    variant_id: "200",
+  }));
+  const contract = buildReviewedContract({
+    reviewed,
+    targetEnvironment: "STAGING",
+    authorizationId: "nutrition-batch-1-staging",
+    targetChanges,
+  });
+  assert.equal(contract.changes[0].product_id, "20");
+  assert.equal(contract.changes[0].variant_id, "200");
+  assert.equal(contract.reviewed_scope_hash, fingerprint(targetChanges));
+
+  const evidenceDrift = structuredClone(targetChanges);
+  evidenceDrift[0].after_nutrition_override.protein_per_serving_g = 19;
+  assert.throws(
+    () => buildReviewedContract({
+      reviewed,
+      targetEnvironment: "STAGING",
+      authorizationId: "nutrition-batch-1-staging",
+      targetChanges: evidenceDrift,
+    }),
+    /changed after_nutrition_override/,
+  );
+});
+
 test("CLI is closed and requires every immutable binding", () => {
   assert.deepEqual(
     parseArgs([

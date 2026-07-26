@@ -24,8 +24,8 @@ test("migration is hash-bound and transactional", () => {
       sha256: "ad165f24cc4f72f879645320116ffbade5dc51ab5a09f1a2cf2a5a2f9d0cd0ec",
     },
   ];
-  assert.deepEqual(selector.CONTRACTS.STAGING.pending, expectedNutritionPending);
-  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 63);
+  assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
+  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 65);
   assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, expectedNutritionPending);
   assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 59);
   assert.match(sql, /^begin;/i);

@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 63,
+    ledgerCount: 65,
     ledgerFingerprint:
-      "85a6866c85f5424189c3598413824025d8021330871d49d7d7ed318512a8598c",
+      "b97a37c4368963cc795ebd5d3bc4064b4910dfa347ee204ed231a5581477e42f",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -41,20 +41,7 @@ const CONTRACTS = Object.freeze({
       "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql":
         "57d7b193c42cd9950f7a6d6b91a18cc10ee1b7545242c96bcaa24edcfea91959",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename:
-          "20260726200000_allow_public_read_active_product_variants.sql",
-        sha256:
-          "04c5a3bc7746c497040e3f2b5e496332d76a5c4d340acc63d7d7d8e08d92653d",
-      }),
-      Object.freeze({
-        filename:
-          "20260726210000_add_reviewed_variant_nutrition_apply.sql",
-        sha256:
-          "ad165f24cc4f72f879645320116ffbade5dc51ab5a09f1a2cf2a5a2f9d0cd0ec",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",

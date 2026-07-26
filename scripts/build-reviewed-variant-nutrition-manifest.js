@@ -17,7 +17,7 @@ const OUTPUT = path.join(
   ROOT,
   "data",
   "verified",
-  "variant-nutrition-reviewed-batch-1.json",
+  "variant-nutrition-reviewed-batch-1-v2.json",
 );
 const INPUT_SHA256 =
   "ad7b58ed937ad77074046fec42b16fa85728b89d78d38cc6a227062449495448";
@@ -75,7 +75,7 @@ function build(inputBytes) {
     kind: "reviewed-product-variant-nutrition-manifest-v1",
     status: "REVIEWED",
     authorized_by: "user-approved-nutrition-enrichment",
-    authorized_at: "2026-07-26T18:00:00.000Z",
+    authorized_at: "2026-07-26T17:00:00.000Z",
     source_policy:
       "Manufacturer product pages are authoritative. WheyWise was used only for discovery and second-source comparison.",
     reviewed_scope_hash: fingerprint(changes),
