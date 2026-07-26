@@ -2206,6 +2206,11 @@ test("SARM and peptide catalogue identities are permanently excluded without blo
     "Optimised Research Labs AN-VAR Oxandro 60 Capsules",
     "Research Ostarine MK-2866 60 Capsules",
     "BPC-157 Peptide 10mg",
+    "MetaHuman Elite Cortagen 500mcg",
+    "MetaHuman Elite Selank 350mcg",
+    "MetaHuman Elite Semax 350mcg",
+    "Soma GHK-Cu 30 Capsules",
+    "Soma BPC KPV PEA 30 Capsules",
   ]) {
     assert.deepEqual(getSafeCreateExclusionReasons({ product_name, category: "Health Supplements", product_format: "capsule", size: "60 capsules" }), ["prohibited catalogue type: SARM or peptide"]);
   }

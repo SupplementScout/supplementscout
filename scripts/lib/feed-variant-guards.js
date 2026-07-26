@@ -606,6 +606,7 @@ const SAFE_CREATE_CREAM_EXCLUSION_PATTERN = /\bcream\b/i;
 const PROHIBITED_CATALOGUE_TYPE_PATTERNS = [
   /\b(?:sarms?|ostarine|mk[-\s]?2866|ligandrol|lgd[-\s]?4033|testolone|rad[-\s]?140|andarine|s[-\s]?4|cardarine|gw[-\s]?501516|ibutamoren|mk[-\s]?677|yk[-\s]?11|acp[-\s]?105|s[-\s]?23|sr[-\s]?9009)\b/i,
   /\b(?:bpc[-\s]?157|tb[-\s]?500|cjc[-\s]?1295|ipamorelin|ghrp[-\s]?[246]|hexarelin|sermorelin|tesamorelin|melanotan|retatrutide)\b/i,
+  /\b(?:cortagen|selank|semax|ghk[-\s]?cu|kpv)\b/i,
   /\boptimised\s+research\s+labs\s+(?:vi-ron|de-bol|20-hydrox|deep-sleep\s+rem-08|an-var|pct-ex|zma-ex|t5-xs)\b/i,
 ];
 
