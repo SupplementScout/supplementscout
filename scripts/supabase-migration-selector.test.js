@@ -71,10 +71,10 @@ test.after(() => {
 
 test("staging happy path binds the exact ledger and one pending migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 56);
+  assert.equal(result.ledger_count, 57);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260726100000_add_reviewed_mixed_change_approval"]);
-  assert.equal(result.selected_files.length, 57);
+  assert.deepEqual(result.pending, ["20260726120000_add_scoped_reviewed_mixed_change_fingerprints"]);
+  assert.equal(result.selected_files.length, 58);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -185,7 +185,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 57);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 58);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }

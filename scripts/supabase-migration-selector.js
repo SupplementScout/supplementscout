@@ -20,9 +20,9 @@ const CONTRACTS = Object.freeze({
     environment: "STAGING",
     projectRef: "hxnrsyyqffztlvcrtgbf",
     databaseIdentity: "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
-    ledgerCount: 56,
+    ledgerCount: 57,
     ledgerFingerprint:
-      "f35025e45fd6f29b7927f6a0254a2525bd1a4193b95e078f9674579c38f73822",
+      "d599f4cbe1071f6333fe01141530737b50315157799c37a0ab7dd6c0453c658c",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -30,8 +30,8 @@ const CONTRACTS = Object.freeze({
         "0c1db39a193c98fb7cd41cfc3b75a03b35ebd59d429fe873e431aadb1aabadf9",
     }),
     pending: Object.freeze({
-      filename: "20260726100000_add_reviewed_mixed_change_approval.sql",
-      sha256: "43a36d100e8a90e06418300c249fbcf3789a8a37a003c6c0028a26c10e523f06",
+      filename: "20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql",
+      sha256: "75903b43f913c246e36852e4a6b93e2b4807c1c3405164541eee9357c8c840d6",
     }),
   }),
 });
