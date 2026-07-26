@@ -72,13 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging happy path binds the exact post-closeout ledger and no-SKU reconciliation pending", () => {
+test("staging happy path binds the exact post-reconciliation ledger with no pending migrations", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 60);
+  assert.equal(result.ledger_count, 61);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 61);
 });
 
@@ -304,12 +302,10 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("single-pending staging output binds collection and legacy singleton fields", () => {
+test("zero-pending staging output clears collection and legacy singleton fields", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, CONTRACT.pending[0].filename);
-  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
-  assert.deepEqual(result.pending_files, CONTRACT.pending.map(({ filename }) => filename));
-  assert.deepEqual(result.pending_sha256s, Object.fromEntries(
-    CONTRACT.pending.map(({ filename, sha256 }) => [filename, sha256]),
-  ));
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
