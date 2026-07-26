@@ -90,6 +90,12 @@ test("the production-only migration is the exact shared-policy exclusion", () =>
   const result = validateSelection(validInput());
   assert.ok(result.excluded_files.includes("20260719100000_add_production_retailer_sync_enablement.sql"));
   assert.ok(!result.selected_files.includes("20260719100000_add_production_retailer_sync_enablement.sql"));
+  assert.ok(result.excluded_files.includes(
+    "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql",
+  ));
+  assert.ok(!result.selected_files.includes(
+    "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql",
+  ));
 });
 
 test("unknown selector environments fail closed", () => {
@@ -202,7 +208,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-v3 ledger with no pending migration", () => {
+test("production binds its exact post-v3 ledger and one pending reviewed definition", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -230,12 +236,14 @@ test("production binds its exact post-v3 ledger with no pending migration", () =
   });
   assert.equal(result.ledger_count, 54);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 54);
+  assert.deepEqual(result.pending, [
+    "20260726140000_authorize_reviewed_jons_16_mapped_scope",
+  ]);
+  assert.equal(result.selected_files.length, 55);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(result.pending_file, contract.pending[0].filename);
+  assert.equal(result.pending_sha256, contract.pending[0].sha256);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

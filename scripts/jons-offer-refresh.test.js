@@ -9,7 +9,7 @@ const {RefreshError,canonicalHash,classificationDiagnostic,executionRow,guardrai
 const migrationFiles=fs.readdirSync(path.join(process.cwd(),"supabase","migrations"));
 const approvedRegistrationMigration="20260724100000_add_approved_retailer_sync_registration";
 const environmentMigrationExclusions={
-  STAGING:new Set(["20260717130000_add_local_retailer_catalogue_child_executor","20260719100000_add_production_retailer_sync_enablement"]),
+  STAGING:new Set(["20260717130000_add_local_retailer_catalogue_child_executor","20260719100000_add_production_retailer_sync_enablement","20260726140000_authorize_reviewed_jons_16_mapped_scope"]),
   PRODUCTION:new Set(["20260717120000_create_retailer_catalogue_control_ledger","20260717130000_add_local_retailer_catalogue_child_executor","20260717140000_add_staging_retailer_catalogue_executor","20260718150000_add_verified_no_change_offer_refresh","20260718160000_add_retailer_offer_mixed_batch_executor","20260718170000_add_read_only_mixed_batch_validator","20260719090000_add_expired_retailer_offer_sync_approval_close"]),
 };
 function assertMigrationBindingContract(files){

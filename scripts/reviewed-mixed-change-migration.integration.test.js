@@ -17,6 +17,8 @@ const SCOPED_MIGRATION = "supabase/migrations/20260726120000_add_scoped_reviewed
 const SCOPED_ROLLBACK = "supabase/rollbacks/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql";
 const MAPPED_SCOPE_MIGRATION =
   "supabase/migrations/20260726130000_add_mapped_scope_reviewed_approval.sql";
+const JONS_16_DEFINITION_MIGRATION =
+  "supabase/migrations/20260726140000_authorize_reviewed_jons_16_mapped_scope.sql";
 const IMAGE = "postgres:17-alpine";
 
 function run(command, args, options = {}) {
@@ -716,6 +718,34 @@ test("mapped-scope migration preserves v1/v2, permits unrelated unmapped drift a
     `), "mapped prerequisite fixture");
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${SCOPED_MIGRATION}`]), "scoped prerequisite migration");
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MAPPED_SCOPE_MIGRATION}`]), "mapped-scope migration");
+    ok(sql(container, `
+      create or replace function public.retailer_catalogue_actual_database_target()
+      returns jsonb language sql stable as $$
+        select '{
+          "target_environment":"PRODUCTION",
+          "project_ref":"aftboxmrdgyhizicfsfu",
+          "database_identity":"supplementscout-production:aftboxmrdgyhizicfsfu"
+        }'::jsonb
+      $$;
+    `), "production target fixture");
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${JONS_16_DEFINITION_MIGRATION}`]), "Jon's 16 definition migration");
+    const seeded = ok(sql(container, `
+      select authorization_id||':'||contract_version||':'||row_count||':'||
+             allowed_unmapped_collisions_hash
+      from public.retailer_offer_sync_reviewed_mixed_change_definitions
+      where authorization_id='jons-16-52d2f3f0bd5ec046-production';
+    `), "Jon's 16 definition");
+    assert.match(
+      seeded.stdout,
+      /jons-16-52d2f3f0bd5ec046-production:3:16:7d61f670d3cbbfd00dac93ec4a9edec8a66f9d6f51b37a81b752b66561fd29d6/,
+    );
+    const definitionRerun = exec(container, [
+      "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1",
+      "-U", "postgres", "-d", "postgres", "-f",
+      `/workspace/${JONS_16_DEFINITION_MIGRATION}`,
+    ]);
+    assert.notEqual(definitionRerun.status, 0);
+    assert.match(output(definitionRerun), /already installed; rerun rejected/);
 
     const fixture = mappedReviewedFixture();
     ok(sql(container, `

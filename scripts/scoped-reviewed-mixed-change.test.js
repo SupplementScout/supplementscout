@@ -13,6 +13,11 @@ const manifestFile = path.resolve(
   "tmp/jons-15-review/jons-15-reviewed-manifest-scoped-8c08e919.json",
 );
 const manifestSha = "2b14b0d7b09ab70f41aacb1907bd1718d605cab9fcde0246dc7b7a7f167718c2";
+const mapped16ManifestFile = path.resolve(
+  "tmp/jons-15-review/jons-16-reviewed-manifest-mapped-ff23c3c2-v3.json",
+);
+const mapped16ManifestSha =
+  "52d2f3f0bd5ec04629a43320ec0166f655d1fb0b6f7a93b9f3fcbc8ecf683723";
 const migration = fs.readFileSync(
   path.resolve("supabase/migrations/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql"),
   "utf8",
@@ -94,6 +99,33 @@ test("scoped immutable manifest loads only at its raw-byte SHA", () => {
   assert.equal(
     fingerprint(reviewed.manifest.scoped_source_contract.unmapped_source_delta),
     reviewed.manifest.scoped_source_contract.unmapped_source_delta_hash,
+  );
+});
+
+test("mapped-scope immutable 16-change manifest binds the exact approved scope", () => {
+  const bytes = fs.readFileSync(mapped16ManifestFile);
+  assert.equal(crypto.createHash("sha256").update(bytes).digest("hex"), mapped16ManifestSha);
+  const reviewed = loadReviewedMixedChangeManifest(
+    mapped16ManifestFile,
+    mapped16ManifestSha,
+  );
+  assert.equal(reviewed.mapped, true);
+  assert.equal(reviewed.manifest.row_count, 16);
+  assert.equal(reviewed.manifest.expected_deltas.stock_updates, 14);
+  assert.equal(reviewed.manifest.expected_deltas.freshness_updates, 16);
+  assert.equal(reviewed.manifest.mapped_source_contract.mapped_scope_row_count, 506);
+  assert.equal(
+    fingerprint(reviewed.manifest.mapped_source_contract.allowed_unmapped_collisions),
+    reviewed.manifest.mapped_source_contract.allowed_unmapped_collisions_hash,
+  );
+  assert.equal(
+    reviewed.manifest.rows.filter((row) => row.exact_action === "UPDATE_STOCK").length,
+    14,
+  );
+  assert.equal(
+    reviewed.manifest.rows.find((row) => row.jons_variant_id === "50838709436754")
+      ?.offer_id,
+    "1280",
   );
 });
 

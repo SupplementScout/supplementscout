@@ -4,7 +4,10 @@ const path = require("node:path");
 const { fingerprint } = require("./artifacts");
 const { semanticShopifySnapshot, sha256 } = require("../shopify-snapshot-reader");
 
-const MANIFEST_KIND = "jons-existing-offer-15-change-reviewed-manifest";
+const MANIFEST_KINDS = Object.freeze({
+  15: "jons-existing-offer-15-change-reviewed-manifest",
+  16: "jons-existing-offer-16-change-reviewed-manifest",
+});
 const CONTRACT_KIND = "retailer-reviewed-mixed-change-v1";
 const SCOPED_CONTRACT_KIND = "retailer-reviewed-mixed-change-v2";
 const MAPPED_SCOPE_CONTRACT_KIND = "retailer-reviewed-mapped-scope-v3";
@@ -71,6 +74,17 @@ const EXPECTED_DELTAS = Object.freeze({
   price_history_rows: 1,
   retailers: 0,
 });
+const EXPECTED_DELTAS_16 = Object.freeze({
+  ...EXPECTED_DELTAS,
+  stock_updates: 14,
+  freshness_updates: 16,
+});
+
+function expectedManifestDeltas(rowCount) {
+  return rowCount === 15 ? EXPECTED_DELTAS
+    : rowCount === 16 ? EXPECTED_DELTAS_16
+      : null;
+}
 
 function exactKeys(value, keys) {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -466,21 +480,22 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
   const manifest = JSON.parse(bytes.toString("utf8"));
   const scoped = exactKeys(manifest, EXPECTED_SCOPED_MANIFEST_KEYS);
   const mapped = exactKeys(manifest, EXPECTED_MAPPED_SCOPE_MANIFEST_KEYS);
+  const expectedDeltas = expectedManifestDeltas(manifest.row_count);
   if (!(exactKeys(manifest, EXPECTED_MANIFEST_KEYS) || scoped || mapped)
       || manifest.schema_version !== 1
-      || manifest.kind !== MANIFEST_KIND
+      || manifest.kind !== MANIFEST_KINDS[manifest.row_count]
       || manifest.target_environment !== "PRODUCTION"
       || manifest.target_project_ref !== "aftboxmrdgyhizicfsfu"
       || manifest.retailer_id !== "10"
       || manifest.retailer_slug !== "jon-s-supplements"
       || manifest.source_country !== "GB"
       || !SHA256.test(manifest.source_capture_sha256)
-      || manifest.row_count !== 15
+      || !expectedDeltas
       || !Array.isArray(manifest.rows)
-      || manifest.rows.length !== 15
+      || manifest.rows.length !== manifest.row_count
       || !Array.isArray(manifest.immutable_scope_offer_ids)
-      || manifest.immutable_scope_offer_ids.length !== 15
-      || JSON.stringify(manifest.expected_deltas) !== JSON.stringify(EXPECTED_DELTAS)) {
+      || manifest.immutable_scope_offer_ids.length !== manifest.row_count
+      || JSON.stringify(manifest.expected_deltas) !== JSON.stringify(expectedDeltas)) {
     throw new Error("reviewed manifest contract mismatch");
   }
   if (scoped) {
@@ -629,7 +644,8 @@ function buildReviewedMixedChangeContract({
   const core = {
     schema_version: 1,
     kind: CONTRACT_KIND,
-    authorization_id: `jons-15-${reviewed.sha256.slice(0, 16)}-${targetEnvironment.toLowerCase()}`,
+    authorization_id:
+      `jons-${reviewed.manifest.row_count}-${reviewed.sha256.slice(0, 16)}-${targetEnvironment.toLowerCase()}`,
     target_environment: targetEnvironment,
     retailer_id: reviewed.manifest.retailer_id,
     source_country: reviewed.manifest.source_country,
@@ -725,6 +741,7 @@ module.exports = {
   MAPPED_SCOPE_CONTRACT_KIND,
   SCOPED_CONTRACT_KIND,
   EXPECTED_DELTAS,
+  EXPECTED_DELTAS_16,
   artifactReviewedRows,
   bindReviewedMixedChangeContract,
   buildMappedScopeEvidence,
