@@ -41,7 +41,10 @@ const CONTRACTS = Object.freeze({
       "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql":
         "57d7b193c42cd9950f7a6d6b91a18cc10ee1b7545242c96bcaa24edcfea91959",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([Object.freeze({
+      filename: "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade.sql",
+      sha256: "ed310cc115d37a09b0e34a7941dae3b3134f4a554c75e166813ba68d39189f38",
+    })]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -72,6 +75,9 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([Object.freeze({
       filename: "20260726150000_seed_reviewed_fit_house_catalogue_closeout.sql",
       sha256: "5be459326e40bd9cb6b4a774f1fbc60b095f7a510b190e94f1cf1fbcf0e46063",
+    }), Object.freeze({
+      filename: "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade.sql",
+      sha256: "ed310cc115d37a09b0e34a7941dae3b3134f4a554c75e166813ba68d39189f38",
     })]),
   }),
 });

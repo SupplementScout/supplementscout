@@ -72,12 +72,14 @@ test.after(() => {
   }
 });
 
-test("staging happy path binds the exact post-closeout ledger with no pending migrations", () => {
+test("staging happy path binds the exact post-closeout ledger and no-SKU reconciliation pending", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 60);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 60);
+  assert.deepEqual(result.pending, [
+    "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade",
+  ]);
+  assert.equal(result.selected_files.length, 61);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -218,7 +220,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 60);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 61);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -234,7 +236,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-definition ledger and Fit House closeout pending", () => {
+test("production binds its exact post-definition ledger and Fit House migrations pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -264,12 +266,13 @@ test("production binds its exact post-definition ledger and Fit House closeout p
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, [
     "20260726150000_seed_reviewed_fit_house_catalogue_closeout",
+    "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade",
   ]);
-  assert.equal(result.selected_files.length, 56);
+  assert.equal(result.selected_files.length, 57);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(result.pending_file, contract.pending[0].filename);
-  assert.equal(result.pending_sha256, contract.pending[0].sha256);
+  assert.equal(Object.keys(result.pending_sha256s).length, 2);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
@@ -301,10 +304,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("zero-pending staging output clears collection and legacy singleton fields", () => {
+test("single-pending staging output binds collection and legacy singleton fields", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, CONTRACT.pending[0].filename);
+  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
+  assert.deepEqual(result.pending_files, CONTRACT.pending.map(({ filename }) => filename));
+  assert.deepEqual(result.pending_sha256s, Object.fromEntries(
+    CONTRACT.pending.map(({ filename, sha256 }) => [filename, sha256]),
+  ));
 });
