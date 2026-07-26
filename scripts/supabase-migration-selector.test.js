@@ -72,13 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging happy path selects only the Fit House registration migration", () => {
+test("staging happy path binds the post-Fit-House-registration ledger", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 61);
+  assert.equal(result.ledger_count, 62);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260726170000_add_fit_house_offer_sync_registration",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 62);
 });
 
@@ -293,12 +291,10 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("single-pending staging output binds collection and singleton fields", () => {
+test("zero-pending staging output clears collection and singleton fields", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, CONTRACT.pending[0].filename);
-  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
-  assert.deepEqual(result.pending_files, [CONTRACT.pending[0].filename]);
-  assert.deepEqual(result.pending_sha256s, {
-    [CONTRACT.pending[0].filename]: CONTRACT.pending[0].sha256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
