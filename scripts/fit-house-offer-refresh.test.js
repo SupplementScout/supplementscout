@@ -87,7 +87,7 @@ test("automation is retailer-scoped, keeps SAFE_UPDATE unset, and creates no cat
   assert.match(automation, /missing mapped source identity/);
   assert.doesNotMatch(automation, /set_config\('app\.safe_update'/);
   assert.doesNotMatch(automation, /register_jons_offer_sync_control_plan/);
-  assert.match(automation, /register_retailer_offer_sync_control_plan/);
+  assert.match(automation, /register_fit_house_offer_sync_control_plan/);
   assert.equal(config.shipping_policy.cost_gbp, "3.99");
   assert.equal(config.guardrails.ignore_source_sku, true);
 });

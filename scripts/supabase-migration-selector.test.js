@@ -72,12 +72,14 @@ test.after(() => {
   }
 });
 
-test("staging happy path binds the exact post-reconciliation ledger with no pending migrations", () => {
+test("staging happy path selects only the Fit House registration migration", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 61);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 61);
+  assert.deepEqual(result.pending, [
+    "20260726170000_add_fit_house_offer_sync_registration",
+  ]);
+  assert.equal(result.selected_files.length, 62);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -131,9 +133,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production post-closeout contract has no pending migration hashes", () => {
+test("production post-closeout contract selects only Fit House registration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.pending.length, 1);
+  assert.equal(
+    contract.pending[0].filename,
+    "20260726170000_add_fit_house_offer_sync_registration.sql",
+  );
   assert.equal(contract.ledgerCount, 57);
   assert.equal(
     contract.ledgerFingerprint,
@@ -198,7 +204,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 61);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 62);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -214,7 +220,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-Fit-House ledger with no pending migrations", () => {
+test("production binds its exact post-Fit-House ledger and one registration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -242,12 +248,20 @@ test("production binds its exact post-Fit-House ledger with no pending migration
   });
   assert.equal(result.ledger_count, 57);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 57);
+  assert.deepEqual(result.pending, [
+    "20260726170000_add_fit_house_offer_sync_registration",
+  ]);
+  assert.equal(result.selected_files.length, 58);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(
+    result.pending_file,
+    "20260726170000_add_fit_house_offer_sync_registration.sql",
+  );
+  assert.equal(
+    result.pending_sha256,
+    "214ace99e775f443692a19410a3b6e19e076472371f070cd10dd5bbaa0c9554a",
+  );
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
@@ -279,10 +293,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("zero-pending staging output clears collection and legacy singleton fields", () => {
+test("single-pending staging output binds collection and singleton fields", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, CONTRACT.pending[0].filename);
+  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
+  assert.deepEqual(result.pending_files, [CONTRACT.pending[0].filename]);
+  assert.deepEqual(result.pending_sha256s, {
+    [CONTRACT.pending[0].filename]: CONTRACT.pending[0].sha256,
+  });
 });
