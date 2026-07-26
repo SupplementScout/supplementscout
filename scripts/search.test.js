@@ -5,6 +5,15 @@ const path = require("path");
 const test = require("node:test");
 const ts = require("typescript");
 
+test("search variant nutrition uses a bounded ID query, not the removed offer FK", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "lib", "products.ts"),
+    "utf8"
+  );
+  assert.match(source, /\.from\("product_variants"\)[\s\S]+\.in\("id", variantIds\)/);
+  assert.doesNotMatch(source, /offers_product_variant_id_fkey/);
+});
+
 function loadProductsModule(mockSupabase = {}) {
   const filename = path.join(process.cwd(), "app", "lib", "products.ts");
   const source = fs.readFileSync(filename, "utf8");

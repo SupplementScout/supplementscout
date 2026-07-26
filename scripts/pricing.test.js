@@ -93,7 +93,33 @@ const {
   getVerifiedPricePerUnit,
   formatUnitPrice,
 } = pricingModule;
-const { isVitaminLandingProductMatch, normalizeSearchOffers } = loadProductsModule();
+const {
+  attachProductVariants,
+  isVitaminLandingProductMatch,
+  normalizeSearchOffers,
+} = loadProductsModule();
+
+test("variant nutrition enrichment uses one exact ID binding", () => {
+  const products = [{
+    id: 10,
+    offers: [
+      { id: 1, product_variant_id: 100 },
+      { id: 2, product_variant_id: 200 },
+    ],
+  }];
+  const variants = [{
+    id: 100,
+    size_value: 1000,
+    size_unit: "g",
+    product_format: "powder",
+    nutrition_override: { protein_per_serving_g: 22 },
+  }];
+  const enriched = attachProductVariants(products, variants);
+
+  assert.equal(enriched[0].offers[0].product_variant.id, 100);
+  assert.equal(enriched[0].offers[1].product_variant, null);
+  assert.equal(products[0].offers[0].product_variant, undefined);
+});
 
 test("500 ml liquid at 24.98 returns 49.96 per litre", () => {
   const deliveredPrice = getDeliveredPrice({ price: 24.98, shipping_cost: 0 });

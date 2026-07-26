@@ -133,6 +133,7 @@ export type RawRetailer = {
 
 export type RawOffer = {
   id: number | string;
+  product_variant_id?: number | string | null;
   price: number | string | null;
   shipping_cost: number | string | null;
   url: string | null;
@@ -142,6 +143,7 @@ export type RawOffer = {
 };
 
 type RawProductVariant = {
+  id?: number | string;
   size_value: number | string | null;
   size_unit: string | null;
   product_format: string | null;
@@ -168,6 +170,59 @@ type RawProduct = {
   unit_pricing_verified: boolean | null;
   offers?: RawOffer[] | null;
 };
+
+export function attachProductVariants(
+  products: RawProduct[],
+  variants: RawProductVariant[]
+) {
+  const variantsById = new Map(
+    variants
+      .filter((variant) => variant.id !== undefined)
+      .map((variant) => [String(variant.id), variant])
+  );
+
+  return products.map((product) => ({
+    ...product,
+    offers: (product.offers || []).map((offer) => ({
+      ...offer,
+      product_variant:
+        offer.product_variant_id === null ||
+        offer.product_variant_id === undefined
+          ? null
+          : variantsById.get(String(offer.product_variant_id)) || null,
+    })),
+  }));
+}
+
+async function loadProductVariants(products: RawProduct[]) {
+  const variantIds = Array.from(
+    new Set(
+      products.flatMap((product) =>
+        (product.offers || [])
+          .map((offer) => offer.product_variant_id)
+          .filter(
+            (id): id is number | string => id !== null && id !== undefined
+          )
+          .map(String)
+      )
+    )
+  );
+
+  if (variantIds.length === 0) return products;
+
+  const { data, error } = await supabase
+    .from("product_variants")
+    .select("id,size_value,size_unit,product_format,nutrition_override")
+    .eq("is_active", true)
+    .in("id", variantIds);
+
+  if (error) return products;
+
+  return attachProductVariants(
+    products,
+    (data || []) as RawProductVariant[]
+  );
+}
 
 type RawSuggestionProduct = Pick<
   RawProduct,
@@ -1050,16 +1105,11 @@ export async function searchProducts(
         unit_pricing_verified,
         offers!inner (
           id,
+          product_variant_id,
           price,
           shipping_cost,
           url,
           in_stock,
-          product_variant:product_variants!offers_product_variant_id_fkey (
-            size_value,
-            size_unit,
-            product_format,
-            nutrition_override
-          ),
           retailer:retailers (
             id,
             name,
@@ -1095,7 +1145,10 @@ export async function searchProducts(
     };
   }
 
-  const baseResults = ((data || []) as RawProduct[])
+  const enrichedProducts = await loadProductVariants(
+    (data || []) as RawProduct[]
+  );
+  const baseResults = enrichedProducts
     .map((product) =>
       normalizeProduct(
         product,
@@ -1111,7 +1164,7 @@ export async function searchProducts(
     .filter((product): product is ProductSearchResult => product !== null);
   const facets = buildFacets(baseResults);
   const filteredResults = filters.retailer
-    ? ((data || []) as RawProduct[])
+    ? enrichedProducts
         .map((product) =>
           normalizeProduct(product, sanitizedQuery, filters, searchMetadata)
         )
@@ -1320,16 +1373,11 @@ export async function getLandingProducts(
         unit_pricing_verified,
         offers!inner (
           id,
+          product_variant_id,
           price,
           shipping_cost,
           url,
           in_stock,
-          product_variant:product_variants!offers_product_variant_id_fkey (
-            size_value,
-            size_unit,
-            product_format,
-            nutrition_override
-          ),
           retailer:retailers (
             id,
             name,
@@ -1352,7 +1400,10 @@ export async function getLandingProducts(
     return { results: [], error };
   }
 
-  const results = ((data || []) as RawProduct[])
+  const enrichedProducts = await loadProductVariants(
+    (data || []) as RawProduct[]
+  );
+  const results = enrichedProducts
     .filter((product) =>
       options.productFilter ? options.productFilter(product) : true
     )
