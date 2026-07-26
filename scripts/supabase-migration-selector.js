@@ -41,7 +41,14 @@ const CONTRACTS = Object.freeze({
       "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql":
         "57d7b193c42cd9950f7a6d6b91a18cc10ee1b7545242c96bcaa24edcfea91959",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename:
+          "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+        sha256:
+          "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -69,7 +76,14 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename:
+          "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+        sha256:
+          "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
+      }),
+    ]),
   }),
 });
 

@@ -72,12 +72,14 @@ test.after(() => {
   }
 });
 
-test("staging happy path binds the post-Fit-House-registration ledger", () => {
+test("staging happy path selects only the Whey Pro Synergy reconciliation", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 62);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 62);
+  assert.deepEqual(result.pending, [
+    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic",
+  ]);
+  assert.equal(result.selected_files.length, 63);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -131,9 +133,16 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production post-registration contract has no pending migrations", () => {
+test("production post-registration contract selects the reconciliation", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [
+    {
+      filename:
+        "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+      sha256:
+        "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
+    },
+  ]);
   assert.equal(contract.ledgerCount, 58);
   assert.equal(
     contract.ledgerFingerprint,
@@ -198,7 +207,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 62);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 63);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -214,7 +223,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-registration ledger with no pending migrations", () => {
+test("production binds its exact ledger and selects only the reconciliation", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -242,12 +251,20 @@ test("production binds its exact post-registration ledger with no pending migrat
   });
   assert.equal(result.ledger_count, 58);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 58);
+  assert.deepEqual(result.pending, [
+    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic",
+  ]);
+  assert.equal(result.selected_files.length, 59);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(
+    result.pending_file,
+    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+  );
+  assert.equal(
+    result.pending_sha256,
+    "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
+  );
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
@@ -279,10 +296,21 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("zero-pending staging output clears collection and singleton fields", () => {
+test("one-pending staging output populates collection and singleton fields", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(
+    result.pending_file,
+    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+  );
+  assert.equal(
+    result.pending_sha256,
+    "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
+  );
+  assert.deepEqual(result.pending_files, [
+    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+  ]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql":
+      "548169bdec6fe2f66f1065e9263a217355e2de1c8a75904bb98382cb0faccead",
+  });
 });
