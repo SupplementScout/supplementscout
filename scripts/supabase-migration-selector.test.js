@@ -202,7 +202,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-v2 ledger and one pending mapped-scope migration", () => {
+test("production binds its exact post-v3 ledger with no pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -228,16 +228,14 @@ test("production binds its exact post-v2 ledger and one pending mapped-scope mig
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 53);
+  assert.equal(result.ledger_count, 54);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260726130000_add_mapped_scope_reviewed_approval",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 54);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(result.pending_file, contract.pending[0].filename);
-  assert.equal(result.pending_sha256, contract.pending[0].sha256);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
