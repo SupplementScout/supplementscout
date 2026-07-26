@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 57,
+    ledgerCount: 58,
     ledgerFingerprint:
-      "d599f4cbe1071f6333fe01141530737b50315157799c37a0ab7dd6c0453c658c",
+      "331ef63043ed7bf8e2627440ad77f568b5af3b0481d4680f1a5c8980d749ebd6",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -40,8 +40,8 @@ const CONTRACTS = Object.freeze({
         "0c1db39a193c98fb7cd41cfc3b75a03b35ebd59d429fe873e431aadb1aabadf9",
     }),
     pending: Object.freeze([Object.freeze({
-      filename: "20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql",
-      sha256: "75903b43f913c246e36852e4a6b93e2b4807c1c3405164541eee9357c8c840d6",
+      filename: "20260726130000_add_mapped_scope_reviewed_approval.sql",
+      sha256: "0e6a688b33c5f124b34d79ee7b274d11724c933dedcf68b362f1e09748bf0660",
     })]),
   }),
   PRODUCTION: Object.freeze({
@@ -51,9 +51,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 51,
+    ledgerCount: 53,
     ledgerFingerprint:
-      "b9f45bcb9233ae0e8fa5a9154ec8c500df89b39a6d1c078eb59bf0e2ccf74be1",
+      "ceb344521daf26533fc5b5f07ab405590ead6c488a036ca3452a3d6a6679bb3a",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -70,16 +70,10 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260726100000_add_reviewed_mixed_change_approval.sql",
-        sha256: "43a36d100e8a90e06418300c249fbcf3789a8a37a003c6c0028a26c10e523f06",
-      }),
-      Object.freeze({
-        filename: "20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql",
-        sha256: "75903b43f913c246e36852e4a6b93e2b4807c1c3405164541eee9357c8c840d6",
-      }),
-    ]),
+    pending: Object.freeze([Object.freeze({
+      filename: "20260726130000_add_mapped_scope_reviewed_approval.sql",
+      sha256: "0e6a688b33c5f124b34d79ee7b274d11724c933dedcf68b362f1e09748bf0660",
+    })]),
   }),
 });
 

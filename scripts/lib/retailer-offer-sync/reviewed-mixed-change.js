@@ -7,6 +7,7 @@ const { semanticShopifySnapshot, sha256 } = require("../shopify-snapshot-reader"
 const MANIFEST_KIND = "jons-existing-offer-15-change-reviewed-manifest";
 const CONTRACT_KIND = "retailer-reviewed-mixed-change-v1";
 const SCOPED_CONTRACT_KIND = "retailer-reviewed-mixed-change-v2";
+const MAPPED_SCOPE_CONTRACT_KIND = "retailer-reviewed-mapped-scope-v3";
 const SHA256 = /^[0-9a-f]{64}$/;
 const ACTIONS = new Set(["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK", "UPDATE_URL", "UPDATE_PRICE_STOCK_URL"]);
 const EXPECTED_MANIFEST_KEYS = Object.freeze([
@@ -16,6 +17,10 @@ const EXPECTED_MANIFEST_KEYS = Object.freeze([
   "row_count", "immutable_scope_offer_ids", "expected_deltas", "rows",
 ]);
 const EXPECTED_SCOPED_MANIFEST_KEYS = Object.freeze([...EXPECTED_MANIFEST_KEYS, "scoped_source_contract"]);
+const EXPECTED_MAPPED_SCOPE_MANIFEST_KEYS = Object.freeze([
+  ...EXPECTED_MANIFEST_KEYS,
+  "mapped_source_contract",
+]);
 const EXPECTED_SCOPED_SOURCE_KEYS = Object.freeze([
   "schema_version", "reviewed_full_source_fingerprint", "observed_full_source_fingerprint",
   "reviewed_product_count", "reviewed_variant_count", "observed_product_count",
@@ -25,6 +30,21 @@ const EXPECTED_SCOPED_SOURCE_KEYS = Object.freeze([
 const EXPECTED_UNMAPPED_DELTA_KEYS = Object.freeze([
   "added_products", "removed_products", "added_variants", "removed_variants",
 ]);
+const EXPECTED_MAPPED_SOURCE_KEYS = Object.freeze([
+  "schema_version", "baseline_full_source_fingerprint", "baseline_product_count",
+  "baseline_variant_count", "mapped_scope_row_count", "mapped_scope_fingerprint",
+  "allowed_unmapped_collisions", "allowed_unmapped_collisions_hash",
+  "unmapped_drift_policy",
+]);
+const ALLOWED_UNMAPPED_COLLISION_FIELDS = Object.freeze([
+  "external_variant_id", "external_sku", "external_gtin", "url",
+]);
+const EXPECTED_COLLISION_KEYS = Object.freeze([
+  "unmapped_external_product_id", "unmapped_external_variant_id",
+  "mapped_external_product_id", "mapped_external_variant_id", "collision_fields",
+]);
+const UNMAPPED_DRIFT_POLICY =
+  "ALLOW_UNMAPPED_ADD_REMOVE_WITHOUT_NEW_MAPPED_IDENTITY_COLLISIONS";
 const EXPECTED_ROW_KEYS = Object.freeze([
   "offer_id", "mapping_id", "canonical_product_id", "canonical_product",
   "canonical_variant_id", "canonical_variant", "jons_product_id",
@@ -173,6 +193,133 @@ function mappedSourceRows({ snapshot, sourceVariants, records, storeUrl }) {
   });
 }
 
+function unmappedIdentityRows({ snapshot, sourceVariants, records, storeUrl }) {
+  if (!snapshot || !Array.isArray(snapshot.products) || !Array.isArray(sourceVariants)
+      || !Array.isArray(records) || records.length === 0) {
+    throw new Error("unmapped source identity inputs are required");
+  }
+  const rawByVariant = new Map();
+  for (const product of snapshot.products) {
+    for (const variant of product.variants || []) {
+      const key = String(variant.id);
+      if (!key || rawByVariant.has(key)) {
+        throw new Error("source parse anomaly: duplicate Shopify variant identity");
+      }
+      rawByVariant.set(key, variant);
+    }
+  }
+  const mappedVariantIds = new Set(
+    records.map((record) => String(record.mapping.external_variant_id)),
+  );
+  const rows = sourceVariants
+    .filter((source) => !mappedVariantIds.has(String(source.external_variant_id)))
+    .map((source) => {
+      const variantId = String(source.external_variant_id);
+      const raw = rawByVariant.get(variantId);
+      if (!raw) throw new Error("unmapped projected Shopify variant is missing from raw source");
+      return {
+        external_product_id: String(source.external_product_id),
+        external_variant_id: variantId,
+        external_sku: identity(source.external_sku),
+        external_gtin: identity(raw.barcode),
+        url: canonicalVariantUrl(storeUrl, source.product_handle, variantId),
+      };
+    })
+    .sort((left, right) => {
+      const product = compareShopifyIdentity(left.external_product_id, right.external_product_id);
+      return product || compareShopifyIdentity(left.external_variant_id, right.external_variant_id);
+    });
+  if (new Set(rows.map((row) => row.external_variant_id)).size !== rows.length) {
+    throw new Error("unmapped Shopify identity is duplicated");
+  }
+  return rows;
+}
+
+function unmappedCollisionEvidence(unmappedRows, mappedRows) {
+  if (!Array.isArray(unmappedRows) || !Array.isArray(mappedRows)) {
+    throw new Error("mapped collision inputs are required");
+  }
+  const collisions = [];
+  for (const unmapped of unmappedRows) {
+    for (const mapped of mappedRows) {
+      const collisionFields = [
+        unmapped.external_variant_id === mapped.external_variant_id
+          ? "external_variant_id" : null,
+        unmapped.external_sku && unmapped.external_sku === mapped.external_sku
+          ? "external_sku" : null,
+        unmapped.external_gtin && unmapped.external_gtin === mapped.external_gtin
+          ? "external_gtin" : null,
+        unmapped.url === mapped.url ? "url" : null,
+      ].filter(Boolean);
+      if (collisionFields.length > 0) {
+        collisions.push({
+          unmapped_external_product_id: unmapped.external_product_id,
+          unmapped_external_variant_id: unmapped.external_variant_id,
+          mapped_external_product_id: mapped.external_product_id,
+          mapped_external_variant_id: mapped.external_variant_id,
+          collision_fields: collisionFields,
+        });
+      }
+    }
+  }
+  return collisions.sort((left, right) => {
+    const unmapped = compareShopifyIdentity(
+      left.unmapped_external_variant_id,
+      right.unmapped_external_variant_id,
+    );
+    if (unmapped) return unmapped;
+    return compareShopifyIdentity(
+      left.mapped_external_variant_id,
+      right.mapped_external_variant_id,
+    );
+  });
+}
+
+function buildMappedScopeEvidence({ reviewed, snapshot, sourceVariants, records, storeUrl }) {
+  const contract = reviewed.manifest.mapped_source_contract;
+  if (!contract) throw new Error("mapped reviewed source contract is required");
+  const mappedRows = mappedSourceRows({ snapshot, sourceVariants, records, storeUrl });
+  const mappedFingerprint = fingerprint(mappedRows);
+  if (mappedRows.length !== contract.mapped_scope_row_count
+      || mappedFingerprint !== contract.mapped_scope_fingerprint) {
+    throw new Error("mapped reviewed source fingerprint mismatch");
+  }
+  const unmappedRows = unmappedIdentityRows({
+    snapshot,
+    sourceVariants,
+    records,
+    storeUrl,
+  });
+  const collisions = unmappedCollisionEvidence(unmappedRows, mappedRows);
+  const allowed = new Set(
+    contract.allowed_unmapped_collisions.map((row) => JSON.stringify(row)),
+  );
+  if (collisions.some((row) => !allowed.has(JSON.stringify(row)))) {
+    throw new Error("new unmapped source identity collides with mapped Shopify identity");
+  }
+  const fullFingerprint = sha256(semanticShopifySnapshot(snapshot));
+  const productCount = snapshot.products.length;
+  const variantCount = snapshot.products.reduce(
+    (count, product) => count + (product.variants || []).length,
+    0,
+  );
+  return Object.freeze({
+    full_source_fingerprint: fullFingerprint,
+    observed_product_count: productCount,
+    observed_variant_count: variantCount,
+    mapped_scope_fingerprint: mappedFingerprint,
+    mapped_scope_row_count: mappedRows.length,
+    unmapped_identity_rows: unmappedRows,
+    unmapped_identity_rows_hash: fingerprint(unmappedRows),
+    unmapped_identity_row_count: unmappedRows.length,
+    unmapped_collisions: collisions,
+    unmapped_collisions_hash: fingerprint(collisions),
+    allowed_unmapped_collisions_hash: contract.allowed_unmapped_collisions_hash,
+    unmapped_drift_policy: contract.unmapped_drift_policy,
+    collision_checks: "PASS",
+  });
+}
+
 function validateDeltaEntry(entry, kind) {
   if (!entry || typeof entry !== "object" || Array.isArray(entry)
       || !/^\d+$/.test(String(entry.product_id || ""))) {
@@ -318,7 +465,8 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
   if (actualSha256 !== requiredSha256) throw new Error("reviewed manifest SHA-256 mismatch");
   const manifest = JSON.parse(bytes.toString("utf8"));
   const scoped = exactKeys(manifest, EXPECTED_SCOPED_MANIFEST_KEYS);
-  if (!(exactKeys(manifest, EXPECTED_MANIFEST_KEYS) || scoped)
+  const mapped = exactKeys(manifest, EXPECTED_MAPPED_SCOPE_MANIFEST_KEYS);
+  if (!(exactKeys(manifest, EXPECTED_MANIFEST_KEYS) || scoped || mapped)
       || manifest.schema_version !== 1
       || manifest.kind !== MANIFEST_KIND
       || manifest.target_environment !== "PRODUCTION"
@@ -353,6 +501,30 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
       throw new Error("scoped reviewed source contract mismatch");
     }
   }
+  if (mapped) {
+    const contract = manifest.mapped_source_contract;
+    const collisions = contract?.allowed_unmapped_collisions;
+    if (!exactKeys(contract, EXPECTED_MAPPED_SOURCE_KEYS)
+        || contract.schema_version !== 1
+        || ![contract.baseline_full_source_fingerprint,
+          contract.mapped_scope_fingerprint,
+          contract.allowed_unmapped_collisions_hash].every((value) => SHA256.test(value))
+        || !Number.isInteger(contract.baseline_product_count)
+        || !Number.isInteger(contract.baseline_variant_count)
+        || !Number.isInteger(contract.mapped_scope_row_count)
+        || contract.mapped_scope_row_count !== 506
+        || !Array.isArray(collisions)
+        || collisions.some((row) =>
+          !exactKeys(row, EXPECTED_COLLISION_KEYS)
+          || !Array.isArray(row.collision_fields)
+          || row.collision_fields.length === 0
+          || row.collision_fields.some((field) =>
+            !ALLOWED_UNMAPPED_COLLISION_FIELDS.includes(field)))
+        || fingerprint(collisions) !== contract.allowed_unmapped_collisions_hash
+        || contract.unmapped_drift_policy !== UNMAPPED_DRIFT_POLICY) {
+      throw new Error("mapped reviewed source contract mismatch");
+    }
+  }
   const reviewedRows = stableReviewedRows(manifest);
   if (new Set(reviewedRows.map((row) => row.external_variant_id)).size !== reviewedRows.length) {
     throw new Error("reviewed manifest has duplicate Shopify variant identity");
@@ -364,6 +536,7 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
     reviewed_rows: reviewedRows,
     reviewed_scope_hash: fingerprint(reviewedRows),
     scoped,
+    mapped,
   });
 }
 
@@ -429,12 +602,17 @@ function reviewedExecutionPreconditions(artifact) {
 }
 
 function buildReviewedMixedChangeContract({
-  reviewed, artifact, targetEnvironment, expiresAt, scopedSourceEvidence = null,
+  reviewed,
+  artifact,
+  targetEnvironment,
+  expiresAt,
+  scopedSourceEvidence = null,
+  mappedSourceEvidence = null,
 }) {
   if (!["STAGING", "PRODUCTION"].includes(targetEnvironment)
       || artifact.target_environment !== targetEnvironment
       || artifact.retailer_id !== reviewed.manifest.retailer_id
-      || (!reviewed.scoped
+      || (!reviewed.scoped && !reviewed.mapped
         && artifact.source_snapshot_fingerprint !== reviewed.manifest.source_capture_sha256)
       || artifact.rows.length !== reviewed.manifest.row_count
       || JSON.stringify(artifactReviewedRows(artifact)) !== JSON.stringify(reviewed.reviewed_rows)
@@ -464,7 +642,49 @@ function buildReviewedMixedChangeContract({
     expires_at: expiresAt,
     artifact_fingerprint: artifact.artifact_fingerprint,
   };
-  if (reviewed.scoped) {
+  if (reviewed.mapped) {
+    const definition = reviewed.manifest.mapped_source_contract;
+    if (!mappedSourceEvidence
+        || mappedSourceEvidence.full_source_fingerprint
+          !== artifact.source_snapshot_fingerprint
+        || mappedSourceEvidence.mapped_scope_fingerprint
+          !== definition.mapped_scope_fingerprint
+        || mappedSourceEvidence.mapped_scope_row_count
+          !== definition.mapped_scope_row_count
+        || mappedSourceEvidence.allowed_unmapped_collisions_hash
+          !== definition.allowed_unmapped_collisions_hash
+        || mappedSourceEvidence.unmapped_drift_policy
+          !== definition.unmapped_drift_policy
+        || mappedSourceEvidence.collision_checks !== "PASS") {
+      throw new Error("mapped source evidence differs from reviewed mixed-change manifest");
+    }
+    const executionPreconditions = reviewedExecutionPreconditions(artifact);
+    const reviewedChangeScope = {
+      reviewed_rows: reviewed.reviewed_rows,
+      execution_preconditions: executionPreconditions,
+      expected_deltas: expectedArtifactDeltas(reviewed.manifest),
+    };
+    Object.assign(core, {
+      schema_version: 3,
+      kind: MAPPED_SCOPE_CONTRACT_KIND,
+      full_source_fingerprint: mappedSourceEvidence.full_source_fingerprint,
+      observed_product_count: mappedSourceEvidence.observed_product_count,
+      observed_variant_count: mappedSourceEvidence.observed_variant_count,
+      mapped_scope_fingerprint: mappedSourceEvidence.mapped_scope_fingerprint,
+      mapped_scope_row_count: mappedSourceEvidence.mapped_scope_row_count,
+      unmapped_identity_rows: mappedSourceEvidence.unmapped_identity_rows,
+      unmapped_identity_rows_hash: mappedSourceEvidence.unmapped_identity_rows_hash,
+      unmapped_identity_row_count: mappedSourceEvidence.unmapped_identity_row_count,
+      unmapped_collisions: mappedSourceEvidence.unmapped_collisions,
+      unmapped_collisions_hash: mappedSourceEvidence.unmapped_collisions_hash,
+      allowed_unmapped_collisions_hash:
+        mappedSourceEvidence.allowed_unmapped_collisions_hash,
+      unmapped_drift_policy: mappedSourceEvidence.unmapped_drift_policy,
+      collision_checks: mappedSourceEvidence.collision_checks,
+      reviewed_change_scope_hash: fingerprint(reviewedChangeScope),
+      execution_preconditions: executionPreconditions,
+    });
+  } else if (reviewed.scoped) {
     if (!scopedSourceEvidence
         || scopedSourceEvidence.full_source_fingerprint !== artifact.source_snapshot_fingerprint
         || scopedSourceEvidence.mapped_scope_fingerprint
@@ -502,10 +722,12 @@ function bindReviewedMixedChangeContract(request, contract) {
 
 module.exports = {
   CONTRACT_KIND,
+  MAPPED_SCOPE_CONTRACT_KIND,
   SCOPED_CONTRACT_KIND,
   EXPECTED_DELTAS,
   artifactReviewedRows,
   bindReviewedMixedChangeContract,
+  buildMappedScopeEvidence,
   buildScopedSourceEvidence,
   buildReviewedMixedChangeContract,
   expectedArtifactDeltas,
@@ -514,4 +736,6 @@ module.exports = {
   reverseUnmappedSourceDelta,
   reviewedExecutionPreconditions,
   stableReviewedRows,
+  unmappedCollisionEvidence,
+  unmappedIdentityRows,
 };

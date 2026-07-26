@@ -74,10 +74,10 @@ test.after(() => {
 
 test("staging happy path binds the exact ledger and one pending migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 57);
+  assert.equal(result.ledger_count, 58);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260726120000_add_scoped_reviewed_mixed_change_fingerprints"]);
-  assert.equal(result.selected_files.length, 58);
+  assert.deepEqual(result.pending, ["20260726130000_add_mapped_scope_reviewed_approval"]);
+  assert.equal(result.selected_files.length, 59);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -188,7 +188,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 58);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 59);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -202,7 +202,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact pre-reviewed ledger and ordered v1 then v2 pending sequence", () => {
+test("production binds its exact post-v2 ledger and one pending mapped-scope migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -228,17 +228,16 @@ test("production binds its exact pre-reviewed ledger and ordered v1 then v2 pend
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 51);
+  assert.equal(result.ledger_count, 53);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, [
-    "20260726100000_add_reviewed_mixed_change_approval",
-    "20260726120000_add_scoped_reviewed_mixed_change_fingerprints",
+    "20260726130000_add_mapped_scope_reviewed_approval",
   ]);
-  assert.equal(result.selected_files.length, 53);
+  assert.equal(result.selected_files.length, 54);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 2);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(result.pending_file, contract.pending[0].filename);
+  assert.equal(result.pending_sha256, contract.pending[0].sha256);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

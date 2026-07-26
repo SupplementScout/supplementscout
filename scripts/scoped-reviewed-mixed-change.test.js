@@ -21,6 +21,14 @@ const rollback = fs.readFileSync(
   path.resolve("supabase/rollbacks/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql"),
   "utf8",
 );
+const mappedMigration = fs.readFileSync(
+  path.resolve("supabase/migrations/20260726130000_add_mapped_scope_reviewed_approval.sql"),
+  "utf8",
+);
+const mappedRollback = fs.readFileSync(
+  path.resolve("supabase/rollbacks/20260726130000_add_mapped_scope_reviewed_approval.sql"),
+  "utf8",
+);
 
 function artifact(reviewed, overrides = {}) {
   const rows = reviewed.reviewed_rows.map((row, index) => ({
@@ -152,4 +160,44 @@ test("new migration is additive, v1-compatible and has no business writes or gua
   );
   assert.doesNotMatch(migration, /mass_oos_block_count|maximum_new_oos_count|shipping policy/i);
   assert.match(rollback, /rollback is forbidden after any scoped reviewed approval binding/);
+});
+
+test("mapped-scope v3 migration preserves v1/v2 and changes no business policy or rows", () => {
+  assert.match(mappedMigration, /retailer-reviewed-mapped-scope-v3/);
+  assert.match(
+    mappedMigration,
+    /retailer_offer_sync_validate_reviewed_mixed_change_contract_v2/,
+  );
+  assert.match(
+    mappedMigration,
+    /return public\.retailer_offer_sync_validate_reviewed_mixed_change_contract_v2/,
+  );
+  assert.match(mappedMigration, /unmapped_identity_rows_hash/);
+  assert.match(mappedMigration, /allowed_unmapped_collisions_hash/);
+  assert.match(
+    mappedMigration,
+    /ALLOW_UNMAPPED_ADD_REMOVE_WITHOUT_NEW_MAPPED_IDENTITY_COLLISIONS/,
+  );
+  assert.match(mappedMigration, /New unmapped identity collision is not authorized/);
+  assert.doesNotMatch(
+    mappedMigration,
+    /mapping\.external_product_id=unmapped\.value->>'external_product_id'/,
+  );
+  assert.match(mappedMigration, /already installed; rerun rejected/);
+  assert.doesNotMatch(
+    mappedMigration,
+    /(?:insert into|update|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
+  );
+  assert.doesNotMatch(
+    mappedMigration,
+    /mass_oos_block_count|maximum_new_oos_count|shipping policy/i,
+  );
+  assert.match(
+    mappedRollback,
+    /rollback is forbidden after any v3 reviewed definition/,
+  );
+  assert.doesNotMatch(
+    mappedRollback,
+    /(?:insert into|update|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
+  );
 });

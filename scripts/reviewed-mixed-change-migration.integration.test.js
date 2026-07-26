@@ -15,6 +15,8 @@ const MIGRATION = "supabase/migrations/20260726100000_add_reviewed_mixed_change_
 const ROLLBACK = "supabase/rollbacks/20260726100000_add_reviewed_mixed_change_approval.sql";
 const SCOPED_MIGRATION = "supabase/migrations/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql";
 const SCOPED_ROLLBACK = "supabase/rollbacks/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql";
+const MAPPED_SCOPE_MIGRATION =
+  "supabase/migrations/20260726130000_add_mapped_scope_reviewed_approval.sql";
 const IMAGE = "postgres:17-alpine";
 
 function run(command, args, options = {}) {
@@ -294,6 +296,91 @@ function scopedReviewedFixture() {
     },
   });
   return { artifact, contract, expiresAt };
+}
+
+function mappedReviewedFixture() {
+  const base = reviewedFixture();
+  const loaded = loadReviewedMixedChangeManifest(
+    path.join(ROOT, "tmp/jons-15-review/jons-15-reviewed-manifest-scoped-8c08e919.json"),
+    "2b14b0d7b09ab70f41aacb1907bd1718d605cab9fcde0246dc7b7a7f167718c2",
+  );
+  const mappedSourceContract = {
+    schema_version: 1,
+    baseline_full_source_fingerprint: "8".repeat(64),
+    baseline_product_count: 226,
+    baseline_variant_count: 848,
+    mapped_scope_row_count: 506,
+    mapped_scope_fingerprint: "7".repeat(64),
+    allowed_unmapped_collisions: [],
+    allowed_unmapped_collisions_hash: fingerprint([]),
+    unmapped_drift_policy:
+      "ALLOW_UNMAPPED_ADD_REMOVE_WITHOUT_NEW_MAPPED_IDENTITY_COLLISIONS",
+  };
+  const reviewed = {
+    sha256: "3".repeat(64),
+    manifest: {
+      ...loaded.manifest,
+      mapped_source_contract: mappedSourceContract,
+    },
+    reviewed_rows: loaded.reviewed_rows,
+    reviewed_scope_hash: loaded.reviewed_scope_hash,
+    scoped: false,
+    mapped: true,
+  };
+  delete reviewed.manifest.scoped_source_contract;
+  const rows = base.artifact.rows.map((row) => ({
+    ...row,
+    atomic_plan: {
+      ...row.atomic_plan,
+      expected_state: {
+        retailer_product: { updated_at: "2026-07-26T08:00:00.000000Z" },
+        offer: {
+          ...row.atomic_plan.expected_state.offer,
+          last_checked_at: "2026-07-26T08:00:00.000000Z",
+        },
+      },
+    },
+  }));
+  const fullSourceFingerprint = "9".repeat(64);
+  const core = {
+    ...base.artifact,
+    source_snapshot_fingerprint: fullSourceFingerprint,
+    rows,
+  };
+  delete core.artifact_fingerprint;
+  const artifact = { ...core, artifact_fingerprint: fingerprint(core) };
+  const unmappedIdentityRows = [{
+    external_product_id: "900",
+    external_variant_id: "901",
+    external_sku: "UNMAPPED-901",
+    external_gtin: null,
+    url: "https://jonssupplements.co.uk/products/unmapped?variant=901",
+  }];
+  const mappedSourceEvidence = {
+    full_source_fingerprint: fullSourceFingerprint,
+    observed_product_count: 300,
+    observed_variant_count: 507,
+    mapped_scope_fingerprint: mappedSourceContract.mapped_scope_fingerprint,
+    mapped_scope_row_count: 506,
+    unmapped_identity_rows: unmappedIdentityRows,
+    unmapped_identity_rows_hash: fingerprint(unmappedIdentityRows),
+    unmapped_identity_row_count: unmappedIdentityRows.length,
+    unmapped_collisions: [],
+    unmapped_collisions_hash: fingerprint([]),
+    allowed_unmapped_collisions_hash:
+      mappedSourceContract.allowed_unmapped_collisions_hash,
+    unmapped_drift_policy: mappedSourceContract.unmapped_drift_policy,
+    collision_checks: "PASS",
+  };
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const contract = buildReviewedMixedChangeContract({
+    reviewed,
+    artifact,
+    targetEnvironment: "PRODUCTION",
+    expiresAt,
+    mappedSourceEvidence,
+  });
+  return { artifact, contract, expiresAt, reviewed, mappedSourceEvidence };
 }
 
 function registrationFixture(fixture) {
@@ -607,6 +694,142 @@ test("scoped reviewed migration preserves v1, validates v2 and rejects collision
     const rollbackBlocked = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${SCOPED_ROLLBACK}`]);
     assert.notEqual(rollbackBlocked.status, 0);
     assert.match(output(rollbackBlocked), /rollback is forbidden after any scoped reviewed approval binding/);
+  } finally {
+    run("docker", ["rm", "-f", container], { timeout: 30_000 });
+  }
+});
+
+test("mapped-scope migration preserves v1/v2, permits unrelated unmapped drift and rejects new collisions", { skip: !dockerAvailable() && "Docker unavailable" }, () => {
+  const container = `reviewed-mapped-${crypto.randomBytes(5).toString("hex")}`;
+  try {
+    ok(run("docker", ["run", "--detach", "--rm", "--name", container, "--network", "none", "-e", "POSTGRES_HOST_AUTH_METHOD=trust", "-v", `${ROOT}:/workspace:ro`, IMAGE]), "start");
+    wait(container);
+    ok(sql(container, setupSql()), "setup");
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MIGRATION}`]), "base migration");
+    ok(sql(container, `
+      alter table public.retailers add column website text;
+      update public.retailers set website='https://jonssupplements.co.uk' where id=10;
+      alter table public.retailer_products
+        add column external_sku text,
+        add column external_gtin text,
+        add column external_url text;
+    `), "mapped prerequisite fixture");
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${SCOPED_MIGRATION}`]), "scoped prerequisite migration");
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MAPPED_SCOPE_MIGRATION}`]), "mapped-scope migration");
+
+    const fixture = mappedReviewedFixture();
+    ok(sql(container, `
+      insert into public.retailer_offer_sync_reviewed_mixed_change_definitions(
+        authorization_id,target_environment,retailer_id,reviewed_manifest_sha256,
+        reviewed_source_fingerprint,reviewed_scope_hash,row_count,expected_deltas,
+        authorized_by,contract_version,mapped_scope_fingerprint,
+        allowed_unmapped_collisions,allowed_unmapped_collisions_hash,
+        unmapped_drift_policy
+      ) values(
+        '${fixture.contract.authorization_id}','PRODUCTION',10,
+        '${fixture.contract.reviewed_manifest_sha256}',
+        '${fixture.contract.reviewed_source_fingerprint}',
+        '${fixture.contract.reviewed_scope_hash}',15,
+        ${literal(fixture.contract.expected_deltas)},
+        'mapped-scope-integration-test',3,
+        '${fixture.contract.mapped_scope_fingerprint}',
+        '[]'::jsonb,'${fingerprint([])}',
+        'ALLOW_UNMAPPED_ADD_REMOVE_WITHOUT_NEW_MAPPED_IDENTITY_COLLISIONS'
+      );
+    `), "mapped definition");
+    const catalogueSql = fixture.artifact.rows.map((row, index) => {
+      const productId = 5000 + index;
+      const variantId = 6000 + index;
+      return `
+insert into public.products values(${productId},true,null);
+insert into public.product_variants values(${variantId},${productId},true);
+insert into public.retailer_products(
+  id,retailer_id,product_id,product_variant_id,external_product_id,
+  external_variant_id,external_sku,external_gtin,external_url
+) values(
+  ${row.retailer_product_id},10,${productId},${variantId},
+  '${row.external_product_id}','${row.external_variant_id}',
+  'MAPPED-${index}',null,'${row.atomic_plan.offer.values.url}'
+);
+insert into public.offers values(
+  ${row.offer_id},10,${productId},${variantId},${row.retailer_product_id}
+);`;
+    }).join("\n");
+    ok(sql(container, catalogueSql), "mapped catalogue fixture");
+
+    const exact = ok(sql(container, `
+      select public.retailer_offer_sync_validate_reviewed_mixed_change_contract(
+        ${literal(fixture.artifact)},${literal(fixture.contract)},'${fixture.expiresAt}'::timestamptz);
+    `), "mapped exact contract");
+    assert.match(exact.stdout, /"contract_version": 3/);
+    assert.match(exact.stdout, /"collision_checks": "PASS"/);
+
+    const unrelatedArtifact = structuredClone(fixture.artifact);
+    unrelatedArtifact.source_snapshot_fingerprint = "6".repeat(64);
+    delete unrelatedArtifact.artifact_fingerprint;
+    unrelatedArtifact.artifact_fingerprint = fingerprint(unrelatedArtifact);
+    const unrelated = structuredClone(fixture.contract);
+    unrelated.full_source_fingerprint = unrelatedArtifact.source_snapshot_fingerprint;
+    unrelated.artifact_fingerprint = unrelatedArtifact.artifact_fingerprint;
+    unrelated.observed_variant_count += 1;
+    unrelated.unmapped_identity_rows.push({
+      external_product_id: fixture.artifact.rows[0].external_product_id,
+      external_variant_id: "903",
+      external_sku: "UNMAPPED-903",
+      external_gtin: null,
+      url: "https://jonssupplements.co.uk/products/unmapped-2?variant=903",
+    });
+    unrelated.unmapped_identity_row_count += 1;
+    unrelated.unmapped_identity_rows_hash = fingerprint(unrelated.unmapped_identity_rows);
+    delete unrelated.reviewed_contract_hash;
+    unrelated.reviewed_contract_hash = fingerprint(unrelated);
+    const unrelatedResult = ok(sql(container, `
+      select public.retailer_offer_sync_validate_reviewed_mixed_change_contract(
+        ${literal(unrelatedArtifact)},${literal(unrelated)},'${fixture.expiresAt}'::timestamptz);
+    `), "unrelated unmapped addition");
+    assert.match(unrelatedResult.stdout, /"contract_version": 3/);
+
+    const collision = structuredClone(unrelated);
+    collision.unmapped_identity_rows[1].external_sku = "MAPPED-0";
+    collision.unmapped_identity_rows_hash = fingerprint(collision.unmapped_identity_rows);
+    collision.unmapped_collisions = [{
+      unmapped_external_product_id: fixture.artifact.rows[0].external_product_id,
+      unmapped_external_variant_id: "903",
+      mapped_external_product_id: fixture.artifact.rows[0].external_product_id,
+      mapped_external_variant_id: fixture.artifact.rows[0].external_variant_id,
+      collision_fields: ["external_sku"],
+    }];
+    collision.unmapped_collisions_hash = fingerprint(collision.unmapped_collisions);
+    delete collision.reviewed_contract_hash;
+    collision.reviewed_contract_hash = fingerprint(collision);
+    const collisionBlocked = sql(container, `
+      select public.retailer_offer_sync_validate_reviewed_mixed_change_contract(
+        ${literal(unrelatedArtifact)},${literal(collision)},'${fixture.expiresAt}'::timestamptz);
+    `);
+    assert.notEqual(collisionBlocked.status, 0);
+    assert.match(output(collisionBlocked), /RSBI_DUPLICATE_IDENTITY/);
+
+    const v1 = reviewedFixture();
+    const v1Result = ok(sql(container, `
+      select public.retailer_offer_sync_validate_reviewed_mixed_change_contract(
+        ${literal(v1.artifact)},${literal(v1.contract)},'${v1.expiresAt}'::timestamptz);
+    `), "v1 preserved after v3");
+    assert.match(v1Result.stdout, /"valid": true/);
+
+    const beforeRerun = ok(sql(container, `
+      select count(*)||':'||(select count(*) from pg_proc
+        where proname like '%reviewed_mixed_change%')
+      from public.retailer_offer_sync_reviewed_mixed_change_definitions;
+    `), "mapped pre-rerun");
+    const rerun = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MAPPED_SCOPE_MIGRATION}`]);
+    assert.notEqual(rerun.status, 0);
+    assert.match(output(rerun), /already installed; rerun rejected/);
+    const afterRerun = ok(sql(container, `
+      select count(*)||':'||(select count(*) from pg_proc
+        where proname like '%reviewed_mixed_change%')
+      from public.retailer_offer_sync_reviewed_mixed_change_definitions;
+    `), "mapped post-rerun");
+    assert.equal(afterRerun.stdout.trim(), beforeRerun.stdout.trim());
   } finally {
     run("docker", ["rm", "-f", container], { timeout: 30_000 });
   }

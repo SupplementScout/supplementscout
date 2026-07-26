@@ -9,7 +9,7 @@ const {classifyExistingOffers}=require("./lib/retailer-offer-sync/classifier");
 const {sealArtifact}=require("./lib/retailer-offer-sync/artifacts");
 const {buildVerifiedNoChangePlan}=require("./verified-no-change-offer-refresh");
 const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing-offer-plan");
-const {bindReviewedMixedChangeContract,buildReviewedMixedChangeContract,buildScopedSourceEvidence,loadReviewedMixedChangeManifest}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
+const {bindReviewedMixedChangeContract,buildMappedScopeEvidence,buildReviewedMixedChangeContract,buildScopedSourceEvidence,loadReviewedMixedChangeManifest}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
 const {migrationBinding}=require("./lib/environment-migrations");
 const {canonicalJson}=require("./lib/canonical-json");
 const config=require("../config/retailers/jons-supplements-offer-sync.json");
@@ -123,8 +123,15 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   invariant(new Set(sourceVariants.map(row=>String(row.external_variant_id))).size===sourceVariants.length,"duplicate source identity");
   const duplicateSku=new Map();for(const row of sourceVariants)if(row.external_sku)duplicateSku.set(row.external_sku,(duplicateSku.get(row.external_sku)||0)+1);
   const targets=state.records.map(targetFor),targetByVariant=new Map(targets.map(row=>[row.external_variant_id,row]));for(const row of sourceVariants){const targetRow=targetByVariant.get(String(row.external_variant_id));if(targetRow&&targetRow.external_sku===null&&row.external_sku&&duplicateSku.get(row.external_sku)>1)row.external_sku=null}
-  let scopedSourceEvidence=null;
-  if(reviewed?.scoped){
+  let scopedSourceEvidence=null,mappedSourceEvidence=null;
+  if(reviewed?.mapped){
+    try{
+      mappedSourceEvidence=buildMappedScopeEvidence({reviewed,snapshot,sourceVariants,records:state.records,storeUrl:config.store_url});
+      if(diagnostic)diagnostic.mapped_source_evidence={full_source_fingerprint:mappedSourceEvidence.full_source_fingerprint,observed_product_count:mappedSourceEvidence.observed_product_count,observed_variant_count:mappedSourceEvidence.observed_variant_count,mapped_scope_fingerprint:mappedSourceEvidence.mapped_scope_fingerprint,mapped_scope_row_count:mappedSourceEvidence.mapped_scope_row_count,unmapped_identity_row_count:mappedSourceEvidence.unmapped_identity_row_count,unmapped_identity_rows_hash:mappedSourceEvidence.unmapped_identity_rows_hash,unmapped_collisions:mappedSourceEvidence.unmapped_collisions,unmapped_collisions_hash:mappedSourceEvidence.unmapped_collisions_hash,allowed_unmapped_collisions_hash:mappedSourceEvidence.allowed_unmapped_collisions_hash,unmapped_drift_policy:mappedSourceEvidence.unmapped_drift_policy,collision_checks:mappedSourceEvidence.collision_checks};
+    }catch(error){
+      throw new RefreshError("REVIEWED_MANIFEST_DRIFT",error.message,"REVIEWED_CONTRACT",{reviewed_manifest_sha256:reviewed.sha256,reviewed_mapped_scope_fingerprint:reviewed.manifest.mapped_source_contract.mapped_scope_fingerprint,live_source_fingerprint:snapshot.semantic_source_fingerprint});
+    }
+  }else if(reviewed?.scoped){
     try{
       scopedSourceEvidence=buildScopedSourceEvidence({reviewed,snapshot,sourceVariants,records:state.records,storeUrl:config.store_url});
       if(diagnostic)diagnostic.scoped_source_evidence={full_source_fingerprint:scopedSourceEvidence.full_source_fingerprint,reviewed_full_source_fingerprint:scopedSourceEvidence.reviewed_full_source_fingerprint,mapped_scope_fingerprint:scopedSourceEvidence.mapped_scope_fingerprint,mapped_scope_row_count:scopedSourceEvidence.mapped_scope_row_count,unmapped_source_delta_hash:scopedSourceEvidence.unmapped_source_delta_hash,unmapped_source_delta:scopedSourceEvidence.unmapped_source_delta,collision_checks:scopedSourceEvidence.collision_checks};
@@ -146,7 +153,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
     const expected=reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
     if(classification.reason!=="MASS_OOS"
        || classification.rows.length!==506
-       || (!reviewed.scoped&&snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256)
+       || (!reviewed.scoped&&!reviewed.mapped&&snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256)
        || JSON.stringify(stable)!==JSON.stringify(expected)){
       throw new RefreshError("REVIEWED_MANIFEST_DRIFT","live Jon's source/state differs from reviewed mixed-change manifest","REVIEWED_CONTRACT",{classifier_reason:classification.reason||null,reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint,reviewed_scope:expected,live_scope:stable});
     }
@@ -162,8 +169,8 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   const discovery={new_variants:[...sourceIds].filter(id=>!mappedIds.has(id)),missing_variants:[...mappedIds].filter(id=>!sourceIds.has(id))};
   if(diagnostic){diagnostic.mappings_matched=manifest.length-discovery.missing_variants.length;diagnostic.mappings_missing=discovery.missing_variants.length;diagnostic.guard_results.push({guard:"APPROVED_MAPPING_COVERAGE",result:discovery.missing_variants.length===0?"PASS":"BLOCK",expected:manifest.length,matched:diagnostic.mappings_matched,missing:discovery.missing_variants.length})}
   const reviewedExpiresAt=reviewed?new Date(Date.now()+14*60000).toISOString():null;
-  const reviewedContract=reviewed?buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt,scopedSourceEvidence}):null;
-  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash(manifest),binding,head,discovery,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence};
+  const reviewedContract=reviewed?buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt,scopedSourceEvidence,mappedSourceEvidence}):null;
+  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash(manifest),binding,head,discovery,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence,mappedSourceEvidence};
 }
 
 async function roleCall(target,kind,readOnly,body){const spec=TARGETS[target],client=new Client({connectionString:roleCredential(target,kind),ssl:{rejectUnauthorized:false},application_name:`jons-offer-refresh-${kind}`,options:"-c statement_timeout=120000"});await client.connect();try{await client.query(readOnly?"begin read only":"begin");await client.query(`select set_config('app.safe_update','false',true),set_config('app.retailer_catalogue_${target}_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)`);await client.query(`set role retailer_catalogue_${target}_${kind}`);const who=(await client.query("select current_user,session_user,current_setting('transaction_read_only') ro")).rows[0];invariant(who.current_user===`retailer_catalogue_${target}_${kind}`,`${kind} role mismatch`);if(readOnly)invariant(who.ro==="on",`${kind} transaction is not read-only`);const result=await body(client,spec);await client.query(readOnly?"rollback":"commit");return{result,identity:who}}catch(error){try{await client.query("rollback")}catch{}throw error}finally{await client.end()}}
