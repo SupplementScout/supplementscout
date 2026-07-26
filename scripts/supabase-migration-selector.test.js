@@ -131,17 +131,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production post-closeout contract selects only Fit House registration", () => {
+test("production post-registration contract has no pending migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(contract.pending.length, 1);
-  assert.equal(
-    contract.pending[0].filename,
-    "20260726170000_add_fit_house_offer_sync_registration.sql",
-  );
-  assert.equal(contract.ledgerCount, 57);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 58);
   assert.equal(
     contract.ledgerFingerprint,
-    "ff3a4fb43781bb3ac468382e0dac47fa1d37045225b9483dae84d96fcda29014",
+    "9d0140bee19c1ee4542c59a2e8b12ee935ee0168453879ba23643752ec2977f4",
   );
 });
 
@@ -218,7 +214,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-Fit-House ledger and one registration pending", () => {
+test("production binds its exact post-registration ledger with no pending migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -244,22 +240,14 @@ test("production binds its exact post-Fit-House ledger and one registration pend
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 57);
+  assert.equal(result.ledger_count, 58);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260726170000_add_fit_house_offer_sync_registration",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 58);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(
-    result.pending_file,
-    "20260726170000_add_fit_house_offer_sync_registration.sql",
-  );
-  assert.equal(
-    result.pending_sha256,
-    "214ace99e775f443692a19410a3b6e19e076472371f070cd10dd5bbaa0c9554a",
-  );
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
