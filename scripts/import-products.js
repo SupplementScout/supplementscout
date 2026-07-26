@@ -2400,9 +2400,9 @@ async function validateLegacyMappingUpgrade({
   }
   if (
     (controls.standalone || controls.optioned) &&
-    String(retailer.slug || "").trim() !== "whey-okay"
+    !new Set(["whey-okay", "fit-house"]).has(String(retailer.slug || "").trim())
   ) {
-    throw new Error("legacy mapping upgrade extension is limited to Whey Okay");
+    throw new Error("legacy mapping upgrade extension is limited to reviewed retailers");
   }
   if (mapping.retailer_id !== retailer.id || mapping.product_id !== product.id) {
     throw new Error("legacy mapping upgrade mapping ownership mismatch");
@@ -2457,7 +2457,20 @@ async function validateLegacyMappingUpgrade({
   }
 
   const after = legacyIdentityAfter(row, controls);
-  if (!after.external_product_id || !after.external_variant_id || !after.external_sku) {
+  const reviewedFitHouseNoSkuIdentity =
+    controls.optioned &&
+    String(retailer.slug || "").trim() === "fit-house" &&
+    !after.external_sku &&
+    !mapping.external_sku &&
+    SHOPIFY_NUMERIC_ID_PATTERN.test(String(after.external_product_id || "")) &&
+    SHOPIFY_NUMERIC_ID_PATTERN.test(String(after.external_variant_id || "")) &&
+    after.external_product_id !== after.external_variant_id &&
+    isLikelyShopifyVariantUrl(row, after.external_variant_id);
+  if (
+    !after.external_product_id ||
+    !after.external_variant_id ||
+    (!after.external_sku && !reviewedFitHouseNoSkuIdentity)
+  ) {
     throw new Error("legacy mapping upgrade requires complete external identity evidence");
   }
   const alreadyCompleted = isCompletedLegacyIdentity(mapping, after);
@@ -2530,6 +2543,7 @@ async function validateLegacyMappingUpgrade({
       external_url: incomingUrl,
       legacy_mapping_standalone: controls.standalone,
       legacy_mapping_optioned: controls.optioned,
+      reviewed_fit_house_no_sku_identity: reviewedFitHouseNoSkuIdentity,
       legacy_standalone_sellable_count: controls.standalone
         ? String(row.legacy_standalone_sellable_count || "").trim()
         : "",

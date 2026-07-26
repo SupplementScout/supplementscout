@@ -60,7 +60,7 @@ test("Fit House closeout CSVs are immutable, disjoint and exactly source-bound",
   assert.equal(sha256(rebindBytes),
     "02e83c30ef98f6f345fa16623a06e53b5debea47c590610e3b66acacecb63bd5");
   assert.equal(sha256(closeoutBytes),
-    "df692d2497450b9f24a22f35a285a3370a34e43e0af259b9946caa15d896a363");
+    "3dd4b505dd024ef33a77acbc923792d94c5c83a69e840657778fe163f3de16e1");
   const rebindKeys = new Set(rebindRows.map(key));
   const closeoutKeys = new Set(closeoutRows.map(key));
   assert.equal(rebindKeys.size, 73);

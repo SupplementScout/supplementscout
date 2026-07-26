@@ -5198,6 +5198,112 @@ test("optioned legacy mapping upgrade accepts flavour-only source option with pa
   assert.equal(supabase.writes.length, 0);
 });
 
+test("optioned legacy mapping upgrade supports exact Fit House controls and rejects other retailers", async () => {
+  const fitHouse = optionedLegacyMappingFixture({
+    rowOverrides: {
+      retailer_name: "Fit House",
+      retailer_website: "https://fithouse.uk",
+    },
+    seedMutate(seed) {
+      Object.assign(seed.retailers[0], {
+        name: "Fit House",
+        slug: "fit-house",
+        website: "https://fithouse.uk",
+      });
+    },
+  });
+  setSupabaseForTests(createMockSupabase(structuredClone(fitHouse.seed)));
+  const approved = await runImportRowsRaw([fitHouse.row], { mode: "feed", dryRun: true });
+  assert.equal(approved.report.approvedRows.length, 1);
+  assert.equal(approved.blockedRows.length, 0);
+
+  const noSkuUrl =
+    "https://fithouse.uk/products/time-4-mass?variant=47200433537264";
+  const noSku = optionedLegacyMappingFixture({
+    rowOverrides: {
+      retailer_name: "Fit House",
+      retailer_website: "https://fithouse.uk",
+      external_product_id: "9347715301616",
+      external_variant_id: "47200433537264",
+      external_sku: "",
+      external_url: noSkuUrl,
+      affiliate_url: noSkuUrl,
+    },
+    seedMutate(seed) {
+      Object.assign(seed.retailers[0], {
+        name: "Fit House",
+        slug: "fit-house",
+        website: "https://fithouse.uk",
+      });
+      seed.retailer_products[0].external_url = noSkuUrl;
+      seed.offers[0].url = noSkuUrl;
+    },
+  });
+  setSupabaseForTests(createMockSupabase(structuredClone(noSku.seed)));
+  const noSkuApproved = await runImportRowsRaw(
+    [noSku.row],
+    { mode: "feed", dryRun: true },
+  );
+  assert.equal(noSkuApproved.report.approvedRows.length, 1);
+  assert.equal(noSkuApproved.blockedRows.length, 0);
+  assert.equal(
+    noSkuApproved.report.approvedRows[0].legacyMappingUpgrade
+      .approvedEvidence.reviewed_fit_house_no_sku_identity,
+    true,
+  );
+
+  const unaddressed = optionedLegacyMappingFixture({
+    rowOverrides: {
+      retailer_name: "Fit House",
+      retailer_website: "https://fithouse.uk",
+      external_product_id: "9347715301616",
+      external_variant_id: "47200433537264",
+      external_sku: "",
+      external_url: "https://fithouse.uk/products/time-4-mass",
+      affiliate_url: "https://fithouse.uk/products/time-4-mass",
+    },
+    seedMutate(seed) {
+      Object.assign(seed.retailers[0], {
+        name: "Fit House",
+        slug: "fit-house",
+        website: "https://fithouse.uk",
+      });
+      seed.retailer_products[0].external_url =
+        "https://fithouse.uk/products/time-4-mass";
+      seed.offers[0].url = "https://fithouse.uk/products/time-4-mass";
+    },
+  });
+  setSupabaseForTests(createMockSupabase(structuredClone(unaddressed.seed)));
+  const unaddressedResult = await runImportRowsRaw(
+    [unaddressed.row],
+    { mode: "feed", dryRun: true },
+  );
+  assert.equal(unaddressedResult.report.approvedRows.length, 0);
+  assert.match(
+    unaddressedResult.blockedRows[0].block_reason,
+    /complete external identity evidence/i,
+  );
+
+  const other = optionedLegacyMappingFixture({
+    rowOverrides: {
+      retailer_name: "Other Retailer",
+      retailer_website: "https://other.example",
+    },
+    seedMutate(seed) {
+      Object.assign(seed.retailers[0], {
+        name: "Other Retailer",
+        slug: "other-retailer",
+        website: "https://other.example",
+      });
+    },
+  });
+  setSupabaseForTests(createMockSupabase(structuredClone(other.seed)));
+  const blocked = await runImportRowsRaw([other.row], { mode: "feed", dryRun: true });
+  assert.equal(blocked.report.approvedRows.length, 0);
+  assert.equal(blocked.blockedRows.length, 1);
+  assert.match(blocked.blockedRows[0].block_reason, /limited to reviewed retailers/i);
+});
+
 test("optioned legacy mapping upgrade fails closed for identity and mutation guards", async () => {
   const scenarios = [
     ["missing optioned flag keeps default/non-default block", ({ row }) => { delete row.legacy_mapping_optioned; }, /cannot use a default variant/i],
