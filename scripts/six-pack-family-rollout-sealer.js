@@ -125,6 +125,30 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
     approvalValue.kind === "six-pack-reviewed-large-family-batch-v7"
       ? 0
       : approvedRows.filter((row) => !row.product_variant_id).length;
+  const resumedIds =
+    approvalValue.kind === "six-pack-reviewed-large-family-batch-v7"
+      ? new Set(["28846", "28849"])
+      : new Set();
+  const planActionsAreApproved = (plan) => {
+    const externalVariantId = String(
+      plan.retailer_product?.values?.external_variant_id || ""
+    );
+    const resumed = resumedIds.has(externalVariantId);
+    return (
+      plan.product?.action === "existing" &&
+      ["existing", "create_variant"].includes(
+        plan.product_variant?.action
+      ) &&
+      plan.retailer?.action === "existing" &&
+      (resumed
+        ? plan.retailer_product?.action === "noop" &&
+          plan.offer?.action === "noop" &&
+          plan.price_history?.action === "noop"
+        : plan.retailer_product?.action === "create" &&
+          plan.offer?.action === "create" &&
+          plan.price_history?.action === "create")
+    );
+  };
   if (
     approvalValue.approved !== true ||
     !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5", "six-pack-reviewed-large-family-batch-v7"].includes(approvalValue.kind) ||
@@ -134,17 +158,7 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
     report.failedRows?.length !== 0 ||
     plans.length !== rows.length ||
     createVariantCount !== expectedVariantCreateCount ||
-    plans.some(
-      (plan) =>
-        plan.product?.action !== "existing" ||
-        !["existing", "create_variant"].includes(
-          plan.product_variant?.action
-        ) ||
-        plan.retailer?.action !== "existing" ||
-        plan.retailer_product?.action !== "create" ||
-        plan.offer?.action !== "create" ||
-        plan.price_history?.action !== "create"
-    )
+    plans.some((plan) => !planActionsAreApproved(plan))
   ) {
     fail("Importer review is not the exact approved family rollout");
   }
@@ -186,6 +200,7 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
       ? {
           approved_scope_row_count: approvedRows.length,
           covered_duplicate_aliases: coveredDuplicateAliases,
+          resumed_external_variant_ids: [...resumedIds].sort(),
         }
       : {}),
     expected_created_variant_count: createVariantCount,

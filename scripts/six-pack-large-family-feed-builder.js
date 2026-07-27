@@ -170,23 +170,17 @@ async function run(options, dependencies = {}) {
   const productBySlug = new Map(
     products.map((product) => [product.slug, product])
   );
-  const mappedIds = new Set(
-    mappings.data.map((row) => String(row.external_variant_id))
+  const mappedByExternalId = new Map(
+    mappings.data.map((row) => [
+      String(row.external_variant_id),
+      row,
+    ])
   );
   const mappedByVariantId = new Map(
     mappings.data
       .filter((row) => row.product_variant_id != null)
       .map((row) => [String(row.product_variant_id), row])
   );
-  const approvedIds = approval.families.flatMap((family) =>
-    family.variants.map((variant) =>
-      String(variant.external_variant_id)
-    )
-  );
-  const overlap = approvedIds.filter((id) => mappedIds.has(id));
-  if (overlap.length > 0) {
-    fail(`Large family scope overlaps existing mappings: ${overlap.join(",")}`);
-  }
   const variantsResult = await db
     .from("product_variants")
     .select(
@@ -213,6 +207,7 @@ async function run(options, dependencies = {}) {
   const liveByProduct = new Map();
   const outputRows = [];
   const coveredDuplicateAliases = [];
+  let resumedMappingCount = 0;
   for (const family of approval.families) {
     const product = family.product_id
       ? productById.get(String(family.product_id))
@@ -255,7 +250,23 @@ async function run(options, dependencies = {}) {
         );
       }
       const mappedPeer = mappedByVariantId.get(String(variant.id));
-      if (mappedPeer) {
+      const existingMapping = mappedByExternalId.get(
+        String(reviewed.external_variant_id)
+      );
+      if (existingMapping) {
+        if (
+          String(existingMapping.external_product_id) !==
+            String(family.external_product_id) ||
+          String(existingMapping.product_id) !== String(product.id) ||
+          String(existingMapping.product_variant_id) !==
+            String(variant.id)
+        ) {
+          fail(
+            `Existing retailer identity drift for ${reviewed.external_variant_id}`
+          );
+        }
+        resumedMappingCount += 1;
+      } else if (mappedPeer) {
         const expectedAlias = COVERED_DUPLICATE_ALIASES.get(
           String(reviewed.external_variant_id)
         );
@@ -291,15 +302,23 @@ async function run(options, dependencies = {}) {
       if (!offer.active || (!offer.in_stock && source.in_stock)) {
         fail(`Unsafe commerce state for ${reviewed.external_variant_id}`);
       }
-      outputRows.push(
-        canonicalFeedRow(
-          source,
-          product,
-          variant,
-          live,
-          new Date().toISOString()
-        )
+      const row = canonicalFeedRow(
+        source,
+        product,
+        variant,
+        live,
+        new Date().toISOString()
       );
+      const externalOptions = { Flavour: reviewed.flavour };
+      if (
+        reviewed.source_flavour &&
+        reviewed.source_flavour !== reviewed.flavour
+      ) {
+        externalOptions["Retailer Flavour"] =
+          reviewed.source_flavour;
+      }
+      row.external_options = JSON.stringify(externalOptions);
+      outputRows.push(row);
     }
   }
   if (
@@ -330,6 +349,7 @@ async function run(options, dependencies = {}) {
     existing_product_count: products.length,
     existing_variant_binding_count: outputRows.length,
     expected_variant_create_count: 0,
+    resumed_mapping_count: resumedMappingCount,
     covered_duplicate_alias_count: coveredDuplicateAliases.length,
     covered_duplicate_aliases: coveredDuplicateAliases,
     live_product_page_count: liveByProduct.size,

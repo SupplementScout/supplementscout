@@ -28,24 +28,29 @@ const V7_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-e
 const V7_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
 
 function reportFromRollout(expected) {
+  const resumedIds = new Set(
+    expected.resumed_external_variant_ids || []
+  );
   return {
     blockedRows: [],
     failedRows: [],
-    plans: expected.expected_bindings.map((binding) => ({
+    plans: expected.expected_bindings.map((binding) => {
+      const resumed = resumedIds.has(binding.external_variant_id);
+      return {
       product: { action: "existing", id: binding.product_id },
       product_variant: binding.created_variant_identity
         ? { action: "create_variant", values: binding.created_variant_identity }
         : { action: "existing", id: binding.product_variant_id },
       retailer: { action: "existing", id: "11" },
       retailer_product: {
-        action: "create",
+        action: resumed ? "noop" : "create",
         values: {
           external_product_id: binding.external_product_id,
           external_variant_id: binding.external_variant_id,
         },
       },
       offer: {
-        action: "create",
+        action: resumed ? "noop" : "create",
         values: {
           price: binding.price,
           shipping_cost: binding.shipping_cost,
@@ -54,8 +59,9 @@ function reportFromRollout(expected) {
           url: binding.external_url,
         },
       },
-      price_history: { action: "create" },
-    })),
+      price_history: { action: resumed ? "noop" : "create" },
+    };
+    }),
   };
 }
 
