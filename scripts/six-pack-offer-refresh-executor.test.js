@@ -32,8 +32,8 @@ function artifact() {
   };
 }
 
-test("executor accepts only the exact approved six-row existing-offer scope", () => {
-  assert.equal(validateArtifactScope(artifact(), manifest).length, 6);
+test("executor accepts only the exact approved existing-offer scope", () => {
+  assert.equal(validateArtifactScope(artifact(), manifest).length, manifest.rows.length);
   const changed = artifact();
   changed.plans[0].resolved_plan.product.id = "999";
   assert.throws(() => validateArtifactScope(changed, manifest), /Unsafe or mismatched/);

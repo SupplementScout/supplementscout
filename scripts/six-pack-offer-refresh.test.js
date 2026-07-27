@@ -55,16 +55,16 @@ function paths() {
   };
 }
 
-test("refresh creates six exact verified-no-change plans for an unchanged live scope", async () => {
+test("refresh creates one exact verified-no-change plan per approved mapping", async () => {
   const source = fixture();
   const output = paths();
   const result = await run(
     { target: "production", artifact: output.artifact, report: output.report, requireNoChange: true },
     { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
   );
-  assert.deepEqual(result.report.action_counts, { VERIFY_NO_CHANGE: 6 });
+  assert.deepEqual(result.report.action_counts, { VERIFY_NO_CHANGE: manifest.rows.length });
   const artifact = loadDryRunArtifact(output.artifact).artifact;
-  assert.equal(artifact.plans.length, 6);
+  assert.equal(artifact.plans.length, manifest.rows.length);
   assert.equal(artifact.plans.every((entry) => entry.resolved_plan.offer.action === "verify_no_change"), true);
 });
 
@@ -76,14 +76,18 @@ test("one price change is planned atomically while a mass price change blocks", 
     { state: one.state, readLive: async (id) => one.byProduct.get(String(id)) }
   );
   assert.equal(planned.report.action_counts.UPDATE_PRICE, 1);
-  assert.equal(planned.report.action_counts.VERIFY_NO_CHANGE, 5);
+  assert.equal(planned.report.action_counts.VERIFY_NO_CHANGE, manifest.rows.length - 1);
 
-  const two = fixture(new Map([["4110", 11.25], ["4112", 12.25]]));
-  const twoOutput = paths();
+  const massChanges = new Map(
+    manifest.rows.slice(0, Math.floor(manifest.rows.length * 0.2) + 1)
+      .map((row, index) => [row.external_variant_id, 10.25 + index])
+  );
+  const mass = fixture(massChanges);
+  const massOutput = paths();
   await assert.rejects(
     run(
-      { target: "production", artifact: twoOutput.artifact, report: twoOutput.report, requireNoChange: false },
-      { state: two.state, readLive: async (id) => two.byProduct.get(String(id)) }
+      { target: "production", artifact: massOutput.artifact, report: massOutput.report, requireNoChange: false },
+      { state: mass.state, readLive: async (id) => mass.byProduct.get(String(id)) }
     ),
     /Classifier blocked: MASS_(CHANGE|PRICE)/
   );
