@@ -63,7 +63,7 @@ function parseArgs(argv) {
     fail("Output must be inside repository tmp");
   }
   if (
-    !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap", "six-pack-production-expansion-v6"].includes(options.kind) ||
+    !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap", "six-pack-production-expansion-v6", "six-pack-production-expansion-v7"].includes(options.kind) ||
     !/^config\/retailers\/six-pack-production-[a-z0-9-]+\.csv$/.test(options.csvPath)
   ) {
     fail("Unsupported family rollout identity");
@@ -77,7 +77,41 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
     skip_empty_lines: true,
     trim: true,
   });
-  const approvedIds = approvalValue.rows
+  const approvedRows =
+    approvalValue.rows ||
+    approvalValue.families?.flatMap((family) =>
+      family.variants.map((variant) => ({
+        ...variant,
+        product_id: family.product_id,
+      }))
+    ) ||
+    [];
+  const coveredDuplicateAliases =
+    approvalValue.kind === "six-pack-reviewed-large-family-batch-v7"
+      ? [
+          {
+            approved_external_variant_id: "6315",
+            existing_external_product_id: "6320",
+            existing_external_variant_id: "6321",
+            product_variant_id: "816",
+          },
+          {
+            approved_external_variant_id: "6317",
+            existing_external_product_id: "6320",
+            existing_external_variant_id: "6322",
+            product_variant_id: "815",
+          },
+        ]
+      : [];
+  const coveredIds = new Set(
+    coveredDuplicateAliases.map(
+      (row) => row.approved_external_variant_id
+    )
+  );
+  const approvedIds = approvedRows
+    .filter(
+      (row) => !coveredIds.has(String(row.external_variant_id))
+    )
     .map((row) => String(row.external_variant_id))
     .sort();
   const csvIds = rows
@@ -87,15 +121,19 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
   const createVariantCount = plans.filter(
     (plan) => plan.product_variant?.action === "create_variant"
   ).length;
+  const expectedVariantCreateCount =
+    approvalValue.kind === "six-pack-reviewed-large-family-batch-v7"
+      ? 0
+      : approvedRows.filter((row) => !row.product_variant_id).length;
   if (
     approvalValue.approved !== true ||
-    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5"].includes(approvalValue.kind) ||
-    approvalValue.rows.length !== rows.length ||
+    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5", "six-pack-reviewed-large-family-batch-v7"].includes(approvalValue.kind) ||
+    approvedRows.length !== rows.length + coveredDuplicateAliases.length ||
     JSON.stringify(csvIds) !== JSON.stringify(approvedIds) ||
     report.blockedRows?.length !== 0 ||
     report.failedRows?.length !== 0 ||
     plans.length !== rows.length ||
-    createVariantCount !== approvalValue.rows.filter((row) => !row.product_variant_id).length ||
+    createVariantCount !== expectedVariantCreateCount ||
     plans.some(
       (plan) =>
         plan.product?.action !== "existing" ||
@@ -143,6 +181,13 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
     target_project_ref: "aftboxmrdgyhizicfsfu",
     retailer_slug: "6-pack-supplements",
     row_count: rows.length,
+    ...(approvalValue.kind ===
+    "six-pack-reviewed-large-family-batch-v7"
+      ? {
+          approved_scope_row_count: approvedRows.length,
+          covered_duplicate_aliases: coveredDuplicateAliases,
+        }
+      : {}),
     expected_created_variant_count: createVariantCount,
     csv_path:
       rolloutOptions.csvPath ||
