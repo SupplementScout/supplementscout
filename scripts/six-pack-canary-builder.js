@@ -144,7 +144,13 @@ function commercialIdentityTokens(value) {
 function liveIdentityDrift(source, live) {
   const sourceTokens = commercialIdentityTokens(source.product_name);
   const liveTokens = commercialIdentityTokens(live.product_name);
-  if (!sourceTokens.length || !liveTokens.length || sourceTokens.join("|") === liveTokens.join("|")) return null;
+  if (
+    !sourceTokens.length ||
+    !liveTokens.length ||
+    sourceTokens.every((token) => liveTokens.includes(token))
+  ) {
+    return null;
+  }
   return {
     source_record_id: source.source_record_id,
     code: "CSV_LIVE_IDENTITY_DRIFT",

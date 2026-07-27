@@ -152,7 +152,10 @@ function liveSourceFor(record, live) {
     if (!offer) fail(`Live variation ${externalVariantId} missing`, "SOURCE_IDENTITY_DRIFT");
   }
   const identityDrift = liveIdentityDrift(
-    { source_record_id: externalVariantId, product_name: record.product.name },
+    {
+      source_record_id: externalVariantId,
+      product_name: record.mapping.external_name || record.product.name,
+    },
     live
   );
   if (identityDrift) fail(`Live commercial identity drift for ${externalVariantId}`, "SOURCE_IDENTITY_DRIFT");

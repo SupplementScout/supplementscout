@@ -69,6 +69,31 @@ test("refresh creates one exact verified-no-change plan per approved mapping", a
   assert.equal(artifact.plans.every((entry) => entry.resolved_plan.offer.action === "verify_no_change"), true);
 });
 
+test("refresh compares live identity with the retailer name before the shorter canonical name", async () => {
+  const source = fixture();
+  const record = source.state.records.find(
+    (row) => row.mapping.external_variant_id === "3899"
+  );
+  record.product.name = "7Nutrition Zinc Citrate 100 Capsules";
+  record.mapping.external_name = "ZINC CITRATE 15mg 100caps 7Nutrition";
+  source.byProduct.get("3899").product_name =
+    "7Nutrition Zinc Citrate 15mg 100 caps";
+  const output = paths();
+  const result = await run(
+    {
+      target: "production",
+      artifact: output.artifact,
+      report: output.report,
+      requireNoChange: true,
+    },
+    {
+      state: source.state,
+      readLive: async (id) => source.byProduct.get(String(id)),
+    }
+  );
+  assert.equal(result.report.result, "PASS");
+});
+
 test("one price change is planned atomically while a mass price change blocks", async () => {
   const one = fixture(new Map([["4110", 11.25]]));
   const oneOutput = paths();

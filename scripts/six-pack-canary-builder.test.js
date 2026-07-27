@@ -19,6 +19,13 @@ test("live identity guard blocks changed dosage while tolerating capsule wording
   );
   assert.equal(
     liveIdentityDrift(
+      { source_record_id: "simple:3899", product_name: "Zinc Citrate 100 Capsules" },
+      { product_name: "Zinc Citrate 15mg 100 caps" }
+    ),
+    null
+  );
+  assert.equal(
+    liveIdentityDrift(
       { source_record_id: "simple:4110", product_name: "Melatonin 1mg 60 Capsules" },
       { product_name: "Melatonin 4mg 60 caps" }
     ).code,
