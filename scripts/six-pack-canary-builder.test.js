@@ -30,6 +30,8 @@ test("canary builder requires an explicit target and a 5..20 row boundary", () =
   assert.throws(() => parseArgs([]), /Required --target/);
   assert.throws(() => parseArgs(["--target=production", "--limit=4"]), /5..20/);
   assert.equal(parseArgs(["--target=production", "--limit=10"]).limit, 10);
+  assert.equal(parseArgs(["--target=production", "--limit=20", "--exclude-existing=true"]).excludeExisting, true);
+  assert.throws(() => parseArgs(["--target=production", "--exclude-existing=yes"]), /true\|false/);
 });
 
 test("selection prefers safe in-stock simple rows then one row per variant family", () => {

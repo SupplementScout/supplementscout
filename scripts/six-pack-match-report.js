@@ -26,7 +26,7 @@ function parseArgs(argv) {
   const result = {};
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
-    if (!match || result[match[1]] !== undefined || !["source", "target", "output-dir"].includes(match[1])) {
+    if (!match || result[match[1]] !== undefined || !["source", "target", "output-dir", "allow-existing-retailer"].includes(match[1])) {
       fail(`Invalid argument ${argument}`);
     }
     result[match[1]] = match[2];
@@ -34,6 +34,10 @@ function parseArgs(argv) {
   if (!TARGETS[result.target]) fail("Required --target=staging|production");
   result.source = result.source ? path.resolve(result.source) : DEFAULT_SOURCE;
   result.outputDir = result["output-dir"] ? path.resolve(result["output-dir"]) : OUTPUT_DIR;
+  result.allowExistingRetailer = result["allow-existing-retailer"] === "true";
+  if (result["allow-existing-retailer"] !== undefined && !["true", "false"].includes(result["allow-existing-retailer"])) {
+    fail("--allow-existing-retailer must be true|false");
+  }
   const relative = path.relative(path.join(ROOT, "tmp"), result.outputDir);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Output directory must be inside repository tmp");
   return result;
@@ -191,7 +195,7 @@ async function run(options, dependencies = {}) {
   }
   const client = dependencies.client || loadEnvironment(options.target);
   const canonical = dependencies.canonical || await readCanonical(client);
-  if (canonical.retailers.some((retailer) => retailer.slug === "6-pack-supplements")) {
+  if (!options.allowExistingRetailer && canonical.retailers.some((retailer) => retailer.slug === "6-pack-supplements")) {
     fail("6 Pack retailer already exists; new-retailer match report must not run over a live mapping scope");
   }
   const eligible = snapshot.records.filter((record) => record.policy_state === "ELIGIBLE");
@@ -209,7 +213,7 @@ async function run(options, dependencies = {}) {
   const report = {
     schema_version: 1,
     retailer: "6 Pack Supplements",
-    mode: "READ_ONLY_MATCH_ONLY",
+    mode: options.allowExistingRetailer ? "READ_ONLY_EXPANSION_MATCH_ONLY" : "READ_ONLY_MATCH_ONLY",
     database_writes: 0,
     target_environment: options.target.toUpperCase(),
     target_project_ref: TARGETS[options.target],

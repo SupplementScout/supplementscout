@@ -10,6 +10,7 @@ test("match report CLI requires an explicit target and confines outputs to tmp",
   assert.throws(() => parseArgs([]), /Required --target/);
   assert.throws(() => parseArgs(["--target=production", "--output-dir=outside"]), /inside repository tmp/);
   assert.equal(parseArgs(["--target=production"]).target, "production");
+  assert.equal(parseArgs(["--target=production", "--allow-existing-retailer=true"]).allowExistingRetailer, true);
 });
 
 test("draft manifest is explicitly unapproved and deterministic for fixed metadata", () => {

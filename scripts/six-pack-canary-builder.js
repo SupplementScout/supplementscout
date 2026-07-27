@@ -21,7 +21,7 @@ function parseArgs(argv) {
   const result = {};
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
-    if (!match || result[match[1]] !== undefined || !["target", "limit", "match-report", "source", "output-dir"].includes(match[1])) {
+    if (!match || result[match[1]] !== undefined || !["target", "limit", "match-report", "source", "output-dir", "exclude-existing"].includes(match[1])) {
       fail(`Invalid argument ${argument}`);
     }
     result[match[1]] = match[2];
@@ -32,9 +32,26 @@ function parseArgs(argv) {
   result.matchReport = result["match-report"] ? path.resolve(result["match-report"]) : DEFAULT_MATCH_REPORT;
   result.source = result.source ? path.resolve(result.source) : DEFAULT_SOURCE;
   result.outputDir = result["output-dir"] ? path.resolve(result["output-dir"]) : OUTPUT_DIR;
+  result.excludeExisting = result["exclude-existing"] === "true";
+  if (result["exclude-existing"] !== undefined && !["true", "false"].includes(result["exclude-existing"])) {
+    fail("--exclude-existing must be true|false");
+  }
   const relative = path.relative(path.join(ROOT, "tmp"), result.outputDir);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Output directory must be inside repository tmp");
   return result;
+}
+
+async function mappedExternalVariantIds(client) {
+  const retailerResult = await client.from("retailers").select("id").eq("slug", config.retailer.slug).limit(2);
+  if (retailerResult.error) throw retailerResult.error;
+  if (retailerResult.data.length > 1) fail("Duplicate 6 Pack retailer identity");
+  if (retailerResult.data.length === 0) return new Set();
+  const mappingResult = await client
+    .from("retailer_products")
+    .select("external_variant_id")
+    .eq("retailer_id", retailerResult.data[0].id);
+  if (mappingResult.error) throw mappingResult.error;
+  return new Set(mappingResult.data.map((row) => String(row.external_variant_id)));
 }
 
 function loadClient(target) {
@@ -170,14 +187,20 @@ async function run(options, dependencies = {}) {
   const matchReport = JSON.parse(fs.readFileSync(options.matchReport, "utf8"));
   const sourceSnapshot = JSON.parse(fs.readFileSync(options.source, "utf8"));
   if (
-    matchReport.mode !== "READ_ONLY_MATCH_ONLY" ||
+    !["READ_ONLY_MATCH_ONLY", "READ_ONLY_EXPANSION_MATCH_ONLY"].includes(matchReport.mode) ||
     matchReport.database_writes !== 0 ||
     matchReport.target_project_ref !== TARGETS[options.target] ||
     matchReport.source_snapshot_fingerprint !== sourceSnapshot.snapshot_fingerprint
   ) fail("Match report is not a valid bound read-only artifact");
-  const candidates = orderedCandidates(matchReport.rows);
-  if (candidates.length < options.limit) fail(`Only ${candidates.length} in-stock safe candidates for ${options.limit}-row canary`);
+  let candidates = orderedCandidates(matchReport.rows);
   const client = dependencies.client || loadClient(options.target);
+  if (options.excludeExisting) {
+    const existing = dependencies.existingExternalVariantIds
+      ? new Set(dependencies.existingExternalVariantIds.map(String))
+      : await mappedExternalVariantIds(client);
+    candidates = candidates.filter((row) => !existing.has(String(row.external_variant_id)));
+  }
+  if (candidates.length < options.limit) fail(`Only ${candidates.length} in-stock safe candidates for ${options.limit}-row canary`);
   const productIds = [...new Set(candidates.map((row) => row.canonical_product_id))];
   const variantIds = [...new Set(candidates.map((row) => row.canonical_variant_id))];
   const [products, variants] = await Promise.all([
@@ -264,8 +287,8 @@ async function run(options, dependencies = {}) {
     manifest_fingerprint: null,
   };
   manifest.manifest_fingerprint = sha256(JSON.stringify(manifest));
-  const csvPath = path.join(options.outputDir, "six-pack-canary-10.csv");
-  const manifestPath = path.join(options.outputDir, "six-pack-canary-10-manifest.json");
+  const csvPath = path.join(options.outputDir, `six-pack-canary-${options.limit}.csv`);
+  const manifestPath = path.join(options.outputDir, `six-pack-canary-${options.limit}-manifest.json`);
   fs.mkdirSync(options.outputDir, { recursive: true });
   fs.writeFileSync(csvPath, csv);
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
@@ -299,6 +322,7 @@ module.exports = {
   commercialIdentityTokens,
   currentOffer,
   liveIdentityDrift,
+  mappedExternalVariantIds,
   orderedCandidates,
   parseArgs,
   run,
