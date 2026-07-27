@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - .github/workflows/six-pack-offer-refresh.yml
-      - config/retailers/six-pack-approved-offer-manifest.json
-      - config/retailers/six-pack-supplements-woocommerce.json
   workflow_dispatch:
     inputs:
       operation:
