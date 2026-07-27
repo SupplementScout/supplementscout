@@ -33,7 +33,7 @@ test("new canonical products keep unverified metrics null", () => {
   const product = productPayload(family);
   assert.equal(product.net_weight_g, Number(family.size));
   assert.equal(product.nutrition_verified, false);
-  assert.equal(product.serving_count_verified, false);
+  assert.equal(product.serving_count_verified, null);
   assert.equal(product.protein_per_serving_g, null);
   assert.equal(product.creatine_per_serving_g, null);
 });

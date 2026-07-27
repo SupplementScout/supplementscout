@@ -160,7 +160,7 @@ function productPayload(family) {
     is_active: true,
     net_weight_g: Number(family.size),
     net_volume_ml: null,
-    serving_count_verified: false,
+    serving_count_verified: null,
     serving_size_g: null,
     serving_size_ml: null,
     protein_per_serving_g: null,
