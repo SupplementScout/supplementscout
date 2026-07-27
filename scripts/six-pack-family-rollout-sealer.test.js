@@ -20,6 +20,9 @@ const ROLLOUT = path.join(
 const V6_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-family-v6-bootstrap.csv");
 const V6_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-family-v6-bootstrap.json");
 const V6_APPROVAL = require("../config/retailers/six-pack-reviewed-family-map-batch-v4.json");
+const V6_FINAL_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v6.csv");
+const V6_FINAL_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v6.json");
+const V6_FINAL_APPROVAL = require("../config/retailers/six-pack-reviewed-family-map-batch-v5.json");
 
 function reportFromRollout(expected) {
   return {
@@ -86,6 +89,22 @@ test("family rollout sealer binds the reviewed V6 family batch without a new ada
   assert.deepEqual(rollout, expected);
   assert.equal(rollout.row_count, 19);
   assert.equal(rollout.expected_created_variant_count, 5);
+});
+
+test("family rollout sealer binds all 19 V6 offers to explicit variants", () => {
+  const expected = JSON.parse(fs.readFileSync(V6_FINAL_ROLLOUT, "utf8"));
+  const rollout = build(
+    fs.readFileSync(V6_FINAL_CSV),
+    reportFromRollout(expected),
+    V6_FINAL_APPROVAL,
+    {
+      kind: "six-pack-production-expansion-v6",
+      csvPath: "config/retailers/six-pack-production-expansion-v6.csv",
+    }
+  );
+  assert.deepEqual(rollout, expected);
+  assert.equal(rollout.expected_created_variant_count, 0);
+  assert.equal(rollout.expected_bindings.every((row) => row.product_variant_id), true);
 });
 
 test("family rollout output remains inside tmp", () => {
