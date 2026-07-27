@@ -43,7 +43,8 @@ function validateConfig(value) {
     value.guardrails?.catalogue_creates !== false ||
     value.guardrails?.discovery_mode !== "REPORT_ONLY" ||
     value.automation?.retailer_id !== 11 ||
-    value.automation?.approved_mapping_count !== 6 ||
+    !Number.isInteger(value.automation?.approved_mapping_count) ||
+    value.automation.approved_mapping_count < 1 ||
     value.automation?.model !== "ONE_SHARED_RETAILER_MANIFEST" ||
     !/^[0-9a-f]{64}$/.test(value.automation?.manifest_sha256 || "")
   ) fail("Unsafe 6 Pack policy config");

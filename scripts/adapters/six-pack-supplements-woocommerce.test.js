@@ -44,11 +44,11 @@ test("source health fails closed below configured completeness thresholds", () =
   assert.equal(adapter.healthReport({ counts: { csv_rows: 70, variation_rows: 50 } }, config).code, "GENUINE_SOURCE_COLLAPSE");
 });
 
-test("approved automation scope is one exact six-row retailer manifest", () => {
+test("approved automation scope is one exact full retailer manifest", () => {
   const loaded = adapter.loadApprovedAutomationManifest();
   assert.equal(loaded.manifest.retailer.id, 11);
-  assert.equal(loaded.manifest.rows.length, 6);
-  assert.equal(new Set(loaded.manifest.rows.map((row) => row.external_variant_id)).size, 6);
+  assert.equal(loaded.manifest.rows.length, 78);
+  assert.equal(new Set(loaded.manifest.rows.map((row) => row.external_variant_id)).size, 78);
 });
 
 test("atomic evidence writer leaves only the requested final file", () => {
