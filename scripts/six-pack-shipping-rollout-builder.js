@@ -4,7 +4,7 @@ const { parse } = require("csv-parse/sync");
 const { serializeCsv } = require("./six-pack-canary-builder");
 const { sha256 } = require("./lib/woocommerce-product-page-reader");
 const config = require("../config/retailers/six-pack-supplements-woocommerce.json");
-const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
+const shippingRollout = require("../config/retailers/six-pack-production-shipping-v1.json");
 
 const ROOT = path.resolve(__dirname, "..");
 const INPUTS = [
@@ -34,13 +34,13 @@ function build(inputPaths = INPUTS) {
     columns: true,
     skip_empty_lines: true,
   }));
-  const expected = [...manifest.rows.map((row) => row.external_variant_id)].sort();
+  const expected = [...shippingRollout.expected_external_variant_ids].sort();
   const actual = [...rows.map((row) => String(row.external_variant_id))].sort();
   if (
-    rows.length !== manifest.approved_mapping_count ||
+    rows.length !== shippingRollout.row_count ||
     new Set(actual).size !== actual.length ||
     JSON.stringify(actual) !== JSON.stringify(expected)
-  ) fail("Shipping rollout source does not match the exact approved manifest");
+  ) fail("Shipping rollout source does not match the immutable shipping scope");
   const updated = rows.map((row) => ({
     ...row,
     shipping_known: "true",
