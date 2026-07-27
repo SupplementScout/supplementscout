@@ -1,0 +1,123 @@
+name: 6 Pack Supplements Offer Refresh
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/six-pack-offer-refresh.yml
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Dry-run only unless an explicitly authorised apply is required"
+        required: true
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  six-pack-offer-refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+
+    env:
+      NODE_OPTIONS: --use-system-ca
+
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          case "$GITHUB_EVENT_NAME" in
+            push|schedule|workflow_dispatch) ;;
+            *) exit 1 ;;
+          esac
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test 6 Pack refresh contracts
+        run: |
+          node --test \
+            scripts/six-pack-offer-refresh.test.js \
+            scripts/six-pack-offer-refresh-executor.test.js \
+            scripts/lib/woocommerce-product-page-reader.test.js \
+            scripts/retailer-offer-sync.test.js
+
+      - name: Fresh live-source dry-run
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-offer-refresh.js \
+            --target=production \
+            --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
+            --report=tmp/six-pack-offer-refresh/production-preflight-report.json
+
+      - name: Apply exact approved manifest
+        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          SIX_PACK_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIX_PACK_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-offer-refresh-executor.js \
+            --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
+            --output=tmp/six-pack-offer-refresh/production-execution.json
+
+      - name: Verify idempotency against a fresh source capture
+        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-offer-refresh.js \
+            --target=production \
+            --require-no-change=true \
+            --artifact=tmp/six-pack-offer-refresh/production-idempotency-artifact.json \
+            --report=tmp/six-pack-offer-refresh/production-idempotency-report.json
+
+      - name: Publish workflow summary
+        if: always()
+        run: |
+          echo "## 6 Pack Supplements approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/six-pack-offer-refresh/production-preflight-report.json ]; then
+            node -e 'const r=require("./tmp/six-pack-offer-refresh/production-preflight-report.json"); console.log(`- Preflight: ${r.result}\n- Approved offers: ${r.approved_mapping_count}\n- Product pages: ${r.fetched_product_page_count}\n- Actions: ${JSON.stringify(r.action_counts)}\n- Block: ${r.block_reason}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Preflight report unavailable; workflow failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f tmp/six-pack-offer-refresh/production-idempotency-report.json ]; then
+            node -e 'const r=require("./tmp/six-pack-offer-refresh/production-idempotency-report.json"); console.log(`- Post-apply idempotency: ${r.result}\n- Post-apply actions: ${JSON.stringify(r.action_counts)}`)' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/six-pack-offer-refresh/*.json

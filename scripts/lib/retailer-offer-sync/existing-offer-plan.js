@@ -47,7 +47,7 @@ function buildExistingOfferUpdatePlan(input) {
     expected_state:{product:state.product,retailer:state.retailer,product_variant:state.variant,retailer_product:{...state.mapping,updated_at:state.mapping_updated_at},offer:state.offer}
   };
   const serialized=serializeImportPlan(plan);serialized.meta.plan_fingerprint=planFingerprint(serialized);
-  return {plan:serializeImportPlan(serialized),changed:{price:priceChanged,stock:stockChanged,url:urlChanged}};
+  return {record:sourceRecord,plan:serializeImportPlan(serialized),changed:{price:priceChanged,stock:stockChanged,url:urlChanged}};
 }
 
 module.exports={buildExistingOfferUpdatePlan,normalizeState};
