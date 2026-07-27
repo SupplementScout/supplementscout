@@ -53,6 +53,7 @@ jobs:
             scripts/lib/feed-variant-guards.test.js \
             scripts/six-pack-canary-executor.test.js \
             scripts/six-pack-canary-verify.test.js \
+            scripts/six-pack-family-variant-bootstrap.test.js \
             scripts/six-pack-family-rollout-sealer.test.js
 
       - name: Verify exact approved source checksum
@@ -67,6 +68,28 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-family-v3
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-family-v3/preflight-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-family-v3/preflight-artifact.json \
+            --csv="$FAMILY_CSV"
+
+      - name: Bootstrap exact reviewed WooCommerce variants
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-family-variant-bootstrap.js \
+            --output=tmp/six-pack-family-v3/variant-bootstrap.json
+
+      - name: Refresh production preflight after variant bootstrap
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-family-v3-post-bootstrap
           SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-family-v3/preflight-report.json
         run: |
           node scripts/import-products.js \
