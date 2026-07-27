@@ -31,6 +31,7 @@ test("canary builder requires an explicit target and a 5..20 row boundary", () =
   assert.throws(() => parseArgs(["--target=production", "--limit=4"]), /5..20/);
   assert.equal(parseArgs(["--target=production", "--limit=10"]).limit, 10);
   assert.equal(parseArgs(["--target=production", "--limit=20", "--exclude-existing=true"]).excludeExisting, true);
+  assert.equal(parseArgs(["--target=production", "--include-out-of-stock=true"]).includeOutOfStock, true);
   assert.throws(() => parseArgs(["--target=production", "--exclude-existing=yes"]), /true\|false/);
 });
 
@@ -51,6 +52,14 @@ test("selection prefers safe in-stock simple rows then one row per variant famil
     row("6", "simple", "6", { source_in_stock: false }),
   ]);
   assert.deepEqual(ordered.map((item) => item.external_variant_id), ["5", "13", "21", "14"]);
+});
+
+test("out-of-stock safe rows require the explicit expansion flag", () => {
+  const rows = [
+    { status: "SAFE_EXISTING_VARIANT", source_in_stock: false, source_type: "simple", external_variant_id: "1" },
+  ];
+  assert.equal(orderedCandidates(rows).length, 0);
+  assert.equal(orderedCandidates(rows, { includeOutOfStock: true }).length, 1);
 });
 
 test("canonical feed row binds shared parent URL to explicit canonical IDs", () => {
@@ -75,6 +84,7 @@ test("canonical feed row binds shared parent URL to explicit canonical IDs", () 
   assert.equal(row.product_id, "100");
   assert.equal(row.product_variant_id, "101");
   assert.equal(row.external_url, "https://shop.example/product/example/");
+  assert.equal(row.description, "");
   assert.equal(row.shipping_known, "true");
   assert.equal(row.shipping_cost, "4.99");
   assert.equal(row.price, "19.99");

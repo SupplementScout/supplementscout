@@ -21,7 +21,7 @@ function parseArgs(argv) {
   const result = {};
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
-    if (!match || result[match[1]] !== undefined || !["target", "limit", "match-report", "source", "output-dir", "exclude-existing"].includes(match[1])) {
+    if (!match || result[match[1]] !== undefined || !["target", "limit", "match-report", "source", "output-dir", "exclude-existing", "include-out-of-stock"].includes(match[1])) {
       fail(`Invalid argument ${argument}`);
     }
     result[match[1]] = match[2];
@@ -35,6 +35,10 @@ function parseArgs(argv) {
   result.excludeExisting = result["exclude-existing"] === "true";
   if (result["exclude-existing"] !== undefined && !["true", "false"].includes(result["exclude-existing"])) {
     fail("--exclude-existing must be true|false");
+  }
+  result.includeOutOfStock = result["include-out-of-stock"] === "true";
+  if (result["include-out-of-stock"] !== undefined && !["true", "false"].includes(result["include-out-of-stock"])) {
+    fail("--include-out-of-stock must be true|false");
   }
   const relative = path.relative(path.join(ROOT, "tmp"), result.outputDir);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Output directory must be inside repository tmp");
@@ -64,8 +68,10 @@ function loadClient(target) {
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-function orderedCandidates(rows) {
-  const safe = rows.filter((row) => row.status === "SAFE_EXISTING_VARIANT" && row.source_in_stock);
+function orderedCandidates(rows, { includeOutOfStock = false } = {}) {
+  const safe = rows.filter((row) =>
+    row.status === "SAFE_EXISTING_VARIANT" && (includeOutOfStock || row.source_in_stock)
+  );
   const simple = safe.filter((row) => row.source_type === "simple");
   const variations = safe.filter((row) => row.source_type === "variation");
   const firstByParent = [];
@@ -108,6 +114,7 @@ function currentOffer(source, live) {
       price: live.product_offer.price,
       in_stock: live.product_offer.in_stock,
       is_for_sale: true,
+      active: true,
       image_url: source.image_url,
     };
   }
@@ -117,6 +124,7 @@ function currentOffer(source, live) {
     price: variation.price,
     in_stock: variation.in_stock,
     is_for_sale: variation.active && variation.purchasable,
+    active: variation.active,
     image_url: variation.image_url || source.image_url,
   };
 }
@@ -161,7 +169,7 @@ function canonicalFeedRow(source, product, variant, live, observedAt) {
     variant_name: variant.display_name,
     brand: product.brand,
     category: product.category,
-    description: source.description || "",
+    description: "",
     image: offer.image_url || "",
     slug: product.slug,
     external_url: live.canonical_url,
@@ -195,7 +203,7 @@ async function run(options, dependencies = {}) {
     matchReport.target_project_ref !== TARGETS[options.target] ||
     matchReport.source_snapshot_fingerprint !== sourceSnapshot.snapshot_fingerprint
   ) fail("Match report is not a valid bound read-only artifact");
-  let candidates = orderedCandidates(matchReport.rows);
+  let candidates = orderedCandidates(matchReport.rows, { includeOutOfStock: options.includeOutOfStock });
   const client = dependencies.client || loadClient(options.target);
   if (options.excludeExisting) {
     const existing = dependencies.existingExternalVariantIds
@@ -241,7 +249,9 @@ async function run(options, dependencies = {}) {
       continue;
     }
     const offer = currentOffer(source, live);
-    if (!offer.in_stock || !offer.is_for_sale) {
+    const safeAvailable = offer.in_stock && offer.is_for_sale;
+    const safeOutOfStock = options.includeOutOfStock && !offer.in_stock && offer.active;
+    if (!safeAvailable && !safeOutOfStock) {
       drift.push({ source_record_id: source.source_record_id, code: "LIVE_NOT_FOR_SALE", csv_in_stock: source.in_stock, live_in_stock: offer.in_stock });
       continue;
     }
