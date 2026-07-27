@@ -63,11 +63,19 @@ function assertSealedContract(approvalValue = approval, rolloutValue = rollout) 
     .sort();
   if (
     approvalValue.approved !== true ||
-    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-missing-variants-batch-v3"].includes(approvalValue.kind) ||
+    ![
+      "six-pack-reviewed-family-batch-v1",
+      "six-pack-reviewed-missing-variants-batch-v3",
+      "six-pack-reviewed-family-map-batch-v4",
+    ].includes(approvalValue.kind) ||
     approvalValue.rows.length !== rolloutValue.row_count ||
     reviewedCreateIds.length !== rolloutValue.expected_created_variant_count ||
     rolloutValue.approved !== true ||
-    !["six-pack-production-family-v3", "six-pack-production-expansion-v5"].includes(rolloutValue.kind) ||
+    ![
+      "six-pack-production-family-v3",
+      "six-pack-production-expansion-v5",
+      "six-pack-production-family-v6-bootstrap",
+    ].includes(rolloutValue.kind) ||
     rolloutValue.target_project_ref !== PROJECT_REF ||
     rolloutValue.rollout_fingerprint !== fingerprint ||
     JSON.stringify(reviewedCreateIds) !==

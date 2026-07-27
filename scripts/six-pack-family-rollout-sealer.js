@@ -38,14 +38,21 @@ function sha256(value) {
 function parseArgs(argv) {
   const values = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(csv|report|output)=(.*)$/);
+    const match = argument.match(/^--(csv|report|output|approval|kind|csv-path)=(.*)$/);
     if (!match || values[match[1]]) fail(`Invalid argument ${argument}`);
-    values[match[1]] = path.resolve(match[2]);
+    values[match[1]] = ["kind", "csv-path"].includes(match[1])
+      ? match[2]
+      : path.resolve(match[2]);
   }
   const options = {
     csv: values.csv || DEFAULT_CSV,
     report: values.report || DEFAULT_REPORT,
     output: values.output || DEFAULT_OUTPUT,
+    approval: values.approval || null,
+    kind: values.kind || "six-pack-production-family-v3",
+    csvPath:
+      values["csv-path"] ||
+      "config/retailers/six-pack-production-family-v3.csv",
   };
   const relative = path.relative(path.join(ROOT, "tmp"), options.output);
   if (
@@ -55,16 +62,22 @@ function parseArgs(argv) {
   ) {
     fail("Output must be inside repository tmp");
   }
+  if (
+    !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap"].includes(options.kind) ||
+    !/^config\/retailers\/six-pack-production-[a-z0-9-]+\.csv$/.test(options.csvPath)
+  ) {
+    fail("Unsupported family rollout identity");
+  }
   return options;
 }
 
-function build(csvBytes, report) {
+function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) {
   const rows = parse(csvBytes, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
   });
-  const approvedIds = approval.rows
+  const approvedIds = approvalValue.rows
     .map((row) => String(row.external_variant_id))
     .sort();
   const csvIds = rows
@@ -75,14 +88,14 @@ function build(csvBytes, report) {
     (plan) => plan.product_variant?.action === "create_variant"
   ).length;
   if (
-    approval.approved !== true ||
-    approval.rows.length !== 21 ||
-    rows.length !== 21 ||
+    approvalValue.approved !== true ||
+    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4"].includes(approvalValue.kind) ||
+    approvalValue.rows.length !== rows.length ||
     JSON.stringify(csvIds) !== JSON.stringify(approvedIds) ||
     report.blockedRows?.length !== 0 ||
     report.failedRows?.length !== 0 ||
-    plans.length !== 21 ||
-    createVariantCount !== 14 ||
+    plans.length !== rows.length ||
+    createVariantCount !== approvalValue.rows.filter((row) => !row.product_variant_id).length ||
     plans.some(
       (plan) =>
         plan.product?.action !== "existing" ||
@@ -95,7 +108,7 @@ function build(csvBytes, report) {
         plan.price_history?.action !== "create"
     )
   ) {
-    fail("Importer review is not the exact approved 21-row family rollout");
+    fail("Importer review is not the exact approved family rollout");
   }
 
   const expectedBindings = plans.map((plan) => {
@@ -122,16 +135,18 @@ function build(csvBytes, report) {
   });
   const rollout = {
     schema_version: 1,
-    kind: "six-pack-production-family-v3",
+    kind: rolloutOptions.kind || "six-pack-production-family-v3",
     approved: true,
-    approval_source: "USER_EXPLICIT_CHAT_CONFIRMATION",
-    approved_at: "2026-07-27",
+    approval_source: approvalValue.approval_source,
+    approved_at: approvalValue.approved_at,
     target_environment: "PRODUCTION",
     target_project_ref: "aftboxmrdgyhizicfsfu",
     retailer_slug: "6-pack-supplements",
-    row_count: 21,
-    expected_created_variant_count: 14,
-    csv_path: "config/retailers/six-pack-production-family-v3.csv",
+    row_count: rows.length,
+    expected_created_variant_count: createVariantCount,
+    csv_path:
+      rolloutOptions.csvPath ||
+      "config/retailers/six-pack-production-family-v3.csv",
     csv_sha256: sha256(csvBytes),
     expected_external_variant_ids: approvedIds,
     expected_bindings: expectedBindings,
@@ -152,7 +167,10 @@ function build(csvBytes, report) {
 function run(options) {
   const csvBytes = fs.readFileSync(options.csv);
   const report = JSON.parse(fs.readFileSync(options.report, "utf8"));
-  const rollout = build(csvBytes, report);
+  const approvalValue = options.approval
+    ? JSON.parse(fs.readFileSync(options.approval, "utf8"))
+    : approval;
+  const rollout = build(csvBytes, report, approvalValue, options);
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(
     options.output,

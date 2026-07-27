@@ -39,9 +39,10 @@ const {
 } = require("./lib/feed-variant-guards");
 const SIX_PACK_REVIEWED_FAMILY_BATCH = require("../config/retailers/six-pack-reviewed-family-batch-v1.json");
 const SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH = require("../config/retailers/six-pack-reviewed-missing-variants-batch-v3.json");
+const SIX_PACK_REVIEWED_FAMILY_MAP_BATCH = require("../config/retailers/six-pack-reviewed-family-map-batch-v4.json");
 
 const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
-  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH]
+  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH]
     .flatMap((batch) => batch.rows.map((row) => [
       String(row.external_variant_id),
       { batch, row },
@@ -780,8 +781,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const inputSize = size ? parseSize(size) : null;
   const exactSixPackReviewedIdentity =
     sixPackReviewedBatch?.approved === true &&
-    ["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-missing-variants-batch-v3"].includes(sixPackReviewedBatch.kind) &&
-    [21, 17].includes(sixPackReviewedBatch.rows.length) &&
+    ["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-missing-variants-batch-v3", "six-pack-reviewed-family-map-batch-v4"].includes(sixPackReviewedBatch.kind) &&
+    [21, 17, 19].includes(sixPackReviewedBatch.rows.length) &&
     slugifyRetailerName(String(row.retailer_name || "")) ===
       "6-pack-supplements" &&
     sixPackReviewed &&

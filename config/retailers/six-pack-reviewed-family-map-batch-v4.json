@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-family-map-batch-v4",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "food": "EXCLUDE",
+    "new_canonical_products": "DEFER",
+    "existing_products_only": true,
+    "family_mapping": true
+  },
+  "rows": [
+    { "external_variant_id": "11471", "product_id": "769", "flavour": "Unflavoured", "size": "500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "2814", "product_id": "34", "product_variant_id": "28", "flavour": "", "size": "", "size_unit": "", "product_format": "powder" },
+    { "external_variant_id": "3899", "product_id": "955", "product_variant_id": "1862", "flavour": "", "size": "", "size_unit": "", "product_format": "capsule" },
+    { "external_variant_id": "4108", "product_id": "141", "product_variant_id": "128", "flavour": "", "size": "", "size_unit": "", "product_format": "capsule" },
+    { "external_variant_id": "4586", "product_id": "139", "product_variant_id": "142", "flavour": "", "size": "", "size_unit": "", "product_format": "tablet" },
+    { "external_variant_id": "4621", "product_id": "98", "product_variant_id": "82", "flavour": "", "size": "", "size_unit": "", "product_format": "liquid" },
+    { "external_variant_id": "4665", "product_id": "402", "product_variant_id": "528", "flavour": "", "size": "", "size_unit": "", "product_format": "capsule" },
+    { "external_variant_id": "4874", "product_id": "407", "flavour": "Unflavoured", "size": "250", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "69085", "product_id": "742", "product_variant_id": "799", "flavour": "Unflavoured", "size": "250", "size_unit": "g", "product_format": "powder" },
+
+    { "external_variant_id": "29718", "product_id": "899", "product_variant_id": "1488", "flavour": "Blue Razz Riot", "source_flavour": "Razz Riot", "size": "570", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "29721", "product_id": "899", "product_variant_id": "1487", "flavour": "Cherry Berry Bomb", "size": "570", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "29724", "product_id": "899", "flavour": "Green Gummy Machine", "size": "570", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "29727", "product_id": "899", "flavour": "Orange Outlaw", "size": "570", "size_unit": "g", "product_format": "powder" },
+
+    { "external_variant_id": "8338", "product_id": "949", "product_variant_id": "1850", "flavour": "Green Apple", "size": "1000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "8339", "product_id": "949", "product_variant_id": "1851", "flavour": "Orange", "size": "1000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "8340", "product_id": "949", "flavour": "Lemon", "size": "1000", "size_unit": "g", "product_format": "powder" },
+
+    { "external_variant_id": "8556", "product_id": "59", "product_variant_id": "1030", "flavour": "Blue Ice", "size": "375", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "8626", "product_id": "59", "product_variant_id": "1614", "flavour": "Wild Berry", "size": "375", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "8630", "product_id": "59", "product_variant_id": "1613", "flavour": "Tropical Rage", "size": "375", "size_unit": "g", "product_format": "powder" }
+  ]
+}

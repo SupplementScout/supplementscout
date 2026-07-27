@@ -17,23 +17,19 @@ const ROLLOUT = path.join(
   "retailers",
   "six-pack-production-family-v3.json"
 );
+const V6_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-family-v6-bootstrap.csv");
+const V6_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-family-v6-bootstrap.json");
+const V6_APPROVAL = require("../config/retailers/six-pack-reviewed-family-map-batch-v4.json");
 
-test("family rollout sealer binds 21 rows and exactly 14 variant creates", () => {
-  const expected = JSON.parse(fs.readFileSync(ROLLOUT, "utf8"));
-  const report = {
+function reportFromRollout(expected) {
+  return {
     blockedRows: [],
     failedRows: [],
     plans: expected.expected_bindings.map((binding) => ({
       product: { action: "existing", id: binding.product_id },
       product_variant: binding.created_variant_identity
-        ? {
-            action: "create_variant",
-            values: binding.created_variant_identity,
-          }
-        : {
-            action: "existing",
-            id: binding.product_variant_id,
-          },
+        ? { action: "create_variant", values: binding.created_variant_identity }
+        : { action: "existing", id: binding.product_variant_id },
       retailer: { action: "existing", id: "11" },
       retailer_product: {
         action: "create",
@@ -55,6 +51,11 @@ test("family rollout sealer binds 21 rows and exactly 14 variant creates", () =>
       price_history: { action: "create" },
     })),
   };
+}
+
+test("family rollout sealer binds 21 rows and exactly 14 variant creates", () => {
+  const expected = JSON.parse(fs.readFileSync(ROLLOUT, "utf8"));
+  const report = reportFromRollout(expected);
   const rollout = build(
     fs.readFileSync(CSV),
     report
@@ -69,6 +70,22 @@ test("family rollout sealer binds 21 rows and exactly 14 variant creates", () =>
     14
   );
   assert.equal(new Set(rollout.expected_external_variant_ids).size, 21);
+});
+
+test("family rollout sealer binds the reviewed V6 family batch without a new adapter", () => {
+  const expected = JSON.parse(fs.readFileSync(V6_ROLLOUT, "utf8"));
+  const rollout = build(
+    fs.readFileSync(V6_CSV),
+    reportFromRollout(expected),
+    V6_APPROVAL,
+    {
+      kind: "six-pack-production-family-v6-bootstrap",
+      csvPath: "config/retailers/six-pack-production-family-v6-bootstrap.csv",
+    }
+  );
+  assert.deepEqual(rollout, expected);
+  assert.equal(rollout.row_count, 19);
+  assert.equal(rollout.expected_created_variant_count, 5);
 });
 
 test("family rollout output remains inside tmp", () => {

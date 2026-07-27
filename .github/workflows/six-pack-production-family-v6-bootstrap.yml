@@ -1,0 +1,91 @@
+name: 6 Pack Supplements Production Family V6 Bootstrap
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - config/retailers/six-pack-production-family-v6-bootstrap.csv
+      - config/retailers/six-pack-production-family-v6-bootstrap.json
+      - config/retailers/six-pack-reviewed-family-map-batch-v4.json
+      - .github/workflows/six-pack-production-family-v6-bootstrap.yml
+      - scripts/import-products.js
+      - scripts/six-pack-family-variant-bootstrap.js
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-production-family-v6
+  cancel-in-progress: false
+
+jobs:
+  bootstrap-reviewed-variants:
+    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+    env:
+      NODE_OPTIONS: --use-system-ca
+      FAMILY_CSV: config/retailers/six-pack-production-family-v6-bootstrap.csv
+      FAMILY_ROLLOUT: config/retailers/six-pack-production-family-v6-bootstrap.json
+      FAMILY_APPROVAL: config/retailers/six-pack-reviewed-family-map-batch-v4.json
+
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_ACTIONS" = "true"
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Test protected rollout contracts
+        run: |
+          node --test \
+            scripts/import-products.test.js \
+            scripts/lib/feed-variant-guards.test.js \
+            scripts/six-pack-family-rollout-sealer.test.js \
+            scripts/six-pack-family-variant-bootstrap.test.js \
+            scripts/six-pack-missing-variant-builder.test.js
+      - name: Verify exact approved source checksum
+        shell: bash
+        run: |
+          expected="$(node -p "require('./$FAMILY_ROLLOUT').csv_sha256")"
+          actual="$(sha256sum "$FAMILY_CSV" | cut -d' ' -f1)"
+          test "$actual" = "$expected"
+      - name: Fresh production preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-family-v6-bootstrap-preflight
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-family-v6-bootstrap/preflight-report.json
+        run: |
+          node scripts/import-products.js --mode=feed --safe-create --dry-run \
+            --artifact=tmp/six-pack-family-v6-bootstrap/preflight-artifact.json \
+            --csv="$FAMILY_CSV"
+      - name: Bootstrap exact five reviewed variants
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-family-variant-bootstrap.js \
+            --approval="$FAMILY_APPROVAL" --rollout="$FAMILY_ROLLOUT" \
+            --output=tmp/six-pack-family-v6-bootstrap/variant-bootstrap.json
+      - name: Verify complete bootstrap
+        run: |
+          node -e 'const r=require("./tmp/six-pack-family-v6-bootstrap/variant-bootstrap.json"); if(r.result!=="PASS" || r.verified_variant_count!==5 || ![0,5].includes(r.inserted_variant_count)) process.exit(1)'
+      - name: Upload bootstrap evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-production-family-v6-bootstrap-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/six-pack-family-v6-bootstrap/*.json
