@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-missing-variants-batch-v3",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "food": "EXCLUDE",
+    "new_canonical_products": "DEFER",
+    "existing_products_only": true,
+    "missing_flavour_variants_only": true
+  },
+  "rows": [
+    { "external_variant_id": "3988", "product_id": "68", "flavour": "Raspberry", "size": "1000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "3994", "product_id": "68", "flavour": "Cookies & Cream", "source_flavour": "Cookie with cream", "size": "1000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "3873", "product_id": "14", "flavour": "Chocolate", "size": "908", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "28741", "product_id": "14", "flavour": "Dark Chocolate", "size": "908", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "28744", "product_id": "14", "flavour": "Salted Caramel", "source_flavour": "salty caramel", "size": "908", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4706", "product_id": "129", "flavour": "White Chocolate", "size": "7000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4707", "product_id": "129", "flavour": "Cookies & Cream", "source_flavour": "Cookies cream", "size": "7000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4708", "product_id": "129", "flavour": "Chocolate Caramel Hazelnut", "size": "7000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4724", "product_id": "129", "flavour": "Triple Chocolate", "size": "7000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4725", "product_id": "129", "flavour": "Vanilla Ice Cream", "size": "7000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4726", "product_id": "129", "flavour": "Strawberry Banana", "size": "7000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "2933", "product_id": "132", "flavour": "Chocolate Mint", "size": "2400", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4719", "product_id": "128", "flavour": "Cookies & Cream", "source_flavour": "Cookies cream", "size": "1500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4720", "product_id": "128", "flavour": "Chocolate Caramel Hazelnut", "size": "1500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4721", "product_id": "128", "flavour": "White Chocolate", "size": "1500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "3946", "product_id": "71", "flavour": "Vanilla Cake", "size": "500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "29589", "product_id": "36", "flavour": "Orange Mango", "size": "390", "size_unit": "g", "product_format": "powder" }
+  ]
+}

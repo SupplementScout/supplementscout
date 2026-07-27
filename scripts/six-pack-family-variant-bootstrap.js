@@ -26,13 +26,14 @@ function normalize(value) {
 }
 
 function parseArgs(argv) {
-  if (
-    argv.length !== 1 ||
-    !argv[0].startsWith("--output=")
-  ) {
-    fail("Required --output=<tmp path>");
+  const values = {};
+  for (const argument of argv) {
+    const match = argument.match(/^--(output|approval|rollout)=(.*)$/);
+    if (!match || values[match[1]]) fail(`Invalid argument ${argument}`);
+    values[match[1]] = match[2];
   }
-  const output = path.resolve(argv[0].slice("--output=".length));
+  if (!values.output) fail("Required --output=<tmp path>");
+  const output = path.resolve(values.output);
   const relative = path.relative(path.join(ROOT, "tmp"), output);
   if (
     !relative ||
@@ -41,30 +42,34 @@ function parseArgs(argv) {
   ) {
     fail("Output must be inside repository tmp");
   }
-  return { output };
+  return {
+    output,
+    approval: values.approval ? path.resolve(values.approval) : null,
+    rollout: values.rollout ? path.resolve(values.rollout) : null,
+  };
 }
 
-function assertSealedContract() {
+function assertSealedContract(approvalValue = approval, rolloutValue = rollout) {
   const fingerprint = sha256(
-    JSON.stringify({ ...rollout, rollout_fingerprint: null })
+    JSON.stringify({ ...rolloutValue, rollout_fingerprint: null })
   );
-  const reviewedCreateIds = approval.rows
+  const reviewedCreateIds = approvalValue.rows
     .filter((row) => !row.product_variant_id)
     .map((row) => row.external_variant_id)
     .sort();
-  const rolloutCreateIds = rollout.expected_bindings
+  const rolloutCreateIds = rolloutValue.expected_bindings
     .filter((row) => row.product_variant_id === null)
     .map((row) => row.external_variant_id)
     .sort();
   if (
-    approval.approved !== true ||
-    approval.rows.length !== 21 ||
-    reviewedCreateIds.length !== 14 ||
-    rollout.approved !== true ||
-    rollout.kind !== "six-pack-production-family-v3" ||
-    rollout.target_project_ref !== PROJECT_REF ||
-    rollout.expected_created_variant_count !== 14 ||
-    rollout.rollout_fingerprint !== fingerprint ||
+    approvalValue.approved !== true ||
+    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-missing-variants-batch-v3"].includes(approvalValue.kind) ||
+    approvalValue.rows.length !== rolloutValue.row_count ||
+    reviewedCreateIds.length !== rolloutValue.expected_created_variant_count ||
+    rolloutValue.approved !== true ||
+    !["six-pack-production-family-v3", "six-pack-production-expansion-v5"].includes(rolloutValue.kind) ||
+    rolloutValue.target_project_ref !== PROJECT_REF ||
+    rolloutValue.rollout_fingerprint !== fingerprint ||
     JSON.stringify(reviewedCreateIds) !==
       JSON.stringify(rolloutCreateIds)
   ) {
@@ -72,9 +77,9 @@ function assertSealedContract() {
   }
 }
 
-function intendedVariants() {
-  assertSealedContract();
-  return rollout.expected_bindings
+function intendedVariants(approvalValue = approval, rolloutValue = rollout) {
+  assertSealedContract(approvalValue, rolloutValue);
+  return rolloutValue.expected_bindings
     .filter((binding) => binding.product_variant_id === null)
     .map((binding) => ({
       product_id: Number(binding.product_id),
@@ -155,7 +160,9 @@ async function run(options, dependencies = {}) {
   ) {
     fail("Variant bootstrap is restricted to GitHub Actions on main");
   }
-  const intended = intendedVariants();
+  const approvalValue = options.approval ? JSON.parse(fs.readFileSync(options.approval, "utf8")) : approval;
+  const rolloutValue = options.rollout ? JSON.parse(fs.readFileSync(options.rollout, "utf8")) : rollout;
+  const intended = intendedVariants(approvalValue, rolloutValue);
   const productIds = [...new Set(intended.map((row) => row.product_id))];
   const db = dependencies.client || client();
   const productResult = await db
@@ -198,7 +205,7 @@ async function run(options, dependencies = {}) {
     schema_version: 1,
     kind: "six-pack-family-variant-bootstrap",
     target_project_ref: PROJECT_REF,
-    rollout_fingerprint: rollout.rollout_fingerprint,
+    rollout_fingerprint: rolloutValue.rollout_fingerprint,
     result: "PASS",
     initial_state:
       inserted.length > 0 ? "EMPTY" : classification.state,

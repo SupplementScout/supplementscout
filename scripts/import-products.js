@@ -38,12 +38,14 @@ const {
   sizeKey,
 } = require("./lib/feed-variant-guards");
 const SIX_PACK_REVIEWED_FAMILY_BATCH = require("../config/retailers/six-pack-reviewed-family-batch-v1.json");
+const SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH = require("../config/retailers/six-pack-reviewed-missing-variants-batch-v3.json");
 
 const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
-  SIX_PACK_REVIEWED_FAMILY_BATCH.rows.map((row) => [
-    String(row.external_variant_id),
-    row,
-  ])
+  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH]
+    .flatMap((batch) => batch.rows.map((row) => [
+      String(row.external_variant_id),
+      { batch, row },
+    ]))
 );
 
 dotenv.config({
@@ -769,15 +771,17 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const sizeUnit = String(row.size_unit || "").trim().toLowerCase();
   const description = String(row.description || "");
   const sourceKey = `${externalProductId}:${externalVariantId}`;
-  const sixPackReviewed = SIX_PACK_REVIEWED_FAMILY_ROWS.get(externalVariantId);
+  const sixPackReviewedEntry = SIX_PACK_REVIEWED_FAMILY_ROWS.get(externalVariantId);
+  const sixPackReviewed = sixPackReviewedEntry?.row;
+  const sixPackReviewedBatch = sixPackReviewedEntry?.batch;
   const reviewedSize = sixPackReviewed?.size
     ? parseSize(`${sixPackReviewed.size} ${sixPackReviewed.size_unit}`)
     : null;
   const inputSize = size ? parseSize(size) : null;
   const exactSixPackReviewedIdentity =
-    SIX_PACK_REVIEWED_FAMILY_BATCH.approved === true &&
-    SIX_PACK_REVIEWED_FAMILY_BATCH.kind === "six-pack-reviewed-family-batch-v1" &&
-    SIX_PACK_REVIEWED_FAMILY_BATCH.rows.length === 21 &&
+    sixPackReviewedBatch?.approved === true &&
+    ["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-missing-variants-batch-v3"].includes(sixPackReviewedBatch.kind) &&
+    [21, 17].includes(sixPackReviewedBatch.rows.length) &&
     slugifyRetailerName(String(row.retailer_name || "")) ===
       "6-pack-supplements" &&
     sixPackReviewed &&
