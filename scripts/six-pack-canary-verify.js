@@ -33,18 +33,23 @@ function verifyState(rollout, retailer, mappings, offers, idempotency) {
   }
   for (const expected of rollout.expected_bindings) {
     const mapping = mappingByExternalVariant.get(expected.external_variant_id);
+    const expectedVariantId = expected.product_variant_id;
+    const resolvedVariantId = String(mapping?.product_variant_id || "");
+    const variantIdentityMatches = expectedVariantId
+      ? resolvedVariantId === expectedVariantId
+      : Boolean(resolvedVariantId);
     if (
       !mapping ||
       String(mapping.external_product_id) !== expected.external_product_id ||
       String(mapping.product_id) !== expected.product_id ||
-      String(mapping.product_variant_id) !== expected.product_variant_id ||
+      !variantIdentityMatches ||
       mapping.external_url !== expected.external_url
     ) fail(`Mapping verification failed for ${expected.external_variant_id}`);
     const offer = offerByMapping.get(String(mapping.id));
     if (
       !offer ||
       String(offer.product_id) !== expected.product_id ||
-      String(offer.product_variant_id) !== expected.product_variant_id ||
+      String(offer.product_variant_id) !== resolvedVariantId ||
       normalizeMoney(offer.price) !== normalizeMoney(expected.price) ||
       offer.in_stock !== expected.in_stock ||
       offer.url !== expected.external_url ||

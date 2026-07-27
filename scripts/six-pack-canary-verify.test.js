@@ -34,3 +34,29 @@ test("verifier binds each exact mapping and offer and requires an idempotent dry
   input.offers[0].price = 10.99;
   assert.throws(() => verifyState(input.rollout, input.retailer, input.mappings, input.offers, input.idempotency), /Offer verification/);
 });
+
+test("verifier accepts a newly allocated variant ID only when mapping and offer agree", () => {
+  const input = fixture();
+  input.rollout.expected_bindings[0].product_variant_id = null;
+  assert.doesNotThrow(() =>
+    verifyState(
+      input.rollout,
+      input.retailer,
+      input.mappings,
+      input.offers,
+      input.idempotency
+    )
+  );
+  input.offers[0].product_variant_id = 999;
+  assert.throws(
+    () =>
+      verifyState(
+        input.rollout,
+        input.retailer,
+        input.mappings,
+        input.offers,
+        input.idempotency
+      ),
+    /Offer verification/
+  );
+});

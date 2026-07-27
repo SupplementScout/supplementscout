@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-production-family-v3",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_slug": "6-pack-supplements",
+  "row_count": 21,
+  "expected_created_variant_count": 14,
+  "csv_path": "config/retailers/six-pack-production-family-v3.csv",
+  "csv_sha256": "c1f9f17480fd77245383a917e94ed7d1a752bc5384ac419a1e61f4db243d1b6a",
+  "expected_external_variant_ids": [
+    "16448", "19815", "29418", "29421", "29424", "29427", "4007",
+    "4009", "4010", "4342", "4344", "6232", "6233", "6234",
+    "6235", "6236", "6307", "87009", "87015", "87018", "87039"
+  ],
+  "expected_bindings": [
+    {
+      "external_product_id": "16448", "external_variant_id": "16448",
+      "product_id": "982", "product_variant_id": "1922",
+      "created_variant_identity": null, "price": "20.00",
+      "shipping_cost": "4.99", "total_price": "24.99", "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/tongkat-ali-long-jack-60-capsules/"
+    },
+    {
+      "external_product_id": "6229", "external_variant_id": "6232",
+      "product_id": "126", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Chocolate Perfection / 5.4kg",
+        "flavour_code": "chocolate perfection", "flavour_label": "Chocolate Perfection",
+        "pack_count": "1", "product_format": "powder", "size_unit": "g",
+        "size_value": "5400", "variant_key": "chocolate-perfection-5400g"
+      },
+      "price": "44.99", "shipping_cost": "4.99", "total_price": "49.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/instant-mass-heavyweight-5-4kg-reflex-nutrition/"
+    },
+    {
+      "external_product_id": "6229", "external_variant_id": "6233",
+      "product_id": "126", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Strawberries & Cream / 5.4kg",
+        "flavour_code": "strawberries and cream", "flavour_label": "Strawberries & Cream",
+        "pack_count": "1", "product_format": "powder", "size_unit": "g",
+        "size_value": "5400", "variant_key": "strawberries-and-cream-5400g"
+      },
+      "price": "44.99", "shipping_cost": "4.99", "total_price": "49.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/instant-mass-heavyweight-5-4kg-reflex-nutrition/"
+    },
+    {
+      "external_product_id": "6229", "external_variant_id": "6234",
+      "product_id": "126", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Choc-Peanut Butter / 5.4kg",
+        "flavour_code": "choc peanut butter", "flavour_label": "Choc-Peanut Butter",
+        "pack_count": "1", "product_format": "powder", "size_unit": "g",
+        "size_value": "5400", "variant_key": "choc-peanut-butter-5400g"
+      },
+      "price": "44.99", "shipping_cost": "4.99", "total_price": "49.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/instant-mass-heavyweight-5-4kg-reflex-nutrition/"
+    },
+    {
+      "external_product_id": "6229", "external_variant_id": "6235",
+      "product_id": "126", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Vanilla Ice Cream / 5.4kg",
+        "flavour_code": "vanilla ice cream", "flavour_label": "Vanilla Ice Cream",
+        "pack_count": "1", "product_format": "powder", "size_unit": "g",
+        "size_value": "5400", "variant_key": "vanilla-ice-cream-5400g"
+      },
+      "price": "44.99", "shipping_cost": "4.99", "total_price": "49.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/instant-mass-heavyweight-5-4kg-reflex-nutrition/"
+    },
+    {
+      "external_product_id": "6229", "external_variant_id": "6236",
+      "product_id": "126", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Cookies & Cream / 5.4kg",
+        "flavour_code": "cookies and cream", "flavour_label": "Cookies & Cream",
+        "pack_count": "1", "product_format": "powder", "size_unit": "g",
+        "size_value": "5400", "variant_key": "cookies-and-cream-5400g"
+      },
+      "price": "44.99", "shipping_cost": "4.99", "total_price": "49.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/instant-mass-heavyweight-5-4kg-reflex-nutrition/"
+    },
+    {
+      "external_product_id": "6229", "external_variant_id": "19815",
+      "product_id": "126", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Salted Caramel / 5.4kg",
+        "flavour_code": "salted caramel", "flavour_label": "Salted Caramel",
+        "pack_count": "1", "product_format": "powder", "size_unit": "g",
+        "size_value": "5400", "variant_key": "salted-caramel-5400g"
+      },
+      "price": "44.99", "shipping_cost": "4.99", "total_price": "49.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/instant-mass-heavyweight-5-4kg-reflex-nutrition/"
+    },
+    {
+      "external_product_id": "4005", "external_variant_id": "4007",
+      "product_id": "954", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Vanilla / 500g", "flavour_code": "vanilla",
+        "flavour_label": "Vanilla", "pack_count": "1", "product_format": "powder",
+        "size_unit": "g", "size_value": "500", "variant_key": "vanilla-500g"
+      },
+      "price": "23.99", "shipping_cost": "4.99", "total_price": "28.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "4005", "external_variant_id": "4009",
+      "product_id": "954", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Strawberry Banana / 500g", "flavour_code": "strawberry banana",
+        "flavour_label": "Strawberry Banana", "pack_count": "1",
+        "product_format": "powder", "size_unit": "g", "size_value": "500",
+        "variant_key": "strawberry-banana-500g"
+      },
+      "price": "23.99", "shipping_cost": "4.99", "total_price": "28.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "4005", "external_variant_id": "4010",
+      "product_id": "954", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Raspberry / 500g", "flavour_code": "raspberry",
+        "flavour_label": "Raspberry", "pack_count": "1", "product_format": "powder",
+        "size_unit": "g", "size_value": "500", "variant_key": "raspberry-500g"
+      },
+      "price": "23.99", "shipping_cost": "4.99", "total_price": "28.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "4005", "external_variant_id": "4342",
+      "product_id": "954", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Banana / 500g", "flavour_code": "banana",
+        "flavour_label": "Banana", "pack_count": "1", "product_format": "powder",
+        "size_unit": "g", "size_value": "500", "variant_key": "banana-500g"
+      },
+      "price": "23.99", "shipping_cost": "4.99", "total_price": "28.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "4005", "external_variant_id": "4344",
+      "product_id": "954", "product_variant_id": "1857",
+      "created_variant_identity": null, "price": "23.99",
+      "shipping_cost": "4.99", "total_price": "28.98", "in_stock": false,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "6303", "external_variant_id": "6307",
+      "product_id": "37", "product_variant_id": "741",
+      "created_variant_identity": null, "price": "24.99",
+      "shipping_cost": "4.99", "total_price": "29.98", "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/bcaa-amino-hydrate-450g-applied-nutrition/"
+    },
+    {
+      "external_product_id": "8237", "external_variant_id": "29418",
+      "product_id": "403", "product_variant_id": "956",
+      "created_variant_identity": null, "price": "29.99",
+      "shipping_cost": "4.99", "total_price": "34.98", "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/joker-urban-lean-mass-gainer-5kg/"
+    },
+    {
+      "external_product_id": "8237", "external_variant_id": "29421",
+      "product_id": "403", "product_variant_id": "1046",
+      "created_variant_identity": null, "price": "29.99",
+      "shipping_cost": "4.99", "total_price": "34.98", "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/joker-urban-lean-mass-gainer-5kg/"
+    },
+    {
+      "external_product_id": "8237", "external_variant_id": "29424",
+      "product_id": "403", "product_variant_id": "1696",
+      "created_variant_identity": null, "price": "29.99",
+      "shipping_cost": "4.99", "total_price": "34.98", "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/joker-urban-lean-mass-gainer-5kg/"
+    },
+    {
+      "external_product_id": "8237", "external_variant_id": "29427",
+      "product_id": "403", "product_variant_id": "1695",
+      "created_variant_identity": null, "price": "29.99",
+      "shipping_cost": "4.99", "total_price": "34.98", "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/joker-urban-lean-mass-gainer-5kg/"
+    },
+    {
+      "external_product_id": "3612", "external_variant_id": "87009",
+      "product_id": "743", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Vanilla Ice Cream / 2kg", "flavour_code": "vanilla ice cream",
+        "flavour_label": "Vanilla Ice Cream", "pack_count": "1",
+        "product_format": "powder", "size_unit": "g", "size_value": "2000",
+        "variant_key": "vanilla-ice-cream-2000g"
+      },
+      "price": "49.99", "shipping_cost": "4.99", "total_price": "54.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612", "external_variant_id": "87015",
+      "product_id": "743", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Strawberry Milkshake / 2kg",
+        "flavour_code": "strawberry milkshake", "flavour_label": "Strawberry Milkshake",
+        "pack_count": "1", "product_format": "powder", "size_unit": "g",
+        "size_value": "2000", "variant_key": "strawberry-milkshake-2000g"
+      },
+      "price": "49.99", "shipping_cost": "4.99", "total_price": "54.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612", "external_variant_id": "87018",
+      "product_id": "743", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "Banana Milkshake / 2kg", "flavour_code": "banana milkshake",
+        "flavour_label": "Banana Milkshake", "pack_count": "1",
+        "product_format": "powder", "size_unit": "g", "size_value": "2000",
+        "variant_key": "banana-milkshake-2000g"
+      },
+      "price": "49.99", "shipping_cost": "4.99", "total_price": "54.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612", "external_variant_id": "87039",
+      "product_id": "743", "product_variant_id": null,
+      "created_variant_identity": {
+        "display_name": "White Chocolate Raspberry / 2kg",
+        "flavour_code": "white chocolate raspberry",
+        "flavour_label": "White Chocolate Raspberry", "pack_count": "1",
+        "product_format": "powder", "size_unit": "g", "size_value": "2000",
+        "variant_key": "white-chocolate-raspberry-2000g"
+      },
+      "price": "49.99", "shipping_cost": "4.99", "total_price": "54.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    }
+  ],
+  "database_writes_before_execution": 0,
+  "execution": {
+    "mode": "PROTECTED_GITHUB_ACTIONS_ONLY",
+    "approval_role": "retailer_catalogue_production_approver",
+    "executor_role": "retailer_catalogue_production_executor",
+    "direct_csv_writes": false,
+    "post_apply_idempotency_required": true
+  },
+  "rollout_fingerprint": "e25c941ff6c520463621bf44180ef2908fbfda38c17d7a58f3a4919589b52cba"
+}

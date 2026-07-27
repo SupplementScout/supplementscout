@@ -37,6 +37,14 @@ const {
   parseVariantIdentity,
   sizeKey,
 } = require("./lib/feed-variant-guards");
+const SIX_PACK_REVIEWED_FAMILY_BATCH = require("../config/retailers/six-pack-reviewed-family-batch-v1.json");
+
+const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
+  SIX_PACK_REVIEWED_FAMILY_BATCH.rows.map((row) => [
+    String(row.external_variant_id),
+    row,
+  ])
+);
 
 dotenv.config({
   path: path.join(process.cwd(), ".env.local"),
@@ -751,6 +759,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   delete sourceRow.__reviewed_whey_okay_format_identity;
   delete sourceRow.__reviewed_whey_okay_existing_variant_identity;
   delete sourceRow.__reviewed_whey_okay_q1_q2_package_identity;
+  delete sourceRow.__reviewed_six_pack_family_identity;
   row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -760,6 +769,27 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const sizeUnit = String(row.size_unit || "").trim().toLowerCase();
   const description = String(row.description || "");
   const sourceKey = `${externalProductId}:${externalVariantId}`;
+  const sixPackReviewed = SIX_PACK_REVIEWED_FAMILY_ROWS.get(externalVariantId);
+  const reviewedSize = sixPackReviewed?.size
+    ? parseSize(`${sixPackReviewed.size} ${sixPackReviewed.size_unit}`)
+    : null;
+  const inputSize = size ? parseSize(size) : null;
+  const exactSixPackReviewedIdentity =
+    SIX_PACK_REVIEWED_FAMILY_BATCH.approved === true &&
+    SIX_PACK_REVIEWED_FAMILY_BATCH.kind === "six-pack-reviewed-family-batch-v1" &&
+    SIX_PACK_REVIEWED_FAMILY_BATCH.rows.length === 21 &&
+    slugifyRetailerName(String(row.retailer_name || "")) ===
+      "6-pack-supplements" &&
+    sixPackReviewed &&
+    optionalIdentifier(row.product_id) ===
+      String(sixPackReviewed.product_id) &&
+    optionalIdentifier(row.product_variant_id) ===
+      (sixPackReviewed.product_variant_id || null) &&
+    normalizeFlavour(row.flavour || "") ===
+      normalizeFlavour(sixPackReviewed.flavour || "") &&
+    sizeKey(inputSize) === sizeKey(reviewedSize) &&
+    String(row.product_format || "").trim().toLowerCase() ===
+      sixPackReviewed.product_format;
   const reviewedWheyIdentity =
     REVIEWED_WHEY_OKAY_Q1_Q2_FORMAT_IDENTITIES.get(sourceKey) ||
     REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES.get(sourceKey);
@@ -856,6 +886,23 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
       __reviewed_whey_okay_q1_q2_package_identity: {
         contract: "whey-okay-q1-q2-package-2026-07-24",
         source_file_sha256: WHEY_OKAY_Q1_Q2_PACKAGE_SHA256,
+      },
+    };
+  }
+
+  if (exactSixPackReviewedIdentity) {
+    row = {
+      ...row,
+      __reviewed_six_pack_family_identity: {
+        contract: SIX_PACK_REVIEWED_FAMILY_BATCH.kind,
+        external_variant_id: externalVariantId,
+        canonical_product_id: String(sixPackReviewed.product_id),
+        canonical_product_variant_id:
+          sixPackReviewed.product_variant_id || null,
+        flavour: sixPackReviewed.flavour || null,
+        size_value: sixPackReviewed.size || null,
+        size_unit: sixPackReviewed.size_unit || null,
+        product_format: sixPackReviewed.product_format,
       },
     };
   }
@@ -2077,6 +2124,26 @@ function externalOptionValues(options, names) {
 
 function collectCanonicalVariantEvidence(row) {
   const options = parseExternalOptions(row.external_options);
+  const reviewedSixPack = row.__reviewed_six_pack_family_identity;
+  if (reviewedSixPack) {
+    const reviewedSize =
+      reviewedSixPack.size_value && reviewedSixPack.size_unit
+        ? parseSize(
+            `${reviewedSixPack.size_value} ${reviewedSixPack.size_unit}`
+          )
+        : null;
+    const reviewedFlavour = normalizeFlavour(reviewedSixPack.flavour || "");
+    return {
+      flavour: reviewedFlavour || null,
+      size: reviewedSize,
+      packCount: parsePackCount(
+        row.pack_count ? `pack of ${row.pack_count}` : ""
+      ),
+      productFormat: parseProductFormat(reviewedSixPack.product_format),
+      discriminatingSupplied: Boolean(reviewedFlavour || reviewedSize),
+      supplied: true,
+    };
+  }
   const explicitSizeValues = [
     row.size,
     ...externalOptionValues(options, ["size"]),
@@ -2634,6 +2701,7 @@ function normalizeVariantDisplayIdentity(value) {
 }
 
 const SHOPIFY_NUMERIC_ID_PATTERN = /^[0-9]{10,}$/;
+const WOOCOMMERCE_NUMERIC_ID_PATTERN = /^[1-9][0-9]{0,9}$/;
 const NO_SKU_SOURCE_EXCLUSION_PATTERN =
   /\b(bundle|stack|with\s+free|plus\s+free|free\s+item|bbe|dated|best\s+before|short\s+date|short\s+dated)\b/i;
 
@@ -2837,11 +2905,23 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
   if (!externalProductId || !externalVariantId) {
     throw new Error("create_variant without SKU requires external product and variant identity");
   }
+  const reviewedWooCommerceIdentity =
+    row.__reviewed_six_pack_family_identity;
+  const exactReviewedWooCommerceCreate =
+    reviewedWooCommerceIdentity &&
+    reviewedWooCommerceIdentity.canonical_product_variant_id === null &&
+    reviewedWooCommerceIdentity.external_variant_id === externalVariantId &&
+    reviewedWooCommerceIdentity.canonical_product_id ===
+      String(product?.id || "") &&
+    WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalProductId) &&
+    WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalVariantId) &&
+    externalProductId !== externalVariantId;
   if (
-    !SHOPIFY_NUMERIC_ID_PATTERN.test(externalProductId) ||
-    !SHOPIFY_NUMERIC_ID_PATTERN.test(externalVariantId) ||
-    externalProductId === externalVariantId ||
-    !isLikelyShopifyVariantUrl(row, externalVariantId)
+    !exactReviewedWooCommerceCreate &&
+    (!SHOPIFY_NUMERIC_ID_PATTERN.test(externalProductId) ||
+      !SHOPIFY_NUMERIC_ID_PATTERN.test(externalVariantId) ||
+      externalProductId === externalVariantId ||
+      !isLikelyShopifyVariantUrl(row, externalVariantId))
   ) {
     throw new Error("create_variant without SKU requires strict Shopify product and variant identity");
   }
@@ -2854,14 +2934,21 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
   if (!evidence.size?.value || !evidence.size?.unit) {
     throw new Error("create_variant without SKU requires explicit size evidence");
   }
-  const optionFlavours = externalOptionValues(externalOptions, ["flavour", "flavor"]);
+  const optionFlavours = externalOptionValues(
+    externalOptions,
+    exactReviewedWooCommerceCreate
+      ? ["flavour", "flavor", "flavours", "flavors"]
+      : ["flavour", "flavor"]
+  );
   const optionSizes = externalOptionValues(externalOptions, ["size"]);
   if (
     !externalOptions ||
     optionFlavours.length !== 1 ||
-    (!options.allowReviewedParentTitleSize && optionSizes.length !== 1)
+    (!options.allowReviewedParentTitleSize &&
+      !exactReviewedWooCommerceCreate &&
+      optionSizes.length !== 1)
   ) {
-    throw new Error("create_variant without SKU requires exact Shopify option flavour and size evidence");
+    throw new Error("create_variant without SKU requires exact reviewed option flavour and size evidence");
   }
   if (
     product?.product_format &&

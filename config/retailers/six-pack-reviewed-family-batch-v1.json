@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-family-batch-v1",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "decisions": {
+    "tongkat_alias_confirmed": true,
+    "csv_flavour_variants_confirmed": true,
+    "gym_high_2100g_identity_confirmed": true,
+    "apple_cinnamon_jam": "EXCLUDE_FOOD"
+  },
+  "rows": [
+    { "external_variant_id": "16448", "product_id": "982", "product_variant_id": "1922", "flavour": "", "size": "", "size_unit": "", "product_format": "capsule" },
+
+    { "external_variant_id": "6232", "product_id": "126", "flavour": "Chocolate Perfection", "size": "5400", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "6233", "product_id": "126", "flavour": "Strawberries & Cream", "size": "5400", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "6234", "product_id": "126", "flavour": "Choc-Peanut Butter", "size": "5400", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "6235", "product_id": "126", "flavour": "Vanilla Ice Cream", "size": "5400", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "6236", "product_id": "126", "flavour": "Cookies & Cream", "size": "5400", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "19815", "product_id": "126", "flavour": "Salted Caramel", "size": "5400", "size_unit": "g", "product_format": "powder" },
+
+    { "external_variant_id": "4007", "product_id": "954", "flavour": "Vanilla", "size": "500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4009", "product_id": "954", "flavour": "Strawberry Banana", "size": "500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4010", "product_id": "954", "flavour": "Raspberry", "size": "500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4342", "product_id": "954", "flavour": "Banana", "size": "500", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "4344", "product_id": "954", "product_variant_id": "1857", "flavour": "Cookies & Cream", "size": "500", "size_unit": "g", "product_format": "powder" },
+
+    { "external_variant_id": "6307", "product_id": "37", "product_variant_id": "741", "flavour": "Ice Blue Razz", "size": "450", "size_unit": "g", "product_format": "powder" },
+
+    { "external_variant_id": "29418", "product_id": "403", "product_variant_id": "956", "flavour": "Banana Split", "size": "2100", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "29421", "product_id": "403", "product_variant_id": "1046", "flavour": "Belgian Chocolate", "size": "2100", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "29424", "product_id": "403", "product_variant_id": "1696", "flavour": "Vanilla Ice Cream", "size": "2100", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "29427", "product_id": "403", "product_variant_id": "1695", "flavour": "Strawberries & Cream", "size": "2100", "size_unit": "g", "product_format": "powder" },
+
+    { "external_variant_id": "87009", "product_id": "743", "flavour": "Vanilla Ice Cream", "size": "2000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "87015", "product_id": "743", "flavour": "Strawberry Milkshake", "size": "2000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "87018", "product_id": "743", "flavour": "Banana Milkshake", "size": "2000", "size_unit": "g", "product_format": "powder" },
+    { "external_variant_id": "87039", "product_id": "743", "flavour": "White Chocolate Raspberry", "size": "2000", "size_unit": "g", "product_format": "powder" }
+  ]
+}

@@ -2526,6 +2526,41 @@ test("canonical variant fields map to evidence understood by variant guards", ()
   assert.equal(identity.packCount, 2);
 });
 
+test("reviewed Six Pack WooCommerce identity is exact and fail-closed", () => {
+  const approved = baseCanonicalFeedRow({
+    retailer_name: "6 Pack Supplements",
+    external_product_id: "6229",
+    external_variant_id: "6232",
+    product_id: "126",
+    product_variant_id: "",
+    flavour: "Chocolate Perfection",
+    variant_name: "Chocolate Perfection / 5.4kg",
+    size: "5400",
+    size_unit: "g",
+    product_format: "powder",
+    external_options: JSON.stringify({ Flavour: "Chocolate Perfection" }),
+  });
+  const [normalized] = normalizeCanonicalRetailerFeedRows([approved], {
+    safeCreate: true,
+  });
+  assert.deepEqual(normalized.__reviewed_six_pack_family_identity, {
+    contract: "six-pack-reviewed-family-batch-v1",
+    external_variant_id: "6232",
+    canonical_product_id: "126",
+    canonical_product_variant_id: null,
+    flavour: "Chocolate Perfection",
+    size_value: "5400",
+    size_unit: "g",
+    product_format: "powder",
+  });
+
+  const [drifted] = normalizeCanonicalRetailerFeedRows(
+    [{ ...approved, size: "5000" }],
+    { safeCreate: true }
+  );
+  assert.equal(drifted.__reviewed_six_pack_family_identity, undefined);
+});
+
 test("canonical shipping ignores delivery_cost as an alternative", () => {
   const [unknown] = normalizeCanonicalRetailerFeedRows([
     baseCanonicalFeedRow({

@@ -335,7 +335,11 @@ function assessVariantCompatibility(row, product) {
   const productStoredFormat = explicitProductFormat(product.product_format);
   const reviewedFormatIdentity = row.__reviewed_whey_okay_format_identity;
   const reviewedExistingVariantIdentity =
-    row.__reviewed_whey_okay_existing_variant_identity;
+    row.__reviewed_whey_okay_existing_variant_identity ||
+    (row.__reviewed_six_pack_family_identity
+      ?.canonical_product_variant_id
+      ? row.__reviewed_six_pack_family_identity
+      : null);
   const reviewedIdentity =
     reviewedFormatIdentity || reviewedExistingVariantIdentity;
   const reviewedPackCount = reviewedIdentity
@@ -854,7 +858,8 @@ function analyzeFeedRows(resolvedRows, options = {}) {
     if (
       safeCreate &&
       !item.productVariant?.planned_create &&
-      !row.__reviewed_whey_okay_q1_q2_package_identity
+      !row.__reviewed_whey_okay_q1_q2_package_identity &&
+      !row.__reviewed_six_pack_family_identity
     ) {
       const exclusionReasons = getSafeCreateExclusionReasons(row);
 

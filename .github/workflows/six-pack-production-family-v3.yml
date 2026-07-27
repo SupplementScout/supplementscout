@@ -1,0 +1,131 @@
+name: 6 Pack Supplements Production Family V3
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - config/retailers/six-pack-production-family-v3.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-production-family-v3
+  cancel-in-progress: false
+
+jobs:
+  apply-six-pack-family-v3:
+    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+
+    env:
+      NODE_OPTIONS: --use-system-ca
+      FAMILY_CSV: config/retailers/six-pack-production-family-v3.csv
+      FAMILY_ROLLOUT: config/retailers/six-pack-production-family-v3.json
+
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_ACTIONS" = "true"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test protected rollout contracts
+        run: |
+          node --test \
+            scripts/import-products.test.js \
+            scripts/lib/feed-variant-guards.test.js \
+            scripts/six-pack-canary-executor.test.js \
+            scripts/six-pack-canary-verify.test.js \
+            scripts/six-pack-family-rollout-sealer.test.js
+
+      - name: Verify exact approved source checksum
+        shell: bash
+        run: |
+          expected="$(node -p "require('./$FAMILY_ROLLOUT').csv_sha256")"
+          actual="$(sha256sum "$FAMILY_CSV" | cut -d' ' -f1)"
+          test "$actual" = "$expected"
+
+      - name: Fresh production preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-family-v3
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-family-v3/preflight-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-family-v3/preflight-artifact.json \
+            --csv="$FAMILY_CSV"
+
+      - name: Apply exact approved 21-row scope
+        env:
+          SIX_PACK_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIX_PACK_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-canary-executor.js \
+            --mode=all \
+            --artifact=tmp/six-pack-family-v3/preflight-artifact.json \
+            --csv="$FAMILY_CSV" \
+            --rollout="$FAMILY_ROLLOUT" \
+            --output=tmp/six-pack-family-v3/execution.json
+
+      - name: Fresh idempotency dry-run
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-family-v3-idempotency
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-family-v3/idempotency-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-family-v3/idempotency-artifact.json \
+            --csv="$FAMILY_CSV"
+
+      - name: Verify production mappings and offers
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-canary-verify.js \
+            --rollout="$FAMILY_ROLLOUT" \
+            --idempotency=tmp/six-pack-family-v3/idempotency-report.json \
+            --output=tmp/six-pack-family-v3/verification.json
+
+      - name: Publish family rollout summary
+        if: always()
+        run: |
+          echo "## 6 Pack Supplements production family V3" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/six-pack-family-v3/verification.json ]; then
+            node -e 'const r=require("./tmp/six-pack-family-v3/verification.json"); console.log(`- Result: ${r.result}\n- Retailer ID: ${r.retailer_id}\n- Mappings: ${r.mapping_count}\n- Offers: ${r.offer_count}\n- Idempotent plans: ${r.idempotent_plan_count}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Verification unavailable; workflow failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload rollout evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-production-family-v3-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/six-pack-family-v3/*.json

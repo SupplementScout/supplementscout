@@ -189,7 +189,7 @@ function canonicalFeedRow(source, product, variant, live, observedAt) {
     external_sku: source.external_sku || "",
     external_options: JSON.stringify(source.external_options || {}),
     product_id: String(product.id),
-    product_variant_id: String(variant.id),
+    product_variant_id: variant.id == null ? "" : String(variant.id),
   };
 }
 

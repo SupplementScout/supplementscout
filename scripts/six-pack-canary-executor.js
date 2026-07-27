@@ -11,6 +11,7 @@ const APPROVED_ROLLOUT_KINDS = new Map([
   ["six-pack-production-canary-v1", 6],
   ["six-pack-production-expansion-v1", 9],
   ["six-pack-production-expansion-v2", 7],
+  ["six-pack-production-family-v3", 21],
   ["six-pack-production-shipping-v1", 15],
 ]);
 
