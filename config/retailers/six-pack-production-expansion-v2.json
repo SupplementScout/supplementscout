@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-production-expansion-v2",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_slug": "6-pack-supplements",
+  "row_count": 7,
+  "csv_path": "config/retailers/six-pack-production-expansion-v2.csv",
+  "csv_sha256": "41a47e71351f9a970f084af0f7a04f4c2f8642f6ac8b33a43ec8a6727706bb95",
+  "expected_external_variant_ids": [
+    "2763",
+    "4008",
+    "4011",
+    "4091",
+    "4343",
+    "5964",
+    "6306"
+  ],
+  "expected_bindings": [
+    {
+      "external_product_id": "2763",
+      "external_variant_id": "2763",
+      "product_id": "727",
+      "product_variant_id": "633",
+      "price": "17.99",
+      "shipping_cost": "4.99",
+      "total_price": "22.98",
+      "in_stock": false,
+      "external_url": "https://6pack-supplements.co.uk/product/7nutrition-citrulline-malate/"
+    },
+    {
+      "external_product_id": "4091",
+      "external_variant_id": "4091",
+      "product_id": "274",
+      "product_variant_id": "252",
+      "price": "25.99",
+      "shipping_cost": "4.99",
+      "total_price": "30.98",
+      "in_stock": false,
+      "external_url": "https://6pack-supplements.co.uk/product/7-nutrition-alpha-gpc-60-caps/"
+    },
+    {
+      "external_product_id": "4005",
+      "external_variant_id": "4008",
+      "product_id": "954",
+      "product_variant_id": "1861",
+      "price": "23.99",
+      "shipping_cost": "4.99",
+      "total_price": "28.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "4005",
+      "external_variant_id": "4011",
+      "product_id": "954",
+      "product_variant_id": "1856",
+      "price": "23.99",
+      "shipping_cost": "4.99",
+      "total_price": "28.98",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "4005",
+      "external_variant_id": "4343",
+      "product_id": "954",
+      "product_variant_id": "1860",
+      "price": "23.99",
+      "shipping_cost": "4.99",
+      "total_price": "28.98",
+      "in_stock": false,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "4005",
+      "external_variant_id": "5964",
+      "product_id": "954",
+      "product_variant_id": "1859",
+      "price": "23.99",
+      "shipping_cost": "4.99",
+      "total_price": "28.98",
+      "in_stock": false,
+      "external_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-500g-7nutrition/"
+    },
+    {
+      "external_product_id": "6303",
+      "external_variant_id": "6306",
+      "product_id": "37",
+      "product_variant_id": "744",
+      "price": "24.99",
+      "shipping_cost": "4.99",
+      "total_price": "29.98",
+      "in_stock": false,
+      "external_url": "https://6pack-supplements.co.uk/product/bcaa-amino-hydrate-450g-applied-nutrition/"
+    }
+  ],
+  "database_writes_before_execution": 0,
+  "execution": {
+    "mode": "PROTECTED_GITHUB_ACTIONS_ONLY",
+    "approval_role": "retailer_catalogue_production_approver",
+    "executor_role": "retailer_catalogue_production_executor",
+    "direct_csv_writes": false,
+    "post_apply_idempotency_required": true
+  },
+  "rollout_fingerprint": "778abe1ba8b0bf1b1a88e913f3f333a3f24db3a6fa7b95aa35bf5265a4d7f008"
+}

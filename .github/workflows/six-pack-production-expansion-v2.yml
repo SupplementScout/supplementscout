@@ -1,0 +1,129 @@
+name: 6 Pack Supplements Production Expansion V2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - config/retailers/six-pack-production-expansion-v2.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-production-expansion-v2
+  cancel-in-progress: false
+
+jobs:
+  apply-six-pack-expansion-v2:
+    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+
+    env:
+      NODE_OPTIONS: --use-system-ca
+      EXPANSION_CSV: config/retailers/six-pack-production-expansion-v2.csv
+      EXPANSION_ROLLOUT: config/retailers/six-pack-production-expansion-v2.json
+
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_ACTIONS" = "true"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test protected rollout contracts
+        run: |
+          node --test \
+            scripts/six-pack-canary-executor.test.js \
+            scripts/six-pack-canary-verify.test.js
+
+      - name: Verify exact approved source checksum
+        shell: bash
+        run: |
+          expected="$(node -p "require('./$EXPANSION_ROLLOUT').csv_sha256")"
+          actual="$(sha256sum "$EXPANSION_CSV" | cut -d' ' -f1)"
+          test "$actual" = "$expected"
+          test "$expected" = "41a47e71351f9a970f084af0f7a04f4c2f8642f6ac8b33a43ec8a6727706bb95"
+
+      - name: Fresh production preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-expansion-v2
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-expansion-v2/preflight-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-expansion-v2/preflight-artifact.json \
+            --csv="$EXPANSION_CSV"
+
+      - name: Apply exact approved seven-row scope
+        env:
+          SIX_PACK_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIX_PACK_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-canary-executor.js \
+            --mode=all \
+            --artifact=tmp/six-pack-expansion-v2/preflight-artifact.json \
+            --csv="$EXPANSION_CSV" \
+            --rollout="$EXPANSION_ROLLOUT" \
+            --output=tmp/six-pack-expansion-v2/execution.json
+
+      - name: Fresh idempotency dry-run
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-expansion-v2-idempotency
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-expansion-v2/idempotency-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-expansion-v2/idempotency-artifact.json \
+            --csv="$EXPANSION_CSV"
+
+      - name: Verify production mappings and offers
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-canary-verify.js \
+            --rollout="$EXPANSION_ROLLOUT" \
+            --idempotency=tmp/six-pack-expansion-v2/idempotency-report.json \
+            --output=tmp/six-pack-expansion-v2/verification.json
+
+      - name: Publish expansion summary
+        if: always()
+        run: |
+          echo "## 6 Pack Supplements production expansion V2" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/six-pack-expansion-v2/verification.json ]; then
+            node -e 'const r=require("./tmp/six-pack-expansion-v2/verification.json"); console.log(`- Result: ${r.result}\n- Retailer ID: ${r.retailer_id}\n- Mappings: ${r.mapping_count}\n- Offers: ${r.offer_count}\n- Idempotent plans: ${r.idempotent_plan_count}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Verification unavailable; workflow failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload rollout evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-production-expansion-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/six-pack-expansion-v2/*.json
