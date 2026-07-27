@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-expansion-batch-v2",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "food": "EXCLUDE",
+    "new_canonical_products": "DEFER",
+    "existing_products_only": true,
+    "existing_variants_only": true
+  },
+  "rows": [
+    { "external_variant_id": "3989", "product_id": "68", "product_variant_id": "940", "source_flavour": "White chocolate" },
+    { "external_variant_id": "3992", "product_id": "68", "product_variant_id": "939", "source_flavour": "Vanilla" },
+    { "external_variant_id": "3995", "product_id": "68", "product_variant_id": "1966", "source_flavour": "Banana" },
+    { "external_variant_id": "5962", "product_id": "68", "product_variant_id": "937", "source_flavour": "Natural" },
+    { "external_variant_id": "5963", "product_id": "68", "product_variant_id": "938", "source_flavour": "Strawberry" },
+
+    { "external_variant_id": "3872", "product_id": "14", "product_variant_id": "1727", "source_flavour": "cookie cream" },
+    { "external_variant_id": "3875", "product_id": "14", "product_variant_id": "1724", "source_flavour": "vanilla" },
+    { "external_variant_id": "28743", "product_id": "14", "product_variant_id": "1723", "source_flavour": "strawberry" },
+
+    { "external_variant_id": "2931", "product_id": "132", "product_variant_id": "1037", "source_flavour": "Banana" },
+    { "external_variant_id": "2932", "product_id": "132", "product_variant_id": "1803", "source_flavour": "Chocolate" },
+    { "external_variant_id": "2934", "product_id": "132", "product_variant_id": "1804", "source_flavour": "Strawberry" },
+    { "external_variant_id": "2935", "product_id": "132", "product_variant_id": "1805", "source_flavour": "Vanilla" },
+    { "external_variant_id": "2936", "product_id": "132", "product_variant_id": "1806", "source_flavour": "White Chocolate Raspberry" },
+
+    { "external_variant_id": "4710", "product_id": "128", "product_variant_id": "1036", "source_flavour": "Strawberry banana" },
+    { "external_variant_id": "4711", "product_id": "128", "product_variant_id": "1800", "source_flavour": "Vanilla ice cream" },
+    { "external_variant_id": "4712", "product_id": "128", "product_variant_id": "1801", "source_flavour": "Triple chocolate" },
+
+    { "external_variant_id": "3947", "product_id": "71", "product_variant_id": "1624", "source_flavour": "forest fruit" },
+    { "external_variant_id": "3948", "product_id": "71", "product_variant_id": "1626", "source_flavour": "hazelnut" },
+    { "external_variant_id": "3950", "product_id": "71", "product_variant_id": "1008", "source_flavour": "chocolate-cinnamon" },
+
+    { "external_variant_id": "29583", "product_id": "36", "product_variant_id": "721", "source_flavour": "Fruit Burst" },
+    { "external_variant_id": "29586", "product_id": "36", "product_variant_id": "718", "source_flavour": "Candy Ice Blast" },
+    { "external_variant_id": "29592", "product_id": "36", "product_variant_id": "723", "source_flavour": "Ice Blue Raz" },
+
+    { "external_variant_id": "31617", "product_id": "457", "product_variant_id": "1050", "source_flavour": "Mango" },
+    { "external_variant_id": "31620", "product_id": "457", "product_variant_id": "1790", "source_flavour": "Tropical" },
+    { "external_variant_id": "31623", "product_id": "457", "product_variant_id": "1791", "source_flavour": "Raspberry" },
+
+    { "external_variant_id": "6321", "product_id": "744", "product_variant_id": "816", "source_flavour": "Icy Blue Raz" },
+    { "external_variant_id": "6322", "product_id": "744", "product_variant_id": "815", "source_flavour": "Fruit Burst" },
+
+    { "external_variant_id": "3902", "product_id": "114", "product_variant_id": "85", "source_flavour": "" },
+    { "external_variant_id": "2819", "product_id": "123", "product_variant_id": "138", "source_flavour": "" },
+    { "external_variant_id": "3525", "product_id": "381", "product_variant_id": "331", "source_flavour": "" },
+    { "external_variant_id": "3532", "product_id": "380", "product_variant_id": "368", "source_flavour": "" },
+    { "external_variant_id": "68458", "product_id": "426", "product_variant_id": "410", "source_flavour": "" },
+    { "external_variant_id": "6552", "product_id": "732", "product_variant_id": "630", "source_flavour": "" },
+    { "external_variant_id": "4124", "product_id": "736", "product_variant_id": "620", "source_flavour": "" },
+    { "external_variant_id": "4128", "product_id": "122", "product_variant_id": "87", "source_flavour": "" }
+  ]
+}
