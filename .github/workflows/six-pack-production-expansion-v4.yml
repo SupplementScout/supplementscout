@@ -7,6 +7,9 @@ on:
       - main
     paths:
       - config/retailers/six-pack-production-expansion-v4.json
+      - .github/workflows/six-pack-production-expansion-v4.yml
+      - scripts/six-pack-canary-executor.js
+      - scripts/six-pack-expansion-rollout-sealer.test.js
 
 permissions:
   contents: read
