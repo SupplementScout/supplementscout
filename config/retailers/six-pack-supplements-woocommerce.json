@@ -52,9 +52,9 @@
   "automation": {
     "retailer_id": 11,
     "manifest_path": "config/retailers/six-pack-approved-offer-manifest.json",
-    "manifest_sha256": "36148c710ba527cbdf12ef125d6e8b7c627ee503a2b82bf37e90e757753fd017",
-    "approved_mapping_count": 114,
-    "approved_product_page_count": 42,
+    "manifest_sha256": "34a38bb2523015a741d66607a8a271308b7deae57b4fb5c78934226afbb09032",
+    "approved_mapping_count": 189,
+    "approved_product_page_count": 49,
     "model": "ONE_SHARED_RETAILER_MANIFEST",
     "new_products": "REPORT_ONLY_UNTIL_REVIEWED",
     "status": "OPERATIONAL",
