@@ -26,7 +26,7 @@ function build(csvBytes, report) {
     approval.approved !== true || rows.length !== 17 || plans.length !== 17 ||
     JSON.stringify(rows.map((row) => row.external_variant_id).sort()) !== JSON.stringify(ids) ||
     report.blockedRows?.length !== 0 || report.failedRows?.length !== 0 ||
-    plans.some((plan) => plan.product?.action !== "existing" || plan.product_variant?.action !== "create_variant" ||
+    plans.some((plan) => plan.product?.action !== "existing" || plan.product_variant?.action !== "existing" ||
       plan.retailer?.action !== "existing" || plan.retailer_product?.action !== "create" ||
       plan.offer?.action !== "create" || plan.price_history?.action !== "create")
   ) fail("Importer review is not the exact approved 17-row missing-variant rollout");
@@ -34,8 +34,8 @@ function build(csvBytes, report) {
     external_product_id: String(plan.retailer_product.values.external_product_id),
     external_variant_id: String(plan.retailer_product.values.external_variant_id),
     product_id: String(plan.product.id),
-    product_variant_id: null,
-    created_variant_identity: plan.product_variant.values,
+    product_variant_id: String(plan.product_variant.id),
+    created_variant_identity: null,
     price: Number(plan.offer.values.price).toFixed(2),
     shipping_cost: Number(plan.offer.values.shipping_cost).toFixed(2),
     total_price: Number(plan.offer.values.total_price).toFixed(2),
@@ -46,7 +46,7 @@ function build(csvBytes, report) {
     schema_version: 1, kind: "six-pack-production-expansion-v5", approved: true,
     approval_source: "USER_EXPLICIT_CHAT_CONFIRMATION", approved_at: "2026-07-27",
     target_environment: "PRODUCTION", target_project_ref: "aftboxmrdgyhizicfsfu",
-    retailer_slug: "6-pack-supplements", row_count: 17, expected_created_variant_count: 17,
+    retailer_slug: "6-pack-supplements", row_count: 17, expected_created_variant_count: 0,
     csv_path: "config/retailers/six-pack-production-expansion-v5.csv",
     csv_sha256: sha256(csvBytes), expected_external_variant_ids: ids, expected_bindings: expectedBindings,
     database_writes_before_execution: 0,

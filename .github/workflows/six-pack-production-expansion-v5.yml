@@ -68,32 +68,13 @@ jobs:
           node scripts/import-products.js --mode=feed --safe-create --dry-run \
             --artifact=tmp/six-pack-expansion-v5/pre-bootstrap-artifact.json \
             --csv="$EXPANSION_CSV"
-      - name: Bootstrap exact reviewed variants
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          node scripts/six-pack-family-variant-bootstrap.js \
-            --approval="$EXPANSION_APPROVAL" \
-            --rollout="$EXPANSION_ROLLOUT" \
-            --output=tmp/six-pack-expansion-v5/variant-bootstrap.json
-      - name: Refresh production preflight after bootstrap
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-expansion-v5-post-bootstrap
-          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-expansion-v5/preflight-report.json
-        run: |
-          node scripts/import-products.js --mode=feed --safe-create --dry-run \
-            --artifact=tmp/six-pack-expansion-v5/preflight-artifact.json \
-            --csv="$EXPANSION_CSV"
       - name: Apply exact approved 17-row scope
         env:
           SIX_PACK_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SIX_PACK_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: |
           node scripts/six-pack-canary-executor.js --mode=all \
-            --artifact=tmp/six-pack-expansion-v5/preflight-artifact.json \
+            --artifact=tmp/six-pack-expansion-v5/pre-bootstrap-artifact.json \
             --csv="$EXPANSION_CSV" --rollout="$EXPANSION_ROLLOUT" \
             --output=tmp/six-pack-expansion-v5/execution.json
       - name: Fresh idempotency dry-run
