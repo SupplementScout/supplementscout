@@ -9,7 +9,7 @@
     "website": "https://6pack-supplements.co.uk",
     "source_platform": "WOOCOMMERCE"
   },
-  "approved_mapping_count": 15,
+  "approved_mapping_count": 22,
   "shipping_policy": {
     "mode": "standard_delivery_below_threshold",
     "free_shipping_threshold_gbp": "99.99",
@@ -142,6 +142,62 @@
       "external_variant_id": "87045",
       "canonical_product_id": "743",
       "canonical_variant_id": "801"
+    },
+    {
+      "mapping_id": "2185",
+      "offer_id": "1999",
+      "external_product_id": "2763",
+      "external_variant_id": "2763",
+      "canonical_product_id": "727",
+      "canonical_variant_id": "633"
+    },
+    {
+      "mapping_id": "2186",
+      "offer_id": "2000",
+      "external_product_id": "4091",
+      "external_variant_id": "4091",
+      "canonical_product_id": "274",
+      "canonical_variant_id": "252"
+    },
+    {
+      "mapping_id": "2187",
+      "offer_id": "2001",
+      "external_product_id": "4005",
+      "external_variant_id": "4008",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1861"
+    },
+    {
+      "mapping_id": "2188",
+      "offer_id": "2002",
+      "external_product_id": "4005",
+      "external_variant_id": "4011",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1856"
+    },
+    {
+      "mapping_id": "2189",
+      "offer_id": "2003",
+      "external_product_id": "4005",
+      "external_variant_id": "4343",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1860"
+    },
+    {
+      "mapping_id": "2190",
+      "offer_id": "2004",
+      "external_product_id": "4005",
+      "external_variant_id": "5964",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1859"
+    },
+    {
+      "mapping_id": "2191",
+      "offer_id": "2005",
+      "external_product_id": "6303",
+      "external_variant_id": "6306",
+      "canonical_product_id": "37",
+      "canonical_variant_id": "744"
     }
   ]
 }
