@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-production-expansion-v1",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_slug": "6-pack-supplements",
+  "row_count": 9,
+  "csv_path": "config/retailers/six-pack-production-expansion-v1.csv",
+  "csv_sha256": "f3bc0857ba0863bc200138a379d6b15f33332fab2a5e487df1ade56c99d34625",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "source_manifest_fingerprint": "f42983cee0de5850889763d9e428c4a8929f2c90497e0e73dfe572233fa02344",
+  "expected_external_variant_ids": [
+    "6309",
+    "87021",
+    "87024",
+    "87027",
+    "87030",
+    "87033",
+    "87036",
+    "87042",
+    "87045"
+  ],
+  "expected_bindings": [
+    {
+      "external_product_id": "6303",
+      "external_variant_id": "6309",
+      "product_id": "37",
+      "product_variant_id": "739",
+      "price": "24.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/bcaa-amino-hydrate-450g-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87021",
+      "product_id": "743",
+      "product_variant_id": "805",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87024",
+      "product_id": "743",
+      "product_variant_id": "802",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87027",
+      "product_id": "743",
+      "product_variant_id": "807",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87030",
+      "product_id": "743",
+      "product_variant_id": "803",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87033",
+      "product_id": "743",
+      "product_variant_id": "812",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87036",
+      "product_id": "743",
+      "product_variant_id": "813",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87042",
+      "product_id": "743",
+      "product_variant_id": "811",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    },
+    {
+      "external_product_id": "3612",
+      "external_variant_id": "87045",
+      "product_id": "743",
+      "product_variant_id": "801",
+      "price": "49.99",
+      "in_stock": true,
+      "external_url": "https://6pack-supplements.co.uk/product/critical-whey-2kg-applied-nutrition/"
+    }
+  ],
+  "database_writes_before_execution": 0,
+  "execution": {
+    "mode": "PROTECTED_GITHUB_ACTIONS_ONLY",
+    "approval_role": "retailer_catalogue_production_approver",
+    "executor_role": "retailer_catalogue_production_executor",
+    "direct_csv_writes": false,
+    "post_apply_idempotency_required": true
+  },
+  "rollout_fingerprint": "ce63616cccb65a9e1661bb22ad576695edf16a247870bb8c9d6648998dcd6441"
+}

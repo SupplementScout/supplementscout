@@ -7,7 +7,10 @@ const { loadDryRunArtifact } = require("./import-products");
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const EXPECTED_RETAILER_SLUG = "6-pack-supplements";
-const EXPECTED_COUNT = 6;
+const APPROVED_ROLLOUT_KINDS = new Map([
+  ["six-pack-production-canary-v1", 6],
+  ["six-pack-production-expansion-v1", 9],
+]);
 
 function fail(message) {
   throw new Error(message);
@@ -39,12 +42,13 @@ function validateRollout(options, loaded) {
   const csv = fs.readFileSync(options.csv);
   const rollout = JSON.parse(fs.readFileSync(options.rollout, "utf8"));
   const fingerprint = sha256(JSON.stringify({ ...rollout, rollout_fingerprint: null }));
+  const expectedCount = APPROVED_ROLLOUT_KINDS.get(rollout.kind);
   if (
     rollout.approved !== true ||
-    rollout.kind !== "six-pack-production-canary-v1" ||
+    !expectedCount ||
     rollout.target_project_ref !== PROJECT_REF ||
     rollout.retailer_slug !== EXPECTED_RETAILER_SLUG ||
-    rollout.row_count !== EXPECTED_COUNT ||
+    rollout.row_count !== expectedCount ||
     rollout.csv_sha256 !== sha256(csv) ||
     rollout.csv_sha256 !== loaded.artifact.source_file_sha256 ||
     rollout.rollout_fingerprint !== fingerprint
@@ -53,9 +57,9 @@ function validateRollout(options, loaded) {
     .map((row) => String(row.normalized_source_row.external_variant_id))
     .sort();
   if (
-    loaded.artifact.plans.length !== EXPECTED_COUNT ||
+    loaded.artifact.plans.length !== expectedCount ||
     JSON.stringify(artifactIds) !== JSON.stringify(rollout.expected_external_variant_ids)
-  ) fail("Dry-run artifact does not contain the exact approved six-row scope");
+  ) fail(`Dry-run artifact does not contain the exact approved ${expectedCount}-row scope`);
   return rollout;
 }
 
@@ -112,12 +116,12 @@ async function roleCall(kind, callback) {
   }
 }
 
-async function executeEntry(entry, artifactSha256, runId) {
+async function executeEntry(entry, artifactSha256, runId, rolloutKind) {
   const plan = entry.resolved_plan;
   const approved = await roleCall("approver", async (client) => {
     const response = await client.query(
       "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result",
-      [plan, artifactSha256, runId, "six-pack-production-canary-v1"]
+      [plan, artifactSha256, runId, rolloutKind]
     );
     return response.rows[0].result;
   });
@@ -169,7 +173,9 @@ async function run(options) {
   const rollout = validateRollout(options, loaded);
   const selected = plansForMode(loaded.artifact, options.mode);
   const rows = [];
-  for (const entry of selected) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id));
+  for (const entry of selected) {
+    rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, rollout.kind));
+  }
   const report = {
     schema_version: 1,
     kind: "six-pack-production-canary-execution",

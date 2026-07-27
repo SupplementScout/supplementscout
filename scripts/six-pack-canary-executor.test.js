@@ -20,7 +20,7 @@ test("bootstrap executes only the first create plan and becomes a no-op after bo
   assert.equal(plansForMode(artifact("existing"), "bootstrap").length, 0);
 });
 
-test("full execution requires all six plans to bind the existing retailer", () => {
+test("full execution requires every plan to bind the existing retailer", () => {
   assert.equal(plansForMode(artifact("existing"), "all").length, 6);
   assert.throws(() => plansForMode(artifact("create"), "all"), /retailer already present/);
   const mixed = artifact("existing");
