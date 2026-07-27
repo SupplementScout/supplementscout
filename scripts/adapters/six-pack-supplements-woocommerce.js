@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { parseWooCommerceCsv } = require("../lib/woocommerce-csv-reader");
@@ -40,9 +41,34 @@ function validateConfig(value) {
     value.category_policy?.permanently_excluded?.includes("SARMs") !== true ||
     value.category_policy?.permanently_excluded?.includes("Peptides") !== true ||
     value.guardrails?.catalogue_creates !== false ||
-    value.guardrails?.discovery_mode !== "REPORT_ONLY"
+    value.guardrails?.discovery_mode !== "REPORT_ONLY" ||
+    value.automation?.retailer_id !== 11 ||
+    value.automation?.approved_mapping_count !== 6 ||
+    value.automation?.model !== "ONE_SHARED_RETAILER_MANIFEST" ||
+    !/^[0-9a-f]{64}$/.test(value.automation?.manifest_sha256 || "")
   ) fail("Unsafe 6 Pack policy config");
   return value;
+}
+
+function loadApprovedAutomationManifest(value = config) {
+  validateConfig(value);
+  const manifestPath = path.join(ROOT, value.automation.manifest_path);
+  const bytes = fs.readFileSync(manifestPath);
+  const actual = crypto.createHash("sha256").update(bytes).digest("hex");
+  if (actual !== value.automation.manifest_sha256) fail("Approved automation manifest SHA mismatch");
+  const manifest = JSON.parse(bytes);
+  const rows = manifest.rows || [];
+  if (
+    manifest.approved !== true ||
+    manifest.retailer?.id !== value.automation.retailer_id ||
+    manifest.retailer?.slug !== value.retailer.slug ||
+    manifest.approved_mapping_count !== value.automation.approved_mapping_count ||
+    rows.length !== value.automation.approved_mapping_count ||
+    new Set(rows.map((row) => row.mapping_id)).size !== rows.length ||
+    new Set(rows.map((row) => row.offer_id)).size !== rows.length ||
+    new Set(rows.map((row) => row.external_variant_id)).size !== rows.length
+  ) fail("Approved automation manifest identity mismatch");
+  return { manifest, manifestPath, sha256: actual };
 }
 
 function healthReport(snapshot, value = config) {
@@ -123,6 +149,7 @@ function atomicWrite(filePath, value) {
 
 function run(options) {
   validateConfig(config);
+  loadApprovedAutomationManifest(config);
   if (!fs.existsSync(options.csv)) fail(`CSV does not exist: ${options.csv}`);
   const bytes = fs.readFileSync(options.csv);
   const snapshot = parseWooCommerceCsv(bytes, {
@@ -167,6 +194,7 @@ module.exports = {
   atomicWrite,
   buildReport,
   healthReport,
+  loadApprovedAutomationManifest,
   main,
   parseArgs,
   run,

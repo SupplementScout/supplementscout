@@ -46,6 +46,14 @@
     "status": "NOT_CONFIGURED",
     "direct_urls_are_affiliate": false
   },
+  "automation": {
+    "retailer_id": 11,
+    "manifest_path": "config/retailers/six-pack-approved-offer-manifest.json",
+    "manifest_sha256": "1b7acd8deeabc016b517d378cddd688950282904880953cb7abe1fc9aecfb6ce",
+    "approved_mapping_count": 6,
+    "model": "ONE_SHARED_RETAILER_MANIFEST",
+    "new_products": "REPORT_ONLY_UNTIL_REVIEWED"
+  },
   "guardrails": {
     "source_freshness_hours": 24,
     "maximum_changed_record_ratio": 0.25,

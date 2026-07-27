@@ -358,7 +358,10 @@ Products with at least 2 active retailers.
 - Production match-only result: 26 safe existing-variant matches; seven high-confidence reviews; 196 ambiguous reviews; 277 new-product reviews; 11 variant reviews. No catalogue creation was attempted.
 - A live 10-row canary was passed through the existing canonical importer. Its guardrails retained four rows for review and accepted six. The exact six-row subset then passed a second dry-run with six approved rows, zero invalid, unmatched, excluded, ambiguous, collision or conflict rows, and zero database writes. Frozen canary SHA-256: `28bd98642e0c6dd04e98622e9a10245e898a7d41226a2ba45401e85118dc8281`.
 - Shipping remains deliberately unknown below the public £99.99 free-shipping threshold until the ordinary charge is confirmed. Direct retailer URLs are used; affiliate tracking is not claimed.
-- Status: **READ-ONLY DISCOVERY COMPLETE / SIX-ROW PRODUCTION CANARY READY FOR EXPLICIT APPROVAL**. No staging or production write has been authorised or performed. Routine scheduled automation remains disabled until the canary has been explicitly approved, applied, post-import checked and used to seal exact mapping/offer identities.
+- The six-row canary was explicitly approved and applied through protected GitHub Actions run `30271526584` on commit `66e4306d8a247e3db281e561692442e058932b69`. Bootstrap, exact-scope apply, fresh idempotency dry-run, production mapping/offer verification and evidence upload all passed.
+- Independent production verification found exactly one retailer (`id=11`), six exact mappings and six exact offers with external variant IDs `4110`, `4112`, `4627`, `6305`, `6308` and `87012`. All six offers matched the approved prices and stock state; unknown shipping remained `null`.
+- The initial production identities are sealed in `config/retailers/six-pack-approved-offer-manifest.json`. It is the single expandable retailer manifest: later reviewed mappings are appended to the same scope and handled by the same refresh process. New or ambiguous products remain discovery-only until reviewed; they do not create separate automations.
+- Status: **PRODUCTION CANARY COMPLETE / SHARED AUTOMATION MANIFEST SEEDED WITH SIX OFFERS**.
 
 ## Initial registry template
 

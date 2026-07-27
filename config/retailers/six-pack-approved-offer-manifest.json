@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "manifest_type": "six_pack_supplements_approved_offer_scope",
+  "approved": true,
+  "retailer": {
+    "id": 11,
+    "name": "6 Pack Supplements",
+    "slug": "6-pack-supplements",
+    "website": "https://6pack-supplements.co.uk",
+    "source_platform": "WOOCOMMERCE"
+  },
+  "approved_mapping_count": 6,
+  "shipping_policy": {
+    "mode": "unknown_below_threshold",
+    "free_shipping_threshold_gbp": "99.99",
+    "shipping_cost_gbp": null
+  },
+  "discovery_policy": {
+    "mode": "report_only",
+    "catalogue_creates": false
+  },
+  "rows": [
+    {
+      "mapping_id": "2170",
+      "offer_id": "1984",
+      "external_product_id": "4110",
+      "external_variant_id": "4110",
+      "canonical_product_id": "951",
+      "canonical_variant_id": "1853"
+    },
+    {
+      "mapping_id": "2171",
+      "offer_id": "1985",
+      "external_product_id": "4112",
+      "external_variant_id": "4112",
+      "canonical_product_id": "726",
+      "canonical_variant_id": "627"
+    },
+    {
+      "mapping_id": "2172",
+      "offer_id": "1986",
+      "external_product_id": "4627",
+      "external_variant_id": "4627",
+      "canonical_product_id": "327",
+      "canonical_variant_id": "319"
+    },
+    {
+      "mapping_id": "2173",
+      "offer_id": "1987",
+      "external_product_id": "6303",
+      "external_variant_id": "6305",
+      "canonical_product_id": "37",
+      "canonical_variant_id": "745"
+    },
+    {
+      "mapping_id": "2175",
+      "offer_id": "1989",
+      "external_product_id": "6303",
+      "external_variant_id": "6308",
+      "canonical_product_id": "37",
+      "canonical_variant_id": "740"
+    },
+    {
+      "mapping_id": "2174",
+      "offer_id": "1988",
+      "external_product_id": "3612",
+      "external_variant_id": "87012",
+      "canonical_product_id": "743",
+      "canonical_variant_id": "804"
+    }
+  ]
+}
