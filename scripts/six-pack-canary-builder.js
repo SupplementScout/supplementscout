@@ -149,6 +149,9 @@ function liveIdentityDrift(source, live) {
 
 function canonicalFeedRow(source, product, variant, live, observedAt) {
   const offer = currentOffer(source, live);
+  const shippingCost = Number(offer.price) < Number(config.shipping_policy.free_shipping_threshold)
+    ? Number(config.shipping_policy.below_threshold).toFixed(2)
+    : Number(config.shipping_policy.at_or_above_threshold).toFixed(2);
   return {
     retailer_name: config.retailer.name,
     retailer_website: config.retailer.website,
@@ -165,8 +168,8 @@ function canonicalFeedRow(source, product, variant, live, observedAt) {
     affiliate_url: live.canonical_url,
     external_gtin: source.external_gtin || "",
     price: offer.price,
-    shipping_known: "false",
-    shipping_cost: "",
+    shipping_known: "true",
+    shipping_cost: shippingCost,
     in_stock: String(offer.in_stock),
     is_for_sale: String(offer.is_for_sale),
     size: variant.size_value ?? "",

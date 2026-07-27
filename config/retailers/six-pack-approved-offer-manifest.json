@@ -11,9 +11,12 @@
   },
   "approved_mapping_count": 15,
   "shipping_policy": {
-    "mode": "unknown_below_threshold",
+    "mode": "standard_delivery_below_threshold",
     "free_shipping_threshold_gbp": "99.99",
-    "shipping_cost_gbp": null
+    "shipping_cost_gbp": "4.99",
+    "shipping_cost_at_or_above_threshold_gbp": "0.00",
+    "source": "MANUAL_USER_CONFIRMED",
+    "confirmed_at": "2026-07-27"
   },
   "discovery_policy": {
     "mode": "report_only",

@@ -33,6 +33,25 @@ function loadManifest() {
   return { manifest: JSON.parse(bytes), sha256: actual };
 }
 
+function hasExpectedShipping(offer) {
+  const price = Number(offer?.price);
+  const threshold = Number(config.shipping_policy.free_shipping_threshold);
+  const expectedShipping = price < threshold
+    ? Number(config.shipping_policy.below_threshold)
+    : Number(config.shipping_policy.at_or_above_threshold);
+  const shipping = Number(offer?.shipping_cost);
+  const total = Number(offer?.total_price);
+  return (
+    config.shipping_policy.status === "VERIFIED" &&
+    Number.isFinite(price) &&
+    Number.isFinite(expectedShipping) &&
+    Number.isFinite(shipping) &&
+    Number.isFinite(total) &&
+    shipping.toFixed(2) === expectedShipping.toFixed(2) &&
+    total.toFixed(2) === (price + expectedShipping).toFixed(2)
+  );
+}
+
 function validateArtifactScope(artifact, manifest) {
   if (
     artifact.environment_marker !== "production" ||
@@ -74,8 +93,8 @@ function validateArtifactScope(artifact, manifest) {
       plan.meta?.source_captured_at !== artifact.created_at ||
       !/^[0-9a-f]{64}$/.test(plan.meta?.source_snapshot_sha256 || "") ||
       !before || !after ||
-      before.shipping_cost !== null || before.total_price !== null ||
-      after.shipping_cost !== null || after.total_price !== null
+      !hasExpectedShipping(before) ||
+      !hasExpectedShipping(after)
     ) fail(`Unsafe or mismatched refresh plan for ${source?.external_variant_id || "unknown"}`);
     snapshots.add(plan.meta.source_snapshot_sha256);
     let url;
@@ -232,4 +251,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { parseArgs, validateArtifactScope };
+module.exports = { hasExpectedShipping, parseArgs, validateArtifactScope };

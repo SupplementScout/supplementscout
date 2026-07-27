@@ -75,6 +75,7 @@ test("canonical feed row binds shared parent URL to explicit canonical IDs", () 
   assert.equal(row.product_id, "100");
   assert.equal(row.product_variant_id, "101");
   assert.equal(row.external_url, "https://shop.example/product/example/");
-  assert.equal(row.shipping_known, "false");
+  assert.equal(row.shipping_known, "true");
+  assert.equal(row.shipping_cost, "4.99");
   assert.equal(row.price, "19.99");
 });

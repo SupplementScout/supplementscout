@@ -37,10 +37,13 @@
     "collagen_peptides_allowed": true
   },
   "shipping_policy": {
-    "status": "PARTIALLY_VERIFIED",
+    "status": "VERIFIED",
     "currency": "GBP",
     "free_shipping_threshold": "99.99",
-    "below_threshold": null
+    "below_threshold": "4.99",
+    "at_or_above_threshold": "0.00",
+    "source": "MANUAL_USER_CONFIRMED",
+    "confirmed_at": "2026-07-27"
   },
   "affiliate_policy": {
     "status": "NOT_CONFIGURED",
@@ -49,7 +52,7 @@
   "automation": {
     "retailer_id": 11,
     "manifest_path": "config/retailers/six-pack-approved-offer-manifest.json",
-    "manifest_sha256": "d7fdc2d6492e4820b332b42b334fabca3259a7e2b03fe09ea3d9916df8032852",
+    "manifest_sha256": "ad7a07e17cc80259524816ff01a619d028f5aa3942b84afc8f5845c8f163799c",
     "approved_mapping_count": 15,
     "approved_product_page_count": 5,
     "model": "ONE_SHARED_RETAILER_MANIFEST",

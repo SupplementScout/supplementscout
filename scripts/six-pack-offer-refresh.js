@@ -29,6 +29,21 @@ function money(value) {
   return value == null ? null : Number(value).toFixed(2);
 }
 
+function shippingForPrice(price) {
+  const policy = config.shipping_policy;
+  const threshold = Number(policy.free_shipping_threshold);
+  const below = Number(policy.below_threshold);
+  const atOrAbove = Number(policy.at_or_above_threshold);
+  if (
+    policy.status !== "VERIFIED" ||
+    policy.currency !== "GBP" ||
+    !Number.isFinite(threshold) ||
+    !Number.isFinite(below) ||
+    !Number.isFinite(atOrAbove)
+  ) fail("Verified shipping policy is incomplete", "SHIPPING_POLICY_DRIFT");
+  return money(Number(price) < threshold ? below : atOrAbove);
+}
+
 function parseArgs(argv) {
   const out = {};
   const allowed = new Set(["target", "artifact", "report", "require-no-change"]);
@@ -142,26 +157,28 @@ function liveSourceFor(record, live) {
   );
   if (identityDrift) fail(`Live commercial identity drift for ${externalVariantId}`, "SOURCE_IDENTITY_DRIFT");
   if (!offer.active || !offer.purchasable) {
+    const shippingCost = shippingForPrice(offer.price);
     return {
       external_product_id: externalProductId,
       external_variant_id: externalVariantId,
       external_sku: record.mapping.external_sku || null,
       product_handle: new URL(live.canonical_url).pathname,
       price: money(offer.price),
-      shipping_cost: record.offer.shipping_cost == null ? null : money(record.offer.shipping_cost),
-      total_price: record.offer.shipping_cost == null ? null : money(Number(offer.price) + Number(record.offer.shipping_cost)),
+      shipping_cost: shippingCost,
+      total_price: money(Number(offer.price) + Number(shippingCost)),
       in_stock: false,
       url: live.canonical_url,
     };
   }
+  const shippingCost = shippingForPrice(offer.price);
   return {
     external_product_id: externalProductId,
     external_variant_id: externalVariantId,
     external_sku: record.mapping.external_sku || null,
     product_handle: new URL(live.canonical_url).pathname,
     price: money(offer.price),
-    shipping_cost: record.offer.shipping_cost == null ? null : money(record.offer.shipping_cost),
-    total_price: record.offer.shipping_cost == null ? null : money(Number(offer.price) + Number(record.offer.shipping_cost)),
+    shipping_cost: shippingCost,
+    total_price: money(Number(offer.price) + Number(shippingCost)),
     in_stock: Boolean(offer.in_stock),
     url: live.canonical_url,
   };
@@ -370,6 +387,7 @@ module.exports = {
   money,
   parseArgs,
   run,
+  shippingForPrice,
   targetFor,
   verificationRecord,
 };

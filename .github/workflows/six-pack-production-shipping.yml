@@ -1,0 +1,132 @@
+name: 6 Pack Supplements Production Shipping
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - config/retailers/six-pack-production-shipping-v1.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-production-shipping-v1
+  cancel-in-progress: false
+
+jobs:
+  apply-six-pack-shipping:
+    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+
+    env:
+      NODE_OPTIONS: --use-system-ca
+      SHIPPING_CSV: config/retailers/six-pack-production-shipping-v1.csv
+      SHIPPING_ROLLOUT: config/retailers/six-pack-production-shipping-v1.json
+
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_ACTIONS" = "true"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test shipping rollout contracts
+        run: |
+          node --test \
+            scripts/six-pack-shipping-rollout-builder.test.js \
+            scripts/six-pack-canary-executor.test.js \
+            scripts/six-pack-canary-verify.test.js \
+            scripts/six-pack-offer-refresh.test.js \
+            scripts/six-pack-offer-refresh-executor.test.js
+
+      - name: Verify exact approved source checksum
+        shell: bash
+        run: |
+          expected="$(node -p "require('./$SHIPPING_ROLLOUT').csv_sha256")"
+          actual="$(sha256sum "$SHIPPING_CSV" | cut -d' ' -f1)"
+          test "$actual" = "$expected"
+          test "$expected" = "e62a71c883a8f51a5871ebc0b456e69d175d6e173329503332ef924265a8c349"
+
+      - name: Fresh production preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-shipping-v1
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-shipping/preflight-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-shipping/preflight-artifact.json \
+            --csv="$SHIPPING_CSV"
+
+      - name: Apply exact approved 15-offer shipping scope
+        env:
+          SIX_PACK_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIX_PACK_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-canary-executor.js \
+            --mode=all \
+            --artifact=tmp/six-pack-shipping/preflight-artifact.json \
+            --csv="$SHIPPING_CSV" \
+            --rollout="$SHIPPING_ROLLOUT" \
+            --output=tmp/six-pack-shipping/execution.json
+
+      - name: Fresh idempotency dry-run
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-shipping-v1-idempotency
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-shipping/idempotency-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-shipping/idempotency-artifact.json \
+            --csv="$SHIPPING_CSV"
+
+      - name: Verify production prices, shipping and totals
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-canary-verify.js \
+            --rollout="$SHIPPING_ROLLOUT" \
+            --idempotency=tmp/six-pack-shipping/idempotency-report.json \
+            --output=tmp/six-pack-shipping/verification.json
+
+      - name: Publish shipping summary
+        if: always()
+        run: |
+          echo "## 6 Pack Supplements production shipping" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/six-pack-shipping/verification.json ]; then
+            node -e 'const r=require("./tmp/six-pack-shipping/verification.json"); console.log(`- Result: ${r.result}\n- Retailer ID: ${r.retailer_id}\n- Mappings: ${r.mapping_count}\n- Offers: ${r.offer_count}\n- Idempotent plans: ${r.idempotent_plan_count}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Verification unavailable; workflow failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload rollout evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-production-shipping-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/six-pack-shipping/*.json

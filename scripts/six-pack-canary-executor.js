@@ -10,6 +10,7 @@ const EXPECTED_RETAILER_SLUG = "6-pack-supplements";
 const APPROVED_ROLLOUT_KINDS = new Map([
   ["six-pack-production-canary-v1", 6],
   ["six-pack-production-expansion-v1", 9],
+  ["six-pack-production-shipping-v1", 15],
 ]);
 
 function fail(message) {

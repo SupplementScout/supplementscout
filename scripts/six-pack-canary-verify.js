@@ -11,6 +11,7 @@ function fail(message) {
 }
 
 function normalizeMoney(value) {
+  if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number.toFixed(2) : null;
 }
@@ -47,8 +48,8 @@ function verifyState(rollout, retailer, mappings, offers, idempotency) {
       normalizeMoney(offer.price) !== normalizeMoney(expected.price) ||
       offer.in_stock !== expected.in_stock ||
       offer.url !== expected.external_url ||
-      offer.shipping_cost !== null ||
-      offer.total_price !== null
+      normalizeMoney(offer.shipping_cost) !== normalizeMoney(expected.shipping_cost ?? null) ||
+      normalizeMoney(offer.total_price) !== normalizeMoney(expected.total_price ?? null)
     ) fail(`Offer verification failed for ${expected.external_variant_id}`);
   }
   if (

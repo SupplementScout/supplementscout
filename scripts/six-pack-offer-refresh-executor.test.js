@@ -24,9 +24,9 @@ function artifact() {
         product_variant: { action: "existing", id: row.canonical_variant_id },
         retailer: { action: "existing", id: "11" },
         retailer_product: { action: "noop", id: row.mapping_id },
-        offer: { action: "verify_no_change", id: row.offer_id, values: { price: "10.00", shipping_cost: null, total_price: null, in_stock: true, url: "https://6pack-supplements.co.uk/product/test/", last_checked_at: createdAt } },
+        offer: { action: "verify_no_change", id: row.offer_id, values: { price: "10.00", shipping_cost: "4.99", total_price: "14.99", in_stock: true, url: "https://6pack-supplements.co.uk/product/test/", last_checked_at: createdAt } },
         price_history: { action: "noop" },
-        expected_state: { offer: { price: "10.00", shipping_cost: null, total_price: null, in_stock: true, url: "https://6pack-supplements.co.uk/product/test/" } },
+        expected_state: { offer: { price: "10.00", shipping_cost: "4.99", total_price: "14.99", in_stock: true, url: "https://6pack-supplements.co.uk/product/test/" } },
       },
     })),
   };
