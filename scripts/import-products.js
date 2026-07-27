@@ -783,8 +783,10 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     sixPackReviewed &&
     optionalIdentifier(row.product_id) ===
       String(sixPackReviewed.product_id) &&
-    optionalIdentifier(row.product_variant_id) ===
-      (sixPackReviewed.product_variant_id || null) &&
+    [
+      sixPackReviewed.product_variant_id || null,
+      sixPackReviewed.bootstrapped_product_variant_id || null,
+    ].includes(optionalIdentifier(row.product_variant_id)) &&
     normalizeFlavour(row.flavour || "") ===
       normalizeFlavour(sixPackReviewed.flavour || "") &&
     sizeKey(inputSize) === sizeKey(reviewedSize) &&
@@ -898,7 +900,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         external_variant_id: externalVariantId,
         canonical_product_id: String(sixPackReviewed.product_id),
         canonical_product_variant_id:
-          sixPackReviewed.product_variant_id || null,
+          optionalIdentifier(row.product_variant_id),
         flavour: sixPackReviewed.flavour || null,
         size_value: sixPackReviewed.size || null,
         size_unit: sixPackReviewed.size_unit || null,

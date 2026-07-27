@@ -10,7 +10,7 @@
   "row_count": 21,
   "expected_created_variant_count": 14,
   "csv_path": "config/retailers/six-pack-production-family-v3.csv",
-  "csv_sha256": "c1f9f17480fd77245383a917e94ed7d1a752bc5384ac419a1e61f4db243d1b6a",
+  "csv_sha256": "a23bd02b34e6093e73cb7145574b42f5860238b13fa61bb2c1171ae8680a8eec",
   "expected_external_variant_ids": [
     "16448", "19815", "29418", "29421", "29424", "29427", "4007",
     "4009", "4010", "4342", "4344", "6232", "6233", "6234",
@@ -255,5 +255,5 @@
     "direct_csv_writes": false,
     "post_apply_idempotency_required": true
   },
-  "rollout_fingerprint": "e25c941ff6c520463621bf44180ef2908fbfda38c17d7a58f3a4919589b52cba"
+  "rollout_fingerprint": "46ef8dc31603f71edb7fb35fcd6b5fb1602b00c620d197c5f650a76acc983379"
 }

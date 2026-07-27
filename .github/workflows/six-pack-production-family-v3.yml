@@ -67,14 +67,14 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-family-v3
-          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-family-v3/preflight-report.json
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-family-v3-pre-bootstrap
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-family-v3/pre-bootstrap-report.json
         run: |
           node scripts/import-products.js \
             --mode=feed \
             --safe-create \
             --dry-run \
-            --artifact=tmp/six-pack-family-v3/preflight-artifact.json \
+            --artifact=tmp/six-pack-family-v3/pre-bootstrap-artifact.json \
             --csv="$FAMILY_CSV"
 
       - name: Bootstrap exact reviewed WooCommerce variants
