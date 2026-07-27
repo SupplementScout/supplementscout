@@ -83,7 +83,7 @@ function intendedVariants() {
       pack_count: Number(binding.created_variant_identity.pack_count),
       gtin: null,
       image: null,
-      nutrition_override: null,
+      nutrition_override: {},
       is_default: false,
       is_active: true,
     }));
