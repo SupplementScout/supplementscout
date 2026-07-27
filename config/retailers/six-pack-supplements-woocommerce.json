@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "retailer": {
+    "name": "6 Pack Supplements",
+    "slug": "6-pack-supplements",
+    "website": "https://6pack-supplements.co.uk"
+  },
+  "source": {
+    "platform": "WOOCOMMERCE",
+    "format": "WOOCOMMERCE_NATIVE_CSV",
+    "baseline_sha256": "6B9D131C658077B7F3982EBF94C80F34B6AE31AE4B158750D041ADB73E6B1190",
+    "baseline_csv_rows": 671,
+    "baseline_simple_products": 273,
+    "baseline_variable_products": 64,
+    "baseline_variations": 334,
+    "minimum_count_ratio": 0.9,
+    "genuine_collapse_ratio": 0.75
+  },
+  "authorization": {
+    "status": "MANUAL_USER_CONFIRMED",
+    "confirmed_at": "2026-07-27",
+    "scope": [
+      "CATALOGUE_INCLUSION",
+      "TECHNICAL_SOURCE_ACCESS",
+      "PRICE_AND_STOCK_REFRESH"
+    ]
+  },
+  "category_policy": {
+    "permanently_excluded": [
+      "SARMs",
+      "Peptides",
+      "positively expired or past-best-before products"
+    ],
+    "deferred": [
+      "Accessories"
+    ],
+    "collagen_peptides_allowed": true
+  },
+  "shipping_policy": {
+    "status": "PARTIALLY_VERIFIED",
+    "currency": "GBP",
+    "free_shipping_threshold": "99.99",
+    "below_threshold": null
+  },
+  "affiliate_policy": {
+    "status": "NOT_CONFIGURED",
+    "direct_urls_are_affiliate": false
+  },
+  "guardrails": {
+    "source_freshness_hours": 24,
+    "maximum_changed_record_ratio": 0.25,
+    "maximum_total_oos_ratio": 0.4,
+    "maximum_oos_increase_percentage_points": 0.15,
+    "mass_price_change_block_ratio": 0.2,
+    "per_row_price_hard_block_ratio": 0.6,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "discovery_mode": "REPORT_ONLY",
+    "catalogue_creates": false
+  }
+}

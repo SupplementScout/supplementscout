@@ -11,6 +11,17 @@
 
 This section records the full-project audit requested before further implementation. It is the binding execution reset. Where an older status, priority or proposed implementation elsewhere in this document conflicts with this section, this section wins. Historical sections remain as evidence, not as authority to restart completed work.
 
+### Binding catalogue exclusion policy - 27 July 2026
+
+This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
+
+- Never add a product with positive evidence that its expiry or best-before date had already passed at the source-capture time.
+- Never add SARMs.
+- Never add real peptide or research-peptide products.
+- Ordinary collagen, collagen peptides, hydrolysed protein and ordinary protein-peptide wording are not prohibited peptide products and may pass through the normal identity and safety review.
+- Missing expiry metadata, out-of-stock status, discontinued status or absence from a later source does not prove that a product is expired. Such rows must be classified using the available evidence and must never be labelled expired by inference.
+- Prohibited rows must remain outside products, variants, retailer mappings, offers and routine automation. They must be recorded as explicitly excluded rather than silently dropped.
+
 ### 0.0 Latest execution update - 19 July 2026
 
 `/creatine` is launched and indexable. Its current-price ranking, retailer ranking and JSON-LD use fresh offers only; stale/no-source offers remain excluded from current-price claims.

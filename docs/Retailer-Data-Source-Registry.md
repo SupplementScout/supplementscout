@@ -21,6 +21,17 @@ Preferred order:
 
 Do not build a retailer-specific scraper until the earlier options have been checked and documented.
 
+### Binding catalogue exclusions
+
+The global catalogue exclusion policy applies before matching, creation, approval or automation:
+
+- exclude products with positive evidence that their expiry or best-before date had already passed when the source was captured;
+- exclude all SARMs;
+- exclude real peptide and research-peptide products;
+- do not treat ordinary collagen, collagen peptides, hydrolysed protein or ordinary protein-peptide wording as prohibited peptide products;
+- do not infer expiry from missing expiry metadata, out-of-stock status, discontinued status or absence from a source;
+- retain an explicit exclusion reason in the retailer ledger rather than silently dropping the row.
+
 ## Source types
 
 ### Existing CSV
@@ -330,6 +341,24 @@ Products with at least 2 active retailers.
 - Full post-correction verification: 506/506 mapped offers matched the fresh GB source and classified `VERIFY_NO_CHANGE`; missing mappings, identity drift, duplicate source identities, source errors and blockers were all 0. The verified source contained 224 products, 844 variants and 575 available variants. The remaining 338 source variants are discovery-only, so `506 + 338 = 844` reconciles the source exactly.
 - Operational status: **complete**. `.github/workflows/jons-offer-refresh.yml` runs daily at `04:47 UTC` (`05:47 Europe/London` during British Summer Time) and remains available through `workflow_dispatch`. It uses the protected `production-readonly` Environment, tests and dry-runs before apply, registers one immutable 506-row parent with 11 ordered children, validates and applies each child through the separate least-privilege validator, approver and executor roles, performs a fresh idempotency dry-run, and uploads evidence on success or failure.
 - Manual GitHub validation run [`29931897205`](https://github.com/SupplementScout/supplementscout/actions/runs/29931897205) passed on commit `f28d462a45e11f01437365a579c5ad7fa696ad86`: 506/506 mappings and offers, 11/11 children `APPLIED`, terminal parent `COMPLETED`, 506 freshness updates, 0 price/stock/URL/history changes, 0 catalogue row-count changes, 338 discovery-only variants, blockers 0, active plans/approvals/runs 0 and recovery 0. The retained guards require explicit `GB` context, exact Shopify identity, complete source coverage and acceptable mass-change thresholds; routine automation cannot create products, variants or mappings.
+
+## 6 Pack Supplements current record - 27 July 2026
+
+- Domain: `6pack-supplements.co.uk`; platform/source: retailer-provided native WooCommerce product CSV.
+- The store owner explicitly authorised inclusion of the store and its products in SupplementScout and authorised technical use of the supplied catalogue data. Authorization source: `MANUAL_USER_CONFIRMED`, recorded 27 July 2026. Credentials or private personal details must not be committed.
+- Source snapshot: 671 rows comprising 273 simple products, 64 variable parents and 334 variation rows; SHA-256 `6B9D131C658077B7F3982EBF94C80F34B6AE31AE4B158750D041ADB73E6B1190`. The raw CSV remains outside Git.
+- Stable source identity is available through unique WooCommerce row IDs. For a simple product, use its row ID as both external product and variant identity. For a variation, use the variable parent ID as external product identity and the variation row ID as external variant identity.
+- Initial onboarding is match-first: use existing SupplementScout canonical product, brand, format, size, pack and flavour data to resolve retailer rows. Ambiguous and unmatched rows remain review-only; retailer SKU or barcode-like text must not become canonical GTIN evidence.
+- Permanently exclude SARMs, real peptide/research-peptide products and any row with positive evidence that its expiry or best-before date had passed at capture time. The supplied CSV contains no expiry field and no detected BBE, best-before, expiry, expired or short-date marker, so expiry cannot be inferred. Out-of-stock rows are not expired by default.
+- Ordinary collagen and hydrolysed protein remain eligible under normal identity review.
+- Source defects retained for review: 26 orphan variations have no parent, name or attributes; four named active variations have no price; direct product URLs are absent; variation SKU coverage is 4/334; explicit GTIN/EAN coverage is limited.
+- Public store categories `SARMs` and `Peptides` are excluded before matching. Accessories are deferred outside the initial supplement scope.
+- Public live-page enrichment is bound to the stable WooCommerce product ID through `/?p=<id>`, same-host redirects, the page `postid-<id>` identity and exact variation IDs from WooCommerce's variation payload. Price, stock and canonical URL are refreshed from the live page; the adapter fails closed on redirect, identity, schema, currency, duplicate-variant or material name/size/dosage drift.
+- Read-only source audit result: 576 normalized records; 517 eligible supplement records; 43 policy exclusions (25 peptide and 18 SARM); 16 accessories deferred; 31 source issues retained (26 orphan variations, four missing prices and one unpublished row).
+- Production match-only result: 26 safe existing-variant matches; seven high-confidence reviews; 196 ambiguous reviews; 277 new-product reviews; 11 variant reviews. No catalogue creation was attempted.
+- A live 10-row canary was passed through the existing canonical importer. Its guardrails retained four rows for review and accepted six. The exact six-row subset then passed a second dry-run with six approved rows, zero invalid, unmatched, excluded, ambiguous, collision or conflict rows, and zero database writes. Frozen canary SHA-256: `28bd98642e0c6dd04e98622e9a10245e898a7d41226a2ba45401e85118dc8281`.
+- Shipping remains deliberately unknown below the public £99.99 free-shipping threshold until the ordinary charge is confirmed. Direct retailer URLs are used; affiliate tracking is not claimed.
+- Status: **READ-ONLY DISCOVERY COMPLETE / SIX-ROW PRODUCTION CANARY READY FOR EXPLICIT APPROVAL**. No staging or production write has been authorised or performed. Routine scheduled automation remains disabled until the canary has been explicitly approved, applied, post-import checked and used to seal exact mapping/offer identities.
 
 ## Initial registry template
 

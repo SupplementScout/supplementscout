@@ -1,0 +1,159 @@
+name: 6 Pack Supplements Production Canary
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - config/retailers/six-pack-production-canary-v1.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-production-canary-v1
+  cancel-in-progress: false
+
+jobs:
+  apply-six-pack-canary:
+    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+
+    env:
+      NODE_OPTIONS: --use-system-ca
+      CANARY_CSV: config/retailers/six-pack-production-canary-v1.csv
+      CANARY_ROLLOUT: config/retailers/six-pack-production-canary-v1.json
+
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_ACTIONS" = "true"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test canary contracts
+        run: |
+          node --test \
+            scripts/six-pack-canary-executor.test.js \
+            scripts/six-pack-canary-verify.test.js \
+            scripts/lib/woocommerce-csv-reader.test.js \
+            scripts/lib/woocommerce-product-page-reader.test.js \
+            scripts/lib/retailer-canonical-matcher.test.js
+
+      - name: Verify approved source checksum
+        shell: bash
+        run: |
+          expected="$(node -p "require('./$CANARY_ROLLOUT').csv_sha256")"
+          actual="$(sha256sum "$CANARY_CSV" | cut -d' ' -f1)"
+          test "$actual" = "$expected"
+          test "$expected" = "28bd98642e0c6dd04e98622e9a10245e898a7d41226a2ba45401e85118dc8281"
+
+      - name: Fresh production preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-canary-pre-bootstrap
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-canary/pre-bootstrap-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-canary/pre-bootstrap-artifact.json \
+            --csv="$CANARY_CSV"
+
+      - name: Bootstrap retailer when absent
+        env:
+          SIX_PACK_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIX_PACK_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-canary-executor.js \
+            --mode=bootstrap \
+            --artifact=tmp/six-pack-canary/pre-bootstrap-artifact.json \
+            --csv="$CANARY_CSV" \
+            --rollout="$CANARY_ROLLOUT" \
+            --output=tmp/six-pack-canary/bootstrap-execution.json
+
+      - name: Re-plan exact scope after bootstrap
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-canary-full
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-canary/full-preflight-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-canary/full-artifact.json \
+            --csv="$CANARY_CSV"
+
+      - name: Apply exact approved six-row scope
+        env:
+          SIX_PACK_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIX_PACK_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-canary-executor.js \
+            --mode=all \
+            --artifact=tmp/six-pack-canary/full-artifact.json \
+            --csv="$CANARY_CSV" \
+            --rollout="$CANARY_ROLLOUT" \
+            --output=tmp/six-pack-canary/full-execution.json
+
+      - name: Fresh idempotency dry-run
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_IMPORT_RUN_ID: six-pack-production-canary-idempotency
+          SUPPLEMENTSCOUT_IMPORT_REPORT_PATH: tmp/six-pack-canary/idempotency-report.json
+        run: |
+          node scripts/import-products.js \
+            --mode=feed \
+            --safe-create \
+            --dry-run \
+            --artifact=tmp/six-pack-canary/idempotency-artifact.json \
+            --csv="$CANARY_CSV"
+
+      - name: Verify production mappings and offers
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-canary-verify.js \
+            --rollout="$CANARY_ROLLOUT" \
+            --idempotency=tmp/six-pack-canary/idempotency-report.json \
+            --output=tmp/six-pack-canary/verification.json
+
+      - name: Publish canary summary
+        if: always()
+        run: |
+          echo "## 6 Pack Supplements production canary" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/six-pack-canary/verification.json ]; then
+            node -e 'const r=require("./tmp/six-pack-canary/verification.json"); console.log(`- Result: ${r.result}\n- Retailer ID: ${r.retailer_id}\n- Mappings: ${r.mapping_count}\n- Offers: ${r.offer_count}\n- Idempotent plans: ${r.idempotent_plan_count}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Verification unavailable; workflow failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload rollout evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-production-canary-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/six-pack-canary/*.json
