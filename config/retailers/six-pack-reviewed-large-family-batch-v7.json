@@ -1,0 +1,614 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-large-family-batch-v7",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-27",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "food": "EXCLUDE",
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "family_mapping": true,
+    "one_shared_automation": true
+  },
+  "family_count": 8,
+  "new_product_count": 6,
+  "row_count": 77,
+  "families": [
+    {
+      "external_product_id": "3019",
+      "product_id": "215",
+      "size": "315",
+      "size_unit": "g",
+      "product_format": "powder",
+      "variants": [
+        {
+          "external_variant_id": "28846",
+          "product_variant_id": "1016",
+          "flavour": "Bubblegum Crush",
+          "source_flavour": "Bubblegum Crush",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28849",
+          "product_variant_id": "1663",
+          "flavour": "Candy Ice Blast",
+          "source_flavour": "Candy Ice Blast",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28855",
+          "product_variant_id": "1665",
+          "flavour": "Energy",
+          "source_flavour": "Energy Flavour",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28858",
+          "product_variant_id": "1666",
+          "flavour": "Fruit Punch",
+          "source_flavour": "Fruit Punch",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28861",
+          "product_variant_id": null,
+          "flavour": "Gin & Tonic",
+          "source_flavour": "Gin & Tonic",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28864",
+          "product_variant_id": "1667",
+          "flavour": "Icy Blue Raz",
+          "source_flavour": "Icy Blue Raz",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28870",
+          "product_variant_id": "1668",
+          "flavour": "Sour Apple",
+          "source_flavour": "Sour Apple",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28873",
+          "product_variant_id": "1669",
+          "flavour": "Sour Gummy Bear",
+          "source_flavour": "Sour Gummy Bear",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28876",
+          "product_variant_id": "1670",
+          "flavour": "Strawberry Mojito",
+          "source_flavour": "Strawberry Mojito",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28879",
+          "product_variant_id": "1671",
+          "flavour": "Tropical",
+          "source_flavour": "Tropical",
+          "in_stock": true
+        }
+      ],
+      "kind": "EXISTING_CANONICAL_PRODUCT"
+    },
+    {
+      "external_product_id": "6312",
+      "product_id": "744",
+      "size": "375",
+      "size_unit": "g",
+      "product_format": "powder",
+      "variants": [
+        {
+          "external_variant_id": "6315",
+          "product_variant_id": "816",
+          "flavour": "Icy Blue Razz",
+          "source_flavour": "Icy Blue Raz",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "6317",
+          "product_variant_id": "815",
+          "flavour": "Fruit Burst",
+          "source_flavour": "Fruit Burst",
+          "in_stock": false
+        }
+      ],
+      "kind": "EXISTING_CANONICAL_PRODUCT"
+    },
+    {
+      "external_product_id": "4030",
+      "name": "7Nutrition Whey Protein 80 500g",
+      "slug": "7nutrition-whey-protein-80-500g",
+      "brand": "7Nutrition",
+      "category": "Whey Protein",
+      "size": "500",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 17,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/7nutrition-whey-80-500g-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4031",
+          "source_flavour": "Chocolate-Coconut",
+          "flavour": "Chocolate-Coconut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "4032",
+          "source_flavour": "Chocolate-nougat-caramel bar",
+          "flavour": "Chocolate-Nougat-Caramel Bar",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "4033",
+          "source_flavour": "Hazelnut",
+          "flavour": "Hazelnut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "4034",
+          "source_flavour": "Cookies",
+          "flavour": "Cookies",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "4035",
+          "source_flavour": "Chocolate-Cookies",
+          "flavour": "Chocolate-Cookies",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "4036",
+          "source_flavour": "Vanilla",
+          "flavour": "Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "4039",
+          "source_flavour": "Vanilla-Cinnamon",
+          "flavour": "Vanilla-Cinnamon",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "4043",
+          "source_flavour": "Salted Pistachio",
+          "flavour": "Salted Pistachio",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "9545",
+          "source_flavour": "Salted Caramel",
+          "flavour": "Salted Caramel",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "9546",
+          "source_flavour": "Strawberry-Banana",
+          "flavour": "Strawberry-Banana",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "9547",
+          "source_flavour": "Strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29040",
+          "source_flavour": "Blueberry",
+          "flavour": "Blueberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29043",
+          "source_flavour": "Peach",
+          "flavour": "Peach",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "29046",
+          "source_flavour": "White Chocolate-Raspberry",
+          "flavour": "White Chocolate-Raspberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29049",
+          "source_flavour": "Choco-Caramel-Peanut-Bar",
+          "flavour": "Choco-Caramel-Peanut-Bar",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "86976",
+          "source_flavour": "White Chocolate-Strawberry",
+          "flavour": "White Chocolate-Strawberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "86979",
+          "source_flavour": "White Chocolate-Cherry",
+          "flavour": "White Chocolate-Cherry",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3582",
+      "name": "7Nutrition Whey Protein 80 2kg",
+      "slug": "7nutrition-whey-protein-80-2kg",
+      "brand": "7Nutrition",
+      "category": "Whey Protein",
+      "size": "2000",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 13,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "57.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/10/7nutrition-whey-80-2000g-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "28920",
+          "source_flavour": "Hazelnut",
+          "flavour": "Hazelnut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28923",
+          "source_flavour": "Chocolate",
+          "flavour": "Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28929",
+          "source_flavour": "Strawberry -Banana",
+          "flavour": "Strawberry-Banana",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28932",
+          "source_flavour": "Chocolate Coconut",
+          "flavour": "Chocolate Coconut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28935",
+          "source_flavour": "Chocolate-Carmel-Peanut",
+          "flavour": "Chocolate-Caramel-Peanut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28938",
+          "source_flavour": "Cookies",
+          "flavour": "Cookies",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28941",
+          "source_flavour": "Salted Pistachio",
+          "flavour": "Salted Pistachio",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "35036",
+          "source_flavour": "Salted Caramel",
+          "flavour": "Salted Caramel",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "35039",
+          "source_flavour": "White Chocolate",
+          "flavour": "White Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "35042",
+          "source_flavour": "Vanilla-Banana",
+          "flavour": "Vanilla-Banana",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "35045",
+          "source_flavour": "Raspberry",
+          "flavour": "Raspberry",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "35048",
+          "source_flavour": "Vanilla",
+          "flavour": "Vanilla",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "35051",
+          "source_flavour": "Chocolate-Cookies",
+          "flavour": "Chocolate-Cookies",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3835",
+      "name": "BioTech USA 100% Pure Whey 2.27kg",
+      "slug": "biotech-usa-100-pure-whey-2-27kg",
+      "brand": "BioTech USA",
+      "category": "Whey Protein",
+      "size": "2270",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 9,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "49.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/11/biotech-usa-100-na-wystawe1.jpg",
+      "variants": [
+        {
+          "external_variant_id": "3836",
+          "source_flavour": "salty caramel",
+          "flavour": "Salted Caramel",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3842",
+          "source_flavour": "sour cherry-yoghurt",
+          "flavour": "Sour Cherry-Yoghurt",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3843",
+          "source_flavour": "hazelnuts",
+          "flavour": "Hazelnut",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "3844",
+          "source_flavour": "cookies & cream",
+          "flavour": "Cookies & Cream",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3845",
+          "source_flavour": "cinnamon rolls",
+          "flavour": "Cinnamon Rolls",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3846",
+          "source_flavour": "chocolate-coconut",
+          "flavour": "Chocolate-Coconut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3847",
+          "source_flavour": "bourbon-vanilla",
+          "flavour": "Bourbon-Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3848",
+          "source_flavour": "chocolate",
+          "flavour": "Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3849",
+          "source_flavour": "raspberry-cheesecake",
+          "flavour": "Raspberry-Cheesecake",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "2767",
+      "name": "7Nutrition Whey Isolate 90 2kg",
+      "slug": "7nutrition-whey-isolate-90-2kg",
+      "brand": "7Nutrition",
+      "category": "Whey Protein",
+      "size": "2000",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 9,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "69.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/08/7nutrition-whey-isolate-2000g-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "28798",
+          "source_flavour": "Cookie with cream",
+          "flavour": "Cookies & Cream",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28801",
+          "source_flavour": "Vanilla",
+          "flavour": "Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28804",
+          "source_flavour": "White chocolate",
+          "flavour": "White Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28807",
+          "source_flavour": "Chocolate",
+          "flavour": "Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28810",
+          "source_flavour": "Strawberry-banana",
+          "flavour": "Strawberry-Banana",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28813",
+          "source_flavour": "Raspberry",
+          "flavour": "Raspberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28816",
+          "source_flavour": "Strawberry",
+          "flavour": "Strawberry",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28819",
+          "source_flavour": "Banana",
+          "flavour": "Banana",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28822",
+          "source_flavour": "Salted caramel",
+          "flavour": "Salted Caramel",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "2760",
+      "name": "Applied Nutrition ISO-XP 1kg",
+      "slug": "applied-nutrition-iso-xp-1kg",
+      "brand": "Applied Nutrition",
+      "category": "Whey Protein",
+      "size": "1000",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 9,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "39.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/08/applied-nutrition-isoxp-isolate-whey-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "28995",
+          "source_flavour": "Choco Bueno",
+          "flavour": "Choco Bueno",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28998",
+          "source_flavour": "Choco Candies",
+          "flavour": "Choco Candies",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29001",
+          "source_flavour": "Choco Caramel",
+          "flavour": "Choco Caramel",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29004",
+          "source_flavour": "Choco Coco",
+          "flavour": "Choco Coco",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29007",
+          "source_flavour": "Choco Honeycomb",
+          "flavour": "Choco Honeycomb",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29010",
+          "source_flavour": "Choco Peanut",
+          "flavour": "Choco Peanut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29013",
+          "source_flavour": "Chocolate dessert",
+          "flavour": "Chocolate Dessert",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29016",
+          "source_flavour": "Vanilla",
+          "flavour": "Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29019",
+          "source_flavour": "Strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "61810",
+      "name": "PER4M Plant Advanced Vegan Protein 900g",
+      "slug": "per4m-plant-advanced-vegan-protein-900g",
+      "brand": "PER4M",
+      "category": "Whey Protein",
+      "size": "900",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 8,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "25.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/07/plant-base-protein-per4m-vegan-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "61819",
+          "source_flavour": "Double Chocolate",
+          "flavour": "Double Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "61825",
+          "source_flavour": "Vanilla Creme",
+          "flavour": "Vanilla Creme",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "61831",
+          "source_flavour": "Chocotella (Choconut)",
+          "flavour": "Chocotella (Choconut)",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "61837",
+          "source_flavour": "Chocolate Mint",
+          "flavour": "Chocolate Mint",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "61843",
+          "source_flavour": "Chocolate Orange",
+          "flavour": "Chocolate Orange",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "61849",
+          "source_flavour": "Salted Caramel",
+          "flavour": "Salted Caramel",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "61855",
+          "source_flavour": "Raspberry White Chocolate",
+          "flavour": "Raspberry White Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "61858",
+          "source_flavour": "Strawberry Creme",
+          "flavour": "Strawberry Creme",
+          "in_stock": true
+        }
+      ]
+    }
+  ],
+  "approval_fingerprint": "afebd26dfcc15e504e32a3eae8eff948c7c10f9ed951b223ee2178250ed8c2f6"
+}
