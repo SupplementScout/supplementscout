@@ -1,0 +1,463 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-large-family-batch-v10",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-28",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "collagen_supplements": "ALLOW",
+    "food": "EXCLUDE",
+    "hormonal_and_high_risk_stimulants": "DEFER",
+    "conflicting_brand_identity": "DEFER",
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "family_mapping": true,
+    "one_shared_automation": true
+  },
+  "family_count": 14,
+  "new_product_count": 14,
+  "row_count": 34,
+  "families": [
+    {
+      "external_product_id": "4486",
+      "name": "CNP Loaded H2O 300g",
+      "brand": "CNP",
+      "category": "Hydration",
+      "size": "300",
+      "size_unit": "g",
+      "expected_count": 5,
+      "slug": "cnp-loaded-h2o-300g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/cnp-loaded-h20-hydration-electrolyte-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "29232",
+          "source_flavour": "Strawberry Laces",
+          "flavour": "Strawberry Laces",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29235",
+          "source_flavour": "Peach Rings",
+          "flavour": "Peach Rings",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29238",
+          "source_flavour": "Orange Burst",
+          "flavour": "Orange Burst",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29241",
+          "source_flavour": "Blue Bears",
+          "flavour": "Blue Bears",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29244",
+          "source_flavour": "Big Juicy Melons",
+          "flavour": "Big Juicy Melons",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3088",
+      "name": "Nutrend Flexit Drink 400g",
+      "brand": "Nutrend",
+      "category": "Health Supplements",
+      "size": "400",
+      "size_unit": "g",
+      "expected_count": 5,
+      "slug": "nutrend-flexit-drink-400g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/10/nutrend-flex-joint-support-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "28900",
+          "source_flavour": "Grapefruit",
+          "flavour": "Grapefruit",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28903",
+          "source_flavour": "Orange",
+          "flavour": "Orange",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28906",
+          "source_flavour": "Peach",
+          "flavour": "Peach",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28909",
+          "source_flavour": "Strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28912",
+          "source_flavour": "Lemon",
+          "flavour": "Lemon",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3629",
+      "name": "MuscleTech Nitro-Tech 1.8kg",
+      "brand": "MuscleTech",
+      "category": "Whey Protein",
+      "size": "1800",
+      "size_unit": "g",
+      "expected_count": 4,
+      "slug": "muscletech-nitro-tech-1-8kg",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "54.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/10/muscletech-nitrotech-whey-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "29025",
+          "source_flavour": "milk chocolate",
+          "flavour": "Milk Chocolate",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "29028",
+          "source_flavour": "vanilla cream",
+          "flavour": "Vanilla Cream",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29031",
+          "source_flavour": "cookies & cream",
+          "flavour": "Cookies & Cream",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29034",
+          "source_flavour": "strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4781",
+      "name": "BioTech USA Hyper Mass 4kg",
+      "brand": "BioTech USA",
+      "category": "Mass Gainer",
+      "size": "4000",
+      "size_unit": "g",
+      "expected_count": 3,
+      "slug": "biotech-usa-hyper-mass-4kg",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "39.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/HyperMass_Chocolate_4000g_8l_20190821122418.png",
+      "variants": [
+        {
+          "external_variant_id": "29292",
+          "source_flavour": "Strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29295",
+          "source_flavour": "Vanilla",
+          "flavour": "Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29298",
+          "source_flavour": "Chocolate",
+          "flavour": "Chocolate",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "3656",
+      "name": "Medi Evil Nutrition Purely Mass 5.28kg",
+      "brand": "Medi Evil Nutrition",
+      "category": "Mass Gainer",
+      "size": "5280",
+      "size_unit": "g",
+      "expected_count": 3,
+      "slug": "medi-evil-nutrition-purely-mass-5-28kg",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "48.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/10/Medi-evil-mass-gainer-Purely-Mass-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "3659",
+          "source_flavour": "Strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3660",
+          "source_flavour": "Vanilla",
+          "flavour": "Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3661",
+          "source_flavour": "Chocolate",
+          "flavour": "Chocolate",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4749",
+      "name": "Scivation XTEND EAAs + Electrolytes 40 Servings",
+      "brand": "Scivation",
+      "category": "Amino Acids",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 40,
+      "unit_type": "serving",
+      "expected_count": 3,
+      "slug": "scivation-xtend-eaas-electrolytes-40-servings",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "25.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/xtend-eea-amino-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "29571",
+          "source_flavour": "tropical",
+          "flavour": "Tropical",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29574",
+          "source_flavour": "apple & raspberry",
+          "flavour": "Apple & Raspberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29577",
+          "source_flavour": "summer fruits",
+          "flavour": "Summer Fruits",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4905",
+      "name": "USN 3XT Dynamite Pre-Workout 375g",
+      "brand": "USN",
+      "category": "Pre Workout",
+      "size": "375",
+      "size_unit": "g",
+      "expected_count": 3,
+      "slug": "usn-3xt-dynamite-pre-workout-375g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "20.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/3xt-dinamite-usnpre-workout-3-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "29520",
+          "source_flavour": "Blue Burst",
+          "flavour": "Blue Burst",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29523",
+          "source_flavour": "Candy Pop",
+          "flavour": "Candy Pop",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "29526",
+          "source_flavour": "Hawaiian Pump",
+          "flavour": "Hawaiian Pump",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6312",
+      "name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "brand": "Applied Nutrition",
+      "category": "Pre Workout",
+      "size": "375",
+      "size_unit": "g",
+      "expected_count": 2,
+      "slug": "applied-nutrition-pump-3g-pre-workout-375g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "24.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/04/pump-3g-pre-workout-applied-nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6315",
+          "source_flavour": "Icy Blue Raz",
+          "flavour": "Icy Blue Raz",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "6317",
+          "source_flavour": "Fruit Burst",
+          "flavour": "Fruit Burst",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "1495",
+      "name": "BioTech USA BCAA Zero 360g Tropical Fruit",
+      "brand": "BioTech USA",
+      "category": "Amino Acids",
+      "size": "360",
+      "size_unit": "g",
+      "expected_count": 1,
+      "simple_flavour": "Tropical Fruit",
+      "slug": "biotech-usa-bcaa-zero-360g-tropical-fruit",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2018/04/BioTechUSA_BCAA_zero_powder-1.jpg",
+      "variants": [
+        {
+          "external_variant_id": "1495",
+          "source_flavour": null,
+          "flavour": "Tropical Fruit",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "4702",
+      "name": "7Nutrition AAKG Arginine 250g",
+      "brand": "7Nutrition",
+      "category": "Amino Acids",
+      "size": "250",
+      "size_unit": "g",
+      "expected_count": 1,
+      "simple_flavour": "Unflavoured",
+      "slug": "7nutrition-aakg-arginine-250g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "17.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/eng_pl_7NUTRITION-AAKG-250-g-6201_2.png",
+      "variants": [
+        {
+          "external_variant_id": "4702",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6530",
+      "name": "Applied Nutrition L-Glutamine 500g",
+      "brand": "Applied Nutrition",
+      "category": "Amino Acids",
+      "size": "500",
+      "size_unit": "g",
+      "expected_count": 1,
+      "simple_flavour": "Unflavoured",
+      "slug": "applied-nutrition-l-glutamine-500g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "25.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/Rf6dce71e2d522f2f32b0902b7192c07e.png",
+      "variants": [
+        {
+          "external_variant_id": "6530",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "11473",
+      "name": "7Nutrition Creatine Creapure 500g",
+      "brand": "7Nutrition",
+      "category": "Creatine",
+      "size": "500",
+      "size_unit": "g",
+      "expected_count": 1,
+      "simple_flavour": "Unflavoured",
+      "slug": "7nutrition-creatine-creapure-500g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "30.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/06/creapure-creatine-muscle-gains-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "11473",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "4870",
+      "name": "Trec Nutrition CM3 Tri-Creatine Malate 500g White Cola",
+      "brand": "Trec Nutrition",
+      "category": "Creatine",
+      "size": "500",
+      "size_unit": "g",
+      "expected_count": 1,
+      "simple_flavour": "White Cola",
+      "slug": "trec-nutrition-cm3-tri-creatine-malate-500g-white-cola",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "29.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/6pack_supplements_creatine_monohydrate_muscle_siez_muscle_grow_strengh_workout.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4870",
+          "source_flavour": null,
+          "flavour": "White Cola",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "31671",
+      "name": "Reflex Nutrition Creatine Creapure 250g",
+      "brand": "Reflex Nutrition",
+      "category": "Creatine",
+      "size": "250",
+      "size_unit": "g",
+      "expected_count": 1,
+      "simple_flavour": "Unflavoured",
+      "slug": "reflex-nutrition-creatine-creapure-250g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "15.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/creatine-mono-creapure-250g-reflax-nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "31671",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    }
+  ],
+  "approval_fingerprint": "0e24f3ef389bd7e9d3420e28181ffed5739ca599b8318c367bfc6a4f732217a6"
+}

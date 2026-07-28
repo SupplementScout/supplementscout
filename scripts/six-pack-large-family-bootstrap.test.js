@@ -3,6 +3,7 @@ const test = require("node:test");
 const approval = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
 const nextApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v8.json");
 const countedApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v9.json");
+const powderApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v10.json");
 const {
   assertApproval,
   classifyVariants,
@@ -55,6 +56,21 @@ test("generic bootstrap accepts 36 counted supplement families", () => {
   assert.equal(
     new Set(intended.map((variant) => variant.external_variant_id)).size,
     36
+  );
+});
+
+test("generic bootstrap accepts 14 powder families and 34 offers", () => {
+  assert.doesNotThrow(() => assertApproval(powderApproval));
+  const intended = powderApproval.families.flatMap((family) =>
+    intendedVariants(family).filter(
+      (variant) => variant.external_variant_id
+    )
+  );
+  assert.equal(powderApproval.family_count, 14);
+  assert.equal(intended.length, 34);
+  assert.equal(
+    new Set(intended.map((variant) => variant.external_variant_id)).size,
+    34
   );
 });
 
