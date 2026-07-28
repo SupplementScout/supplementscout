@@ -63,7 +63,7 @@ function parseArgs(argv) {
     fail("Output must be inside repository tmp");
   }
   if (
-    !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap", "six-pack-production-expansion-v6", "six-pack-production-expansion-v7", "six-pack-production-expansion-v8"].includes(options.kind) ||
+    !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap", "six-pack-production-expansion-v6", "six-pack-production-expansion-v7", "six-pack-production-expansion-v8", "six-pack-production-expansion-v9"].includes(options.kind) ||
     !/^config\/retailers\/six-pack-production-[a-z0-9-]+\.csv$/.test(options.csvPath)
   ) {
     fail("Unsupported family rollout identity");
@@ -155,7 +155,7 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
   };
   if (
     approvalValue.approved !== true ||
-    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5", "six-pack-reviewed-large-family-batch-v7", "six-pack-reviewed-large-family-batch-v8"].includes(approvalValue.kind) ||
+    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5", "six-pack-reviewed-large-family-batch-v7", "six-pack-reviewed-large-family-batch-v8", "six-pack-reviewed-large-family-batch-v9"].includes(approvalValue.kind) ||
     approvedRows.length !== rows.length + coveredDuplicateAliases.length ||
     JSON.stringify(csvIds) !== JSON.stringify(approvedIds) ||
     report.blockedRows?.length !== 0 ||
