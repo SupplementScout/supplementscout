@@ -47,8 +47,8 @@ test("source health fails closed below configured completeness thresholds", () =
 test("approved automation scope is one exact full retailer manifest", () => {
   const loaded = adapter.loadApprovedAutomationManifest();
   assert.equal(loaded.manifest.retailer.id, 11);
-  assert.equal(loaded.manifest.rows.length, 391);
-  assert.equal(new Set(loaded.manifest.rows.map((row) => row.external_variant_id)).size, 391);
+  assert.equal(loaded.manifest.rows.length, 440);
+  assert.equal(new Set(loaded.manifest.rows.map((row) => row.external_variant_id)).size, 440);
 });
 
 test("atomic evidence writer leaves only the requested final file", () => {
