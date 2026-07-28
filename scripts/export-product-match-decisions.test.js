@@ -82,6 +82,22 @@ test("stored decision exports as a sealed tamper-evident review row", () => {
   assert.equal(validateDecision(exported).valid, true);
 });
 
+test("family binding metadata is included in the sealed decision", () => {
+  const exported = reviewRow(databaseDecision({
+    decision: "APPROVE_NEW_VARIANT_SEED",
+    selected_canonical_product_id: null,
+    selected_canonical_variant_id: null,
+    selected_family_seed_review_item_id: "29",
+    proposed_family_name: "Callowfit Sauce 300ml",
+    proposed_variant_name: "Curry Mango",
+  }));
+  assert.match(
+    exported.reviewer_notes,
+    /^PRODUCT_STRUCTURE_V1:\{"family_seed_review_item_id":"29","family_name":"Callowfit Sauce 300ml","variant_name":"Curry Mango"\}/
+  );
+  assert.equal(validateDecision(exported).valid, true);
+});
+
 test("source drift blocks decision export", () => {
   assert.throws(
     () => reviewRow(databaseDecision({ product_title: "Changed Product" })),

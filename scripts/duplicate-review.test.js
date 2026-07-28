@@ -211,3 +211,27 @@ test("retailer review queue cannot directly authorize catalogue writes", () => {
     /\b(insert|update|delete)\s+(into\s+|from\s+)?public\.(products|product_variants|retailer_products|offers|price_history)\b/i
   );
 });
+
+test("family review migration keeps family decisions review-only and guarded", () => {
+  const migration = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "supabase",
+      "migrations",
+      "20260728170000_add_product_match_family_decisions.sql"
+    ),
+    "utf8"
+  );
+
+  assert.match(migration, /selected_family_seed_review_item_id bigint/);
+  assert.match(migration, /selected_family_seed_review_item_id = id/);
+  assert.match(migration, /invalid product match family seed/);
+  assert.match(migration, /family seed has active dependent variants/);
+  assert.match(migration, /snapshot_id <> new\.snapshot_id/);
+  assert.match(migration, /retailer <> new\.retailer/);
+  assert.match(migration, /It never points directly to catalogue data/);
+  assert.doesNotMatch(
+    migration,
+    /\b(insert|update|delete)\s+(into\s+|from\s+)?public\.(products|product_variants|retailer_products|offers|price_history)\b/i
+  );
+});

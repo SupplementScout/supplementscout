@@ -8,8 +8,19 @@ const SIMPLE_DECISIONS = new Set([
   "REJECT_IDENTITY",
 ]);
 
-function isPositiveInteger(value: FormDataEntryValue | null) {
+function isPositiveInteger(
+  value: FormDataEntryValue | null
+): value is string {
   return typeof value === "string" && /^[1-9]\d*$/.test(value);
+}
+
+function requiredText(
+  value: FormDataEntryValue | null,
+  maximumLength: number
+) {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  return text && text.length <= maximumLength ? text : null;
 }
 
 function redirectToQueue(request: NextRequest, saved: string) {
@@ -27,6 +38,10 @@ export async function POST(request: NextRequest) {
   const sourceFingerprint = formData.get("sourceFingerprint");
   const decisionValue = formData.get("decision");
   const bindingValue = formData.get("binding");
+  const candidateProductValue = formData.get("candidateProduct");
+  const familySeedValue = formData.get("familySeed");
+  const familyNameValue = formData.get("familyName");
+  const variantNameValue = formData.get("variantName");
   const notesValue = formData.get("notes");
 
   if (
@@ -40,9 +55,13 @@ export async function POST(request: NextRequest) {
 
   let selectedProductId: string | null = null;
   let selectedVariantId: string | null = null;
+  let selectedFamilySeedId: string | null = null;
+  let proposedFamilyName: string | null = null;
+  let proposedVariantName: string | null = null;
+  let storedDecision = decisionValue;
   const { data: reviewItem, error: reviewItemError } = await supabaseAdmin
     .from("product_match_review_queue")
-    .select("id, canonical_candidates")
+    .select("id, snapshot_id, retailer, canonical_candidates")
     .eq("id", String(idValue))
     .eq("source_row_fingerprint", sourceFingerprint)
     .eq("decision", "PENDING")
@@ -55,6 +74,30 @@ export async function POST(request: NextRequest) {
       { status: 409 }
     );
   }
+
+  const candidates = Array.isArray(reviewItem.canonical_candidates)
+    ? reviewItem.canonical_candidates
+    : [];
+  const suggestedProduct = (productId: string) =>
+    candidates.some(
+      (candidate) =>
+        candidate &&
+        typeof candidate === "object" &&
+        "product_id" in candidate &&
+        String(candidate.product_id) === productId
+    );
+  const loadActiveProduct = async (productId: string) => {
+    const { data: product, error } = await supabaseAdmin
+      .from("products")
+      .select("id, is_active, merged_into_product_id")
+      .eq("id", productId)
+      .maybeSingle();
+    return !error &&
+      product?.is_active === true &&
+      product.merged_into_product_id === null
+      ? product
+      : null;
+  };
 
   if (decisionValue === "APPROVE_EXISTING_VARIANT") {
     if (typeof bindingValue !== "string") {
@@ -70,18 +113,7 @@ export async function POST(request: NextRequest) {
     }
     selectedProductId = binding[1];
     selectedVariantId = binding[2];
-    const candidates = Array.isArray(reviewItem.canonical_candidates)
-      ? reviewItem.canonical_candidates
-      : [];
-    const productWasSuggested = candidates.some(
-      (candidate) =>
-        candidate &&
-        typeof candidate === "object" &&
-        "product_id" in candidate &&
-        String(candidate.product_id) === selectedProductId
-    );
-
-    if (!productWasSuggested) {
+    if (!suggestedProduct(selectedProductId)) {
       return new NextResponse(
         "The selected product is not part of this reviewed suggestion.",
         { status: 409 }
@@ -118,6 +150,66 @@ export async function POST(request: NextRequest) {
         status: 409,
       });
     }
+  } else if (decisionValue === "APPROVE_NEW_VARIANT_SEED_EXISTING") {
+    if (
+      !isPositiveInteger(candidateProductValue) ||
+      !suggestedProduct(candidateProductValue)
+    ) {
+      return new NextResponse("Select a suggested canonical product.", {
+        status: 400,
+      });
+    }
+    proposedVariantName = requiredText(variantNameValue, 200);
+    if (!proposedVariantName) {
+      return new NextResponse("Enter the new flavour or variant name.", {
+        status: 400,
+      });
+    }
+    if (!(await loadActiveProduct(candidateProductValue))) {
+      return new NextResponse("Canonical product is no longer valid.", {
+        status: 409,
+      });
+    }
+    selectedProductId = candidateProductValue;
+    storedDecision = "APPROVE_NEW_VARIANT_SEED";
+  } else if (decisionValue === "APPROVE_NEW_FAMILY_SEED") {
+    proposedFamilyName = requiredText(familyNameValue, 300);
+    proposedVariantName = requiredText(variantNameValue, 200);
+    if (!proposedFamilyName || !proposedVariantName) {
+      return new NextResponse("Enter the family and first variant names.", {
+        status: 400,
+      });
+    }
+    selectedFamilySeedId = String(reviewItem.id);
+  } else if (decisionValue === "APPROVE_NEW_VARIANT_SEED_FAMILY") {
+    if (!isPositiveInteger(familySeedValue)) {
+      return new NextResponse("Select a reviewed new product family.", {
+        status: 400,
+      });
+    }
+    proposedVariantName = requiredText(variantNameValue, 200);
+    if (!proposedVariantName) {
+      return new NextResponse("Enter the new flavour or variant name.", {
+        status: 400,
+      });
+    }
+    const { data: seed, error: seedError } = await supabaseAdmin
+      .from("product_match_review_queue")
+      .select("id, proposed_family_name")
+      .eq("id", familySeedValue)
+      .eq("snapshot_id", reviewItem.snapshot_id)
+      .eq("retailer", reviewItem.retailer)
+      .eq("decision", "APPROVE_NEW_FAMILY_SEED")
+      .is("consumed_at", null)
+      .maybeSingle();
+    if (seedError || !seed || !seed.proposed_family_name) {
+      return new NextResponse("Selected product family is no longer valid.", {
+        status: 409,
+      });
+    }
+    selectedFamilySeedId = String(seed.id);
+    proposedFamilyName = String(seed.proposed_family_name);
+    storedDecision = "APPROVE_NEW_VARIANT_SEED";
   } else if (!SIMPLE_DECISIONS.has(decisionValue)) {
     return new NextResponse("Unsupported review decision.", { status: 400 });
   }
@@ -130,9 +222,12 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabaseAdmin
     .from("product_match_review_queue")
     .update({
-      decision: decisionValue,
+      decision: storedDecision,
       selected_canonical_product_id: selectedProductId,
       selected_canonical_variant_id: selectedVariantId,
+      selected_family_seed_review_item_id: selectedFamilySeedId,
+      proposed_family_name: proposedFamilyName,
+      proposed_variant_name: proposedVariantName,
       reviewer_notes: notes,
       reviewed_by: "admin-panel",
       reviewed_at: now,

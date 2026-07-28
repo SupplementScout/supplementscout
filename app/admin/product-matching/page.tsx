@@ -35,6 +35,9 @@ type ReviewRow = {
   decision: string;
   selected_canonical_product_id: number | string | null;
   selected_canonical_variant_id: number | string | null;
+  selected_family_seed_review_item_id: number | string | null;
+  proposed_family_name: string | null;
+  proposed_variant_name: string | null;
   reviewer_notes: string | null;
   reviewed_at: string | null;
   consumed_at: string | null;
@@ -126,7 +129,7 @@ export default async function ProductMatchingPage({
   const { data, error } = await supabaseAdmin
     .from("product_match_review_queue")
     .select(
-      "id, snapshot_id, review_item_id, source_record_id, retailer, product_title, variant_title, primary_status, reason_codes, confidence, canonical_candidates, source_sku, source_gtin, source_weight, source_price, source_url, suggested_action, decision, selected_canonical_product_id, selected_canonical_variant_id, reviewer_notes, reviewed_at, consumed_at, source_row_fingerprint, updated_at"
+      "id, snapshot_id, review_item_id, source_record_id, retailer, product_title, variant_title, primary_status, reason_codes, confidence, canonical_candidates, source_sku, source_gtin, source_weight, source_price, source_url, suggested_action, decision, selected_canonical_product_id, selected_canonical_variant_id, selected_family_seed_review_item_id, proposed_family_name, proposed_variant_name, reviewer_notes, reviewed_at, consumed_at, source_row_fingerprint, updated_at"
     )
     .order("updated_at", { ascending: false })
     .limit(1000);
@@ -192,6 +195,12 @@ export default async function ProductMatchingPage({
   const variants = (variantsData || []) as Variant[];
   const productMap = new Map(
     products.map((product) => [String(product.id), product])
+  );
+  const familySeeds = rows.filter(
+    (row) =>
+      row.decision === "APPROVE_NEW_FAMILY_SEED" &&
+      !row.consumed_at &&
+      row.proposed_family_name
   );
 
   return (
@@ -317,6 +326,18 @@ export default async function ProductMatchingPage({
                 product.merged_into_product_id === null
               );
             });
+            const candidateProducts = products.filter(
+              (product) =>
+                candidateIds.has(String(product.id)) &&
+                product.is_active === true &&
+                product.merged_into_product_id === null
+            );
+            const availableFamilySeeds = familySeeds.filter(
+              (seed) =>
+                seed.snapshot_id === row.snapshot_id &&
+                seed.retailer === row.retailer &&
+                String(seed.id) !== String(row.id)
+            );
 
             return (
               <article
@@ -453,6 +474,63 @@ export default async function ProductMatchingPage({
                       </select>
                     </label>
                     <label className="mt-3 block text-sm font-medium text-blue-950">
+                      Existing product for a new flavour or variant
+                      <select
+                        name="candidateProduct"
+                        defaultValue=""
+                        className="mt-1 w-full rounded-lg border border-blue-200 bg-white px-3 py-2"
+                      >
+                        <option value="">
+                          Select when the product exists but this flavour does not
+                        </option>
+                        {candidateProducts.map((product) => (
+                          <option key={product.id} value={product.id}>
+                            {product.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="mt-3 block text-sm font-medium text-blue-950">
+                      New family already started in this review
+                      <select
+                        name="familySeed"
+                        defaultValue=""
+                        className="mt-1 w-full rounded-lg border border-blue-200 bg-white px-3 py-2"
+                      >
+                        <option value="">
+                          Select to add this row as another flavour
+                        </option>
+                        {availableFamilySeeds.map((seed) => (
+                          <option key={seed.id} value={seed.id}>
+                            {seed.proposed_family_name} — source{" "}
+                            {seed.source_record_id}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      <label className="block text-sm font-medium text-blue-950">
+                        New family name
+                        <input
+                          type="text"
+                          name="familyName"
+                          maxLength={300}
+                          className="mt-1 w-full rounded-lg border border-blue-200 bg-white px-3 py-2"
+                          placeholder="Example: Callowfit Sauce 300ml"
+                        />
+                      </label>
+                      <label className="block text-sm font-medium text-blue-950">
+                        Flavour or variant name
+                        <input
+                          type="text"
+                          name="variantName"
+                          maxLength={200}
+                          className="mt-1 w-full rounded-lg border border-blue-200 bg-white px-3 py-2"
+                          placeholder="Example: Curry Mango"
+                        />
+                      </label>
+                    </div>
+                    <label className="mt-3 block text-sm font-medium text-blue-950">
                       Optional note
                       <input
                         type="text"
@@ -479,6 +557,32 @@ export default async function ProductMatchingPage({
                         className="rounded-lg border border-blue-700 bg-white px-4 py-2 text-sm font-semibold text-blue-800"
                       >
                         Treat as a new product
+                      </button>
+                      <button
+                        type="submit"
+                        name="decision"
+                        value="APPROVE_NEW_VARIANT_SEED_EXISTING"
+                        disabled={candidateProducts.length === 0}
+                        className="rounded-lg border border-emerald-700 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 disabled:cursor-not-allowed disabled:border-zinc-300 disabled:text-zinc-400"
+                      >
+                        Add flavour to selected existing product
+                      </button>
+                      <button
+                        type="submit"
+                        name="decision"
+                        value="APPROVE_NEW_FAMILY_SEED"
+                        className="rounded-lg border border-violet-700 bg-white px-4 py-2 text-sm font-semibold text-violet-800"
+                      >
+                        Start one new product family
+                      </button>
+                      <button
+                        type="submit"
+                        name="decision"
+                        value="APPROVE_NEW_VARIANT_SEED_FAMILY"
+                        disabled={availableFamilySeeds.length === 0}
+                        className="rounded-lg border border-violet-700 bg-white px-4 py-2 text-sm font-semibold text-violet-800 disabled:cursor-not-allowed disabled:border-zinc-300 disabled:text-zinc-400"
+                      >
+                        Add flavour to selected new family
                       </button>
                       <button
                         type="submit"
@@ -511,6 +615,22 @@ export default async function ProductMatchingPage({
                     {row.reviewer_notes && (
                       <p className="mt-2">Note: {row.reviewer_notes}</p>
                     )}
+                    {row.proposed_family_name && (
+                      <p className="mt-2">
+                        Family: {row.proposed_family_name}
+                        {row.proposed_variant_name
+                          ? ` · variant: ${row.proposed_variant_name}`
+                          : ""}
+                      </p>
+                    )}
+                    {!row.proposed_family_name &&
+                      row.proposed_variant_name &&
+                      row.selected_canonical_product_id && (
+                        <p className="mt-2">
+                          Existing product {row.selected_canonical_product_id} ·
+                          new variant: {row.proposed_variant_name}
+                        </p>
+                      )}
                     {!row.consumed_at && (
                       <form
                         action="/admin/product-matching/reopen"

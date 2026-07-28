@@ -63,6 +63,22 @@ function reviewRow(row) {
   const candidates = Array.isArray(row.canonical_candidates)
     ? row.canonical_candidates
     : [];
+  const structure =
+    row.selected_family_seed_review_item_id ||
+    row.proposed_family_name ||
+    row.proposed_variant_name
+      ? `PRODUCT_STRUCTURE_V1:${JSON.stringify({
+          family_seed_review_item_id: row.selected_family_seed_review_item_id
+            ? String(row.selected_family_seed_review_item_id)
+            : null,
+          family_name: row.proposed_family_name || null,
+          variant_name: row.proposed_variant_name || null,
+        })}`
+      : "";
+  const reviewerNotes = [
+    structure,
+    row.reviewer_notes || "",
+  ].filter(Boolean).join("\n");
   const output = normalizeRow({
     review_item_id: row.review_item_id,
     snapshot_id: row.snapshot_id,
@@ -83,7 +99,7 @@ function reviewRow(row) {
     reviewer_decision: row.decision === "PENDING" ? "" : row.decision,
     selected_canonical_product_id: row.selected_canonical_product_id,
     selected_canonical_variant_id: row.selected_canonical_variant_id,
-    reviewer_notes: row.reviewer_notes,
+    reviewer_notes: reviewerNotes,
     reviewed_by: row.reviewed_by,
     reviewed_at: row.reviewed_at,
     decision_fingerprint: "",
@@ -110,7 +126,7 @@ async function exportDecisions(options, dependencies = {}) {
   const { data, error } = await client
     .from("product_match_review_queue")
     .select(
-      "snapshot_id, review_item_id, source_record_id, retailer, product_title, variant_title, primary_status, reason_codes, confidence, canonical_candidates, source_sku, source_gtin, source_weight, source_price, source_url, suggested_action, decision, selected_canonical_product_id, selected_canonical_variant_id, reviewer_notes, reviewed_by, reviewed_at, source_row_fingerprint, artifact_fingerprint"
+      "snapshot_id, review_item_id, source_record_id, retailer, product_title, variant_title, primary_status, reason_codes, confidence, canonical_candidates, source_sku, source_gtin, source_weight, source_price, source_url, suggested_action, decision, selected_canonical_product_id, selected_canonical_variant_id, selected_family_seed_review_item_id, proposed_family_name, proposed_variant_name, reviewer_notes, reviewed_by, reviewed_at, source_row_fingerprint, artifact_fingerprint"
     )
     .eq("snapshot_id", options.snapshot)
     .order("review_item_id")

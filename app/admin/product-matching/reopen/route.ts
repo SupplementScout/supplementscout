@@ -12,12 +12,44 @@ export async function POST(request: NextRequest) {
     return new NextResponse("Invalid review item.", { status: 400 });
   }
 
+  const { data: current, error: currentError } = await supabaseAdmin
+    .from("product_match_review_queue")
+    .select("id, decision")
+    .eq("id", id)
+    .is("consumed_at", null)
+    .maybeSingle();
+  if (currentError || !current || current.decision === "PENDING") {
+    return new NextResponse(
+      "This decision cannot be reopened because it changed or was consumed.",
+      { status: 409 }
+    );
+  }
+
+  if (current.decision === "APPROVE_NEW_FAMILY_SEED") {
+    const { count, error: dependentError } = await supabaseAdmin
+      .from("product_match_review_queue")
+      .select("id", { count: "exact", head: true })
+      .eq("selected_family_seed_review_item_id", id)
+      .eq("decision", "APPROVE_NEW_VARIANT_SEED")
+      .is("consumed_at", null)
+      .neq("id", id);
+    if (dependentError || (count || 0) > 0) {
+      return new NextResponse(
+        "Reopen the family variants before reopening the family seed.",
+        { status: 409 }
+      );
+    }
+  }
+
   const { data, error } = await supabaseAdmin
     .from("product_match_review_queue")
     .update({
       decision: "PENDING",
       selected_canonical_product_id: null,
       selected_canonical_variant_id: null,
+      selected_family_seed_review_item_id: null,
+      proposed_family_name: null,
+      proposed_variant_name: null,
       reviewer_notes: null,
       reviewed_by: null,
       reviewed_at: null,
@@ -25,7 +57,7 @@ export async function POST(request: NextRequest) {
     })
     .eq("id", id)
     .is("consumed_at", null)
-    .neq("decision", "PENDING")
+    .eq("decision", current.decision)
     .select("id")
     .maybeSingle();
 
