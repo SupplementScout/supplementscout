@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-catalogue-decisions-v11",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-28",
+  "retailer_id": 11,
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "food": "EXCLUDE",
+    "dmaa": "EXCLUDE",
+    "yohimbine": "EXCLUDE",
+    "t5_eca": "EXCLUDE",
+    "collagen_supplements": "ALLOW",
+    "ordinary_maca_shilajit_ashwagandha_and_ginseng": "ALLOW",
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "ordinary_unambiguous_supplements": "APPROVE_IN_LARGE_REVIEWED_BATCHES",
+    "new_flavours": "JOIN_EXISTING_FAMILY_WHEN_NAME_BRAND_AND_SIZE_MATCH",
+    "duplicate_retailer_pages": "ONE_ACTIVE_OFFER_WITH_REVIEWED_SOURCE_ALIASES",
+    "one_shared_automation": true
+  },
+  "approved_multi_page_families": [
+    {
+      "canonical_name": "CNP Loaded EAA 300g",
+      "external_product_ids": ["8355", "8357", "8359", "8361", "8363"],
+      "flavours": ["Juicy Melons", "Strawberry Laces", "Fruit Salads", "Grape Gazillionz", "Pink Pigs"]
+    },
+    {
+      "canonical_name": "Scivation XTEND BCAA 30 Servings",
+      "external_product_ids": ["8485", "8488", "8490", "8492", "8494", "8502"],
+      "flavours": ["Blue Raspberry Ice", "Smash Apple", "Raspberry Pineapple", "Knockout Fruit Punch", "Mango Madness", "Lemon Lime Squeeze"]
+    },
+    {
+      "canonical_name": "USN Hyperbolic Mass gH 6kg",
+      "external_product_ids": ["24849", "24875", "24878"],
+      "flavours": ["Strawberry Cheesecake", "French Vanilla", "Dutch Chocolate"]
+    },
+    {
+      "canonical_name": "7Nutrition Creatine Strong Tri-Creatine Malate 400g",
+      "external_product_ids": ["2817", "16680", "16683"],
+      "flavours": ["Orange", "Lemon", "Green Apple"]
+    }
+  ],
+  "approved_identity_overrides": [
+    {
+      "external_product_id": "6312",
+      "canonical_name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "title_token_override": {
+        "token": "3G",
+        "meaning": "PRODUCT_NAME",
+        "not_net_weight": true
+      },
+      "net_weight_g": 375,
+      "flavours": ["Icy Blue Raz", "Fruit Burst"],
+      "distinct_from_external_product_id": "6320",
+      "distinct_from_product": "Applied Nutrition Pump 3G Zero Stim 375g"
+    },
+    {
+      "canonical_name": "7Nutrition Selenium 120 Vege Capsules",
+      "primary_external_product_id": "3915",
+      "source_alias_external_product_ids": ["4642"],
+      "product_gtin": null,
+      "retailer_codes_are_not_promoted_to_product_gtin": true
+    }
+  ],
+  "approved_brand_overrides": [
+    {
+      "external_product_ids": ["40045", "40054", "40063"],
+      "brand": "Nordic Labs",
+      "reason": "USER_PRODUCT_EXPERT_CONFIRMATION_OVERRIDES_CONFLICTING_CSV_BRAND_FIELD"
+    }
+  ],
+  "approved_named_products": [
+    "Trec Nutrition Clenburexin",
+    "Universal Nutrition Animal Cuts",
+    "5% Rich Piana 5150",
+    "Skull Labs Angel Dust PUMP",
+    "Fadogia Agrestis",
+    "Mr Test Turkesterone Tongkat Ali Fadogia Agrestis",
+    "Nordic Labs TestX Pro",
+    "Universal Nutrition Animal M-Stak",
+    "TUDCA & NAC Liver Support"
+  ],
+  "deferred_named_products": [
+    "Melatonin 5mg Dream Dream Dream",
+    "NMN Nicotinamide",
+    "Limitlesss Nootropic Brain Booster",
+    "Vitamin D3 8000 IU"
+  ],
+  "permanently_excluded_source_groups": {
+    "dmaa_external_product_ids": ["28492", "28596", "32502"],
+    "yohimbine_external_product_ids": ["4630", "8225", "16482"],
+    "t5_eca_external_product_ids": ["8227"]
+  }
+}

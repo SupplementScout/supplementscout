@@ -4,6 +4,7 @@ const approval = require("../config/retailers/six-pack-reviewed-large-family-bat
 const nextApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v8.json");
 const countedApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v9.json");
 const powderApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v10.json");
+const multipageApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v11.json");
 const {
   assertApproval,
   classifyVariants,
@@ -72,6 +73,12 @@ test("generic bootstrap accepts 13 powder families and 32 offers", () => {
     new Set(intended.map((variant) => variant.external_variant_id)).size,
     32
   );
+});
+
+test("generic bootstrap accepts five multi-page families and 19 offers", () => {
+  assert.doesNotThrow(() => assertApproval(multipageApproval));
+  assert.equal(multipageApproval.family_count, 5);
+  assert.equal(multipageApproval.row_count, 19);
 });
 
 test("new canonical products keep unverified metrics null", () => {

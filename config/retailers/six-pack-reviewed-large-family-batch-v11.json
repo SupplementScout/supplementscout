@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-large-family-batch-v11",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-28",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "decision_kind": "six-pack-reviewed-catalogue-decisions-v11",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "collagen_supplements": "ALLOW",
+    "food": "EXCLUDE",
+    "dmaa": "EXCLUDE",
+    "yohimbine": "EXCLUDE",
+    "t5_eca": "EXCLUDE",
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "family_mapping": true,
+    "multi_page_family_mapping": true,
+    "one_shared_automation": true
+  },
+  "family_count": 5,
+  "new_product_count": 3,
+  "row_count": 19,
+  "families": [
+    {
+      "external_product_id": "8355",
+      "name": "CNP Loaded EAA 300g",
+      "brand": "CNP",
+      "category": "Amino Acids",
+      "size": "300",
+      "size_unit": "g",
+      "slug": "cnp-loaded-eaa-300g",
+      "product_format": "powder",
+      "product_id": "745",
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/03/cnp_eaa_6pack_supplements_reading.jpg",
+      "variants": [
+        {
+          "external_product_id": "8355",
+          "external_variant_id": "8355",
+          "source_flavour": null,
+          "flavour": "Juicy Melons",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8357",
+          "external_variant_id": "8357",
+          "source_flavour": null,
+          "flavour": "Strawberry Laces",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8359",
+          "external_variant_id": "8359",
+          "product_variant_id": "1269",
+          "source_flavour": null,
+          "flavour": "Fruit Salad",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8361",
+          "external_variant_id": "8361",
+          "source_flavour": null,
+          "flavour": "Grape Gazillionz",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8363",
+          "external_variant_id": "8363",
+          "product_variant_id": "821",
+          "source_flavour": null,
+          "flavour": "Pink Pigs",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "8485",
+      "name": "Scivation XTEND BCAA 30 Servings",
+      "brand": "Scivation",
+      "category": "Amino Acids",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 30,
+      "unit_type": "serving",
+      "slug": "scivation-xtend-bcaa-30-servings",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "22.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/03/xtend_bcaa_6pack_supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "8485",
+          "external_variant_id": "8485",
+          "source_flavour": null,
+          "flavour": "Blue Raspberry Ice",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8488",
+          "external_variant_id": "8488",
+          "source_flavour": null,
+          "flavour": "Smash Apple",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8490",
+          "external_variant_id": "8490",
+          "source_flavour": null,
+          "flavour": "Raspberry Pineapple",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8492",
+          "external_variant_id": "8492",
+          "source_flavour": null,
+          "flavour": "Knockout Fruit Punch",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8494",
+          "external_variant_id": "8494",
+          "source_flavour": null,
+          "flavour": "Mango Madness",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8502",
+          "external_variant_id": "8502",
+          "source_flavour": null,
+          "flavour": "Lemon Lime Squeeze",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "24849",
+      "name": "USN Hyperbolic Mass gH 6kg",
+      "brand": "USN",
+      "category": "Mass Gainer",
+      "size": "6000",
+      "size_unit": "g",
+      "slug": "usn-hyperbolic-mass-gh-6kg",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "49.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/02/111.jpg",
+      "variants": [
+        {
+          "external_product_id": "24849",
+          "external_variant_id": "24849",
+          "source_flavour": null,
+          "flavour": "Strawberry Cheesecake",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "24875",
+          "external_variant_id": "24875",
+          "source_flavour": null,
+          "flavour": "French Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "24878",
+          "external_variant_id": "24878",
+          "source_flavour": null,
+          "flavour": "Dutch Chocolate",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "2817",
+      "name": "7Nutrition Creatine Strong Tri-Creatine Malate 400g",
+      "brand": "7Nutrition",
+      "category": "Creatine",
+      "size": "400",
+      "size_unit": "g",
+      "slug": "7nutrition-creatine-strong-tri-creatine-malate-400g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "24.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/10/6pack_supplements_creatine_monohydrate_muscle_siez_muscle_grow_mass_strenght.jpg",
+      "variants": [
+        {
+          "external_product_id": "2817",
+          "external_variant_id": "2817",
+          "source_flavour": null,
+          "flavour": "Orange",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "16680",
+          "external_variant_id": "16680",
+          "source_flavour": null,
+          "flavour": "Lemon",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "16683",
+          "external_variant_id": "16683",
+          "source_flavour": null,
+          "flavour": "Green Apple",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6312",
+      "name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "brand": "Applied Nutrition",
+      "category": "Pre Workout",
+      "size": "375",
+      "size_unit": "g",
+      "slug": "applied-nutrition-pump-3g-pre-workout-375g",
+      "product_format": "powder",
+      "product_id": "1062",
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "24.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/04/pump-3g-pre-workout-applied-nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "6312",
+          "external_variant_id": "6315",
+          "product_variant_id": "2239",
+          "source_flavour": null,
+          "flavour": "Icy Blue Raz",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6312",
+          "external_variant_id": "6317",
+          "product_variant_id": "2240",
+          "source_flavour": null,
+          "flavour": "Fruit Burst",
+          "in_stock": false
+        }
+      ]
+    }
+  ],
+  "approval_fingerprint": "f1b24246fd77c0fba89fe9b215e1205a541e54b1fdf201aec04bcf41550f2d1c"
+}

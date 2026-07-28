@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const {
   parseArgs,
   productIdentityMatches,
+  reviewedSourceProductId,
 } = require("./six-pack-large-family-feed-builder");
 
 test("large family feed output is confined to tmp", () => {
@@ -32,5 +33,22 @@ test("new family product identity is exact", () => {
   assert.equal(
     productIdentityMatches({ ...product, category: "Other" }, family),
     false
+  );
+});
+
+test("a reviewed variant may come from its own WooCommerce product page", () => {
+  assert.equal(
+    reviewedSourceProductId(
+      { external_product_id: "8355" },
+      { external_product_id: "8363", external_variant_id: "8363" }
+    ),
+    "8363"
+  );
+  assert.equal(
+    reviewedSourceProductId(
+      { external_product_id: "6312" },
+      { external_variant_id: "6315" }
+    ),
+    "6312"
   );
 });

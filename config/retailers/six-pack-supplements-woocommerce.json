@@ -29,12 +29,49 @@
     "permanently_excluded": [
       "SARMs",
       "Peptides",
-      "positively expired or past-best-before products"
+      "positively expired or past-best-before products",
+      "food",
+      "DMAA products",
+      "yohimbine products",
+      "T5 ECA products"
     ],
     "deferred": [
-      "Accessories"
+      "Accessories",
+      "melatonin above the already approved 1mg product",
+      "NMN",
+      "Limitlesss Nootropic Brain Booster",
+      "Vitamin D3 8000 IU"
     ],
-    "collagen_peptides_allowed": true
+    "collagen_peptides_allowed": true,
+    "ordinary_maca_shilajit_ashwagandha_and_ginseng_allowed": true,
+    "reviewed_high_stimulant_products_allowed": [
+      "Trec Nutrition Clenburexin",
+      "Universal Nutrition Animal Cuts",
+      "5% Rich Piana 5150",
+      "Skull Labs Angel Dust PUMP"
+    ],
+    "reviewed_testosterone_support_products_allowed": [
+      "Fadogia Agrestis",
+      "Mr Test Turkesterone Tongkat Ali Fadogia Agrestis",
+      "Nordic Labs TestX Pro",
+      "Universal Nutrition Animal M-Stak"
+    ],
+    "reviewed_regulatory_products_allowed": [
+      "TUDCA & NAC Liver Support"
+    ],
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "confirmed_at": "2026-07-28",
+    "source": "USER_EXPLICIT_CHAT_CONFIRMATION"
+  },
+  "catalogue_mapping_policy": {
+    "ordinary_unambiguous_supplements": "APPROVE_IN_LARGE_REVIEWED_BATCHES",
+    "new_flavours": "JOIN_EXISTING_FAMILY_WHEN_NAME_BRAND_AND_SIZE_MATCH",
+    "multi_page_families": "MAP_TO_ONE_CANONICAL_PRODUCT_WITH_VARIANTS",
+    "duplicate_retailer_pages": "ONE_ACTIVE_OFFER_WITH_REVIEWED_SOURCE_ALIASES",
+    "family_mapping": true,
+    "one_shared_automation": true,
+    "confirmed_at": "2026-07-28",
+    "source": "USER_EXPLICIT_CHAT_CONFIRMATION"
   },
   "shipping_policy": {
     "status": "VERIFIED",

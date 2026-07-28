@@ -138,6 +138,12 @@ function productIdentityMatches(product, family) {
   );
 }
 
+function reviewedSourceProductId(family, reviewed) {
+  return String(
+    reviewed.external_product_id || family.external_product_id
+  );
+}
+
 async function run(options, dependencies = {}) {
   const approval =
     dependencies.approval ||
@@ -253,22 +259,23 @@ async function run(options, dependencies = {}) {
     }
     const offset =
       family.kind === "NEW_CANONICAL_PRODUCT" ? 1 : 0;
-    let live = liveByProduct.get(String(family.external_product_id));
-    if (!live) {
-      live = await readLive(family.external_product_id);
-      liveByProduct.set(String(family.external_product_id), live);
-    }
     for (let index = 0; index < family.variants.length; index += 1) {
       const reviewed = family.variants[index];
       const source = sourceById.get(
         String(reviewed.external_variant_id)
       );
+      const sourceProductId = reviewedSourceProductId(family, reviewed);
+      let live = liveByProduct.get(sourceProductId);
+      if (!live) {
+        live = await readLive(sourceProductId);
+        liveByProduct.set(sourceProductId, live);
+      }
       const variant = classification.matches[index + offset];
       if (
         !source ||
         source.policy_state !== "ELIGIBLE" ||
         String(source.external_product_id) !==
-          String(family.external_product_id) ||
+          sourceProductId ||
         !variant ||
         variant.is_active !== true ||
         String(variant.product_id) !== String(product.id)
@@ -284,7 +291,7 @@ async function run(options, dependencies = {}) {
       if (existingMapping) {
         if (
           String(existingMapping.external_product_id) !==
-            String(family.external_product_id) ||
+            sourceProductId ||
           String(existingMapping.product_id) !== String(product.id) ||
           String(existingMapping.product_variant_id) !==
             String(variant.id)
@@ -407,4 +414,5 @@ module.exports = {
   COVERED_DUPLICATE_ALIASES,
   parseArgs,
   productIdentityMatches,
+  reviewedSourceProductId,
 };

@@ -1,0 +1,86 @@
+name: 6 Pack Supplements Multi-Page Family Bootstrap V11
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - config/retailers/six-pack-reviewed-catalogue-decisions-v11.json
+      - config/retailers/six-pack-reviewed-large-family-batch-v11.json
+      - .github/workflows/six-pack-large-family-bootstrap-v11.yml
+      - scripts/six-pack-reviewed-multipage-family-approval-builder.js
+      - scripts/six-pack-reviewed-multipage-family-approval-builder.test.js
+      - scripts/six-pack-large-family-bootstrap.js
+      - scripts/six-pack-large-family-bootstrap.test.js
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-production-family-v11
+  cancel-in-progress: false
+
+jobs:
+  bootstrap-reviewed-multipage-families:
+    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+    env:
+      NODE_OPTIONS: --use-system-ca
+      APPROVAL: config/retailers/six-pack-reviewed-large-family-batch-v11.json
+
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_ACTIONS" = "true"
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Test reviewed approval and generic bootstrap contracts
+        run: |
+          node --test \
+            scripts/six-pack-reviewed-multipage-family-approval-builder.test.js \
+            scripts/six-pack-large-family-bootstrap.test.js
+      - name: Production bootstrap preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
+            --approval="$APPROVAL" \
+            --output=tmp/six-pack-large-family-v11/preflight.json
+          node -e 'const r=require("./tmp/six-pack-large-family-v11/preflight.json"); if(r.result!=="PASS" || r.family_count!==5 || !Number.isInteger(r.planned_product_create_count) || r.planned_product_create_count<0 || r.planned_product_create_count>3 || !Number.isInteger(r.planned_variant_create_count) || r.planned_variant_create_count<0 || r.planned_variant_create_count>15) process.exit(1)'
+      - name: Bootstrap three products and exact reviewed variants
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-large-family-bootstrap.js --mode=apply \
+            --approval="$APPROVAL" \
+            --output=tmp/six-pack-large-family-v11/bootstrap.json
+      - name: Verify complete canonical families
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
+            --approval="$APPROVAL" \
+            --output=tmp/six-pack-large-family-v11/postflight.json
+          node -e 'const b=require("./tmp/six-pack-large-family-v11/bootstrap.json"); const p=require("./tmp/six-pack-large-family-v11/postflight.json"); if(b.result!=="PASS" || b.family_count!==5 || b.verified_variant_count!==19 || !Number.isInteger(b.inserted_product_count) || b.inserted_product_count<0 || b.inserted_product_count>3 || p.planned_product_create_count!==0 || p.planned_variant_create_count!==0 || p.families.some(f=>f.action!=="VERIFY_COMPLETE")) process.exit(1)'
+      - name: Upload bootstrap evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-large-family-v11-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/six-pack-large-family-v11/*.json
