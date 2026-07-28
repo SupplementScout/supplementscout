@@ -176,6 +176,10 @@ function parseProductFormat(value = "") {
     return "snack";
   }
 
+  if (/^spreads?$/.test(text.trim())) {
+    return "spread";
+  }
+
   if (/\b(powder|whey|protein|isolate|casein|mass gainer|pre workout|creatine)\b/.test(text)) {
     return "powder";
   }
@@ -534,6 +538,40 @@ const SAFE_CREATE_ALLOWED_CATEGORIES = new Set([
 
 const REVIEWED_SAFE_CREATE_FAMILIES = [
   {
+    allowedFormats: ["bar"],
+    categories: ["Protein Bars"],
+    exactNames: [
+      "7Nutrition Seven Protein Bar 77g",
+      "Battle Snacks Battle Bites Protein Bar 62g",
+      "Warrior Crunch Protein Bar 64g",
+      "USN Trust Crunch Protein Bar 60g",
+      "Warrior RAW Protein Flapjack 75g",
+      "CNP Protein Flapjack Box of 12 x 75g",
+      "PER4M Protein Bar 62g",
+    ],
+  },
+  {
+    allowedFormats: ["snack"],
+    categories: ["Protein Bars"],
+    exactNames: [
+      "6Pak Nutrition Protein Wafer 40g",
+      "Critical Cookie Chocolate Chip",
+      "Critical Cookie Double Chocolate",
+    ],
+  },
+  {
+    allowCreamWord: true,
+    allowedFormats: ["spread"],
+    categories: ["Protein Bars"],
+    exactNames: [
+      "7Nutrition Peanut Butter Crunchy 1kg",
+      "7Nutrition Cream Crunch 750g",
+      "7Nutrition Keto Cream Crunch 750g",
+      "7Nutrition Vege Cream Chocolate Coconut 750g",
+      "BioTechUSA Peanut Butter 1kg",
+    ],
+  },
+  {
     categories: ["Whey Protein"],
     pattern: /\befectiv\s+whey\s+protein\b/i,
   },
@@ -671,9 +709,14 @@ function getProhibitedCatalogueTypeReason(row) {
 
 function reviewedSafeCreateFamily(row) {
   const category = String(row.category || "").trim();
+  const productName = String(row.product_name || "").trim();
   const text = safeCreateEvidenceText(row);
-  const family = REVIEWED_SAFE_CREATE_FAMILIES.find((candidate) =>
-    candidate.categories.includes(category) && candidate.pattern.test(text)
+  const family = REVIEWED_SAFE_CREATE_FAMILIES.find(
+    (candidate) =>
+      candidate.categories.includes(category) &&
+      (candidate.exactNames
+        ? candidate.exactNames.includes(productName)
+        : candidate.pattern.test(text))
   );
 
   if (!family) {

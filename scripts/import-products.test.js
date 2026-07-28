@@ -2139,7 +2139,11 @@ test("final Jon's closeout reviewed-parent allowlist covers only the exact eight
   const supabase = createMockSupabase(reviewedSeed());
   setSupabaseForTests(supabase);
   const result = await runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true });
-  assert.equal(result.report.approvedRows.length, 8);
+  assert.equal(
+    result.report.approvedRows.length,
+    8,
+    JSON.stringify(result.report.blockedRows)
+  );
   assert.equal(result.report.blockedRows.length, 0);
 
   const wrongSize = { ...rows[1], size: "1800g", external_options: JSON.stringify({ Flavour: "Honey Nut Cereal", Size: "1800g" }), variant_name: "Honey Nut Cereal / 1800g" };
@@ -2163,6 +2167,54 @@ test("final reviewed variant families remain eligible on idempotent feed reruns"
   for (const row of reviewed) assert.deepEqual(getSafeCreateExclusionReasons(row), [], row.product_name);
   assert.deepEqual(getSafeCreateExclusionReasons({ product_name: "Unreviewed Protein Bars Box of 12 x 60g", category: "Protein Bars", product_format: "bar", size: "60g" }), ["category is not allowed for safe-create"]);
   assert.deepEqual(getSafeCreateExclusionReasons({ product_name: "Time 4 Whey Protein Professional 2.5kg", category: "Whey Protein", product_format: "powder", size: "2500g" }), ["category is not allowed for safe-create"]);
+});
+
+test("Six Pack V12 food exceptions are exact and format-bound", () => {
+  const reviewed = [
+    {
+      product_name: "7Nutrition Seven Protein Bar 77g",
+      category: "Protein Bars",
+      product_format: "bar",
+      size: "77g",
+    },
+    {
+      product_name: "6Pak Nutrition Protein Wafer 40g",
+      category: "Protein Bars",
+      product_format: "snack",
+      size: "40g",
+    },
+    {
+      product_name: "7Nutrition Cream Crunch 750g",
+      category: "Protein Bars",
+      product_format: "spread",
+      size: "750g",
+    },
+  ];
+  for (const row of reviewed) {
+    assert.deepEqual(
+      getSafeCreateExclusionReasons(row),
+      [],
+      row.product_name
+    );
+  }
+  assert.deepEqual(
+    getSafeCreateExclusionReasons({
+      product_name: "Unreviewed Protein Bar 77g",
+      category: "Protein Bars",
+      product_format: "bar",
+      size: "77g",
+    }),
+    ["category is not allowed for safe-create"]
+  );
+  assert.deepEqual(
+    getSafeCreateExclusionReasons({
+      product_name: "7Nutrition Cream Crunch 750g",
+      category: "Protein Bars",
+      product_format: "bar",
+      size: "750g",
+    }),
+    ["unsupported reviewed product format"]
+  );
 });
 
 test("reviewed parent no-SKU row may use exact parent-policy size with an exact Shopify flavour option", async () => {

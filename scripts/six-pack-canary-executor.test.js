@@ -58,3 +58,36 @@ test("executor accepts the exact reviewed V11 19-offer rollout", () => {
     19
   );
 });
+
+test("executor accepts the exact reviewed V12 65-offer rollout", () => {
+  const csv = path.join(
+    ROOT,
+    "config",
+    "retailers",
+    "six-pack-production-expansion-v12.csv"
+  );
+  const rolloutPath = path.join(
+    ROOT,
+    "config",
+    "retailers",
+    "six-pack-production-expansion-v12.json"
+  );
+  const rollout = JSON.parse(fs.readFileSync(rolloutPath, "utf8"));
+  const loaded = {
+    artifact: {
+      source_file_sha256: rollout.csv_sha256,
+      plans: rollout.expected_external_variant_ids.map(() => ({})),
+      source_rows: rollout.expected_external_variant_ids.map(
+        (externalVariantId) => ({
+          normalized_source_row: {
+            external_variant_id: externalVariantId,
+          },
+        })
+      ),
+    },
+  };
+  assert.equal(
+    validateRollout({ csv, rollout: rolloutPath }, loaded).row_count,
+    65
+  );
+});
