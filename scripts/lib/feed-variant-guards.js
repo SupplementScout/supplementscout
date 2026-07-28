@@ -325,6 +325,14 @@ function productFormatEvidenceText(rowOrName) {
 function parseClearProductFormatEvidence(value = "") {
   const text = String(value).toLowerCase();
 
+  if (
+    /\b(accessory|accessories|shakers?|water bottles?|water jugs?|flasks?|cooler cups?|training gloves?|sweat belts?)\b/.test(
+      text
+    )
+  ) {
+    return "accessory";
+  }
+
   if (/\bsoft\s*gels?\b/.test(text)) return "softgel";
   if (/\b(capsules?|caps?)\b/.test(text)) return "capsule";
   if (/\b(tablets?|tabs?)\b/.test(text)) return "tablet";

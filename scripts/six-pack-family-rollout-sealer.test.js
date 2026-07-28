@@ -41,6 +41,9 @@ const V11_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family
 const V12_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v12.csv");
 const V12_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v12.json");
 const V12_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v12.json");
+const V13_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v13.csv");
+const V13_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v13.json");
+const V13_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v13.json");
 
 function reportFromRollout(expected) {
   const resumedIds = new Set(
@@ -240,6 +243,25 @@ test("large V12 rollout binds 65 food offers and audits three aliases", () => {
   assert.equal(rollout.row_count, 65);
   assert.equal(rollout.approved_scope_row_count, 68);
   assert.equal(rollout.reviewed_source_aliases.length, 3);
+  assert.equal(rollout.expected_created_variant_count, 0);
+});
+
+test("large V13 rollout binds exactly 16 reviewed accessory offers", () => {
+  const expected = JSON.parse(fs.readFileSync(V13_ROLLOUT, "utf8"));
+  const rollout = build(
+    fs.readFileSync(V13_CSV),
+    reportFromRollout(expected),
+    V13_APPROVAL,
+    {
+      kind: "six-pack-production-expansion-v13",
+      csvPath:
+        "config/retailers/six-pack-production-expansion-v13.csv",
+    }
+  );
+  assert.deepEqual(rollout, expected);
+  assert.equal(rollout.row_count, 16);
+  assert.equal(rollout.approved_scope_row_count, 16);
+  assert.deepEqual(rollout.covered_duplicate_aliases, []);
   assert.equal(rollout.expected_created_variant_count, 0);
 });
 

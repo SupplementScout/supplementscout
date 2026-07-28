@@ -2,10 +2,38 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 
 const {
+  assessVariantCompatibility,
   normalizeFlavour,
   parseVariantIdentity,
   rowIdentityKey,
 } = require("./feed-variant-guards");
+
+test("reviewed shaker identity remains an accessory despite ml capacity", () => {
+  const result = assessVariantCompatibility(
+    {
+      product_name: "BioTech USA Wave Shaker 600ml",
+      brand: "BioTech USA",
+      size: "600",
+      size_unit: "ml",
+      flavour: "Blue",
+      product_format: "accessory",
+      pack_count: "1",
+      __reviewed_six_pack_family_identity: {
+        canonical_product_variant_id: "2364",
+        size_value: "600",
+        size_unit: "ml",
+        product_format: "accessory",
+      },
+    },
+    {
+      name: "BioTech USA Wave Shaker 600ml",
+      brand: "BioTech USA",
+      product_format: null,
+    }
+  );
+  assert.equal(result.compatible, true);
+  assert.deepEqual(result.reasons, []);
+});
 
 test("explicit multi-word flavours keep their complete normalized identity", () => {
   const flavours = [
