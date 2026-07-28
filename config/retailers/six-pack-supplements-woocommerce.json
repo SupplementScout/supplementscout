@@ -30,7 +30,7 @@
       "SARMs",
       "Peptides",
       "positively expired or past-best-before products",
-      "food",
+      "food outside the reviewed snack-and-spread exceptions",
       "DMAA products",
       "yohimbine products",
       "T5 ECA products"
@@ -44,6 +44,24 @@
     ],
     "collagen_peptides_allowed": true,
     "ordinary_maca_shilajit_ashwagandha_and_ginseng_allowed": true,
+    "reviewed_food_exceptions_allowed": [
+      "protein bars",
+      "protein cookies",
+      "protein wafers",
+      "protein flapjacks",
+      "protein bites",
+      "spoonable sweet protein creams and spreads",
+      "peanut and nut butters"
+    ],
+    "reviewed_food_exceptions_not_allowed": [
+      "pourable sauces",
+      "syrups",
+      "jams",
+      "ready-to-drink shakes",
+      "porridge and oats",
+      "pancake mixes",
+      "liquid egg whites"
+    ],
     "reviewed_high_stimulant_products_allowed": [
       "Trec Nutrition Clenburexin",
       "Universal Nutrition Animal Cuts",

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-food-policy-v12",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-28",
+  "retailer_id": 11,
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "food_default": "EXCLUDE",
+    "reviewed_food_exceptions": "ALLOW",
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "dmaa": "EXCLUDE",
+    "yohimbine": "EXCLUDE",
+    "t5_eca": "EXCLUDE"
+  },
+  "allowed_food_types": [
+    "protein bars",
+    "protein cookies",
+    "protein wafers",
+    "protein flapjacks",
+    "protein bites",
+    "spoonable sweet protein creams and spreads",
+    "peanut and nut butters"
+  ],
+  "still_excluded_food_types": [
+    "pourable sauces",
+    "syrups",
+    "jams",
+    "ready-to-drink shakes",
+    "porridge and oats",
+    "pancake mixes",
+    "liquid egg whites"
+  ],
+  "snapshot_candidate_counts": {
+    "offer_or_variant_records": 68,
+    "retailer_product_pages": 53,
+    "note": "Counts are candidates before canonical family matching and duplicate-page alias consolidation."
+  },
+  "automation_policy": {
+    "model": "ONE_SHARED_RETAILER_MANIFEST",
+    "separate_automation": false,
+    "new_candidates": "REVIEW_AND_MAP_BEFORE_MANIFEST_EXPANSION"
+  }
+}
