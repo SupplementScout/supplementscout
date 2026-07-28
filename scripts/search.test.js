@@ -103,6 +103,7 @@ function loadSearchUrlModule() {
 const {
   buildSearchQueryPlan,
   normalizeSearchSort,
+  parseSearchIntent,
   searchProducts,
   searchQueryVariants,
 } =
@@ -220,7 +221,12 @@ function pricedSearchProduct(id, name, deliveredPrice, servingCount) {
   return product;
 }
 
-function searchProductsWithRows(query, rows, sort = "relevance") {
+function searchProductsWithRows(
+  query,
+  rows,
+  sort = "relevance",
+  filters = { category: "", brand: "", retailer: "" }
+) {
   const { searchProducts: searchProductsFromRows } = loadProductsModule({
     from: () => {
       const builder = {
@@ -237,7 +243,7 @@ function searchProductsWithRows(query, rows, sort = "relevance") {
     },
   });
 
-  return searchProductsFromRows(query, sort);
+  return searchProductsFromRows(query, sort, filters);
 }
 
 const suggestionProducts = [
@@ -372,6 +378,44 @@ test("search query variants normalize extra whitespace and deduplicate variants"
   assert.deepEqual(searchQueryVariants("  magnesium  "), [
     "magnesium",
   ]);
+});
+
+test("search intent extracts a safe delivered-price ceiling", () => {
+  assert.deepEqual(parseSearchIntent("best creatine under £20"), {
+    textQuery: "creatine",
+    maxDeliveredPrice: 20,
+  });
+  assert.deepEqual(parseSearchIntent("whey protein below 35.50"), {
+    textQuery: "whey protein",
+    maxDeliveredPrice: 35.5,
+  });
+  assert.deepEqual(parseSearchIntent("pre workout without caffeine"), {
+    textQuery: "pre workout without caffeine",
+    maxDeliveredPrice: null,
+  });
+  assert.deepEqual(parseSearchIntent("creatine under £0"), {
+    textQuery: "creatine under £0",
+    maxDeliveredPrice: null,
+  });
+});
+
+test("search query variants handle reversed size terms and spaced model names", () => {
+  const reversedSizeVariants = searchQueryVariants("2kg whey");
+  assert.ok(reversedSizeVariants.includes("2kg%whey"));
+  assert.ok(reversedSizeVariants.includes("whey%2kg"));
+
+  const modelVariants = searchQueryVariants("crea 4");
+  assert.ok(modelVariants.includes("crea-4"));
+  assert.ok(modelVariants.includes("crea4"));
+});
+
+test("multi-word search variants bridge punctuation and extra separators", () => {
+  assert.equal(
+    searchQueryVariants("creatine hcl 80 servings").some((variant) =>
+      variantMatchesText(variant, "Strom Sports Creatine HCL - 80 Servings")
+    ),
+    true
+  );
 });
 
 test("search query variants include conservative glucosamine dosage variants", () => {
@@ -779,6 +823,32 @@ test("buildSearchQueryPlan returns corrected Simply Supplements metadata", () =>
     matchStatus: "none",
     searchMode: "standard_ilike",
   });
+});
+
+test("natural-language budget filters on total delivered price", async () => {
+  const rows = [
+    pricedSearchProduct(331, "Creatine under budget", 19.99, null),
+    pricedSearchProduct(332, "Creatine over budget", 20.01, null),
+  ];
+  const result = await searchProductsWithRows("best creatine under £20", rows);
+
+  assert.deepEqual(
+    result.results.map((product) => product.id),
+    ["331"]
+  );
+  assert.equal(result.maxDeliveredPrice, 20);
+  assert.equal(result.metadata.appliedQuery, "creatine");
+
+  const retailerFiltered = await searchProductsWithRows(
+    "best creatine under £20",
+    rows,
+    "relevance",
+    { category: "", brand: "", retailer: "example-retailer" }
+  );
+  assert.deepEqual(
+    retailerFiltered.results.map((product) => product.id),
+    ["331"]
+  );
 });
 
 test("buildSearchQueryPlan keeps KSM compact and dashed variants", () => {

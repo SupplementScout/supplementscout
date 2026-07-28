@@ -1,6 +1,6 @@
 # SupplementScout Retailer Data Source Registry
 
-_Last updated: 24 July 2026_
+_Last updated: 28 July 2026_
 
 ## Purpose
 
@@ -373,7 +373,16 @@ Products with at least 2 active retailers.
 - The same shared automation was expanded from 22 to 43 offers across 11 product pages in manifest SHA-256 `04b889735b55c309077cd911dc0f46b020678df96bf63a47a6ef65e3c6d7491c`. Full protected run [`30281395323`](https://github.com/SupplementScout/supplementscout/actions/runs/30281395323) passed on commit `b0ab09e2c6faaa562833f06f6b1b2fbcfe47e796`: live-source preflight, exact-manifest apply, a second fresh source capture and 43/43 idempotency all succeeded. This is one retailer automation, not a separate process for the newly added products.
 - A further 35 existing canonical variants were added in one protected rollout, without creating products or variants. Run [`30283296805`](https://github.com/SupplementScout/supplementscout/actions/runs/30283296805) passed preflight, exact-scope execution, production verification and 35/35 idempotency. The single shared manifest now covers 78 offers across 27 product pages with SHA-256 `00097844976ec31f6c1cf0bfd3c9a4e8abcd9c0af3d2b28aade17688a2c1046e`; full shared-automation run [`30283890153`](https://github.com/SupplementScout/supplementscout/actions/runs/30283890153) passed live-source preflight, exact-manifest execution and a second fresh-source idempotency check for all 78 offers.
 - Seventeen missing flavour variants were then created atomically under seven existing canonical products and bound to 17 new retailer offers. Protected run [`30285647049`](https://github.com/SupplementScout/supplementscout/actions/runs/30285647049) passed the explicit-ID preflight, exact-scope apply, production verification and idempotency. The same shared manifest now covers 95 offers across 28 product pages with SHA-256 `0e52e08982f8fd53e0628c9ba8c02feaa32c9d3eb560dcfbf439fad0ec61b04f`; full shared refresh [`30285963795`](https://github.com/SupplementScout/supplementscout/actions/runs/30285963795) passed live preflight, exact-manifest execution and a second fresh-source idempotency check for all 95 offers.
-- Status: **22 APPROVED OFFERS / SHARED DAILY AUTOMATION OPERATIONAL**.
+- Current shared automation scope: 95 approved offers across 28 WooCommerce
+  product pages. This is one expandable retailer automation, not a separate
+  process for each expansion batch.
+- Product matching review queue: 141 rows, comprising 58 owner decisions and 83
+  open reviews. Fifty decided rows are approved but deliberately queued for a
+  later controlled execution: 25 new products, 17 new variants, four new-family
+  seeds and four existing-variant mappings. None has been consumed by an
+  execution plan. Seven rows are excluded and one is deferred.
+- Status: **95 APPROVED OFFERS / SHARED DAILY AUTOMATION OPERATIONAL; 50
+  REVIEWED ROWS QUEUED FOR LATER CONTROLLED EXECUTION**.
 
 ## Initial registry template
 

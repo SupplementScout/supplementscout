@@ -77,6 +77,11 @@ export type SearchMetadata = {
   searchMode: SearchMode;
 };
 
+export type SearchIntent = {
+  textQuery: string;
+  maxDeliveredPrice: number | null;
+};
+
 export type SearchSuggestionType = "category" | "brand" | "product";
 
 export type SearchSuggestion = {
@@ -309,6 +314,42 @@ function normalizeWhitespace(value: string) {
   return value.trim().replace(/\s+/g, " ");
 }
 
+export function parseSearchIntent(query: string): SearchIntent {
+  const normalizedQuery = normalizeWhitespace(query);
+  const budgetMatch = normalizedQuery.match(
+    /^(.*?)\s+(?:under|below|up\s+to|less\s+than)\s*£?\s*(\d+(?:\.\d{1,2})?)\s*$/i
+  );
+
+  if (!budgetMatch) {
+    return {
+      textQuery: normalizedQuery,
+      maxDeliveredPrice: null,
+    };
+  }
+
+  const maxDeliveredPrice = Number(budgetMatch[2]);
+  const textQuery = normalizeWhitespace(
+    budgetMatch[1].replace(/^(?:best|cheapest)\s+/i, "")
+  );
+
+  if (
+    !textQuery ||
+    !Number.isFinite(maxDeliveredPrice) ||
+    maxDeliveredPrice <= 0 ||
+    maxDeliveredPrice > 1000
+  ) {
+    return {
+      textQuery: normalizedQuery,
+      maxDeliveredPrice: null,
+    };
+  }
+
+  return {
+    textQuery,
+    maxDeliveredPrice,
+  };
+}
+
 const searchQueryCorrections: Array<[RegExp, string]> = [
   [/\bvit\s+d\b/g, "vitamin d"],
   [/\bomega\s*3\b/g, "omega 3"],
@@ -414,8 +455,20 @@ function orderedWildcardQueryVariants(query: string) {
   const hasGlucosamine = tokens.includes("glucosamine");
   const hasSulphate = tokens.includes("sulphate") || tokens.includes("sulfate");
   const hasTabletFormat = tokens.some((token) => /^tablets?$/.test(token));
+  const hasStructuredIdentityToken =
+    hasDose ||
+    tokens.some((token) =>
+      /^\d+(?:\.\d+)?(?:mcg|mg|iu|g|kg|ml|l)$/.test(token)
+    ) ||
+    tokens.some((token) =>
+      /^(?:servings?|capsules?|caps|tablets?|gummies|sachets?|packs?)$/.test(token)
+    );
 
-  if (tokens.length === 2 && !hasDose && !(hasGlucosamine && hasSulphate && hasTabletFormat)) {
+  if (
+    tokens.length === 2 &&
+    !hasStructuredIdentityToken &&
+    !(hasGlucosamine && hasSulphate && hasTabletFormat)
+  ) {
     const containsAshwagandhaVariant = tokens.some((token) =>
       /\b(ashwagandha|ashwaganda)\b/.test(token)
     );
@@ -434,11 +487,21 @@ function orderedWildcardQueryVariants(query: string) {
     return [];
   }
 
-  if (!hasDose && !(hasGlucosamine && hasSulphate && hasTabletFormat)) {
+  if (
+    !hasStructuredIdentityToken &&
+    !(hasGlucosamine && hasSulphate && hasTabletFormat)
+  ) {
     return [];
   }
 
   const variants = [tokens.join("%")];
+
+  if (
+    tokens.length === 2 &&
+    /^\d+(?:\.\d+)?(?:mcg|mg|iu|g|kg|ml|l)$/.test(tokens[0])
+  ) {
+    variants.push([...tokens].reverse().join("%"));
+  }
 
   if (doseIndex === 0 && doseTokenCount < tokens.length) {
     variants.push(
@@ -499,6 +562,15 @@ function expandSearchTermVariants(query: string) {
   const dashedAlphaNumericMatch = normalized.match(/^([a-z]+)-(\d+)$/i);
   if (dashedAlphaNumericMatch) {
     variants.add(`${dashedAlphaNumericMatch[1]}${dashedAlphaNumericMatch[2]}`);
+  }
+
+  const spacedAlphaNumericMatch = normalized.match(/^([a-z]+)\s+(\d+)$/i);
+  if (
+    spacedAlphaNumericMatch &&
+    !["omega", "ksm"].includes(spacedAlphaNumericMatch[1].toLowerCase())
+  ) {
+    variants.add(`${spacedAlphaNumericMatch[1]}-${spacedAlphaNumericMatch[2]}`);
+    variants.add(`${spacedAlphaNumericMatch[1]}${spacedAlphaNumericMatch[2]}`);
   }
 
   return Array.from(variants);
@@ -1063,7 +1135,8 @@ export async function searchProducts(
   filters: SearchFilters = { category: "", brand: "", retailer: "" },
   requestedPage = 1
 ) {
-  const sanitizedQuery = sanitizeSupabaseOrTerm(query);
+  const intent = parseSearchIntent(query);
+  const sanitizedQuery = sanitizeSupabaseOrTerm(intent.textQuery);
   const searchMetadata = buildSearchQueryPlan(sanitizedQuery);
 
   if (!sanitizedQuery) {
@@ -1078,6 +1151,7 @@ export async function searchProducts(
       startResult: 0,
       endResult: 0,
       resultLimit: SEARCH_RESULT_LOAD_LIMIT,
+      maxDeliveredPrice: intent.maxDeliveredPrice,
       metadata: searchMetadata,
       error: null,
     };
@@ -1140,6 +1214,7 @@ export async function searchProducts(
       startResult: 0,
       endResult: 0,
       resultLimit: SEARCH_RESULT_LOAD_LIMIT,
+      maxDeliveredPrice: intent.maxDeliveredPrice,
       metadata: searchMetadata,
       error,
     };
@@ -1148,7 +1223,7 @@ export async function searchProducts(
   const enrichedProducts = await loadProductVariants(
     (data || []) as RawProduct[]
   );
-  const baseResults = enrichedProducts
+  const eligibleResults = enrichedProducts
     .map((product) =>
       normalizeProduct(
         product,
@@ -1162,6 +1237,13 @@ export async function searchProducts(
       )
     )
     .filter((product): product is ProductSearchResult => product !== null);
+  const isWithinBudget = (product: ProductSearchResult) =>
+    intent.maxDeliveredPrice === null ||
+    product.cheapestOffer.deliveredPrice.totalPrice <= intent.maxDeliveredPrice;
+  const baseResults =
+    intent.maxDeliveredPrice === null
+      ? eligibleResults
+      : eligibleResults.filter(isWithinBudget);
   const facets = buildFacets(baseResults);
   const filteredResults = filters.retailer
     ? enrichedProducts
@@ -1169,6 +1251,7 @@ export async function searchProducts(
           normalizeProduct(product, sanitizedQuery, filters, searchMetadata)
         )
         .filter((product): product is ProductSearchResult => product !== null)
+        .filter(isWithinBudget)
     : baseResults;
   const results = applyProductFilters(filteredResults, filters);
   const sortedResults = sortResults(results, sort);
@@ -1201,13 +1284,15 @@ export async function searchProducts(
     startResult: totalCount === 0 ? 0 : startIndex + 1,
     endResult: endIndex,
     resultLimit: SEARCH_RESULT_LOAD_LIMIT,
+    maxDeliveredPrice: intent.maxDeliveredPrice,
     metadata,
     error: null,
   };
 }
 
 export async function getSearchSuggestions(query: string, limit?: number) {
-  const sanitizedQuery = sanitizeSupabaseOrTerm(query);
+  const intent = parseSearchIntent(query);
+  const sanitizedQuery = sanitizeSupabaseOrTerm(intent.textQuery);
   const plan = buildSearchQueryPlan(sanitizedQuery);
   const resultLimit = normalizeSuggestionLimit(limit);
   const emptyResult: SearchSuggestionsResult = {

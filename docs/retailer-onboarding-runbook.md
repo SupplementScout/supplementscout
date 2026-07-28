@@ -1,6 +1,14 @@
 # Retailer onboarding runbook
 
-This runbook describes the current safe process for onboarding a retailer into SupplementScout. It applies to data received from an API, Shopify CSV, or a manually prepared sample. The canonical input contract is `data/templates/retailer-feed-template.csv`.
+This runbook describes the small canonical-feed fallback for onboarding a
+retailer into SupplementScout. It applies when a reviewed source cannot yet use
+one of the newer retailer snapshot, exact-manifest or retailer-specific guarded
+paths. Before using it, check the latest binding checkpoint in the
+[Operating Plan](SupplementScout-Operating-Plan-2026-07-15.md) and the
+[Retailer Data Source Registry](Retailer-Data-Source-Registry.md). A newer
+documented path for the selected retailer supersedes this fallback.
+
+The canonical input contract is `data/templates/retailer-feed-template.csv`.
 
 The importer is `scripts/import-products.js`. Feed mode has a complete preflight and supports `--dry-run`. The write path is not one database transaction and has no separate `--apply` flag. Running without `--dry-run` performs writes, so a production run must use a separately reviewed CSV containing no more than 5–20 variants.
 

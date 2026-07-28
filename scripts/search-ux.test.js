@@ -178,6 +178,8 @@ test("no-results state preserves query, suggestions and filter clearing", () => 
 
   assert.match(source, /No filtered results found/);
   assert.match(source, /metadata\.correctedQuery/);
+  assert.match(source, /maxDeliveredPrice/);
+  assert.match(source, /Delivered price up to/);
   assert.match(source, /popularSearchSuggestions\.map/);
   assert.match(source, /Clear filters/);
   assert.match(source, /initialQuery=\{query\}/);

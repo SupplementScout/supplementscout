@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 24 July 2026<br>
+**Status date:** 28 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -10,6 +10,50 @@
 ## 0. Binding audit reset - 19 July 2026
 
 This section records the full-project audit requested before further implementation. It is the binding execution reset. Where an older status, priority or proposed implementation elsewhere in this document conflicts with this section, this section wins. Historical sections remain as evidence, not as authority to restart completed work.
+
+### 0.0.4 Current project checkpoint - 28 July 2026
+
+This checkpoint supersedes older counts, retailer states, active tasks and
+automation blockers elsewhere in this document.
+
+- The primary goal remains unchanged: build the UK's smartest and most
+  trustworthy supplement search and comparison platform. Catalogue size is not
+  the primary success measure; accurate multi-retailer comparisons, freshness,
+  delivered-price value and decision usefulness are.
+- Production has 1,061 active canonical products, 2,021 active public offers
+  and nine active retailers. Of those products, 182 have no active retailer,
+  772 have one, 107 have at least two, 13 have at least three and two have at
+  least four. Multi-retailer depth therefore remains the main commercial data
+  constraint.
+- Jon's Supplements and the approved Whey Okay exact-manifest scope have active
+  guarded refresh automation. Their latest confirmed checks on 28 July were
+  current. Older statements that these mechanisms are awaiting first
+  production enablement are historical.
+- 6 Pack Supplements is the active retailer onboarding. Its reviewed production
+  scope has already made it the retailer currently adding the most second and
+  third-plus retailer coverage. The admin matching queue contains 141 rows: 58
+  decided and 83 awaiting owner review.
+- Of the 58 decided 6 Pack rows, 50 are approved for a later controlled
+  automation stage: 25 new products, 17 new variants, four new product-family
+  seeds and four mappings to existing variants. None has been consumed by an
+  execution plan. Seven rows are excluded and one remains deferred. The
+  50-row execution is explicitly queued for later and is not part of the
+  current search-quality task.
+- The first-party search ledger contains 904 recorded result events through
+  28 July. Production tests show good coverage for core category terms but
+  deterministic gaps for reversed size wording, punctuation/model names,
+  multi-word exact identities and natural-language budgets. Search reliability
+  is the current bounded engineering task; unsupported medical or ingredient
+  claims remain out of scope.
+- The current search work must extend the existing `app/lib/products.ts`
+  engine. It must not introduce a second search service or an AI recommendation
+  system. Safe first improvements are token-order variants, punctuation/model
+  variants, multi-word matching and delivered-price budget parsing. Searches
+  such as "without caffeine" or health-treatment wording require verified
+  ingredient/claim data before exact filtering can be promised.
+- After the bounded search improvement, return to the active 6 Pack review
+  queue. The 50 approved rows remain a separate staging/production execution
+  task, while the remaining 83 rows continue through owner review.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
@@ -559,21 +603,25 @@ Old staging refs must not be reused:
 
 ## 7. Current production state
 
-Latest confirmed production counts after the Jon's Supplements rollout:
+Latest confirmed production counts and public coverage after the 28 July 2026
+audit:
 
-- `products`: 760
-- `product_variants`: 1098
-- `retailer_products`: 1008
-- `offers`: 1007
-- `price_history`: 1016
+- `products`: 1062
+- active canonical products: 1061
+- `product_variants`: 2370
+- `retailer_products`: 2365
+- `offers`: 2364
+- `price_history`: 2390
+- active public offers: 2021
+- active retailers: 9
 
 Latest product-level commercial coverage snapshot, counting distinct retailers with an in-stock offer for each active, unmerged canonical product:
 
-- active canonical products: 759,
-- products with at least one active retailer: 605,
-- products with at least two active retailers: 63,
-- products with at least three active retailers: 3,
-- products with at least four active retailers: 0.
+- active canonical products: 1061,
+- products with at least one active retailer: 879,
+- products with at least two active retailers: 107,
+- products with at least three active retailers: 13,
+- products with at least four active retailers: 2.
 
 Current catalogue expansion milestone:
 
@@ -1496,11 +1544,17 @@ Target experience:
 
 ### Current active task
 
-Execute Plan A in section 0.8: close the reviewed Jon's production decision, refresh currently approved creatine mappings through the existing path, and make the factual `/creatine` launch decision. No production write occurs without the explicit approval required for that complete production stage.
+Complete the bounded search-reliability improvement recorded in section 0.0.4
+by extending the existing search engine and verifying representative production
+queries. Do not add a second search architecture or claim unsupported health or
+ingredient filtering.
 
 ### Next task
 
-Secure one authorised broad-overlap retailer source and process 25-50 high-confidence existing-product offers through the standard importer. If no such source is available, use a reviewed Jon's or KIOR configuration batch for catalogue breadth and state clearly that it does not improve multi-retailer depth.
+Continue owner review of the remaining 83 6 Pack matching rows. Keep the 50
+already approved rows sealed as a separate later controlled automation task;
+when resumed, export, validate and execute them through the existing reviewed
+staging/production pipeline rather than a new automation path.
 
 ### Then
 

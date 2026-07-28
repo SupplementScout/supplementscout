@@ -85,6 +85,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     startResult,
     endResult,
     resultLimit,
+    maxDeliveredPrice,
     metadata,
     error,
   } = hasQuery
@@ -99,6 +100,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         startResult: 0,
         endResult: 0,
         resultLimit: 0,
+        maxDeliveredPrice: null,
         metadata: {
           originalQuery: "",
           appliedQuery: "",
@@ -201,6 +203,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     {totalCount > 0 && metadata.correctedQuery && (
                       <p className="mt-1 text-sm font-medium text-zinc-700">
                         Showing results for &ldquo;{metadata.appliedQuery}&rdquo;
+                      </p>
+                    )}
+                    {maxDeliveredPrice !== null && (
+                      <p className="mt-1 text-sm font-medium text-zinc-700">
+                        Delivered price up to £
+                        {maxDeliveredPrice.toLocaleString("en-GB", {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 2,
+                        })}
                       </p>
                     )}
                     {hasActiveFilters && (
