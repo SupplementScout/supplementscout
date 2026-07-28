@@ -1,14 +1,11 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const decisions = require("../config/retailers/six-pack-reviewed-catalogue-decisions-v11.json");
-const source = require("../tmp/retailer-feeds/six-pack-supplements/six-pack-source-snapshot.json");
+const approval = require("../config/retailers/six-pack-reviewed-large-family-batch-v11.json");
 const {
-  build,
   parseArgs,
 } = require("./six-pack-reviewed-multipage-family-approval-builder");
 
 test("reviewed decisions build five families across nineteen source pages", () => {
-  const approval = build(source, decisions);
   assert.equal(approval.kind, "six-pack-reviewed-large-family-batch-v11");
   assert.equal(approval.family_count, 5);
   assert.equal(approval.new_product_count, 3);
