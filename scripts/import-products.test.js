@@ -2561,6 +2561,30 @@ test("reviewed Six Pack WooCommerce identity is exact and fail-closed", () => {
   assert.equal(drifted.__reviewed_six_pack_family_identity, undefined);
 });
 
+test("reviewed Six Pack size overrides a formula token such as Pump 3G", () => {
+  const compatibility = assessVariantCompatibility(
+    {
+      product_name: "Applied Nutrition Pump 3G Pre-Workout 375g",
+      brand: "Applied Nutrition",
+      flavour: "Icy Blue Raz",
+      size: "375 g",
+      product_format: "powder",
+      __reviewed_six_pack_family_identity: {
+        canonical_product_variant_id: "2239",
+        size_value: "375",
+        size_unit: "g",
+        product_format: "powder",
+      },
+    },
+    {
+      name: "Applied Nutrition Pump 3G Pre-Workout 375g",
+      brand: "Applied Nutrition",
+      product_format: "powder",
+    }
+  );
+  assert.equal(compatibility.reasons.includes("size conflict"), false);
+});
+
 test("canonical shipping ignores delivery_cost as an alternative", () => {
   const [unknown] = normalizeCanonicalRetailerFeedRows([
     baseCanonicalFeedRow({

@@ -357,8 +357,17 @@ function assessVariantCompatibility(row, product) {
           : rowExplicitFormat,
       }
     : parseVariantIdentity(row);
+  const parsedProductIdentity = parseVariantIdentity(product.name || "");
+  const reviewedCanonicalSize = reviewedExistingVariantIdentity
+    ? parseSize(
+        `${reviewedExistingVariantIdentity.size_value || ""}${
+          reviewedExistingVariantIdentity.size_unit || ""
+        }`
+      )
+    : null;
   const productIdentity = {
-    ...parseVariantIdentity(product.name || ""),
+    ...parsedProductIdentity,
+    size: reviewedCanonicalSize || parsedProductIdentity.size,
     productFormat: reviewedExistingVariantIdentity
       ? null
       : reviewedIdentity
@@ -367,7 +376,7 @@ function assessVariantCompatibility(row, product) {
           ? explicitProductFormat(reviewedIdentity.product_format)
           : null)
       : productStoredFormat ||
-        parseVariantIdentity(product.name || "").productFormat,
+        parsedProductIdentity.productFormat,
   };
   const rowTitleFormat = parseClearProductFormatEvidence(productFormatEvidenceText(row));
   const productTitleFormat = parseClearProductFormatEvidence(product.name || "");

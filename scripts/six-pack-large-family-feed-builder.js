@@ -168,7 +168,10 @@ async function run(options, dependencies = {}) {
     .filter((family) => family.product_id)
     .map((family) => Number(family.product_id));
   const newSlugs = approval.families
-    .filter((family) => family.slug)
+    .filter(
+      (family) =>
+        family.kind === "NEW_CANONICAL_PRODUCT" && family.slug
+    )
     .map((family) => family.slug);
   const [existingProducts, newProducts, mappings] = await Promise.all([
     db
