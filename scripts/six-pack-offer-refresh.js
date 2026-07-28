@@ -278,11 +278,18 @@ async function run(options, dependencies = {}) {
     storeUrl: config.retailer.website,
     productId,
     capturedAt,
+    maximumAttempts: 5,
+    retryBaseDelayMs: 1_000,
   }));
   const liveByProduct = new Map();
   for (const record of state.records) {
     const productId = String(record.mapping.external_product_id);
-    if (!liveByProduct.has(productId)) liveByProduct.set(productId, await readLive(productId));
+    if (!liveByProduct.has(productId)) {
+      if (!dependencies.readLive && liveByProduct.size > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+      liveByProduct.set(productId, await readLive(productId));
+    }
   }
   const sourceRows = state.records.map((record) =>
     liveSourceFor(record, liveByProduct.get(String(record.mapping.external_product_id)))
