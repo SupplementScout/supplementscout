@@ -44,6 +44,7 @@ const SIX_PACK_REVIEWED_FAMILY_MAP_FINAL = require("../config/retailers/six-pack
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8 = require("../config/retailers/six-pack-reviewed-large-family-batch-v8.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9 = require("../config/retailers/six-pack-reviewed-large-family-batch-v9.json");
+const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10 = require("../config/retailers/six-pack-reviewed-large-family-batch-v10.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -53,10 +54,11 @@ const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-large-family-batch-v7", 77],
   ["six-pack-reviewed-large-family-batch-v8", 34],
   ["six-pack-reviewed-large-family-batch-v9", 36],
+  ["six-pack-reviewed-large-family-batch-v10", 32],
 ]);
 
 const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
-  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9]
+  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10]
     .flatMap((batch) => (batch.rows || batch.families.flatMap((family) =>
       family.variants.map((variant) => ({
         ...variant,

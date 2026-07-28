@@ -6,15 +6,15 @@ const {
   sourceFlavour,
 } = require("./six-pack-powder-family-approval-builder");
 
-test("powder approval binds 14 safe families and 34 offers", () => {
+test("powder approval binds 13 safe families and 32 offers", () => {
   assert.equal(approval.kind, "six-pack-reviewed-large-family-batch-v10");
   assert.equal(approval.approved, true);
-  assert.equal(approval.family_count, 14);
-  assert.equal(approval.new_product_count, 14);
-  assert.equal(approval.row_count, 34);
+  assert.equal(approval.family_count, 13);
+  assert.equal(approval.new_product_count, 13);
+  assert.equal(approval.row_count, 32);
   assert.equal(
     approval.families.flatMap((family) => family.variants).length,
-    34
+    32
   );
   assert.equal(approval.policy.food, "EXCLUDE");
   assert.equal(approval.policy.sarms, "EXCLUDE");

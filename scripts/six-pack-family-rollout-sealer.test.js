@@ -32,6 +32,9 @@ const V8_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-
 const V9_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v9.csv");
 const V9_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v9.json");
 const V9_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v9.json");
+const V10_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v10.csv");
+const V10_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v10.json");
+const V10_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v10.json");
 
 function reportFromRollout(expected) {
   const resumedIds = new Set(
@@ -176,6 +179,24 @@ test("large V9 rollout binds all 36 counted supplement offers", () => {
   assert.equal(rollout.approved_scope_row_count, 36);
   assert.deepEqual(rollout.covered_duplicate_aliases, []);
   assert.deepEqual(rollout.resumed_external_variant_ids, []);
+  assert.equal(rollout.expected_created_variant_count, 0);
+});
+
+test("large V10 rollout binds all 32 unambiguous powder offers", () => {
+  const expected = JSON.parse(fs.readFileSync(V10_ROLLOUT, "utf8"));
+  const rollout = build(
+    fs.readFileSync(V10_CSV),
+    reportFromRollout(expected),
+    V10_APPROVAL,
+    {
+      kind: "six-pack-production-expansion-v10",
+      csvPath: "config/retailers/six-pack-production-expansion-v10.csv",
+    }
+  );
+  assert.deepEqual(rollout, expected);
+  assert.equal(rollout.row_count, 32);
+  assert.equal(rollout.approved_scope_row_count, 32);
+  assert.deepEqual(rollout.covered_duplicate_aliases, []);
   assert.equal(rollout.expected_created_variant_count, 0);
 });
 

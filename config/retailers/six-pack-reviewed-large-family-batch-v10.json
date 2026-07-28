@@ -18,9 +18,9 @@
     "family_mapping": true,
     "one_shared_automation": true
   },
-  "family_count": 14,
-  "new_product_count": 14,
-  "row_count": 34,
+  "family_count": 13,
+  "new_product_count": 13,
+  "row_count": 32,
   "families": [
     {
       "external_product_id": "4486",
@@ -293,34 +293,6 @@
       ]
     },
     {
-      "external_product_id": "6312",
-      "name": "Applied Nutrition Pump 3G Pre-Workout 375g",
-      "brand": "Applied Nutrition",
-      "category": "Pre Workout",
-      "size": "375",
-      "size_unit": "g",
-      "expected_count": 2,
-      "slug": "applied-nutrition-pump-3g-pre-workout-375g",
-      "product_format": "powder",
-      "kind": "NEW_CANONICAL_PRODUCT",
-      "price": "24.99",
-      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/04/pump-3g-pre-workout-applied-nutrition-6pack-supplements.jpg",
-      "variants": [
-        {
-          "external_variant_id": "6315",
-          "source_flavour": "Icy Blue Raz",
-          "flavour": "Icy Blue Raz",
-          "in_stock": true
-        },
-        {
-          "external_variant_id": "6317",
-          "source_flavour": "Fruit Burst",
-          "flavour": "Fruit Burst",
-          "in_stock": false
-        }
-      ]
-    },
-    {
       "external_product_id": "1495",
       "name": "BioTech USA BCAA Zero 360g Tropical Fruit",
       "brand": "BioTech USA",
@@ -459,5 +431,5 @@
       ]
     }
   ],
-  "approval_fingerprint": "0e24f3ef389bd7e9d3420e28181ffed5739ca599b8318c367bfc6a4f732217a6"
+  "approval_fingerprint": "f5d88a5a66ec19038321ebae68fd06b10ecb249b2afb57856f08e092a942f764"
 }

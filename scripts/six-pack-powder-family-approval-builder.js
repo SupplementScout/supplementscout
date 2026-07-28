@@ -14,7 +14,6 @@ const FAMILIES = [
   { external_product_id: "3656", name: "Medi Evil Nutrition Purely Mass 5.28kg", brand: "Medi Evil Nutrition", category: "Mass Gainer", size: "5280", size_unit: "g", expected_count: 3 },
   { external_product_id: "4749", name: "Scivation XTEND EAAs + Electrolytes 40 Servings", brand: "Scivation", category: "Amino Acids", size: null, size_unit: null, unit_count: 40, unit_type: "serving", expected_count: 3 },
   { external_product_id: "4905", name: "USN 3XT Dynamite Pre-Workout 375g", brand: "USN", category: "Pre Workout", size: "375", size_unit: "g", expected_count: 3 },
-  { external_product_id: "6312", name: "Applied Nutrition Pump 3G Pre-Workout 375g", brand: "Applied Nutrition", category: "Pre Workout", size: "375", size_unit: "g", expected_count: 2 },
   { external_product_id: "1495", name: "BioTech USA BCAA Zero 360g Tropical Fruit", brand: "BioTech USA", category: "Amino Acids", size: "360", size_unit: "g", expected_count: 1, simple_flavour: "Tropical Fruit" },
   { external_product_id: "4702", name: "7Nutrition AAKG Arginine 250g", brand: "7Nutrition", category: "Amino Acids", size: "250", size_unit: "g", expected_count: 1, simple_flavour: "Unflavoured" },
   { external_product_id: "6530", name: "Applied Nutrition L-Glutamine 500g", brand: "Applied Nutrition", category: "Amino Acids", size: "500", size_unit: "g", expected_count: 1, simple_flavour: "Unflavoured" },
@@ -79,7 +78,7 @@ function build(sourceSnapshot) {
     };
   });
   const variantIds = families.flatMap((family) => family.variants.map((variant) => variant.external_variant_id));
-  if (families.length !== 14 || variantIds.length !== 34 || new Set(variantIds).size !== 34) {
+  if (families.length !== 13 || variantIds.length !== 32 || new Set(variantIds).size !== 32) {
     fail("Powder family approval scope mismatch");
   }
   const approval = {

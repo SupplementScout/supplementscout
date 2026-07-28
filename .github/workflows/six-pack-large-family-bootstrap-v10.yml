@@ -57,8 +57,8 @@ jobs:
           node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
             --approval="$APPROVAL" \
             --output=tmp/six-pack-large-family-v10/preflight.json
-          node -e 'const r=require("./tmp/six-pack-large-family-v10/preflight.json"); if(r.result!=="PASS" || r.family_count!==14 || !Number.isInteger(r.planned_product_create_count) || r.planned_product_create_count<0 || r.planned_product_create_count>14 || !Number.isInteger(r.planned_variant_create_count) || r.planned_variant_create_count<0 || r.planned_variant_create_count>34) process.exit(1)'
-      - name: Bootstrap 14 powder products and exact reviewed variants
+          node -e 'const r=require("./tmp/six-pack-large-family-v10/preflight.json"); if(r.result!=="PASS" || r.family_count!==13 || !Number.isInteger(r.planned_product_create_count) || r.planned_product_create_count<0 || r.planned_product_create_count>13 || !Number.isInteger(r.planned_variant_create_count) || r.planned_variant_create_count<0 || r.planned_variant_create_count>32) process.exit(1)'
+      - name: Bootstrap 13 powder products and exact reviewed variants
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -74,7 +74,7 @@ jobs:
           node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
             --approval="$APPROVAL" \
             --output=tmp/six-pack-large-family-v10/postflight.json
-          node -e 'const b=require("./tmp/six-pack-large-family-v10/bootstrap.json"); const p=require("./tmp/six-pack-large-family-v10/postflight.json"); if(b.result!=="PASS" || b.family_count!==14 || b.verified_variant_count!==34 || !Number.isInteger(b.inserted_product_count) || b.inserted_product_count<0 || b.inserted_product_count>14 || p.planned_product_create_count!==0 || p.planned_variant_create_count!==0 || p.families.some(f=>f.action!=="VERIFY_COMPLETE")) process.exit(1)'
+          node -e 'const b=require("./tmp/six-pack-large-family-v10/bootstrap.json"); const p=require("./tmp/six-pack-large-family-v10/postflight.json"); if(b.result!=="PASS" || b.family_count!==13 || b.verified_variant_count!==32 || !Number.isInteger(b.inserted_product_count) || b.inserted_product_count<0 || b.inserted_product_count>13 || p.planned_product_create_count!==0 || p.planned_variant_create_count!==0 || p.families.some(f=>f.action!=="VERIFY_COMPLETE")) process.exit(1)'
       - name: Upload bootstrap evidence
         if: always()
         uses: actions/upload-artifact@v7

@@ -59,18 +59,18 @@ test("generic bootstrap accepts 36 counted supplement families", () => {
   );
 });
 
-test("generic bootstrap accepts 14 powder families and 34 offers", () => {
+test("generic bootstrap accepts 13 powder families and 32 offers", () => {
   assert.doesNotThrow(() => assertApproval(powderApproval));
   const intended = powderApproval.families.flatMap((family) =>
     intendedVariants(family).filter(
       (variant) => variant.external_variant_id
     )
   );
-  assert.equal(powderApproval.family_count, 14);
-  assert.equal(intended.length, 34);
+  assert.equal(powderApproval.family_count, 13);
+  assert.equal(intended.length, 32);
   assert.equal(
     new Set(intended.map((variant) => variant.external_variant_id)).size,
-    34
+    32
   );
 });
 
