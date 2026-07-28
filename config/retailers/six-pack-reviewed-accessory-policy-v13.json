@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-accessory-policy-v13",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-28",
+  "retailer_id": 11,
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "accessories": "ALLOW",
+    "melatonin_5mg": "DEFER",
+    "nmn": "DEFER",
+    "limitlesss_nootropic_brain_booster": "DEFER",
+    "vitamin_d3_8000_iu": "DEFER",
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "food_default": "EXCLUDE",
+    "dmaa": "EXCLUDE",
+    "yohimbine": "EXCLUDE",
+    "t5_eca": "EXCLUDE"
+  },
+  "allowed_accessory_types": [
+    "shakers",
+    "water bottles and jugs",
+    "flasks and cooler cups",
+    "training gloves",
+    "training belts"
+  ],
+  "source_candidate_counts": {
+    "offer_or_variant_records": 16,
+    "retailer_product_pages": 11
+  },
+  "catalogue_policy": {
+    "category": "Accessories",
+    "reuse_existing_products_first": true,
+    "create_only_missing_products": true,
+    "existing_match_requires_reviewed_identity_evidence": true
+  },
+  "automation_policy": {
+    "model": "ONE_SHARED_RETAILER_MANIFEST",
+    "separate_automation": false,
+    "new_candidates": "REVIEW_AND_MAP_BEFORE_MANIFEST_EXPANSION"
+  }
+}

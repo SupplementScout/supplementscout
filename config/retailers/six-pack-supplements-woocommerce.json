@@ -36,11 +36,17 @@
       "T5 ECA products"
     ],
     "deferred": [
-      "Accessories",
       "melatonin above the already approved 1mg product",
       "NMN",
       "Limitlesss Nootropic Brain Booster",
       "Vitamin D3 8000 IU"
+    ],
+    "reviewed_accessories_allowed": [
+      "shakers",
+      "water bottles and jugs",
+      "flasks and cooler cups",
+      "training gloves",
+      "training belts"
     ],
     "collagen_peptides_allowed": true,
     "ordinary_maca_shilajit_ashwagandha_and_ginseng_allowed": true,

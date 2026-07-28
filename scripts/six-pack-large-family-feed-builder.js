@@ -129,12 +129,26 @@ function productIdentityMatches(product, family) {
     product &&
     product.is_active === true &&
     product.merged_into_product_id == null &&
-    (family.kind !== "NEW_CANONICAL_PRODUCT" ||
-      (product.name === family.name &&
+    (family.kind === "EXISTING_CANONICAL_PRODUCT" &&
+    !family.existing_match_evidence
+      ? true
+      : product.name === family.name &&
         product.slug === family.slug &&
         product.brand === family.brand &&
         product.category === family.category &&
-        product.product_format === family.product_format))
+        (family.kind === "EXISTING_CANONICAL_PRODUCT" ||
+          product.product_format === family.product_format))
+  );
+}
+
+function approvedSourcePolicyState(approval, source) {
+  if (source?.policy_state === "ELIGIBLE") return true;
+  return (
+    approval.kind === "six-pack-reviewed-large-family-batch-v13" &&
+    approval.policy?.accessories === "ALLOW" &&
+    source?.policy_state === "DEFERRED" &&
+    source?.policy_code === "DEFER_ACCESSORY" &&
+    source.categories?.includes("Accessories")
   );
 }
 
@@ -276,7 +290,7 @@ async function run(options, dependencies = {}) {
       const variant = classification.matches[index + offset];
       if (
         !source ||
-        source.policy_state !== "ELIGIBLE" ||
+        !approvedSourcePolicyState(approval, source) ||
         String(source.external_product_id) !==
           sourceProductId ||
         !variant ||
@@ -347,7 +361,10 @@ async function run(options, dependencies = {}) {
         live,
         new Date().toISOString()
       );
-      const externalOptions = { Flavour: reviewed.flavour };
+      row.product_format = family.product_format || row.product_format;
+      const externalOptions = family.option_name
+        ? { [family.option_name]: reviewed.flavour }
+        : {};
       if (Number(reviewed.pack_count || 1) > 1) {
         externalOptions.Pack = String(reviewed.pack_count);
       }

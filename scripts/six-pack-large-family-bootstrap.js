@@ -86,6 +86,29 @@ function assertApproval(value = defaultApproval) {
 
 function intendedVariants(family) {
   const rows = family.variants.map((variant) => {
+    if (variant.is_default === true) {
+      return {
+        external_variant_id: String(variant.external_variant_id),
+        expected_id: variant.product_variant_id
+          ? String(variant.product_variant_id)
+          : null,
+        variant_key: "default",
+        display_name: "Default",
+        flavour_code: null,
+        flavour_label: null,
+        size_value: null,
+        size_unit: null,
+        pack_count: 1,
+        product_format: Object.prototype.hasOwnProperty.call(
+          variant,
+          "product_format"
+        )
+          ? variant.product_format
+          : family.product_format,
+        is_active: true,
+        is_default: true,
+      };
+    }
     const size = variant.size ?? family.size ?? family.unit_count;
     const sizeUnit =
       variant.size_unit ?? family.size_unit ?? family.unit_type;
@@ -186,6 +209,8 @@ function classifyVariants(existing, intended) {
 function productPayload(family) {
   const hasMassSize =
     family.size != null && family.size_unit === "g";
+  const hasVolumeSize =
+    family.size != null && family.size_unit === "ml";
   return {
     name: family.name,
     slug: family.slug,
@@ -198,7 +223,7 @@ function productPayload(family) {
     gtin: null,
     is_active: true,
     net_weight_g: hasMassSize ? Number(family.size) : null,
-    net_volume_ml: null,
+    net_volume_ml: hasVolumeSize ? Number(family.size) : null,
     serving_count_verified: null,
     serving_size_g: null,
     serving_size_ml: null,
@@ -382,13 +407,19 @@ async function ensureNewFamily(db, family) {
 async function ensureExistingFamily(db, family) {
   const productResult = await db
     .from("products")
-    .select("id,is_active,merged_into_product_id")
+    .select("id,name,slug,brand,category,product_format,is_active,merged_into_product_id")
     .eq("id", Number(family.product_id))
     .single();
   if (productResult.error) throw productResult.error;
   if (
     productResult.data.is_active !== true ||
-    productResult.data.merged_into_product_id != null
+    productResult.data.merged_into_product_id != null ||
+    (family.kind === "EXISTING_CANONICAL_PRODUCT" &&
+      family.existing_match_evidence &&
+      (productResult.data.name !== family.name ||
+        productResult.data.slug !== family.slug ||
+        productResult.data.brand !== family.brand ||
+        productResult.data.category !== family.category))
   ) {
     fail(`Existing canonical family drift for ${family.external_product_id}`);
   }
@@ -476,13 +507,19 @@ async function inspectFamily(db, family) {
   }
   const product = await db
     .from("products")
-    .select("id,is_active,merged_into_product_id")
+    .select("id,name,slug,brand,category,product_format,is_active,merged_into_product_id")
     .eq("id", Number(family.product_id))
     .single();
   if (product.error) throw product.error;
   if (
     product.data.is_active !== true ||
-    product.data.merged_into_product_id != null
+    product.data.merged_into_product_id != null ||
+    (family.kind === "EXISTING_CANONICAL_PRODUCT" &&
+      family.existing_match_evidence &&
+      (product.data.name !== family.name ||
+        product.data.slug !== family.slug ||
+        product.data.brand !== family.brand ||
+        product.data.category !== family.category))
   ) {
     fail(`Existing canonical family drift for ${family.external_product_id}`);
   }

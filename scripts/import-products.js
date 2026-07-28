@@ -46,6 +46,8 @@ const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8 = require("../config/retailers/six
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9 = require("../config/retailers/six-pack-reviewed-large-family-batch-v9.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10 = require("../config/retailers/six-pack-reviewed-large-family-batch-v10.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11 = require("../config/retailers/six-pack-reviewed-large-family-batch-v11.json");
+const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12 = require("../config/retailers/six-pack-reviewed-large-family-batch-v12.json");
+const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13 = require("../config/retailers/six-pack-reviewed-large-family-batch-v13.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -57,10 +59,12 @@ const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-large-family-batch-v9", 36],
   ["six-pack-reviewed-large-family-batch-v10", 32],
   ["six-pack-reviewed-large-family-batch-v11", 19],
+  ["six-pack-reviewed-large-family-batch-v12", 65],
+  ["six-pack-reviewed-large-family-batch-v13", 16],
 ]);
 
 const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
-  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11]
+  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13]
     .flatMap((batch) => (batch.rows || batch.families.flatMap((family) =>
       family.variants.map((variant) => ({
         ...variant,
@@ -69,8 +73,14 @@ const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
         approved_product_slug: family.slug || null,
         approved_brand: family.brand || null,
         approved_category: family.category || null,
-        size: family.size,
-        size_unit: family.size_unit,
+        size:
+          variant.is_default === true
+            ? null
+            : variant.size ?? family.size,
+        size_unit:
+          variant.is_default === true
+            ? null
+            : variant.size_unit ?? family.size_unit,
         product_format: family.product_format,
         family_kind: family.kind,
       }))
@@ -854,7 +864,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
       normalizeFlavour(sixPackReviewed.flavour || "") &&
     sizeKey(inputSize) === sizeKey(reviewedSize) &&
     String(row.product_format || "").trim().toLowerCase() ===
-      sixPackReviewed.product_format;
+      String(sixPackReviewed.product_format || "").trim().toLowerCase();
   const reviewedWheyIdentity =
     REVIEWED_WHEY_OKAY_Q1_Q2_FORMAT_IDENTITIES.get(sourceKey) ||
     REVIEWED_WHEY_OKAY_FORMAT_IDENTITIES.get(sourceKey);

@@ -6,6 +6,7 @@ const countedApproval = require("../config/retailers/six-pack-reviewed-large-fam
 const powderApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v10.json");
 const multipageApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v11.json");
 const foodApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v12.json");
+const accessoryApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v13.json");
 const {
   assertApproval,
   classifyVariants,
@@ -99,6 +100,37 @@ test("generic bootstrap accepts 65 reviewed food offers", () => {
     intended.filter((variant) => variant.pack_count === 12).length,
     14
   );
+});
+
+test("generic bootstrap accepts 16 reviewed accessory offers", () => {
+  assert.doesNotThrow(() => assertApproval(accessoryApproval));
+  const intended = accessoryApproval.families.flatMap((family) =>
+    intendedVariants(family).filter(
+      (variant) => variant.external_variant_id
+    )
+  );
+  assert.equal(accessoryApproval.family_count, 11);
+  assert.equal(accessoryApproval.new_product_count, 9);
+  assert.equal(intended.length, 16);
+  const bottle = accessoryApproval.families.find(
+    (family) => family.product_id === "83"
+  );
+  assert.deepEqual(intendedVariants(bottle), [
+    {
+      external_variant_id: "2832",
+      expected_id: "37",
+      variant_key: "default",
+      display_name: "Default",
+      flavour_code: null,
+      flavour_label: null,
+      size_value: null,
+      size_unit: null,
+      pack_count: 1,
+      product_format: null,
+      is_active: true,
+      is_default: true,
+    },
+  ]);
 });
 
 test("new canonical products keep unverified metrics null", () => {
