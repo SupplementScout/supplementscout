@@ -48,6 +48,7 @@ const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10 = require("../config/retailers/si
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11 = require("../config/retailers/six-pack-reviewed-large-family-batch-v11.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12 = require("../config/retailers/six-pack-reviewed-large-family-batch-v12.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13 = require("../config/retailers/six-pack-reviewed-large-family-batch-v13.json");
+const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14 = require("../config/retailers/six-pack-reviewed-large-family-batch-v14.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -61,10 +62,11 @@ const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-large-family-batch-v11", 19],
   ["six-pack-reviewed-large-family-batch-v12", 65],
   ["six-pack-reviewed-large-family-batch-v13", 16],
+  ["six-pack-reviewed-large-family-batch-v14", 50],
 ]);
 
 const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
-  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13]
+  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14]
     .flatMap((batch) => (batch.rows || batch.families.flatMap((family) =>
       family.variants.map((variant) => ({
         ...variant,

@@ -361,7 +361,7 @@ Products with at least 2 active retailers.
 - The six-row canary was explicitly approved and applied through protected GitHub Actions run `30271526584` on commit `66e4306d8a247e3db281e561692442e058932b69`. Bootstrap, exact-scope apply, fresh idempotency dry-run, production mapping/offer verification and evidence upload all passed.
 - Initial independent production verification found exactly one retailer (`id=11`), six exact mappings and six exact offers with external variant IDs `4110`, `4112`, `4627`, `6305`, `6308` and `87012`. All six offers matched the initially approved prices and stock state.
 - The initial production identities are sealed in `config/retailers/six-pack-approved-offer-manifest.json`. It is the single expandable retailer manifest: later reviewed mappings are appended to the same scope and handled by the same refresh process. New or ambiguous products remain discovery-only until reviewed; they do not create separate automations.
-- Routine automation is implemented in `.github/workflows/six-pack-offer-refresh.yml`. One shared expandable manifest drives the complete retailer scope; the workflow runs daily at `03:17 UTC` and supports manual dry-run/apply. Every run tests contracts, fetches the 28 exact WooCommerce product pages for all 95 approved variants, validates source identity and full manifest coverage, applies only approved existing mappings through separate production approver/executor roles, takes a fresh source capture, requires idempotency and uploads evidence.
+- Routine automation is implemented in `.github/workflows/six-pack-offer-refresh.yml`. One shared expandable manifest drives the complete retailer scope; the workflow runs daily at `03:17 UTC` and supports manual dry-run/apply. Every run tests contracts, fetches the 185 exact WooCommerce product pages for all 391 approved variants, validates source identity and full manifest coverage, applies only approved existing mappings through separate production approver/executor roles, takes a fresh source capture, requires idempotency and uploads evidence.
 - Automatic apply fails closed on a missing/duplicate source identity, stale source, URL/domain drift, commercial identity drift, unexpected mapping/offer, catalogue create, hard per-row price anomaly, changed-record ratio above 25%, price-change ratio at or above 20%, two or more new out-of-stock transitions, excessive total OOS or post-apply drift. New products are never created by this workflow.
 - First routine automation run [`30272677883`](https://github.com/SupplementScout/supplementscout/actions/runs/30272677883) passed on commit `dca4cca0c75a0b68ad45de945f7901ab12f57b6c`: tests, live preflight, exact six-plan apply, fresh idempotency check and evidence upload all succeeded. Independent verification retained six mappings and six offers with unchanged approved prices/stock/shipping and refreshed all six `last_checked_at` values to `2026-07-27T13:57:14.212Z`.
 - The explicitly approved nine-row expansion passed protected production run [`30273730176`](https://github.com/SupplementScout/supplementscout/actions/runs/30273730176) on commit `418f618ea7c71c974662146c98c393fa586e3b25`: exact checksum, fresh preflight, nine sequential approvals/applies, post-apply idempotency and exact mapping/offer verification all succeeded. No product or variant was created.
@@ -373,16 +373,19 @@ Products with at least 2 active retailers.
 - The same shared automation was expanded from 22 to 43 offers across 11 product pages in manifest SHA-256 `04b889735b55c309077cd911dc0f46b020678df96bf63a47a6ef65e3c6d7491c`. Full protected run [`30281395323`](https://github.com/SupplementScout/supplementscout/actions/runs/30281395323) passed on commit `b0ab09e2c6faaa562833f06f6b1b2fbcfe47e796`: live-source preflight, exact-manifest apply, a second fresh source capture and 43/43 idempotency all succeeded. This is one retailer automation, not a separate process for the newly added products.
 - A further 35 existing canonical variants were added in one protected rollout, without creating products or variants. Run [`30283296805`](https://github.com/SupplementScout/supplementscout/actions/runs/30283296805) passed preflight, exact-scope execution, production verification and 35/35 idempotency. The single shared manifest now covers 78 offers across 27 product pages with SHA-256 `00097844976ec31f6c1cf0bfd3c9a4e8abcd9c0af3d2b28aade17688a2c1046e`; full shared-automation run [`30283890153`](https://github.com/SupplementScout/supplementscout/actions/runs/30283890153) passed live-source preflight, exact-manifest execution and a second fresh-source idempotency check for all 78 offers.
 - Seventeen missing flavour variants were then created atomically under seven existing canonical products and bound to 17 new retailer offers. Protected run [`30285647049`](https://github.com/SupplementScout/supplementscout/actions/runs/30285647049) passed the explicit-ID preflight, exact-scope apply, production verification and idempotency. The same shared manifest now covers 95 offers across 28 product pages with SHA-256 `0e52e08982f8fd53e0628c9ba8c02feaa32c9d3eb560dcfbf439fad0ec61b04f`; full shared refresh [`30285963795`](https://github.com/SupplementScout/supplementscout/actions/runs/30285963795) passed live preflight, exact-manifest execution and a second fresh-source idempotency check for all 95 offers.
-- Current shared automation scope: 95 approved offers across 28 WooCommerce
+- Current shared automation scope: 391 approved offers across 185 WooCommerce
   product pages. This is one expandable retailer automation, not a separate
   process for each expansion batch.
 - Product matching review queue: 141 rows, comprising 58 owner decisions and 83
   open reviews. Fifty decided rows are approved but deliberately queued for a
   later controlled execution: 25 new products, 17 new variants, four new-family
-  seeds and four existing-variant mappings. None has been consumed by an
-  execution plan. Seven rows are excluded and one is deferred.
-- Status: **95 APPROVED OFFERS / SHARED DAILY AUTOMATION OPERATIONAL; 50
-  REVIEWED ROWS QUEUED FOR LATER CONTROLLED EXECUTION**.
+  seeds and four existing-variant mappings. They are sealed as the exact V14
+  execution package; its read-only production preflight passed with zero
+  database writes, 29 planned product creates and 46 reviewed variant actions.
+  The protected bootstrap and offer rollout have not yet run. Seven rows are
+  excluded and one is deferred.
+- Status: **391 APPROVED OFFERS / SHARED DAILY AUTOMATION OPERATIONAL; 50
+  REVIEWED ROWS SEALED AND PREFLIGHTED FOR CONTROLLED V14 EXECUTION**.
 
 ## Initial registry template
 

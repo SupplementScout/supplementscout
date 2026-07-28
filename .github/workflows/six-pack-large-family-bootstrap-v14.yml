@@ -1,0 +1,76 @@
+name: 6 Pack Supplements Reviewed Decisions Bootstrap V14
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: six-pack-production-family-v14
+  cancel-in-progress: false
+
+jobs:
+  bootstrap-reviewed-decisions:
+    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+    env:
+      NODE_OPTIONS: --use-system-ca
+      APPROVAL: config/retailers/six-pack-reviewed-large-family-batch-v14.json
+
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REPOSITORY" = "SupplementScout/supplementscout"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_ACTIONS" = "true"
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Test sealed decision and bootstrap contracts
+        run: |
+          node --test \
+            scripts/six-pack-reviewed-decision-execution-builder.test.js \
+            scripts/six-pack-large-family-bootstrap.test.js
+      - name: Production bootstrap preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
+            --approval="$APPROVAL" \
+            --output=tmp/six-pack-large-family-v14/preflight.json
+          node -e 'const r=require("./tmp/six-pack-large-family-v14/preflight.json"); if(r.result!=="PASS" || r.family_count!==35 || !Number.isInteger(r.planned_product_create_count) || r.planned_product_create_count<0 || r.planned_product_create_count>29 || !Number.isInteger(r.planned_variant_create_count) || r.planned_variant_create_count<0 || r.planned_variant_create_count>46) process.exit(1)'
+      - name: Bootstrap reviewed products and exact variants
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-large-family-bootstrap.js --mode=apply \
+            --approval="$APPROVAL" \
+            --output=tmp/six-pack-large-family-v14/bootstrap.json
+      - name: Verify complete canonical families
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
+            --approval="$APPROVAL" \
+            --output=tmp/six-pack-large-family-v14/postflight.json
+          node -e 'const b=require("./tmp/six-pack-large-family-v14/bootstrap.json"); const p=require("./tmp/six-pack-large-family-v14/postflight.json"); if(b.result!=="PASS" || b.family_count!==35 || b.verified_variant_count!==50 || !Number.isInteger(b.inserted_product_count) || b.inserted_product_count<0 || b.inserted_product_count>29 || p.planned_product_create_count!==0 || p.planned_variant_create_count!==0 || p.families.some(f=>f.action!=="VERIFY_COMPLETE")) process.exit(1)'
+      - name: Upload bootstrap evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-large-family-v14-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/six-pack-large-family-v14/*.json

@@ -33,12 +33,14 @@ automation blockers elsewhere in this document.
   scope has already made it the retailer currently adding the most second and
   third-plus retailer coverage. The admin matching queue contains 141 rows: 58
   decided and 83 awaiting owner review.
-- Of the 58 decided 6 Pack rows, 50 are approved for a later controlled
-  automation stage: 25 new products, 17 new variants, four new product-family
-  seeds and four mappings to existing variants. None has been consumed by an
-  execution plan. Seven rows are excluded and one remains deferred. The
-  50-row execution is explicitly queued for later and is not part of the
-  current search-quality task.
+- Of the 58 decided 6 Pack rows, 50 are approved for controlled automation:
+  25 new products, 17 new variants, four new product-family seeds and four
+  mappings to existing variants. They are now sealed in the exact V14 package.
+  Its read-only production preflight passed with zero database writes, 29
+  planned canonical product creates and 46 reviewed variant actions across 35
+  families. Seven rows are excluded and one remains deferred. Production
+  bootstrap and the append to the shared retailer manifest still require the
+  protected execution gates.
 - The first-party search ledger contains 904 recorded result events through
   28 July. Production tests show good coverage for core category terms but
   deterministic gaps for reversed size wording, punctuation/model names,
@@ -51,9 +53,10 @@ automation blockers elsewhere in this document.
   variants, multi-word matching and delivered-price budget parsing. Searches
   such as "without caffeine" or health-treatment wording require verified
   ingredient/claim data before exact filtering can be promised.
-- After the bounded search improvement, return to the active 6 Pack review
-  queue. The 50 approved rows remain a separate staging/production execution
-  task, while the remaining 83 rows continue through owner review.
+- The bounded search improvement is complete. The active task is now the
+  protected V14 execution of the 50 sealed 6 Pack decisions, followed by an
+  append to the same shared retailer automation. The remaining 83 rows continue
+  through owner review independently.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
