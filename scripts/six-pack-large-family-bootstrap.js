@@ -30,8 +30,9 @@ function normalize(value) {
     .trim();
 }
 
-function variantKey(flavour, size, unit) {
-  return `${normalize(flavour).replace(/\s+/g, "-")}-${size}${unit}`;
+function variantKey(flavour, size, unit, packCount = 1) {
+  const base = `${normalize(flavour).replace(/\s+/g, "-")}-${size}${unit}`;
+  return Number(packCount) > 1 ? `${base}-${packCount}-pack` : base;
 }
 
 function familySizeLabel(family) {
@@ -84,30 +85,43 @@ function assertApproval(value = defaultApproval) {
 }
 
 function intendedVariants(family) {
-  const sizeLabel = familySizeLabel(family);
-  const variantSizeValue =
-    family.size == null ? null : Number(family.size);
-  const variantSizeUnit = family.size_unit || null;
-  const rows = family.variants.map((variant) => ({
-    external_variant_id: String(variant.external_variant_id),
-    expected_id: variant.product_variant_id
-      ? String(variant.product_variant_id)
-      : null,
-    variant_key: variantKey(
-      variant.flavour,
-      family.size ?? family.unit_count,
-      family.size_unit ?? family.unit_type
-    ),
-    display_name: `${variant.flavour} / ${sizeLabel}`,
-    flavour_code: normalize(variant.flavour),
-    flavour_label: variant.flavour,
-    size_value: variantSizeValue,
-    size_unit: variantSizeUnit,
-    pack_count: 1,
-    product_format: family.product_format,
-    is_active: true,
-    is_default: false,
-  }));
+  const rows = family.variants.map((variant) => {
+    const size = variant.size ?? family.size ?? family.unit_count;
+    const sizeUnit =
+      variant.size_unit ?? family.size_unit ?? family.unit_type;
+    const packCount = Number(variant.pack_count ?? 1);
+    const sizeLabel =
+      variant.size != null && variant.size_unit
+        ? Number(variant.size) >= 1000 && variant.size_unit === "g"
+          ? `${Number(variant.size) / 1000}kg`
+          : `${variant.size}${variant.size_unit}`
+        : familySizeLabel(family);
+    const packLabel =
+      packCount > 1 ? ` Box of ${packCount}` : "";
+    return {
+      external_variant_id: String(variant.external_variant_id),
+      expected_id: variant.product_variant_id
+        ? String(variant.product_variant_id)
+        : null,
+      variant_key: variantKey(
+        variant.flavour,
+        size,
+        sizeUnit,
+        packCount
+      ),
+      display_name: `${variant.flavour}${packLabel} / ${sizeLabel}`,
+      flavour_code: normalize(variant.flavour),
+      flavour_label: variant.flavour,
+      size_value:
+        variant.size == null && family.size == null ? null : Number(size),
+      size_unit:
+        variant.size_unit || family.size_unit || null,
+      pack_count: packCount,
+      product_format: family.product_format,
+      is_active: true,
+      is_default: false,
+    };
+  });
   if (family.kind === "NEW_CANONICAL_PRODUCT") {
     rows.unshift({
       external_variant_id: null,

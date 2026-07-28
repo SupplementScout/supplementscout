@@ -5,6 +5,7 @@ const nextApproval = require("../config/retailers/six-pack-reviewed-large-family
 const countedApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v9.json");
 const powderApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v10.json");
 const multipageApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v11.json");
+const foodApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v12.json");
 const {
   assertApproval,
   classifyVariants,
@@ -81,6 +82,25 @@ test("generic bootstrap accepts five multi-page families and 19 offers", () => {
   assert.equal(multipageApproval.row_count, 19);
 });
 
+test("generic bootstrap accepts 65 reviewed food offers", () => {
+  assert.doesNotThrow(() => assertApproval(foodApproval));
+  const intended = foodApproval.families.flatMap((family) =>
+    intendedVariants(family).filter(
+      (variant) => variant.external_variant_id
+    )
+  );
+  assert.equal(foodApproval.family_count, 15);
+  assert.equal(intended.length, 65);
+  assert.equal(
+    new Set(intended.map((variant) => variant.external_variant_id)).size,
+    65
+  );
+  assert.equal(
+    intended.filter((variant) => variant.pack_count === 12).length,
+    14
+  );
+});
+
 test("new canonical products keep unverified metrics null", () => {
   const family = approval.families.find(
     (row) => row.kind === "NEW_CANONICAL_PRODUCT"
@@ -117,6 +137,35 @@ test("large family variant classification is empty, complete or partial", () => 
     classifyVariants(existing.slice(0, -1), intended).state,
     "PARTIAL"
   );
+});
+
+test("variant identity keeps single bars separate from boxes", () => {
+  const family = {
+    kind: "NEW_CANONICAL_PRODUCT",
+    size: "64",
+    size_unit: "g",
+    product_format: "bar",
+    variants: [
+      { external_variant_id: "single", flavour: "Salted Caramel" },
+      {
+        external_variant_id: "box",
+        flavour: "Salted Caramel",
+        pack_count: 12,
+      },
+    ],
+  };
+  const intended = intendedVariants(family).filter(
+    (variant) => variant.external_variant_id
+  );
+  assert.equal(intended[0].variant_key, "salted-caramel-64g");
+  assert.equal(intended[0].display_name, "Salted Caramel / 64g");
+  assert.equal(intended[0].pack_count, 1);
+  assert.equal(intended[1].variant_key, "salted-caramel-64g-12-pack");
+  assert.equal(
+    intended[1].display_name,
+    "Salted Caramel Box of 12 / 64g"
+  );
+  assert.equal(intended[1].pack_count, 12);
 });
 
 test("large family bootstrap evidence is confined to tmp", () => {

@@ -348,6 +348,12 @@ async function run(options, dependencies = {}) {
         new Date().toISOString()
       );
       const externalOptions = { Flavour: reviewed.flavour };
+      if (Number(reviewed.pack_count || 1) > 1) {
+        externalOptions.Pack = String(reviewed.pack_count);
+      }
+      if (reviewed.size && reviewed.size_unit) {
+        externalOptions.Size = `${reviewed.size}${reviewed.size_unit}`;
+      }
       if (
         reviewed.source_flavour &&
         reviewed.source_flavour !== reviewed.flavour
@@ -392,6 +398,8 @@ async function run(options, dependencies = {}) {
     resumed_mapping_count: resumedMappingCount,
     covered_duplicate_alias_count: coveredDuplicateAliases.length,
     covered_duplicate_aliases: coveredDuplicateAliases,
+    reviewed_source_alias_count: (approval.source_aliases || []).length,
+    reviewed_source_aliases: approval.source_aliases || [],
     live_product_page_count: liveByProduct.size,
     csv_sha256: sha256(csv),
     approval_fingerprint: approval.approval_fingerprint,
