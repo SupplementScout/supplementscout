@@ -1,6 +1,10 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
-const { parseArgs, plansForMode } = require("./six-pack-canary-executor");
+const { parseArgs, plansForMode, validateRollout } = require("./six-pack-canary-executor");
+
+const ROOT = path.resolve(__dirname, "..");
 
 function artifact(action) {
   return {
@@ -33,5 +37,24 @@ test("CLI confines execution evidence to tmp", () => {
   assert.throws(
     () => parseArgs(["--mode=all", "--artifact=a", "--csv=b", "--rollout=c", "--output=outside.json"]),
     /inside repository tmp/
+  );
+});
+
+test("executor accepts the exact reviewed V11 19-offer rollout", () => {
+  const csv = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v11.csv");
+  const rolloutPath = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v11.json");
+  const rollout = JSON.parse(fs.readFileSync(rolloutPath, "utf8"));
+  const loaded = {
+    artifact: {
+      source_file_sha256: rollout.csv_sha256,
+      plans: rollout.expected_external_variant_ids.map(() => ({})),
+      source_rows: rollout.expected_external_variant_ids.map((externalVariantId) => ({
+        normalized_source_row: { external_variant_id: externalVariantId },
+      })),
+    },
+  };
+  assert.equal(
+    validateRollout({ csv, rollout: rolloutPath }, loaded).row_count,
+    19
   );
 });
