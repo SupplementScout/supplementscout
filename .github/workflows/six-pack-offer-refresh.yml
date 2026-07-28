@@ -77,12 +77,12 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5; do
             node scripts/six-pack-offer-refresh.js \
               --target=production \
               --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
               --report=tmp/six-pack-offer-refresh/production-preflight-report.json && break
-            test "$attempt" -eq 3 && exit 1
+            test "$attempt" -eq 5 && exit 1
             sleep $((attempt * 5))
           done
 
@@ -102,13 +102,13 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5; do
             node scripts/six-pack-offer-refresh.js \
               --target=production \
               --require-no-change=true \
               --artifact=tmp/six-pack-offer-refresh/production-idempotency-artifact.json \
               --report=tmp/six-pack-offer-refresh/production-idempotency-report.json && break
-            test "$attempt" -eq 3 && exit 1
+            test "$attempt" -eq 5 && exit 1
             sleep $((attempt * 5))
           done
 
