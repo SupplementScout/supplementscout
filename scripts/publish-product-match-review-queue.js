@@ -143,11 +143,48 @@ function readArtifact(file) {
   return artifact;
 }
 
+async function readMappedSourceRecordIds(client, retailerName) {
+  const { data: retailers, error: retailerError } = await client
+    .from("retailers")
+    .select("id,name")
+    .eq("name", retailerName)
+    .limit(2);
+  if (retailerError) throw retailerError;
+  if (!retailers || retailers.length !== 1) {
+    fail(`Expected exactly one retailer named ${retailerName}`);
+  }
+
+  const mapped = new Set();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await client
+      .from("retailer_products")
+      .select("external_product_id,external_variant_id")
+      .eq("retailer_id", retailers[0].id)
+      .range(from, from + 999);
+    if (error) throw error;
+    for (const row of data || []) {
+      if (row.external_product_id) mapped.add(String(row.external_product_id));
+      if (row.external_variant_id) mapped.add(String(row.external_variant_id));
+    }
+    if (!data || data.length < 1000) return mapped;
+  }
+}
+
 async function publish(options, dependencies = {}) {
   const artifact = readArtifact(options.input);
   const client = dependencies.client || loadClient(options.target);
   const rows = artifact.rows.map((row) =>
     databaseRow(row, artifact.artifact_fingerprint)
+  );
+  const retailerNames = new Set(rows.map((row) => row.retailer));
+  if (retailerNames.size !== 1) {
+    fail("Review artifact must contain exactly one retailer");
+  }
+  const mappedSourceRecordIds =
+    dependencies.mappedSourceRecordIds ||
+    await readMappedSourceRecordIds(client, [...retailerNames][0]);
+  const reviewRows = rows.filter(
+    (row) => !mappedSourceRecordIds.has(String(row.source_record_id))
   );
   const { data: existing, error: existingError } = await client
     .from("product_match_review_queue")
@@ -158,7 +195,7 @@ async function publish(options, dependencies = {}) {
   const existingById = new Map(
     (existing || []).map((row) => [String(row.review_item_id), row])
   );
-  const inserts = rows.filter((row) => {
+  const inserts = reviewRows.filter((row) => {
     const current = existingById.get(row.review_item_id);
     if (!current) return true;
     if (current.source_row_fingerprint !== row.source_row_fingerprint) {
@@ -180,8 +217,10 @@ async function publish(options, dependencies = {}) {
     catalogue_writes: 0,
     snapshot_id: artifact.snapshot_id,
     rows_in_artifact: rows.length,
+    skipped_already_mapped: rows.length - reviewRows.length,
+    rows_for_review: reviewRows.length,
     inserted: inserts.length,
-    preserved_existing_decisions: rows.length - inserts.length,
+    preserved_existing_decisions: reviewRows.length - inserts.length,
   };
 }
 
@@ -203,4 +242,5 @@ module.exports = {
   parseArgs,
   publish,
   readArtifact,
+  readMappedSourceRecordIds,
 };

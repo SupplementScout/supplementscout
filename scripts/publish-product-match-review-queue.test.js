@@ -131,7 +131,7 @@ test("publishing inserts only missing review rows and preserves decisions", asyn
     const firstClient = client([]);
     const first = await publish(
       { input: file, target: "production" },
-      { client: firstClient }
+      { client: firstClient, mappedSourceRecordIds: new Set() }
     );
     assert.equal(first.catalogue_writes, 0);
     assert.equal(first.inserted, 1);
@@ -146,7 +146,7 @@ test("publishing inserts only missing review rows and preserves decisions", asyn
     ]);
     const replay = await publish(
       { input: file, target: "production" },
-      { client: replayClient }
+      { client: replayClient, mappedSourceRecordIds: new Set() }
     );
     assert.equal(replay.inserted, 0);
     assert.equal(replay.preserved_existing_decisions, 1);
@@ -170,10 +170,32 @@ test("publishing rejects drift under an existing review item identity", async ()
               decision: "PENDING",
             },
           ]),
+          mappedSourceRecordIds: new Set(),
         }
       ),
       /Published review item drift/
     );
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("publishing skips source records already mapped for the retailer", async () => {
+  const { directory, file } = artifactFile();
+  try {
+    const fakeClient = client([]);
+    const result = await publish(
+      { input: file, target: "production" },
+      {
+        client: fakeClient,
+        mappedSourceRecordIds: new Set(["1"]),
+      }
+    );
+    assert.equal(result.rows_in_artifact, 1);
+    assert.equal(result.skipped_already_mapped, 1);
+    assert.equal(result.rows_for_review, 0);
+    assert.equal(result.inserted, 0);
+    assert.equal(fakeClient.inserted.length, 0);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }
