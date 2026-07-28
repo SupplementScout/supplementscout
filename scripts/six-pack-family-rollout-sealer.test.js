@@ -26,6 +26,9 @@ const V6_FINAL_APPROVAL = require("../config/retailers/six-pack-reviewed-family-
 const V7_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v7.csv");
 const V7_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v7.json");
 const V7_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
+const V8_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v8.csv");
+const V8_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v8.json");
+const V8_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v8.json");
 
 function reportFromRollout(expected) {
   const resumedIds = new Set(
@@ -132,6 +135,26 @@ test("large V7 rollout binds 75 new offers and audits two covered aliases", () =
   assert.equal(rollout.approved_scope_row_count, 77);
   assert.equal(rollout.covered_duplicate_aliases.length, 2);
   assert.equal(rollout.expected_created_variant_count, 0);
+});
+
+test("large V8 rollout binds all 34 offers without aliases or variant creates", () => {
+  const expected = JSON.parse(fs.readFileSync(V8_ROLLOUT, "utf8"));
+  const rollout = build(
+    fs.readFileSync(V8_CSV),
+    reportFromRollout(expected),
+    V8_APPROVAL,
+    {
+    kind: "six-pack-production-expansion-v8",
+    csvPath: "config/retailers/six-pack-production-expansion-v8.csv",
+    }
+  );
+  assert.deepEqual(rollout, expected);
+  assert.equal(rollout.row_count, 34);
+  assert.equal(rollout.approved_scope_row_count, 34);
+  assert.deepEqual(rollout.covered_duplicate_aliases, []);
+  assert.deepEqual(rollout.resumed_external_variant_ids, []);
+  assert.equal(rollout.expected_created_variant_count, 0);
+  assert.equal(rollout.expected_bindings.length, 34);
 });
 
 test("family rollout output remains inside tmp", () => {

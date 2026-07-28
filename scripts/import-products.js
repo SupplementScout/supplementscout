@@ -42,9 +42,19 @@ const SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH = require("../config/retailers/si
 const SIX_PACK_REVIEWED_FAMILY_MAP_BATCH = require("../config/retailers/six-pack-reviewed-family-map-batch-v4.json");
 const SIX_PACK_REVIEWED_FAMILY_MAP_FINAL = require("../config/retailers/six-pack-reviewed-family-map-batch-v5.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
+const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8 = require("../config/retailers/six-pack-reviewed-large-family-batch-v8.json");
+
+const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
+  ["six-pack-reviewed-family-batch-v1", 21],
+  ["six-pack-reviewed-missing-variants-batch-v3", 17],
+  ["six-pack-reviewed-family-map-batch-v4", 19],
+  ["six-pack-reviewed-family-map-batch-v5", 19],
+  ["six-pack-reviewed-large-family-batch-v7", 77],
+  ["six-pack-reviewed-large-family-batch-v8", 34],
+]);
 
 const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
-  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH]
+  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8]
     .flatMap((batch) => (batch.rows || batch.families.flatMap((family) =>
       family.variants.map((variant) => ({
         ...variant,
@@ -795,8 +805,9 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     : null;
   const inputSize = size ? parseSize(size) : null;
   const isLargeSixPackBatch =
-    sixPackReviewedBatch?.kind ===
-    "six-pack-reviewed-large-family-batch-v7";
+    /^six-pack-reviewed-large-family-batch-v\d+$/.test(
+      sixPackReviewedBatch?.kind || ""
+    );
   const largeNewProductIdentity =
     isLargeSixPackBatch &&
     sixPackReviewed?.family_kind === "NEW_CANONICAL_PRODUCT" &&
@@ -823,11 +834,11 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
       ].includes(optionalIdentifier(row.product_variant_id));
   const exactSixPackReviewedIdentity =
     sixPackReviewedBatch?.approved === true &&
-    ["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-missing-variants-batch-v3", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5", "six-pack-reviewed-large-family-batch-v7"].includes(sixPackReviewedBatch.kind) &&
-    [21, 17, 19, 77].includes(
-      sixPackReviewedBatch.rows?.length ||
-        sixPackReviewedBatch.row_count
-    ) &&
+    SIX_PACK_REVIEWED_BATCH_ROW_COUNTS.get(
+      sixPackReviewedBatch.kind
+    ) ===
+      (sixPackReviewedBatch.rows?.length ||
+        sixPackReviewedBatch.row_count) &&
     slugifyRetailerName(String(row.retailer_name || "")) ===
       "6-pack-supplements" &&
     sixPackReviewed &&

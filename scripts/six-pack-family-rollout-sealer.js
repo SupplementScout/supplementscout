@@ -63,7 +63,7 @@ function parseArgs(argv) {
     fail("Output must be inside repository tmp");
   }
   if (
-    !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap", "six-pack-production-expansion-v6", "six-pack-production-expansion-v7"].includes(options.kind) ||
+    !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap", "six-pack-production-expansion-v6", "six-pack-production-expansion-v7", "six-pack-production-expansion-v8"].includes(options.kind) ||
     !/^config\/retailers\/six-pack-production-[a-z0-9-]+\.csv$/.test(options.csvPath)
   ) {
     fail("Unsupported family rollout identity");
@@ -86,6 +86,10 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
       }))
     ) ||
     [];
+  const isLargeFamilyBatch =
+    /^six-pack-reviewed-large-family-batch-v\d+$/.test(
+      approvalValue.kind || ""
+    );
   const coveredDuplicateAliases =
     approvalValue.kind === "six-pack-reviewed-large-family-batch-v7"
       ? [
@@ -122,7 +126,7 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
     (plan) => plan.product_variant?.action === "create_variant"
   ).length;
   const expectedVariantCreateCount =
-    approvalValue.kind === "six-pack-reviewed-large-family-batch-v7"
+    isLargeFamilyBatch
       ? 0
       : approvedRows.filter((row) => !row.product_variant_id).length;
   const resumedIds =
@@ -151,7 +155,7 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
   };
   if (
     approvalValue.approved !== true ||
-    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5", "six-pack-reviewed-large-family-batch-v7"].includes(approvalValue.kind) ||
+    !["six-pack-reviewed-family-batch-v1", "six-pack-reviewed-family-map-batch-v4", "six-pack-reviewed-family-map-batch-v5", "six-pack-reviewed-large-family-batch-v7", "six-pack-reviewed-large-family-batch-v8"].includes(approvalValue.kind) ||
     approvedRows.length !== rows.length + coveredDuplicateAliases.length ||
     JSON.stringify(csvIds) !== JSON.stringify(approvedIds) ||
     report.blockedRows?.length !== 0 ||
@@ -195,8 +199,7 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
     target_project_ref: "aftboxmrdgyhizicfsfu",
     retailer_slug: "6-pack-supplements",
     row_count: rows.length,
-    ...(approvalValue.kind ===
-    "six-pack-reviewed-large-family-batch-v7"
+    ...(isLargeFamilyBatch
       ? {
           approved_scope_row_count: approvedRows.length,
           covered_duplicate_aliases: coveredDuplicateAliases,
