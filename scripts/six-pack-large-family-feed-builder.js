@@ -264,10 +264,24 @@ async function run(options, dependencies = {}) {
   const liveByProduct = new Map();
   const outputRows = [];
   const coveredDuplicateAliases = [];
+  const configuredDuplicateAliases = new Map(
+    (approval.covered_duplicate_aliases || []).map((row) => [
+      String(row.approved_external_variant_id),
+      {
+        existing_external_product_id: String(
+          row.existing_external_product_id
+        ),
+        existing_external_variant_id: String(
+          row.existing_external_variant_id
+        ),
+        product_variant_id: String(row.product_variant_id),
+      },
+    ])
+  );
   const expectedDuplicateAliases =
     approval.kind === "six-pack-reviewed-large-family-batch-v7"
       ? COVERED_DUPLICATE_ALIASES
-      : new Map();
+      : configuredDuplicateAliases;
   let resumedMappingCount = 0;
   for (const family of approval.families) {
     const product = family.product_id

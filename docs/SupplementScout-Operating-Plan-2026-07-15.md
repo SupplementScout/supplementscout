@@ -36,11 +36,13 @@ automation blockers elsewhere in this document.
 - Of the 58 decided 6 Pack rows, 50 are approved for controlled automation:
   25 new products, 17 new variants, four new product-family seeds and four
   mappings to existing variants. They are now sealed in the exact V14 package.
-  Its read-only production preflight passed with zero database writes, 29
-  planned canonical product creates and 46 reviewed variant actions across 35
-  families. Seven rows are excluded and one remains deferred. Production
-  bootstrap and the append to the shared retailer manifest still require the
-  protected execution gates.
+  Protected run `30389870288` verified all 35 families complete and idempotent
+  after the catalogue bootstrap. The next protected gate contains 49 new
+  mappings/offers with exact £4.99 shipping. The remaining approved decision,
+  source row `5232`, is an audited duplicate page for the already automated
+  `4551:4553` vanilla-wafer offer and must not create a second offer. Seven rows
+  are excluded and one remains deferred. The append to the shared retailer
+  manifest still follows the protected offer rollout.
 - The first-party search ledger contains 904 recorded result events through
   28 July. Production tests show good coverage for core category terms but
   deterministic gaps for reversed size wording, punctuation/model names,

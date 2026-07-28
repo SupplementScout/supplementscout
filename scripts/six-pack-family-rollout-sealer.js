@@ -106,7 +106,7 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
             product_variant_id: "815",
           },
         ]
-      : [];
+      : approvalValue.covered_duplicate_aliases || [];
   const coveredIds = new Set(
     coveredDuplicateAliases.map(
       (row) => row.approved_external_variant_id

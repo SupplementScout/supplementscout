@@ -380,12 +380,15 @@ Products with at least 2 active retailers.
   open reviews. Fifty decided rows are approved but deliberately queued for a
   later controlled execution: 25 new products, 17 new variants, four new-family
   seeds and four existing-variant mappings. They are sealed as the exact V14
-  execution package; its read-only production preflight passed with zero
-  database writes, 29 planned product creates and 46 reviewed variant actions.
-  The protected bootstrap and offer rollout have not yet run. Seven rows are
-  excluded and one is deferred.
+  execution package. Protected bootstrap run `30389870288` verified all 35
+  reviewed families complete and idempotent after creating 29 canonical
+  products and the approved missing variants. The offer preflight is clean for
+  49 new mappings/offers with exact £4.99 shipping; source row `5232` is
+  separately audited as a duplicate page already covered by mapping
+  `4551:4553`, so it will not create a second offer. The protected offer rollout
+  has not yet run. Seven rows are excluded and one is deferred.
 - Status: **391 APPROVED OFFERS / SHARED DAILY AUTOMATION OPERATIONAL; 50
-  REVIEWED ROWS SEALED AND PREFLIGHTED FOR CONTROLLED V14 EXECUTION**.
+  REVIEWED DECISIONS CATALOGUE-COMPLETE; 49 NEW OFFERS PREFLIGHTED FOR V14**.
 
 ## Initial registry template
 

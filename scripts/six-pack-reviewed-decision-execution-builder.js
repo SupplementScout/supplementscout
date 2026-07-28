@@ -664,6 +664,15 @@ function build(sourceSnapshot, decisionArtifact) {
     row_count: variantIds.length,
     source_candidate_count: variantIds.length,
     source_aliases: [],
+    covered_duplicate_aliases: [
+      {
+        approved_external_variant_id: "5232",
+        existing_external_product_id: "4551",
+        existing_external_variant_id: "4553",
+        product_variant_id: "2307",
+        reason: "DUPLICATE_SINGLE_VANILLA_WAFER_PAGE_ALREADY_AUTOMATED",
+      },
+    ],
     families,
     approval_fingerprint: null,
   };

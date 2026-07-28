@@ -44,6 +44,9 @@ const V12_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family
 const V13_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v13.csv");
 const V13_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v13.json");
 const V13_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v13.json");
+const V14_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v14.csv");
+const V14_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v14.json");
+const V14_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v14.json");
 
 function reportFromRollout(expected) {
   const resumedIds = new Set(
@@ -262,6 +265,29 @@ test("large V13 rollout binds exactly 16 reviewed accessory offers", () => {
   assert.equal(rollout.row_count, 16);
   assert.equal(rollout.approved_scope_row_count, 16);
   assert.deepEqual(rollout.covered_duplicate_aliases, []);
+  assert.equal(rollout.expected_created_variant_count, 0);
+});
+
+test("large V14 rollout binds 49 new offers and audits the existing wafer alias", () => {
+  const expected = JSON.parse(fs.readFileSync(V14_ROLLOUT, "utf8"));
+  const rollout = build(
+    fs.readFileSync(V14_CSV),
+    reportFromRollout(expected),
+    V14_APPROVAL,
+    {
+      kind: "six-pack-production-expansion-v14",
+      csvPath:
+        "config/retailers/six-pack-production-expansion-v14.csv",
+    }
+  );
+  assert.deepEqual(rollout, expected);
+  assert.equal(rollout.row_count, 49);
+  assert.equal(rollout.approved_scope_row_count, 50);
+  assert.equal(rollout.covered_duplicate_aliases.length, 1);
+  assert.equal(
+    rollout.covered_duplicate_aliases[0].approved_external_variant_id,
+    "5232"
+  );
   assert.equal(rollout.expected_created_variant_count, 0);
 });
 

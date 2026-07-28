@@ -35,6 +35,58 @@ test("reviewed shaker identity remains an accessory despite ml capacity", () => 
   assert.deepEqual(result.reasons, []);
 });
 
+test("reviewed Six Pack resin is a valid exact product format", () => {
+  const result = assessVariantCompatibility(
+    {
+      product_name: "Good Guru Gold Shilajit Resin 30g",
+      brand: "Good Guru",
+      size: "30",
+      size_unit: "g",
+      product_format: "resin",
+      pack_count: "1",
+      __reviewed_six_pack_family_identity: {
+        canonical_product_variant_id: "2379",
+        size_value: "30",
+        size_unit: "g",
+        pack_count: "1",
+        product_format: "resin",
+      },
+    },
+    {
+      name: "Good Guru Gold Shilajit Resin 30g",
+      brand: "Good Guru",
+      product_format: "resin",
+    }
+  );
+  assert.equal(result.compatible, true);
+  assert.deepEqual(result.reasons, []);
+});
+
+test("reviewed Six Pack variant identity overrides pack wording in the product title", () => {
+  const result = assessVariantCompatibility(
+    {
+      product_name: "Animal Pak 44 Packs",
+      brand: "Animal",
+      product_format: "pack",
+      pack_count: "1",
+      __reviewed_six_pack_family_identity: {
+        canonical_product_variant_id: "2395",
+        size_value: null,
+        size_unit: null,
+        pack_count: "1",
+        product_format: "pack",
+      },
+    },
+    {
+      name: "Animal Pak 44 Packs",
+      brand: "Animal",
+      product_format: "pack",
+    }
+  );
+  assert.equal(result.compatible, true);
+  assert.deepEqual(result.reasons, []);
+});
+
 test("explicit multi-word flavours keep their complete normalized identity", () => {
   const flavours = [
     "Fruit Burst",

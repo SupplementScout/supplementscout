@@ -26,6 +26,15 @@
   "row_count": 50,
   "source_candidate_count": 50,
   "source_aliases": [],
+  "covered_duplicate_aliases": [
+    {
+      "approved_external_variant_id": "5232",
+      "existing_external_product_id": "4551",
+      "existing_external_variant_id": "4553",
+      "product_variant_id": "2307",
+      "reason": "DUPLICATE_SINGLE_VANILLA_WAFER_PAGE_ALREADY_AUTOMATED"
+    }
+  ],
   "families": [
     {
       "external_product_id": "1546",
@@ -936,5 +945,5 @@
       ]
     }
   ],
-  "approval_fingerprint": "d51b1e2369986fd6399caed5d42a4bc9e859e45e6c5c80c5fe79a7aff0149f12"
+  "approval_fingerprint": "d9a9323bf240405c2e18023ed3b458db7ec8318084f94bfad2c2d32a408aa77e"
 }

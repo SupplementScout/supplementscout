@@ -188,6 +188,14 @@ function parseProductFormat(value = "") {
     return "spread";
   }
 
+  if (/^resins?$/.test(text.trim())) {
+    return "resin";
+  }
+
+  if (/^packs?$/.test(text.trim())) {
+    return "pack";
+  }
+
   if (/\b(powder|whey|protein|isolate|casein|mass gainer|pre workout|creatine)\b/.test(text)) {
     return "powder";
   }
@@ -345,6 +353,7 @@ function parseClearProductFormatEvidence(value = "") {
   }
   if (/\b(bars?|protein bars?)\b/.test(text)) return "bar";
   if (/\bsnacks?\b/.test(text)) return "snack";
+  if (/\bresins?\b/.test(text)) return "resin";
   if (/\bpowder\b/.test(text)) return "powder";
 
   return null;
@@ -388,6 +397,9 @@ function assessVariantCompatibility(row, product) {
   const productIdentity = {
     ...parsedProductIdentity,
     size: reviewedCanonicalSize || parsedProductIdentity.size,
+    packCount: reviewedExistingVariantIdentity
+      ? reviewedPackCount
+      : parsedProductIdentity.packCount,
     productFormat: reviewedExistingVariantIdentity
       ? null
       : reviewedIdentity
