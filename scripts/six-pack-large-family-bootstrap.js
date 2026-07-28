@@ -3,10 +3,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
-const approval = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
+const defaultApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
+const DEFAULT_APPROVAL = path.join(
+  ROOT,
+  "config",
+  "retailers",
+  "six-pack-reviewed-large-family-batch-v7.json"
+);
 
 function fail(message) {
   throw new Error(message);
@@ -28,7 +34,7 @@ function variantKey(flavour, size, unit) {
   return `${normalize(flavour).replace(/\s+/g, "-")}-${size}${unit}`;
 }
 
-function assertApproval(value = approval) {
+function assertApproval(value = defaultApproval) {
   const fingerprint = sha256(
     JSON.stringify({ ...value, approval_fingerprint: null })
   );
@@ -38,20 +44,22 @@ function assertApproval(value = approval) {
   );
   if (
     value.approved !== true ||
-    value.kind !== "six-pack-reviewed-large-family-batch-v7" ||
+    !/^six-pack-reviewed-large-family-batch-v\d+$/.test(value.kind) ||
     value.target_project_ref !== PROJECT_REF ||
-    value.family_count !== 8 ||
-    value.new_product_count !== 6 ||
-    value.row_count !== 77 ||
-    value.families.length !== 8 ||
-    newFamilies.length !== 6 ||
-    variants.length !== 77 ||
+    value.family_count !== value.families.length ||
+    value.new_product_count !== newFamilies.length ||
+    value.row_count !== variants.length ||
+    value.families.length === 0 ||
+    variants.length === 0 ||
     new Set(
       variants.map((variant) => String(variant.external_variant_id))
-    ).size !== 77 ||
+    ).size !== variants.length ||
     value.policy.dated_products !== "EXCLUDE" ||
     value.policy.sarms !== "EXCLUDE" ||
-    value.policy.peptides !== "EXCLUDE" ||
+    ![
+      "EXCLUDE",
+      "EXCLUDE_RESEARCH_PEPTIDES_ALLOW_COLLAGEN",
+    ].includes(value.policy.peptides) ||
     value.policy.food !== "EXCLUDE" ||
     value.policy.missing_metrics !== "LEAVE_NULL_UNTIL_EXPERT_REVIEW" ||
     value.approval_fingerprint !== fingerprint
@@ -176,7 +184,7 @@ function productPayload(family) {
 function parseArgs(argv) {
   const values = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(mode|output)=(.*)$/);
+    const match = argument.match(/^--(mode|output|approval)=(.*)$/);
     if (!match || values[match[1]]) fail(`Invalid argument ${argument}`);
     values[match[1]] = match[2];
   }
@@ -191,7 +199,22 @@ function parseArgs(argv) {
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
     fail("Output must be inside repository tmp");
   }
-  return { mode: values.mode, output };
+  const approvalPath = path.resolve(
+    values.approval || DEFAULT_APPROVAL
+  );
+  const approvalRelative = path
+    .relative(path.join(ROOT, "config", "retailers"), approvalPath)
+    .replaceAll("\\", "/");
+  if (
+    approvalRelative.startsWith("..") ||
+    path.isAbsolute(approvalRelative) ||
+    !/^six-pack-reviewed-large-family-batch-v\d+\.json$/.test(
+      approvalRelative
+    )
+  ) {
+    fail("Approval must be a reviewed large family config");
+  }
+  return { mode: values.mode, output, approval: approvalPath };
 }
 
 function client() {
@@ -464,7 +487,10 @@ async function run(options, dependencies = {}) {
   ) {
     fail("Large family bootstrap is restricted to GitHub Actions on main");
   }
-  assertApproval();
+  const approval =
+    dependencies.approval ||
+    JSON.parse(fs.readFileSync(options.approval, "utf8"));
+  assertApproval(approval);
   const db = dependencies.client || client();
   if (options.mode === "dry-run") {
     const families = [];
@@ -473,7 +499,7 @@ async function run(options, dependencies = {}) {
     }
     const report = {
       schema_version: 1,
-      kind: "six-pack-large-family-bootstrap-preflight-v7",
+      kind: "six-pack-large-family-bootstrap-preflight",
       result: "PASS",
       database_writes: 0,
       target_project_ref: PROJECT_REF,
@@ -507,7 +533,7 @@ async function run(options, dependencies = {}) {
   }
   const report = {
     schema_version: 1,
-    kind: "six-pack-large-family-bootstrap-v7",
+    kind: "six-pack-large-family-bootstrap",
     result: "PASS",
     target_project_ref: PROJECT_REF,
     approval_fingerprint: approval.approval_fingerprint,

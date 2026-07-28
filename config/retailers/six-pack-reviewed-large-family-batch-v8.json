@@ -1,0 +1,357 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-large-family-batch-v8",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-28",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "collagen_supplements": "ALLOW",
+    "food": "EXCLUDE",
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "family_mapping": true,
+    "one_shared_automation": true
+  },
+  "family_count": 8,
+  "new_product_count": 8,
+  "row_count": 34,
+  "families": [
+    {
+      "external_product_id": "2765",
+      "name": "7Nutrition Bodybuilder Mass Gainer 3kg",
+      "slug": "7nutrition-bodybuilder-mass-gainer-3kg",
+      "brand": "7Nutrition",
+      "category": "Mass Gainer",
+      "size": "3000",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 6,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "37.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/08/bodybuilder-gainer-mass-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "28828",
+          "source_flavour": "Strawberry banana",
+          "flavour": "Strawberry Banana",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28831",
+          "source_flavour": "Vanilla ice cream",
+          "flavour": "Vanilla Ice Cream",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28834",
+          "source_flavour": "Triple chocolate",
+          "flavour": "Triple Chocolate",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28837",
+          "source_flavour": "White chocolate",
+          "flavour": "White Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28840",
+          "source_flavour": "Cookies cream",
+          "flavour": "Cookies & Cream",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28843",
+          "source_flavour": "Chocolate caramel hazelnut",
+          "flavour": "Chocolate Caramel Hazelnut",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "8330",
+      "name": "7Nutrition Carbo Gold 1000g",
+      "slug": "7nutrition-carbo-gold-1000g",
+      "brand": "7Nutrition",
+      "category": "Health Supplements",
+      "size": "1000",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 5,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "9.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/03/carbo_7nutrition_6pack_supplements_reading.jpg",
+      "variants": [
+        {
+          "external_variant_id": "8331",
+          "source_flavour": "Green Apple",
+          "flavour": "Green Apple",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "8332",
+          "source_flavour": "Orange",
+          "flavour": "Orange",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "8333",
+          "source_flavour": "Lemon",
+          "flavour": "Lemon",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "8335",
+          "source_flavour": "Tropical fruit",
+          "flavour": "Tropical Fruit",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "8336",
+          "source_flavour": "Grapefruit",
+          "flavour": "Grapefruit",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3958",
+      "name": "7Nutrition BCAA Master 500g",
+      "slug": "7nutrition-bcaa-master-500g",
+      "brand": "7Nutrition",
+      "category": "Amino Acids",
+      "size": "500",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 5,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "21.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/bcaa-master-7nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "3959",
+          "source_flavour": "RASPBERRY",
+          "flavour": "Raspberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3960",
+          "source_flavour": "LEMON",
+          "flavour": "Lemon",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3961",
+          "source_flavour": "ORANGE",
+          "flavour": "Orange",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3962",
+          "source_flavour": "COLA-LIME",
+          "flavour": "Cola-Lime",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3963",
+          "source_flavour": "UNFLAVOURED",
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "2850",
+      "name": "BioTech USA Iso Whey Zero 2.27kg",
+      "slug": "biotech-usa-iso-whey-zero-2-27kg",
+      "brand": "BioTech USA",
+      "category": "Whey Protein",
+      "size": "2270",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 5,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "69.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/10/biotechusa-iso-whey-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "28890",
+          "source_flavour": "cookie cream",
+          "flavour": "Cookies & Cream",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28891",
+          "source_flavour": "strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28893",
+          "source_flavour": "vanilla",
+          "flavour": "Vanilla",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28896",
+          "source_flavour": "white chocolate",
+          "flavour": "White Chocolate",
+          "in_stock": false
+        },
+        {
+          "external_variant_id": "28897",
+          "source_flavour": "pistachio",
+          "flavour": "Pistachio",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "3851",
+      "name": "BioTech USA 100% Pure Whey 1kg",
+      "slug": "biotech-usa-100-pure-whey-1kg",
+      "brand": "BioTech USA",
+      "category": "Whey Protein",
+      "size": "1000",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 4,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "29.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/11/s1582544047.png",
+      "variants": [
+        {
+          "external_variant_id": "28690",
+          "source_flavour": "chocolate-coconut",
+          "flavour": "Chocolate-Coconut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28693",
+          "source_flavour": "bourbon-vanilla",
+          "flavour": "Bourbon-Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28714",
+          "source_flavour": "hazelnuts",
+          "flavour": "Hazelnut",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28735",
+          "source_flavour": "strawberry",
+          "flavour": "Strawberry",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "8325",
+      "name": "7Nutrition Isotonic Gold 1000g",
+      "slug": "7nutrition-isotonic-gold-1000g",
+      "brand": "7Nutrition",
+      "category": "Health Supplements",
+      "size": "1000",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 3,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "9.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/03/isotonic_7nutrition_flapjack__6pack_supplements_reading.jpg",
+      "variants": [
+        {
+          "external_variant_id": "8327",
+          "source_flavour": "Green Apple",
+          "flavour": "Green Apple",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "8328",
+          "source_flavour": "Orange",
+          "flavour": "Orange",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "8329",
+          "source_flavour": "Lemon",
+          "flavour": "Lemon",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "31509",
+      "name": "Trec Nutrition Collagen Renover 350g",
+      "slug": "trec-nutrition-collagen-renover-350g",
+      "brand": "Trec Nutrition",
+      "category": "Health Supplements",
+      "size": "350",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 3,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/collagen-renover-trec-nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "31521",
+          "source_flavour": "Mango-Passion Fruit",
+          "flavour": "Mango-Passion Fruit",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "31524",
+          "source_flavour": "Cherry",
+          "flavour": "Cherry",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "31527",
+          "source_flavour": "Strawberry-Banana",
+          "flavour": "Strawberry-Banana",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3864",
+      "name": "BioTech USA Iso Whey Zero 500g",
+      "slug": "biotech-usa-iso-whey-zero-500g",
+      "brand": "BioTech USA",
+      "category": "Whey Protein",
+      "size": "500",
+      "size_unit": "g",
+      "product_format": "powder",
+      "expected_count": 3,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/11/iso-whey-protein-biotechusa-500g-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "3865",
+          "source_flavour": "cookie cream",
+          "flavour": "Cookies & Cream",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "3866",
+          "source_flavour": "vanilla",
+          "flavour": "Vanilla",
+          "in_stock": true
+        },
+        {
+          "external_variant_id": "28738",
+          "source_flavour": "pistachio",
+          "flavour": "Pistachio",
+          "in_stock": true
+        }
+      ]
+    }
+  ],
+  "approval_fingerprint": "6512e3df3d88298551b4d66acbe5a1341181c6a7bdfdc5b8f9465b745416a6fe"
+}

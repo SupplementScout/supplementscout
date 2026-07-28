@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const approval = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
+const nextApproval = require("../config/retailers/six-pack-reviewed-large-family-batch-v8.json");
 const {
   assertApproval,
   classifyVariants,
@@ -23,6 +24,21 @@ test("large Six Pack approval binds eight families and 77 source variants", () =
       )
     ).size,
     77
+  );
+});
+
+test("generic bootstrap accepts the exact next 34-offer approval", () => {
+  assert.doesNotThrow(() => assertApproval(nextApproval));
+  const intended = nextApproval.families.flatMap((family) =>
+    intendedVariants(family).filter(
+      (variant) => variant.external_variant_id
+    )
+  );
+  assert.equal(intended.length, 34);
+  assert.equal(
+    new Set(intended.map((variant) => variant.external_variant_id))
+      .size,
+    34
   );
 });
 

@@ -17,7 +17,6 @@ const {
   intendedVariants,
 } = require("./six-pack-large-family-bootstrap");
 const config = require("../config/retailers/six-pack-supplements-woocommerce.json");
-const approval = require("../config/retailers/six-pack-reviewed-large-family-batch-v7.json");
 
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE = path.join(
@@ -39,6 +38,12 @@ const DEFAULT_OUTPUT = path.join(
   "retailer-feeds",
   "six-pack-supplements",
   "six-pack-large-family-77.csv"
+);
+const DEFAULT_APPROVAL = path.join(
+  ROOT,
+  "config",
+  "retailers",
+  "six-pack-reviewed-large-family-batch-v7.json"
 );
 const COVERED_DUPLICATE_ALIASES = new Map([
   [
@@ -68,14 +73,16 @@ function sha256(value) {
 }
 
 function parseArgs(argv) {
-  if (
-    argv.length > 1 ||
-    (argv[0] && !argv[0].startsWith("--output="))
-  ) {
-    fail("Usage: --output=<tmp path>");
+  const values = {};
+  for (const argument of argv) {
+    const match = argument.match(/^--(output|approval)=(.*)$/);
+    if (!match || values[match[1]]) {
+      fail(`Invalid argument ${argument}`);
+    }
+    values[match[1]] = match[2];
   }
   const output = path.resolve(
-    argv[0]?.slice("--output=".length) || DEFAULT_OUTPUT
+    values.output || DEFAULT_OUTPUT
   );
   const relative = path.relative(path.join(ROOT, "tmp"), output);
   if (
@@ -85,17 +92,30 @@ function parseArgs(argv) {
   ) {
     fail("Output must be inside repository tmp");
   }
-  return { output };
+  const approval = path.resolve(values.approval || DEFAULT_APPROVAL);
+  const approvalRelative = path
+    .relative(path.join(ROOT, "config", "retailers"), approval)
+    .replaceAll("\\", "/");
+  if (
+    approvalRelative.startsWith("..") ||
+    path.isAbsolute(approvalRelative) ||
+    !/^six-pack-reviewed-large-family-batch-v\d+\.json$/.test(
+      approvalRelative
+    )
+  ) {
+    fail("Approval must be a reviewed large family config");
+  }
+  return { output, approval };
 }
 
-function loadClient() {
+function loadClient(targetProjectRef) {
   dotenv.config({ path: path.join(ROOT, ".env.local"), quiet: true });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (
     !url ||
     !key ||
-    new URL(url).hostname.split(".")[0] !== approval.target_project_ref
+    new URL(url).hostname.split(".")[0] !== targetProjectRef
   ) {
     fail("Production read credential mismatch");
   }
@@ -119,6 +139,9 @@ function productIdentityMatches(product, family) {
 }
 
 async function run(options, dependencies = {}) {
+  const approval =
+    dependencies.approval ||
+    JSON.parse(fs.readFileSync(options.approval, "utf8"));
   assertApproval(approval);
   const sourceSnapshot = JSON.parse(fs.readFileSync(SOURCE, "utf8"));
   if (
@@ -133,7 +156,8 @@ async function run(options, dependencies = {}) {
       row,
     ])
   );
-  const db = dependencies.client || loadClient();
+  const db =
+    dependencies.client || loadClient(approval.target_project_ref);
   const existingIds = approval.families
     .filter((family) => family.product_id)
     .map((family) => Number(family.product_id));
@@ -207,6 +231,10 @@ async function run(options, dependencies = {}) {
   const liveByProduct = new Map();
   const outputRows = [];
   const coveredDuplicateAliases = [];
+  const expectedDuplicateAliases =
+    approval.kind === "six-pack-reviewed-large-family-batch-v7"
+      ? COVERED_DUPLICATE_ALIASES
+      : new Map();
   let resumedMappingCount = 0;
   for (const family of approval.families) {
     const product = family.product_id
@@ -267,7 +295,7 @@ async function run(options, dependencies = {}) {
         }
         resumedMappingCount += 1;
       } else if (mappedPeer) {
-        const expectedAlias = COVERED_DUPLICATE_ALIASES.get(
+        const expectedAlias = expectedDuplicateAliases.get(
           String(reviewed.external_variant_id)
         );
         if (
@@ -322,12 +350,14 @@ async function run(options, dependencies = {}) {
     }
   }
   if (
-    outputRows.length !== 75 ||
+    outputRows.length !==
+      approval.row_count - expectedDuplicateAliases.size ||
     new Set(outputRows.map((row) => String(row.external_variant_id)))
-      .size !== 75 ||
-    coveredDuplicateAliases.length !== 2
+      .size !== outputRows.length ||
+    coveredDuplicateAliases.length !==
+      expectedDuplicateAliases.size
   ) {
-    fail("Large family feed is not the exact 75-new plus 2-covered scope");
+    fail("Large family feed is not the exact approved unique scope");
   }
   const header = [
     ...fs
@@ -341,7 +371,7 @@ async function run(options, dependencies = {}) {
   fs.writeFileSync(options.output, csv);
   const report = {
     schema_version: 1,
-    kind: "six-pack-large-family-feed-v7",
+    kind: "six-pack-large-family-feed",
     result: "PASS",
     database_writes: 0,
     row_count: outputRows.length,
