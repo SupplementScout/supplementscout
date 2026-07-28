@@ -35,14 +35,20 @@ automation blockers elsewhere in this document.
   decided and 83 awaiting owner review.
 - Of the 58 decided 6 Pack rows, 50 are approved for controlled automation:
   25 new products, 17 new variants, four new product-family seeds and four
-  mappings to existing variants. They are now sealed in the exact V14 package.
-  Protected run `30389870288` verified all 35 families complete and idempotent
-  after the catalogue bootstrap. The next protected gate contains 49 new
-  mappings/offers with exact £4.99 shipping. The remaining approved decision,
-  source row `5232`, is an audited duplicate page for the already automated
-  `4551:4553` vanilla-wafer offer and must not create a second offer. Seven rows
-  are excluded and one remains deferred. The append to the shared retailer
-  manifest still follows the protected offer rollout.
+  mappings to existing variants. V14 is complete: protected bootstrap run
+  `30389870288` verified all 35 families, and protected offer run `30391111886`
+  added and verified 49 mappings/offers with exact £4.99 shipping. The
+  remaining approved decision, source row `5232`, is an audited duplicate page
+  for the already automated `4551:4553` vanilla-wafer offer and correctly did
+  not create a second offer. Shared refresh run `30391609002` expanded the same
+  retailer automation from 391 to 440 offers across 231 product pages; all 440
+  were `VERIFY_NO_CHANGE` in both the preflight and fresh post-apply check.
+  Seven rows are excluded and one remains deferred.
+- The shared Six Pack refresh is safe at 440 offers, but its protected apply is
+  intentionally sequential and therefore slow. A later performance task may
+  reuse bounded role connections or approved batches only if the same exact
+  manifest, per-row approval metadata, rollback and idempotency guarantees are
+  preserved.
 - The first-party search ledger contains 904 recorded result events through
   28 July. Production tests show good coverage for core category terms but
   deterministic gaps for reversed size wording, punctuation/model names,
