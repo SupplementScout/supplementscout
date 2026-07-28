@@ -1,0 +1,890 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-large-family-batch-v9",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-07-28",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "collagen_supplements": "ALLOW",
+    "food": "EXCLUDE",
+    "hormonal_and_high_risk_stimulants": "DEFER",
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "family_mapping": true,
+    "one_shared_automation": true
+  },
+  "family_count": 36,
+  "new_product_count": 36,
+  "row_count": 36,
+  "families": [
+    {
+      "external_product_id": "2753",
+      "name": "7Nutrition ASHWAGANDHA 100 vege caps",
+      "slug": "7nutrition-ashwagandha-100-vege-caps",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 100,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/08/2223.jpg",
+      "variants": [
+        {
+          "external_variant_id": "2753",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "2755",
+      "name": "7Nutrition L-CARNITINE 1000 - 120 vege caps",
+      "slug": "7nutrition-l-carnitine-1000-120-vege-caps",
+      "brand": "7Nutrition",
+      "category": "Amino Acids",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/08/2345.jpg",
+      "variants": [
+        {
+          "external_variant_id": "2755",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "2821",
+      "name": "Olimp Nutrition Vita-Min Multiple Sport Mega Caps 60 caps",
+      "slug": "olimp-nutrition-vita-min-multiple-sport-mega-caps-60-caps",
+      "brand": "Olimp Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "13.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/10/Vita-Min_Multiple_Sport_Mega_Caps_-_60_caps.jpg",
+      "variants": [
+        {
+          "external_variant_id": "2821",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3903",
+      "name": "ZINC+CHELATE 60 tablets BiotechUSA",
+      "slug": "zinc-chelate-60-tablets-biotechusa",
+      "brand": "BioTech USA",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "tablet",
+      "product_format": "tablet",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "8.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/eng_pl_BIOTECH-Zinc-Chelate-60-tabl-19393_1.png",
+      "variants": [
+        {
+          "external_variant_id": "3903",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3908",
+      "name": "7Nutrition Vitamin B-Complex B50 Methyl 60 caps",
+      "slug": "7nutrition-vitamin-b-complex-b50-methyl-60-caps",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "13.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/7nutrition-muscles-bcomplex-vitamins-recovery-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "3908",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "3912",
+      "name": "Omega 3 100 capsules 7Nutrition",
+      "slug": "omega-3-100-capsules-7nutrition",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 100,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "10.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/7nutrition-omega3-100caps-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "3912",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "3922",
+      "name": "Osavi Vitamin d3+k2 4000iu 60caps",
+      "slug": "osavi-vitamin-d3-k2-4000iu-60caps",
+      "brand": "Osavi",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "12.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/vitamin-d3-k2-4000k-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "3922",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4067",
+      "name": "VITA-MIN ONE 60 caps Olimp Nutrition",
+      "slug": "vita-min-one-60-caps-olimp-nutrition",
+      "brand": "Olimp Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "8.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/vita-min-one_kartonik_en_de_700px_2.png",
+      "variants": [
+        {
+          "external_variant_id": "4067",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4131",
+      "name": "7Nutrition Enzymes PRO 120 vege caps",
+      "slug": "7nutrition-enzymes-pro-120-vege-caps",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "17.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/7nutrition-enzymes-food-dignition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4131",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4143",
+      "name": "Good Guru Magnesium Complex 90 caps",
+      "slug": "good-guru-magnesium-complex-90-caps",
+      "brand": "Good Guru",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "17.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/good-guru-capsules-magnesium-complex-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4143",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4146",
+      "name": "Magnesium Malate 120 caps 7Nutrition",
+      "slug": "magnesium-malate-120-caps-7nutrition",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "16.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/7nutrition-muscles-magnesium-malate-electrolytes-heart-recovery-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4146",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "4162",
+      "name": "MULTISPORT MULTIVITAMINS 60 caps - 7Nutrition",
+      "slug": "multisport-multivitamins-60-caps-7nutrition",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "12.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/7nutrition-multivitamin-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4162",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "4300",
+      "name": "Omega 3 200 capsules 7Nutrition",
+      "slug": "omega-3-200-capsules-7nutrition",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 200,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/7nutrition-omega3-220caps-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4300",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "4490",
+      "name": "Activlab NAC 500mg 90caps",
+      "slug": "activlab-nac-500mg-90caps",
+      "brand": "Activlab",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/nacs.png",
+      "variants": [
+        {
+          "external_variant_id": "4490",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4495",
+      "name": "BiotechUSA MULTI MINERAL COMPLEX 100tabs",
+      "slug": "biotechusa-multi-mineral-complex-100tabs",
+      "brand": "BioTech USA",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 100,
+      "unit_type": "tablet",
+      "product_format": "tablet",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "11.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/4419_e6bc09068817.png",
+      "variants": [
+        {
+          "external_variant_id": "4495",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4599",
+      "name": "7Nutrition BIOTIN 10000 120tabs",
+      "slug": "7nutrition-biotin-10000-120tabs",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "tablet",
+      "product_format": "tablet",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "15.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/biotin-7nutrition-hair-nails-skin-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4599",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4601",
+      "name": "Zinc Matrix ZMA 100 caps - Reflex Nutrition",
+      "slug": "zinc-matrix-zma-100-caps-reflex-nutrition",
+      "brand": "Reflex Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 100,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "11.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/zma-zmb-zinc-matrix-sleep-recovery-reflex-nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4601",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4619",
+      "name": "Nexgen Pro Multivitamin 90 caps - Reflex Nutrition",
+      "slug": "nexgen-pro-multivitamin-90-caps-reflex-nutrition",
+      "brand": "Reflex Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "16.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/nexeg-pro-vegan-reflex-nutrition-multivitamin-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4619",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4649",
+      "name": "BioTechUSA Q10 Coenzyme 100 mg - 60 Caps",
+      "slug": "biotechusa-q10-coenzyme-100-mg-60-caps",
+      "brand": "BioTech USA",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "20.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/q10-coenzyme-biotechusa-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4649",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4861",
+      "name": "Beta-Alanine 1500mg 120caps Applied Nutrition",
+      "slug": "beta-alanine-1500mg-120caps-applied-nutrition",
+      "brand": "Applied Nutrition",
+      "category": "Amino Acids",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "10.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/beta-alanine-1500_1.png",
+      "variants": [
+        {
+          "external_variant_id": "4861",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "4864",
+      "name": "AAKG Capsules 120caps Applied Nutrition",
+      "slug": "aakg-capsules-120caps-applied-nutrition",
+      "brand": "Applied Nutrition",
+      "category": "Amino Acids",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "13.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/aakg_120_caps.png",
+      "variants": [
+        {
+          "external_variant_id": "4864",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4867",
+      "name": "7Nutrition Creatine Hydrochloride Hcl 350caps",
+      "slug": "7nutrition-creatine-hydrochloride-hcl-350caps",
+      "brand": "7Nutrition",
+      "category": "Creatine",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 350,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "29.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/6pack_supplements_creatine_hcl_strong_muscles_gains.jpg",
+      "variants": [
+        {
+          "external_variant_id": "4867",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6526",
+      "name": "Applied nutrition vitamin c 1000mg 100tabs",
+      "slug": "applied-nutrition-vitamin-c-1000mg-100tabs",
+      "brand": "Applied Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 100,
+      "unit_type": "tablet",
+      "product_format": "tablet",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "12.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/appied_nutition_vitamin_c_6pack_supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6526",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6528",
+      "name": "Applied nutrition multi-vitamin complex 90tabs",
+      "slug": "applied-nutrition-multi-vitamin-complex-90tabs",
+      "brand": "Applied Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 90,
+      "unit_type": "tablet",
+      "product_format": "tablet",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "10.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/appied_nutition_multivitamin_vitamins_6pack_supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6528",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6547",
+      "name": "7Nutrition Vitamin D3 4000 -120 gel caps",
+      "slug": "7nutrition-vitamin-d3-4000-120-gel-caps",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "softgel",
+      "product_format": "softgel",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/7nutition-vitamin-d3-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6547",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6554",
+      "name": "7Nutrition Iodine 120 vege caps",
+      "slug": "7nutrition-iodine-120-vege-caps",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "12.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/7nutrition-iodine-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6554",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6556",
+      "name": "7NUTRITION RHODIOLA ROSEA 60caps",
+      "slug": "7nutrition-rhodiola-rosea-60caps",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/7nutrition-rhodiola-rosea-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6556",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6558",
+      "name": "7Nutrition INOSITOL 120 vege caps",
+      "slug": "7nutrition-inositol-120-vege-caps",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "11.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/7nutrition-inositol-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6558",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6560",
+      "name": "7Nutrition ASTAXANTHIN - 60 softgels",
+      "slug": "7nutrition-astaxanthin-60-softgels",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "softgel",
+      "product_format": "softgel",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/7nutrition-astaxanthin-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "6560",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "28774",
+      "name": "Osavi Zinc Picolinate 50mg - 60 vegan caps",
+      "slug": "osavi-zinc-picolinate-50mg-60-vegan-caps",
+      "brand": "Osavi",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "9.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/07/zinc-osavi-50mg-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "28774",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "30945",
+      "name": "BioTechUSA ZMB - 60 Caps",
+      "slug": "biotechusa-zmb-60-caps",
+      "brand": "BioTech USA",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/zmb-biotechusa-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "30945",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "30954",
+      "name": "BioTechUSA Maca – 60 Caps",
+      "slug": "biotechusa-maca-60-caps",
+      "brand": "BioTech USA",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "13.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/maca-biotechusa-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "30954",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "31257",
+      "name": "D3 4000 120 tablets - ALLNUTRITION",
+      "slug": "d3-4000-120-tablets-allnutrition",
+      "brand": "ALLNUTRITION",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 120,
+      "unit_type": "tablet",
+      "product_format": "tablet",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "8.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/d3-4000-vitamin-allnutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "31257",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "31263",
+      "name": "D3 4000 + K2 60 Softgels - ALLNUTRITION",
+      "slug": "d3-4000-k2-60-softgels-allnutrition",
+      "brand": "ALLNUTRITION",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 60,
+      "unit_type": "softgel",
+      "product_format": "softgel",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "8.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/allnutrition-vit-d3-4000-k2-60-softgels-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "31263",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "31269",
+      "name": "L-theanine 100 capsules - ALLNUTRITION",
+      "slug": "l-theanine-100-capsules-allnutrition",
+      "brand": "ALLNUTRITION",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 100,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "12.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/l-theanine-vitamins-allnutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "31269",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "31284",
+      "name": "BERBERINE 90 capsules - ALLNUTRITION",
+      "slug": "berberine-90-capsules-allnutrition",
+      "brand": "ALLNUTRITION",
+      "category": "Vitamins",
+      "size": null,
+      "size_unit": null,
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "product_format": "capsule",
+      "expected_count": 1,
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "12.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/allnutrition-berberine-90-capsules-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_variant_id": "31284",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    }
+  ],
+  "approval_fingerprint": "36c6da5cbff979e3a6e8a7d077f1a7f7ea168378e50950c45dfc1eccfcdb6073"
+}

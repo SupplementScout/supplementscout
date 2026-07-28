@@ -34,6 +34,21 @@ function variantKey(flavour, size, unit) {
   return `${normalize(flavour).replace(/\s+/g, "-")}-${size}${unit}`;
 }
 
+function familySizeLabel(family) {
+  if (family.size != null && family.size_unit) {
+    return Number(family.size) >= 1000 &&
+      family.size_unit === "g"
+      ? `${Number(family.size) / 1000}kg`
+      : `${family.size}${family.size_unit}`;
+  }
+  if (family.unit_count && family.unit_type) {
+    return `${family.unit_count} ${family.unit_type}${
+      Number(family.unit_count) === 1 ? "" : "s"
+    }`;
+  }
+  fail(`Family size identity missing for ${family.external_product_id}`);
+}
+
 function assertApproval(value = defaultApproval) {
   const fingerprint = sha256(
     JSON.stringify({ ...value, approval_fingerprint: null })
@@ -69,6 +84,10 @@ function assertApproval(value = defaultApproval) {
 }
 
 function intendedVariants(family) {
+  const sizeLabel = familySizeLabel(family);
+  const variantSizeValue =
+    family.size == null ? null : Number(family.size);
+  const variantSizeUnit = family.size_unit || null;
   const rows = family.variants.map((variant) => ({
     external_variant_id: String(variant.external_variant_id),
     expected_id: variant.product_variant_id
@@ -76,18 +95,14 @@ function intendedVariants(family) {
       : null,
     variant_key: variantKey(
       variant.flavour,
-      family.size,
-      family.size_unit
+      family.size ?? family.unit_count,
+      family.size_unit ?? family.unit_type
     ),
-    display_name: `${variant.flavour} / ${
-      Number(family.size) >= 1000
-        ? `${Number(family.size) / 1000}kg`
-        : `${family.size}${family.size_unit}`
-    }`,
+    display_name: `${variant.flavour} / ${sizeLabel}`,
     flavour_code: normalize(variant.flavour),
     flavour_label: variant.flavour,
-    size_value: Number(family.size),
-    size_unit: family.size_unit,
+    size_value: variantSizeValue,
+    size_unit: variantSizeUnit,
     pack_count: 1,
     product_format: family.product_format,
     is_active: true,
@@ -155,6 +170,8 @@ function classifyVariants(existing, intended) {
 }
 
 function productPayload(family) {
+  const hasMassSize =
+    family.size != null && family.size_unit === "g";
   return {
     name: family.name,
     slug: family.slug,
@@ -166,15 +183,15 @@ function productPayload(family) {
     servings: null,
     gtin: null,
     is_active: true,
-    net_weight_g: Number(family.size),
+    net_weight_g: hasMassSize ? Number(family.size) : null,
     net_volume_ml: null,
     serving_count_verified: null,
     serving_size_g: null,
     serving_size_ml: null,
     protein_per_serving_g: null,
     creatine_per_serving_g: null,
-    unit_count: null,
-    unit_type: null,
+    unit_count: family.unit_count ?? null,
+    unit_type: family.unit_type ?? null,
     product_format: family.product_format,
     unit_pricing_verified: false,
     nutrition_verified: false,
