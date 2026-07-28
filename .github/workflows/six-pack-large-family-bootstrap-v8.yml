@@ -8,7 +8,9 @@ on:
       - config/retailers/six-pack-reviewed-large-family-batch-v8.json
       - .github/workflows/six-pack-large-family-bootstrap-v8.yml
       - scripts/six-pack-next-large-family-approval-builder.js
+      - scripts/six-pack-next-large-family-approval-builder.test.js
       - scripts/six-pack-large-family-bootstrap.js
+      - scripts/six-pack-large-family-bootstrap.test.js
 
 permissions:
   contents: read

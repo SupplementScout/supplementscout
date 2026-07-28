@@ -1,29 +1,17 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const path = require("node:path");
+const approval = require("../config/retailers/six-pack-reviewed-large-family-batch-v8.json");
 const {
-  build,
   flavourFor,
   parseArgs,
 } = require("./six-pack-next-large-family-approval-builder");
 
-const ROOT = path.resolve(__dirname, "..");
-const source = JSON.parse(
-  fs.readFileSync(
-    path.join(
-      ROOT,
-      "tmp",
-      "retailer-feeds",
-      "six-pack-supplements",
-      "six-pack-source-snapshot.json"
-    ),
-    "utf8"
-  )
-);
-
 test("next large family approval binds 34 non-food supplement offers", () => {
-  const approval = build(source);
+  assert.equal(
+    approval.kind,
+    "six-pack-reviewed-large-family-batch-v8"
+  );
+  assert.equal(approval.approved, true);
   assert.equal(approval.family_count, 8);
   assert.equal(approval.new_product_count, 8);
   assert.equal(approval.row_count, 34);
@@ -33,7 +21,10 @@ test("next large family approval binds 34 non-food supplement offers", () => {
   );
   assert.equal(approval.policy.food, "EXCLUDE");
   assert.equal(approval.policy.peptides, "EXCLUDE");
+  assert.equal(approval.policy.sarms, "EXCLUDE");
+  assert.equal(approval.policy.dated_products, "EXCLUDE");
   assert.equal(approval.policy.collagen_supplements, "ALLOW");
+  assert.equal(approval.policy.one_shared_automation, true);
 });
 
 test("retailer flavour aliases remain explicit", () => {
