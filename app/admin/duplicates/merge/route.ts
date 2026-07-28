@@ -386,7 +386,7 @@ export async function POST(request: NextRequest) {
       preview.mergePlan.summary.warning === 0 &&
       hasSafeProductState(preview);
 
-    if (!canMerge) {
+    if (!canMerge || !hasConfirmation(confirmation, candidateId)) {
       return redirectToPreview({
         request,
         canonicalId,

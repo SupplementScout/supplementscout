@@ -52,6 +52,20 @@ export type RetailerProductMapping = {
   retailer?: { name: string | null } | null;
 };
 
+export type MergeVariant = {
+  id: BigintId;
+  product_id: BigintId;
+  variant_key: string;
+  display_name: string | null;
+  flavour_label: string | null;
+  size_value: number | null;
+  size_unit: string | null;
+  pack_count: number | null;
+  product_format: string | null;
+  is_active: boolean | null;
+  is_default: boolean | null;
+};
+
 type RawRetailerProductMapping = Omit<RetailerProductMapping, "retailer"> & {
   retailer?: { name: string | null } | { name: string | null }[] | null;
 };
@@ -60,6 +74,7 @@ export type ProductMergeDetails = {
   product: MergeProduct;
   offers: MergeOffer[];
   retailerProducts: RetailerProductMapping[];
+  variants: MergeVariant[];
   priceHistoryCount: number;
 };
 
@@ -391,6 +406,31 @@ function buildConflicts(
   decisionConflicts: MergeDecisionConflicts
 ) {
   const conflicts: MergeConflict[] = [];
+  const activeNonDefaultVariants = [
+    ...canonical.variants,
+    ...candidate.variants,
+  ].filter(
+    (variant) => variant.is_active === true && variant.is_default !== true
+  );
+
+  if (activeNonDefaultVariants.length > 0) {
+    conflicts.push({
+      type: "active_non_default_variants",
+      label: "Variant-aware merge required",
+      detail: `Active non-default variant IDs: ${activeNonDefaultVariants
+        .map((variant) => variant.id)
+        .join(", ")}`,
+    });
+  }
+
+  if (candidate.retailerProducts.length > 0) {
+    conflicts.push({
+      type: "automation_reconciliation_required",
+      label: "Retailer automation reconciliation required",
+      detail:
+        "The candidate has retailer mappings. Reconcile approved retailer manifests before changing its canonical product identity.",
+    });
+  }
 
   if (
     canonical.product.is_active === false ||
@@ -632,6 +672,8 @@ function buildMergePlan(
     candidate_offer_multiple_decision_conflicts: "blocked",
     canonical_mapping_multiple_decision_conflicts: "blocked",
     candidate_mapping_multiple_decision_conflicts: "blocked",
+    active_non_default_variants: "blocked",
+    automation_reconciliation_required: "blocked",
   };
   const productConflicts: MergePlanItem[] = conflicts
     .filter((conflict) => conflict.type in productConflictStatusByType)
@@ -966,6 +1008,18 @@ export async function getMergePreview(
     throw retailerProductsError;
   }
 
+  const { data: variantsData, error: variantsError } = await supabaseAdmin
+    .from("product_variants")
+    .select(
+      "id, product_id, variant_key, display_name, flavour_label, size_value, size_unit, pack_count, product_format, is_active, is_default"
+    )
+    .in("product_id", [canonicalId, candidateId])
+    .order("id");
+
+  if (variantsError) {
+    throw variantsError;
+  }
+
   const offers = ((offersData || []) as RawMergeOffer[]).map(normalizeOffer);
   const retailerProducts = (
     (retailerProductsData || []) as RawRetailerProductMapping[]
@@ -981,6 +1035,13 @@ export async function getMergePreview(
   );
   const candidateRetailerProducts = retailerProducts.filter(
     (mapping) => idValue(mapping.product_id) === candidateIdValue
+  );
+  const variants = (variantsData || []) as MergeVariant[];
+  const canonicalVariants = variants.filter(
+    (variant) => idValue(variant.product_id) === canonicalIdValue
+  );
+  const candidateVariants = variants.filter(
+    (variant) => idValue(variant.product_id) === candidateIdValue
   );
 
   const priceHistoryCounts = await getPriceHistoryCounts(
@@ -999,12 +1060,14 @@ export async function getMergePreview(
     product: canonicalProduct,
     offers: canonicalOffers,
     retailerProducts: canonicalRetailerProducts,
+    variants: canonicalVariants,
     priceHistoryCount: canonicalPriceHistoryCount,
   };
   const candidate: ProductMergeDetails = {
     product: candidateProduct,
     offers: candidateOffers,
     retailerProducts: candidateRetailerProducts,
+    variants: candidateVariants,
     priceHistoryCount: candidatePriceHistoryCount,
   };
 

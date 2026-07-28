@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { useRef, type FormEvent } from "react";
 
 type MergeConfirmButtonProps = {
   action: string;
@@ -18,6 +18,7 @@ export function MergeConfirmButton({
   candidateName,
 }: MergeConfirmButtonProps) {
   const confirmationPhrase = `MERGE ${candidateId}`;
+  const confirmationInputRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     const confirmed = window.prompt(
@@ -36,6 +37,11 @@ export function MergeConfirmButton({
     if (confirmed !== confirmationPhrase) {
       window.alert("Merge cancelled. Confirmation phrase did not match.");
       event.preventDefault();
+      return;
+    }
+
+    if (confirmationInputRef.current) {
+      confirmationInputRef.current.value = confirmed;
     }
   }
 
@@ -43,6 +49,7 @@ export function MergeConfirmButton({
     <form action={action} method="post" onSubmit={handleSubmit}>
       <input type="hidden" name="canonicalId" value={canonicalId} />
       <input type="hidden" name="candidateId" value={candidateId} />
+      <input ref={confirmationInputRef} type="hidden" name="confirmation" />
       <button
         type="submit"
         className="rounded-lg border border-emerald-700 bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:border-emerald-800 hover:bg-emerald-800"

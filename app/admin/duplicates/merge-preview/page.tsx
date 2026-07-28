@@ -321,7 +321,7 @@ function ProductDetails({
         </div>
       </dl>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-4">
         <div className="rounded-lg border border-zinc-200 p-4">
           <p className="text-2xl font-bold">{details.offers.length}</p>
           <p className="text-sm text-zinc-500">offers</p>
@@ -333,6 +333,10 @@ function ProductDetails({
         <div className="rounded-lg border border-zinc-200 p-4">
           <p className="text-2xl font-bold">{details.retailerProducts.length}</p>
           <p className="text-sm text-zinc-500">retailer mappings</p>
+        </div>
+        <div className="rounded-lg border border-zinc-200 p-4">
+          <p className="text-2xl font-bold">{details.variants.length}</p>
+          <p className="text-sm text-zinc-500">variant records</p>
         </div>
       </div>
     </section>

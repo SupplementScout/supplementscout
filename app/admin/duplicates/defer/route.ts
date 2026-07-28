@@ -11,6 +11,15 @@ function badRequestResponse(message: string) {
   return new NextResponse(message, { status: 400 });
 }
 
+function reviewNote(value: FormDataEntryValue | null) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized ? normalized.slice(0, 500) : null;
+}
+
 export async function POST(request: NextRequest) {
   const unauthorized = requireAdminRoute(request);
 
@@ -40,21 +49,29 @@ export async function POST(request: NextRequest) {
     rawProductAId,
     rawProductBId
   );
-
   const { error } = await supabaseAdmin
     .from("ignored_duplicate_product_pairs")
-    .delete()
-    .eq("product_a_id", productAId)
-    .eq("product_b_id", productBId);
+    .upsert(
+      {
+        product_a_id: productAId,
+        product_b_id: productBId,
+        decision: "deferred",
+        note: reviewNote(formData.get("note")),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "product_a_id,product_b_id",
+      }
+    );
 
   if (error) {
-    return new NextResponse("Unable to restore duplicate pair.", {
+    return new NextResponse("Unable to defer duplicate pair.", {
       status: 500,
     });
   }
 
   const redirectUrl = new URL("/admin/duplicates", request.url);
-  redirectUrl.searchParams.set("saved", "restored");
+  redirectUrl.searchParams.set("saved", "deferred");
 
   return NextResponse.redirect(redirectUrl, 303);
 }

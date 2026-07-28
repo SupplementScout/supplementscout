@@ -47,6 +47,9 @@ export async function POST(request: NextRequest) {
       {
         product_a_id: productAId,
         product_b_id: productBId,
+        decision: "separate",
+        note: null,
+        updated_at: new Date().toISOString(),
       },
       {
         onConflict: "product_a_id,product_b_id",
@@ -60,6 +63,7 @@ export async function POST(request: NextRequest) {
   }
 
   const redirectUrl = new URL("/admin/duplicates", request.url);
+  redirectUrl.searchParams.set("saved", "separate");
 
   return NextResponse.redirect(redirectUrl, 303);
 }

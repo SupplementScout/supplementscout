@@ -61,9 +61,22 @@ export default async function AdminPage() {
             href="/admin/duplicates"
             className="rounded-lg border border-zinc-200 bg-white p-5 hover:border-zinc-950"
           >
-            <h2 className="text-xl font-bold">Duplicate products</h2>
+            <h2 className="text-xl font-bold">Product matching review</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600">
-              Review potential duplicate product records.
+              Review product identity evidence, defer uncertain pairs, and
+              block unsafe merges.
+            </p>
+          </Link>
+          <Link
+            href="/admin/product-matching"
+            className="rounded-lg border border-zinc-200 bg-white p-5 hover:border-zinc-950"
+          >
+            <h2 className="text-xl font-bold">
+              New retailer product decisions
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-600">
+              Decide whether a retailer row uses an existing product, creates a
+              new product, waits, or is excluded.
             </p>
           </Link>
         </section>

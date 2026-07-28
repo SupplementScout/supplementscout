@@ -5,6 +5,11 @@ export type DuplicateProduct = {
   gtin: string | null;
   brand: string | null;
   category: string | null;
+  product_format?: string | null;
+  net_weight_g?: number | string | null;
+  net_volume_ml?: number | string | null;
+  unit_count?: number | string | null;
+  unit_type?: string | null;
 };
 
 export type DuplicateLevel = "high" | "medium" | "low";

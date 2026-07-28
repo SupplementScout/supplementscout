@@ -424,6 +424,10 @@ test("no Supabase query runs before authentication on protected pages", () => {
     path.join(process.cwd(), "app", "admin", "catalog-health", "page.tsx"),
     "utf8"
   );
+  const productMatchingSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "admin", "product-matching", "page.tsx"),
+    "utf8"
+  );
 
   assert(
     duplicatePageSource.indexOf("await requireAdminPage()") <
@@ -440,6 +444,10 @@ test("no Supabase query runs before authentication on protected pages", () => {
   assert(
     catalogHealthSource.indexOf("await requireAdminPage()") <
       catalogHealthSource.indexOf('await import("../lib/catalogHealth")')
+  );
+  assert(
+    productMatchingSource.indexOf("await requireAdminPage()") <
+      productMatchingSource.indexOf(".from(")
   );
 });
 
@@ -468,12 +476,30 @@ test("duplicate admin pages do not render raw error messages", () => {
   assert(mergePreviewSource.includes("Unable to prepare merge preview."));
 });
 
-test("merge, ignore, and restore routes authenticate before parsing, queries, and writes", () => {
+test("merge and duplicate decision routes authenticate before parsing, queries, and writes", () => {
   const routeSources = [
     {
       name: "ignore",
       source: fs.readFileSync(
         path.join(process.cwd(), "app", "admin", "duplicates", "ignore", "route.ts"),
+        "utf8"
+      ),
+      orderedMarkers: ["requireAdminRoute(request)", "request.formData()", "supabaseAdmin"],
+      writeMarker: ".upsert(",
+    },
+    {
+      name: "defer",
+      source: fs.readFileSync(
+        path.join(process.cwd(), "app", "admin", "duplicates", "defer", "route.ts"),
+        "utf8"
+      ),
+      orderedMarkers: ["requireAdminRoute(request)", "request.formData()", "supabaseAdmin"],
+      writeMarker: ".upsert(",
+    },
+    {
+      name: "batch",
+      source: fs.readFileSync(
+        path.join(process.cwd(), "app", "admin", "duplicates", "batch", "route.ts"),
         "utf8"
       ),
       orderedMarkers: ["requireAdminRoute(request)", "request.formData()", "supabaseAdmin"],
@@ -502,6 +528,38 @@ test("merge, ignore, and restore routes authenticate before parsing, queries, an
       ],
       writeMarker: "supabaseAdmin.rpc",
     },
+    {
+      name: "product matching decision",
+      source: fs.readFileSync(
+        path.join(
+          process.cwd(),
+          "app",
+          "admin",
+          "product-matching",
+          "decision",
+          "route.ts"
+        ),
+        "utf8"
+      ),
+      orderedMarkers: ["requireAdminRoute(request)", "request.formData()", "supabaseAdmin"],
+      writeMarker: ".update(",
+    },
+    {
+      name: "product matching reopen",
+      source: fs.readFileSync(
+        path.join(
+          process.cwd(),
+          "app",
+          "admin",
+          "product-matching",
+          "reopen",
+          "route.ts"
+        ),
+        "utf8"
+      ),
+      orderedMarkers: ["requireAdminRoute(request)", "request.formData()", "supabaseAdmin"],
+      writeMarker: ".update(",
+    },
   ];
 
   for (const route of routeSources) {
@@ -521,6 +579,31 @@ test("merge, ignore, and restore routes authenticate before parsing, queries, an
       `${route.name} route should authenticate before writes`
     );
   }
+});
+
+test("simple and decision-based merges require server-verifiable confirmation", () => {
+  const mergeRouteSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "admin", "duplicates", "merge", "route.ts"),
+    "utf8"
+  );
+  const confirmButtonSource = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "app",
+      "admin",
+      "duplicates",
+      "merge-preview",
+      "MergeConfirmButton.tsx"
+    ),
+    "utf8"
+  );
+
+  assert.match(
+    mergeRouteSource,
+    /if\s*\(!canMerge\s*\|\|\s*!hasConfirmation\(confirmation,\s*candidateId\)\)/
+  );
+  assert.match(confirmButtonSource, /name="confirmation"/);
+  assert.match(confirmButtonSource, /confirmationInputRef\.current\.value = confirmed/);
 });
 
 test("existing bigint ID handling remains string-safe", () => {
