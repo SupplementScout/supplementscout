@@ -873,6 +873,7 @@
           "external_variant_id": "3991",
           "source_flavour": "Chocolate",
           "flavour": "Belgian Chocolate",
+          "display_name": "Belgian Chocolate / 1000g",
           "product_variant_id": "1967",
           "in_stock": true
         }
@@ -935,6 +936,5 @@
       ]
     }
   ],
-  "approval_fingerprint": "17d17ca8709f6f756fadf9a251256a127babe10533edb291f477fecefa5ef39b"
+  "approval_fingerprint": "d51b1e2369986fd6399caed5d42a4bc9e859e45e6c5c80c5fe79a7aff0149f12"
 }
-

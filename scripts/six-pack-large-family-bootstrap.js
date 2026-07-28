@@ -132,7 +132,9 @@ function intendedVariants(family) {
         sizeUnit,
         packCount
       ),
-      display_name: `${variant.flavour}${packLabel} / ${sizeLabel}`,
+      display_name:
+        variant.display_name ||
+        `${variant.flavour}${packLabel} / ${sizeLabel}`,
       flavour_code: normalize(variant.flavour),
       flavour_label: variant.flavour,
       size_value:

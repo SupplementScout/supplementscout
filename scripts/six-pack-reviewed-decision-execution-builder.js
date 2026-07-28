@@ -413,6 +413,7 @@ const FAMILY_SPECS = [
         id: "3991",
         flavour: "Belgian Chocolate",
         source_flavour: "Chocolate",
+        display_name: "Belgian Chocolate / 1000g",
         product_variant_id: "1967",
       },
     ],
@@ -603,6 +604,9 @@ function build(sourceSnapshot, decisionArtifact) {
             ? reviewed.source_flavour
             : sourceOptionFlavour(source),
           flavour: reviewed.flavour,
+          ...(reviewed.display_name
+            ? { display_name: reviewed.display_name }
+            : {}),
           ...(reviewed.is_default ? { is_default: true } : {}),
           ...(reviewed.product_variant_id
             ? { product_variant_id: reviewed.product_variant_id }
