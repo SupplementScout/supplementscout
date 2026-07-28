@@ -200,7 +200,18 @@ function classifyVariants(existing, intended) {
       (expected.expected_id &&
         String(actual.id) !== String(expected.expected_id))
     ) {
-      fail("Large family canonical variant identity drift");
+      fail(
+        `Large family canonical variant identity drift: ${JSON.stringify({
+          expected_id: expected.expected_id,
+          actual_id: String(actual.id),
+          expected_variant_key: expected.variant_key,
+          actual_variant_key: actual.variant_key,
+          expected_display_name: expected.display_name,
+          actual_display_name: actual.display_name,
+          expected_product_format: expected.product_format,
+          actual_product_format: actual.product_format,
+        })}`
+      );
     }
   }
   return { state: "COMPLETE", matches };
@@ -593,11 +604,19 @@ async function run(options, dependencies = {}) {
   }
   const families = [];
   for (const family of approval.families) {
-    families.push(
-      family.kind === "NEW_CANONICAL_PRODUCT"
-        ? await ensureNewFamily(db, family)
-        : await ensureExistingFamily(db, family)
-    );
+    try {
+      families.push(
+        family.kind === "NEW_CANONICAL_PRODUCT"
+          ? await ensureNewFamily(db, family)
+          : await ensureExistingFamily(db, family)
+      );
+    } catch (error) {
+      fail(
+        `Family ${family.external_product_id} apply failed: ${
+          error?.message || String(error)
+        }`
+      );
+    }
   }
   const report = {
     schema_version: 1,
