@@ -14,7 +14,7 @@
   "resumed_external_variant_ids": [],
   "expected_created_variant_count": 0,
   "csv_path": "config/retailers/six-pack-production-expansion-v13.csv",
-  "csv_sha256": "c2c5f75bef87aaa7cd51fc358906509231ad1c850f5d1407bbdbcfe70c66312b",
+  "csv_sha256": "f53eaf0bfe83a16d771634cc8ff059d5259430d3b0ec89ae73c8686e75447211",
   "expected_external_variant_ids": [
     "1497",
     "2832",
@@ -235,5 +235,5 @@
     "direct_csv_writes": false,
     "post_apply_idempotency_required": true
   },
-  "rollout_fingerprint": "aad4303d4adcd0668df640b054e62571cb269b8ec42d889ba7d726b28d64c33a"
+  "rollout_fingerprint": "4982cbd5c35f5f41624cd4817881042cbd498b8dacf5bcb4fcb970a4b07b4b2a"
 }

@@ -4,6 +4,7 @@ const {
   parseArgs,
   productIdentityMatches,
   reviewedSourceProductId,
+  sourceOptionName,
 } = require("./six-pack-large-family-feed-builder");
 
 test("large family feed output is confined to tmp", () => {
@@ -50,5 +51,29 @@ test("a reviewed variant may come from its own WooCommerce product page", () => 
       { external_variant_id: "6315" }
     ),
     "6312"
+  );
+});
+
+test("accessory fit labels are not encoded as dimensional Size options", () => {
+  assert.equal(
+    sourceOptionName({
+      product_format: "accessory",
+      option_name: "Size",
+    }),
+    "Fit"
+  );
+  assert.equal(
+    sourceOptionName({
+      product_format: "powder",
+      option_name: "Size",
+    }),
+    "Size"
+  );
+  assert.equal(
+    sourceOptionName({
+      product_format: "accessory",
+      option_name: "Colour",
+    }),
+    "Colour"
   );
 });

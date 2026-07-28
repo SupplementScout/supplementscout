@@ -158,6 +158,16 @@ function reviewedSourceProductId(family, reviewed) {
   );
 }
 
+function sourceOptionName(family) {
+  if (
+    family.product_format === "accessory" &&
+    family.option_name === "Size"
+  ) {
+    return "Fit";
+  }
+  return family.option_name;
+}
+
 async function run(options, dependencies = {}) {
   const approval =
     dependencies.approval ||
@@ -362,8 +372,9 @@ async function run(options, dependencies = {}) {
         new Date().toISOString()
       );
       row.product_format = family.product_format || row.product_format;
-      const externalOptions = family.option_name
-        ? { [family.option_name]: reviewed.flavour }
+      const optionName = sourceOptionName(family);
+      const externalOptions = optionName
+        ? { [optionName]: reviewed.flavour }
         : {};
       if (Number(reviewed.pack_count || 1) > 1) {
         externalOptions.Pack = String(reviewed.pack_count);
@@ -443,4 +454,5 @@ module.exports = {
   parseArgs,
   productIdentityMatches,
   reviewedSourceProductId,
+  sourceOptionName,
 };
