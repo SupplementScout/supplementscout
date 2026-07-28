@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRoute } from "../../../lib/adminAuth";
+import { findPotentialDuplicate } from "../../../lib/productMatchGuard";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 
 const SIMPLE_DECISIONS = new Set([
@@ -29,6 +30,35 @@ function redirectToQueue(request: NextRequest, saved: string) {
   return NextResponse.redirect(url, 303);
 }
 
+async function loadPotentialDuplicate(sourceName: string) {
+  const products: Array<{ id: string | number; name: string }> = [];
+  const aliases: Array<{
+    product_id: string | number;
+    external_name: string | null;
+  }> = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabaseAdmin
+      .from("products")
+      .select("id,name")
+      .eq("is_active", true)
+      .is("merged_into_product_id", null)
+      .range(from, from + 999);
+    if (error) throw error;
+    products.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabaseAdmin
+      .from("retailer_products")
+      .select("product_id,external_name")
+      .range(from, from + 999);
+    if (error) throw error;
+    aliases.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return findPotentialDuplicate(sourceName, products, aliases);
+}
+
 export async function POST(request: NextRequest) {
   const unauthorized = requireAdminRoute(request);
   if (unauthorized) return unauthorized;
@@ -38,10 +68,13 @@ export async function POST(request: NextRequest) {
   const sourceFingerprint = formData.get("sourceFingerprint");
   const decisionValue = formData.get("decision");
   const bindingValue = formData.get("binding");
+  const manualBindingValue = formData.get("manualBinding");
   const candidateProductValue = formData.get("candidateProduct");
+  const manualProductValue = formData.get("manualProduct");
   const familySeedValue = formData.get("familySeed");
   const familyNameValue = formData.get("familyName");
   const variantNameValue = formData.get("variantName");
+  const confirmNewProduct = formData.get("confirmNewProduct");
   const notesValue = formData.get("notes");
 
   if (
@@ -61,7 +94,7 @@ export async function POST(request: NextRequest) {
   let storedDecision = decisionValue;
   const { data: reviewItem, error: reviewItemError } = await supabaseAdmin
     .from("product_match_review_queue")
-    .select("id, snapshot_id, retailer, canonical_candidates")
+    .select("id, snapshot_id, retailer, product_title, canonical_candidates")
     .eq("id", String(idValue))
     .eq("source_row_fingerprint", sourceFingerprint)
     .eq("decision", "PENDING")
@@ -99,13 +132,20 @@ export async function POST(request: NextRequest) {
       : null;
   };
 
-  if (decisionValue === "APPROVE_EXISTING_VARIANT") {
-    if (typeof bindingValue !== "string") {
+  if (
+    decisionValue === "APPROVE_EXISTING_VARIANT" ||
+    decisionValue === "APPROVE_EXISTING_VARIANT_MANUAL"
+  ) {
+    const selectedBinding =
+      decisionValue === "APPROVE_EXISTING_VARIANT_MANUAL"
+        ? manualBindingValue
+        : bindingValue;
+    if (typeof selectedBinding !== "string") {
       return new NextResponse("Select a canonical product variant.", {
         status: 400,
       });
     }
-    const binding = bindingValue.match(/^([1-9]\d*):([1-9]\d*)$/);
+    const binding = selectedBinding.match(/^([1-9]\d*):([1-9]\d*)$/);
     if (!binding) {
       return new NextResponse("Invalid canonical product variant.", {
         status: 400,
@@ -113,7 +153,10 @@ export async function POST(request: NextRequest) {
     }
     selectedProductId = binding[1];
     selectedVariantId = binding[2];
-    if (!suggestedProduct(selectedProductId)) {
+    if (
+      decisionValue === "APPROVE_EXISTING_VARIANT" &&
+      !suggestedProduct(selectedProductId)
+    ) {
       return new NextResponse(
         "The selected product is not part of this reviewed suggestion.",
         { status: 409 }
@@ -150,10 +193,19 @@ export async function POST(request: NextRequest) {
         status: 409,
       });
     }
-  } else if (decisionValue === "APPROVE_NEW_VARIANT_SEED_EXISTING") {
+    storedDecision = "APPROVE_EXISTING_VARIANT";
+  } else if (
+    decisionValue === "APPROVE_NEW_VARIANT_SEED_EXISTING" ||
+    decisionValue === "APPROVE_NEW_VARIANT_SEED_EXISTING_MANUAL"
+  ) {
+    const selectedProduct =
+      decisionValue === "APPROVE_NEW_VARIANT_SEED_EXISTING_MANUAL"
+        ? manualProductValue
+        : candidateProductValue;
     if (
-      !isPositiveInteger(candidateProductValue) ||
-      !suggestedProduct(candidateProductValue)
+      !isPositiveInteger(selectedProduct) ||
+      (decisionValue === "APPROVE_NEW_VARIANT_SEED_EXISTING" &&
+        !suggestedProduct(selectedProduct))
     ) {
       return new NextResponse("Select a suggested canonical product.", {
         status: 400,
@@ -165,12 +217,12 @@ export async function POST(request: NextRequest) {
         status: 400,
       });
     }
-    if (!(await loadActiveProduct(candidateProductValue))) {
+    if (!(await loadActiveProduct(selectedProduct))) {
       return new NextResponse("Canonical product is no longer valid.", {
         status: 409,
       });
     }
-    selectedProductId = candidateProductValue;
+    selectedProductId = selectedProduct;
     storedDecision = "APPROVE_NEW_VARIANT_SEED";
   } else if (decisionValue === "APPROVE_NEW_FAMILY_SEED") {
     proposedFamilyName = requiredText(familyNameValue, 300);
@@ -179,6 +231,24 @@ export async function POST(request: NextRequest) {
       return new NextResponse("Enter the family and first variant names.", {
         status: 400,
       });
+    }
+    if (confirmNewProduct !== "yes") {
+      let potential = null;
+      try {
+        potential = await loadPotentialDuplicate(reviewItem.product_title);
+      } catch {
+        return new NextResponse(
+          "The full-catalog duplicate check is unavailable. Decision was not saved.",
+          { status: 503 }
+        );
+      }
+      const detail = potential
+        ? ` Possible existing product: ${potential.productName} (${potential.productId}).`
+        : "";
+      return new NextResponse(
+        `Search the full catalog and confirm the new family first.${detail}`,
+        { status: 409 }
+      );
     }
     selectedFamilySeedId = String(reviewItem.id);
   } else if (decisionValue === "APPROVE_NEW_VARIANT_SEED_FAMILY") {
@@ -212,6 +282,28 @@ export async function POST(request: NextRequest) {
     storedDecision = "APPROVE_NEW_VARIANT_SEED";
   } else if (!SIMPLE_DECISIONS.has(decisionValue)) {
     return new NextResponse("Unsupported review decision.", { status: 400 });
+  }
+
+  if (
+    decisionValue === "APPROVE_NEW_PRODUCT" &&
+    confirmNewProduct !== "yes"
+  ) {
+    let potential = null;
+    try {
+      potential = await loadPotentialDuplicate(reviewItem.product_title);
+    } catch {
+      return new NextResponse(
+        "The full-catalog duplicate check is unavailable. Decision was not saved.",
+        { status: 503 }
+      );
+    }
+    const detail = potential
+      ? ` Possible existing product: ${potential.productName} (${potential.productId}).`
+      : "";
+    return new NextResponse(
+      `Search the full catalog and confirm the separate new product first.${detail}`,
+      { status: 409 }
+    );
   }
 
   const notes =

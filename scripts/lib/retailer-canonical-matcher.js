@@ -27,6 +27,21 @@ function compact(value) {
   return normalized(value).replace(/[^a-z0-9]+/g, "");
 }
 
+const BRAND_FAMILIES = new Map([
+  ["animal", "universal-animal"],
+  ["universalnutrition", "universal-animal"],
+  ["universalanimal", "universal-animal"],
+  ["nxt", "nxt-nutrition"],
+  ["nxtnutrition", "nxt-nutrition"],
+  ["6paknutrition", "6pak-nutrition"],
+  ["6packnutrition", "6pak-nutrition"],
+]);
+
+function brandFamily(value) {
+  const key = compact(value);
+  return BRAND_FAMILIES.get(key) || key;
+}
+
 function tokens(value) {
   return normalized(value).split(" ").filter(Boolean);
 }
@@ -96,38 +111,64 @@ function compatibleEvidence(source, target) {
   return { compatible: conflicts.length === 0, conflicts };
 }
 
-function productCandidates(record, products) {
+function productCandidates(record, products, retailerProducts = []) {
   const sourceName = record.product_name;
-  const sourceBrand = compact(record.brand);
+  const sourceBrand = brandFamily(record.brand);
+  const aliasesByProduct = new Map();
+  for (const mapping of retailerProducts) {
+    if (!mapping?.external_name || mapping.product_id == null) continue;
+    const key = String(mapping.product_id);
+    const aliases = aliasesByProduct.get(key) || [];
+    aliases.push(String(mapping.external_name));
+    aliasesByProduct.set(key, aliases);
+  }
   return products
     .map((product) => {
-      const brandMatch = sourceBrand && compact(product.brand)
-        ? sourceBrand === compact(product.brand)
+      const brandMatch = sourceBrand && brandFamily(product.brand)
+        ? sourceBrand === brandFamily(product.brand)
         : null;
-      const exactName = normalized(sourceName) === normalized(product.name);
-      const exactSignature = signature(sourceName) === signature(product.name);
-      const similarity = dice(sourceName, product.name);
       const sourceSize = parseSize(sourceName);
-      const targetSize = parseSize(product.name);
-      const sizeMatch = sourceSize && targetSize
-        ? sourceSize.unit === targetSize.unit && sameDecimal(sourceSize.value, targetSize.value)
-        : null;
       const sourceFormat = parseProductFormat(sourceName);
       const targetFormat = product.product_format || parseProductFormat(product.name);
       const formatMatch = sourceFormat && targetFormat ? sourceFormat === targetFormat : null;
-      const score =
-        (exactName ? 100 : exactSignature ? 96 : similarity * 80) +
-        (brandMatch === true ? 8 : brandMatch === false ? -25 : 0) +
-        (sizeMatch === true ? 5 : sizeMatch === false ? -20 : 0) +
-        (formatMatch === true ? 3 : formatMatch === false ? -10 : 0);
+      const names = [
+        { value: product.name, source: "canonical" },
+        ...(aliasesByProduct.get(String(product.id)) || []).map((value) => ({
+          value,
+          source: "retailer_alias",
+        })),
+      ];
+      const evaluatedNames = names.map((name) => {
+        const exactName = normalized(sourceName) === normalized(name.value);
+        const exactSignature = signature(sourceName) === signature(name.value);
+        const similarity = dice(sourceName, name.value);
+        const targetSize = parseSize(name.value);
+        const sizeMatch = sourceSize && targetSize
+          ? sourceSize.unit === targetSize.unit &&
+            sameDecimal(sourceSize.value, targetSize.value)
+          : null;
+        const score =
+          (exactName ? 100 : exactSignature ? 96 : similarity * 80) +
+          (brandMatch === true ? 8 : brandMatch === false ? -25 : 0) +
+          (sizeMatch === true ? 5 : sizeMatch === false ? -20 : 0) +
+          (formatMatch === true ? 3 : formatMatch === false ? -10 : 0);
+        return {
+          score,
+          exact_name: exactName,
+          exact_signature: exactSignature,
+          name_similarity: similarity,
+          size_match: sizeMatch,
+          matched_name: name.value,
+          matched_name_source: name.source,
+        };
+      });
+      const best = evaluatedNames.sort(
+        (left, right) => right.score - left.score
+      )[0];
       return {
         product,
-        score,
-        exact_name: exactName,
-        exact_signature: exactSignature,
-        name_similarity: similarity,
+        ...best,
         brand_match: brandMatch,
-        size_match: sizeMatch,
         format_match: formatMatch,
       };
     })
@@ -141,10 +182,10 @@ function exactGtinProduct(record, productsByGtin) {
   return candidates.length === 1 ? candidates[0] : null;
 }
 
-function selectProduct(record, products, productsByGtin) {
+function selectProduct(record, products, productsByGtin, retailerProducts = []) {
   const gtin = exactGtinProduct(record, productsByGtin);
   if (gtin) return { state: "EXACT_GTIN", product: gtin, candidates: [] };
-  const candidates = productCandidates(record, products);
+  const candidates = productCandidates(record, products, retailerProducts);
   const exact = candidates.filter((candidate) =>
     candidate.exact_name ||
     (candidate.exact_signature && candidate.brand_match !== false)
@@ -205,6 +246,8 @@ function matchRetailerRecords(records, canonical) {
     product.is_active !== false && product.merged_into_product_id == null
   );
   const variants = canonical.variants || canonical.product_variants || [];
+  const retailerProducts =
+    canonical.retailer_products || canonical.retailerProducts || [];
   const productsByGtin = new Map();
   for (const product of products) {
     if (!product.gtin) continue;
@@ -221,7 +264,12 @@ function matchRetailerRecords(records, canonical) {
     if (record.policy_state !== "ELIGIBLE") {
       return { record, status: record.policy_state, reason: record.policy_code, product: null, variant: null, product_match: null, variant_match: null };
     }
-    const productMatch = selectProduct(record, products, productsByGtin);
+    const productMatch = selectProduct(
+      record,
+      products,
+      productsByGtin,
+      retailerProducts
+    );
     if (!productMatch.product) {
       return {
         record,
@@ -283,6 +331,7 @@ module.exports = {
   compatibleEvidence,
   dice,
   enforceUniqueCanonicalTargets,
+  brandFamily,
   matchRetailerRecords,
   normalized,
   productCandidates,

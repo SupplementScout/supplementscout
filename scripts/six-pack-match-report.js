@@ -65,12 +65,22 @@ async function fetchAll(client, table, columns) {
 }
 
 async function readCanonical(client) {
-  const [products, variants, retailers] = await Promise.all([
+  const [products, variants, retailers, retailerProducts] = await Promise.all([
     fetchAll(client, "products", "id,name,slug,brand,category,product_format,gtin,net_weight_g,net_volume_ml,unit_count,unit_type,is_active,merged_into_product_id"),
     fetchAll(client, "product_variants", "id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default"),
     fetchAll(client, "retailers", "id,name,slug,website"),
+    fetchAll(
+      client,
+      "retailer_products",
+      "retailer_id,product_id,product_variant_id,external_name,external_product_id,external_variant_id,external_gtin"
+    ),
   ]);
-  return { products, variants, retailers };
+  return {
+    products,
+    variants,
+    retailers,
+    retailer_products: retailerProducts,
+  };
 }
 
 function countBy(rows, field) {
@@ -91,6 +101,8 @@ function topCandidates(match) {
     brand_match: candidate.brand_match,
     size_match: candidate.size_match,
     format_match: candidate.format_match,
+    matched_name: candidate.matched_name,
+    matched_name_source: candidate.matched_name_source,
   }));
 }
 
@@ -224,6 +236,7 @@ async function run(options, dependencies = {}) {
       products: canonical.products.length,
       variants: canonical.variants.length,
       retailers: canonical.retailers.length,
+      retailer_product_aliases: (canonical.retailer_products || []).length,
     },
     source_eligible_records: eligible.length,
     status_counts: countBy(rows, "status"),

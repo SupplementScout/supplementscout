@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdminPage } from "../../lib/adminAuth";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
+import CatalogSearch from "./CatalogSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -530,6 +531,7 @@ export default async function ProductMatchingPage({
                         />
                       </label>
                     </div>
+                    <CatalogSearch />
                     <label className="mt-3 block text-sm font-medium text-blue-950">
                       Optional note
                       <input
@@ -553,6 +555,14 @@ export default async function ProductMatchingPage({
                       <button
                         type="submit"
                         name="decision"
+                        value="APPROVE_EXISTING_VARIANT_MANUAL"
+                        className="rounded-lg border border-amber-700 bg-white px-4 py-2 text-sm font-semibold text-amber-900"
+                      >
+                        Use catalog-search variant
+                      </button>
+                      <button
+                        type="submit"
+                        name="decision"
                         value="APPROVE_NEW_PRODUCT"
                         className="rounded-lg border border-blue-700 bg-white px-4 py-2 text-sm font-semibold text-blue-800"
                       >
@@ -566,6 +576,14 @@ export default async function ProductMatchingPage({
                         className="rounded-lg border border-emerald-700 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 disabled:cursor-not-allowed disabled:border-zinc-300 disabled:text-zinc-400"
                       >
                         Add flavour to selected existing product
+                      </button>
+                      <button
+                        type="submit"
+                        name="decision"
+                        value="APPROVE_NEW_VARIANT_SEED_EXISTING_MANUAL"
+                        className="rounded-lg border border-amber-700 bg-white px-4 py-2 text-sm font-semibold text-amber-900"
+                      >
+                        Add flavour to catalog-search product
                       </button>
                       <button
                         type="submit"
@@ -601,6 +619,19 @@ export default async function ProductMatchingPage({
                         Reject / exclude
                       </button>
                     </div>
+                    <label className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900">
+                      <input
+                        type="checkbox"
+                        name="confirmNewProduct"
+                        value="yes"
+                        className="mt-1"
+                      />
+                      <span>
+                        I searched the full catalog and confirm this is still a
+                        separate new product. This confirmation is used only by
+                        the new-product and new-family actions.
+                      </span>
+                    </label>
                   </form>
                 ) : (
                   <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm">

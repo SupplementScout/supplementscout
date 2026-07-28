@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
   enforceUniqueCanonicalTargets,
+  brandFamily,
   matchRetailerRecords,
   productCandidates,
   signature,
@@ -44,6 +45,36 @@ test("token signature permits safe word-order differences", () => {
     signature("Applied Nutrition ISO-XP Whey Protein Isolate 1kg")
   );
   assert.equal(productCandidates(source(), [product])[0].exact_signature, true);
+});
+
+test("known parent and sub-brand names share one guarded brand family", () => {
+  assert.equal(brandFamily("Universal Nutrition"), brandFamily("Animal"));
+  assert.equal(brandFamily("NXT"), brandFamily("NXT Nutrition"));
+  assert.notEqual(brandFamily("Universal Nutrition"), brandFamily("Applied Nutrition"));
+});
+
+test("retailer aliases recover Animal Flex as a review candidate", () => {
+  const animalFlex = {
+    id: 956,
+    name: "Animal Flex 44 packs",
+    brand: "Animal",
+    product_format: "pack",
+    is_active: true,
+    merged_into_product_id: null,
+  };
+  const candidates = productCandidates(
+    source({
+      product_name: "Universal Nutrition Animal Flex Joint Care 44 Packs",
+      variant_name: "Universal Nutrition Animal Flex Joint Care 44 Packs",
+      brand: "Universal Nutrition",
+    }),
+    [animalFlex],
+    [{ product_id: 956, external_name: "Animal Flex 44 packs" }]
+  );
+  assert.equal(candidates[0].product.id, 956);
+  assert.equal(candidates[0].brand_match, true);
+  assert.equal(candidates[0].matched_name_source, "canonical");
+  assert(candidates[0].score >= 45);
 });
 
 test("matches an exact product identity to the exact flavour variant", () => {

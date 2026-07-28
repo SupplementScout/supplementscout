@@ -45,17 +45,27 @@ generates candidates. Its fingerprinted review JSON can be published into
 `product_match_review_queue`. Publishing can only insert review rows; it has no
 code path for products, variants, mappings, offers, or price history.
 
-An administrator can save one of four first-stage decisions:
+An administrator can save one of the following first-stage decisions:
 
 - use a selected existing canonical product variant;
+- add the retailer row as a new variant of an existing canonical product;
 - treat the source row as a new product;
+- treat related source rows as flavours or variants of one new product family;
 - defer the decision;
 - reject or exclude the source identity.
 
 Every decision is bound to the exact source-row fingerprint. Selecting an
-existing product is accepted only when that product was in the matcher's
-candidate list and the selected product and variant are still active and
-related.
+existing product is accepted only when the selected product and variant are
+still active and related. The review page can search the whole catalogue,
+including retailer offer names, so a valid existing product is not limited to
+the matcher's initial shortlist.
+
+The matcher also treats reviewed brand families, such as Animal and Universal
+Nutrition, as compatible and uses existing retailer offer names as additional
+search aliases. Before a new-product decision is accepted, a full-catalogue
+similarity guard performs one final duplicate check. The administrator must
+explicitly confirm the full-catalogue search when no likely existing product is
+found.
 
 Saving or reopening a decision never changes the public catalogue. Decisions
 can be exported back to the standard tamper-evident review JSON/CSV format.

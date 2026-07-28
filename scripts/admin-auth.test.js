@@ -78,6 +78,10 @@ const {
 } = loadTsModule("app/lib/adminAuthCore.ts");
 
 const { getDuplicatePairIds } = loadTsModule("app/lib/duplicates.ts");
+const {
+  findPotentialDuplicate,
+  productNameSimilarity,
+} = loadTsModule("app/lib/productMatchGuard.ts");
 
 const nowMs = Date.now();
 const secret = "test-session-secret";
@@ -611,4 +615,55 @@ test("existing bigint ID handling remains string-safe", () => {
   const hugeB = "80000000000000000001";
 
   assert.deepEqual(getDuplicatePairIds(hugeA, hugeB), [hugeB, hugeA]);
+});
+
+test("full-catalog guard catches Animal and Universal Nutrition wording", () => {
+  assert(productNameSimilarity(
+    "Universal Nutrition Animal Flex Joint Care 44 Packs",
+    "Animal Flex 44 packs"
+  ) >= 0.64);
+  const match = findPotentialDuplicate(
+    "Universal Nutrition Animal Flex Joint Care 44 Packs",
+    [{ id: "956", name: "Animal Flex 44 packs" }],
+    [{ product_id: "956", external_name: "Animal Flex 44 packs" }]
+  );
+  assert.equal(match.productId, "956");
+});
+
+test("catalog search authenticates before parsing and database queries", () => {
+  const source = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "app",
+      "admin",
+      "product-matching",
+      "catalog-search",
+      "route.ts"
+    ),
+    "utf8"
+  );
+  const getSource = source.slice(source.indexOf("export async function GET"));
+  const auth = getSource.indexOf("requireAdminRoute(request)");
+  assert(auth >= 0);
+  assert(auth < getSource.indexOf("new URL(request.url)"));
+  assert(auth < getSource.indexOf("supabaseAdmin"));
+});
+
+test("new-product decisions require full-catalog confirmation and manual search is validated", () => {
+  const source = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "app",
+      "admin",
+      "product-matching",
+      "decision",
+      "route.ts"
+    ),
+    "utf8"
+  );
+  assert.match(source, /confirmNewProduct !== "yes"/);
+  assert.match(source, /loadPotentialDuplicate\(reviewItem\.product_title\)/);
+  assert.match(source, /APPROVE_EXISTING_VARIANT_MANUAL/);
+  assert.match(source, /APPROVE_NEW_VARIANT_SEED_EXISTING_MANUAL/);
+  assert.match(source, /variant\.product_id\) !== selectedProductId/);
 });
