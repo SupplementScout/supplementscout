@@ -96,6 +96,12 @@ test("the production-only migration is the exact shared-policy exclusion", () =>
   assert.ok(!result.selected_files.includes(
     "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql",
   ));
+  assert.ok(result.excluded_files.includes(
+    "20260729200000_authorize_reviewed_jons_11_stock_changes.sql",
+  ));
+  assert.ok(!result.selected_files.includes(
+    "20260729200000_authorize_reviewed_jons_11_stock_changes.sql",
+  ));
 });
 
 test("unknown selector environments fail closed", () => {
@@ -133,7 +139,10 @@ test("a changed excluded migration SHA fails closed", () => {
 
 test("production contract binds the post-family-migration ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(
+    contract.pending.map(({ filename }) => filename),
+    ["20260729200000_authorize_reviewed_jons_11_stock_changes.sql"],
+  );
   assert.equal(contract.ledgerCount, 64);
   assert.equal(
     contract.ledgerFingerprint,
@@ -242,12 +251,20 @@ test("production binds its exact post-family-migration ledger", () => {
   });
   assert.equal(result.ledger_count, 64);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 64);
+  assert.deepEqual(result.pending, [
+    "20260729200000_authorize_reviewed_jons_11_stock_changes",
+  ]);
+  assert.equal(result.selected_files.length, 65);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(
+    result.pending_file,
+    "20260729200000_authorize_reviewed_jons_11_stock_changes.sql",
+  );
+  assert.equal(
+    result.pending_sha256,
+    "1a99390a58544f173bd616cbe375708b15add5f027b7ce4d7f890314d114aa1b",
+  );
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

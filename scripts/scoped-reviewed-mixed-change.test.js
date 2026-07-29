@@ -18,6 +18,11 @@ const mapped16ManifestFile = path.resolve(
 );
 const mapped16ManifestSha =
   "52d2f3f0bd5ec04629a43320ec0166f655d1fb0b6f7a93b9f3fcbc8ecf683723";
+const mapped11ManifestFile = path.resolve(
+  "config/retailers/jons-reviewed-stock-changes-2026-07-29.json",
+);
+const mapped11ManifestSha =
+  "1d85825cbb35868090d1b41e3a836ef2545fe29ccb2a940aa93b3838cc13ec9a";
 const migration = fs.readFileSync(
   path.resolve("supabase/migrations/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql"),
   "utf8",
@@ -32,6 +37,14 @@ const mappedMigration = fs.readFileSync(
 );
 const mappedRollback = fs.readFileSync(
   path.resolve("supabase/rollbacks/20260726130000_add_mapped_scope_reviewed_approval.sql"),
+  "utf8",
+);
+const mapped11Authorization = fs.readFileSync(
+  path.resolve("supabase/migrations/20260729200000_authorize_reviewed_jons_11_stock_changes.sql"),
+  "utf8",
+);
+const mapped11Rollback = fs.readFileSync(
+  path.resolve("supabase/rollbacks/20260729200000_authorize_reviewed_jons_11_stock_changes.sql"),
   "utf8",
 );
 
@@ -126,6 +139,58 @@ test("mapped-scope immutable 16-change manifest binds the exact approved scope",
     reviewed.manifest.rows.find((row) => row.jons_variant_id === "50838709436754")
       ?.offer_id,
     "1280",
+  );
+});
+
+test("mapped-scope immutable 11-change manifest is stock-only and hash-bound", () => {
+  const bytes = fs.readFileSync(mapped11ManifestFile);
+  assert.equal(crypto.createHash("sha256").update(bytes).digest("hex"), mapped11ManifestSha);
+  const reviewed = loadReviewedMixedChangeManifest(
+    mapped11ManifestFile,
+    mapped11ManifestSha,
+  );
+  assert.equal(reviewed.mapped, true);
+  assert.equal(reviewed.manifest.row_count, 11);
+  assert.equal(reviewed.manifest.expected_deltas.stock_updates, 11);
+  assert.equal(reviewed.manifest.expected_deltas.freshness_updates, 11);
+  assert.equal(reviewed.manifest.expected_deltas.item_price_updates, 0);
+  assert.equal(reviewed.manifest.expected_deltas.offer_url_updates, 0);
+  assert.equal(reviewed.manifest.expected_deltas.price_history_rows, 0);
+  assert.equal(
+    reviewed.manifest.rows.every((row) =>
+      row.exact_action === "UPDATE_STOCK"
+      && JSON.stringify(row.changed_fields) === JSON.stringify(["stock"])),
+    true,
+  );
+  assert.equal(
+    reviewed.manifest.rows.filter((row) => row.old_stock && !row.new_stock).length,
+    10,
+  );
+  assert.equal(
+    reviewed.manifest.rows.filter((row) => !row.old_stock && row.new_stock).length,
+    1,
+  );
+});
+
+test("11-change authorization is exact, control-plane-only and rollback-safe", () => {
+  assert.match(mapped11Authorization, /jons-11-1d85825cbb358680-production/);
+  assert.match(mapped11Authorization, /owner-authorized-scheduled-stock-refresh-2026-07-29/);
+  assert.match(mapped11Authorization, /"offer_stock_updates":11/);
+  assert.match(mapped11Authorization, /"last_checked_at_updates":11/);
+  assert.match(mapped11Authorization, /"price_history":0/);
+  assert.match(mapped11Authorization, /ALLOW_UNMAPPED_ADD_REMOVE_WITHOUT_NEW_MAPPED_IDENTITY_COLLISIONS/);
+  assert.doesNotMatch(
+    mapped11Authorization,
+    /(?:insert into|update|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
+  );
+  assert.doesNotMatch(
+    mapped11Authorization,
+    /mass_oos_block_count|maximum_new_oos_count|shipping policy/i,
+  );
+  assert.match(mapped11Rollback, /rollback is forbidden after any Jon''s 11-change reviewed binding/);
+  assert.doesNotMatch(
+    mapped11Rollback,
+    /(?:insert into|update|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
   );
 });
 

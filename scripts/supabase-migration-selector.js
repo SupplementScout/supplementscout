@@ -40,6 +40,8 @@ const CONTRACTS = Object.freeze({
         "0c1db39a193c98fb7cd41cfc3b75a03b35ebd59d429fe873e431aadb1aabadf9",
       "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql":
         "57d7b193c42cd9950f7a6d6b91a18cc10ee1b7545242c96bcaa24edcfea91959",
+      "20260729200000_authorize_reviewed_jons_11_stock_changes.sql":
+        "1a99390a58544f173bd616cbe375708b15add5f027b7ce4d7f890314d114aa1b",
     }),
     pending: Object.freeze([]),
   }),
@@ -69,7 +71,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260729200000_authorize_reviewed_jons_11_stock_changes.sql",
+        sha256: "1a99390a58544f173bd616cbe375708b15add5f027b7ce4d7f890314d114aa1b",
+      }),
+    ]),
   }),
 });
 

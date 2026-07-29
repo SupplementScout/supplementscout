@@ -5,6 +5,7 @@ const { fingerprint } = require("./artifacts");
 const { semanticShopifySnapshot, sha256 } = require("../shopify-snapshot-reader");
 
 const MANIFEST_KINDS = Object.freeze({
+  11: "jons-existing-offer-11-change-reviewed-manifest",
   15: "jons-existing-offer-15-change-reviewed-manifest",
   16: "jons-existing-offer-16-change-reviewed-manifest",
 });
@@ -79,9 +80,21 @@ const EXPECTED_DELTAS_16 = Object.freeze({
   stock_updates: 14,
   freshness_updates: 16,
 });
+const EXPECTED_DELTAS_11_STOCK_ONLY = Object.freeze({
+  ...EXPECTED_DELTAS,
+  stock_updates: 11,
+  item_price_updates: 0,
+  delivered_total_updates: 0,
+  offer_url_updates: 0,
+  mapping_url_updates: 0,
+  mapping_updated_at_updates: 0,
+  freshness_updates: 11,
+  price_history_rows: 0,
+});
 
 function expectedManifestDeltas(rowCount) {
-  return rowCount === 15 ? EXPECTED_DELTAS
+  return rowCount === 11 ? EXPECTED_DELTAS_11_STOCK_ONLY
+    : rowCount === 15 ? EXPECTED_DELTAS
     : rowCount === 16 ? EXPECTED_DELTAS_16
       : null;
 }
