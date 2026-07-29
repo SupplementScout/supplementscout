@@ -1,0 +1,1248 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-large-family-batch-v15",
+  "approved": true,
+  "approval_source": "ADMIN_REVIEW_USER_FINAL_CLOSEOUT_CONFIRMATION",
+  "approved_at": "2026-07-29",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "source_snapshot_fingerprint": "3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2",
+  "decision_artifact_fingerprint": "9acbe77d8c3d837b5b516fa544389357e5e70e7efe7728aa27a7333239d68a93",
+  "policy": {
+    "dated_products": "EXCLUDE",
+    "sarms": "EXCLUDE",
+    "peptides": "EXCLUDE",
+    "food": "EXCLUDE",
+    "reviewed_food_exceptions": "ALLOW",
+    "allowed_food_types": [
+      "sauces",
+      "syrups",
+      "jams",
+      "spreads",
+      "protein bars",
+      "protein cookies",
+      "porridge and oats",
+      "pancake mixes",
+      "ready-to-drink shakes",
+      "liquid egg whites"
+    ],
+    "dmaa": "EXCLUDE",
+    "yohimbine": "EXCLUDE",
+    "t5_eca": "EXCLUDE",
+    "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
+    "reuse_existing_products_first": true,
+    "family_mapping": true,
+    "one_shared_automation": true
+  },
+  "family_count": 38,
+  "new_product_count": 21,
+  "row_count": 69,
+  "source_candidate_count": 72,
+  "source_aliases": [
+    {
+      "external_product_id": "29814",
+      "external_variant_id": "29820",
+      "canonical_external_product_id": "29814",
+      "canonical_external_variant_id": "29817",
+      "reason": "SOURCE_CORRUPT_VEGAN_MULTIVITAMIN_FLAVOUR_ALIAS"
+    },
+    {
+      "external_product_id": "29814",
+      "external_variant_id": "29823",
+      "canonical_external_product_id": "29814",
+      "canonical_external_variant_id": "29817",
+      "reason": "SOURCE_CORRUPT_VEGAN_MULTIVITAMIN_FLAVOUR_ALIAS"
+    },
+    {
+      "external_product_id": "29814",
+      "external_variant_id": "29826",
+      "canonical_external_product_id": "29814",
+      "canonical_external_variant_id": "29817",
+      "reason": "SOURCE_CORRUPT_VEGAN_MULTIVITAMIN_FLAVOUR_ALIAS"
+    }
+  ],
+  "covered_duplicate_aliases": [
+    {
+      "approved_external_variant_id": "6286",
+      "existing_external_product_id": "4551",
+      "existing_external_variant_id": "4554",
+      "product_variant_id": "2308",
+      "reason": "DUPLICATE_SINGLE_STRAWBERRY_WAFER_PAGE_ALREADY_AUTOMATED"
+    },
+    {
+      "approved_external_variant_id": "6301",
+      "existing_external_product_id": "4551",
+      "existing_external_variant_id": "4552",
+      "product_variant_id": "2306",
+      "reason": "DUPLICATE_SINGLE_CHOCOLATE_WAFER_PAGE_ALREADY_AUTOMATED"
+    }
+  ],
+  "final_classification": {
+    "reviewed_remaining_rows": 83,
+    "actionable_decisions": 68,
+    "supplemental_exact_rows": 1,
+    "prohibited_rows": 10,
+    "deferred_rows": 2,
+    "source_alias_rows": 5
+  },
+  "families": [
+    {
+      "external_product_id": "11477",
+      "name": "Trec Nutrition MCT Gold Oil 400ml",
+      "brand": "Trec Nutrition",
+      "category": "Health Supplements",
+      "size": "400",
+      "size_unit": "ml",
+      "slug": "trec-nutrition-mct-gold-oil-400ml",
+      "product_format": "liquid",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/06/trec_nutiriton_mct_oil_keto_6pack_supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "11477",
+          "external_variant_id": "11477",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "16689",
+      "name": "Real Pharm Crea-Stack 420g",
+      "brand": "Real Pharm",
+      "category": "Creatine",
+      "size": "420",
+      "size_unit": "g",
+      "slug": "real-pharm-crea-stack-420g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "28.90",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2023/09/6pack_supplements_creatine_monohydrate_muscle_siez_muscle_grow_mass.jpg",
+      "variants": [
+        {
+          "external_product_id": "16689",
+          "external_variant_id": "16689",
+          "source_flavour": null,
+          "flavour": "Mango-Passion Fruit",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "23149",
+      "name": "Nordic Labs Fadogia Agrestis 60 Capsules",
+      "brand": "Nordic Labs",
+      "category": "Testosterone Boosters",
+      "unit_count": 60,
+      "unit_type": "capsule",
+      "slug": "nordic-labs-fadogia-agrestis-60-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "25.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2024/10/233.jpg",
+      "variants": [
+        {
+          "external_product_id": "23149",
+          "external_variant_id": "23149",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "28570",
+      "name": "Skull Labs Angel Dust PUMP Pre-Workout",
+      "brand": "Skull Labs",
+      "category": "Pre Workout",
+      "unit_count": 1,
+      "unit_type": "tub",
+      "slug": "skull-labs-angel-dust-pump-pre-workout",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "55.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/07/Skull-Labs-Angel-dust-dmaa-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "28570",
+          "external_variant_id": "29091",
+          "source_flavour": "Watermelon Explosion",
+          "flavour": "Watermelon Explosion",
+          "in_stock": false
+        },
+        {
+          "external_product_id": "28570",
+          "external_variant_id": "29094",
+          "source_flavour": "Blue Raspberry Attack",
+          "flavour": "Blue Raspberry Attack",
+          "in_stock": false
+        },
+        {
+          "external_product_id": "28570",
+          "external_variant_id": "29097",
+          "source_flavour": "Crazy Lychee",
+          "flavour": "Crazy Lychee",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "6755",
+      "name": "Applied Nutrition High Protein Shake 500ml",
+      "brand": "Applied Nutrition",
+      "category": "Protein Powder",
+      "size": "500",
+      "size_unit": "ml",
+      "slug": "applied-nutrition-high-protein-shake-500ml",
+      "product_format": "ready-to-drink",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "3.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/applied-nutrition-shake-500g-chocolate-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "6755",
+          "external_variant_id": "29475",
+          "source_flavour": "1 Bottle",
+          "flavour": "Double Chocolate",
+          "pack_count": 1,
+          "display_name": "Double Chocolate / 1 Bottle / 500ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6755",
+          "external_variant_id": "29478",
+          "source_flavour": "8-Pack",
+          "flavour": "Double Chocolate",
+          "pack_count": 8,
+          "display_name": "Double Chocolate / 8-Pack / 500ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8135",
+          "external_variant_id": "29481",
+          "source_flavour": "1 Bottle",
+          "flavour": "Strawberries & Cream",
+          "pack_count": 1,
+          "display_name": "Strawberries & Cream / 1 Bottle / 500ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "8135",
+          "external_variant_id": "29484",
+          "source_flavour": "8-Pack",
+          "flavour": "Strawberries & Cream",
+          "pack_count": 8,
+          "display_name": "Strawberries & Cream / 8-Pack / 500ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6753",
+          "external_variant_id": "29496",
+          "source_flavour": "1 Bottle",
+          "flavour": "Vanilla Ice Cream",
+          "pack_count": 1,
+          "display_name": "Vanilla Ice Cream / 1 Bottle / 500ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6753",
+          "external_variant_id": "29499",
+          "source_flavour": "8-Pack",
+          "flavour": "Vanilla Ice Cream",
+          "pack_count": 8,
+          "display_name": "Vanilla Ice Cream / 8-Pack / 500ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "29502",
+          "external_variant_id": "29505",
+          "source_flavour": "1 Bottle",
+          "flavour": "Banana Delight",
+          "pack_count": 1,
+          "display_name": "Banana Delight / 1 Bottle / 500ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "29502",
+          "external_variant_id": "29508",
+          "source_flavour": "8-Pack",
+          "flavour": "Banana Delight",
+          "pack_count": 8,
+          "display_name": "Banana Delight / 8-Pack / 500ml",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "29832",
+      "name": "7Nutrition Green Detox Superfood & Antioxidant Formula 225g",
+      "brand": "7Nutrition",
+      "category": "Health Supplements",
+      "size": "225",
+      "size_unit": "g",
+      "slug": "7nutrition-green-detox-superfood-antioxidant-formula-225g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/07/7nutrition-geen-detox-superfood-antioxidant-6pack-supplement.jpg",
+      "variants": [
+        {
+          "external_product_id": "29832",
+          "external_variant_id": "29832",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "31059",
+      "name": "ALLNUTRITION Vitamin B12 Methyl Drops 30ml",
+      "brand": "ALLNUTRITION",
+      "category": "Vitamins",
+      "size": "30",
+      "size_unit": "ml",
+      "slug": "allnutrition-vitamin-b12-methyl-drops-30ml",
+      "product_format": "liquid",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "10.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/b12-metyl-vitamins-allnutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "31059",
+          "external_variant_id": "31059",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "31140",
+      "name": "ALLNUTRITION ADEK Vitamins Drops 30ml",
+      "brand": "ALLNUTRITION",
+      "category": "Vitamins",
+      "size": "30",
+      "size_unit": "ml",
+      "slug": "allnutrition-adek-vitamins-drops-30ml",
+      "product_format": "liquid",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/adek-vitamins-allnutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "31140",
+          "external_variant_id": "31140",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "40045",
+      "name": "Nordic Labs Gold Stack Mushroom Complex 90 Capsules",
+      "brand": "Nordic Labs",
+      "category": "Health Supplements",
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "slug": "nordic-labs-gold-stack-mushroom-complex-90-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "24.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2026/01/3.jpg",
+      "variants": [
+        {
+          "external_product_id": "40045",
+          "external_variant_id": "40045",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "40054",
+      "name": "Nordic Labs Lion's Mane Mushroom 90 Capsules",
+      "brand": "Nordic Labs",
+      "category": "Health Supplements",
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "slug": "nordic-labs-lion-s-mane-mushroom-90-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2026/01/2.jpg",
+      "variants": [
+        {
+          "external_product_id": "40054",
+          "external_variant_id": "40054",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "40063",
+      "name": "Nordic Labs Reishi Mushroom 90 Capsules",
+      "brand": "Nordic Labs",
+      "category": "Health Supplements",
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "slug": "nordic-labs-reishi-mushroom-90-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "14.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2026/01/tlo-na-zdjecia.jpg",
+      "variants": [
+        {
+          "external_product_id": "40063",
+          "external_variant_id": "40063",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4104",
+      "name": "BioTech USA Fiber Mix 225g",
+      "brand": "BioTech USA",
+      "category": "Health Supplements",
+      "size": "225",
+      "size_unit": "g",
+      "slug": "biotech-usa-fiber-mix-225g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "10.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/fiber-mix-biotechusa-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4104",
+          "external_variant_id": "4104",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4130",
+      "name": "Good Guru Black Maca + Ginseng 90 Capsules",
+      "brand": "Good Guru",
+      "category": "Health Supplements",
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "slug": "good-guru-black-maca-ginseng-90-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "16.19",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/good-guru-capsules-maca-koren-giseng-focus-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4130",
+          "external_variant_id": "4130",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4137",
+      "name": "Good Guru Organic Ashwagandha KSM-66 90 Capsules",
+      "brand": "Good Guru",
+      "category": "Health Supplements",
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "slug": "good-guru-organic-ashwagandha-ksm-66-90-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "22.49",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/good-guru-capsules-ashwaganda-ksm666-libido-testosteron-focus-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4137",
+          "external_variant_id": "4137",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4155",
+      "name": "Good Guru Gold Shilajit + Ashwagandha KSM-66 90 Capsules",
+      "brand": "Good Guru",
+      "category": "Health Supplements",
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "slug": "good-guru-gold-shilajit-ashwagandha-ksm-66-90-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "22.49",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/good-guru-shilajt-capsules-ashwaganda-ksm666-libido-testosteron-focus-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4155",
+          "external_variant_id": "4155",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4442",
+      "name": "NOW Foods Maca 500mg 100 Veg Capsules",
+      "brand": "NOW Foods",
+      "category": "Health Supplements",
+      "unit_count": 100,
+      "unit_type": "capsule",
+      "slug": "now-foods-maca-500mg-100-veg-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "9.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/maca-now-foods.jpg",
+      "variants": [
+        {
+          "external_product_id": "4442",
+          "external_variant_id": "4442",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4518",
+      "name": "Himalaya Cystone 100 Tablets",
+      "brand": "Himalaya",
+      "category": "Health Supplements",
+      "unit_count": 100,
+      "unit_type": "tablet",
+      "slug": "himalaya-cystone-100-tablets",
+      "product_format": "tablet",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "6.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/image_2018-02-28_5a96ba23af754.jpg",
+      "variants": [
+        {
+          "external_product_id": "4518",
+          "external_variant_id": "4518",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "6740",
+      "name": "Trec Nutrition Clenburexin 90 Capsules",
+      "brand": "Trec Nutrition",
+      "category": "Fat Burners",
+      "unit_count": 90,
+      "unit_type": "capsule",
+      "slug": "trec-nutrition-clenburexin-90-capsules",
+      "product_format": "capsule",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "18.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/clen-burexin-fat-burner-90caps-trec-nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "6740",
+          "external_variant_id": "6740",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "8146",
+      "name": "Applied Nutrition Zinc 90 Tablets",
+      "brand": "Applied Nutrition",
+      "category": "Vitamins",
+      "unit_count": 90,
+      "unit_type": "tablet",
+      "slug": "applied-nutrition-zinc-90-tablets",
+      "product_format": "tablet",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "8.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/02/appied_nutition_zinc_vitamins_6pack_supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "8146",
+          "external_variant_id": "8146",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "8222",
+      "name": "7Nutrition Lactoferrin & Prebiotic 20 Sachets",
+      "brand": "7Nutrition",
+      "category": "Health Supplements",
+      "unit_count": 20,
+      "unit_type": "sachet",
+      "slug": "7nutrition-lactoferrin-prebiotic-20-sachets",
+      "product_format": "sachet",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "12.00",
+      "image": null,
+      "variants": [
+        {
+          "external_product_id": "8222",
+          "external_variant_id": "8222",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "4603",
+      "name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+      "brand": "Applied Nutrition",
+      "category": "Protein Powder",
+      "size": "600",
+      "size_unit": "g",
+      "slug": "applied-nutrition-critical-oats-protein-porridge-600g",
+      "product_format": "powder",
+      "product_id": "1100",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/porridge-oats-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4603",
+          "external_variant_id": "29328",
+          "source_flavour": "Salted Caramel",
+          "flavour": "Salted Caramel",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "4603",
+          "external_variant_id": "29331",
+          "source_flavour": "Chocolate",
+          "flavour": "Chocolate",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "4603",
+          "external_variant_id": "4610",
+          "source_flavour": "Golden Syrup",
+          "flavour": "Golden Syrup",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "30078",
+      "name": "7Nutrition Apple Cinnamon Jam 1000g",
+      "brand": "7Nutrition",
+      "category": "Protein Bars",
+      "size": "1000",
+      "size_unit": "g",
+      "slug": "7nutrition-apple-cinnamon-jam-1000g",
+      "product_format": "spread",
+      "product_id": "364",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "9.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/07/7nutrition-jam-blueberry-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "30078",
+          "external_variant_id": "30078",
+          "source_flavour": null,
+          "flavour": "Blueberry",
+          "in_stock": false
+        },
+        {
+          "external_product_id": "30084",
+          "external_variant_id": "30084",
+          "source_flavour": null,
+          "flavour": "Mango",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "7191",
+          "external_variant_id": "7191",
+          "source_flavour": null,
+          "flavour": "Cherry",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "7189",
+          "external_variant_id": "7189",
+          "source_flavour": null,
+          "flavour": null,
+          "is_default": true,
+          "product_variant_id": "365",
+          "product_format": null,
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "31029",
+      "name": "ALLNUTRITION Nutlove Sauce 280g",
+      "brand": "ALLNUTRITION",
+      "category": "Protein Bars",
+      "size": "280",
+      "size_unit": "g",
+      "slug": "allnutrition-nutlove-sauce-280g",
+      "product_format": "spread",
+      "product_id": "1121",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "3.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/08/sauce-nutlove-crunch-white-choco-raspberry-allnutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "31029",
+          "external_variant_id": "31029",
+          "source_flavour": null,
+          "flavour": "White Chocolate with Raspberries",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "31041",
+          "external_variant_id": "31041",
+          "source_flavour": null,
+          "flavour": "Choco Hazelnut",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "6562",
+      "name": "Uncle Jack's Free Range Liquid Egg White 970ml",
+      "brand": "Uncle Jack's",
+      "category": "Protein Bars",
+      "size": "970",
+      "size_unit": "ml",
+      "slug": "uncle-jacks-free-range-liquid-egg-white-970ml",
+      "product_format": "liquid",
+      "product_id": "181",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "5.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/uncle-jacks-liquid-egg-whites-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "6562",
+          "external_variant_id": "31389",
+          "source_flavour": "1",
+          "flavour": "Unflavoured",
+          "pack_count": 1,
+          "display_name": "1 Bottle / 970ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6562",
+          "external_variant_id": "31392",
+          "source_flavour": "3",
+          "flavour": "Unflavoured",
+          "pack_count": 3,
+          "display_name": "3 Bottles / 970ml",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6562",
+          "external_variant_id": "31395",
+          "source_flavour": "6",
+          "flavour": "Unflavoured",
+          "pack_count": 6,
+          "display_name": "6 Bottles / 970ml",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "32547",
+      "name": "Per4m Isolate Zero 900g",
+      "brand": "Per4m",
+      "category": "Health Supplements",
+      "size": "900",
+      "size_unit": "g",
+      "slug": "per4m-isolate-zero-900g",
+      "product_format": "powder",
+      "product_id": "328",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "59.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2025/09/Per4m-Isolate-2kg-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "32547",
+          "external_variant_id": "32571",
+          "source_flavour": "Strawberry Creme",
+          "flavour": "Strawberry Creme",
+          "product_variant_id": "1970",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4588",
+      "name": "BioTech USA Protein Pancake 1kg",
+      "brand": "BioTech USA",
+      "category": "Protein Powder",
+      "size": "1000",
+      "size_unit": "g",
+      "slug": "biotech-usa-protein-pancake-1kg",
+      "product_format": "powder",
+      "product_id": "1099",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/biotech-usa-pancakes-breakfast-diet-protein-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4588",
+          "external_variant_id": "4589",
+          "source_flavour": "chocolate",
+          "flavour": "Chocolate",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4642",
+      "name": "7Nutrition Selenium 120 Vege Capsules",
+      "brand": "7Nutrition",
+      "category": "Vitamins",
+      "unit_count": 120,
+      "unit_type": "capsule",
+      "slug": "7nutrition-selenium-120-vege-capsules",
+      "product_format": "capsule",
+      "product_id": "1094",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "14.00",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/01/7nutrition-selenium-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4642",
+          "external_variant_id": "4642",
+          "source_flavour": null,
+          "flavour": "Unflavoured",
+          "product_variant_id": "2375",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4308",
+      "name": "7Nutrition Steel Joints Drink 450g",
+      "brand": "7Nutrition",
+      "category": "Health Supplements",
+      "size": "450",
+      "size_unit": "g",
+      "slug": "7nutrition-steel-joints-drink-450g",
+      "product_format": "powder",
+      "kind": "NEW_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2020/12/join-support-steel-joints-7nutrition-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "4308",
+          "external_variant_id": "29226",
+          "source_flavour": null,
+          "flavour": "Cherry",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "4308",
+          "external_variant_id": "4660",
+          "source_flavour": null,
+          "flavour": "Orange",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "4308",
+          "external_variant_id": "4662",
+          "source_flavour": null,
+          "flavour": "Lemon",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "4876",
+      "name": "Animal Cuts Fat Burner 42 Packs",
+      "brand": "Animal/Universal",
+      "category": "Weight Management",
+      "unit_count": 42,
+      "unit_type": "pack",
+      "slug": "animal-cuts-fat-burner-42-packs",
+      "product_format": null,
+      "product_id": "507",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "59.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/107649301_max.jpg",
+      "variants": [
+        {
+          "external_product_id": "4876",
+          "external_variant_id": "4876",
+          "source_flavour": null,
+          "flavour": null,
+          "is_default": true,
+          "product_variant_id": "471",
+          "product_format": null,
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "5023",
+      "name": "Applied Nutrition Flavo Drops 38ml",
+      "brand": "Applied Nutrition",
+      "category": "Health Supplements",
+      "size": "38",
+      "size_unit": "ml",
+      "slug": "applied-nutrition-flavo-drops-38ml",
+      "product_format": "liquid",
+      "product_id": "1118",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "3.49",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/flavo-drops-applied-nutrition-toffee-caramel-guilty-free-6-pack-supplements-online-shop-reading-uk.jpg",
+      "variants": [
+        {
+          "external_product_id": "5023",
+          "external_variant_id": "5023",
+          "source_flavour": null,
+          "flavour": "Toffee Caramel",
+          "in_stock": false
+        },
+        {
+          "external_product_id": "5027",
+          "external_variant_id": "5027",
+          "source_flavour": null,
+          "flavour": "Coffee",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "5131",
+      "name": "BioTech USA Zero Syrup",
+      "brand": "BioTech USA",
+      "category": "Health Supplements",
+      "unit_count": 1,
+      "unit_type": "bottle",
+      "slug": "biotech-usa-zero-syrup",
+      "product_format": "liquid",
+      "product_id": "1119",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "3.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/zero-syrup-biotechusa-pancake-guilty-free-6-pack-supplements-online-shop-reading-uk.jpg",
+      "variants": [
+        {
+          "external_product_id": "5131",
+          "external_variant_id": "5131",
+          "source_flavour": null,
+          "flavour": "Pancake Maple",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "5215",
+      "name": "Mars M&M Peanut Hi Protein Bar",
+      "brand": "Mars",
+      "category": "Protein Bars",
+      "unit_count": 1,
+      "unit_type": "bar",
+      "slug": "mars-mm-peanut-hi-protein-bar",
+      "product_format": "bar",
+      "product_id": "357",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "2.49",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/hi-protein-mms-peanut-guilty-free-6-pack-supplements-online-shop-reading-uk.jpg",
+      "variants": [
+        {
+          "external_product_id": "5215",
+          "external_variant_id": "5215",
+          "source_flavour": null,
+          "flavour": null,
+          "is_default": true,
+          "product_variant_id": "325",
+          "product_format": null,
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "5247",
+      "name": "Callowfit Sauce 300ml",
+      "brand": "Callowfit",
+      "category": "Health Supplements",
+      "size": "300",
+      "size_unit": "ml",
+      "slug": "callowfit-sauce-300ml",
+      "product_format": "liquid",
+      "product_id": "1120",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "3.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/02/12-1.jpg",
+      "variants": [
+        {
+          "external_product_id": "5247",
+          "external_variant_id": "5247",
+          "source_flavour": null,
+          "flavour": "Fancy Garlic",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "5253",
+          "external_variant_id": "5253",
+          "source_flavour": null,
+          "flavour": "Honey Mustard",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "5259",
+          "external_variant_id": "5259",
+          "source_flavour": null,
+          "flavour": "Sweet Chilli",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "5263",
+          "external_variant_id": "5263",
+          "source_flavour": null,
+          "flavour": "Tomato Ketchup",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "5273",
+          "external_variant_id": "5273",
+          "source_flavour": null,
+          "flavour": "Salty Caramel",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "5278",
+          "external_variant_id": "5278",
+          "source_flavour": null,
+          "flavour": "Raspberry",
+          "in_stock": false
+        },
+        {
+          "external_product_id": "6005",
+          "external_variant_id": "6005",
+          "source_flavour": null,
+          "flavour": "Vanilla Style",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6008",
+          "external_variant_id": "6008",
+          "source_flavour": null,
+          "flavour": "Cesar Style Dressing",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "6286",
+      "name": "6Pak Nutrition Protein Wafer 40g",
+      "brand": "6Pak Nutrition",
+      "category": "Protein Bars",
+      "size": "40",
+      "size_unit": "g",
+      "slug": "6pak-nutrition-protein-wafer-40g",
+      "product_format": "snack",
+      "product_id": "1076",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "1.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/04/6pak-nutrition-protein-wafer-strawberry-the-best-shop-reading-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "6286",
+          "external_variant_id": "6286",
+          "source_flavour": null,
+          "flavour": "Strawberry",
+          "product_variant_id": "2308",
+          "in_stock": false
+        },
+        {
+          "external_product_id": "6301",
+          "external_variant_id": "6301",
+          "source_flavour": null,
+          "flavour": "Chocolate",
+          "product_variant_id": "2306",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "6582",
+      "name": "NXT Nutrition Cream Of Rice 2kg",
+      "brand": "NXT Nutrition",
+      "category": "Health Supplements",
+      "size": "2000",
+      "size_unit": "g",
+      "slug": "nxt-nutrition-cream-of-rice-2kg",
+      "product_format": "powder",
+      "product_id": "424",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "15.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/05/nxt-cream-of-rice-carbs-muscles-6pack-supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "6582",
+          "external_variant_id": "6584",
+          "source_flavour": "apple pie",
+          "flavour": "Apple Pie",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "6582",
+          "external_variant_id": "6586",
+          "source_flavour": "gingerbread",
+          "flavour": "Gingerbread",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "69760",
+      "name": "Creatine Gummies 400g 80 Gummies  Applied Nutrition",
+      "brand": "Applied Nutrition",
+      "category": "Creatine",
+      "size": "400",
+      "size_unit": "g",
+      "slug": "creatine-gummies-400g-80-gummies--applied-nutrition",
+      "product_format": "gummy",
+      "product_id": "506",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "19.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2026/04/127.jpg",
+      "variants": [
+        {
+          "external_product_id": "69760",
+          "external_variant_id": "69811",
+          "source_flavour": "Blue Raspberry",
+          "flavour": "Blue Raspberry",
+          "product_variant_id": "1798",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "69760",
+          "external_variant_id": "69814",
+          "source_flavour": "Cola Blast",
+          "flavour": "Cola Blast",
+          "in_stock": true
+        },
+        {
+          "external_product_id": "69760",
+          "external_variant_id": "69817",
+          "source_flavour": "Millions Blackcurrant",
+          "flavour": "Millions Blackcurrant",
+          "in_stock": true
+        }
+      ]
+    },
+    {
+      "external_product_id": "7565",
+      "name": "Trec Sleep-er 225g",
+      "brand": "Trec Nutrition",
+      "category": "Vitamins",
+      "size": "225",
+      "size_unit": "g",
+      "slug": "trec-sleep-er-225g",
+      "product_format": "powder",
+      "product_id": "216",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "23.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2021/11/sleeper_trec_nutrition_6pack_supplements.jpg",
+      "variants": [
+        {
+          "external_product_id": "7565",
+          "external_variant_id": "7567",
+          "source_flavour": "Tropical-Orange",
+          "flavour": "Orange",
+          "in_stock": false
+        }
+      ]
+    },
+    {
+      "external_product_id": "8628",
+      "name": "5% Nutrition Rich Piana 5150 375g",
+      "brand": "5% Nutrition",
+      "category": "Pre Workout",
+      "size": "375",
+      "size_unit": "g",
+      "slug": "5-nutrition-rich-piana-5150-375g",
+      "product_format": "powder",
+      "product_id": "59",
+      "existing_match_evidence": {
+        "method": "FINAL_OWNER_REVIEWED_CLOSEOUT"
+      },
+      "kind": "EXISTING_CANONICAL_PRODUCT",
+      "price": "35.99",
+      "image": "https://6pack-supplements.co.uk/wp-content/uploads/2022/03/5_pre_workout_6pack_supplements-8.jpg",
+      "variants": [
+        {
+          "external_product_id": "8628",
+          "external_variant_id": "8628",
+          "source_flavour": "Pink Lemonade, Orange Burst, Fruit Punch, Strawberry Margarita, Cherry Limeade, Icy Blue Razz, Watermelon",
+          "flavour": "Green Apple",
+          "product_variant_id": "1612",
+          "in_stock": false
+        }
+      ]
+    }
+  ],
+  "approval_fingerprint": "7287095be5820aa05f977cc9a9d09aadd79b6c2a5a6948b4d487be08ed7774fb"
+}

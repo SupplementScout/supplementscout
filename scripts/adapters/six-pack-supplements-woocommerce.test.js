@@ -51,6 +51,29 @@ test("approved automation scope is one exact full retailer manifest", () => {
   assert.equal(new Set(loaded.manifest.rows.map((row) => row.external_variant_id)).size, 440);
 });
 
+test("current food policy allows every owner-approved ordinary food type", () => {
+  const config = JSON.parse(
+    fs.readFileSync(
+      path.resolve(__dirname, "../../config/retailers/six-pack-supplements-woocommerce.json"),
+      "utf8"
+    )
+  );
+  const allowed = config.category_policy.reviewed_food_exceptions_allowed;
+  assert.deepEqual(
+    [
+      "pourable sauces",
+      "syrups",
+      "jams",
+      "porridge and oats",
+      "pancake mixes",
+      "ready-to-drink shakes",
+      "liquid egg whites",
+    ].filter((foodType) => !allowed.includes(foodType)),
+    []
+  );
+  assert.deepEqual(config.category_policy.reviewed_food_exceptions_not_allowed, []);
+});
+
 test("atomic evidence writer leaves only the requested final file", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "six-pack-adapter-"));
   const file = path.join(directory, "report.json");

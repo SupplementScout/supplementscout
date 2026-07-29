@@ -30,7 +30,6 @@
       "SARMs",
       "Peptides",
       "positively expired or past-best-before products",
-      "food outside the reviewed snack-and-spread exceptions",
       "DMAA products",
       "yohimbine products",
       "T5 ECA products"
@@ -57,9 +56,7 @@
       "protein flapjacks",
       "protein bites",
       "spoonable sweet protein creams and spreads",
-      "peanut and nut butters"
-    ],
-    "reviewed_food_exceptions_not_allowed": [
+      "peanut and nut butters",
       "pourable sauces",
       "syrups",
       "jams",
@@ -68,6 +65,7 @@
       "pancake mixes",
       "liquid egg whites"
     ],
+    "reviewed_food_exceptions_not_allowed": [],
     "reviewed_high_stimulant_products_allowed": [
       "Trec Nutrition Clenburexin",
       "Universal Nutrition Animal Cuts",
@@ -84,7 +82,7 @@
       "TUDCA & NAC Liver Support"
     ],
     "missing_metrics": "LEAVE_NULL_UNTIL_EXPERT_REVIEW",
-    "confirmed_at": "2026-07-28",
+    "confirmed_at": "2026-07-29",
     "source": "USER_EXPLICIT_CHAT_CONFIRMATION"
   },
   "catalogue_mapping_policy": {

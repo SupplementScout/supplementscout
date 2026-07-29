@@ -1,7 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const dotenv = require("dotenv");
+const { Client } = require("pg");
 const { createClient } = require("@supabase/supabase-js");
+const { loadEnvFile } = require("./apply-selected-migrations");
 const {
   exportReviewQueueCsv,
   exportReviewQueueJson,
@@ -27,7 +29,7 @@ function parseArgs(argv) {
     if (
       !match ||
       result[match[1]] !== undefined ||
-      !["snapshot", "output-dir", "target"].includes(match[1])
+      !["snapshot", "output-dir", "target", "transport"].includes(match[1])
     ) {
       fail(`Invalid argument ${argument}`);
     }
@@ -37,12 +39,20 @@ function parseArgs(argv) {
     fail("Required --snapshot=<snapshot id>");
   }
   if (result.target !== "production") fail("Required --target=production");
+  if (result.transport && result.transport !== "owner-db") {
+    fail("transport must be owner-db");
+  }
   const outputDir = path.resolve(result["output-dir"] || path.join(TMP_ROOT, "product-match-decisions"));
   const relative = path.relative(TMP_ROOT, outputDir);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
     fail("Output directory must be inside repository tmp");
   }
-  return { snapshot: result.snapshot, outputDir, target: result.target };
+  return {
+    snapshot: result.snapshot,
+    outputDir,
+    target: result.target,
+    transport: result.transport || "supabase",
+  };
 }
 
 function loadClient() {
@@ -122,16 +132,53 @@ function atomicWrite(file, value) {
 }
 
 async function exportDecisions(options, dependencies = {}) {
-  const client = dependencies.client || loadClient();
-  const { data, error } = await client
-    .from("product_match_review_queue")
-    .select(
-      "snapshot_id, review_item_id, source_record_id, retailer, product_title, variant_title, primary_status, reason_codes, confidence, canonical_candidates, source_sku, source_gtin, source_weight, source_price, source_url, suggested_action, decision, selected_canonical_product_id, selected_canonical_variant_id, selected_family_seed_review_item_id, proposed_family_name, proposed_variant_name, reviewer_notes, reviewed_by, reviewed_at, source_row_fingerprint, artifact_fingerprint"
-    )
-    .eq("snapshot_id", options.snapshot)
-    .order("review_item_id")
-    .limit(1000);
-  if (error) throw error;
+  let data;
+  if (options.transport === "owner-db") {
+    const env = loadEnvFile(
+      path.join(
+        process.env.USERPROFILE || "",
+        ".supplementscout",
+        "credentials",
+        "production-owner.env"
+      )
+    );
+    const client = new Client({
+      connectionString: env.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      application_name: "supplementscout-product-match-decision-export",
+    });
+    await client.connect();
+    try {
+      data = (await client.query(
+        `select snapshot_id,review_item_id,source_record_id,retailer,
+                product_title,variant_title,primary_status,reason_codes,
+                confidence,canonical_candidates,source_sku,source_gtin,
+                source_weight,source_price,source_url,suggested_action,
+                decision,selected_canonical_product_id,
+                selected_canonical_variant_id,
+                selected_family_seed_review_item_id,proposed_family_name,
+                proposed_variant_name,reviewer_notes,reviewed_by,reviewed_at,
+                source_row_fingerprint,artifact_fingerprint
+           from public.product_match_review_queue
+          where snapshot_id=$1 order by review_item_id limit 1000`,
+        [options.snapshot]
+      )).rows;
+    } finally {
+      await client.end();
+    }
+  } else {
+    const client = dependencies.client || loadClient();
+    const response = await client
+      .from("product_match_review_queue")
+      .select(
+        "snapshot_id, review_item_id, source_record_id, retailer, product_title, variant_title, primary_status, reason_codes, confidence, canonical_candidates, source_sku, source_gtin, source_weight, source_price, source_url, suggested_action, decision, selected_canonical_product_id, selected_canonical_variant_id, selected_family_seed_review_item_id, proposed_family_name, proposed_variant_name, reviewer_notes, reviewed_by, reviewed_at, source_row_fingerprint, artifact_fingerprint"
+      )
+      .eq("snapshot_id", options.snapshot)
+      .order("review_item_id")
+      .limit(1000);
+    if (response.error) throw response.error;
+    data = response.data;
+  }
   if (!data || data.length === 0) fail("No review rows found for snapshot");
 
   const rows = data.map(reviewRow);

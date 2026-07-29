@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 28 July 2026<br>
+**Status date:** 29 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -74,6 +74,7 @@ This is a global SupplementScout catalogue rule. It applies to every retailer, s
 - Never add SARMs.
 - Never add real peptide or research-peptide products.
 - Ordinary collagen, collagen peptides, hydrolysed protein and ordinary protein-peptide wording are not prohibited peptide products and may pass through the normal identity and safety review.
+- Owner confirmation on 29 July 2026: sauces, syrups, jams, spreads, protein bars, protein cookies, porridge and oats, pancake mixes, ready-to-drink shakes and liquid egg whites are ordinary allowed catalogue types. They must pass the same identity, variant, pack-size and evidence review as other products, but must not be excluded merely because they belong to one of these food types.
 - Missing expiry metadata, out-of-stock status, discontinued status or absence from a later source does not prove that a product is expired. Such rows must be classified using the available evidence and must never be labelled expired by inference.
 - Prohibited rows must remain outside products, variants, retailer mappings, offers and routine automation. They must be recorded as explicitly excluded rather than silently dropped.
 
