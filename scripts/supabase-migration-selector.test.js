@@ -145,14 +145,11 @@ test("a changed excluded migration SHA fails closed", () => {
 
 test("production contract binds the post-family-migration ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(
-    contract.pending.map(({ filename }) => filename),
-    ["20260729210000_correct_strom_essentialmax_berrylicious_variant.sql"],
-  );
-  assert.equal(contract.ledgerCount, 65);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 66);
   assert.equal(
     contract.ledgerFingerprint,
-    "7600f0aa4e635320479f9a5bf20e8880caf76901e2a87980ca80d663ce85935a",
+    "64203ab7116a1a8bea82e4784200f4be976d22f9e5e0f9be5e2dbe7107a8852f",
   );
 });
 
@@ -255,22 +252,14 @@ test("production binds its exact post-family-migration ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 65);
+  assert.equal(result.ledger_count, 66);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260729210000_correct_strom_essentialmax_berrylicious_variant",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 66);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(
-    result.pending_file,
-    "20260729210000_correct_strom_essentialmax_berrylicious_variant.sql",
-  );
-  assert.equal(
-    result.pending_sha256,
-    "881896d88dd33a240927543f9b871ac26c45fb00b9cffa3877bb177db1fa887b",
-  );
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

@@ -54,9 +54,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 65,
+    ledgerCount: 66,
     ledgerFingerprint:
-      "7600f0aa4e635320479f9a5bf20e8880caf76901e2a87980ca80d663ce85935a",
+      "64203ab7116a1a8bea82e4784200f4be976d22f9e5e0f9be5e2dbe7107a8852f",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -73,12 +73,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260729210000_correct_strom_essentialmax_berrylicious_variant.sql",
-        sha256: "881896d88dd33a240927543f9b871ac26c45fb00b9cffa3877bb177db1fa887b",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

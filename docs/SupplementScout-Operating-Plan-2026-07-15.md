@@ -111,6 +111,12 @@ This is a global SupplementScout catalogue rule. It applies to every retailer, s
 
 Daily creatine offer refresh is active via the existing GitHub Actions scheduling method in `.github/workflows/creatine-offer-refresh.yml`. It runs once per day at `03:17 UTC`, which is `03:17 Europe/London` in winter and `04:17 Europe/London` during British Summer Time. The exact automatic scope is 35 existing approved creatine offers only: Fit House 18, Discount Supplements 12 and Jon's Supplements 5. The job may update only price, stock, offer URL, `last_checked_at`, and price history when delivered-price inputs genuinely change. It must not create products, variants, retailer mappings, retailers, merges, deletions or identity repairs.
 
+On 29 July 2026 the creatine refresh was corrected to use the same reviewed
+Fit House identity rule as the full Fit House automation: stable Shopify
+product and variant IDs remain mandatory, while retailer-removed source SKU
+metadata is non-authoritative. The fresh production dry-run passed all 35
+offers as `VERIFY_NO_CHANGE`, with zero blockers and zero writes.
+
 No-source creatine retailers remain excluded from the automatic refresh: Whey Okay 22, GYM HIGH 3 and Simply Supplements 1. The next product/data step is Jon's catalogue review and one reviewed 25-50 offer catalogue-growth batch using the existing importer; increasing 2+ retailer coverage still requires another authorised overlapping source.
 
 ### 0.0.1 Jon's catalogue closeout - 22 July 2026
@@ -125,6 +131,22 @@ This update supersedes older Jon's catalogue-growth and production-enablement ne
 - SARMs and real peptide products remain permanently excluded. Ordinary collagen, hydrolysed protein and normal protein-peptide wording remain allowed when ordinary identity safeguards pass.
 - Jon's catalogue closeout is complete for the reviewed safe scope: all rows are mapped or deliberately classified. Operational automation is also complete as described below.
 - The reviewed stock-only closeout passed on staging and production for the exact eight authorised offers: stock changed from `true` to `false` for 8, freshness changed for 8, and price, URL, mappings, products, variants and price history changed by 0. Approvals were consumed and recovery calls were 0.
+- On 29 July 2026 a later guarded production refresh detected 11 genuine
+  stock-only changes across the 506-offer scope. Two identical fresh GB
+  captures, complete 228-product/854-variant source coverage and all direct
+  URLs passed. The exact reviewed apply changed stock and freshness for 11
+  offers (10 to OOS, one to in stock); product, variant, mapping, offer and
+  price-history row counts, prices, shipping and URLs changed by 0. The
+  consumed authorization cannot be replayed.
+- The same review exposed one pre-existing catalogue label error: Jon's
+  EssentialMAX source variant `50781369696594` was Berrylicious 450 g but
+  canonical variant `1260` was still labelled `Default`. Exact guarded
+  migration `20260729210000` corrected that existing variant and mapping
+  metadata without creating or deleting any row. No other retailer used the
+  variant.
+- The fresh ordinary post-apply dry-run then returned 506/506
+  `VERIFY_NO_CHANGE`, zero missing mappings, zero blockers and zero price,
+  stock or URL actions. Source coverage was 228 products and 854 variants.
 - A fresh full-catalogue dry-run then matched all 506 Jon's mappings and classified all 506 as `VERIFY_NO_CHANGE`, with 0 missing mappings, identity changes, duplicate source identities, source errors or blockers. The same GB source contained 224 products, 844 variants and 575 available variants; the other 338 source variants remain discovery-only and reconcile exactly with the 506 mappings.
 - Jon's operational automation is complete. The protected GitHub Environment `production-readonly` contains the three existing, separate least-privilege production connection URLs for `retailer_catalogue_production_validator`, `retailer_catalogue_production_approver` and `retailer_catalogue_production_executor`; no new login, role or broad grant was created. The narrow registration RPC creates an immutable parent and 11 ordered children, and sequential approval permits only the next legal unchanged child.
 - Manual GitHub run [`29931897205`](https://github.com/SupplementScout/supplementscout/actions/runs/29931897205) passed on commit `f28d462a45e11f01437365a579c5ad7fa696ad86`. Environment access, 59 contract tests, source capture, discovery, dry-run, registration, validator, all 11 sequential approvals/applies, fresh idempotency and artifact upload passed. Scope was 506 mappings/offers; all classified `VERIFY_NO_CHANGE`, freshness changed for 506, price/stock/URL/history and catalogue row counts changed by 0, discovery reported 338, blockers were 0, the parent finished `COMPLETED`, children finished 11/11 `APPLIED`, active plans/approvals/runs were 0 and recovery was 0.
