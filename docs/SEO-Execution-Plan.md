@@ -96,7 +96,7 @@ Console evidence and user value.
 | SEO-01 | P0 | Remove the 1,000-product sitemap truncation. | `LIVE VERIFIED` | Pagination is tested, build passes, production sitemap contains every product allowed by the current index policy, and no duplicate URL exists. |
 | SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `LIVE VERIFIED` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
 | SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
-| SEO-03 | P0 | Correct category landing-page relevance. | `CODE COMPLETE` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
+| SEO-03 | P0 | Correct category landing-page relevance. | `LIVE VERIFIED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `PLANNED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `PLANNED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
@@ -109,11 +109,8 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Deployment verification pending:** SEO-03 — reviewed category relevance code
-and regression tests are locally complete.
-
 **Immediately next:** SEO-04 — crawlable category pagination and internal
-product links.
+product links. Move it to `IN PROGRESS` when implementation starts.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -291,5 +288,12 @@ Review:
 - Combined category/search/pricing and SEO route suites passed 128 tests with
   zero failures. The final focused suite passed 38 tests with zero failures.
 - Targeted ESLint, TypeScript and the Next.js production build passed.
-- SEO-03 remains `CODE COMPLETE` until deployment and public page-content
-  verification.
+- Implementation commit: `76be160`.
+- Production verification after deployment confirmed HTTP 200 and the expected
+  canonical URL on all five reviewed landing pages.
+- Valid examples remained visible while every controlled leak was absent:
+  Magnesium had no Chewable Multivitamins or Chromium Complex; Glucosamine had
+  no Vitamin C or Omega 3 capsules; Omega 3 had no Starflower, Evening Primrose
+  or pet products; Vitamin D had no plain Cod Liver Oil; Vitamins had no
+  Glucosamine-with-Vitamin-C or Omega 3 capsules.
+- SEO-03 is `LIVE VERIFIED`.
