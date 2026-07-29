@@ -55,10 +55,17 @@
       "reason": "SOURCE_CORRUPT_VEGAN_MULTIVITAMIN_FLAVOUR_ALIAS"
     }
   ],
-  "resumed_external_variant_ids": [],
+  "resumed_external_variant_ids": [
+    "11477",
+    "16689",
+    "23149",
+    "29091",
+    "29094",
+    "29097"
+  ],
   "expected_created_variant_count": 0,
   "csv_path": "config/retailers/six-pack-production-expansion-v15.csv",
-  "csv_sha256": "9dea7d613c31bf1fcd69f7f9cf8a02c22cb03c4aa2b29cf767ec45d96f844157",
+  "csv_sha256": "d9ff4a20d8f66da17e08a9baad667c40df51ee57da9b7a5e30405989de33d804",
   "expected_external_variant_ids": [
     "11477",
     "16689",
@@ -929,5 +936,5 @@
     "direct_csv_writes": false,
     "post_apply_idempotency_required": true
   },
-  "rollout_fingerprint": "52e9854d38ce1a2ea29cdb55ffa26578eeac16bdba88a9a65608d6df81324ff9"
+  "rollout_fingerprint": "1b95ff549280ce4f8c00ef9b44e2132ef7420d2044d95dead0925280c9f04435"
 }

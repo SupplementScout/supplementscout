@@ -139,7 +139,24 @@ function build(csvBytes, report, approvalValue = approval, rolloutOptions = {}) 
   const resumedIds =
     approvalValue.kind === "six-pack-reviewed-large-family-batch-v7"
       ? new Set(["28846", "28849"])
-      : new Set();
+      : approvalValue.kind ===
+          "six-pack-reviewed-large-family-batch-v15"
+        ? new Set(
+            plans
+              .filter(
+                (plan) =>
+                  plan.retailer_product?.action === "noop" &&
+                  plan.offer?.action === "noop" &&
+                  plan.price_history?.action === "noop"
+              )
+              .map((plan) =>
+                String(
+                  plan.retailer_product?.values?.external_variant_id ||
+                    ""
+                )
+              )
+          )
+        : new Set();
   const planActionsAreApproved = (plan) => {
     const externalVariantId = String(
       plan.retailer_product?.values?.external_variant_id || ""

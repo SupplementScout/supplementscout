@@ -218,6 +218,11 @@ if (require.main === module) {
     }, null, 2)))
     .catch((error) => {
       console.error(error.message);
+      console.error(
+        `::error title=Protected Six Pack execution stopped::${String(
+          error.message
+        ).replaceAll("\r", " ").replaceAll("\n", " ")}`
+      );
       process.exitCode = 1;
     });
 }
