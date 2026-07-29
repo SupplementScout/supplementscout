@@ -1,6 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import CategoryLandingPagination from "../components/CategoryLandingPagination";
 import ProductResultCard from "../components/ProductResultCard";
+import {
+  CATEGORY_LANDING_PAGE_SIZE,
+  buildCategoryLandingMetadata,
+  categoryLandingPageHref,
+  isCanonicalCategoryLandingPageParam,
+  normalizeCategoryLandingPage,
+} from "../lib/categoryLandingPagination";
 import {
   getLandingProducts,
   isReviewedLandingProductMatch,
@@ -36,32 +45,47 @@ const popularSearches = [
   { href: "/glucosamine", label: "Glucosamine" },
 ];
 
-export const metadata: Metadata = {
-  title: "Compare Vitamins UK",
-  description:
-    "Compare vitamin and mineral supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-  alternates: {
-    canonical: "/vitamins",
-  },
-  openGraph: {
-    title: "Compare Vitamins UK | SupplementScout",
-    description:
-      "Compare vitamin and mineral supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-    url: "/vitamins",
-  },
-  twitter: {
-    card: "summary",
-    title: "Compare Vitamins UK | SupplementScout",
-    description:
-      "Compare vitamin and mineral supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-  },
+const basePath = "/vitamins";
+const pageTitle = "Compare Vitamins UK";
+const pageDescription =
+  "Compare vitamin and mineral supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.";
+
+type VitaminsPageProps = {
+  searchParams: Promise<{ page?: string | string[] }>;
 };
 
-export default async function VitaminsPage() {
-  const { results, error } = await getLandingProducts(vitaminSearchTerms, 24, {
-    productFilter: (product) =>
-      isReviewedLandingProductMatch("vitamins", product),
+export async function generateMetadata({
+  searchParams,
+}: VitaminsPageProps): Promise<Metadata> {
+  const page = normalizeCategoryLandingPage((await searchParams).page);
+  return buildCategoryLandingMetadata({
+    basePath,
+    description: pageDescription,
+    page,
+    title: pageTitle,
   });
+}
+
+export default async function VitaminsPage({
+  searchParams,
+}: VitaminsPageProps) {
+  const pageParam = (await searchParams).page;
+  const requestedPage = normalizeCategoryLandingPage(pageParam);
+
+  if (!isCanonicalCategoryLandingPageParam(pageParam)) {
+    redirect(basePath);
+  }
+
+  const { results, error, page, totalCount, totalPages } =
+    await getLandingProducts(vitaminSearchTerms, CATEGORY_LANDING_PAGE_SIZE, {
+      page: requestedPage,
+      productFilter: (product) =>
+        isReviewedLandingProductMatch("vitamins", product),
+    });
+
+  if (page !== requestedPage) {
+    redirect(categoryLandingPageHref(basePath, page));
+  }
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -139,11 +163,21 @@ export default async function VitaminsPage() {
         )}
 
         {results.length > 0 && (
-          <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-4">
-            {results.map((product) => (
-              <ProductResultCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <p className="mt-5 text-sm text-zinc-600 sm:mt-6">
+              Showing page {page} of {totalPages} ({totalCount} products)
+            </p>
+            <div className="mt-3 space-y-3 sm:space-y-4">
+              {results.map((product) => (
+                <ProductResultCard key={product.id} product={product} />
+              ))}
+            </div>
+            <CategoryLandingPagination
+              basePath={basePath}
+              currentPage={page}
+              totalPages={totalPages}
+            />
+          </>
         )}
       </section>
 

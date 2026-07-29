@@ -1,6 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import CategoryLandingPagination from "../components/CategoryLandingPagination";
 import ProductResultCard from "../components/ProductResultCard";
+import {
+  CATEGORY_LANDING_PAGE_SIZE,
+  buildCategoryLandingMetadata,
+  categoryLandingPageHref,
+  isCanonicalCategoryLandingPageParam,
+  normalizeCategoryLandingPage,
+} from "../lib/categoryLandingPagination";
 import {
   getLandingProducts,
   isReviewedLandingProductMatch,
@@ -8,36 +17,50 @@ import {
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Compare Vitamin D Supplements UK",
-  description:
-    "Compare Vitamin D supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-  alternates: {
-    canonical: "/vitamin-d",
-  },
-  openGraph: {
-    title: "Compare Vitamin D Supplements UK | SupplementScout",
-    description:
-      "Compare Vitamin D supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-    url: "/vitamin-d",
-  },
-  twitter: {
-    card: "summary",
-    title: "Compare Vitamin D Supplements UK | SupplementScout",
-    description:
-      "Compare Vitamin D supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-  },
+const basePath = "/vitamin-d";
+const pageTitle = "Compare Vitamin D Supplements UK";
+const pageDescription =
+  "Compare Vitamin D supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.";
+
+type VitaminDPageProps = {
+  searchParams: Promise<{ page?: string | string[] }>;
 };
 
-export default async function VitaminDPage() {
-  const { results, error } = await getLandingProducts(
+export async function generateMetadata({
+  searchParams,
+}: VitaminDPageProps): Promise<Metadata> {
+  const page = normalizeCategoryLandingPage((await searchParams).page);
+  return buildCategoryLandingMetadata({
+    basePath,
+    description: pageDescription,
+    page,
+    title: pageTitle,
+  });
+}
+
+export default async function VitaminDPage({
+  searchParams,
+}: VitaminDPageProps) {
+  const pageParam = (await searchParams).page;
+  const requestedPage = normalizeCategoryLandingPage(pageParam);
+
+  if (!isCanonicalCategoryLandingPageParam(pageParam)) {
+    redirect(basePath);
+  }
+
+  const { results, error, page, totalCount, totalPages } = await getLandingProducts(
     ["vitamin d", "vitamin d3", "vitamin d2"],
-    24,
+    CATEGORY_LANDING_PAGE_SIZE,
     {
+      page: requestedPage,
       productFilter: (product) =>
         isReviewedLandingProductMatch("vitamin-d", product),
     }
   );
+
+  if (page !== requestedPage) {
+    redirect(categoryLandingPageHref(basePath, page));
+  }
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -114,11 +137,21 @@ export default async function VitaminDPage() {
         )}
 
         {results.length > 0 && (
-          <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-4">
-            {results.map((product) => (
-              <ProductResultCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <p className="mt-5 text-sm text-zinc-600 sm:mt-6">
+              Showing page {page} of {totalPages} ({totalCount} products)
+            </p>
+            <div className="mt-3 space-y-3 sm:space-y-4">
+              {results.map((product) => (
+                <ProductResultCard key={product.id} product={product} />
+              ))}
+            </div>
+            <CategoryLandingPagination
+              basePath={basePath}
+              currentPage={page}
+              totalPages={totalPages}
+            />
+          </>
         )}
       </section>
 

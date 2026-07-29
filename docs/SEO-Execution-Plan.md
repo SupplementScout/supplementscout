@@ -97,7 +97,7 @@ Console evidence and user value.
 | SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `LIVE VERIFIED` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
 | SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
 | SEO-03 | P0 | Correct category landing-page relevance. | `LIVE VERIFIED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
-| SEO-04 | P0 | Build crawlable category pagination and internal product links. | `PLANNED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
+| SEO-04 | P0 | Build crawlable category pagination and internal product links. | `CODE COMPLETE` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `PLANNED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the Search Console baseline and submit/verify the sitemap. | `BLOCKED` | Owner/account access is used to record Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines; priority URLs are inspected. Blocker: no Search Console account/API access in the repository. |
@@ -109,8 +109,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Immediately next:** SEO-04 — crawlable category pagination and internal
-product links. Move it to `IN PROGRESS` when implementation starts.
+**Deployment verification pending:** SEO-04 — crawlable category pagination
+and internal product links are locally complete.
+
+**Immediately next after live verification:** SEO-05 — server-render
+authoritative home statistics and freshness.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -297,3 +300,25 @@ Review:
   or pet products; Vitamin D had no plain Cod Liver Oil; Vitamins had no
   Glucosamine-with-Vitamin-C or Omega 3 capsules.
 - SEO-03 is `LIVE VERIFIED`.
+
+### 29 July 2026 — SEO-04 local implementation
+
+- Added one shared category-pagination URL and metadata policy for Glucosamine,
+  Magnesium, Omega 3, Vitamin D and Vitamins.
+- Page one keeps the clean category path. Further pages use stable
+  `?page=N` links with their own canonical URL and page-specific title.
+- `?page=1`, invalid, leading-zero, duplicate and unsafe page values cannot
+  create separate indexable copies. Requests beyond the available range
+  redirect to the last real page.
+- Landing retrieval now walks every 1,000-row database batch before applying
+  the reviewed relevance gate and slicing the requested 24-product page. This
+  removes the previous future 1,000-row discovery ceiling.
+- Every result is rendered in the initial server response through existing
+  `ProductResultCard` anchors; no client-only load-more control was introduced.
+- The production build, targeted ESLint and 95 category/pricing/search tests
+  passed with zero failures.
+- A local production-server check found five Vitamins pages containing 114
+  distinct current products: 24 on pages 1–4 and 18 on page 5, with zero
+  cross-page duplicates. Page 2 had its own canonical, page 1 exposed its link,
+  and invalid/out-of-range requests redirected correctly.
+- SEO-04 remains `CODE COMPLETE` until deployment and public verification.

@@ -1,6 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import CategoryLandingPagination from "../components/CategoryLandingPagination";
 import ProductResultCard from "../components/ProductResultCard";
+import {
+  CATEGORY_LANDING_PAGE_SIZE,
+  buildCategoryLandingMetadata,
+  categoryLandingPageHref,
+  isCanonicalCategoryLandingPageParam,
+  normalizeCategoryLandingPage,
+} from "../lib/categoryLandingPagination";
 import {
   getLandingProducts,
   isReviewedLandingProductMatch,
@@ -10,32 +19,47 @@ export const revalidate = 3600;
 
 const magnesiumSearchTerms = ["magnesium", "zma", "zmb", "zmpro"];
 
-export const metadata: Metadata = {
-  title: "Compare Magnesium Supplements UK",
-  description:
-    "Compare magnesium supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-  alternates: {
-    canonical: "/magnesium",
-  },
-  openGraph: {
-    title: "Compare Magnesium Supplements UK | SupplementScout",
-    description:
-      "Compare magnesium supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-    url: "/magnesium",
-  },
-  twitter: {
-    card: "summary",
-    title: "Compare Magnesium Supplements UK | SupplementScout",
-    description:
-      "Compare magnesium supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.",
-  },
+const basePath = "/magnesium";
+const pageTitle = "Compare Magnesium Supplements UK";
+const pageDescription =
+  "Compare magnesium supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.";
+
+type MagnesiumPageProps = {
+  searchParams: Promise<{ page?: string | string[] }>;
 };
 
-export default async function MagnesiumPage() {
-  const { results, error } = await getLandingProducts(magnesiumSearchTerms, 24, {
-    productFilter: (product) =>
-      isReviewedLandingProductMatch("magnesium", product),
+export async function generateMetadata({
+  searchParams,
+}: MagnesiumPageProps): Promise<Metadata> {
+  const page = normalizeCategoryLandingPage((await searchParams).page);
+  return buildCategoryLandingMetadata({
+    basePath,
+    description: pageDescription,
+    page,
+    title: pageTitle,
   });
+}
+
+export default async function MagnesiumPage({
+  searchParams,
+}: MagnesiumPageProps) {
+  const pageParam = (await searchParams).page;
+  const requestedPage = normalizeCategoryLandingPage(pageParam);
+
+  if (!isCanonicalCategoryLandingPageParam(pageParam)) {
+    redirect(basePath);
+  }
+
+  const { results, error, page, totalCount, totalPages } =
+    await getLandingProducts(magnesiumSearchTerms, CATEGORY_LANDING_PAGE_SIZE, {
+      page: requestedPage,
+      productFilter: (product) =>
+        isReviewedLandingProductMatch("magnesium", product),
+    });
+
+  if (page !== requestedPage) {
+    redirect(categoryLandingPageHref(basePath, page));
+  }
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -110,11 +134,21 @@ export default async function MagnesiumPage() {
         )}
 
         {results.length > 0 && (
-          <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-4">
-            {results.map((product) => (
-              <ProductResultCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <p className="mt-5 text-sm text-zinc-600 sm:mt-6">
+              Showing page {page} of {totalPages} ({totalCount} products)
+            </p>
+            <div className="mt-3 space-y-3 sm:space-y-4">
+              {results.map((product) => (
+                <ProductResultCard key={product.id} product={product} />
+              ))}
+            </div>
+            <CategoryLandingPagination
+              basePath={basePath}
+              currentPage={page}
+              totalPages={totalPages}
+            />
+          </>
         )}
       </section>
 

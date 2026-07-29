@@ -249,6 +249,7 @@ export type ReviewedLandingCategory =
   | "vitamins";
 
 type LandingProductsOptions = {
+  page?: number;
   productFilter?: (product: LandingProductMatchInput) => boolean;
 };
 
@@ -1459,15 +1460,31 @@ export async function getLandingProducts(
     .map(sanitizeSupabaseOrTerm)
     .filter((value) => value.length > 0);
   const primaryQuery = sanitizedQueries[0] || "";
+  const pageSize =
+    Number.isSafeInteger(limit) && limit > 0 ? limit : SEARCH_PAGE_SIZE;
+  const requestedPage =
+    Number.isSafeInteger(options.page) && (options.page || 0) > 0
+      ? options.page!
+      : 1;
 
   if (!primaryQuery) {
-    return { results: [], error: null };
+    return {
+      results: [],
+      error: null,
+      page: 1,
+      pageSize,
+      totalCount: 0,
+      totalPages: 1,
+    };
   }
 
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
+  const data: RawProduct[] = [];
+
+  for (let from = 0; ; from += SEARCH_RESULT_LOAD_LIMIT) {
+    const { data: pageData, error } = await supabase
+      .from("products")
+      .select(
+        `
         id,
         slug,
         name,
@@ -1500,24 +1517,38 @@ export async function getLandingProducts(
           )
         )
       `
-    )
-    .eq("is_active", true)
-    .is("merged_into_product_id", null)
-    .is("merged_at", null)
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
-    .or(buildLandingProductFilter(sanitizedQueries))
-    .order("name")
-    .range(0, SEARCH_RESULT_LOAD_LIMIT - 1);
+      )
+      .eq("is_active", true)
+      .is("merged_into_product_id", null)
+      .is("merged_at", null)
+      .eq("offers.in_stock", true)
+      .gt("offers.price", 0)
+      .or(buildLandingProductFilter(sanitizedQueries))
+      .order("name")
+      .order("id")
+      .range(from, from + SEARCH_RESULT_LOAD_LIMIT - 1);
 
-  if (error) {
-    return { results: [], error };
+    if (error) {
+      return {
+        results: [],
+        error,
+        page: 1,
+        pageSize,
+        totalCount: 0,
+        totalPages: 1,
+      };
+    }
+
+    const rows = (pageData || []) as RawProduct[];
+    data.push(...rows);
+
+    if (rows.length < SEARCH_RESULT_LOAD_LIMIT) {
+      break;
+    }
   }
 
-  const enrichedProducts = await loadProductVariants(
-    (data || []) as RawProduct[]
-  );
-  const results = enrichedProducts
+  const enrichedProducts = await loadProductVariants(data);
+  const matchingResults = enrichedProducts
     .filter((product) =>
       options.productFilter ? options.productFilter(product) : true
     )
@@ -1536,9 +1567,17 @@ export async function getLandingProducts(
         left.name.localeCompare(right.name) ||
         left.id.localeCompare(right.id)
     );
+  const totalCount = matchingResults.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const page = Math.min(requestedPage, totalPages);
+  const startIndex = totalCount === 0 ? 0 : (page - 1) * pageSize;
 
   return {
-    results: results.slice(0, limit),
+    results: matchingResults.slice(startIndex, startIndex + pageSize),
     error: null,
+    page,
+    pageSize,
+    totalCount,
+    totalPages,
   };
 }
