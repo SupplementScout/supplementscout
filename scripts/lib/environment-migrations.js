@@ -12,6 +12,7 @@ const EXCLUSIONS = Object.freeze({
     "20260719100000_add_production_retailer_sync_enablement",
     "20260726140000_authorize_reviewed_jons_16_mapped_scope",
     "20260729200000_authorize_reviewed_jons_11_stock_changes",
+    "20260729210000_correct_strom_essentialmax_berrylicious_variant",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

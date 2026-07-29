@@ -47,6 +47,14 @@ const mapped11Rollback = fs.readFileSync(
   path.resolve("supabase/rollbacks/20260729200000_authorize_reviewed_jons_11_stock_changes.sql"),
   "utf8",
 );
+const berryliciousCorrection = fs.readFileSync(
+  path.resolve("supabase/migrations/20260729210000_correct_strom_essentialmax_berrylicious_variant.sql"),
+  "utf8",
+);
+const berryliciousRollback = fs.readFileSync(
+  path.resolve("supabase/rollbacks/20260729210000_correct_strom_essentialmax_berrylicious_variant.sql"),
+  "utf8",
+);
 
 function artifact(reviewed, overrides = {}) {
   const rows = reviewed.reviewed_rows.map((row, index) => ({
@@ -191,6 +199,40 @@ test("11-change authorization is exact, control-plane-only and rollback-safe", (
   assert.doesNotMatch(
     mapped11Rollback,
     /(?:insert into|update|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
+  );
+});
+
+test("Berrylicious correction preserves canonical identity and changes only exact variant metadata", () => {
+  for (const token of [
+    "id=855",
+    "id=1260",
+    "id=1374",
+    "id=1188",
+    "10074933920082",
+    "50781369696594",
+    "STM05002",
+    "berrylicious-450g",
+    "Berrylicious / 450g",
+    "\"Size\":\"450g\"",
+    "\"Flavour\":\"Berrylicious\"",
+  ]) assert.match(berryliciousCorrection, new RegExp(token));
+  assert.match(berryliciousCorrection, /count\(\*\) from public\.retailer_products where product_variant_id=1260\)<>1/);
+  assert.match(berryliciousCorrection, /count\(\*\) from public\.offers where product_variant_id=1260\)<>1/);
+  assert.doesNotMatch(
+    berryliciousCorrection,
+    /(?:insert into|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
+  );
+  assert.doesNotMatch(
+    berryliciousCorrection,
+    /update public\.(?:products|offers|price_history)/i,
+  );
+  assert.match(
+    berryliciousRollback,
+    /rollback is forbidden after the reviewed Jon''s stock authorization is bound/,
+  );
+  assert.doesNotMatch(
+    berryliciousRollback,
+    /(?:insert into|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
   );
 });
 
