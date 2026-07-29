@@ -94,7 +94,7 @@ Console evidence and user value.
 |---|---:|---|---|---|
 | SEO-00 | P0 | Establish this controlled SEO ledger and bind it into the Operating Plan. | `LIVE VERIFIED` | Both documents cross-reference the process, the active task and the completion rule. |
 | SEO-01 | P0 | Remove the 1,000-product sitemap truncation. | `LIVE VERIFIED` | Pagination is tested, build passes, production sitemap contains every product allowed by the current index policy, and no duplicate URL exists. |
-| SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `IN PROGRESS` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
+| SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `CODE COMPLETE` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
 | SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
 | SEO-03 | P0 | Correct category landing-page relevance. | `PLANNED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `PLANNED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
@@ -109,7 +109,8 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Active:** SEO-02A — deploy and verify truthful sitemap modification dates.
+**Deployment verification pending:** SEO-02A — code is on `main`, but the
+production alias still serves the preceding sitemap deployment.
 
 **Immediately next:** SEO-03 — correct category landing-page relevance.
 
@@ -243,5 +244,15 @@ Review:
   design check.
 - SEO tests: 42 passed, 0 failed.
 - Targeted ESLint, TypeScript and Next.js production build: passed.
-- State remains `IN PROGRESS` until commit, deployment and live XML timestamp
-  verification are complete.
+- Local implementation reached `CODE COMPLETE`; live verification is recorded
+  separately below.
+
+### 29 July 2026 — SEO-02A deployment pending
+
+- Commit `bb71196` was pushed to `main`.
+- Repeated cache-bypassed public checks continued to return 1,122 unique URLs
+  but still showed the previous shared `2026-07-08` date on every URL.
+- The remote `main` ref was independently confirmed at `bb71196`.
+- No live-completion claim is made. SEO-02A is `CODE COMPLETE` until the Vercel
+  production alias serves the commit and the XML timestamp distribution is
+  verified.
