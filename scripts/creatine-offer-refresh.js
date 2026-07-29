@@ -22,6 +22,7 @@ const RETAILER_SCOPE = Object.freeze({
     expectedCount: 18,
     storeUrl: "https://fithouse.uk",
     shippingCost: "3.99",
+    ignoreSourceSku: true,
     previousSourceProductCount: 85,
     offerIds: Object.freeze([952, 984, 954, 958, 981, 709, 697, 708, 955, 966, 941, 942, 696, 962, 968, 970, 698, 728]),
   }),
@@ -126,6 +127,7 @@ function policyFor(scope) {
     per_row_price_hard_block_absolute_gbp: "20.00",
     mass_oos_block_count: 4,
     store_url: scope.storeUrl,
+    ignore_source_sku: Boolean(scope.ignoreSourceSku),
   };
 }
 
@@ -289,7 +291,7 @@ function currentMatchesTarget(row, offer, mapping) {
     String(offer.retailer_product_id) === String(row.retailer_product_id) &&
     String(mapping.external_product_id) === String(row.external_product_id) &&
     String(mapping.external_variant_id) === String(row.external_variant_id) &&
-    (mapping.external_sku || null) === (row.source.external_sku || null) &&
+    (row.ignore_source_sku || (mapping.external_sku || null) === (row.source.external_sku || null)) &&
     money(offer.price) === money(row.target.price) &&
     money(offer.shipping_cost) === money(row.target.shipping_cost) &&
     money(offer.total_price) === money(row.target.total_price) &&
@@ -306,7 +308,7 @@ function currentMatchesPlanned(row, offer, mapping) {
     String(offer.retailer_product_id) === String(row.retailer_product_id) &&
     String(mapping.external_product_id) === String(row.external_product_id) &&
     String(mapping.external_variant_id) === String(row.external_variant_id) &&
-    (mapping.external_sku || null) === (row.source.external_sku || null) &&
+    (row.ignore_source_sku || (mapping.external_sku || null) === (row.source.external_sku || null)) &&
     money(offer.price) === money(values.price) &&
     money(offer.shipping_cost) === money(values.shipping_cost) &&
     money(offer.total_price) === money(values.total_price) &&
@@ -375,6 +377,7 @@ function classifyRetailerScope({ retailerName, scope, state, snapshot, sourceCap
       classifiedRows.push({
         ...classified,
         retailer: retailerName,
+        ignore_source_sku: Boolean(scope.ignoreSourceSku),
         product_name: local.product.name,
         variant_name: local.variant.display_name,
         mapping_id: Number(local.mapping.id),

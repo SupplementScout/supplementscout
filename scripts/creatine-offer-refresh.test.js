@@ -359,6 +359,19 @@ test("existing classifier is reused for no-change, price, url and blockers", () 
   const noChange = classifyRetailerScope({ retailerName: "Fit House", scope, state: stateFromRows(rows), snapshot: shopifySnapshotForRows(rows), sourceCapturedAt: "2026-07-19T03:17:00.000Z", now: new Date("2026-07-19T03:17:00.000Z") });
   assert.equal(noChange.classification.state, "DRY_RUN_READY");
   assert.equal(noChange.classified_rows.every((entry) => entry.action === "VERIFY_NO_CHANGE"), true);
+  const missingSourceSku = classifyRetailerScope({
+    retailerName: "Fit House",
+    scope,
+    state: stateFromRows(rows),
+    snapshot: shopifySnapshotForRows(rows, (_product, variant, index) => {
+      if (index === 0) variant.sku = null;
+    }),
+    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
+    now: new Date("2026-07-19T03:17:00.000Z"),
+  });
+  assert.equal(missingSourceSku.classification.state, "DRY_RUN_READY");
+  assert.equal(missingSourceSku.classified_rows.every((entry) => entry.ignore_source_sku === true), true);
+  assert.equal(missingSourceSku.classified_rows.every((entry) => entry.action === "VERIFY_NO_CHANGE"), true);
   const changed = classifyRetailerScope({
     retailerName: "Fit House",
     scope,
@@ -412,6 +425,7 @@ test("existing classifier is reused for no-change, price, url and blockers", () 
   });
   assert.equal(hardPrice.classification.reason, "HARD_PRICE_ANOMALY");
   assert.equal(policyFor(scope).required_matched_offers, 7);
+  assert.equal(policyFor(scope).ignore_source_sku, true);
 });
 
 test("Jon's source requests GB market while Fit House and Discount stay unchanged", async () => {
