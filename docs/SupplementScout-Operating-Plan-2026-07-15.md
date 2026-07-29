@@ -66,6 +66,33 @@ automation blockers elsewhere in this document.
   append to the same shared retailer automation. The remaining 83 rows continue
   through owner review independently.
 
+### 0.0.5 SEO traffic growth control - 29 July 2026
+
+SEO traffic growth is now an active permanent workstream. The binding detailed
+execution ledger is `docs/SEO-Execution-Plan.md`. This Operating Plan remains
+the overall project authority; the SEO ledger records the task-level queue,
+status, definition of done, evidence and next active SEO task.
+
+Before any SEO implementation:
+
+1. read this current checkpoint and the complete SEO execution ledger;
+2. confirm that the work is the single `IN PROGRESS` SEO implementation;
+3. check whether the proposed mechanism already exists;
+4. read the relevant current Next.js documentation before changing framework
+   code.
+
+After every SEO implementation, update the ledger. An SEO task is complete only
+at `LIVE VERIFIED`: local code completion alone is not sufficient.
+
+The 29 July read-only baseline found 1,111 active canonical products, 2,106
+positive-price in-stock offers, 920 products with at least one such offer and
+112 products with at least two in-stock retailers. The public sitemap contained
+11 static URLs and exactly 1,000 product URLs, so 111 active product URLs were
+omitted by the unpaginated Supabase response. The execution order starts with
+that truncation, then truthful index/last-modified policy, category relevance
+and crawlable internal product linking. New high-intent landing pages follow
+only after those P0 foundations.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

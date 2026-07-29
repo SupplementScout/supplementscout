@@ -1,0 +1,220 @@
+# SupplementScout SEO Execution Plan
+
+**Status date:** 29 July 2026  
+**Owner:** SupplementScout  
+**Scope:** Organic search traffic, indexation, internal discovery, search landing
+pages, structured data, measurement and authority building.  
+**Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
+
+## 1. Purpose
+
+This is the live execution ledger for SEO work. The Operating Plan remains the
+overall project authority; this file is its detailed SEO workstream.
+
+Every SEO task must start by reading:
+
+1. the current checkpoint at the top of the Operating Plan;
+2. this file, including the active task and completed evidence;
+3. the relevant current Next.js documentation before changing framework code.
+
+Every SEO task must end by updating this file with:
+
+- the final status;
+- the exact evidence;
+- the production verification state;
+- the next active task.
+
+Do not restart a completed task unless production evidence shows a regression.
+
+## 2. Status rules
+
+| Status | Meaning |
+|---|---|
+| `PLANNED` | Approved roadmap item, not started. |
+| `IN PROGRESS` | The single SEO implementation currently being worked on. |
+| `CODE COMPLETE` | Code and local tests pass, but production is not yet verified. |
+| `LIVE VERIFIED` | Deployed and checked on the public site or in Search Console. This is the only completed state. |
+| `BLOCKED` | Cannot progress without a named external input or decision. |
+| `DEFERRED` | Deliberately postponed with a recorded reason. |
+
+Only one SEO implementation item may be `IN PROGRESS` at a time. Measurement,
+content research and legitimate outreach may continue in parallel when they do
+not change the same files or data.
+
+## 3. Baseline audit
+
+Read-only audit completed on 29 July 2026:
+
+- 1,111 active, unmerged canonical products;
+- 2,106 positive-price in-stock offers;
+- 920 products with at least one such offer;
+- 112 products with at least two in-stock retailers;
+- public sitemap returned 1,011 URLs: 11 static URLs and exactly 1,000 product
+  URLs;
+- therefore 111 active product URLs were absent from the sitemap because the
+  product query did not paginate beyond the Supabase 1,000-row response limit;
+- 191 active products had no positive-price in-stock offer and require an
+  explicit index-eligibility policy rather than automatic inclusion or removal;
+- GA4 is present in production behind consent;
+- DNS contains Google site verification, but Search Console performance,
+  submitted-sitemap state and page-indexing reports have not yet been captured
+  in this repository;
+- public search results show indexed home, category and product pages, but the
+  exact indexed total is unknown without Search Console;
+- the cached Google home result observed during the audit still contained an
+  older heading and zero-product/zero-retailer statistics;
+- existing broad landing-page matching exposes irrelevant products on some
+  category pages;
+- product pages have canonical metadata and useful price data but no Product
+  JSON-LD or breadcrumb trail;
+- discoverable external authority/backlinks appear minimal; a dedicated
+  backlink tool or Search Console Links export has not yet been captured.
+
+This baseline is evidence, not a permanent target. Refresh the counts after
+material catalogue growth and before each monthly SEO review.
+
+## 4. Objectives
+
+The order of objectives is:
+
+1. make every approved indexable page technically discoverable;
+2. prevent irrelevant or weak pages from diluting catalogue quality;
+3. create strong internal paths from home to categories to products;
+4. publish data-backed high-intent comparison pages;
+5. earn external references and links to those useful resources;
+6. improve organic impressions, clicks and retailer click-through without
+   unsupported health or marketing claims.
+
+No traffic or ranking number is guaranteed. Decisions must be driven by Search
+Console evidence and user value.
+
+## 5. Active execution ledger
+
+| ID | Priority | Task | Status | Definition of done |
+|---|---:|---|---|---|
+| SEO-00 | P0 | Establish this controlled SEO ledger and bind it into the Operating Plan. | `CODE COMPLETE` | Both documents cross-reference the process, the active task and the completion rule. |
+| SEO-01 | P0 | Remove the 1,000-product sitemap truncation. | `IN PROGRESS` | Pagination is tested, build passes, production sitemap contains every product allowed by the current index policy, and no duplicate URL exists. |
+| SEO-02 | P0 | Define sitemap/index eligibility and truthful `lastModified`. | `PLANNED` | Written policy covers products with no current offer; sitemap uses evidence-backed modification dates; representative URLs are verified in production and Search Console. |
+| SEO-03 | P0 | Correct category landing-page relevance. | `PLANNED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
+| SEO-04 | P0 | Build crawlable category pagination and internal product links. | `PLANNED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
+| SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `PLANNED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
+| SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
+| SEO-07 | P0 | Capture the Search Console baseline and submit/verify the sitemap. | `BLOCKED` | Owner/account access is used to record Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines; priority URLs are inspected. Blocker: no Search Console account/API access in the repository. |
+| SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `PLANNED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
+| SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `PLANNED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
+| SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `PLANNED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
+| SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
+| SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
+
+## 6. Current active task
+
+**Active:** SEO-01 — deploy and verify sitemap pagination.  
+**Immediately next:** SEO-02 — truthful index eligibility and modification dates.  
+**Then:** SEO-03 before publishing additional category pages.
+
+The sequence may change only when new Search Console evidence proves a more
+urgent indexing blocker. Record that evidence before changing priority.
+
+## 7. Content rollout order
+
+Current catalogue evidence supports this initial order:
+
+| Page | Products with in-stock offer | In-stock offers | Products with 2+ retailers | State |
+|---|---:|---:|---:|---|
+| Creatine | 53 | 103 | 12 | Live; verify indexation and improve through the shared quality contract. |
+| Whey Protein | 65 | 409 | 12 | First new high-intent landing page. |
+| Pre Workout | 88 | 339 | 11 | Second new high-intent landing page. |
+| Amino Acids / BCAA / EAA | 51 | 173 | 12 | Research taxonomy before page implementation. |
+| Protein Bars | 43 | 118 | 6 | Follow after the first two pages and category-quality fixes. |
+| Mass Gainer | 8 | 44 | 3 | Lower-volume page; publish only if query evidence supports it. |
+
+New pages must reuse one controlled category/decision-page system. Do not create
+one independent implementation per category.
+
+## 8. Page quality contract
+
+An indexable category or decision page requires:
+
+- a stable canonical URL;
+- a direct answer and clear purpose near the top;
+- reviewed, relevant product inclusion;
+- current offer and retailer coverage;
+- delivered-price treatment and visible limitations;
+- source/freshness explanation and last-updated evidence;
+- stable anchor links to eligible product pages;
+- useful headings based on real user decisions;
+- server-rendered primary content;
+- valid structured data appropriate to the page type;
+- analytics and a Search Console inspection record;
+- no unsupported health, dosage, safety or superiority claims;
+- no thin text created only to target keyword variations.
+
+## 9. Measurement cadence
+
+### At every production SEO release
+
+Record:
+
+- commit and deployment;
+- affected URLs;
+- local test/build result;
+- live HTTP, canonical, robots and structured-data checks;
+- sitemap URL count and duplicate count;
+- Search Console inspection state when account access is available.
+
+### Weekly
+
+Record from Search Console and GA4:
+
+- organic impressions;
+- organic clicks;
+- click-through rate;
+- average position;
+- indexed and excluded page counts;
+- top queries and landing pages;
+- organic retailer-offer clicks;
+- newly detected technical issues.
+
+### Monthly
+
+Review:
+
+- pages gaining or losing impressions;
+- query gaps worth a useful page;
+- content that needs improvement or consolidation;
+- products and categories with stronger multi-retailer coverage;
+- earned external links and referring sites;
+- competitor page types only as evidence, not as templates to copy.
+
+## 10. Guardrails
+
+- SEO work must not modify product identity, retailer mappings, prices or offer
+  automation unless a separately approved data task requires it.
+- Do not index internal search/filter combinations.
+- Do not create mass programmatic pages before the page-quality contract is
+  automated and proven on a small set.
+- Do not publish medical advice or unsupported supplement claims.
+- Do not mark a task complete without live evidence.
+- Do not buy bulk links, use link farms or create misleading retailer/brand
+  endorsements.
+- Preserve the existing catalogue, merge, import and automation safety rules.
+
+## 11. Execution evidence
+
+### 29 July 2026 — SEO-00 and SEO-01 local implementation
+
+- Added this controlled SEO execution ledger.
+- Bound the ledger and completion rules into the current Operating Plan
+  checkpoint.
+- Added deterministic, ordered pagination to the active-product sitemap query.
+- A page-query error fails closed and cannot publish a silently partial product
+  list.
+- Added regression coverage for the Supabase 1,000-row boundary.
+- Updated the existing homepage-to-Creatine discovery test to match the current
+  configuration-driven links; the public link contract itself was unchanged.
+- `node --test scripts/sitemap-freshness.test.js scripts/creatine-page.test.js scripts/hydration-page.test.js`:
+  40 passed, 0 failed.
+- Targeted ESLint: passed.
+- Next.js 16.2.9 production build and TypeScript: passed.
+- State remains `CODE COMPLETE`/`IN PROGRESS` until commit, deployment and live
+  sitemap count/duplicate verification are complete.

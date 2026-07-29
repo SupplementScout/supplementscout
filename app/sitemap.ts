@@ -4,8 +4,40 @@ import { supabase } from "./lib/supabase";
 
 const siteUrl = "https://www.supplementscout.co.uk";
 const staticLastModified = "2026-07-08";
+const SITEMAP_PAGE_SIZE = 1000;
 
 export const dynamic = "force-dynamic";
+
+type SitemapProduct = {
+  id: number | string;
+  slug: string | null;
+};
+
+async function loadActiveProducts() {
+  const products: SitemapProduct[] = [];
+
+  for (let from = 0; ; from += SITEMAP_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, slug")
+      .eq("is_active", true)
+      .is("merged_into_product_id", null)
+      .not("slug", "is", null)
+      .order("id", { ascending: true })
+      .range(from, from + SITEMAP_PAGE_SIZE - 1);
+
+    if (error) {
+      return { products: [] as SitemapProduct[], error };
+    }
+
+    const page = (data || []) as SitemapProduct[];
+    products.push(...page);
+
+    if (page.length < SITEMAP_PAGE_SIZE) {
+      return { products, error: null };
+    }
+  }
+}
 
 const staticPages: MetadataRoute.Sitemap = [
   {
@@ -82,12 +114,7 @@ const creatinePages: MetadataRoute.Sitemap = CREATINE_LAUNCH_STATUS.includeInSit
   : [];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { data: products, error } = await supabase
-    .from("products")
-    .select("slug")
-    .eq("is_active", true)
-    .is("merged_into_product_id", null)
-    .not("slug", "is", null);
+  const { products, error } = await loadActiveProducts();
 
   if (error) {
     console.error("Unable to load product pages for sitemap.", error);
@@ -95,13 +122,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const productPages =
     products
-      ?.filter((product) => product.slug)
+      .filter((product) => product.slug)
       .map((product) => ({
         url: `${siteUrl}/product/${product.slug}`,
         lastModified: staticLastModified,
         changeFrequency: "daily" as const,
         priority: 0.8,
-      })) || [];
+      }));
 
   return [...staticPages, ...creatinePages, ...productPages];
 }

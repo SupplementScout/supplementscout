@@ -566,8 +566,12 @@ test("comparison table has an explicit mobile overflow guard", () => {
 
 test("homepage provides contextual discovery links to /creatine", () => {
   const source = fs.readFileSync(homepagePath, "utf8");
-  assert.match(source, /href="\/creatine"/);
-  assert.match(source, /item === "Creatine" \? "\/creatine"/);
+  const configuredCreatineLinks =
+    source.match(/\{ label: "Creatine", href: "\/creatine" \}/g) || [];
+
+  assert.ok(configuredCreatineLinks.length >= 2);
+  assert.match(source, /href=\{itemHref\(item\)\}/);
+  assert.match(source, /href=\{categoryHref\(item\)\}/);
 });
 
 test("page copy avoids unsupported ranking, rating and medical claims", () => {

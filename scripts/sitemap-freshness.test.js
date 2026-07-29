@@ -19,3 +19,21 @@ test("catalogue sitemap preserves canonical slug URLs", () => {
   assert.match(sitemapSource, /`\$\{siteUrl\}\/product\/\$\{product\.slug\}`/);
   assert.doesNotMatch(sitemapSource, /\/product\/\$\{product\.id\}/);
 });
+
+test("catalogue sitemap paginates beyond the Supabase 1000-row response limit", () => {
+  assert.match(sitemapSource, /const SITEMAP_PAGE_SIZE = 1000;/);
+  assert.match(sitemapSource, /for \(let from = 0; ; from \+= SITEMAP_PAGE_SIZE\)/);
+  assert.match(
+    sitemapSource,
+    /\.range\(from, from \+ SITEMAP_PAGE_SIZE - 1\)/
+  );
+  assert.match(sitemapSource, /\.order\("id", \{ ascending: true \}\)/);
+  assert.match(sitemapSource, /if \(page\.length < SITEMAP_PAGE_SIZE\)/);
+});
+
+test("catalogue sitemap fails closed instead of publishing a partial product list", () => {
+  assert.match(
+    sitemapSource,
+    /return \{ products: \[\] as SitemapProduct\[\], error \};/
+  );
+});
