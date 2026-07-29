@@ -3201,6 +3201,18 @@ function expectedOfferState(offer) {
 
 function buildVariantEvidence(row, mapping, productVariant = null) {
   const evidence = collectCanonicalVariantEvidence(row);
+  const reviewedProductFormat = String(
+    row.__reviewed_six_pack_family_identity?.product_format || ""
+  )
+    .trim()
+    .toLowerCase();
+  const sealedProductFormat = [
+    "ready-to-drink",
+    "ready_to_drink",
+    "ready to drink",
+  ].includes(reviewedProductFormat)
+    ? reviewedProductFormat
+    : evidence.productFormat;
   const optionTupleMode = String(row.legacy_option_tuple_mode ?? "").trim();
   const canonicalFlavour =
     productVariant && evidence.flavour
@@ -3215,7 +3227,7 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
     pack_count: evidence.packCount === null
       ? null
       : normalizeDecimalString(evidence.packCount, "pack_count"),
-    product_format: evidence.productFormat,
+    product_format: sealedProductFormat,
     external_options: parseExternalOptions(row.external_options),
     approved_mapping_id: mapping?.id ?? null,
   };
@@ -4259,6 +4271,8 @@ module.exports = {
   buildAtomicImportPlan,
   buildRetailerProductPayload,
   buildRowLevelOfferResults,
+  buildVariantEvidence,
+  collectCanonicalVariantEvidence,
   formatPreflightReport,
   getExternalGtin,
   getProductLevelGtin,

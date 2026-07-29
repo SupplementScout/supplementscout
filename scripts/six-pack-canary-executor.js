@@ -189,7 +189,23 @@ async function run(options) {
   const selected = plansForMode(loaded.artifact, options.mode);
   const rows = [];
   for (const entry of selected) {
-    rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, rollout.kind));
+    try {
+      rows.push(
+        await executeEntry(
+          entry,
+          loaded.artifactSha256,
+          loaded.artifact.run_id,
+          rollout.kind
+        )
+      );
+    } catch (error) {
+      const externalVariantId =
+        entry.resolved_plan?.retailer_product?.values
+          ?.external_variant_id || "unknown";
+      throw new Error(
+        `row ${entry.row_number || "unknown"} external variant ${externalVariantId}: ${error.message}`
+      );
+    }
   }
   const report = {
     schema_version: 1,

@@ -12,6 +12,8 @@ const {
   assessVariantCompatibility,
   buildRetailerProductPayload,
   buildRowLevelOfferResults,
+  buildVariantEvidence,
+  collectCanonicalVariantEvidence,
   formatPreflightReport,
   getExternalGtin,
   getProductLevelGtin,
@@ -56,6 +58,25 @@ test("mixed planning accepts one exact source capture while legacy planning stil
   assert.match(resolvePlanTimestamp(), /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   assert.throws(() => resolvePlanTimestamp("2026-07-18T16:09:19Z"), /exact UTC RFC3339/);
   assert.throws(() => resolvePlanTimestamp("not-a-timestamp"), /Invalid time value/);
+});
+
+test("reviewed Six Pack RTD evidence preserves the sealed catalogue format", () => {
+  const row = {
+    pack_count: "1",
+    external_options: "{}",
+    __reviewed_six_pack_family_identity: {
+      flavour: "Double Chocolate",
+      size_value: "500",
+      size_unit: "ml",
+      product_format: "ready-to-drink",
+    },
+  };
+  const evidence = collectCanonicalVariantEvidence(row);
+  const planEvidence = buildVariantEvidence(row, null);
+  assert.equal(evidence.productFormat, "liquid");
+  assert.equal(planEvidence.product_format, "ready-to-drink");
+  assert.equal(evidence.size.value, "500");
+  assert.equal(evidence.size.unit, "ml");
 });
 
 async function runImportRows(rows, options = {}) {

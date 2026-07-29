@@ -9,6 +9,8 @@ on:
       - config/retailers/six-pack-production-expansion-v15.csv
       - config/retailers/six-pack-production-expansion-v15.json
       - .github/workflows/six-pack-production-expansion-v15.yml
+      - scripts/import-products.js
+      - scripts/six-pack-canary-executor.js
 
 permissions:
   contents: read
