@@ -2,6 +2,16 @@ name: 6 Pack Supplements Large Family Bootstrap V15
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - config/retailers/six-pack-reviewed-large-family-batch-v15.json
+      - .github/workflows/six-pack-large-family-bootstrap-v15.yml
+      - scripts/six-pack-final-closeout-approval-builder.js
+      - scripts/six-pack-final-closeout-approval-builder.test.js
+      - scripts/six-pack-large-family-bootstrap.js
+      - scripts/six-pack-large-family-bootstrap.test.js
 
 permissions:
   contents: read
