@@ -99,7 +99,7 @@ Console evidence and user value.
 | SEO-03 | P0 | Correct category landing-page relevance. | `LIVE VERIFIED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `LIVE VERIFIED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `LIVE VERIFIED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
-| SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
+| SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `CODE COMPLETE` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the Search Console baseline and submit/verify the sitemap. | `BLOCKED` | Owner/account access is used to record Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines; priority URLs are inspected. Blocker: no Search Console account/API access in the repository. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `PLANNED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `PLANNED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
@@ -109,8 +109,12 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Immediately next:** SEO-06 — product breadcrumbs and valid Product snippet
-structured data. Move it to `IN PROGRESS` when implementation starts.
+**Deployment verification pending:** SEO-06 — visible product breadcrumbs and
+guarded structured data are locally complete.
+
+**Next executable task after live verification:** SEO-08 — launch the Whey
+Protein comparison landing page. SEO-07 remains blocked on Search Console
+access.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -366,3 +370,33 @@ Review:
   the initial response. The search input and mobile category expansion control
   remained present.
 - SEO-05 is `LIVE VERIFIED`.
+
+### 29 July 2026 — SEO-06 local implementation
+
+- Added a visible, keyboard-accessible `SupplementScout / Product` breadcrumb
+  to the public product template and a matching two-item `BreadcrumbList`.
+- Added server-rendered native JSON-LD using the canonical product URL, visible
+  neutral product summary, known brand and safe crawlable image URL.
+- Product snippet eligibility is deliberately fail-closed. `Product` plus
+  `AggregateOffer` is emitted only when all valid positive-price in-stock
+  offers describe one canonical variant. Multi-variant and no-offer pages emit
+  the valid breadcrumb only rather than an incomplete or misleading Product
+  rich-result item.
+- Aggregate prices use visible product prices, `GBP`, exact valid offer count
+  and `InStock`. Delivered totals are not misrepresented as retailer shelf
+  prices.
+- The markup contains no `seller: SupplementScout`, reviews, ratings,
+  price-valid-until date, shipping policy or other unsupported claims.
+- JSON-LD serialization escapes `<`, unsafe image protocols are rejected,
+  duplicate offer IDs are ignored and placeholder `Unknown brand` is omitted.
+- The implementation follows the current official Google product-snippet,
+  breadcrumb and general structured-data rules plus the local Next.js JSON-LD
+  guide.
+- 61 focused product, offer, pricing and structured-data tests passed with zero
+  failures. Targeted ESLint, TypeScript and the full production build passed.
+- Local production HTML verified a qualifying single-variant Vitamin D product
+  with one GBP AggregateOffer at 13.99, no seller and two breadcrumbs. A
+  multi-variant Clear Whey product exposed the breadcrumbs but correctly
+  omitted the Product/AggregateOffer entity.
+- SEO-06 remains `CODE COMPLETE` until deployment, public HTML checks and
+  external rich-result validation.

@@ -26,6 +26,11 @@ import {
   buildProductSummary,
 } from "../../lib/productPresentation";
 import {
+  buildProductStructuredData,
+  productCanonicalUrl,
+  serializeJsonLd,
+} from "../../lib/productStructuredData";
+import {
   buildBestOfferPricePresentation,
   formatOfferCheckedDate,
 } from "../../lib/productOfferPresentation";
@@ -190,7 +195,7 @@ export async function generateMetadata({
   }
 
   const description = buildProductMetadataDescription(product);
-  const productUrl = product.slug ? `/product/${product.slug}` : `/product/${id}`;
+  const productUrl = productCanonicalUrl(product);
 
   return {
     title: product.name,
@@ -494,6 +499,11 @@ export default async function ProductPage({
     effectiveMetrics.product_format
   );
   const productSummary = buildProductSummary(product);
+  const structuredData = buildProductStructuredData({
+    description: productSummary,
+    offers: sortedOffers,
+    product,
+  });
   const keyFacts = buildProductKeyFacts(product);
   const productAnalytics: ProductAnalyticsContext = {
     product_id: String(product.id),
@@ -521,14 +531,33 @@ export default async function ProductPage({
 
   return (
     <main className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-zinc-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(structuredData),
+        }}
+      />
       <ProductViewAnalytics
         product={productAnalytics}
         variantId={cheapestOffer ? String(cheapestOffer.product_variant_id) : undefined}
       />
       <div className="mx-auto w-full min-w-0 max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:py-12">
-        <Link href="/" className="text-sm font-medium text-[#4B5563] hover:text-[#111827]">
-          ← Back to search
-        </Link>
+        <nav aria-label="Breadcrumb">
+          <ol className="flex min-w-0 items-center gap-2 text-sm text-[#4B5563]">
+            <li className="shrink-0">
+              <Link href="/" className="font-medium hover:text-[#111827]">
+                SupplementScout
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li
+              aria-current="page"
+              className="min-w-0 truncate font-medium text-[#111827]"
+            >
+              {product.name}
+            </li>
+          </ol>
+        </nav>
 
         <div className="mt-5 grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:mt-8 lg:grid-cols-2 lg:gap-10">
           <div
