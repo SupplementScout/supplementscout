@@ -1941,9 +1941,15 @@ Current binding decisions:
 - Six Pack new-product discovery remains report-only. Future reviewed additions
   join the same manifest and the same scheduled refresh; they do not create a
   separate automation.
-- Historical V4 and V6-V15 catalogue expansion workflows are manual-only after
-  their completed rollout. They must not rerun on shared importer changes; the
-  scheduled offer refresh is the only automatic Six Pack production workflow.
+- The complete Six Pack Actions audit on 29 July 2026 covered all 28 workflow
+  files and their GitHub run histories. All 27 one-time bootstrap, canary,
+  shipping and catalogue-expansion workflows had already recorded a successful
+  rollout. They are now fail-closed and preserved outside the active Actions
+  directory in `docs/archive/six-pack-workflows/`; they cannot react to future
+  pushes. No catalogue, mapping, offer or retailer data was removed.
+- `.github/workflows/six-pack-offer-refresh.yml` is the only active Six Pack
+  production workflow. Future reviewed products join its existing shared
+  manifest and refresh rather than receiving another versioned automation.
 - Direct retailer URLs are complete. Affiliate tracking for 6 Pack remains
   explicitly not configured and is a later commercial task, not a catalogue or
   refresh blocker.

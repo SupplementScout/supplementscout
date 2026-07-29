@@ -5,6 +5,12 @@ const test = require("node:test");
 const yaml = require("js-yaml");
 
 const workflowsDirectory = path.join(process.cwd(), ".github", "workflows");
+const archiveDirectory = path.join(
+  process.cwd(),
+  "docs",
+  "archive",
+  "six-pack-workflows"
+);
 const activeWorkflow = "six-pack-offer-refresh.yml";
 
 function sixPackWorkflowFiles() {
@@ -22,6 +28,8 @@ test("all active-directory Six Pack workflow YAML is syntactically valid", () =>
 });
 
 test("the current Six Pack offer refresh remains active and scheduled", () => {
+  assert.deepEqual(sixPackWorkflowFiles(), [activeWorkflow]);
+
   const source = fs.readFileSync(
     path.join(workflowsDirectory, activeWorkflow),
     "utf8"
@@ -32,28 +40,41 @@ test("the current Six Pack offer refresh remains active and scheduled", () => {
   assert.doesNotMatch(source, /if:\s*\$\{\{\s*false\s*\}\}/);
 });
 
-test("historical Six Pack workflows cannot execute while awaiting archival", () => {
-  const historical = sixPackWorkflowFiles().filter(
-    (name) => name !== activeWorkflow
-  );
+test("all 27 historical Six Pack workflows are preserved outside the active directory", () => {
+  const historical = fs
+    .readdirSync(archiveDirectory)
+    .filter((name) => name.startsWith("six-pack") && name.endsWith(".yml"))
+    .sort();
 
+  assert.equal(historical.length, 27);
   for (const name of historical) {
-    const source = fs.readFileSync(path.join(workflowsDirectory, name), "utf8");
+    const source = fs.readFileSync(path.join(archiveDirectory, name), "utf8");
     assert.match(
       source,
       /if:\s*\$\{\{\s*false\s*\}\}/,
-      `${name} must remain fail-closed until it leaves the active directory`
+      `${name} must retain its fail-closed retirement guard`
     );
+    assert.doesNotThrow(() => yaml.load(source), name);
   }
 });
 
 test("no malformed workflow_dispatch path list remains", () => {
-  for (const name of sixPackWorkflowFiles()) {
-    const source = fs.readFileSync(path.join(workflowsDirectory, name), "utf8");
+  const workflowPaths = [
+    ...sixPackWorkflowFiles().map((name) =>
+      path.join(workflowsDirectory, name)
+    ),
+    ...fs
+      .readdirSync(archiveDirectory)
+      .filter((name) => name.endsWith(".yml"))
+      .map((name) => path.join(archiveDirectory, name)),
+  ];
+
+  for (const workflowPath of workflowPaths) {
+    const source = fs.readFileSync(workflowPath, "utf8");
     assert.doesNotMatch(
       source,
       /^  workflow_dispatch:\s*\r?\n\s+-\s+/m,
-      name
+      workflowPath
     );
   }
 });
