@@ -99,7 +99,7 @@ Console evidence and user value.
 | SEO-03 | P0 | Correct category landing-page relevance. | `LIVE VERIFIED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `LIVE VERIFIED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `LIVE VERIFIED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
-| SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `CODE COMPLETE` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
+| SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `LIVE VERIFIED` | Markup matches visible canonical data, passes automated and external structured-data validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the Search Console baseline and submit/verify the sitemap. | `BLOCKED` | Owner/account access is used to record Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines; priority URLs are inspected. Blocker: no Search Console account/API access in the repository. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `PLANNED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `PLANNED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
@@ -109,12 +109,8 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Deployment verification pending:** SEO-06 — visible product breadcrumbs and
-guarded structured data are locally complete.
-
-**Next executable task after live verification:** SEO-08 — launch the Whey
-Protein comparison landing page. SEO-07 remains blocked on Search Console
-access.
+**Next executable task:** SEO-08 — launch the Whey Protein comparison landing
+page. SEO-07 remains blocked on Search Console access.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -398,5 +394,15 @@ Review:
   with one GBP AggregateOffer at 13.99, no seller and two breadcrumbs. A
   multi-variant Clear Whey product exposed the breadcrumbs but correctly
   omitted the Product/AggregateOffer entity.
-- SEO-06 remains `CODE COMPLETE` until deployment, public HTML checks and
-  external rich-result validation.
+- Commit `044e3ea` was pushed to `main` and served by the production site.
+- Public HTML for the qualifying Vitamin D example returned the canonical
+  Product/AggregateOffer data with GBP 13.99, one offer, no seller claim and
+  matching visible/structured breadcrumbs.
+- Public HTML for the multi-variant Clear Whey example retained the canonical
+  and breadcrumbs while correctly omitting Product/AggregateOffer data.
+- Schema.org Validator fetched the live Vitamin D page and detected one Product
+  plus one BreadcrumbList with 0 errors and 0 warnings.
+- An automated Google Rich Results Test was also attempted, but Google required
+  an authenticated interactive session. This is recorded as a tool-access
+  limitation rather than represented as a successful Google test.
+- SEO-06 is `LIVE VERIFIED`.
