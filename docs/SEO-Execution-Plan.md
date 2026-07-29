@@ -97,7 +97,7 @@ Console evidence and user value.
 | SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `LIVE VERIFIED` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
 | SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
 | SEO-03 | P0 | Correct category landing-page relevance. | `LIVE VERIFIED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
-| SEO-04 | P0 | Build crawlable category pagination and internal product links. | `CODE COMPLETE` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
+| SEO-04 | P0 | Build crawlable category pagination and internal product links. | `LIVE VERIFIED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `PLANNED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the Search Console baseline and submit/verify the sitemap. | `BLOCKED` | Owner/account access is used to record Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines; priority URLs are inspected. Blocker: no Search Console account/API access in the repository. |
@@ -109,11 +109,8 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Deployment verification pending:** SEO-04 — crawlable category pagination
-and internal product links are locally complete.
-
-**Immediately next after live verification:** SEO-05 — server-render
-authoritative home statistics and freshness.
+**Immediately next:** SEO-05 — server-render authoritative home statistics and
+freshness. Move it to `IN PROGRESS` when implementation starts.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -321,4 +318,14 @@ Review:
   distinct current products: 24 on pages 1–4 and 18 on page 5, with zero
   cross-page duplicates. Page 2 had its own canonical, page 1 exposed its link,
   and invalid/out-of-range requests redirected correctly.
-- SEO-04 remains `CODE COMPLETE` until deployment and public verification.
+- Implementation commit: `9f940a2`.
+- Public verification confirmed five HTTP 200 Vitamins pages with correct
+  canonicals and a continuous next-page link chain. They exposed 114 distinct
+  current product URLs: 24 on pages 1–4 and 18 on page 5, with zero cross-page
+  duplicates.
+- `?page=1` and `?page=0` returned a 307 redirect to `/vitamins`; page 999
+  redirected to the real last page, `/vitamins?page=5`.
+- Glucosamine, Magnesium, Omega 3 and Vitamin D each currently fit on one page,
+  expose respectively 18, 23, 22 and 18 distinct product URLs, and redirect an
+  attempted page 2 to the clean category path.
+- SEO-04 is `LIVE VERIFIED`.
