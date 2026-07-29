@@ -98,7 +98,7 @@ Console evidence and user value.
 | SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
 | SEO-03 | P0 | Correct category landing-page relevance. | `LIVE VERIFIED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `LIVE VERIFIED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
-| SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `CODE COMPLETE` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
+| SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `LIVE VERIFIED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the Search Console baseline and submit/verify the sitemap. | `BLOCKED` | Owner/account access is used to record Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines; priority URLs are inspected. Blocker: no Search Console account/API access in the repository. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `PLANNED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
@@ -109,11 +109,8 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Deployment verification pending:** SEO-05 — authoritative home statistics and
-freshness are locally server-rendered.
-
-**Immediately next after live verification:** SEO-06 — product breadcrumbs and
-valid Product snippet structured data.
+**Immediately next:** SEO-06 — product breadcrumbs and valid Product snippet
+structured data. Move it to `IN PROGRESS` when implementation starts.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -360,4 +357,12 @@ Review:
 - Commit `18d4f21` was pushed to `main`. The production alias continued to
   return the previous cached loading-skeleton HTML during the initial
   post-deployment checks, so live completion was deliberately withheld.
-- SEO-05 remains `CODE COMPLETE` until deployment and public HTML verification.
+- A recorded pending-deployment checkpoint (`3ff40c7`) retriggered the connected
+  deployment integration without changing application behaviour.
+- Public HTML then returned HTTP 200 with 1,111 active catalogue products, 9 UK
+  retailers represented and `<time
+  dateTime="2026-07-29T15:47:16.811+00:00">29 Jul 2026</time>`.
+- Loading text, skeleton markup and the fallback message were all absent from
+  the initial response. The search input and mobile category expansion control
+  remained present.
+- SEO-05 is `LIVE VERIFIED`.
