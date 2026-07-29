@@ -11,6 +11,10 @@ const headerSource = fs.readFileSync(
   path.join(process.cwd(), "app", "components", "HomeHeader.tsx"),
   "utf8"
 );
+const categoriesSource = fs.readFileSync(
+  path.join(process.cwd(), "app", "components", "HomeCategories.tsx"),
+  "utf8"
+);
 const searchInputSource = fs.readFileSync(
   path.join(process.cwd(), "app", "components", "SearchInput.tsx"),
   "utf8"
@@ -88,24 +92,15 @@ test("hero reuses one search input with mobile-safe autocomplete", () => {
   assert.match(searchInputSource, /\.scrollIntoView\(\{ block: "nearest" \}\)/);
 });
 
-test("homepage loading state never renders zero-value statistics", () => {
-  assert.match(pageSource, /useState<number \| null>\(null\)/);
-  assert.match(pageSource, /isLoading && \(/);
-  assert.match(pageSource, /animate-pulse/);
-  assert.match(pageSource, /Loading site statistics/);
-  assert.doesNotMatch(pageSource, /useState\(0\)/);
+test("homepage initial HTML contract uses truthful server statistics", () => {
+  assert.match(pageSource, /export default async function Home/);
+  assert.match(pageSource, /await getHomepageData\(\)/);
+  assert.doesNotMatch(pageSource, /useEffect|animate-pulse|Loading site statistics/);
   assert.doesNotMatch(pageSource, /Daily price updates planned/);
+  assert.match(pageSource, /active catalogue products/);
+  assert.match(pageSource, /UK retailers represented/);
   assert.match(pageSource, /latest recorded price check/);
-  assert.match(pageSource, /\.from\("offers"\)/);
-  assert.match(pageSource, /\.select\("last_checked_at"\)/);
-  assert.match(pageSource, /\.limit\(1\)/);
-  assert.match(pageSource, /latestCheckError\s*\?\s*null/);
-
-  const blockingErrorCondition = pageSource.match(
-    /if \(\s*(categoryError[\s\S]*?productsCountError)\s*\) \{\s*setLoadError/
-  )?.[1];
-  assert.ok(blockingErrorCondition);
-  assert.doesNotMatch(blockingErrorCondition, /latestCheckError/);
+  assert.match(pageSource, /Live catalogue statistics are temporarily unavailable/);
 });
 
 test("popular searches use existing category and search routes", () => {
@@ -141,12 +136,13 @@ test("Shop by goal uses six controlled existing destinations", () => {
 });
 
 test("mobile category list is limited without changing category routes", () => {
-  assert.match(pageSource, /MOBILE_CATEGORY_LIMIT = 7/);
-  assert.match(pageSource, /index >= MOBILE_CATEGORY_LIMIT/);
-  assert.match(pageSource, /"hidden md:block"/);
-  assert.match(pageSource, /className="[^"]*md:hidden"/);
-  assert.match(pageSource, /View all categories/);
-  assert.match(pageSource, /aria-expanded=\{showAllCategories\}/);
+  assert.match(pageSource, /<HomeCategories items=\{categoryLinks\}/);
+  assert.match(categoriesSource, /MOBILE_CATEGORY_LIMIT = 7/);
+  assert.match(categoriesSource, /index >= MOBILE_CATEGORY_LIMIT/);
+  assert.match(categoriesSource, /"hidden md:block"/);
+  assert.match(categoriesSource, /className="[^"]*md:hidden"/);
+  assert.match(categoriesSource, /View all categories/);
+  assert.match(categoriesSource, /aria-expanded=\{showAllCategories\}/);
 
   for (const route of [
     "/vitamins",

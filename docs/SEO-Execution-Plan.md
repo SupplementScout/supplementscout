@@ -98,7 +98,7 @@ Console evidence and user value.
 | SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
 | SEO-03 | P0 | Correct category landing-page relevance. | `LIVE VERIFIED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `LIVE VERIFIED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
-| SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `PLANNED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
+| SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `CODE COMPLETE` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the Search Console baseline and submit/verify the sitemap. | `BLOCKED` | Owner/account access is used to record Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines; priority URLs are inspected. Blocker: no Search Console account/API access in the repository. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `PLANNED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
@@ -109,8 +109,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Immediately next:** SEO-05 — server-render authoritative home statistics and
-freshness. Move it to `IN PROGRESS` when implementation starts.
+**Deployment verification pending:** SEO-05 — authoritative home statistics and
+freshness are locally server-rendered.
+
+**Immediately next after live verification:** SEO-06 — product breadcrumbs and
+valid Product snippet structured data.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -329,3 +332,29 @@ Review:
   expose respectively 18, 23, 22 and 18 distinct product URLs, and redirect an
   attempted page 2 to the clean category path.
 - SEO-04 is `LIVE VERIFIED`.
+
+### 29 July 2026 — SEO-05 local implementation
+
+- Converted the homepage from one page-wide browser component into a Server
+  Component. Search, navigation and mobile category expansion remain isolated
+  interactive components.
+- Active product count, retailer registry count, latest recorded offer check and
+  active-product categories are now loaded on the server and included in the
+  initial HTML.
+- Each data source fails independently through `Promise.allSettled`; a missing
+  freshness value cannot hide valid counts, and no failure is converted into a
+  fabricated zero.
+- Non-fetch database results use four separate one-hour Next.js caches. The
+  homepage is statically generated and revalidated hourly rather than querying
+  Supabase for every visitor.
+- Category retrieval now walks every 1,000-row database page, removing the
+  previous implicit category-discovery ceiling.
+- The fallback contains an honest temporary-unavailability message and never a
+  loading skeleton or zero-value placeholder.
+- 34 focused homepage/category/sitemap tests, targeted ESLint, TypeScript and
+  the full Next.js production build passed.
+- A local production-server HTML check contained 1,111 active catalogue
+  products, 9 retailers represented and the truthful latest recorded check
+  `2026-07-29T15:47:16.811+00:00` (`29 Jul 2026`). It contained neither loading
+  text, skeleton markup nor the fallback message.
+- SEO-05 remains `CODE COMPLETE` until deployment and public HTML verification.

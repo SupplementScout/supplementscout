@@ -1,12 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import HomeCategories from "./components/HomeCategories";
 import HomeHeader from "./components/HomeHeader";
 import SearchInput from "./components/SearchInput";
-import { supabase } from "./lib/supabase";
+import { getHomepageData } from "./lib/homepageData";
 
-const MOBILE_CATEGORY_LIMIT = 7;
+export const revalidate = 3600;
 
 const popularSearches = [
   { label: "Creatine", href: "/creatine" },
@@ -66,14 +64,6 @@ const landingCategoryHrefs = new Map(
   ])
 );
 
-type CategoryProduct = {
-  category: string | null;
-};
-
-type LatestOfferCheck = {
-  last_checked_at: string | null;
-};
-
 function searchHref(query: string) {
   return {
     pathname: "/search",
@@ -82,7 +72,10 @@ function searchHref(query: string) {
 }
 
 function categoryHref(category: string) {
-  return landingCategoryHrefs.get(category.toLowerCase()) || searchHref(category);
+  return (
+    landingCategoryHrefs.get(category.toLowerCase()) ||
+    `/search?q=${encodeURIComponent(category)}`
+  );
 }
 
 function itemHref(item: { href?: string; query?: string }) {
@@ -100,87 +93,22 @@ function checkedDate(value: string | null) {
   }).format(new Date(value));
 }
 
-export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-  const [retailerCount, setRetailerCount] = useState<number | null>(null);
-  const [productCount, setProductCount] = useState<number | null>(null);
-  const [lastCheckedAt, setLastCheckedAt] = useState<string | null>(null);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [showAllCategories, setShowAllCategories] = useState(false);
+export default async function Home() {
+  const { categories, latestOfferCheckAt, productCount, retailerCount } =
+    await getHomepageData();
   const browseCategories = [
     ...landingCategories.map((category) => category.label),
     ...categories.filter(
       (category) => !landingCategoryHrefs.has(category.toLowerCase())
     ),
   ];
-  const latestCheckDate = checkedDate(lastCheckedAt);
-
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      setLoadError("");
-
-      const [
-        { data: categoryData, error: categoryError },
-        { data: retailersData, error: retailersError },
-        { count: productsCount, error: productsCountError },
-        { data: latestChecks, error: latestCheckError },
-      ] = await Promise.all([
-        supabase
-          .from("products")
-          .select("category")
-          .eq("is_active", true)
-          .is("merged_into_product_id", null)
-          .is("merged_at", null)
-          .order("category"),
-        supabase.from("retailers").select("id"),
-        supabase
-          .from("products")
-          .select("*", { count: "exact", head: true })
-          .eq("is_active", true)
-          .is("merged_into_product_id", null)
-          .is("merged_at", null),
-        supabase
-          .from("offers")
-          .select("last_checked_at")
-          .not("last_checked_at", "is", null)
-          .order("last_checked_at", { ascending: false })
-          .limit(1),
-      ]);
-
-      if (
-        categoryError ||
-        retailersError ||
-        productsCountError
-      ) {
-        setLoadError("Unable to load site stats. Please try again.");
-        setIsLoading(false);
-        return;
-      }
-
-      setProductCount(productsCount ?? null);
-      setRetailerCount(retailersData?.length ?? null);
-      setLastCheckedAt(
-        latestCheckError
-          ? null
-          : ((latestChecks || []) as LatestOfferCheck[])[0]?.last_checked_at ||
-              null
-      );
-      setCategories(
-        Array.from(
-          new Set(
-            ((categoryData || []) as CategoryProduct[])
-              .map((product) => product.category)
-              .filter((category): category is string => Boolean(category))
-          )
-        ).sort()
-      );
-      setIsLoading(false);
-    }
-
-    loadData();
-  }, []);
+  const categoryLinks = browseCategories.map((category) => ({
+    href: categoryHref(category),
+    label: category,
+  }));
+  const latestCheckDate = checkedDate(latestOfferCheckAt);
+  const hasStatistics =
+    productCount !== null || retailerCount !== null || latestCheckDate !== null;
 
   return (
     <main className="min-h-screen bg-white pb-[env(safe-area-inset-bottom)] text-zinc-950">
@@ -232,59 +160,54 @@ export default function Home() {
       <section
         id="stats"
         aria-labelledby="stats-heading"
-        aria-busy={isLoading}
         className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-16"
       >
         <h2 id="stats-heading" className="sr-only">
           SupplementScout coverage and data freshness
         </h2>
 
-        {isLoading && (
+        {hasStatistics ? (
           <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-            {["products", "retailers", "freshness"].map((item) => (
-              <div
-                key={item}
-                className="min-h-28 animate-pulse rounded-2xl border border-zinc-200 p-5"
-              >
-                <div className="h-7 w-20 rounded bg-zinc-200" />
-                <div className="mt-3 h-4 w-32 rounded bg-zinc-100" />
-              </div>
-            ))}
-            <span className="sr-only">Loading site statistics</span>
-          </div>
-        )}
-
-        {loadError && <p className="text-center text-sm text-red-600">{loadError}</p>}
-
-        {!isLoading &&
-          !loadError &&
-          productCount !== null &&
-          retailerCount !== null && (
-            <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+            {productCount !== null && (
               <div className="rounded-2xl border border-zinc-200 p-5 sm:p-6">
-                <div className="text-2xl font-bold sm:text-3xl">{productCount}</div>
+                <div className="text-2xl font-bold sm:text-3xl">
+                  {productCount.toLocaleString("en-GB")}
+                </div>
                 <p className="mt-1 text-sm text-zinc-600 sm:mt-2">
-                  active products
+                  active catalogue products
                 </p>
               </div>
+            )}
 
+            {retailerCount !== null && (
               <div className="rounded-2xl border border-zinc-200 p-5 sm:p-6">
-                <div className="text-2xl font-bold sm:text-3xl">{retailerCount}</div>
-                <p className="mt-1 text-sm text-zinc-600 sm:mt-2">UK retailers</p>
-              </div>
-
-              {latestCheckDate && (
-                <div className="rounded-2xl border border-zinc-200 p-5 sm:p-6">
-                  <div className="text-xl font-bold sm:text-2xl">
-                    {latestCheckDate}
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-600 sm:mt-2">
-                    latest recorded price check
-                  </p>
+                <div className="text-2xl font-bold sm:text-3xl">
+                  {retailerCount.toLocaleString("en-GB")}
                 </div>
-              )}
-            </div>
-          )}
+                <p className="mt-1 text-sm text-zinc-600 sm:mt-2">
+                  UK retailers represented
+                </p>
+              </div>
+            )}
+
+            {latestCheckDate && latestOfferCheckAt && (
+              <div className="rounded-2xl border border-zinc-200 p-5 sm:p-6">
+                <div className="text-xl font-bold sm:text-2xl">
+                  <time dateTime={latestOfferCheckAt}>
+                    {latestCheckDate}
+                  </time>
+                </div>
+                <p className="mt-1 text-sm text-zinc-600 sm:mt-2">
+                  latest recorded price check
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-zinc-200 p-5 text-center text-sm text-zinc-600">
+            Live catalogue statistics are temporarily unavailable.
+          </p>
+        )}
       </section>
 
       <section
@@ -317,49 +240,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="categories" className="px-4 py-10 sm:px-6 sm:py-16">
-        <div className="mx-auto max-w-7xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 sm:text-sm">
-            Browse
-          </p>
-          <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
-            Popular categories
-          </h2>
-
-          <div className="mt-5 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            {browseCategories.map((item, index) => (
-              <Link
-                key={item}
-                href={categoryHref(item)}
-                className={`rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm hover:border-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 sm:p-6 ${
-                  !showAllCategories && index >= MOBILE_CATEGORY_LIMIT
-                    ? "hidden md:block"
-                    : ""
-                }`}
-              >
-                <h3 className="break-words text-lg font-semibold sm:text-xl">
-                  {item}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-600">
-                  Compare prices, sizes, servings and value across UK supplement
-                  retailers.
-                </p>
-              </Link>
-            ))}
-          </div>
-
-          {browseCategories.length > MOBILE_CATEGORY_LIMIT && (
-            <button
-              type="button"
-              aria-expanded={showAllCategories}
-              onClick={() => setShowAllCategories((current) => !current)}
-              className="mt-5 min-h-12 w-full rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 md:hidden"
-            >
-              {showAllCategories ? "Show fewer categories" : "View all categories"}
-            </button>
-          )}
-        </div>
-      </section>
+      <HomeCategories items={categoryLinks} />
 
       <section
         id="how-it-works"

@@ -21,16 +21,58 @@ function loadTypeScriptModule(relativePath) {
 
 const nextConfig = loadTypeScriptModule("next.config.ts");
 const homepageSource = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
+const homepageDataSource = fs.readFileSync(
+  path.join(process.cwd(), "app/lib/homepageData.ts"),
+  "utf8"
+);
 const layoutSource = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
 const privacySource = fs.readFileSync(path.join(process.cwd(), "app/privacy/page.tsx"), "utf8");
 const cookiesSource = fs.readFileSync(path.join(process.cwd(), "app/cookies/page.tsx"), "utf8");
 
-test("homepage statistics remain independent of GA configuration and consent", () => {
-  assert.match(homepageSource, /supabase\.from\("retailers"\)\.select\("id"\)/);
-  assert.match(homepageSource, /count: "exact", head: true/);
-  assert.match(homepageSource, /\{productCount\}/);
-  assert.match(homepageSource, /\{retailerCount\}/);
-  assert.doesNotMatch(homepageSource, /GA_MEASUREMENT|AnalyticsConsent|analytics consent/i);
+test("homepage statistics are server-rendered independently of GA and consent", () => {
+  assert.doesNotMatch(homepageSource, /^"use client"/);
+  assert.doesNotMatch(homepageSource, /useEffect|useState|Loading site statistics|animate-pulse/);
+  assert.match(homepageSource, /await getHomepageData\(\)/);
+  assert.match(homepageSource, /productCount\.toLocaleString\("en-GB"\)/);
+  assert.match(homepageSource, /retailerCount\.toLocaleString\("en-GB"\)/);
+  assert.match(homepageSource, /<time dateTime=\{latestOfferCheckAt\}>/);
+  assert.doesNotMatch(
+    `${homepageSource}\n${homepageDataSource}`,
+    /GA_MEASUREMENT|AnalyticsConsent|analytics consent/i
+  );
+});
+
+test("homepage data uses exact counts, truthful freshness and independent failures", () => {
+  assert.match(
+    homepageDataSource,
+    /\.from\("products"\)[\s\S]*count: "exact", head: true/
+  );
+  assert.match(
+    homepageDataSource,
+    /\.from\("retailers"\)[\s\S]*count: "exact", head: true/
+  );
+  assert.match(homepageDataSource, /\.from\("offers"\)/);
+  assert.match(homepageDataSource, /\.select\("last_checked_at"\)/);
+  assert.match(homepageDataSource, /\.limit\(1\)/);
+  assert.match(homepageDataSource, /Promise\.allSettled/);
+  assert.match(homepageDataSource, /settledValue\(productCount, null\)/);
+  assert.match(homepageDataSource, /settledValue\(retailerCount, null\)/);
+  assert.match(homepageDataSource, /settledValue\(latestOfferCheckAt, null\)/);
+  assert.doesNotMatch(homepageSource, /productCount\s*\|\|\s*0|retailerCount\s*\|\|\s*0/);
+});
+
+test("homepage categories paginate beyond the database response ceiling", () => {
+  assert.match(
+    homepageDataSource,
+    /for \(let from = 0; ; from \+= HOMEPAGE_CATEGORY_FETCH_PAGE_SIZE\)/
+  );
+  assert.match(
+    homepageDataSource,
+    /\.range\(from, from \+ HOMEPAGE_CATEGORY_FETCH_PAGE_SIZE - 1\)/
+  );
+  assert.match(homepageDataSource, /if \(rows\.length < HOMEPAGE_CATEGORY_FETCH_PAGE_SIZE\)/);
+  assert.match(homepageDataSource, /unstable_cache/);
+  assert.match(homepageDataSource, /revalidate: HOMEPAGE_REVALIDATE_SECONDS/);
 });
 
 test("CSP allows only the configured HTTPS Supabase origin", async () => {
