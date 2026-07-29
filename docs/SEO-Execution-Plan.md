@@ -357,4 +357,7 @@ Review:
   products, 9 retailers represented and the truthful latest recorded check
   `2026-07-29T15:47:16.811+00:00` (`29 Jul 2026`). It contained neither loading
   text, skeleton markup nor the fallback message.
+- Commit `18d4f21` was pushed to `main`. The production alias continued to
+  return the previous cached loading-skeleton HTML during the initial
+  post-deployment checks, so live completion was deliberately withheld.
 - SEO-05 remains `CODE COMPLETE` until deployment and public HTML verification.
