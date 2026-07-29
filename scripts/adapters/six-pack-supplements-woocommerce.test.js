@@ -47,8 +47,8 @@ test("source health fails closed below configured completeness thresholds", () =
 test("approved automation scope is one exact full retailer manifest", () => {
   const loaded = adapter.loadApprovedAutomationManifest();
   assert.equal(loaded.manifest.retailer.id, 11);
-  assert.equal(loaded.manifest.rows.length, 440);
-  assert.equal(new Set(loaded.manifest.rows.map((row) => row.external_variant_id)).size, 440);
+  assert.equal(loaded.manifest.rows.length, 506);
+  assert.equal(new Set(loaded.manifest.rows.map((row) => row.external_variant_id)).size, 506);
 });
 
 test("current food policy allows every owner-approved ordinary food type", () => {

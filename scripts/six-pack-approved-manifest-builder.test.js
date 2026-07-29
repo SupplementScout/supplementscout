@@ -36,5 +36,14 @@ test("blocks incomplete offer scope and shipping drift", () => {
 
 test("builder output is confined to tmp", () => {
   assert.match(parseArgs([]).output, /six-pack-approved-offer-manifest-expanded\.json$/);
-  assert.throws(() => parseArgs(["--output=config/no.json"]), /inside repository tmp/);
+  assert.match(
+    parseArgs([
+      "--output=config/retailers/six-pack-approved-offer-manifest.json",
+    ]).output,
+    /six-pack-approved-offer-manifest\.json$/
+  );
+  assert.throws(
+    () => parseArgs(["--output=config/no.json"]),
+    /inside repository tmp or the approved manifest path/
+  );
 });

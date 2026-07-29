@@ -9,7 +9,7 @@
     "website": "https://6pack-supplements.co.uk",
     "source_platform": "WOOCOMMERCE"
   },
-  "approved_mapping_count": 440,
+  "approved_mapping_count": 506,
   "shipping_policy": {
     "mode": "standard_delivery_below_threshold",
     "free_shipping_threshold_gbp": "99.99",
@@ -3542,6 +3542,534 @@
       "external_variant_id": "8342",
       "canonical_product_id": "983",
       "canonical_variant_id": "1923"
+    },
+    {
+      "mapping_id": "2610",
+      "offer_id": "2424",
+      "external_product_id": "11477",
+      "external_variant_id": "11477",
+      "canonical_product_id": "1122",
+      "canonical_variant_id": "2448"
+    },
+    {
+      "mapping_id": "2611",
+      "offer_id": "2425",
+      "external_product_id": "16689",
+      "external_variant_id": "16689",
+      "canonical_product_id": "1123",
+      "canonical_variant_id": "2450"
+    },
+    {
+      "mapping_id": "2612",
+      "offer_id": "2426",
+      "external_product_id": "23149",
+      "external_variant_id": "23149",
+      "canonical_product_id": "1124",
+      "canonical_variant_id": "2452"
+    },
+    {
+      "mapping_id": "2613",
+      "offer_id": "2427",
+      "external_product_id": "28570",
+      "external_variant_id": "29091",
+      "canonical_product_id": "1125",
+      "canonical_variant_id": "2454"
+    },
+    {
+      "mapping_id": "2614",
+      "offer_id": "2428",
+      "external_product_id": "28570",
+      "external_variant_id": "29094",
+      "canonical_product_id": "1125",
+      "canonical_variant_id": "2455"
+    },
+    {
+      "mapping_id": "2615",
+      "offer_id": "2429",
+      "external_product_id": "28570",
+      "external_variant_id": "29097",
+      "canonical_product_id": "1125",
+      "canonical_variant_id": "2456"
+    },
+    {
+      "mapping_id": "2616",
+      "offer_id": "2430",
+      "external_product_id": "6755",
+      "external_variant_id": "29475",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2458"
+    },
+    {
+      "mapping_id": "2617",
+      "offer_id": "2431",
+      "external_product_id": "6755",
+      "external_variant_id": "29478",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2459"
+    },
+    {
+      "mapping_id": "2618",
+      "offer_id": "2432",
+      "external_product_id": "8135",
+      "external_variant_id": "29481",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2460"
+    },
+    {
+      "mapping_id": "2619",
+      "offer_id": "2433",
+      "external_product_id": "8135",
+      "external_variant_id": "29484",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2461"
+    },
+    {
+      "mapping_id": "2620",
+      "offer_id": "2434",
+      "external_product_id": "6753",
+      "external_variant_id": "29496",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2462"
+    },
+    {
+      "mapping_id": "2621",
+      "offer_id": "2435",
+      "external_product_id": "6753",
+      "external_variant_id": "29499",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2463"
+    },
+    {
+      "mapping_id": "2622",
+      "offer_id": "2436",
+      "external_product_id": "29502",
+      "external_variant_id": "29505",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2464"
+    },
+    {
+      "mapping_id": "2623",
+      "offer_id": "2437",
+      "external_product_id": "29502",
+      "external_variant_id": "29508",
+      "canonical_product_id": "1126",
+      "canonical_variant_id": "2465"
+    },
+    {
+      "mapping_id": "2624",
+      "offer_id": "2438",
+      "external_product_id": "29832",
+      "external_variant_id": "29832",
+      "canonical_product_id": "1127",
+      "canonical_variant_id": "2467"
+    },
+    {
+      "mapping_id": "2625",
+      "offer_id": "2439",
+      "external_product_id": "31059",
+      "external_variant_id": "31059",
+      "canonical_product_id": "1128",
+      "canonical_variant_id": "2469"
+    },
+    {
+      "mapping_id": "2626",
+      "offer_id": "2440",
+      "external_product_id": "31140",
+      "external_variant_id": "31140",
+      "canonical_product_id": "1129",
+      "canonical_variant_id": "2471"
+    },
+    {
+      "mapping_id": "2627",
+      "offer_id": "2441",
+      "external_product_id": "40045",
+      "external_variant_id": "40045",
+      "canonical_product_id": "1130",
+      "canonical_variant_id": "2473"
+    },
+    {
+      "mapping_id": "2628",
+      "offer_id": "2442",
+      "external_product_id": "40054",
+      "external_variant_id": "40054",
+      "canonical_product_id": "1131",
+      "canonical_variant_id": "2475"
+    },
+    {
+      "mapping_id": "2629",
+      "offer_id": "2443",
+      "external_product_id": "40063",
+      "external_variant_id": "40063",
+      "canonical_product_id": "1132",
+      "canonical_variant_id": "2477"
+    },
+    {
+      "mapping_id": "2630",
+      "offer_id": "2444",
+      "external_product_id": "4104",
+      "external_variant_id": "4104",
+      "canonical_product_id": "1133",
+      "canonical_variant_id": "2479"
+    },
+    {
+      "mapping_id": "2631",
+      "offer_id": "2445",
+      "external_product_id": "4130",
+      "external_variant_id": "4130",
+      "canonical_product_id": "1134",
+      "canonical_variant_id": "2481"
+    },
+    {
+      "mapping_id": "2632",
+      "offer_id": "2446",
+      "external_product_id": "4137",
+      "external_variant_id": "4137",
+      "canonical_product_id": "1135",
+      "canonical_variant_id": "2483"
+    },
+    {
+      "mapping_id": "2633",
+      "offer_id": "2447",
+      "external_product_id": "4155",
+      "external_variant_id": "4155",
+      "canonical_product_id": "1136",
+      "canonical_variant_id": "2485"
+    },
+    {
+      "mapping_id": "2634",
+      "offer_id": "2448",
+      "external_product_id": "4442",
+      "external_variant_id": "4442",
+      "canonical_product_id": "1137",
+      "canonical_variant_id": "2487"
+    },
+    {
+      "mapping_id": "2635",
+      "offer_id": "2449",
+      "external_product_id": "4518",
+      "external_variant_id": "4518",
+      "canonical_product_id": "1138",
+      "canonical_variant_id": "2489"
+    },
+    {
+      "mapping_id": "2636",
+      "offer_id": "2450",
+      "external_product_id": "6740",
+      "external_variant_id": "6740",
+      "canonical_product_id": "1139",
+      "canonical_variant_id": "2491"
+    },
+    {
+      "mapping_id": "2637",
+      "offer_id": "2451",
+      "external_product_id": "8146",
+      "external_variant_id": "8146",
+      "canonical_product_id": "1140",
+      "canonical_variant_id": "2493"
+    },
+    {
+      "mapping_id": "2638",
+      "offer_id": "2452",
+      "external_product_id": "8222",
+      "external_variant_id": "8222",
+      "canonical_product_id": "1141",
+      "canonical_variant_id": "2495"
+    },
+    {
+      "mapping_id": "2639",
+      "offer_id": "2453",
+      "external_product_id": "4603",
+      "external_variant_id": "29328",
+      "canonical_product_id": "1100",
+      "canonical_variant_id": "2496"
+    },
+    {
+      "mapping_id": "2640",
+      "offer_id": "2454",
+      "external_product_id": "4603",
+      "external_variant_id": "29331",
+      "canonical_product_id": "1100",
+      "canonical_variant_id": "2497"
+    },
+    {
+      "mapping_id": "2641",
+      "offer_id": "2455",
+      "external_product_id": "4603",
+      "external_variant_id": "4610",
+      "canonical_product_id": "1100",
+      "canonical_variant_id": "2498"
+    },
+    {
+      "mapping_id": "2642",
+      "offer_id": "2456",
+      "external_product_id": "30078",
+      "external_variant_id": "30078",
+      "canonical_product_id": "364",
+      "canonical_variant_id": "2499"
+    },
+    {
+      "mapping_id": "2643",
+      "offer_id": "2457",
+      "external_product_id": "30084",
+      "external_variant_id": "30084",
+      "canonical_product_id": "364",
+      "canonical_variant_id": "2500"
+    },
+    {
+      "mapping_id": "2644",
+      "offer_id": "2458",
+      "external_product_id": "7191",
+      "external_variant_id": "7191",
+      "canonical_product_id": "364",
+      "canonical_variant_id": "2501"
+    },
+    {
+      "mapping_id": "2645",
+      "offer_id": "2459",
+      "external_product_id": "7189",
+      "external_variant_id": "7189",
+      "canonical_product_id": "364",
+      "canonical_variant_id": "2528"
+    },
+    {
+      "mapping_id": "2646",
+      "offer_id": "2460",
+      "external_product_id": "31029",
+      "external_variant_id": "31029",
+      "canonical_product_id": "1121",
+      "canonical_variant_id": "2502"
+    },
+    {
+      "mapping_id": "2647",
+      "offer_id": "2461",
+      "external_product_id": "31041",
+      "external_variant_id": "31041",
+      "canonical_product_id": "1121",
+      "canonical_variant_id": "2503"
+    },
+    {
+      "mapping_id": "2648",
+      "offer_id": "2462",
+      "external_product_id": "6562",
+      "external_variant_id": "31389",
+      "canonical_product_id": "181",
+      "canonical_variant_id": "2504"
+    },
+    {
+      "mapping_id": "2649",
+      "offer_id": "2463",
+      "external_product_id": "6562",
+      "external_variant_id": "31392",
+      "canonical_product_id": "181",
+      "canonical_variant_id": "2505"
+    },
+    {
+      "mapping_id": "2650",
+      "offer_id": "2464",
+      "external_product_id": "6562",
+      "external_variant_id": "31395",
+      "canonical_product_id": "181",
+      "canonical_variant_id": "2506"
+    },
+    {
+      "mapping_id": "2651",
+      "offer_id": "2465",
+      "external_product_id": "32547",
+      "external_variant_id": "32571",
+      "canonical_product_id": "328",
+      "canonical_variant_id": "1970"
+    },
+    {
+      "mapping_id": "2652",
+      "offer_id": "2466",
+      "external_product_id": "4588",
+      "external_variant_id": "4589",
+      "canonical_product_id": "1099",
+      "canonical_variant_id": "2507"
+    },
+    {
+      "mapping_id": "2653",
+      "offer_id": "2467",
+      "external_product_id": "4308",
+      "external_variant_id": "29226",
+      "canonical_product_id": "1142",
+      "canonical_variant_id": "2509"
+    },
+    {
+      "mapping_id": "2654",
+      "offer_id": "2468",
+      "external_product_id": "4308",
+      "external_variant_id": "4660",
+      "canonical_product_id": "1142",
+      "canonical_variant_id": "2510"
+    },
+    {
+      "mapping_id": "2655",
+      "offer_id": "2469",
+      "external_product_id": "4308",
+      "external_variant_id": "4662",
+      "canonical_product_id": "1142",
+      "canonical_variant_id": "2511"
+    },
+    {
+      "mapping_id": "2656",
+      "offer_id": "2470",
+      "external_product_id": "4876",
+      "external_variant_id": "4876",
+      "canonical_product_id": "507",
+      "canonical_variant_id": "471"
+    },
+    {
+      "mapping_id": "2657",
+      "offer_id": "2471",
+      "external_product_id": "5023",
+      "external_variant_id": "5023",
+      "canonical_product_id": "1118",
+      "canonical_variant_id": "2512"
+    },
+    {
+      "mapping_id": "2658",
+      "offer_id": "2472",
+      "external_product_id": "5027",
+      "external_variant_id": "5027",
+      "canonical_product_id": "1118",
+      "canonical_variant_id": "2513"
+    },
+    {
+      "mapping_id": "2659",
+      "offer_id": "2473",
+      "external_product_id": "5131",
+      "external_variant_id": "5131",
+      "canonical_product_id": "1119",
+      "canonical_variant_id": "2514"
+    },
+    {
+      "mapping_id": "2660",
+      "offer_id": "2474",
+      "external_product_id": "5215",
+      "external_variant_id": "5215",
+      "canonical_product_id": "357",
+      "canonical_variant_id": "325"
+    },
+    {
+      "mapping_id": "2661",
+      "offer_id": "2475",
+      "external_product_id": "5247",
+      "external_variant_id": "5247",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2515"
+    },
+    {
+      "mapping_id": "2662",
+      "offer_id": "2476",
+      "external_product_id": "5253",
+      "external_variant_id": "5253",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2516"
+    },
+    {
+      "mapping_id": "2663",
+      "offer_id": "2477",
+      "external_product_id": "5259",
+      "external_variant_id": "5259",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2517"
+    },
+    {
+      "mapping_id": "2664",
+      "offer_id": "2478",
+      "external_product_id": "5263",
+      "external_variant_id": "5263",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2518"
+    },
+    {
+      "mapping_id": "2665",
+      "offer_id": "2479",
+      "external_product_id": "5273",
+      "external_variant_id": "5273",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2519"
+    },
+    {
+      "mapping_id": "2666",
+      "offer_id": "2480",
+      "external_product_id": "5278",
+      "external_variant_id": "5278",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2520"
+    },
+    {
+      "mapping_id": "2667",
+      "offer_id": "2481",
+      "external_product_id": "6005",
+      "external_variant_id": "6005",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2521"
+    },
+    {
+      "mapping_id": "2668",
+      "offer_id": "2482",
+      "external_product_id": "6008",
+      "external_variant_id": "6008",
+      "canonical_product_id": "1120",
+      "canonical_variant_id": "2522"
+    },
+    {
+      "mapping_id": "2669",
+      "offer_id": "2483",
+      "external_product_id": "6582",
+      "external_variant_id": "6584",
+      "canonical_product_id": "424",
+      "canonical_variant_id": "2523"
+    },
+    {
+      "mapping_id": "2670",
+      "offer_id": "2484",
+      "external_product_id": "6582",
+      "external_variant_id": "6586",
+      "canonical_product_id": "424",
+      "canonical_variant_id": "2524"
+    },
+    {
+      "mapping_id": "2671",
+      "offer_id": "2485",
+      "external_product_id": "69760",
+      "external_variant_id": "69811",
+      "canonical_product_id": "506",
+      "canonical_variant_id": "1798"
+    },
+    {
+      "mapping_id": "2672",
+      "offer_id": "2486",
+      "external_product_id": "69760",
+      "external_variant_id": "69814",
+      "canonical_product_id": "506",
+      "canonical_variant_id": "2525"
+    },
+    {
+      "mapping_id": "2673",
+      "offer_id": "2487",
+      "external_product_id": "69760",
+      "external_variant_id": "69817",
+      "canonical_product_id": "506",
+      "canonical_variant_id": "2526"
+    },
+    {
+      "mapping_id": "2674",
+      "offer_id": "2488",
+      "external_product_id": "7565",
+      "external_variant_id": "7567",
+      "canonical_product_id": "216",
+      "canonical_variant_id": "2527"
+    },
+    {
+      "mapping_id": "2675",
+      "offer_id": "2489",
+      "external_product_id": "8628",
+      "external_variant_id": "8628",
+      "canonical_product_id": "59",
+      "canonical_variant_id": "1612"
     }
   ]
 }

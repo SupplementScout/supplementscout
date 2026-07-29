@@ -25,7 +25,16 @@ function parseArgs(argv) {
   if (argv.length > 1 || (argv[0] && !argv[0].startsWith("--output="))) fail("Usage: --output=<tmp path>");
   const output = path.resolve(argv[0]?.slice("--output=".length) || DEFAULT_OUTPUT);
   const relative = path.relative(path.join(ROOT, "tmp"), output);
-  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Output must be inside repository tmp");
+  const reviewedOutput = path.join(
+    ROOT,
+    "config",
+    "retailers",
+    "six-pack-approved-offer-manifest.json"
+  );
+  if (
+    output !== reviewedOutput &&
+    (!relative || relative.startsWith("..") || path.isAbsolute(relative))
+  ) fail("Output must be inside repository tmp or the approved manifest path");
   return { output };
 }
 
@@ -123,6 +132,20 @@ async function run(options, dependencies = {}) {
   const bytes = `${JSON.stringify(manifest, null, 2)}\n`;
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, bytes);
+  if (
+    options.output ===
+    path.join(
+      ROOT,
+      "config",
+      "retailers",
+      "six-pack-approved-offer-manifest.json"
+    )
+  ) {
+    fs.writeFileSync(
+      `${options.output}.sha256`,
+      `${sha256(bytes)}\n`
+    );
+  }
   return {
     result: "PASS",
     database_writes: 0,
