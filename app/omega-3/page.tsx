@@ -1,7 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
-import { getLandingProducts } from "../lib/products";
+import {
+  getLandingProducts,
+  isReviewedLandingProductMatch,
+} from "../lib/products";
 
 export const revalidate = 3600;
 
@@ -13,8 +16,6 @@ const omega3SearchTerms = [
   "cod liver oil",
   "krill oil",
   "flaxseed oil",
-  "starflower oil",
-  "evening primrose oil",
 ];
 
 export const metadata: Metadata = {
@@ -39,7 +40,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Omega3Page() {
-  const { results, error } = await getLandingProducts(omega3SearchTerms, 24);
+  const { results, error } = await getLandingProducts(omega3SearchTerms, 24, {
+    productFilter: (product) =>
+      isReviewedLandingProductMatch("omega-3", product),
+  });
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">

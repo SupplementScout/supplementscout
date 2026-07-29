@@ -1,7 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
-import { getLandingProducts } from "../lib/products";
+import {
+  getLandingProducts,
+  isReviewedLandingProductMatch,
+} from "../lib/products";
 
 export const revalidate = 3600;
 
@@ -29,7 +32,11 @@ export const metadata: Metadata = {
 export default async function VitaminDPage() {
   const { results, error } = await getLandingProducts(
     ["vitamin d", "vitamin d3", "vitamin d2"],
-    24
+    24,
+    {
+      productFilter: (product) =>
+        isReviewedLandingProductMatch("vitamin-d", product),
+    }
   );
 
   return (

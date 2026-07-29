@@ -94,9 +94,9 @@ Console evidence and user value.
 |---|---:|---|---|---|
 | SEO-00 | P0 | Establish this controlled SEO ledger and bind it into the Operating Plan. | `LIVE VERIFIED` | Both documents cross-reference the process, the active task and the completion rule. |
 | SEO-01 | P0 | Remove the 1,000-product sitemap truncation. | `LIVE VERIFIED` | Pagination is tested, build passes, production sitemap contains every product allowed by the current index policy, and no duplicate URL exists. |
-| SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `CODE COMPLETE` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
+| SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `LIVE VERIFIED` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
 | SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
-| SEO-03 | P0 | Correct category landing-page relevance. | `PLANNED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
+| SEO-03 | P0 | Correct category landing-page relevance. | `CODE COMPLETE` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `PLANNED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `PLANNED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `PLANNED` | Markup matches visible canonical data, passes tests and Google validation, and never represents SupplementScout as the direct seller. |
@@ -109,10 +109,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Deployment verification pending:** SEO-02A — code is on `main`, but the
-production alias still serves the preceding sitemap deployment.
+**Deployment verification pending:** SEO-03 — reviewed category relevance code
+and regression tests are locally complete.
 
-**Immediately next:** SEO-03 — correct category landing-page relevance.
+**Immediately next:** SEO-04 — crawlable category pagination and internal
+product links.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -256,3 +257,39 @@ Review:
 - No live-completion claim is made. SEO-02A is `CODE COMPLETE` until the Vercel
   production alias serves the commit and the XML timestamp distribution is
   verified.
+
+### 29 July 2026 — SEO-02A live verification
+
+- The production alias now serves the truthful timestamp implementation.
+- Public sitemap remained at 1,122 unique URLs and 1,111 product URLs.
+- All 1,111 product URLs had evidence-backed `lastmod` values with 369 distinct
+  timestamps; the newest observed timestamp was `2026-07-29T15:47:16.811Z`.
+- All 11 static/landing URLs correctly omitted `lastmod` rather than publishing
+  the previous fabricated shared date.
+- SEO-02A is `LIVE VERIFIED`.
+
+### 29 July 2026 — SEO-03 local implementation
+
+- Added one shared reviewed relevance gate inside the existing
+  `app/lib/products.ts` landing-product path; no second search service or
+  category engine was created.
+- Magnesium accepts explicit Magnesium, ZMA, ZMB and ZMPro identities.
+- Glucosamine requires explicit Glucosamine identity.
+- Vitamin D accepts explicit Vitamin D, D2 or D3 identity.
+- Omega 3 accepts explicit Omega 3, fish oil, cod liver oil, krill oil and
+  flaxseed oil identity while excluding evening primrose, starflower and
+  pet/cat/dog products.
+- Vitamins uses explicit vitamin/mineral identity and rejects products whose
+  primary identity is Glucosamine, Omega, collagen, protein, amino acid,
+  pre-workout, creatine, hydration or another reviewed category.
+- Source queries were narrowed so rejected collagen, joint-care, starflower and
+  evening-primrose candidates are not fetched unnecessarily.
+- Current production-shaped qualifying counts were: Glucosamine 18, Magnesium
+  23, Omega 3 22, Vitamin D 24 and Vitamins 115.
+- Regression fixtures include the incorrect products observed in public search
+  results and valid edge cases such as ZMA, D3 + K2 and flaxseed oil.
+- Combined category/search/pricing and SEO route suites passed 128 tests with
+  zero failures. The final focused suite passed 38 tests with zero failures.
+- Targeted ESLint, TypeScript and the Next.js production build passed.
+- SEO-03 remains `CODE COMPLETE` until deployment and public page-content
+  verification.

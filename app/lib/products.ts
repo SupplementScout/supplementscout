@@ -241,18 +241,37 @@ export type LandingProductMatchInput = Pick<
   "name" | "brand" | "category" | "description"
 >;
 
+export type ReviewedLandingCategory =
+  | "glucosamine"
+  | "magnesium"
+  | "omega-3"
+  | "vitamin-d"
+  | "vitamins";
+
 type LandingProductsOptions = {
   productFilter?: (product: LandingProductMatchInput) => boolean;
 };
 
 const vitaminLandingStrongPattern =
-  /\b(?:multivitamins?|vitamins?|vitamin\s+(?:c|d|d2|d3|b)|b\s*complex|zinc|magnesium|iron|selenium|folic\s+acid|biotin|calcium|minerals?)\b/;
-
-const vitaminLandingSafeDescriptionPattern =
-  /\b(?:multivitamins?|vitamin\s+(?:c|d|d2|d3|b)|b\s*complex|zinc|magnesium|iron|selenium|folic\s+acid|biotin|calcium)\b/;
+  /\b(?:multivitamins?|vitamins?|vitamin\s+(?:a|b|c|d|d2|d3|e|k|k2)|b\s*complex|biotin|calcium|chromium|copper|folic\s+acid|iodine|iron|magnesium|manganese|minerals?|potassium|selenium|zinc)\b/;
 
 const vitaminLandingExcludedIdentityPattern =
-  /\b(?:bcaa|eaa|amino|pre[-\s]?workout|protein|whey|drinks?|beverages?|energy|nocco)\b/;
+  /\b(?:amino|bcaa|chondroitin|cod\s+liver|collagen|creatine|eaa|electrolytes?|energy\s+drinks?|fish\s+oil|glucosamine|hydration|joint|krill|mass\s+gainer|nocco|omega|pre[-\s]?workout|protein|whey)\b/;
+
+const reviewedLandingNamePatterns: Record<
+  Exclude<ReviewedLandingCategory, "vitamins">,
+  RegExp
+> = {
+  glucosamine: /\bglucosamine\b/,
+  magnesium: /\b(?:magnesium|zma(?:ttack)?|zmb|zmpro)\b/,
+  "omega-3":
+    /\b(?:cod\s+liver\s+oil|fish\s+oil|flaxseed\s+oil|krill\s+oil|omega[-\s]?3)\b/,
+  "vitamin-d":
+    /\b(?:d2|d3|vit(?:amin)?\s+d(?:2|3)?)\b/,
+};
+
+const omega3LandingExcludedIdentityPattern =
+  /\b(?:cat|dog|pet|starflower|evening\s+primrose)\b/;
 
 function firstParamValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -372,20 +391,30 @@ function searchableText(values: Array<string | null | undefined>) {
 export function isVitaminLandingProductMatch(
   product: LandingProductMatchInput
 ) {
-  const nameAndCategory = searchableText([product.name, product.category]);
-  const identity = searchableText([product.name, product.brand, product.category]);
+  return isReviewedLandingProductMatch("vitamins", product);
+}
 
-  if (vitaminLandingStrongPattern.test(nameAndCategory)) {
-    return true;
+export function isReviewedLandingProductMatch(
+  category: ReviewedLandingCategory,
+  product: LandingProductMatchInput
+) {
+  const identity = searchableText([product.name]);
+
+  if (category === "vitamins") {
+    return (
+      !vitaminLandingExcludedIdentityPattern.test(identity) &&
+      vitaminLandingStrongPattern.test(identity)
+    );
   }
 
-  if (vitaminLandingExcludedIdentityPattern.test(identity)) {
+  if (
+    category === "omega-3" &&
+    omega3LandingExcludedIdentityPattern.test(identity)
+  ) {
     return false;
   }
 
-  return vitaminLandingSafeDescriptionPattern.test(
-    searchableText([product.description])
-  );
+  return reviewedLandingNamePatterns[category].test(identity);
 }
 
 function correctedSearchQuery(query: string) {

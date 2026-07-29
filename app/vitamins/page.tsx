@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
 import {
   getLandingProducts,
-  isVitaminLandingProductMatch,
+  isReviewedLandingProductMatch,
 } from "../lib/products";
 
 export const revalidate = 3600;
@@ -59,7 +59,8 @@ export const metadata: Metadata = {
 
 export default async function VitaminsPage() {
   const { results, error } = await getLandingProducts(vitaminSearchTerms, 24, {
-    productFilter: isVitaminLandingProductMatch,
+    productFilter: (product) =>
+      isReviewedLandingProductMatch("vitamins", product),
   });
 
   return (

@@ -1,19 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
-import { getLandingProducts } from "../lib/products";
+import {
+  getLandingProducts,
+  isReviewedLandingProductMatch,
+} from "../lib/products";
 
 export const revalidate = 3600;
-
-const glucosamineSearchTerms = [
-  "glucosamine",
-  "chondroitin",
-  "MSM",
-  "joint support",
-  "joint care",
-  "marine collagen",
-  "collagen",
-];
 
 export const metadata: Metadata = {
   title: "Compare Glucosamine Supplements UK",
@@ -38,8 +31,12 @@ export const metadata: Metadata = {
 
 export default async function GlucosaminePage() {
   const { results, error } = await getLandingProducts(
-    glucosamineSearchTerms,
-    24
+    "glucosamine",
+    24,
+    {
+      productFilter: (product) =>
+        isReviewedLandingProductMatch("glucosamine", product),
+    }
   );
 
   return (

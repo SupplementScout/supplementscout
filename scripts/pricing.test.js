@@ -95,6 +95,7 @@ const {
 } = pricingModule;
 const {
   attachProductVariants,
+  isReviewedLandingProductMatch,
   isVitaminLandingProductMatch,
   normalizeSearchOffers,
 } = loadProductsModule();
@@ -455,6 +456,96 @@ test("vitamins landing excludes BCAA drinks with only description vitamin matche
     }),
     false
   );
+});
+
+test("reviewed category landing rules reject known leakage and keep clear identities", () => {
+  const cases = [
+    {
+      category: "magnesium",
+      included: ["Magnesium Bisglycinate 1500mg", "BioTech USA ZMAttack 60 Capsules"],
+      excluded: [
+        "Children's Chewable Multivitamins Orange Flavour",
+        "Chromium Complex",
+      ],
+    },
+    {
+      category: "glucosamine",
+      included: [
+        "Glucosamine Sulphate 1,500mg Tablets",
+        "Glucosamine 500mg & Chondroitin",
+      ],
+      excluded: ["Vitamin C 500mg Capsules", "Omega 3 Capsules 500mg"],
+    },
+    {
+      category: "vitamin-d",
+      included: ["Vitamin D3 Tablets 2,000iu", "Per4m D3 & K2 120 Tablets"],
+      excluded: ["Cod Liver Oil Capsules 550mg", "Vitamin C 500mg Capsules"],
+    },
+    {
+      category: "omega-3",
+      included: [
+        "High Strength Omega 3 Fish Oil 1500mg",
+        "Cod Liver Oil Liquid",
+        "Strom Sports Flaxseed Oil 60 Softgels",
+      ],
+      excluded: [
+        "Evening Primrose Oil 1500mg",
+        "Starflower Oil Capsules 1000mg",
+        "Nordic Naturals Omega-3 Cat - 60 ml",
+      ],
+    },
+  ];
+
+  for (const fixture of cases) {
+    for (const name of fixture.included) {
+      assert.equal(
+        isReviewedLandingProductMatch(fixture.category, {
+          name,
+          brand: "Example Brand",
+          category: "Health Supplements",
+          description: null,
+        }),
+        true,
+        `${fixture.category} should include ${name}`
+      );
+    }
+
+    for (const name of fixture.excluded) {
+      assert.equal(
+        isReviewedLandingProductMatch(fixture.category, {
+          name,
+          brand: "Example Brand",
+          category: "Vitamins",
+          description:
+            "Contains magnesium, glucosamine, Vitamin D and Omega 3 wording.",
+        }),
+        false,
+        `${fixture.category} should exclude ${name}`
+      );
+    }
+  }
+});
+
+test("vitamins landing excludes combination products whose primary identity is elsewhere", () => {
+  const excludedProducts = [
+    "Glucosamine 1,000mg with Vitamin C Tablets",
+    "Omega 3 Capsules 500mg",
+    "Collagen with Vitamin C",
+    "Whey Protein with Vitamins",
+  ];
+
+  for (const name of excludedProducts) {
+    assert.equal(
+      isReviewedLandingProductMatch("vitamins", {
+        name,
+        brand: "Example Brand",
+        category: "Vitamins",
+        description: "Contains vitamins and minerals.",
+      }),
+      false,
+      name
+    );
+  }
 });
 
 test("vitamins landing includes clear vitamin and mineral products", () => {

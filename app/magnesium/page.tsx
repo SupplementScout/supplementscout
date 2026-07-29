@@ -1,9 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import ProductResultCard from "../components/ProductResultCard";
-import { getLandingProducts } from "../lib/products";
+import {
+  getLandingProducts,
+  isReviewedLandingProductMatch,
+} from "../lib/products";
 
 export const revalidate = 3600;
+
+const magnesiumSearchTerms = ["magnesium", "zma", "zmb", "zmpro"];
 
 export const metadata: Metadata = {
   title: "Compare Magnesium Supplements UK",
@@ -27,7 +32,10 @@ export const metadata: Metadata = {
 };
 
 export default async function MagnesiumPage() {
-  const { results, error } = await getLandingProducts("magnesium", 24);
+  const { results, error } = await getLandingProducts(magnesiumSearchTerms, 24, {
+    productFilter: (product) =>
+      isReviewedLandingProductMatch("magnesium", product),
+  });
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
