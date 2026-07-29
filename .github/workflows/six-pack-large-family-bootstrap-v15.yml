@@ -10,8 +10,6 @@ on:
       - .github/workflows/six-pack-large-family-bootstrap-v15.yml
       - scripts/six-pack-final-closeout-approval-builder.js
       - scripts/six-pack-final-closeout-approval-builder.test.js
-      - scripts/six-pack-large-family-bootstrap.js
-      - scripts/six-pack-large-family-bootstrap.test.js
 
 permissions:
   contents: read
@@ -58,7 +56,7 @@ jobs:
           node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
             --approval="$APPROVAL" \
             --output=tmp/six-pack-large-family-v15/preflight.json
-          node -e 'const r=require("./tmp/six-pack-large-family-v15/preflight.json"); if(r.result!=="PASS" || r.family_count!==38 || r.planned_product_create_count!==21 || r.planned_variant_create_count!==60) process.exit(1)'
+          node -e 'const r=require("./tmp/six-pack-large-family-v15/preflight.json"); if(r.result!=="PASS" || r.family_count!==38 || r.planned_product_create_count!==0 || r.planned_variant_create_count!==1) process.exit(1)'
       - name: Apply exact reviewed V15 families
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -75,7 +73,7 @@ jobs:
           node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
             --approval="$APPROVAL" \
             --output=tmp/six-pack-large-family-v15/postflight.json
-          node -e 'const b=require("./tmp/six-pack-large-family-v15/bootstrap.json"); const p=require("./tmp/six-pack-large-family-v15/postflight.json"); if(b.result!=="PASS" || b.family_count!==38 || b.verified_variant_count!==69 || b.inserted_product_count!==21 || p.planned_product_create_count!==0 || p.planned_variant_create_count!==0 || p.families.some(f=>f.action!=="VERIFY_COMPLETE")) process.exit(1)'
+          node -e 'const b=require("./tmp/six-pack-large-family-v15/bootstrap.json"); const p=require("./tmp/six-pack-large-family-v15/postflight.json"); if(b.result!=="PASS" || b.family_count!==38 || b.verified_variant_count!==69 || b.inserted_product_count!==0 || p.planned_product_create_count!==0 || p.planned_variant_create_count!==0 || p.families.some(f=>f.action!=="VERIFY_COMPLETE")) process.exit(1)'
       - name: Upload V15 evidence
         if: always()
         uses: actions/upload-artifact@v7

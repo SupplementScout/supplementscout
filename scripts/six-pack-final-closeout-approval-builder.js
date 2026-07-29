@@ -93,7 +93,7 @@ const FAMILY_SPECS = [
     row("30078", "Blueberry"),
     row("30084", "Mango"),
     row("7191", "Cherry"),
-    row("7189", null, { is_default: true, product_variant_id: "365", supplemental: true, product_format: null }),
+    row("7189", "Apple Cinnamon", { supplemental: true }),
   ]),
   existing(1121, "ALLNUTRITION Nutlove Sauce 280g", "ALLNUTRITION", "Protein Bars", { size: "280", size_unit: "g" }, "spread", [
     row("31029", "White Chocolate with Raspberries"),
@@ -170,6 +170,13 @@ const SOURCE_ALIASES = [
 ];
 
 const COVERED_DUPLICATE_ALIASES = [
+  {
+    approved_external_variant_id: "4642",
+    existing_external_product_id: "3915",
+    existing_external_variant_id: "3915",
+    product_variant_id: "2375",
+    reason: "DUPLICATE_SELENIUM_PAGE_ALREADY_AUTOMATED",
+  },
   {
     approved_external_variant_id: "6286",
     existing_external_product_id: "4551",
@@ -362,7 +369,7 @@ function build(sourceSnapshot, decisionArtifact) {
       supplemental_exact_rows: 1,
       prohibited_rows: 10,
       deferred_rows: 2,
-      source_alias_rows: 5,
+      source_alias_rows: 6,
     },
     families,
     approval_fingerprint: null,

@@ -62,6 +62,13 @@
   ],
   "covered_duplicate_aliases": [
     {
+      "approved_external_variant_id": "4642",
+      "existing_external_product_id": "3915",
+      "existing_external_variant_id": "3915",
+      "product_variant_id": "2375",
+      "reason": "DUPLICATE_SELENIUM_PAGE_ALREADY_AUTOMATED"
+    },
+    {
       "approved_external_variant_id": "6286",
       "existing_external_product_id": "4551",
       "existing_external_variant_id": "4554",
@@ -82,7 +89,7 @@
     "supplemental_exact_rows": 1,
     "prohibited_rows": 10,
     "deferred_rows": 2,
-    "source_alias_rows": 5
+    "source_alias_rows": 6
   },
   "families": [
     {
@@ -686,10 +693,7 @@
           "external_product_id": "7189",
           "external_variant_id": "7189",
           "source_flavour": null,
-          "flavour": null,
-          "is_default": true,
-          "product_variant_id": "365",
-          "product_format": null,
+          "flavour": "Apple Cinnamon",
           "in_stock": true
         }
       ]
@@ -1244,5 +1248,5 @@
       ]
     }
   ],
-  "approval_fingerprint": "7287095be5820aa05f977cc9a9d09aadd79b6c2a5a6948b4d487be08ed7774fb"
+  "approval_fingerprint": "8ce947d98ce409a1c62f0fd6dddff537a09bc7635cc308f05470175f4bb7e57b"
 }

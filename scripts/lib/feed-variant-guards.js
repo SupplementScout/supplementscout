@@ -145,6 +145,14 @@ function parsePackCount(value = "") {
 function parseProductFormat(value = "") {
   const text = String(value).toLowerCase();
 
+  if (/\b(gummy|gummies)\b/.test(text)) {
+    return "gummy";
+  }
+
+  if (/\b(sachet|sachets)\b/.test(text)) {
+    return "sachet";
+  }
+
   if (
     /\b(accessory|accessories|shakers?|water bottles?|water jugs?|flasks?|cooler cups?|training gloves?|sweat belts?)\b/.test(
       text
@@ -394,6 +402,9 @@ function assessVariantCompatibility(row, product) {
         }`
       )
     : null;
+  if (reviewedCanonicalSize && reviewedPackCount > 1) {
+    reviewedCanonicalSize.perUnit = true;
+  }
   const productIdentity = {
     ...parsedProductIdentity,
     size: reviewedCanonicalSize || parsedProductIdentity.size,

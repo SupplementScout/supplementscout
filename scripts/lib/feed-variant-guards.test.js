@@ -87,6 +87,36 @@ test("reviewed Six Pack variant identity overrides pack wording in the product t
   assert.deepEqual(result.reasons, []);
 });
 
+test("reviewed Six Pack multi-pack compares canonical size per unit", () => {
+  const result = assessVariantCompatibility(
+    {
+      product_name: "Applied Nutrition High Protein Shake 500ml",
+      brand: "Applied Nutrition",
+      size: "500 ml",
+      product_format: "ready-to-drink",
+      pack_count: "8",
+      __reviewed_six_pack_family_identity: {
+        canonical_product_variant_id: "2459",
+        size_value: "500",
+        size_unit: "ml",
+        product_format: "ready-to-drink",
+      },
+    },
+    {
+      name: "Applied Nutrition High Protein Shake 500ml",
+      brand: "Applied Nutrition",
+      product_format: "ready-to-drink",
+    }
+  );
+  assert.equal(result.compatible, true);
+  assert.deepEqual(result.reasons, []);
+});
+
+test("gummies and sachets are explicit catalogue formats", () => {
+  assert.equal(parseVariantIdentity({ product_format: "gummy" }).productFormat, "gummy");
+  assert.equal(parseVariantIdentity({ product_format: "sachet" }).productFormat, "sachet");
+});
+
 test("explicit multi-word flavours keep their complete normalized identity", () => {
   const flavours = [
     "Fruit Burst",

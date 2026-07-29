@@ -49,6 +49,7 @@ const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11 = require("../config/retailers/si
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12 = require("../config/retailers/six-pack-reviewed-large-family-batch-v12.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13 = require("../config/retailers/six-pack-reviewed-large-family-batch-v13.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14 = require("../config/retailers/six-pack-reviewed-large-family-batch-v14.json");
+const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V15 = require("../config/retailers/six-pack-reviewed-large-family-batch-v15.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -63,10 +64,11 @@ const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-large-family-batch-v12", 65],
   ["six-pack-reviewed-large-family-batch-v13", 16],
   ["six-pack-reviewed-large-family-batch-v14", 50],
+  ["six-pack-reviewed-large-family-batch-v15", 69],
 ]);
 
 const SIX_PACK_REVIEWED_FAMILY_ROWS = new Map(
-  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14]
+  [SIX_PACK_REVIEWED_FAMILY_BATCH, SIX_PACK_REVIEWED_MISSING_VARIANTS_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_BATCH, SIX_PACK_REVIEWED_FAMILY_MAP_FINAL, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V8, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V9, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V10, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V11, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14, SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V15]
     .flatMap((batch) => (batch.rows || batch.families.flatMap((family) =>
       family.variants.map((variant) => ({
         ...variant,
@@ -1487,7 +1489,12 @@ function validateFeedRowForWrites(row, rowNumber, options = {}) {
   capture(() => required(row.retailer_name, "retailer_name", rowNumber));
   if (safeCreate) {
     capture(() => required(row.retailer_website, "retailer_website", rowNumber));
-    capture(() => required(row.image || row.merchant_image_url, "image", rowNumber));
+    const reviewedExistingVariant =
+      row.__reviewed_six_pack_family_identity
+        ?.canonical_product_variant_id;
+    if (!reviewedExistingVariant) {
+      capture(() => required(row.image || row.merchant_image_url, "image", rowNumber));
+    }
     capture(() => required(getDirectRetailerProductUrl(row), "merchant_deep_link", rowNumber));
     capture(() => required(getOfferUrl(row), "aw_deep_link", rowNumber));
   }
