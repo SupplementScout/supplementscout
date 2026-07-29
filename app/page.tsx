@@ -8,7 +8,7 @@ export const revalidate = 3600;
 
 const popularSearches = [
   { label: "Creatine", href: "/creatine" },
-  { label: "Whey protein", query: "whey protein" },
+  { label: "Whey protein", href: "/whey-protein" },
   { label: "Magnesium", href: "/magnesium" },
   { label: "Vitamin D", href: "/vitamin-d" },
   { label: "Electrolytes", query: "electrolytes" },
@@ -37,8 +37,8 @@ const goalLinks = [
   },
   {
     label: "Muscle growth",
-    description: "Explore whey, creatine and mass-gainer searches.",
-    query: "muscle gain",
+    description: "Compare current Whey Protein and Creatine products.",
+    href: "/whey-protein",
   },
   {
     label: "General health",
@@ -50,6 +50,7 @@ const goalLinks = [
 const landingCategories = [
   { label: "Vitamins", href: "/vitamins" },
   { label: "Creatine", href: "/creatine" },
+  { label: "Whey Protein", href: "/whey-protein" },
   { label: "Magnesium", href: "/magnesium" },
   { label: "Vitamin D", href: "/vitamin-d" },
   { label: "Omega 3", href: "/omega-3" },

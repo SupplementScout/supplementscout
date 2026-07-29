@@ -95,6 +95,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/whey-protein`,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/about`,
     changeFrequency: "monthly",
     priority: 0.6,

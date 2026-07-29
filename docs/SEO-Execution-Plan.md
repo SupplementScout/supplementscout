@@ -101,7 +101,7 @@ Console evidence and user value.
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `LIVE VERIFIED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `LIVE VERIFIED` | Markup matches visible canonical data, passes automated and external structured-data validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines are recorded and priority URLs are inspected. Blocker: the current working session has no authenticated report view or export; site ownership itself is already verified through DNS. |
-| SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `PLANNED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
+| SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `CODE COMPLETE` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `PLANNED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `PLANNED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
@@ -109,9 +109,13 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-08 — launch the Whey Protein comparison landing
-page. Search Console and GA4 are already configured; SEO-07 only awaits an
-authenticated report view or export so its measurement baseline can be saved.
+**Deployment verification pending:** SEO-08 — the controlled Whey Protein
+comparison page is locally complete.
+
+**Next executable task after live verification:** SEO-09 — launch the Pre
+Workout comparison landing page. Search Console and GA4 are already configured;
+SEO-07 only awaits an authenticated report view or export so its measurement
+baseline can be saved.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -407,3 +411,35 @@ Review:
   an authenticated interactive session. This is recorded as a tool-access
   limitation rather than represented as a successful Google test.
 - SEO-06 is `LIVE VERIFIED`.
+
+### 29 July 2026 — SEO-08 local implementation
+
+- Added the canonical `/whey-protein` Server Component with a direct comparison
+  answer, recently checked offer coverage, visible freshness evidence,
+  methodology, limitations, stable product links and related comparisons.
+- Added one reusable category-comparison core for current and future decision
+  pages. It accepts only active, unmerged products and valid mapped in-stock
+  offers checked within 24 hours.
+- The reviewed Whey scope excludes plant, vegan, beef, collagen, egg,
+  casein-only and bundle products even when the broad catalogue category says
+  `Whey Protein`. Reviewed whey products with non-obvious names such as ISO-XP,
+  ISO100 and IsoPro remain eligible.
+- Product offers are ranked by known delivered total. Unknown delivery is never
+  treated as free and cannot outrank a complete delivered price.
+- Price per kilogram, price per serving and cost per 25 g protein appear only
+  when their required package/nutrition evidence is verified. Missing values
+  are not estimated.
+- The page automatically switches to `noindex, follow` after a data-load failure
+  or if comparison coverage falls below its explicit quality gate.
+- Added CollectionPage, ItemList and BreadcrumbList structured data without
+  presenting listing rows as direct-sale Product entities.
+- Added consent-aware GA4 category-view measurement, one sitemap entry and
+  prominent internal links from the homepage, Creatine and Hydration pages.
+- Production-shaped local HTML returned HTTP 200, `index, follow`, the canonical
+  URL, 27 reviewed fresh Whey products, 193 fresh offers, 3 retailers and 5
+  multi-retailer products. Known delivery and verified protein value were
+  visible; reviewed plant and beef leak examples were absent.
+- Focused regression suite: 92 passed, 0 failed. Targeted ESLint, TypeScript,
+  full Next.js 16.2.9 production build and `git diff --check` passed.
+- SEO-08 is `CODE COMPLETE` pending commit, deployment, public HTML/sitemap
+  verification and external structured-data validation.

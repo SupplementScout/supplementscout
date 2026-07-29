@@ -335,6 +335,7 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
           <aside className="rounded-xl border border-zinc-200 bg-white p-6">
             <h2 className="text-xl font-bold">Explore further</h2>
             <div className="mt-4 flex flex-col items-start gap-3 text-sm">
+              <Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link>
               <Link href="/search?q=Creatine" className="font-semibold underline">Search all Creatine results</Link>
               <Link href="/about" className="font-semibold underline">About SupplementScout comparisons</Link>
               <Link href="/" className="font-semibold underline">Browse supplement categories</Link>

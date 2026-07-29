@@ -571,7 +571,8 @@ test("homepage provides contextual discovery links to /creatine", () => {
 
   assert.ok(configuredCreatineLinks.length >= 2);
   assert.match(source, /href=\{itemHref\(item\)\}/);
-  assert.match(source, /href=\{categoryHref\(item\)\}/);
+  assert.match(source, /href: categoryHref\(category\)/);
+  assert.match(source, /<HomeCategories items=\{categoryLinks\}/);
 });
 
 test("page copy avoids unsupported ranking, rating and medical claims", () => {

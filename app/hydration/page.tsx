@@ -298,6 +298,7 @@ export function HydrationPageContent({
         <aside className="mt-10 rounded-xl border border-zinc-200 bg-white p-6">
           <h2 className="text-xl font-bold">Related comparisons and searches</h2>
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
+            <Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link>
             <Link href="/creatine" className="font-semibold underline">Creatine comparison</Link>
             <Link href="/vitamins" className="font-semibold underline">Vitamins</Link>
             <Link href="/search?q=electrolytes" className="font-semibold underline">Search electrolytes</Link>
