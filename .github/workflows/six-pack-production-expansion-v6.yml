@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   apply-reviewed-family-map:
-    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly

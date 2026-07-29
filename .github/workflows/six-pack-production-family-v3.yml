@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   apply-six-pack-family-v3:
-    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production-readonly

@@ -2,8 +2,6 @@ name: 6 Pack Supplements Production Expansion V12
 
 on:
   workflow_dispatch:
-      - scripts/six-pack-large-family-bootstrap.js
-      - scripts/six-pack-large-family-feed-builder.js
 
 permissions:
   contents: read
@@ -14,7 +12,7 @@ concurrency:
 
 jobs:
   apply-reviewed-food-family-map:
-    if: ${{ github.repository == 'SupplementScout/supplementscout' && github.ref == 'refs/heads/main' }}
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: production-readonly
