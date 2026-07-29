@@ -101,7 +101,7 @@ Console evidence and user value.
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `LIVE VERIFIED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `LIVE VERIFIED` | Markup matches visible canonical data, passes automated and external structured-data validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines are recorded and priority URLs are inspected. Blocker: the current working session has no authenticated report view or export; site ownership itself is already verified through DNS. |
-| SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `CODE COMPLETE` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and Search Console inspection. |
+| SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `PLANNED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `PLANNED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
@@ -109,13 +109,9 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Deployment verification pending:** SEO-08 — the controlled Whey Protein
-comparison page is locally complete.
-
-**Next executable task after live verification:** SEO-09 — launch the Pre
-Workout comparison landing page. Search Console and GA4 are already configured;
-SEO-07 only awaits an authenticated report view or export so its measurement
-baseline can be saved.
+**Next executable task:** SEO-09 — launch the Pre Workout comparison landing
+page. Search Console and GA4 are already configured; SEO-07 only awaits an
+authenticated report view or export so its measurement baseline can be saved.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -441,5 +437,20 @@ Review:
   visible; reviewed plant and beef leak examples were absent.
 - Focused regression suite: 92 passed, 0 failed. Targeted ESLint, TypeScript,
   full Next.js 16.2.9 production build and `git diff --check` passed.
-- SEO-08 is `CODE COMPLETE` pending commit, deployment, public HTML/sitemap
-  verification and external structured-data validation.
+- Implementation commit `7b3a59f` was pushed to `main` and served by the
+  production site.
+- Public `/whey-protein` returned HTTP 200, the exact canonical, `index,
+  follow`, one sitemap occurrence, a homepage link and the expected
+  consent-aware Analytics marker.
+- Public data remained at 27 reviewed fresh Whey products, 193 offers, 3
+  retailers and 5 multi-retailer products. Known delivery and verified protein
+  value remained visible; the controlled plant and beef leak examples remained
+  absent.
+- Public structured data contained CollectionPage, ItemList and BreadcrumbList
+  with 27 matching stable product links. Schema.org Validator fetched the live
+  page and reported 0 errors and 0 warnings.
+- Search Console inspection could not be recorded from this working session
+  because it has no authenticated report view. The already-configured property
+  and DNS ownership verification are unchanged; measurement capture remains
+  explicitly tracked under SEO-07.
+- SEO-08 is `LIVE VERIFIED`.
