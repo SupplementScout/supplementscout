@@ -3,7 +3,6 @@ import { CREATINE_LAUNCH_STATUS } from "./lib/creatineLaunch";
 import { supabase } from "./lib/supabase";
 
 const siteUrl = "https://www.supplementscout.co.uk";
-const staticLastModified = "2026-07-08";
 const SITEMAP_PAGE_SIZE = 1000;
 
 export const dynamic = "force-dynamic";
@@ -11,7 +10,27 @@ export const dynamic = "force-dynamic";
 type SitemapProduct = {
   id: number | string;
   slug: string | null;
+  created_at: string;
+  offers:
+    | {
+        last_checked_at: string | null;
+      }[]
+    | null;
 };
+
+function productLastModified(product: SitemapProduct) {
+  const timestamps = [
+    product.created_at,
+    ...(product.offers || []).map((offer) => offer.last_checked_at),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => Date.parse(value))
+    .filter(Number.isFinite);
+
+  return timestamps.length > 0
+    ? new Date(Math.max(...timestamps)).toISOString()
+    : undefined;
+}
 
 async function loadActiveProducts() {
   const products: SitemapProduct[] = [];
@@ -19,7 +38,7 @@ async function loadActiveProducts() {
   for (let from = 0; ; from += SITEMAP_PAGE_SIZE) {
     const { data, error } = await supabase
       .from("products")
-      .select("id, slug")
+      .select("id, slug, created_at, offers(last_checked_at)")
       .eq("is_active", true)
       .is("merged_into_product_id", null)
       .not("slug", "is", null)
@@ -42,61 +61,51 @@ async function loadActiveProducts() {
 const staticPages: MetadataRoute.Sitemap = [
   {
     url: siteUrl,
-    lastModified: staticLastModified,
     changeFrequency: "daily",
     priority: 1,
   },
   {
     url: `${siteUrl}/vitamins`,
-    lastModified: staticLastModified,
     changeFrequency: "weekly",
     priority: 0.9,
   },
   {
     url: `${siteUrl}/magnesium`,
-    lastModified: staticLastModified,
     changeFrequency: "weekly",
     priority: 0.9,
   },
   {
     url: `${siteUrl}/vitamin-d`,
-    lastModified: staticLastModified,
     changeFrequency: "weekly",
     priority: 0.9,
   },
   {
     url: `${siteUrl}/omega-3`,
-    lastModified: staticLastModified,
     changeFrequency: "weekly",
     priority: 0.9,
   },
   {
     url: `${siteUrl}/glucosamine`,
-    lastModified: staticLastModified,
     changeFrequency: "weekly",
     priority: 0.9,
   },
   {
     url: `${siteUrl}/hydration`,
-    lastModified: staticLastModified,
     changeFrequency: "daily",
     priority: 0.9,
   },
   {
     url: `${siteUrl}/about`,
-    lastModified: staticLastModified,
     changeFrequency: "monthly",
     priority: 0.6,
   },
   {
     url: `${siteUrl}/affiliate-disclosure`,
-    lastModified: staticLastModified,
     changeFrequency: "monthly",
     priority: 0.6,
   },
   {
     url: `${siteUrl}/contact`,
-    lastModified: staticLastModified,
     changeFrequency: "monthly",
     priority: 0.6,
   },
@@ -106,7 +115,6 @@ const creatinePages: MetadataRoute.Sitemap = CREATINE_LAUNCH_STATUS.includeInSit
   ? [
       {
         url: `${siteUrl}/creatine`,
-        lastModified: staticLastModified,
         changeFrequency: "daily",
         priority: 0.9,
       },
@@ -125,7 +133,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((product) => product.slug)
       .map((product) => ({
         url: `${siteUrl}/product/${product.slug}`,
-        lastModified: staticLastModified,
+        lastModified: productLastModified(product),
         changeFrequency: "daily" as const,
         priority: 0.8,
       }));

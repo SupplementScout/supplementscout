@@ -37,3 +37,17 @@ test("catalogue sitemap fails closed instead of publishing a partial product lis
     /return \{ products: \[\] as SitemapProduct\[\], error \};/
   );
 });
+
+test("product lastModified uses real product and offer evidence", () => {
+  assert.match(
+    sitemapSource,
+    /\.select\("id, slug, created_at, offers\(last_checked_at\)"\)/
+  );
+  assert.match(sitemapSource, /Date\.parse\(value\)/);
+  assert.match(sitemapSource, /new Date\(Math\.max\(\.\.\.timestamps\)\)\.toISOString\(\)/);
+  assert.match(sitemapSource, /lastModified: productLastModified\(product\)/);
+});
+
+test("static pages omit lastModified until a truthful modification source exists", () => {
+  assert.doesNotMatch(sitemapSource, /staticLastModified/);
+});

@@ -92,9 +92,10 @@ Console evidence and user value.
 
 | ID | Priority | Task | Status | Definition of done |
 |---|---:|---|---|---|
-| SEO-00 | P0 | Establish this controlled SEO ledger and bind it into the Operating Plan. | `CODE COMPLETE` | Both documents cross-reference the process, the active task and the completion rule. |
-| SEO-01 | P0 | Remove the 1,000-product sitemap truncation. | `IN PROGRESS` | Pagination is tested, build passes, production sitemap contains every product allowed by the current index policy, and no duplicate URL exists. |
-| SEO-02 | P0 | Define sitemap/index eligibility and truthful `lastModified`. | `PLANNED` | Written policy covers products with no current offer; sitemap uses evidence-backed modification dates; representative URLs are verified in production and Search Console. |
+| SEO-00 | P0 | Establish this controlled SEO ledger and bind it into the Operating Plan. | `LIVE VERIFIED` | Both documents cross-reference the process, the active task and the completion rule. |
+| SEO-01 | P0 | Remove the 1,000-product sitemap truncation. | `LIVE VERIFIED` | Pagination is tested, build passes, production sitemap contains every product allowed by the current index policy, and no duplicate URL exists. |
+| SEO-02A | P0 | Replace fabricated sitemap modification dates with truthful evidence. | `IN PROGRESS` | Product URLs use the latest valid product-creation or offer-check timestamp; static pages omit the field until they have a truthful source; production XML is verified. |
+| SEO-02B | P0 | Define sitemap/index eligibility for products without a current offer. | `BLOCKED` | Written policy covers products with no current offer and representative URLs are evaluated in Search Console before any broad noindex action. Blocker: Search Console evidence has not been captured. |
 | SEO-03 | P0 | Correct category landing-page relevance. | `PLANNED` | Magnesium, Glucosamine, Vitamins, Vitamin D and Omega 3 use reviewed inclusion logic; irrelevant audit examples are absent; regression fixtures pass. |
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `PLANNED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `PLANNED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
@@ -108,9 +109,12 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Active:** SEO-01 — deploy and verify sitemap pagination.  
-**Immediately next:** SEO-02 — truthful index eligibility and modification dates.  
-**Then:** SEO-03 before publishing additional category pages.
+**Active:** SEO-02A — deploy and verify truthful sitemap modification dates.
+
+**Immediately next:** SEO-03 — correct category landing-page relevance.
+
+**Blocked evidence task:** SEO-02B — capture Search Console evidence before
+changing index eligibility for products without a current offer.
 
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
@@ -218,3 +222,26 @@ Review:
 - Next.js 16.2.9 production build and TypeScript: passed.
 - State remains `CODE COMPLETE`/`IN PROGRESS` until commit, deployment and live
   sitemap count/duplicate verification are complete.
+
+### 29 July 2026 — SEO-00 and SEO-01 live verification
+
+- Commit `ebbf0f4` was pushed to `main`.
+- Public `https://www.supplementscout.co.uk/sitemap.xml` changed from 1,011
+  total URLs / 1,000 product URLs to 1,122 total URLs / 1,111 product URLs.
+- All 1,122 public sitemap locations were unique.
+- SEO-00 and SEO-01 are `LIVE VERIFIED`.
+
+### 29 July 2026 — SEO-02A local implementation
+
+- Removed the fabricated shared `2026-07-08` modification date.
+- Product modification time now uses the newest valid value from canonical
+  product creation and all mapped offer checks.
+- Static and landing URLs omit `lastModified` until a truthful modification
+  source is implemented; an omitted value is preferable to a false value.
+- The paginated production-shaped query returned 1,000 products and 2,254
+  related offers on its first page in approximately 727 ms during the read-only
+  design check.
+- SEO tests: 42 passed, 0 failed.
+- Targeted ESLint, TypeScript and Next.js production build: passed.
+- State remains `IN PROGRESS` until commit, deployment and live XML timestamp
+  verification are complete.
