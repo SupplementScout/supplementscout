@@ -1556,21 +1556,23 @@ Target experience:
 
 ### Current active task
 
-Complete the bounded search-reliability improvement recorded in section 0.0.4
-by extending the existing search engine and verifying representative production
-queries. Do not add a second search architecture or claim unsupported health or
-ingredient filtering.
+The 6 Pack Supplements catalogue and its shared offer automation are complete.
+There is no second retailer-specific refresh mechanism: all 506 approved
+mappings and offers use the one existing Six Pack manifest and scheduled
+WooCommerce refresh. Keep Six Pack in operational monitoring while the next
+retailer is selected.
 
 ### Next task
 
-Continue owner review of the remaining 83 6 Pack matching rows. Keep the 50
-already approved rows sealed as a separate later controlled automation task;
-when resumed, export, validate and execute them through the existing reviewed
-staging/production pipeline rather than a new automation path.
+Select the next retailer from the Retailer Data Source Registry using overlap,
+freshness, source quality and affiliate readiness. Process only that one
+retailer through the existing bulk snapshot, review, protected apply and shared
+refresh pattern. Do not reopen Six Pack catalogue work unless its discovery
+report identifies a genuinely new source product.
 
 ### Then
 
-1. Preserve the production package and existing safety guards; refresh artefacts if any source, state, ledger, expiry or commit binding changes.
+1. Monitor the scheduled 6 Pack refresh and keep new discovery report-only until reviewed.
 2. Use one approval for each complete environment stage, with all existing drift, identity, exact-delta, replay and recovery checks retained internally.
 3. Populate the retailer source registry and select future sources by overlap, freshness and affiliate readiness.
 4. Launch `/creatine` only when its existing freshness contract passes.
@@ -1870,6 +1872,54 @@ Current binding decisions:
 - Next authorised boundary: one explicit Jon's production enablement and rollout approval. No production migration, login, attestation, validator, approval, apply or recovery is authorised without it.
 - Use one approval per whole stage. After Jon's is closed, freeze infrastructure unless a real blocker exists; then continue with the next retailer, multi-retailer coverage and `/creatine` indexing readiness.
 - `SAFE_UPDATE` remains disabled.
+
+### 2026-07-29
+
+- 6 Pack Supplements catalogue closeout is complete for source snapshot
+  `3da223519802bf0a786c20936d027fadb3be86b51954fc3fa11416127c3c3ae2`.
+  All 141 admin review rows have a decision; the corrected decision artifact
+  fingerprint is
+  `9acbe77d8c3d837b5b516fa544389357e5e70e7efe7728aa27a7333239d68a93`.
+- The final V15 rollout created the reviewed catalogue families and completed
+  66 exact offer mappings. Protected production run `30466664627` passed,
+  and a fresh idempotency dry-run reported 66 mapping, offer and price-history
+  no-ops with zero blocked or failed rows.
+- Retailer ID 11 now has exactly 506 mappings and 506 offers. The final database
+  audit found zero missing offer bindings, zero external-variant duplicates,
+  zero duplicate canonical-variant offers, zero missing URLs and zero delivery
+  total errors. Current stock state is 395 in stock and 111 out of stock.
+- The whole 576-record normalized source is accounted for: 506 automated
+  offers, 43 adapter exclusions, 20 explicit reviewer rejections, four reviewed
+  duplicate source offers covered by existing canonical offers and three
+  deferred rows. The deferred rows are NMN (`16460`), Vitamin D3 8000 IU
+  (`31152`) and the Peach source identity for 7Nutrition Steel Joints Drink
+  (`4661`).
+- The rejected scope includes all reviewed DMAA, yohimbine and T5 products,
+  Melatonin 5 mg and three corrupt Vegan Multivitamin flavour aliases. SARMs,
+  peptides, expired/dated products, DMAA, yohimbine and T5 remain excluded.
+  Approved collagen/protein peptides and the separately approved Angel Dust
+  PUMP product remain valid and must not be confused with those exclusions.
+- Sauces, syrups, jams, spreads, bars, cookies, wafers, flapjacks, bites,
+  porridge/oats, pancake mixes, ready-to-drink shakes and liquid egg whites are
+  allowed under the recorded owner policy. Reviewed accessories are also
+  allowed.
+- The single shared Six Pack automation manifest now contains 506 offers across
+  279 retailer product pages, SHA-256
+  `8612d617616bf3f35a2ac5017dfaf5fed1af6ca320d100c7222e1f76a072e6c1`.
+  A fresh live read of all 279 pages returned `VERIFY_NO_CHANGE ×506`, zero
+  blocked rows, zero price/stock/URL changes and all mass-change guards passed.
+- Delivery is enforced as GBP 4.99 below GBP 99.99 and free at or above the
+  threshold. The final manifest audit verified the delivered total for all 506
+  offers.
+- Six Pack new-product discovery remains report-only. Future reviewed additions
+  join the same manifest and the same scheduled refresh; they do not create a
+  separate automation.
+- Historical V4 and V6-V15 catalogue expansion workflows are manual-only after
+  their completed rollout. They must not rerun on shared importer changes; the
+  scheduled offer refresh is the only automatic Six Pack production workflow.
+- Direct retailer URLs are complete. Affiliate tracking for 6 Pack remains
+  explicitly not configured and is a later commercial task, not a catalogue or
+  refresh blocker.
 
 ---
 

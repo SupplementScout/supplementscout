@@ -2,21 +2,6 @@ name: 6 Pack Supplements Production Expansion V9
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - config/retailers/six-pack-production-expansion-v9.csv
-      - config/retailers/six-pack-production-expansion-v9.json
-      - config/retailers/six-pack-reviewed-large-family-batch-v9.json
-      - .github/workflows/six-pack-production-expansion-v9.yml
-      - scripts/import-products.js
-      - scripts/six-pack-canary-executor.js
-      - scripts/six-pack-family-rollout-sealer.js
-      - scripts/six-pack-family-rollout-sealer.test.js
-      - scripts/six-pack-counted-supplement-approval-builder.js
-      - scripts/six-pack-counted-supplement-approval-builder.test.js
-      - scripts/six-pack-large-family-bootstrap.js
-      - scripts/six-pack-large-family-feed-builder.js
 
 permissions:
   contents: read

@@ -2,15 +2,6 @@ name: 6 Pack Supplements Production Family V6 Bootstrap
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - config/retailers/six-pack-production-family-v6-bootstrap.csv
-      - config/retailers/six-pack-production-family-v6-bootstrap.json
-      - config/retailers/six-pack-reviewed-family-map-batch-v4.json
-      - .github/workflows/six-pack-production-family-v6-bootstrap.yml
-      - scripts/import-products.js
-      - scripts/six-pack-family-variant-bootstrap.js
 
 permissions:
   contents: read
