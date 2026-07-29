@@ -2,14 +2,6 @@ name: 6 Pack Supplements Large Family Bootstrap V15
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - config/retailers/six-pack-reviewed-large-family-batch-v15.json
-      - .github/workflows/six-pack-large-family-bootstrap-v15.yml
-      - scripts/six-pack-final-closeout-approval-builder.js
-      - scripts/six-pack-final-closeout-approval-builder.test.js
 
 permissions:
   contents: read
@@ -56,7 +48,7 @@ jobs:
           node scripts/six-pack-large-family-bootstrap.js --mode=dry-run \
             --approval="$APPROVAL" \
             --output=tmp/six-pack-large-family-v15/preflight.json
-          node -e 'const r=require("./tmp/six-pack-large-family-v15/preflight.json"); if(r.result!=="PASS" || r.family_count!==38 || r.planned_product_create_count!==0 || r.planned_variant_create_count!==1) process.exit(1)'
+          node -e 'const r=require("./tmp/six-pack-large-family-v15/preflight.json"); if(r.result!=="PASS" || r.family_count!==38 || r.planned_product_create_count!==0 || r.planned_variant_create_count!==0) process.exit(1)'
       - name: Apply exact reviewed V15 families
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

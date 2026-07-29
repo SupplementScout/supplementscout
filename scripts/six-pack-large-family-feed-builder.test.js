@@ -9,9 +9,15 @@ const {
 
 test("large family feed output is confined to tmp", () => {
   assert.match(parseArgs([]).output, /six-pack-large-family-77\.csv$/);
+  assert.match(
+    parseArgs([
+      "--output=config/retailers/six-pack-production-expansion-v15.csv",
+    ]).output,
+    /six-pack-production-expansion-v15\.csv$/
+  );
   assert.throws(
     () => parseArgs(["--output=config/no.csv"]),
-    /inside repository tmp/
+    /inside repository tmp or the reviewed V15 config/
   );
 });
 

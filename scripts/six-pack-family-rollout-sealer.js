@@ -55,12 +55,19 @@ function parseArgs(argv) {
       "config/retailers/six-pack-production-family-v3.csv",
   };
   const relative = path.relative(path.join(ROOT, "tmp"), options.output);
+  const reviewedV15Output = path.join(
+    ROOT,
+    "config",
+    "retailers",
+    "six-pack-production-expansion-v15.json"
+  );
   if (
-    !relative ||
-    relative.startsWith("..") ||
-    path.isAbsolute(relative)
+    options.output !== reviewedV15Output &&
+    (!relative ||
+      relative.startsWith("..") ||
+      path.isAbsolute(relative))
   ) {
-    fail("Output must be inside repository tmp");
+    fail("Output must be inside repository tmp or the reviewed V15 config");
   }
   if (
     !["six-pack-production-family-v3", "six-pack-production-family-v6-bootstrap", "six-pack-production-expansion-v6", "six-pack-production-expansion-v7", "six-pack-production-expansion-v8", "six-pack-production-expansion-v9", "six-pack-production-expansion-v10", "six-pack-production-expansion-v11", "six-pack-production-expansion-v12", "six-pack-production-expansion-v13", "six-pack-production-expansion-v14", "six-pack-production-expansion-v15"].includes(options.kind) ||

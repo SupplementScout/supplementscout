@@ -47,6 +47,9 @@ const V13_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family
 const V14_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v14.csv");
 const V14_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v14.json");
 const V14_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v14.json");
+const V15_CSV = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v15.csv");
+const V15_ROLLOUT = path.join(ROOT, "config", "retailers", "six-pack-production-expansion-v15.json");
+const V15_APPROVAL = require("../config/retailers/six-pack-reviewed-large-family-batch-v15.json");
 
 function reportFromRollout(expected) {
   const resumedIds = new Set(
@@ -291,9 +294,35 @@ test("large V14 rollout binds 49 new offers and audits the existing wafer alias"
   assert.equal(rollout.expected_created_variant_count, 0);
 });
 
+test("large V15 rollout binds 66 final offers and audits six source aliases", () => {
+  const expected = JSON.parse(fs.readFileSync(V15_ROLLOUT, "utf8"));
+  const rollout = build(
+    fs.readFileSync(V15_CSV),
+    reportFromRollout(expected),
+    V15_APPROVAL,
+    {
+      kind: "six-pack-production-expansion-v15",
+      csvPath:
+        "config/retailers/six-pack-production-expansion-v15.csv",
+    }
+  );
+  assert.deepEqual(rollout, expected);
+  assert.equal(rollout.row_count, 66);
+  assert.equal(rollout.approved_scope_row_count, 72);
+  assert.equal(rollout.covered_duplicate_aliases.length, 3);
+  assert.equal(rollout.reviewed_source_aliases.length, 3);
+  assert.equal(rollout.expected_created_variant_count, 0);
+});
+
 test("family rollout output remains inside tmp", () => {
+  assert.match(
+    parseArgs([
+      "--output=config/retailers/six-pack-production-expansion-v15.json",
+    ]).output,
+    /six-pack-production-expansion-v15\.json$/
+  );
   assert.throws(
     () => parseArgs(["--output=config/retailers/unsafe.json"]),
-    /inside repository tmp/
+    /inside repository tmp or the reviewed V15 config/
   );
 });

@@ -85,12 +85,19 @@ function parseArgs(argv) {
     values.output || DEFAULT_OUTPUT
   );
   const relative = path.relative(path.join(ROOT, "tmp"), output);
+  const reviewedV15Output = path.join(
+    ROOT,
+    "config",
+    "retailers",
+    "six-pack-production-expansion-v15.csv"
+  );
   if (
-    !relative ||
-    relative.startsWith("..") ||
-    path.isAbsolute(relative)
+    output !== reviewedV15Output &&
+    (!relative ||
+      relative.startsWith("..") ||
+      path.isAbsolute(relative))
   ) {
-    fail("Output must be inside repository tmp");
+    fail("Output must be inside repository tmp or the reviewed V15 config");
   }
   const approval = path.resolve(values.approval || DEFAULT_APPROVAL);
   const approvalRelative = path
