@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 29 July 2026<br>
+**Status date:** 31 July 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -176,6 +176,50 @@ scope after the merge, then correctly failed closed during live-source matching
 because unrelated source variant `43583990006000` for `7Nutrition Whey Isolate
 90 1kg` was absent from the retailer's current Shopify snapshot; that source
 change made 0 database writes and is a separate retailer-source review item.
+
+### 0.0.7 Competitive growth sequence - 31 July 2026
+
+The refreshed WheyWise comparison shows that SupplementScout's main competitive
+gap is no longer raw catalogue size. The priority gaps are search-acquisition
+pages, genuine multi-retailer depth, visible decision support and external
+authority. SupplementScout's advantages remain known delivered-price treatment,
+canonical product/variant identity, auditable retailer mappings and fail-closed
+automation. The full evidence is in
+`docs/Competitive-Intelligence/WheyWise-Analysis-2026-07.md`.
+
+This is the binding growth sequence. It supersedes older immediate-task and
+competitive-response ordering where they conflict:
+
+1. complete `SEO-09`, the Pre Workout comparison landing page;
+2. deliver one controlled cluster of ten reviewed, high-intent, data-backed
+   pages through the existing shared category/decision-page system;
+3. launch eligible brand and retailer landing pages only after identity and
+   minimum-coverage gates prevent thin pages;
+4. increase products with at least two active retailers from the 28 July
+   baseline of 107 to 250, then continue toward 500;
+5. add a data-backed deals and price-drops page using the existing offers and
+   price-history store;
+6. add a guarded two-product comparison experience using existing canonical
+   data, verified metrics and delivered prices;
+7. add clearly labelled owner-reviewed expert notes where they materially help
+   a buying decision;
+8. record Search Console and GA4 evidence weekly throughout the sequence;
+9. earn legitimate authority through useful resources and relevant
+   retailer/brand/community outreach.
+
+Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
+analysis, operational monitoring and a separately scoped retailer coverage task
+may continue in parallel, but they must not create overlapping implementations.
+Urgent production reliability or data-integrity incidents interrupt the growth
+sequence until the safe state is restored. No competitor traffic number may be
+stored as fact without a named measurement source and date.
+
+Execution uses the four-role model in `docs/Agent-Operating-Model.md`: Roadmap
+Steward, Growth Analyst, SEO/Decision-Page Builder and Independent Release
+Verifier. These are controlled responsibilities, not autonomous production
+actors. Existing deterministic scripts, manifests, tests and workflows remain
+the automation layer; agents must never bypass owner approval or catalogue
+safety controls.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
@@ -1277,21 +1321,28 @@ A production write must have an explicit scope. Approval for one batch or artifa
 
 ## 12. Priority roadmap
 
-The binding priority order is now section 0.8 through section 0.10. Work proceeds sequentially, with one primary retailer/data implementation at a time.
+The binding growth priority is section 0.0.7. Sections 0.8 through 0.10 retain
+the detailed commercial execution method and historical context. Work proceeds
+with one SEO implementation and at most one separately scoped primary
+retailer/data implementation at a time.
 
 Current priority order:
 
-1. Close the existing Jon's production-package decision; do not design another update path.
-2. Refresh approved mapped offers through the existing mixed-sync path and make the evidence-based `/creatine` launch decision.
-3. Secure and import one broad, overlapping, affiliate-capable retailer source, targeting products already represented by one retailer.
-4. Configure affiliate deep links for the existing tracked redirect path.
-5. Expand catalogue breadth through existing reviewed adapter configurations only where it serves search demand or commercial coverage.
-6. Resume only the commercially prioritised Whey Okay legacy rows after an authorised repeatable source exists.
-7. Keep automatic writes and a scheduler deferred until two clean manual runs per retailer and a separate measured-need decision.
+1. `SEO-09` Pre Workout comparison page.
+2. Controlled ten-page high-intent cluster, one page and one live verification at a time.
+3. Eligible brand and retailer landing pages after identity and coverage gates.
+4. Multi-retailer coverage from 107 products to 250, then toward 500.
+5. Deals and price drops from existing offer/history data.
+6. Guarded two-product comparison.
+7. Owner-reviewed expert decision notes.
+8. Continuous weekly GSC/GA4 measurement and legitimate authority building.
+
+The complete definitions and interruption rules are in section 0.0.7.
 
 ## Commercial Data Expansion and Competitive Response
 
-The **Commercial Coverage Sprint** remains the current priority. Use [Retailer Data Source Registry](Retailer-Data-Source-Registry.md) as the operational registry for retailer data-source decisions and [WheyWise Competitive Intelligence Analysis](Competitive-Intelligence/WheyWise-Analysis-2026-07.md) as supporting competitive intelligence; this Operating Plan remains the single source of truth for project direction.
+The **Commercial Coverage Sprint** remains the active supporting data workstream
+for the 250-product multi-retailer checkpoint. Use [Retailer Data Source Registry](Retailer-Data-Source-Registry.md) as the operational registry for retailer data-source decisions and [WheyWise Competitive Intelligence Analysis](Competitive-Intelligence/WheyWise-Analysis-2026-07.md) as supporting competitive intelligence; this Operating Plan remains the single source of truth for project direction.
 
 The primary metric is the number of canonical products with offers from at least two active retailers. Expand coverage in this order: (1) existing CSV files and feeds, (2) affiliate feeds, (3) existing or shared platform adapters, and (4) a retailer-specific scraper only when none of the earlier options exists. Before building anything new, verify whether the required integration, adapter, parser, helper or rule already exists and reuse it where safe.
 
@@ -1482,7 +1533,10 @@ Out of scope during the sprint:
 - scheduled production updates,
 - `SAFE_UPDATE`.
 
-### Project Control Board
+### Legacy Retailer Snapshot Project Control Board
+
+This board preserves the state of the earlier Retailer Snapshot programme. It
+does not override the current checkpoint, section 0.0.7 or section 13.
 
 | Workstream | Status | Current state | Resume trigger | Next action |
 |---|---|---|---|---|
@@ -1708,28 +1762,31 @@ Target experience:
 
 ### Current active task
 
-The 6 Pack Supplements catalogue and its shared offer automation are complete.
-There is no second retailer-specific refresh mechanism: all 506 approved
-mappings and offers use the one existing Six Pack manifest and scheduled
-WooCommerce refresh. Keep Six Pack in operational monitoring while the next
-retailer is selected.
+`SEO-09` is the next executable implementation: launch the controlled Pre
+Workout comparison landing page by reusing the existing category comparison
+system and the live Whey Protein quality contract. Six Pack remains complete
+and in operational monitoring; the unrelated Fit House missing-source variant
+remains a separate fail-closed source review item.
 
 ### Next task
 
-Select the next retailer from the Retailer Data Source Registry using overlap,
-freshness, source quality and affiliate readiness. Process only that one
-retailer through the existing bulk snapshot, review, protected apply and shared
-refresh pattern. Do not reopen Six Pack catalogue work unless its discovery
-report identifies a genuinely new source product.
+After `SEO-09` is `LIVE VERIFIED`, execute the ten-page high-intent cluster in
+the exact gated order maintained in `docs/SEO-Execution-Plan.md`. Research and
+eligibility checks may cover the cluster, but implementation and live
+verification proceed one page at a time through the shared mechanism.
 
 ### Then
 
-1. Monitor the scheduled 6 Pack refresh and keep new discovery report-only until reviewed.
-2. Use one approval for each complete environment stage, with all existing drift, identity, exact-delta, replay and recovery checks retained internally.
-3. Populate the retailer source registry and select future sources by overlap, freshness and affiliate readiness.
-4. Launch `/creatine` only when its existing freshness contract passes.
-5. Freeze infrastructure and control-plane work unless a real batch exposes a specific unsupported requirement.
-6. Review the measured growth indicators weekly and update section 0 with evidence.
+1. Apply identity and minimum-coverage gates before brand and retailer pages.
+2. Select overlap-oriented retailer sources through the existing registry and
+   guarded import path until 250 products have at least two active retailers.
+3. Build deals/price drops, two-product comparison and expert notes in that
+   order, reusing the existing data model.
+4. Record GSC/GA4 evidence weekly and complete legitimate authority work.
+5. Monitor scheduled retailer refreshes; keep new discovery report-only until
+   reviewed and preserve all drift, replay and recovery controls.
+6. Freeze infrastructure and control-plane work unless a real batch exposes a
+   specific unsupported requirement.
 
 ### Deferred near-term
 

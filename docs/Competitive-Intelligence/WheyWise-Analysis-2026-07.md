@@ -1,12 +1,63 @@
 # WheyWise Competitive Intelligence Analysis
 
-_Date: 17 July 2026_
+_Original audit: 17 July 2026_<br>
+_Current verified comparison: 31 July 2026_
 
 ## Purpose
 
 This document records competitive intelligence about wheywise.co.uk and converts the findings into practical decisions for SupplementScout.
 
 This is a supporting document. It does not replace the SupplementScout Operating Plan. The Operating Plan remains the source of truth for priorities and execution.
+
+## Current verified comparison - 31 July 2026
+
+This section supersedes older counts and immediate-action recommendations in
+this document. It is based on a read-only review of both public sites, their
+public sitemaps, current search-result samples and SupplementScout's current
+catalogue evidence. Sitemap counts describe published URLs, not confirmed
+Google indexation or traffic.
+
+| Measure | SupplementScout | WheyWise | Interpretation |
+|---|---:|---:|---|
+| Active/public catalogue products | 1,071 active canonical products | 1,337 protein products claimed publicly | Catalogue breadth is not the main gap. |
+| Retailers represented/claimed | 9 | 98 claimed on the home page and FAQ | SupplementScout needs substantially more overlap-oriented retailer coverage. |
+| Product-like sitemap URLs | 1,071 | 747 `/product/` plus 480 `/vitamin/` URLs | WheyWise has only a moderate published item-page lead. |
+| Total sitemap URLs | 1,083 | 1,385 | WheyWise has a materially broader search footprint. |
+| Non-product search pages | 12 total static/category/company URLs | 79 blog, 30 compare, 24 review and several tool/deal pages | This is the largest visible acquisition gap. |
+| Products with 2+ active retailers | 107 (about 10.1%) at the latest coverage audit | Not disclosed | Multi-retailer depth remains SupplementScout's main comparison-value constraint. |
+| Delivered-price treatment | Known delivery is included in the displayed total | Public methodology primarily describes retailer item price and warns that checkout can differ | SupplementScout has the stronger customer-value foundation. |
+| Product identity and change safety | Canonical product, structured variants, retailer mappings, offers, history and guarded merges | Public presentation shows a faster, looser normalization model | SupplementScout should preserve this quality advantage. |
+
+### Traffic conclusion
+
+No exact WheyWise visit count is publicly verifiable. Similarweb did not return
+a usable public traffic report for either small domain, and exact competitor
+traffic is unavailable without the competitor's first-party analytics or a
+paid third-party estimate. A precise number must therefore not be invented.
+
+The defensible conclusion is that WheyWise currently has materially stronger
+organic visibility than SupplementScout:
+
+- it appeared in sampled results for broad commercial searches such as protein
+  price comparison and creatine price comparison while SupplementScout did not;
+- it has already earned independent community mentions;
+- it exposes many more query-focused comparison, review, guide, brand and tool
+  pages;
+- it has been publishing this search footprint since at least March 2026.
+
+This evidence indicates that WheyWise is probably receiving more organic and
+referral traffic than SupplementScout, but it does not support a responsible
+numeric estimate. SupplementScout's own baseline must come from the configured
+Google Search Console and GA4 properties.
+
+### Current competitive judgement
+
+WheyWise leads in acquisition, presentation and breadth of decision-oriented
+pages. SupplementScout leads in delivered-price logic, explicit product/variant
+identity, auditable retailer mappings and fail-closed automation. The correct
+response is to expose SupplementScout's stronger data through useful search
+pages and increase genuine multi-retailer comparison depth, not to copy
+WheyWise's public counts or publish thin pages at scale.
 
 ## Executive summary
 
@@ -548,18 +599,36 @@ Generate data-backed pages for:
 - publishing nutrition without variant provenance
 - treating every imported field as verified
 
-## Immediate actions
+## Binding competitive-response sequence
 
-1. Keep the Commercial Coverage Sprint as the current priority.
-2. Create and maintain the Retailer Data Source Registry.
-3. Audit every retailer for feeds before building scrapers.
-4. Record platform compatibility and reusable adapters.
-5. Track products with 2 or more retailers as the primary coverage metric.
-6. Add delivered-price support before advanced AI recommendations.
-7. Preserve variant and merge controls.
-8. Plan programmatic SEO after sufficient multi-retailer coverage exists.
-9. Use WheyWise as a recurring benchmark for speed, coverage, features, and SEO.
-10. Review this document monthly or when WheyWise launches a material new capability.
+The task order below replaces the older immediate-action list in this document.
+The Operating Plan and SEO Execution Plan hold the authoritative statuses and
+completion evidence.
+
+1. Complete `SEO-09`, the controlled Pre Workout comparison landing page.
+2. Deliver a reviewed cluster of ten high-intent, data-backed pages through the
+   existing shared category/decision-page system; do not create ten separate
+   implementations.
+3. Add eligible brand and retailer landing pages only after identity
+   normalization and minimum-content/coverage rules prevent thin pages.
+4. Increase canonical products with at least two active retailers from 107 to
+   250, then continue toward the long-term target of 500.
+5. Build a data-backed deals and price-drops page from existing offer and price
+   history data; do not create a second pricing store.
+6. Add a guarded two-product comparison experience using the existing canonical
+   catalogue, variants, verified metrics and delivered prices.
+7. Publish owner-reviewed expert notes where they add real formulation or buying
+   value; clearly separate verified facts from expert judgement.
+8. Record Search Console and GA4 evidence weekly, including organic visibility,
+   landing pages and organic retailer clicks.
+9. Earn legitimate authority through useful data resources, retailer/brand
+   outreach and relevant community references; never use bulk or paid-link
+   schemes.
+
+The first four steps are the current build sequence. Measurement is continuous
+from the first release, and catalogue safety, automation monitoring and urgent
+production incidents remain permanent operating controls rather than competing
+roadmap items.
 
 ## Monitoring checklist
 
@@ -588,3 +657,17 @@ Review monthly:
 - SupplementScout will preserve stronger product, variant, offer, and audit structure.
 - Faster retailer acquisition will be introduced through the Commercial Coverage Sprint and the Retailer Data Source Registry.
 - Total delivered price and data provenance are selected as key differentiation opportunities.
+
+### 31 July 2026
+
+- The public footprint was rechecked: SupplementScout exposes 1,083 sitemap
+  URLs and WheyWise 1,385.
+- Catalogue breadth alone is no longer treated as the primary competitive gap;
+  query-focused landing pages, retailer overlap, authority and conversion tools
+  are the priority gaps.
+- No unsupported competitor traffic number will be stored or repeated.
+- The binding competitive-response sequence now starts with SEO-09, then a
+  controlled ten-page high-intent cluster, eligible brand/retailer pages and a
+  250-product multi-retailer coverage checkpoint.
+- SupplementScout will preserve delivered-price ranking, canonical identity and
+  guarded automation as its trust advantage.

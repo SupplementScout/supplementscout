@@ -3,3 +3,17 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+
+## SupplementScout project control
+
+For SEO, catalogue, retailer, automation or roadmap work:
+
+1. Read the current checkpoint in
+   `docs/SupplementScout-Operating-Plan-2026-07-15.md`.
+2. Read the relevant execution ledger, especially
+   `docs/SEO-Execution-Plan.md` for SEO work.
+3. Follow `docs/Agent-Operating-Model.md`; keep one active SEO implementation
+   and reuse existing mechanisms before creating a new one.
+4. Do not mark work complete without the required local and live evidence.
+5. Never give an agent autonomous product-identity or production-write
+   authority; retain existing owner approvals and guarded data paths.

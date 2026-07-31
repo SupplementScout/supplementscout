@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 29 July 2026  
+**Status date:** 31 July 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -25,6 +25,11 @@ Every SEO task must end by updating this file with:
 - the next active task.
 
 Do not restart a completed task unless production evidence shows a regression.
+
+Use the role handoff in `docs/Agent-Operating-Model.md`: Roadmap Steward,
+Growth Analyst, SEO/Decision-Page Builder and Independent Release Verifier.
+Role separation does not create a second ledger or grant production-data write
+authority.
 
 ## 2. Status rules
 
@@ -106,6 +111,11 @@ Console evidence and user value.
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `PLANNED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
+| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `PLANNED` | Ten individually reviewed pages pass the shared quality contract and `LIVE VERIFIED` gate one at a time; no parallel page framework or thin mass generation is introduced. |
+| SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `PLANNED` | Identity normalization and minimum coverage/content gates are tested; only useful pages are indexable and every page uses current canonical data. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
+| SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
+| SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
@@ -118,6 +128,12 @@ changing index eligibility for products without a current offer.
 
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
+
+After SEO-09, follow the binding sequence in Operating Plan section 0.0.7:
+SEO-10 as the shared methodology support, SEO-13 one page at a time, SEO-11 and
+SEO-14, the 250-product multi-retailer checkpoint, SEO-15, SEO-16 and SEO-17.
+SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
+tracks, not permission to run a second implementation.
 
 ## 7. Content rollout order
 
@@ -134,6 +150,27 @@ Current catalogue evidence supports this initial order:
 
 New pages must reuse one controlled category/decision-page system. Do not create
 one independent implementation per category.
+
+After Pre Workout is live, SEO-13 evaluates and delivers this initial cluster
+in order. A row may be skipped or deferred only when the recorded evidence gate
+fails; the next eligible row then becomes active.
+
+| Order | Candidate page | Evidence gate before implementation |
+|---:|---|---|
+| 1 | Amino Acids / BCAA / EAA | Reviewed taxonomy separates genuine amino-acid products from unrelated names. |
+| 2 | Protein Bars | Product/box pack identity and sufficient current offers are verified. |
+| 3 | Whey Isolate | Inclusion rules separate isolate, blends and misleading retailer labels. |
+| 4 | Vegan Protein | Protein source and current offer coverage support a useful comparison. |
+| 5 | Mass Gainer | Search evidence and current multi-retailer depth justify an indexable page. |
+| 6 | Electrolytes | Relevant hydration/electrolyte products pass reviewed inclusion rules. |
+| 7 | Magnesium Glycinate | Form-specific identity is reliable and does not include unrelated magnesium forms. |
+| 8 | Multivitamins | Taxonomy and serving/value data support a meaningful comparison. |
+| 9 | Ashwagandha | Product identity is reliable and content avoids unsupported health claims. |
+| 10 | Creatine Monohydrate | The page adds distinct decision value beyond the existing `/creatine` page and avoids keyword cannibalisation. |
+
+The Growth Analyst records the gate evidence; the Builder implements only the
+active eligible page; the Verifier checks it independently; the Roadmap Steward
+then records `LIVE VERIFIED` and advances the order.
 
 ## 8. Page quality contract
 
