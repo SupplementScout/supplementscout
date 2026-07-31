@@ -170,7 +170,12 @@ family candidates, 0 uncertain duplicate candidates and 92 active reviewed
 products remain separate commercial packs. Six Pack's immutable automation
 manifest was rebound to the five changed canonical targets and its fresh live
 506-offer dry-run returned `VERIFY_NO_CHANGE ×506`, 0 blocked rows and 0 database
-writes.
+writes. Jon's fresh production dry-run also returned `VERIFY_NO_CHANGE ×506`
+with 0 catalogue deltas. Fit House accepted the complete 286-row canonical
+scope after the merge, then correctly failed closed during live-source matching
+because unrelated source variant `43583990006000` for `7Nutrition Whey Isolate
+90 1kg` was absent from the retailer's current Shopify snapshot; that source
+change made 0 database writes and is a separate retailer-source review item.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
