@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "kind": "catalogue-reviewed-family-consolidation-v1",
+  "approved": true,
+  "approved_by": "SupplementScout owner",
+  "approved_at": "2026-07-31",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "expected_review_decision_count": 43,
+  "expected_family_count": 24,
+  "expected_candidate_count": 33,
+  "expected_mapping_count": 79,
+  "expected_offer_count": 79,
+  "expected_created_variant_count": 58,
+  "decision_meaning": {
+    "deferred": "MERGE FAMILY – ten sam produkt, różne smaki/rozmiary/kolory",
+    "separate": "osobne produkty mimo podobnej nazwy"
+  },
+  "families": [
+    {
+      "canonical_id": 38,
+      "canonical_name": "Applied Nutrition Pump 3G Pre-Workout 375g",
+      "canonical_category": "Pre Workout",
+      "canonical_product_format": "powder",
+      "products": [
+        { "id": 38, "name": "Applied Nutrition Pump Pre Workout 375g", "brand": "Applied Nutrition", "category": "Pre Workout" },
+        { "id": 1062, "name": "Applied Nutrition Pump 3G Pre-Workout 375g", "brand": "Applied Nutrition", "category": "Pre Workout" }
+      ],
+      "variants": [
+        { "variant_key": "fruit-burst-375g", "display_name": "Fruit Burst / 375g", "flavour": "Fruit Burst", "size_value": 375, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 726, "source_variant_ids": [726, 2240] },
+        { "variant_key": "icy-blue-razz-375g", "display_name": "Icy Blue Razz / 375g", "flavour": "Icy Blue Razz", "size_value": 375, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 727, "source_variant_ids": [727, 2239] },
+        { "variant_key": "rainbow-unicorn-375g", "display_name": "Rainbow Unicorn / 375g", "flavour": "Rainbow Unicorn", "size_value": 375, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 728, "source_variant_ids": [728] }
+      ]
+    },
+    {
+      "canonical_id": 62,
+      "canonical_name": "HR Labs Defib Pre-Workout",
+      "canonical_category": "Pre Workout",
+      "canonical_product_format": "powder",
+      "products": [
+        { "id": 62, "name": "HR Labs Defib Pre-Workout 460g", "brand": "HR Labs", "category": "Pre Workout" },
+        { "id": 883, "name": "HR Labs DEFIB V3 Pre-Workout 420g", "brand": "HR Labs", "category": "Pre Workout" }
+      ],
+      "variants": [
+        { "variant_key": "jelly-bean-460g", "display_name": "Jelly Bean / 460g", "flavour": "Jelly Bean", "size_value": 460, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1031, "source_variant_ids": [1031] },
+        { "variant_key": "cherryade-460g", "display_name": "Cherryade / 460g", "flavour": "Cherryade", "size_value": 460, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1616, "source_variant_ids": [1616] },
+        { "variant_key": "fizzy-candy-crush-460g", "display_name": "Fizzy Candy Crush / 460g", "flavour": "Fizzy Candy Crush", "size_value": 460, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1617, "source_variant_ids": [1617] },
+        { "variant_key": "iced-blue-slush-460g", "display_name": "Iced Blue Slush / 460g", "flavour": "Iced Blue Slush", "size_value": 460, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1618, "source_variant_ids": [1618] },
+        { "variant_key": "cherryade-420g", "display_name": "Cherryade / 420g (V3)", "flavour": "Cherryade", "size_value": 420, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [1407] },
+        { "variant_key": "fizzy-bubblegum-bottles-420g", "display_name": "Fizzy Bubblegum Bottles / 420g (V3)", "flavour": "Fizzy Bubblegum Bottles", "size_value": 420, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [1408] },
+        { "variant_key": "jelly-bean-420g", "display_name": "Jelly Bean / 420g (V3)", "flavour": "Jelly Bean", "size_value": 420, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [1409] },
+        { "variant_key": "iced-blue-slush-420g", "display_name": "Iced Blue Slush / 420g (V3)", "flavour": "Iced Blue Slush", "size_value": 420, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [1410] },
+        { "variant_key": "lemon-fizz-bombs-420g", "display_name": "Lemon Fizz Bombs / 420g (V3)", "flavour": "Lemon Fizz Bombs", "size_value": 420, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [1411] },
+        { "variant_key": "pink-lemonade-420g", "display_name": "Pink Lemonade / 420g (V3)", "flavour": "Pink Lemonade", "size_value": 420, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [1412] },
+        { "variant_key": "gummy-bears-420g", "display_name": "Gummy Bears / 420g (V3)", "flavour": "Gummy Bears", "size_value": 420, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [1413] }
+      ]
+    },
+    {
+      "canonical_id": 192, "canonical_name": "Nebbia 70s Fancy Flared Pants 667", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 192, "name": "Nebbia 70s Fancy Flared Pants 667 - Black", "brand": "Nebbia", "category": "Accessories" }, { "id": 193, "name": "Nebbia 70s Fancy Flared Pants 667 - Yellow", "brand": "Nebbia", "category": "Accessories" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [213] }, { "variant_key": "yellow", "display_name": "Yellow", "flavour": "Yellow", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [160] }]
+    },
+    {
+      "canonical_id": 194, "canonical_name": "Nebbia 90s Hero T-Shirt 143", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 194, "name": "Nebbia 90s Hero T-Shirt 143 - Black", "brand": "Nebbia", "category": "Accessories" }, { "id": 196, "name": "Nebbia 90s Hero T-Shirt 143 - White", "brand": "Nebbia", "category": "Accessories" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [180] }, { "variant_key": "white", "display_name": "White", "flavour": "White", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [214] }]
+    },
+    {
+      "canonical_id": 197, "canonical_name": "Nebbia Airy Straps Sports Bra 693", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 197, "name": "Nebbia Airy Straps Sports Bra 693 - Black", "brand": "Nebbia", "category": "Accessories" }, { "id": 198, "name": "Nebbia Airy Straps Sports Bra 693 - Burgundy", "brand": "Nebbia", "category": "Accessories" }, { "id": 199, "name": "Nebbia Airy Straps Sports Bra 693 - White", "brand": "Nebbia", "category": "Accessories" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [161] }, { "variant_key": "burgundy", "display_name": "Burgundy", "flavour": "Burgundy", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [181] }, { "variant_key": "white", "display_name": "White", "flavour": "White", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [198] }]
+    },
+    {
+      "canonical_id": 200, "canonical_name": "Nebbia 90s Classic Sweatpants 160", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 200, "name": "Nebbia 90s Classic Sweatpants 160 - Black", "brand": "Nebbia", "category": "Accessories" }, { "id": 201, "name": "Nebbia 90s Classic Sweatpants 160 - Grey", "brand": "Nebbia", "category": "Accessories" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [215] }, { "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [162] }]
+    },
+    {
+      "canonical_id": 202, "canonical_name": "GASP 1.2lbs Hoodie", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 202, "name": "GASP 1.2lbs Hoodie - Black", "brand": "GASP", "category": "Accessories" }, { "id": 203, "name": "GASP 1.2lbs Hoodie - Grey", "brand": "GASP", "category": "Accessories" }, { "id": 204, "name": "GASP 1.2lbs Hoodie - White", "brand": "GASP", "category": "Accessories" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [182] }, { "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [199] }, { "variant_key": "white", "display_name": "White", "flavour": "White", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [216] }]
+    },
+    {
+      "canonical_id": 205, "canonical_name": "GASP No 89 Mesh Pants", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 205, "name": "GASP No 89 Mesh Pants - Black", "brand": "GASP", "category": "Accessories" }, { "id": 206, "name": "GASP No 89 Mesh Pants - Grey", "brand": "GASP", "category": "Accessories" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [163] }, { "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [183] }]
+    },
+    {
+      "canonical_id": 242, "canonical_name": "GASP Ribbed T-Back Gym Vest", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 242, "name": "GASP Ribbed T-Back  Gym Vest - Black", "brand": "GASP", "category": "Health Supplements" }, { "id": 243, "name": "GASP Ribbed T-Back  Gym Vest - Washed Green", "brand": "GASP", "category": "Health Supplements" }, { "id": 244, "name": "GASP Ribbed T-Back Gym Vest - Flame", "brand": "GASP", "category": "Health Supplements" }, { "id": 245, "name": "GASP Ribbed T-Back Gym Vest - Grey", "brand": "GASP", "category": "Health Supplements" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [263] }, { "variant_key": "washed-green", "display_name": "Washed Green", "flavour": "Washed Green", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [281] }, { "variant_key": "flame", "display_name": "Flame", "flavour": "Flame", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [523] }, { "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [244] }]
+    },
+    {
+      "canonical_id": 255, "canonical_name": "Gold's Gym Muscle Joe Gym T-Shirt", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 255, "name": "Gold's Gym Muscle Joe Gym T-Shirt - Red", "brand": "Gold's Gym", "category": "Accessories" }, { "id": 256, "name": "Gold's Gym Muscle Joe Gym T-Shirt - Army Green", "brand": "Gold's Gym", "category": "Accessories" }],
+      "variants": [{ "variant_key": "red", "display_name": "Red", "flavour": "Red", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [267] }, { "variant_key": "army-green", "display_name": "Army Green", "flavour": "Army Green", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [302] }]
+    },
+    {
+      "canonical_id": 259, "canonical_name": "Dreadlift I Hate Cardio Tee", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 259, "name": "Dreadlift I Hate Cardio Tee - Red", "brand": "Dreadlift", "category": "Accessories" }, { "id": 260, "name": "Dreadlift I Hate Cardio Tee - Grey", "brand": "Dreadlift", "category": "Accessories" }],
+      "variants": [{ "variant_key": "red", "display_name": "Red", "flavour": "Red", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [268] }, { "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [285] }]
+    },
+    {
+      "canonical_id": 261, "canonical_name": "Dreadlift Oldschool Bodybuilding Tee", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 261, "name": "Dreadlift Oldschool Bodybuilding Tee - Graphite", "brand": "Dreadlift", "category": "Accessories" }, { "id": 263, "name": "Dreadlift Oldschool Bodybuilding Tee - Red", "brand": "Dreadlift", "category": "Accessories" }, { "id": 264, "name": "Dreadlift Oldschool Bodybuilding Tee - Sapphire", "brand": "Dreadlift", "category": "Accessories" }],
+      "variants": [{ "variant_key": "graphite", "display_name": "Graphite", "flavour": "Graphite", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [231] }, { "variant_key": "red", "display_name": "Red", "flavour": "Red", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [269] }, { "variant_key": "sapphire", "display_name": "Sapphire", "flavour": "Sapphire", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [286] }]
+    },
+    {
+      "canonical_id": 269, "canonical_name": "GASP No1 Mesh Pants", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 269, "name": "GASP No1 Mesh Pants - Black", "brand": "GASP", "category": "Health Supplements" }, { "id": 270, "name": "GASP No1 Mesh Pants - White/Black", "brand": "GASP", "category": "Health Supplements" }, { "id": 512, "name": "GASP No1 Mesh Pants - Black/Flame", "brand": "GASP", "category": "Health Supplements" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [233] }, { "variant_key": "white-black", "display_name": "White/Black", "flavour": "White/Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [251] }, { "variant_key": "black-flame", "display_name": "Black/Flame", "flavour": "Black/Flame", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [438] }]
+    },
+    {
+      "canonical_id": 277, "canonical_name": "GASP Pro Mesh Shorts", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 277, "name": "GASP Pro Mesh Shorts - Grey", "brand": "GASP", "category": "Health Supplements" }, { "id": 278, "name": "GASP Pro Mesh Shorts - Black", "brand": "GASP", "category": "Health Supplements" }],
+      "variants": [{ "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [235] }, { "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [253] }]
+    },
+    {
+      "canonical_id": 280, "canonical_name": "GASP Thermal Shorts", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 280, "name": "GASP Thermal Shorts - Green Camoprint", "brand": "GASP", "category": "Health Supplements" }, { "id": 282, "name": "GASP Thermal Shorts - Wash Green", "brand": "GASP", "category": "Health Supplements" }],
+      "variants": [{ "variant_key": "green-camoprint", "display_name": "Green Camoprint", "flavour": "Green Camoprint", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [289] }, { "variant_key": "wash-green", "display_name": "Wash Green", "flavour": "Wash Green", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [254] }]
+    },
+    {
+      "canonical_id": 297, "canonical_name": "Go Gym Stuff Protein Shaker+ Bottle Mixer", "canonical_category": "Accessories", "canonical_product_format": "accessory",
+      "products": [{ "id": 297, "name": "Go Gym Stuff Protein Shaker+ Green Bottle Mixer", "brand": "Go Gym Stuff", "category": "Accessories" }, { "id": 298, "name": "Go Gym Stuff Protein Shaker+ Red Bottle Mixer", "brand": "Go Gym Stuff", "category": "Accessories" }, { "id": 299, "name": "Go Gym Stuff Protein Shaker+ Purple Bottle Mixer", "brand": "Go Gym Stuff", "category": "Accessories" }],
+      "variants": [{ "variant_key": "green", "display_name": "Green", "flavour": "Green", "pack_count": 1, "product_format": "accessory", "source_variant_ids": [239] }, { "variant_key": "red", "display_name": "Red", "flavour": "Red", "pack_count": 1, "product_format": "accessory", "source_variant_ids": [257] }, { "variant_key": "purple", "display_name": "Purple", "flavour": "Purple", "pack_count": 1, "product_format": "accessory", "source_variant_ids": [275] }]
+    },
+    {
+      "canonical_id": 306, "canonical_name": "USN Women's Sports Bra", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 306, "name": "USN Women's Sports Bra - Grey", "brand": "USN", "category": "Accessories" }, { "id": 307, "name": "USN Women's Sports Bra - Blue", "brand": "USN", "category": "Accessories" }],
+      "variants": [{ "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [259] }, { "variant_key": "blue", "display_name": "Blue", "flavour": "Blue", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [277] }]
+    },
+    {
+      "canonical_id": 308, "canonical_name": "BioTech USA T-Shirt V-Neck", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 308, "name": "BioTech USA T-Shirt V-Neck - Black", "brand": "BioTech USA", "category": "Accessories" }, { "id": 309, "name": "BioTech USA T-Shirt V-Neck - Tropical Blue", "brand": "BioTech USA", "category": "Accessories" }],
+      "variants": [{ "variant_key": "black", "display_name": "Black", "flavour": "Black", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [295] }, { "variant_key": "tropical-blue", "display_name": "Tropical Blue", "flavour": "Tropical Blue", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [242] }]
+    },
+    {
+      "canonical_id": 310, "canonical_name": "USN Men's Gym Training Vest", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 310, "name": "USN Men's Gym Training Vest - White", "brand": "USN", "category": "Accessories" }, { "id": 311, "name": "USN Men's Gym Training Vest - Blue", "brand": "USN", "category": "Accessories" }],
+      "variants": [{ "variant_key": "white", "display_name": "White", "flavour": "White", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [260] }, { "variant_key": "blue", "display_name": "Blue", "flavour": "Blue", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [278] }]
+    },
+    {
+      "canonical_id": 314, "canonical_name": "USN Men's Sleeveless Vest", "canonical_category": "Accessories", "canonical_product_format": "apparel",
+      "products": [{ "id": 314, "name": "USN Men's Sleeveless Vest - White", "brand": "USN", "category": "Accessories" }, { "id": 315, "name": "USN Men's Sleeveless Vest - Blue", "brand": "USN", "category": "Accessories" }, { "id": 316, "name": "USN Men's Sleeveless Vest - Grey", "brand": "USN", "category": "Accessories" }],
+      "variants": [{ "variant_key": "white", "display_name": "White", "flavour": "White", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [261] }, { "variant_key": "blue", "display_name": "Blue", "flavour": "Blue", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [279] }, { "variant_key": "grey", "display_name": "Grey", "flavour": "Grey", "pack_count": 1, "product_format": "apparel", "source_variant_ids": [297] }]
+    },
+    {
+      "canonical_id": 468, "canonical_name": "Critical Cookie 12 x 85g", "canonical_category": "Protein Bars", "canonical_product_format": "snack",
+      "products": [{ "id": 468, "name": "Critical Cookie Double Chocolate - 12 x 85g", "brand": "Applied Nutrition", "category": "Protein Bars" }, { "id": 473, "name": "Critical Cookie Chocolate Chip - 12 x 85g", "brand": "Applied Nutrition", "category": "Protein Bars" }, { "id": 475, "name": "Critical Cookie White Chocolate & Raspberry - 12 x 85g", "brand": "Applied Nutrition", "category": "Protein Bars" }],
+      "variants": [{ "variant_key": "double-chocolate-85g-12-pack", "display_name": "Double Chocolate Box of 12 / 85g", "flavour": "Double Chocolate", "size_value": 85, "size_unit": "g", "pack_count": 12, "product_format": "snack", "source_variant_ids": [429] }, { "variant_key": "chocolate-chip-85g-12-pack", "display_name": "Chocolate Chip Box of 12 / 85g", "flavour": "Chocolate Chip", "size_value": 85, "size_unit": "g", "pack_count": 12, "product_format": "snack", "source_variant_ids": [478] }, { "variant_key": "white-chocolate-raspberry-85g-12-pack", "display_name": "White Chocolate & Raspberry Box of 12 / 85g", "flavour": "White Chocolate & Raspberry", "size_value": 85, "size_unit": "g", "pack_count": 12, "product_format": "snack", "source_variant_ids": [463] }]
+    },
+    {
+      "canonical_id": 469, "canonical_name": "Critical Cookie 85g", "canonical_category": "Protein Bars", "canonical_product_format": "snack",
+      "products": [{ "id": 469, "name": "Critical Cookie Double Chocolate", "brand": "Applied Nutrition", "category": "Protein Bars" }, { "id": 472, "name": "Critical Cookie Chocolate Chip", "brand": "Applied Nutrition", "category": "Protein Bars" }],
+      "variants": [{ "variant_key": "double-chocolate-85g", "display_name": "Double Chocolate / 85g", "flavour": "Double Chocolate", "size_value": 85, "size_unit": "g", "pack_count": 1, "product_format": "snack", "existing_variant_id": 2313, "source_variant_ids": [477, 2313] }, { "variant_key": "chocolate-chip-85g", "display_name": "Chocolate Chip / 85g", "flavour": "Chocolate Chip", "size_value": 85, "size_unit": "g", "pack_count": 1, "product_format": "snack", "source_variant_ids": [430, 2312] }]
+    },
+    {
+      "canonical_id": 885, "canonical_name": "Innovapharm MVPRE 3.0 Pre Workout 437g", "canonical_category": "Pre Workout", "canonical_product_format": "powder",
+      "products": [{ "id": 885, "name": "Innovapharm MVPRE 3.0 Pre Workout 437g", "brand": "Innovapharm", "category": "Pre Workout" }, { "id": 775, "name": "Innovapharm MVPRE Pre-Workout 3.0 40/20 servings", "brand": "Innovapharm", "category": "Pre Workout" }],
+      "variants": [{ "variant_key": "jungle-juice-437g", "display_name": "Jungle Juice / 437g", "flavour": "Jungle Juice", "size_value": 437, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1419, "source_variant_ids": [1419] }, { "variant_key": "rainbow-rock-candy-437g", "display_name": "Rainbow Rock Candy / 437g", "flavour": "Rainbow Rock Candy", "size_value": 437, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1420, "source_variant_ids": [1420] }, { "variant_key": "rocket-pop-437g", "display_name": "Rocket Pop / 437g", "flavour": "Rocket Pop", "size_value": 437, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1421, "source_variant_ids": [1421] }, { "variant_key": "sweet-apple-punch-437g", "display_name": "Sweet Apple Punch / 437g", "flavour": "Sweet Apple Punch", "size_value": 437, "size_unit": "g", "pack_count": 1, "product_format": "powder", "existing_variant_id": 1422, "source_variant_ids": [1422, 1977] }, { "variant_key": "watermelon-lemonade-437g", "display_name": "Watermelon Lemonade / 437g", "flavour": "Watermelon Lemonade", "size_value": 437, "size_unit": "g", "pack_count": 1, "product_format": "powder", "source_variant_ids": [961] }]
+    },
+    {
+      "canonical_id": 1077, "canonical_name": "7Nutrition Cream Crunch 750g", "canonical_category": "Protein Bars", "canonical_product_format": "spread",
+      "products": [{ "id": 1077, "name": "7Nutrition Cream Crunch 750g", "brand": "7Nutrition", "category": "Protein Bars" }, { "id": 1078, "name": "7Nutrition Keto Cream Crunch 750g", "brand": "7Nutrition", "category": "Protein Bars" }],
+      "variants": [{ "variant_key": "chocolate-peanut-750g", "display_name": "Chocolate Peanut / 750g", "flavour": "Chocolate Peanut", "size_value": 750, "size_unit": "g", "pack_count": 1, "product_format": "spread", "existing_variant_id": 2315, "source_variant_ids": [2315] }, { "variant_key": "salted-caramel-750g", "display_name": "Salted Caramel / 750g", "flavour": "Salted Caramel", "size_value": 750, "size_unit": "g", "pack_count": 1, "product_format": "spread", "existing_variant_id": 2316, "source_variant_ids": [2316] }, { "variant_key": "coconut-750g", "display_name": "Coconut / 750g", "flavour": "Coconut", "size_value": 750, "size_unit": "g", "pack_count": 1, "product_format": "spread", "existing_variant_id": 2317, "source_variant_ids": [2317] }, { "variant_key": "keto-coconut-750g", "display_name": "Keto Coconut / 750g", "flavour": "Keto Coconut", "size_value": 750, "size_unit": "g", "pack_count": 1, "product_format": "spread", "source_variant_ids": [2319] }, { "variant_key": "keto-caramel-750g", "display_name": "Keto Caramel / 750g", "flavour": "Keto Caramel", "size_value": 750, "size_unit": "g", "pack_count": 1, "product_format": "spread", "source_variant_ids": [2320] }]
+    }
+  ],
+  "separate_decision_remaps": [
+    { "from_product_a_id": 311, "from_product_b_id": 315, "product_a_id": 310, "product_b_id": 315 },
+    { "from_product_a_id": 471, "from_product_b_id": 475, "product_a_id": 468, "product_b_id": 471 }
+  ]
+}

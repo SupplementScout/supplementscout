@@ -152,6 +152,26 @@ one price-history row and one outbound-click record were preserved. Merge-histor
 row `5` records the operation. Production verification shows one active public
 product family and the Fit House offer under the correct variant.
 
+The remaining owner-reviewed family queue was completed later on 31 July 2026.
+Twenty-four canonical families now contain their reviewed flavour, size or
+colour variants; 33 redundant active product cards were retired in the guarded
+batch, and the post-batch audit found four variants that had been missed during
+the original review. Those four cards (Dreadlift Military Green, GASP Thermal
+Shorts Asphalt and Tactical Camo, and Critical Cookie Salted Caramel box of 12)
+were then added to the correct existing families through the same guarded merge
+path. In total this closeout retired 37 redundant cards, created 62 structured
+variants and preserved all 83 affected retailer mappings and offers. The global
+catalogue totals for products, mappings, offers and price history did not fall;
+only active duplicate cards were retired.
+
+The final full-catalogue identity audit reports 1,071 active products, 0 open
+family candidates, 0 uncertain duplicate candidates and 92 active reviewed
+`separate` relationships. The single-cookie and 12-cookie Critical Cookie
+products remain separate commercial packs. Six Pack's immutable automation
+manifest was rebound to the five changed canonical targets and its fresh live
+506-offer dry-run returned `VERIFY_NO_CHANGE ×506`, 0 blocked rows and 0 database
+writes.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
