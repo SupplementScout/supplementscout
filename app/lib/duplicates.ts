@@ -10,13 +10,25 @@ export type DuplicateProduct = {
   net_volume_ml?: number | string | null;
   unit_count?: number | string | null;
   unit_type?: string | null;
+  servings?: number | string | null;
+};
+
+export type DuplicateAlias = {
+  product_id: number | string;
+  external_name: string | null;
+  external_gtin?: string | null;
 };
 
 export type DuplicateLevel = "high" | "medium" | "low";
+export type DuplicateKind =
+  | "exact-product"
+  | "product-family"
+  | "possible-duplicate";
 
 export type DuplicateMatch = {
   score: number;
   level: DuplicateLevel;
+  kind: DuplicateKind;
   productA: DuplicateProduct;
   productB: DuplicateProduct;
 };
@@ -117,6 +129,29 @@ const variantWords = [
   "astralagus",
 ];
 
+const brandFamilies = new Map([
+  ["animal", "universal-animal"],
+  ["universalnutrition", "universal-animal"],
+  ["universalanimal", "universal-animal"],
+  ["nxt", "nxt-nutrition"],
+  ["nxtnutrition", "nxt-nutrition"],
+  ["6paknutrition", "6pak-nutrition"],
+  ["6packnutrition", "6pak-nutrition"],
+]);
+
+function compact(value: string | null | undefined) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+export function normalizeBrandFamily(value: string | null | undefined) {
+  const key = compact(value);
+  return brandFamilies.get(key) || key;
+}
+
 export function normalizeName(name = "") {
   return name
     .toLowerCase()
@@ -192,39 +227,110 @@ export function getDuplicateLevel(score: number): DuplicateLevel {
 
 export function findPossibleDuplicates(
   products: DuplicateProduct[],
-  minimumScore = 0.6
+  minimumScore = 0.6,
+  aliases: DuplicateAlias[] = []
 ) {
   const possibleDuplicates: DuplicateMatch[] = [];
+  const aliasesByProduct = new Map<string, string[]>();
+  const gtinsByProduct = new Map<string, Set<string>>();
+
+  for (const product of products) {
+    if (product.gtin) {
+      gtinsByProduct.set(String(product.id), new Set([product.gtin]));
+    }
+  }
+
+  for (const alias of aliases) {
+    const productId = String(alias.product_id);
+    if (alias.external_name) {
+      const names = aliasesByProduct.get(productId) || [];
+      names.push(alias.external_name);
+      aliasesByProduct.set(productId, names);
+    }
+    if (alias.external_gtin) {
+      const gtins = gtinsByProduct.get(productId) || new Set<string>();
+      gtins.add(alias.external_gtin);
+      gtinsByProduct.set(productId, gtins);
+    }
+  }
 
   for (let i = 0; i < products.length; i += 1) {
     for (let j = i + 1; j < products.length; j += 1) {
       const productA = products[i];
       const productB = products[j];
 
+      const brandA = normalizeBrandFamily(productA.brand);
+      const brandB = normalizeBrandFamily(productB.brand);
+
+      if (!brandA || brandA !== brandB) {
+        continue;
+      }
+
       if (
-        String(productA.brand || "").toLowerCase() !==
-        String(productB.brand || "").toLowerCase()
+        productA.product_format &&
+        productB.product_format &&
+        productA.product_format !== productB.product_format
       ) {
         continue;
       }
 
       const sizeA = extractSize(productA.name);
       const sizeB = extractSize(productB.name);
+      const differentNamedSize =
+        sizeA !== null && sizeB !== null && sizeA !== sizeB;
+      const differentStructuredSize =
+        (productA.net_weight_g != null &&
+          productB.net_weight_g != null &&
+          Number(productA.net_weight_g) !== Number(productB.net_weight_g)) ||
+        (productA.net_volume_ml != null &&
+          productB.net_volume_ml != null &&
+          Number(productA.net_volume_ml) !== Number(productB.net_volume_ml)) ||
+        (productA.unit_count != null &&
+          productB.unit_count != null &&
+          productA.unit_type === productB.unit_type &&
+          Number(productA.unit_count) !== Number(productB.unit_count)) ||
+        (productA.servings != null &&
+          productB.servings != null &&
+          Number(productA.servings) !== Number(productB.servings));
+      const differentVariant = haveDifferentVariants(
+        productA.name,
+        productB.name
+      );
 
-      if (sizeA !== null && sizeB !== null && sizeA !== sizeB) {
-        continue;
+      const namesA = [
+        productA.name,
+        ...(aliasesByProduct.get(String(productA.id)) || []),
+      ];
+      const namesB = [
+        productB.name,
+        ...(aliasesByProduct.get(String(productB.id)) || []),
+      ];
+      let score = 0;
+
+      for (const nameA of namesA) {
+        for (const nameB of namesB) {
+          score = Math.max(score, similarity(nameA, nameB));
+        }
       }
 
-      if (haveDifferentVariants(productA.name, productB.name)) {
-        continue;
-      }
+      const gtinsA = gtinsByProduct.get(String(productA.id)) || new Set();
+      const gtinsB = gtinsByProduct.get(String(productB.id)) || new Set();
+      const exactGtin = [...gtinsA].some((gtin) => gtinsB.has(gtin));
 
-      const score = similarity(productA.name, productB.name);
+      if (exactGtin) {
+        score = 1;
+      }
 
       if (score >= minimumScore) {
+        const kind: DuplicateKind = exactGtin
+          ? "exact-product"
+          : differentVariant || differentNamedSize || differentStructuredSize
+            ? "product-family"
+            : "possible-duplicate";
         possibleDuplicates.push({
           score,
           level: getDuplicateLevel(score),
+          kind,
           productA,
           productB,
         });

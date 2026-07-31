@@ -41,6 +41,9 @@ test.after(() => {
 const { buildDuplicateReviews } = require(
   path.join(process.cwd(), "app", "lib", "duplicateReview.ts")
 );
+const { findPossibleDuplicates } = require(
+  path.join(process.cwd(), "app", "lib", "duplicates.ts")
+);
 
 function product(id, overrides = {}) {
   return {
@@ -65,6 +68,7 @@ function match(productA, productB, score = 0.9) {
     productB,
     score,
     level: score >= 0.85 ? "high" : score >= 0.7 ? "medium" : "low",
+    kind: "possible-duplicate",
   };
 }
 
@@ -97,6 +101,84 @@ test("exact identity with default variants is presented as a merge candidate", (
   assert.equal(review.preflightStatus, "candidate");
   assert.deepEqual(review.blockers, []);
   assert(review.positiveSignals.includes("Exact same GTIN"));
+});
+
+test("catalogue detector finds CREA-4 despite retailer naming noise", () => {
+  const matches = findPossibleDuplicates([
+    product(1, {
+      name: "GYM HIGH CREA-4 Elite Capsules",
+      brand: "GYM HIGH",
+      product_format: "capsule",
+      servings: 60,
+    }),
+    product(967, {
+      name: "Gym High CREA-4 Elite 60 servings",
+      brand: "GYM HIGH",
+      gtin: null,
+      product_format: "capsule",
+      servings: 60,
+    }),
+  ]);
+
+  assert.equal(matches.length, 1);
+  assert.equal(matches[0].level, "medium");
+});
+
+test("catalogue detector uses retailer aliases and known brand families", () => {
+  const matches = findPossibleDuplicates(
+    [
+      product(10, {
+        name: "Animal Flex 44 packs",
+        brand: "Animal",
+        gtin: null,
+        product_format: null,
+      }),
+      product(20, {
+        name: "Universal Nutrition Joint Support",
+        brand: "Universal Nutrition",
+        gtin: null,
+        product_format: null,
+      }),
+    ],
+    0.6,
+    [
+      {
+        product_id: 20,
+        external_name: "Universal Nutrition Animal Flex 44 Packs",
+      },
+    ]
+  );
+
+  assert.equal(matches.length, 1);
+  assert(matches[0].score >= 0.6);
+});
+
+test("catalogue detector routes different structured sizes to family review", () => {
+  const matches = findPossibleDuplicates([
+    product(1, { name: "Example Whey", gtin: null, net_weight_g: 500 }),
+    product(2, { name: "Example Whey", gtin: null, net_weight_g: 1000 }),
+  ]);
+
+  assert.equal(matches.length, 1);
+  assert.equal(matches[0].kind, "product-family");
+});
+
+test("catalogue detector treats retailer GTIN evidence as exact identity", () => {
+  const matches = findPossibleDuplicates(
+    [
+      product(1, { name: "Example Original", gtin: null }),
+      product(2, { name: "Example Retail Name", gtin: null }),
+    ],
+    0.6,
+    [
+      { product_id: 1, external_name: null, external_gtin: "0500000000001" },
+      { product_id: 2, external_name: null, external_gtin: "0500000000001" },
+    ]
+  );
+
+  assert.equal(matches.length, 1);
+  assert.equal(matches[0].kind, "exact-product");
+  assert.equal(matches[0].score, 1);
 });
 
 test("non-default variants and candidate mappings fail closed", () => {

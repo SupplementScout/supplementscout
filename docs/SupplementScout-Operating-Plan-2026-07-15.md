@@ -93,6 +93,49 @@ that truncation, then truthful index/last-modified policy, category relevance
 and crawlable internal product linking. New high-intent landing pages follow
 only after those P0 foundations.
 
+### 0.0.6 Catalogue identity reconciliation - 31 July 2026
+
+Catalogue identity reconciliation is the active bounded data-maintenance task.
+It reuses the existing authenticated duplicate review, guarded merge RPCs,
+variant model, retailer mappings and merge history; it must not introduce a
+second catalogue or importer.
+
+The production audit found that the previous admin detector loaded only the
+first 1,000 active products and compared canonical names without the complete
+retailer alias set. It also treated flavour, size and colour differences as a
+reason to omit a pair, even when the rows could belong to one canonical product
+family. The corrected detector pages through the complete catalogue and safety
+evidence, uses retailer aliases and retailer GTIN evidence, understands the
+approved brand aliases, and labels exact-product, product-family and uncertain
+matches separately.
+
+Two exact duplicate families were reconciled through the existing guarded
+merge path and verified immediately after execution:
+
+- product `967`, Fit House `Gym High CREA-4 Elite 60 servings`, was merged into
+  canonical product `1`; all three retailer mappings/offers now use product `1`
+  and merge-history row `2` preserves the audit snapshot;
+- product `953`, Fit House `7Nutrition Volcano 150 Capsules`, was merged into
+  canonical product `184`; the category label was first aligned from the
+  generic `Health Supplements` to canonical `Vitamins`, both offers/mappings
+  now use product `184`, and merge-history row `3` preserves the audit snapshot.
+
+The fresh read-only catalogue audit after those merges contains 1,109 active,
+unmerged products and 136 detected pair relationships: 88 possible
+flavour/size/colour families, 20 uncertain similar-name reviews and 28 pairs
+with an older keep-separate decision. These are pair relationships, not 136
+merge instructions: overlapping pairs can describe one family and many similar
+names are legitimately different formulas. No remaining pair has exact shared
+GTIN evidence that is safe for unattended merge. Older keep-separate decisions
+that now look like a possible family are explicitly flagged for recheck.
+
+Binding execution rule: exact default-only duplicates may use the existing
+guarded merge only after live preconditions and post-merge preservation checks
+pass. Product-family consolidation must preserve every reviewed flavour, size,
+colour, retailer mapping, offer, price-history row and outbound-click identity.
+Until a variant-aware family plan passes those checks, it remains review-only;
+ordinary duplicate merge must fail closed rather than flatten variants.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

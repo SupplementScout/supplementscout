@@ -6,14 +6,18 @@ import {
 } from "../../lib/duplicates";
 import {
   buildDuplicateReviews,
-  type DuplicateMappingEvidence,
   type DuplicatePreflightStatus,
-  type DuplicateVariantEvidence,
   type ProductReviewEvidence,
 } from "../../lib/duplicateReview";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
-import { supabase } from "../../lib/supabase";
 import { requireAdminPage } from "../../lib/adminAuth";
+import {
+  type AdminDuplicateProduct as AdminProduct,
+  loadAllActiveProducts,
+  loadAllMappingsForProducts,
+  loadAllProductAliases,
+  loadAllVariantsForProducts,
+} from "../lib/duplicateData";
 
 export const dynamic = "force-dynamic";
 
@@ -27,22 +31,6 @@ const preflightStyles: Record<DuplicatePreflightStatus, string> = {
   blocked: "border-red-200 bg-red-50 text-red-700",
   review: "border-amber-200 bg-amber-50 text-amber-700",
   candidate: "border-emerald-200 bg-emerald-50 text-emerald-700",
-};
-
-type AdminProduct = {
-  id: number | string;
-  name: string;
-  slug: string | null;
-  gtin: string | null;
-  brand: string | null;
-  category: string | null;
-  product_format: string | null;
-  net_weight_g: number | string | null;
-  net_volume_ml: number | string | null;
-  unit_count: number | string | null;
-  unit_type: string | null;
-  is_active?: boolean | null;
-  merged_into_product_id?: number | string | null;
 };
 
 type IgnoredPair = {
@@ -181,6 +169,7 @@ export default async function DuplicateProductsPage({
     candidate?: string | string[];
     saved?: string | string[];
     level?: string | string[];
+    kind?: string | string[];
     q?: string | string[];
     count?: string | string[];
   }>;
@@ -193,20 +182,17 @@ export default async function DuplicateProductsPage({
   const candidate = firstParam(params.candidate);
   const saved = firstParam(params.saved);
   const selectedLevel = firstParam(params.level);
+  const selectedKind = firstParam(params.kind);
   const searchQuery = firstParam(params.q).trim().toLowerCase();
   const savedCount = firstParam(params.count);
 
   const [
     { data: products, error },
+    { data: productAliases, error: productAliasesError },
     { data: ignoredPairsData, error: ignoredPairsError },
   ] = await Promise.all([
-    supabase
-      .from("products")
-      .select(
-        "id, name, slug, gtin, brand, category, product_format, net_weight_g, net_volume_ml, unit_count, unit_type, is_active, merged_into_product_id"
-      )
-      .eq("is_active", true)
-      .order("name"),
+    loadAllActiveProducts(),
+    loadAllProductAliases(),
     supabaseAdmin
       .from("ignored_duplicate_product_pairs")
       .select(
@@ -231,7 +217,7 @@ export default async function DuplicateProductsPage({
       ? await supabaseAdmin
           .from("products")
           .select(
-            "id, name, slug, gtin, brand, category, product_format, net_weight_g, net_volume_ml, unit_count, unit_type, is_active, merged_into_product_id"
+            "id, name, slug, gtin, brand, category, product_format, net_weight_g, net_volume_ml, unit_count, unit_type, servings, is_active, merged_into_product_id"
           )
           .eq("is_active", true)
           .in("id", ignoredProductIds)
@@ -248,7 +234,17 @@ export default async function DuplicateProductsPage({
     )
   );
 
-  const allDuplicateMatches = findPossibleDuplicates(products || []);
+  const allDuplicateMatches = findPossibleDuplicates(
+    products || [],
+    0.6,
+    productAliases || []
+  );
+  const allDuplicateMatchByPair = new Map(
+    allDuplicateMatches.map((match) => [
+      getDuplicatePairKey(match.productA.id, match.productB.id),
+      match,
+    ])
+  );
 
   const duplicateMatches = ignoredPairsError
     ? allDuplicateMatches
@@ -272,18 +268,8 @@ export default async function DuplicateProductsPage({
   ] =
     reviewProductIds.length > 0
       ? await Promise.all([
-          supabaseAdmin
-            .from("product_variants")
-            .select(
-              "id, product_id, variant_key, display_name, flavour_label, size_value, size_unit, pack_count, product_format, is_active, is_default"
-            )
-            .in("product_id", reviewProductIds),
-          supabaseAdmin
-            .from("retailer_products")
-            .select(
-              "id, product_id, retailer_id, external_product_id, external_variant_id, external_sku, external_gtin, match_method, retailer:retailers(name)"
-            )
-            .in("product_id", reviewProductIds),
+          loadAllVariantsForProducts(reviewProductIds),
+          loadAllMappingsForProducts(reviewProductIds),
         ])
       : [
           { data: [], error: null },
@@ -291,8 +277,8 @@ export default async function DuplicateProductsPage({
         ];
   const duplicateReviews = buildDuplicateReviews(
     duplicateMatches,
-    (variantsData || []) as DuplicateVariantEvidence[],
-    (mappingsData || []) as DuplicateMappingEvidence[],
+    variantsData || [],
+    mappingsData || [],
     !variantsError && !mappingsError
   );
   const filteredReviews = duplicateReviews.filter((review) => {
@@ -300,6 +286,10 @@ export default async function DuplicateProductsPage({
       !selectedLevel ||
       selectedLevel === "all" ||
       review.level === selectedLevel;
+    const kindMatches =
+      !selectedKind ||
+      selectedKind === "all" ||
+      review.kind === selectedKind;
     const haystack = [
       review.productA.name,
       review.productB.name,
@@ -311,7 +301,11 @@ export default async function DuplicateProductsPage({
       .join(" ")
       .toLowerCase();
 
-    return levelMatches && (!searchQuery || haystack.includes(searchQuery));
+    return (
+      levelMatches &&
+      kindMatches &&
+      (!searchQuery || haystack.includes(searchQuery))
+    );
   });
   const deferredPairs = ignoredPairs.filter(
     (pair) => pair.decision === "deferred"
@@ -329,6 +323,12 @@ export default async function DuplicateProductsPage({
   if (ignoredPairsError) {
     console.error("Unable to load ignored duplicate pairs.", {
       errorName: ignoredPairsError.name,
+    });
+  }
+
+  if (productAliasesError) {
+    console.error("Unable to load retailer product aliases.", {
+      errorName: productAliasesError.name,
     });
   }
 
@@ -439,6 +439,13 @@ export default async function DuplicateProductsPage({
           </div>
         )}
 
+        {productAliasesError && (
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Retailer aliases could not be loaded, so duplicate detection is
+            running with canonical names only.
+          </div>
+        )}
+
         {ignoredProductsError && (
           <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             Unable to load product details for ignored pairs.
@@ -455,7 +462,7 @@ export default async function DuplicateProductsPage({
         <form
           action="/admin/duplicates"
           method="get"
-          className="mt-6 grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 sm:grid-cols-[1fr_180px_auto]"
+          className="mt-6 grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 sm:grid-cols-[1fr_180px_220px_auto]"
         >
           <label className="text-sm font-medium text-zinc-700">
             Search name, brand or ID
@@ -466,6 +473,19 @@ export default async function DuplicateProductsPage({
               className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-950"
               placeholder="e.g. Beta-Alanine"
             />
+          </label>
+          <label className="text-sm font-medium text-zinc-700">
+            Review type
+            <select
+              name="kind"
+              defaultValue={selectedKind || "all"}
+              className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-950"
+            >
+              <option value="all">All types</option>
+              <option value="exact-product">Same exact product</option>
+              <option value="product-family">Flavour / size family</option>
+              <option value="possible-duplicate">Possible duplicate</option>
+            </select>
           </label>
           <label className="text-sm font-medium text-zinc-700">
             Similarity level
@@ -549,6 +569,13 @@ export default async function DuplicateProductsPage({
                   </span>
                   <span className="text-sm font-medium text-zinc-600">
                     Score {Math.round(match.score * 100)}%
+                  </span>
+                  <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">
+                    {match.kind === "exact-product"
+                      ? "Same exact product"
+                      : match.kind === "product-family"
+                        ? "Possible size/flavour family"
+                        : "Possible duplicate"}
                   </span>
                   <span
                     className={`rounded-full border px-3 py-1 text-sm font-semibold ${preflightStyles[match.preflightStatus]}`}
@@ -714,6 +741,9 @@ export default async function DuplicateProductsPage({
             {ignoredPairs.map((pair) => {
               const productA = ignoredProductMap.get(String(pair.product_a_id));
               const productB = ignoredProductMap.get(String(pair.product_b_id));
+              const detectedMatch = allDuplicateMatchByPair.get(
+                getDuplicatePairKey(pair.product_a_id, pair.product_b_id)
+              );
 
               return (
                 <section
@@ -746,6 +776,13 @@ export default async function DuplicateProductsPage({
                           Note: {pair.note}
                         </p>
                       )}
+                      {pair.decision === "separate" &&
+                        detectedMatch?.kind === "product-family" && (
+                          <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
+                            Recheck this older decision: the improved audit sees
+                            a possible flavour, size or colour family.
+                          </p>
+                        )}
                     </div>
 
                     <form
