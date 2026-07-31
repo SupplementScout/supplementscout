@@ -161,6 +161,11 @@ This update supersedes older Jon's catalogue-growth and production-enablement ne
   and price-history row counts all remained unchanged. A fresh production
   dry-run then matched 506/506 offers and validated all 11 children: 485 no
   change and 21 stock-only updates, with zero price, shipping or URL changes.
+- Protected GitHub run `30639975807` then completed successfully on commit
+  `e3d7fec`: it applied the 21 stock-only changes across the complete 506-offer
+  scope and refreshed all 506 offers. Products, variants, mappings, offers and
+  price history changed by zero rows. The final fresh idempotency check returned
+  `VERIFY_NO_CHANGE` for all 506 offers and zero business-field changes.
 - A fresh full-catalogue dry-run then matched all 506 Jon's mappings and classified all 506 as `VERIFY_NO_CHANGE`, with 0 missing mappings, identity changes, duplicate source identities, source errors or blockers. The same GB source contained 224 products, 844 variants and 575 available variants; the other 338 source variants remain discovery-only and reconcile exactly with the 506 mappings.
 - Jon's operational automation is complete. The protected GitHub Environment `production-readonly` contains the three existing, separate least-privilege production connection URLs for `retailer_catalogue_production_validator`, `retailer_catalogue_production_approver` and `retailer_catalogue_production_executor`; no new login, role or broad grant was created. The narrow registration RPC creates an immutable parent and 11 ordered children, and sequential approval permits only the next legal unchanged child.
 - Manual GitHub run [`29931897205`](https://github.com/SupplementScout/supplementscout/actions/runs/29931897205) passed on commit `f28d462a45e11f01437365a579c5ad7fa696ad86`. Environment access, 59 contract tests, source capture, discovery, dry-run, registration, validator, all 11 sequential approvals/applies, fresh idempotency and artifact upload passed. Scope was 506 mappings/offers; all classified `VERIFY_NO_CHANGE`, freshness changed for 506, price/stock/URL/history and catalogue row counts changed by 0, discovery reported 338, blockers were 0, the parent finished `COMPLETED`, children finished 11/11 `APPLIED`, active plans/approvals/runs were 0 and recovery was 0.
@@ -1992,6 +1997,11 @@ Current binding decisions:
   opening two new database connections per offer. Per-row approval, execution,
   ordering and idempotency remain unchanged; the job limit is 90 minutes as a
   secondary operational margin.
+- Protected GitHub run `30639957001` completed successfully on commit
+  `e3d7fec`. Both live reads covered the exact 506 approved offers across 279
+  product pages and returned `VERIFY_NO_CHANGE` for all 506. The optimized
+  apply executed all 506 individually approved plans and completed before the
+  timeout; the fresh post-apply check also returned 506/506 no-change.
 - Direct retailer URLs are complete. Affiliate tracking for 6 Pack remains
   explicitly not configured and is a later commercial task, not a catalogue or
   refresh blocker.
