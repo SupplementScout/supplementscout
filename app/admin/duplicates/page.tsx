@@ -404,7 +404,8 @@ export default async function DuplicateProductsPage({
         )}
         {saved === "deferred" && (
           <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm font-semibold text-blue-700">
-            Pair moved to the deferred review queue.
+            Family decision saved. It will be merged only after the guarded
+            variant plan passes its safety checks.
           </div>
         )}
         {saved === "restored" && (
@@ -415,7 +416,7 @@ export default async function DuplicateProductsPage({
         {saved.startsWith("batch-") && (
           <div className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700">
             Saved {savedCount || "selected"} batch decisions:{" "}
-            {saved === "batch-separate" ? "keep separate" : "deferred"}.
+            {saved === "batch-separate" ? "keep separate" : "merge family"}.
           </div>
         )}
 
@@ -539,7 +540,7 @@ export default async function DuplicateProductsPage({
               value="deferred"
               className="rounded-lg border border-blue-700 bg-blue-700 px-4 py-2 text-sm font-semibold text-white"
             >
-              Defer selected
+              Merge selected as family
             </button>
           </form>
         )}
@@ -626,7 +627,7 @@ export default async function DuplicateProductsPage({
                       type="submit"
                       className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:border-blue-700"
                     >
-                      Defer
+                      Merge family later
                     </button>
                   </form>
 
@@ -710,14 +711,14 @@ export default async function DuplicateProductsPage({
                 Decision memory
               </p>
               <h2 className="mt-2 text-2xl font-bold tracking-tight">
-                Deferred and separate pairs
+                Merge-family and separate pairs
               </h2>
             </div>
             <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600">
               <span className="font-semibold text-zinc-950">
                 {deferredPairs.length}
               </span>{" "}
-              deferred ·{" "}
+              merge-family ·{" "}
               <span className="font-semibold text-zinc-950">
                 {separatePairs.length}
               </span>{" "}
@@ -760,7 +761,7 @@ export default async function DuplicateProductsPage({
                         }`}
                       >
                         {pair.decision === "deferred"
-                          ? "Deferred"
+                          ? "Merge family"
                           : "Keep separate"}
                       </span>
                       <p className="mt-3 text-sm font-medium text-zinc-600">

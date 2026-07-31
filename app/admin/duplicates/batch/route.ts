@@ -4,6 +4,8 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 import { requireAdminRoute } from "../../../lib/adminAuth";
 
 const MAX_BATCH_SIZE = 100;
+const MERGE_FAMILY_NOTE =
+  "MERGE FAMILY – ten sam produkt, różne smaki/rozmiary/kolory";
 
 function parsePair(value: FormDataEntryValue) {
   if (typeof value !== "string") {
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
         product_a_id: pair![0],
         product_b_id: pair![1],
         decision,
-        note: null,
+        note: decision === "deferred" ? MERGE_FAMILY_NOTE : null,
         updated_at: now,
       },
     ])

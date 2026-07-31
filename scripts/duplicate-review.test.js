@@ -317,3 +317,24 @@ test("family review migration keeps family decisions review-only and guarded", (
     /\b(insert|update|delete)\s+(into\s+|from\s+)?public\.(products|product_variants|retailer_products|offers|price_history)\b/i
   );
 });
+
+test("family variant merge is narrow, transactional and preserves evidence", () => {
+  const migration = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "supabase",
+      "migrations",
+      "20260731170000_add_guarded_product_family_variant_merge.sql"
+    ),
+    "utf8"
+  );
+
+  assert.match(migration, /merge_product_into_existing_variant/);
+  assert.match(migration, /exactly one active candidate variant/);
+  assert.match(migration, /target_variant\.product_id <> canonical_id/);
+  assert.match(migration, /candidate_outbound_clicks_before/);
+  assert.match(migration, /price_history_preserved/);
+  assert.match(migration, /admin_family_variant_merge_rpc/);
+  assert.match(migration, /revoke all on function[\s\S]+service_role/);
+  assert.doesNotMatch(migration, /delete\s+from/i);
+});

@@ -136,6 +136,22 @@ colour, retailer mapping, offer, price-history row and outbound-click identity.
 Until a variant-aware family plan passes those checks, it remains review-only;
 ordinary duplicate merge must fail closed rather than flatten variants.
 
+Owner decision on 31 July 2026: in the current catalogue-duplicate review,
+`deferred` with a note beginning `MERGE FAMILY` is an approved family outcome:
+the rows describe the same product with different flavours, sizes or colours.
+`separate` remains binding evidence that the rows are different products despite
+a similar name. A family decision authorises planning, not an unsafe bulk write;
+each family must still be assigned to exact canonical variants and pass the
+transactional preservation checks before it changes the public catalogue.
+
+The first family execution is complete. Product `738`, `7Nutrition
+Beta-Alanine Powder 250g Unflavoured`, was consolidated into product `768`,
+`7Nutrition Beta-Alanine 250g`, specifically into canonical variant `933`,
+`Unflavoured / 250g`. Fit House mapping `871` and offer `757` moved together;
+one price-history row and one outbound-click record were preserved. Merge-history
+row `5` records the operation. Production verification shows one active public
+product family and the Fit House offer under the correct variant.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

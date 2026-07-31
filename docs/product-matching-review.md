@@ -17,12 +17,21 @@ The admin area has two connected, deliberately non-automatic workflows:
    mappings, retailer names, positive identity signals, cautions, and blockers.
 4. Select one or more pairs and choose:
    - **Keep selected separate** for confirmed distinct products.
-   - **Defer selected** when expert evidence is still required.
+   - **Defer selected** for a family relationship or when expert evidence is
+     still required; write `MERGE FAMILY` in the note only after confirming it
+     is the same product with a different flavour, size or colour.
 5. Use **Preview: keep A/B** only when the queue-level evidence supports a
    merge. The preview performs a fresh server-side preflight.
 
 Saved decisions are pair-specific. Keeping products A and B separate does not
 prevent either product from being compared with another product.
+
+For the owner-reviewed 31 July 2026 batch, the operational shorthand is:
+`DEFER + MERGE FAMILY` means approved for later variant-aware consolidation,
+while `Separate` means do not merge. Saving the family decision does not itself
+change the public catalogue. A guarded execution plan must identify the exact
+canonical product and target variant, preserve offers and evidence, and pass a
+rollback rehearsal before it is applied.
 
 ## Fail-closed merge policy
 

@@ -3,6 +3,9 @@ import { getDuplicatePairIds } from "../../../lib/duplicates";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 import { requireAdminRoute } from "../../../lib/adminAuth";
 
+const MERGE_FAMILY_NOTE =
+  "MERGE FAMILY – ten sam produkt, różne smaki/rozmiary/kolory";
+
 function isPositiveInteger(value: FormDataEntryValue | null) {
   return typeof value === "string" && /^[1-9]\d*$/.test(value);
 }
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
         product_a_id: productAId,
         product_b_id: productBId,
         decision: "deferred",
-        note: reviewNote(formData.get("note")),
+        note: reviewNote(formData.get("note")) || MERGE_FAMILY_NOTE,
         updated_at: new Date().toISOString(),
       },
       {
