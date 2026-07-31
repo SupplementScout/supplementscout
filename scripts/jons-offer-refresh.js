@@ -108,6 +108,27 @@ function classificationDiagnostic(classification){
 
 function guardrailsFor(rows,sourceProducts,policyFingerprint=rows[0]?.policy_fingerprint){invariant(/^[0-9a-f]{64}$/.test(String(policyFingerprint||"")),"policy fingerprint is required");const changed=rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"),newOos=rows.filter(row=>row.atomic_plan.expected_state.offer.in_stock&&!row.atomic_plan.offer.values.in_stock),currentOos=rows.filter(row=>!row.atomic_plan.offer.values.in_stock),previousOos=rows.filter(row=>!row.atomic_plan.expected_state.offer.in_stock),price=rows.filter(row=>row.changed_fields.price);return{schema_version:1,policy_fingerprint:policyFingerprint,source_product_count:sourceProducts,previous_source_product_count:config.source_baseline.product_count,required_source_rows:rows.length,matched_source_rows:rows.length,new_oos_count:newOos.length,total_oos_count:currentOos.length,previous_oos_count:previousOos.length,changed_row_count:changed.length,price_changed_row_count:price.length,price_anomaly_count:0,limits:{minimum_source_count_ratio:String(config.guardrails.full_snapshot_minimum_source_count_ratio),maximum_new_oos_count:String(config.guardrails.mass_oos_block_count-1),maximum_oos_increase_ratio:String(config.guardrails.maximum_oos_increase_percentage_points),maximum_total_oos_ratio:String(config.guardrails.maximum_total_oos_ratio),maximum_changed_record_ratio:String(config.guardrails.maximum_changed_record_ratio),mass_price_change_ratio:String(config.guardrails.mass_price_change_block_ratio),price_anomaly_ratio:String(config.guardrails.per_row_price_hard_block_ratio),price_anomaly_absolute_gbp:String(config.guardrails.per_row_price_hard_block_absolute_gbp)},result:"PASS"}}
 
+function partitionExecutionRows(rows,maximumRows=50){
+  invariant(Number.isInteger(maximumRows)&&maximumRows>0,"maximum rows must be a positive integer");
+  if(rows.length<=maximumRows)return[[...rows].sort((left,right)=>Number(left.offer_id)-Number(right.offer_id))];
+  const bucketCount=Math.ceil(rows.length/maximumRows),buckets=Array.from({length:bucketCount},()=>[]),stats=Array.from({length:bucketCount},()=>({newOos:0,currentOos:0,price:0,changed:0}));
+  const flags=row=>({newOos:Boolean(row.atomic_plan.expected_state.offer.in_stock&&!row.atomic_plan.offer.values.in_stock),currentOos:!row.atomic_plan.offer.values.in_stock,price:Boolean(row.changed_fields.price),changed:row.action!=="VERIFY_NO_CHANGE"});
+  const ordered=[...rows].sort((left,right)=>{const a=flags(left),b=flags(right),score=(value)=>(value.newOos?16:0)+(value.price?8:0)+(value.currentOos?4:0)+(value.changed?2:0);return score(b)-score(a)||Number(left.offer_id)-Number(right.offer_id)});
+  for(const row of ordered){
+    const rowFlags=flags(row),candidates=buckets.map((bucket,index)=>({bucket,index})).filter(({bucket})=>bucket.length<maximumRows);
+    candidates.sort((left,right)=>{
+      const a=stats[left.index],b=stats[right.index];
+      for(const key of ["newOos","currentOos","price","changed"]){if(rowFlags[key]&&a[key]!==b[key])return a[key]-b[key]}
+      return left.bucket.length-right.bucket.length||left.index-right.index;
+    });
+    const chosen=candidates[0];invariant(chosen,"unable to partition execution rows");chosen.bucket.push(row);
+    for(const key of ["newOos","currentOos","price","changed"])if(rowFlags[key])stats[chosen.index][key]+=1;
+  }
+  for(const bucket of buckets)bucket.sort((left,right)=>Number(left.offer_id)-Number(right.offer_id));
+  invariant(buckets.every(bucket=>bucket.length>0&&bucket.length<=maximumRows)&&buckets.reduce((sum,bucket)=>sum+bucket.length,0)===rows.length,"invalid execution row partition");
+  return buckets;
+}
+
 async function buildRun(target,state,diagnostic=null,reviewed=null){
   const spec=TARGETS[target],capturedAt=new Date().toISOString();
   let snapshot;
@@ -163,7 +184,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   for(const classified of plannedRows){const record=recordByOffer.get(String(classified.offer_id)),source=sourceFor(record,sourceByVariant);let plan;if(classified.action==="VERIFY_NO_CHANGE")plan=buildVerifiedNoChangePlan(verificationRecord(record,source,snapshot.semantic_source_fingerprint,capturedAt),{targetEnvironment:spec.environment,targetProjectRef:spec.ref,sourceSnapshotSha256s:new Set([snapshot.semantic_source_fingerprint]),now:new Date(capturedAt)}).plan;else{const built=buildExistingOfferUpdatePlan({product:record.product,variant:record.variant,retailer:record.retailer,mapping:record.mapping,offer:record.offer,source:{...source,url:source.url,shipping_cost:source.shipping_cost,total_price:source.total_price},sourceCapturedAt:capturedAt,sourceSnapshotFingerprint:snapshot.semantic_source_fingerprint});plan=built.plan;invariant(built.changed.price===classified.changed_fields.price&&built.changed.stock===classified.changed_fields.stock&&built.changed.url===classified.changed_fields.url,"classifier/plan changed-field mismatch")}
     rows.push({...classified,atomic_plan:plan,policy_fingerprint:policyFingerprint});
   }
-  const artifacts=[];for(let offset=0;offset<rows.length;offset+=(reviewed?100:50)){const part=rows.slice(offset,offset+(reviewed?100:50)).map(executionRow),expected=sumDeltas(part),actionManifestFingerprint=canonicalHash({state:"DRY_RUN_READY",rows:part,expected_deltas:expected});artifacts.push(sealArtifact({kind:"retailer-existing-offer-mixed-batch-execution",retailer_slug:"jon-s-supplements",retailer_id:"10",target_environment:spec.environment,target_project_ref:spec.ref,target_database_identity:spec.identity,expected_migration_versions:binding.versions,expected_migration_fingerprint:binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",source_snapshot_fingerprint:snapshot.semantic_source_fingerprint,adapter_fingerprint:adapterFingerprint,policy_fingerprint:policyFingerprint,code_commit:head,expected_state_fingerprint:expectedStateFingerprint,source_captured_at:capturedAt,state:"DRY_RUN_READY",block:null,rows:part,expected_deltas:expected,action_manifest_fingerprint:actionManifestFingerprint}))}
+  const artifacts=[];const partitions=reviewed?[rows]:partitionExecutionRows(rows,50);for(const partition of partitions){const part=partition.map(executionRow),expected=sumDeltas(part),actionManifestFingerprint=canonicalHash({state:"DRY_RUN_READY",rows:part,expected_deltas:expected});artifacts.push(sealArtifact({kind:"retailer-existing-offer-mixed-batch-execution",retailer_slug:"jon-s-supplements",retailer_id:"10",target_environment:spec.environment,target_project_ref:spec.ref,target_database_identity:spec.identity,expected_migration_versions:binding.versions,expected_migration_fingerprint:binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",source_snapshot_fingerprint:snapshot.semantic_source_fingerprint,adapter_fingerprint:adapterFingerprint,policy_fingerprint:policyFingerprint,code_commit:head,expected_state_fingerprint:expectedStateFingerprint,source_captured_at:capturedAt,state:"DRY_RUN_READY",block:null,rows:part,expected_deltas:expected,action_manifest_fingerprint:actionManifestFingerprint}))}
   const manifest=[...state.records].sort((a,b)=>Number(a.mapping.id)-Number(b.mapping.id)).map(row=>({mapping_id:String(row.mapping.id),offer_id:String(row.offer.id),external_product_id:String(row.mapping.external_product_id),external_variant_id:String(row.mapping.external_variant_id)}));
   const sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),mappedIds=new Set(manifest.map(row=>row.external_variant_id));
   const discovery={new_variants:[...sourceIds].filter(id=>!mappedIds.has(id)),missing_variants:[...mappedIds].filter(id=>!sourceIds.has(id))};
@@ -251,4 +272,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,migrationBinding,parseArgs,readState,registrationRequest,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,migrationBinding,parseArgs,partitionExecutionRows,readState,registrationRequest,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};

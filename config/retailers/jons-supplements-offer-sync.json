@@ -18,6 +18,7 @@
   "expected_offer_count": 26,
   "target_inventory_fingerprint": "c27db401555db7747c97e68eab1c9cb114bb85d8132aa7f42f78b92703598372",
   "guardrails": {
+    "ignore_source_sku": true,
     "required_matched_offers": 26,
     "source_freshness_hours": 24,
     "future_clock_skew_minutes": 5,

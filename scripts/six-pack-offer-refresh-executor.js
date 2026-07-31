@@ -146,7 +146,7 @@ function credential(kind) {
   return parsed.href;
 }
 
-async function roleCall(kind, callback) {
+async function openRoleClient(kind) {
   const client = new Client({
     connectionString: credential(kind),
     ssl: { rejectUnauthorized: false },
@@ -154,6 +154,10 @@ async function roleCall(kind, callback) {
     options: "-c statement_timeout=120000",
   });
   await client.connect();
+  return client;
+}
+
+async function roleTransaction(client, kind, callback) {
   try {
     await client.query("begin");
     await client.query("select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)");
@@ -166,13 +170,11 @@ async function roleCall(kind, callback) {
   } catch (error) {
     try { await client.query("rollback"); } catch {}
     throw error;
-  } finally {
-    await client.end();
   }
 }
 
-async function executeEntry(entry, artifactSha256, runId) {
-  const approval = await roleCall("approver", async (client) => {
+async function executeEntry(entry, artifactSha256, runId, clients) {
+  const approval = await roleTransaction(clients.approver, "approver", async (client) => {
     const response = await client.query(
       "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result",
       [entry.resolved_plan, artifactSha256, runId, "six-pack-scheduled-offer-refresh"]
@@ -186,7 +188,7 @@ async function executeEntry(entry, artifactSha256, runId) {
     approval.source_row_fingerprint !== entry.source_row_fingerprint ||
     approval.run_id !== runId
   ) fail(`Approval metadata mismatch for row ${entry.row_number}`);
-  const result = await roleCall("executor", async (client) => {
+  const result = await roleTransaction(clients.executor, "executor", async (client) => {
     const response = await client.query(
       "select public.apply_approved_product_import_plan($1::uuid,$2,$3,$4,$5::bigint,$6,$7) result",
       [approval.approval_id, artifactSha256, entry.plan_fingerprint, entry.source_row_fingerprint, entry.retailer_id, entry.plan_kind, runId]
@@ -224,22 +226,29 @@ async function run(options) {
   ) fail("Approved manifest is invalid");
   const loaded = loadDryRunArtifact(options.artifact);
   const plans = validateArtifactScope(loaded.artifact, approved.manifest);
-  const rows = [];
-  for (const entry of plans) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id));
-  const report = {
-    schema_version: 1,
-    kind: "six-pack-approved-offer-refresh-execution",
-    result: "PASS",
-    target_project_ref: PROJECT_REF,
-    manifest_sha256: approved.sha256,
-    artifact_sha256: loaded.artifactSha256,
-    executed_plan_count: rows.length,
-    rows,
-    completed_at: new Date().toISOString(),
-  };
-  fs.mkdirSync(path.dirname(options.output), { recursive: true });
-  fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
-  return report;
+  const clients = {};
+  try {
+    clients.approver = await openRoleClient("approver");
+    clients.executor = await openRoleClient("executor");
+    const rows = [];
+    for (const entry of plans) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients));
+    const report = {
+      schema_version: 1,
+      kind: "six-pack-approved-offer-refresh-execution",
+      result: "PASS",
+      target_project_ref: PROJECT_REF,
+      manifest_sha256: approved.sha256,
+      artifact_sha256: loaded.artifactSha256,
+      executed_plan_count: rows.length,
+      rows,
+      completed_at: new Date().toISOString(),
+    };
+    fs.mkdirSync(path.dirname(options.output), { recursive: true });
+    fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
+    return report;
+  } finally {
+    await Promise.allSettled(Object.values(clients).map((client) => client.end()));
+  }
 }
 
 if (require.main === module) {

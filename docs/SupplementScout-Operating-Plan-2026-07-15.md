@@ -147,6 +147,20 @@ This update supersedes older Jon's catalogue-growth and production-enablement ne
 - The fresh ordinary post-apply dry-run then returned 506/506
   `VERIFY_NO_CHANGE`, zero missing mappings, zero blockers and zero price,
   stock or URL actions. Source coverage was 228 products and 854 variants.
+- On 31 July 2026 the two following scheduled failures were traced to bounded
+  false positives rather than source or database failure. Jon's had added an
+  optional SKU to an unchanged Shopify variant; permanent identity remains
+  bound to the stable Shopify product and variant IDs. Validation children are
+  now risk-balanced so a small final child cannot misrepresent the full
+  506-offer OOS ratio. Normal stock turnover is allowed when total OOS falls
+  and the unchanged global mass-change, price and total-OOS guards all pass.
+- The same live preflight exposed two older default-label catalogue defects.
+  Production migration `20260731120000` relabelled only existing variants
+  `1188` as Berry 465 g and `1261` as Fizzy Blue Bottles 300 g, and corrected
+  only Jon's mappings `1302` and `1375`. Products, variants, mappings, offers
+  and price-history row counts all remained unchanged. A fresh production
+  dry-run then matched 506/506 offers and validated all 11 children: 485 no
+  change and 21 stock-only updates, with zero price, shipping or URL changes.
 - A fresh full-catalogue dry-run then matched all 506 Jon's mappings and classified all 506 as `VERIFY_NO_CHANGE`, with 0 missing mappings, identity changes, duplicate source identities, source errors or blockers. The same GB source contained 224 products, 844 variants and 575 available variants; the other 338 source variants remain discovery-only and reconcile exactly with the 506 mappings.
 - Jon's operational automation is complete. The protected GitHub Environment `production-readonly` contains the three existing, separate least-privilege production connection URLs for `retailer_catalogue_production_validator`, `retailer_catalogue_production_approver` and `retailer_catalogue_production_executor`; no new login, role or broad grant was created. The narrow registration RPC creates an immutable parent and 11 ordered children, and sequential approval permits only the next legal unchanged child.
 - Manual GitHub run [`29931897205`](https://github.com/SupplementScout/supplementscout/actions/runs/29931897205) passed on commit `f28d462a45e11f01437365a579c5ad7fa696ad86`. Environment access, 59 contract tests, source capture, discovery, dry-run, registration, validator, all 11 sequential approvals/applies, fresh idempotency and artifact upload passed. Scope was 506 mappings/offers; all classified `VERIFY_NO_CHANGE`, freshness changed for 506, price/stock/URL/history and catalogue row counts changed by 0, discovery reported 338, blockers were 0, the parent finished `COMPLETED`, children finished 11/11 `APPLIED`, active plans/approvals/runs were 0 and recovery was 0.
@@ -1972,6 +1986,12 @@ Current binding decisions:
 - `.github/workflows/six-pack-offer-refresh.yml` is the only active Six Pack
   production workflow. Future reviewed products join its existing shared
   manifest and refresh rather than receiving another versioned automation.
+- On 31 July 2026 a healthy 506-offer dry-run was followed by a timeout during
+  the sequential apply. The executor now reuses one bounded approver connection
+  and one bounded executor connection for the complete manifest instead of
+  opening two new database connections per offer. Per-row approval, execution,
+  ordering and idempotency remain unchanged; the job limit is 90 minutes as a
+  secondary operational margin.
 - Direct retailer URLs are complete. Affiliate tracking for 6 Pack remains
   explicitly not configured and is a later commercial task, not a catalogue or
   refresh blocker.

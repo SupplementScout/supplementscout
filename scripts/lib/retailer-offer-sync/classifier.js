@@ -63,8 +63,9 @@ function buildGuardEvidence(rows, policy, guardScope = {}) {
       changed: newOos,
       ratio: rows.length === 0 ? 0 : newOos / rows.length,
       threshold: policy.mass_oos_block_count,
-      comparison: ">=",
-      result: newOos >= policy.mass_oos_block_count ? "BLOCK" : "PASS",
+      comparison: ">= WITH NET OOS INCREASE",
+      net_oos_increase: oosIncrease,
+      result: newOos >= policy.mass_oos_block_count && oosIncrease > 0 ? "BLOCK" : "PASS",
     },
     {
       metric: "total_oos_ratio",

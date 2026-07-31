@@ -108,6 +108,12 @@ test("the production-only migration is the exact shared-policy exclusion", () =>
   assert.ok(!result.selected_files.includes(
     "20260729210000_correct_strom_essentialmax_berrylicious_variant.sql",
   ));
+  assert.ok(result.excluded_files.includes(
+    "20260731120000_correct_jons_two_default_flavour_variants.sql",
+  ));
+  assert.ok(!result.selected_files.includes(
+    "20260731120000_correct_jons_two_default_flavour_variants.sql",
+  ));
 });
 
 test("unknown selector environments fail closed", () => {
@@ -146,10 +152,10 @@ test("a changed excluded migration SHA fails closed", () => {
 test("production contract binds the post-family-migration ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 66);
+  assert.equal(contract.ledgerCount, 67);
   assert.equal(
     contract.ledgerFingerprint,
-    "64203ab7116a1a8bea82e4784200f4be976d22f9e5e0f9be5e2dbe7107a8852f",
+    "cf31f86c27bccaa3b15f56d17ea0b15220279664b83a33fff592954b8f93d5bd",
   );
 });
 
@@ -252,10 +258,10 @@ test("production binds its exact post-family-migration ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 66);
+  assert.equal(result.ledger_count, 67);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 66);
+  assert.equal(result.selected_files.length, 67);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
   assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.equal(result.pending_file, null);

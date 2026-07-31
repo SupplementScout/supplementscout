@@ -49,3 +49,12 @@ test("scheduled workflow always preflights, applies through split roles and veri
   const testsStep = workflow.match(/- name: Test 6 Pack refresh contracts[\s\S]*?(?=\n\s{6}- name:)/)?.[0] || "";
   assert.doesNotMatch(testsStep, /SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL/);
 });
+
+test("executor reuses one approver and one executor connection for the whole manifest", () => {
+  const source = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh-executor.js"), "utf8");
+  assert.match(source, /clients\.approver = await openRoleClient\("approver"\)/);
+  assert.match(source, /clients\.executor = await openRoleClient\("executor"\)/);
+  assert.match(source, /for \(const entry of plans\) rows\.push\(await executeEntry\(entry, loaded\.artifactSha256, loaded\.artifact\.run_id, clients\)\)/);
+  assert.match(source, /Promise\.allSettled\(Object\.values\(clients\)\.map\(\(client\) => client\.end\(\)\)\)/);
+  assert.doesNotMatch(source, /async function roleCall/);
+});

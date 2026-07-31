@@ -82,7 +82,8 @@ test("single price, stock, combined, URL and composite changes classify exactly"
 test("identity, coverage, freshness and source-collapse anomalies block the whole run", () => {
   assert.equal(classifyExistingOffers(input((d) => d.sourceVariants.pop())).state, "BLOCKED");
   assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].external_product_id = "wrong"; })).action, "BLOCK_IDENTITY_DRIFT");
-  assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].external_sku = "unexpected"; })).action, "BLOCK_IDENTITY_DRIFT");
+  const strictSkuPolicy=input((d) => { d.sourceVariants[0].external_sku = "unexpected"; });strictSkuPolicy.policy.ignore_source_sku=false;
+  assert.equal(classifyExistingOffers(strictSkuPolicy).action, "BLOCK_IDENTITY_DRIFT");
   assert.equal(classifyExistingOffers({ ...input(), sourceCapturedAt: "2026-07-16T00:00:00.000Z" }).state, "BLOCKED");
   assert.equal(classifyExistingOffers({ ...input(), sourceProductCount: 4, previousSourceProductCount: 5 }).reason, "SOURCE_COLLAPSE");
   assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].shipping_cost = "0.00"; })).reason, "SHIPPING_POLICY_DRIFT");
@@ -141,6 +142,19 @@ test("MASS_OOS ignores an unchanged historical OOS baseline but blocks genuine n
     assert.equal(blocked.reason, "MASS_OOS");
     assert.equal(blocked.detail.new_oos, count);
   }
+});
+test("MASS_OOS permits normal stock turnover when total OOS falls and all other global guards pass", () => {
+  const scenario=sizedInput(506,"JONS_FULL_506_TURNOVER");
+  for(let index=0;index<14;index+=1){scenario.targets[index].in_stock=false;scenario.sourceVariants[index].in_stock=true}
+  for(let index=14;index<21;index+=1)scenario.sourceVariants[index].in_stock=false;
+  const result=classifyExistingOffers(scenario);
+  assert.equal(result.state,"DRY_RUN_READY");
+  assert.equal(result.guard_evidence.previous_oos,14);
+  assert.equal(result.guard_evidence.current_oos,7);
+  assert.equal(result.guard_evidence.new_oos,7);
+  assert.equal(result.guard_evidence.changed,21);
+  assert.equal(result.guard_evidence.guards.find((guard)=>guard.guard==="MASS_OOS").result,"PASS");
+  assert.equal(result.guard_evidence.guards.find((guard)=>guard.guard==="MASS_CHANGE").result,"PASS");
 });
 test("30 of 30 VERIFY_NO_CHANGE rows reconcile to zero changes and cannot produce MASS_CHANGE", () => {
   const result = classifyExistingOffers(sizedInput(30, "CREATINE_HEALTHY_30"));
