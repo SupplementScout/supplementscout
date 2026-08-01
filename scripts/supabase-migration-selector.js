@@ -50,6 +50,8 @@ const CONTRACTS = Object.freeze({
         "2b9fc7fa6c9a9275d53127343435ab066f82e071a79f47806f5ae07286b1b1fd",
       "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities.sql":
         "b66fb79a7177e354d273115dd5ddeaad8e17d5a7bd9295443df76171f2630e36",
+      "20260801190000_allow_reviewed_gym_high_null_total_identity_upgrade.sql":
+        "ad5feff19cad90d6ec8389224659bc75d06c9fca70cc3c5fde8989a94be721fd",
     }),
     pending: Object.freeze([]),
   }),
@@ -60,9 +62,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 69,
+    ledgerCount: 72,
     ledgerFingerprint:
-      "1c6d0713dbe8246670a8d9388dfd00a70b73840354b54776817a29e61018fd6e",
+      "35ed6bd0be68095dc287b39bea151199145ec17cfc46970cb2e15d3a61db39e5",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -79,16 +81,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade.sql",
-        sha256: "2b9fc7fa6c9a9275d53127343435ab066f82e071a79f47806f5ae07286b1b1fd",
-      }),
-      Object.freeze({
-        filename: "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities.sql",
-        sha256: "b66fb79a7177e354d273115dd5ddeaad8e17d5a7bd9295443df76171f2630e36",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

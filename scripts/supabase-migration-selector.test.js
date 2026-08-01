@@ -151,14 +151,11 @@ test("a changed excluded migration SHA fails closed", () => {
 
 test("production contract binds the post-manifest-rebind ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending.map(({ filename }) => filename), [
-    "20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade.sql",
-    "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities.sql",
-  ]);
-  assert.equal(contract.ledgerCount, 69);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 72);
   assert.equal(
     contract.ledgerFingerprint,
-    "1c6d0713dbe8246670a8d9388dfd00a70b73840354b54776817a29e61018fd6e",
+    "35ed6bd0be68095dc287b39bea151199145ec17cfc46970cb2e15d3a61db39e5",
   );
 });
 
@@ -261,12 +258,12 @@ test("production binds its exact post-manifest-rebind ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 69);
+  assert.equal(result.ledger_count, 72);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
-  assert.equal(result.selected_files.length, 71);
+  assert.equal(result.selected_files.length, 72);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 2);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
 });
