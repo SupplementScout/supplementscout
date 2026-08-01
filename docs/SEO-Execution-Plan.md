@@ -111,7 +111,7 @@ Console evidence and user value.
 | SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines are recorded and priority URLs are inspected. Blocker: the current working session has no authenticated report view or export; site ownership itself is already verified through DNS. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `LIVE VERIFIED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
-| SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `CODE COMPLETE` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
+| SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `PLANNED` | Ten individually reviewed pages pass the shared quality contract and `LIVE VERIFIED` gate one at a time; no parallel page framework or thin mass generation is introduced. |
@@ -122,10 +122,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-10 — publish the shared comparison-methodology
-and data-freshness support pages. Search Console and GA4 are already configured;
-SEO-07 only awaits an authenticated report view or export so its measurement
-baseline can be saved.
+**Next executable task:** SEO-13 — deliver the controlled ten-page high-intent
+cluster one reviewed page and one live verification at a time, starting with
+the Amino Acids / BCAA / EAA taxonomy evidence gate. Search Console and GA4 are
+already configured; SEO-07 only awaits an authenticated report view or export
+so its measurement baseline can be saved.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -133,9 +134,9 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-10 as the
-shared methodology support, SEO-13 one page at a time, SEO-11 and
-SEO-14, the 250-product multi-retailer checkpoint, SEO-15, SEO-16 and SEO-17.
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-13 one page at
+a time, SEO-11 and SEO-14, the 250-product multi-retailer checkpoint, SEO-15,
+SEO-16 and SEO-17.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation.
 
@@ -288,6 +289,28 @@ invent a date to silence the Guardian.
   contained each canonical URL exactly once.
 - SEO-10 remains `CODE COMPLETE`; deployment, public HTML, public sitemap/link
   and external structured-data checks remain required before completion.
+
+### 1 August 2026 — SEO-10 live verification
+
+- Commit `eaa09e2` was pushed to `main`; Vercel reported the deployment
+  successful. Hosted Project Guardian run `30690024522` also passed for that
+  exact commit.
+- Public `/how-we-compare` and `/data-freshness` both returned `200`,
+  `index, follow` and their exact canonical URLs. Initial HTML contained each
+  page's direct answer and the implemented methodology/freshness rules.
+- The homepage, Whey Protein, Pre Workout, Creatine and Hydration public pages
+  each exposed crawlable links to both support pages. The public sitemap
+  contained each canonical support URL exactly once.
+- Each public page emitted one JSON-LD block containing WebPage and a
+  two-position BreadcrumbList. Both blocks parsed successfully and contained
+  no Product, Dataset or FAQPage entity.
+- Schema.org Validator fetched both public URLs. All seven parsed result nodes
+  per page reported zero errors and zero warnings.
+- Search Console URL inspection remains unrecorded because the authenticated
+  report/export blocker documented under SEO-07 still applies; this is not
+  represented as a successful inspection.
+- SEO-10 is `LIVE VERIFIED`. The next executable implementation is declared in
+  the current active-task section above.
 
 ### 1 August 2026 — SEO-09 local implementation
 

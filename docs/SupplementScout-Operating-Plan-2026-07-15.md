@@ -190,22 +190,20 @@ automation. The full evidence is in
 This is the binding growth sequence. It supersedes older immediate-task and
 competitive-response ordering where they conflict:
 
-1. complete `SEO-10`, the shared comparison-methodology and data-freshness
-   support pages;
-2. deliver `SEO-13`, one controlled cluster of ten reviewed, high-intent,
+1. complete `SEO-13`, one controlled cluster of ten reviewed, high-intent,
    data-backed pages through the existing shared category/decision-page system;
-3. launch eligible brand and retailer landing pages only after identity and
+2. launch eligible brand and retailer landing pages only after identity and
    minimum-coverage gates prevent thin pages;
-4. increase products with at least two active retailers from the 28 July
+3. increase products with at least two active retailers from the 28 July
    baseline of 107 to 250, then continue toward 500;
-5. add a data-backed deals and price-drops page using the existing offers and
+4. add a data-backed deals and price-drops page using the existing offers and
    price-history store;
-6. add a guarded two-product comparison experience using existing canonical
+5. add a guarded two-product comparison experience using existing canonical
    data, verified metrics and delivered prices;
-7. add clearly labelled owner-reviewed expert notes where they materially help
+6. add clearly labelled owner-reviewed expert notes where they materially help
    a buying decision;
-8. record Search Console and GA4 evidence weekly throughout the sequence;
-9. earn legitimate authority through useful resources and relevant
+7. record Search Console and GA4 evidence weekly throughout the sequence;
+8. earn legitimate authority through useful resources and relevant
    retailer/brand/community outreach.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
@@ -1353,15 +1351,14 @@ retailer/data implementation at a time.
 
 Current priority order:
 
-1. `SEO-10` shared comparison methodology and data-freshness pages.
-2. `SEO-13` controlled ten-page high-intent cluster, one page and one live
+1. `SEO-13` controlled ten-page high-intent cluster, one page and one live
    verification at a time.
-3. Eligible brand and retailer landing pages after identity and coverage gates.
-4. Multi-retailer coverage from 107 products to 250, then toward 500.
-5. Deals and price drops from existing offer/history data.
-6. Guarded two-product comparison.
-7. Owner-reviewed expert decision notes.
-8. Continuous weekly GSC/GA4 measurement and legitimate authority building.
+2. Eligible brand and retailer landing pages after identity and coverage gates.
+3. Multi-retailer coverage from 107 products to 250, then toward 500.
+4. Deals and price drops from existing offer/history data.
+5. Guarded two-product comparison.
+6. Owner-reviewed expert decision notes.
+7. Continuous weekly GSC/GA4 measurement and legitimate authority building.
 
 The complete definitions and interruption rules are in section 0.0.7.
 
@@ -1788,20 +1785,20 @@ Target experience:
 
 ### Current active task
 
-`SEO-10` is the next executable implementation: publish shared comparison
-methodology and data-freshness support pages, then link them from priority
-comparison pages. Reuse the existing delivered-price, freshness, verified-
-metric and limitation rules; do not create a second pricing or methodology
-system. Six Pack remains complete and in operational monitoring; the unrelated
-Fit House missing-source variant remains a separate fail-closed source review
-item.
+`SEO-13` is the next executable implementation: deliver the controlled
+ten-page high-intent cluster one reviewed page and one live verification at a
+time through the existing shared category/decision-page system. Begin with the
+Amino Acids / BCAA / EAA taxonomy evidence gate; do not implement the page until
+the reviewed inclusion boundary is safe. Six Pack remains complete and in
+operational monitoring; the unrelated Fit House missing-source variant remains
+a separate fail-closed source review item.
 
 ### Next task
 
-After `SEO-10` is `LIVE VERIFIED`, execute `SEO-13`, the ten-page high-intent
-cluster, in the exact gated order maintained in `docs/SEO-Execution-Plan.md`.
-Research and eligibility checks may cover the cluster, but implementation and
-live verification proceed one page at a time through the shared mechanism.
+After the first `SEO-13` page is `LIVE VERIFIED`, evaluate the next candidate
+in the exact gated order maintained in `docs/SEO-Execution-Plan.md`. Research
+and eligibility checks may cover the cluster, but implementation and live
+verification proceed one page at a time through the shared mechanism.
 
 ### Then
 

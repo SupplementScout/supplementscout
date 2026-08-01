@@ -605,28 +605,26 @@ The task order below replaces the older immediate-action list in this document.
 The Operating Plan and SEO Execution Plan hold the authoritative statuses and
 completion evidence.
 
-1. Complete `SEO-10`, the shared comparison-methodology and data-freshness
-   support pages.
-2. Deliver `SEO-13`, a reviewed cluster of ten high-intent, data-backed pages
+1. Complete `SEO-13`, a reviewed cluster of ten high-intent, data-backed pages
    through the existing shared category/decision-page system; do not create ten
    separate implementations.
-3. Add eligible brand and retailer landing pages only after identity
+2. Add eligible brand and retailer landing pages only after identity
    normalization and minimum-content/coverage rules prevent thin pages.
-4. Increase canonical products with at least two active retailers from 107 to
+3. Increase canonical products with at least two active retailers from 107 to
    250, then continue toward the long-term target of 500.
-5. Build a data-backed deals and price-drops page from existing offer and price
+4. Build a data-backed deals and price-drops page from existing offer and price
    history data; do not create a second pricing store.
-6. Add a guarded two-product comparison experience using the existing canonical
+5. Add a guarded two-product comparison experience using the existing canonical
    catalogue, variants, verified metrics and delivered prices.
-7. Publish owner-reviewed expert notes where they add real formulation or buying
+6. Publish owner-reviewed expert notes where they add real formulation or buying
    value; clearly separate verified facts from expert judgement.
-8. Record Search Console and GA4 evidence weekly, including organic visibility,
+7. Record Search Console and GA4 evidence weekly, including organic visibility,
    landing pages and organic retailer clicks.
-9. Earn legitimate authority through useful data resources, retailer/brand
+8. Earn legitimate authority through useful data resources, retailer/brand
    outreach and relevant community references; never use bulk or paid-link
    schemes.
 
-The first four steps are the current build sequence. Measurement is continuous
+The first three steps are the current build sequence. Measurement is continuous
 from the first release, and catalogue safety, automation monitoring and urgent
 production incidents remain permanent operating controls rather than competing
 roadmap items.
