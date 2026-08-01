@@ -124,6 +124,22 @@ function validateDocuments(docs, now = new Date()) {
   const warnings = [];
   const rows = parseSeoLedger(docs.seo, errors);
   const byId = new Map(rows.map((row) => [row.id, row]));
+  const weeklyMeasurement = latestWeeklyMeasurement(docs.seo);
+  const currentSeoTask = section(
+    docs.seo,
+    "## 6. Current active task",
+    /\n##\s+/,
+  );
+  if (
+    weeklyMeasurement &&
+    /(?:first authenticated[^.\n]*not yet configured|awaits an authenticated report view)/i.test(
+      `${byId.get("SEO-07")?.done || ""}\n${currentSeoTask}`
+    )
+  ) {
+    errors.push(
+      "SEO-07 still claims authenticated measurement is unavailable after a dated weekly GSC/GA4 record."
+    );
+  }
   const inProgress = rows.filter((row) => row.status === "IN PROGRESS");
   if (inProgress.length > 1) {
     errors.push(`More than one SEO task is IN PROGRESS: ${inProgress.map((row) => row.id).join(", ")}.`);
@@ -223,7 +239,6 @@ function validateDocuments(docs, now = new Date()) {
     warnings.push("WheyWise comparison review is more than 35 days old.");
   }
 
-  const weeklyMeasurement = latestWeeklyMeasurement(docs.seo);
   if (!weeklyMeasurement) {
     warnings.push("Weekly GSC/GA4 measurement evidence is not yet recorded; SEO-07 remains the evidence gate.");
   } else if (daysBetween(weeklyMeasurement, now) > 8) {

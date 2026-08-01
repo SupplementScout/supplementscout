@@ -75,6 +75,21 @@ test("guardian blocks unsupported completion without live evidence", () => {
   assert.match(result.errors.join("\n"), new RegExp(`${baseline.nextTask} is LIVE VERIFIED but has no matching live evidence entry`));
 });
 
+test("guardian blocks a stale SEO-07 authentication blocker after measurement exists", () => {
+  const docs = currentDocs();
+  docs.seo = docs.seo.replace(
+    "## 6. Current active task",
+    "## 6. Current active task\n\nSEO-07 awaits an authenticated report view."
+  );
+  const result = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
+
+  assert.equal(result.ok, false);
+  assert.match(
+    result.errors.join("\n"),
+    /SEO-07 still claims authenticated measurement is unavailable/
+  );
+});
+
 test("stale measurement and competitor reviews are reminders, not unsafe writes or false failures", () => {
   const result = guardian.validateDocuments(currentDocs(), new Date("2026-10-01T12:00:00Z"));
   assert.equal(result.ok, true, result.errors.join("\n"));

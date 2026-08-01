@@ -108,7 +108,7 @@ Console evidence and user value.
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `LIVE VERIFIED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `LIVE VERIFIED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `LIVE VERIFIED` | Markup matches visible canonical data, passes automated and external structured-data validation, and never represents SupplementScout as the direct seller. |
-| SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines are recorded and priority URLs are inspected. Blocker: the read-only GSC/GA4 collector is implemented, but its Google service account access and first authenticated workflow artifact are not yet configured; Page indexing, Core Web Vitals and Links still require the Search Console UI or an approved export. |
+| SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Authenticated Performance, GA4 and Sitemaps evidence is recorded. Blocker: Page indexing, Core Web Vitals, Links and priority URL inspections still require the Search Console UI or an approved export. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `LIVE VERIFIED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
@@ -132,9 +132,9 @@ Whey Isolate are live verified, while the other eight candidates remain
 deferred. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
-competing URL. Search Console and GA4 are already configured; SEO-07 only
-awaits an authenticated report view or export so its measurement baseline can
-be saved.
+competing URL. The first authenticated Search Console and GA4 measurement is
+recorded; SEO-07 now awaits only Page indexing, Core Web Vitals, Links and
+priority URL inspection evidence from the Search Console UI or approved export.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
