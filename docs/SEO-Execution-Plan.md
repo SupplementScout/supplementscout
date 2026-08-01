@@ -122,11 +122,12 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — deliver the controlled ten-page high-intent
-cluster one reviewed page and one live verification at a time, starting with
-the Amino Acids / BCAA / EAA taxonomy evidence gate. Search Console and GA4 are
-already configured; SEO-07 only awaits an authenticated report view or export
-so its measurement baseline can be saved.
+**Next executable task:** SEO-13 — continue the controlled ten-page high-intent
+cluster. Amino Acids / BCAA / EAA is page 1 and is live verified. The next
+executable page gate inside SEO-13 is Protein Bars: verify product/box pack
+identity and current multi-retailer coverage before implementation.
+Search Console and GA4 are already configured; SEO-07 only awaits an
+authenticated report view or export so its measurement baseline can be saved.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -256,6 +257,56 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — SEO-13 page 1 Amino Acids / BCAA / EAA live verification
+
+- A read-only production audit reviewed all 62 active, unmerged products in
+  the exact `Amino Acids` category and inspected explicit amino-product names
+  outside it for category conflicts. The public scope stays inside the
+  reviewed category and requires the canonical name to identify amino acids,
+  BCAA, EAA or a named amino-acid ingredient explicitly.
+- Opaque blends, bundles, 5-HTP, NAC and glutathione products are excluded
+  rather than inferred. Explicit products assigned to other categories are not
+  pulled across category boundaries. No product identity, mapping, offer or
+  production data was changed.
+- Added canonical `/amino-acids` through the existing
+  `app/lib/categoryComparison.ts` mechanism with the shared 24-hour freshness,
+  mapped-offer validation, known-delivery ranking, verified value metrics,
+  coverage-first ordering and fail-closed index gate. No second comparison or
+  catalogue system was created.
+- The page includes canonical metadata, conditional `index`/`noindex`, one
+  CollectionPage/ItemList/BreadcrumbList JSON-LD block, consent-aware category
+  analytics, visible inclusion and limitation rules, one sitemap entry and
+  crawlable links from the homepage, Whey Protein, Pre Workout, Hydration and
+  Creatine pages. It makes no effectiveness or suitability claims.
+- Nine focused page tests passed. ESLint completed with zero errors and four
+  pre-existing warnings in `scripts/six-pack-large-family-bootstrap.js`;
+  TypeScript, `git diff --check`, Project Guardian and the Next.js 16.2.9
+  production build passed. The broad historical suite recorded 1,139 passes,
+  33 skips and four unrelated baseline/environment failures: three unavailable
+  Docker integration runs and one existing migration-count expectation of 68
+  against the repository's current 70 migrations.
+- Implementation commit `6a11f38` was pushed to `main`. Hosted Project Guardian
+  run `30692047673` passed for that commit. The public page returned `200`, its
+  exact canonical URL and `index, follow`, with 31 visible products, 104 fresh
+  offers from three retailers and three products with current multi-retailer
+  coverage, meeting the unchanged 3-product / 2-retailer / 20-offer gate.
+- Public JSON-LD contained one CollectionPage, one 31-item ItemList and one
+  BreadcrumbList. All 31 product URLs were unique and the reviewed exclusions
+  were absent. Schema.org Validator fetched the live URL and reported zero
+  errors and zero warnings across 38 parsed nodes.
+- The public homepage and four priority comparison pages linked to the route;
+  the public sitemap contained its canonical URL exactly once. Search Console
+  URL inspection remains unrecorded under the existing SEO-07 authentication
+  blocker and is not represented as successful evidence.
+- Separate scheduled Retailer Dry Run `30692057395` failed closed in the
+  read-only Discount Supplements classification step. It is recorded as an
+  operational source follow-up, not as a successful run and not as authority
+  for catalogue or production writes; current live page evidence remained
+  independently valid.
+- SEO-13 remains `IN PROGRESS`: one of ten pages is live verified. Protein Bars
+  is the next candidate and must pass its own product/box identity and current
+  coverage gate before any implementation begins.
 
 ### 1 August 2026 — SEO-10 local implementation
 

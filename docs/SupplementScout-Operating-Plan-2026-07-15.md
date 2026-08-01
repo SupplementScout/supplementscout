@@ -1785,20 +1785,20 @@ Target experience:
 
 ### Current active task
 
-`SEO-13` is the next executable implementation: deliver the controlled
-ten-page high-intent cluster one reviewed page and one live verification at a
-time through the existing shared category/decision-page system. Begin with the
-Amino Acids / BCAA / EAA taxonomy evidence gate; do not implement the page until
-the reviewed inclusion boundary is safe. Six Pack remains complete and in
-operational monitoring; the unrelated Fit House missing-source variant remains
-a separate fail-closed source review item.
+`SEO-13` is the single active implementation. Page 1, Amino Acids / BCAA /
+EAA, is live verified through the existing shared category/decision-page
+system. Continue one reviewed page and one live verification at a time. The
+next executable gate is Protein Bars: verify canonical product versus box/pack
+identity and current multi-retailer depth before implementation. Six Pack
+remains complete and in operational monitoring; unrelated retailer-source
+failures remain separate fail-closed review items.
 
 ### Next task
 
-After the first `SEO-13` page is `LIVE VERIFIED`, evaluate the next candidate
-in the exact gated order maintained in `docs/SEO-Execution-Plan.md`. Research
-and eligibility checks may cover the cluster, but implementation and live
-verification proceed one page at a time through the shared mechanism.
+Evaluate Protein Bars, the second `SEO-13` candidate, against the exact gate in
+`docs/SEO-Execution-Plan.md`. Research and eligibility checks may cover the
+cluster, but implementation and live verification proceed one page at a time
+through the shared mechanism.
 
 ### Then
 
