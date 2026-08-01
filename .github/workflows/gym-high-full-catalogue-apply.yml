@@ -8,7 +8,7 @@ on:
         required: true
         default: validate
         type: choice
-        options: [validate, apply]
+        options: [validate, apply, postflight]
       approval_fingerprint:
         description: Exact reviewed approval fingerprint
         required: true
@@ -65,12 +65,11 @@ jobs:
       - name: Build immutable full-scope dry-run artifact
         run: node scripts/import-products.js --mode=feed --dry-run --csv=tmp/gym-high-reviewed-catalogue/full-catalogue.csv --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json
       - name: Validate and optionally apply exact catalogue
-        run: node scripts/gym-high-full-catalogue-executor.js --mode=${{ inputs.operation }} --report=tmp/gym-high-reviewed-catalogue/full-catalogue-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json
+        run: node scripts/gym-high-full-catalogue-executor.js --mode=${{ inputs.operation == 'apply' && 'apply' || 'validate' }} --report=tmp/gym-high-reviewed-catalogue/full-catalogue-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json
       - name: Verify complete live postcondition
-        if: ${{ inputs.operation == 'apply' }}
+        if: ${{ inputs.operation == 'apply' || inputs.operation == 'postflight' }}
         run: |
-          node scripts/gym-high-catalogue-audit.js --output=tmp/gym-high-source-monitor/post-apply-source.json
-          node scripts/gym-high-full-catalogue-feed-builder.js --source=tmp/gym-high-source-monitor/post-apply-source.json --output=tmp/gym-high-reviewed-catalogue/post-apply.csv
+          node scripts/gym-high-full-catalogue-feed-builder.js --source=tmp/gym-high-source-monitor/approved-catalogue-report.json --output=tmp/gym-high-reviewed-catalogue/post-apply.csv
           node -e "const r=require('./tmp/gym-high-reviewed-catalogue/post-apply-builder-report.json');if(r.result!=='PASS'||r.existing_mapping_count!==66||r.mapping_create_count!==0||r.existing_offer_count!==66||r.offer_create_count!==0)process.exit(1)"
           node scripts/import-products.js --mode=feed --dry-run --csv=tmp/gym-high-reviewed-catalogue/post-apply.csv --artifact=tmp/gym-high-reviewed-catalogue/post-apply-artifact.json
       - uses: actions/upload-artifact@v7

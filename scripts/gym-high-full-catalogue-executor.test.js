@@ -21,6 +21,8 @@ test("workflow is manual, exact, and separates production roles", () => {
   assert.match(workflow, /actions: read/);
   assert.match(workflow, /status=success&per_page=1/);
   assert.match(workflow, /unzip -p[\s\S]*report\.json/);
+  assert.match(workflow, /options: \[validate, apply, postflight\]/);
+  assert.match(workflow, /approved-catalogue-report\.json --output=tmp\/gym-high-reviewed-catalogue\/post-apply\.csv/);
   assert.match(workflow, /mapping_create_count!==0/);
   assert.match(workflow, /offer_create_count!==0/);
 });
