@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
+  evaluateHydrationIndexability,
   getHydrationComparison,
   HYDRATION_INDEX_GATE,
   type HydrationComparisonResult,
@@ -16,23 +18,29 @@ const description =
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Hydration & Electrolyte Supplements UK",
-  description,
-  robots: { index: true, follow: true },
-  alternates: { canonical: "/hydration" },
-  openGraph: {
-    title: "Hydration & Electrolyte Supplements UK | SupplementScout",
+export async function generateMetadata(): Promise<Metadata> {
+  const result = await getHydrationComparison();
+  const readiness = evaluateHydrationIndexability(result.summary, true);
+  const indexable = !result.error && readiness.indexable;
+
+  return {
+    title: "Hydration & Electrolyte Supplements UK",
     description,
-    url: "/hydration",
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-    title: "Hydration & Electrolyte Supplements UK | SupplementScout",
-    description,
-  },
-};
+    robots: { index: indexable, follow: true },
+    alternates: { canonical: "/hydration" },
+    openGraph: {
+      title: "Hydration & Electrolyte Supplements UK | SupplementScout",
+      description,
+      url: "/hydration",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: "Hydration & Electrolyte Supplements UK | SupplementScout",
+      description,
+    },
+  };
+}
 
 function formatCheckedAt(value: string | null) {
   if (!value || !Number.isFinite(Date.parse(value))) return null;
@@ -63,6 +71,15 @@ export function buildHydrationStructuredData(rows: HydrationComparisonRow[]) {
   return {
     "@context": "https://schema.org",
     "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": pageUrl,
+        url: pageUrl,
+        name: "Hydration & Electrolyte Supplements UK",
+        description,
+        mainEntity: { "@id": itemListId },
+        breadcrumb: { "@id": breadcrumbId },
+      },
       {
         "@type": "ItemList",
         "@id": itemListId,
@@ -171,6 +188,10 @@ export function HydrationPageContent({
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
+      <CategoryViewAnalytics
+        category="Hydration"
+        sourcePage="hydration_comparison"
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

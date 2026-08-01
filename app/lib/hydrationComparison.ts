@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { isCreatineOfferFresh } from "./creatineLaunch";
 import {
   getDeliveredPrice,
@@ -309,7 +310,7 @@ export function evaluateHydrationIndexability(
   return { indexable: blockers.length === 0, blockers };
 }
 
-export async function getHydrationComparison(): Promise<HydrationComparisonResult> {
+async function loadHydrationComparison(): Promise<HydrationComparisonResult> {
   const { data, error } = await supabase
     .from("products")
     .select(
@@ -379,3 +380,5 @@ export async function getHydrationComparison(): Promise<HydrationComparisonResul
     error: false,
   };
 }
+
+export const getHydrationComparison = cache(loadHydrationComparison);

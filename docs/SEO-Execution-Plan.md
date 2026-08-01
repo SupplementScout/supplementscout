@@ -123,9 +123,11 @@ Console evidence and user value.
 ## 6. Current active task
 
 **Next executable task:** SEO-13 — continue the controlled ten-page high-intent
-cluster. Amino Acids / BCAA / EAA is page 1 and is live verified. The next
-executable page gate inside SEO-13 is Protein Bars: verify product/box pack
-identity and current multi-retailer coverage before implementation.
+cluster. Amino Acids / BCAA / EAA is page 1 and is live verified. Protein Bars,
+Whey Isolate, Vegan Protein, Mass Gainer and Electrolytes are deferred after
+their reviewed gates failed. The existing `/hydration` canonical was hardened
+instead of creating a duplicate Electrolytes URL. The next executable page gate
+inside SEO-13 is Magnesium Glycinate: require reliable form-specific identity.
 Search Console and GA4 are already configured; SEO-07 only awaits an
 authenticated report view or export so its measurement baseline can be saved.
 
@@ -257,6 +259,121 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — SEO-13 page 6 Electrolytes gate deferred and local hardening
+
+- A read-only production audit applied the existing Hydration/Electrolytes
+  inclusion rule to active, unmerged products and the shared 24-hour offer
+  window. It found 18 scoped products, 12 visible products, 47 fresh offers and
+  four retailers, but only one product with fresh offers from multiple
+  retailers. No catalogue or production data was changed.
+- A separate `/electrolytes` route would duplicate the existing `/hydration`
+  canonical, whose title, copy and product scope already target hydration and
+  electrolyte intent. No duplicate URL or sitemap entry was created.
+- The existing 3-product / 2-retailer / 8-offer Hydration index gate failed on
+  multi-retailer depth. The page was incorrectly hard-coded to `index, follow`
+  despite explaining that gate publicly.
+- Reused the existing comparison loader and gate to make Hydration metadata
+  fail closed dynamically. The cached loader is shared by metadata and page
+  rendering; no second query mechanism was created. Added the missing
+  CollectionPage node and consent-aware category analytics while retaining the
+  existing ItemList, BreadcrumbList, canonical and visible limitations.
+- Sixty-seven focused comparison, transparency, sitemap and Guardian tests
+  passed. TypeScript passed; ESLint had zero errors and only the four existing
+  Six Pack warnings. The Next.js 16.2.9 production build passed and its static
+  Hydration HTML contained the exact canonical, `noindex, follow`,
+  CollectionPage JSON-LD and the consent-aware analytics source. Deployment
+  and public verification remain required for this hardening change.
+- Electrolytes is deferred until the shared multi-retailer gate recovers. The
+  next candidate is Magnesium Glycinate; SEO-13 remains the single
+  `IN PROGRESS` implementation.
+
+### 1 August 2026 — SEO-13 page 5 Mass Gainer gate deferred
+
+- A read-only production audit reviewed the exact `Mass Gainer` category,
+  explicit gainer identities, product format, fresh offers and the latest 1,000
+  internal `search_results` events. No catalogue, analytics or production data
+  was changed.
+- Internal demand evidence was present: 31 matching events included direct
+  `mass gainer` searches, a specific product query and goal-mapped `muscle
+  gain` searches. This is recorded as on-site intent evidence, not substituted
+  for the still-blocked Search Console baseline.
+- Seven products passed the explicit powder identity boundary. Three had
+  current offers: 18 fresh offers across two retailers, with only one product
+  covered by multiple retailers.
+- Both the 3-product multi-retailer threshold and the 20-fresh-offer threshold
+  failed. No `/mass-gainer` page, sitemap entry, metadata or production change
+  was created, and neither threshold was weakened.
+- Mass Gainer is deferred until current coverage improves. Electrolytes becomes
+  the next candidate gate, with an explicit requirement to review the existing
+  `/hydration` canonical and avoid duplicate search intent.
+
+### 1 August 2026 — SEO-13 page 4 Vegan Protein gate deferred
+
+- A read-only production audit reviewed explicit vegan, plant, pea, rice and
+  hemp protein identities across all active, unmerged products, then checked
+  canonical category, format, variants, fresh offers and retailer labels. It
+  made no catalogue or production write.
+- The safe boundary requires an explicit plant/vegan protein powder identity,
+  excludes bars and other food formats, and rejects animal-protein conflicts in
+  canonical or retailer labels. All included current retailer labels agreed
+  with the canonical plant/vegan identity.
+- Eight products passed the identity boundary; six had 27 fresh offers across
+  Whey Okay, 6 Pack Supplements and Jon's Supplements. Only one product had
+  fresh offers from multiple retailers.
+- The unchanged 3-product / 2-retailer / 20-offer gate failed on
+  multi-retailer depth. No `/vegan-protein` page, sitemap entry, metadata or
+  production change was created, and the gate was not weakened.
+- Vegan Protein is deferred until current comparable retailer overlap reaches
+  the existing threshold. Mass Gainer becomes the next candidate gate while
+  SEO-13 remains the single `IN PROGRESS` implementation.
+
+### 1 August 2026 — SEO-13 page 3 Whey Isolate gate deferred
+
+- A read-only production audit reviewed all 94 active, unmerged products in
+  the exact `Whey Protein` category, their fresh offers and the corresponding
+  retailer labels. It also inspected explicit isolate names outside that
+  category. No product, mapping, offer or production data was changed.
+- The safe boundary requires the exact Whey Protein category plus an explicit
+  isolate/ISO/WPI canonical identity, and excludes explicit blends, beef and
+  collagen proteins. Retailer-only isolate wording cannot pull a canonical
+  product into scope, and four isolate-labelled products assigned to `Health
+  Supplements` remain excluded pending separate identity review.
+- One explicit tri-blend was excluded. The final reviewed boundary contained
+  16 visible products, 77 fresh offers and three retailers. Retailer labels for
+  included fresh offers agreed with their canonical isolate identities.
+- Only two included products had fresh offers from multiple retailers. The
+  unchanged 3-product / 2-retailer / 20-offer index gate therefore failed on
+  multi-retailer depth. No `/whey-isolate` page, sitemap entry, metadata or
+  production change was created, and the gate was not weakened.
+- Whey Isolate is deferred until current comparable retailer overlap reaches
+  the existing threshold. Vegan Protein becomes the next candidate gate while
+  SEO-13 remains the single `IN PROGRESS` implementation.
+
+### 1 August 2026 — SEO-13 page 2 Protein Bars gate deferred
+
+- A read-only production audit reviewed all 52 active, unmerged products in
+  the exact `Protein Bars` category, including active variants, pack counts and
+  offers checked within the shared 24-hour freshness window. It performed no
+  product, variant, mapping, offer or production write.
+- The unreviewed category boundary is unsafe: current entries include jams,
+  sauces, nut butter, milkshakes, pancake mix, liquid egg white, cookies and
+  other non-bar products. Current variants also expose single-versus-box pack
+  conflicts, including one canonical product with simultaneous 1-bar and
+  12-bar offers.
+- The broad category had 28 products with 95 fresh offers and only two apparent
+  multi-retailer products; both apparent comparisons were outside the safe bar
+  boundary. Requiring an explicit bar/wafer/flapjack identity, one known and
+  consistent pack count, active canonical state and a fresh mapped offer left
+  10 products, 48 offers and three retailers, but zero products with offers
+  from multiple retailers.
+- The unchanged 3-product / 2-retailer / 20-offer index gate therefore failed
+  on multi-retailer depth. No `/protein-bars` page, sitemap entry, metadata or
+  production change was created, and the gate was not weakened.
+- Protein Bars is deferred inside SEO-13 until canonical category cleanup and
+  comparable pack-level retailer overlap are independently verified. Per the
+  fixed rollout order, Whey Isolate becomes the next candidate gate while
+  SEO-13 remains the single `IN PROGRESS` implementation.
 
 ### 1 August 2026 — SEO-13 page 1 Amino Acids / BCAA / EAA live verification
 

@@ -1787,18 +1787,22 @@ Target experience:
 
 `SEO-13` is the single active implementation. Page 1, Amino Acids / BCAA /
 EAA, is live verified through the existing shared category/decision-page
-system. Continue one reviewed page and one live verification at a time. The
-next executable gate is Protein Bars: verify canonical product versus box/pack
-identity and current multi-retailer depth before implementation. Six Pack
+system. Protein Bars, Whey Isolate, Vegan Protein, Mass Gainer and Electrolytes
+are deferred because their reviewed gates do not meet current coverage
+requirements. The existing `/hydration` canonical was hardened instead of
+creating a duplicate Electrolytes URL. Continue one reviewed page and one live
+verification at a time. The next executable gate is Magnesium Glycinate:
+require reliable form-specific identity before implementation. Six Pack
 remains complete and in operational monitoring; unrelated retailer-source
 failures remain separate fail-closed review items.
 
 ### Next task
 
-Evaluate Protein Bars, the second `SEO-13` candidate, against the exact gate in
+Evaluate Magnesium Glycinate, the seventh `SEO-13` candidate, against the exact gate in
 `docs/SEO-Execution-Plan.md`. Research and eligibility checks may cover the
 cluster, but implementation and live verification proceed one page at a time
-through the shared mechanism.
+through the shared mechanism. Revisit deferred candidates only after their
+recorded identity, demand or multi-retailer blockers change.
 
 ### Then
 

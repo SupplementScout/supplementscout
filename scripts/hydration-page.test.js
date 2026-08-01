@@ -127,6 +127,10 @@ function loadPage(result = fixtureResult()) {
   const page = compileModule(pagePath, {
     mocks: {
       "next/link": { __esModule: true, default: Link },
+      "../components/CategoryViewAnalytics": {
+        __esModule: true,
+        default: () => null,
+      },
       "../components/ComparisonTransparencyLinks": {
         __esModule: true,
         default: () => null,
@@ -136,6 +140,8 @@ function loadPage(result = fixtureResult()) {
           calls += 1;
           return result;
         },
+        evaluateHydrationIndexability:
+          loadComparison().evaluateHydrationIndexability,
         HYDRATION_INDEX_GATE: loadComparison().HYDRATION_INDEX_GATE,
       },
       "../lib/pricing": pricing,
@@ -144,13 +150,27 @@ function loadPage(result = fixtureResult()) {
   return { page, calls: () => calls };
 }
 
-test("the /hydration route is an indexable canonical Server Component", () => {
-  const { page } = loadPage();
+test("the /hydration route is canonical and indexing follows current coverage", async () => {
+  const result = fixtureResult();
+  const { page } = loadPage(result);
   const source = fs.readFileSync(pagePath, "utf8");
   assert.equal(source.includes('"use client"'), false);
-  assert.equal(page.metadata.alternates.canonical, "/hydration");
-  assert.deepEqual(page.metadata.robots, { index: true, follow: true });
-  assert.match(page.metadata.title, /Hydration & Electrolyte/);
+  const blocked = await page.generateMetadata();
+  assert.equal(blocked.alternates.canonical, "/hydration");
+  assert.deepEqual(blocked.robots, { index: false, follow: true });
+  assert.match(blocked.title, /Hydration & Electrolyte/);
+
+  const ready = {
+    ...result,
+    summary: {
+      ...result.summary,
+      freshOffers: 20,
+      freshRetailersAcrossComparisons: 2,
+      productsWithMultipleFreshRetailers: 3,
+    },
+  };
+  const readyMetadata = await loadPage(ready).page.generateMetadata();
+  assert.deepEqual(readyMetadata.robots, { index: true, follow: true });
 });
 
 test("hydration scope uses explicit words and excludes unrelated products", () => {
@@ -236,11 +256,16 @@ test("hydration appears exactly once in the sitemap", () => {
   assert.equal((sitemap.match(/`\$\{siteUrl\}\/hydration`/g) || []).length, 1);
 });
 
-test("structured data contains valid ItemList and Breadcrumb but no Product", () => {
+test("structured data contains CollectionPage, ItemList and Breadcrumb but no Product", () => {
   const { page } = loadPage();
   const data = page.buildHydrationStructuredData(fixtureResult().rows);
   const itemList = data["@graph"].find((item) => item["@type"] === "ItemList");
   const breadcrumb = data["@graph"].find((item) => item["@type"] === "BreadcrumbList");
+  assert.deepEqual(data["@graph"].map((item) => item["@type"]), [
+    "CollectionPage",
+    "ItemList",
+    "BreadcrumbList",
+  ]);
   assert.equal(itemList.numberOfItems, fixtureResult().rows.length);
   assert.equal(itemList.itemListElement.every((item) => item["@type"] === "ListItem" && item.url), true);
   assert.equal(breadcrumb.itemListElement.length, 2);
@@ -288,4 +313,10 @@ test("default route loads hydration data once", async () => {
   const element = await loaded.page.default();
   assert.equal(loaded.calls(), 1);
   assert.equal(element.type, loaded.page.HydrationPageContent);
+});
+
+test("hydration uses consent-aware category analytics", () => {
+  const source = fs.readFileSync(pagePath, "utf8");
+  assert.match(source, /category="Hydration"/);
+  assert.match(source, /sourcePage="hydration_comparison"/);
 });
