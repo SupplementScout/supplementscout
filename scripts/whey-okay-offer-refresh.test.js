@@ -102,6 +102,20 @@ test("frozen manifest contains exactly 586 unique approved mappings", () => {
   assert.equal(manifest.permanent_q3_q4_exception_count, 80);
 });
 
+test("Critical Cookie box binding follows the reviewed production family variant", () => {
+  const { manifest } = loadManifest();
+  const row = manifest.rows.find((item) => item.source_key === "3667:3667");
+
+  assert.equal(row.canonical_target.product_id, 468);
+  assert.equal(row.canonical_target.variant_key, "double-chocolate-85g-12-pack");
+  assert.equal(row.canonical_target.pack_count, 12);
+  assert.equal(row.environment_bindings.production.mapping_id, 469);
+  assert.equal(row.environment_bindings.production.offer_id, 472);
+  assert.equal(row.environment_bindings.production.canonical_product_id, 468);
+  assert.equal(row.environment_bindings.production.canonical_variant_id, 2696);
+  assert.equal(row.environment_bindings.staging.canonical_variant_id, 429);
+});
+
 test("all 586 exact manifest identities classify idempotently", () => {
   const targets = Array.from({ length: 586 }, (_, index) => target(index + 1));
   const result = classify(targets, targets.map((row) => source(row)));

@@ -28176,16 +28176,16 @@
       "ekm_variant_id": "3667",
       "canonical_target": {
         "product_id": 468,
-        "variant_key": "default",
-        "display_name": "Default",
-        "flavour_code": null,
-        "flavour_label": null,
-        "size_value": null,
-        "size_unit": null,
-        "pack_count": null,
-        "product_format": null,
+        "variant_key": "double-chocolate-85g-12-pack",
+        "display_name": "Double Chocolate Box of 12 / 85g",
+        "flavour_code": "double-chocolate",
+        "flavour_label": "Double Chocolate",
+        "size_value": 85,
+        "size_unit": "g",
+        "pack_count": 12,
+        "product_format": "snack",
         "is_active": true,
-        "is_default": true
+        "is_default": false
       },
       "evidence": {
         "sku": "658556043530",
@@ -28214,12 +28214,12 @@
           "mapping_id": 469,
           "offer_id": 472,
           "canonical_product_id": 468,
-          "canonical_variant_id": 429,
+          "canonical_variant_id": 2696,
           "mapping_updated_at": "2026-07-23T18:34:43.14121+00:00",
-          "offer_last_checked_at": "2026-06-29T12:35:57.476+00:00"
+          "offer_last_checked_at": "2026-07-31T05:47:40.697+00:00"
         }
       },
-      "evidence_timestamp": "2026-07-24T06:12:58.942Z"
+      "evidence_timestamp": "2026-08-01T06:46:05.000Z"
     },
     {
       "source_key": "3670:3670",

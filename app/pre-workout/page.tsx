@@ -2,44 +2,41 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import {
-  evaluateWheyIndexability,
-  getWheyComparison,
-  WHEY_INDEX_GATE,
-  type WheyComparisonResult,
-  type WheyComparisonRow,
-} from "../lib/wheyComparison";
-import {
-  formatCurrency,
-  formatUnitPrice,
-} from "../lib/pricing";
+  evaluatePreWorkoutIndexability,
+  getPreWorkoutComparison,
+  PRE_WORKOUT_INDEX_GATE,
+  type PreWorkoutComparisonResult,
+  type PreWorkoutComparisonRow,
+} from "../lib/preWorkoutComparison";
+import { formatCurrency, formatUnitPrice } from "../lib/pricing";
 
 const siteUrl = "https://www.supplementscout.co.uk";
-const pagePath = "/whey-protein";
+const pagePath = "/pre-workout";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
-  "Compare current Whey Protein prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.";
+  "Compare current Pre Workout prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.";
 
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const result = await getWheyComparison();
-  const readiness = evaluateWheyIndexability(result.summary, true);
+  const result = await getPreWorkoutComparison();
+  const readiness = evaluatePreWorkoutIndexability(result.summary, true);
   const indexable = !result.error && readiness.indexable;
 
   return {
-    title: "Compare Whey Protein Prices UK",
+    title: "Compare Pre Workout Prices UK",
     description,
     robots: { index: indexable, follow: true },
     alternates: { canonical: pagePath },
     openGraph: {
-      title: "Compare Whey Protein Prices UK | SupplementScout",
+      title: "Compare Pre Workout Prices UK | SupplementScout",
       description,
       url: pagePath,
       type: "website",
     },
     twitter: {
       card: "summary",
-      title: "Compare Whey Protein Prices UK | SupplementScout",
+      title: "Compare Pre Workout Prices UK | SupplementScout",
       description,
     },
   };
@@ -54,21 +51,23 @@ function formatCheckedAt(value: string | null) {
   }).format(new Date(value));
 }
 
-function productFacts(row: WheyComparisonRow) {
+function productFacts(row: PreWorkoutComparisonRow) {
   return [
     row.netWeightG
       ? `${row.netWeightG.toLocaleString("en-GB")} g`
       : null,
+    row.unitCount && row.unitType
+      ? `${row.unitCount.toLocaleString("en-GB")} ${row.unitType}`
+      : null,
     row.verifiedServingCount
       ? `${row.verifiedServingCount.toLocaleString("en-GB")} verified servings`
-      : null,
-    row.nutritionVerified && row.proteinPerServingG
-      ? `${row.proteinPerServingG.toLocaleString("en-GB")} g verified protein per serving`
       : null,
   ].filter((value): value is string => Boolean(value));
 }
 
-export function buildWheyStructuredData(rows: WheyComparisonRow[]) {
+export function buildPreWorkoutStructuredData(
+  rows: PreWorkoutComparisonRow[]
+) {
   const itemListId = `${pageUrl}#products`;
   const breadcrumbId = `${pageUrl}#breadcrumb`;
 
@@ -79,7 +78,7 @@ export function buildWheyStructuredData(rows: WheyComparisonRow[]) {
         "@type": "CollectionPage",
         "@id": pageUrl,
         url: pageUrl,
-        name: "Compare Whey Protein Prices UK",
+        name: "Compare Pre Workout Prices UK",
         description,
         mainEntity: { "@id": itemListId },
         breadcrumb: { "@id": breadcrumbId },
@@ -87,7 +86,7 @@ export function buildWheyStructuredData(rows: WheyComparisonRow[]) {
       {
         "@type": "ItemList",
         "@id": itemListId,
-        name: "Whey Protein products with recently checked UK retailer offers",
+        name: "Pre Workout products with recently checked UK retailer offers",
         numberOfItems: rows.length,
         itemListOrder: "https://schema.org/ItemListOrderDescending",
         itemListElement: rows.map((row, index) => ({
@@ -110,7 +109,7 @@ export function buildWheyStructuredData(rows: WheyComparisonRow[]) {
           {
             "@type": "ListItem",
             position: 2,
-            name: "Whey Protein",
+            name: "Pre Workout",
             item: pageUrl,
           },
         ],
@@ -119,11 +118,11 @@ export function buildWheyStructuredData(rows: WheyComparisonRow[]) {
   };
 }
 
-function WheyProductCard({
+function PreWorkoutProductCard({
   row,
   position,
 }: {
-  row: WheyComparisonRow;
+  row: PreWorkoutComparisonRow;
   position: number;
 }) {
   const facts = productFacts(row);
@@ -154,8 +153,7 @@ function WheyProductCard({
           )}
           <p className="mt-3 text-sm leading-6 text-zinc-700">
             {row.offerCount} recently checked in-stock offer
-            {row.offerCount === 1 ? "" : "s"} from{" "}
-            {retailerNames.join(", ")}.
+            {row.offerCount === 1 ? "" : "s"} from {retailerNames.join(", ")}.
           </p>
           <p className="mt-1 text-xs text-zinc-500">
             {checkedAt
@@ -182,9 +180,7 @@ function WheyProductCard({
             Available at {row.bestOffer.retailer.name}
           </p>
 
-          {(row.pricePerKg !== null ||
-            row.pricePerServing !== null ||
-            row.costPer25gProtein !== null) && (
+          {(row.pricePerKg !== null || row.pricePerServing !== null) && (
             <dl className="mt-4 grid gap-2 border-t border-zinc-200 pt-3 text-sm">
               {row.pricePerKg !== null && (
                 <div className="flex justify-between gap-4">
@@ -199,14 +195,6 @@ function WheyProductCard({
                   <dt className="text-zinc-600">Delivered price / serving</dt>
                   <dd className="font-semibold">
                     {formatUnitPrice(row.pricePerServing)}
-                  </dd>
-                </div>
-              )}
-              {row.costPer25gProtein !== null && (
-                <div className="flex justify-between gap-4">
-                  <dt className="text-zinc-600">Cost / 25 g protein</dt>
-                  <dd className="font-semibold">
-                    {formatCurrency(row.costPer25gProtein)}
                   </dd>
                 </div>
               )}
@@ -225,19 +213,19 @@ function WheyProductCard({
   );
 }
 
-export function WheyProteinPageContent({
+export function PreWorkoutPageContent({
   result,
 }: {
-  result: WheyComparisonResult;
+  result: PreWorkoutComparisonResult;
 }) {
-  const jsonLd = buildWheyStructuredData(result.rows);
+  const jsonLd = buildPreWorkoutStructuredData(result.rows);
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <CategoryViewAnalytics
-        category="Whey Protein"
-        sourcePage="whey_protein_comparison"
+        category="Pre Workout"
+        sourcePage="pre_workout_comparison"
       />
       <script
         type="application/ld+json"
@@ -252,10 +240,10 @@ export function WheyProteinPageContent({
             SupplementScout
           </Link>
           <Link
-            href="/search?q=whey%20protein"
+            href="/search?q=pre%20workout"
             className="text-sm font-semibold text-zinc-700 hover:text-zinc-950"
           >
-            Search whey
+            Search Pre Workout
           </Link>
         </div>
       </header>
@@ -269,7 +257,7 @@ export function WheyProteinPageContent({
               </Link>
             </li>
             <li aria-hidden="true">/</li>
-            <li aria-current="page">Whey Protein</li>
+            <li aria-current="page">Pre Workout</li>
           </ol>
         </nav>
 
@@ -278,17 +266,17 @@ export function WheyProteinPageContent({
             UK retailer price comparison
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-            Compare Whey Protein Prices UK
+            Compare Pre Workout Prices UK
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
-            Compare recently checked Whey Protein offers from UK supplement
+            Compare recently checked Pre Workout offers from UK supplement
             retailers. We show the lowest known delivered total for each
             product when delivery is available, without estimating missing
-            prices or nutrition.
+            prices, servings or formulation details.
           </p>
           {!result.error && (
             <p className="mt-4 text-sm leading-6 text-zinc-600">
-              Current coverage: {result.summary.visibleProducts} Whey Protein
+              Current coverage: {result.summary.visibleProducts} Pre Workout
               product{result.summary.visibleProducts === 1 ? "" : "s"},{" "}
               {result.summary.freshOffers} recently checked offer
               {result.summary.freshOffers === 1 ? "" : "s"} from{" "}
@@ -311,7 +299,7 @@ export function WheyProteinPageContent({
               Current comparison
             </p>
             <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
-              Whey Protein prices and retailer coverage
+              Pre Workout prices and retailer coverage
             </h2>
           </div>
           <p className="text-sm text-zinc-600">
@@ -325,23 +313,23 @@ export function WheyProteinPageContent({
           Products with broader retailer coverage appear first. Within each
           product, recently checked offers are ordered by known delivered
           total. This is a coverage-first comparison, not a claim that the
-          first product is nutritionally superior.
+          first product has a better formulation or effect.
         </p>
 
         {result.error && (
           <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6">
             <h2 className="text-xl font-bold">
-              Current Whey Protein data is temporarily unavailable
+              Current Pre Workout data is temporarily unavailable
             </h2>
             <p className="mt-2 text-zinc-700">
               No old prices have been substituted. Try the broader search
               while current retailer data is restored.
             </p>
             <Link
-              href="/search?q=whey%20protein"
+              href="/search?q=pre%20workout"
               className="mt-4 inline-flex font-semibold underline"
             >
-              Search Whey Protein
+              Search Pre Workout
             </Link>
           </div>
         )}
@@ -349,7 +337,7 @@ export function WheyProteinPageContent({
         {!result.error && result.rows.length === 0 && (
           <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6">
             <h2 className="text-xl font-bold">
-              No recently checked Whey Protein offers
+              No recently checked Pre Workout offers
             </h2>
             <p className="mt-2 text-zinc-600">
               Older prices remain hidden until retailer data is checked again.
@@ -360,7 +348,7 @@ export function WheyProteinPageContent({
         {result.rows.length > 0 && (
           <div className="mt-6 space-y-4">
             {result.rows.map((row, index) => (
-              <WheyProductCard
+              <PreWorkoutProductCard
                 key={row.id}
                 row={row}
                 position={index + 1}
@@ -396,49 +384,46 @@ export function WheyProteinPageContent({
               When value metrics are shown
             </h2>
             <p className="mt-3 leading-7 text-zinc-700">
-              Price per kilogram and cost per 25 g of protein appear only when
-              the required package, serving and nutrition fields have been
-              reviewed and marked as verified. Missing information is left
-              blank rather than estimated from a product name or retailer
-              description.
+              Price per kilogram and price per serving appear only when the
+              required package or serving fields have been reviewed and marked
+              as verified. Missing information is left blank rather than
+              estimated from a product name or retailer description.
             </p>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-        <h2 className="text-2xl font-bold">Whey Protein comparison questions</h2>
+        <h2 className="text-2xl font-bold">Pre Workout comparison questions</h2>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div>
-            <h3 className="font-bold">
-              What is included in this comparison?
-            </h3>
+            <h3 className="font-bold">What is included?</h3>
             <p className="mt-2 leading-7 text-zinc-700">
-              The page covers reviewed Whey Protein powders and whey-based
-              blends in the SupplementScout catalogue. Plant, beef, collagen,
-              egg and casein-only products are excluded even if a retailer
-              placed them in a broad protein category.
+              The page covers active products in the reviewed Pre Workout
+              category with a recently checked offer. Multi-product bundles
+              are excluded so a bundle price is not compared with a single
+              canonical product.
             </p>
           </div>
           <div>
             <h3 className="font-bold">
-              Are concentrate, isolate and clear whey the same?
+              Does this page identify stimulant-free products?
             </h3>
             <p className="mt-2 leading-7 text-zinc-700">
-              They are different product types and formulations. This page
-              groups them as Whey Protein but keeps each canonical product and
-              pack size separate so prices are not compared as if the products
-              were identical.
+              No. Product names can mention pump, stim or caffeine, but this
+              page does not infer stimulant status or ingredient suitability
+              from names. Check the current label and retailer details for the
+              formulation that matters to you.
             </p>
           </div>
           <div>
             <h3 className="font-bold">
-              Does the first product mean the best Whey Protein?
+              Does the first product mean the best Pre Workout?
             </h3>
             <p className="mt-2 leading-7 text-zinc-700">
               No. The order favours products with more current retailer
-              coverage. SupplementScout does not make a quality or health
-              ranking without evidence that supports it.
+              coverage. SupplementScout does not rank effectiveness,
+              formulation quality or suitability without verified evidence.
             </p>
           </div>
           <div>
@@ -446,16 +431,13 @@ export function WheyProteinPageContent({
               Why is a value calculation sometimes missing?
             </h3>
             <p className="mt-2 leading-7 text-zinc-700">
-              A current price can be valid even when package or nutrition data
-              is incomplete. We still show the retailer comparison but hide
-              any per-kilogram, per-serving or protein calculation that cannot
-              be verified safely.
+              A current price can be valid even when package or serving data is
+              incomplete. We still show the retailer comparison but hide any
+              per-kilogram or per-serving calculation that cannot be verified.
             </p>
           </div>
           <div>
-            <h3 className="font-bold">
-              How often are prices checked?
-            </h3>
+            <h3 className="font-bold">How often are prices checked?</h3>
             <p className="mt-2 leading-7 text-zinc-700">
               Only offers checked within the last 24 hours are eligible for
               this page. Each product shows its latest check time, and stale
@@ -475,14 +457,14 @@ export function WheyProteinPageContent({
             <Link href="/hydration" className="font-semibold underline">
               Hydration comparison
             </Link>
-            <Link href="/pre-workout" className="font-semibold underline">
-              Pre Workout comparison
+            <Link href="/whey-protein" className="font-semibold underline">
+              Whey Protein comparison
             </Link>
             <Link
-              href="/search?q=whey%20protein"
+              href="/search?q=pre%20workout"
               className="font-semibold underline"
             >
-              Search all protein products
+              Search all Pre Workout products
             </Link>
             <Link href="/about" className="font-semibold underline">
               How SupplementScout works
@@ -492,20 +474,20 @@ export function WheyProteinPageContent({
 
         <p className="mt-8 text-xs leading-5 text-zinc-500">
           Indexing quality gate: at least{" "}
-          {WHEY_INDEX_GATE.minimumProductsWithMultipleFreshRetailers}{" "}
+          {PRE_WORKOUT_INDEX_GATE.minimumProductsWithMultipleFreshRetailers}{" "}
           multi-retailer products,{" "}
-          {WHEY_INDEX_GATE.minimumFreshRetailersAcrossComparisons} retailers
-          across those comparisons and {WHEY_INDEX_GATE.minimumFreshOffers}{" "}
-          fresh offers. If coverage falls below the gate, the page remains
-          available to users but is marked not to be indexed until coverage
-          recovers.
+          {PRE_WORKOUT_INDEX_GATE.minimumFreshRetailersAcrossComparisons}{" "}
+          retailers across those comparisons and{" "}
+          {PRE_WORKOUT_INDEX_GATE.minimumFreshOffers} fresh offers. If coverage
+          falls below the gate, the page remains available to users but is
+          marked not to be indexed until coverage recovers.
         </p>
       </section>
     </main>
   );
 }
 
-export default async function WheyProteinPage() {
-  const result = await getWheyComparison();
-  return <WheyProteinPageContent result={result} />;
+export default async function PreWorkoutPage() {
+  const result = await getPreWorkoutComparison();
+  return <PreWorkoutPageContent result={result} />;
 }

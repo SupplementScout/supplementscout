@@ -110,7 +110,7 @@ Console evidence and user value.
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `LIVE VERIFIED` | Markup matches visible canonical data, passes automated and external structured-data validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines are recorded and priority URLs are inspected. Blocker: the current working session has no authenticated report view or export; site ownership itself is already verified through DNS. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
-| SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `PLANNED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
+| SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `CODE COMPLETE` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `PLANNED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
@@ -253,6 +253,42 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — SEO-09 local implementation
+
+- Added canonical `/pre-workout` as a Server Component through the existing
+  `app/lib/categoryComparison.ts` decision-page core; no second search,
+  catalogue or comparison engine was created.
+- The reviewed scope requires an active, unmerged product in the exact
+  `Pre Workout` category and excludes explicit multi-product bundles. It does
+  not infer caffeine, stimulant status, ingredient suitability, effectiveness
+  or formulation quality from product names.
+- Reused the existing 24-hour offer freshness rule, mapped-offer validation,
+  known-delivery ranking, verified unit-value calculations, coverage-first
+  ordering and fail-closed indexing gate from SEO-08.
+- Added canonical metadata, conditional `index`/`noindex`, CollectionPage,
+  ItemList and BreadcrumbList JSON-LD, consent-aware category analytics, one
+  sitemap entry and prominent links from the homepage, Whey Protein, Creatine
+  and Hydration pages.
+- A read-only catalogue audit before implementation found 111 active exact-
+  category products, 339 positive-price in-stock offers, 13 products with at
+  least two retailers and seven retailers before the 24-hour freshness rule.
+- The production-shaped local build correctly applied that freshness rule and
+  rendered 32 products, 135 fresh offers and two fresh retailers. Only one
+  product currently had fresh offers from multiple retailers, below the
+  three-product index gate, so the page correctly emitted `noindex, follow`.
+  The 32 visible product cards matched 32 ItemList entries, the explicit bundle
+  was absent, the homepage link was present and sitemap occurrence was exactly
+  one.
+- `node --test scripts/pre-workout-page.test.js scripts/whey-protein-page.test.js scripts/sitemap-freshness.test.js scripts/homepage-server-rendering.test.js scripts/creatine-page.test.js scripts/hydration-page.test.js`:
+  66 passed, 0 failed.
+- Targeted ESLint, TypeScript, `git diff --check`, the Next.js 16.2.9
+  production build and the local production-server HTML checks passed.
+- SEO-09 is `CODE COMPLETE`, not `LIVE VERIFIED`. It still requires deployment,
+  public checks and recovery of the existing quality gate to at least three
+  multi-retailer products across at least two retailers and 20 fresh offers;
+  the SEO implementation does not receive authority to change retailer data or
+  weaken the gate.
 
 ### 1 August 2026 — automatic project guardian
 

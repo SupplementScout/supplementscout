@@ -9,6 +9,7 @@ export const revalidate = 3600;
 const popularSearches = [
   { label: "Creatine", href: "/creatine" },
   { label: "Whey protein", href: "/whey-protein" },
+  { label: "Pre Workout", href: "/pre-workout" },
   { label: "Magnesium", href: "/magnesium" },
   { label: "Vitamin D", href: "/vitamin-d" },
   { label: "Electrolytes", query: "electrolytes" },
@@ -23,7 +24,7 @@ const goalLinks = [
   {
     label: "Energy",
     description: "Browse products commonly searched for energy and training.",
-    query: "pre workout",
+    href: "/pre-workout",
   },
   {
     label: "Recovery",
@@ -51,6 +52,7 @@ const landingCategories = [
   { label: "Vitamins", href: "/vitamins" },
   { label: "Creatine", href: "/creatine" },
   { label: "Whey Protein", href: "/whey-protein" },
+  { label: "Pre Workout", href: "/pre-workout" },
   { label: "Magnesium", href: "/magnesium" },
   { label: "Vitamin D", href: "/vitamin-d" },
   { label: "Omega 3", href: "/omega-3" },
