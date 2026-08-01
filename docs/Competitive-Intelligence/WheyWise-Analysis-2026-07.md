@@ -605,10 +605,11 @@ The task order below replaces the older immediate-action list in this document.
 The Operating Plan and SEO Execution Plan hold the authoritative statuses and
 completion evidence.
 
-1. Complete `SEO-09`, the controlled Pre Workout comparison landing page.
-2. Deliver a reviewed cluster of ten high-intent, data-backed pages through the
-   existing shared category/decision-page system; do not create ten separate
-   implementations.
+1. Complete `SEO-10`, the shared comparison-methodology and data-freshness
+   support pages.
+2. Deliver `SEO-13`, a reviewed cluster of ten high-intent, data-backed pages
+   through the existing shared category/decision-page system; do not create ten
+   separate implementations.
 3. Add eligible brand and retailer landing pages only after identity
    normalization and minimum-content/coverage rules prevent thin pages.
 4. Increase canonical products with at least two active retailers from 107 to

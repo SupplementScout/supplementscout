@@ -110,7 +110,7 @@ Console evidence and user value.
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `LIVE VERIFIED` | Markup matches visible canonical data, passes automated and external structured-data validation, and never represents SupplementScout as the direct seller. |
 | SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines are recorded and priority URLs are inspected. Blocker: the current working session has no authenticated report view or export; site ownership itself is already verified through DNS. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
-| SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `CODE COMPLETE` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
+| SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `LIVE VERIFIED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `PLANNED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
@@ -122,9 +122,10 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-09 — launch the Pre Workout comparison landing
-page. Search Console and GA4 are already configured; SEO-07 only awaits an
-authenticated report view or export so its measurement baseline can be saved.
+**Next executable task:** SEO-10 — publish the shared comparison-methodology
+and data-freshness support pages. Search Console and GA4 are already configured;
+SEO-07 only awaits an authenticated report view or export so its measurement
+baseline can be saved.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -132,8 +133,8 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-After SEO-09, follow the binding sequence in Operating Plan section 0.0.7:
-SEO-10 as the shared methodology support, SEO-13 one page at a time, SEO-11 and
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-10 as the
+shared methodology support, SEO-13 one page at a time, SEO-11 and
 SEO-14, the 250-product multi-retailer checkpoint, SEO-15, SEO-16 and SEO-17.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation.
@@ -154,9 +155,10 @@ Current catalogue evidence supports this initial order:
 New pages must reuse one controlled category/decision-page system. Do not create
 one independent implementation per category.
 
-After Pre Workout is live, SEO-13 evaluates and delivers this initial cluster
-in order. A row may be skipped or deferred only when the recorded evidence gate
-fails; the next eligible row then becomes active.
+After Pre Workout and the shared SEO-10 methodology support are live, SEO-13
+evaluates and delivers this initial cluster in order. A row may be skipped or
+deferred only when the recorded evidence gate fails; the next eligible row then
+becomes active.
 
 | Order | Candidate page | Evidence gate before implementation |
 |---:|---|---|
@@ -284,11 +286,52 @@ invent a date to silence the Guardian.
   66 passed, 0 failed.
 - Targeted ESLint, TypeScript, `git diff --check`, the Next.js 16.2.9
   production build and the local production-server HTML checks passed.
-- SEO-09 is `CODE COMPLETE`, not `LIVE VERIFIED`. It still requires deployment,
-  public checks and recovery of the existing quality gate to at least three
-  multi-retailer products across at least two retailers and 20 fresh offers;
-  the SEO implementation does not receive authority to change retailer data or
-  weaken the gate.
+- At this local checkpoint SEO-09 was `CODE COMPLETE`, not `LIVE VERIFIED`.
+  Deployment, public checks and recovery of the existing quality gate to at
+  least three multi-retailer products across at least two retailers and 20
+  fresh offers were still required; the SEO implementation did not receive
+  authority to change retailer data or weaken the gate.
+
+### 1 August 2026 — SEO-09 live verification
+
+- Implementation commit `e592fd1` launched the controlled page. Commit
+  `77056cb` produced the live verified artefact after current retailer checks;
+  Vercel reported the deployment successful.
+- Existing Whey Okay automation first failed closed on six reviewed family-
+  variant binding changes and then on the frozen registration hash. Runs
+  `30688188811`, `30688432013` and `30688663746` stopped before catalogue
+  mutation; the registration failure recorded zero control and business writes.
+- The six bindings were reconciled to already-approved canonical variants in
+  commit `81e8f5a`. A read-only audit then matched all 586 manifest rows with
+  zero binding mismatches. The narrow, reversible manifest-guard migration was
+  rehearsed and applied first on staging and then production; product, variant,
+  mapping, offer and price-history row counts did not change. Stable migration
+  ledgers are recorded by commits `fe3f88c` and `8d46b90`.
+- Hosted production run `30688986753` passed preflight, apply and a fresh-source
+  idempotency check. Its signed artefact matched 586/586 approved offers across
+  12 guarded batches, with zero missing rows and 586 `VERIFY_NO_CHANGE`
+  classifications. Product, variant, mapping, offer and price-history counts
+  changed by zero; prices, shipping, totals, stock and URLs changed by zero;
+  only 586 `last_checked_at` values were refreshed. Thirty-one observed
+  shipping differences remained report-only with zero mutations, and 1,094
+  discovery rows remained outside the approved manifest.
+- The public `/pre-workout` response returned `200`, canonical
+  `https://www.supplementscout.co.uk/pre-workout` and `index, follow`. Visible
+  coverage was 60 products and 269 recently checked offers from three
+  retailers, including five products with current offers from multiple
+  retailers, exceeding the unchanged 3-product / 2-retailer / 20-offer gate.
+- Public JSON-LD contained one CollectionPage, one 60-item ItemList and one
+  BreadcrumbList. All 60 positions and canonical product URLs were valid and
+  unique, with no bundle product. Schema.org Validator fetched the live URL and
+  reported zero errors and zero warnings across all parsed nodes.
+- The public homepage linked to `/pre-workout`, and the public sitemap contained
+  the canonical URL exactly once. Eleven focused page tests, targeted ESLint,
+  TypeScript and `git diff --check` passed for the final artefact.
+- Search Console URL inspection remains unrecorded because the authenticated
+  report/export blocker documented under SEO-07 still applies; this is not
+  represented as a successful inspection.
+- SEO-09 is `LIVE VERIFIED`. The next executable implementation is declared in
+  the current active-task section above.
 
 ### 1 August 2026 — automatic project guardian
 

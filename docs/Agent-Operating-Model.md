@@ -157,7 +157,7 @@ production write.
 ## Adoption plan
 
 1. Keep the Automatic Project Guardian green while using this role split for
-   SEO-09.
+   SEO-10.
 2. Repeat it for the first two pages in the high-intent cluster.
 3. Record repeated manual steps and failure patterns.
 4. Only then create reusable Codex skills for stable procedures. Prefer the

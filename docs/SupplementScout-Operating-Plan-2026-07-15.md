@@ -190,9 +190,10 @@ automation. The full evidence is in
 This is the binding growth sequence. It supersedes older immediate-task and
 competitive-response ordering where they conflict:
 
-1. complete `SEO-09`, the Pre Workout comparison landing page;
-2. deliver one controlled cluster of ten reviewed, high-intent, data-backed
-   pages through the existing shared category/decision-page system;
+1. complete `SEO-10`, the shared comparison-methodology and data-freshness
+   support pages;
+2. deliver `SEO-13`, one controlled cluster of ten reviewed, high-intent,
+   data-backed pages through the existing shared category/decision-page system;
 3. launch eligible brand and retailer landing pages only after identity and
    minimum-coverage gates prevent thin pages;
 4. increase products with at least two active retailers from the 28 July
@@ -1352,8 +1353,9 @@ retailer/data implementation at a time.
 
 Current priority order:
 
-1. `SEO-09` Pre Workout comparison page.
-2. Controlled ten-page high-intent cluster, one page and one live verification at a time.
+1. `SEO-10` shared comparison methodology and data-freshness pages.
+2. `SEO-13` controlled ten-page high-intent cluster, one page and one live
+   verification at a time.
 3. Eligible brand and retailer landing pages after identity and coverage gates.
 4. Multi-retailer coverage from 107 products to 250, then toward 500.
 5. Deals and price drops from existing offer/history data.
@@ -1786,18 +1788,20 @@ Target experience:
 
 ### Current active task
 
-`SEO-09` is the next executable implementation: launch the controlled Pre
-Workout comparison landing page by reusing the existing category comparison
-system and the live Whey Protein quality contract. Six Pack remains complete
-and in operational monitoring; the unrelated Fit House missing-source variant
-remains a separate fail-closed source review item.
+`SEO-10` is the next executable implementation: publish shared comparison
+methodology and data-freshness support pages, then link them from priority
+comparison pages. Reuse the existing delivered-price, freshness, verified-
+metric and limitation rules; do not create a second pricing or methodology
+system. Six Pack remains complete and in operational monitoring; the unrelated
+Fit House missing-source variant remains a separate fail-closed source review
+item.
 
 ### Next task
 
-After `SEO-09` is `LIVE VERIFIED`, execute the ten-page high-intent cluster in
-the exact gated order maintained in `docs/SEO-Execution-Plan.md`. Research and
-eligibility checks may cover the cluster, but implementation and live
-verification proceed one page at a time through the shared mechanism.
+After `SEO-10` is `LIVE VERIFIED`, execute `SEO-13`, the ten-page high-intent
+cluster, in the exact gated order maintained in `docs/SEO-Execution-Plan.md`.
+Research and eligibility checks may cover the cluster, but implementation and
+live verification proceed one page at a time through the shared mechanism.
 
 ### Then
 
