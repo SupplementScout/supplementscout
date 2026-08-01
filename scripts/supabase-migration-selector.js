@@ -46,6 +46,10 @@ const CONTRACTS = Object.freeze({
         "881896d88dd33a240927543f9b871ac26c45fb00b9cffa3877bb177db1fa887b",
       "20260731120000_correct_jons_two_default_flavour_variants.sql":
         "b3d69a4594619d963918a47452a6034059bc51cd49d6ef3aa078b4cec1fad563",
+      "20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade.sql":
+        "2b9fc7fa6c9a9275d53127343435ab066f82e071a79f47806f5ae07286b1b1fd",
+      "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities.sql":
+        "b66fb79a7177e354d273115dd5ddeaad8e17d5a7bd9295443df76171f2630e36",
     }),
     pending: Object.freeze([]),
   }),
@@ -75,7 +79,16 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade.sql",
+        sha256: "2b9fc7fa6c9a9275d53127343435ab066f82e071a79f47806f5ae07286b1b1fd",
+      }),
+      Object.freeze({
+        filename: "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities.sql",
+        sha256: "b66fb79a7177e354d273115dd5ddeaad8e17d5a7bd9295443df76171f2630e36",
+      }),
+    ]),
   }),
 });
 

@@ -14,6 +14,8 @@ const EXCLUSIONS = Object.freeze({
     "20260729200000_authorize_reviewed_jons_11_stock_changes",
     "20260729210000_correct_strom_essentialmax_berrylicious_variant",
     "20260731120000_correct_jons_two_default_flavour_variants",
+    "20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade",
+    "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

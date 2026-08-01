@@ -8,7 +8,9 @@ const sql = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/2026
 test("GYM HIGH no-SKU migration is exact and control-plane only", () => {
   assert.match(sql, /^begin;/);
   assert.match(sql, /\ncommit;\s*$/);
-  for (const token of ["slug = 'gym-high'", "v_mapping_id = 78", "v_offer_id = 543", "v_product_id = 390", "v_variant_id = 1064", "external_product_id' = '703'", "external_variant_id' = '704'", "Berry Bliss", "reviewed_gym_high_no_sku_identity"]) assert.match(sql, new RegExp(token));
+  for (const token of ["slug = 'gym-high'", "1:1:1:632:632:559", "390:78:543:703:704:1064", "529:387:554:4623:4623:507", "reviewed_gym_high_no_sku_identity"]) assert.match(sql, new RegExp(token));
+  const tuples = [...sql.matchAll(/^\s+'\d+:\d+:\d+:\d+:\d+:\d+',?$/gm)];
+  assert.equal(tuples.length, 21);
   assert.match(sql, /owner to postgres/);
   assert.match(sql, /revoke all[\s\S]*service_role/);
   assert.doesNotMatch(sql, /\b(insert|update|delete|truncate)\s+(?:into\s+|from\s+)?public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
