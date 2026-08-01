@@ -39,10 +39,12 @@ export default function ProductResultCard({
   searchMobileFirst?: boolean;
 }) {
   const { cheapestOffer } = product;
-  const retailerName = cheapestOffer.retailer?.name || "Unknown retailer";
-  const deliveredPrice = cheapestOffer.deliveredPrice;
+  const retailerName = cheapestOffer?.retailer?.name || null;
+  const deliveredPrice = cheapestOffer?.deliveredPrice || null;
   const verifiedServings = formatVerifiedServings(product.serving_count_verified);
-  const pricePresentation = buildBestOfferPricePresentation(cheapestOffer);
+  const pricePresentation = cheapestOffer
+    ? buildBestOfferPricePresentation(cheapestOffer)
+    : null;
   const valueMetric = primarySearchValueMetric(product);
   const packageSize = searchResultSize(product);
   const availabilityLabel =
@@ -132,12 +134,14 @@ export default function ProductResultCard({
             } mt-2 min-w-0 flex-col items-start gap-1 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3`}
           >
             <span className="max-w-full break-words font-semibold text-zinc-800">
-              {retailerName}
+              {retailerName || "Current price temporarily unavailable"}
             </span>
-            <span className="max-w-full break-words text-zinc-600">
-              {product.availableOfferCount} in-stock offer
-              {product.availableOfferCount === 1 ? "" : "s"}
-            </span>
+            {cheapestOffer && (
+              <span className="max-w-full break-words text-zinc-600">
+                {product.availableOfferCount} in-stock offer
+                {product.availableOfferCount === 1 ? "" : "s"}
+              </span>
+            )}
             {verifiedServings && (
               <span className="max-w-full break-words text-zinc-600">
                 Verified servings: {verifiedServings}
@@ -163,14 +167,29 @@ export default function ProductResultCard({
           }
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">
-            {searchMobileFirst ? pricePresentation.label : "Best delivered price"}
+            {pricePresentation
+              ? searchMobileFirst
+                ? pricePresentation.label
+                : "Best delivered price"
+              : "Current price"}
           </p>
-          <p className="mt-1 text-2xl font-extrabold leading-none text-zinc-950 sm:text-3xl md:text-2xl">
-            {searchMobileFirst
-              ? pricePresentation.primaryPrice
-              : formatCurrency(deliveredPrice.totalPrice)}
+          <p className={`mt-1 font-extrabold text-zinc-950 ${
+            pricePresentation
+              ? "text-2xl leading-none sm:text-3xl md:text-2xl"
+              : "text-lg leading-snug"
+          }`}>
+            {pricePresentation && deliveredPrice
+              ? searchMobileFirst
+                ? pricePresentation.primaryPrice
+                : formatCurrency(deliveredPrice.totalPrice)
+              : "Temporarily unavailable"}
           </p>
-          {searchMobileFirst && (
+          {!cheapestOffer && (
+            <p className="mt-2 text-sm text-zinc-600">
+              No retailer price has been verified in the last 24 hours.
+            </p>
+          )}
+          {searchMobileFirst && pricePresentation && retailerName && (
             <div className="md:hidden">
               <p className="mt-2 break-words text-sm font-semibold text-zinc-800">
                 {pricePresentation.breakdown}
@@ -187,12 +206,13 @@ export default function ProductResultCard({
               </div>
             </div>
           )}
-          <div className={searchMobileFirst ? "hidden md:block" : ""}>
-            <p className="mt-1 hidden text-sm font-medium text-zinc-700 sm:block">
-              From {retailerName}
-            </p>
+          {cheapestOffer && deliveredPrice && retailerName && (
+            <div className={searchMobileFirst ? "hidden md:block" : ""}>
+              <p className="mt-1 hidden text-sm font-medium text-zinc-700 sm:block">
+                From {retailerName}
+              </p>
 
-            <dl className="mt-3 space-y-2 text-sm">
+              <dl className="mt-3 space-y-2 text-sm">
               <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
                 <dt className="text-zinc-700">Product</dt>
                 <dd className="min-w-0 max-w-full break-words text-right font-semibold text-zinc-950">
@@ -245,8 +265,9 @@ export default function ProductResultCard({
                   </dd>
                 </div>
               )}
-            </dl>
-          </div>
+              </dl>
+            </div>
+          )}
 
           <Link
             href={productHref(product)}

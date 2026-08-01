@@ -244,6 +244,32 @@ Guardian run, `30687118501`, completed successfully for that exact commit after
 the push; the local validator, seven negative/positive tests and an independent
 read-only review also passed.
 
+### 0.0.9 Catalogue visibility during offer-refresh outages - 1 August 2026
+
+The 24-hour rule remains binding for every public price, stock, retailer,
+delivery-cost, value metric and price-based ranking claim. It no longer acts as
+a product-existence rule in catalogue search, search suggestions or shared
+category landing grids. An active canonical product remains discoverable when
+all of its offers are stale or absent, while its card shows that the current
+price is temporarily unavailable and exposes no stale retailer or price
+breakdown.
+
+Products without a fresh offer sort after currently priced products. They are
+excluded from explicit retailer and delivered-price budget filters because
+those filters cannot be answered truthfully without current commercial data.
+Canonical product pages already applied the same safe boundary: the page stays
+available, but stale offers, outbound retailer calls to action and offer JSON-LD
+are omitted. Current-price comparison tables continue to rank fresh offers
+only; they are not an alternative catalogue identity mechanism.
+
+The implementation reuses `app/lib/products.ts`, the shared 24-hour freshness
+helper and the existing product card. Local evidence passed 63 focused search
+and presentation tests, 1,324 non-integration tests with 19 environment skips,
+TypeScript, lint with four pre-existing warnings, the production build and the
+Project Guardian. The three additional full-suite failures required a running
+Docker/PostgreSQL service and were unrelated migration integration tests; no
+production catalogue or offer data was written by this change.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

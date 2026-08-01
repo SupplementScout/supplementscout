@@ -123,6 +123,29 @@ test("mobile search card keeps identity before price and uses shared price prese
   assert.doesNotMatch(source, /line-clamp/);
 });
 
+test("search and landing queries do not require an offer row to expose a product", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "lib", "products.ts"),
+    "utf8"
+  );
+
+  assert.doesNotMatch(source, /offers!inner\s*\(/);
+  assert.match(source, /cheapestOffer: SearchOffer \| null/);
+  assert.match(source, /filters\.retailer && !cheapestOffer/);
+});
+
+test("search cards show a safe no-price state without a retailer breakdown", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "components", "ProductResultCard.tsx"),
+    "utf8"
+  );
+
+  assert.match(source, /Current price temporarily unavailable/);
+  assert.match(source, /No retailer price has been verified in the last 24 hours/);
+  assert.match(source, /cheapestOffer && deliveredPrice && retailerName && \(/);
+  assert.match(source, /pricePresentation && deliveredPrice/);
+});
+
 test("sort applies immediately, preserves URL state and has no Apply button", () => {
   const source = fs.readFileSync(
     path.join(process.cwd(), "app", "components", "SearchSort.tsx"),

@@ -325,6 +325,14 @@ const suggestionProducts = [
     category: "Vitamin D",
     offers: [{ id: 1008, in_stock: true, price: 14.99, last_checked_at: FRESH_CHECKED_AT }],
   },
+  {
+    id: 109,
+    slug: "outage-whey-protein",
+    name: "Outage Whey Protein",
+    brand: "Resilient Nutrition",
+    category: "Whey Protein",
+    offers: [{ id: 1009, in_stock: true, price: 29.99, last_checked_at: "2020-01-01T00:00:00.000Z" }],
+  },
 ];
 
 const { getSearchSuggestions } = loadProductsModule({
@@ -839,6 +847,49 @@ test("buildSearchQueryPlan returns corrected Simply Supplements metadata", () =>
   });
 });
 
+test("catalogue search keeps products visible when every offer is stale", async () => {
+  const staleProduct = searchProduct(324, "Outage Whey Protein", "Whey Protein");
+  staleProduct.offers[0].last_checked_at = "2020-01-01T00:00:00.000Z";
+
+  const result = await searchProductsWithRows("outage whey", [staleProduct]);
+
+  assert.equal(result.totalCount, 1);
+  assert.equal(result.results[0].name, "Outage Whey Protein");
+  assert.equal(result.results[0].cheapestOffer, null);
+  assert.equal(result.results[0].availableOfferCount, 0);
+  assert.equal(result.results[0].verifiedPricePerServing, null);
+});
+
+test("unpriced catalogue products sort after products with current prices", async () => {
+  const staleProduct = searchProduct(325, "A stale product", "Whey Protein");
+  staleProduct.offers[0].last_checked_at = "2020-01-01T00:00:00.000Z";
+  const freshProduct = pricedSearchProduct(326, "Z current product", 20, null);
+
+  for (const sort of ["relevance", "price_asc", "price_desc", "price_per_serving_asc"]) {
+    const result = await searchProductsWithRows("product", [staleProduct, freshProduct], sort);
+    assert.deepEqual(result.results.map((product) => product.id), ["326", "325"], sort);
+  }
+});
+
+test("budget and retailer filters do not claim an unverified stale offer", async () => {
+  const staleProduct = searchProduct(327, "Budget outage creatine", "Creatine");
+  staleProduct.offers[0].last_checked_at = "2020-01-01T00:00:00.000Z";
+
+  const budget = await searchProductsWithRows(
+    "budget outage creatine under 20",
+    [staleProduct]
+  );
+  const retailer = await searchProductsWithRows(
+    "budget outage creatine",
+    [staleProduct],
+    "relevance",
+    { category: "", brand: "", retailer: "example-retailer" }
+  );
+
+  assert.equal(budget.totalCount, 0);
+  assert.equal(retailer.totalCount, 0);
+});
+
 test("natural-language budget filters on total delivered price", async () => {
   const rows = [
     pricedSearchProduct(331, "Creatine under budget", 19.99, null),
@@ -1155,6 +1206,17 @@ test("getSearchSuggestions understands whey protein typo correction", async () =
   assert.equal(result.correctedQuery, "whey protein");
   assert.ok(labels.includes("Whey Protein"));
   assert.ok(labels.some((label) => label.includes("Whey")));
+});
+
+test("getSearchSuggestions keeps canonical products discoverable during a price refresh outage", async () => {
+  const result = await getSearchSuggestions("outage whey");
+
+  assert.ok(
+    result.suggestions.some(
+      (suggestion) =>
+        suggestion.type === "product" && suggestion.label === "Outage Whey Protein"
+    )
+  );
 });
 
 test("getSearchSuggestions understands Simply Supplements typo correction", async () => {

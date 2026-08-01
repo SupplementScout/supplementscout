@@ -118,7 +118,7 @@ export type ProductSearchResult = {
   serving_count_verified: number | string | null;
   nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
-  cheapestOffer: SearchOffer;
+  cheapestOffer: SearchOffer | null;
   validOffers: SearchOffer[];
   availableOfferCount: number;
   availableRetailerCount: number;
@@ -954,12 +954,12 @@ function normalizeProduct(
 
   const cheapestOffer = matchingRetailerOffers[0] || null;
 
-  if (!cheapestOffer) {
+  if (filters.retailer && !cheapestOffer) {
     return null;
   }
   const effectiveMetrics = getEffectiveNutritionMetrics(
     product,
-    cheapestOffer.product_variant
+    cheapestOffer?.product_variant || null
   );
 
   return {
@@ -983,7 +983,7 @@ function normalizeProduct(
     validOffers,
     availableOfferCount: validOffers.length,
     availableRetailerCount: countAvailableRetailers(validOffers),
-    verifiedCostPer5gCreatine: getVerifiedCostPer5gCreatine(
+    verifiedCostPer5gCreatine: cheapestOffer ? getVerifiedCostPer5gCreatine(
       cheapestOffer.deliveredPrice,
       effectiveMetrics.serving_count_verified,
       effectiveMetrics.creatine_per_serving_g,
@@ -992,8 +992,8 @@ function normalizeProduct(
       effectiveMetrics.net_weight_g,
       effectiveMetrics.serving_size_g,
       effectiveMetrics.product_format
-    ),
-    verifiedCostPer25gProtein: getVerifiedCostPer25gProtein(
+    ) : null,
+    verifiedCostPer25gProtein: cheapestOffer ? getVerifiedCostPer25gProtein(
       cheapestOffer.deliveredPrice,
       effectiveMetrics.serving_count_verified,
       effectiveMetrics.protein_per_serving_g,
@@ -1002,23 +1002,23 @@ function normalizeProduct(
       effectiveMetrics.net_weight_g,
       effectiveMetrics.serving_size_g,
       effectiveMetrics.product_format
-    ),
-    verifiedPricePerKg: getVerifiedPricePerKg(
+    ) : null,
+    verifiedPricePerKg: cheapestOffer ? getVerifiedPricePerKg(
       cheapestOffer.deliveredPrice,
       effectiveMetrics.net_weight_g,
       effectiveMetrics.product_format,
       effectiveMetrics.unit_pricing_verified
-    ),
-    verifiedPricePerLitre: getVerifiedPricePerLitre(
+    ) : null,
+    verifiedPricePerLitre: cheapestOffer ? getVerifiedPricePerLitre(
       cheapestOffer.deliveredPrice,
       product.net_volume_ml,
       effectiveMetrics.product_format,
       effectiveMetrics.unit_pricing_verified
-    ),
-    verifiedPricePerServing: getVerifiedPricePerServing(
+    ) : null,
+    verifiedPricePerServing: cheapestOffer ? getVerifiedPricePerServing(
       cheapestOffer.deliveredPrice,
       effectiveMetrics.serving_count_verified
-    ),
+    ) : null,
     relevanceScore: searchPlan
       ? scoreProductForSearch(product, searchPlan)
       : scoreProduct(product, query),
@@ -1127,6 +1127,14 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
   return [...results].sort((left, right) => {
     const fallback =
       left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
+    if (!left.cheapestOffer) {
+      return right.cheapestOffer ? 1 : fallback;
+    }
+
+    if (!right.cheapestOffer) {
+      return -1;
+    }
+
     const deliveredPriceFallback =
       left.cheapestOffer.deliveredPrice.totalPrice -
         right.cheapestOffer.deliveredPrice.totalPrice || fallback;
@@ -1212,7 +1220,7 @@ export async function searchProducts(
         serving_count_verified,
         nutrition_verified,
         unit_pricing_verified,
-        offers!inner (
+        offers (
           id,
           product_variant_id,
           price,
@@ -1275,7 +1283,8 @@ export async function searchProducts(
     .filter((product): product is ProductSearchResult => product !== null);
   const isWithinBudget = (product: ProductSearchResult) =>
     intent.maxDeliveredPrice === null ||
-    product.cheapestOffer.deliveredPrice.totalPrice <= intent.maxDeliveredPrice;
+    (product.cheapestOffer !== null &&
+      product.cheapestOffer.deliveredPrice.totalPrice <= intent.maxDeliveredPrice);
   const baseResults =
     intent.maxDeliveredPrice === null
       ? eligibleResults
@@ -1351,7 +1360,7 @@ export async function getSearchSuggestions(query: string, limit?: number) {
         name,
         brand,
         category,
-        offers!inner (
+        offers (
           id,
           in_stock,
           price,
@@ -1512,7 +1521,7 @@ export async function getLandingProducts(
         serving_count_verified,
         nutrition_verified,
         unit_pricing_verified,
-        offers!inner (
+        offers (
           id,
           product_variant_id,
           price,
@@ -1572,11 +1581,18 @@ export async function getLandingProducts(
     )
     .filter((product): product is ProductSearchResult => product !== null)
     .sort(
-      (left, right) =>
-        left.cheapestOffer.deliveredPrice.totalPrice -
-          right.cheapestOffer.deliveredPrice.totalPrice ||
-        left.name.localeCompare(right.name) ||
-        left.id.localeCompare(right.id)
+      (left, right) => {
+        const fallback =
+          left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
+
+        if (!left.cheapestOffer) return right.cheapestOffer ? 1 : fallback;
+        if (!right.cheapestOffer) return -1;
+
+        return (
+          left.cheapestOffer.deliveredPrice.totalPrice -
+            right.cheapestOffer.deliveredPrice.totalPrice || fallback
+        );
+      }
     );
   const totalCount = matchingResults.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
