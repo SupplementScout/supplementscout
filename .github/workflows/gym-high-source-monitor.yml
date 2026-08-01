@@ -9,6 +9,10 @@ on:
       - config/retailers/gym-high-woocommerce.json
       - scripts/gym-high-source-monitor.js
       - scripts/gym-high-source-monitor.test.js
+      - scripts/gym-high-catalogue-audit.js
+      - scripts/gym-high-catalogue-audit.test.js
+      - scripts/lib/woocommerce-store-api-reader.js
+      - scripts/lib/woocommerce-store-api-reader.test.js
       - scripts/lib/woocommerce-product-page-reader.js
   workflow_dispatch:
   schedule:
@@ -37,15 +41,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Test read-only contracts
-        run: node --test scripts/gym-high-source-monitor.test.js scripts/lib/woocommerce-product-page-reader.test.js
-      - name: Capture approved public source
-        run: node scripts/gym-high-source-monitor.js --output=tmp/gym-high-source-monitor/report.json
+        run: node --test scripts/gym-high-source-monitor.test.js scripts/gym-high-catalogue-audit.test.js scripts/lib/woocommerce-product-page-reader.test.js scripts/lib/woocommerce-store-api-reader.test.js
+      - name: Capture full public catalogue
+        run: node scripts/gym-high-catalogue-audit.js --output=tmp/gym-high-source-monitor/report.json
       - name: Publish summary
         if: always()
         run: |
           echo "## GYM HIGH read-only source monitor" >> "$GITHUB_STEP_SUMMARY"
           if [ -f tmp/gym-high-source-monitor/report.json ]; then
-            node -e 'const r=require("./tmp/gym-high-source-monitor/report.json"); console.log(`- Result: ${r.result}\n- Approved source rows: 1\n- Discovery-only rows: ${r.discovery_only.length}\n- Production writes: ${r.production_writes}`)' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const r=require("./tmp/gym-high-source-monitor/report.json"); console.log(`- Result: ${r.result}\n- Parent products: ${r.parent_product_count}\n- Source rows: ${r.source_row_count}\n- Classifications: ${JSON.stringify(r.classification_counts)}\n- Production writes: ${r.production_writes}`)' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- No report: source or identity guard failed closed." >> "$GITHUB_STEP_SUMMARY"
           fi

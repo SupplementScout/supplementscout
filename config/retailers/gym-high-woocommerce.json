@@ -8,18 +8,22 @@
   },
   "source": {
     "platform": "WOOCOMMERCE",
-    "format": "PUBLIC_PRODUCT_PAGE",
-    "approved_product_id": "703"
+    "format": "PUBLIC_STORE_API_PLUS_PRODUCT_PAGES",
+    "approved_product_id": "703",
+    "minimum_parent_products": 20,
+    "maximum_products": 100,
+    "maximum_pages": 5
   },
   "automation": {
     "manifest_path": "config/retailers/gym-high-approved-source-manifest.json",
     "manifest_sha256": "a7ee466059062cae4c9513bea909869197461dd4c807345029b6c5ed167385ef",
-    "model": "READ_ONLY_SOURCE_MONITOR",
-    "status": "SOURCE_MONITORING_PENDING_PROOF",
+    "model": "ONE_SHARED_FULL_CATALOGUE_AUTOMATION",
+    "status": "FULL_CATALOGUE_AUDIT_PENDING_PROOF",
     "schedule_cron_utc": "43 3 * * *"
   },
   "guardrails": {
     "approved_source_count": 1,
+    "full_catalogue_discovery": true,
     "discovery_mode": "REPORT_ONLY",
     "catalogue_creates": false,
     "production_writes": false
