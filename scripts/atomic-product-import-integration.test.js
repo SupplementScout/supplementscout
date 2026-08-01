@@ -27,6 +27,8 @@ const formatNormalizationMigration = path.join(root, "supabase/migrations/202607
 const optionedLegacyUpgradeMigration = path.join(root, "supabase/migrations/20260716003000_support_optioned_legacy_mapping_upgrade.sql");
 const optionedParentSizeMigration = path.join(root, "supabase/migrations/20260716004000_support_optioned_parent_size_evidence.sql");
 const optionedNullTotalMigration = path.join(root, "supabase/migrations/20260716005000_allow_optioned_legacy_identity_update_null_total.sql");
+const fitHouseNoSkuMigration = path.join(root, "supabase/migrations/20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade.sql");
+const gymHighNoSkuMigration = path.join(root, "supabase/migrations/20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade.sql");
 const verifiedNoChangeMigration = path.join(root, "supabase/migrations/20260718150000_add_verified_no_change_offer_refresh.sql");
 const existingProductVariantImportMigration = path.join(root, "supabase/migrations/20260719193000_support_existing_product_variant_import.sql");
 const reviewedParentVariantImportMigration = path.join(root, "supabase/migrations/20260721100000_support_reviewed_parent_explicit_variant_safe_create.sql");
@@ -349,6 +351,9 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(psqlFile(container, database, optionedLegacyUpgradeMigration), "reapply optioned legacy mapping upgrade migration idempotently");
     requireSuccess(psqlFile(container, database, optionedParentSizeMigration), "reapply optioned parent-size evidence migration idempotently");
     requireSuccess(psqlFile(container, database, optionedNullTotalMigration), "reapply optioned identity-update null-total migration idempotently");
+    requireSuccess(psqlFile(container, database, fitHouseNoSkuMigration), "apply reviewed Fit House no-SKU migration");
+    requireSuccess(psqlFile(container, database, gymHighNoSkuMigration), "apply reviewed GYM HIGH no-SKU migration");
+    requireSuccess(psqlFile(container, database, gymHighNoSkuMigration), "reapply reviewed GYM HIGH no-SKU migration idempotently");
     requireSuccess(psqlFile(container, database, verifiedNoChangeMigration), "apply verified no-change offer refresh migration");
     requireSuccess(psqlFile(container, database, existingProductVariantImportMigration), "apply existing-product variant import migration");
     requireSuccess(psqlFile(container, database, existingProductVariantImportMigration), "reapply existing-product variant import migration idempotently");

@@ -1,0 +1,59 @@
+name: GYM HIGH Read-only Source Monitor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/gym-high-source-monitor.yml
+      - config/retailers/gym-high-approved-source-manifest.json
+      - config/retailers/gym-high-woocommerce.json
+      - scripts/gym-high-source-monitor.js
+      - scripts/gym-high-source-monitor.test.js
+      - scripts/lib/woocommerce-product-page-reader.js
+  workflow_dispatch:
+  schedule:
+    - cron: "43 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gym-high-source-monitor
+  cancel-in-progress: false
+
+jobs:
+  source-monitor:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Test read-only contracts
+        run: node --test scripts/gym-high-source-monitor.test.js scripts/lib/woocommerce-product-page-reader.test.js
+      - name: Capture approved public source
+        run: node scripts/gym-high-source-monitor.js --output=tmp/gym-high-source-monitor/report.json
+      - name: Publish summary
+        if: always()
+        run: |
+          echo "## GYM HIGH read-only source monitor" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/gym-high-source-monitor/report.json ]; then
+            node -e 'const r=require("./tmp/gym-high-source-monitor/report.json"); console.log(`- Result: ${r.result}\n- Approved source rows: 1\n- Discovery-only rows: ${r.discovery_only.length}\n- Production writes: ${r.production_writes}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- No report: source or identity guard failed closed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gym-high-source-monitor-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/gym-high-source-monitor/*.json

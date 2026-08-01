@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "manifest_type": "gym_high_approved_source_monitor_scope",
+  "approved": true,
+  "retailer": {
+    "id": 1,
+    "name": "GYM HIGH",
+    "slug": "gym-high",
+    "website": "https://gymhigh.co.uk",
+    "source_platform": "WOOCOMMERCE"
+  },
+  "approved_source_count": 1,
+  "discovery_policy": {
+    "mode": "report_only",
+    "catalogue_creates": false,
+    "production_writes": false
+  },
+  "rows": [
+    {
+      "external_product_id": "703",
+      "external_variant_id": "704",
+      "expected_product_name": "GYM HIGH Vegan Plant-Based-Protein Blend",
+      "expected_attributes": {
+        "attribute_pa_flavour": "berry-bliss"
+      },
+      "expected_sku": null,
+      "canonical_product_id": "390",
+      "canonical_variant_id": "1064",
+      "pending_mapping_id": "78",
+      "pending_offer_id": "543"
+    }
+  ]
+}

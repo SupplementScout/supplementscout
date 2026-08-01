@@ -415,6 +415,15 @@ Products with at least 2 active retailers.
   replacement identity review, then rerun the protected dry-run. Do not edit
   the manifest or production mapping solely to restore freshness.
 
+## GYM HIGH current record - 1 August 2026
+
+- Retailer ID: `1`; domain: `gymhigh.co.uk`; source: public WooCommerce product page through the existing bounded WooCommerce page reader.
+- The initial approved source scope contains only parent product `703` and Berry Bliss variation `704`, linked to reviewed canonical product `390` and target variant `1064`. Live evidence shows price `£21.99`, in stock, and no source SKU.
+- Variations `705` and `706` are discovery-only. The monitor cannot create products, variants, mappings or offers and has no production credential or write path.
+- `.github/workflows/gym-high-source-monitor.yml` performs a daily read-only capture at `03:43 UTC`, fails closed on product, host, variation, option, SKU or purchasability drift, and retains an evidence artifact.
+- Production offer refresh is not yet enabled. Mapping `78` / offer `543` still requires the exact reviewed no-SKU legacy upgrade and protected verification before the shared offer-sync write mechanism can be activated.
+- Status: **READ-ONLY SOURCE MONITOR IMPLEMENTED — PRODUCTION MAPPING BOOTSTRAP AND SCHEDULED PROOF PENDING**.
+
 ## Initial registry template
 
 | Retailer | Platform | Source | Affiliate network | Feed | Overlap | Commercial score | Integration score | Status | Next action |
