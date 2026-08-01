@@ -65,6 +65,10 @@ test("guardian blocks unsupported completion without live evidence", () => {
   const docs = currentDocs();
   const baseline = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   docs.seo = setLedgerStatus(docs.seo, baseline.nextTask, "LIVE VERIFIED");
+  docs.seo = docs.seo.replace(
+    new RegExp(`### [^\\n]*${baseline.nextTask}[^\\n]*\\n[\\s\\S]*?(?=\\n### |\\n## |$)`, "g"),
+    "",
+  );
   const result = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), new RegExp(`${baseline.nextTask} cannot have status LIVE VERIFIED`));
