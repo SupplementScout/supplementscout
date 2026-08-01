@@ -270,6 +270,14 @@ Project Guardian. The three additional full-suite failures required a running
 Docker/PostgreSQL service and were unrelated migration integration tests; no
 production catalogue or offer data was written by this change.
 
+Production commit `8b9dab0` was live verified against active canonical product
+`751`, `Applied Nutrition Diet Whey Protein 1.8kg`, which has no offer rows.
+Exact public search returned `200`, included the product card and the safe
+unavailable-price copy, and contained neither a pound price nor an unknown
+retailer label. The public suggestions API returned the canonical product URL.
+The canonical product page also returned `200` with `Price unavailable`, no
+retailer redirect and no offer structured data.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
