@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { UPGRADES, buildRow, controls, optionEvidence, parseArgs } = require("./gym-high-legacy-identity-feed-builder");
+const { UPGRADES, buildRow, controls, mappingState, optionEvidence, parseArgs } = require("./gym-high-legacy-identity-feed-builder");
 
 test("legacy identity scope contains exactly 21 reviewed non-accessory upgrades", () => {
   assert.equal(UPGRADES.length, 21);
@@ -22,4 +22,14 @@ test("identity row preserves existing commerce and old URL", () => {
 test("output is confined to tmp", () => {
   assert.match(parseArgs([]).output, /legacy-identity-upgrade\.csv$/);
   assert.throws(() => parseArgs(["--output=config/feed.csv"]), /inside repository tmp/);
+});
+test("mapping state is resumable but rejects partial drift", () => {
+  const spec = { mappingId: 1, offerId: 1, productId: 1, externalProductId: "632", externalVariantId: "632", variantId: "559" };
+  const family = { external_product_id: "632" }, reviewed = { external_variant_id: "632" };
+  const offer = { retailer_id: 1, retailer_product_id: 1, product_id: 1, product_variant_id: 559 };
+  const legacy = { id: 1, retailer_id: 1, product_id: 1, product_variant_id: 559, external_product_id: null, external_variant_id: null, external_sku: null, external_options: null };
+  assert.equal(mappingState(spec, family, reviewed, legacy, offer), "LEGACY");
+  const complete = { ...legacy, external_product_id: "632", external_variant_id: "632" };
+  assert.equal(mappingState(spec, family, reviewed, complete, offer), "COMPLETE");
+  assert.equal(mappingState(spec, family, reviewed, { ...complete, external_variant_id: "999" }, offer), "DRIFT");
 });

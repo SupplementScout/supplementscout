@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
 const { EXTRA_COLUMNS, serializeCsv } = require("./six-pack-canary-builder");
 const { assertApproval } = require("./gym-high-reviewed-catalogue-bootstrap");
+const { canonicalJson } = require("./lib/canonical-json");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
@@ -64,6 +65,20 @@ function controls(spec, mapping, family) {
     legacy_mapping_optioned: "true", legacy_duplicate_source_listing: "false", legacy_identity_drift: "false",
   };
 }
+function mappingState(spec, family, reviewed, mapping, offer) {
+  const expectedOptions = optionEvidence(family, reviewed);
+  const complete = mapping.retailer_id === 1 && String(mapping.product_id) === String(spec.productId) &&
+    String(mapping.product_variant_id) === spec.variantId && mapping.external_product_id === spec.externalProductId &&
+    mapping.external_variant_id === spec.externalVariantId && mapping.external_sku == null &&
+    canonicalJson(mapping.external_options ?? null) === canonicalJson(expectedOptions) &&
+    offer.retailer_id === 1 && String(offer.retailer_product_id) === String(mapping.id) &&
+    String(offer.product_id) === String(spec.productId) && String(offer.product_variant_id) === spec.variantId;
+  if (complete) return "COMPLETE";
+  const legacy = mapping.retailer_id === 1 && String(mapping.product_id) === String(spec.productId) &&
+    mapping.external_product_id == null && mapping.external_variant_id == null && mapping.external_sku == null && mapping.external_options == null &&
+    offer.retailer_id === 1 && String(offer.retailer_product_id) === String(mapping.id) && String(offer.product_id) === String(spec.productId);
+  return legacy ? "LEGACY" : "DRIFT";
+}
 function buildRow({ spec, source, family, reviewed, product, variant, mapping, offer, capturedAt }) {
   const shippingKnown = offer.shipping_cost != null;
   return {
@@ -96,13 +111,17 @@ async function run(options, dependencies = {}) {
   const familyByExternal = new Map(approval.families.map((family) => [String(family.external_product_id), family]));
   const sourceByKey = new Map(sourceReport.rows.map((row) => [`${row.external_product_id}:${row.external_variant_id}`, row]));
   const rows = [];
+  const completedMappingIds = [];
   for (const spec of UPGRADES) {
     const product = productById.get(String(spec.productId)), variant = variantById.get(spec.variantId), mapping = mappingById.get(String(spec.mappingId)), offer = offerById.get(String(spec.offerId));
     const family = familyByExternal.get(spec.externalProductId), reviewed = family?.variants.find((row) => String(row.external_variant_id) === spec.externalVariantId), source = sourceByKey.get(`${spec.externalProductId}:${spec.externalVariantId}`);
-    if (!product || !variant || !mapping || !offer || !family || !reviewed || !source || product.is_active !== true || product.merged_into_product_id != null || variant.is_active !== true || String(variant.product_id) !== String(product.id) || mapping.retailer_id !== 1 || String(mapping.product_id) !== String(product.id) || mapping.external_product_id != null || mapping.external_variant_id != null || mapping.external_sku != null || mapping.external_options != null || offer.retailer_id !== 1 || String(offer.retailer_product_id) !== String(mapping.id) || String(offer.product_id) !== String(product.id)) fail(`Legacy identity drift for mapping ${spec.mappingId}`);
+    if (!product || !variant || !mapping || !offer || !family || !reviewed || !source || product.is_active !== true || product.merged_into_product_id != null || variant.is_active !== true || String(variant.product_id) !== String(product.id)) fail(`Legacy identity drift for mapping ${spec.mappingId}`);
+    const state = mappingState(spec, family, reviewed, mapping, offer);
+    if (state === "COMPLETE") { completedMappingIds.push(String(spec.mappingId)); continue; }
+    if (state !== "LEGACY") fail(`Legacy identity drift for mapping ${spec.mappingId}`);
     rows.push(buildRow({ spec, source, family, reviewed, product, variant, mapping, offer, capturedAt: sourceReport.captured_at }));
   }
-  if (rows.length !== 21 || new Set(rows.map((row) => row.external_variant_id)).size !== 21) fail("GYM HIGH identity feed scope mismatch");
+  if (rows.length + completedMappingIds.length !== 21 || new Set([...rows.map((row) => row.retailer_product_id), ...completedMappingIds]).size !== 21) fail("GYM HIGH identity feed scope mismatch");
   const controlColumns = [...new Set(rows.flatMap(Object.keys))].filter((key) => ![...fs.readFileSync(TEMPLATE, "utf8").split(/\r?\n/, 1)[0].split(","), ...EXTRA_COLUMNS].includes(key));
   const header = [...fs.readFileSync(TEMPLATE, "utf8").split(/\r?\n/, 1)[0].split(","), ...EXTRA_COLUMNS, ...controlColumns];
   const csv = serializeCsv(header, rows);
@@ -116,9 +135,9 @@ async function run(options, dependencies = {}) {
     fs.writeFileSync(path.join(partsDir, filename), bytes);
     return { mapping_id: row.retailer_product_id, filename, sha256: sha256(bytes) };
   });
-  const report = { schema_version: 1, kind: "gym-high-legacy-identity-feed", result: "PASS", database_writes: 0, row_count: rows.length, standalone_count: rows.filter((row) => row.legacy_mapping_standalone === "true").length, optioned_count: rows.filter((row) => row.legacy_mapping_optioned === "true").length, approval_fingerprint: approval.approval_fingerprint, source_identity_fingerprint: sourceReport.source_identity_fingerprint, csv_sha256: sha256(csv), output: path.relative(ROOT, options.output), row_artifact_count: rowArtifacts.length, row_artifacts_directory: path.relative(ROOT, partsDir), row_artifacts: rowArtifacts };
+  const report = { schema_version: 1, kind: "gym-high-legacy-identity-feed", result: "PASS", database_writes: 0, reviewed_scope_count: 21, row_count: rows.length, remaining_upgrade_count: rows.length, completed_mapping_count: completedMappingIds.length, completed_mapping_ids: completedMappingIds, standalone_count: rows.filter((row) => row.legacy_mapping_standalone === "true").length, optioned_count: rows.filter((row) => row.legacy_mapping_optioned === "true").length, approval_fingerprint: approval.approval_fingerprint, source_identity_fingerprint: sourceReport.source_identity_fingerprint, csv_sha256: sha256(csv), output: path.relative(ROOT, options.output), row_artifact_count: rowArtifacts.length, row_artifacts_directory: path.relative(ROOT, partsDir), row_artifacts: rowArtifacts };
   fs.writeFileSync(options.output.replace(/\.csv$/i, "-builder-report.json"), `${JSON.stringify(report, null, 2)}\n`);
   return report;
 }
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { UPGRADES, buildRow, controls, optionEvidence, parseArgs, run };
+module.exports = { UPGRADES, buildRow, controls, mappingState, optionEvidence, parseArgs, run };
