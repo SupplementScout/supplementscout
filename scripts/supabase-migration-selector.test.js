@@ -72,13 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging happy path exposes the exact manifest rebind migration", () => {
+test("staging happy path binds the post-manifest-rebind ledger", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 69);
+  assert.equal(result.ledger_count, 70);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260801070000_rebind_whey_okay_manifest_after_family_merge",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 70);
 });
 
@@ -151,21 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production contract binds the manifest rebind migration", () => {
+test("production contract binds the post-manifest-rebind ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(contract.pending.length, 1);
-  assert.equal(
-    contract.pending[0].filename,
-    "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
-  );
-  assert.equal(
-    contract.pending[0].sha256,
-    "eb1d0a001991358c5eb6d42b4686f41359db29ff7e8d313638bc77153c663b7a",
-  );
-  assert.equal(contract.ledgerCount, 68);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 69);
   assert.equal(
     contract.ledgerFingerprint,
-    "055fd9a02aac4bfa63c567c66dede41b14322b1e929024aaff16ee2ac3aea447",
+    "1c6d0713dbe8246670a8d9388dfd00a70b73840354b54776817a29e61018fd6e",
   );
 });
 
@@ -242,7 +232,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and pending manifest rebind", () => {
+test("production binds its exact post-manifest-rebind ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -268,22 +258,14 @@ test("production binds its exact ledger and pending manifest rebind", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 68);
+  assert.equal(result.ledger_count, 69);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260801070000_rebind_whey_okay_manifest_after_family_merge",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 69);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(
-    result.pending_file,
-    "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
-  );
-  assert.equal(
-    result.pending_sha256,
-    "eb1d0a001991358c5eb6d42b4686f41359db29ff7e8d313638bc77153c663b7a",
-  );
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
@@ -315,18 +297,10 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output exposes the exact manifest rebind pending fields", () => {
+test("post-manifest-rebind staging output clears pending fields", () => {
   const result = validateSelection(validInput());
-  assert.equal(
-    result.pending_file,
-    "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
-  );
-  assert.equal(
-    result.pending_sha256,
-    "eb1d0a001991358c5eb6d42b4686f41359db29ff7e8d313638bc77153c663b7a",
-  );
-  assert.deepEqual(result.pending_files, [result.pending_file]);
-  assert.deepEqual(result.pending_sha256s, {
-    [result.pending_file]: result.pending_sha256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });

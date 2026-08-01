@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 69,
+    ledgerCount: 70,
     ledgerFingerprint:
-      "342c2040ee96e22f29c90a207211f40d8664af2908b49ac1e1785ea94373c96b",
+      "c0dae990cb535b272c5cc10ad28f77b139b1e460d3efbefb49ec296622afc48f",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -47,12 +47,7 @@ const CONTRACTS = Object.freeze({
       "20260731120000_correct_jons_two_default_flavour_variants.sql":
         "b3d69a4594619d963918a47452a6034059bc51cd49d6ef3aa078b4cec1fad563",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
-        sha256: "eb1d0a001991358c5eb6d42b4686f41359db29ff7e8d313638bc77153c663b7a",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -61,9 +56,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 68,
+    ledgerCount: 69,
     ledgerFingerprint:
-      "055fd9a02aac4bfa63c567c66dede41b14322b1e929024aaff16ee2ac3aea447",
+      "1c6d0713dbe8246670a8d9388dfd00a70b73840354b54776817a29e61018fd6e",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -80,12 +75,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
-        sha256: "eb1d0a001991358c5eb6d42b4686f41359db29ff7e8d313638bc77153c663b7a",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
