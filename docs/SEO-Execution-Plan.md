@@ -282,8 +282,12 @@ invent a date to silence the Guardian.
   passed. TypeScript passed; ESLint had zero errors and only the four existing
   Six Pack warnings. The Next.js 16.2.9 production build passed and its static
   Hydration HTML contained the exact canonical, `noindex, follow`,
-  CollectionPage JSON-LD and the consent-aware analytics source. Deployment
-  and public verification remain required for this hardening change.
+  CollectionPage JSON-LD and the consent-aware analytics source.
+- Hardening commit `2d42df6` was pushed to `main`; hosted Project Guardian run
+  `30692805345` passed. Public `/hydration` returned `200`, its exact canonical,
+  `noindex, follow`, the consent-aware analytics source and one JSON-LD graph
+  containing CollectionPage, ItemList and BreadcrumbList. Schema.org Validator
+  fetched the live URL and reported zero issues across 19 parsed nodes.
 - Electrolytes is deferred until the shared multi-retailer gate recovers. The
   next candidate is Magnesium Glycinate; SEO-13 remains the single
   `IN PROGRESS` implementation.
