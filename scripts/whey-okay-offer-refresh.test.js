@@ -102,18 +102,28 @@ test("frozen manifest contains exactly 586 unique approved mappings", () => {
   assert.equal(manifest.permanent_q3_q4_exception_count, 80);
 });
 
-test("Critical Cookie box binding follows the reviewed production family variant", () => {
+test("Critical Cookie bindings follow the reviewed production family variants", () => {
   const { manifest } = loadManifest();
-  const row = manifest.rows.find((item) => item.source_key === "3667:3667");
+  const expected = [
+    ["3667:3667", 468, 2696, "double-chocolate-85g-12-pack", 12, 469, 472, 429],
+    ["3670:3670", 469, 2313, "double-chocolate-85g", 1, 470, 473, 477],
+    ["3679:3679", 469, 2699, "chocolate-chip-85g", 1, 518, 476, 430],
+    ["3682:3682", 468, 2697, "chocolate-chip-85g-12-pack", 12, 521, 477, 478],
+    ["3685:3685", 468, 2710, "salted-caramel-85g-12-pack", 12, 475, 478, 446],
+    ["3688:3688", 468, 2698, "white-chocolate-raspberry-85g-12-pack", 12, 490, 479, 463],
+  ];
 
-  assert.equal(row.canonical_target.product_id, 468);
-  assert.equal(row.canonical_target.variant_key, "double-chocolate-85g-12-pack");
-  assert.equal(row.canonical_target.pack_count, 12);
-  assert.equal(row.environment_bindings.production.mapping_id, 469);
-  assert.equal(row.environment_bindings.production.offer_id, 472);
-  assert.equal(row.environment_bindings.production.canonical_product_id, 468);
-  assert.equal(row.environment_bindings.production.canonical_variant_id, 2696);
-  assert.equal(row.environment_bindings.staging.canonical_variant_id, 429);
+  for (const [sourceKey, productId, variantId, variantKey, packCount, mappingId, offerId, stagingVariantId] of expected) {
+    const row = manifest.rows.find((item) => item.source_key === sourceKey);
+    assert.equal(row.canonical_target.product_id, productId);
+    assert.equal(row.canonical_target.variant_key, variantKey);
+    assert.equal(row.canonical_target.pack_count, packCount);
+    assert.equal(row.environment_bindings.production.mapping_id, mappingId);
+    assert.equal(row.environment_bindings.production.offer_id, offerId);
+    assert.equal(row.environment_bindings.production.canonical_product_id, productId);
+    assert.equal(row.environment_bindings.production.canonical_variant_id, variantId);
+    assert.equal(row.environment_bindings.staging.canonical_variant_id, stagingVariantId);
+  }
 });
 
 test("all 586 exact manifest identities classify idempotently", () => {
