@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
   getCreatineComparison,
   type CreatineComparisonResult,
@@ -339,6 +340,7 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
               <Link href="/pre-workout" className="font-semibold underline">Pre Workout comparison</Link>
               <Link href="/search?q=Creatine" className="font-semibold underline">Search all Creatine results</Link>
               <Link href="/about" className="font-semibold underline">About SupplementScout comparisons</Link>
+              <ComparisonTransparencyLinks />
               <Link href="/" className="font-semibold underline">Browse supplement categories</Link>
             </div>
           </aside>

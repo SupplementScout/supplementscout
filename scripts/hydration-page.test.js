@@ -127,6 +127,10 @@ function loadPage(result = fixtureResult()) {
   const page = compileModule(pagePath, {
     mocks: {
       "next/link": { __esModule: true, default: Link },
+      "../components/ComparisonTransparencyLinks": {
+        __esModule: true,
+        default: () => null,
+      },
       "../lib/hydrationComparison": {
         getHydrationComparison: async () => {
           calls += 1;

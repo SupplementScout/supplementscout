@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ComparisonTransparencyLinks from "./components/ComparisonTransparencyLinks";
 import HomeCategories from "./components/HomeCategories";
 import HomeHeader from "./components/HomeHeader";
 import SearchInput from "./components/SearchInput";
@@ -282,6 +283,9 @@ export default async function Home() {
               </p>
             </div>
           </div>
+          <div className="mt-6 flex flex-wrap gap-4 text-sm">
+            <ComparisonTransparencyLinks />
+          </div>
         </div>
       </section>
 
@@ -291,6 +295,12 @@ export default async function Home() {
           <nav className="flex flex-wrap gap-4">
             <Link href="/about" className="hover:text-zinc-950">
               About
+            </Link>
+            <Link href="/how-we-compare" className="hover:text-zinc-950">
+              How we compare
+            </Link>
+            <Link href="/data-freshness" className="hover:text-zinc-950">
+              Data freshness
             </Link>
             <Link href="/affiliate-disclosure" className="hover:text-zinc-950">
               Affiliate Disclosure

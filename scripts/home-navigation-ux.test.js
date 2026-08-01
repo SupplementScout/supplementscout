@@ -104,13 +104,17 @@ test("homepage initial HTML contract uses truthful server statistics", () => {
 });
 
 test("popular searches use existing category and search routes", () => {
-  for (const route of ["/creatine", "/magnesium", "/vitamin-d"]) {
+  for (const route of [
+    "/creatine",
+    "/whey-protein",
+    "/pre-workout",
+    "/magnesium",
+    "/vitamin-d",
+  ]) {
     assert.match(pageSource, new RegExp(`href: "${route}"`));
   }
 
-  for (const query of ["whey protein", "electrolytes"]) {
-    assert.match(pageSource, new RegExp(`query: "${query}"`));
-  }
+  assert.match(pageSource, /query: "electrolytes"/);
 });
 
 test("Shop by goal uses six controlled existing destinations", () => {
@@ -130,8 +134,10 @@ test("Shop by goal uses six controlled existing destinations", () => {
   }
 
   assert.match(goalBlock, /query: "recovery"/);
-  assert.match(goalBlock, /query: "muscle gain"/);
+  assert.match(goalBlock, /href: "\/magnesium"/);
+  assert.match(goalBlock, /href: "\/pre-workout"/);
   assert.match(goalBlock, /href: "\/hydration"/);
+  assert.match(goalBlock, /href: "\/whey-protein"/);
   assert.match(goalBlock, /href: "\/vitamins"/);
 });
 

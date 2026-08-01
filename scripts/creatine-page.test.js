@@ -180,6 +180,10 @@ function loadPage(result = comparisonFixture()) {
   const page = compileModule(pagePath, {
     mocks: {
       "next/link": { __esModule: true, default: Link },
+      "../components/ComparisonTransparencyLinks": {
+        __esModule: true,
+        default: () => null,
+      },
       "../lib/creatineComparison": {
         getCreatineComparison: async () => {
           loaderCalls += 1;

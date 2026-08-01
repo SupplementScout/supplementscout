@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
   getHydrationComparison,
   HYDRATION_INDEX_GATE,
@@ -304,6 +305,7 @@ export function HydrationPageContent({
             <Link href="/vitamins" className="font-semibold underline">Vitamins</Link>
             <Link href="/search?q=electrolytes" className="font-semibold underline">Search electrolytes</Link>
             <Link href="/about" className="font-semibold underline">How SupplementScout works</Link>
+            <ComparisonTransparencyLinks />
           </div>
         </aside>
       </section>

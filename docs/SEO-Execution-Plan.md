@@ -111,7 +111,7 @@ Console evidence and user value.
 | SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Performance, Page indexing, Sitemaps, Core Web Vitals and Links baselines are recorded and priority URLs are inspected. Blocker: the current working session has no authenticated report view or export; site ownership itself is already verified through DNS. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `LIVE VERIFIED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
-| SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `PLANNED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
+| SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `CODE COMPLETE` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `PLANNED` | Ten individually reviewed pages pass the shared quality contract and `LIVE VERIFIED` gate one at a time; no parallel page framework or thin mass generation is introduced. |
@@ -255,6 +255,39 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — SEO-10 local implementation
+
+- Added canonical, indexable `/how-we-compare` and `/data-freshness` static
+  Server Components. They use the existing Next.js metadata and sitemap
+  mechanisms; no second pricing, freshness, catalogue or data-fetching system
+  was created.
+- `/how-we-compare` explains the implemented delivered-total calculation,
+  unknown-delivery handling, canonical product/variant identity, coverage-first
+  ordering, verified unit and nutrition metrics, price-history treatment,
+  retailer sources and limitations. It explicitly avoids effectiveness,
+  formulation, safety and whole-market claims.
+- `/data-freshness` binds its visible 24-hour rule to the existing
+  `CREATINE_LAUNCH_THRESHOLDS.maximumOfferAgeHours` constant. It distinguishes
+  current comparison-page eligibility from other site surfaces, explains
+  timestamps, guarded retailer updates, stale-offer exclusion, fail-closed
+  `noindex`, price-history gaps and checkout verification without claiming one
+  sitewide refresh schedule.
+- Both pages publish WebPage and BreadcrumbList JSON-LD without invented
+  Product, Dataset or FAQ entities. Each canonical URL appears once in the
+  sitemap without a fabricated `lastModified` value.
+- Added one shared crawlable link component and reused it on the homepage, Whey
+  Protein, Pre Workout, Creatine and Hydration pages. The homepage footer and
+  About navigation also expose both routes.
+- `node --test scripts/comparison-transparency-pages.test.js scripts/pre-workout-page.test.js scripts/whey-protein-page.test.js scripts/creatine-page.test.js scripts/hydration-page.test.js scripts/sitemap-freshness.test.js scripts/homepage-statistics.test.js scripts/home-navigation-ux.test.js`:
+  88 passed, 0 failed.
+- Targeted ESLint, TypeScript, `git diff --check` and the Next.js 16.2.9
+  production build passed. The build prerendered both routes as static content.
+- Local production-server checks returned `200`, canonical `index, follow` and
+  JSON-LD for both pages. Homepage links were present and the local sitemap
+  contained each canonical URL exactly once.
+- SEO-10 remains `CODE COMPLETE`; deployment, public HTML, public sitemap/link
+  and external structured-data checks remain required before completion.
 
 ### 1 August 2026 — SEO-09 local implementation
 

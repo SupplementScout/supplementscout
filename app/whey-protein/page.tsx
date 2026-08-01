@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
   evaluateWheyIndexability,
   getWheyComparison,
@@ -487,6 +488,7 @@ export function WheyProteinPageContent({
             <Link href="/about" className="font-semibold underline">
               How SupplementScout works
             </Link>
+            <ComparisonTransparencyLinks />
           </div>
         </aside>
 

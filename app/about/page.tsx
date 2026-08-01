@@ -37,6 +37,8 @@ export default function AboutPage() {
         </Link>
         <nav className="flex items-center gap-5 text-sm font-medium text-zinc-700">
           <Link href="/search">Search</Link>
+          <Link href="/how-we-compare">How We Compare</Link>
+          <Link href="/data-freshness">Data Freshness</Link>
           <Link href="/affiliate-disclosure">Affiliate Disclosure</Link>
           <Link href="/contact">Contact</Link>
         </nav>

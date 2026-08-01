@@ -167,6 +167,10 @@ function loadPage(result = fixtureResult()) {
         __esModule: true,
         default: () => null,
       },
+      "../components/ComparisonTransparencyLinks": {
+        __esModule: true,
+        default: () => null,
+      },
       "../lib/pricing": pricing,
       "../lib/wheyComparison": {
         getWheyComparison: async () => {

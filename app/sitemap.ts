@@ -105,6 +105,16 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/how-we-compare`,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  },
+  {
+    url: `${siteUrl}/data-freshness`,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  },
+  {
     url: `${siteUrl}/about`,
     changeFrequency: "monthly",
     priority: 0.6,
