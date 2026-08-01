@@ -14,7 +14,7 @@ const siteUrl = "https://www.supplementscout.co.uk";
 const pagePath = "/pre-workout";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
-  "Compare current Pre Workout prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.";
+  "Compare current Pre Workout prices from UK supplement retailers, with recently checked offers, known delivery costs, retailer coverage and verified value metrics.";
 
 export const revalidate = 3600;
 
