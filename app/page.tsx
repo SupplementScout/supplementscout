@@ -10,6 +10,7 @@ export const revalidate = 3600;
 const popularSearches = [
   { label: "Creatine", href: "/creatine" },
   { label: "Whey protein", href: "/whey-protein" },
+  { label: "Whey isolate", href: "/whey-isolate" },
   { label: "Pre Workout", href: "/pre-workout" },
   { label: "Amino Acids", href: "/amino-acids" },
   { label: "Magnesium", href: "/magnesium" },
@@ -54,6 +55,7 @@ const landingCategories = [
   { label: "Vitamins", href: "/vitamins" },
   { label: "Creatine", href: "/creatine" },
   { label: "Whey Protein", href: "/whey-protein" },
+  { label: "Whey Isolate", href: "/whey-isolate" },
   { label: "Pre Workout", href: "/pre-workout" },
   { label: "Amino Acids", href: "/amino-acids" },
   { label: "Magnesium", href: "/magnesium" },
