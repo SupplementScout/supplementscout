@@ -1786,9 +1786,10 @@ Target experience:
 ### Current active task
 
 `SEO-13` is the single active implementation. Page 1, Amino Acids / BCAA /
-EAA, is live verified through the existing shared category/decision-page
-system. The remaining nine candidates have now been reviewed and deferred with
-recorded identity, coverage or distinct-value blockers. The existing
+EAA, and page 3, Whey Isolate, are live verified through the existing shared
+category/decision-page system. The remaining eight candidates have been
+reviewed and deferred with recorded identity, coverage or distinct-value
+blockers. The existing
 `/hydration` canonical was hardened instead of creating a duplicate
 Electrolytes URL, and Creatine Monohydrate remains consolidated into the
 existing `/creatine` canonical to avoid keyword cannibalisation. SEO-13 stays
@@ -1798,13 +1799,13 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Rerun the SEO-13 Whey Isolate coverage gate against current production data.
-The Fit House source-removal blocker is resolved through the owner-approved,
-hash-bound stock disposition recorded on 1 August 2026: no mappings were
-removed or remapped, the protected production apply passed, and the required
-idempotency dry-run returned 286 `VERIFY_NO_CHANGE` rows. Implementation and
-live verification still proceed one page at a time through the shared
-mechanism.
+Continue SEO-13 with the next fixed-order candidate, Vegan Protein, through its
+existing recorded gate. It remains deferred until current comparable retailer
+overlap reaches three products across at least two retailers with at least 20
+fresh offers. Reuse guarded retailer refresh and catalogue mechanisms to
+improve or recheck that evidence; do not weaken the gate or create a thin page.
+Implementation and live verification still proceed one page at a time through
+the shared mechanism.
 
 ### Then
 

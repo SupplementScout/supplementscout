@@ -122,13 +122,14 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — rerun the Whey Isolate coverage gate against
-current production data. The fail-closed Fit House blocker was resolved on 1
-August 2026 through an exact owner-approved, hash-bound stock disposition; no
-mapping was removed or remapped, the protected apply passed and the
-idempotency dry-run returned 286 `VERIFY_NO_CHANGE` rows. All ten candidate
-gates have now been reviewed: Amino Acids / BCAA / EAA is live verified and the
-other nine candidates are deferred. The existing `/hydration` canonical was
+**Next executable task:** SEO-13 — continue with the next fixed-order
+candidate, Vegan Protein, through its existing recorded coverage gate. It
+remains deferred until current comparable retailer overlap reaches three
+products across at least two retailers with at least 20 fresh offers; use
+existing guarded retailer and catalogue mechanisms and do not weaken the gate.
+All ten candidate gates have now been reviewed: Amino Acids / BCAA / EAA and
+Whey Isolate are live verified, while the other eight candidates remain
+deferred. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
 competing URL. Search Console and GA4 are already configured; SEO-07 only
@@ -264,6 +265,30 @@ invent a date to silence the Guardian.
 
 ## 11. Execution evidence
 
+### 1 August 2026 — SEO-13 page 3 Whey Isolate live verification
+
+- The post-remediation read-only production gate reviewed the unchanged safe
+  boundary: exact `Whey Protein` category plus explicit isolate, ISO or WPI
+  canonical identity, excluding explicit blends, beef and collagen proteins.
+  Sixteen products remained in scope with 78 fresh offers from four retailers;
+  three products had fresh offers from multiple retailers. The unchanged
+  3-product / 2-retailer / 20-offer gate passed.
+- Commit `16bcaf6` added `/whey-isolate` through the existing shared category
+  comparison normalizer and indexability gate. No product, variant, mapping,
+  offer or retailer identity was created or changed by the page implementation.
+- Local evidence passed: 26 focused tests, TypeScript, lint with only the four
+  pre-existing Six Pack warnings, production build and Project Guardian. The
+  build emitted the `/whey-isolate` route with the existing one-hour revalidation
+  policy.
+- Vercel reported the deployment successful. Live `/whey-isolate` returned HTTP
+  200 with the exact canonical, `index, follow`, visible 16-product / 78-offer /
+  4-retailer / 3-multi-retailer coverage, no degraded-data message, and
+  CollectionPage, ItemList and BreadcrumbList structured data. The live sitemap
+  contained `/whey-isolate` exactly once.
+- SEO-13 remains `IN PROGRESS`: two of ten controlled pages are now live
+  verified. Vegan Protein is the next fixed-order candidate and retains its
+  existing coverage blocker until the same gate passes.
+
 ### 1 August 2026 — Fit House source-removal remediation applied
 
 - The public product, search and suggestion paths now share one fail-closed
@@ -290,8 +315,12 @@ invent a date to silence the Guardian.
   all zero; no recovery call was required.
 - The mandatory post-apply production dry-run passed with 286
   `VERIFY_NO_CHANGE` rows, zero price, stock and history deltas, and no reviewed
-  override required. The Fit House blocker is closed; SEO-13 remains
-  `IN PROGRESS` and Whey Isolate is the next coverage gate.
+  override required. The Fit House blocker closed and the subsequent Whey
+  Isolate gate passed; SEO-13 remains `IN PROGRESS`.
+- Commit `9eabbac` deployed successfully through Vercel. The live affected
+  product and exact search both returned HTTP 200 without Fit House or the stale
+  £40.98 delivered price, confirming that unavailable source identities no
+  longer leak into public price or retailer availability.
 
 ### 1 August 2026 — SEO-13 coverage-remediation checkpoint
 
