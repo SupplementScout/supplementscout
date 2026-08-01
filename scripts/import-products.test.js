@@ -5330,7 +5330,7 @@ test("optioned legacy mapping upgrade accepts flavour-only source option with pa
   assert.equal(supabase.writes.length, 0);
 });
 
-test("optioned legacy mapping upgrade supports exact Fit House controls and rejects other retailers", async () => {
+test("optioned legacy mapping upgrade supports reviewed retailer controls and rejects other retailers", async () => {
   const fitHouse = optionedLegacyMappingFixture({
     rowOverrides: {
       retailer_name: "Fit House",
@@ -5384,6 +5384,27 @@ test("optioned legacy mapping upgrade supports exact Fit House controls and reje
     true,
   );
 
+  const gymHigh = optionedLegacyMappingFixture({
+    rowOverrides: {
+      retailer_name: "GYM HIGH",
+      retailer_website: "https://gymhigh.co.uk",
+    },
+    seedMutate(seed) {
+      Object.assign(seed.retailers[0], {
+        name: "GYM HIGH",
+        slug: "gym-high",
+        website: "https://gymhigh.co.uk",
+      });
+    },
+  });
+  setSupabaseForTests(createMockSupabase(structuredClone(gymHigh.seed)));
+  const gymHighApproved = await runImportRowsRaw(
+    [gymHigh.row],
+    { mode: "feed", dryRun: true },
+  );
+  assert.equal(gymHighApproved.report.approvedRows.length, 1);
+  assert.equal(gymHighApproved.blockedRows.length, 0);
+
   const unaddressed = optionedLegacyMappingFixture({
     rowOverrides: {
       retailer_name: "Fit House",
@@ -5434,6 +5455,93 @@ test("optioned legacy mapping upgrade supports exact Fit House controls and reje
   assert.equal(blocked.report.approvedRows.length, 0);
   assert.equal(blocked.blockedRows.length, 1);
   assert.match(blocked.blockedRows[0].block_reason, /limited to reviewed retailers/i);
+});
+
+test("optioned legacy mapping upgrade permits only the exact reviewed GYM HIGH no-SKU identity", async () => {
+  const url = "https://gymhigh.co.uk/?post_type=product&p=703";
+  const fixture = optionedLegacyMappingFixture({
+    rowOverrides: {
+      retailer_name: "GYM HIGH",
+      retailer_website: "https://gymhigh.co.uk",
+      external_product_id: "703",
+      external_variant_id: "704",
+      external_sku: "",
+      external_options: JSON.stringify({ Size: "600g", Flavour: "Berry Bliss" }),
+      product_name: "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+      variant_name: "Berry Bliss / 600g",
+      brand: "GYM HIGH",
+      category: "Health Supplements",
+      slug: "gym-high-vegan-plant-based-protein-blend-600g",
+      external_url: url,
+      affiliate_url: url,
+      size: "600",
+      flavour: "Berry Bliss",
+      product_id: "390",
+      product_variant_id: "1064",
+      retailer_product_id: "78",
+    },
+    seedMutate(seed) {
+      Object.assign(seed.retailers[0], {
+        id: 1,
+        name: "GYM HIGH",
+        slug: "gym-high",
+        website: "https://gymhigh.co.uk",
+      });
+      Object.assign(seed.products[0], {
+        id: 390,
+        name: "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+        slug: "gym-high-vegan-plant-based-protein-blend-600g",
+        brand: "GYM HIGH",
+        category: "Health Supplements",
+      });
+      Object.assign(seed.product_variants[0], {
+        id: 556,
+        product_id: 390,
+      });
+      Object.assign(seed.product_variants[1], {
+        id: 1064,
+        product_id: 390,
+        variant_key: "berry-bliss-600g",
+        display_name: "Berry Bliss / 600g",
+        flavour_code: "berry bliss",
+        flavour_label: "Berry Bliss",
+        size_value: 600,
+      });
+      Object.assign(seed.product_variants[2], { product_id: 390 });
+      Object.assign(seed.retailer_products[0], {
+        id: 78,
+        retailer_id: 1,
+        product_id: 390,
+        product_variant_id: 556,
+        external_url: url,
+        external_name: "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+        external_slug: "gym-high-vegan-plant-based-protein-blend-600g",
+      });
+      Object.assign(seed.offers[0], {
+        retailer_id: 1,
+        product_id: 390,
+        product_variant_id: 556,
+        retailer_product_id: 78,
+        url,
+      });
+    },
+  });
+  setSupabaseForTests(createMockSupabase(structuredClone(fixture.seed)));
+  const approved = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+  assert.equal(approved.report.approvedRows.length, 1);
+  assert.equal(approved.blockedRows.length, 0);
+  assert.equal(
+    approved.report.approvedRows[0].legacyMappingUpgrade
+      .approvedEvidence.reviewed_gym_high_no_sku_identity,
+    true,
+  );
+
+  const drifted = structuredClone(fixture);
+  drifted.row.external_variant_id = "705";
+  setSupabaseForTests(createMockSupabase(structuredClone(drifted.seed)));
+  const blocked = await runImportRowsRaw([drifted.row], { mode: "feed", dryRun: true });
+  assert.equal(blocked.report.approvedRows.length, 0);
+  assert.match(blocked.blockedRows[0].block_reason, /complete external identity evidence/i);
 });
 
 test("optioned legacy mapping upgrade fails closed for identity and mutation guards", async () => {

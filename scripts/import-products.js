@@ -2551,7 +2551,9 @@ async function validateLegacyMappingUpgrade({
   }
   if (
     (controls.standalone || controls.optioned) &&
-    !new Set(["whey-okay", "fit-house"]).has(String(retailer.slug || "").trim())
+    !new Set(["whey-okay", "fit-house", "gym-high"]).has(
+      String(retailer.slug || "").trim()
+    )
   ) {
     throw new Error("legacy mapping upgrade extension is limited to reviewed retailers");
   }
@@ -2617,10 +2619,31 @@ async function validateLegacyMappingUpgrade({
     SHOPIFY_NUMERIC_ID_PATTERN.test(String(after.external_variant_id || "")) &&
     after.external_product_id !== after.external_variant_id &&
     isLikelyShopifyVariantUrl(row, after.external_variant_id);
+  const reviewedGymHighNoSkuIdentity =
+    controls.optioned &&
+    String(retailer.slug || "").trim() === "gym-high" &&
+    !after.external_sku &&
+    !mapping.external_sku &&
+    WOOCOMMERCE_NUMERIC_ID_PATTERN.test(String(after.external_product_id || "")) &&
+    WOOCOMMERCE_NUMERIC_ID_PATTERN.test(String(after.external_variant_id || "")) &&
+    after.external_product_id !== after.external_variant_id &&
+    REVIEWED_LEGACY_NO_SKU_IDENTITIES.has(
+      [
+        retailer.slug,
+        product.id,
+        mapping.id,
+        after.external_product_id,
+        after.external_variant_id,
+        productVariant.id,
+      ].join(":"),
+    ) &&
+    isLikelyWooCommerceProductUrl(row, after.external_product_id);
   if (
     !after.external_product_id ||
     !after.external_variant_id ||
-    (!after.external_sku && !reviewedFitHouseNoSkuIdentity)
+    (!after.external_sku &&
+      !reviewedFitHouseNoSkuIdentity &&
+      !reviewedGymHighNoSkuIdentity)
   ) {
     throw new Error("legacy mapping upgrade requires complete external identity evidence");
   }
@@ -2695,6 +2718,7 @@ async function validateLegacyMappingUpgrade({
       legacy_mapping_standalone: controls.standalone,
       legacy_mapping_optioned: controls.optioned,
       reviewed_fit_house_no_sku_identity: reviewedFitHouseNoSkuIdentity,
+      reviewed_gym_high_no_sku_identity: reviewedGymHighNoSkuIdentity,
       legacy_standalone_sellable_count: controls.standalone
         ? String(row.legacy_standalone_sellable_count || "").trim()
         : "",
@@ -2786,6 +2810,9 @@ function normalizeVariantDisplayIdentity(value) {
 
 const SHOPIFY_NUMERIC_ID_PATTERN = /^[0-9]{10,}$/;
 const WOOCOMMERCE_NUMERIC_ID_PATTERN = /^[1-9][0-9]{0,9}$/;
+const REVIEWED_LEGACY_NO_SKU_IDENTITIES = new Set([
+  "gym-high:390:78:703:704:1064",
+]);
 const NO_SKU_SOURCE_EXCLUSION_PATTERN =
   /\b(bundle|stack|with\s+free|plus\s+free|free\s+item|bbe|dated|best\s+before|short\s+date|short\s+dated)\b/i;
 
@@ -2801,6 +2828,24 @@ function isLikelyShopifyVariantUrl(row, externalVariantId) {
       parsedUrl.hostname === parsedRetailer.hostname &&
       parsedUrl.pathname.includes("/products/") &&
       parsedUrl.searchParams.get("variant") === externalVariantId
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isLikelyWooCommerceProductUrl(row, externalProductId) {
+  const directUrl = getDirectRetailerProductUrl(row) || getRetailerProductUrl(row);
+  const retailerWebsite = String(row.retailer_website || "").trim();
+  if (!directUrl || !retailerWebsite) return false;
+
+  try {
+    const parsedUrl = new URL(directUrl);
+    const parsedRetailer = new URL(retailerWebsite);
+    return (
+      parsedUrl.hostname === parsedRetailer.hostname &&
+      (parsedUrl.searchParams.get("p") === externalProductId ||
+        parsedUrl.pathname.includes("/product/"))
     );
   } catch {
     return false;
