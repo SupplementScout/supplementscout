@@ -18,6 +18,9 @@ test("workflow is manual, exact, and separates production roles", () => {
   assert.match(workflow, /GYM_HIGH_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /GYM_HIGH_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
   assert.match(workflow, /persist-credentials: false/);
+  assert.match(workflow, /actions: read/);
+  assert.match(workflow, /status=success&per_page=1/);
+  assert.match(workflow, /unzip -p[\s\S]*report\.json/);
   assert.match(workflow, /mapping_create_count!==0/);
   assert.match(workflow, /offer_create_count!==0/);
 });

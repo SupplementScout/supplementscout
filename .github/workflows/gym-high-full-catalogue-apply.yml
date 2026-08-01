@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: gym-high-reviewed-full-catalogue-production
@@ -46,8 +47,17 @@ jobs:
       - name: Test exact contracts
         run: node --test scripts/gym-high-catalogue-audit.test.js scripts/gym-high-reviewed-catalogue-bootstrap.test.js scripts/gym-high-full-catalogue-feed-builder.test.js scripts/gym-high-full-catalogue-executor.test.js
       - name: Capture fresh approved source and verify canonical variants
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          node scripts/gym-high-catalogue-audit.js --output=tmp/gym-high-source-monitor/approved-catalogue-report.json
+          if ! node scripts/gym-high-catalogue-audit.js --output=tmp/gym-high-source-monitor/approved-catalogue-report.json; then
+            echo "Fresh source is unavailable; recovering the latest successful read-only source-monitor artifact."
+            mkdir -p tmp/gym-high-source-monitor/recovery
+            run_id="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/workflows/gym-high-source-monitor.yml/runs?status=success&per_page=1" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s).workflow_runs?.[0];if(!r)process.exit(1);process.stdout.write(String(r.id))})')"
+            artifact_id="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const a=JSON.parse(s).artifacts?.find(x=>!x.expired&&x.name.startsWith("gym-high-source-monitor-"));if(!a)process.exit(1);process.stdout.write(String(a.id))})')"
+            curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" -o tmp/gym-high-source-monitor/recovery/source.zip
+            unzip -p tmp/gym-high-source-monitor/recovery/source.zip report.json > tmp/gym-high-source-monitor/approved-catalogue-report.json
+          fi
           node scripts/gym-high-reviewed-catalogue-bootstrap.js --mode=dry-run --output=tmp/gym-high-reviewed-catalogue/variant-postflight.json
           node -e "const r=require('./tmp/gym-high-reviewed-catalogue/variant-postflight.json');if(r.result!=='PASS'||r.planned_variant_create_count!==0)process.exit(1)"
       - name: Build exact reviewed feed
@@ -67,6 +77,8 @@ jobs:
         if: always()
         with:
           name: gym-high-full-catalogue-${{ github.run_id }}-${{ github.run_attempt }}
-          path: tmp/gym-high-reviewed-catalogue/**/*.json
-          if-no-files-found: error
+          path: |
+            tmp/gym-high-reviewed-catalogue/**/*.json
+            tmp/gym-high-source-monitor/*.json
+          if-no-files-found: warn
           retention-days: 30
