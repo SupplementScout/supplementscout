@@ -213,6 +213,31 @@ Urgent production reliability or data-integrity incidents interrupt the growth
 sequence until the safe state is restored. No competitor traffic number may be
 stored as fact without a named measurement source and date.
 
+### 0.0.8 GYM HIGH full-catalogue automation checkpoint - 1 August 2026
+
+The owner-reviewed GYM HIGH source scope contains 66 approved sellable variants
+across 26 product families. Four gift-card rows remain excluded and source
+identity `639:644` remains an explicit reviewed exception. The approval is
+bound to fingerprint
+`feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59`.
+
+The canonical bootstrap is complete: 34 missing variants were created and a
+fresh postflight now plans zero further variant creates. The controlled legacy
+repair is also complete. Protected workflow run `30711898188` updated the exact
+21 approved supplement mappings, including nine offer-to-variant identity
+moves, without changing price, shipping, stock, URL or price history. Its own
+postcondition passed, and an independent production read returned 21 completed
+mappings and zero remaining upgrades. The earlier failed runs stopped before
+any mapping write.
+
+This does not yet close the retailer automation. The next bounded retailer task
+is to build and verify the complete 66-row current source feed, create the 41
+missing sibling mappings and 42 missing offers through the existing guarded
+import path, then append the reviewed scope to scheduled refresh automation.
+Unknown delivery cost for a new offer must remain unknown until verified; it
+must not be copied from an unrelated historical offer or invented to satisfy a
+total-price invariant.
+
 Execution uses the four-role model in `docs/Agent-Operating-Model.md`: Roadmap
 Steward, Growth Analyst, SEO/Decision-Page Builder and Independent Release
 Verifier. These are controlled responsibilities, not autonomous production
