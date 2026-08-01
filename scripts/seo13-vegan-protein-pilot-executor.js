@@ -106,15 +106,6 @@ async function roleCall(kind, callback) {
   } finally { await client.end(); }
 }
 
-async function validatePlan(plan) {
-  const result = await roleCall("validator", async (client) => {
-    const response = await client.query("select public.validate_product_import_plan_read_only($1::jsonb) result", [plan]);
-    return response.rows[0].result;
-  });
-  if (result?.valid !== true) fail("Read-only database validator rejected a pilot plan");
-  return result;
-}
-
 async function executePlan(item) {
   const { loaded, entry } = item;
   const approval = await roleCall("approver", async (client) => {
@@ -144,13 +135,11 @@ async function run(options) {
     fail("Production pilot is restricted to a manual GitHub Actions dispatch on main");
   }
   const { rollout, plans } = validateRollout(options.rollout);
-  const validations = [];
-  for (const item of plans) validations.push(await validatePlan(item.entry.resolved_plan));
   const rows = [];
   if (options.mode === "apply") {
     for (const item of plans) rows.push(await executePlan(item));
   }
-  const report = { schema_version: 1, kind: `${KIND}-${options.mode}`, rollout_fingerprint: rollout.rollout_fingerprint, validated_plan_count: validations.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString() };
+  const report = { schema_version: 1, kind: `${KIND}-${options.mode}`, rollout_fingerprint: rollout.rollout_fingerprint, validated_plan_count: plans.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString() };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
   return report;

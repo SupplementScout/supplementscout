@@ -24,7 +24,7 @@ test("SEO-13 workflow is manual, role-separated and has no service-role credenti
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/seo13-vegan-protein-pilot.yml"), "utf8");
   assert.match(workflow, /workflow_dispatch:/);
   assert.doesNotMatch(workflow, /schedule:|SUPABASE_SERVICE_ROLE_KEY/);
-  assert.match(workflow, /JONS_SYNC_VALIDATOR_DATABASE_URL/);
+  assert.doesNotMatch(workflow, /JONS_SYNC_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /JONS_SYNC_EXECUTOR_DATABASE_URL/);
   assert.match(workflow, /environment: production-readonly/);

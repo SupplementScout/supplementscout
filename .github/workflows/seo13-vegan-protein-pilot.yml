@@ -48,7 +48,6 @@ jobs:
 
       - name: Validate and optionally apply exact two-record pilot
         env:
-          SEO13_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           SEO13_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SEO13_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/seo13-vegan-protein-pilot-executor.js --mode=${{ inputs.operation }} --rollout=docs/rollouts/seo13-vegan-protein-pilot/rollout.json --output=tmp/seo13-vegan-protein-pilot/report.json
