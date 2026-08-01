@@ -240,6 +240,11 @@ Roadmap, status or completion-evidence changes must run the Guardian before and
 after editing. A Guardian pass proves document/control consistency only; it
 does not replace feature tests, live verification or owner approval.
 
+Implementation commit `5ee8dd6` is live on `main`. The first hosted Project
+Guardian run, `30687118501`, completed successfully for that exact commit after
+the push; the local validator, seven negative/positive tests and an independent
+read-only review also passed.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
