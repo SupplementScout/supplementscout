@@ -8,6 +8,7 @@ const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
   balancedExecutionBatches,
   parseArgs,
+  reconcileMissingMappedVariants,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
 
@@ -54,6 +55,54 @@ test("source collapse remains fail closed", () => {
   assert.equal(result.code, "GENUINE_SOURCE_COLLAPSE");
 });
 
+test("missing approved Shopify variants become bounded unavailable evidence", () => {
+  const targets = [
+    {
+      external_product_id: "8147819069680",
+      external_variant_id: "44818828853424",
+      external_sku: "FH-OLD",
+      price: "36.99",
+      shipping_cost: "3.99",
+      total_price: "40.98",
+      in_stock: true,
+      url: "https://fithouse.uk/products/7nutrition-whey-isolate-90-1kg?variant=44818828853424",
+      external_url: "https://fithouse.uk/products/7nutrition-whey-isolate-90-1kg?variant=44818828853424",
+    },
+  ];
+  const result = reconcileMissingMappedVariants(targets, [], {
+    missing_mapped_variant_mode: "MARK_UNAVAILABLE",
+    maximum_missing_mapped_variants: 1,
+    maximum_missing_mapped_variant_ratio: 1,
+  });
+  assert.equal(result.newUnavailableCount, 1);
+  assert.deepEqual(result.missingVariantIds, ["44818828853424"]);
+  assert.equal(result.sourceVariants[0].in_stock, false);
+  assert.equal(result.sourceVariants[0].price, "36.99");
+  assert.equal(result.sourceVariants[0].product_handle, "7nutrition-whey-isolate-90-1kg");
+});
+
+test("missing mapped variant reconciliation fails closed outside its exact limits", () => {
+  const target = {
+    external_product_id: "8147819069680",
+    external_variant_id: "44818828853424",
+    price: "36.99",
+    shipping_cost: "3.99",
+    total_price: "40.98",
+    in_stock: true,
+    url: "https://fithouse.uk/products/7nutrition-whey-isolate-90-1kg?variant=44818828853424",
+  };
+  assert.throws(() => reconcileMissingMappedVariants([target], [], {
+    missing_mapped_variant_mode: "MARK_UNAVAILABLE",
+    maximum_missing_mapped_variants: 0,
+    maximum_missing_mapped_variant_ratio: 0,
+  }), /safety limit exceeded/);
+  assert.throws(() => reconcileMissingMappedVariants([{...target,url:"https://example.com/products/wrong"}], [], {
+    missing_mapped_variant_mode: "MARK_UNAVAILABLE",
+    maximum_missing_mapped_variants: 1,
+    maximum_missing_mapped_variant_ratio: 1,
+  }), /URL domain drift/);
+});
+
 test("historical OOS rows are balanced across validator children without changing coverage", () => {
   const rows = Array.from({ length: 286 }, (_, index) => ({
     offer_id: String(index + 1),
@@ -70,6 +119,24 @@ test("historical OOS rows are balanced across validator children without changin
     batch.filter((row) => !row.atomic_plan.offer.values.in_stock).length / batch.length < 0.35));
 });
 
+test("new unavailable rows are split within the database validator limit", () => {
+  const rows = Array.from({ length: 286 }, (_, index) => ({
+    offer_id: String(index + 1),
+    atomic_plan: {
+      expected_state: { offer: { in_stock: true } },
+      offer: { values: { in_stock: index >= 20 } },
+    },
+  }));
+  const batches = balancedExecutionBatches(rows, 50, 3);
+  assert.equal(batches.length, 7);
+  assert.equal(batches.flat().length, 286);
+  assert.ok(batches.every((batch) =>
+    batch.filter((row) =>
+      row.atomic_plan.expected_state.offer.in_stock &&
+      !row.atomic_plan.offer.values.in_stock
+    ).length <= 3));
+});
+
 test("CLI exposes only normal dry-run and apply modes", () => {
   assert.deepEqual(parseArgs(["--target=production", "--mode=dry-run"]), {
     target: "production",
@@ -84,7 +151,8 @@ test("CLI exposes only normal dry-run and apply modes", () => {
 test("automation is retailer-scoped, keeps SAFE_UPDATE unset, and creates no catalogue rows", () => {
   assert.match(automation, /retailer_id=9/);
   assert.match(automation, /Fit House approved scope must be 286\/286/);
-  assert.match(automation, /missing mapped source identity/);
+  assert.match(automation, /missing_mapped_variant_mode/);
+  assert.doesNotMatch(automation, /missing mapped source identity/);
   assert.doesNotMatch(automation, /set_config\('app\.safe_update'/);
   assert.doesNotMatch(automation, /register_jons_offer_sync_control_plan/);
   assert.match(automation, /register_fit_house_offer_sync_control_plan/);

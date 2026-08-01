@@ -42,6 +42,9 @@
   "discovery_policy": {
     "mode": "report_only",
     "catalogue_creates": false,
+    "missing_mapped_variant_mode": "MARK_UNAVAILABLE",
+    "maximum_missing_mapped_variants": 28,
+    "maximum_missing_mapped_variant_ratio": 0.1,
     "reviewed_excluded_source_variant_count": 39
   },
   "schedule": {

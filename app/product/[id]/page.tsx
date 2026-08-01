@@ -46,6 +46,7 @@ import {
 } from "../../lib/productOfferGroups";
 import { supabase } from "../../lib/supabase";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
+import { isOfferFresh } from "../../lib/offerFreshness";
 
 type ProductRouteProduct = {
   id: string;
@@ -307,7 +308,7 @@ export default async function ProductPage({
         external_options: retailerProduct?.external_options || null,
       };
     }
-  );
+  ).filter((offer) => isOfferFresh(offer.last_checked_at));
 
   const offerIds = productOffers.map((offer) => offer.id);
 

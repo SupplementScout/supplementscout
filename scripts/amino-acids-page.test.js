@@ -37,7 +37,10 @@ function compileModule(filename, options = {}) {
 }
 
 const pricing = compileModule(path.join(process.cwd(), "app", "lib", "pricing.ts"));
-const freshness = compileModule(path.join(process.cwd(), "app", "lib", "creatineLaunch.ts"));
+const offerFreshness = compileModule(path.join(process.cwd(), "app", "lib", "offerFreshness.ts"));
+const freshness = compileModule(path.join(process.cwd(), "app", "lib", "creatineLaunch.ts"), {
+  mocks: { "./offerFreshness": offerFreshness },
+});
 const categoryComparison = compileModule(
   path.join(process.cwd(), "app", "lib", "categoryComparison.ts"),
   { mocks: { "./creatineLaunch": freshness, "./pricing": pricing } }

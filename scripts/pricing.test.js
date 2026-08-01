@@ -41,6 +41,19 @@ const nutritionMetricsModule = (() => {
   mod._compile(outputText, filename);
   return mod.exports;
 })();
+const offerFreshnessModule = (() => {
+  const filename = path.join(process.cwd(), "app", "lib", "offerFreshness.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+  return mod.exports;
+})();
 
 function loadProductsModule() {
   const filename = path.join(process.cwd(), "app", "lib", "products.ts");
@@ -62,6 +75,10 @@ function loadProductsModule() {
 
     if (parent === mod && request === "./nutritionMetrics") {
       return nutritionMetricsModule;
+    }
+
+    if (parent === mod && request === "./offerFreshness") {
+      return offerFreshnessModule;
     }
 
     if (parent === mod && request === "./supabase") {
@@ -418,6 +435,7 @@ test("search offer ranking prefers known delivered total over null shipping", ()
       shipping_cost: null,
       url: "https://retailer.example/unknown",
       in_stock: true,
+      last_checked_at: new Date().toISOString(),
       retailer: { id: "1", name: "Retailer One", slug: "retailer-one" },
     },
     {
@@ -426,6 +444,7 @@ test("search offer ranking prefers known delivered total over null shipping", ()
       shipping_cost: 1.99,
       url: "https://retailer.example/known",
       in_stock: true,
+      last_checked_at: new Date().toISOString(),
       retailer: { id: "2", name: "Retailer Two", slug: "retailer-two" },
     },
   ]);

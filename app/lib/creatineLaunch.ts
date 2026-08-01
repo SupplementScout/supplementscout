@@ -1,3 +1,8 @@
+import {
+  isOfferFresh,
+  MAXIMUM_CURRENT_OFFER_AGE_HOURS,
+} from "./offerFreshness";
+
 export const CREATINE_LAUNCH_STATUS = {
   phase: "fresh_offer_launch",
   allowIndexing: true,
@@ -10,7 +15,7 @@ export const CREATINE_LAUNCH_THRESHOLDS = {
   minimumOffers: 8,
   minimumRetailers: 2,
   minimumProductsWithMultipleRetailers: 3,
-  maximumOfferAgeHours: 24,
+  maximumOfferAgeHours: MAXIMUM_CURRENT_OFFER_AGE_HOURS,
 } as const;
 
 export type CreatineLaunchReadinessInput = {
@@ -42,19 +47,7 @@ export function isCreatineOfferFresh(
   checkedAt: string | null,
   now = new Date()
 ) {
-  const checkedAtTime = checkedAt ? Date.parse(checkedAt) : Number.NaN;
-
-  if (!Number.isFinite(checkedAtTime)) {
-    return false;
-  }
-
-  const ageHours = (now.getTime() - checkedAtTime) / 3_600_000;
-
-  return (
-    Number.isFinite(ageHours) &&
-    ageHours >= 0 &&
-    ageHours <= CREATINE_LAUNCH_THRESHOLDS.maximumOfferAgeHours
-  );
+  return isOfferFresh(checkedAt, now);
 }
 
 export function evaluateCreatineLaunchReadiness(

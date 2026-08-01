@@ -18,10 +18,30 @@ function loadModule() {
     fileName: filename,
   });
   const mod = new Module(filename, module);
+  const freshnessFilename = path.join(process.cwd(), "app", "lib", "offerFreshness.ts");
+  const freshnessSource = fs.readFileSync(freshnessFilename, "utf8");
+  const freshnessOutput = ts.transpileModule(freshnessSource, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName: freshnessFilename,
+  }).outputText;
+  const freshnessMod = new Module(freshnessFilename, module);
+  freshnessMod.filename = freshnessFilename;
+  freshnessMod.paths = Module._nodeModulePaths(path.dirname(freshnessFilename));
+  freshnessMod._compile(freshnessOutput, freshnessFilename);
+  const originalLoad = Module._load;
 
-  mod.filename = filename;
-  mod.paths = Module._nodeModulePaths(path.dirname(filename));
-  mod._compile(outputText, filename);
+  Module._load = function patchedLoad(request, parent, isMain) {
+    if (parent === mod && request === "./offerFreshness") return freshnessMod.exports;
+    return originalLoad.call(this, request, parent, isMain);
+  };
+
+  try {
+    mod.filename = filename;
+    mod.paths = Module._nodeModulePaths(path.dirname(filename));
+    mod._compile(outputText, filename);
+  } finally {
+    Module._load = originalLoad;
+  }
 
   return mod.exports;
 }
@@ -111,7 +131,7 @@ function offer(overrides = {}) {
       : "94.94",
     in_stock: overrides.in_stock ?? true,
     url: overrides.url || `https://retailer.test/product?variant=${id}`,
-    last_checked_at: "2026-07-14T12:00:00Z",
+    last_checked_at: overrides.last_checked_at || new Date().toISOString(),
     retailer: Object.prototype.hasOwnProperty.call(overrides, "retailer")
       ? overrides.retailer
       : {

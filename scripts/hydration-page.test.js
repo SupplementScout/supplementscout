@@ -37,12 +37,14 @@ function compileModule(filename, options = {}) {
 }
 
 const pricingPath = path.join(process.cwd(), "app", "lib", "pricing.ts");
+const offerFreshnessPath = path.join(process.cwd(), "app", "lib", "offerFreshness.ts");
 const creatineLaunchPath = path.join(process.cwd(), "app", "lib", "creatineLaunch.ts");
 const comparisonPath = path.join(process.cwd(), "app", "lib", "hydrationComparison.ts");
 const pagePath = path.join(process.cwd(), "app", "hydration", "page.tsx");
 const sitemapPath = path.join(process.cwd(), "app", "sitemap.ts");
 const pricing = compileModule(pricingPath);
-const creatineLaunch = compileModule(creatineLaunchPath);
+const offerFreshness = compileModule(offerFreshnessPath);
+const creatineLaunch = compileModule(creatineLaunchPath, { mocks: { "./offerFreshness": offerFreshness } });
 const FIXTURE_NOW = new Date("2026-07-22T10:00:00.000Z");
 
 function rawOffer(overrides = {}) {

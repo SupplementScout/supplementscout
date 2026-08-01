@@ -5,6 +5,8 @@ const path = require("path");
 const test = require("node:test");
 const ts = require("typescript");
 
+const FRESH_CHECKED_AT = new Date().toISOString();
+
 test("search variant nutrition uses a bounded ID query, not the removed offer FK", () => {
   const source = fs.readFileSync(
     path.join(process.cwd(), "app", "lib", "products.ts"),
@@ -49,6 +51,16 @@ function loadProductsModule(mockSupabase = {}) {
     if (parent === mod && request === "./nutritionMetrics") {
       return {
         getEffectiveNutritionMetrics: (product) => product,
+      };
+    }
+
+    if (parent === mod && request === "./offerFreshness") {
+      return {
+        isOfferFresh: (value, now = new Date()) => {
+          const checked = Date.parse(value || "");
+          const age = (now.getTime() - checked) / 3_600_000;
+          return Number.isFinite(age) && age >= 0 && age <= 24;
+        },
       };
     }
 
@@ -142,6 +154,7 @@ const {
                   shipping_cost: 0,
                   url: "https://example.com/product",
                   in_stock: true,
+                  last_checked_at: FRESH_CHECKED_AT,
                   retailer: {
                     id: 20,
                     name: "Example Retailer",
@@ -202,6 +215,7 @@ function searchProduct(id, name, category = "Supplements", brand = "Example Bran
         shipping_cost: 0,
         url: `https://example.com/product-${id}`,
         in_stock: true,
+        last_checked_at: FRESH_CHECKED_AT,
         retailer: {
           id: 20,
           name: "Example Retailer",
@@ -253,7 +267,7 @@ const suggestionProducts = [
     name: "Vitamin D3 Tablets 2,000iu",
     brand: "Simply Supplements",
     category: "Vitamin D",
-    offers: [{ id: 1001, in_stock: true, price: 6.69 }],
+    offers: [{ id: 1001, in_stock: true, price: 6.69, last_checked_at: FRESH_CHECKED_AT }],
   },
   {
     id: 102,
@@ -261,7 +275,7 @@ const suggestionProducts = [
     name: "Vitamin D3 4000iu & Vitamin K2 100mcg",
     brand: "Simply Supplements",
     category: "Vitamin D",
-    offers: [{ id: 1002, in_stock: true, price: 13.99 }],
+    offers: [{ id: 1002, in_stock: true, price: 13.99, last_checked_at: FRESH_CHECKED_AT }],
   },
   {
     id: 103,
@@ -269,7 +283,7 @@ const suggestionProducts = [
     name: "Omega 3 Capsules 500mg",
     brand: "Simply Supplements",
     category: "Omega 3",
-    offers: [{ id: 1003, in_stock: true, price: 8.99 }],
+    offers: [{ id: 1003, in_stock: true, price: 8.99, last_checked_at: FRESH_CHECKED_AT }],
   },
   {
     id: 104,
@@ -277,7 +291,7 @@ const suggestionProducts = [
     name: "Magnesium Citrate Tablets 700mg",
     brand: "Simply Supplements",
     category: "Magnesium",
-    offers: [{ id: 1004, in_stock: true, price: 13.99 }],
+    offers: [{ id: 1004, in_stock: true, price: 13.99, last_checked_at: FRESH_CHECKED_AT }],
   },
   {
     id: 105,
@@ -285,7 +299,7 @@ const suggestionProducts = [
     name: "Applied Nutrition Critical Whey 2.27kg",
     brand: "Applied Nutrition",
     category: "Whey Protein",
-    offers: [{ id: 1005, in_stock: true, price: 39.99 }],
+    offers: [{ id: 1005, in_stock: true, price: 39.99, last_checked_at: FRESH_CHECKED_AT }],
   },
   {
     id: 106,
@@ -293,7 +307,7 @@ const suggestionProducts = [
     name: "Reflex Nutrition Clear Whey Isolate 510g",
     brand: "Reflex Nutrition",
     category: "Whey Protein",
-    offers: [{ id: 1006, in_stock: true, price: 27.99 }],
+    offers: [{ id: 1006, in_stock: true, price: 27.99, last_checked_at: FRESH_CHECKED_AT }],
   },
   {
     id: 107,
@@ -301,7 +315,7 @@ const suggestionProducts = [
     name: "ImmunoBoost Tablets with Black Garlic - SimplyBest",
     brand: "Simply Supplements",
     category: "Health Supplements",
-    offers: [{ id: 1007, in_stock: true, price: 14.99 }],
+    offers: [{ id: 1007, in_stock: true, price: 14.99, last_checked_at: FRESH_CHECKED_AT }],
   },
   {
     id: 108,
@@ -309,7 +323,7 @@ const suggestionProducts = [
     name: "Vitamin D Hidden Draft",
     brand: "Private Brand",
     category: "Vitamin D",
-    offers: [{ id: 1008, in_stock: true, price: 14.99 }],
+    offers: [{ id: 1008, in_stock: true, price: 14.99, last_checked_at: FRESH_CHECKED_AT }],
   },
 ];
 

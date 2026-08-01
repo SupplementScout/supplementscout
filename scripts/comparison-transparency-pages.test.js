@@ -147,7 +147,12 @@ test("published explanations remain bound to the implemented pricing and freshne
 
   assert.match(pricing, /productPrice \+ shippingCost/);
   assert.match(pricing, /if \(shippingCost === null\)/);
-  assert.match(freshness, /maximumOfferAgeHours:\s*24/);
+  assert.match(freshness, /maximumOfferAgeHours:\s*MAXIMUM_CURRENT_OFFER_AGE_HOURS/);
+  const sharedFreshness = fs.readFileSync(
+    path.join(process.cwd(), "app", "lib", "offerFreshness.ts"),
+    "utf8",
+  );
+  assert.match(sharedFreshness, /MAXIMUM_CURRENT_OFFER_AGE_HOURS\s*=\s*24/);
   assert.match(categoryComparison, /isCreatineOfferFresh\(offer\.last_checked_at, now\)/);
   assert.match(categoryComparison, /Number\.POSITIVE_INFINITY/);
 });

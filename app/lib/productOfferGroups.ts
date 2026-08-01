@@ -1,3 +1,5 @@
+import { isOfferFresh } from "./offerFreshness";
+
 export type OfferScalar = number | string | null;
 
 export type ProductOfferVariant = {
@@ -200,9 +202,12 @@ export function getGroupOfferDisplayLabels(offers: ProductOffer[]) {
   );
 }
 
-export function getBestProductOffer(offers: ProductOffer[]) {
+export function getBestProductOffer(offers: ProductOffer[], now = new Date()) {
   return [...offers]
-    .filter((offer) => offer.in_stock === true)
+    .filter(
+      (offer) =>
+        offer.in_stock === true && isOfferFresh(offer.last_checked_at, now)
+    )
     .sort((left, right) => {
       const deliveredLeft = getOfferDeliveredTotal(left) ?? Number.POSITIVE_INFINITY;
       const deliveredRight = getOfferDeliveredTotal(right) ?? Number.POSITIVE_INFINITY;
@@ -228,11 +233,14 @@ function pricingIdentity(offer: ProductOffer) {
   ]);
 }
 
-export function groupProductOffers(offers: ProductOffer[]) {
+export function groupProductOffers(offers: ProductOffer[], now = new Date()) {
   const groups = new Map<string, ProductOffer[]>();
 
   for (const offer of offers) {
-    if (offer.in_stock !== true) continue;
+    if (
+      offer.in_stock !== true ||
+      !isOfferFresh(offer.last_checked_at, now)
+    ) continue;
 
     const retailerIdentity = offer.retailer?.id ?? offer.retailer_id;
     const retailerKey = retailerIdentity === null || retailerIdentity === undefined ||

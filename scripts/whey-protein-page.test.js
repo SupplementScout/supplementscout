@@ -65,7 +65,10 @@ const analyticsTrackerPath = path.join(
   "CategoryViewAnalytics.tsx"
 );
 const pricing = compileModule(pricingPath);
-const freshness = compileModule(freshnessPath);
+const offerFreshness = compileModule(path.join(process.cwd(), "app", "lib", "offerFreshness.ts"));
+const freshness = compileModule(freshnessPath, {
+  mocks: { "./offerFreshness": offerFreshness },
+});
 const categoryComparison = compileModule(categoryComparisonPath, {
   mocks: {
     "./creatineLaunch": freshness,

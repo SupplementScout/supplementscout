@@ -10,6 +10,7 @@ import {
 import {
   getEffectiveNutritionMetrics,
 } from "./nutritionMetrics";
+import { isOfferFresh } from "./offerFreshness";
 import { supabase } from "./supabase";
 
 export type SearchSort =
@@ -143,6 +144,7 @@ export type RawOffer = {
   shipping_cost: number | string | null;
   url: string | null;
   in_stock: boolean | null;
+  last_checked_at: string | null;
   retailer: RawRetailer | RawRetailer[] | null;
   product_variant?: RawProductVariant | RawProductVariant[] | null;
 };
@@ -233,7 +235,7 @@ type RawSuggestionProduct = Pick<
   RawProduct,
   "id" | "slug" | "name" | "brand" | "category"
 > & {
-  offers?: Array<Pick<RawOffer, "id" | "in_stock" | "price">> | null;
+  offers?: Array<Pick<RawOffer, "id" | "in_stock" | "price" | "last_checked_at">> | null;
 };
 
 export type LandingProductMatchInput = Pick<
@@ -894,9 +896,12 @@ function scoreProductForSearch(product: RawProduct, plan: SearchMetadata) {
   return scoreProduct(product, plan.originalQuery);
 }
 
-export function normalizeSearchOffers(offers: RawOffer[]) {
+export function normalizeSearchOffers(offers: RawOffer[], now = new Date()) {
   return offers
-    .filter((offer) => offer.in_stock === true)
+    .filter(
+      (offer) =>
+        offer.in_stock === true && isOfferFresh(offer.last_checked_at, now)
+    )
     .map((offer) => {
       const deliveredPrice = getDeliveredPrice(offer);
 
@@ -1214,6 +1219,7 @@ export async function searchProducts(
           shipping_cost,
           url,
           in_stock,
+          last_checked_at,
           retailer:retailers (
             id,
             name,
@@ -1348,7 +1354,8 @@ export async function getSearchSuggestions(query: string, limit?: number) {
         offers!inner (
           id,
           in_stock,
-          price
+          price,
+          last_checked_at
         )
       `
     )
@@ -1376,7 +1383,10 @@ export async function getSearchSuggestions(query: string, limit?: number) {
 
   for (const product of rows) {
     const hasInStockOffer = (product.offers || []).some(
-      (offer) => offer.in_stock === true && Number(offer.price) > 0
+      (offer) =>
+        offer.in_stock === true &&
+        Number(offer.price) > 0 &&
+        isOfferFresh(offer.last_checked_at)
     );
 
     if (product.category) {
@@ -1509,6 +1519,7 @@ export async function getLandingProducts(
           shipping_cost,
           url,
           in_stock,
+          last_checked_at,
           retailer:retailers (
             id,
             name,
