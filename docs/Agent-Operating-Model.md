@@ -1,6 +1,6 @@
 # SupplementScout Agent Operating Model
 
-**Status date:** 31 July 2026  
+**Status date:** 1 August 2026<br>
 **Authority:** Supporting operating model. The SupplementScout Operating Plan
 remains the project authority and the SEO Execution Plan remains the SEO task
 ledger.
@@ -115,6 +115,36 @@ Keep human or explicit owner approval for:
 - unsupported formulation or expert judgements;
 - production recovery, destructive actions and roadmap reordering.
 
+## Automatic Project Guardian
+
+The Project Guardian is a deterministic, read-only control, not a fifth agent
+with decision authority. Run it with:
+
+```text
+npm run verify:project
+```
+
+It checks:
+
+- SEO task IDs and allowed statuses;
+- no more than one SEO task is `IN PROGRESS`;
+- the SEO next task, Operating Plan active task, binding growth sequence and
+  WheyWise response sequence agree;
+- a `LIVE VERIFIED` task has matching execution evidence;
+- a `CODE COMPLETE` task has an evidence entry;
+- a blocked task names its blocker;
+- AGENTS.md and both authoritative plans remain bound to this operating model;
+- plan status dates and the monthly WheyWise review are not silently stale;
+- missing weekly GSC/GA4 evidence is reported as a reminder while SEO-07 is
+  still awaiting authenticated evidence.
+
+Structural contradictions fail closed. Time-based reminders do not fail the
+job, because an overdue report must not create a repeated stream of false
+automation failures. The GitHub workflow runs on relevant pushes and pull
+requests, once each Monday, and on manual request. It has read-only repository
+permission, receives no secrets and performs no network, catalogue or
+production write.
+
 ## Concurrency rule
 
 - One SEO implementation may be in progress.
@@ -126,7 +156,8 @@ Keep human or explicit owner approval for:
 
 ## Adoption plan
 
-1. Use this role split for SEO-09.
+1. Keep the Automatic Project Guardian green while using this role split for
+   SEO-09.
 2. Repeat it for the first two pages in the high-intent cluster.
 3. Record repeated manual steps and failure patterns.
 4. Only then create reusable Codex skills for stable procedures. Prefer the

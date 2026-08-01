@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 31 July 2026<br>
+**Status date:** 1 August 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -30,6 +30,9 @@ Use the role handoff in `docs/Agent-Operating-Model.md`: Roadmap Steward,
 Growth Analyst, SEO/Decision-Page Builder and Independent Release Verifier.
 Role separation does not create a second ledger or grant production-data write
 authority.
+
+Run `npm run verify:project` before and after changing this ledger. Its
+structural pass does not replace task-specific tests or public verification.
 
 ## 2. Status rules
 
@@ -227,6 +230,15 @@ Review:
 - earned external links and referring sites;
 - competitor page types only as evidence, not as templates to copy.
 
+### Measurement evidence log
+
+Add one row only from authenticated GSC/GA4 evidence. Do not use estimates or
+invent a date to silence the Guardian.
+
+| Date | Type | Evidence | State |
+|---|---|---|---|
+| — | Weekly GSC/GA4 | Authenticated report view or export is not yet available in the working session. | `BLOCKED` under SEO-07 |
+
 ## 10. Guardrails
 
 - SEO work must not modify product identity, retailer mappings, prices or offer
@@ -241,6 +253,24 @@ Review:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — automatic project guardian
+
+- Added one read-only validator for the Operating Plan, this SEO ledger, the
+  agent model and the WheyWise review cadence.
+- Added fail-closed checks for duplicate IDs, unsupported statuses, multiple
+  `IN PROGRESS` tasks, disagreement about the next task and completion without
+  evidence.
+- Weekly GSC/GA4 and monthly WheyWise age checks are reminders rather than job
+  failures, preventing routine missing evidence from producing repeated false
+  failure notifications.
+- Added a read-only GitHub workflow for relevant pushes/pull requests, Monday
+  schedule and manual execution. It receives no secrets and has no production
+  path.
+- Initial local result: `PASS`; 19 SEO tasks checked; next task `SEO-09`; no
+  task in progress; the expected SEO-07 measurement reminder remains visible.
+- Seven focused tests passed, including multiple-active-task, plan disagreement,
+  unsupported completion, stale-reminder and read-only-boundary cases.
 
 ### 29 July 2026 — SEO-00 and SEO-01 local implementation
 

@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 31 July 2026<br>
+**Status date:** 1 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -220,6 +220,25 @@ Verifier. These are controlled responsibilities, not autonomous production
 actors. Existing deterministic scripts, manifests, tests and workflows remain
 the automation layer; agents must never bypass owner approval or catalogue
 safety controls.
+
+### 0.0.8 Automatic Project Guardian - 1 August 2026
+
+The read-only Project Guardian is the durable cross-chat consistency control.
+`npm run verify:project` checks the authoritative plan bindings, SEO ledger IDs
+and statuses, the single-implementation rule, agreement on the next task and
+completion evidence. It fails closed on structural contradictions and returns
+time-based GSC/GA4 or WheyWise review reminders without turning those reminders
+into repeated workflow failures.
+
+`.github/workflows/project-guardian.yml` runs the same validator for relevant
+pushes and pull requests, once each Monday and on manual request. It has only
+`contents: read`, receives no secrets and cannot write catalogue, retailer,
+price, deployment or production data. The validator and its negative tests are
+`scripts/project-guardian.js` and `scripts/project-guardian.test.js`.
+
+Roadmap, status or completion-evidence changes must run the Guardian before and
+after editing. A Guardian pass proves document/control consistency only; it
+does not replace feature tests, live verification or owner approval.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

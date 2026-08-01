@@ -1,0 +1,51 @@
+name: Project Guardian
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - "docs/**"
+      - "scripts/project-guardian.js"
+      - "scripts/project-guardian.test.js"
+      - "package.json"
+      - ".github/workflows/project-guardian.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "AGENTS.md"
+      - "docs/**"
+      - "scripts/project-guardian.js"
+      - "scripts/project-guardian.test.js"
+      - "package.json"
+      - ".github/workflows/project-guardian.yml"
+  schedule:
+    - cron: "23 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-guardian-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-project-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Verify project plans and evidence
+        run: npm run verify:project
+
+      - name: Test guardian failure cases
+        run: node --test scripts/project-guardian.test.js

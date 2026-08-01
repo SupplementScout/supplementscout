@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "verify:baseline": "node scripts/verify-baseline-migrations.js"
+    "verify:baseline": "node scripts/verify-baseline-migrations.js",
+    "verify:project": "node scripts/project-guardian.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
