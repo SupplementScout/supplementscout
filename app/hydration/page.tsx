@@ -301,6 +301,7 @@ export function HydrationPageContent({
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
             <Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link>
             <Link href="/pre-workout" className="font-semibold underline">Pre Workout comparison</Link>
+            <Link href="/amino-acids" className="font-semibold underline">Amino Acids, BCAA and EAA comparison</Link>
             <Link href="/creatine" className="font-semibold underline">Creatine comparison</Link>
             <Link href="/vitamins" className="font-semibold underline">Vitamins</Link>
             <Link href="/search?q=electrolytes" className="font-semibold underline">Search electrolytes</Link>

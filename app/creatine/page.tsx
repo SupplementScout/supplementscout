@@ -338,6 +338,7 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
             <div className="mt-4 flex flex-col items-start gap-3 text-sm">
               <Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link>
               <Link href="/pre-workout" className="font-semibold underline">Pre Workout comparison</Link>
+              <Link href="/amino-acids" className="font-semibold underline">Amino Acids, BCAA and EAA comparison</Link>
               <Link href="/search?q=Creatine" className="font-semibold underline">Search all Creatine results</Link>
               <Link href="/about" className="font-semibold underline">About SupplementScout comparisons</Link>
               <ComparisonTransparencyLinks />

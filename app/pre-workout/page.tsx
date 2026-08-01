@@ -461,6 +461,9 @@ export function PreWorkoutPageContent({
             <Link href="/whey-protein" className="font-semibold underline">
               Whey Protein comparison
             </Link>
+            <Link href="/amino-acids" className="font-semibold underline">
+              Amino Acids, BCAA and EAA comparison
+            </Link>
             <Link
               href="/search?q=pre%20workout"
               className="font-semibold underline"
