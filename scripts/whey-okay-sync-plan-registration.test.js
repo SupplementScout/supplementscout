@@ -28,6 +28,20 @@ const nullTotalRollback = fs.readFileSync(
   ),
   "utf8",
 );
+const manifestRebindMigration = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "supabase/migrations/20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
+  ),
+  "utf8",
+);
+const manifestRebindRollback = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "supabase/rollbacks/20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
+  ),
+  "utf8",
+);
 
 test("migration reuses control ledgers through narrow state and registration RPCs", () => {
   assert.match(
@@ -98,6 +112,29 @@ test("historical null-total support is scoped to Whey non-price updates and is r
     /\b(?:insert into|update|delete from|merge|truncate)\s+public\./i,
   );
   assert.match(nullTotalRollback, /execute replace\(v_definition, v_extended, v_original\)/);
+});
+
+test("reviewed family rebinding updates only the frozen manifest hash and is reversible", () => {
+  const previousHash =
+    "54d828af0e3c20f548708832e0a7ad9dcaf74b1cbc6ab043ed7696d6f7c4d731";
+  const reboundHash =
+    "9532725e0ad538b1656172c1531c49d8acd68e95d1ef459917bbdbd3f4e9d8f7";
+
+  assert.match(manifestRebindMigration, /pg_get_functiondef/);
+  assert.match(manifestRebindMigration, new RegExp(previousHash));
+  assert.match(manifestRebindMigration, new RegExp(reboundHash));
+  assert.match(
+    manifestRebindMigration,
+    /execute replace\(v_definition, v_previous_hash, v_rebound_hash\)/,
+  );
+  assert.doesNotMatch(
+    manifestRebindMigration,
+    /\b(?:insert into|update|delete from|merge|truncate)\s+public\./i,
+  );
+  assert.match(
+    manifestRebindRollback,
+    /execute replace\(v_definition, v_rebound_hash, v_previous_hash\)/,
+  );
 });
 
 test("workflow is scheduled, dry-run by default and role-separated without service role", () => {

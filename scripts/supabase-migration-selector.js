@@ -47,7 +47,12 @@ const CONTRACTS = Object.freeze({
       "20260731120000_correct_jons_two_default_flavour_variants.sql":
         "b3d69a4594619d963918a47452a6034059bc51cd49d6ef3aa078b4cec1fad563",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
+        sha256: "eb1d0a001991358c5eb6d42b4686f41359db29ff7e8d313638bc77153c663b7a",
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -75,7 +80,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
+        sha256: "eb1d0a001991358c5eb6d42b4686f41359db29ff7e8d313638bc77153c663b7a",
+      }),
+    ]),
   }),
 });
 
