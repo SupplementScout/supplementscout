@@ -131,7 +131,7 @@ function classificationDiagnostic(classification){
     scope:classification.guard_evidence||null,
     action_counts:rows.reduce((counts,row)=>({...counts,[row.action]:(counts[row.action]||0)+1}),{}),
     changed_row_ids:rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").map(row=>String(row.offer_id)),
-    changed_rows:rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").map(row=>({offer_id:String(row.offer_id),retailer_product_id:String(row.retailer_product_id),external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id),action:row.action,changed_fields:row.changed_fields})),
+    changed_rows:rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").map(row=>({offer_id:String(row.offer_id),retailer_product_id:String(row.retailer_product_id),external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id),action:row.action,changed_fields:row.changed_fields,old_price:row.target.price,new_price:row.source.price,old_stock:Boolean(row.target.in_stock),new_stock:Boolean(row.source.in_stock)})),
   };
 }
 
