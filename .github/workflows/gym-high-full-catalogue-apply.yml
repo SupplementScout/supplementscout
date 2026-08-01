@@ -13,6 +13,8 @@ on:
         description: Exact reviewed approval fingerprint
         required: true
         type: string
+  schedule:
+    - cron: "13 4 * * *"
 
 permissions:
   contents: read
@@ -24,7 +26,7 @@ concurrency:
 
 jobs:
   catalogue:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.approval_fingerprint == 'feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59' }}
+    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.approval_fingerprint == 'feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59') || github.event_name == 'schedule') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
@@ -34,7 +36,7 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       GYM_HIGH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
       GYM_HIGH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-      GYM_HIGH_APPROVAL_FINGERPRINT: ${{ inputs.approval_fingerprint }}
+      GYM_HIGH_APPROVAL_FINGERPRINT: ${{ inputs.approval_fingerprint || 'feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59' }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -65,9 +67,9 @@ jobs:
       - name: Build immutable full-scope dry-run artifact
         run: node scripts/import-products.js --mode=feed --dry-run --csv=tmp/gym-high-reviewed-catalogue/full-catalogue.csv --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json
       - name: Validate and optionally apply exact catalogue
-        run: node scripts/gym-high-full-catalogue-executor.js --mode=${{ inputs.operation == 'apply' && 'apply' || 'validate' }} --report=tmp/gym-high-reviewed-catalogue/full-catalogue-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json
+        run: node scripts/gym-high-full-catalogue-executor.js --mode=${{ github.event_name == 'schedule' && 'apply' || (inputs.operation == 'apply' && 'apply' || 'validate') }} --report=tmp/gym-high-reviewed-catalogue/full-catalogue-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json
       - name: Verify complete live postcondition
-        if: ${{ inputs.operation == 'apply' || inputs.operation == 'postflight' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'postflight' }}
         run: |
           node scripts/gym-high-full-catalogue-feed-builder.js --source=tmp/gym-high-source-monitor/approved-catalogue-report.json --output=tmp/gym-high-reviewed-catalogue/post-apply.csv
           node -e "const r=require('./tmp/gym-high-reviewed-catalogue/post-apply-builder-report.json');if(r.result!=='PASS'||r.existing_mapping_count!==66||r.mapping_create_count!==0||r.existing_offer_count!==66||r.offer_create_count!==0)process.exit(1)"

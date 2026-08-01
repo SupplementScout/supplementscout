@@ -230,13 +230,27 @@ postcondition passed, and an independent production read returned 21 completed
 mappings and zero remaining upgrades. The earlier failed runs stopped before
 any mapping write.
 
-This does not yet close the retailer automation. The next bounded retailer task
-is to build and verify the complete 66-row current source feed, create the 41
-missing sibling mappings and 42 missing offers through the existing guarded
-import path, then append the reviewed scope to scheduled refresh automation.
-Unknown delivery cost for a new offer must remain unknown until verified; it
-must not be copied from an unrelated historical offer or invented to satisfy a
-total-price invariant.
+The reviewed full-catalogue rollout is complete. Read-only validation run
+`30712867734` accepted all 66 immutable plans with zero blocked rows. Protected
+apply run `30713224002` then executed all 66 plans through separate production
+approver and executor roles, creating the 41 missing sibling mappings and 42
+missing offers. Its write step passed; the run was marked failed only because
+the redundant second source fetch was blocked by GYM HIGH's Imunify360 layer.
+Independent production evidence immediately returned 66 mappings, 66 offers,
+zero missing mappings and zero missing offers. The corrected no-write postflight
+run `30713422729` subsequently passed end to end against the same immutable
+source capture. Unknown delivery cost on newly created offers remains unknown;
+it was not inferred from unrelated historical offers.
+
+The same exact 66-row reviewed scope is scheduled daily at `04:13 UTC`. It may
+update existing approved offers only and blocks catalogue creates, mapping or
+offer creates, unverified shipping changes, per-row price anomalies, mass price
+or state changes and unsafe URLs. It first requests a fresh source capture. If
+Imunify360 blocks that request, it may use only the latest successful source-
+monitor artefact while that artefact is less than 24 hours old and still has
+the exact approved identity fingerprint. Older, missing or drifted evidence
+fails before writes. A failed refresh therefore leaves catalogue products
+discoverable but does not keep stale prices or retailer calls to action public.
 
 Execution uses the four-role model in `docs/Agent-Operating-Model.md`: Roadmap
 Steward, Growth Analyst, SEO/Decision-Page Builder and Independent Release

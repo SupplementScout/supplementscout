@@ -125,6 +125,41 @@ function validateInputs(options, dependencies = {}) {
   return { loaded, plans: plans.sort((a, b) => Number(a.row_number) - Number(b.row_number)) };
 }
 
+function validateScheduledPlans(validated, report) {
+  if (report.existing_mapping_count !== 66 || report.mapping_create_count !== 0 || report.existing_offer_count !== 66 || report.offer_create_count !== 0) fail("Scheduled refresh cannot create catalogue state");
+  let changed = 0;
+  let priceChanged = 0;
+  let newOutOfStock = 0;
+  let currentOutOfStock = 0;
+  let previousOutOfStock = 0;
+  for (const entry of validated.plans) {
+    const plan = entry.resolved_plan;
+    const beforeMapping = plan.expected_state?.retailer_product;
+    const before = plan.expected_state?.offer;
+    const after = plan.offer?.values;
+    if (!beforeMapping || !before || !after || !["update", "noop"].includes(plan.retailer_product.action) || !["update", "verify_no_change", "noop"].includes(plan.offer.action)) fail(`Scheduled refresh contains a create for row ${entry.row_number}`);
+    if ((before.shipping_cost ?? null) !== (after.shipping_cost ?? null)) fail(`Scheduled refresh changed unverified shipping for row ${entry.row_number}`);
+    let url;
+    try { url = new URL(after.url); } catch { fail(`Scheduled refresh URL is invalid for row ${entry.row_number}`); }
+    if (url.protocol !== "https:" || url.hostname !== "gymhigh.co.uk") fail(`Scheduled refresh URL escaped GYM HIGH for row ${entry.row_number}`);
+    const priceChange = Number(before.price) !== Number(after.price);
+    const stockChange = before.in_stock !== after.in_stock;
+    const urlChange = before.url !== after.url;
+    if (priceChange || stockChange || urlChange) changed += 1;
+    if (priceChange) {
+      priceChanged += 1;
+      const absolute = Math.abs(Number(after.price) - Number(before.price));
+      const ratio = absolute / Math.max(0.01, Number(before.price));
+      if (ratio >= 0.6 || absolute >= 20) fail(`Scheduled refresh hard price anomaly for row ${entry.row_number}`);
+    }
+    if (before.in_stock === true && after.in_stock === false) newOutOfStock += 1;
+    if (before.in_stock === false) previousOutOfStock += 1;
+    if (after.in_stock === false) currentOutOfStock += 1;
+  }
+  const total = validated.plans.length;
+  if (changed / total > 0.2 || priceChanged / total >= 0.1 || newOutOfStock >= 4 || currentOutOfStock / total > 0.35 || (currentOutOfStock - previousOutOfStock) / total > 0.05) fail("Scheduled refresh violates batch anomaly guardrails");
+}
+
 async function executeEntry(entry, artifactSha256, runId, clients) {
   const approval = await roleTransaction(clients.approver, "approver", async (client) => (await client.query(
     "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result",
@@ -140,8 +175,14 @@ async function executeEntry(entry, artifactSha256, runId, clients) {
 }
 
 async function run(options) {
-  if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REF !== "refs/heads/main" || process.env.GITHUB_REPOSITORY !== "SupplementScout/supplementscout" || process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" || process.env.GYM_HIGH_APPROVAL_FINGERPRINT !== APPROVAL_FINGERPRINT) fail("GYM HIGH full-catalogue execution requires the exact manual GitHub approval on main");
+  const event = process.env.GITHUB_EVENT_NAME;
+  if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REF !== "refs/heads/main" || process.env.GITHUB_REPOSITORY !== "SupplementScout/supplementscout" || !["workflow_dispatch", "schedule"].includes(event) || process.env.GYM_HIGH_APPROVAL_FINGERPRINT !== APPROVAL_FINGERPRINT) fail("GYM HIGH full-catalogue execution requires the protected GitHub context on main");
   const validated = validateInputs(options);
+  const builderReport = JSON.parse(fs.readFileSync(options.report, "utf8"));
+  if (event === "schedule") {
+    if (options.mode !== "apply") fail("Scheduled GYM HIGH refresh must use guarded apply mode");
+    validateScheduledPlans(validated, builderReport);
+  }
   const rows = [];
   const clients = {};
   try {
@@ -161,4 +202,4 @@ async function run(options) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify({ result: report.result, mode: report.mode, validated: report.validated_plan_count, executed: report.executed_plan_count }, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { parseArgs, validateInputs };
+module.exports = { parseArgs, validateInputs, validateScheduledPlans };
