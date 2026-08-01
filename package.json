@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "analytics:weekly": "node scripts/growth-analytics-report.js",
     "verify:baseline": "node scripts/verify-baseline-migrations.js",
     "verify:project": "node scripts/project-guardian.js"
   },

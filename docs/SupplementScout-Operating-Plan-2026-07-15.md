@@ -278,6 +278,28 @@ retailer label. The public suggestions API returned the canonical product URL.
 The canonical product page also returned `200` with `Price unavailable`, no
 retailer redirect and no offer structured data.
 
+### 0.0.10 Read-only GA4 and Search Console analyst access - 1 August 2026
+
+The Growth Analyst may independently download authenticated GA4 and Google
+Search Console evidence through the single shared
+`scripts/growth-analytics-report.js` mechanism. It uses a dedicated Google
+service account with only `analytics.readonly` and `webmasters.readonly`, runs
+locally on request and each Monday through
+`.github/workflows/growth-analytics-report.yml`, and confines raw evidence to an
+ignored local directory or a private 35-day workflow artifact.
+
+This authority is read-only. It does not permit the agent to change Google
+users or settings, write to the repository, update SEO status automatically,
+or infer missing values after an API failure. Full Page indexing, Core Web
+Vitals and Links totals remain manual Search Console/export evidence because
+the supported APIs do not expose those aggregate reports.
+
+The code and workflow are ready, but live authenticated operation requires the
+owner to add the dedicated service account to both Google properties and set
+the protected GitHub secret and variables described in
+`docs/Growth-Analytics-Access.md`. Until the first authenticated artifact is
+captured, SEO-07 remains `BLOCKED` and no weekly evidence row may be added.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

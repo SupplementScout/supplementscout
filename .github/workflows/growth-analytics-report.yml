@@ -1,0 +1,64 @@
+name: Growth Analytics Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "3 8 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: growth-analytics-report
+  cancel-in-progress: false
+
+jobs:
+  collect-readonly-evidence:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-readonly
+
+    steps:
+      - name: Validate read-only execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          case "$GITHUB_EVENT_NAME" in
+            schedule|workflow_dispatch) ;;
+            *) exit 1 ;;
+          esac
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Test analytics read contract
+        run: node --test scripts/growth-analytics-report.test.js
+
+      - name: Download authenticated GSC and GA4 evidence
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON_B64 }}
+          GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
+          GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+        run: node scripts/growth-analytics-report.js
+
+      - name: Publish safe summary
+        if: success()
+        run: |
+          node -e 'const fs=require("fs");const p=fs.readdirSync("tmp/growth-analytics").find(x=>x.endsWith(".json"));const r=require(`./tmp/growth-analytics/${p}`);console.log(`## Weekly Growth Analytics\n- Period: ${r.period.startDate} to ${r.period.endDate}\n- GSC: ${r.searchConsole.totals.clicks} clicks, ${r.searchConsole.totals.impressions} impressions\n- GA4 organic: ${r.ga4.organicSearch.sessions} sessions, ${r.ga4.organicSearch.retailerOfferClicks} retailer-offer clicks\n- Sitemap errors: ${r.searchConsole.sitemaps.reduce((n,s)=>n+s.errors,0)}`)' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload authenticated evidence
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: growth-analytics-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 35
+          if-no-files-found: error
+          path: tmp/growth-analytics/*.json

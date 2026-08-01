@@ -44,9 +44,15 @@ A read-only evidence role used before choosing or designing growth work.
   reusable mechanisms and recommended next action.
 - Uses `scripts/audit-market-coverage.js`, the Retailer Data Source Registry,
   analytics reports and public evidence where applicable.
+- May independently run `scripts/growth-analytics-report.js` or read its
+  scheduled private artifact to obtain authenticated GA4 and Search Console
+  evidence. The dedicated Google identity is read-only, credentials remain in
+  the protected environment, and raw output stays outside the repository.
 
 The Growth Analyst cannot publish, deploy, merge products, change prices or
-invent traffic estimates, nutrition facts or health claims.
+invent traffic estimates, nutrition facts or health claims. It cannot change
+GA4/Search Console settings, users, properties or retention, and it cannot turn
+an API failure into estimated or zero-filled evidence.
 
 ### 3. SEO and Decision-Page Builder
 
@@ -105,6 +111,7 @@ Automate only deterministic work:
 - sitemap, canonical, robots and structured-data checks;
 - scheduled price/stock refresh within an already approved immutable scope;
 - read-only coverage, freshness and workflow-health reports;
+- authenticated read-only GA4 and Search Console evidence reports;
 - reminders when weekly measurement or monthly competitor review is overdue.
 
 Keep human or explicit owner approval for:
