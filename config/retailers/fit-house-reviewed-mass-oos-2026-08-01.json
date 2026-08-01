@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "kind": "fit-house-reviewed-mass-oos-v1",
+  "retailer_id": 9,
+  "retailer_slug": "fit-house",
+  "target_environment": "PRODUCTION",
+  "authorized_by": "owner-instruction-2026-08-01-resolve-fit-house-correctly",
+  "authorized_at": "2026-08-01T11:26:42.055Z",
+  "source_snapshot_fingerprint": "689651a61de73a70e215c857ab20f378d0c77a8d7e89ef4489e1b18b8159d3c4",
+  "row_count": 18,
+  "rows": [
+    {"offer_id":"712","mapping_id":"736","external_product_id":"8493486047472","external_variant_id":"45060015816944","action":"UPDATE_STOCK","old_price":"5.99","new_price":"5.99","old_stock":true,"new_stock":false},
+    {"offer_id":"921","mapping_id":"1107","external_product_id":"10043022704880","external_variant_id":"49791520342256","action":"UPDATE_STOCK","old_price":"34.99","new_price":"34.99","old_stock":true,"new_stock":false},
+    {"offer_id":"947","mapping_id":"1133","external_product_id":"8640456491248","external_variant_id":"46876330983664","action":"UPDATE_PRICE_AND_STOCK","old_price":"39.99","new_price":"41.99","old_stock":true,"new_stock":false},
+    {"offer_id":"986","mapping_id":"1172","external_product_id":"8147819069680","external_variant_id":"43583990006000","action":"UPDATE_STOCK","old_price":"36.99","new_price":"36.99","old_stock":true,"new_stock":false},
+    {"offer_id":"987","mapping_id":"1173","external_product_id":"8147819069680","external_variant_id":"46969740820720","action":"UPDATE_STOCK","old_price":"36.99","new_price":"36.99","old_stock":true,"new_stock":false},
+    {"offer_id":"988","mapping_id":"1174","external_product_id":"8147819069680","external_variant_id":"46717176381680","action":"UPDATE_STOCK","old_price":"36.99","new_price":"36.99","old_stock":true,"new_stock":false},
+    {"offer_id":"989","mapping_id":"1175","external_product_id":"8147819069680","external_variant_id":"47789301268720","action":"UPDATE_STOCK","old_price":"36.99","new_price":"36.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1861","mapping_id":"2047","external_product_id":"8144512745712","external_variant_id":"43571891831024","action":"UPDATE_STOCK","old_price":"49.99","new_price":"49.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1862","mapping_id":"2048","external_product_id":"8144512745712","external_variant_id":"43571891929328","action":"UPDATE_STOCK","old_price":"49.99","new_price":"49.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1867","mapping_id":"2053","external_product_id":"8144512745712","external_variant_id":"46935556653296","action":"UPDATE_STOCK","old_price":"54.99","new_price":"54.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1892","mapping_id":"2078","external_product_id":"8291604234480","external_variant_id":"44147266683120","action":"UPDATE_STOCK","old_price":"19.99","new_price":"19.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1894","mapping_id":"2080","external_product_id":"8291604234480","external_variant_id":"47789290488048","action":"UPDATE_STOCK","old_price":"19.99","new_price":"19.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1895","mapping_id":"2081","external_product_id":"8291604234480","external_variant_id":"47789290520816","action":"UPDATE_STOCK","old_price":"19.99","new_price":"19.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1903","mapping_id":"2089","external_product_id":"8334299660528","external_variant_id":"44264927723760","action":"UPDATE_PRICE_AND_STOCK","old_price":"49.99","new_price":"54.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1905","mapping_id":"2091","external_product_id":"8334299660528","external_variant_id":"46256932225264","action":"UPDATE_PRICE_AND_STOCK","old_price":"49.99","new_price":"54.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1907","mapping_id":"2093","external_product_id":"8334299660528","external_variant_id":"46256932290800","action":"UPDATE_PRICE_AND_STOCK","old_price":"49.99","new_price":"54.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1970","mapping_id":"2156","external_product_id":"9673589522672","external_variant_id":"48119163355376","action":"UPDATE_STOCK","old_price":"19.99","new_price":"19.99","old_stock":true,"new_stock":false},
+    {"offer_id":"1971","mapping_id":"2157","external_product_id":"9673589522672","external_variant_id":"48119163388144","action":"UPDATE_STOCK","old_price":"19.99","new_price":"19.99","old_stock":true,"new_stock":false}
+  ]
+}

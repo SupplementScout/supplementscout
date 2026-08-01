@@ -6,7 +6,9 @@ const test = require("node:test");
 
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
+  authorizeReviewedMassOos,
   balancedExecutionBatches,
+  loadReviewedMassOosManifest,
   parseArgs,
   reconcileMissingMappedVariants,
   sourceHealth,
@@ -101,6 +103,41 @@ test("missing mapped variant reconciliation fails closed outside its exact limit
     maximum_missing_mapped_variants: 1,
     maximum_missing_mapped_variant_ratio: 1,
   }), /URL domain drift/);
+});
+
+test("reviewed mass OOS authorization is hash-bound to the exact source and rows", () => {
+  const reviewed = loadReviewedMassOosManifest();
+  assert.equal(reviewed.sha256, config.discovery_policy.reviewed_mass_oos_manifest_sha256);
+  assert.equal(reviewed.manifest.row_count, 18);
+  const rows = reviewed.manifest.rows.map((row) => ({
+    offer_id: row.offer_id,
+    retailer_product_id: row.mapping_id,
+    external_product_id: row.external_product_id,
+    external_variant_id: row.external_variant_id,
+    action: row.action,
+    target: { price: row.old_price, in_stock: row.old_stock },
+    source: { price: row.new_price, in_stock: row.new_stock },
+  }));
+  const classification = { state: "BLOCKED", reason: "MASS_OOS", rows };
+  const authorized = authorizeReviewedMassOos(
+    classification,
+    reviewed.manifest.source_snapshot_fingerprint,
+  );
+  assert.equal(authorized.classification.state, "DRY_RUN_READY");
+  assert.equal(authorized.review.row_count, 18);
+  assert.throws(
+    () => authorizeReviewedMassOos(classification, "0".repeat(64)),
+    /source fingerprint drift/,
+  );
+  const drifted = structuredClone(classification);
+  drifted.rows[0].source.price = "6.99";
+  assert.throws(
+    () => authorizeReviewedMassOos(
+      drifted,
+      reviewed.manifest.source_snapshot_fingerprint,
+    ),
+    /scope drift/,
+  );
 });
 
 test("historical OOS rows are balanced across validator children without changing coverage", () => {
