@@ -18,6 +18,8 @@ const EXCLUSIONS = Object.freeze({
     "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities",
     "20260801190000_allow_reviewed_gym_high_null_total_identity_upgrade",
     "20260801200000_repair_reviewed_gym_high_legacy_control_binding",
+    "20260801210000_allow_reviewed_gym_high_standalone_null_options",
+    "20260801220000_recognize_reviewed_gym_high_standalone_legacy_tuples",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

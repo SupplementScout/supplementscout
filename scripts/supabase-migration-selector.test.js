@@ -152,10 +152,10 @@ test("a changed excluded migration SHA fails closed", () => {
 test("production contract binds the post-manifest-rebind ledger", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 73);
+  assert.equal(contract.ledgerCount, 75);
   assert.equal(
     contract.ledgerFingerprint,
-    "2b684490a9ccd1f54823717b7949c6b8d70c115afb2ab8da6400208fc766d7ea",
+    "9ed70b9f316938e12e0328da59679c31735059550a728e066c0cba19f11768d6",
   );
 });
 
@@ -258,10 +258,10 @@ test("production binds its exact post-manifest-rebind ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 73);
+  assert.equal(result.ledger_count, 75);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
-  assert.equal(result.selected_files.length, 73);
+  assert.equal(result.selected_files.length, 75);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
   assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.equal(result.pending_file, null);
