@@ -1,0 +1,156 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-01T15:51:32.087Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "64b22c18540d708d6e7329b715f8bfa5",
+      "plan_kind": "feed",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "70",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Optimum Nutrition 100% Plant Protein 684g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Vanilla / 684g",
+            "flavour_code": "vanilla",
+            "flavour_label": "Vanilla",
+            "id": "1623",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "70",
+            "size_unit": "g",
+            "size_value": "684",
+            "variant_key": "vanilla-684g"
+          },
+          "retailer": {
+            "id": "5",
+            "name": "Dolphin Fitness",
+            "slug": "dolphin-fitness",
+            "website": "https://www.dolphinfitness.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "64b22c18540d708d6e7329b715f8bfa5",
+          "plan_kind": "feed",
+          "source_row_fingerprint": "e6d4b21ee964c286b3c986ddbc273fea9ef4b78e094bb145b3c41e5fe619aa15",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-01T15:51:32.083Z",
+            "price": "21.95",
+            "shipping_cost": "3.95",
+            "total_price": "25.9",
+            "url": "https://www.dolphinfitness.co.uk/en/optimum-nutrition-gold-standard-100-percent-plant-684g/193943/vanilla"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "70"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": null,
+            "flavour": "vanilla",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "684"
+          },
+          "id": "1623"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "5"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Optimum Nutrition 100% Plant Protein 684g",
+            "external_options": null,
+            "external_product_id": "193943",
+            "external_sku": null,
+            "external_slug": "optimum-nutrition-100-plant-protein-684g",
+            "external_url": "https://www.dolphinfitness.co.uk/en/optimum-nutrition-gold-standard-100-percent-plant-684g/193943/vanilla",
+            "external_variant_id": "193943-VANILLA",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1623"
+          }
+        }
+      },
+      "retailer_id": "5",
+      "row_number": "2",
+      "source_row_fingerprint": "e6d4b21ee964c286b3c986ddbc273fea9ef4b78e094bb145b3c41e5fe619aa15"
+    }
+  ],
+  "row_count": "1",
+  "run_id": "090b0a30-3222-4bd4-a4f9-7d6b0a7f9d95",
+  "source_file_name": "dolphin.csv",
+  "source_file_sha256": "790ef4d1786849f8ba3c4851cdfed10ad1b60a4f749359e4e1705d2eca409047",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.dolphinfitness.co.uk/en/optimum-nutrition-gold-standard-100-percent-plant-684g/193943/vanilla",
+        "brand": "Optimum Nutrition",
+        "category": "Whey Protein",
+        "description": "",
+        "external_gtin": "",
+        "external_product_id": "193943",
+        "external_url": "https://www.dolphinfitness.co.uk/en/optimum-nutrition-gold-standard-100-percent-plant-684g/193943/vanilla",
+        "external_variant_id": "193943-VANILLA",
+        "flavour": "Vanilla",
+        "image": "",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "21.95",
+        "product_format": "powder",
+        "product_name": "Optimum Nutrition 100% Plant Protein 684g",
+        "retailer_name": "Dolphin Fitness",
+        "retailer_website": "https://www.dolphinfitness.co.uk",
+        "shipping_cost": "3.95",
+        "shipping_known": "true",
+        "size": "684 g",
+        "size_unit": "g",
+        "slug": "optimum-nutrition-100-plant-protein-684g",
+        "source_updated_at": "",
+        "variant": "Vanilla / 684g pack of 1",
+        "variant_name": "Vanilla / 684g"
+      },
+      "plan_fingerprint": "64b22c18540d708d6e7329b715f8bfa5",
+      "row_number": "2",
+      "source_row_fingerprint": "e6d4b21ee964c286b3c986ddbc273fea9ef4b78e094bb145b3c41e5fe619aa15",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "1",
+    "skipped_row_count": "0"
+  }
+}

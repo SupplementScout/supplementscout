@@ -1,0 +1,261 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-01T15:51:31.527Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "after": {
+        "external_gtin": null,
+        "external_name": "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+        "external_options": {
+          "Flavour": "Berry Bliss",
+          "Size": "600g"
+        },
+        "external_product_id": "703",
+        "external_sku": null,
+        "external_slug": "gym-high-vegan-plant-based-protein-blend-600g",
+        "external_url": "https://gymhigh.co.uk/?post_type=product&p=703",
+        "external_variant_id": "704",
+        "match_confidence": "100",
+        "match_method": "existing_offer",
+        "product_variant_id": "1064"
+      },
+      "approved_evidence_summary": {
+        "brand": "GYM HIGH",
+        "external_gtin": null,
+        "external_options": {
+          "Flavour": "Berry Bliss",
+          "Size": "600g"
+        },
+        "external_product_id": "703",
+        "external_sku": null,
+        "external_url": "https://gymhigh.co.uk/?post_type=product&p=703",
+        "external_variant_id": "704",
+        "flavour": "Berry Bliss",
+        "legacy_mapping_optioned": true,
+        "legacy_mapping_standalone": false,
+        "legacy_standalone_sellable_count": "",
+        "pack_count": "1",
+        "product_format": "powder",
+        "product_name": "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+        "reviewed_fit_house_no_sku_identity": false,
+        "reviewed_gym_high_no_sku_identity": true,
+        "size": "600 g"
+      },
+      "before": {
+        "external_gtin": null,
+        "external_name": "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+        "external_options": null,
+        "external_product_id": null,
+        "external_sku": null,
+        "external_slug": "gym-high-vegan-plant-based-protein-blend-600g",
+        "external_url": "https://gymhigh.co.uk/?post_type=product&p=703",
+        "external_variant_id": null,
+        "id": "78",
+        "match_confidence": "100",
+        "match_method": "existing_offer",
+        "product_id": "390",
+        "product_variant_id": "556",
+        "retailer_id": "1",
+        "updated_at": "2026-06-30T19:40:13.950723+00:00"
+      },
+      "exact_url_evidence": "https://gymhigh.co.uk/?post_type=product&p=703",
+      "expected_updated_at": "2026-06-30T19:40:13.950723+00:00",
+      "operation_type": "legacy_mapping_upgrade",
+      "plan_fingerprint": "a252c0d42e962bacf95fe23ae9f125d2",
+      "plan_kind": "feed",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "543",
+            "in_stock": true,
+            "last_checked_at": "2026-06-30T20:10:40.494+00:00",
+            "price": "21.99",
+            "product_id": "390",
+            "product_variant_id": "556",
+            "retailer_id": "1",
+            "retailer_product_id": "78",
+            "shipping_cost": "3.99",
+            "total_price": null,
+            "url": "https://gymhigh.co.uk/?post_type=product&p=703"
+          },
+          "product": {
+            "id": "390",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Berry Bliss / 600g",
+            "flavour_code": "berry bliss",
+            "flavour_label": "Berry Bliss",
+            "id": "1064",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "390",
+            "size_unit": "g",
+            "size_value": "600",
+            "variant_key": "berry-bliss-600g"
+          },
+          "retailer": {
+            "id": "1",
+            "name": "GYM HIGH",
+            "slug": "gym-high",
+            "website": "https://gymhigh.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": null,
+            "external_name": "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+            "external_options": null,
+            "external_product_id": null,
+            "external_sku": null,
+            "external_slug": "gym-high-vegan-plant-based-protein-blend-600g",
+            "external_url": "https://gymhigh.co.uk/?post_type=product&p=703",
+            "external_variant_id": null,
+            "id": "78",
+            "match_confidence": "100",
+            "match_method": "existing_offer",
+            "product_id": "390",
+            "product_variant_id": "556",
+            "retailer_id": "1",
+            "updated_at": "2026-06-30T19:40:13.950723+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "legacy_mapping_upgrade",
+          "plan_fingerprint": "a252c0d42e962bacf95fe23ae9f125d2",
+          "plan_kind": "feed",
+          "source_row_fingerprint": "4e0491fda59e0fff2b34d8b05106714f058ecb1659a08be8dee9c291f75f7e0b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "identity_update",
+          "id": "543",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-06-30T20:10:40.494+00:00",
+            "price": "21.99",
+            "product_variant_id": "1064",
+            "shipping_cost": "3.99",
+            "total_price": null,
+            "url": "https://gymhigh.co.uk/?post_type=product&p=703"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "390"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "78",
+            "external_options": {
+              "Flavour": "Berry Bliss",
+              "Size": "600g"
+            },
+            "flavour": "berry bliss",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "600"
+          },
+          "id": "1064"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "1"
+        },
+        "retailer_product": {
+          "action": "update",
+          "id": "78",
+          "values": {
+            "external_gtin": null,
+            "external_name": "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+            "external_options": {
+              "Flavour": "Berry Bliss",
+              "Size": "600g"
+            },
+            "external_product_id": "703",
+            "external_sku": null,
+            "external_slug": "gym-high-vegan-plant-based-protein-blend-600g",
+            "external_url": "https://gymhigh.co.uk/?post_type=product&p=703",
+            "external_variant_id": "704",
+            "match_confidence": "100",
+            "match_method": "existing_offer",
+            "product_variant_id": "1064"
+          }
+        }
+      },
+      "retailer_id": "1",
+      "retailer_product_id": "78",
+      "row_number": "2",
+      "source_row_fingerprint": "4e0491fda59e0fff2b34d8b05106714f058ecb1659a08be8dee9c291f75f7e0b"
+    }
+  ],
+  "row_count": "1",
+  "run_id": "60572b52-9f75-4b95-9595-8e59dfd74a5c",
+  "source_file_name": "gym-high.csv",
+  "source_file_sha256": "c4906868fca8f8419800b15c9dfe29314c8c1606b779949418b4895e1ea65d8b",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://gymhigh.co.uk/?post_type=product&p=703",
+        "brand": "GYM HIGH",
+        "category": "Health Supplements",
+        "description": "",
+        "expected_retailer_product_updated_at": "2026-06-30T19:40:13.950723+00:00",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"600g\",\"Flavour\":\"Berry Bliss\"}",
+        "external_product_id": "703",
+        "external_sku": "",
+        "external_url": "https://gymhigh.co.uk/?post_type=product&p=703",
+        "external_variant_id": "704",
+        "flavour": "Berry Bliss",
+        "image": "",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "legacy_duplicate_source_listing": "false",
+        "legacy_identity_drift": "false",
+        "legacy_mapping_optioned": "true",
+        "legacy_mapping_upgrade": "true",
+        "pack_count": "1",
+        "price": "21.99",
+        "product_format": "powder",
+        "product_id": "390",
+        "product_name": "GYM HIGH Vegan Plant-Based-Protein Blend 600g",
+        "product_variant_id": "1064",
+        "retailer_name": "GYM HIGH",
+        "retailer_product_id": "78",
+        "retailer_website": "https://gymhigh.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "600 g",
+        "size_unit": "g",
+        "slug": "gym-high-vegan-plant-based-protein-blend-600g",
+        "source_updated_at": "",
+        "variant": "Berry Bliss / 600g pack of 1",
+        "variant_name": "Berry Bliss / 600g"
+      },
+      "plan_fingerprint": "a252c0d42e962bacf95fe23ae9f125d2",
+      "row_number": "2",
+      "source_row_fingerprint": "4e0491fda59e0fff2b34d8b05106714f058ecb1659a08be8dee9c291f75f7e0b",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "1",
+    "skipped_row_count": "0"
+  }
+}

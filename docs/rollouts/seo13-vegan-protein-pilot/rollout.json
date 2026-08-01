@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "seo13-vegan-protein-production-pilot-v1",
+  "approved": true,
+  "approval_evidence": "Owner confirmed the exact two-record production pilot on 2026-08-01.",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "entries": [
+    {
+      "artifact": "docs/rollouts/seo13-vegan-protein-pilot/gym-high-plan.json",
+      "csv": "docs/rollouts/seo13-vegan-protein-pilot/gym-high.csv",
+      "artifact_sha256": "06a90449d79ef2a54d2ebe17f560180f892196471a4480fb0437b6e599d0adeb",
+      "csv_sha256": "c4906868fca8f8419800b15c9dfe29314c8c1606b779949418b4895e1ea65d8b",
+      "plan_fingerprint": "a252c0d42e962bacf95fe23ae9f125d2",
+      "retailer_id": "1",
+      "product_id": "390",
+      "product_variant_id": "1064",
+      "retailer_product_action": "update",
+      "offer_action": "identity_update"
+    },
+    {
+      "artifact": "docs/rollouts/seo13-vegan-protein-pilot/dolphin-plan.json",
+      "csv": "docs/rollouts/seo13-vegan-protein-pilot/dolphin.csv",
+      "artifact_sha256": "e85e6a43fd40048023afb4ab93d25b075e7754873c632d4a394fca8408ffa158",
+      "csv_sha256": "790ef4d1786849f8ba3c4851cdfed10ad1b60a4f749359e4e1705d2eca409047",
+      "plan_fingerprint": "64b22c18540d708d6e7329b715f8bfa5",
+      "retailer_id": "5",
+      "product_id": "70",
+      "product_variant_id": "1623",
+      "retailer_product_action": "create",
+      "offer_action": "create"
+    }
+  ],
+  "rollout_fingerprint": "9de9a2bf83c2be6e255aa7b39bea65a9fc148eebef10c649eef26cf222c7c3fc"
+}
