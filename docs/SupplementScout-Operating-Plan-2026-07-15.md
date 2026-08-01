@@ -1787,22 +1787,22 @@ Target experience:
 
 `SEO-13` is the single active implementation. Page 1, Amino Acids / BCAA /
 EAA, is live verified through the existing shared category/decision-page
-system. Protein Bars, Whey Isolate, Vegan Protein, Mass Gainer and Electrolytes
-are deferred because their reviewed gates do not meet current coverage
-requirements. The existing `/hydration` canonical was hardened instead of
-creating a duplicate Electrolytes URL. Continue one reviewed page and one live
-verification at a time. The next executable gate is Magnesium Glycinate:
-require reliable form-specific identity before implementation. Six Pack
-remains complete and in operational monitoring; unrelated retailer-source
-failures remain separate fail-closed review items.
+system. The remaining nine candidates have now been reviewed and deferred with
+recorded identity, coverage or distinct-value blockers. The existing
+`/hydration` canonical was hardened instead of creating a duplicate
+Electrolytes URL, and Creatine Monohydrate remains consolidated into the
+existing `/creatine` canonical to avoid keyword cannibalisation. SEO-13 stays
+active while existing guarded catalogue and retailer mechanisms improve the
+recorded blockers. Six Pack remains complete and in operational monitoring;
+unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Evaluate Magnesium Glycinate, the seventh `SEO-13` candidate, against the exact gate in
-`docs/SEO-Execution-Plan.md`. Research and eligibility checks may cover the
-cluster, but implementation and live verification proceed one page at a time
-through the shared mechanism. Revisit deferred candidates only after their
-recorded identity, demand or multi-retailer blockers change.
+Use existing guarded catalogue and retailer mechanisms to improve the recorded
+SEO-13 coverage blockers. Re-run a deferred candidate gate only after its
+identity, demand, offer-volume or multi-retailer evidence materially changes;
+begin with Protein Bars when current overlap changes. Implementation and live
+verification still proceed one page at a time through the shared mechanism.
 
 ### Then
 

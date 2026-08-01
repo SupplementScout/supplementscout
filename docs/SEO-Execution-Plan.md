@@ -122,12 +122,15 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — continue the controlled ten-page high-intent
-cluster. Amino Acids / BCAA / EAA is page 1 and is live verified. Protein Bars,
-Whey Isolate, Vegan Protein, Mass Gainer and Electrolytes are deferred after
-their reviewed gates failed. The existing `/hydration` canonical was hardened
-instead of creating a duplicate Electrolytes URL. The next executable page gate
-inside SEO-13 is Magnesium Glycinate: require reliable form-specific identity.
+**Next executable task:** SEO-13 — remediate the recorded coverage blockers
+through existing guarded catalogue and retailer mechanisms. All ten candidate
+gates have now been reviewed: Amino Acids / BCAA / EAA is live verified and the
+other nine candidates are deferred. The existing `/hydration` canonical was
+hardened instead of creating a duplicate Electrolytes URL, and the existing
+`/creatine` canonical retains Creatine Monohydrate intent instead of creating a
+competing URL. Re-run a deferred page gate only after its recorded identity,
+offer-volume or multi-retailer blocker materially changes; begin with Protein
+Bars when current overlap evidence changes.
 Search Console and GA4 are already configured; SEO-07 only awaits an
 authenticated report view or export so its measurement baseline can be saved.
 
@@ -259,6 +262,78 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — SEO-13 page 10 Creatine Monohydrate gate deferred
+
+- A read-only production audit reviewed all 58 active, unmerged products in the
+  exact Creatine category. Eighteen names explicitly identified monohydrate or
+  Creapure; the final single-form boundary excluded the `Creatine Monohydrate +
+  Taurine` blend, leaving 17 eligible products. No catalogue or production data
+  was changed.
+- Twelve eligible products had 25 fresh offers across five retailers, and
+  three had fresh offers from multiple retailers. The coverage threshold was
+  met without broadening the identity rule.
+- The distinct-value gate failed. The public `/creatine` page returned HTTP
+  200 with its exact canonical, already included monohydrate products, compared
+  retailer availability and exposed the verified cost-per-5-g decision metric.
+  A separate `/creatine-monohydrate` route would reuse the same products,
+  offers and decision data while competing with the established canonical.
+- No duplicate route, sitemap entry or metadata was created. Creatine
+  Monohydrate remains consolidated into `/creatine`. All ten candidate gates
+  have now been reviewed; SEO-13 remains `IN PROGRESS` because only page 1 is
+  live verified and the other nine candidates have recorded blockers.
+
+### 1 August 2026 — SEO-13 page 9 Ashwagandha gate deferred
+
+- A read-only production audit reviewed nine active, unmerged products with an
+  explicit Ashwagandha identity, then checked canonical names, current retailer
+  labels and the shared 24-hour offer window. The final boundary excluded the
+  `Gold Shilajit + Ashwagandha` blend rather than treating it as a comparable
+  single-ingredient product. No catalogue or production data was changed.
+- Eight products passed the identity boundary. Seven had a fresh offer, giving
+  eight fresh offers across three retailers. Only one product had fresh offers
+  from multiple retailers.
+- Canonical and current retailer labels agreed for the included products, but
+  the page failed the existing minimums of 20 fresh offers and three
+  multi-retailer products.
+- No `/ashwagandha` page, sitemap entry, metadata or unsupported health content
+  was created. Ashwagandha is deferred until retailer depth improves. Creatine
+  Monohydrate becomes the next candidate while SEO-13 remains `IN PROGRESS`.
+
+### 1 August 2026 — SEO-13 page 8 Multivitamins gate deferred
+
+- A read-only production audit reviewed 18 active, unmerged products with an
+  explicit multivitamin identity, plus category, current offers, retailer
+  labels, unit counts and verified serving/value fields. A multi-mineral-only
+  product was excluded from the final boundary. No data was changed.
+- Six products had eight fresh offers across three retailers. Two products had
+  multi-retailer coverage, below the existing minimum of three, and the total
+  fresh-offer count was below 20.
+- None of the six visible products had the verified serving or unit-pricing
+  state required to display a trustworthy value metric. Products with verified
+  value fields had no current offer.
+- The taxonomy, coverage and value-data gate therefore failed. No
+  `/multivitamins` page, sitemap entry, metadata or production change was
+  created, and missing values were not inferred from product names.
+- Multivitamins is deferred until current coverage and verified value data
+  improve. Ashwagandha becomes the next candidate while SEO-13 remains
+  `IN PROGRESS`.
+
+### 1 August 2026 — SEO-13 page 7 Magnesium Glycinate gate deferred
+
+- A read-only production audit reviewed all 19 active, unmerged products with
+  magnesium in the canonical name, then checked exact glycinate/bisglycinate
+  wording, conflicting forms or blends, fresh offers and retailer labels. It
+  performed no catalogue or production write.
+- Four products passed the form-specific identity boundary. No retailer-only
+  glycinate label pulled a different canonical product into scope, and no
+  included current label conflicted with the canonical form.
+- Only two products had a fresh offer, one each from Jon's Supplements and
+  6 Pack Supplements: two fresh offers total and zero multi-retailer products.
+  The existing index gate failed on both offer volume and retailer overlap.
+- No `/magnesium-glycinate` page, sitemap entry, metadata or production change
+  was created, and the form or coverage gate was not weakened. Multivitamins
+  becomes the next candidate while SEO-13 remains `IN PROGRESS`.
 
 ### 1 August 2026 — SEO-13 page 6 Electrolytes gate deferred and local hardening
 
