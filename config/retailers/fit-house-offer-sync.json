@@ -46,7 +46,7 @@
     "maximum_missing_mapped_variants": 28,
     "maximum_missing_mapped_variant_ratio": 0.1,
     "reviewed_mass_oos_manifest_path": "config/retailers/fit-house-reviewed-mass-oos-2026-08-01.json",
-    "reviewed_mass_oos_manifest_sha256": "ebf5ad120fec868292ee259013cb06f8b87074faac8df21ba34f28f6e8e746cf",
+    "reviewed_mass_oos_manifest_sha256": "bf88cae84484b26f638ed10fd1073f39dc48aa464a0b5deae794840b99e2f28f",
     "reviewed_excluded_source_variant_count": 39
   },
   "schedule": {

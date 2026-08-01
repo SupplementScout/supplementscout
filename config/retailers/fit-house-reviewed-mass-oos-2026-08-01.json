@@ -6,7 +6,7 @@
   "target_environment": "PRODUCTION",
   "authorized_by": "owner-instruction-2026-08-01-resolve-fit-house-correctly",
   "authorized_at": "2026-08-01T11:26:42.055Z",
-  "source_snapshot_fingerprint": "689651a61de73a70e215c857ab20f378d0c77a8d7e89ef4489e1b18b8159d3c4",
+  "source_snapshot_fingerprint": "e3f72cc6e2cc54880ab6c8bd11612a984dbe1a4a4b60a9774810e2c87f94e680",
   "row_count": 18,
   "rows": [
     {"offer_id":"712","mapping_id":"736","external_product_id":"8493486047472","external_variant_id":"45060015816944","action":"UPDATE_STOCK","old_price":"5.99","new_price":"5.99","old_stock":true,"new_stock":false},
