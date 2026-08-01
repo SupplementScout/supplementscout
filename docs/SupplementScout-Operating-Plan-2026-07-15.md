@@ -1798,13 +1798,13 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Resolve the fail-closed Fit House source identity blocker through an
-owner-reviewed manifest decision. The current source no longer contains
-approved source product `8147819069680`, bound to offer `986`, mapping `1172`
-and canonical product `68` (`7Nutrition Whey Isolate 90 1kg`). Do not remove or
-remap it automatically. After an approved disposition, rerun the protected Fit
-House dry-run and then the Whey Isolate coverage gate. Implementation and live
-verification still proceed one page at a time through the shared mechanism.
+Rerun the SEO-13 Whey Isolate coverage gate against current production data.
+The Fit House source-removal blocker is resolved through the owner-approved,
+hash-bound stock disposition recorded on 1 August 2026: no mappings were
+removed or remapped, the protected production apply passed, and the required
+idempotency dry-run returned 286 `VERIFY_NO_CHANGE` rows. Implementation and
+live verification still proceed one page at a time through the shared
+mechanism.
 
 ### Then
 

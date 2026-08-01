@@ -122,17 +122,18 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — resolve the fail-closed Fit House source
-identity blocker through an owner-reviewed manifest decision, then rerun the
-protected retailer dry-run and the Whey Isolate coverage gate. All ten candidate
+**Next executable task:** SEO-13 — rerun the Whey Isolate coverage gate against
+current production data. The fail-closed Fit House blocker was resolved on 1
+August 2026 through an exact owner-approved, hash-bound stock disposition; no
+mapping was removed or remapped, the protected apply passed and the
+idempotency dry-run returned 286 `VERIFY_NO_CHANGE` rows. All ten candidate
 gates have now been reviewed: Amino Acids / BCAA / EAA is live verified and the
 other nine candidates are deferred. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
-competing URL. Do not remove the missing Fit House identity, fabricate stock or
-weaken full-manifest coverage without owner approval and fresh source evidence.
-Search Console and GA4 are already configured; SEO-07 only awaits an
-authenticated report view or export so its measurement baseline can be saved.
+competing URL. Search Console and GA4 are already configured; SEO-07 only
+awaits an authenticated report view or export so its measurement baseline can
+be saved.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -262,6 +263,35 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — Fit House source-removal remediation applied
+
+- The public product, search and suggestion paths now share one fail-closed
+  24-hour current-offer rule. Missing, invalid, future-dated and older offers
+  are excluded from public price and retailer availability instead of relying
+  only on `in_stock=true`.
+- The Fit House refresh now preserves all 286 approved mappings when a variant
+  disappears from a healthy, complete Shopify snapshot. Missing identities are
+  represented only as unavailable source evidence; product identity, mapping,
+  URL and historical records are not deleted or guessed. The policy blocks if
+  more than 28 approved identities or more than 10% of the approved scope is
+  absent.
+- Owner approval bound the exceptional 18 new out-of-stock transitions to
+  reviewed manifest SHA-256
+  `bf88cae84484b26f638ed10fd1073f39dc48aa464a0b5deae794840b99e2f28f`
+  and source fingerprint
+  `e3f72cc6e2cc54880ab6c8bd11612a984dbe1a4a4b60a9774810e2c87f94e680`.
+  Any row, price, stock, identity or source-fingerprint drift failed closed.
+- The protected production dry-run passed for all 286 offers. The approved
+  apply registered parent plan `87d7e61f-34a8-41ea-bcaf-e70bccf091d0`
+  and applied all six validator/approver/executor children. It updated 16
+  prices/delivered totals, 20 stock states and 286 check timestamps, adding 16
+  price-history rows. Product, variant, mapping and offer row-count deltas were
+  all zero; no recovery call was required.
+- The mandatory post-apply production dry-run passed with 286
+  `VERIFY_NO_CHANGE` rows, zero price, stock and history deltas, and no reviewed
+  override required. The Fit House blocker is closed; SEO-13 remains
+  `IN PROGRESS` and Whey Isolate is the next coverage gate.
 
 ### 1 August 2026 — SEO-13 coverage-remediation checkpoint
 
