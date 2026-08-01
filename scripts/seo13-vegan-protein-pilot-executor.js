@@ -17,13 +17,14 @@ function sha256(value) { return crypto.createHash("sha256").update(value).digest
 
 function parseArgs(argv) {
   const options = {};
-  const allowed = new Set(["mode", "rollout", "output"]);
+  const allowed = new Set(["mode", "scope", "rollout", "output"]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
     if (!match || !allowed.has(match[1]) || options[match[1]] !== undefined) fail(`Invalid argument ${argument}`);
     options[match[1]] = match[2];
   }
   if (!new Set(["validate", "apply"]).has(options.mode)) fail("Required --mode=validate|apply");
+  if (!new Set(["dolphin", "all"]).has(options.scope)) fail("Required --scope=dolphin|all");
   for (const key of ["rollout", "output"]) {
     if (!options[key]) fail(`Required --${key}=<path>`);
     options[key] = path.resolve(options[key]);
@@ -135,11 +136,12 @@ async function run(options) {
     fail("Production pilot is restricted to a manual GitHub Actions dispatch on main");
   }
   const { rollout, plans } = validateRollout(options.rollout);
+  const selectedPlans = options.scope === "dolphin" ? plans.slice(1, 2) : plans;
   const rows = [];
   if (options.mode === "apply") {
-    for (const item of plans) rows.push(await executePlan(item));
+    for (const item of selectedPlans) rows.push(await executePlan(item));
   }
-  const report = { schema_version: 1, kind: `${KIND}-${options.mode}`, rollout_fingerprint: rollout.rollout_fingerprint, validated_plan_count: plans.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString() };
+  const report = { schema_version: 1, kind: `${KIND}-${options.mode}`, scope: options.scope, rollout_fingerprint: rollout.rollout_fingerprint, validated_plan_count: selectedPlans.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString() };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
   return report;

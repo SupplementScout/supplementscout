@@ -14,10 +14,12 @@ test("SEO-13 pilot accepts only the exact two reviewed plans", () => {
 });
 
 test("SEO-13 pilot CLI keeps output in tmp and limits modes", () => {
-  const parsed = parseArgs(["--mode=validate", `--rollout=${ROLLOUT}`, "--output=tmp/seo13-vegan-protein-pilot/report.json"]);
+  const parsed = parseArgs(["--mode=validate", "--scope=dolphin", `--rollout=${ROLLOUT}`, "--output=tmp/seo13-vegan-protein-pilot/report.json"]);
   assert.equal(parsed.mode, "validate");
-  assert.throws(() => parseArgs(["--mode=other", `--rollout=${ROLLOUT}`, "--output=tmp/x.json"]), /validate\|apply/);
-  assert.throws(() => parseArgs(["--mode=apply", `--rollout=${ROLLOUT}`, "--output=docs/x.json"]), /inside repository tmp/);
+  assert.equal(parsed.scope, "dolphin");
+  assert.throws(() => parseArgs(["--mode=other", "--scope=dolphin", `--rollout=${ROLLOUT}`, "--output=tmp/x.json"]), /validate\|apply/);
+  assert.throws(() => parseArgs(["--mode=apply", "--scope=other", `--rollout=${ROLLOUT}`, "--output=tmp/x.json"]), /dolphin\|all/);
+  assert.throws(() => parseArgs(["--mode=apply", "--scope=dolphin", `--rollout=${ROLLOUT}`, "--output=docs/x.json"]), /inside repository tmp/);
 });
 
 test("SEO-13 workflow is manual, role-separated and has no service-role credential", () => {

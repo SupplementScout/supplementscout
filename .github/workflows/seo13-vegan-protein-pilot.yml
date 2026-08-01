@@ -11,6 +11,14 @@ on:
         options:
           - validate
           - apply
+      scope:
+        description: "Execute Dolphin independently; all also includes the guarded GYM HIGH plan"
+        required: true
+        default: dolphin
+        type: choice
+        options:
+          - dolphin
+          - all
 
 permissions:
   contents: read
@@ -50,7 +58,7 @@ jobs:
         env:
           SEO13_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SEO13_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/seo13-vegan-protein-pilot-executor.js --mode=${{ inputs.operation }} --rollout=docs/rollouts/seo13-vegan-protein-pilot/rollout.json --output=tmp/seo13-vegan-protein-pilot/report.json
+        run: node scripts/seo13-vegan-protein-pilot-executor.js --mode=${{ inputs.operation }} --scope=${{ inputs.scope }} --rollout=docs/rollouts/seo13-vegan-protein-pilot/rollout.json --output=tmp/seo13-vegan-protein-pilot/report.json
 
       - name: Publish result
         if: always()
