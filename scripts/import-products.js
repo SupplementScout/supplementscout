@@ -2626,7 +2626,9 @@ async function validateLegacyMappingUpgrade({
     !mapping.external_sku &&
     WOOCOMMERCE_NUMERIC_ID_PATTERN.test(String(after.external_product_id || "")) &&
     WOOCOMMERCE_NUMERIC_ID_PATTERN.test(String(after.external_variant_id || "")) &&
-    after.external_product_id !== after.external_variant_id &&
+    (controls.standalone
+      ? after.external_product_id === after.external_variant_id
+      : after.external_product_id !== after.external_variant_id) &&
     REVIEWED_LEGACY_NO_SKU_IDENTITIES.has(
       [
         retailer.slug,
