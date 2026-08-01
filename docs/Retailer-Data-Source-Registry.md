@@ -1,6 +1,6 @@
 # SupplementScout Retailer Data Source Registry
 
-_Last updated: 28 July 2026_
+_Last updated: 1 August 2026_
 
 ## Purpose
 
@@ -390,6 +390,30 @@ Products with at least 2 active retailers.
   one is deferred.
 - Status: **440 APPROVED OFFERS / ONE SHARED DAILY AUTOMATION OPERATIONAL; V14
   CATALOGUE, OFFERS AND POST-APPLY IDEMPOTENCY VERIFIED**.
+
+## Fit House current record - 1 August 2026
+
+- Retailer ID: `9`; domain: `fithouse.uk`; platform/source: guarded Shopify
+  products JSON through the existing Fit House adapter and shared retailer
+  offer-refresh controls.
+- Approved routine scope: 286 exact mappings/offers in
+  `config/retailers/fit-house-approved-offer-manifest.json`. The automation
+  requires full manifest coverage and fails closed on a missing source
+  identity; it cannot create or remap products during a refresh.
+- Scheduled run `30686341802` passed contract tests and source-health checks,
+  then stopped in the read-only classifier with `IDENTITY_DRIFT`. Apply and
+  idempotency steps were skipped.
+- The exact blocker is offer `986`, mapping `1172`, canonical product `68`
+  (`7Nutrition Whey Isolate 90 1kg`), approved Shopify product
+  `8147819069680` / variant `43583990006000`. The product is absent from the
+  current 206-product source and the previous public handle returns 404.
+- A local dry-run through the same production mechanism reproduced the blocker
+  with zero database, business or control writes. No missing identity was
+  converted into an out-of-stock claim.
+- Status: **BLOCKED — OWNER-REVIEWED SOURCE IDENTITY DECISION REQUIRED**. Next
+  action: decide whether evidence supports a guarded manifest retirement or a
+  replacement identity review, then rerun the protected dry-run. Do not edit
+  the manifest or production mapping solely to restore freshness.
 
 ## Initial registry template
 

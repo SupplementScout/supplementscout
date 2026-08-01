@@ -1798,10 +1798,12 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Use existing guarded catalogue and retailer mechanisms to improve the recorded
-SEO-13 coverage blockers. Re-run a deferred candidate gate only after its
-identity, demand, offer-volume or multi-retailer evidence materially changes;
-begin with Protein Bars when current overlap changes. Implementation and live
+Resolve the fail-closed Fit House source identity blocker through an
+owner-reviewed manifest decision. The current source no longer contains
+approved source product `8147819069680`, bound to offer `986`, mapping `1172`
+and canonical product `68` (`7Nutrition Whey Isolate 90 1kg`). Do not remove or
+remap it automatically. After an approved disposition, rerun the protected Fit
+House dry-run and then the Whey Isolate coverage gate. Implementation and live
 verification still proceed one page at a time through the shared mechanism.
 
 ### Then

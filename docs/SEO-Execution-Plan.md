@@ -122,15 +122,15 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — remediate the recorded coverage blockers
-through existing guarded catalogue and retailer mechanisms. All ten candidate
+**Next executable task:** SEO-13 — resolve the fail-closed Fit House source
+identity blocker through an owner-reviewed manifest decision, then rerun the
+protected retailer dry-run and the Whey Isolate coverage gate. All ten candidate
 gates have now been reviewed: Amino Acids / BCAA / EAA is live verified and the
 other nine candidates are deferred. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
-competing URL. Re-run a deferred page gate only after its recorded identity,
-offer-volume or multi-retailer blocker materially changes; begin with Protein
-Bars when current overlap evidence changes.
+competing URL. Do not remove the missing Fit House identity, fabricate stock or
+weaken full-manifest coverage without owner approval and fresh source evidence.
 Search Console and GA4 are already configured; SEO-07 only awaits an
 authenticated report view or export so its measurement baseline can be saved.
 
@@ -262,6 +262,37 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 1 August 2026 — SEO-13 coverage-remediation checkpoint
+
+- A read-only mapping audit rechecked the safe Protein Bars boundary. Eleven
+  products had a stable explicit bar/wafer/flapjack identity and one consistent
+  pack count, but only one product was mapped to two retailers and none had
+  fresh offers from two retailers.
+- The sole mapped overlap candidate was Battle Snacks Battle Bites Protein Bar
+  62g. Its 6 Pack offers were fresh; its legacy Whey Okay offer was stale. The
+  existing guarded EKM reader fetched a fresh 1,680-row Whey Okay feed and found
+  all nine single-bar and all nine box-of-12 Battle Bites variants out of stock.
+  The stale offer was not revived, pack identities were not mixed and no write
+  was attempted.
+- Whey Isolate remains the nearest deferred coverage gate: 16 scoped products,
+  77 fresh offers and two products with fresh multi-retailer coverage. Four
+  products already have mappings at more retailers than their current fresh
+  coverage, so existing refresh mechanisms were checked before considering any
+  new integration.
+- Scheduled Fit House run `30686341802` passed its contracts but failed closed
+  in the full approved-offer classifier. A local production dry-run through the
+  same mechanism reproduced `IDENTITY_DRIFT` at offer `986`, mapping `1172`,
+  canonical product `68` (`7Nutrition Whey Isolate 90 1kg`). It attempted and
+  completed zero database, business or control writes.
+- The approved Fit House source product `8147819069680` is absent from the
+  current 206-product Shopify source and its previous public handle returns
+  404. The whole 286-offer refresh correctly remains blocked rather than
+  treating disappearance as proof of out-of-stock state.
+- The next safe action is an owner-reviewed disposition of that missing source
+  identity through the existing guarded manifest process, followed by a
+  protected dry-run. SEO-13 remains `IN PROGRESS`; no deferred page gate changed
+  and no production or catalogue write was authorised by this audit.
 
 ### 1 August 2026 — SEO-13 page 10 Creatine Monohydrate gate deferred
 
