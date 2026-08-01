@@ -1,0 +1,57 @@
+name: GYM HIGH reviewed catalogue bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      approval_fingerprint:
+        description: Exact reviewed approval fingerprint
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gym-high-reviewed-catalogue-bootstrap-production
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.approval_fingerprint == 'feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-readonly
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      GYM_HIGH_APPROVED_APPLY: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify guarded implementation
+        run: node --test scripts/gym-high-catalogue-audit.test.js scripts/lib/woocommerce-store-api-reader.test.js scripts/gym-high-reviewed-catalogue-bootstrap.test.js
+      - name: Production preflight
+        run: node scripts/gym-high-reviewed-catalogue-bootstrap.js --mode=dry-run --output=tmp/gym-high-reviewed-catalogue/preflight.json
+      - name: Assert exact approved delta
+        run: node -e "const r=require('./tmp/gym-high-reviewed-catalogue/preflight.json');if(r.result!=='PASS'||r.database_writes!==0||r.planned_variant_create_count!==34||r.approval_fingerprint!==process.env.GYM_HIGH_APPROVAL)process.exit(1)"
+        env:
+          GYM_HIGH_APPROVAL: ${{ inputs.approval_fingerprint }}
+      - name: Apply reviewed variants
+        run: node scripts/gym-high-reviewed-catalogue-bootstrap.js --mode=apply --output=tmp/gym-high-reviewed-catalogue/apply.json
+      - name: Verify idempotent postcondition
+        run: |
+          node scripts/gym-high-reviewed-catalogue-bootstrap.js --mode=dry-run --output=tmp/gym-high-reviewed-catalogue/postflight.json
+          node -e "const a=require('./tmp/gym-high-reviewed-catalogue/apply.json');const p=require('./tmp/gym-high-reviewed-catalogue/postflight.json');if(a.result!=='PASS'||a.inserted_variant_count!==34||p.result!=='PASS'||p.database_writes!==0||p.planned_variant_create_count!==0)process.exit(1)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gym-high-reviewed-catalogue-bootstrap-${{ github.run_id }}
+          path: tmp/gym-high-reviewed-catalogue/*.json
+          if-no-files-found: error
+          retention-days: 30

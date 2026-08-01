@@ -1,6 +1,8 @@
+const crypto = require("node:crypto");
 const { readWooCommerceProductPage } = require("./lib/woocommerce-product-page-reader");
 const { readWooCommerceStoreCatalogue } = require("./lib/woocommerce-store-api-reader");
 const { loadScope, parseArgs, writeJsonAtomic } = require("./gym-high-source-monitor");
+const { canonicalJson } = require("./lib/canonical-json");
 
 function fail(message, code = "CATALOGUE_AUDIT_BLOCKED") { const error = new Error(message); error.code = code; throw error; }
 
@@ -45,7 +47,9 @@ async function buildCatalogueAudit(scope, dependencies = {}) {
   const approved = scope.manifest.rows[0];
   for (const row of rows) if (row.external_product_id === approved.external_product_id && row.external_variant_id === approved.external_variant_id) row.classification = "APPROVED_EXISTING_MAPPING";
   const counts = Object.fromEntries([...new Set(rows.map((row) => row.classification))].sort().map((key) => [key, rows.filter((row) => row.classification === key).length]));
-  return { schema_version: 1, result: "PASS", mode: "FULL_CATALOGUE_READ_ONLY_AUDIT", production_writes: 0, catalogue_creates: 0, captured_at: catalogue.captured_at, parent_product_count: catalogue.products.length, source_row_count: rows.length, classification_counts: counts, rows };
+  const identityRows = rows.map(({ price_gbp, in_stock, ...identity }) => identity);
+  const sourceIdentityFingerprint = crypto.createHash("sha256").update(canonicalJson(identityRows)).digest("hex");
+  return { schema_version: 1, result: "PASS", mode: "FULL_CATALOGUE_READ_ONLY_AUDIT", production_writes: 0, catalogue_creates: 0, captured_at: catalogue.captured_at, parent_product_count: catalogue.products.length, source_row_count: rows.length, source_identity_fingerprint: sourceIdentityFingerprint, classification_counts: counts, rows };
 }
 
 async function main(dependencies = {}) {
@@ -56,6 +60,6 @@ async function main(dependencies = {}) {
   return report;
 }
 
-if (require.main === module) main().then((report) => console.log(JSON.stringify({ result: report.result, parent_product_count: report.parent_product_count, source_row_count: report.source_row_count, classification_counts: report.classification_counts, production_writes: report.production_writes }, null, 2))).catch((error) => { console.error(`${error.code || "CATALOGUE_AUDIT_FAILED"}: ${error.message}`); process.exitCode = 1; });
+if (require.main === module) main().then((report) => console.log(JSON.stringify({ result: report.result, parent_product_count: report.parent_product_count, source_row_count: report.source_row_count, source_identity_fingerprint: report.source_identity_fingerprint, classification_counts: report.classification_counts, production_writes: report.production_writes }, null, 2))).catch((error) => { console.error(`${error.code || "CATALOGUE_AUDIT_FAILED"}: ${error.message}`); process.exitCode = 1; });
 
 module.exports = { buildCatalogueAudit, classification, exactIds, main, mapLimit };

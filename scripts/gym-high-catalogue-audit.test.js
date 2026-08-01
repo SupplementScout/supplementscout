@@ -6,7 +6,7 @@ const { loadScope } = require("./gym-high-source-monitor");
 function catalogue(products) { return { captured_at: "2026-08-01T12:00:00.000Z", products }; }
 function product(id, name, type, variations = [], categories = ["Protein Powder"]) { return { external_product_id: String(id), name, slug: `p-${id}`, type, permalink: `https://gymhigh.co.uk/product/p-${id}/`, sku: null, categories, variations }; }
 function page(item) {
-  return { external_product_id: item.external_product_id, canonical_url: item.permalink, product_name: item.name, product_offer: item.type === "simple" ? { price: "10.00", in_stock: true } : null, variations: item.variations.map((row) => ({ external_variant_id: row.external_variant_id, attributes: { attribute_pa_flavour: row.attributes.Flavour }, price: "20.00", regular_price: "20.00", in_stock: true, purchasable: true, active: true, sku: null })) };
+  return { external_product_id: item.external_product_id, canonical_url: item.permalink, product_name: item.name, product_offer: item.type === "simple" ? { price: "10.00", in_stock: true } : null, variations: item.variations.map((row) => ({ external_variant_id: row.external_variant_id, attributes: row.attributes.Flavour ? { attribute_pa_flavour: row.attributes.Flavour } : {}, price: "20.00", regular_price: "20.00", in_stock: true, purchasable: true, active: true, sku: null })) };
 }
 
 test("full audit expands simple and variable products and classifies non-catalogue items", async () => {
@@ -25,6 +25,7 @@ test("full audit expands simple and variable products and classifies non-catalog
   assert.equal(report.classification_counts.REVIEW_ACCESSORY, 1);
   assert.equal(report.classification_counts.EXCLUDE_GIFT_CARD, 1);
   assert.equal(report.production_writes, 0);
+  assert.match(report.source_identity_fingerprint, /^[a-f0-9]{64}$/);
 });
 
 test("full audit blocks catalogue collapse and variation coverage drift", async () => {
