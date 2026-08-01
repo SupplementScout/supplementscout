@@ -80,7 +80,7 @@ test("stale measurement and competitor reviews are reminders, not unsafe writes 
   assert.equal(result.ok, true, result.errors.join("\n"));
   assert.match(result.warnings.join("\n"), /status date is more than 14 days old/);
   assert.match(result.warnings.join("\n"), /WheyWise comparison review is more than 35 days old/);
-  assert.match(result.warnings.join("\n"), /Weekly GSC\/GA4 measurement evidence is not yet recorded/);
+  assert.match(result.warnings.join("\n"), /Weekly GSC\/GA4 measurement evidence is more than 8 days old/);
 });
 
 test("guardian and workflow remain read-only and fail closed", () => {

@@ -294,11 +294,15 @@ or infer missing values after an API failure. Full Page indexing, Core Web
 Vitals and Links totals remain manual Search Console/export evidence because
 the supported APIs do not expose those aggregate reports.
 
-The code and workflow are ready, but live authenticated operation requires the
-owner to add the dedicated service account to both Google properties and set
-the protected GitHub secret and variables described in
-`docs/Growth-Analytics-Access.md`. Until the first authenticated artifact is
-captured, SEO-07 remains `BLOCKED` and no weekly evidence row may be added.
+Live authenticated operation is now proved. Read-only workflow run
+`30702954910` produced artifact `8819405398` for 25-31 July 2026 and the Growth
+Analyst retrieved it through the connected GitHub artifact reader. GSC reported
+559 impressions, 0 clicks and average position 58.21; GA4 reported 0 Organic
+Search sessions and 0 organic retailer-offer clicks; the submitted sitemap had
+0 warnings and 0 errors. The sitemap API's `indexed: 0` is not treated as the
+Page indexing baseline because GSC already records impressions. SEO-07 remains
+`BLOCKED` only on the Search Console UI/export evidence for Page indexing, Core
+Web Vitals, Links and priority URL inspection.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

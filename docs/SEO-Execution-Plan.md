@@ -248,7 +248,7 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
-| — | Weekly GSC/GA4 | Read-only collector and weekly workflow are code complete; Google service-account access, protected variables and the first authenticated artifact are still required. | `BLOCKED` under SEO-07 |
+| 2026-08-01 | Weekly GSC/GA4 | Authenticated read-only workflow run `30702954910`, artifact `8819405398`, covering 2026-07-25 through 2026-07-31: GSC 559 impressions, 0 clicks, 0% CTR and average position 58.21; GA4 0 Organic Search sessions and 0 organic retailer-offer clicks; sitemap 1,120 submitted URLs, 0 warnings and 0 errors. The sitemap API's `indexed: 0` is not accepted as the Page indexing total because GSC already records impressions. | `CAPTURED PARTIAL`; SEO-07 remains `BLOCKED` on Page indexing, Core Web Vitals, Links and priority URL inspection evidence. |
 
 ## 10. Guardrails
 
