@@ -149,6 +149,28 @@ review a product-scoped candidate safely. Variant-scoped candidates are blocked
 from storage because the current table has no `product_variant_id`; the workflow
 will not silently discard that identity provenance.
 
+Windows OCR metadata also preserves word bounding boxes. The extractor may use
+those coordinates to recover `protein_per_serving_g` and
+`creatine_per_serving_g` from a table only when all of these conditions hold:
+
+- one explicit serving size was extracted independently;
+- the table has a `Per serving` column, or a `Per (N g)` column matching that
+  serving size exactly;
+- the nutrient label and numeric value occupy the same visual row;
+- the value belongs unambiguously to that column rather than a `Per 100 g`
+  column;
+- a protein label is supported by the surrounding nutrition-table label column,
+  so front-of-pack marketing text cannot be paired with a nearby table value;
+- the amount does not exceed the serving size.
+
+Failure of any condition emits no geometry-derived fact. A direct `Creatine
+Monohydrate` table row can produce a LOW-confidence creatine candidate with an
+explicit warning; serving size alone never implies creatine or protein content.
+These are source facts only. Existing application pricing code calculates
+delivered price, price per kg/litre/unit/serving, cost per 25 g protein and cost
+per 5 g creatine. OCR never copies those calculated values and never sets
+`unit_pricing_verified` or `nutrition_verified`.
+
 ## Source manifest
 
 Keep the manifest and its referenced snapshots together below an ignored

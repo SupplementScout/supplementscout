@@ -10,6 +10,7 @@ const {
   fingerprint,
   htmlAttribute,
   manufacturerPrimaryProductHtml,
+  parseQuantity,
   parseSnapshot,
   sha256,
   validateSourceUrl,
@@ -520,12 +521,132 @@ function escapeHtml(value) {
   return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function parseOcrFacts(text) {
+function geometryLines(metadata) {
+  if (!metadata || metadata.schema_version !== 1 || metadata.engine !== "Windows.Media.Ocr" ||
+      !Number.isInteger(metadata.image_width) || metadata.image_width < 1 ||
+      !Number.isInteger(metadata.image_height) || metadata.image_height < 1 ||
+      !Array.isArray(metadata.lines) || metadata.lines.length > 5_000) return [];
+  return metadata.lines.map((line, index) => {
+    if (!line || typeof line.text !== "string" || !line.text.trim() || !Array.isArray(line.words) ||
+        !line.words.length || line.words.length > 100) return null;
+    const words = line.words.map((word) => {
+      if (!word || typeof word.text !== "string" || !word.text.trim()) return null;
+      const box = [word.x, word.y, word.width, word.height];
+      if (box.some((value) => typeof value !== "number" || !Number.isFinite(value)) ||
+          word.x < 0 || word.y < 0 || word.width <= 0 || word.height <= 0 ||
+          word.x + word.width > metadata.image_width || word.y + word.height > metadata.image_height) return null;
+      return word;
+    });
+    if (words.some((word) => word === null)) return null;
+    const normalizedText = line.text.replace(/\s+/g, " ").trim();
+    const normalizedWords = words.map((word) => word.text).join(" ").replace(/\s+/g, " ").trim();
+    if (normalizedText !== normalizedWords) return null;
+    const left = Math.min(...words.map((word) => word.x));
+    const top = Math.min(...words.map((word) => word.y));
+    const right = Math.max(...words.map((word) => word.x + word.width));
+    const bottom = Math.max(...words.map((word) => word.y + word.height));
+    return {
+      index: index + 1,
+      text: normalizedText,
+      left,
+      top,
+      right,
+      bottom,
+      centerX: (left + right) / 2,
+      centerY: (top + bottom) / 2,
+      height: bottom - top,
+    };
+  }).filter(Boolean);
+}
+
+function geometryColumnHeader(line) {
+  const numeric = line.text.match(/^per\s*\(\s*([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)\s*\)(?:\s*serving)?$/i);
+  if (numeric) {
+    const quantity = parseQuantity(`${numeric[1]} ${numeric[2]}`, "weight");
+    return quantity ? { ...line, servingSizeG: quantity.value } : null;
+  }
+  return /^per\s+(?:one\s+)?serving$/i.test(line.text)
+    ? { ...line, servingSizeG: null }
+    : null;
+}
+
+function parseOcrGeometryTableFacts(metadata, textFacts) {
+  const lines = geometryLines(metadata);
+  if (!lines.length) return [];
+  const servingSizes = [...new Set(textFacts
+    .filter((fact) => fact.field_name === "serving_size_g" && fact.unit === "g")
+    .map((fact) => fact.value_numeric))];
+  if (servingSizes.length !== 1) return [];
+  const servingSizeG = servingSizes[0];
+  const headers = lines.map(geometryColumnHeader).filter(Boolean);
+  const servingHeaders = headers.filter((header) =>
+    header.servingSizeG === null || Math.abs(header.servingSizeG - servingSizeG) < 1e-9);
+  if (!servingHeaders.length) return [];
+  const nutritionRowLabels = lines.filter((line) =>
+    /^(?:energy|fat|of which saturates|saturates|carbohydrates?|of which sugars|sugars|fibre|protein|salt)$/i.test(line.text));
+  const proteinColumnTolerance = Math.max(24, metadata.image_width * 0.06);
+  const labels = lines.map((line) => {
+    if (/^protein$/i.test(line.text)) {
+      const columnSupport = nutritionRowLabels.filter((candidate) =>
+        Math.abs(candidate.left - line.left) <= proteinColumnTolerance).length;
+      return columnSupport >= 3 ? { ...line, field_name: "protein_per_serving_g" } : null;
+    }
+    if (/^creatine(?:\s+monohydrate)?$/i.test(line.text)) {
+      return { ...line, field_name: "creatine_per_serving_g", monohydrate: /monohydrate/i.test(line.text) };
+    }
+    return null;
+  }).filter(Boolean);
+  const values = lines.map((line) => {
+    if (!/^[0-9]+(?:[.,][0-9]+)?\s*(?:kg|g|mg)$/i.test(line.text)) return null;
+    const quantity = parseQuantity(line.text, "weight");
+    return quantity ? { ...line, quantity } : null;
+  }).filter(Boolean);
+  const observations = [];
+  for (const label of labels) {
+    const eligibleHeaders = servingHeaders.filter((header) => header.centerY < label.centerY);
+    if (!eligibleHeaders.length) continue;
+    const header = eligibleHeaders.sort((left, right) => right.centerY - left.centerY)[0];
+    const headerBand = headers.filter((candidate) =>
+      Math.abs(candidate.centerY - header.centerY) <= Math.max(candidate.height, header.height));
+    if (!headerBand.length) continue;
+    const rowValues = values.filter((value) =>
+      value.centerX > label.right &&
+      Math.abs(value.centerY - label.centerY) <= Math.max(4, Math.max(value.height, label.height) * 0.8));
+    const assigned = rowValues.filter((value) => {
+      const ranked = headerBand.map((candidate) => ({
+        candidate,
+        distance: Math.abs(value.centerX - candidate.centerX),
+      })).sort((left, right) => left.distance - right.distance);
+      return ranked[0]?.candidate === header &&
+        (ranked.length === 1 || ranked[1].distance - ranked[0].distance >= 4);
+    });
+    if (assigned.length !== 1 || assigned[0].quantity.value > servingSizeG) continue;
+    const value = assigned[0];
+    observations.push({
+      field_name: label.field_name,
+      value_numeric: value.quantity.value,
+      unit: "g",
+      basis: "PER_SERVING",
+      parser: "OCR_TABLE_GEOMETRY",
+      evidence_text: `${label.text} | ${header.text} | ${value.text}`.slice(0, 160),
+      evidence_locator: `ocr:geometry/label-line:${label.index}/header-line:${header.index}/value-line:${value.index}`,
+      flags: [
+        "OCR_GEOMETRY_TABLE",
+        "OCR_PER_SERVING_COLUMN",
+        ...(label.monohydrate ? ["OCR_CREATINE_MONOHYDRATE_LABEL"] : []),
+      ],
+    });
+  }
+  return observations;
+}
+
+function parseOcrFacts(text, metadata = null) {
   const lines = String(text).split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
   const html = `<div class="product type-product">${lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div>`;
+  const textFacts = parseSnapshot(html, "text/html", { sourceType: "manufacturer_product_page" })
+    .map((item) => ({ ...item, parser: "OCR_TEXT", evidence_locator: item.evidence_locator.replace(/^(?:text|manufacturer):/, "ocr:") }));
   return applyConsistencyFlags(deduplicateObservations(
-    parseSnapshot(html, "text/html", { sourceType: "manufacturer_product_page" })
-      .map((item) => ({ ...item, parser: "OCR_TEXT", evidence_locator: item.evidence_locator.replace(/^(?:text|manufacturer):/, "ocr:") })),
+    [...textFacts, ...parseOcrGeometryTableFacts(metadata, textFacts)],
   ));
 }
 
@@ -533,7 +654,7 @@ function buildOcrCandidates({ page, pageHtml, image, ocr, capturedAt }) {
   const htmlFacts = applyConsistencyFlags(deduplicateObservations(
     parseSnapshot(pageHtml, "text/html", { sourceType: "manufacturer_product_page" }),
   ));
-  const ocrFacts = parseOcrFacts(ocr.text);
+  const ocrFacts = parseOcrFacts(ocr.text, ocr.metadata);
   const compactOcrText = String(ocr.text).replace(/\s+/g, " ").trim();
   const suspiciousCharacterCount = (compactOcrText.match(/[\uFFFD]|[^\x20-\x7E\u00A0-\u024F]/g) || []).length;
   const lowOcrQuality = compactOcrText.length < 20 ||

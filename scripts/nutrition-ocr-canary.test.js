@@ -271,6 +271,190 @@ test("OCR parser extracts a strict parenthetical serving size without nutrient i
   }
 });
 
+function geometryMetadata(rows) {
+  const lines = rows.map(({ text, x, y, width = 120, height = 20 }) => {
+    const tokens = text.split(/\s+/);
+    const step = width / tokens.length;
+    return {
+      text,
+      words: tokens.map((token, index) => ({
+        text: token,
+        x: x + step * index,
+        y,
+        width: Math.max(1, step - 2),
+        height,
+      })),
+    };
+  });
+  return {
+    schema_version: 1,
+    engine: "Windows.Media.Ocr",
+    engine_version: "test",
+    language: "en-GB",
+    image_width: 1_000,
+    image_height: 1_000,
+    line_count: lines.length,
+    confidence_available: false,
+    lines,
+  };
+}
+
+test("OCR geometry maps protein only from the explicit per-serving table column", () => {
+  const metadata = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (25 g)", x: 300, y: 40, width: 260 },
+    { text: "Per (100 g)", x: 500, y: 100 },
+    { text: "Per (25 g) serving", x: 720, y: 100, width: 160 },
+    { text: "Energy", x: 80, y: 160, width: 80 },
+    { text: "Fat", x: 80, y: 190, width: 80 },
+    { text: "Protein", x: 80, y: 220, width: 80 },
+    { text: "85.06 g", x: 520, y: 220, width: 80 },
+    { text: "21.27 g", x: 740, y: 220, width: 80 },
+  ]);
+  const text = metadata.lines.map((line) => line.text).join("\n");
+  const facts = parseOcrFacts(text, metadata);
+  const protein = facts.find((fact) => fact.field_name === "protein_per_serving_g");
+  assert.equal(protein.value_numeric, 21.27);
+  assert.equal(protein.evidence_text, "Protein | Per (25 g) serving | 21.27 g");
+  assert.ok(protein.flags.includes("OCR_GEOMETRY_TABLE"));
+  assert.equal(facts.some((fact) => fact.field_name === "protein_per_serving_g" && fact.value_numeric === 85.06), false);
+});
+
+test("OCR geometry extracts Diet Whey protein from the 25g serving column", () => {
+  const metadata = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (25g)", x: 300, y: 40, width: 250 },
+    { text: "Per (100 g)", x: 500, y: 100 },
+    { text: "Per (25 g)", x: 720, y: 100 },
+    { text: "Energy", x: 80, y: 150, width: 80 },
+    { text: "Fat", x: 80, y: 180, width: 80 },
+    { text: "Carbohydrates", x: 80, y: 210, width: 130 },
+    { text: "Protein", x: 80, y: 240, width: 80 },
+    { text: "80 g", x: 520, y: 240, width: 60 },
+    { text: "20 g", x: 740, y: 240, width: 60 },
+  ]);
+  const protein = parseOcrFacts(metadata.lines.map((line) => line.text).join("\n"), metadata)
+    .find((fact) => fact.field_name === "protein_per_serving_g");
+  assert.equal(protein.value_numeric, 20);
+  assert.equal(protein.evidence_text, "Protein | Per (25 g) | 20 g");
+});
+
+test("OCR geometry extracts BEEF-XP protein from the 30g serving column", () => {
+  const metadata = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (30 g)", x: 300, y: 40, width: 260 },
+    { text: "Per (100 g)", x: 500, y: 100 },
+    { text: "Per (30 g)", x: 720, y: 100 },
+    { text: "Energy", x: 80, y: 150, width: 80 },
+    { text: "Fat", x: 80, y: 180, width: 80 },
+    { text: "Carbohydrate", x: 80, y: 210, width: 130 },
+    { text: "Protein", x: 80, y: 240, width: 80 },
+    { text: "91 g", x: 520, y: 240, width: 60 },
+    { text: "27.3 g", x: 740, y: 240, width: 70 },
+  ]);
+  const protein = parseOcrFacts(metadata.lines.map((line) => line.text).join("\n"), metadata)
+    .find((fact) => fact.field_name === "protein_per_serving_g");
+  assert.equal(protein.value_numeric, 27.3);
+  assert.equal(protein.evidence_text, "Protein | Per (30 g) | 27.3 g");
+});
+
+test("OCR geometry extracts Beef Mass protein and creatine from the 125g serving column", () => {
+  const metadata = geometryMetadata([
+    { text: "Serving Size: 3 Scoops (125 g)", x: 300, y: 40, width: 270 },
+    { text: "Per (100 g)", x: 500, y: 100 },
+    { text: "Per (125 g)", x: 720, y: 100 },
+    { text: "Energy", x: 80, y: 150, width: 80 },
+    { text: "Fat", x: 80, y: 180, width: 80 },
+    { text: "Carbohydrate", x: 80, y: 210, width: 130 },
+    { text: "Protein", x: 80, y: 240, width: 80 },
+    { text: "34 g", x: 520, y: 240, width: 60 },
+    { text: "42 g", x: 740, y: 240, width: 60 },
+    { text: "Creatine Monohydrate", x: 80, y: 300, width: 180 },
+    { text: "2400 mg", x: 510, y: 300, width: 90 },
+    { text: "3000 mg", x: 730, y: 300, width: 90 },
+  ]);
+  const facts = parseOcrFacts(metadata.lines.map((line) => line.text).join("\n"), metadata);
+  assert.deepEqual(
+    facts.filter((fact) => /^(?:protein|creatine)_per_serving_g$/.test(fact.field_name))
+      .map((fact) => [fact.field_name, fact.value_numeric]).sort(),
+    [["creatine_per_serving_g", 3], ["protein_per_serving_g", 42]],
+  );
+});
+
+test("OCR geometry rejects a protein word outside the nutrition table label column", () => {
+  const metadata = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (25 g)", x: 300, y: 40, width: 260 },
+    { text: "Per (25 g)", x: 720, y: 100 },
+    { text: "Energy", x: 200, y: 160, width: 80 },
+    { text: "Fat", x: 200, y: 190, width: 80 },
+    { text: "Protein", x: 200, y: 220, width: 80 },
+    { text: "20 g", x: 740, y: 220, width: 60 },
+    { text: "PROTEIN", x: 20, y: 300, width: 80 },
+    { text: "3 g", x: 740, y: 300, width: 60 },
+  ]);
+  const facts = parseOcrFacts(metadata.lines.map((line) => line.text).join("\n"), metadata)
+    .filter((fact) => fact.field_name === "protein_per_serving_g");
+  assert.deepEqual(facts.map((fact) => fact.value_numeric), [20]);
+});
+
+test("OCR geometry extracts a directly labelled creatine row but never infers it from serving size", () => {
+  const metadata = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (5g)", x: 300, y: 40, width: 240 },
+    { text: "Per Serving", x: 700, y: 100 },
+    { text: "Creatine Monohydrate", x: 80, y: 220, width: 180 },
+    { text: "5000 mg", x: 720, y: 220, width: 90 },
+  ]);
+  const text = metadata.lines.map((line) => line.text).join("\n");
+  const facts = parseOcrFacts(text, metadata);
+  const creatine = facts.find((fact) => fact.field_name === "creatine_per_serving_g");
+  assert.equal(creatine.value_numeric, 5);
+  assert.ok(creatine.flags.includes("OCR_CREATINE_MONOHYDRATE_LABEL"));
+  assert.equal(parseOcrFacts("Serving Size: 1 Scoop (5g)").some((fact) =>
+    fact.field_name === "creatine_per_serving_g"), false);
+  assert.equal(parseOcrFacts("100% creatine\nServing Size: 1 Scoop (5g)").some((fact) =>
+    fact.field_name === "creatine_per_serving_g"), false);
+});
+
+test("OCR geometry fails closed for per-100g, mismatched and ambiguous columns", () => {
+  const per100Only = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (25 g)", x: 300, y: 40, width: 260 },
+    { text: "Per (100 g)", x: 500, y: 100 },
+    { text: "Per (25 g)", x: 720, y: 100 },
+    { text: "Energy", x: 80, y: 160, width: 80 },
+    { text: "Fat", x: 80, y: 190, width: 80 },
+    { text: "Protein", x: 80, y: 220, width: 80 },
+    { text: "80 g", x: 520, y: 220, width: 60 },
+    { text: "Salt", x: 80, y: 250, width: 80 },
+    { text: "Creatine", x: 80, y: 280, width: 90 },
+    { text: "10 g", x: 520, y: 280, width: 60 },
+  ]);
+  const per100Facts = parseOcrFacts(per100Only.lines.map((line) => line.text).join("\n"), per100Only);
+  assert.equal(per100Facts.some((fact) => fact.field_name === "protein_per_serving_g"), false);
+  assert.equal(per100Facts.some((fact) => fact.field_name === "creatine_per_serving_g"), false);
+
+  const mismatched = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (25 g)", x: 300, y: 40, width: 260 },
+    { text: "Per (100 g)", x: 500, y: 100 },
+    { text: "Per (30 g)", x: 700, y: 100 },
+    { text: "Energy", x: 80, y: 160, width: 80 },
+    { text: "Fat", x: 80, y: 190, width: 80 },
+    { text: "Protein", x: 80, y: 220, width: 80 },
+    { text: "80 g", x: 520, y: 220, width: 60 },
+    { text: "24 g", x: 720, y: 220, width: 60 },
+  ]);
+  assert.equal(parseOcrFacts(mismatched.lines.map((line) => line.text).join("\n"), mismatched)
+    .some((fact) => fact.field_name === "protein_per_serving_g"), false);
+
+  const ambiguous = geometryMetadata([
+    { text: "Serving Size: 1 Scoop (25 g)", x: 300, y: 40, width: 260 },
+    { text: "Per (25 g)", x: 600, y: 100 },
+    { text: "Per Serving", x: 700, y: 100 },
+    { text: "Energy", x: 80, y: 160, width: 80 },
+    { text: "Fat", x: 80, y: 190, width: 80 },
+    { text: "Protein", x: 80, y: 220, width: 80 },
+    { text: "20 g", x: 680, y: 220, width: 60 },
+  ]);
+  assert.equal(parseOcrFacts(ambiguous.lines.map((line) => line.text).join("\n"), ambiguous)
+    .some((fact) => fact.field_name === "protein_per_serving_g"), false);
+});
+
 test("canary requests only an explicit page and selected HIGH image", async (t) => {
   const batch = tempBatch("nutrition-ocr-canary-test");
   t.after(() => fs.rmSync(batch, { recursive: true, force: true }));
