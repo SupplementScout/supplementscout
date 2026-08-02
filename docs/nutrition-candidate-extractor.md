@@ -34,6 +34,7 @@ workflow.
 - `serving_count_verified`
 - `net_weight_g`
 - `net_volume_ml`
+- `serving_size_ml`
 
 One output row represents one candidate fact. The extractor never derives a
 missing value from other values. Package arithmetic is used only to flag
@@ -173,11 +174,59 @@ hash, dry run, and approval.
 
 Do not rename or move the generated candidate CSV into `data/verified`.
 
-## Network phase not included
+## Controlled manufacturer collection
 
-Before adding live fetching, each retailer must have an approved entry in the
-Retailer Data Source Registry covering permission or feed rights, Terms,
-robots.txt review, allowed endpoints, rate limits, retention, and an owner.
-The later fetch phase should reuse the existing Shopify, WooCommerce, and EKM
-readers and must retain a dedicated read-only identity. It must not add a
-service-role or database-write path to this extractor.
+The collector accepts one to ten explicit official manufacturer URLs. It does
+not crawl, discover links, read sitemaps, or follow cross-domain redirects.
+Dry-plan mode validates the list and performs zero requests and zero writes:
+
+```powershell
+npm run nutrition:manufacturer-plan -- --dry-plan --input=tmp/manufacturer-source-batch-1/sources.json
+```
+
+Collection is deliberately unavailable without both confirmations below.
+They mean an owner has reviewed robots.txt, Terms/permission, and every exact
+URL in the input list:
+
+```powershell
+npm run nutrition:manufacturer-plan -- --collect-approved --confirm-explicit-urls-only=true --confirm-robots-terms-reviewed=true --input=tmp/manufacturer-source-batch-1/sources.json
+```
+
+The collector enforces HTTPS, expected-domain matching, credential and secret
+query rejection, same-domain redirects only, a 15-second timeout, a 1.5-second
+inter-request delay, a 2 MB streamed response limit, and exact-byte snapshot
+hashing. Raw HTML and its v2 extractor manifest stay below ignored `tmp/`.
+Manufacturer records never invent retailer IDs. An unknown product mapping is
+recorded as `UNMAPPED_SOURCE` and forces low identity confidence.
+
+No manufacturer request should be made merely because a URL appears in a
+catalogue. Dry-plan output is not fetch approval.
+
+## Private admin review queue
+
+Migration `20260802100000_create_nutrition_candidates.sql` creates a private,
+RLS-enabled candidate table. It grants access only to `service_role`, has no
+public policies, constrains fields and units, and makes source evidence
+immutable after insert. A candidate can move only once, from `pending` to
+`approved` or `rejected`.
+
+Validate an extracted JSON artifact without touching Supabase:
+
+```powershell
+npm run nutrition:candidates:store -- --dry-run --input=tmp/nutrition-candidates/nutrition-candidates-<run-id>.json
+```
+
+Only after the migration and artifact have been reviewed, explicitly stage
+the candidates in the private table:
+
+```powershell
+npm run nutrition:candidates:store -- --store-candidates --confirm-candidate-table-only=true --input=tmp/nutrition-candidates/nutrition-candidates-<run-id>.json
+```
+
+The storage command uses server-side service-role credentials and writes only
+`nutrition_candidates`. Duplicate fingerprints are ignored. It never updates
+`products`, creates a verified CSV, or runs the verified importer.
+
+The authenticated page `/admin/nutrition-candidates` shows pending, approved,
+and rejected candidates. Approve and Reject update review metadata only;
+approval is not product verification and has no automatic downstream effect.

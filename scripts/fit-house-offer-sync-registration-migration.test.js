@@ -14,10 +14,14 @@ const expectedSha = "214ace99e775f443692a19410a3b6e19e076472371f070cd10dd5bbaa0c
 
 test("migration is hash-bound and transactional", () => {
   assert.equal(crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"), expectedSha);
-  assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
+  assert.deepEqual(selector.CONTRACTS.STAGING.pending.map(({ filename }) => filename), [
+    "20260802100000_create_nutrition_candidates.sql",
+  ]);
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 70);
-  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, []);
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 69);
+  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending.map(({ filename }) => filename), [
+    "20260802100000_create_nutrition_candidates.sql",
+  ]);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 75);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });

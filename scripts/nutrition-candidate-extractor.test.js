@@ -127,6 +127,13 @@ test("extracts strict label-value text but ignores marketing names", () => {
   ]);
 });
 
+test("extracts an explicit millilitre serving size without converting it to grams", () => {
+  const observations = parseSnapshot("<p>Serving size: 25 ml</p>", "text/html");
+  assert.deepEqual(observations.map((row) => [row.field_name, row.value_numeric, row.unit]), [
+    ["serving_size_ml", 25, "ml"],
+  ]);
+});
+
 test("extracts numeric JSON-LD facts without scanning description copy", () => {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -164,6 +171,18 @@ test("multiple Product JSON-LD nodes are retained for review at low confidence",
   assert.equal(artifact.candidates.length, 1);
   assert.ok(artifact.candidates[0].flags.includes("MULTIPLE_JSON_LD_PRODUCTS"));
   assert.equal(artifact.candidates[0].overall_confidence, "LOW");
+});
+
+test("numeric JSON-LD outside a Product node is ignored", () => {
+  const unrelated = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    protein_per_serving_g: 99,
+  };
+  assert.deepEqual(
+    parseSnapshot(`<script type="application/ld+json">${JSON.stringify(unrelated)}</script>`, "text/html"),
+    [],
+  );
 });
 
 test("extracts dedicated fields from JSON feeds", () => {
@@ -224,6 +243,36 @@ test("manifest is exact, offline and cannot contain verification fields", () => 
   );
 });
 
+test("manufacturer manifest preserves provenance and allows explicitly unmapped products only", () => {
+  const manufacturer = {
+    ...record(),
+    product_id: null,
+    product_variant_id: null,
+    retailer_id: null,
+    retailer_product_id: null,
+    product_name: "Official Whey",
+    brand: "Example Nutrition",
+    manufacturer: "Example Nutrition Ltd",
+    source_type: "manufacturer_product_page",
+    identity_binding: "UNMAPPED_SOURCE",
+    source_snapshot_ref: "tmp/manufacturer-source-batch-1/raw/official-whey.html",
+  };
+  const sourceManifest = {
+    ...manifest([manufacturer]),
+    schema_version: 2,
+    kind: "nutrition-candidate-source-snapshot-v2",
+  };
+  assert.doesNotThrow(() => validateManifest(sourceManifest));
+  assert.throws(
+    () => validateManifest({ ...sourceManifest, records: [{ ...manufacturer, retailer_id: "999" }] }),
+    /cannot invent retailer identities/,
+  );
+  assert.throws(
+    () => validateManifest({ ...sourceManifest, records: [{ ...manufacturer, product_id: "178" }] }),
+    /unmapped source cannot claim product_id/,
+  );
+});
+
 test("snapshot paths cannot escape the manifest directory", () => {
   const manifestPath = path.join("C:\\safe", "manifest.json");
   assert.throws(() => resolveSnapshotPath(manifestPath, "../secret.html"), /escapes manifest directory/);
@@ -266,6 +315,48 @@ test("artifact is candidate-only, fingerprinted and records zero network/databas
   assert.ok(artifact.candidates.every((row) => row.review_status === "PENDING"));
   assert.ok(artifact.candidates.every((row) => row.candidate_status === STATUS));
   assert.equal(JSON.stringify(artifact).includes("nutrition_verified"), false);
+});
+
+test("manufacturer candidate shape carries review metadata and source snapshot provenance", () => {
+  const source = fixture("<p>Protein per serving: 22 g</p>");
+  const recordV2 = {
+    ...source.sourceRecord,
+    product_variant_id: null,
+    retailer_id: null,
+    retailer_product_id: null,
+    product_name: "Official Whey",
+    brand: "Example Nutrition",
+    manufacturer: "Example Nutrition Ltd",
+    source_type: "manufacturer_product_page",
+    identity_binding: "EXACT_PRODUCT",
+    source_snapshot_ref: "tmp/manufacturer-source-batch-1/raw/product.html",
+  };
+  const sourceManifest = {
+    ...manifest([recordV2]),
+    schema_version: 2,
+    kind: "nutrition-candidate-source-snapshot-v2",
+  };
+  const artifact = buildArtifact({
+    manifest: sourceManifest,
+    manifestBytes: Buffer.from(JSON.stringify(sourceManifest)),
+    manifestPath: source.manifestPath,
+  });
+  assert.deepEqual(
+    {
+      product_name: artifact.candidates[0].product_name,
+      brand: artifact.candidates[0].brand,
+      manufacturer: artifact.candidates[0].manufacturer,
+      source_file: artifact.candidates[0].source_file,
+      status: artifact.candidates[0].candidate_status,
+    },
+    {
+      product_name: "Official Whey",
+      brand: "Example Nutrition",
+      manufacturer: "Example Nutrition Ltd",
+      source_file: "tmp/manufacturer-source-batch-1/raw/product.html",
+      status: STATUS,
+    },
+  );
 });
 
 test("conflicting values across source records are explicit and low confidence", () => {

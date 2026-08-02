@@ -3,8 +3,9 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { parse } = require("csv-parse/sync");
 
-const ARTIFACT_KIND = "nutrition-candidate-artifact-v1";
+const ARTIFACT_KIND = "nutrition-candidate-artifact-v2";
 const INPUT_KIND = "nutrition-candidate-source-snapshot-v1";
+const INPUT_KIND_V2 = "nutrition-candidate-source-snapshot-v2";
 const STATUS = "CANDIDATE_REQUIRES_REVIEW";
 const MODE = "OFFLINE_READ_ONLY";
 const MAX_RECORDS = 100;
@@ -17,6 +18,7 @@ const FIELDS = Object.freeze([
   "serving_count_verified",
   "net_weight_g",
   "net_volume_ml",
+  "serving_size_ml",
 ]);
 const FIELD_SET = new Set(FIELDS);
 const CONTENT_TYPES = new Set(["text/html", "application/json"]);
@@ -29,6 +31,7 @@ const IDENTITY_BINDINGS = new Set([
   "EXACT_VARIANT",
   "EXACT_PRODUCT",
   "LEGACY_PRODUCT_URL",
+  "UNMAPPED_SOURCE",
 ]);
 const MANIFEST_KEYS = Object.freeze([
   "schema_version",
@@ -37,7 +40,7 @@ const MANIFEST_KEYS = Object.freeze([
   "captured_at",
   "records",
 ]);
-const RECORD_KEYS = Object.freeze([
+const RECORD_KEYS_V1 = Object.freeze([
   "source_record_id",
   "product_id",
   "product_variant_id",
@@ -51,10 +54,31 @@ const RECORD_KEYS = Object.freeze([
   "content_type",
   "current_values",
 ]);
+const RECORD_KEYS_V2 = Object.freeze([
+  "source_record_id",
+  "product_id",
+  "product_variant_id",
+  "retailer_id",
+  "retailer_product_id",
+  "product_name",
+  "brand",
+  "manufacturer",
+  "source_url",
+  "source_type",
+  "identity_binding",
+  "snapshot_file",
+  "source_snapshot_ref",
+  "snapshot_sha256",
+  "content_type",
+  "current_values",
+]);
 const CSV_COLUMNS = Object.freeze([
   "candidate_id",
   "run_id",
   "source_record_id",
+  "product_name",
+  "brand",
+  "manufacturer",
   "product_id",
   "product_variant_id",
   "retailer_id",
@@ -64,6 +88,7 @@ const CSV_COLUMNS = Object.freeze([
   "unit",
   "basis",
   "source_url",
+  "source_file",
   "source_type",
   "parser",
   "evidence_text",
@@ -122,6 +147,10 @@ function optionalPositiveId(value) {
   return value === null || positiveId(value);
 }
 
+function boundedText(value, maximum) {
+  return typeof value === "string" && value.trim().length > 0 && value.length <= maximum;
+}
+
 function validTimestamp(value) {
   return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
@@ -162,8 +191,9 @@ function validateCurrentValues(value, label) {
 }
 
 function validateManifest(manifest) {
-  if (!exactKeys(manifest, MANIFEST_KEYS) || manifest.schema_version !== 1 ||
-      manifest.kind !== INPUT_KIND || manifest.mode !== "OFFLINE" ||
+  const isV1 = manifest?.schema_version === 1 && manifest?.kind === INPUT_KIND;
+  const isV2 = manifest?.schema_version === 2 && manifest?.kind === INPUT_KIND_V2;
+  if (!exactKeys(manifest, MANIFEST_KEYS) || (!isV1 && !isV2) || manifest.mode !== "OFFLINE" ||
       !validTimestamp(manifest.captured_at) || !Array.isArray(manifest.records) ||
       manifest.records.length < 1 || manifest.records.length > MAX_RECORDS) {
     fail("NCE_SOURCE_SCHEMA_MISMATCH", "Invalid offline source manifest");
@@ -171,18 +201,39 @@ function validateManifest(manifest) {
   const sourceIds = new Set();
   for (const [index, record] of manifest.records.entries()) {
     const label = `record ${index + 1}`;
-    if (!exactKeys(record, RECORD_KEYS) || typeof record.source_record_id !== "string" ||
+    const expectedKeys = isV2 ? RECORD_KEYS_V2 : RECORD_KEYS_V1;
+    const manufacturerSource = record.source_type === "manufacturer_product_page";
+    if (!exactKeys(record, expectedKeys) || typeof record.source_record_id !== "string" ||
         !record.source_record_id.trim() || record.source_record_id.length > 200 ||
-        !positiveId(record.product_id) || !optionalPositiveId(record.product_variant_id) ||
-        !positiveId(record.retailer_id) || !positiveId(record.retailer_product_id) ||
+        !optionalPositiveId(record.product_id) || !optionalPositiveId(record.product_variant_id) ||
+        !optionalPositiveId(record.retailer_id) || !optionalPositiveId(record.retailer_product_id) ||
         !SOURCE_TYPES.has(record.source_type) || !IDENTITY_BINDINGS.has(record.identity_binding) ||
         typeof record.snapshot_file !== "string" || !record.snapshot_file.trim() ||
         !/^[0-9a-f]{64}$/.test(record.snapshot_sha256) ||
         !CONTENT_TYPES.has(record.content_type)) {
       fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} has an invalid schema`);
     }
-    if (record.identity_binding === "EXACT_VARIANT" && record.product_variant_id === null) {
+    if (isV2 && (!boundedText(record.product_name, 300) || !boundedText(record.brand, 200) ||
+        !boundedText(record.manufacturer, 200) || !boundedText(record.source_snapshot_ref, 500) ||
+        path.isAbsolute(record.source_snapshot_ref) || record.source_snapshot_ref.split(/[\\/]/).includes("..") ||
+        !record.source_snapshot_ref.replaceAll("\\", "/").startsWith("tmp/"))) {
+      fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} has invalid manufacturer provenance metadata`);
+    }
+    if (manufacturerSource && (record.retailer_id !== null || record.retailer_product_id !== null)) {
+      fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} manufacturer sources cannot invent retailer identities`);
+    }
+    if (!manufacturerSource && (!positiveId(record.product_id) || !positiveId(record.retailer_id) ||
+        !positiveId(record.retailer_product_id))) {
+      fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} retailer sources require mapped product and retailer identities`);
+    }
+    if (record.identity_binding === "EXACT_VARIANT" && (!positiveId(record.product_id) || record.product_variant_id === null)) {
       fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} exact variant binding requires product_variant_id`);
+    }
+    if (["EXACT_PRODUCT", "LEGACY_PRODUCT_URL"].includes(record.identity_binding) && !positiveId(record.product_id)) {
+      fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} mapped identity binding requires product_id`);
+    }
+    if (record.identity_binding === "UNMAPPED_SOURCE" && record.product_id !== null) {
+      fail("NCE_SOURCE_SCHEMA_MISMATCH", `${label} unmapped source cannot claim product_id`);
     }
     if (sourceIds.has(record.source_record_id)) {
       fail("NCE_DUPLICATE_IDENTITY", `Duplicate source_record_id ${record.source_record_id}`);
@@ -293,6 +344,22 @@ function fieldDefinition(label, inheritedBasis = null) {
   return null;
 }
 
+function resolveDefinitionQuantity(definition, rawValue) {
+  if (!definition) return null;
+  const quantity = parseQuantity(rawValue, definition.dimension);
+  if (quantity) return { definition, quantity };
+  if (definition.field_name === "serving_size_g") {
+    const volume = parseQuantity(rawValue, "volume");
+    if (volume) {
+      return {
+        definition: { ...definition, field_name: "serving_size_ml", dimension: "volume" },
+        quantity: volume,
+      };
+    }
+  }
+  return null;
+}
+
 function observation(definition, quantity, parser, evidenceText, evidenceLocator, extraFlags = []) {
   if (!definition || !quantity) return null;
   return {
@@ -332,6 +399,7 @@ function jsonKeyDefinition(key, parent) {
     numberofservings: { field_name: "serving_count_verified", dimension: "count", basis: "PACKAGE", implicit_unit: "count" },
     servingsize: { field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING" },
     servingsizeg: { field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING", implicit_unit: "g" },
+    servingsizeml: { field_name: "serving_size_ml", dimension: "volume", basis: "PER_SERVING", implicit_unit: "ml" },
     proteinperserving: { field_name: "protein_per_serving_g", dimension: "weight", basis: "PER_SERVING" },
     proteinperservingg: { field_name: "protein_per_serving_g", dimension: "weight", basis: "PER_SERVING", implicit_unit: "g" },
     creatineperserving: { field_name: "creatine_per_serving_g", dimension: "weight", basis: "PER_SERVING" },
@@ -366,6 +434,21 @@ function quantityFromJsonValue(value, definition) {
   return parseQuantity(`${numeric ?? ""} ${unit}`.trim(), dimension);
 }
 
+function observationFromJsonValue(definition, value, parser, evidence, locator) {
+  if (!definition) return null;
+  const quantity = quantityFromJsonValue(value, definition);
+  if (quantity) return observation(definition, quantity, parser, evidence, locator);
+  if (definition.field_name !== "serving_size_g") return null;
+  const volumeDefinition = { ...definition, field_name: "serving_size_ml", dimension: "volume" };
+  return observation(
+    volumeDefinition,
+    quantityFromJsonValue(value, volumeDefinition),
+    parser,
+    evidence,
+    locator,
+  );
+}
+
 function parseJsonObject(root, parser, locatorRoot) {
   const observations = [];
   function walk(value, jsonPath) {
@@ -376,14 +459,12 @@ function parseJsonObject(root, parser, locatorRoot) {
     if (!value || typeof value !== "object") return;
     if (typeof value.name === "string" && Object.prototype.hasOwnProperty.call(value, "value")) {
       const definition = fieldDefinition(value.name);
-      const quantity = definition ? quantityFromJsonValue(value, definition) : null;
-      const item = observation(definition, quantity, parser, `${value.name}: ${String(value.value)}`, `${locatorRoot}${jsonPath}`);
+      const item = observationFromJsonValue(definition, value.value, parser, `${value.name}: ${String(value.value)}`, `${locatorRoot}${jsonPath}`);
       if (item) observations.push(item);
     }
     for (const [key, child] of Object.entries(value)) {
       const definition = jsonKeyDefinition(key, value);
-      const quantity = definition ? quantityFromJsonValue(child, definition) : null;
-      const item = observation(definition, quantity, parser, `${key}: ${typeof child === "object" ? canonical(child) : String(child)}`, `${locatorRoot}${jsonPath}.${key}`);
+      const item = observationFromJsonValue(definition, child, parser, `${key}: ${typeof child === "object" ? canonical(child) : String(child)}`, `${locatorRoot}${jsonPath}.${key}`);
       if (item) observations.push(item);
       walk(child, `${jsonPath}.${key}`);
     }
@@ -409,9 +490,7 @@ function parseJsonLd(html) {
   }
   const blocks = jsonLdBlocks(html);
   for (const block of blocks) collectProducts(block.value, `jsonld:${block.index}:$`);
-  const targets = nodes.length
-    ? nodes
-    : blocks.map((block) => ({ value: block.value, locator: `jsonld:${block.index}:` }));
+  const targets = nodes;
   const observations = targets.flatMap((target) => parseJsonObject(target.value, "JSON_LD", target.locator));
   if (nodes.length > 1) {
     for (const item of observations) item.flags = [...new Set([...item.flags, "MULTIPLE_JSON_LD_PRODUCTS"])].sort();
@@ -451,9 +530,9 @@ function parseTables(html) {
       if (!definition) return;
       const valueIndex = definition.basis === "PER_SERVING" && perServingColumn > 0 ? perServingColumn : 1;
       if (valueIndex >= cells.length) return;
-      const quantity = parseQuantity(cells[valueIndex], definition.dimension);
+      const resolved = resolveDefinitionQuantity(definition, cells[valueIndex]);
       const evidence = [label, cells[valueIndex]].join(" | ");
-      const item = observation(definition, quantity, "TABLE", evidence, `table:${tableIndex + 1}/row:${rowIndex + 1}/column:${valueIndex + 1}`);
+      const item = observation(resolved?.definition, resolved?.quantity, "TABLE", evidence, `table:${tableIndex + 1}/row:${rowIndex + 1}/column:${valueIndex + 1}`);
       if (item) observations.push(item);
     });
   });
@@ -466,8 +545,8 @@ function parseText(html) {
     const match = line.match(/^(.{2,120}?)(?:\s*[:–—-]\s*|\s+is\s+)([^:]{1,80})$/i);
     if (!match) continue;
     const definition = fieldDefinition(match[1]);
-    const quantity = definition ? parseQuantity(match[2], definition.dimension) : null;
-    const item = observation(definition, quantity, "TEXT_LABEL", line, `text:line:${index + 1}`);
+    const resolved = resolveDefinitionQuantity(definition, match[2]);
+    const item = observation(resolved?.definition, resolved?.quantity, "TEXT_LABEL", line, `text:line:${index + 1}`);
     if (item) observations.push(item);
   }
   return observations;
@@ -499,7 +578,7 @@ function minimumConfidence(...values) {
 }
 
 function identityConfidence(binding) {
-  return { EXACT_VARIANT: "HIGH", EXACT_PRODUCT: "MEDIUM", LEGACY_PRODUCT_URL: "LOW" }[binding];
+  return { EXACT_VARIANT: "HIGH", EXACT_PRODUCT: "MEDIUM", LEGACY_PRODUCT_URL: "LOW", UNMAPPED_SOURCE: "LOW" }[binding];
 }
 
 function extractionConfidence(item) {
@@ -582,6 +661,9 @@ function buildCandidates(record, observations, runId, capturedAt) {
     const core = {
       run_id: runId,
       source_record_id: record.source_record_id,
+      product_name: record.product_name || `Product ${record.product_id}`,
+      brand: record.brand || "Unknown",
+      manufacturer: record.manufacturer || "Unknown",
       product_id: record.product_id,
       product_variant_id: record.product_variant_id,
       retailer_id: record.retailer_id,
@@ -591,6 +673,7 @@ function buildCandidates(record, observations, runId, capturedAt) {
       unit: item.unit,
       basis: item.basis,
       source_url: record.source_url,
+      source_file: record.source_snapshot_ref || record.snapshot_file,
       source_type: record.source_type,
       parser: item.parser,
       evidence_text: item.evidence_text,
@@ -608,7 +691,7 @@ function buildCandidates(record, observations, runId, capturedAt) {
       review_status: "PENDING",
     };
     return sealCandidate(core);
-  }).sort((left, right) => left.product_id.localeCompare(right.product_id, undefined, { numeric: true }) ||
+  }).sort((left, right) => (left.product_id || "").localeCompare(right.product_id || "", undefined, { numeric: true }) ||
     (left.product_variant_id || "").localeCompare(right.product_variant_id || "", undefined, { numeric: true }) ||
     left.field_name.localeCompare(right.field_name) || left.value_numeric - right.value_numeric);
 }
@@ -626,7 +709,7 @@ function applyCrossSourceConflicts(candidates) {
   const groups = new Map();
   for (const candidate of candidates) {
     const key = [
-      candidate.product_id,
+      candidate.product_id || `SOURCE:${candidate.source_record_id}`,
       candidate.product_variant_id || "PRODUCT",
       candidate.field_name,
     ].join("|");
@@ -735,7 +818,7 @@ function buildArtifact({ manifest, manifestBytes, manifestPath, filters = {}, ge
     network_requests: 0,
   };
   const core = {
-    schema_version: 1,
+    schema_version: 2,
     kind: ARTIFACT_KIND,
     status: STATUS,
     mode: MODE,
@@ -828,6 +911,7 @@ module.exports = {
   CSV_COLUMNS,
   FIELDS,
   INPUT_KIND,
+  INPUT_KIND_V2,
   MAX_SNAPSHOT_BYTES,
   MODE,
   NutritionCandidateError,
@@ -851,5 +935,6 @@ module.exports = {
   selectRecords,
   sha256,
   validateManifest,
+  validateSourceUrl,
   writeArtifactFiles,
 };

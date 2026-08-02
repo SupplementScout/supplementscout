@@ -1,0 +1,193 @@
+import Link from "next/link";
+import { requireAdminPage } from "../../lib/adminAuth";
+import type {
+  NutritionCandidateReport,
+  NutritionCandidateRow,
+  NutritionCandidateStatus,
+} from "../lib/nutritionCandidates";
+
+export const dynamic = "force-dynamic";
+
+const SECTION_LABELS: Record<NutritionCandidateStatus, string> = {
+  pending: "Pending candidates",
+  approved: "Approved candidates",
+  rejected: "Rejected candidates",
+};
+
+function CandidateCard({ candidate }: { candidate: NutritionCandidateRow }) {
+  const warnings = candidate.warning_flags.length
+    ? candidate.warning_flags.join(", ")
+    : "None";
+  return (
+    <article className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            {candidate.brand}
+          </p>
+          <h3 className="mt-1 text-lg font-bold">{candidate.product_name}</h3>
+          <p className="mt-1 text-sm text-zinc-600">
+            Product ID: {candidate.product_id ?? "Needs mapping"}
+          </p>
+        </div>
+        <span className="w-fit rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold text-zinc-700">
+          {candidate.confidence}
+        </span>
+      </div>
+
+      <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
+        <div>
+          <dt className="font-semibold text-zinc-500">Proposed fact</dt>
+          <dd className="mt-1 font-mono text-zinc-950">
+            {candidate.proposed_field} = {candidate.proposed_value} {candidate.proposed_unit}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-zinc-500">Created</dt>
+          <dd className="mt-1">{new Date(candidate.created_at).toLocaleString("en-GB")}</dd>
+        </div>
+        <div className="md:col-span-2">
+          <dt className="font-semibold text-zinc-500">Evidence</dt>
+          <dd className="mt-1 rounded-lg bg-zinc-50 p-3 font-mono text-xs leading-5">
+            {candidate.evidence_snippet}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-zinc-500">Source</dt>
+          <dd className="mt-1 break-all">
+            <a
+              href={candidate.source_url}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-blue-700 underline"
+            >
+              {candidate.source_domain}
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-zinc-500">Warnings</dt>
+          <dd className="mt-1">{warnings}</dd>
+        </div>
+        <div className="md:col-span-2">
+          <dt className="font-semibold text-zinc-500">Source locator</dt>
+          <dd className="mt-1 break-all font-mono text-xs">{candidate.source_locator}</dd>
+        </div>
+      </dl>
+
+      {candidate.status === "pending" ? (
+        <form
+          action="/admin/nutrition-candidates/review"
+          method="post"
+          className="mt-5 border-t border-zinc-200 pt-4"
+        >
+          <input type="hidden" name="id" value={candidate.id} />
+          <label className="block text-sm font-semibold text-zinc-700">
+            Review note (optional)
+            <input
+              name="reviewNote"
+              maxLength={1000}
+              className="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2 font-normal"
+            />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <button
+              type="submit"
+              name="status"
+              value="approved"
+              className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800"
+            >
+              Approve candidate
+            </button>
+            <button
+              type="submit"
+              name="status"
+              value="rejected"
+              className="rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white hover:bg-red-800"
+            >
+              Reject candidate
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="mt-5 border-t border-zinc-200 pt-4 text-sm text-zinc-600">
+          Reviewed {candidate.reviewed_at
+            ? new Date(candidate.reviewed_at).toLocaleString("en-GB")
+            : "at an unknown time"}
+          {candidate.review_note ? ` — ${candidate.review_note}` : ""}
+        </div>
+      )}
+    </article>
+  );
+}
+
+export default async function NutritionCandidatesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string | string[] }>;
+}) {
+  await requireAdminPage();
+  const params = await searchParams;
+
+  let report: NutritionCandidateReport | null = null;
+  try {
+    const { getNutritionCandidateReport } = await import(
+      "../lib/nutritionCandidates"
+    );
+    report = await getNutritionCandidateReport();
+  } catch {
+    // The migration may not be applied yet. Never expose service-role errors.
+  }
+
+  return (
+    <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <Link href="/admin" className="text-sm font-semibold text-zinc-600 underline">
+              Back to admin
+            </Link>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight">
+              Nutrition candidate review
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-600">
+              Review numeric source evidence only. Approval records a review decision and never updates verified product data.
+            </p>
+          </div>
+        </div>
+
+        {params.saved ? (
+          <p className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
+            Candidate review saved.
+          </p>
+        ) : null}
+
+        {!report ? (
+          <p className="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
+            Nutrition candidates are unavailable. Confirm that the private migration has been reviewed and applied.
+          </p>
+        ) : (
+          (["pending", "approved", "rejected"] as const).map((status) => (
+            <section key={status} className="mt-10">
+              <div className="flex items-end justify-between border-b border-zinc-200 pb-3">
+                <h2 className="text-2xl font-bold">{SECTION_LABELS[status]}</h2>
+                <span className="text-sm font-semibold text-zinc-500">
+                  {report[status].length}
+                </span>
+              </div>
+              {report[status].length ? (
+                <div className="mt-4 grid gap-4">
+                  {report[status].map((candidate) => (
+                    <CandidateCard key={candidate.id} candidate={candidate} />
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-zinc-500">No {status} candidates.</p>
+              )}
+            </section>
+          ))
+        )}
+      </div>
+    </main>
+  );
+}

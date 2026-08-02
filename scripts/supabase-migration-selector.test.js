@@ -72,12 +72,12 @@ test.after(() => {
   }
 });
 
-test("staging happy path binds the post-manifest-rebind ledger", () => {
+test("staging happy path exposes only the reviewed nutrition candidate migration as pending", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 70);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 70);
+  assert.deepEqual(result.pending, ["20260802100000_create_nutrition_candidates"]);
+  assert.equal(result.selected_files.length, 71);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -149,9 +149,11 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production contract binds the post-manifest-rebind ledger", () => {
+test("production contract keeps the private candidate migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map(({ filename }) => filename), [
+    "20260802100000_create_nutrition_candidates.sql",
+  ]);
   assert.equal(contract.ledgerCount, 75);
   assert.equal(
     contract.ledgerFingerprint,
@@ -216,7 +218,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 70);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 71);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -261,11 +263,11 @@ test("production binds its exact post-manifest-rebind ledger", () => {
   assert.equal(result.ledger_count, 75);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
-  assert.equal(result.selected_files.length, 75);
+  assert.equal(result.selected_files.length, 76);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(result.pending_file, "20260802100000_create_nutrition_candidates.sql");
+  assert.equal(result.pending_sha256, CONTRACTS.PRODUCTION.pending[0].sha256);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
@@ -297,10 +299,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("post-manifest-rebind staging output clears pending fields", () => {
+test("staging output binds pending migration filename and hash", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, "20260802100000_create_nutrition_candidates.sql");
+  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
+  assert.deepEqual(result.pending_files, ["20260802100000_create_nutrition_candidates.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20260802100000_create_nutrition_candidates.sql": CONTRACT.pending[0].sha256,
+  });
 });

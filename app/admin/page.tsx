@@ -79,6 +79,16 @@ export default async function AdminPage() {
               new product, waits, or is excluded.
             </p>
           </Link>
+          <Link
+            href="/admin/nutrition-candidates"
+            className="rounded-lg border border-zinc-200 bg-white p-5 hover:border-zinc-950"
+          >
+            <h2 className="text-xl font-bold">Nutrition candidate review</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-600">
+              Approve or reject numeric source evidence without updating
+              verified product data.
+            </p>
+          </Link>
         </section>
       </div>
     </main>

@@ -59,7 +59,12 @@ const CONTRACTS = Object.freeze({
       "20260801220000_recognize_reviewed_gym_high_standalone_legacy_tuples.sql":
         "00178713c4bc9dff283e75ce080a557644bf676c81fd3c72ed0e118b494b94bf",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260802100000_create_nutrition_candidates.sql",
+        sha256: "3c101c2deed99da708499bcdde101bab25e5ccf9fc96ce1f8fe8d10199d376e7",
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -87,7 +92,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260802100000_create_nutrition_candidates.sql",
+        sha256: "3c101c2deed99da708499bcdde101bab25e5ccf9fc96ce1f8fe8d10199d376e7",
+      }),
+    ]),
   }),
 });
 
