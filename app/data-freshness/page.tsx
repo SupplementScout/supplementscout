@@ -7,7 +7,7 @@ const siteUrl = "https://www.supplementscout.co.uk";
 const pagePath = "/data-freshness";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
-  "Understand SupplementScout offer timestamps, the 24-hour comparison-page freshness rule, stale-data handling and price-history limitations.";
+  "Understand SupplementScout offer timestamps, the 24-day comparison-page freshness rule, stale-data handling and price-history limitations.";
 
 export const metadata: Metadata = {
   title: "Supplement Price Data Freshness",
@@ -110,11 +110,11 @@ export default function DataFreshnessPage() {
 
         <div className="mt-12 grid gap-6">
           <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-2xl font-bold">The 24-hour comparison rule</h2>
+            <h2 className="text-2xl font-bold">The 24-day comparison rule</h2>
             <p className="mt-4 leading-8 text-zinc-700">
               Current category comparison pages accept only qualifying offers
               checked within the last{" "}
-              {CREATINE_LAUNCH_THRESHOLDS.maximumOfferAgeHours} hours. The offer
+              {CREATINE_LAUNCH_THRESHOLDS.maximumOfferAgeDays} days. The offer
               must also be mapped to a reviewed product, in stock, have a valid
               positive product price, a usable retailer URL and an identified
               retailer. Older or incomplete offers are excluded from the
@@ -125,10 +125,10 @@ export default function DataFreshnessPage() {
           <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
             <h2 className="text-2xl font-bold">Not every page uses the same gate</h2>
             <p className="mt-4 leading-8 text-zinc-700">
-              The 24-hour rule protects the current rankings on selected
+              The 24-day rule protects the current rankings on selected
               comparison landing pages. Other site surfaces can show stored
               offers with their recorded check dates and should not be read as
-              a claim that every offer was checked within 24 hours. Always use
+              a claim that every offer was checked within 24 days. Always use
               the visible timestamp and confirm the retailer&apos;s checkout.
             </p>
           </section>

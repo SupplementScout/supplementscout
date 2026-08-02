@@ -200,7 +200,7 @@ test("normalization accepts only fresh valid mapped in-stock offers", () => {
       rawProduct({
         offers: [
           rawOffer(),
-          rawOffer({ id: 12, last_checked_at: "2026-07-20T00:00:00Z", price: 1 }),
+          rawOffer({ id: 12, last_checked_at: "2026-06-27T09:59:59Z", price: 1 }),
           rawOffer({ id: 13, in_stock: false }),
           rawOffer({ id: 14, price: null }),
           rawOffer({ id: 15, retailer_product_id: null }),

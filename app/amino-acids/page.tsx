@@ -302,7 +302,7 @@ export function AminoAcidsPageContent({
           <div>
             <h2 className="text-2xl font-bold">How prices are compared</h2>
             <p className="mt-3 leading-7 text-zinc-700">
-              Only mapped, in-stock offers checked within 24 hours are shown.
+              Only mapped, in-stock offers checked within 24 days are shown.
               Known delivered totals are compared first; missing delivery is
               disclosed and never estimated. Verified unit values appear only
               when the required package or serving data is available.

@@ -1,4 +1,6 @@
-export const MAXIMUM_CURRENT_OFFER_AGE_HOURS = 24;
+export const MAXIMUM_CURRENT_OFFER_AGE_DAYS = 24;
+export const MAXIMUM_CURRENT_OFFER_AGE_HOURS =
+  MAXIMUM_CURRENT_OFFER_AGE_DAYS * 24;
 
 export function isOfferFresh(
   checkedAt: string | null | undefined,

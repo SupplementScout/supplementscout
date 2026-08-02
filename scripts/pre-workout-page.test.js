@@ -217,7 +217,7 @@ test("normalization keeps fresh mapped offers and ranks known delivery", () => {
           rawOffer({
             id: 3,
             price: 1,
-            last_checked_at: "2026-07-30T00:00:00.000Z",
+            last_checked_at: "2026-07-07T11:59:59.000Z",
           }),
           rawOffer({ id: 4, retailer_product_id: null }),
         ],

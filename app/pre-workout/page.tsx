@@ -365,7 +365,7 @@ export function PreWorkoutPageContent({
             <h2 className="text-2xl font-bold">How prices are compared</h2>
             <p className="mt-3 leading-7 text-zinc-700">
               We use active, mapped, in-stock retailer offers checked within
-              24 hours. Where both the product price and delivery charge are
+              24 days. Where both the product price and delivery charge are
               known, the delivered total decides the lowest current offer for
               that product. An offer with unknown delivery cannot outrank one
               with a complete delivered total.
@@ -440,7 +440,7 @@ export function PreWorkoutPageContent({
           <div>
             <h3 className="font-bold">How often are prices checked?</h3>
             <p className="mt-2 leading-7 text-zinc-700">
-              Only offers checked within the last 24 hours are eligible for
+              Only offers checked within the last 24 days are eligible for
               this page. Each product shows its latest check time, and stale
               prices are removed from the current ranking.
             </p>

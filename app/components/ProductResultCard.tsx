@@ -186,7 +186,7 @@ export default function ProductResultCard({
           </p>
           {!cheapestOffer && (
             <p className="mt-2 text-sm text-zinc-600">
-              No retailer price has been verified in the last 24 hours.
+              No retailer price has been verified in the last 24 days.
             </p>
           )}
           {searchMobileFirst && pricePresentation && retailerName && (

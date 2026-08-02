@@ -85,7 +85,7 @@ test("normalization keeps only fresh offers and measures distinct retailer overl
   const { normalizeWheyIsolateComparison } = loadComparison();
   const products = [
     rawProduct(1, "Whey Isolate One", [rawOffer(10, 1), rawOffer(11, 2), rawOffer(12, 2)]),
-    rawProduct(2, "Whey Isolate Two", [rawOffer(20, 1), rawOffer(21, 2, { last_checked_at: "2026-07-30T10:00:00.000Z" })]),
+    rawProduct(2, "Whey Isolate Two", [rawOffer(20, 1), rawOffer(21, 2, { last_checked_at: "2026-07-07T11:59:59.000Z" })]),
   ];
   const result = normalizeWheyIsolateComparison(products, { now: FIXTURE_NOW });
   assert.equal(result.summary.visibleProducts, 2);

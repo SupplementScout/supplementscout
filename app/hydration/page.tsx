@@ -286,7 +286,7 @@ export function HydrationPageContent({
             <h2 className="text-2xl font-bold">How freshness works</h2>
             <p className="mt-3 leading-7 text-zinc-700">
               Only active, in-stock offers with a valid price, retailer mapping,
-              retailer URL and a check within the same 24-hour freshness window
+              retailer URL and a check within the same 24-day freshness window
               used by the Creatine comparison appear here. Older or incomplete
               offers do not influence current prices.
             </p>
@@ -314,7 +314,7 @@ export function HydrationPageContent({
           <div><h3 className="font-bold">What do electrolyte products commonly contain?</h3><p className="mt-2 leading-7 text-zinc-700">Formulas commonly use minerals such as sodium, potassium or magnesium. Amounts vary, so check the product label rather than assuming every formula is equivalent.</p></div>
           <div><h3 className="font-bold">Who may use hydration products?</h3><p className="mt-2 leading-7 text-zinc-700">People commonly consider them around exercise, travel or other situations involving fluid intake. Individual needs vary; follow the label and seek qualified advice when appropriate.</p></div>
           <div><h3 className="font-bold">How are hydration products different from EAA or pre-workout?</h3><p className="mt-2 leading-7 text-zinc-700">Hydration products are positioned around fluids and electrolytes. EAA products focus on essential amino acids, while pre-workouts use ingredients intended for use before training. Combination products appear here only when hydration or electrolyte positioning is explicit.</p></div>
-          <div><h3 className="font-bold">How does SupplementScout check prices and stock?</h3><p className="mt-2 leading-7 text-zinc-700">Retailer offers are mapped to reviewed canonical products. This page accepts only valid in-stock offers checked within 24 hours and never fills missing prices by estimation.</p></div>
+          <div><h3 className="font-bold">How does SupplementScout check prices and stock?</h3><p className="mt-2 leading-7 text-zinc-700">Retailer offers are mapped to reviewed canonical products. This page accepts only valid in-stock offers checked within 24 days and never fills missing prices by estimation.</p></div>
         </div>
 
         <aside className="mt-10 rounded-xl border border-zinc-200 bg-white p-6">

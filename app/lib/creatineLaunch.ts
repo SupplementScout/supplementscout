@@ -1,5 +1,6 @@
 import {
   isOfferFresh,
+  MAXIMUM_CURRENT_OFFER_AGE_DAYS,
   MAXIMUM_CURRENT_OFFER_AGE_HOURS,
 } from "./offerFreshness";
 
@@ -15,6 +16,7 @@ export const CREATINE_LAUNCH_THRESHOLDS = {
   minimumOffers: 8,
   minimumRetailers: 2,
   minimumProductsWithMultipleRetailers: 3,
+  maximumOfferAgeDays: MAXIMUM_CURRENT_OFFER_AGE_DAYS,
   maximumOfferAgeHours: MAXIMUM_CURRENT_OFFER_AGE_HOURS,
 } as const;
 

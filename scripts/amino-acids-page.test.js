@@ -162,7 +162,7 @@ test("normalization keeps fresh mapped offers and ranks known delivery", () => {
     rawProduct({ offers: [
       rawOffer({ id: 1, price: 25, shipping_cost: null }),
       rawOffer({ id: 2, price: 26, shipping_cost: 0 }),
-      rawOffer({ id: 3, price: 1, last_checked_at: "2026-07-30T00:00:00Z" }),
+      rawOffer({ id: 3, price: 1, last_checked_at: "2026-07-07T11:59:59Z" }),
       rawOffer({ id: 4, retailer_product_id: null }),
     ] }),
   ], { now: FIXTURE_NOW });

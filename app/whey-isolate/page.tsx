@@ -173,7 +173,7 @@ export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparis
       <section className="border-y border-zinc-200 bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2">
           <div><h2 className="text-2xl font-bold">What is included</h2><p className="mt-3 leading-7 text-zinc-700">Only active products in the reviewed Whey Protein category with an explicit isolate, ISO or WPI identity are included. Explicit blends, beef protein and collagen products are excluded. Retailer wording alone cannot put a different canonical product into scope.</p></div>
-          <div><h2 className="text-2xl font-bold">How current prices work</h2><p className="mt-3 leading-7 text-zinc-700">Only mapped in-stock offers checked within 24 hours are eligible. Known delivered totals rank ahead of offers with unknown delivery. Verified per-kilogram, serving and protein metrics appear only when their required source data is verified.</p></div>
+          <div><h2 className="text-2xl font-bold">How current prices work</h2><p className="mt-3 leading-7 text-zinc-700">Only mapped in-stock offers checked within 24 days are eligible. Known delivered totals rank ahead of offers with unknown delivery. Verified per-kilogram, serving and protein metrics appear only when their required source data is verified.</p></div>
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

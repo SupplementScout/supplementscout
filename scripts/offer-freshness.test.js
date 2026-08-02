@@ -19,13 +19,18 @@ function loadModule(relativePath) {
   return mod.exports;
 }
 
-const { isOfferFresh, MAXIMUM_CURRENT_OFFER_AGE_HOURS } = loadModule("app/lib/offerFreshness.ts");
+const {
+  isOfferFresh,
+  MAXIMUM_CURRENT_OFFER_AGE_DAYS,
+  MAXIMUM_CURRENT_OFFER_AGE_HOURS,
+} = loadModule("app/lib/offerFreshness.ts");
 const now = new Date("2026-08-01T12:00:00.000Z");
 
-test("shared current-offer window is exactly 24 hours and fails closed", () => {
-  assert.equal(MAXIMUM_CURRENT_OFFER_AGE_HOURS, 24);
-  assert.equal(isOfferFresh("2026-07-31T12:00:00.000Z", now), true);
-  assert.equal(isOfferFresh("2026-07-31T11:59:59.999Z", now), false);
+test("shared current-offer window is exactly 24 days and fails closed", () => {
+  assert.equal(MAXIMUM_CURRENT_OFFER_AGE_DAYS, 24);
+  assert.equal(MAXIMUM_CURRENT_OFFER_AGE_HOURS, 576);
+  assert.equal(isOfferFresh("2026-07-08T12:00:00.000Z", now), true);
+  assert.equal(isOfferFresh("2026-07-08T11:59:59.999Z", now), false);
   assert.equal(isOfferFresh("2026-08-01T12:00:00.001Z", now), false);
   assert.equal(isOfferFresh(null, now), false);
   assert.equal(isOfferFresh("invalid", now), false);
