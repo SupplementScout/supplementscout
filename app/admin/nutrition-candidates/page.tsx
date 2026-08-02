@@ -5,6 +5,7 @@ import type {
   NutritionCandidateRow,
   NutritionCandidateStatus,
 } from "../lib/nutritionCandidates";
+import { groupNutritionCandidatesByRun } from "../lib/nutritionCandidateRuns";
 
 export const dynamic = "force-dynamic";
 
@@ -145,6 +146,7 @@ export default async function NutritionCandidatesPage({
   } catch {
     // The migration may not be applied yet. Never expose service-role errors.
   }
+  const runGroups = report ? groupNutritionCandidatesByRun(report) : [];
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
@@ -195,26 +197,67 @@ export default async function NutritionCandidatesPage({
           <p className="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
             Nutrition candidates are unavailable. Confirm that the private migration has been reviewed and applied.
           </p>
-        ) : (
-          (["pending", "approved", "rejected"] as const).map((status) => (
-            <section key={status} className="mt-10">
-              <div className="flex items-end justify-between border-b border-zinc-200 pb-3">
-                <h2 className="text-2xl font-bold">{SECTION_LABELS[status]}</h2>
-                <span className="text-sm font-semibold text-zinc-500">
-                  {report[status].length}
-                </span>
-              </div>
-              {report[status].length ? (
-                <div className="mt-4 grid gap-4">
-                  {report[status].map((candidate) => (
-                    <CandidateCard key={candidate.id} candidate={candidate} runFilter={runFilter} />
-                  ))}
+        ) : runGroups.length ? (
+          <div className="mt-8 space-y-12">
+            {runGroups.map((group, groupIndex) => (
+              <section
+                key={group.run_id}
+                className="rounded-2xl border border-zinc-200 bg-zinc-100/60 p-5 md:p-7"
+              >
+                <div className="flex flex-col gap-3 border-b border-zinc-300 pb-5 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="break-all font-mono text-xl font-bold">{group.run_id}</h2>
+                      {!runFilter && groupIndex === 0 ? (
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900">
+                          Latest batch
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-2 text-sm text-zinc-600">
+                      {group.total} candidates · latest record {new Date(group.latest_created_at).toLocaleString("en-GB")}
+                    </p>
+                  </div>
+                  {!runFilter ? (
+                    <Link
+                      href={`/admin/nutrition-candidates?run=${encodeURIComponent(group.run_id)}`}
+                      className="text-sm font-semibold text-zinc-700 underline"
+                    >
+                      Review only this batch
+                    </Link>
+                  ) : null}
                 </div>
-              ) : (
-                <p className="mt-4 text-sm text-zinc-500">No {status} candidates.</p>
-              )}
-            </section>
-          ))
+
+                {(["pending", "approved", "rejected"] as const).map((status) => (
+                  <section key={status} className="mt-8">
+                    <div className="flex items-end justify-between border-b border-zinc-200 pb-3">
+                      <h3 className="text-xl font-bold">{SECTION_LABELS[status]}</h3>
+                      <span className="text-sm font-semibold text-zinc-500">
+                        {group.report[status].length}
+                      </span>
+                    </div>
+                    {group.report[status].length ? (
+                      <div className="mt-4 grid gap-4">
+                        {group.report[status].map((candidate) => (
+                          <CandidateCard
+                            key={candidate.id}
+                            candidate={candidate}
+                            runFilter={group.run_id}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-sm text-zinc-500">No {status} candidates.</p>
+                    )}
+                  </section>
+                ))}
+              </section>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-8 rounded-lg border border-zinc-200 bg-white p-5 text-sm text-zinc-600">
+            No nutrition candidates found.
+          </p>
         )}
       </div>
     </main>

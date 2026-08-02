@@ -27,6 +27,34 @@ const {
   canReviewNutritionCandidate,
   parseNutritionCandidateReviewInput,
 } = loadTsModule("app/admin/lib/nutritionCandidateReview.ts");
+const { groupNutritionCandidatesByRun } = loadTsModule(
+  "app/admin/lib/nutritionCandidateRuns.ts"
+);
+
+test("nutrition candidate runs are grouped with the newest batch first", () => {
+  const candidate = (id, run_id, created_at, status) => ({
+    id,
+    run_id,
+    created_at,
+    status,
+  });
+  const groups = groupNutritionCandidatesByRun({
+    pending: [
+      candidate("1", "NCR1-older", "2026-08-02T10:00:00.000Z", "pending"),
+      candidate("2", "NCR1-newer", "2026-08-02T12:00:00.000Z", "pending"),
+    ],
+    approved: [
+      candidate("3", "NCR1-older", "2026-08-02T10:00:00.000Z", "approved"),
+    ],
+    rejected: [],
+  });
+
+  assert.deepEqual(groups.map((group) => group.run_id), ["NCR1-newer", "NCR1-older"]);
+  assert.equal(groups[0].total, 1);
+  assert.equal(groups[1].total, 2);
+  assert.equal(groups[1].report.pending[0].id, "1");
+  assert.equal(groups[1].report.approved[0].id, "3");
+});
 
 test("candidate review accepts only pending to approved or rejected", () => {
   assert.equal(canReviewNutritionCandidate("pending", "approved"), true);
@@ -76,6 +104,8 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /Rejected candidates/);
   assert.match(page, /Filter by run ID/);
   assert.match(page, /candidate\.run_id/);
+  assert.match(page, /groupNutritionCandidatesByRun/);
+  assert.match(page, /Latest batch/);
   assert.doesNotMatch(page, /error\.message/);
 });
 
