@@ -1,0 +1,666 @@
+const fs = require("node:fs");
+const path = require("node:path");
+const { spawnSync } = require("node:child_process");
+const {
+  STATUS,
+  applyConsistencyFlags,
+  assertRealPathInsideRoot,
+  decodeHtmlEntities,
+  deduplicateObservations,
+  fingerprint,
+  htmlAttribute,
+  manufacturerPrimaryProductHtml,
+  parseSnapshot,
+  sha256,
+  validateSourceUrl,
+} = require("./nutrition-candidates");
+const {
+  fetchOne,
+  normalizeExpectedDomain,
+  readBoundedBody,
+} = require("../manufacturer-source-collector");
+
+const PAGE_LIST_KIND = "nutrition-ocr-page-source-list-v1";
+const REPORT_KIND = "nutrition-ocr-canary-report-v1";
+const MAX_PAGES = 10;
+const MAX_CANARY_PRODUCTS = 5;
+const MAX_IMAGES_PER_PRODUCT = 2;
+const MAX_IMAGE_BYTES = 8_000_000;
+const MAX_TOTAL_IMAGE_BYTES = 40_000_000;
+const MAX_IMAGE_DIMENSION = 10_000;
+const MAX_IMAGE_PIXELS = 40_000_000;
+const IMAGE_TYPES = new Map([
+  ["image/jpeg", ".jpg"],
+  ["image/png", ".png"],
+  ["image/webp", ".webp"],
+]);
+const PAGE_KEYS = Object.freeze([
+  "source_record_id", "product_id", "product_variant_id", "product_name",
+  "brand", "manufacturer", "identity_binding", "source_page_url",
+  "expected_domain", "approved_image_domains", "notes",
+]);
+
+function fail(message) {
+  throw new Error(message);
+}
+
+function exactKeys(value, expected) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value) &&
+    JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...expected].sort());
+}
+
+function optionalPositiveId(value) {
+  return value === null || (typeof value === "string" && /^[1-9][0-9]*$/.test(value));
+}
+
+function validatePageList(input) {
+  if (!exactKeys(input, ["schema_version", "kind", "pages"]) ||
+      input.schema_version !== 1 || input.kind !== PAGE_LIST_KIND ||
+      !Array.isArray(input.pages) || input.pages.length < 1 || input.pages.length > MAX_PAGES) {
+    fail(`Invalid OCR page list; expected 1-${MAX_PAGES} explicit pages`);
+  }
+  const ids = new Set();
+  const urls = new Set();
+  return {
+    ...input,
+    pages: input.pages.map((page, index) => {
+      if (!exactKeys(page, PAGE_KEYS) || typeof page.source_record_id !== "string" ||
+          !page.source_record_id.trim() || page.source_record_id.length > 200 ||
+          !optionalPositiveId(page.product_id) || !optionalPositiveId(page.product_variant_id) ||
+          typeof page.product_name !== "string" || !page.product_name.trim() || page.product_name.length > 300 ||
+          typeof page.brand !== "string" || !page.brand.trim() || page.brand.length > 200 ||
+          typeof page.manufacturer !== "string" || !page.manufacturer.trim() || page.manufacturer.length > 200 ||
+          !["EXACT_PRODUCT", "EXACT_VARIANT", "UNMAPPED_SOURCE"].includes(page.identity_binding) ||
+          (page.identity_binding === "EXACT_PRODUCT" && (!page.product_id || page.product_variant_id !== null)) ||
+          (page.identity_binding === "EXACT_VARIANT" && (!page.product_id || !page.product_variant_id)) ||
+          (page.identity_binding === "UNMAPPED_SOURCE" && (page.product_id !== null || page.product_variant_id !== null)) ||
+          !Array.isArray(page.approved_image_domains) || page.approved_image_domains.length < 1 ||
+          page.approved_image_domains.length > 10 || typeof page.notes !== "string" || page.notes.length > 1000) {
+        fail(`OCR page ${index + 1} has an invalid schema`);
+      }
+      const sourcePageUrl = validateSourceUrl(page.source_page_url);
+      const expectedDomain = normalizeExpectedDomain(page.expected_domain);
+      const actualDomain = new URL(sourcePageUrl).hostname.toLowerCase().replace(/^www\./, "");
+      if (actualDomain !== expectedDomain) fail(`OCR page ${index + 1} expected domain mismatch`);
+      const approvedDomains = [...new Set([
+        expectedDomain,
+        ...page.approved_image_domains.map(normalizeExpectedDomain),
+      ])];
+      if (ids.has(page.source_record_id)) fail(`Duplicate OCR source_record_id ${page.source_record_id}`);
+      if (urls.has(sourcePageUrl)) fail(`Duplicate OCR source page URL ${sourcePageUrl}`);
+      ids.add(page.source_record_id);
+      urls.add(sourcePageUrl);
+      return {
+        ...page,
+        source_record_id: page.source_record_id.trim(),
+        product_name: page.product_name.trim(),
+        brand: page.brand.trim(),
+        manufacturer: page.manufacturer.trim(),
+        source_page_url: sourcePageUrl,
+        expected_domain: expectedDomain,
+        approved_image_domains: approvedDomains,
+        notes: page.notes.trim(),
+      };
+    }),
+  };
+}
+
+function safeStem(page, index) {
+  const slug = page.product_name.normalize("NFKD").replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "").toLowerCase().slice(0, 70) || "product";
+  return `${String(index + 1).padStart(2, "0")}-p${page.product_id || "unmapped"}-${slug}`;
+}
+
+function relative(cwd, value) {
+  return path.relative(cwd, value).replaceAll("\\", "/");
+}
+
+function buildDryPlan(input, inputPath, cwd = process.cwd()) {
+  const validated = validatePageList(input);
+  const directory = path.dirname(path.resolve(inputPath));
+  return {
+    schema_version: 1,
+    kind: "nutrition-ocr-dry-plan-v1",
+    mode: "DRY_PLAN_NO_NETWORK",
+    source_list: relative(cwd, path.resolve(inputPath)),
+    page_count: validated.pages.length,
+    network_requests: 0,
+    image_downloads: 0,
+    ocr_runs: 0,
+    files_written: 0,
+    stop_reason: "OFFICIAL_PAGE_AND_AUTO_SELECTION_CANARY_CONFIRMATION_REQUIRED",
+    pages: validated.pages.map((page, index) => {
+      const stem = safeStem(page, index);
+      return {
+        source_record_id: page.source_record_id,
+        product_id: page.product_id,
+        product_name: page.product_name,
+        source_page_url: page.source_page_url,
+        expected_domain: page.expected_domain,
+        approved_image_domains: page.approved_image_domains,
+        expected_page_snapshot: relative(cwd, path.join(directory, "pages", `${stem}.html`)),
+        expected_raw_image_directory: relative(cwd, path.join(directory, "raw", stem)),
+        expected_ocr_directory: relative(cwd, path.join(directory, "ocr", stem)),
+        basic_checks: "PASS",
+        image_selection: "NOT_RUN_DRY_PLAN",
+      };
+    }),
+  };
+}
+
+function srcsetUrls(value) {
+  return String(value || "").split(",").map((part) => {
+    const match = part.trim().match(/^(\S+)(?:\s+(\d+(?:\.\d+)?)(w|x))?$/i);
+    return match ? { rawUrl: match[1], descriptor: Number(match[2] || 0), descriptorUnit: match[3] || null } : null;
+  }).filter(Boolean);
+}
+
+function imageAssetKey(urlValue) {
+  let decoded;
+  try {
+    decoded = decodeURIComponent(new URL(urlValue).pathname);
+  } catch {
+    decoded = new URL(urlValue).pathname;
+  }
+  const nested = decoded.lastIndexOf("https://");
+  const target = nested >= 0 ? decoded.slice(nested) : decoded;
+  try {
+    return new URL(target).pathname.split("/").pop().toLowerCase();
+  } catch {
+    return target.split("/").pop().toLowerCase();
+  }
+}
+
+function embeddedApprovedImageUrl(urlValue, approvedDomains) {
+  let decoded;
+  try {
+    decoded = decodeURIComponent(new URL(urlValue).pathname);
+  } catch {
+    return null;
+  }
+  const start = decoded.lastIndexOf("https://");
+  if (start < 0) return null;
+  try {
+    const embedded = validateSourceUrl(decoded.slice(start));
+    const domain = new URL(embedded).hostname.toLowerCase().replace(/^www\./, "");
+    return approvedDomains.includes(domain) && /\.(?:jpe?g|png|webp)$/i.test(new URL(embedded).pathname)
+      ? embedded
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function imageResolutionHint(urlValue, descriptor = 0) {
+  const width = new URL(urlValue).pathname.match(/\/w:(\d+)(?:\/|$)/i);
+  return Math.max(Number(descriptor || 0), Number(width?.[1] || 0));
+}
+
+function scoreImageCandidate(candidate) {
+  const text = `${candidate.url} ${candidate.context}`.toLowerCase()
+    .replace(/[_+%-]+/g, " ").replace(/\s+/g, " ");
+  const rejectSignals = [
+    "logo", "icon", "banner", "payment", "trust badge", "social", "facebook",
+    "instagram", "tracking", "pixel", "spinner", "placeholder", "avatar", "flag",
+  ].filter((signal) => text.includes(signal));
+  if (rejectSignals.length) {
+    return { ...candidate, score: -100, confidence: "REJECTED", reasons: rejectSignals.map((s) => `REJECT_${s.toUpperCase().replace(/\s+/g, "_")}`) };
+  }
+  const reasons = [];
+  let score = 0;
+  const high = [
+    [/supplement\s*facts?/, 120, "SUPPLEMENT_FACTS"],
+    [/nutrition(?:al)?\s*(?:facts?|information|panel)/, 120, "NUTRITION_PANEL"],
+    [/back\s*label|label\s*back/, 105, "BACK_LABEL"],
+    [/\bingredients?\b/, 90, "INGREDIENTS"],
+    [/\bdirections?\b/, 85, "DIRECTIONS"],
+    [/\bservings?\b/, 55, "SERVING"],
+    [/\bpanel\b/, 85, "PANEL"],
+    [/\blabel\b/, 80, "LABEL"],
+    [/\bfacts?\b/, 80, "FACTS"],
+  ];
+  for (const [pattern, points, reason] of high) {
+    if (pattern.test(text)) {
+      score += points;
+      reasons.push(reason);
+    }
+  }
+  const medium = [
+    [/\bback\b/, 40, "BACK"],
+    [/\brear\b/, 40, "REAR"],
+    [/(?:tub|pack|product)\s*back|back\s*(?:tub|pack|product)/, 45, "PRODUCT_BACK"],
+    [/label\s*image/, 45, "LABEL_IMAGE"],
+  ];
+  for (const [pattern, points, reason] of medium) {
+    if (pattern.test(text)) {
+      score += points;
+      reasons.push(reason);
+    }
+  }
+  if (/\bfront\b|packshot|hero|lifestyle/.test(text)) {
+    score -= 35;
+    reasons.push("FRONT_OR_LIFESTYLE");
+  }
+  return {
+    ...candidate,
+    score,
+    confidence: reasons.some((reason) => high.some((entry) => entry[2] === reason)) && score >= 80
+      ? "HIGH"
+      : score >= 35 ? "MEDIUM" : "LOW",
+    reasons: [...new Set(reasons)],
+  };
+}
+
+function discoverImageCandidates(html, page) {
+  const scoped = manufacturerPrimaryProductHtml(html);
+  const found = [];
+  const tagPattern = /<(?:img|source|a|div)\b[^>]*>/gi;
+  for (const match of scoped.matchAll(tagPattern)) {
+    const tag = match[0];
+    const tagName = tag.match(/^<([a-z]+)/i)?.[1]?.toLowerCase();
+    const context = [
+      "alt", "title", "aria-label", "data-caption", "class", "id",
+    ].map((name) => htmlAttribute(tag, name)).filter(Boolean).join(" ");
+    const entries = [];
+    for (const name of ["src", "data-src", "data-opt-src", "data-large_image", "data-large-image", "data-full-src", "data-thumb"]) {
+      const value = htmlAttribute(tag, name);
+      if (value) entries.push({ rawUrl: value, descriptor: 0, attribute: name });
+    }
+    for (const name of ["srcset", "data-srcset"]) {
+      const value = htmlAttribute(tag, name);
+      if (value) entries.push(...srcsetUrls(value).map((entry) => ({ ...entry, attribute: name })));
+    }
+    const href = tagName === "a" ? htmlAttribute(tag, "href") : null;
+    if (href && /\.(?:jpe?g|png|webp)(?:[?#]|$)|\/f:(?:best|webp)\//i.test(href)) {
+      entries.push({ rawUrl: href, descriptor: 0, attribute: "href" });
+    }
+    for (const entry of entries) {
+      if (/^data:/i.test(entry.rawUrl)) continue;
+      let url;
+      try {
+        url = validateSourceUrl(new URL(decodeHtmlEntities(entry.rawUrl), page.source_page_url).href);
+      } catch {
+        continue;
+      }
+      const domain = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+      if (!page.approved_image_domains.includes(domain) || /\.svg(?:[?#]|$)/i.test(url)) continue;
+      const discoveryUrl = url;
+      const embedded = embeddedApprovedImageUrl(url, page.approved_image_domains);
+      if (embedded) url = embedded;
+      const selectedDomain = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+      found.push({
+        url,
+        discovery_url: discoveryUrl === url ? null : discoveryUrl,
+        domain: selectedDomain,
+        context: context.slice(0, 600),
+        attribute: entry.attribute,
+        descriptor: imageResolutionHint(discoveryUrl, entry.descriptor),
+        asset_key: imageAssetKey(url),
+      });
+    }
+  }
+  const byAsset = new Map();
+  for (const candidate of found.map(scoreImageCandidate)) {
+    const current = byAsset.get(candidate.asset_key);
+    if (!current || candidate.score > current.score ||
+        (candidate.score === current.score && candidate.descriptor > current.descriptor)) {
+      byAsset.set(candidate.asset_key, candidate);
+    }
+  }
+  return [...byAsset.values()].sort((left, right) =>
+    right.score - left.score || right.descriptor - left.descriptor || left.url.localeCompare(right.url));
+}
+
+function selectImages(candidates) {
+  const high = candidates.filter((candidate) => candidate.confidence === "HIGH");
+  if (high.length) {
+    return { selected: high.slice(0, MAX_IMAGES_PER_PRODUCT), status: "IMAGE_SELECTION_HIGH_CONFIDENCE" };
+  }
+  if (candidates.some((candidate) => candidate.confidence === "MEDIUM")) {
+    return { selected: [], status: "IMAGE_SELECTION_UNCERTAIN" };
+  }
+  return { selected: [], status: "IMAGE_SELECTION_SKIPPED" };
+}
+
+async function fetchImage(
+  url,
+  expectedDomain,
+  fetchImpl = globalThis.fetch,
+  timeoutMs = 15_000,
+  maximumBytes = MAX_IMAGE_BYTES,
+) {
+  const byteLimit = Math.min(MAX_IMAGE_BYTES, maximumBytes);
+  if (!Number.isInteger(byteLimit) || byteLimit < 1) fail("OCR canary image byte budget is exhausted");
+  const domain = new URL(validateSourceUrl(url)).hostname.toLowerCase().replace(/^www\./, "");
+  if (domain !== expectedDomain) fail("Selected image domain changed before fetch");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl(url, {
+      method: "GET",
+      redirect: "manual",
+      signal: controller.signal,
+      headers: { accept: "image/jpeg,image/png,image/webp" },
+    });
+    if ([301, 302, 303, 307, 308].includes(response.status)) fail("Image redirect rejected");
+    if (!response.ok) fail(`Image HTTP ${response.status}`);
+    const contentType = (response.headers.get("content-type") || "").split(";", 1)[0].trim().toLowerCase();
+    if (!IMAGE_TYPES.has(contentType)) fail(`Unsupported image content type ${contentType || "unknown"}`);
+    const declared = Number(response.headers.get("content-length"));
+    if (Number.isFinite(declared) && declared > byteLimit) {
+      fail(byteLimit === MAX_IMAGE_BYTES ? "Image exceeds 8 MB" : "Image exceeds remaining OCR canary byte budget");
+    }
+    const bytes = await readBoundedBody(response, byteLimit);
+    return { bytes, contentType, extension: IMAGE_TYPES.get(contentType) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function normalizeImage(bytes, sharpImpl) {
+  const sharp = sharpImpl || require("sharp");
+  const source = sharp(bytes, { limitInputPixels: MAX_IMAGE_PIXELS, failOn: "error" });
+  const metadata = await source.metadata();
+  if (!metadata.width || !metadata.height || metadata.width > MAX_IMAGE_DIMENSION ||
+      metadata.height > MAX_IMAGE_DIMENSION || metadata.width * metadata.height > MAX_IMAGE_PIXELS) {
+    fail("Image dimensions exceed OCR safety limits");
+  }
+  const normalized = await sharp(bytes, { limitInputPixels: MAX_IMAGE_PIXELS, failOn: "error" })
+    .rotate().grayscale().normalize().png().toBuffer();
+  return { bytes: normalized, width: metadata.width, height: metadata.height, sourceFormat: metadata.format };
+}
+
+function runWindowsOcr(inputPath, textPath, metadataPath, options = {}) {
+  const tmpRoot = path.resolve(__dirname, "..", "..", "tmp");
+  for (const target of [inputPath, textPath, metadataPath]) {
+    assertRealPathInsideRoot(tmpRoot, path.dirname(path.resolve(target)));
+  }
+  const realInput = fs.realpathSync.native(path.resolve(inputPath));
+  const realTmp = fs.realpathSync.native(tmpRoot);
+  const inputRelative = path.relative(realTmp, realInput);
+  if (inputRelative.startsWith("..") || path.isAbsolute(inputRelative) || !fs.statSync(realInput).isFile()) {
+    fail("OCR input must be a real file inside repository tmp");
+  }
+  if (fs.existsSync(textPath) || fs.existsSync(metadataPath)) fail("OCR output already exists");
+  const spawn = options.spawnImpl || spawnSync;
+  const scriptPath = options.scriptPath || path.resolve(__dirname, "..", "windows-media-ocr.ps1");
+  const executable = options.executable || "powershell.exe";
+  const args = [
+    "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", scriptPath,
+    "-InputPath", inputPath, "-TextOutputPath", textPath, "-MetadataOutputPath", metadataPath,
+  ];
+  const result = spawn(executable, args, {
+    shell: false,
+    windowsHide: true,
+    encoding: "utf8",
+    timeout: 60_000,
+    maxBuffer: 1_000_000,
+  });
+  if (result.error || result.status !== 0) fail(`Windows OCR failed${result.status == null ? "" : ` (${result.status})`}`);
+  const text = fs.readFileSync(textPath, "utf8");
+  const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf8"));
+  return { text, metadata };
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function parseOcrFacts(text) {
+  const lines = String(text).split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
+  const html = `<div class="product type-product">${lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div>`;
+  return applyConsistencyFlags(deduplicateObservations(
+    parseSnapshot(html, "text/html", { sourceType: "manufacturer_product_page" })
+      .map((item) => ({ ...item, parser: "OCR_TEXT", evidence_locator: item.evidence_locator.replace(/^(?:text|manufacturer):/, "ocr:") })),
+  ));
+}
+
+function buildOcrCandidates({ page, pageHtml, image, ocr, capturedAt }) {
+  const htmlFacts = applyConsistencyFlags(deduplicateObservations(
+    parseSnapshot(pageHtml, "text/html", { sourceType: "manufacturer_product_page" }),
+  ));
+  const ocrFacts = parseOcrFacts(ocr.text);
+  const compactOcrText = String(ocr.text).replace(/\s+/g, " ").trim();
+  const suspiciousCharacterCount = (compactOcrText.match(/[\uFFFD]|[^\x20-\x7E\u00A0-\u024F]/g) || []).length;
+  const lowOcrQuality = compactOcrText.length < 20 ||
+    (compactOcrText.length > 0 && suspiciousCharacterCount / compactOcrText.length > 0.1);
+  return ocrFacts.map((fact) => {
+    const comparable = htmlFacts.filter((item) => item.field_name === fact.field_name);
+    const matching = comparable.some((item) => item.value_numeric === fact.value_numeric && item.unit === fact.unit);
+    const conflicting = comparable.some((item) => item.value_numeric !== fact.value_numeric || item.unit !== fact.unit);
+    const ambiguousLayout = fact.flags.some((flag) => [
+      "CONFLICTING_SOURCE_VALUES", "NUTRIENT_EXCEEDS_SERVING_SIZE", "PACKAGE_SERVING_MISMATCH",
+    ].includes(flag));
+    const flags = new Set([
+      ...fact.flags,
+      "OCR_IMAGE_NORMALIZED",
+      "IMAGE_SELECTION_HIGH_CONFIDENCE",
+      ...(matching ? ["OCR_HTML_MATCH"] : ["OCR_ONLY"]),
+      ...(conflicting ? ["OCR_HTML_CONFLICT"] : []),
+      ...(lowOcrQuality ? ["OCR_LOW_QUALITY"] : []),
+      ...(ambiguousLayout ? ["OCR_AMBIGUOUS_LAYOUT"] : []),
+      ...(/per\s*100\s*g/i.test(fact.evidence_text) ? ["OCR_PER_100G_BASIS_UNCLEAR"] : []),
+    ]);
+    const confidence = matching && !conflicting && !lowOcrQuality && !ambiguousLayout &&
+      !flags.has("OCR_PER_100G_BASIS_UNCLEAR") ? "MEDIUM" : "LOW";
+    const core = {
+      product_id: page.product_id,
+      product_variant_id: page.product_variant_id,
+      product_name: page.product_name,
+      brand: page.brand,
+      manufacturer: page.manufacturer,
+      source_page_url: page.source_page_url,
+      image_url: image.url,
+      image_file: image.raw_file,
+      image_sha256: image.raw_sha256,
+      normalized_image_file: image.normalized_file,
+      normalized_image_sha256: image.normalized_sha256,
+      ocr_text_file: ocr.text_file,
+      ocr_text_sha256: ocr.text_sha256,
+      ocr_metadata_file: ocr.metadata_file,
+      ocr_engine: ocr.metadata.engine,
+      ocr_engine_version: ocr.metadata.engine_version || null,
+      ocr_language: ocr.metadata.language,
+      selected_image_score: image.score,
+      selection_reasons: image.reasons,
+      field_name: fact.field_name,
+      value_numeric: fact.value_numeric,
+      unit: fact.unit,
+      basis: fact.basis,
+      evidence_text: fact.evidence_text.slice(0, 160),
+      evidence_locator: fact.evidence_locator,
+      confidence,
+      warning_flags: [...flags].sort(),
+      candidate_status: STATUS,
+      review_status: "PENDING",
+      captured_at: capturedAt,
+    };
+    return { ...core, candidate_fingerprint: fingerprint("OCR_CANDIDATE", core) };
+  });
+}
+
+async function runCanary(input, inputPath, options = {}) {
+  const validated = validatePageList(input);
+  const maximumProducts = Math.min(options.maxProducts || MAX_CANARY_PRODUCTS, MAX_CANARY_PRODUCTS);
+  const selectedPages = validated.pages.slice(0, maximumProducts);
+  const cwd = options.cwd || process.cwd();
+  const tmpRoot = path.resolve(cwd, "tmp");
+  const batchDirectory = path.dirname(path.resolve(inputPath));
+  assertRealPathInsideRoot(tmpRoot, batchDirectory);
+  const reportPath = path.join(batchDirectory, "ocr-canary-report.json");
+  const candidatesPath = path.join(batchDirectory, "ocr-candidates.json");
+  if (fs.existsSync(reportPath) || fs.existsSync(candidatesPath)) fail("OCR canary output already exists; refusing to overwrite provenance");
+  for (const directory of ["pages", "raw", "normalized", "ocr"].map((name) => path.join(batchDirectory, name))) {
+    assertRealPathInsideRoot(tmpRoot, directory);
+    fs.mkdirSync(directory, { recursive: true });
+  }
+  const fetchImpl = options.fetchImpl || globalThis.fetch;
+  const delay = options.delay || ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+  const ocrRunner = options.ocrRunner || runWindowsOcr;
+  const imageNormalizer = options.imageNormalizer || ((bytes) => normalizeImage(bytes, options.sharpImpl));
+  const capturedAt = new Date().toISOString();
+  const pages = [];
+  const candidates = [];
+  let totalImageBytes = 0;
+  let imageDownloads = 0;
+  let ocrRuns = 0;
+  for (const [pageIndex, page] of selectedPages.entries()) {
+    if (pageIndex > 0) await delay(1_500);
+    const stem = safeStem(page, pageIndex);
+    const fetchedPage = await fetchOne({
+      source_url: page.source_page_url,
+      expected_domain: page.expected_domain,
+    }, fetchImpl);
+    const pageFile = path.join(batchDirectory, "pages", `${stem}.html`);
+    fs.writeFileSync(pageFile, fetchedPage.bytes, { flag: "wx" });
+    const pageHtml = fetchedPage.bytes.toString("utf8");
+    const discovered = discoverImageCandidates(pageHtml, page);
+    const selection = selectImages(discovered);
+    const pageReport = {
+      source_record_id: page.source_record_id,
+      product_id: page.product_id,
+      product_name: page.product_name,
+      source_page_url: fetchedPage.finalUrl,
+      page_file: relative(cwd, pageFile),
+      page_sha256: sha256(fetchedPage.bytes),
+      discovered_image_count: discovered.length,
+      selection_status: selection.status,
+      selected_images: [],
+      rejected_images: [],
+      skipped_reason: selection.selected.length ? null : selection.status,
+    };
+    for (const [imageIndex, selected] of selection.selected.entries()) {
+      await delay(1_500);
+      let stage = "DOWNLOAD";
+      const rejected = {
+        image_url: selected.url,
+        discovery_url: selected.discovery_url,
+        score: selected.score,
+        reasons: selected.reasons,
+      };
+      try {
+        const fetchedImage = await fetchImage(
+          selected.url,
+          selected.domain,
+          fetchImpl,
+          15_000,
+          MAX_TOTAL_IMAGE_BYTES - totalImageBytes,
+        );
+        totalImageBytes += fetchedImage.bytes.length;
+        if (totalImageBytes > MAX_TOTAL_IMAGE_BYTES) fail("OCR canary images exceed 40 MB total");
+        imageDownloads += 1;
+        const imageBase = `${stem}-${String(imageIndex + 1).padStart(2, "0")}-${sha256(selected.url).slice(0, 12)}`;
+        const rawPath = path.join(batchDirectory, "raw", `${imageBase}${fetchedImage.extension}`);
+        fs.writeFileSync(rawPath, fetchedImage.bytes, { flag: "wx" });
+        Object.assign(rejected, { raw_file: relative(cwd, rawPath), raw_sha256: sha256(fetchedImage.bytes) });
+        stage = "NORMALIZE";
+        const normalized = await imageNormalizer(fetchedImage.bytes);
+        const normalizedPath = path.join(batchDirectory, "normalized", `${imageBase}.png`);
+        fs.writeFileSync(normalizedPath, normalized.bytes, { flag: "wx" });
+        const textPath = path.join(batchDirectory, "ocr", `${imageBase}.txt`);
+        const metadataPath = path.join(batchDirectory, "ocr", `${imageBase}.json`);
+        stage = "OCR";
+        const result = ocrRunner(normalizedPath, textPath, metadataPath, options.ocrOptions || {});
+        ocrRuns += 1;
+        const imageEvidence = {
+          url: selected.url,
+          score: selected.score,
+          reasons: selected.reasons,
+          raw_file: relative(cwd, rawPath),
+          raw_sha256: sha256(fetchedImage.bytes),
+          normalized_file: relative(cwd, normalizedPath),
+          normalized_sha256: sha256(normalized.bytes),
+          width: normalized.width,
+          height: normalized.height,
+        };
+        const ocrEvidence = {
+          text: result.text,
+          metadata: result.metadata,
+          text_file: relative(cwd, textPath),
+          text_sha256: sha256(Buffer.from(result.text)),
+          metadata_file: relative(cwd, metadataPath),
+        };
+        const imageCandidates = buildOcrCandidates({ page, pageHtml, image: imageEvidence, ocr: ocrEvidence, capturedAt });
+        candidates.push(...imageCandidates);
+        pageReport.selected_images.push({
+          image_url: selected.url,
+          discovery_url: selected.discovery_url,
+          score: selected.score,
+          reasons: selected.reasons,
+          raw_file: imageEvidence.raw_file,
+          raw_sha256: imageEvidence.raw_sha256,
+          normalized_file: imageEvidence.normalized_file,
+          normalized_sha256: imageEvidence.normalized_sha256,
+          ocr_text_file: ocrEvidence.text_file,
+          ocr_text_sha256: ocrEvidence.text_sha256,
+          ocr_metadata_file: ocrEvidence.metadata_file,
+          candidate_count: imageCandidates.length,
+        });
+      } catch (error) {
+        pageReport.rejected_images.push({
+          ...rejected,
+          rejection_stage: stage,
+          rejection_reason: String(error.message || "Unknown image processing error").slice(0, 200),
+        });
+      }
+    }
+    if (!pageReport.selected_images.length && pageReport.rejected_images.length) {
+      pageReport.skipped_reason = "SELECTED_IMAGES_REJECTED";
+    }
+    pages.push(pageReport);
+  }
+  const report = {
+    schema_version: 1,
+    kind: REPORT_KIND,
+    status: STATUS,
+    mode: "LOCAL_OCR_CANARY_NO_DATABASE",
+    generated_at: capturedAt,
+    summary: {
+      selected_products: selectedPages.length,
+      page_requests: selectedPages.length,
+      image_downloads: imageDownloads,
+      ocr_runs: ocrRuns,
+      candidate_facts: candidates.length,
+      skipped_products: pages.filter((page) => page.skipped_reason).length,
+      database_writes: 0,
+      product_updates: 0,
+      verified_csv_files: 0,
+    },
+    pages,
+  };
+  const candidateArtifact = {
+    schema_version: 1,
+    kind: "nutrition-ocr-candidate-artifact-v1",
+    status: STATUS,
+    mode: "LOCAL_OCR_CANARY_NO_DATABASE",
+    generated_at: capturedAt,
+    candidate_count: candidates.length,
+    candidates,
+  };
+  fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
+  fs.writeFileSync(candidatesPath, `${JSON.stringify(candidateArtifact, null, 2)}\n`, { flag: "wx" });
+  return { report, candidateArtifact, reportPath, candidatesPath };
+}
+
+module.exports = {
+  MAX_CANARY_PRODUCTS,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_PIXELS,
+  MAX_IMAGES_PER_PRODUCT,
+  MAX_PAGES,
+  MAX_TOTAL_IMAGE_BYTES,
+  PAGE_LIST_KIND,
+  REPORT_KIND,
+  buildDryPlan,
+  buildOcrCandidates,
+  discoverImageCandidates,
+  fetchImage,
+  normalizeImage,
+  parseOcrFacts,
+  runCanary,
+  runWindowsOcr,
+  scoreImageCandidate,
+  selectImages,
+  validatePageList,
+};

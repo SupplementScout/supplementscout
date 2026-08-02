@@ -127,6 +127,60 @@ test("extracts strict label-value text but ignores marketing names", () => {
   ]);
 });
 
+test("extracts tightly bounded numeric facts from manufacturer product prose", () => {
+  const html = `<div class="product type-product">
+    <p>17 g serving — 25 servings per 425 g tub.</p>
+    <p>5 g creatine per serving.</p>
+  </div>`;
+  const observations = parseSnapshot(html, "text/html", {
+    sourceType: "manufacturer_product_page",
+  });
+  const values = Object.fromEntries(observations.map((row) => [row.field_name, row.value_numeric]));
+  assert.deepEqual(values, {
+    serving_size_g: 17,
+    serving_count_verified: 25,
+    net_weight_g: 425,
+    creatine_per_serving_g: 5,
+  });
+  assert.ok(observations.every((row) => row.parser === "MANUFACTURER_EXPLICIT_TEXT"));
+  assert.ok(observations.every((row) => row.flags.includes("EXPLICIT_PROSE_EVIDENCE")));
+  assert.ok(observations.every((row) => row.evidence_text.length <= 50));
+});
+
+test("extracts protein and serving size only from an explicit manufacturer meta fact", () => {
+  const html = `<head>
+    <meta name="description" content="22.5 g protein per 30 g serving from three plant sources.">
+  </head><div class="product type-product"><p>General product copy.</p></div>`;
+  const observations = parseSnapshot(html, "text/html", {
+    sourceType: "manufacturer_product_page",
+  });
+  assert.deepEqual(
+    observations.map((row) => [row.field_name, row.value_numeric]),
+    [["protein_per_serving_g", 22.5], ["serving_size_g", 30]],
+  );
+  assert.ok(observations.every((row) => row.evidence_locator === "manufacturer:meta-description:1"));
+});
+
+test("manufacturer prose parser excludes reviews, related products, ranges and qualified claims", () => {
+  const html = `<div class="product type-product">
+    <p>Up to 24 g protein per serving.</p>
+    <p>20-30 servings depending on use.</p>
+    <p>Between 20 and 30 servings per tub depending on use.</p>
+    <div id="reviews"><p>Serving size: 30 g</p></div>
+    <section class="related products"><p>Protein per serving: 40 g</p></section>
+  </div>`;
+  assert.deepEqual(parseSnapshot(html, "text/html", {
+    sourceType: "manufacturer_product_page",
+  }), []);
+});
+
+test("manufacturer prose patterns are disabled for retailer pages", () => {
+  const html = `<div class="product type-product"><p>17 g serving — 25 servings per 425 g tub.</p></div>`;
+  assert.deepEqual(parseSnapshot(html, "text/html", {
+    sourceType: "retailer_product_page",
+  }), []);
+});
+
 test("extracts an explicit millilitre serving size without converting it to grams", () => {
   const observations = parseSnapshot("<p>Serving size: 25 ml</p>", "text/html");
   assert.deepEqual(observations.map((row) => [row.field_name, row.value_numeric, row.unit]), [

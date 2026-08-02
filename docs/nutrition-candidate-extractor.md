@@ -47,16 +47,99 @@ The deterministic parser checks, in order:
 1. dedicated JSON-LD numeric properties;
 2. semantic HTML table cells, including an explicit `Per serving` column;
 3. short visible label-value lines such as `Protein per serving: 24 g`;
-4. dedicated numeric properties in a JSON feed snapshot.
+4. tightly bounded numeric facts in the primary content of an official
+   manufacturer page, such as `22.5 g protein per 30 g serving`, `8 g per
+   serving`, or `17 g serving - 25 servings per 425 g tub`;
+5. dedicated numeric properties in a JSON feed snapshot.
 
 Product names, headings, descriptions, scripts, styles, and general marketing
-copy are not scanned for numbers. `Creatine monohydrate` is not automatically
+copy are not scanned generally for numbers. Manufacturer prose extraction is
+enabled only for `manufacturer_product_page`, is restricted to explicit fact
+patterns in the current product's primary content or page meta description,
+and excludes reviews, related products, upsells and cross-sells. Qualified or
+ambiguous claims such as `up to 24 g` and ranges such as `20-30 servings` are
+ignored. Evidence is reduced to the matched numeric phrase and carries the
+`EXPLICIT_PROSE_EVIDENCE` flag. `Creatine monohydrate` is not automatically
 treated as pure creatine. A direct `Creatine per serving` or `of which
 creatine` value is required.
+
+The standard extractor does not fetch product-gallery images. The separate,
+local-only OCR canary can inspect images embedded in an explicitly listed
+official manufacturer product page. It never follows product links or crawls a
+site. It downloads at most two images per product, and only when deterministic
+filename, alt/title or gallery metadata classifies them as HIGH-confidence
+nutrition, supplement-facts or back-label images. MEDIUM-only selection is
+skipped with `IMAGE_SELECTION_UNCERTAIN`.
 
 JSON numbers without a unit are accepted only when the property name encodes
 the unit, such as `protein_per_serving_g` or `net_volume_ml`, or when the field
 is an integer serving count.
+
+## Local OCR canary
+
+OCR is an additional evidence path, not an approval or database-write path. It
+uses Windows Media OCR locally after `sharp` has decoded, bounded and normalized
+the selected JPG, PNG or WebP image. It does not use cloud OCR, Supabase, the
+verified-data importer or product update code. `caffeine_per_serving_mg` remains
+a future field because the current candidate and verified schemas do not fully
+support it.
+
+Create `tmp/nutrition-ocr-batch-1/pages.json` with this exact schema (one to ten
+explicit official manufacturer pages; the first canary processes at most five):
+
+```json
+{
+  "schema_version": 1,
+  "kind": "nutrition-ocr-page-source-list-v1",
+  "pages": [
+    {
+      "source_record_id": "gym-high-whey-pro-synergy",
+      "product_id": "337",
+      "product_variant_id": null,
+      "product_name": "GYM HIGH Whey Pro Synergy",
+      "brand": "GYM HIGH",
+      "manufacturer": "GYM HIGH",
+      "identity_binding": "EXACT_PRODUCT",
+      "source_page_url": "https://gymhigh.co.uk/product/whey-pro-synergy/",
+      "expected_domain": "gymhigh.co.uk",
+      "approved_image_domains": ["gymhigh.co.uk", "approved-cdn.example"],
+      "notes": "Official page and CDN approved for this bounded canary."
+    }
+  ]
+}
+```
+
+`EXACT_PRODUCT` requires a product ID and no variant ID. `EXACT_VARIANT`
+requires both. `UNMAPPED_SOURCE` requires both IDs to be null. Page and image
+URLs must use HTTPS, be credential-free, have no fragment or secret-looking
+query parameter, and match an expected or explicitly approved DNS domain.
+Localhost and IP-literal domains are rejected.
+
+The dry plan performs no fetch, image download, OCR or file write:
+
+```text
+npm run nutrition:ocr-plan -- --input=tmp/nutrition-ocr-batch-1/pages.json
+```
+
+The guarded canary command is:
+
+```text
+npm run nutrition:ocr-canary -- --input=tmp/nutrition-ocr-batch-1/pages.json --max-products=5 --confirm-official-pages-only=true --confirm-local-candidate-only=true
+```
+
+The canary fetches only the listed page and any selected HIGH-confidence image.
+It rejects image redirects, SVG and non-JPG/PNG/WebP responses, limits images to
+8 MB each and 40 MB total, and limits decoded images to 10,000 pixels per side
+and 40 million pixels. Raw bytes, normalized images, SHA-256 hashes, OCR text,
+OCR metadata, the report and candidate JSON are written only below that ignored
+`tmp/` batch directory without overwriting existing provenance.
+
+OCR-only facts are LOW confidence. A fact matching independently extracted HTML
+may be MEDIUM. Per-100-g ambiguity or an HTML conflict stays LOW and carries an
+explicit warning. Evidence is limited to the short matched numeric phrase. All
+records remain `CANDIDATE_REQUIRES_REVIEW`; the local OCR artifact is not yet
+stored in `nutrition_candidates` because the production table does not have the
+full image/OCR provenance columns.
 
 ## Source manifest
 

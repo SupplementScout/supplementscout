@@ -10,6 +10,8 @@
     "analytics:weekly": "node scripts/growth-analytics-report.js",
     "nutrition:candidates": "node scripts/nutrition-candidate-extractor.js",
     "nutrition:manufacturer-plan": "node scripts/manufacturer-source-collector.js",
+    "nutrition:ocr-plan": "node scripts/nutrition-ocr-canary.js --dry-plan",
+    "nutrition:ocr-canary": "node scripts/nutrition-ocr-canary.js --canary",
     "nutrition:candidates:store": "node scripts/store-nutrition-candidates.js",
     "verify:baseline": "node scripts/verify-baseline-migrations.js",
     "verify:project": "node scripts/project-guardian.js"
@@ -22,7 +24,8 @@
     "pg": "^8.16.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "recharts": "^3.9.0"
+    "recharts": "^3.9.0",
+    "sharp": "0.34.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

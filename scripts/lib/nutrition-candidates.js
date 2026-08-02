@@ -275,6 +275,55 @@ function visibleTextLines(html) {
     .filter((line) => line.length > 0 && line.length <= MAX_EVIDENCE_LENGTH);
 }
 
+function htmlAttribute(tag, name) {
+  const match = String(tag).match(new RegExp(`\\b${name}\\s*=\\s*(["'])([\\s\\S]*?)\\1`, "i"));
+  return match ? decodeHtmlEntities(match[2]).replace(/\s+/g, " ").trim() : null;
+}
+
+function manufacturerMetaDescriptions(html) {
+  const descriptions = [];
+  for (const tag of String(html).match(/<meta\b[^>]*>/gi) || []) {
+    const name = htmlAttribute(tag, "name")?.toLowerCase();
+    const property = htmlAttribute(tag, "property")?.toLowerCase();
+    if (name !== "description" && property !== "og:description") continue;
+    const content = htmlAttribute(tag, "content");
+    if (content && content.length <= MAX_EVIDENCE_LENGTH) descriptions.push(content);
+  }
+  return [...new Set(descriptions)];
+}
+
+function manufacturerPrimaryProductHtml(html) {
+  const source = String(html);
+  const primary = source.match(/<(?:main|article|div)\b[^>]*(?:data-elementor-type=["']product["']|class=["'][^"']*\btype-product\b[^"']*["'])[^>]*>/i);
+  const body = source.match(/<body\b[^>]*>/i);
+  const start = primary?.index ?? (body?.index == null ? 0 : body.index + body[0].length);
+  const productHtml = source.slice(start);
+  const stopPatterns = [
+    /<(?:section|div)\b[^>]*class=["'][^"']*\brelated\s+products\b[^"']*["'][^>]*>/i,
+    /<(?:section|div)\b[^>]*class=["'][^"']*\b(?:upsells|up-sells|cross-sells)\b[^"']*["'][^>]*>/i,
+    /<div\b[^>]*id=["']reviews["'][^>]*>/i,
+    /<div\b[^>]*class=["'][^"']*\bwoocommerce-Reviews\b[^"']*["'][^>]*>/i,
+    /<footer\b/i,
+  ];
+  const stop = stopPatterns
+    .map((pattern) => productHtml.search(pattern))
+    .filter((index) => index >= 0)
+    .reduce((lowest, index) => Math.min(lowest, index), productHtml.length);
+  return productHtml.slice(0, stop);
+}
+
+function explicitEvidenceLines(html) {
+  const lines = manufacturerMetaDescriptions(html).map((text, index) => ({
+    text,
+    locator: `manufacturer:meta-description:${index + 1}`,
+  }));
+  const primary = manufacturerPrimaryProductHtml(html);
+  visibleTextLines(primary).forEach((text, index) => {
+    lines.push({ text, locator: `manufacturer:primary-text:${index + 1}` });
+  });
+  return lines;
+}
+
 function normalizeNumberText(value) {
   const text = String(value).trim().replace(/\s+/g, "");
   if (/^\d{1,3}(?:,\d{3})+$/.test(text)) return text.replace(/,/g, "");
@@ -552,7 +601,96 @@ function parseText(html) {
   return observations;
 }
 
-function parseSnapshot(content, contentType) {
+function parseExplicitManufacturerText(html) {
+  const observations = [];
+  const parser = "MANUFACTURER_EXPLICIT_TEXT";
+  const proseFlags = ["EXPLICIT_PROSE_EVIDENCE"];
+
+  function unsafeQualifier(match) {
+    const prefix = String(match.input || "").slice(Math.max(0, (match.index || 0) - 24), match.index || 0);
+    return /(?:up\s+to|as\s+much\s+as|more\s+than|less\s+than|at\s+least|under|over|between)\s*$/i.test(prefix) ||
+      /(?:\bbetween\b.{0,16}\band|\bfrom\b.{0,16}\bto)\s*$/i.test(prefix) ||
+      /[0-9]\s*[-/\u2013\u2014]\s*$/.test(prefix);
+  }
+
+  function add(definition, rawValue, match, locator) {
+    if (unsafeQualifier(match)) return;
+    const resolved = resolveDefinitionQuantity(definition, rawValue);
+    const item = observation(
+      resolved?.definition,
+      resolved?.quantity,
+      parser,
+      match[0].replace(/\s+/g, " ").trim(),
+      locator,
+      proseFlags,
+    );
+    if (item) observations.push(item);
+  }
+
+  function addPackage(rawValue, match, locator) {
+    if (unsafeQualifier(match)) return;
+    const weight = parseQuantity(rawValue, "weight");
+    const volume = weight ? null : parseQuantity(rawValue, "volume");
+    const definition = weight
+      ? { field_name: "net_weight_g", dimension: "weight", basis: "PACKAGE" }
+      : { field_name: "net_volume_ml", dimension: "volume", basis: "PACKAGE" };
+    const item = observation(
+      definition,
+      weight || volume,
+      parser,
+      match[0].replace(/\s+/g, " ").trim(),
+      locator,
+      proseFlags,
+    );
+    if (item) observations.push(item);
+  }
+
+  for (const { text: line, locator } of explicitEvidenceLines(html)) {
+    for (const match of line.matchAll(/\b([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)\s+(?:of\s+)?protein\s+per\s+([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)\s+serv(?:e|ing)\b/gi)) {
+      add({ field_name: "protein_per_serving_g", dimension: "weight", basis: "PER_SERVING" }, `${match[1]} ${match[2]}`, match, locator);
+      add({ field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING" }, `${match[3]} ${match[4]}`, match, locator);
+    }
+    for (const match of line.matchAll(/\b([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)\s+(?:of\s+)?protein\s+per\s+(?:one\s+)?serv(?:e|ing)\b/gi)) {
+      add({ field_name: "protein_per_serving_g", dimension: "weight", basis: "PER_SERVING" }, `${match[1]} ${match[2]}`, match, locator);
+    }
+    for (const match of line.matchAll(/\bprotein(?:\s+content)?\s*(?:is|[:=]|\u2013|\u2014|-)?\s*([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)\s+per\s+(?:one\s+)?serv(?:e|ing)\b/gi)) {
+      add({ field_name: "protein_per_serving_g", dimension: "weight", basis: "PER_SERVING" }, `${match[1]} ${match[2]}`, match, locator);
+    }
+    for (const match of line.matchAll(/\b([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)\s+(?:of\s+)?creatine\s+per\s+(?:one\s+)?serv(?:e|ing)\b/gi)) {
+      add({ field_name: "creatine_per_serving_g", dimension: "weight", basis: "PER_SERVING" }, `${match[1]} ${match[2]}`, match, locator);
+    }
+    for (const match of line.matchAll(/\bcreatine\s*(?:is|[:=]|\u2013|\u2014|-)?\s*([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)\s+per\s+(?:one\s+)?serv(?:e|ing)\b/gi)) {
+      add({ field_name: "creatine_per_serving_g", dimension: "weight", basis: "PER_SERVING" }, `${match[1]} ${match[2]}`, match, locator);
+    }
+    for (const pattern of [
+      /\b([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg|ml|l)\s+serv(?:e|ing)\s+size\b/gi,
+      /\b(?:each|every|recommended)\s+([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg|ml|l)\s+serv(?:e|ing)\b/gi,
+      /(?:^|[.;:|]\s*)([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg|ml|l)\s+serv(?:e|ing)\b/gi,
+      /\b(?:measured|used)\s+at\s+(?:the\s+recommended\s+)?([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg|ml|l)\s+per\s+serv(?:e|ing)\b/gi,
+    ]) {
+      for (const match of line.matchAll(pattern)) {
+        add({ field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING" }, `${match[1]} ${match[2]}`, match, locator);
+      }
+    }
+    const servingCountPatterns = locator.startsWith("manufacturer:meta-description:")
+      ? [/\b((?:approximately|approx\.?|about|around|circa|~)\s*)?([0-9]+)\s+servings?\b/gi]
+      : [
+        /\b((?:approximately|approx\.?|about|around|circa|~)\s*)?([0-9]+)\s+servings?\s+(?:per|in)\s+(?:every|each|one|a|the)?\s*(?:[0-9]+(?:[.,][0-9]+)?\s*(?:kg|g|ml|l)\s+)?(?:container|tub|bottle|bag|pouch|pack(?:age)?)\b/gi,
+        /\b(?:container|tub|bottle|bag|pouch|pack(?:age)?)\s+(?:provides|contains|has)\s+((?:approximately|approx\.?|about|around|circa|~)\s*)?([0-9]+)\s+servings?\b/gi,
+      ];
+    for (const pattern of servingCountPatterns) {
+      for (const match of line.matchAll(pattern)) {
+        add({ field_name: "serving_count_verified", dimension: "count", basis: "PACKAGE" }, `${match[1] || ""}${match[2]} servings`, match, locator);
+      }
+    }
+    for (const match of line.matchAll(/\b([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|ml|l)\s+(?:tub|bag|pouch|bottle|pack(?:age)?)\b/gi)) {
+      addPackage(`${match[1]} ${match[2]}`, match, locator);
+    }
+  }
+  return observations;
+}
+
+function parseSnapshot(content, contentType, options = {}) {
   if (contentType === "application/json") {
     let parsed;
     try {
@@ -562,10 +700,13 @@ function parseSnapshot(content, contentType) {
     }
     return parseJsonObject(parsed, "JSON_FEED", "json:");
   }
+  const manufacturerSource = options.sourceType === "manufacturer_product_page";
+  const scopedHtml = manufacturerSource ? manufacturerPrimaryProductHtml(content) : content;
   return [
     ...parseJsonLd(content),
-    ...parseTables(content),
-    ...parseText(content),
+    ...parseTables(scopedHtml),
+    ...parseText(scopedHtml),
+    ...(manufacturerSource ? parseExplicitManufacturerText(content) : []),
   ];
 }
 
@@ -582,7 +723,7 @@ function identityConfidence(binding) {
 }
 
 function extractionConfidence(item) {
-  let confidence = item.parser === "TEXT_LABEL" ? "MEDIUM" : "HIGH";
+  let confidence = ["TEXT_LABEL", "MANUFACTURER_EXPLICIT_TEXT"].includes(item.parser) ? "MEDIUM" : "HIGH";
   if (item.flags.includes("APPROXIMATE_VALUE")) confidence = "MEDIUM";
   return confidence;
 }
@@ -608,7 +749,13 @@ function deduplicateObservations(observations) {
       ...(parsers.size > 1 ? ["MULTIPLE_PARSER_EVIDENCE"] : []),
     ])].sort();
     if (item.evidence_text !== current.evidence_text) {
-      current.evidence_text = `${current.evidence_text} || ${item.evidence_text}`.slice(0, MAX_EVIDENCE_LENGTH);
+      if (parsers.has("MANUFACTURER_EXPLICIT_TEXT")) {
+        current.evidence_text = [current.evidence_text, item.evidence_text]
+          .sort((left, right) => right.length - left.length)[0]
+          .slice(0, 160);
+      } else {
+        current.evidence_text = `${current.evidence_text} || ${item.evidence_text}`.slice(0, MAX_EVIDENCE_LENGTH);
+      }
     }
     if (item.evidence_locator !== current.evidence_locator) {
       current.evidence_locator = `${current.evidence_locator} | ${item.evidence_locator}`.slice(0, 300);
@@ -792,7 +939,11 @@ function buildArtifact({ manifest, manifestBytes, manifestPath, filters = {}, ge
   const exclusions = [];
   for (const record of selected) {
     const snapshot = loadSnapshot(manifestPath, record);
-    const parsed = applyConsistencyFlags(deduplicateObservations(parseSnapshot(snapshot, record.content_type)));
+    const parsed = applyConsistencyFlags(deduplicateObservations(parseSnapshot(
+      snapshot,
+      record.content_type,
+      { sourceType: record.source_type },
+    )));
     if (!parsed.length) {
       exclusions.push({
         source_record_id: record.source_record_id,
@@ -920,11 +1071,15 @@ module.exports = {
   applyConsistencyFlags,
   assertRealPathInsideRoot,
   buildArtifact,
+  decodeHtmlEntities,
   deduplicateObservations,
   exportCandidateCsv,
   fieldDefinition,
   fingerprint,
+  htmlAttribute,
+  manufacturerPrimaryProductHtml,
   parseCandidateCsv,
+  parseExplicitManufacturerText,
   parseJsonLd,
   parseJsonObject,
   parseQuantity,
