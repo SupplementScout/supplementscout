@@ -48,9 +48,11 @@ function verifyCandidates(plan, candidates) {
       for (const evidence of change.evidence) {
         const candidate = actual.get(String(evidence.candidate_id));
         const snapshot = candidate && candidateSnapshot(candidate);
+        const expectedSourceField = field === "nutrition_verified" ? evidence.source_field : field;
+        const expectedSourceValue = field === "nutrition_verified" ? evidence.source_value : change.after;
         if (!snapshot || snapshot.status !== "approved" || snapshot.run_id !== plan.run_id ||
-            snapshot.product_id !== product.product_id || snapshot.proposed_field !== field ||
-            snapshot.proposed_value !== change.after || snapshot.candidate_fingerprint !== evidence.candidate_fingerprint) {
+            snapshot.product_id !== product.product_id || snapshot.proposed_field !== expectedSourceField ||
+            snapshot.proposed_value !== expectedSourceValue || snapshot.candidate_fingerprint !== evidence.candidate_fingerprint) {
           fail(`Approved candidate ${evidence.candidate_id} changed after plan generation`);
         }
       }
@@ -64,7 +66,9 @@ function verifyProducts(plan, products) {
     const current = byId.get(update.product_id);
     if (!current) fail(`Product ${update.product_id} no longer exists`);
     for (const [field, change] of Object.entries(update.changes)) {
-      const value = current[field] == null ? null : Number(current[field]);
+      const value = field === "nutrition_verified"
+        ? current[field] === true
+        : current[field] == null ? null : Number(current[field]);
       if (value !== change.before) fail(`Product ${update.product_id} field ${field} changed after plan generation`);
     }
   }
@@ -118,7 +122,7 @@ async function applyTransaction(plan, dependencies = {}) {
     const productIds = plan.product_updates.map((product) => product.product_id);
     const productResult = await client.query(`
       select id,net_weight_g,net_volume_ml,serving_count_verified,serving_size_g,
-             serving_size_ml,protein_per_serving_g,creatine_per_serving_g
+             serving_size_ml,protein_per_serving_g,creatine_per_serving_g,nutrition_verified
       from public.products where id=any($1::bigint[]) order by id for update
     `, [productIds]);
     verifyProducts(plan, productResult.rows);

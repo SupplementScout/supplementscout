@@ -9,8 +9,10 @@ const { createCandidateSupabase } = require("../store-nutrition-candidates");
 
 const PLAN_KIND = "nutrition-approved-product-update-plan-v1";
 const AUDIT_KIND = "nutrition-approved-product-update-audit-v1";
-const ALLOWED_FIELDS = Object.freeze([...FIELDS]);
-const FIELD_SET = new Set(ALLOWED_FIELDS);
+const DERIVED_FIELDS = Object.freeze(["nutrition_verified"]);
+const ALLOWED_FIELDS = Object.freeze([...FIELDS, ...DERIVED_FIELDS]);
+const CANDIDATE_FIELD_SET = new Set(FIELDS);
+const NUTRITION_SOURCE_FIELDS = new Set(["protein_per_serving_g", "creatine_per_serving_g"]);
 const EXPECTED_UNITS = Object.freeze({
   net_weight_g: "g",
   net_volume_ml: "ml",
@@ -51,6 +53,8 @@ function candidateEvidence(candidate) {
     evidence_snippet: String(candidate.evidence_snippet),
     source_locator: String(candidate.source_locator),
     warning_flags: Array.isArray(candidate.warning_flags) ? candidate.warning_flags.map(String) : [],
+    source_field: String(candidate.proposed_field),
+    source_value: Number(candidate.proposed_value),
   };
 }
 
@@ -74,7 +78,7 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       blockers.push({ code: "NEEDS_PRODUCT_MAPPING", candidate_id: candidateId });
       continue;
     }
-    if (!FIELD_SET.has(field) || EXPECTED_UNITS[field] !== candidate.proposed_unit || !Number.isFinite(value) || value <= 0) {
+    if (!CANDIDATE_FIELD_SET.has(field) || EXPECTED_UNITS[field] !== candidate.proposed_unit || !Number.isFinite(value) || value <= 0) {
       blockers.push({ code: "UNSUPPORTED_OR_INVALID_FACT", candidate_id: candidateId, product_id: productId, field });
       continue;
     }
@@ -118,6 +122,18 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       no_change: before === value,
       evidence: group.map((item) => candidateEvidence(item.candidate)),
     };
+    if (NUTRITION_SOURCE_FIELDS.has(field)) {
+      const verifiedBefore = product.nutrition_verified === true;
+      const existing = changesByProduct.get(productId).changes.nutrition_verified;
+      const evidence = group.map((item) => candidateEvidence(item.candidate));
+      changesByProduct.get(productId).changes.nutrition_verified = {
+        before: verifiedBefore,
+        after: true,
+        no_change: verifiedBefore,
+        derived_from_reviewed_nutrition: true,
+        evidence: existing ? [...existing.evidence, ...evidence] : evidence,
+      };
+    }
   }
   const productUpdates = [...changesByProduct.values()].sort((a, b) => Number(a.product_id) - Number(b.product_id));
   const core = {
@@ -150,8 +166,14 @@ function validatePlan(plan) {
   for (const product of plan.product_updates) {
     if (!positiveId(product.product_id) || !product.changes || typeof product.changes !== "object") fail("Invalid product update entry");
     for (const [field, change] of Object.entries(product.changes)) {
-      if (!FIELD_SET.has(field) || !change || !Number.isFinite(change.after) || change.after <= 0 ||
-          !(change.before === null || Number.isFinite(change.before)) || !Array.isArray(change.evidence) || !change.evidence.length) {
+      const validDerivedVerification = field === "nutrition_verified" && change && change.after === true &&
+        typeof change.before === "boolean" && change.derived_from_reviewed_nutrition === true &&
+        Array.isArray(change.evidence) && change.evidence.length &&
+        change.evidence.every((evidence) => NUTRITION_SOURCE_FIELDS.has(evidence.source_field) &&
+          Number.isFinite(evidence.source_value) && evidence.source_value > 0);
+      const validNumericChange = FIELDS.includes(field) && change && Number.isFinite(change.after) && change.after > 0 &&
+        (change.before === null || Number.isFinite(change.before)) && Array.isArray(change.evidence) && change.evidence.length;
+      if (!validDerivedVerification && !validNumericChange) {
         fail("Invalid product change in approved plan");
       }
     }

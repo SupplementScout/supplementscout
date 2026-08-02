@@ -37,6 +37,40 @@ test("approved planner creates before/after product-only changes", () => {
   assert.equal(plan.database_writes, 0);
 });
 
+test("approved protein or creatine derives nutrition verification from reviewed evidence", () => {
+  const protein = candidate({
+    proposed_field: "protein_per_serving_g",
+    proposed_value: 20,
+    proposed_unit: "g",
+  });
+  const plan = buildApprovedPlan(
+    [protein],
+    [{ id: "337", name: "Whey", protein_per_serving_g: null, nutrition_verified: false }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(plan.product_updates[0].changes.protein_per_serving_g.after, 20);
+  const verification = plan.product_updates[0].changes.nutrition_verified;
+  assert.equal(verification.before, false);
+  assert.equal(verification.after, true);
+  assert.equal(verification.no_change, false);
+  assert.equal(verification.derived_from_reviewed_nutrition, true);
+  assert.equal(verification.evidence[0].candidate_id, "1");
+  assert.equal(verification.evidence[0].source_field, "protein_per_serving_g");
+  assert.equal(verification.evidence[0].source_value, 20);
+  assert.equal(validatePlan(plan), plan);
+});
+
+test("serving facts alone never derive nutrition verification", () => {
+  const plan = buildApprovedPlan(
+    [candidate()],
+    [{ id: "337", name: "Creatine", serving_size_g: null, nutrition_verified: false }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal("nutrition_verified" in plan.product_updates[0].changes, false);
+});
+
 test("planner blocks unmapped, unsafe and conflicting approved candidates", () => {
   const cases = [
     [candidate({ product_id: null }), "NEEDS_PRODUCT_MAPPING"],
