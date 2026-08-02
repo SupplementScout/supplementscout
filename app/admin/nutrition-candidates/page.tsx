@@ -5,7 +5,10 @@ import type {
   NutritionCandidateRow,
   NutritionCandidateStatus,
 } from "../lib/nutritionCandidates";
-import { groupNutritionCandidatesByRun } from "../lib/nutritionCandidateRuns";
+import {
+  groupNutritionCandidatesByProduct,
+  groupNutritionCandidatesByRun,
+} from "../lib/nutritionCandidateRuns";
 
 export const dynamic = "force-dynamic";
 
@@ -237,13 +240,27 @@ export default async function NutritionCandidatesPage({
                       </span>
                     </div>
                     {group.report[status].length ? (
-                      <div className="mt-4 grid gap-4">
-                        {group.report[status].map((candidate) => (
-                          <CandidateCard
-                            key={candidate.id}
-                            candidate={candidate}
-                            runFilter={group.run_id}
-                          />
+                      <div className="mt-5 space-y-8">
+                        {groupNutritionCandidatesByProduct(group.report[status]).map((productGroup) => (
+                          <section key={productGroup.key}>
+                            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+                              <h4 className="text-base font-bold text-zinc-900">
+                                {productGroup.product_name}
+                              </h4>
+                              <span className="text-xs font-semibold text-zinc-500">
+                                Product ID: {productGroup.product_id ?? "Needs mapping"} · {productGroup.candidates.length} facts
+                              </span>
+                            </div>
+                            <div className="grid gap-4">
+                              {productGroup.candidates.map((candidate) => (
+                                <CandidateCard
+                                  key={candidate.id}
+                                  candidate={candidate}
+                                  runFilter={group.run_id}
+                                />
+                              ))}
+                            </div>
+                          </section>
                         ))}
                       </div>
                     ) : (

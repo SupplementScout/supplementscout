@@ -27,7 +27,10 @@ const {
   canReviewNutritionCandidate,
   parseNutritionCandidateReviewInput,
 } = loadTsModule("app/admin/lib/nutritionCandidateReview.ts");
-const { groupNutritionCandidatesByRun } = loadTsModule(
+const {
+  groupNutritionCandidatesByProduct,
+  groupNutritionCandidatesByRun,
+} = loadTsModule(
   "app/admin/lib/nutritionCandidateRuns.ts"
 );
 
@@ -54,6 +57,32 @@ test("nutrition candidate runs are grouped with the newest batch first", () => {
   assert.equal(groups[1].total, 2);
   assert.equal(groups[1].report.pending[0].id, "1");
   assert.equal(groups[1].report.approved[0].id, "3");
+});
+
+test("candidates are grouped by product and ordered by review dependency", () => {
+  const candidate = (id, product_id, product_name, proposed_field, confidence = "LOW") => ({
+    id,
+    product_id,
+    product_name,
+    proposed_field,
+    confidence,
+  });
+  const groups = groupNutritionCandidatesByProduct([
+    candidate("6", "742", "Applied Creatine", "creatine_per_serving_g"),
+    candidate("5", "338", "Applied Clear Whey", "protein_per_serving_g"),
+    candidate("3", "742", "Applied Creatine", "serving_count_verified"),
+    candidate("2", "742", "Applied Creatine", "serving_size_g"),
+    candidate("4", "338", "Applied Clear Whey", "serving_size_g"),
+    candidate("8", "748", "Applied Mass", "protein_per_serving_g", "LOW"),
+    candidate("7", "748", "Applied Mass", "protein_per_serving_g", "MEDIUM"),
+  ]);
+
+  assert.deepEqual(groups.map((group) => group.product_id), ["338", "742", "748"]);
+  assert.deepEqual(
+    groups[1].candidates.map((item) => item.proposed_field),
+    ["serving_size_g", "serving_count_verified", "creatine_per_serving_g"]
+  );
+  assert.deepEqual(groups[2].candidates.map((item) => item.id), ["7", "8"]);
 });
 
 test("candidate review accepts only pending to approved or rejected", () => {
@@ -105,6 +134,7 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /Filter by run ID/);
   assert.match(page, /candidate\.run_id/);
   assert.match(page, /groupNutritionCandidatesByRun/);
+  assert.match(page, /groupNutritionCandidatesByProduct/);
   assert.match(page, /Latest batch/);
   assert.doesNotMatch(page, /error\.message/);
 });

@@ -1,5 +1,6 @@
 import type {
   NutritionCandidateReport,
+  NutritionCandidateRow,
   NutritionCandidateStatus,
 } from "./nutritionCandidates";
 
@@ -9,11 +10,30 @@ const STATUSES: NutritionCandidateStatus[] = [
   "rejected",
 ];
 
+const FIELD_REVIEW_ORDER: Record<string, number> = {
+  net_weight_g: 0,
+  net_volume_ml: 1,
+  serving_size_g: 2,
+  serving_size_ml: 3,
+  serving_count_verified: 4,
+  protein_per_serving_g: 5,
+  creatine_per_serving_g: 6,
+};
+
+const CONFIDENCE_ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 } as const;
+
 export type NutritionCandidateRunGroup = {
   run_id: string;
   latest_created_at: string;
   total: number;
   report: NutritionCandidateReport;
+};
+
+export type NutritionCandidateProductGroup = {
+  key: string;
+  product_id: string | null;
+  product_name: string;
+  candidates: NutritionCandidateRow[];
 };
 
 function emptyReport(): NutritionCandidateReport {
@@ -46,4 +66,44 @@ export function groupNutritionCandidatesByRun(
     const timeDifference = Date.parse(right.latest_created_at) - Date.parse(left.latest_created_at);
     return timeDifference || right.run_id.localeCompare(left.run_id);
   });
+}
+
+export function groupNutritionCandidatesByProduct(
+  candidates: NutritionCandidateRow[]
+): NutritionCandidateProductGroup[] {
+  const groups = new Map<string, NutritionCandidateProductGroup>();
+
+  for (const candidate of candidates) {
+    const key = candidate.product_id
+      ? `product:${candidate.product_id}`
+      : `unmapped:${candidate.product_name}`;
+    const group = groups.get(key) ?? {
+      key,
+      product_id: candidate.product_id,
+      product_name: candidate.product_name,
+      candidates: [],
+    };
+    group.candidates.push(candidate);
+    groups.set(key, group);
+  }
+
+  for (const group of groups.values()) {
+    group.candidates.sort((left, right) => {
+      const fieldDifference =
+        (FIELD_REVIEW_ORDER[left.proposed_field] ?? 99) -
+        (FIELD_REVIEW_ORDER[right.proposed_field] ?? 99);
+      if (fieldDifference) return fieldDifference;
+      const confidenceDifference =
+        CONFIDENCE_ORDER[left.confidence] - CONFIDENCE_ORDER[right.confidence];
+      if (confidenceDifference) return confidenceDifference;
+      return Number(left.id) - Number(right.id);
+    });
+  }
+
+  return Array.from(groups.values()).sort((left, right) =>
+    left.product_name.localeCompare(right.product_name, "en-GB", {
+      sensitivity: "base",
+      numeric: true,
+    })
+  );
 }
