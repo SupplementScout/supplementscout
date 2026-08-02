@@ -127,6 +127,41 @@ test("extracts strict label-value text but ignores marketing names", () => {
   ]);
 });
 
+test("extracts one explicit parenthetical gram serving size and rejects ambiguous variants", () => {
+  const observations = parseSnapshot(`<p>Serving Size: 1 Scoop (5g)</p>
+    <p>Servings Per Container: 50</p>`, "text/html");
+  assert.deepEqual(
+    observations.map((row) => [row.field_name, row.value_numeric]).sort(),
+    [["serving_count_verified", 50], ["serving_size_g", 5]],
+  );
+  assert.equal(observations.some((row) => row.field_name === "creatine_per_serving_g"), false);
+  assert.equal(observations.some((row) => row.field_name === "protein_per_serving_g"), false);
+
+  const sameLine = parseSnapshot(
+    "<p>Serving Size: 1 Scoop (5g) - Servings Per Container: 50</p>",
+    "text/html",
+  );
+  assert.deepEqual(
+    sameLine.map((row) => [row.field_name, row.value_numeric]).sort(),
+    [["serving_count_verified", 50], ["serving_size_g", 5]],
+  );
+
+  for (const value of [
+    "Serving Size: 1-2 Scoops (5g-10g)",
+    "Serving Size: 1 Scoop (5g) or 2 Scoops (10g)",
+    "Suggested Serving: 1 Scoop (5g)",
+    "Serving Size: approximately 5g",
+    "Serving Size: 5-10g",
+  ]) {
+    assert.equal(
+      parseSnapshot(`<p>${value}</p>`, "text/html")
+        .some((row) => row.field_name === "serving_size_g"),
+      false,
+      value,
+    );
+  }
+});
+
 test("extracts tightly bounded numeric facts from manufacturer product prose", () => {
   const html = `<div class="product type-product">
     <p>17 g serving — 25 servings per 425 g tub.</p>

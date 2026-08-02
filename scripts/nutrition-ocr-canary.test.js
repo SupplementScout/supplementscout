@@ -101,6 +101,45 @@ test("image discovery selects only HIGH approved raster label images", () => {
   assert.ok(selection.selected.every((item) => !item.url.includes("logo")));
 });
 
+test("direct same-page Shopify CDN nutrition images are accepted without globally approving the CDN", () => {
+  const appliedPage = validatePageList(list([page({
+    source_record_id: "applied-clear-whey",
+    product_id: "338",
+    product_name: "Applied Nutrition Clear Whey Protein",
+    brand: "Applied Nutrition",
+    manufacturer: "Applied Nutrition",
+    source_page_url: "https://appliednutrition.uk/products/clear-whey-protein",
+    expected_domain: "appliednutrition.uk",
+    approved_image_domains: ["appliednutrition.uk"],
+  })])).pages[0];
+  const html = `<main class="product type-product">
+    <img loading="lazy" data-src="https://cdn.shopify.com/front.webp" alt="Front packshot">
+    <img srcset="https://cdn.shopify.com/nutrition.webp?width=500 500w, https://cdn.shopify.com/nutrition.webp?width=1000 1000w" alt="Nutritional Information">
+  </main>`;
+  const discovered = discoverImageCandidates(html, appliedPage);
+  const selected = selectImages(discovered).selected;
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].url, "https://cdn.shopify.com/nutrition.webp?width=1000");
+  assert.equal(selected[0].source_page_domain, "appliednutrition.uk");
+  assert.equal(selected[0].image_domain, "cdn.shopify.com");
+  assert.equal(selected[0].image_domain_acceptance, "DIRECT_OFFICIAL_PAGE_CDN_REFERENCE");
+  assert.equal(selected[0].discovery_source, "HTML_SRCSET");
+});
+
+test("JSON-LD and embedded product media JSON images are discovered only from the current page", () => {
+  const html = `<main class="product type-product">
+    <script>window.theme = { image: "not-json" };</script>
+    <script type="application/ld+json">{"@type":"Product","name":"Whey","image":["https://images.example-cdn.com/front.webp"]}</script>
+    <script type="application/json">{"product":{"media":[{"src":"https://cdn.gymhigh.co.uk/back-label.jpg","alt":"Supplement Facts label"}]}}</script>
+    <script type="application/json">{"tracking":{"url":"https://pixels.example/track.png"}}</script>
+  </main>`;
+  const discovered = discoverImageCandidates(html, validatePageList(list()).pages[0]);
+  assert.ok(discovered.some((item) => item.discovery_source === "JSON_LD_PRODUCT_IMAGE"));
+  assert.ok(discovered.some((item) => item.discovery_source === "EMBEDDED_PRODUCT_MEDIA_JSON"));
+  assert.ok(discovered.every((item) => !item.url.includes("pixels.example")));
+  assert.equal(selectImages(discovered).selected[0].url, "https://cdn.gymhigh.co.uk/back-label.jpg");
+});
+
 test("image discovery drops credentials, fragments, secret tokens and unapproved domains", () => {
   const html = `<main class="product type-product">
     <img src="https://user:pass@cdn.gymhigh.co.uk/facts.jpg" alt="Supplement facts">
@@ -202,6 +241,36 @@ test("OCR parser extracts bounded numeric facts and candidate confidence remains
   assert.ok(ambiguous.every((candidate) => candidate.warning_flags.includes("OCR_AMBIGUOUS_LAYOUT")));
 });
 
+test("OCR parser extracts a strict parenthetical serving size without nutrient inference", () => {
+  const facts = parseOcrFacts("Serving Size: 1 Scoop (5g)\nServings Per Container: 50");
+  assert.deepEqual(
+    facts.map((fact) => [fact.field_name, fact.value_numeric]).sort(),
+    [["serving_count_verified", 50], ["serving_size_g", 5]],
+  );
+  assert.equal(facts.some((fact) => fact.field_name === "creatine_per_serving_g"), false);
+  assert.equal(facts.some((fact) => fact.field_name === "protein_per_serving_g"), false);
+
+  const sameLine = parseOcrFacts("Serving Size: 1 Scoop (5g) - Servings Per Container: 50");
+  assert.deepEqual(
+    sameLine.map((fact) => [fact.field_name, fact.value_numeric]).sort(),
+    [["serving_count_verified", 50], ["serving_size_g", 5]],
+  );
+
+  for (const value of [
+    "Serving Size: 1-2 Scoops (5g-10g)",
+    "Serving Size: 1 Scoop (5g) or 2 Scoops (10g)",
+    "Suggested Serving: 1 Scoop (5g)",
+    "Serving Size: approximately 5g",
+    "Serving Size: 5-10g",
+  ]) {
+    assert.equal(
+      parseOcrFacts(value).some((fact) => fact.field_name === "serving_size_g"),
+      false,
+      value,
+    );
+  }
+});
+
 test("canary requests only an explicit page and selected HIGH image", async (t) => {
   const batch = tempBatch("nutrition-ocr-canary-test");
   t.after(() => fs.rmSync(batch, { recursive: true, force: true }));
@@ -259,6 +328,60 @@ test("a rejected selected image is reported and does not destroy the canary repo
   assert.equal(result.report.pages[0].rejected_images[0].rejection_stage, "DOWNLOAD");
   assert.match(result.report.pages[0].rejected_images[0].rejection_reason, /redirect rejected/i);
   assert.equal(result.report.summary.candidate_facts, 0);
+  assert.ok(fs.existsSync(result.reportPath));
+});
+
+test("one page failure retries ECONNRESET once, continues the batch, and reports invalid URLs", async (t) => {
+  const batch = tempBatch("nutrition-ocr-page-failure-test");
+  t.after(() => fs.rmSync(batch, { recursive: true, force: true }));
+  const inputPath = path.join(batch, "pages.json");
+  const pages = [
+    page({
+      source_record_id: "per4m-whey",
+      product_id: "12",
+      product_name: "PER4M Whey Protein",
+      brand: "PER4M",
+      manufacturer: "PER4M",
+      source_page_url: "https://per4m.com/products/whey-protein",
+      expected_domain: "per4m.com",
+      approved_image_domains: ["per4m.com"],
+    }),
+    page({
+      source_record_id: "strom-invalid",
+      product_id: "898",
+      product_name: "Strom Velosiwhey Iso",
+      brand: "Strom Sports",
+      manufacturer: "Strom Sports",
+      source_page_url: "https://www.stromsports.com/products/velosiwhey-iso",
+      expected_domain: "stromsports.com",
+      approved_image_domains: ["stromsports.com"],
+    }),
+    page({ source_record_id: "gym-success" }),
+  ];
+  fs.writeFileSync(inputPath, JSON.stringify(list(pages)));
+  const calls = [];
+  const result = await runCanary(list(pages), inputPath, {
+    cwd: repositoryRoot,
+    delay: async () => {},
+    fetchImpl: async (url) => {
+      calls.push(url);
+      if (url.includes("per4m.com")) {
+        const error = new TypeError("fetch failed");
+        error.cause = { code: "ECONNRESET" };
+        throw error;
+      }
+      if (url.includes("stromsports.com")) return new Response("missing", { status: 404, headers: { "content-type": "text/html" } });
+      return new Response("<main class=\"product type-product\"></main>", { status: 200, headers: { "content-type": "text/html" } });
+    },
+  });
+  assert.equal(calls.filter((url) => url.includes("per4m.com")).length, 2);
+  assert.equal(calls.filter((url) => url.includes("stromsports.com")).length, 1);
+  assert.equal(result.report.pages.length, 3);
+  assert.equal(result.report.pages[0].skipped_reason, "PAGE_FETCH_FAILED_ECONNRESET");
+  assert.equal(result.report.pages[0].page_fetch_attempts, 2);
+  assert.equal(result.report.pages[1].skipped_reason, "INVALID_OFFICIAL_URL");
+  assert.equal(result.report.pages[2].selection_status, "IMAGE_SELECTION_SKIPPED");
+  assert.equal(result.report.summary.page_requests, 4);
   assert.ok(fs.existsSync(result.reportPath));
 });
 

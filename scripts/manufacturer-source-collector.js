@@ -150,6 +150,24 @@ function sameExpectedDomain(urlValue, expectedDomain) {
   return new URL(urlValue).hostname.toLowerCase().replace(/^www\./, "") === expectedDomain;
 }
 
+const COMMON_MULTIPART_PUBLIC_SUFFIXES = new Set([
+  "co.uk", "org.uk", "ac.uk", "gov.uk", "com.au", "net.au", "org.au",
+  "co.nz", "com.br", "com.mx", "co.jp", "co.za",
+]);
+
+function registrableDomain(value) {
+  const hostname = new URL(value).hostname.toLowerCase().replace(/^www\./, "");
+  normalizeExpectedDomain(hostname);
+  const labels = hostname.split(".");
+  const suffix = labels.slice(-2).join(".");
+  const count = COMMON_MULTIPART_PUBLIC_SUFFIXES.has(suffix) ? 3 : 2;
+  return labels.length <= count ? hostname : labels.slice(-count).join(".");
+}
+
+function sameRegistrableDomain(urlValue, expectedDomain) {
+  return registrableDomain(urlValue) === registrableDomain(`https://${expectedDomain}/`);
+}
+
 async function readBoundedBody(response, maximum) {
   if (!response.body || typeof response.body.getReader !== "function") {
     const bytes = Buffer.from(await response.arrayBuffer());
@@ -173,7 +191,7 @@ async function readBoundedBody(response, maximum) {
   return Buffer.concat(chunks, length);
 }
 
-async function fetchOne(source, fetchImpl, timeoutMs = REQUEST_TIMEOUT_MS) {
+async function fetchOne(source, fetchImpl, timeoutMs = REQUEST_TIMEOUT_MS, options = {}) {
   let url = source.source_url;
   for (let redirects = 0; redirects <= 3; redirects += 1) {
     const controller = new AbortController();
@@ -189,7 +207,9 @@ async function fetchOne(source, fetchImpl, timeoutMs = REQUEST_TIMEOUT_MS) {
         const location = response.headers.get("location");
         if (!location || redirects === 3) fail(`Unsafe or excessive redirect for ${source.source_url}`);
         const nextUrl = validateSourceUrl(new URL(location, url).href);
-        if (!sameExpectedDomain(nextUrl, source.expected_domain)) {
+        const allowedRedirect = sameExpectedDomain(nextUrl, source.expected_domain) ||
+          (options.allowSameRegistrableDomain === true && sameRegistrableDomain(nextUrl, source.expected_domain));
+        if (!allowedRedirect) {
           fail(`Cross-domain redirect blocked for ${source.source_url}`);
         }
         url = nextUrl;
@@ -367,6 +387,7 @@ module.exports = {
   normalizeExpectedDomain,
   parseArgs,
   readBoundedBody,
+  sameRegistrableDomain,
   resolveInputInsideTmp,
   runCli,
   safeFileName,

@@ -409,6 +409,22 @@ function resolveDefinitionQuantity(definition, rawValue) {
   return null;
 }
 
+function strictParentheticalServingSize(rawValue) {
+  const text = plainText(rawValue).trim();
+  if (/\b(?:approximately|approx\.?|about|around|circa|or)\b|~|[0-9]\s*[-/\u2013\u2014]\s*[0-9]/i.test(text)) {
+    return null;
+  }
+  const parenthetical = [...text.matchAll(/\(([^()]*)\)/g)];
+  if (parenthetical.length !== 1) return null;
+  const value = parenthetical[0][1].trim();
+  if (!/^[0-9]+(?:[.,][0-9]+)?\s*g$/i.test(value)) return null;
+  const start = parenthetical[0].index || 0;
+  const outside = `${text.slice(0, start)} ${text.slice(start + parenthetical[0][0].length)}`;
+  if (/[0-9]+(?:[.,][0-9]+)?\s*(?:kg|g|mg)\b/i.test(outside)) return null;
+  const quantity = parseQuantity(value, "weight");
+  return quantity && quantity.flags.length === 0 ? quantity : null;
+}
+
 function observation(definition, quantity, parser, evidenceText, evidenceLocator, extraFlags = []) {
   if (!definition || !quantity) return null;
   return {
@@ -591,6 +607,29 @@ function parseTables(html) {
 function parseText(html) {
   const observations = [];
   for (const [index, line] of visibleTextLines(html).entries()) {
+    const exactServingSize = line.match(/^serving\s+size\s*:\s*(.{1,160})$/i);
+    if (exactServingSize) {
+      let definition = { field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING" };
+      const directWeight = parseQuantity(exactServingSize[1], "weight");
+      const directVolume = parseQuantity(exactServingSize[1], "volume");
+      let quantity = directWeight?.flags.length === 0
+        ? directWeight
+        : strictParentheticalServingSize(exactServingSize[1]);
+      if (!quantity && directVolume?.flags.length === 0) {
+        definition = { ...definition, field_name: "serving_size_ml", dimension: "volume" };
+        quantity = directVolume;
+      }
+      const item = observation(definition, quantity, "TEXT_LABEL", line, `text:line:${index + 1}`);
+      if (item) observations.push(item);
+      const servingCountMatch = line.match(/\bservings?\s+per\s+(?:container|pack(?:age)?|tub|bottle)\s*:\s*([0-9]+)\b/i);
+      if (servingCountMatch) {
+        const countDefinition = { field_name: "serving_count_verified", dimension: "count", basis: "PACKAGE" };
+        const count = parseQuantity(servingCountMatch[1], "count");
+        const countItem = observation(countDefinition, count, "TEXT_LABEL", line, `text:line:${index + 1}`);
+        if (countItem) observations.push(countItem);
+      }
+      continue;
+    }
     const match = line.match(/^(.{2,120}?)(?:\s*[:–—-]\s*|\s+is\s+)([^:]{1,80})$/i);
     if (!match) continue;
     const definition = fieldDefinition(match[1]);

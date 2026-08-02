@@ -112,6 +112,26 @@ test("redirects cannot leave the approved domain", async () => {
   );
 });
 
+test("same-registrable-domain redirects are opt-in and remain bounded", async () => {
+  const calls = [];
+  const result = await fetchOne(source(), async (url) => {
+    calls.push(url);
+    if (calls.length === 1) return new Response(null, {
+      status: 302,
+      headers: { location: "https://shop.manufacturer.example/product/whey/" },
+    });
+    return new Response("<html>official</html>", {
+      status: 200,
+      headers: { "content-type": "text/html" },
+    });
+  }, undefined, { allowSameRegistrableDomain: true });
+  assert.equal(result.finalUrl, "https://shop.manufacturer.example/product/whey/");
+  await assert.rejects(() => fetchOne(source(), async () => new Response(null, {
+    status: 302,
+    headers: { location: "https://gymhigh.example/product/whey/" },
+  }), undefined, { allowSameRegistrableDomain: true }), /Cross-domain redirect blocked/);
+});
+
 test("HTML is bounded while streaming even without a content-length header", async () => {
   await assert.rejects(
     () => fetchOne(source(), async () => new Response(Buffer.alloc(2_000_001), {

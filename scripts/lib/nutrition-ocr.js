@@ -155,6 +155,32 @@ function srcsetUrls(value) {
   }).filter(Boolean);
 }
 
+function imageDomain(urlValue) {
+  const domain = new URL(urlValue).hostname.toLowerCase().replace(/^www\./, "");
+  normalizeExpectedDomain(domain);
+  return domain;
+}
+
+function imageDomainAcceptance(urlValue, page, directlyReferenced) {
+  let domain;
+  try {
+    domain = imageDomain(urlValue);
+  } catch {
+    return null;
+  }
+  if (domain === page.expected_domain) return { domain, reason: "SOURCE_PAGE_DOMAIN" };
+  if (page.approved_image_domains.includes(domain)) {
+    return { domain, reason: "MANIFEST_APPROVED_IMAGE_DOMAIN" };
+  }
+  const firstLabel = domain.split(".")[0];
+  const knownCdnHost = domain === "cdn.shopify.com" ||
+    /^(?:cdn|images?|media|assets?|static|uploads?)\d*$/.test(firstLabel) ||
+    /(?:cloudfront\.net|cloudinary\.com|ctfassets\.net|imgix\.net)$/.test(domain);
+  return directlyReferenced && knownCdnHost
+    ? { domain, reason: "DIRECT_OFFICIAL_PAGE_CDN_REFERENCE" }
+    : null;
+}
+
 function imageAssetKey(urlValue) {
   let decoded;
   try {
@@ -171,7 +197,7 @@ function imageAssetKey(urlValue) {
   }
 }
 
-function embeddedApprovedImageUrl(urlValue, approvedDomains) {
+function embeddedApprovedImageUrl(urlValue, page) {
   let decoded;
   try {
     decoded = decodeURIComponent(new URL(urlValue).pathname);
@@ -182,13 +208,64 @@ function embeddedApprovedImageUrl(urlValue, approvedDomains) {
   if (start < 0) return null;
   try {
     const embedded = validateSourceUrl(decoded.slice(start));
-    const domain = new URL(embedded).hostname.toLowerCase().replace(/^www\./, "");
-    return approvedDomains.includes(domain) && /\.(?:jpe?g|png|webp)$/i.test(new URL(embedded).pathname)
+    return imageDomainAcceptance(embedded, page, false) && /\.(?:jpe?g|png|webp)$/i.test(new URL(embedded).pathname)
       ? embedded
       : null;
   } catch {
     return null;
   }
+}
+
+function productJsonImageEntries(scoped) {
+  const entries = [];
+  const scripts = scoped.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi);
+  for (const match of scripts) {
+    const attributes = match[1];
+    const body = decodeHtmlEntities(match[2].trim());
+    const type = String(htmlAttribute(`<script ${attributes}>`, "type") || "").toLowerCase();
+    if (!body || body.length > 750_000 || !["application/ld+json", "application/json"].includes(type)) continue;
+    let data;
+    try {
+      data = JSON.parse(body);
+    } catch {
+      continue;
+    }
+    const jsonLd = type === "application/ld+json";
+    const visit = (value, pathParts = [], inheritedContext = "", inProduct = false) => {
+      if (!value || typeof value !== "object") return;
+      if (Array.isArray(value)) {
+        for (const child of value) visit(child, pathParts, inheritedContext, inProduct);
+        return;
+      }
+      const typeValue = String(value["@type"] || "");
+      const productContext = inProduct || /\bProduct\b/i.test(typeValue) ||
+        pathParts.some((part) => /^(?:product|products|media|images?|featured_media|featured_image)$/i.test(part));
+      const context = [value.alt, value.name, value.title, value.media_type, inheritedContext]
+        .filter((item) => typeof item === "string").join(" ").slice(0, 600);
+      for (const [key, child] of Object.entries(value)) {
+        const nextPath = [...pathParts, key];
+        const imageKey = /^(?:image|images|src|url|contentUrl|preview_image|featured_image)$/i.test(key);
+        const imageValues = typeof child === "string" ? [child]
+          : Array.isArray(child) ? child.filter((item) => typeof item === "string") : [];
+        if (productContext && imageKey) {
+          for (const imageValue of imageValues) {
+            if (!/^https:\/\//i.test(imageValue) ||
+                !/\.(?:jpe?g|png|webp)(?:[?#]|$)|\/cdn\/shop\/files\//i.test(imageValue)) continue;
+            entries.push({
+              rawUrl: imageValue,
+              descriptor: 0,
+              attribute: nextPath.join("."),
+              context,
+              discoverySource: jsonLd ? "JSON_LD_PRODUCT_IMAGE" : "EMBEDDED_PRODUCT_MEDIA_JSON",
+            });
+          }
+        }
+        if (typeof child === "object") visit(child, nextPath, context, productContext);
+      }
+    };
+    visit(data);
+  }
+  return entries;
 }
 
 function imageResolutionHint(urlValue, descriptor = 0) {
@@ -262,43 +339,24 @@ function discoverImageCandidates(html, page) {
       "alt", "title", "aria-label", "data-caption", "class", "id",
     ].map((name) => htmlAttribute(tag, name)).filter(Boolean).join(" ");
     const entries = [];
-    for (const name of ["src", "data-src", "data-opt-src", "data-large_image", "data-large-image", "data-full-src", "data-thumb"]) {
+    for (const name of [
+      "src", "data-src", "data-opt-src", "data-zoom", "data-zoom-image",
+      "data-large_image", "data-large-image", "data-full-src", "data-thumb",
+    ]) {
       const value = htmlAttribute(tag, name);
-      if (value) entries.push({ rawUrl: value, descriptor: 0, attribute: name });
+      if (value) entries.push({ rawUrl: value, descriptor: 0, attribute: name, context, discoverySource: "HTML_ATTRIBUTE" });
     }
     for (const name of ["srcset", "data-srcset"]) {
       const value = htmlAttribute(tag, name);
-      if (value) entries.push(...srcsetUrls(value).map((entry) => ({ ...entry, attribute: name })));
+      if (value) entries.push(...srcsetUrls(value).map((entry) => ({ ...entry, attribute: name, context, discoverySource: "HTML_SRCSET" })));
     }
     const href = tagName === "a" ? htmlAttribute(tag, "href") : null;
     if (href && /\.(?:jpe?g|png|webp)(?:[?#]|$)|\/f:(?:best|webp)\//i.test(href)) {
-      entries.push({ rawUrl: href, descriptor: 0, attribute: "href" });
+      entries.push({ rawUrl: href, descriptor: 0, attribute: "href", context, discoverySource: "HTML_IMAGE_LINK" });
     }
-    for (const entry of entries) {
-      if (/^data:/i.test(entry.rawUrl)) continue;
-      let url;
-      try {
-        url = validateSourceUrl(new URL(decodeHtmlEntities(entry.rawUrl), page.source_page_url).href);
-      } catch {
-        continue;
-      }
-      const domain = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
-      if (!page.approved_image_domains.includes(domain) || /\.svg(?:[?#]|$)/i.test(url)) continue;
-      const discoveryUrl = url;
-      const embedded = embeddedApprovedImageUrl(url, page.approved_image_domains);
-      if (embedded) url = embedded;
-      const selectedDomain = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
-      found.push({
-        url,
-        discovery_url: discoveryUrl === url ? null : discoveryUrl,
-        domain: selectedDomain,
-        context: context.slice(0, 600),
-        attribute: entry.attribute,
-        descriptor: imageResolutionHint(discoveryUrl, entry.descriptor),
-        asset_key: imageAssetKey(url),
-      });
-    }
+    found.push(...normalizeDiscoveredEntries(entries, page));
   }
+  found.push(...normalizeDiscoveredEntries(productJsonImageEntries(scoped), page));
   const byAsset = new Map();
   for (const candidate of found.map(scoreImageCandidate)) {
     const current = byAsset.get(candidate.asset_key);
@@ -309,6 +367,40 @@ function discoverImageCandidates(html, page) {
   }
   return [...byAsset.values()].sort((left, right) =>
     right.score - left.score || right.descriptor - left.descriptor || left.url.localeCompare(right.url));
+}
+
+function normalizeDiscoveredEntries(entries, page) {
+  const found = [];
+    for (const entry of entries) {
+      if (/^data:/i.test(entry.rawUrl)) continue;
+      let url;
+      try {
+        url = validateSourceUrl(new URL(decodeHtmlEntities(entry.rawUrl), page.source_page_url).href);
+      } catch {
+        continue;
+      }
+      const acceptance = imageDomainAcceptance(url, page, true);
+      if (!acceptance || /\.svg(?:[?#]|$)/i.test(url)) continue;
+      const discoveryUrl = url;
+      const embedded = embeddedApprovedImageUrl(url, page);
+      if (embedded) url = embedded;
+      const selectedAcceptance = imageDomainAcceptance(url, page, embedded ? false : true);
+      if (!selectedAcceptance) continue;
+      found.push({
+        url,
+        discovery_url: discoveryUrl === url ? null : discoveryUrl,
+        domain: selectedAcceptance.domain,
+        source_page_domain: page.expected_domain,
+        image_domain: selectedAcceptance.domain,
+        image_domain_acceptance: embedded ? selectedAcceptance.reason : acceptance.reason,
+        context: String(entry.context || "").slice(0, 600),
+        attribute: entry.attribute,
+        discovery_source: entry.discoverySource,
+        descriptor: imageResolutionHint(discoveryUrl, entry.descriptor),
+        asset_key: imageAssetKey(url),
+      });
+    }
+  return found;
 }
 
 function selectImages(candidates) {
@@ -450,7 +542,10 @@ function buildOcrCandidates({ page, pageHtml, image, ocr, capturedAt }) {
       brand: page.brand,
       manufacturer: page.manufacturer,
       source_page_url: page.source_page_url,
+      source_page_domain: image.source_page_domain,
       image_url: image.url,
+      image_domain: image.image_domain,
+      image_domain_acceptance: image.image_domain_acceptance,
       image_file: image.raw_file,
       image_sha256: image.raw_sha256,
       normalized_image_file: image.normalized_file,
@@ -479,6 +574,43 @@ function buildOcrCandidates({ page, pageHtml, image, ocr, capturedAt }) {
   });
 }
 
+function isConnectionReset(error) {
+  let current = error;
+  for (let depth = 0; current && depth < 4; depth += 1) {
+    if (current.code === "ECONNRESET" || /ECONNRESET/i.test(String(current.message || ""))) return true;
+    current = current.cause;
+  }
+  return false;
+}
+
+async function fetchOfficialPage(page, fetchImpl, delay, timeoutMs) {
+  let attempts = 0;
+  while (attempts < 2) {
+    attempts += 1;
+    try {
+      const fetched = await fetchOne({
+        source_url: page.source_page_url,
+        expected_domain: page.expected_domain,
+      }, fetchImpl, timeoutMs, { allowSameRegistrableDomain: true });
+      return { ...fetched, attempts };
+    } catch (error) {
+      if (attempts === 1 && isConnectionReset(error)) {
+        await delay(350);
+        continue;
+      }
+      error.pageFetchAttempts = attempts;
+      throw error;
+    }
+  }
+  fail("Official page fetch retry handling failed");
+}
+
+function pageFetchFailureReason(error) {
+  if (/HTTP 404\b/i.test(String(error.message || ""))) return "INVALID_OFFICIAL_URL";
+  if (isConnectionReset(error)) return "PAGE_FETCH_FAILED_ECONNRESET";
+  return "PAGE_FETCH_FAILED";
+}
+
 async function runCanary(input, inputPath, options = {}) {
   const validated = validatePageList(input);
   const maximumProducts = Math.min(options.maxProducts || MAX_CANARY_PRODUCTS, MAX_CANARY_PRODUCTS);
@@ -504,25 +636,80 @@ async function runCanary(input, inputPath, options = {}) {
   let totalImageBytes = 0;
   let imageDownloads = 0;
   let ocrRuns = 0;
+  let pageRequests = 0;
   for (const [pageIndex, page] of selectedPages.entries()) {
     if (pageIndex > 0) await delay(1_500);
     const stem = safeStem(page, pageIndex);
-    const fetchedPage = await fetchOne({
-      source_url: page.source_page_url,
-      expected_domain: page.expected_domain,
-    }, fetchImpl);
+    let fetchedPage;
+    try {
+      fetchedPage = await fetchOfficialPage(page, fetchImpl, delay, options.timeoutMs);
+      pageRequests += fetchedPage.attempts;
+    } catch (error) {
+      pageRequests += Number(error.pageFetchAttempts || 1);
+      pages.push({
+        source_record_id: page.source_record_id,
+        product_id: page.product_id,
+        product_name: page.product_name,
+        requested_source_page_url: page.source_page_url,
+        source_page_url: null,
+        canonical_source_page_url: null,
+        source_page_domain: page.expected_domain,
+        page_file: null,
+        page_sha256: null,
+        page_fetch_attempts: Number(error.pageFetchAttempts || 1),
+        discovered_image_count: 0,
+        selection_status: "PAGE_FETCH_FAILED",
+        selected_images: [],
+        rejected_images: [],
+        skipped_reason: pageFetchFailureReason(error),
+        page_error: String(error.message || "Unknown page fetch error").slice(0, 200),
+      });
+      continue;
+    }
+    const canonicalDomain = imageDomain(fetchedPage.finalUrl);
+    const effectivePage = {
+      ...page,
+      source_page_url: fetchedPage.finalUrl,
+      expected_domain: canonicalDomain,
+    };
     const pageFile = path.join(batchDirectory, "pages", `${stem}.html`);
-    fs.writeFileSync(pageFile, fetchedPage.bytes, { flag: "wx" });
+    try {
+      fs.writeFileSync(pageFile, fetchedPage.bytes, { flag: "wx" });
+    } catch (error) {
+      pages.push({
+        source_record_id: page.source_record_id,
+        product_id: page.product_id,
+        product_name: page.product_name,
+        requested_source_page_url: page.source_page_url,
+        source_page_url: fetchedPage.finalUrl,
+        canonical_source_page_url: fetchedPage.finalUrl,
+        source_page_domain: canonicalDomain,
+        page_file: null,
+        page_sha256: null,
+        page_fetch_attempts: fetchedPage.attempts,
+        discovered_image_count: 0,
+        selection_status: "PAGE_SNAPSHOT_WRITE_FAILED",
+        selected_images: [],
+        rejected_images: [],
+        skipped_reason: "PAGE_SNAPSHOT_WRITE_FAILED",
+        page_error: String(error.message || "Unknown page snapshot error").slice(0, 200),
+      });
+      continue;
+    }
     const pageHtml = fetchedPage.bytes.toString("utf8");
-    const discovered = discoverImageCandidates(pageHtml, page);
+    const discovered = discoverImageCandidates(pageHtml, effectivePage);
     const selection = selectImages(discovered);
     const pageReport = {
       source_record_id: page.source_record_id,
       product_id: page.product_id,
       product_name: page.product_name,
+      requested_source_page_url: page.source_page_url,
       source_page_url: fetchedPage.finalUrl,
+      canonical_source_page_url: fetchedPage.finalUrl,
+      source_page_domain: canonicalDomain,
       page_file: relative(cwd, pageFile),
       page_sha256: sha256(fetchedPage.bytes),
+      page_fetch_attempts: fetchedPage.attempts,
       discovered_image_count: discovered.length,
       selection_status: selection.status,
       selected_images: [],
@@ -535,6 +722,9 @@ async function runCanary(input, inputPath, options = {}) {
       const rejected = {
         image_url: selected.url,
         discovery_url: selected.discovery_url,
+        image_domain: selected.image_domain,
+        image_domain_acceptance: selected.image_domain_acceptance,
+        discovery_source: selected.discovery_source,
         score: selected.score,
         reasons: selected.reasons,
       };
@@ -564,6 +754,9 @@ async function runCanary(input, inputPath, options = {}) {
         ocrRuns += 1;
         const imageEvidence = {
           url: selected.url,
+          source_page_domain: canonicalDomain,
+          image_domain: selected.image_domain,
+          image_domain_acceptance: selected.image_domain_acceptance,
           score: selected.score,
           reasons: selected.reasons,
           raw_file: relative(cwd, rawPath),
@@ -580,11 +773,14 @@ async function runCanary(input, inputPath, options = {}) {
           text_sha256: sha256(Buffer.from(result.text)),
           metadata_file: relative(cwd, metadataPath),
         };
-        const imageCandidates = buildOcrCandidates({ page, pageHtml, image: imageEvidence, ocr: ocrEvidence, capturedAt });
+        const imageCandidates = buildOcrCandidates({ page: effectivePage, pageHtml, image: imageEvidence, ocr: ocrEvidence, capturedAt });
         candidates.push(...imageCandidates);
         pageReport.selected_images.push({
           image_url: selected.url,
           discovery_url: selected.discovery_url,
+          image_domain: selected.image_domain,
+          image_domain_acceptance: selected.image_domain_acceptance,
+          discovery_source: selected.discovery_source,
           score: selected.score,
           reasons: selected.reasons,
           raw_file: imageEvidence.raw_file,
@@ -617,7 +813,7 @@ async function runCanary(input, inputPath, options = {}) {
     generated_at: capturedAt,
     summary: {
       selected_products: selectedPages.length,
-      page_requests: selectedPages.length,
+      page_requests: pageRequests,
       image_downloads: imageDownloads,
       ocr_runs: ocrRuns,
       candidate_facts: candidates.length,
