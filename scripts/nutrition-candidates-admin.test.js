@@ -74,6 +74,8 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /Pending candidates/);
   assert.match(page, /Approved candidates/);
   assert.match(page, /Rejected candidates/);
+  assert.match(page, /Filter by run ID/);
+  assert.match(page, /candidate\.run_id/);
   assert.doesNotMatch(page, /error\.message/);
 });
 
@@ -99,5 +101,6 @@ test("candidate report is server-only and there is no public candidate API", () 
   );
   assert.match(report, /^import "server-only";/);
   assert.match(report, /supabaseAdmin/);
+  assert.match(report, /\.eq\("run_id", runId\)/);
   assert.equal(fs.existsSync(path.join(process.cwd(), "app/api/nutrition-candidates")), false);
 });

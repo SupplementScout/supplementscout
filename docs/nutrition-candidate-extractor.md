@@ -102,18 +102,21 @@ explicit official manufacturer pages; the first canary processes at most five):
       "identity_binding": "EXACT_PRODUCT",
       "source_page_url": "https://gymhigh.co.uk/product/whey-pro-synergy/",
       "expected_domain": "gymhigh.co.uk",
-      "approved_image_domains": ["gymhigh.co.uk", "approved-cdn.example"],
-      "notes": "Official page and CDN approved for this bounded canary."
+      "official_domains": ["gymhigh.co.uk"],
+      "notes": "Official manufacturer page approved for this bounded canary."
     }
   ]
 }
 ```
 
 `EXACT_PRODUCT` requires a product ID and no variant ID. `EXACT_VARIANT`
-requires both. `UNMAPPED_SOURCE` requires both IDs to be null. Page and image
-URLs must use HTTPS, be credential-free, have no fragment or secret-looking
-query parameter, and match an expected or explicitly approved DNS domain.
-Localhost and IP-literal domains are rejected.
+requires both. Every page requires `official_domains`; `expected_domain`, the
+initial URL domain and every canonical redirect must remain in that manufacturer
+allowlist. Known retailer, marketplace and comparison domains are rejected even
+when an operator supplies the confirmation flag. Page and image URLs must use
+HTTPS, be credential-free, have no fragment or secret-looking query parameter.
+Localhost and IP-literal domains are rejected. A CDN image is eligible only when
+its exact URL is directly referenced by the approved page HTML or product JSON.
 
 The dry plan performs no fetch, image download, OCR or file write:
 
@@ -137,9 +140,14 @@ OCR metadata, the report and candidate JSON are written only below that ignored
 OCR-only facts are LOW confidence. A fact matching independently extracted HTML
 may be MEDIUM. Per-100-g ambiguity or an HTML conflict stays LOW and carries an
 explicit warning. Evidence is limited to the short matched numeric phrase. All
-records remain `CANDIDATE_REQUIRES_REVIEW`; the local OCR artifact is not yet
-stored in `nutrition_candidates` because the production table does not have the
-full image/OCR provenance columns.
+records remain `CANDIDATE_REQUIRES_REVIEW`. The batch workflow normalizes OCR
+facts into the existing private candidate schema. For this MVP, the image file,
+image SHA-256, OCR text file and OCR locator are preserved in
+`source_snapshot_ref`, `source_file_sha256` and `source_locator`. Fully
+structured image provenance is a later improvement and is not required to
+review a product-scoped candidate safely. Variant-scoped candidates are blocked
+from storage because the current table has no `product_variant_id`; the workflow
+will not silently discard that identity provenance.
 
 ## Source manifest
 
@@ -247,15 +255,8 @@ Important flags include:
 Conflicting or inconsistent candidates remain visible and are forced to `LOW`
 overall confidence. The extractor never chooses a winning value.
 
-## Handoff to verified data
-
-There is intentionally no automatic handoff. After owner review, create a
-separate reviewed CSV matching `docs/verified-product-data-import.md`, or a
-reviewed variant nutrition manifest where the existing variant pathway is
-applicable. Run that existing workflow independently with its own evidence,
-hash, dry run, and approval.
-
-Do not rename or move the generated candidate CSV into `data/verified`.
+Do not rename or move the generated candidate CSV into `data/verified`. It is a
+candidate-only review aid, never a verified import file.
 
 ## Controlled manufacturer collection
 
@@ -313,3 +314,47 @@ The storage command uses server-side service-role credentials and writes only
 The authenticated page `/admin/nutrition-candidates` shows pending, approved,
 and rejected candidates. Approve and Reject update review metadata only;
 approval is not product verification and has no automatic downstream effect.
+
+## End-to-end reviewed workflow
+
+Create and store a batch of at most ten explicitly listed official manufacturer
+pages:
+
+```powershell
+npm run nutrition:candidate-batch -- --input=tmp/nutrition-batch-1/pages.json --max-products=10 --confirm-official-pages-only=true --store-candidates=true
+```
+
+This command reuses the bounded page collector, HTML extractor, HIGH-only image
+selection, local Windows OCR, and private candidate-table writer. It does not
+crawl, follow product links, use cloud OCR, update products, create a verified
+CSV, or run an importer. One page failure is recorded and the remaining listed
+pages continue. OCR-only facts remain LOW confidence. The candidate artifact,
+candidate-only CSV, raw snapshots, hashes, OCR text and per-product report all
+remain below ignored `tmp/`.
+
+Review the run at `/admin/nutrition-candidates?run=<run_id>`. Approval only
+changes candidate review metadata. After every intended fact has been reviewed,
+generate a read-only before/after plan:
+
+```powershell
+npm run nutrition:approved-plan -- --run-id=<run_id>
+```
+
+The planner reads only `approved` candidates. It blocks unmapped products,
+unsupported fields, conflicting approved values, and unsafe conflict or
+ambiguity warnings. Its JSON output is written below
+`tmp/nutrition-approved-plan/` and performs no database write.
+
+After separately reviewing that plan, apply exactly its reviewed changes:
+
+```powershell
+npm run nutrition:approved-apply -- --plan=tmp/nutrition-approved-plan/<plan>.json --confirm-reviewed-product-update=true
+```
+
+Apply rechecks candidate approval and fingerprints plus each product's planned
+before value inside one production-owner PostgreSQL transaction. It validates
+the existing production project identity, locks the reviewed rows, and rolls the
+whole batch back on an error. It can update only the seven nutrition fields
+documented above on `products`; it cannot update offers, retailer products,
+GTIN, prices, verification flags, or any pending/rejected candidate. A successful
+audit JSON is written below `tmp/`.

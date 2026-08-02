@@ -55,6 +55,14 @@ test("candidate artifact maps only to pending nutrition_candidates rows", () => 
   assert.equal(Object.hasOwn(rows[0], "nutrition_verified"), false);
 });
 
+test("candidate storage refuses to discard variant identity provenance", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "candidate-store-variant-"));
+  test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const artifact = artifactFixture(directory);
+  artifact.candidates[0].product_variant_id = "733";
+  assert.throws(() => validateArtifact(artifact), /variant-scoped candidates require a separate schema/);
+});
+
 test("database write requires explicit candidate-table confirmation", () => {
   assert.throws(() => parseArgs(["--input=tmp/a.json"]), /exactly one/);
   assert.throws(() => parseArgs(["--store-candidates", "--input=tmp/a.json"]), /confirm-candidate-table-only/);

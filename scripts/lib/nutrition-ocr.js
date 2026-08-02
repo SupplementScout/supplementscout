@@ -37,7 +37,14 @@ const IMAGE_TYPES = new Map([
 const PAGE_KEYS = Object.freeze([
   "source_record_id", "product_id", "product_variant_id", "product_name",
   "brand", "manufacturer", "identity_binding", "source_page_url",
-  "expected_domain", "approved_image_domains", "notes",
+  "expected_domain", "official_domains", "notes",
+]);
+const FORBIDDEN_SOURCE_DOMAIN_LABELS = Object.freeze([
+  "amazon", "ebay", "walmart", "hollandandbarrett", "boots", "superdrug",
+  "dolphinfitness", "predatornutrition", "supplementneeds",
+  "bodybuildingwarehouse", "discount-supplements", "fithouse", "fit-house",
+  "jonssupplements", "6pack-supplements", "wheyokay", "kior", "wheywise",
+  "supplementscout", "shopify", "cloudfront", "cloudinary", "ctfassets", "imgix",
 ]);
 
 function fail(message) {
@@ -50,7 +57,23 @@ function exactKeys(value, expected) {
 }
 
 function optionalPositiveId(value) {
-  return value === null || (typeof value === "string" && /^[1-9][0-9]*$/.test(value));
+  return value === null || positiveId(value);
+}
+
+function positiveId(value) {
+  return (typeof value === "string" && /^[1-9][0-9]*$/.test(value)) ||
+    (Number.isSafeInteger(value) && value > 0);
+}
+
+function forbiddenSourceDomain(domain) {
+  return FORBIDDEN_SOURCE_DOMAIN_LABELS.some((label) =>
+    domain === label || domain.startsWith(`${label}.`) || domain.includes(`.${label}.`));
+}
+
+function validPageKeys(page) {
+  return exactKeys(page, PAGE_KEYS) ||
+    exactKeys(page, PAGE_KEYS.filter((key) => key !== "brand")) ||
+    exactKeys(page, PAGE_KEYS.filter((key) => key !== "manufacturer"));
 }
 
 function validatePageList(input) {
@@ -64,28 +87,28 @@ function validatePageList(input) {
   return {
     ...input,
     pages: input.pages.map((page, index) => {
-      if (!exactKeys(page, PAGE_KEYS) || typeof page.source_record_id !== "string" ||
+      if (!validPageKeys(page) || typeof page.source_record_id !== "string" ||
           !page.source_record_id.trim() || page.source_record_id.length > 200 ||
-          !optionalPositiveId(page.product_id) || !optionalPositiveId(page.product_variant_id) ||
+          !positiveId(page.product_id) || !optionalPositiveId(page.product_variant_id) ||
           typeof page.product_name !== "string" || !page.product_name.trim() || page.product_name.length > 300 ||
-          typeof page.brand !== "string" || !page.brand.trim() || page.brand.length > 200 ||
-          typeof page.manufacturer !== "string" || !page.manufacturer.trim() || page.manufacturer.length > 200 ||
-          !["EXACT_PRODUCT", "EXACT_VARIANT", "UNMAPPED_SOURCE"].includes(page.identity_binding) ||
+          !(typeof page.brand === "string" && page.brand.trim() ||
+            typeof page.manufacturer === "string" && page.manufacturer.trim()) ||
+          (page.brand !== undefined && (typeof page.brand !== "string" || page.brand.length > 200)) ||
+          (page.manufacturer !== undefined && (typeof page.manufacturer !== "string" || page.manufacturer.length > 200)) ||
+          !["EXACT_PRODUCT", "EXACT_VARIANT"].includes(page.identity_binding) ||
           (page.identity_binding === "EXACT_PRODUCT" && (!page.product_id || page.product_variant_id !== null)) ||
           (page.identity_binding === "EXACT_VARIANT" && (!page.product_id || !page.product_variant_id)) ||
-          (page.identity_binding === "UNMAPPED_SOURCE" && (page.product_id !== null || page.product_variant_id !== null)) ||
-          !Array.isArray(page.approved_image_domains) || page.approved_image_domains.length < 1 ||
-          page.approved_image_domains.length > 10 || typeof page.notes !== "string" || page.notes.length > 1000) {
+          !Array.isArray(page.official_domains) || page.official_domains.length < 1 ||
+          page.official_domains.length > 10 || typeof page.notes !== "string" || page.notes.length > 1000) {
         fail(`OCR page ${index + 1} has an invalid schema`);
       }
       const sourcePageUrl = validateSourceUrl(page.source_page_url);
       const expectedDomain = normalizeExpectedDomain(page.expected_domain);
       const actualDomain = new URL(sourcePageUrl).hostname.toLowerCase().replace(/^www\./, "");
       if (actualDomain !== expectedDomain) fail(`OCR page ${index + 1} expected domain mismatch`);
-      const approvedDomains = [...new Set([
-        expectedDomain,
-        ...page.approved_image_domains.map(normalizeExpectedDomain),
-      ])];
+      const officialDomains = [...new Set(page.official_domains.map(normalizeExpectedDomain))];
+      if (!officialDomains.includes(expectedDomain)) fail(`OCR page ${index + 1} expected_domain is not in official_domains`);
+      if (officialDomains.some(forbiddenSourceDomain)) fail(`OCR page ${index + 1} uses a forbidden retailer, marketplace or comparison domain`);
       if (ids.has(page.source_record_id)) fail(`Duplicate OCR source_record_id ${page.source_record_id}`);
       if (urls.has(sourcePageUrl)) fail(`Duplicate OCR source page URL ${sourcePageUrl}`);
       ids.add(page.source_record_id);
@@ -93,12 +116,14 @@ function validatePageList(input) {
       return {
         ...page,
         source_record_id: page.source_record_id.trim(),
+        product_id: String(page.product_id),
+        product_variant_id: page.product_variant_id === null ? null : String(page.product_variant_id),
         product_name: page.product_name.trim(),
-        brand: page.brand.trim(),
-        manufacturer: page.manufacturer.trim(),
+        brand: (page.brand || page.manufacturer).trim(),
+        manufacturer: (page.manufacturer || page.brand).trim(),
         source_page_url: sourcePageUrl,
         expected_domain: expectedDomain,
-        approved_image_domains: approvedDomains,
+        official_domains: officialDomains,
         notes: page.notes.trim(),
       };
     }),
@@ -137,7 +162,7 @@ function buildDryPlan(input, inputPath, cwd = process.cwd()) {
         product_name: page.product_name,
         source_page_url: page.source_page_url,
         expected_domain: page.expected_domain,
-        approved_image_domains: page.approved_image_domains,
+        official_domains: page.official_domains,
         expected_page_snapshot: relative(cwd, path.join(directory, "pages", `${stem}.html`)),
         expected_raw_image_directory: relative(cwd, path.join(directory, "raw", stem)),
         expected_ocr_directory: relative(cwd, path.join(directory, "ocr", stem)),
@@ -169,9 +194,6 @@ function imageDomainAcceptance(urlValue, page, directlyReferenced) {
     return null;
   }
   if (domain === page.expected_domain) return { domain, reason: "SOURCE_PAGE_DOMAIN" };
-  if (page.approved_image_domains.includes(domain)) {
-    return { domain, reason: "MANIFEST_APPROVED_IMAGE_DOMAIN" };
-  }
   const firstLabel = domain.split(".")[0];
   const knownCdnHost = domain === "cdn.shopify.com" ||
     /^(?:cdn|images?|media|assets?|static|uploads?)\d*$/.test(firstLabel) ||
@@ -591,7 +613,11 @@ async function fetchOfficialPage(page, fetchImpl, delay, timeoutMs) {
       const fetched = await fetchOne({
         source_url: page.source_page_url,
         expected_domain: page.expected_domain,
-      }, fetchImpl, timeoutMs, { allowSameRegistrableDomain: true });
+      }, fetchImpl, timeoutMs, { allowedRedirectDomains: page.official_domains });
+      const finalDomain = imageDomain(fetched.finalUrl);
+      if (!page.official_domains.includes(finalDomain) || forbiddenSourceDomain(finalDomain)) {
+        fail("Official page redirect left approved manufacturer domains");
+      }
       return { ...fetched, attempts };
     } catch (error) {
       if (attempts === 1 && isConnectionReset(error)) {
@@ -613,7 +639,11 @@ function pageFetchFailureReason(error) {
 
 async function runCanary(input, inputPath, options = {}) {
   const validated = validatePageList(input);
-  const maximumProducts = Math.min(options.maxProducts || MAX_CANARY_PRODUCTS, MAX_CANARY_PRODUCTS);
+  const productLimit = options.maximumAllowedProducts || MAX_CANARY_PRODUCTS;
+  if (!Number.isInteger(productLimit) || productLimit < 1 || productLimit > MAX_PAGES) {
+    fail(`OCR product limit must be an integer from 1 to ${MAX_PAGES}`);
+  }
+  const maximumProducts = Math.min(options.maxProducts || productLimit, productLimit);
   const selectedPages = validated.pages.slice(0, maximumProducts);
   const cwd = options.cwd || process.cwd();
   const tmpRoot = path.resolve(cwd, "tmp");
@@ -852,6 +882,7 @@ module.exports = {
   buildOcrCandidates,
   discoverImageCandidates,
   fetchImage,
+  imageDomainAcceptance,
   normalizeImage,
   parseOcrFacts,
   runCanary,

@@ -14,7 +14,7 @@ const SECTION_LABELS: Record<NutritionCandidateStatus, string> = {
   rejected: "Rejected candidates",
 };
 
-function CandidateCard({ candidate }: { candidate: NutritionCandidateRow }) {
+function CandidateCard({ candidate, runFilter }: { candidate: NutritionCandidateRow; runFilter?: string }) {
   const warnings = candidate.warning_flags.length
     ? candidate.warning_flags.join(", ")
     : "None";
@@ -28,6 +28,9 @@ function CandidateCard({ candidate }: { candidate: NutritionCandidateRow }) {
           <h3 className="mt-1 text-lg font-bold">{candidate.product_name}</h3>
           <p className="mt-1 text-sm text-zinc-600">
             Product ID: {candidate.product_id ?? "Needs mapping"}
+          </p>
+          <p className="mt-1 break-all font-mono text-xs text-zinc-500">
+            Run: {candidate.run_id}
           </p>
         </div>
         <span className="w-fit rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold text-zinc-700">
@@ -77,7 +80,7 @@ function CandidateCard({ candidate }: { candidate: NutritionCandidateRow }) {
 
       {candidate.status === "pending" ? (
         <form
-          action="/admin/nutrition-candidates/review"
+          action={`/admin/nutrition-candidates/review${runFilter ? `?run=${encodeURIComponent(runFilter)}` : ""}`}
           method="post"
           className="mt-5 border-t border-zinc-200 pt-4"
         >
@@ -124,17 +127,21 @@ function CandidateCard({ candidate }: { candidate: NutritionCandidateRow }) {
 export default async function NutritionCandidatesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string | string[] }>;
+  searchParams: Promise<{ saved?: string | string[]; run?: string | string[] }>;
 }) {
   await requireAdminPage();
   const params = await searchParams;
+  const requestedRun = Array.isArray(params.run) ? params.run[0] : params.run;
+  const runFilter = requestedRun && /^[A-Za-z0-9._:-]{1,200}$/.test(requestedRun)
+    ? requestedRun
+    : undefined;
 
   let report: NutritionCandidateReport | null = null;
   try {
     const { getNutritionCandidateReport } = await import(
       "../lib/nutritionCandidates"
     );
-    report = await getNutritionCandidateReport();
+    report = await getNutritionCandidateReport(runFilter);
   } catch {
     // The migration may not be applied yet. Never expose service-role errors.
   }
@@ -155,6 +162,28 @@ export default async function NutritionCandidatesPage({
             </p>
           </div>
         </div>
+
+        <form method="get" className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-end">
+          <label className="flex-1 text-sm font-semibold text-zinc-700">
+            Filter by run ID
+            <input
+              name="run"
+              defaultValue={runFilter}
+              maxLength={200}
+              pattern="[A-Za-z0-9._:-]+"
+              placeholder="NCR1-..."
+              className="mt-2 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 font-mono font-normal"
+            />
+          </label>
+          <button className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-bold text-white">
+            Filter
+          </button>
+          {runFilter ? (
+            <Link href="/admin/nutrition-candidates" className="px-2 py-2 text-sm font-semibold underline">
+              Clear
+            </Link>
+          ) : null}
+        </form>
 
         {params.saved ? (
           <p className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
@@ -178,7 +207,7 @@ export default async function NutritionCandidatesPage({
               {report[status].length ? (
                 <div className="mt-4 grid gap-4">
                   {report[status].map((candidate) => (
-                    <CandidateCard key={candidate.id} candidate={candidate} />
+                    <CandidateCard key={candidate.id} candidate={candidate} runFilter={runFilter} />
                   ))}
                 </div>
               ) : (

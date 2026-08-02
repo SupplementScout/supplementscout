@@ -31,7 +31,7 @@ function page(overrides = {}) {
     identity_binding: "EXACT_PRODUCT",
     source_page_url: "https://gymhigh.co.uk/product/whey-pro-synergy/",
     expected_domain: "gymhigh.co.uk",
-    approved_image_domains: ["gymhigh.co.uk", "cdn.gymhigh.co.uk"],
+    official_domains: ["gymhigh.co.uk"],
     notes: "Official manufacturer page approved for bounded OCR canary.",
     ...overrides,
   };
@@ -110,7 +110,7 @@ test("direct same-page Shopify CDN nutrition images are accepted without globall
     manufacturer: "Applied Nutrition",
     source_page_url: "https://appliednutrition.uk/products/clear-whey-protein",
     expected_domain: "appliednutrition.uk",
-    approved_image_domains: ["appliednutrition.uk"],
+    official_domains: ["appliednutrition.uk"],
   })])).pages[0];
   const html = `<main class="product type-product">
     <img loading="lazy" data-src="https://cdn.shopify.com/front.webp" alt="Front packshot">
@@ -344,7 +344,7 @@ test("one page failure retries ECONNRESET once, continues the batch, and reports
       manufacturer: "PER4M",
       source_page_url: "https://per4m.com/products/whey-protein",
       expected_domain: "per4m.com",
-      approved_image_domains: ["per4m.com"],
+      official_domains: ["per4m.com"],
     }),
     page({
       source_record_id: "strom-invalid",
@@ -354,7 +354,7 @@ test("one page failure retries ECONNRESET once, continues the batch, and reports
       manufacturer: "Strom Sports",
       source_page_url: "https://www.stromsports.com/products/velosiwhey-iso",
       expected_domain: "stromsports.com",
-      approved_image_domains: ["stromsports.com"],
+      official_domains: ["stromsports.com"],
     }),
     page({ source_record_id: "gym-success" }),
   ];

@@ -49,6 +49,7 @@ function candidateCore(candidate) {
 
 function candidateToRow(candidate, runId) {
   if (!candidate || candidate.candidate_status !== STATUS || candidate.review_status !== "PENDING" ||
+      candidate.product_variant_id !== null ||
       !FIELDS.includes(candidate.field_name) || UNITS[candidate.field_name] !== candidate.unit ||
       !SOURCE_TYPES.has(candidate.source_type) ||
       !optionalPositiveId(candidate.product_id) || !optionalPositiveId(candidate.retailer_id) ||
@@ -62,7 +63,7 @@ function candidateToRow(candidate, runId) {
       typeof candidate.brand !== "string" || !candidate.brand.trim() || candidate.brand.length > 200 ||
       !Array.isArray(candidate.flags) || candidate.flags.length > 20 || candidate.flags.some((flag) => typeof flag !== "string" || flag.length > 100) ||
       candidate.candidate_fingerprint !== fingerprint("CANDIDATE", candidateCore(candidate))) {
-    fail(`Invalid candidate row ${candidate?.candidate_id || "unknown"}`);
+    fail(`Invalid candidate row ${candidate?.candidate_id || "unknown"}; variant-scoped candidates require a separate schema`);
   }
   const sourceUrl = validateSourceUrl(candidate.source_url);
   return {
@@ -115,17 +116,19 @@ function parseArgs(argv) {
   return options;
 }
 
+function createCandidateSupabase() {
+  require("dotenv").config({ path: path.resolve(process.cwd(), ".env.local"), quiet: true });
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) fail("Candidate storage requires server-side Supabase service-role credentials");
+  const { createClient } = require("@supabase/supabase-js");
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 async function storeRows(rows, dependencies = {}) {
-  const supabase = dependencies.supabase || (() => {
-    require("dotenv").config({ path: path.resolve(process.cwd(), ".env.local"), quiet: true });
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) fail("Candidate storage requires server-side Supabase service-role credentials");
-    const { createClient } = require("@supabase/supabase-js");
-    return createClient(url, key, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-  })();
+  const supabase = dependencies.supabase || createCandidateSupabase();
   const { error } = await supabase
     .from("nutrition_candidates")
     .upsert(rows, { onConflict: "candidate_fingerprint", ignoreDuplicates: true });
@@ -161,6 +164,7 @@ if (require.main === module) {
 
 module.exports = {
   candidateToRow,
+  createCandidateSupabase,
   parseArgs,
   resolveArtifactInsideTmp,
   runCli,

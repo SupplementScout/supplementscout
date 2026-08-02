@@ -207,8 +207,14 @@ async function fetchOne(source, fetchImpl, timeoutMs = REQUEST_TIMEOUT_MS, optio
         const location = response.headers.get("location");
         if (!location || redirects === 3) fail(`Unsafe or excessive redirect for ${source.source_url}`);
         const nextUrl = validateSourceUrl(new URL(location, url).href);
-        const allowedRedirect = sameExpectedDomain(nextUrl, source.expected_domain) ||
-          (options.allowSameRegistrableDomain === true && sameRegistrableDomain(nextUrl, source.expected_domain));
+        const nextDomain = new URL(nextUrl).hostname.toLowerCase().replace(/^www\./, "");
+        const explicitRedirectDomains = Array.isArray(options.allowedRedirectDomains)
+          ? new Set(options.allowedRedirectDomains.map(normalizeExpectedDomain))
+          : null;
+        const allowedRedirect = explicitRedirectDomains
+          ? explicitRedirectDomains.has(nextDomain)
+          : sameExpectedDomain(nextUrl, source.expected_domain) ||
+            (options.allowSameRegistrableDomain === true && sameRegistrableDomain(nextUrl, source.expected_domain));
         if (!allowedRedirect) {
           fail(`Cross-domain redirect blocked for ${source.source_url}`);
         }

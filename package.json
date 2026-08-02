@@ -13,6 +13,9 @@
     "nutrition:ocr-plan": "node scripts/nutrition-ocr-canary.js --dry-plan",
     "nutrition:ocr-canary": "node scripts/nutrition-ocr-canary.js --canary",
     "nutrition:candidates:store": "node scripts/store-nutrition-candidates.js",
+    "nutrition:candidate-batch": "node scripts/nutrition-candidate-batch.js",
+    "nutrition:approved-plan": "node scripts/nutrition-approved-plan.js",
+    "nutrition:approved-apply": "node scripts/nutrition-approved-apply.js",
     "verify:baseline": "node scripts/verify-baseline-migrations.js",
     "verify:project": "node scripts/project-guardian.js"
   },

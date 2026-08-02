@@ -9,6 +9,8 @@ import {
 function redirectToReview(request: NextRequest, saved: string) {
   const url = new URL("/admin/nutrition-candidates", request.url);
   url.searchParams.set("saved", saved);
+  const run = request.nextUrl.searchParams.get("run");
+  if (run && /^[A-Za-z0-9._:-]{1,200}$/.test(run)) url.searchParams.set("run", run);
   return NextResponse.redirect(url, 303);
 }
 

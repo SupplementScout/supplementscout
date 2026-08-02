@@ -1127,6 +1127,7 @@ module.exports = {
   parseText,
   resolveSnapshotPath,
   selectRecords,
+  sealCandidate,
   sha256,
   validateManifest,
   validateSourceUrl,
