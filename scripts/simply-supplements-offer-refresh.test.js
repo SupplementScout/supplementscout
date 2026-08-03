@@ -75,7 +75,7 @@ test("reviewed registration directly fingerprints the complete mapping manifest"
     reviewed: {},
     reviewedContract: { reviewed_contract_hash: "a".repeat(64) },
     reviewedExpiresAt: expiresAt,
-    manifest: [{ mapping_id: "1", offer_id: "2", external_product_id: "3", external_variant_id: "4" }],
+    manifest: [{ mapping_id: "1", offer_id: "2", external_product_id: "3", external_variant_id: "4", canonical_product_id: "5", canonical_variant_id: "6" }],
     manifestFingerprint: "b".repeat(64),
     artifacts: [{ artifact_fingerprint: "c".repeat(64) }],
     snapshot: { semantic_source_fingerprint: "d".repeat(64) },
@@ -84,7 +84,9 @@ test("reviewed registration directly fingerprints the complete mapping manifest"
     spec: { environment: "PRODUCTION", ref: "aftboxmrdgyhizicfsfu", identity: "supplementscout-production:aftboxmrdgyhizicfsfu" },
   };
   const request = registrationRequest(run);
-  const expectedManifestFingerprint = canonicalHash(run.manifest);
+  const reviewedManifest = [{ mapping_id: "1", offer_id: "2", external_product_id: "3", external_variant_id: "4" }];
+  const expectedManifestFingerprint = canonicalHash(reviewedManifest);
+  assert.deepEqual(request.manifest, reviewedManifest);
   assert.equal(request.manifest_fingerprint, expectedManifestFingerprint);
   assert.notEqual(request.manifest_fingerprint, run.manifestFingerprint);
   assert.equal(request.parent_plan_fingerprint, canonicalHash({
