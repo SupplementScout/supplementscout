@@ -26,6 +26,7 @@ const EXCLUSIONS = Object.freeze({
     "20260803240000_normalize_simply_reviewed_commercial_money",
     "20260803250000_support_simply_reviewed_commercial_registration",
     "20260803260000_align_existing_offer_option_evidence",
+    "20260803270000_verify_separate_offer_and_mapping_urls",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
