@@ -377,7 +377,7 @@ function fieldDefinition(label, inheritedBasis = null) {
   if (/\bnet\s+volume\b|\bpack(?:age)?\s+volume\b/.test(text)) {
     return { field_name: "net_volume_ml", dimension: "volume", basis: "PACKAGE" };
   }
-  if (/\bservings?\s+per\s+(?:container|pack(?:age)?|tub|bottle)\b|\bnumber\s+of\s+servings?\b|^servings?$/.test(text)) {
+  if (/\bservings?\s+per\s+(?:container|bag|pack(?:age)?|tub|bottle)\b|\bnumber\s+of\s+servings?\b|^servings?$/.test(text)) {
     return { field_name: "serving_count_verified", dimension: "count", basis: "PACKAGE" };
   }
   if (/\bserving\s+size\b|\bsize\s+of\s+(?:one|a)\s+serving\b/.test(text)) {
@@ -636,7 +636,7 @@ function parseText(html) {
       }
       const item = observation(definition, quantity, "TEXT_LABEL", line, `text:line:${index + 1}`);
       if (item) observations.push(item);
-      const servingCountMatch = line.match(/\bservings?\s+per\s+(?:container|pack(?:age)?|tub|bottle)\s*:\s*([0-9]+)\b/i);
+      const servingCountMatch = line.match(/\bservings?\s+per\s+(?:container|bag|pack(?:age)?|tub|bottle)\s*:\s*([0-9]+)\b/i);
       if (servingCountMatch) {
         const countDefinition = { field_name: "serving_count_verified", dimension: "count", basis: "PACKAGE" };
         const count = parseQuantity(servingCountMatch[1], "count");

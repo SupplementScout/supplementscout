@@ -162,6 +162,15 @@ test("extracts one explicit parenthetical gram serving size and rejects ambiguou
     [["serving_count_verified", 50], ["serving_size_g", 5]],
   );
 
+  const manufacturerBag = parseSnapshot(
+    "<p>Serving Size: 4 Scoops (240g) - Serving Per Bag: 25</p>",
+    "text/html",
+  );
+  assert.deepEqual(
+    manufacturerBag.map((row) => [row.field_name, row.value_numeric]).sort(),
+    [["serving_count_verified", 25], ["serving_size_g", 240]],
+  );
+
   for (const value of [
     "Serving Size: 1-2 Scoops (5g-10g)",
     "Serving Size: 1 Scoop (5g) or 2 Scoops (10g)",
