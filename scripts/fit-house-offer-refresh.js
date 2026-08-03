@@ -233,7 +233,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
     const stable=changed.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
     const expected=reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
     if((reviewed.approved_baseline?classification.state!=="DRY_RUN_READY":classification.reason!=="MASS_OOS")
-       || classification.rows.length!==config.approved_mapping_count
+       || classification.rows.length!==(reviewed.approved_baseline?reviewed.manifest.row_count:config.approved_mapping_count)
        || (!reviewed.scoped&&!reviewed.mapped&&snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256)
        || JSON.stringify(stable)!==JSON.stringify(expected)){
       throw new RefreshError("REVIEWED_MANIFEST_DRIFT",`live ${config.retailer_name} source/state differs from reviewed mixed-change manifest`,"REVIEWED_CONTRACT",{classifier_reason:classification.reason||null,reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint,reviewed_scope:expected,live_scope:stable});
