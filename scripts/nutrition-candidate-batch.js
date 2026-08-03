@@ -60,7 +60,8 @@ function buildHtmlManifest(input, report, inputPath, cwd) {
       source_snapshot_ref: page.page_file,
       snapshot_sha256: page.page_sha256,
       content_type: "text/html",
-      current_values: {},
+      current_values: Object.fromEntries(Object.entries(source.current_values || {})
+        .filter(([field]) => field !== "nutrition_verified")),
     };
   });
   if (!records.length) return null;
@@ -73,7 +74,7 @@ function buildHtmlManifest(input, report, inputPath, cwd) {
   };
 }
 
-function ocrCandidateToStandard(candidate, runId) {
+function ocrCandidateToStandard(candidate, runId, currentValues = {}) {
   const locator = [
     candidate.evidence_locator,
     `image_file=${candidate.image_file}`,
@@ -106,17 +107,28 @@ function ocrCandidateToStandard(candidate, runId) {
     extraction_confidence: "LOW",
     overall_confidence: "LOW",
     flags: [...new Set(candidate.warning_flags)].slice(0, 20),
-    current_value: null,
+    current_value: Object.prototype.hasOwnProperty.call(currentValues, candidate.field_name)
+      ? currentValues[candidate.field_name]
+      : null,
     candidate_status: STATUS,
     review_status: "PENDING",
   };
   return sealCandidate(core);
 }
 
-function mergeArtifacts(htmlArtifact, ocrArtifact) {
+function isUsefulCandidate(candidate, currentValues = {}) {
+  const current = currentValues[candidate.field_name];
+  if (typeof current !== "number" || current !== candidate.value_numeric) return true;
+  return ["protein_per_serving_g", "creatine_per_serving_g"].includes(candidate.field_name) &&
+    currentValues.nutrition_verified !== true;
+}
+
+function mergeArtifacts(htmlArtifact, ocrArtifact, pages = []) {
+  const currentByProduct = new Map(pages.map((page) => [String(page.product_id), page.current_values || {}]));
   const ocrCandidates = ocrArtifact.candidates.map((candidate) =>
-    ocrCandidateToStandard(candidate, htmlArtifact.run_id));
-  const candidates = [...htmlArtifact.candidates, ...ocrCandidates];
+    ocrCandidateToStandard(candidate, htmlArtifact.run_id, currentByProduct.get(String(candidate.product_id)) || {}));
+  const candidates = [...htmlArtifact.candidates, ...ocrCandidates].filter((candidate) =>
+    isUsefulCandidate(candidate, currentByProduct.get(String(candidate.product_id)) || {}));
   applyCrossSourceConflicts(candidates);
   candidates.sort((left, right) => left.candidate_id.localeCompare(right.candidate_id));
   const summary = {
@@ -217,7 +229,7 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
     manifestPath,
     generatedAt: ocr.report.generated_at,
   });
-  const artifact = mergeArtifacts(htmlArtifact, ocr.candidateArtifact);
+  const artifact = mergeArtifacts(htmlArtifact, ocr.candidateArtifact, input.pages);
   const outputDirectory = path.join(batchDirectory, "candidates");
   assertRealPathInsideRoot(path.resolve(cwd, "tmp"), outputDirectory);
   const output = writeArtifactFiles(artifact, outputDirectory, path.resolve(cwd, "tmp"));
@@ -253,6 +265,7 @@ if (require.main === module) {
 module.exports = {
   buildBatchReport,
   buildHtmlManifest,
+  isUsefulCandidate,
   mergeArtifacts,
   ocrCandidateToStandard,
   parseArgs,

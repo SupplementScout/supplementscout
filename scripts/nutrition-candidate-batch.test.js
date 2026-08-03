@@ -9,7 +9,7 @@ const {
   runCanary,
   validatePageList,
 } = require("./lib/nutrition-ocr");
-const { parseArgs, runCli } = require("./nutrition-candidate-batch");
+const { isUsefulCandidate, parseArgs, runCli } = require("./nutrition-candidate-batch");
 
 const repositoryRoot = path.resolve(__dirname, "..");
 
@@ -102,6 +102,28 @@ test("official_domains is mandatory and must contain expected_domain", () => {
   assert.throws(() => validatePageList(pageList(officialPage({
     source_page_url: "https://shop.appliednutrition.uk/products/clear-whey",
   }))), /expected domain mismatch/);
+});
+
+test("current product facts are validated and suppress only true no-op candidates", () => {
+  const validated = validatePageList(pageList(officialPage({
+    current_values: {
+      net_weight_g: 875,
+      serving_size_g: 25,
+      protein_per_serving_g: 24,
+      nutrition_verified: true,
+    },
+  }))).pages[0];
+  assert.equal(validated.current_values.net_weight_g, 875);
+  assert.equal(isUsefulCandidate({ field_name: "net_weight_g", value_numeric: 875 }, validated.current_values), false);
+  assert.equal(isUsefulCandidate({ field_name: "serving_size_g", value_numeric: 30 }, validated.current_values), true);
+  assert.equal(isUsefulCandidate({ field_name: "protein_per_serving_g", value_numeric: 24 }, validated.current_values), false);
+  assert.equal(isUsefulCandidate(
+    { field_name: "protein_per_serving_g", value_numeric: 24 },
+    { protein_per_serving_g: 24, nutrition_verified: false },
+  ), true);
+  assert.throws(() => validatePageList(pageList(officialPage({
+    current_values: { price_gbp: 19.99 },
+  }))), /unsupported field price_gbp/);
 });
 
 test("redirect outside official_domains is rejected without following it", async () => {

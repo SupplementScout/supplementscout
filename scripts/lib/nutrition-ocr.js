@@ -16,6 +16,7 @@ const {
   validateSourceUrl,
 } = require("./nutrition-candidates");
 const {
+  MAX_APPROVED_HTML_BYTES,
   fetchOne,
   normalizeExpectedDomain,
   readBoundedBody,
@@ -39,6 +40,10 @@ const PAGE_KEYS = Object.freeze([
   "source_record_id", "product_id", "product_variant_id", "product_name",
   "brand", "manufacturer", "identity_binding", "source_page_url",
   "expected_domain", "official_domains", "notes",
+]);
+const CURRENT_VALUE_FIELDS = Object.freeze([
+  "net_weight_g", "net_volume_ml", "serving_count_verified", "serving_size_g",
+  "serving_size_ml", "protein_per_serving_g", "creatine_per_serving_g",
 ]);
 const FORBIDDEN_SOURCE_DOMAIN_LABELS = Object.freeze([
   "amazon", "ebay", "walmart", "hollandandbarrett", "boots", "superdrug",
@@ -72,9 +77,30 @@ function forbiddenSourceDomain(domain) {
 }
 
 function validPageKeys(page) {
-  return exactKeys(page, PAGE_KEYS) ||
-    exactKeys(page, PAGE_KEYS.filter((key) => key !== "brand")) ||
-    exactKeys(page, PAGE_KEYS.filter((key) => key !== "manufacturer"));
+  if (!page || typeof page !== "object" || Array.isArray(page)) return false;
+  const keys = Object.keys(page || {});
+  if (keys.some((key) => !PAGE_KEYS.includes(key) && key !== "current_values")) return false;
+  const withoutCurrentValues = Object.fromEntries(Object.entries(page).filter(([key]) => key !== "current_values"));
+  return exactKeys(withoutCurrentValues, PAGE_KEYS) ||
+    exactKeys(withoutCurrentValues, PAGE_KEYS.filter((key) => key !== "brand")) ||
+    exactKeys(withoutCurrentValues, PAGE_KEYS.filter((key) => key !== "manufacturer"));
+}
+
+function validateCurrentValues(value, index) {
+  if (value === undefined) return {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    fail(`OCR page ${index + 1} current_values must be an object`);
+  }
+  const allowed = new Set([...CURRENT_VALUE_FIELDS, "nutrition_verified"]);
+  for (const [field, current] of Object.entries(value)) {
+    if (!allowed.has(field)) fail(`OCR page ${index + 1} current_values contains unsupported field ${field}`);
+    if (field === "nutrition_verified") {
+      if (current !== null && typeof current !== "boolean") fail(`OCR page ${index + 1} nutrition_verified must be boolean or null`);
+    } else if (current !== null && (typeof current !== "number" || !Number.isFinite(current) || current <= 0)) {
+      fail(`OCR page ${index + 1} ${field} must be a positive number or null`);
+    }
+  }
+  return Object.fromEntries(Object.entries(value));
 }
 
 function validatePageList(input) {
@@ -125,6 +151,7 @@ function validatePageList(input) {
         source_page_url: sourcePageUrl,
         expected_domain: expectedDomain,
         official_domains: officialDomains,
+        current_values: validateCurrentValues(page.current_values, index),
         notes: page.notes.trim(),
       };
     }),
@@ -652,7 +679,10 @@ function parseOcrFacts(text, metadata = null) {
 
 function buildOcrCandidates({ page, pageHtml, image, ocr, capturedAt }) {
   const htmlFacts = applyConsistencyFlags(deduplicateObservations(
-    parseSnapshot(pageHtml, "text/html", { sourceType: "manufacturer_product_page" }),
+    parseSnapshot(pageHtml, "text/html", {
+      sourceType: "manufacturer_product_page",
+      sourceUrl: page.source_page_url,
+    }),
   ));
   const ocrFacts = parseOcrFacts(ocr.text, ocr.metadata);
   const compactOcrText = String(ocr.text).replace(/\s+/g, " ").trim();
@@ -726,7 +756,7 @@ function isConnectionReset(error) {
   return false;
 }
 
-async function fetchOfficialPage(page, fetchImpl, delay, timeoutMs) {
+async function fetchOfficialPage(page, fetchImpl, delay, timeoutMs, maximumHtmlBytes = MAX_APPROVED_HTML_BYTES) {
   let attempts = 0;
   while (attempts < 2) {
     attempts += 1;
@@ -734,7 +764,10 @@ async function fetchOfficialPage(page, fetchImpl, delay, timeoutMs) {
       const fetched = await fetchOne({
         source_url: page.source_page_url,
         expected_domain: page.expected_domain,
-      }, fetchImpl, timeoutMs, { allowedRedirectDomains: page.official_domains });
+      }, fetchImpl, timeoutMs, {
+        allowedRedirectDomains: page.official_domains,
+        maximumHtmlBytes,
+      });
       const finalDomain = imageDomain(fetched.finalUrl);
       if (!page.official_domains.includes(finalDomain) || forbiddenSourceDomain(finalDomain)) {
         fail("Official page redirect left approved manufacturer domains");
@@ -793,7 +826,9 @@ async function runCanary(input, inputPath, options = {}) {
     const stem = safeStem(page, pageIndex);
     let fetchedPage;
     try {
-      fetchedPage = await fetchOfficialPage(page, fetchImpl, delay, options.timeoutMs);
+      fetchedPage = await fetchOfficialPage(
+        page, fetchImpl, delay, options.timeoutMs, options.maximumHtmlBytes || MAX_APPROVED_HTML_BYTES,
+      );
       pageRequests += fetchedPage.attempts;
     } catch (error) {
       pageRequests += Number(error.pageFetchAttempts || 1);

@@ -12,6 +12,7 @@ const {
   fieldDefinition,
   parseCandidateCsv,
   parseQuantity,
+  parseSelectedShopifyVariantFacts,
   parseSnapshot,
   resolveSnapshotPath,
   sha256,
@@ -113,6 +114,21 @@ test("extracts per-serving facts from a semantic nutrition table", () => {
   assert.equal(observations.some((row) => row.value_numeric === 80 && row.field_name === "protein_per_serving_g"), false);
 });
 
+test("table parsing keeps the nutrition header and ignores ingredient and amino-acid subheaders", () => {
+  const html = `<table>
+    <tr><th>Nutritional Value</th><th>Per 100 g</th><th>Per Serving (30 g)</th></tr>
+    <tr><th>Protein (dry matter)</th><td>75 g</td><td>22.4 g</td></tr>
+    <tr><th>Whey Protein Concentrate</th><td>8.7 g</td><td>2.6 g</td></tr>
+    <tr><th>Amino Acid Profile</th><th>Per Serving (30 g)</th></tr>
+    <tr><th>L-Leucine</th><td>6748 mg</td></tr>
+  </table>`;
+  const observations = parseSnapshot(html, "text/html");
+  assert.deepEqual(
+    observations.map((row) => [row.field_name, row.value_numeric]),
+    [["serving_size_g", 30], ["protein_per_serving_g", 22.4]],
+  );
+});
+
 test("extracts strict label-value text but ignores marketing names", () => {
   const html = `<h1>Ultra Whey Protein 2kg 24g Protein</h1>
     <p>Net weight: 2 kg</p>
@@ -180,6 +196,47 @@ test("extracts tightly bounded numeric facts from manufacturer product prose", (
   assert.ok(observations.every((row) => row.parser === "MANUFACTURER_EXPLICIT_TEXT"));
   assert.ok(observations.every((row) => row.flags.includes("EXPLICIT_PROSE_EVIDENCE")));
   assert.ok(observations.every((row) => row.evidence_text.length <= 50));
+});
+
+test("accepts manufacturer HTML snapshots up to 5 MB without raising other source limits", () => {
+  const manufacturerHtml = `<div class="product type-product"><p>Protein per serving: 24 g</p></div>${" ".repeat(2_100_000)}`;
+  const source = fixture(manufacturerHtml);
+  source.manifest.schema_version = 2;
+  source.manifest.kind = "nutrition-candidate-source-snapshot-v2";
+  Object.assign(source.manifest.records[0], {
+    product_variant_id: null,
+    retailer_id: null,
+    retailer_product_id: null,
+    product_name: "Official Whey",
+    brand: "Example Nutrition",
+    manufacturer: "Example Nutrition",
+    source_type: "manufacturer_product_page",
+    identity_binding: "EXACT_PRODUCT",
+    source_snapshot_ref: "tmp/manufacturer/product.html",
+  });
+  source.manifestBytes = Buffer.from(`${JSON.stringify(source.manifest, null, 2)}\n`);
+  assert.equal(buildArtifact(source).candidates[0].field_name, "protein_per_serving_g");
+
+  const retailer = fixture(manufacturerHtml);
+  assert.throws(() => buildArtifact(retailer), /exceeds 2000000 bytes/);
+});
+
+test("extracts package facts only from one explicitly selected Shopify variant", () => {
+  const html = `<script>{"variants":[
+    {"id":111,"title":"Strawberry \\/ 1.8kg (72 Servings)"},
+    {"id":222,"title":"Strawberry \\/ 1kg (40 Servings)"}
+  ]}</script>`;
+  assert.deepEqual(
+    parseSelectedShopifyVariantFacts(html, "https://manufacturer.example/products/diet-whey?variant=222")
+      .map((fact) => [fact.field_name, fact.value_numeric]),
+    [["net_weight_g", 1000], ["serving_count_verified", 40]],
+  );
+  assert.deepEqual(parseSelectedShopifyVariantFacts(html, "https://manufacturer.example/products/diet-whey"), []);
+  assert.deepEqual(parseSelectedShopifyVariantFacts(html, "https://manufacturer.example/products/diet-whey?variant=333"), []);
+  assert.deepEqual(parseSelectedShopifyVariantFacts(
+    `${html}<script>{"id":222,"title":"Vanilla \\/ 1kg (41 Servings)"}</script>`,
+    "https://manufacturer.example/products/diet-whey?variant=222",
+  ), []);
 });
 
 test("extracts protein and serving size only from an explicit manufacturer meta fact", () => {

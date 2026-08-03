@@ -142,6 +142,22 @@ test("HTML is bounded while streaming even without a content-length header", asy
   );
 });
 
+test("an explicit bounded override accepts large approved product HTML but never exceeds 5 MB", async () => {
+  const bytes = Buffer.alloc(2_100_000, 32);
+  const result = await fetchOne(source(), async () => new Response(bytes, {
+    status: 200,
+    headers: { "content-type": "text/html" },
+  }), undefined, { maximumHtmlBytes: 5_000_000 });
+  assert.equal(result.bytes.length, bytes.length);
+  await assert.rejects(
+    () => fetchOne(source(), async () => new Response("ok", {
+      status: 200,
+      headers: { "content-type": "text/html" },
+    }), undefined, { maximumHtmlBytes: 5_000_001 }),
+    /HTML byte limit must be an integer from 1 to 5000000/,
+  );
+});
+
 test("input remains inside tmp and cannot escape through a junction", () => {
   const repo = temporaryRepo();
   const valid = path.join(repo.batch, "sources.json");

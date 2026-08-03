@@ -11,6 +11,7 @@ const SOURCE_KIND = "nutrition-manufacturer-source-list-v1";
 const SOURCE_TYPE = "manufacturer_product_page";
 const MAX_SOURCES = 10;
 const MAX_HTML_BYTES = 2_000_000;
+const MAX_APPROVED_HTML_BYTES = 5_000_000;
 const REQUEST_TIMEOUT_MS = 15_000;
 const RATE_LIMIT_MS = 1_500;
 const SOURCE_KEYS = Object.freeze([
@@ -192,6 +193,12 @@ async function readBoundedBody(response, maximum) {
 }
 
 async function fetchOne(source, fetchImpl, timeoutMs = REQUEST_TIMEOUT_MS, options = {}) {
+  const maximumHtmlBytes = options.maximumHtmlBytes === undefined
+    ? MAX_HTML_BYTES
+    : options.maximumHtmlBytes;
+  if (!Number.isInteger(maximumHtmlBytes) || maximumHtmlBytes < 1 || maximumHtmlBytes > MAX_APPROVED_HTML_BYTES) {
+    fail(`HTML byte limit must be an integer from 1 to ${MAX_APPROVED_HTML_BYTES}`);
+  }
   let url = source.source_url;
   for (let redirects = 0; redirects <= 3; redirects += 1) {
     const controller = new AbortController();
@@ -227,12 +234,12 @@ async function fetchOne(source, fetchImpl, timeoutMs = REQUEST_TIMEOUT_MS, optio
         fail(`Non-HTML response blocked for ${source.source_url}`);
       }
       const declared = Number(response.headers.get("content-length"));
-      if (Number.isFinite(declared) && declared > MAX_HTML_BYTES) {
-        fail(`HTML exceeds ${MAX_HTML_BYTES} bytes for ${source.source_url}`);
+      if (Number.isFinite(declared) && declared > maximumHtmlBytes) {
+        fail(`HTML exceeds ${maximumHtmlBytes} bytes for ${source.source_url}`);
       }
       let bytes;
       try {
-        bytes = await readBoundedBody(response, MAX_HTML_BYTES);
+        bytes = await readBoundedBody(response, maximumHtmlBytes);
       } catch (error) {
         fail(`${error.message} for ${source.source_url}`);
       }
@@ -385,6 +392,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  MAX_APPROVED_HTML_BYTES,
   MAX_HTML_BYTES,
   SOURCE_KIND,
   buildDryPlan,

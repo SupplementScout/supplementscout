@@ -10,6 +10,7 @@ const STATUS = "CANDIDATE_REQUIRES_REVIEW";
 const MODE = "OFFLINE_READ_ONLY";
 const MAX_RECORDS = 100;
 const MAX_SNAPSHOT_BYTES = 2_000_000;
+const MAX_MANUFACTURER_HTML_SNAPSHOT_BYTES = 5_000_000;
 const MAX_EVIDENCE_LENGTH = 300;
 const FIELDS = Object.freeze([
   "protein_per_serving_g",
@@ -382,7 +383,16 @@ function fieldDefinition(label, inheritedBasis = null) {
   if (/\bserving\s+size\b|\bsize\s+of\s+(?:one|a)\s+serving\b/.test(text)) {
     return { field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING" };
   }
-  const perServing = /\bper\s+(?:one\s+)?serv(?:e|ing)\b/.test(text) || inheritedBasis === "PER_SERVING";
+  if (inheritedBasis === "PER_SERVING") {
+    if (/^protein(?:\s+\(?dry\s+matter\)?)?$/.test(text)) {
+      return { field_name: "protein_per_serving_g", dimension: "weight", basis: "PER_SERVING" };
+    }
+    if (/^creatine$/.test(text)) {
+      return { field_name: "creatine_per_serving_g", dimension: "weight", basis: "PER_SERVING" };
+    }
+    return null;
+  }
+  const perServing = /\bper\s+(?:one\s+)?serv(?:e|ing)\b/.test(text);
   if (/\bprotein\b/.test(text) && perServing) {
     return { field_name: "protein_per_serving_g", dimension: "weight", basis: "PER_SERVING" };
   }
@@ -573,20 +583,25 @@ function parseTables(html) {
   tables.forEach((tableMatch, tableIndex) => {
     const rows = [...tableMatch[1].matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)].map((match) => tableCells(match[1])).filter((cells) => cells.length >= 2);
     let perServingColumn = -1;
-    rows.forEach((cells, rowIndex) => {
-      cells.forEach((cell, columnIndex) => {
-        if (columnIndex > 0 && /\bper\s+(?:one\s+)?serv(?:e|ing)\b/i.test(cell)) {
-          perServingColumn = columnIndex;
-          const sizeMatch = cell.match(/(?:\(|\b)(approximately\s+|approx\.?\s+|~\s*)?([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)(?:\)|\b)/i);
-          if (sizeMatch) {
-            const definition = { field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING" };
-            const quantity = parseQuantity(`${sizeMatch[1] || ""}${sizeMatch[2]} ${sizeMatch[3]}`, "weight");
-            const item = observation(definition, quantity, "TABLE", cell, `table:${tableIndex + 1}/row:${rowIndex + 1}/column:${columnIndex + 1}`);
-            if (item) observations.push(item);
-          }
-        }
-      });
-    });
+    let headerRowIndex = -1;
+    const headerCandidates = [];
+    rows.forEach((cells, rowIndex) => cells.forEach((cell, columnIndex) => {
+      if (columnIndex > 0 && /\bper\s+(?:one\s+)?serv(?:e|ing)\b/i.test(cell) &&
+          (rowIndex === 0 || cells.some((value) => /\bper\s*100\s*g\b/i.test(value)))) {
+        headerCandidates.push({ cell, columnIndex, rowIndex });
+      }
+    }));
+    if (headerCandidates.length === 1) {
+      ({ columnIndex: perServingColumn, rowIndex: headerRowIndex } = headerCandidates[0]);
+      const cell = headerCandidates[0].cell;
+      const sizeMatch = cell.match(/(?:\(|\b)(approximately\s+|approx\.?\s+|~\s*)?([0-9]+(?:[.,][0-9]+)?)\s*(kg|g|mg)(?:\)|\b)/i);
+      if (sizeMatch) {
+        const definition = { field_name: "serving_size_g", dimension: "weight", basis: "PER_SERVING" };
+        const quantity = parseQuantity(`${sizeMatch[1] || ""}${sizeMatch[2]} ${sizeMatch[3]}`, "weight");
+        const item = observation(definition, quantity, "TABLE", cell, `table:${tableIndex + 1}/row:${headerRowIndex + 1}/column:${perServingColumn + 1}`);
+        if (item) observations.push(item);
+      }
+    }
     rows.forEach((cells, rowIndex) => {
       const label = cells[0];
       const explicit = fieldDefinition(label);
@@ -729,6 +744,53 @@ function parseExplicitManufacturerText(html) {
   return observations;
 }
 
+function parseSelectedShopifyVariantFacts(html, sourceUrl) {
+  if (typeof sourceUrl !== "string") return [];
+  let variantId;
+  try {
+    variantId = new URL(sourceUrl).searchParams.get("variant");
+  } catch {
+    return [];
+  }
+  if (!variantId || !/^[1-9][0-9]*$/.test(variantId)) return [];
+  const titles = new Set();
+  for (const match of String(html).matchAll(/"id"\s*:\s*([1-9][0-9]*)\s*,\s*"title"\s*:\s*"((?:\\.|[^"\\])*)"/g)) {
+    if (match[1] !== variantId) continue;
+    try {
+      titles.add(JSON.parse(`"${match[2]}"`).replace(/\s+/g, " ").trim());
+    } catch {
+      return [];
+    }
+  }
+  if (titles.size !== 1) return [];
+  const title = [...titles][0];
+  const matches = [...title.matchAll(/\b([0-9]+(?:[.,][0-9]+)?)\s*(kg|g)\s*\(\s*([0-9]+)\s+servings?\s*\)/gi)];
+  if (matches.length !== 1) return [];
+  const match = matches[0];
+  const weight = parseQuantity(`${match[1]} ${match[2]}`, "weight");
+  const count = parseQuantity(match[3], "count");
+  if (!weight || !count) return [];
+  const evidence = match[0].replace(/\s+/g, " ").trim();
+  return [
+    observation(
+      { field_name: "net_weight_g", dimension: "weight", basis: "PACKAGE" },
+      weight,
+      "SHOPIFY_SELECTED_VARIANT",
+      evidence,
+      `manufacturer:shopify-variant:${variantId}`,
+      ["EXACT_SELECTED_VARIANT_METADATA"],
+    ),
+    observation(
+      { field_name: "serving_count_verified", dimension: "count", basis: "PACKAGE" },
+      count,
+      "SHOPIFY_SELECTED_VARIANT",
+      evidence,
+      `manufacturer:shopify-variant:${variantId}`,
+      ["EXACT_SELECTED_VARIANT_METADATA"],
+    ),
+  ].filter(Boolean);
+}
+
 function parseSnapshot(content, contentType, options = {}) {
   if (contentType === "application/json") {
     let parsed;
@@ -746,6 +808,7 @@ function parseSnapshot(content, contentType, options = {}) {
     ...parseTables(scopedHtml),
     ...parseText(scopedHtml),
     ...(manufacturerSource ? parseExplicitManufacturerText(content) : []),
+    ...(manufacturerSource ? parseSelectedShopifyVariantFacts(content, options.sourceUrl) : []),
   ];
 }
 
@@ -939,8 +1002,11 @@ function resolveSnapshotPath(manifestPath, snapshotFile) {
 function loadSnapshot(manifestPath, record) {
   const file = resolveSnapshotPath(manifestPath, record.snapshot_file);
   const stats = fs.statSync(file);
-  if (!stats.isFile() || stats.size > MAX_SNAPSHOT_BYTES) {
-    fail("NCE_SOURCE_TOO_LARGE", `Snapshot ${record.snapshot_file} is missing or exceeds ${MAX_SNAPSHOT_BYTES} bytes`);
+  const maximumBytes = record.source_type === "manufacturer_product_page" && record.content_type === "text/html"
+    ? MAX_MANUFACTURER_HTML_SNAPSHOT_BYTES
+    : MAX_SNAPSHOT_BYTES;
+  if (!stats.isFile() || stats.size > maximumBytes) {
+    fail("NCE_SOURCE_TOO_LARGE", `Snapshot ${record.snapshot_file} is missing or exceeds ${maximumBytes} bytes`);
   }
   const bytes = fs.readFileSync(file);
   const actual = sha256(bytes);
@@ -981,7 +1047,7 @@ function buildArtifact({ manifest, manifestBytes, manifestPath, filters = {}, ge
     const parsed = applyConsistencyFlags(deduplicateObservations(parseSnapshot(
       snapshot,
       record.content_type,
-      { sourceType: record.source_type },
+      { sourceType: record.source_type, sourceUrl: record.source_url },
     )));
     if (!parsed.length) {
       exclusions.push({
@@ -1097,6 +1163,7 @@ function writeArtifactFiles(artifact, outputDirectory, allowedRoot) {
 }
 
 module.exports = {
+  MAX_MANUFACTURER_HTML_SNAPSHOT_BYTES,
   ARTIFACT_KIND,
   CSV_COLUMNS,
   FIELDS,
@@ -1117,6 +1184,7 @@ module.exports = {
   fingerprint,
   htmlAttribute,
   manufacturerPrimaryProductHtml,
+  parseSelectedShopifyVariantFacts,
   parseCandidateCsv,
   parseExplicitManufacturerText,
   parseJsonLd,
