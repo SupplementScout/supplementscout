@@ -70,6 +70,9 @@ test("scheduled source monitor retries transient source failures without weakeni
   );
   assert.match(workflow, /for attempt in 1 2 3 4 5/);
   assert.match(workflow, /gym-high-catalogue-audit\.js --output=tmp\/gym-high-source-monitor\/report\.json/);
-  assert.match(workflow, /sleep \$\(\(attempt \* 5\)\)/);
+  assert.match(workflow, /cron: "43 3 \* \* \*"/);
+  assert.match(workflow, /cron: "43 15 \* \* \*"/);
+  assert.match(workflow, /delays=\(30 60 120 240\)/);
+  assert.match(workflow, /sleep "\$\{delays\[\$\(\(attempt - 1\)\)\]\}"/);
   assert.doesNotMatch(workflow, /continue-on-error:\s*true/);
 });

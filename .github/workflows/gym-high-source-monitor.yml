@@ -17,6 +17,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "43 3 * * *"
+    - cron: "43 15 * * *"
 
 permissions:
   contents: read
@@ -44,6 +45,7 @@ jobs:
         run: node --test scripts/gym-high-source-monitor.test.js scripts/gym-high-catalogue-audit.test.js scripts/lib/woocommerce-product-page-reader.test.js scripts/lib/woocommerce-store-api-reader.test.js
       - name: Capture full public catalogue
         run: |
+          delays=(30 60 120 240)
           for attempt in 1 2 3 4 5; do
             if node scripts/gym-high-catalogue-audit.js --output=tmp/gym-high-source-monitor/report.json; then
               exit 0
@@ -51,7 +53,7 @@ jobs:
             if [ "$attempt" -eq 5 ]; then
               exit 1
             fi
-            sleep $((attempt * 5))
+            sleep "${delays[$((attempt - 1))]}"
           done
       - name: Publish summary
         if: always()
