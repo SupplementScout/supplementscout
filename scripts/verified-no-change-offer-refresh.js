@@ -21,6 +21,7 @@ const VARIANT_KEYS = ["id", "product_id", "variant_key", "display_name", "flavou
 const MAPPING_KEYS = ["id", "retailer_id", "product_id", "product_variant_id", "external_product_id", "external_variant_id", "external_sku", "external_options", "external_name", "external_slug", "external_gtin", "external_url", "match_method", "match_confidence"];
 const OFFER_KEYS = ["id", "product_id", "retailer_id", "product_variant_id", "retailer_product_id", "price", "shipping_cost", "total_price", "in_stock", "url", "last_checked_at"];
 const SOURCE_KEYS = ["external_product_id", "external_variant_id", "price", "in_stock", "url"];
+const SOURCE_KEYS_WITH_MAPPING_URL = [...SOURCE_KEYS, "external_url"];
 const RECORD_KEYS = ["source_snapshot_sha256", "source_captured_at", "source", "target"];
 const TARGET_STATE_KEYS = ["product", "retailer", "product_variant", "retailer_product", "offer"];
 
@@ -86,7 +87,7 @@ function validateTarget(targetEnvironment, targetProjectRef) {
 
 function normalizeRecord(record, options) {
   assertExactKeys(record, RECORD_KEYS, "verification record");
-  assertExactKeys(record.source, SOURCE_KEYS, "verification source");
+  assertExactKeys(record.source, Object.hasOwn(record.source, "external_url") ? SOURCE_KEYS_WITH_MAPPING_URL : SOURCE_KEYS, "verification source");
   assertExactKeys(record.target, TARGET_STATE_KEYS, "verification target");
   assertExactKeys(record.target.product, PRODUCT_KEYS, "target product");
   assertExactKeys(record.target.retailer, RETAILER_KEYS, "target retailer");
@@ -117,6 +118,7 @@ function normalizeRecord(record, options) {
     price: normalizeDecimalString(record.source.price, "source price"),
     in_stock: exactBoolean(record.source.in_stock, "source in_stock"),
     url: requiredString(record.source.url, "source url"),
+    external_url: requiredString(record.source.external_url ?? record.source.url, "source external_url"),
   };
 
   for (const [name, state] of [["product", product], ["retailer", retailer], ["product_variant", variant], ["retailer_product", mapping], ["offer", offer]]) {
@@ -129,7 +131,7 @@ function normalizeRecord(record, options) {
   if (mapping.retailer_id !== retailer.id || offer.retailer_id !== retailer.id) fail("retailer identity mismatch");
   if (offer.retailer_product_id !== mapping.id) fail("offer/mapping identity mismatch");
   if (mapping.external_product_id !== source.external_product_id || mapping.external_variant_id !== source.external_variant_id) fail("external identity drift");
-  if (mapping.external_url !== source.url || offer.url !== source.url) fail("URL mismatch");
+  if (mapping.external_url !== source.external_url || offer.url !== source.url) fail("URL mismatch");
   if (offer.price !== source.price) fail("price drift");
   if (offer.in_stock !== source.in_stock) fail("stock drift");
   const previousCheckedAt = databaseTimestamp(offer.last_checked_at, "target last_checked_at");

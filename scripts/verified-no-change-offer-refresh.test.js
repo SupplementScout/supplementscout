@@ -87,6 +87,19 @@ test("planner rejects price, stock, URL, and external identity drift", () => {
   }
 });
 
+test("verified no-change preserves separate offer and mapping URLs", () => {
+  const value = record();
+  value.source.url = "https://www.awin1.com/pclick.php?p=1";
+  value.source.external_url = value.target.retailer_product.external_url;
+  value.target.offer.url = value.source.url;
+  const { plan } = buildVerifiedNoChangePlan(value, OPTIONS);
+  assert.equal(plan.offer.values.url, value.source.url);
+  assert.equal(plan.retailer_product.values.external_url, value.source.external_url);
+  const drift = structuredClone(value);
+  drift.source.external_url += "&changed=1";
+  assert.throws(() => buildVerifiedNoChangePlan(drift, OPTIONS), /URL mismatch/);
+});
+
 test("batch guard rejects count collapse and duplicate targets", () => {
   assert.throws(() => buildVerifiedNoChangeDryRun([record()], { ...OPTIONS, expectedCount: 2 }), /count collapse/);
   assert.throws(() => buildVerifiedNoChangeDryRun([record(), record()], { ...OPTIONS, expectedCount: 2 }), /duplicate source or target/);
