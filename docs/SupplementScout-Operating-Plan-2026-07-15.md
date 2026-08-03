@@ -343,6 +343,41 @@ Page indexing baseline because GSC already records impressions. SEO-07 remains
 `BLOCKED` only on the Search Console UI/export evidence for Page indexing, Core
 Web Vitals, Links and priority URL inspection.
 
+### 0.0.11 Jon's reviewed mass-OOS closeout - 3 August 2026
+
+Jon's scheduled 506-offer refresh correctly blocked a net increase of ten new
+out-of-stock offers under the unchanged ordinary `MASS_OOS` limit. Two complete
+read-only source captures agreed on 229 products, 855 variants and the same ten
+stock-only changes; prices and URLs were unchanged. The owner approved exactly
+offer IDs `1061`, `1183`, `1185`, `1256`, `1327`, `1336`, `1338`, `1359`,
+`1373` and `1480`.
+
+The existing mapped-scope reviewed-change path was extended only for the sealed
+ten-row manifest. Its byte SHA-256 is
+`3d3dec8e0087adf547b2c7148f7fb1a6745dd342ee75d87993f4a4e9fdc9849c`;
+the ordinary mass-OOS, mass-change, source-health and price guards were not
+raised or bypassed. The preflight also exposed a pre-existing identity label
+error on offer `1183`. With separate owner approval, canonical variant `1255`
+was corrected in place from `Default` to `Lemonade / 460g`; mapping `1369`,
+offer `1183`, its URL, price and history identity were preserved.
+
+The protected reviewed executor then applied exactly ten stock changes. It
+reported products `0`, variants `0`, mappings `0`, offers `0`, price history
+`0`, stock updates `10` and freshness updates `10`. The fresh full-scope
+postflight returned `VERIFY_NO_CHANGE ×506`, zero blockers and zero further
+price, stock, URL or mapping changes. A separate production read confirmed all
+ten approved offers OOS with prices and URLs unchanged and confirmed variant
+`1255` as active, non-default `Lemonade / 460g`.
+
+Routine changes inside the approved 506-offer scope remain automatic. A net
+increase of four or more new OOS rows must continue to fail closed because a
+retailer outage can resemble mass delisting. The evidence preparation is now
+reusable through `scripts/jons-reviewed-stock-change-builder.js`: it performs
+two matching source captures, verifies the exact owner-approved offer IDs and
+seals the manifest. This does not give an agent unattended production-write
+authority; future mass-OOS execution still requires explicit owner approval of
+the exact IDs and the existing hash-bound reviewed executor.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
