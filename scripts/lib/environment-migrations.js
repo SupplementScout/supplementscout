@@ -21,6 +21,7 @@ const EXCLUSIONS = Object.freeze({
     "20260801210000_allow_reviewed_gym_high_standalone_null_options",
     "20260801220000_recognize_reviewed_gym_high_standalone_legacy_tuples",
     "20260803120000_authorize_reviewed_jons_10_oos_changes",
+    "20260803130000_correct_jons_creamax_lemonade_variant",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
