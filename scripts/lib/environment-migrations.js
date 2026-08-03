@@ -23,6 +23,7 @@ const EXCLUSIONS = Object.freeze({
     "20260803120000_authorize_reviewed_jons_10_oos_changes",
     "20260803130000_correct_jons_creamax_lemonade_variant",
     "20260803230000_authorize_simply_reviewed_commercial_baseline",
+    "20260803240000_normalize_simply_reviewed_commercial_money",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
