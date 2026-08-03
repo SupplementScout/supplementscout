@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "dolphin-vegan-protein-existing-offer-sync-v1",
+  "approval_evidence": "Owner-approved SEO-13 Dolphin pilot executed on 2026-08-01; recurring production writes remain separately gated.",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": 5,
+  "retailer_name": "Dolphin Fitness",
+  "retailer_website": "https://www.dolphinfitness.co.uk",
+  "product_id": 70,
+  "product_variant_id": 1623,
+  "retailer_product_id": 2676,
+  "offer_id": 2490,
+  "external_product_id": "193943",
+  "external_variant_id": "193943-VANILLA",
+  "product_name": "Optimum Nutrition 100% Plant Protein 684g",
+  "variant_name": "Vanilla / 684g",
+  "source_title": "Optimum Nutrition Gold Standard 100% Plant 684g Vanilla",
+  "source_url": "https://www.dolphinfitness.co.uk/en/optimum-nutrition-gold-standard-100-percent-plant-684g/193943/vanilla",
+  "shipping_cost_gbp": "3.95",
+  "policy": {
+    "existing_identity_only": true,
+    "catalogue_creates": false,
+    "mapping_creates": false,
+    "allowed_fields": ["price", "in_stock", "last_checked_at"],
+    "maximum_price_change_ratio": 0.6,
+    "maximum_price_change_absolute_gbp": "20.00"
+  }
+}
