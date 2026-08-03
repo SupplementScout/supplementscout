@@ -1176,7 +1176,8 @@ function parseLegacyMappingUpgradeControls(row) {
   );
   const hasStandalone = rowHasColumn(row, "legacy_mapping_standalone");
   const hasOptioned = rowHasColumn(row, "legacy_mapping_optioned");
-  if (!hasFlag && !hasMappingId && !hasExpectedUpdatedAt && !hasStandalone && !hasOptioned) return null;
+  const hasIdentityOnly = rowHasColumn(row, "legacy_mapping_identity_only");
+  if (!hasFlag && !hasMappingId && !hasExpectedUpdatedAt && !hasStandalone && !hasOptioned && !hasIdentityOnly) return null;
 
   const enabled = String(row.legacy_mapping_upgrade ?? "").trim().toLowerCase();
   if (enabled !== "true") {
@@ -1210,6 +1211,26 @@ function parseLegacyMappingUpgradeControls(row) {
   }
   if (standaloneEnabled && optionedEnabled) {
     throw new Error("legacy mapping upgrade cannot be both standalone and optioned");
+  }
+  const identityOnly = String(row.legacy_mapping_identity_only ?? "")
+    .trim()
+    .toLowerCase();
+  const identityOnlyEnabled = identityOnly === "true";
+  if (identityOnly && !["true", "false"].includes(identityOnly)) {
+    throw new Error("legacy mapping identity-only proof must be true or false");
+  }
+  if (identityOnlyEnabled && (standaloneEnabled || optionedEnabled)) {
+    throw new Error("legacy mapping identity-only upgrade cannot be standalone or optioned");
+  }
+  if (identityOnlyEnabled) {
+    for (const [field, message] of [
+      ["legacy_duplicate_source_listing", "identity-only legacy mapping upgrade forbids duplicate source listings"],
+      ["legacy_identity_drift", "identity-only legacy mapping upgrade forbids identity drift"],
+    ]) {
+      if (String(row[field] ?? "").trim().toLowerCase() !== "false") {
+        throw new Error(message);
+      }
+    }
   }
   if (standaloneEnabled) {
     if (String(row.legacy_standalone_sellable_count ?? "").trim() !== "1") {
@@ -1257,6 +1278,7 @@ function parseLegacyMappingUpgradeControls(row) {
     expectedUpdatedAt,
     standalone: standaloneEnabled,
     optioned: optionedEnabled,
+    identityOnly: identityOnlyEnabled,
     optionTupleMode: optionedEnabled ? String(row.legacy_option_tuple_mode ?? "").trim() : "",
     parentSizeValue: String(row.legacy_parent_size_value ?? "").trim(),
     parentSizeUnit: String(row.legacy_parent_size_unit ?? "").trim().toLowerCase(),
@@ -2110,6 +2132,19 @@ async function fetchProductVariantById(productVariantId) {
 
 function exactLegacyExternalOptions(row, controls = null) {
   const options = parseExternalOptions(row.external_options);
+  if (controls?.identityOnly) {
+    const keys = Object.keys(options || {}).sort();
+    if (keys.length !== 2 || keys[0] !== "Size" || keys[1] !== "Subscription") {
+      throw new Error("identity-only legacy mapping upgrade requires exact Size and Subscription options");
+    }
+    if (!String(options.Size || "").trim() || options.Subscription !== "[Multibuy 1]") {
+      throw new Error("identity-only legacy mapping upgrade requires exact reviewed option values");
+    }
+    if (!optionalIdentifier(row.external_sku)) {
+      throw new Error("identity-only legacy mapping upgrade requires external_sku");
+    }
+    return { options, evidence: null, standalone: false, optioned: false, identityOnly: true };
+  }
   const evidence = collectCanonicalVariantEvidence(row);
   if (controls?.standalone) {
     if (options !== null) {
@@ -2550,12 +2585,15 @@ async function validateLegacyMappingUpgrade({
     throw new Error("legacy mapping upgrade expected updated_at is stale");
   }
   if (
-    (controls.standalone || controls.optioned) &&
-    !new Set(["whey-okay", "fit-house", "gym-high"]).has(
+    (controls.standalone || controls.optioned || controls.identityOnly) &&
+    !new Set(["whey-okay", "fit-house", "gym-high", "simply-supplements"]).has(
       String(retailer.slug || "").trim()
     )
   ) {
     throw new Error("legacy mapping upgrade extension is limited to reviewed retailers");
+  }
+  if (controls.identityOnly && String(retailer.slug || "").trim() !== "simply-supplements") {
+    throw new Error("identity-only legacy mapping upgrade is limited to Simply Supplements");
   }
   if (mapping.retailer_id !== retailer.id || mapping.product_id !== product.id) {
     throw new Error("legacy mapping upgrade mapping ownership mismatch");
@@ -3267,6 +3305,17 @@ function expectedOfferState(offer) {
 }
 
 function buildVariantEvidence(row, mapping, productVariant = null) {
+  if (String(row.legacy_mapping_identity_only ?? "").trim().toLowerCase() === "true") {
+    return {
+      flavour: productVariant?.flavour_code || productVariant?.flavour_label || null,
+      size_value: productVariant?.size_value == null ? null : normalizeDecimalString(productVariant.size_value, "size_value"),
+      size_unit: productVariant?.size_unit || null,
+      pack_count: productVariant?.pack_count == null ? null : normalizeDecimalString(productVariant.pack_count, "pack_count"),
+      product_format: productVariant?.product_format || null,
+      external_options: parseExternalOptions(row.external_options),
+      approved_mapping_id: mapping?.id ?? null,
+    };
+  }
   const evidence = collectCanonicalVariantEvidence(row);
   const reviewedProductFormat = String(
     row.__reviewed_six_pack_family_identity?.product_format || ""

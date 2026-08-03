@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "simply-supplements-read-only-reconciliation-v1",
+  "retailer": {
+    "id": 7,
+    "name": "Simply Supplements",
+    "slug": "simply-supplements",
+    "store_url": "https://www.simplysupplements.co.uk"
+  },
+  "awin": {
+    "merchant_id": "5959",
+    "data_feed_id": "115748",
+    "currency": "GBP"
+  },
+  "shopify": {
+    "market_country": "GB",
+    "pagination_completion": "empty-page",
+    "minimum_product_count": 250,
+    "minimum_variant_count": 400
+  },
+  "shipping": {
+    "free_from_gbp": 20,
+    "standard_gbp": 1.99
+  },
+  "guardrails": {
+    "required_matched_offers": 120,
+    "source_freshness_hours": 24,
+    "future_clock_skew_minutes": 5,
+    "full_snapshot_minimum_source_count_ratio": 0.9,
+    "maximum_total_oos_ratio": 0.35,
+    "maximum_oos_increase_percentage_points": 0.15,
+    "maximum_changed_record_ratio": 0.25,
+    "mass_price_change_block_ratio": 0.2,
+    "per_row_price_hard_block_ratio": 0.6,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "mass_oos_block_count": 4,
+    "ignore_source_sku": true
+  },
+  "policy": {
+    "mode": "READ_ONLY_RECONCILIATION",
+    "missing_variant": "BLOCK_NOT_OOS",
+    "new_human_product": "DISCOVERY_REVIEW_ONLY",
+    "animal_product": "EXCLUDE",
+    "awin_rekey": "EXACT_OWNER_APPROVED_ONLY"
+  },
+  "approved_awin_rekeys": {
+    "authorized_by": "owner-chat-instruction",
+    "authorized_at": "2026-08-03T15:32:51.7056583Z",
+    "authority": "zatwierdzam wyjątek 13 ofert",
+    "reason": "Existing owner-approved offer retained its exact Shopify variant and direct URL while Awin issued a replacement merchant product ID, AW product ID and affiliate URL. The historical approved affiliate URL remains authoritative until separately approved for replacement.",
+    "rows": [
+      { "merchant_product_id": "C945", "aw_product_id": "45010750751", "shopify_variant_id": "64643270443357", "handle": "multivitamins-abcde", "title": "Multivitamins A,B,C,D & E 100% NRV", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750751&a=2973875&m=5959", "current_merchant_product_id": "E945", "current_aw_product_id": "45410703238", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703238&a=2973875&m=5959" },
+      { "merchant_product_id": "C130", "aw_product_id": "45010750843", "shopify_variant_id": "64643258155357", "handle": "glucosamine-sulphate-1000mg-tablets", "title": "Glucosamine Sulphate 1,000mg - Tablets", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750843&a=2973875&m=5959", "current_merchant_product_id": "E130", "current_aw_product_id": "45410703234", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703234&a=2973875&m=5959" },
+      { "merchant_product_id": "C195", "aw_product_id": "45010750775", "shopify_variant_id": "64643277160797", "handle": "vitamin-b-complex", "title": "Vitamin B Complex Tablets", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750775&a=2973875&m=5959", "current_merchant_product_id": "E195", "current_aw_product_id": "45410703231", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703231&a=2973875&m=5959" },
+      { "merchant_product_id": "C551", "aw_product_id": "45010750834", "shopify_variant_id": "64643272343901", "handle": "omega-3-500mg", "title": "Omega 3 Capsules 500mg", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750834&a=2973875&m=5959", "current_merchant_product_id": "E551", "current_aw_product_id": "45410703233", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703233&a=2973875&m=5959" },
+      { "merchant_product_id": "C587", "aw_product_id": "45010750721", "shopify_variant_id": "64643255239005", "handle": "glucosamine-1000mg-vitamin-c-tablets", "title": "Glucosamine 1,000mg with Vitamin C Tablets", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750721&a=2973875&m=5959", "current_merchant_product_id": "E587", "current_aw_product_id": "45410703240", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703240&a=2973875&m=5959" },
+      { "merchant_product_id": "E343", "aw_product_id": "45010750885", "shopify_variant_id": "64643256877405", "handle": "glucosamine-sulphate-1500mg-tablets", "title": "Glucosamine Sulphate 1,500mg Tablets", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750885&a=2973875&m=5959", "current_merchant_product_id": "C343", "current_aw_product_id": "45316941408", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45316941408&a=2973875&m=5959" },
+      { "merchant_product_id": "C484", "aw_product_id": "45010750752", "shopify_variant_id": "64643254747485", "handle": "glucosamine-500mg-chondroitin", "title": "Glucosamine 500mg & Chondroitin", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750752&a=2973875&m=5959", "current_merchant_product_id": "E484", "current_aw_product_id": "45410703239", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703239&a=2973875&m=5959" },
+      { "merchant_product_id": "C459", "aw_product_id": "45010750852", "shopify_variant_id": "64643270771037", "handle": "omega-3-6-9-1000mg", "title": "Omega 3, 6 & 9 Capsules 1,000mg", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750852&a=2973875&m=5959", "current_merchant_product_id": "E459", "current_aw_product_id": "45418670212", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45418670212&a=2973875&m=5959" },
+      { "merchant_product_id": "C375", "aw_product_id": "45010750748", "shopify_variant_id": "64643259335005", "handle": "50-plus-formula", "title": "50 Plus Formula", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750748&a=2973875&m=5959", "current_merchant_product_id": "E375", "current_aw_product_id": "45410703237", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703237&a=2973875&m=5959" },
+      { "merchant_product_id": "C519", "aw_product_id": "45010750886", "shopify_variant_id": "64643256090973", "handle": "chewable-vit-c-1000mg-orange-flavour", "title": "Chewable Vitamin C Tablets 1,000mg Orange Flavour", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750886&a=2973875&m=5959", "current_merchant_product_id": "E519", "current_aw_product_id": "45410703236", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703236&a=2973875&m=5959" },
+      { "merchant_product_id": "C406", "aw_product_id": "45010750776", "shopify_variant_id": "64643256254813", "handle": "a-z-multivitamins-minerals", "title": "A to Z Multivitamins & Minerals", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750776&a=2973875&m=5959", "current_merchant_product_id": "E407", "current_aw_product_id": "45410703232", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703232&a=2973875&m=5959" },
+      { "merchant_product_id": "C616", "aw_product_id": "45010750893", "shopify_variant_id": "64643258614109", "handle": "acetyl-l-carnitine-500mg", "title": "Acetyl L-Carnitine Capsules 500mg", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750893&a=2973875&m=5959", "current_merchant_product_id": "E616", "current_aw_product_id": "45410703235", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45410703235&a=2973875&m=5959" },
+      { "merchant_product_id": "E556", "aw_product_id": "45010750866", "shopify_variant_id": "64643258843485", "handle": "cranberry-15000mg", "title": "Cranberry Tablets 5,000mg", "affiliate_url": "https://www.awin1.com/pclick.php?p=45010750866&a=2973875&m=5959", "current_merchant_product_id": "C556", "current_aw_product_id": "45429101261", "current_affiliate_url": "https://www.awin1.com/pclick.php?p=45429101261&a=2973875&m=5959" }
+    ]
+  },
+  "animal_exclusions": [
+    { "merchant_product_id": "V100", "aw_product_id": "45010750767", "shopify_variant_id": "64643269886301", "handle": "maxi-joint-plus", "title": "Maxi-Joint Plus for Dogs" },
+    { "merchant_product_id": "V102", "aw_product_id": "45010750768", "shopify_variant_id": "63499295228253", "handle": "glucosamine-chondroitin-vitamin-c-dogs", "title": "Glucosamine, Chondroitin and Vitamin C for Dogs" },
+    { "merchant_product_id": "V103", "aw_product_id": "45010750722", "shopify_variant_id": "63499295424861", "handle": "maxi-joint-plus-advanced", "title": "Maxi-Joint Plus Advanced for Dogs" },
+    { "merchant_product_id": "V104", "aw_product_id": "45010750809", "shopify_variant_id": "63499295883613", "handle": "turmeric-12800mg", "title": "Turmeric 12,800mg for Dogs" },
+    { "merchant_product_id": "V105", "aw_product_id": "45010750769", "shopify_variant_id": "64643256680797", "handle": "advanced-coat-skin-dogs", "title": "Advanced Coat and Skin for Dogs" },
+    { "merchant_product_id": "V106", "aw_product_id": "45010750770", "shopify_variant_id": "64643255370077", "handle": "evening-primrose-oil-500mg-dogs", "title": "Evening Primrose Oil for Dogs 500mg" },
+    { "merchant_product_id": "V109", "aw_product_id": "45010750810", "shopify_variant_id": "64643257860445", "handle": "eyewell-plus-dogs", "title": "EyeWell Plus for Dogs" },
+    { "merchant_product_id": "V110", "aw_product_id": "45010750771", "shopify_variant_id": "64643258057053", "handle": "cod-liver-oil-dogs-550mg", "title": "Cod Liver Oil for Dogs 550mg" },
+    { "merchant_product_id": "V111", "aw_product_id": "45010750724", "shopify_variant_id": "63499299946845", "handle": "vitapaws-complete-dogs", "title": "VitaPaws Complete for Dogs" },
+    { "merchant_product_id": "V112", "aw_product_id": "45010750772", "shopify_variant_id": "64643277226333", "handle": "vitapaws-complete-senior-dogs", "title": "VitaPaws Complete for Senior Dogs" },
+    { "merchant_product_id": "V126", "aw_product_id": "45010750774", "shopify_variant_id": "64643267952989", "handle": "l-lysine-500mg-cats", "title": "L-Lysine for Cats 500mg" },
+    { "merchant_product_id": "V129", "aw_product_id": "45010750678", "shopify_variant_id": "63499328946525", "handle": "salmon-oil-dogs", "title": "Salmon Oil (500ml)" },
+    { "merchant_product_id": "V216", "aw_product_id": "45010750731", "shopify_variant_id": "63499321803101", "handle": "dental-treats", "title": "DentaSupport Treats" },
+    { "merchant_product_id": "V217", "aw_product_id": "45010750661", "shopify_variant_id": "63499322196317", "handle": "digestion-treats", "title": "DigestiSupport Treats" },
+    { "merchant_product_id": "V220", "aw_product_id": "45010750666", "shopify_variant_id": "63499329208669", "handle": "chicken-rice-large-breed", "title": "Large Breed Adult Dog Food - Chicken & Rice" },
+    { "merchant_product_id": "V227", "aw_product_id": "45010750668", "shopify_variant_id": "63499329667421", "handle": "chicken-rice-small-breed", "title": "Small Breed Adult Dog Food - Chicken & Rice" },
+    { "merchant_product_id": "V300", "aw_product_id": "45010750659", "shopify_variant_id": "63499320918365", "handle": "salmon-chicken-cat-food", "title": "Adult Salmon & Chicken Cat Food" },
+    { "merchant_product_id": "V301", "aw_product_id": "45010750660", "shopify_variant_id": "63499321573725", "handle": "duck-rice-cat-food", "title": "Adult Duck & Rice Cat Food" }
+  ]
+}

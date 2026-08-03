@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 70,
+    ledgerCount: 77,
     ledgerFingerprint:
-      "c0dae990cb535b272c5cc10ad28f77b139b1e460d3efbefb49ec296622afc48f",
+      "006281e46382b016f477e4290777e6484daadadad4694d253d1c47bb56be1f0a",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -63,12 +63,7 @@ const CONTRACTS = Object.freeze({
       "20260803130000_correct_jons_creamax_lemonade_variant.sql":
         "f4e58a73599a6578e11db604c40c9f7e75f93eb9ff67e8f1876b757199f176f1",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260802100000_create_nutrition_candidates.sql",
-        sha256: "3c101c2deed99da708499bcdde101bab25e5ccf9fc96ce1f8fe8d10199d376e7",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -77,9 +72,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 78,
+    ledgerCount: 83,
     ledgerFingerprint:
-      "6e7f7cccbf1254cf6aaf3bcf78e92a176ece7ab22866c6aa3ee57540b9455925",
+      "ab0559dd8e49f9e96b147c59f254a7dab2741b0573a5d46121ddac369886d87a",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -96,7 +91,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260803220000_add_simply_supplements_offer_sync_registration.sql",
+        sha256: "eb594b9405d285dad2e5639356db83155b49a1971098f85b4d46672aa69d314f",
+      }),
+    ]),
   }),
 });
 

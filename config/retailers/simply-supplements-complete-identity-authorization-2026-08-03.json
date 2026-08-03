@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "kind": "simply-supplements-reviewed-complete-identity-authorization-v1",
+  "retailer_id": 7,
+  "retailer_slug": "simply-supplements",
+  "authorized_by": "owner-chat-instruction",
+  "authorized_at": "2026-08-03T16:38:03.5053721Z",
+  "authority": "zatwierdzam",
+  "approval_context": "zatwierdzam complete identity 5b735f60 dla 120 mappingów Simply",
+  "artifact_fingerprint": "5b735f604b121e396da9a935846b3fa02ecd47b82f0ec2ec7d3b9985ad0ba47a",
+  "artifact_file_sha256": "6592590d3b42888f4c38fb2806c01c0aac71dfb5a94c6dd74b07d158ecaceae0",
+  "source_manifest_fingerprint": "b44c99f8a56ffae4ddd4b535d13a587bb516af68c5f55ccc150c34164462f687",
+  "source_options_audit_fingerprint": "6cd2ed28e0cbed6e7e8d532440eb3dda5f51ab339dd8d077904dc39348f34b84",
+  "row_count": 120,
+  "authorized_deltas": {
+    "mapping_identity_updates": 120,
+    "mapping_external_options_updates": 120,
+    "mapping_updated_at_updates": 120,
+    "product_updates": 0,
+    "variant_updates": 0,
+    "mapping_url_updates": 0,
+    "offer_updates": 0,
+    "offer_url_updates": 0,
+    "price_history_inserts": 0,
+    "row_creates": 0,
+    "row_deletes": 0
+  },
+  "conditions": {
+    "staging_first": true,
+    "expected_legacy_identity_and_external_options_are_null": true,
+    "exact_shopify_size_required": true,
+    "subscription_must_equal_multibuy_1": true,
+    "canonical_product_variant_binding_must_match": true,
+    "mapping_direct_url_must_be_preserved": true,
+    "offer_awin_url_must_be_preserved": true,
+    "prices_stock_shipping_totals_and_history_must_be_unchanged": true,
+    "fresh_target_state_match_required": true
+  }
+}

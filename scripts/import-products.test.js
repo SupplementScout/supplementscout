@@ -4994,7 +4994,7 @@ function batchA25Fixture() {
   return { products, productVariants: [...defaultVariants, ...productVariants], rows };
 }
 
-function legacyMapping948Fixture({ offerOverrides = {} } = {}) {
+function legacyMapping948Fixture({ rowOverrides = {}, offerOverrides = {} } = {}) {
   const updatedAt = "2026-07-12T12:37:52.563+00:00";
   const url = "https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234";
   const row = baseCanonicalFeedRow({
@@ -5025,6 +5025,7 @@ function legacyMapping948Fixture({ offerOverrides = {} } = {}) {
     legacy_mapping_upgrade: "true",
     retailer_product_id: "948",
     expected_retailer_product_updated_at: updatedAt,
+    ...rowOverrides,
   });
   const mapping = {
     id: 948,
@@ -5257,6 +5258,63 @@ test("legacy mapping upgrade fixture 948 produces one exact update and no offer 
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }
+});
+
+test("Simply identity-only legacy upgrade stores exact reviewed options and preserves all offer fields", async () => {
+  const fixture = legacyMapping948Fixture({
+    rowOverrides: {
+      retailer_name: "Simply Supplements",
+      retailer_website: "https://www.simplysupplements.co.uk",
+      external_options: JSON.stringify({ Size: "250g", Subscription: "[Multibuy 1]" }),
+      size: "",
+      size_unit: "",
+      flavour: "",
+      legacy_mapping_identity_only: "true",
+      legacy_duplicate_source_listing: "false",
+      legacy_identity_drift: "false",
+    },
+  });
+  fixture.seed.retailers[0].name = "Simply Supplements";
+  fixture.seed.retailers[0].slug = "simply-supplements";
+  fixture.seed.retailers[0].website = "https://www.simplysupplements.co.uk";
+  const supabase = createMockSupabase(structuredClone(fixture.seed));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+  assert.equal(result.blockedRows.length, 0);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.meta.operation_type, "legacy_mapping_upgrade");
+  assert.equal(plan.retailer_product.action, "update");
+  assert.deepEqual(plan.retailer_product.values.external_options, { Size: "250g", Subscription: "[Multibuy 1]" });
+  assert.equal(plan.offer.action, "noop");
+  assert.deepEqual(plan.offer.values, plan.expected_state.offer && {
+    price: plan.expected_state.offer.price,
+    shipping_cost: plan.expected_state.offer.shipping_cost,
+    total_price: plan.expected_state.offer.total_price,
+    url: plan.expected_state.offer.url,
+    in_stock: plan.expected_state.offer.in_stock,
+    last_checked_at: plan.expected_state.offer.last_checked_at,
+  });
+  assert.equal(plan.price_history.action, "noop");
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("identity-only legacy upgrade is rejected outside Simply Supplements", async () => {
+  const fixture = legacyMapping948Fixture({
+    rowOverrides: {
+      external_options: JSON.stringify({ Size: "250g", Subscription: "[Multibuy 1]" }),
+      size: "",
+      size_unit: "",
+      flavour: "",
+      legacy_mapping_identity_only: "true",
+      legacy_duplicate_source_listing: "false",
+      legacy_identity_drift: "false",
+    },
+  });
+  const supabase = createMockSupabase(structuredClone(fixture.seed));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", dryRun: true });
+  assert.equal(result.report.approvedRows.length, 0);
+  assert.match(result.blockedRows[0].block_reason || result.report.blockedRows[0].reason, /reviewed retailers|Simply Supplements/);
 });
 
 test("optioned legacy mapping upgrade moves current default mapping to exact existing non-default variant", async () => {

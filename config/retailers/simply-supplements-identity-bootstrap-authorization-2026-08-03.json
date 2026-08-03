@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "simply-supplements-reviewed-identity-bootstrap-authorization-v1",
+  "retailer_id": 7,
+  "retailer_slug": "simply-supplements",
+  "authorized_by": "owner-chat-instruction",
+  "authorized_at": "2026-08-03T15:58:39.4704595Z",
+  "authority": "zatwierdzam identity bootstrap ffaebfba dla 120 mappingów Simply",
+  "artifact_fingerprint": "ffaebfbaf6dcbd43303b68acb65258a0ba3a038fbe07128ebd96f4f78ebb6d91",
+  "artifact_file_sha256": "1d855fd2067745400566c318ba8796e6518757e7458905664192100f22f11a19",
+  "source_manifest_fingerprint": "b44c99f8a56ffae4ddd4b535d13a587bb516af68c5f55ccc150c34164462f687",
+  "row_count": 120,
+  "authorized_deltas": {
+    "mapping_identity_updates": 120,
+    "mapping_updated_at_updates": 120,
+    "product_updates": 0,
+    "variant_updates": 0,
+    "mapping_url_updates": 0,
+    "offer_updates": 0,
+    "offer_url_updates": 0,
+    "price_history_inserts": 0,
+    "row_creates": 0,
+    "row_deletes": 0
+  },
+  "conditions": {
+    "staging_first": true,
+    "expected_legacy_identity_is_null": true,
+    "canonical_product_variant_binding_must_match": true,
+    "mapping_direct_url_must_be_preserved": true,
+    "offer_awin_url_must_be_preserved": true,
+    "prices_stock_shipping_totals_and_history_must_be_unchanged": true,
+    "fresh_target_state_match_required": true
+  }
+}

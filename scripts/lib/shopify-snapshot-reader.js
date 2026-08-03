@@ -137,10 +137,12 @@ async function readShopifySnapshot({
   retryBaseDelayMs = 250,
   sleepImpl = (delay) => new Promise((resolve) => setTimeout(resolve, delay)),
   userAgent = "SupplementScout-Retailer-Refresh/1.0",
+  paginationCompletion = "short-page",
 }) {
   if (typeof fetchImpl !== "function") throw new Error("A fetch implementation is required");
   if (!Number.isInteger(pageLimit) || pageLimit < 1 || pageLimit > 250) throw new Error("Shopify page limit must be 1..250");
   if (!Number.isInteger(maximumAttempts) || maximumAttempts < 1 || maximumAttempts > 5) throw new Error("Shopify maximum attempts must be 1..5");
+  if (!["short-page", "empty-page"].includes(paginationCompletion)) throw new Error("Shopify pagination completion must be short-page or empty-page");
   const origin = assertHttpsStoreUrl(storeUrl);
   const country = normalizeMarketCountry(marketCountry);
   const products = [];
@@ -159,6 +161,7 @@ async function readShopifySnapshot({
     pages_fetched: 0,
     bytes_received: 0,
     pagination_completed: false,
+    pagination_completion: paginationCompletion,
     retry_count: 0,
     final_http_status: null,
     final_content_type: null,
@@ -286,7 +289,10 @@ async function readShopifySnapshot({
     pages.push({ page, count: payload.products.length, bytes: pageDiagnostic.bytes_received, sha256: sha256(payload.products) });
     diagnostic.pages_fetched = pages.length;
     products.push(...payload.products);
-    if (payload.products.length < pageLimit) {
+    const paginationComplete = paginationCompletion === "empty-page"
+      ? payload.products.length === 0
+      : payload.products.length < pageLimit;
+    if (paginationComplete) {
       const variantIds = new Set();
       for (const product of products) for (const variant of product.variants || []) {
         const id = String(variant.id ?? "");

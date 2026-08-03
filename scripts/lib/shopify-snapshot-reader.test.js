@@ -45,6 +45,39 @@ test("optionally requests a single explicit Shopify market country", async () =>
   assert.throws(() => normalizeMarketCountry("gbr"), /two-letter ISO/);
 });
 
+test("can require an empty page for retailers that return short intermediate pages", async () => {
+  const payloads = [
+    [{ id: 1, variants: [{ id: 11 }] }],
+    [{ id: 2, variants: [{ id: 22 }] }, { id: 3, variants: [{ id: 33 }] }],
+    [],
+  ];
+  const pages = [];
+  const fetchImpl = async (url) => {
+    const page = Number(url.searchParams.get("page"));
+    pages.push(page);
+    return response({ products: payloads[page - 1] });
+  };
+  const result = await readShopifySnapshot({
+    storeUrl: "https://example.myshopify.com",
+    fetchImpl,
+    pageLimit: 2,
+    paginationCompletion: "empty-page",
+    capturedAt: "2026-08-03T12:00:00.000Z",
+  });
+  assert.deepEqual(pages, [1, 2, 3]);
+  assert.equal(result.products.length, 3);
+  assert.deepEqual(result.pages.map((page) => page.count), [1, 2, 0]);
+  assert.equal(result.source_diagnostic.pagination_completed, true);
+  assert.equal(result.source_diagnostic.pagination_completion, "empty-page");
+});
+
+test("rejects an unknown pagination completion mode", async () => {
+  await assert.rejects(
+    readShopifySnapshot({ storeUrl: "https://x.test", paginationCompletion: "guess", fetchImpl: async () => response({ products: [] }) }),
+    /pagination completion/,
+  );
+});
+
 test("rejects non-200, HTML, malformed or truncated JSON and pagination overflow with source codes", async () => {
   await assert.rejects(readShopifySnapshot({ storeUrl: "http://bad.test", fetchImpl() {} }), /HTTPS/);
   await assert.rejects(readShopifySnapshot({ storeUrl: "https://x.test", maximumAttempts: 1, fetchImpl: async () => response({}, { status: 503 }) }), (error) => error.code === "SOURCE_UNAVAILABLE" && /503/.test(error.message));

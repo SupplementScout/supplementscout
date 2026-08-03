@@ -1,0 +1,126 @@
+name: Simply Supplements Offer Refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Dry-run only unless an explicitly authorised apply is required"
+        required: true
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+      validation_context:
+        description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
+        required: true
+        default: workflow_dispatch
+        type: choice
+        options:
+          - workflow_dispatch
+          - schedule
+  schedule:
+    - cron: "7 5 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: simply-supplements-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  simply-supplements-offer-refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production-readonly
+
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          case "$GITHUB_EVENT_NAME" in
+            schedule|workflow_dispatch) ;;
+            *) exit 1 ;;
+          esac
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Initialize diagnostic path
+        run: mkdir -p tmp/simply-supplements-offer-refresh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Simply Supplements automation contracts
+        run: >
+          node --test
+          scripts/simply-supplements-offer-refresh.test.js
+          scripts/simply-supplements-offer-sync-registration.test.js
+          scripts/retailer-offer-sync.test.js
+
+      - name: Dry-run all approved Simply Supplements offers
+        env:
+          SIMPLY_SUPPLEMENTS_REFRESH_PHASE: preflight
+          SIMPLY_SUPPLEMENTS_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          SIMPLY_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIMPLY_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Apply approved Simply Supplements offer refresh
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          SIMPLY_SUPPLEMENTS_REFRESH_PHASE: apply
+          SIMPLY_SUPPLEMENTS_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          SIMPLY_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIMPLY_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=apply
+
+      - name: Verify idempotency with a fresh source capture
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          SIMPLY_SUPPLEMENTS_REFRESH_PHASE: idempotency
+          SIMPLY_SUPPLEMENTS_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          SIMPLY_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIMPLY_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Publish workflow summary
+        if: always()
+        run: |
+          echo "## Simply Supplements approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/simply-supplements-offer-refresh/production-apply.json ]; then
+            node -e 'const r=require("./tmp/simply-supplements-offer-refresh/production-apply.json"); console.log(`- Apply: ${r.result}\n- Scope: ${r.scope.offers} offers\n- Actions: ${JSON.stringify(r.classification)}\n- Discovery-only variants: ${r.discovery.new_variants}\n- SAFE_UPDATE: ${r.safe_update}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Apply report unavailable; dry-run-only or workflow failed closed before apply." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Simply Supplements refresh evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: simply-supplements-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/simply-supplements-offer-refresh/*.json
