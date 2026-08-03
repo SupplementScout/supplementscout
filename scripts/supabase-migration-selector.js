@@ -58,6 +58,8 @@ const CONTRACTS = Object.freeze({
         "9142a62016a6b6cded67de7feb6eb90d0af37402b3164144d1358edad5b62612",
       "20260801220000_recognize_reviewed_gym_high_standalone_legacy_tuples.sql":
         "00178713c4bc9dff283e75ce080a557644bf676c81fd3c72ed0e118b494b94bf",
+      "20260803120000_authorize_reviewed_jons_10_oos_changes.sql":
+        "88a513d40af7a83e5d8ef14051f32159dd3f27e5fce4e79f937a62a7e49c573e",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -73,9 +75,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 75,
+    ledgerCount: 77,
     ledgerFingerprint:
-      "9ed70b9f316938e12e0328da59679c31735059550a728e066c0cba19f11768d6",
+      "505685e66e4bee8a07a299adf47e403953e0d0dcf4a0b9da1f31f921bf891b3e",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -92,12 +94,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260802100000_create_nutrition_candidates.sql",
-        sha256: "3c101c2deed99da708499bcdde101bab25e5ccf9fc96ce1f8fe8d10199d376e7",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

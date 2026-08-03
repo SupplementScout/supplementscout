@@ -23,6 +23,11 @@ const mapped11ManifestFile = path.resolve(
 );
 const mapped11ManifestSha =
   "1d85825cbb35868090d1b41e3a836ef2545fe29ccb2a940aa93b3838cc13ec9a";
+const mapped10ManifestFile = path.resolve(
+  "config/retailers/jons-reviewed-stock-changes-2026-08-03.json",
+);
+const mapped10ManifestSha =
+  "3d3dec8e0087adf547b2c7148f7fb1a6745dd342ee75d87993f4a4e9fdc9849c";
 const migration = fs.readFileSync(
   path.resolve("supabase/migrations/20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql"),
   "utf8",
@@ -45,6 +50,14 @@ const mapped11Authorization = fs.readFileSync(
 );
 const mapped11Rollback = fs.readFileSync(
   path.resolve("supabase/rollbacks/20260729200000_authorize_reviewed_jons_11_stock_changes.sql"),
+  "utf8",
+);
+const mapped10Authorization = fs.readFileSync(
+  path.resolve("supabase/migrations/20260803120000_authorize_reviewed_jons_10_oos_changes.sql"),
+  "utf8",
+);
+const mapped10Rollback = fs.readFileSync(
+  path.resolve("supabase/rollbacks/20260803120000_authorize_reviewed_jons_10_oos_changes.sql"),
   "utf8",
 );
 const berryliciousCorrection = fs.readFileSync(
@@ -200,6 +213,35 @@ test("11-change authorization is exact, control-plane-only and rollback-safe", (
     mapped11Rollback,
     /(?:insert into|update|delete from) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i,
   );
+});
+
+test("mapped-scope immutable 10-change manifest is exact OOS-only and hash-bound", () => {
+  const bytes = fs.readFileSync(mapped10ManifestFile);
+  assert.equal(crypto.createHash("sha256").update(bytes).digest("hex"), mapped10ManifestSha);
+  const reviewed = loadReviewedMixedChangeManifest(mapped10ManifestFile, mapped10ManifestSha);
+  assert.equal(reviewed.mapped, true);
+  assert.equal(reviewed.manifest.row_count, 10);
+  assert.equal(reviewed.manifest.expected_deltas.stock_updates, 10);
+  assert.equal(reviewed.manifest.expected_deltas.freshness_updates, 10);
+  assert.equal(reviewed.manifest.expected_deltas.item_price_updates, 0);
+  assert.equal(reviewed.manifest.expected_deltas.price_history_rows, 0);
+  assert.deepEqual(reviewed.manifest.immutable_scope_offer_ids.map(String),
+    ["1061", "1183", "1185", "1256", "1327", "1336", "1338", "1359", "1373", "1480"]);
+  assert.equal(reviewed.manifest.rows.every((row) => row.exact_action === "UPDATE_STOCK"
+    && row.old_stock === true && row.new_stock === false
+    && JSON.stringify(row.changed_fields) === JSON.stringify(["stock"])), true);
+});
+
+test("10-change authorization is exact, control-plane-only and rollback-safe", () => {
+  assert.match(mapped10Authorization, /jons-10-3d3dec8e0087adf5-production/);
+  assert.match(mapped10Authorization, /owner-approved-chat-2026-08-03/);
+  assert.match(mapped10Authorization, /"offer_stock_updates":10/);
+  assert.match(mapped10Authorization, /"last_checked_at_updates":10/);
+  assert.match(mapped10Authorization, /"price_history":0/);
+  assert.doesNotMatch(mapped10Authorization,
+    /update\s+public\.(offers|retailer_products)|delete\s+from\s+public\.(offers|retailer_products)/i);
+  assert.match(mapped10Rollback, /forbidden after any Jon''s 10-change reviewed binding/);
+  assert.match(mapped10Rollback, /delete from public\.retailer_offer_sync_reviewed_mixed_change_definitions/);
 });
 
 test("Berrylicious correction preserves canonical identity and changes only exact variant metadata", () => {

@@ -5,6 +5,7 @@ const { fingerprint } = require("./artifacts");
 const { semanticShopifySnapshot, sha256 } = require("../shopify-snapshot-reader");
 
 const MANIFEST_KINDS = Object.freeze({
+  10: "jons-existing-offer-10-change-reviewed-manifest",
   11: "jons-existing-offer-11-change-reviewed-manifest",
   15: "jons-existing-offer-15-change-reviewed-manifest",
   16: "jons-existing-offer-16-change-reviewed-manifest",
@@ -91,9 +92,15 @@ const EXPECTED_DELTAS_11_STOCK_ONLY = Object.freeze({
   freshness_updates: 11,
   price_history_rows: 0,
 });
+const EXPECTED_DELTAS_10_STOCK_ONLY = Object.freeze({
+  ...EXPECTED_DELTAS_11_STOCK_ONLY,
+  stock_updates: 10,
+  freshness_updates: 10,
+});
 
 function expectedManifestDeltas(rowCount) {
-  return rowCount === 11 ? EXPECTED_DELTAS_11_STOCK_ONLY
+  return rowCount === 10 ? EXPECTED_DELTAS_10_STOCK_ONLY
+    : rowCount === 11 ? EXPECTED_DELTAS_11_STOCK_ONLY
     : rowCount === 15 ? EXPECTED_DELTAS
     : rowCount === 16 ? EXPECTED_DELTAS_16
       : null;
@@ -754,6 +761,7 @@ module.exports = {
   MAPPED_SCOPE_CONTRACT_KIND,
   SCOPED_CONTRACT_KIND,
   EXPECTED_DELTAS,
+  EXPECTED_DELTAS_10_STOCK_ONLY,
   EXPECTED_DELTAS_16,
   artifactReviewedRows,
   bindReviewedMixedChangeContract,
