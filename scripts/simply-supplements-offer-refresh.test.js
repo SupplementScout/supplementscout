@@ -5,7 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 
 const config = require("../config/retailers/simply-supplements-offer-sync.json");
-const { loadApprovedManifest, projectSourceVariants, reconcileMissingMappedVariants } = require("./simply-supplements-offer-refresh");
+const { canonicalHash, loadApprovedManifest, projectSourceVariants, reconcileMissingMappedVariants, registrationRequest } = require("./simply-supplements-offer-refresh");
 const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -67,4 +67,42 @@ test("Simply preserves the Awin offer URL and direct Shopify mapping URL", () =>
   assert.equal(result.state, "DRY_RUN_READY");
   assert.equal(result.rows[0].action, "VERIFY_NO_CHANGE");
   assert.equal(result.rows[0].changed_fields.url, false);
+});
+
+test("reviewed registration directly fingerprints the complete mapping manifest", () => {
+  const expiresAt = "2026-08-03T20:14:00.000Z";
+  const run = {
+    reviewed: {},
+    reviewedContract: { reviewed_contract_hash: "a".repeat(64) },
+    reviewedExpiresAt: expiresAt,
+    manifest: [{ mapping_id: "1", offer_id: "2", external_product_id: "3", external_variant_id: "4" }],
+    manifestFingerprint: "b".repeat(64),
+    artifacts: [{ artifact_fingerprint: "c".repeat(64) }],
+    snapshot: { semantic_source_fingerprint: "d".repeat(64) },
+    capturedAt: "2026-08-03T20:00:00.000Z",
+    head: "e".repeat(40),
+    spec: { environment: "PRODUCTION", ref: "aftboxmrdgyhizicfsfu", identity: "supplementscout-production:aftboxmrdgyhizicfsfu" },
+  };
+  const request = registrationRequest(run);
+  const expectedManifestFingerprint = canonicalHash(run.manifest);
+  assert.equal(request.manifest_fingerprint, expectedManifestFingerprint);
+  assert.notEqual(request.manifest_fingerprint, run.manifestFingerprint);
+  assert.equal(request.parent_plan_fingerprint, canonicalHash({
+    schema_version: 1,
+    kind: "retailer-existing-offer-sync-parent",
+    parent_plan_id: request.parent_plan_id,
+    target_environment: run.spec.environment,
+    target_project_ref: run.spec.ref,
+    target_database_identity: run.spec.identity,
+    retailer_id: String(config.retailer_id),
+    source_country: "GB",
+    source_snapshot_fingerprint: run.snapshot.semantic_source_fingerprint,
+    source_captured_at: run.capturedAt,
+    manifest_fingerprint: expectedManifestFingerprint,
+    child_plan_ids: request.children.map((row) => row.child_plan_id),
+    child_fingerprints: request.children.map((row) => row.artifact.artifact_fingerprint),
+    code_commit: run.head,
+    expires_at: expiresAt,
+    workflow: request.workflow,
+  }));
 });
