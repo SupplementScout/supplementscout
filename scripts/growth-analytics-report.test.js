@@ -166,8 +166,12 @@ test("scheduled workflow is read-only, protected and publishes only report artif
   );
 
   assert.match(workflow, /permissions:\s*\n\s*contents: read/);
+  assert.match(workflow, /actions: read/);
   assert.match(workflow, /environment: production-readonly/);
-  assert.match(workflow, /cron: "3 8 \* \* 1"/);
+  assert.match(workflow, /cron: "37 8 \* \* 1"/);
+  assert.match(workflow, /cron: "37 12 \* \* 1"/);
+  assert.match(workflow, /event=schedule&status=success/);
+  assert.match(workflow, /steps\.weekly\.outputs\.needed == 'true'/);
   assert.match(workflow, /secrets\.GOOGLE_SERVICE_ACCOUNT_JSON_B64/);
   assert.match(workflow, /vars\.GA4_PROPERTY_ID/);
   assert.match(workflow, /vars\.GSC_SITE_URL/);

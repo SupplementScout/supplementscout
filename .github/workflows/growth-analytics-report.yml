@@ -3,10 +3,12 @@ name: Growth Analytics Report
 on:
   workflow_dispatch:
   schedule:
-    - cron: "3 8 * * 1"
+    - cron: "37 8 * * 1"
+    - cron: "37 12 * * 1"
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: growth-analytics-report
@@ -31,18 +33,46 @@ jobs:
             *) exit 1 ;;
           esac
 
+      - name: Check whether this week's scheduled report is already complete
+        id: weekly
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/workflows/growth-analytics-report.yml/runs?event=schedule&status=success&per_page=30" \
+            -o "$RUNNER_TEMP/growth-runs.json"; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if node -e 'const fs=require("fs");const now=new Date();const daysSinceMonday=(now.getUTCDay()+6)%7;const monday=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()-daysSinceMonday);const current=process.env.GITHUB_RUN_ID;const runs=JSON.parse(fs.readFileSync(process.argv[1],"utf8")).workflow_runs||[];process.exit(runs.some(r=>String(r.id)!==current&&Date.parse(r.created_at)>=monday&&r.conclusion==="success")?0:1)' "$RUNNER_TEMP/growth-runs.json"; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout repository
+        if: steps.weekly.outputs.needed == 'true'
         uses: actions/checkout@v6
 
       - name: Set up Node.js
+        if: steps.weekly.outputs.needed == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: 22
 
       - name: Test analytics read contract
+        if: steps.weekly.outputs.needed == 'true'
         run: node --test scripts/growth-analytics-report.test.js
 
       - name: Download authenticated GSC and GA4 evidence
+        if: steps.weekly.outputs.needed == 'true'
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON_B64 }}
           GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
@@ -50,15 +80,19 @@ jobs:
         run: node scripts/growth-analytics-report.js
 
       - name: Publish safe summary
-        if: success()
+        if: steps.weekly.outputs.needed == 'true' && success()
         run: |
           node -e 'const fs=require("fs");const p=fs.readdirSync("tmp/growth-analytics").find(x=>x.endsWith(".json"));const r=require(`./tmp/growth-analytics/${p}`);console.log(`## Weekly Growth Analytics\n- Period: ${r.period.startDate} to ${r.period.endDate}\n- GSC: ${r.searchConsole.totals.clicks} clicks, ${r.searchConsole.totals.impressions} impressions\n- GA4 organic: ${r.ga4.organicSearch.sessions} sessions, ${r.ga4.organicSearch.retailerOfferClicks} retailer-offer clicks\n- Sitemap errors: ${r.searchConsole.sitemaps.reduce((n,s)=>n+s.errors,0)}`)' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload authenticated evidence
-        if: success()
+        if: steps.weekly.outputs.needed == 'true' && success()
         uses: actions/upload-artifact@v7
         with:
           name: growth-analytics-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 35
           if-no-files-found: error
           path: tmp/growth-analytics/*.json
+
+      - name: Record successful weekly deduplication
+        if: steps.weekly.outputs.needed == 'false'
+        run: echo "A successful scheduled Growth Analytics report already exists for this week." >> "$GITHUB_STEP_SUMMARY"

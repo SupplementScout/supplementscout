@@ -154,6 +154,52 @@ test("external_options flavour takes priority in parsed variant identity", () =>
   assert.equal(identity.size.unit, "g");
 });
 
+test("exact canonical variant size overrides an ambiguous numeric product title", () => {
+  const product = {
+    name: "Applied Nutrition Pump 3G Pre-Workout 375g",
+    brand: "Applied Nutrition",
+    product_format: "powder",
+  };
+  const canonicalVariant = {
+    size_value: "375",
+    size_unit: "g",
+    pack_count: 1,
+    product_format: "powder",
+    is_active: true,
+    is_default: false,
+  };
+
+  const compatible = assessVariantCompatibility(
+    {
+      product_name: "Applied Nutrition Pump Pre Workout 375g",
+      brand: "Applied Nutrition",
+      size: "375 g",
+      size_unit: "g",
+      product_format: "powder",
+      pack_count: "1",
+    },
+    product,
+    canonicalVariant
+  );
+  assert.equal(compatible.compatible, true);
+  assert.deepEqual(compatible.reasons, []);
+
+  const wrongSize = assessVariantCompatibility(
+    {
+      product_name: "Applied Nutrition Pump Pre Workout 400g",
+      brand: "Applied Nutrition",
+      size: "400 g",
+      size_unit: "g",
+      product_format: "powder",
+      pack_count: "1",
+    },
+    product,
+    canonicalVariant
+  );
+  assert.equal(wrongSize.compatible, false);
+  assert.ok(wrongSize.reasons.includes("size conflict"));
+});
+
 test("variant row identity is retailer-scoped and uses external_variant_id", () => {
   const base = {
     retailer_name: "Discount Supplements",

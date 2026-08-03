@@ -367,7 +367,7 @@ function parseClearProductFormatEvidence(value = "") {
   return null;
 }
 
-function assessVariantCompatibility(row, product) {
+function assessVariantCompatibility(row, product, canonicalVariant = null) {
   const rowExplicitFormat = explicitProductFormat(row.product_format);
   const productStoredFormat = explicitProductFormat(product.product_format);
   const reviewedFormatIdentity = row.__reviewed_whey_okay_format_identity;
@@ -395,6 +395,19 @@ function assessVariantCompatibility(row, product) {
       }
     : parseVariantIdentity(row);
   const parsedProductIdentity = parseVariantIdentity(product.name || "");
+  const exactCanonicalVariant =
+    canonicalVariant &&
+    canonicalVariant.is_active !== false &&
+    canonicalVariant.is_default !== true
+      ? canonicalVariant
+      : null;
+  const exactRowSize = exactCanonicalVariant
+    ? parseSize(row.size || "") ||
+      parseSize(`${row.size || ""}${row.size_unit || ""}`)
+    : null;
+  const comparisonRowIdentity = exactRowSize
+    ? { ...rowIdentity, size: exactRowSize }
+    : rowIdentity;
   const reviewedCanonicalSize = reviewedExistingVariantIdentity
     ? parseSize(
         `${reviewedExistingVariantIdentity.size_value || ""}${
@@ -402,14 +415,32 @@ function assessVariantCompatibility(row, product) {
         }`
       )
     : null;
+  const exactCanonicalSize = exactCanonicalVariant
+    ? parseSize(
+        `${exactCanonicalVariant.size_value || ""}${
+          exactCanonicalVariant.size_unit || ""
+        }`
+      )
+    : null;
+  const exactCanonicalPackCount = exactCanonicalVariant?.pack_count
+    ? Number(exactCanonicalVariant.pack_count)
+    : null;
+  const exactCanonicalFormat = exactCanonicalVariant
+    ? explicitProductFormat(exactCanonicalVariant.product_format)
+    : null;
   if (reviewedCanonicalSize && reviewedPackCount > 1) {
     reviewedCanonicalSize.perUnit = true;
   }
   const productIdentity = {
     ...parsedProductIdentity,
-    size: reviewedCanonicalSize || parsedProductIdentity.size,
+    size:
+      reviewedCanonicalSize ||
+      exactCanonicalSize ||
+      parsedProductIdentity.size,
     packCount: reviewedExistingVariantIdentity
       ? reviewedPackCount
+      : exactCanonicalVariant
+      ? exactCanonicalPackCount
       : parsedProductIdentity.packCount,
     productFormat: reviewedExistingVariantIdentity
       ? null
@@ -418,12 +449,13 @@ function assessVariantCompatibility(row, product) {
         (reviewedIdentity.allow_missing_canonical_product_format
           ? explicitProductFormat(reviewedIdentity.product_format)
           : null)
-      : productStoredFormat ||
+      : exactCanonicalFormat ||
+        productStoredFormat ||
         parsedProductIdentity.productFormat,
   };
   const rowTitleFormat = parseClearProductFormatEvidence(productFormatEvidenceText(row));
   const productTitleFormat = parseClearProductFormatEvidence(product.name || "");
-  const rowFallbackFormat = rowIdentity.productFormat;
+  const rowFallbackFormat = comparisonRowIdentity.productFormat;
   const productFallbackFormat = parseVariantIdentity(product.name || "").productFormat;
   const reasons = [];
   const warnings = [];
@@ -445,15 +477,15 @@ function assessVariantCompatibility(row, product) {
     reasons.push("product family conflict");
   }
 
-  if (valuesConflict(sizeKey(rowIdentity.size), sizeKey(productIdentity.size))) {
+  if (valuesConflict(sizeKey(comparisonRowIdentity.size), sizeKey(productIdentity.size))) {
     reasons.push("size conflict");
-  } else if (!rowIdentity.size || !productIdentity.size) {
+  } else if (!comparisonRowIdentity.size || !productIdentity.size) {
     warnings.push("incomplete size evidence");
   }
 
-  if (valuesConflict(rowIdentity.packCount, productIdentity.packCount)) {
+  if (valuesConflict(comparisonRowIdentity.packCount, productIdentity.packCount)) {
     reasons.push("pack-count conflict");
-  } else if (rowIdentity.packCount === null || productIdentity.packCount === null) {
+  } else if (comparisonRowIdentity.packCount === null || productIdentity.packCount === null) {
     warnings.push("incomplete pack-count evidence");
   }
 
@@ -501,7 +533,7 @@ function assessVariantCompatibility(row, product) {
     } else if (!rowFormat || !productFormat) {
       warnings.push("incomplete format evidence");
     }
-  } else if (!rowIdentity.productFormat || !productIdentity.productFormat) {
+  } else if (!comparisonRowIdentity.productFormat || !productIdentity.productFormat) {
     warnings.push("incomplete format evidence");
   }
 
@@ -510,7 +542,7 @@ function assessVariantCompatibility(row, product) {
     ambiguous: !rowFamily || !productFamily,
     reasons,
     warnings,
-    rowIdentity,
+    rowIdentity: comparisonRowIdentity,
     productIdentity,
   };
 }
@@ -993,7 +1025,7 @@ function analyzeFeedRows(resolvedRows, options = {}) {
 
     const compatibility = item.plannedProduct
       ? { compatible: true, ambiguous: false, warnings: [] }
-      : assessVariantCompatibility(row, product);
+      : assessVariantCompatibility(row, product, item.productVariant);
 
     if (!compatibility.compatible || compatibility.ambiguous) {
       const conflict = {

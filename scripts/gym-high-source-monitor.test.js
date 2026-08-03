@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 const { evaluateCapture, loadScope, main, parseArgs } = require("./gym-high-source-monitor");
 
@@ -59,4 +61,15 @@ test("monitor only reads once and writes one report", async () => {
 test("output is confined to tmp", () => {
   assert.throws(() => parseArgs(["--output=report.json"]), /inside repository tmp/);
   assert.doesNotThrow(() => parseArgs(["--output=tmp/gym-high-source-monitor/report.json"]));
+});
+
+test("scheduled source monitor retries transient source failures without weakening guards", () => {
+  const workflow = fs.readFileSync(
+    path.join(process.cwd(), ".github", "workflows", "gym-high-source-monitor.yml"),
+    "utf8"
+  );
+  assert.match(workflow, /for attempt in 1 2 3 4 5/);
+  assert.match(workflow, /gym-high-catalogue-audit\.js --output=tmp\/gym-high-source-monitor\/report\.json/);
+  assert.match(workflow, /sleep \$\(\(attempt \* 5\)\)/);
+  assert.doesNotMatch(workflow, /continue-on-error:\s*true/);
 });

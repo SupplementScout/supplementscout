@@ -4,21 +4,19 @@ const os=require("node:os");
 const path=require("node:path");
 const test=require("node:test");
 const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing-offer-plan");
+const {excludedMigrationIds}=require("./lib/environment-migrations");
 const config=require("../config/retailers/jons-supplements-offer-sync.json");
 const {RefreshError,canonicalHash,classificationDiagnostic,executionRow,guardrailsFor,migrationBinding,parseArgs,partitionExecutionRows,registrationRequest,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord}=require("./jons-offer-refresh");
 
 const migrationFiles=fs.readdirSync(path.join(process.cwd(),"supabase","migrations"));
 const approvedRegistrationMigration="20260724100000_add_approved_retailer_sync_registration";
-const environmentMigrationExclusions={
-  STAGING:new Set(["20260717130000_add_local_retailer_catalogue_child_executor","20260719100000_add_production_retailer_sync_enablement","20260726140000_authorize_reviewed_jons_16_mapped_scope","20260729200000_authorize_reviewed_jons_11_stock_changes","20260729210000_correct_strom_essentialmax_berrylicious_variant","20260731120000_correct_jons_two_default_flavour_variants"]),
-  PRODUCTION:new Set(["20260717120000_create_retailer_catalogue_control_ledger","20260717130000_add_local_retailer_catalogue_child_executor","20260717140000_add_staging_retailer_catalogue_executor","20260718150000_add_verified_no_change_offer_refresh","20260718160000_add_retailer_offer_mixed_batch_executor","20260718170000_add_read_only_mixed_batch_validator","20260719090000_add_expired_retailer_offer_sync_approval_close"]),
-};
 function assertMigrationBindingContract(files){
   const allMigrationIds=files.filter(name=>/^\d+_[a-z0-9_]+\.sql$/.test(name)).map(name=>name.slice(0,-4));
   for(const environment of ["STAGING","PRODUCTION"]){
     const versions=migrationBinding(environment,files).versions;
     assert.equal(versions.includes(approvedRegistrationMigration),true,`${environment} must bind the approved retailer sync registration migration`);
-    for(const id of allMigrationIds)assert.equal(versions.includes(id),!environmentMigrationExclusions[environment].has(id),`${environment} migration binding mismatch for ${id}`);
+    const exclusions=excludedMigrationIds(environment);
+    for(const id of allMigrationIds)assert.equal(versions.includes(id),!exclusions.has(id),`${environment} migration binding mismatch for ${id}`);
   }
 }
 
