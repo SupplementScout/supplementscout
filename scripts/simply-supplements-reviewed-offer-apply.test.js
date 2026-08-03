@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const authorization = require("../config/retailers/simply-supplements-reviewed-change-authorization-2026-08-03.json");
+const fs = require("node:fs");
 const { AUTHORIZATION_ID, expectedDeltas, loadReviewedBaseline, rowDeltas } = require("./simply-supplements-reviewed-offer-apply");
 
 test("reviewed Simply baseline is byte-bound to the exact owner approval", () => {
@@ -38,4 +39,9 @@ test("row deltas distinguish item price, threshold delivery and stock", () => {
   assert.equal(delta.logical_field_deltas.offer_shipping_updates, 1);
   assert.equal(delta.logical_field_deltas.offer_total_updates, 1);
   assert.equal(delta.logical_field_deltas.offer_stock_updates, 0);
+});
+
+test("reviewed manifest remains one atomic child while ordinary refresh keeps bounded batches", () => {
+  const automation = fs.readFileSync(require.resolve("./fit-house-offer-refresh"), "utf8");
+  assert.match(automation, /executionBatches=reviewed\?\[rows\]:balancedExecutionBatches\(rows,50\)/);
 });
