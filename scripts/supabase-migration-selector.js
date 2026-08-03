@@ -62,6 +62,8 @@ const CONTRACTS = Object.freeze({
         "88a513d40af7a83e5d8ef14051f32159dd3f27e5fce4e79f937a62a7e49c573e",
       "20260803130000_correct_jons_creamax_lemonade_variant.sql":
         "f4e58a73599a6578e11db604c40c9f7e75f93eb9ff67e8f1876b757199f176f1",
+      "20260803230000_authorize_simply_reviewed_commercial_baseline.sql":
+        "a822db2f0cbda8040b30ac6b7e404211163e9f4806ef045f95fcac51f8f8445c",
     }),
     pending: Object.freeze([]),
   }),
@@ -91,7 +93,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260803230000_authorize_simply_reviewed_commercial_baseline.sql",
+        sha256: "a822db2f0cbda8040b30ac6b7e404211163e9f4806ef045f95fcac51f8f8445c",
+      }),
+    ]),
   }),
 });
 

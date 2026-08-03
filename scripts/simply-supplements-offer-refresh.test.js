@@ -6,6 +6,7 @@ const test = require("node:test");
 
 const config = require("../config/retailers/simply-supplements-offer-sync.json");
 const { loadApprovedManifest, projectSourceVariants, reconcileMissingMappedVariants } = require("./simply-supplements-offer-refresh");
+const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
 
 const ROOT = path.resolve(__dirname, "..");
 const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/simply-supplements-offer-refresh.yml"), "utf8");
@@ -50,4 +51,20 @@ test("scheduled workflow reuses protected roles and contains no Awin credential"
 test("authority file bytes remain frozen", () => {
   const bytes = fs.readFileSync(path.join(ROOT, config.manifest_path));
   assert.equal(crypto.createHash("sha256").update(bytes).digest("hex"), config.manifest_sha256);
+});
+
+test("Simply preserves the Awin offer URL and direct Shopify mapping URL", () => {
+  const result = classifyExistingOffers({
+    targets: [{ offer_id: "1", retailer_product_id: "2", external_product_id: "3", external_variant_id: "4", external_sku: "C1", price: "10.00", shipping_cost: "1.99", total_price: "11.99", in_stock: true, url: "https://www.awin1.com/pclick.php?p=1", external_url: "https://www.simplysupplements.co.uk/products/example?variant=4" }],
+    sourceVariants: [{ external_product_id: "3", external_variant_id: "4", external_sku: "C1", product_handle: "example", price: "10.00", shipping_cost: "1.99", total_price: "11.99", in_stock: true, url: "https://www.simplysupplements.co.uk/products/example?variant=4" }],
+    policy: { ...config.guardrails, required_matched_offers: 1, store_url: config.store_url },
+    sourceCapturedAt: "2026-08-03T18:00:00.000Z",
+    now: new Date("2026-08-03T18:00:00.000Z"),
+    sourceProductCount: 276,
+    previousSourceProductCount: 276,
+    guardScope: { name: "SIMPLY_URL_TEST", retailer: "Simply Supplements" },
+  });
+  assert.equal(result.state, "DRY_RUN_READY");
+  assert.equal(result.rows[0].action, "VERIFY_NO_CHANGE");
+  assert.equal(result.rows[0].changed_fields.url, false);
 });

@@ -149,9 +149,9 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production contract records the Simply offer-sync registration as applied", () => {
+test("production contract exposes only the reviewed Simply commercial authorization as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map(({ filename }) => filename), ["20260803230000_authorize_simply_reviewed_commercial_baseline.sql"]);
   assert.equal(contract.ledgerCount, 84);
   assert.equal(
     contract.ledgerFingerprint,
@@ -261,11 +261,11 @@ test("production binds its exact post-manifest-rebind ledger", () => {
   assert.equal(result.ledger_count, 84);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
-  assert.equal(result.selected_files.length, 84);
+  assert.equal(result.selected_files.length, 85);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(result.pending_file, "20260803230000_authorize_simply_reviewed_commercial_baseline.sql");
+  assert.equal(result.pending_sha256, contract.pending[0].sha256);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

@@ -150,12 +150,25 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     if (String(source.external_product_id) !== String(target.external_product_id)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id });
     if (!policy.ignore_source_sku && identityValue(source.external_sku) !== identityValue(target.external_sku)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id, field: "external_sku" });
     let sourceUrl;
-    try { sourceUrl = policy.source_url_mode === "provided" ? new URL(source.url).href : canonicalVariantUrl(policy.store_url, source.product_handle, source.external_variant_id); } catch { return block("INVALID_URL"); }
+    try {
+      sourceUrl = policy.preserve_existing_urls
+        ? new URL(target.url).href
+        : policy.source_url_mode === "provided"
+          ? new URL(source.url).href
+          : canonicalVariantUrl(policy.store_url, source.product_handle, source.external_variant_id);
+      if (policy.preserve_existing_urls) {
+        const directHost = new URL(target.external_url).hostname.toLowerCase().replace(/^www\./, "");
+        const storeHost = new URL(policy.store_url).hostname.toLowerCase().replace(/^www\./, "");
+        const offerHost = new URL(target.url).hostname.toLowerCase().replace(/^www\./, "");
+        const allowedOfferHosts = new Set((policy.allowed_existing_offer_hosts || []).map((value) => String(value).toLowerCase().replace(/^www\./, "")));
+        if (directHost !== storeHost || !allowedOfferHosts.has(offerHost)) return block("INVALID_URL_DOMAIN");
+      }
+    } catch { return block("INVALID_URL"); }
     const allowedHosts = new Set((policy.allowed_url_hosts || [new URL(policy.store_url).hostname]).map((value) => String(value).toLowerCase().replace(/^www\./, "")));
-    if (!allowedHosts.has(new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ""))) return block("INVALID_URL_DOMAIN");
+    if (!policy.preserve_existing_urls && !allowedHosts.has(new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ""))) return block("INVALID_URL_DOMAIN");
     const price = money(source.price) !== money(target.price);
     const stock = Boolean(source.in_stock) !== Boolean(target.in_stock);
-    const url = sourceUrl !== target.url || sourceUrl !== target.external_url;
+    const url = policy.preserve_existing_urls ? false : sourceUrl !== target.url || sourceUrl !== target.external_url;
     const shipping = source.shipping_cost !== target.shipping_cost;
     const totalChanged = source.total_price === undefined
       ? price

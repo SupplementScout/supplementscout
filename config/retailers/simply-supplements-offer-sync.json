@@ -30,6 +30,8 @@
     "user_agent": "SupplementScout-Simply-Supplements-Refresh/1.0"
   },
   "guardrails": {
+    "preserve_existing_urls": true,
+    "allowed_existing_offer_hosts": ["awin1.com"],
     "required_matched_offers": 120,
     "source_freshness_hours": 24,
     "future_clock_skew_minutes": 5,
@@ -56,6 +58,7 @@
     "maximum_missing_mapped_variant_ratio": 0
   },
   "reviewed_mass_oos_enabled": false,
+  "preserve_existing_urls": true,
   "guard_scope_name": "SIMPLY_SUPPLEMENTS_APPROVED_120",
   "schedule": {
     "cron_utc": "7 5 * * *"
