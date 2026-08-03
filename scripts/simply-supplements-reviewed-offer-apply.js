@@ -33,6 +33,17 @@ function expectedDeltas() {
     logical_field_deltas: { offer_price_updates: 43, offer_shipping_updates: 6, offer_total_updates: 43, offer_stock_updates: 6, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0, last_checked_at_updates: 49 },
   };
 }
+function rowDeltas(approved) {
+  const price = approved.changed_fields.includes("price");
+  const shipping = approved.changed_fields.includes("shipping_cost");
+  const total = approved.changed_fields.includes("total_price");
+  const stock = approved.changed_fields.includes("in_stock");
+  const moneyChanged = price || shipping || total;
+  return {
+    row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: moneyChanged ? 1 : 0 },
+    logical_field_deltas: { offer_price_updates: price ? 1 : 0, offer_shipping_updates: shipping ? 1 : 0, offer_total_updates: total ? 1 : 0, offer_stock_updates: stock ? 1 : 0, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0, last_checked_at_updates: 1 },
+  };
+}
 function reviewedContractRows(manifest) {
   return stableRows(manifest.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => ({
     external_product_id: String(row.external_product_id),
@@ -84,7 +95,7 @@ function loadReviewedBaseline(file = MANIFEST_FILE) {
         if (approved.action === "VERIFY_NO_CHANGE") continue;
         const price = approved.changed_fields.some((field) => ["price", "shipping_cost", "total_price"].includes(field));
         const stock = approved.changed_fields.includes("in_stock");
-        classified.push({ offer_id: String(target.offer_id), retailer_product_id: String(target.retailer_product_id), external_product_id: String(target.external_product_id), external_variant_id: String(target.external_variant_id), action: actionFor(price, stock), changed_fields: { price, stock, url: false, blocked: false }, source_captured_at: sourceCapturedAt, source: { ...source, url: target.url, total_price: money(approved.expected_offer.total_price) }, target });
+        classified.push({ offer_id: String(target.offer_id), retailer_product_id: String(target.retailer_product_id), external_product_id: String(target.external_product_id), external_variant_id: String(target.external_variant_id), action: actionFor(price, stock), changed_fields: { price, stock, url: false, blocked: false }, source_captured_at: sourceCapturedAt, source: { ...source, url: target.url, total_price: money(approved.expected_offer.total_price) }, target, expected_deltas: rowDeltas(approved) });
       }
       return { state: "DRY_RUN_READY", reason: "OWNER_REVIEWED_SIMPLY_BASELINE", rows: classified, expected_deltas: expectedDeltas(), guard_evidence: null };
     },
@@ -110,4 +121,4 @@ async function main(argv = process.argv.slice(2)) {
 }
 
 if (require.main === module) main().catch((error) => { console.error(error.stack || error); process.exitCode = 1; });
-module.exports = { AUTHORIZATION_ID, expectedDeltas, loadReviewedBaseline, reviewedContractRows };
+module.exports = { AUTHORIZATION_ID, expectedDeltas, loadReviewedBaseline, reviewedContractRows, rowDeltas };
