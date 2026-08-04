@@ -122,11 +122,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — continue with the next fixed-order
-candidate, Vegan Protein, through its existing recorded coverage gate. It
-remains deferred until current comparable retailer overlap reaches three
-products across at least two retailers with at least 20 fresh offers; use
-existing guarded retailer and catalogue mechanisms and do not weaken the gate.
+**Next executable task:** SEO-13 — implement the next fixed-order candidate,
+Vegan Protein, through the existing shared decision-page mechanism. The
+unchanged production gate passed on 4 August 2026 with three comparable
+multi-retailer products, four current retailers and 32 fresh offers. Preserve
+that gate during implementation and live verification; do not weaken it.
 All ten candidate gates have now been reviewed: Amino Acids / BCAA / EAA and
 Whey Isolate are live verified, while the other eight candidates remain
 deferred. The existing `/hydration` canonical was
@@ -264,6 +264,23 @@ invent a date to silence the Guardian.
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 4 August 2026 — SEO-13 Vegan Protein coverage gate passed
+
+- The owner-approved refresh reused guarded existing-offer mechanisms for 586
+  Whey Okay offers, 66 GYM HIGH offers and the exact Dolphin offer `2490`.
+  Dolphin now has a protected daily refresh for that one manifest-bound offer.
+- A GYM HIGH postcondition check exposed that unchanged standard-import rows
+  did not advance freshness. Commit `4e34fd2` corrected the existing scheduled
+  workflow to convert unchanged rows into verified-no-change plans. The
+  protected apply executed exactly 66 plans and the postflight found zero stale
+  rows, zero creates and zero price, shipping, stock or URL changes.
+- The final read-only production audit passed the unchanged gate with 32 fresh
+  offers from four retailers and three products with fresh multi-retailer
+  coverage: products `70`, `71` and `390`. No product, variant, mapping or offer
+  was created by this remediation.
+- Vegan Protein is no longer coverage-deferred. SEO-13 remains `IN PROGRESS`;
+  implementation and live verification of this single page are now next.
 
 ### 1 August 2026 — SEO-13 page 3 Whey Isolate live verification
 

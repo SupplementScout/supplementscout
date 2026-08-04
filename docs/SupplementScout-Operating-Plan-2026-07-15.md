@@ -1933,13 +1933,13 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 with the next fixed-order candidate, Vegan Protein, through its
-existing recorded gate. It remains deferred until current comparable retailer
-overlap reaches three products across at least two retailers with at least 20
-fresh offers. Reuse guarded retailer refresh and catalogue mechanisms to
-improve or recheck that evidence; do not weaken the gate or create a thin page.
-Implementation and live verification still proceed one page at a time through
-the shared mechanism.
+Continue SEO-13 with implementation of the next fixed-order candidate, Vegan
+Protein, through the existing shared decision-page mechanism. Its unchanged
+coverage gate passed on 4 August 2026 after guarded existing-offer refreshes:
+three products have fresh multi-retailer coverage, with 32 fresh offers across
+four retailers. Preserve the gate during implementation and live verification;
+do not weaken it or create a thin page. No product, variant, mapping or offer
+was created to obtain this evidence.
 
 ### Then
 
