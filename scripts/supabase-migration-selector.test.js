@@ -153,7 +153,7 @@ test("production contract records Dolphin validator as the only pending migratio
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
     filename: "20260804010000_add_dolphin_single_offer_validation.sql",
-    sha256: "30671b33ec458a38cc4119b66a9bd4668bffc1a6c11f7383e3c1c8e05c03cde3",
+    sha256: "a6400f646c636cba545c8510641fcdeec88f3751945812af6dc300a44e1f84d1",
   }]);
   assert.equal(contract.ledgerCount, 90);
   assert.equal(

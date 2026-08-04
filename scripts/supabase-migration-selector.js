@@ -75,7 +75,7 @@ const CONTRACTS = Object.freeze({
       "20260804000000_add_dolphin_vegan_protein_offer_sync_registration.sql":
         "12b17674f979ad0d42a5f6df9d75156d4b7e5cf1419e545bada0e75f2cb30429",
       "20260804010000_add_dolphin_single_offer_validation.sql":
-        "30671b33ec458a38cc4119b66a9bd4668bffc1a6c11f7383e3c1c8e05c03cde3",
+        "a6400f646c636cba545c8510641fcdeec88f3751945812af6dc300a44e1f84d1",
     }),
     pending: Object.freeze([]),
   }),
@@ -108,7 +108,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260804010000_add_dolphin_single_offer_validation.sql",
-        sha256: "30671b33ec458a38cc4119b66a9bd4668bffc1a6c11f7383e3c1c8e05c03cde3",
+        sha256: "a6400f646c636cba545c8510641fcdeec88f3751945812af6dc300a44e1f84d1",
       }),
     ]),
   }),

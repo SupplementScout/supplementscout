@@ -87,7 +87,7 @@ begin
      or position($$retailer_product_id}' <> '2676'$$ in v_definition)=0
      or position($$external_variant_id}' <> '193943-VANILLA'$$ in v_definition)=0
      or position('v_maximum_changed not between 0 and 1' in v_definition)=0
-     or position('v_mass_price_ratio > 2' in v_definition)=0 then
+     or position('v_mass_price_ratio>2' in v_definition)=0 then
     raise exception 'Dolphin singleton validator verification failed';
   end if;
 end;
