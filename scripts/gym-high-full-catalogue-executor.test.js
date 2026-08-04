@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const { parseArgs, validateScheduledPlans } = require("./gym-high-full-catalogue-executor");
+const { parseArgs: parseRefreshArgs, sameBusinessOffer } = require("./gym-high-refresh-artifact");
 
 const workflow = fs.readFileSync(path.resolve(__dirname, "../.github/workflows/gym-high-full-catalogue-apply.yml"), "utf8");
 
@@ -27,6 +28,21 @@ test("workflow is manual, exact, and separates production roles", () => {
   assert.match(workflow, /approved-catalogue-report\.json --output=tmp\/gym-high-reviewed-catalogue\/post-apply\.csv/);
   assert.match(workflow, /mapping_create_count!==0/);
   assert.match(workflow, /offer_create_count!==0/);
+  assert.match(workflow, /gym-high-refresh-artifact\.js/);
+  assert.match(workflow, /refresh-report\.json --artifact=tmp\/gym-high-reviewed-catalogue\/refresh-artifact\.json/);
+  assert.match(workflow, /expected_state\.offer\.last_checked_at/);
+});
+
+test("refresh artifact helper is tmp-confined and recognizes only exact business no-change", () => {
+  const parsed = parseRefreshArgs([
+    "--report=tmp/report.json", "--artifact=tmp/artifact.json",
+    "--output=tmp/refresh.json", "--output-report=tmp/refresh-report.json",
+  ]);
+  assert.match(parsed.output, /tmp[\\/]refresh\.json$/);
+  assert.throws(() => parseRefreshArgs(["--report=a", "--artifact=b", "--output=c", "--output-report=d"]), /inside repository tmp/);
+  const offer = { price: "10.00", shipping_cost: null, total_price: null, in_stock: true, url: "https://gymhigh.co.uk/product/test/" };
+  assert.equal(sameBusinessOffer(offer, { ...offer, last_checked_at: "2026-08-04T05:00:00Z" }), true);
+  assert.equal(sameBusinessOffer(offer, { ...offer, price: "11.00" }), false);
 });
 
 function scheduledPlan(overrides = {}) {

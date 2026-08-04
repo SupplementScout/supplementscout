@@ -69,15 +69,23 @@ function validateInputs(options, dependencies = {}) {
   const report = dependencies.report || JSON.parse(fs.readFileSync(options.report, "utf8"));
   const loaded = dependencies.loaded || loadDryRunArtifact(options.artifact);
   const artifact = loaded.artifact;
+  const guardedRefresh = report.kind === "gym-high-guarded-existing-offer-refresh";
   if (
-    report.result !== "PASS" || report.kind !== "gym-high-reviewed-full-catalogue-feed" || report.database_writes !== 0 ||
+    report.result !== "PASS" || (!guardedRefresh && report.kind !== "gym-high-reviewed-full-catalogue-feed") || report.database_writes !== 0 ||
     report.target_project_ref !== PROJECT_REF || report.approval_fingerprint !== APPROVAL_FINGERPRINT ||
-    report.approved_row_count !== 66 || report.row_artifact_count !== 66 ||
+    report.approved_row_count !== 66 || (!guardedRefresh && report.row_artifact_count !== 66) ||
     report.existing_mapping_count + report.mapping_create_count !== 66 ||
     report.existing_offer_count + report.offer_create_count !== 66 ||
-    artifact.environment_marker !== "local" || artifact.plans.length !== 66 || artifact.source_rows.length !== 66 ||
-    artifact.blocked_rows.length !== 0 || artifact.source_file_sha256 !== report.csv_sha256
+    artifact.environment_marker !== (guardedRefresh ? "production" : "local") || artifact.plans.length !== 66 || artifact.source_rows.length !== 66 ||
+    artifact.blocked_rows.length !== 0 || (!guardedRefresh && artifact.source_file_sha256 !== report.csv_sha256)
   ) fail("GYM HIGH full-catalogue report or artifact mismatch");
+  if (guardedRefresh && (
+    loaded.artifactSha256 !== report.artifact_sha256 || artifact.source_file_sha256 !== report.source_file_sha256 ||
+    report.verified_no_change_count + report.standard_change_count !== 66 ||
+    report.source_identity_fingerprint !== approval.source_identity_fingerprint ||
+    !Number.isFinite(Date.parse(report.source_captured_at)) || Date.parse(report.source_captured_at) > Date.now() + 5 * 60_000 ||
+    Date.parse(report.source_captured_at) < Date.now() - 24 * 60 * 60_000
+  )) fail("GYM HIGH guarded refresh artifact mismatch");
 
   const approved = new Map();
   for (const family of approval.families) for (const variant of family.variants) {
@@ -90,24 +98,35 @@ function validateInputs(options, dependencies = {}) {
   for (const entry of artifact.plans) {
     const source = sourceByRow.get(String(entry.row_number));
     const plan = entry.resolved_plan;
-    const key = `${source?.external_product_id}:${source?.external_variant_id}`;
+    const sourceIdentity = entry.operation_type === "verify_offer_no_change" ? source?.source : source;
+    const key = `${sourceIdentity?.external_product_id}:${sourceIdentity?.external_variant_id}`;
     const spec = approved.get(key);
     if (!spec || seen.has(key)) fail(`Unapproved or duplicate source row ${key}`);
     let url;
     try { url = new URL(plan.offer?.values?.url); } catch { fail(`Invalid offer URL for ${key}`); }
     if (
-      entry.operation_type !== "standard_import" || entry.plan_kind !== "feed" || String(entry.retailer_id) !== "1" ||
+      !["standard_import", "verify_offer_no_change"].includes(entry.operation_type) || entry.plan_kind !== "feed" || String(entry.retailer_id) !== "1" ||
       plan.product?.action !== "existing" || String(plan.product.id) !== String(spec.family.product_id) ||
-      plan.product_variant?.action !== "existing" || String(plan.product_variant.id) !== String(source.product_variant_id) ||
+      plan.product_variant?.action !== "existing" || String(plan.product_variant.id) !== String(entry.operation_type === "verify_offer_no_change" ? source.target?.product_variant?.id : source.product_variant_id) ||
       plan.retailer?.action !== "existing" || String(plan.retailer.id) !== "1" ||
       !["create", "update", "noop"].includes(plan.retailer_product?.action) ||
       !["create", "update", "verify_no_change", "noop"].includes(plan.offer?.action) ||
       !["create", "noop"].includes(plan.price_history?.action) ||
-      String(source.product_id) !== String(spec.family.product_id) || source.product_name !== spec.family.expected_name ||
+      (entry.operation_type === "standard_import" && (String(source.product_id) !== String(spec.family.product_id) || source.product_name !== spec.family.expected_name ||
       source.retailer_name !== "GYM HIGH" || source.retailer_website !== "https://gymhigh.co.uk" ||
-      source.shipping_known !== "false" || source.shipping_cost != null || source.is_for_sale !== "true" ||
+      source.shipping_known !== "false" || source.shipping_cost != null || source.is_for_sale !== "true")) ||
       url.protocol !== "https:" || url.hostname !== "gymhigh.co.uk"
     ) fail(`Unsafe resolved plan for ${key}`);
+    if (entry.operation_type === "verify_offer_no_change" && (
+      !guardedRefresh || plan.retailer_product.action !== "noop" || plan.offer.action !== "verify_no_change" ||
+      plan.price_history.action !== "noop" || source.source_captured_at !== report.source_captured_at ||
+      source.source_snapshot_sha256 !== report.source_identity_fingerprint
+    )) fail(`Unsafe verified no-change plan for ${key}`);
+    if (guardedRefresh && (
+      plan.product.action !== "existing" || plan.product_variant.action !== "existing" || plan.retailer.action !== "existing" ||
+      !["noop", "update"].includes(plan.retailer_product.action) || !["verify_no_change", "update"].includes(plan.offer.action) ||
+      !["noop", "create"].includes(plan.price_history.action)
+    )) fail(`Guarded refresh attempted to create catalogue state for ${key}`);
     const expected = plan.expected_state?.product_variant;
     if (!expected || String(expected.id) !== String(plan.product_variant.id) || String(expected.product_id) !== String(spec.family.product_id) || expected.is_active !== true) fail(`Canonical variant evidence mismatch for ${key}`);
     if (!variantsByFamily.has(String(spec.family.external_product_id))) variantsByFamily.set(String(spec.family.external_product_id), []);

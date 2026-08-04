@@ -66,14 +66,17 @@ jobs:
         run: node scripts/gym-high-full-catalogue-feed-builder.js --source=tmp/gym-high-source-monitor/approved-catalogue-report.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue.csv
       - name: Build immutable full-scope dry-run artifact
         run: node scripts/import-products.js --mode=feed --dry-run --csv=tmp/gym-high-reviewed-catalogue/full-catalogue.csv --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json
+      - name: Convert unchanged rows into freshness confirmations
+        run: node scripts/gym-high-refresh-artifact.js --report=tmp/gym-high-reviewed-catalogue/full-catalogue-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json --output=tmp/gym-high-reviewed-catalogue/refresh-artifact.json --output-report=tmp/gym-high-reviewed-catalogue/refresh-report.json
       - name: Validate and optionally apply exact catalogue
-        run: node scripts/gym-high-full-catalogue-executor.js --mode=${{ github.event_name == 'schedule' && 'apply' || (inputs.operation == 'apply' && 'apply' || 'validate') }} --report=tmp/gym-high-reviewed-catalogue/full-catalogue-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json
+        run: node scripts/gym-high-full-catalogue-executor.js --mode=${{ github.event_name == 'schedule' && 'apply' || (inputs.operation == 'apply' && 'apply' || 'validate') }} --report=tmp/gym-high-reviewed-catalogue/refresh-report.json --artifact=tmp/gym-high-reviewed-catalogue/refresh-artifact.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json
       - name: Verify complete live postcondition
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'postflight' }}
         run: |
           node scripts/gym-high-full-catalogue-feed-builder.js --source=tmp/gym-high-source-monitor/approved-catalogue-report.json --output=tmp/gym-high-reviewed-catalogue/post-apply.csv
           node -e "const r=require('./tmp/gym-high-reviewed-catalogue/post-apply-builder-report.json');if(r.result!=='PASS'||r.existing_mapping_count!==66||r.mapping_create_count!==0||r.existing_offer_count!==66||r.offer_create_count!==0)process.exit(1)"
           node scripts/import-products.js --mode=feed --dry-run --csv=tmp/gym-high-reviewed-catalogue/post-apply.csv --artifact=tmp/gym-high-reviewed-catalogue/post-apply-artifact.json
+          node -e "const a=require('./tmp/gym-high-reviewed-catalogue/post-apply-artifact.json');const r=require('./tmp/gym-high-reviewed-catalogue/post-apply-builder-report.json');if(a.plans.length!==66||a.plans.some(x=>Date.parse(x.resolved_plan.expected_state.offer.last_checked_at)<Date.parse(r.source_captured_at)))process.exit(1)"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
