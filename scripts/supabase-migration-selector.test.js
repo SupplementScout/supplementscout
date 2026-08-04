@@ -149,16 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production contract records Dolphin validator as the only pending migration", () => {
+test("production contract records Dolphin validator as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260804010000_add_dolphin_single_offer_validation.sql",
-    sha256: "a6400f646c636cba545c8510641fcdeec88f3751945812af6dc300a44e1f84d1",
-  }]);
-  assert.equal(contract.ledgerCount, 90);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 91);
   assert.equal(
     contract.ledgerFingerprint,
-    "8a99dd5918dbb4e03f9ef3411e47d4d2a94fe3b2f4f30625a04cdea5804b3c79",
+    "cb8fc93a67fbd21fa276c008513f47cb5cd948c5251fa5654e0e7d0429449540",
   );
 });
 
@@ -261,14 +258,14 @@ test("production binds its exact post-manifest-rebind ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 90);
+  assert.equal(result.ledger_count, 91);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
   assert.equal(result.selected_files.length, 91);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(result.pending_file, contract.pending[0].filename);
-  assert.equal(result.pending_sha256, contract.pending[0].sha256);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
