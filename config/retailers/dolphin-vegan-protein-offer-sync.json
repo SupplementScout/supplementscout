@@ -43,6 +43,7 @@
   },
   "guardrails": {
     "preserve_existing_urls": true,
+    "allowed_existing_offer_hosts": ["dolphinfitness.co.uk"],
     "required_matched_offers": 1,
     "source_freshness_hours": 24,
     "future_clock_skew_minutes": 5,

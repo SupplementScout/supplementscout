@@ -28,6 +28,7 @@ test("Dolphin automation is frozen to one existing mapping and offer", () => {
 test("Dolphin uses product-page source and the protected common executor", () => {
   assert.equal(config.source_platform, "PRODUCT_PAGE");
   assert.equal(config.approved_mapping_count, 1);
+  assert.deepEqual(config.guardrails.allowed_existing_offer_hosts, ["dolphinfitness.co.uk"]);
   assert.equal(engine.loadApprovedManifest().manifest.rows.length, 1);
   assert.match(workflow, /cron: "27 5 \* \* \*"/);
   assert.match(workflow, /DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL/);
