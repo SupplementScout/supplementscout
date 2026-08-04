@@ -38,8 +38,8 @@ begin
   end if;
 
   v_definition := replace(v_definition,
-    'retailer_offer_sync_validate_batch_read_only_unreviewed_internal',
-    'retailer_offer_sync_validate_dolphin_singleton_internal');
+    'retailer_offer_sync_validate_batch_read_only_unreviewed_interna',
+    'validate_dolphin_single_offer_read_only');
   v_definition := replace(v_definition, v_begin_anchor, v_begin_replacement);
   v_definition := replace(v_definition,
     'v_maximum_oos_increase not between 0 and 0.15',
@@ -63,7 +63,7 @@ returns jsonb language plpgsql stable security definer set search_path=pg_catalo
 begin
   if p_request#>>'{artifact,target_environment}'='PRODUCTION'
      and p_request#>>'{artifact,retailer_id}'='5' then
-    return public.retailer_offer_sync_validate_dolphin_singleton_internal(p_request);
+    return public.validate_dolphin_single_offer_read_only(p_request);
   end if;
   if p_request ? 'reviewed_mixed_change_contract' then
     return public.retailer_offer_sync_validate_reviewed_mixed_change_internal(p_request);
@@ -72,14 +72,14 @@ begin
 end
 $dispatch$;
 
-alter function public.retailer_offer_sync_validate_dolphin_singleton_internal(jsonb) owner to postgres;
-revoke all on function public.retailer_offer_sync_validate_dolphin_singleton_internal(jsonb)
+alter function public.validate_dolphin_single_offer_read_only(jsonb) owner to postgres;
+revoke all on function public.validate_dolphin_single_offer_read_only(jsonb)
   from public, anon, authenticated, service_role;
 
 do $verify_dolphin_validator$
 declare
   v_definition text := pg_get_functiondef(
-    'public.retailer_offer_sync_validate_dolphin_singleton_internal(jsonb)'::regprocedure
+    'public.validate_dolphin_single_offer_read_only(jsonb)'::regprocedure
   );
 begin
   if position('Dolphin exact singleton validation scope' in v_definition)=0

@@ -7,7 +7,7 @@ const sql = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/2026
 
 test("Dolphin percentage exception is production-only and exact-row scoped", () => {
   assert.match(sql, /retailer_offer_sync_validate_batch_read_only_unreviewed_internal/);
-  assert.match(sql, /retailer_offer_sync_validate_dolphin_singleton_internal/);
+  assert.match(sql, /validate_dolphin_single_offer_read_only/);
   assert.match(sql, /target_environment.*PRODUCTION/);
   for (const value of ["retailer_id", "'5'", "2490", "2676", "193943-VANILLA"]) assert.match(sql, new RegExp(value));
   assert.doesNotMatch(sql, /replace\(v_definition,\s*'v_price_anomaly/);
