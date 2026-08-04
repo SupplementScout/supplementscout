@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { parseProductPage } = require("./dolphin-vegan-protein-feed");
+const { parseProductPage, readDolphinSnapshot } = require("./dolphin-vegan-protein-feed");
 
 function html(overrides = {}) {
   const product = {
@@ -29,4 +29,14 @@ test("fails closed on identity, currency and availability drift", () => {
   assert.throws(() => parseProductPage(html({ sku: "WRONG" })), /ProductGroup is missing|variant identity drift/);
   assert.throws(() => parseProductPage(html({ offers: { price: "21.95", priceCurrency: "USD", availability: "http://schema.org/InStock", seller: { name: "Dolphin Fitness" } } })), /identity drift/);
   assert.throws(() => parseProductPage(html({ offers: { price: "21.95", priceCurrency: "GBP", availability: "http://schema.org/PreOrder", seller: { name: "Dolphin Fitness" } } })), /availability is invalid/);
+});
+
+test("builds one deterministic exact-source snapshot without catalogue writes", async () => {
+  const response = new Response(html(), { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+  const snapshot = await readDolphinSnapshot({ fetchImpl: async () => response, capturedAt: "2026-08-04T08:00:00.000Z" });
+  assert.equal(snapshot.products.length, 1);
+  assert.equal(snapshot.products[0].variants.length, 1);
+  assert.equal(snapshot.products[0].variants[0].id, "193943-VANILLA");
+  assert.match(snapshot.semantic_source_fingerprint, /^[0-9a-f]{64}$/);
+  assert.equal(snapshot.source_diagnostic.pagination_completed, true);
 });

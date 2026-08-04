@@ -72,6 +72,8 @@ const CONTRACTS = Object.freeze({
         "cb6fdbaab004de4734db5755e0dc4498bfded6188f8337625a0db78b8b68cdf5",
       "20260803270000_verify_separate_offer_and_mapping_urls.sql":
         "b8010e370ef83983e2ce790d49e9f44ef585663fd6fcc408349186e17153bf42",
+      "20260804000000_add_dolphin_vegan_protein_offer_sync_registration.sql":
+        "12b17674f979ad0d42a5f6df9d75156d4b7e5cf1419e545bada0e75f2cb30429",
     }),
     pending: Object.freeze([]),
   }),
@@ -101,7 +103,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260804000000_add_dolphin_vegan_protein_offer_sync_registration.sql",
+        sha256: "12b17674f979ad0d42a5f6df9d75156d4b7e5cf1419e545bada0e75f2cb30429",
+      }),
+    ]),
   }),
 });
 

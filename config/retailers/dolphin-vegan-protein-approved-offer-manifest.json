@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "manifest_type": "dolphin_vegan_protein_approved_offer_scope",
+  "retailer": {
+    "id": 5,
+    "slug": "dolphin-fitness",
+    "source_platform": "PRODUCT_PAGE"
+  },
+  "approved_mapping_count": 1,
+  "shipping_cost_gbp": "3.95",
+  "rows": [
+    {
+      "mapping_id": "2676",
+      "offer_id": "2490",
+      "external_product_id": "193943",
+      "external_variant_id": "193943-VANILLA",
+      "canonical_product_id": "70",
+      "canonical_variant_id": "1623"
+    }
+  ]
+}

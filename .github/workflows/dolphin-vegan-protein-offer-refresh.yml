@@ -1,0 +1,80 @@
+name: Dolphin Vegan Protein Offer Refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Dry-run only unless an explicitly authorised apply is required"
+        required: true
+        default: dry-run
+        type: choice
+        options: [dry-run, apply]
+  schedule:
+    - cron: "27 5 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dolphin-vegan-protein-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  dolphin-vegan-protein-offer-refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          case "$GITHUB_EVENT_NAME" in schedule|workflow_dispatch) ;; *) exit 1 ;; esac
+
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Test exact Dolphin automation contracts
+        run: node --test scripts/dolphin-vegan-protein-feed.test.js scripts/dolphin-vegan-protein-offer-refresh.test.js scripts/dolphin-vegan-protein-offer-sync-registration.test.js scripts/retailer-offer-sync.test.js
+
+      - name: Dry-run the one approved existing Dolphin offer
+        env: &protected_environment
+          DOLPHIN_REFRESH_PHASE: preflight
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          DOLPHIN_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          DOLPHIN_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/dolphin-vegan-protein-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Apply the one approved existing Dolphin offer refresh
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          <<: *protected_environment
+          DOLPHIN_REFRESH_PHASE: apply
+        run: node scripts/dolphin-vegan-protein-offer-refresh.js --target=production --mode=apply
+
+      - name: Verify idempotency with a fresh source capture
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          <<: *protected_environment
+          DOLPHIN_REFRESH_PHASE: idempotency
+        run: node scripts/dolphin-vegan-protein-offer-refresh.js --target=production --mode=dry-run
+
+      - name: Upload protected refresh evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: dolphin-vegan-protein-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/dolphin-vegan-protein-offer-refresh/*.json

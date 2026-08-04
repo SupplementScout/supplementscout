@@ -5,7 +5,18 @@
   "target_project_ref": "aftboxmrdgyhizicfsfu",
   "retailer_id": 5,
   "retailer_name": "Dolphin Fitness",
+  "retailer_slug": "dolphin-fitness",
   "retailer_website": "https://www.dolphinfitness.co.uk",
+  "store_url": "https://www.dolphinfitness.co.uk",
+  "source_platform": "PRODUCT_PAGE",
+  "manifest_mode": "row_manifest",
+  "manifest_path": "config/retailers/dolphin-vegan-protein-approved-offer-manifest.json",
+  "manifest_sha256": "fe0d6d278328d82f23c39711d91e262cdea8d8fa8f870f345d1260c6b6d234b7",
+  "approved_mapping_count": 1,
+  "registration_rpc": "register_dolphin_vegan_protein_offer_sync_control_plan",
+  "environment_prefix": "DOLPHIN_REFRESH",
+  "phase_prefix": "DOLPHIN_REFRESH",
+  "output_directory": "dolphin-vegan-protein-offer-refresh",
   "product_id": 70,
   "product_variant_id": 1623,
   "retailer_product_id": 2676,
@@ -17,6 +28,50 @@
   "source_title": "Optimum Nutrition Gold Standard 100% Plant 684g Vanilla",
   "source_url": "https://www.dolphinfitness.co.uk/en/optimum-nutrition-gold-standard-100-percent-plant-684g/193943/vanilla",
   "shipping_cost_gbp": "3.95",
+  "source_baseline": {
+    "product_count": 1,
+    "variant_count": 1,
+    "minimum_count_ratio": 1,
+    "genuine_collapse_ratio": 1
+  },
+  "source_fetch": {
+    "maximum_attempts": 3,
+    "retry_base_delay_ms": 250,
+    "timeout_ms": 20000,
+    "maximum_pages": 1,
+    "user_agent": "SupplementScout-Dolphin-Offer-Refresh/1.0"
+  },
+  "guardrails": {
+    "preserve_existing_urls": true,
+    "required_matched_offers": 1,
+    "source_freshness_hours": 24,
+    "future_clock_skew_minutes": 5,
+    "full_snapshot_minimum_source_count_ratio": 1,
+    "maximum_total_oos_ratio": 1,
+    "maximum_oos_increase_percentage_points": 1,
+    "maximum_changed_record_ratio": 1,
+    "mass_price_change_block_ratio": 2,
+    "per_row_price_hard_block_ratio": 0.6,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "mass_oos_block_count": 2,
+    "ignore_source_sku": true
+  },
+  "shipping_policy": {
+    "mode": "fixed",
+    "cost_gbp": "3.95"
+  },
+  "discovery_policy": {
+    "mode": "report_only",
+    "catalogue_creates": false,
+    "missing_mapped_variant_mode": "BLOCK",
+    "maximum_missing_mapped_variants": 0,
+    "maximum_missing_mapped_variant_ratio": 0
+  },
+  "preserve_existing_urls": true,
+  "guard_scope_name": "DOLPHIN_VEGAN_PROTEIN_APPROVED_1",
+  "schedule": {
+    "cron_utc": "27 5 * * *"
+  },
   "policy": {
     "existing_identity_only": true,
     "catalogue_creates": false,

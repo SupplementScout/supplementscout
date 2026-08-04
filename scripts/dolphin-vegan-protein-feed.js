@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const config = require("../config/retailers/dolphin-vegan-protein-offer-sync.json");
+const { shopifySnapshotFingerprints } = require("./lib/shopify-snapshot-reader");
 
 const ROOT = path.resolve(__dirname, "..");
 const HEADERS = "retailer_name,retailer_website,external_product_id,external_variant_id,product_name,variant_name,brand,category,description,image,slug,external_url,affiliate_url,external_gtin,price,shipping_known,shipping_cost,in_stock,is_for_sale,size,size_unit,flavour,product_format,pack_count,source_updated_at,product_id,product_variant_id".split(",");
@@ -54,5 +55,75 @@ async function run(output, options = {}) {
   return { result: "PASS", source_url: config.source_url, rows: 1, price: row.price, in_stock: row.in_stock === "true", production_writes: 0, output: path.relative(ROOT, output) };
 }
 
+async function readDolphinSnapshot({
+  fetchImpl = globalThis.fetch,
+  capturedAt = new Date().toISOString(),
+  timeoutMs = 20000,
+  maximumAttempts = 3,
+  retryBaseDelayMs = 250,
+  userAgent = "SupplementScout-Dolphin-Offer-Refresh/1.0",
+  sleepImpl = (delay) => new Promise((resolve) => setTimeout(resolve, delay)),
+} = {}) {
+  const diagnostic = {
+    source_url: config.source_url,
+    source_type: "EXACT_PRODUCT_JSON_LD",
+    request_headers: { accept: "text/html", user_agent: userAgent },
+    redirect_policy: "error",
+    pages: [], pages_fetched: 0, bytes_received: 0,
+    pagination_completed: false, retry_count: 0,
+    final_http_status: null, final_content_type: null,
+  };
+  let html;
+  for (let attempt = 1; attempt <= maximumAttempts; attempt += 1) {
+    const started = Date.now();
+    let response;
+    try {
+      response = await fetchImpl(config.source_url, {
+        headers: { accept: "text/html", "user-agent": userAgent },
+        redirect: "error",
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch (error) {
+      diagnostic.pages.push({ attempt, duration_ms: Date.now() - started, result: "NETWORK_ERROR", error: error.message });
+      if (attempt < maximumAttempts) {
+        diagnostic.retry_count += 1;
+        await sleepImpl(retryBaseDelayMs * attempt);
+        continue;
+      }
+      error.code = "SOURCE_UNAVAILABLE";
+      error.diagnostic = diagnostic;
+      throw error;
+    }
+    const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+    diagnostic.final_http_status = response.status;
+    diagnostic.final_content_type = contentType || null;
+    if (!response.ok || !contentType.includes("text/html")) {
+      const error = new Error("Dolphin source response is invalid");
+      error.code = "SOURCE_INVALID_RESPONSE";
+      error.diagnostic = diagnostic;
+      throw error;
+    }
+    html = await response.text();
+    diagnostic.bytes_received = Buffer.byteLength(html, "utf8");
+    diagnostic.pages.push({ attempt, duration_ms: Date.now() - started, status: response.status, content_type: contentType, bytes_received: diagnostic.bytes_received, result: "PASS" });
+    diagnostic.pages_fetched = 1;
+    diagnostic.pagination_completed = true;
+    break;
+  }
+  const row = parseProductPage(html, capturedAt);
+  const snapshot = {
+    captured_at: capturedAt,
+    store_origin: config.retailer_website,
+    pages: [{ page: 1, count: 1 }],
+    products: [{
+      id: row.external_product_id, handle: row.slug, title: row.product_name, updated_at: capturedAt,
+      variants: [{ id: row.external_variant_id, sku: row.external_variant_id, price: row.price, available: row.in_stock === "true", title: row.variant_name, updated_at: capturedAt }],
+    }],
+    source_diagnostic: diagnostic,
+  };
+  const fingerprints = shopifySnapshotFingerprints(snapshot);
+  return { ...snapshot, snapshot_sha256: fingerprints.raw_source_fingerprint, ...fingerprints };
+}
+
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { HEADERS, parseArgs, parseProductPage, run };
+module.exports = { HEADERS, parseArgs, parseProductPage, readDolphinSnapshot, run };
