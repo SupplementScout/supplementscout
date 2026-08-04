@@ -1920,8 +1920,8 @@ Target experience:
 ### Current active task
 
 `SEO-13` is the single active implementation. Page 1, Amino Acids / BCAA /
-EAA, and page 3, Whey Isolate, are live verified through the existing shared
-category/decision-page system. The remaining eight candidates have been
+EAA, page 3, Whey Isolate, and page 4, Vegan Protein, are live verified through
+the existing shared category/decision-page system. The remaining seven candidates have been
 reviewed and deferred with recorded identity, coverage or distinct-value
 blockers. The existing
 `/hydration` canonical was hardened instead of creating a duplicate
@@ -1933,13 +1933,13 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 with implementation of the next fixed-order candidate, Vegan
-Protein, through the existing shared decision-page mechanism. Its unchanged
-coverage gate passed on 4 August 2026 after guarded existing-offer refreshes:
-three products have fresh multi-retailer coverage, with 32 fresh offers across
-four retailers. Preserve the gate during implementation and live verification;
-do not weaken it or create a thin page. No product, variant, mapping or offer
-was created to obtain this evidence.
+Continue SEO-13 with the next fixed-order candidate, Mass Gainer, through its
+existing recorded gate. It remains deferred until at least three products have
+fresh multi-retailer coverage across at least two retailers and at least 20
+fresh offers remain available. Reuse guarded retailer and catalogue mechanisms
+to recheck or improve that evidence; do not weaken the gate or create a thin
+page. Vegan Protein is live verified at `/vegan-protein` with 7 visible
+products, 32 fresh offers, 4 retailers and 3 multi-retailer products.
 
 ### Then
 

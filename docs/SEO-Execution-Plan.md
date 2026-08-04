@@ -122,14 +122,12 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — implement the next fixed-order candidate,
-Vegan Protein, through the existing shared decision-page mechanism. The
-unchanged production gate passed on 4 August 2026 with three comparable
-multi-retailer products, four current retailers and 32 fresh offers. Preserve
-that gate during implementation and live verification; do not weaken it.
-All ten candidate gates have now been reviewed: Amino Acids / BCAA / EAA and
-Whey Isolate are live verified, while the other eight candidates remain
-deferred. The existing `/hydration` canonical was
+**Next executable task:** SEO-13 — continue with the next fixed-order candidate,
+Mass Gainer, through its existing recorded coverage gate. Do not implement or
+index the page unless the unchanged 3-product / 2-retailer / 20-fresh-offer
+gate passes. All ten candidate gates have now been reviewed: Amino Acids / BCAA
+/ EAA, Whey Isolate and Vegan Protein are live verified, while the other seven
+candidates remain deferred. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
 competing URL. The first authenticated Search Console and GA4 measurement is
@@ -265,7 +263,7 @@ invent a date to silence the Guardian.
 
 ## 11. Execution evidence
 
-### 4 August 2026 — SEO-13 Vegan Protein coverage gate passed
+### 4 August 2026 — SEO-13 Vegan Protein live verification
 
 - The owner-approved refresh reused guarded existing-offer mechanisms for 586
   Whey Okay offers, 66 GYM HIGH offers and the exact Dolphin offer `2490`.
@@ -279,8 +277,19 @@ invent a date to silence the Guardian.
   offers from four retailers and three products with fresh multi-retailer
   coverage: products `70`, `71` and `390`. No product, variant, mapping or offer
   was created by this remediation.
-- Vegan Protein is no longer coverage-deferred. SEO-13 remains `IN PROGRESS`;
-  implementation and live verification of this single page are now next.
+- Commit `84f08af` added `/vegan-protein` through the existing shared
+  comparison normalizer with a page-specific 24-hour freshness predicate. The
+  global 24-day availability buffer was not changed. Focused tests, TypeScript,
+  lint with only ten pre-existing warnings, the production build and Project
+  Guardian all passed.
+- The public page returned HTTP 200 with `index, follow`, the exact canonical,
+  7 visible products, 32 fresh offers, 4 retailers and 3 multi-retailer
+  products. It had no degraded-data state and rendered CollectionPage,
+  ItemList and BreadcrumbList structured data. The live sitemap contained
+  `/vegan-protein` exactly once.
+- Vegan Protein is `LIVE VERIFIED`. SEO-13 remains `IN PROGRESS` with three of
+  ten controlled pages live; Mass Gainer is the next fixed-order candidate and
+  retains its recorded coverage blocker until the unchanged gate passes.
 
 ### 1 August 2026 — SEO-13 page 3 Whey Isolate live verification
 
