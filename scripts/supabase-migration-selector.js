@@ -76,6 +76,8 @@ const CONTRACTS = Object.freeze({
         "12b17674f979ad0d42a5f6df9d75156d4b7e5cf1419e545bada0e75f2cb30429",
       "20260804010000_add_dolphin_single_offer_validation.sql":
         "a6400f646c636cba545c8510641fcdeec88f3751945812af6dc300a44e1f84d1",
+      "20260804020000_correct_dolphin_scope_fingerprint.sql":
+        "80ba2c95f23efb45d7abc533188b960f2f9de0f683bcbe11ad5b07c67ba723f8",
     }),
     pending: Object.freeze([]),
   }),
@@ -105,7 +107,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260804020000_correct_dolphin_scope_fingerprint.sql",
+        sha256: "80ba2c95f23efb45d7abc533188b960f2f9de0f683bcbe11ad5b07c67ba723f8",
+      }),
+    ]),
   }),
 });
 
