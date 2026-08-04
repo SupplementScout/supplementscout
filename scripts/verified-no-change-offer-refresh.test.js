@@ -69,6 +69,17 @@ test("verified no-change plan can mutate only last_checked_at", () => {
   );
 });
 
+test("verified no-change accepts a safe opaque retailer identity", () => {
+  const value = record();
+  value.source.external_variant_id = "193943-VANILLA";
+  value.target.retailer_product.external_variant_id = "193943-VANILLA";
+  const { plan } = buildVerifiedNoChangePlan(value, OPTIONS);
+  assert.equal(plan.offer.action, "verify_no_change");
+  const unsafe = structuredClone(value);
+  unsafe.source.external_variant_id = "193943/VANILLA";
+  assert.throws(() => buildVerifiedNoChangePlan(unsafe, OPTIONS), /unsafe characters/);
+});
+
 test("planner rejects wrong target, stale source, and unbound snapshot hashes", () => {
   assert.throws(() => buildVerifiedNoChangePlan(record(), { ...OPTIONS, targetProjectRef: "aftboxmrdgyhizicfsfu" }), /target environment\/project ref mismatch/);
   assert.throws(() => buildVerifiedNoChangePlan(record(), { ...OPTIONS, now: new Date("2026-07-20T14:00:00Z") }), /stale/);

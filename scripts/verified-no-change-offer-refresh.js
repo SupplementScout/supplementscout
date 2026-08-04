@@ -50,6 +50,12 @@ function exactId(value, label) {
   return result;
 }
 
+function externalIdentity(value, label) {
+  const result = requiredString(value, label);
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(result)) fail(`${label} contains unsafe characters`);
+  return result;
+}
+
 function exactBoolean(value, label) {
   if (value !== true && value !== false) fail(`${label} must be boolean`);
   return value;
@@ -113,8 +119,8 @@ function normalizeRecord(record, options) {
   offer.shipping_cost = nullableDecimal(offer.shipping_cost, "target shipping_cost");
   offer.total_price = nullableDecimal(offer.total_price, "target total_price");
   const source = {
-    external_product_id: exactId(record.source.external_product_id, "source external_product_id"),
-    external_variant_id: exactId(record.source.external_variant_id, "source external_variant_id"),
+    external_product_id: externalIdentity(record.source.external_product_id, "source external_product_id"),
+    external_variant_id: externalIdentity(record.source.external_variant_id, "source external_variant_id"),
     price: normalizeDecimalString(record.source.price, "source price"),
     in_stock: exactBoolean(record.source.in_stock, "source in_stock"),
     url: requiredString(record.source.url, "source url"),

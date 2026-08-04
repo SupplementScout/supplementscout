@@ -11,6 +11,7 @@ const OFFER_KEYS = ["id", "product_id", "retailer_id", "product_variant_id", "re
 function select(value, keys) { return Object.fromEntries(keys.map((key) => [key, value[key] ?? null])); }
 function decimal(value) { return value === null || value === undefined ? null : normalizeDecimalString(value); }
 function id(value, label) { const out=String(value ?? ""); if (!/^\d+$/.test(out)) throw new Error(`${label} must be an ID`); return out; }
+function externalIdentity(value) { return /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(String(value ?? "")); }
 function databaseTimestamp(value,label){const text=value instanceof Date?value.toISOString():String(value??"");if(!text||!Number.isFinite(Date.parse(text)))throw new Error(`${label} must be a timestamp`);return text}
 
 function normalizeState(input) {
@@ -28,7 +29,7 @@ function normalizeState(input) {
 
 function buildExistingOfferUpdatePlan(input) {
   const state=normalizeState(input),source=input.source,capturedAt=new Date(input.sourceCapturedAt).toISOString();
-  if (!/^[0-9a-f]{64}$/.test(input.sourceSnapshotFingerprint)||!/^\d+$/.test(String(source.external_product_id))||!/^\d+$/.test(String(source.external_variant_id))) throw new Error("invalid source identity");
+  if (!/^[0-9a-f]{64}$/.test(input.sourceSnapshotFingerprint)||!externalIdentity(source.external_product_id)||!externalIdentity(source.external_variant_id)) throw new Error("invalid source identity");
   if (state.mapping.external_product_id!==String(source.external_product_id)||state.mapping.external_variant_id!==String(source.external_variant_id)) throw new Error("external identity drift");
   if (Date.parse(capturedAt)<=Date.parse(state.offer.last_checked_at)) throw new Error("source capture is not newer");
   const next={price:decimal(source.price),shipping_cost:decimal(source.shipping_cost),total_price:decimal(source.total_price),in_stock:Boolean(source.in_stock),url:String(source.url),last_checked_at:capturedAt};
