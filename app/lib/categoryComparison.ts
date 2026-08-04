@@ -137,7 +137,9 @@ function validHttpUrl(value: string | null) {
 
 function normalizeOffer(
   offer: RawComparisonOffer,
-  now: Date
+  now: Date,
+  isOfferFresh: (checkedAt: string | null, now: Date) => boolean =
+    isCreatineOfferFresh
 ): CategoryComparisonOffer | null {
   const retailer = relationOne(offer.retailer);
   const productPrice = getKnownProductPrice(offer.price);
@@ -147,7 +149,7 @@ function normalizeOffer(
   if (
     offer.in_stock !== true ||
     productPrice === null ||
-    !isCreatineOfferFresh(offer.last_checked_at, now) ||
+    !isOfferFresh(offer.last_checked_at, now) ||
     !Number.isFinite(checkedAt) ||
     offer.retailer_product_id === null ||
     !validHttpUrl(offer.url) ||
@@ -213,6 +215,7 @@ export function normalizeCategoryComparison(
   products: RawCategoryComparisonProduct[],
   options: {
     isProductInScope: (product: RawCategoryComparisonProduct) => boolean;
+    isOfferFresh?: (checkedAt: string | null, now: Date) => boolean;
     now?: Date;
   }
 ): Omit<CategoryComparisonResult, "error"> {
@@ -224,7 +227,7 @@ export function normalizeCategoryComparison(
     .map((product): CategoryComparisonRow | null => {
       const rawOffers = product.offers || [];
       const offers = rawOffers
-        .map((offer) => normalizeOffer(offer, now))
+        .map((offer) => normalizeOffer(offer, now, options.isOfferFresh))
         .filter((offer): offer is CategoryComparisonOffer => offer !== null)
         .sort(offerSort);
 
@@ -232,7 +235,7 @@ export function normalizeCategoryComparison(
         (offer) =>
           offer.in_stock === true &&
           getKnownProductPrice(offer.price) !== null &&
-          normalizeOffer(offer, now) === null
+          normalizeOffer(offer, now, options.isOfferFresh) === null
       ).length;
 
       if (offers.length === 0) return null;

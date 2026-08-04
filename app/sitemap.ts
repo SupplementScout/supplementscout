@@ -105,6 +105,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/vegan-protein`,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/pre-workout`,
     changeFrequency: "daily",
     priority: 0.9,
