@@ -8,7 +8,7 @@ set local statement_timeout = '60s';
 do $clone_dolphin_validator$
 declare
   v_definition text := pg_get_functiondef(
-    'public.retailer_offer_sync_validate_before_reviewed_mixed(jsonb)'::regprocedure
+    'public.retailer_offer_sync_validate_batch_read_only_unreviewed_internal(jsonb)'::regprocedure
   );
   v_begin_anchor text := E'begin\n  if not public.atomic_import_has_exact_keys';
   v_begin_replacement text := E'begin\n  if p_request#>>''{artifact,target_environment}'' <> ''PRODUCTION''\n'
@@ -38,7 +38,7 @@ begin
   end if;
 
   v_definition := replace(v_definition,
-    'retailer_offer_sync_validate_before_reviewed_mixed',
+    'retailer_offer_sync_validate_batch_read_only_unreviewed_internal',
     'retailer_offer_sync_validate_dolphin_singleton_internal');
   v_definition := replace(v_definition, v_begin_anchor, v_begin_replacement);
   v_definition := replace(v_definition,
