@@ -7,6 +7,7 @@ import type {
   NutritionCandidateStatus,
 } from "../lib/nutritionCandidates";
 import {
+  getNutritionCandidateBatchProgress,
   groupNutritionCandidatesByProduct,
   groupNutritionCandidatesByRun,
 } from "../lib/nutritionCandidateRuns";
@@ -29,6 +30,36 @@ const FIELD_UNITS: Record<string, string> = {
   protein_per_serving_g: "g",
   creatine_per_serving_g: "g",
 };
+
+function BatchProgress({
+  items,
+  report,
+}: {
+  items: NutritionCandidateBatchItem[];
+  report: NutritionCandidateReport;
+}) {
+  const progress = getNutritionCandidateBatchProgress(items, report);
+  return (
+    <aside className="sticky top-2 z-20 mt-6 rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white shadow-xl">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <strong>Data entered: {progress.dataEntered}/{progress.totalProducts}</strong>
+            <span className="text-zinc-300">Remaining: {progress.dataRemaining}</span>
+          </div>
+          <progress className="mt-2 block h-2 w-full accent-blue-500" value={progress.dataEntered} max={progress.totalProducts} />
+        </div>
+        <div>
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <strong>Review completed: {progress.reviewCompleted}/{progress.totalProducts}</strong>
+            <span className="text-zinc-300">Remaining: {progress.reviewRemaining}</span>
+          </div>
+          <progress className="mt-2 block h-2 w-full accent-emerald-500" value={progress.reviewCompleted} max={progress.totalProducts} />
+        </div>
+      </div>
+    </aside>
+  );
+}
 
 function BatchWorkItems({
   items,
@@ -370,6 +401,7 @@ export default async function NutritionCandidatesPage({
           </p>
         ) : null}
 
+        {report && batchItems.length ? <BatchProgress items={batchItems} report={report} /> : null}
         {report && batchItems.length ? <BatchWorkItems items={batchItems} report={report} /> : null}
 
         {!report ? (

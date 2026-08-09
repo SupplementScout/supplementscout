@@ -31,11 +31,37 @@ const {
   validateNutritionCandidateBulkSelection,
 } = loadTsModule("app/admin/lib/nutritionCandidateReview.ts");
 const {
+  getNutritionCandidateBatchProgress,
   groupNutritionCandidatesByProduct,
   groupNutritionCandidatesByRun,
 } = loadTsModule(
   "app/admin/lib/nutritionCandidateRuns.ts"
 );
+
+test("batch progress counts complete data entry and completed review by product", () => {
+  const items = [
+    { run_id: "NCR1", product_id: "10", missing_fields: ["net_weight_g", "serving_size_g"] },
+    { run_id: "NCR1", product_id: "11", missing_fields: ["net_weight_g"] },
+    { run_id: "NCR1", product_id: "12", missing_fields: ["protein_per_serving_g"] },
+  ];
+  const candidate = (product_id, proposed_field, status) => ({
+    run_id: "NCR1", product_id, proposed_field, status,
+  });
+  assert.deepEqual(getNutritionCandidateBatchProgress(items, {
+    pending: [candidate("11", "net_weight_g", "pending")],
+    approved: [
+      candidate("10", "net_weight_g", "approved"),
+      candidate("10", "serving_size_g", "approved"),
+    ],
+    rejected: [],
+  }), {
+    totalProducts: 3,
+    dataEntered: 2,
+    dataRemaining: 1,
+    reviewCompleted: 1,
+    reviewRemaining: 2,
+  });
+});
 const {
   addNutritionCandidateReturnTarget,
   parseNutritionCandidateReturnTarget,
@@ -211,6 +237,9 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /nutrition-work-item-/);
   assert.match(page, /nutrition-product-/);
   assert.match(page, /productGroup\.candidates\.every\(isBulkApprovableNutritionCandidate\)/);
+  assert.match(page, /Data entered:/);
+  assert.match(page, /Review completed:/);
+  assert.match(page, /Remaining:/);
   assert.doesNotMatch(page, /error\.message/);
 });
 

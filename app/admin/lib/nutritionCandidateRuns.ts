@@ -1,8 +1,48 @@
 import type {
+  NutritionCandidateBatchItem,
   NutritionCandidateReport,
   NutritionCandidateRow,
   NutritionCandidateStatus,
 } from "./nutritionCandidates";
+
+export type NutritionCandidateBatchProgress = {
+  totalProducts: number;
+  dataEntered: number;
+  dataRemaining: number;
+  reviewCompleted: number;
+  reviewRemaining: number;
+};
+
+export function getNutritionCandidateBatchProgress(
+  items: NutritionCandidateBatchItem[],
+  report: NutritionCandidateReport
+): NutritionCandidateBatchProgress {
+  const candidates = Object.values(report).flat();
+  const key = (runId: string, productId: string | null, field: string) =>
+    `${runId}:${productId}:${field}`;
+  const candidateKeys = new Set(candidates.map((candidate) =>
+    key(candidate.run_id, candidate.product_id, candidate.proposed_field)));
+  const reviewedKeys = new Set(candidates
+    .filter((candidate) => candidate.status !== "pending")
+    .map((candidate) => key(candidate.run_id, candidate.product_id, candidate.proposed_field)));
+  const pendingKeys = new Set(candidates
+    .filter((candidate) => candidate.status === "pending")
+    .map((candidate) => key(candidate.run_id, candidate.product_id, candidate.proposed_field)));
+  const hasEveryField = (item: NutritionCandidateBatchItem, keys: Set<string>) =>
+    item.missing_fields.every((field) => keys.has(key(item.run_id, item.product_id, field)));
+  const dataEntered = items.filter((item) => hasEveryField(item, candidateKeys)).length;
+  const reviewCompleted = items.filter((item) =>
+    hasEveryField(item, reviewedKeys) &&
+    !item.missing_fields.some((field) => pendingKeys.has(key(item.run_id, item.product_id, field)))
+  ).length;
+  return {
+    totalProducts: items.length,
+    dataEntered,
+    dataRemaining: items.length - dataEntered,
+    reviewCompleted,
+    reviewRemaining: items.length - reviewCompleted,
+  };
+}
 
 const STATUSES: NutritionCandidateStatus[] = [
   "pending",
