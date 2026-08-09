@@ -125,17 +125,37 @@ function isUsefulCandidate(candidate, currentValues = {}) {
 
 function mergeArtifacts(htmlArtifact, ocrArtifact, pages = []) {
   const currentByProduct = new Map(pages.map((page) => [String(page.product_id), page.current_values || {}]));
+  const pageBySourceRecord = new Map(pages.map((page) => [page.source_record_id, page]));
+  const pageBySourceUrl = new Map(pages.map((page) => [page.source_page_url, page]));
+  const pagesByProduct = new Map();
+  for (const page of pages) {
+    const key = String(page.product_id);
+    const productPages = pagesByProduct.get(key) || [];
+    productPages.push(page);
+    pagesByProduct.set(key, productPages);
+  }
   const ocrCandidates = ocrArtifact.candidates.map((candidate) =>
     ocrCandidateToStandard(candidate, htmlArtifact.run_id, currentByProduct.get(String(candidate.product_id)) || {}));
-  const candidates = [...htmlArtifact.candidates, ...ocrCandidates].filter((candidate) =>
+  const allCandidates = [...htmlArtifact.candidates, ...ocrCandidates];
+  const focusPage = (candidate) => pageBySourceRecord.get(candidate.source_record_id) ||
+    pageBySourceUrl.get(candidate.source_url) ||
+    (pagesByProduct.get(String(candidate.product_id))?.length === 1
+      ? pagesByProduct.get(String(candidate.product_id))[0]
+      : null);
+  const focusedCandidates = allCandidates.filter((candidate) => {
+    const page = focusPage(candidate);
+    return !page?.missing_fields || page.missing_fields.includes(candidate.field_name);
+  });
+  const candidates = focusedCandidates.filter((candidate) =>
     isUsefulCandidate(candidate, currentByProduct.get(String(candidate.product_id)) || {}));
   applyCrossSourceConflicts(candidates);
   candidates.sort((left, right) => left.candidate_id.localeCompare(right.candidate_id));
   const summary = {
     ...htmlArtifact.summary,
     candidate_facts: candidates.length,
-    html_candidate_facts: htmlArtifact.candidates.length,
-    ocr_candidate_facts: ocrCandidates.length,
+    html_candidate_facts: candidates.filter((row) => row.parser !== "OCR_TEXT").length,
+    ocr_candidate_facts: candidates.filter((row) => row.parser === "OCR_TEXT").length,
+    manifest_focus_excluded_candidate_facts: allCandidates.length - focusedCandidates.length,
     high_confidence_candidates: candidates.filter((row) => row.overall_confidence === "HIGH").length,
     medium_confidence_candidates: candidates.filter((row) => row.overall_confidence === "MEDIUM").length,
     low_confidence_candidates: candidates.filter((row) => row.overall_confidence === "LOW").length,
@@ -176,6 +196,7 @@ function buildBatchReport(input, ocrReport, artifact, storedCandidates) {
         product_id: page.product_id,
         product_name: page.product_name,
         source_url: page.canonical_source_page_url || source?.source_page_url || null,
+        missing_fields: source?.missing_fields || null,
         page_status: page.page_file ? "FETCHED" : "FAILED",
         image_selection_status: page.selection_status,
         html_candidates: htmlCount,
@@ -242,8 +263,9 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
     run_id: artifact.run_id,
     status: STATUS,
     fetched_products: htmlManifest.records.length,
-    html_candidates: htmlArtifact.candidates.length,
-    ocr_candidates: ocr.candidateArtifact.candidates.length,
+    html_candidates: artifact.summary.html_candidate_facts,
+    ocr_candidates: artifact.summary.ocr_candidate_facts,
+    manifest_focus_excluded_candidates: artifact.summary.manifest_focus_excluded_candidate_facts,
     stored_candidates: rows.length,
     destination: "nutrition_candidates",
     product_updates: 0,

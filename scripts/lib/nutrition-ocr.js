@@ -45,6 +45,10 @@ const CURRENT_VALUE_FIELDS = Object.freeze([
   "net_weight_g", "net_volume_ml", "serving_count_verified", "serving_size_g",
   "serving_size_ml", "protein_per_serving_g", "creatine_per_serving_g",
 ]);
+const MISSING_FIELD_VALUES = new Set([
+  "net_weight_g", "serving_count_verified", "serving_size_g",
+  "protein_per_serving_g", "product_format", "nutrition_verified",
+]);
 const FORBIDDEN_SOURCE_DOMAIN_LABELS = Object.freeze([
   "amazon", "ebay", "walmart", "hollandandbarrett", "boots", "superdrug",
   "dolphinfitness", "predatornutrition", "supplementneeds",
@@ -79,11 +83,22 @@ function forbiddenSourceDomain(domain) {
 function validPageKeys(page) {
   if (!page || typeof page !== "object" || Array.isArray(page)) return false;
   const keys = Object.keys(page || {});
-  if (keys.some((key) => !PAGE_KEYS.includes(key) && key !== "current_values")) return false;
-  const withoutCurrentValues = Object.fromEntries(Object.entries(page).filter(([key]) => key !== "current_values"));
+  if (keys.some((key) => !PAGE_KEYS.includes(key) && !["current_values", "missing_fields"].includes(key))) return false;
+  const withoutCurrentValues = Object.fromEntries(Object.entries(page)
+    .filter(([key]) => !["current_values", "missing_fields"].includes(key)));
   return exactKeys(withoutCurrentValues, PAGE_KEYS) ||
     exactKeys(withoutCurrentValues, PAGE_KEYS.filter((key) => key !== "brand")) ||
     exactKeys(withoutCurrentValues, PAGE_KEYS.filter((key) => key !== "manufacturer"));
+}
+
+function validateMissingFields(value, index) {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.length < 1 || value.length > MISSING_FIELD_VALUES.size ||
+      value.some((field) => typeof field !== "string" || !MISSING_FIELD_VALUES.has(field)) ||
+      new Set(value).size !== value.length) {
+    fail(`OCR page ${index + 1} missing_fields must be a unique non-empty list of supported fields`);
+  }
+  return [...value];
 }
 
 function validateCurrentValues(value, index) {
@@ -140,6 +155,7 @@ function validatePageList(input) {
       if (urls.has(sourcePageUrl)) fail(`Duplicate OCR source page URL ${sourcePageUrl}`);
       ids.add(page.source_record_id);
       urls.add(sourcePageUrl);
+      const missingFields = validateMissingFields(page.missing_fields, index);
       return {
         ...page,
         source_record_id: page.source_record_id.trim(),
@@ -151,6 +167,7 @@ function validatePageList(input) {
         source_page_url: sourcePageUrl,
         expected_domain: expectedDomain,
         official_domains: officialDomains,
+        ...(missingFields ? { missing_fields: missingFields } : {}),
         current_values: validateCurrentValues(page.current_values, index),
         notes: page.notes.trim(),
       };
@@ -191,6 +208,7 @@ function buildDryPlan(input, inputPath, cwd = process.cwd()) {
         source_page_url: page.source_page_url,
         expected_domain: page.expected_domain,
         official_domains: page.official_domains,
+        ...(page.missing_fields ? { missing_fields: page.missing_fields } : {}),
         expected_page_snapshot: relative(cwd, path.join(directory, "pages", `${stem}.html`)),
         expected_raw_image_directory: relative(cwd, path.join(directory, "raw", stem)),
         expected_ocr_directory: relative(cwd, path.join(directory, "ocr", stem)),

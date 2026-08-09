@@ -49,6 +49,15 @@ function tempBatch(name) {
 
 test("page manifest requires exact identity binding and explicit safe domains", () => {
   assert.equal(validatePageList(list()).pages[0].product_id, "337");
+  assert.deepEqual(validatePageList(list([page({
+    missing_fields: ["serving_size_g", "protein_per_serving_g"],
+  })])).pages[0].missing_fields, ["serving_size_g", "protein_per_serving_g"]);
+  assert.throws(() => validatePageList(list([page({
+    missing_fields: ["serving_size_g", "serving_size_g"],
+  })])), /unique non-empty list/);
+  assert.throws(() => validatePageList(list([page({
+    missing_fields: ["unsupported_field"],
+  })])), /supported fields/);
   assert.throws(() => validatePageList(list([page({ product_id: null })])), /invalid schema/);
   assert.throws(() => validatePageList(list([page({
     identity_binding: "UNMAPPED_SOURCE",

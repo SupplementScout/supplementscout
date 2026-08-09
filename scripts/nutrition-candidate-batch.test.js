@@ -166,7 +166,11 @@ test("batch combines HTML and local OCR candidates and stores only the candidate
   const batch = fs.mkdtempSync(path.join(repositoryRoot, "tmp", "nutrition-batch-test-"));
   test.after(() => fs.rmSync(batch, { recursive: true, force: true }));
   const inputPath = path.join(batch, "pages.json");
-  fs.writeFileSync(inputPath, JSON.stringify({ schema_version: 1, kind: PAGE_LIST_KIND, pages: [sourcePage()] }));
+  fs.writeFileSync(inputPath, JSON.stringify({
+    schema_version: 1,
+    kind: PAGE_LIST_KIND,
+    pages: [{ ...sourcePage(), missing_fields: ["protein_per_serving_g", "serving_size_g"] }],
+  }));
   const pageHtml = `<main class="product type-product">
     <p>Protein 24g per serving</p>
     <img src="https://official.example/images/nutrition-label.jpg" alt="Nutrition facts label">
@@ -218,16 +222,19 @@ test("batch combines HTML and local OCR candidates and stores only the candidate
   assert.equal(calls[0], "nutrition_candidates");
   assert.ok(calls[1].some((row) => row.proposed_field === "protein_per_serving_g"));
   assert.ok(calls[1].some((row) => row.proposed_field === "serving_size_g"));
-  assert.ok(calls[1].some((row) => row.proposed_field === "serving_count_verified"));
+  assert.ok(calls[1].every((row) => row.proposed_field !== "serving_count_verified"));
+  assert.ok(calls[1].every((row) => row.status === "pending" && row.reviewed_at === null));
   assert.ok(calls[1].filter((row) => row.source_locator.startsWith("ocr:")).every((row) => row.confidence === "LOW"));
   assert.equal(result.destination, "nutrition_candidates");
   assert.equal(result.product_updates, 0);
   assert.equal(result.verified_csv_files, 0);
-  assert.ok(result.stored_candidates >= 3);
+  assert.ok(result.stored_candidates >= 2);
   const report = JSON.parse(fs.readFileSync(path.resolve(repositoryRoot, result.report), "utf8"));
   assert.equal(report.products.length, 1);
   assert.equal(report.products[0].page_status, "FETCHED");
+  assert.deepEqual(report.products[0].missing_fields, ["protein_per_serving_g", "serving_size_g"]);
   assert.ok(report.products[0].html_candidates >= 1);
-  assert.ok(report.products[0].ocr_candidates >= 2);
+  assert.ok(report.products[0].ocr_candidates >= 1);
+  assert.ok(report.summary.stored_candidates >= 2);
   assert.deepEqual([...new Set(calls.filter((item) => typeof item === "string"))], ["nutrition_candidates"]);
 });
