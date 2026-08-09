@@ -103,6 +103,35 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     if (url.includes("searchAnalytics")) {
       return response({ rows: [{ clicks: 10, impressions: 150, ctr: 0.0667, position: 5.1 }] });
     }
+    if (url.includes("urlInspection/index:inspect")) {
+      const bodyData = JSON.parse(options.body);
+      if (bodyData.inspectionUrl === "https://www.supplementscout.co.uk/whey-protein") {
+        return response({
+          inspectionResult: {
+            indexStatusResult: {
+              verdict: "PASS",
+              coverageState: "PARTIALLY_INDEXED",
+              indexingState: "INDEXING_ALLOWED",
+              robotsTxtState: "ALLOWED",
+              googleCanonical: "https://www.supplementscout.co.uk/whey-protein",
+              userCanonical: "https://www.supplementscout.co.uk/whey-protein",
+            },
+          },
+        });
+      }
+      return response({
+        inspectionResult: {
+          indexStatusResult: {
+            verdict: "PASS",
+            coverageState: "INDEXED",
+            indexingState: "INDEXING_ALLOWED",
+            robotsTxtState: "ALLOWED",
+            googleCanonical: "https://www.supplementscout.co.uk/",
+            userCanonical: "https://www.supplementscout.co.uk/",
+          },
+        },
+      });
+    }
     if (body.dimensionFilter) {
       return response({ metricHeaders: [{ name: "eventCount" }], rows: [{ metricValues: [{ value: "4" }] }] });
     }
@@ -132,8 +161,11 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     views: 31,
     retailerOfferClicks: 4,
   });
-  assert.match(report.limitations.pageIndexingTotals, /not exposed/);
-  assert.equal(requests.length, 7);
+  assert.equal(report.searchConsole.indexing.inspectionTargets.length, 2);
+  assert.equal(report.searchConsole.indexing.inspections[0].state, "ok");
+  assert.equal(report.searchConsole.indexing.inspectedCount, 2);
+  assert.match(report.limitations.pageIndexingTotals, /URL-level/);
+  assert.equal(requests.length, 9);
   assert.ok(requests.slice(1).every(({ options }) => options.headers.Authorization === "Bearer test-token"));
 });
 

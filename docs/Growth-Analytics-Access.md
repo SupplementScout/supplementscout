@@ -24,16 +24,16 @@ the key is ever exposed, revoke it in Google Cloud and replace the secret.
 
 ## Operation
 
-The `Growth Analytics Report` workflow runs each Monday at 08:03 UTC and may
+The `Growth Analytics Report` workflow runs each Monday at 08:37 and 12:37 UTC and may
 also be started manually. It requests only these OAuth scopes:
 
 - `analytics.readonly`;
 - `webmasters.readonly`.
 
 The report is uploaded as a private GitHub Actions artifact for 35 days. It
-contains the seven-day GSC totals, top queries and pages, sitemap status, GA4
-organic sessions/users/views and organic `retailer_offer_click` events. A local
-authorised session can run:
+contains the seven-day GSC totals, top queries and pages, URL-level inspection of
+top pages plus homepage, sitemap status, GA4 organic sessions/users/views and
+organic `retailer_offer_click` events. A local authorised session can run:
 
 ```text
 npm run analytics:weekly
@@ -49,7 +49,7 @@ Output is confined to the ignored `tmp/growth-analytics` directory. API,
 permission, credential or response failures stop the run. The script never
 creates zero-filled evidence after a failed request.
 
-Search Console does not expose the complete Page indexing, Core Web Vitals or
-Links reports through this supported API. The report labels those limitations
-explicitly; they still require the Search Console interface, an export or a
-separately reviewed data source.
+Search Console does not expose the aggregate indexed/ excluded totals, Core Web
+Vitals or Links reports through this supported API. The report labels those
+limitations explicitly; they still require the Search Console interface, an export
+or a separately reviewed data source.

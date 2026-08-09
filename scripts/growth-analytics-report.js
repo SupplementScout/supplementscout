@@ -5,6 +5,7 @@ const path = require("node:path");
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GA4_API_ROOT = "https://analyticsdata.googleapis.com/v1beta";
 const GSC_API_ROOT = "https://www.googleapis.com/webmasters/v3";
+const GSC_INDEXING_API_URL = "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect";
 const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/analytics.readonly",
   "https://www.googleapis.com/auth/webmasters.readonly",
@@ -71,6 +72,46 @@ function normalizeSiteUrl(value) {
 
 function isoDate(date) {
   return date.toISOString().slice(0, 10);
+}
+
+function inspectionBaseSite(siteUrl) {
+  if (siteUrl.startsWith("sc-domain:")) {
+    return `https://${siteUrl.slice("sc-domain:".length)}`;
+  }
+  try {
+    return new URL(siteUrl).origin;
+  } catch {
+    return "https://www.supplementscout.co.uk";
+  }
+}
+
+function inspectableUrl(siteUrl, pagePath) {
+  const trimmed = typeof pagePath === "string" ? pagePath.trim() : "";
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const base = inspectionBaseSite(siteUrl).replace(/\/$/, "");
+  if (trimmed.startsWith("/")) return `${base}${trimmed}`;
+  return `${base}/${trimmed}`;
+}
+
+function orderedUnique(values) {
+  const seen = new Set();
+  const out = [];
+  for (const value of values) {
+    const candidate = typeof value === "string" ? value.trim() : "";
+    if (!candidate || seen.has(candidate)) continue;
+    seen.add(candidate);
+    out.push(candidate);
+  }
+  return out;
+}
+
+function buildInspectionTargets(siteUrl, topPages) {
+  const candidates = orderedUnique([
+    `${inspectionBaseSite(siteUrl)}/`,
+    ...topPages.map((row) => inspectableUrl(siteUrl, row.page)),
+  ]);
+  return candidates.slice(0, 6);
 }
 
 function reportingPeriod(now, requestedEndDate) {
@@ -179,6 +220,47 @@ async function postJson(fetchImpl, url, accessToken, body) {
   });
 }
 
+async function inspectUrlIndexing(fetchImpl, accessToken, siteUrl, inspectionUrl) {
+  const response = await postJson(
+    fetchImpl,
+    GSC_INDEXING_API_URL,
+    accessToken,
+    {
+      inspectionUrl,
+      siteUrl,
+    }
+  );
+  const indexStatus = response.inspectionResult?.indexStatusResult || {};
+  return {
+    inspectionUrl,
+    state: "ok",
+    verdict: indexStatus.verdict || null,
+    coverageState: indexStatus.coverageState || null,
+    indexingState: indexStatus.indexingState || null,
+    robotsTxtState: indexStatus.robotsTxtState || null,
+    googleCanonical: indexStatus.googleCanonical || null,
+    userCanonical: indexStatus.userCanonical || null,
+    lastCrawlTime: indexStatus.lastCrawlTime || null,
+  };
+}
+
+async function safeInspectUrlIndexing(fetchImpl, accessToken, siteUrl, inspectionUrl) {
+  try {
+    return await inspectUrlIndexing(
+      fetchImpl,
+      accessToken,
+      siteUrl,
+      inspectionUrl
+    );
+  } catch (error) {
+    return {
+      inspectionUrl,
+      state: "error",
+      error: error.message,
+    };
+  }
+}
+
 async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, endDate }) {
   const account = parseServiceAccount(env.GOOGLE_SERVICE_ACCOUNT_JSON_B64);
   const propertyId = normalizePropertyId(env.GA4_PROPERTY_ID);
@@ -255,6 +337,19 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
     (row) => row.sessionDefaultChannelGroup === "Organic Search"
   ) || { sessions: 0, totalUsers: 0, screenPageViews: 0 };
   const offerClicks = gaMetricRows(gaOfferClicks)[0]?.eventCount || 0;
+  const topPages = gscRows(gscPages, "page");
+  const inspectionTargets = buildInspectionTargets(siteUrl, topPages);
+  const inspectionResults = await Promise.all(
+    inspectionTargets.map((inspectionUrl) =>
+      safeInspectUrlIndexing(
+        fetchImpl,
+        accessToken,
+        siteUrl,
+        inspectionUrl
+      )
+    )
+  );
+  const inspectedCount = inspectionResults.filter((item) => item.state === "ok").length;
 
   return {
     schemaVersion: 1,
@@ -268,7 +363,14 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
     searchConsole: {
       totals: total,
       topQueries: gscRows(gscQueries, "query"),
-      topPages: gscRows(gscPages, "page"),
+      topPages,
+      indexing: {
+        inspectionTargets,
+        inspectedCount,
+        okCount: inspectedCount,
+        errorCount: inspectionResults.length - inspectedCount,
+        inspections: inspectionResults,
+      },
       sitemaps: (sitemaps.sitemap || []).map((sitemap) => ({
         path: sitemap.path,
         lastSubmitted: sitemap.lastSubmitted || null,
@@ -290,7 +392,7 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
     },
     limitations: {
       pageIndexingTotals:
-        "not exposed as an aggregate by the supported Search Console API",
+        "aggregated indexed/excluded totals are not exposed by the supported Search Console API; URL-level inspection for top pages is collected here",
       coreWebVitals:
         "not included; use Search Console UI or a separately reviewed CrUX mechanism",
       links:

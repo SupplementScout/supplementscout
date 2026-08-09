@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 1 August 2026<br>
+**Status date:** 6 August 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -64,11 +64,12 @@ Read-only audit completed on 29 July 2026:
 - 191 active products had no positive-price in-stock offer and require an
   explicit index-eligibility policy rather than automatic inclusion or removal;
 - GA4 is present in production behind consent;
-- DNS contains Google site verification, but Search Console performance,
-  submitted-sitemap state and page-indexing reports have not yet been captured
-  in this repository;
-- public search results show indexed home, category and product pages, but the
-  exact indexed total is unknown without Search Console;
+- DNS contains Google site verification, and Search Console performance plus
+  submitted-sitemap state are captured by automation; full indexed/ excluded
+  page totals remain unavailable via the current authenticated API path;
+- public search results show indexed home, category and product pages, and the latest
+  Search Console export captured 794 indexed vs 181 not indexed pages (last update
+  24 July 2026);
 - the cached Google home result observed during the audit still contained an
   older heading and zero-product/zero-retailer statistics;
 - existing broad landing-page matching exposes irrelevant products on some
@@ -108,7 +109,7 @@ Console evidence and user value.
 | SEO-04 | P0 | Build crawlable category pagination and internal product links. | `LIVE VERIFIED` | Indexable category pages expose stable anchor links to every eligible product, with canonical pagination and no indexable filter explosion. |
 | SEO-05 | P1 | Server-render authoritative home statistics and freshness. | `LIVE VERIFIED` | Initial HTML contains current approved counts and freshness; no loading or zero-value placeholder becomes the search snippet. |
 | SEO-06 | P1 | Add product breadcrumbs and valid Product snippet structured data. | `LIVE VERIFIED` | Markup matches visible canonical data, passes automated and external structured-data validation, and never represents SupplementScout as the direct seller. |
-| SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `BLOCKED` | Authenticated Performance, GA4 and Sitemaps evidence is recorded. Blocker: Page indexing, Core Web Vitals, Links and priority URL inspections still require the Search Console UI or an approved export. |
+| SEO-07 | P0 | Capture the baseline from the already-configured Search Console property and verify the submitted sitemap. | `LIVE VERIFIED` | Authenticated Performance, GA4, Sitemaps, Index Coverage, Core Web Vitals and Links evidence are recorded, including the latest baseline and manual coverage exports. |
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `LIVE VERIFIED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
@@ -131,8 +132,12 @@ candidates remain deferred. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
 competing URL. The first authenticated Search Console and GA4 measurement is
-recorded; SEO-07 now awaits only Page indexing, Core Web Vitals, Links and
-priority URL inspection evidence from the Search Console UI or approved export.
+recorded; Search Console coverage totals are now available (794 indexed, 181
+not indexed, updated 24 July 2026), while Core Web Vitals currently shows
+insufficient usage data for the last 90 days (to validate in PageSpeed Insights),
+and Links currently shows no external link activity with only internal link
+coverage. Top-page URL inspection is now collected automatically in the same
+reporting workflow.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -223,7 +228,7 @@ Record from Search Console and GA4:
 - organic clicks;
 - click-through rate;
 - average position;
-- indexed and excluded page counts;
+- indexed and excluded page counts (full aggregate totals remain outside current Search Console API coverage and still require UI/export evidence);
 - top queries and landing pages;
 - organic retailer-offer clicks;
 - newly detected technical issues.
@@ -246,7 +251,18 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
-| 2026-08-01 | Weekly GSC/GA4 | Authenticated read-only workflow run `30702954910`, artifact `8819405398`, covering 2026-07-25 through 2026-07-31: GSC 559 impressions, 0 clicks, 0% CTR and average position 58.21; GA4 0 Organic Search sessions and 0 organic retailer-offer clicks; sitemap 1,120 submitted URLs, 0 warnings and 0 errors. The sitemap API's `indexed: 0` is not accepted as the Page indexing total because GSC already records impressions. | `CAPTURED PARTIAL`; SEO-07 remains `BLOCKED` on Page indexing, Core Web Vitals, Links and priority URL inspection evidence. |
+| 2026-08-03 | Weekly GSC/GA4 | Authenticated read-only workflow run `30812538721`, covering 2026-07-27 through 2026-08-02: GSC 772 impressions, 1 click, 0.13% CTR and average position 59.56; GA4 43 total sessions, 3 users and 486 views (Direct), and 0 organic sessions with 0 organic retailer-offer clicks; sitemap 1,088 submitted URLs, 0 warnings and 0 errors. | `CAPTURED PARTIAL`; SEO-07 remains blocked on aggregate indexed/excluded totals, Core Web Vitals and Links evidence. |
+| 2026-08-06 | Search Console manual export | Coverage export (updated 2026-07-24): 794 indexed pages, 181 not indexed pages. Major exclusion reasons: 27 noindex, 6 404, 5 robots.txt blocked, 4 redirect, 1 alternate canonical, 133 discovered not indexed, 5 crawled not indexed. | `CAPTURED PARTIAL`; SEO-07 remains blocked on Core Web Vitals and Links evidence. |
+| 2026-08-04 | Search Console manual export | Core Web Vitals: last 90 days shows “Not enough usage data in the last 90 days” for device types; use PageSpeed Insights for page-level diagnostics. Links: External total 0 with no external top linked pages/sites/text; Internal total 25 with top linked pages `/affiliate-disclosure` (9), `/contact` (4), `/glucosamine` (2), `/magnesium` (2), `/omega-3` (2), `/privacy` (2), `/vitamin-d` (2), `/cookies` (1), `/vitamins` (1). | `CAPTURED` |
+| 2026-08-01 | Weekly GSC/GA4 | Authenticated read-only workflow run `30702954910`, artifact `8819405398`, covering 2026-07-25 through 2026-07-31: GSC 559 impressions, 0 clicks, 0% CTR and average position 58.21; GA4 0 Organic Search sessions and 0 organic retailer-offer clicks; sitemap 1,120 submitted URLs, 0 warnings and 0 errors. The sitemap API's `indexed: 0` is not accepted as the Page indexing total because GSC already records impressions. | `CAPTURED PARTIAL`; SEO-07 remains blocked on aggregate indexed totals, Core Web Vitals and Links evidence. |
+
+### SEO-07 manual evidence queue
+
+SEO-07 manual evidence queue is now complete:
+
+- [x] Search Console **Index Coverage**: total indexed/excluded pages and major exclusion reasons for the last 28 days.
+- [x] Search Console **Core Web Vitals**: aggregate trend/state and top affected URLs where available.
+- [x] Search Console **Links**: top internal/external linking pages and major new domains.
 
 ## 10. Guardrails
 
