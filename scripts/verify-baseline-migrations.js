@@ -17,6 +17,17 @@ const approvedBaselineSha256 =
   "A604C181255CC49E6DFA527145EAA8B3BA30767B6860A5B09FD43A32A2E08C95";
 const stage2MigrationName = "20260713130000_product_variants_stage2.sql";
 
+// These production-applied migrations predate the calendar-timestamp guard.
+// Their immutable filenames encode ordered slots 24-27 rather than valid UTC
+// hours. Keep the exception exact and content-bound; new invalid timestamps
+// must still fail.
+const appliedNonCalendarMigrations = new Map([
+  ["20260803240000_normalize_simply_reviewed_commercial_money.sql", "C25765431978679283D2A6DE5C2AD007E9CF34B6EC9EFFDCBE3AB5F7D55C2EF7"],
+  ["20260803250000_support_simply_reviewed_commercial_registration.sql", "A284DCC718C96BBDF6A2772CAE8964AF4C3642BEFD75267CEB637B8CACB84C29"],
+  ["20260803260000_align_existing_offer_option_evidence.sql", "CB6FDBAAB004DE4734DB5755E0DC4498BFDED6188F8337625A0DB78B8B68CDF5"],
+  ["20260803270000_verify_separate_offer_and_mapping_urls.sql", "B8010E370EF83983E2CE790D49E9F44EF585663FD6FCC408349186E17153BF42"],
+]);
+
 const expectedLegacy = new Map([
   ["20260630_add_duplicate_protections.sql", "383265B5E9551044F787AD59434F3212AEB031EE09EA42E0C601D4B045AFA664"],
   ["20260630_create_retailer_products.sql", "116A32B830D0FEED99F9B0D9991C297F2A79B8EE057AC3754DCEADF977A8CEF7"],
@@ -82,11 +93,16 @@ const activeVersions = active.map((name) => {
   const version = match[1];
   const parts = version.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/);
   const date = new Date(`${parts[1]}-${parts[2]}-${parts[3]}T${parts[4]}:${parts[5]}:${parts[6]}Z`);
-  assert.equal(
-    date.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14),
-    version,
-    `${name} timestamp is not a valid calendar timestamp`,
-  );
+  const normalizedVersion = Number.isNaN(date.getTime())
+    ? null
+    : date.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
+  if (normalizedVersion !== version) {
+    assert.equal(
+      sha256(path.join(migrationsDir, name)),
+      appliedNonCalendarMigrations.get(name),
+      `${name} timestamp is not a valid calendar timestamp`,
+    );
+  }
   return version;
 });
 assert.deepEqual(
