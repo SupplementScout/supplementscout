@@ -18,6 +18,7 @@ export type NutritionCandidateRow = {
   brand: string;
   proposed_field: string;
   proposed_value: string;
+  approved_value: string | null;
   proposed_unit: string;
   confidence: "HIGH" | "MEDIUM" | "LOW";
   evidence_snippet: string;
@@ -54,6 +55,7 @@ function normalizeRow(row: Record<string, unknown>): NutritionCandidateRow {
     brand: String(row.brand),
     proposed_field: String(row.proposed_field),
     proposed_value: String(row.proposed_value),
+    approved_value: rowString(row.approved_value),
     proposed_unit: String(row.proposed_unit),
     confidence: String(row.confidence) as NutritionCandidateRow["confidence"],
     evidence_snippet: String(row.evidence_snippet),
@@ -73,7 +75,7 @@ export async function getNutritionCandidateReport(runId?: string): Promise<Nutri
   let query = supabaseAdmin
     .from("nutrition_candidates")
     .select(
-      "id,created_at,product_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_domain,product_name,brand,proposed_field,proposed_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id"
+      "id,created_at,product_id,retailer_id,source_type,source_url,source_file_sha256,source_snapshot_ref,source_domain,product_name,brand,proposed_field,proposed_value,approved_value,proposed_unit,confidence,evidence_snippet,source_locator,warning_flags,status,reviewed_at,reviewed_by,review_note,run_id"
     );
   if (runId) query = query.eq("run_id", runId);
   const { data, error } = await query

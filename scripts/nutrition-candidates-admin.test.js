@@ -25,7 +25,10 @@ function loadTsModule(relativePath) {
 const {
   buildNutritionCandidateReviewUpdate,
   canReviewNutritionCandidate,
+  isBulkApprovableNutritionCandidate,
+  parseNutritionCandidateBulkReviewInput,
   parseNutritionCandidateReviewInput,
+  validateNutritionCandidateBulkSelection,
 } = loadTsModule("app/admin/lib/nutritionCandidateReview.ts");
 const {
   groupNutritionCandidatesByProduct,
@@ -96,26 +99,76 @@ test("candidate review validates IDs, decisions and bounded optional notes", () 
   assert.deepEqual(parseNutritionCandidateReviewInput({
     id: "42",
     status: "approved",
+    approvedValue: "14",
     reviewNote: "  label checked  ",
-  }), { id: "42", status: "approved", reviewNote: "label checked" });
-  assert.equal(parseNutritionCandidateReviewInput({ id: "0", status: "approved", reviewNote: null }), null);
-  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "pending", reviewNote: null }), null);
-  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "approved", reviewNote: "x".repeat(1001) }), null);
+  }), { id: "42", status: "approved", approvedValue: 14, reviewNote: "label checked" });
+  assert.equal(parseNutritionCandidateReviewInput({ id: "0", status: "approved", approvedValue: "14", reviewNote: null }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "pending", approvedValue: "14", reviewNote: null }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "approved", approvedValue: "", reviewNote: null }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "approved", approvedValue: "0", reviewNote: null }), null);
+  assert.equal(parseNutritionCandidateReviewInput({ id: "42", status: "approved", approvedValue: "14", reviewNote: "x".repeat(1001) }), null);
+  assert.deepEqual(parseNutritionCandidateReviewInput({
+    id: "42", status: "rejected", approvedValue: "28", reviewNote: "wrong pack",
+  }), { id: "42", status: "rejected", approvedValue: null, reviewNote: "wrong pack" });
 });
 
 test("candidate review update contains review metadata but no product mutation", () => {
   const update = buildNutritionCandidateReviewUpdate(
-    { id: "42", status: "approved", reviewNote: null },
+    { id: "42", status: "approved", approvedValue: 14, reviewNote: null },
     "2026-08-02T12:00:00.000Z"
   );
   assert.deepEqual(update, {
     status: "approved",
     reviewed_at: "2026-08-02T12:00:00.000Z",
     reviewed_by: "admin-panel",
+    approved_value: 14,
     review_note: null,
   });
   assert.equal("product_id" in update, false);
   assert.equal("nutrition_verified" in update, false);
+});
+
+test("bulk review accepts a bounded unique product selection", () => {
+  assert.deepEqual(parseNutritionCandidateBulkReviewInput({
+    candidateIds: ["10", "11"], productId: "79", runId: "NCR1-safe",
+  }), { candidateIds: ["10", "11"], productId: "79", runId: "NCR1-safe" });
+  assert.equal(parseNutritionCandidateBulkReviewInput({
+    candidateIds: ["10", "10"], productId: "79", runId: "NCR1-safe",
+  }), null);
+  assert.equal(parseNutritionCandidateBulkReviewInput({
+    candidateIds: Array.from({ length: 51 }, (_, index) => String(index + 1)),
+    productId: "79", runId: "NCR1-safe",
+  }), null);
+});
+
+test("bulk review excludes unsafe warnings and invalid serving counts", () => {
+  const candidate = (overrides = {}) => ({
+    id: "10", product_id: "79", proposed_field: "serving_size_g",
+    proposed_value: "31", warning_flags: [], status: "pending", run_id: "NCR1-safe",
+    ...overrides,
+  });
+  assert.equal(isBulkApprovableNutritionCandidate(candidate()), true);
+  assert.equal(isBulkApprovableNutritionCandidate(candidate({ warning_flags: ["PACKAGE_SERVING_MISMATCH"] })), false);
+  assert.equal(isBulkApprovableNutritionCandidate(candidate({
+    proposed_field: "serving_count_verified", proposed_value: "28.5",
+  })), false);
+});
+
+test("bulk selection is one unchanged product and rejects field conflicts", () => {
+  const input = { candidateIds: ["10", "11"], productId: "79", runId: "NCR1-safe" };
+  const candidate = (id, field, value) => ({
+    id, product_id: "79", proposed_field: field, proposed_value: value,
+    warning_flags: [], status: "pending", run_id: "NCR1-safe",
+  });
+  assert.equal(validateNutritionCandidateBulkSelection(input, [
+    candidate("10", "serving_size_g", 31), candidate("11", "protein_per_serving_g", 25),
+  ]), true);
+  assert.equal(validateNutritionCandidateBulkSelection(input, [
+    candidate("10", "protein_per_serving_g", 24), candidate("11", "protein_per_serving_g", 25),
+  ]), false);
+  assert.equal(validateNutritionCandidateBulkSelection(input, [
+    candidate("10", "serving_size_g", 31),
+  ]), false);
 });
 
 test("admin page authenticates before loading the service-role report", () => {
@@ -149,6 +202,19 @@ test("review route authenticates before parsing or writing and updates candidate
   assert(auth >= 0);
   assert(auth < post.indexOf("request.formData()"));
   assert(auth < post.indexOf("supabaseAdmin"));
+  assert.match(post, /\.from\("nutrition_candidates"\)/);
+  assert.match(post, /\.eq\("status", "pending"\)/);
+  assert.doesNotMatch(post, /\.from\("products"\)|nutrition_verified|unit_pricing_verified/);
+});
+
+test("bulk review route authenticates, validates, and only updates pending candidates", () => {
+  const route = fs.readFileSync(
+    path.join(process.cwd(), "app/admin/nutrition-candidates/review-bulk/route.ts"),
+    "utf8"
+  );
+  const post = route.slice(route.indexOf("export async function POST"));
+  assert(post.indexOf("requireAdminRoute(request)") < post.indexOf("request.formData()"));
+  assert.match(post, /validateNutritionCandidateBulkSelection/);
   assert.match(post, /\.from\("nutrition_candidates"\)/);
   assert.match(post, /\.eq\("status", "pending"\)/);
   assert.doesNotMatch(post, /\.from\("products"\)|nutrition_verified|unit_pricing_verified/);

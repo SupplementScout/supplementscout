@@ -10,11 +10,12 @@ const root = path.resolve(__dirname, "..");
 const runId = "NCR1-approved-test";
 
 function candidate(overrides = {}) {
-  return {
+  const result = {
     id: "1",
     product_id: "337",
     proposed_field: "serving_size_g",
     proposed_value: 5,
+    approved_value: 5,
     proposed_unit: "g",
     confidence: "LOW",
     source_url: "https://manufacturer.example/products/creatine",
@@ -26,6 +27,11 @@ function candidate(overrides = {}) {
     candidate_fingerprint: "a".repeat(64),
     ...overrides,
   };
+  if (Object.prototype.hasOwnProperty.call(overrides, "proposed_value") &&
+      !Object.prototype.hasOwnProperty.call(overrides, "approved_value")) {
+    result.approved_value = result.proposed_value;
+  }
+  return result;
 }
 
 test("approved planner creates before/after product-only changes", () => {
@@ -71,6 +77,65 @@ test("serving facts alone never derive nutrition verification", () => {
   assert.equal("nutrition_verified" in plan.product_updates[0].changes, false);
 });
 
+test("planner uses the explicit owner-approved value instead of the extracted proposal", () => {
+  const plan = buildApprovedPlan(
+    [candidate({ proposed_field: "serving_count_verified", proposed_value: 28, approved_value: 14, proposed_unit: "count" })],
+    [{ id: "337", name: "Whey 400g", net_weight_g: 400, serving_size_g: 28, serving_count_verified: null }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  const change = plan.product_updates[0].changes.serving_count_verified;
+  assert.equal(change.after, 14);
+  assert.equal(change.evidence[0].proposed_value, 28);
+  assert.equal(change.evidence[0].source_value, 14);
+  assert.equal(change.evidence[0].owner_corrected, true);
+});
+
+test("planner blocks impossible package arithmetic", () => {
+  const plan = buildApprovedPlan(
+    [candidate({ proposed_field: "serving_count_verified", proposed_value: 28, approved_value: 28, proposed_unit: "count" })],
+    [{ id: "337", name: "Whey 400g", net_weight_g: 400, serving_size_g: 28, serving_count_verified: null }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(plan.status, "BLOCKED");
+  assert.ok(plan.blockers.some((blocker) => blocker.code === "PACKAGE_SERVING_MISMATCH"));
+});
+
+test("planner blocks even a one-serving overstatement beyond rounding tolerance", () => {
+  const plan = buildApprovedPlan(
+    [candidate({ proposed_field: "serving_count_verified", proposed_value: 15, approved_value: 15, proposed_unit: "count" })],
+    [{ id: "337", name: "Whey 400g", net_weight_g: 400, serving_size_g: 28, serving_count_verified: null }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(plan.status, "BLOCKED");
+  assert.ok(plan.blockers.some((blocker) => blocker.code === "PACKAGE_SERVING_MISMATCH"));
+});
+
+test("planner accepts only whole verified serving counts", () => {
+  const plan = buildApprovedPlan(
+    [candidate({ proposed_field: "serving_count_verified", proposed_value: 14.5, approved_value: 14.5, proposed_unit: "count" })],
+    [{ id: "337", name: "Whey 400g", net_weight_g: 400, serving_size_g: 28, serving_count_verified: null }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(plan.status, "BLOCKED");
+  assert.ok(plan.blockers.some((blocker) => blocker.code === "SERVING_COUNT_MUST_BE_INTEGER"));
+});
+
+test("planner blocks overwriting an existing pack size", () => {
+  const plan = buildApprovedPlan(
+    [candidate({ proposed_field: "net_weight_g", proposed_value: 850, approved_value: 850 })],
+    [{ id: "337", name: "Whey 1kg", net_weight_g: 1000 }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(plan.status, "BLOCKED");
+  assert.ok(plan.blockers.some((blocker) => blocker.code === "PACK_SIZE_CHANGE_REQUIRES_VARIANT_TRANSITION"));
+});
+
 test("planner blocks unmapped, unsafe and conflicting approved candidates", () => {
   const cases = [
     [candidate({ product_id: null }), "NEEDS_PRODUCT_MAPPING"],
@@ -89,7 +154,7 @@ test("planner blocks unmapped, unsafe and conflicting approved candidates", () =
 test("planner reads approved candidates and writes a dry plan only under tmp", async () => {
   const directory = fs.mkdtempSync(path.join(root, "tmp", "approved-plan-test-"));
   test.after(() => fs.rmSync(directory, { recursive: true, force: true }));
-  const result = await planner.runCli([`--run-id=${runId}`], {
+  const result = await planner.runCli([`--run-id=${runId}`, "--candidate-ids=1"], {
     cwd: root,
     generatedAt: "2026-08-02T12:00:00.000Z",
     loadCandidates: async () => [candidate()],
@@ -99,6 +164,51 @@ test("planner reads approved candidates and writes a dry plan only under tmp", a
   assert.equal(result.status, "READY_FOR_EXPLICIT_APPLY");
   assert.ok(result.plan.startsWith("tmp/nutrition-approved-plan/"));
   fs.rmSync(path.resolve(root, result.plan), { force: true });
+});
+
+test("planner requires an exact reviewed candidate subset", async () => {
+  assert.throws(() => planner.parseArgs([`--run-id=${runId}`]), /Choose exactly one/);
+  assert.throws(() => planner.parseArgs([`--run-id=${runId}`, "--candidate-ids=1,1"]), /unique/);
+  assert.throws(() => planner.parseArgs([
+    `--run-id=${runId}`, "--candidate-ids=1", "--safe-approved-for-run=true",
+  ]), /Choose exactly one/);
+  assert.deepEqual(planner.parseArgs([`--run-id=${runId}`, "--candidate-ids=2,1"]), {
+    runId,
+    candidateIds: ["2", "1"],
+  });
+  assert.deepEqual(planner.parseArgs([`--run-id=${runId}`, "--safe-approved-for-run=true"]), {
+    runId,
+    safeApprovedForRun: true,
+  });
+  await assert.rejects(
+    planner.runCli([`--run-id=${runId}`, "--candidate-ids=1,2"], {
+      loadCandidates: async () => [candidate()],
+      loadProducts: async () => [{ id: "337", name: "Creatine", serving_size_g: null }],
+    }),
+    /absent, unapproved, or outside/,
+  );
+});
+
+test("safe run planner excludes an entire blocked product and reports it", () => {
+  const safe = candidate({ id: "1", product_id: "337" });
+  const unsafe = candidate({
+    id: "2", product_id: "338", warning_flags: ["PACKAGE_SERVING_MISMATCH"],
+    candidate_fingerprint: "b".repeat(64),
+  });
+  const result = planner.buildSafeApprovedPlan(
+    [safe, unsafe],
+    [
+      { id: "337", name: "Safe", serving_size_g: null },
+      { id: "338", name: "Unsafe", serving_size_g: null },
+    ],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(result.plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.deepEqual(result.plan.source_candidate_ids, ["1"]);
+  assert.deepEqual(result.excludedCandidates, [
+    { candidate_id: "2", reason: "UNSAFE_WARNING_FLAG" },
+  ]);
 });
 
 test("apply requires explicit confirmation and rechecks approval before product-only update", async () => {
@@ -131,6 +241,11 @@ test("apply verification refuses pending candidates and stale product values", (
   const plan = buildApprovedPlan([candidate()], [{ id: "337", name: "Creatine", serving_size_g: null }], runId, "2026-08-02T12:00:00.000Z");
   assert.throws(() => apply.verifyCandidates(plan, [candidate({ status: "pending" })]), /changed after plan generation/);
   assert.throws(() => apply.verifyProducts(plan, [{ id: "337", serving_size_g: 10 }]), /changed after plan generation/);
+});
+
+test("v1 plans are invalidated so old plans cannot bypass pack guards", () => {
+  const plan = buildApprovedPlan([candidate()], [{ id: "337", name: "Creatine", serving_size_g: null }], runId, "2026-08-02T12:00:00.000Z");
+  assert.throws(() => validatePlan({ ...plan, schema_version: 1 }), /invalid or blocked/);
 });
 
 test("production apply uses one transaction and only updates whitelisted products fields", async () => {

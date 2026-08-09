@@ -51,7 +51,8 @@ function pageList(page) {
 test("candidate batch requires bounded explicit storage confirmations", () => {
   assert.throws(() => parseArgs(["--input=tmp/a.json", "--max-products=10"]), /official-pages-only/);
   assert.throws(() => parseArgs(["--input=tmp/a.json", "--max-products=10", "--confirm-official-pages-only=true"]), /store-candidates/);
-  assert.throws(() => parseArgs(["--input=tmp/a.json", "--max-products=11", "--confirm-official-pages-only=true", "--store-candidates=true"]), /1 to 10/);
+  assert.equal(parseArgs(["--input=tmp/a.json", "--max-products=50", "--confirm-official-pages-only=true", "--store-candidates=true"]).maxProducts, 50);
+  assert.throws(() => parseArgs(["--input=tmp/a.json", "--max-products=51", "--confirm-official-pages-only=true", "--store-candidates=true"]), /1 to 50/);
   assert.throws(() => parseArgs(["--input=tmp/a.json", "--max-products=1", "--confirm-official-pages-only=true", "--store-candidates=true", "--apply"]), /Unknown option/);
 });
 

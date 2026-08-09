@@ -7,7 +7,7 @@ const {
 } = require("./nutrition-candidates");
 const { createCandidateSupabase } = require("../store-nutrition-candidates");
 
-const PLAN_KIND = "nutrition-approved-product-update-plan-v1";
+const PLAN_KIND = "nutrition-approved-product-update-plan-v2";
 const AUDIT_KIND = "nutrition-approved-product-update-audit-v1";
 const DERIVED_FIELDS = Object.freeze(["nutrition_verified"]);
 const ALLOWED_FIELDS = Object.freeze([...FIELDS, ...DERIVED_FIELDS]);
@@ -54,7 +54,9 @@ function candidateEvidence(candidate) {
     source_locator: String(candidate.source_locator),
     warning_flags: Array.isArray(candidate.warning_flags) ? candidate.warning_flags.map(String) : [],
     source_field: String(candidate.proposed_field),
-    source_value: Number(candidate.proposed_value),
+    proposed_value: Number(candidate.proposed_value),
+    source_value: Number(candidate.approved_value),
+    owner_corrected: Number(candidate.approved_value) !== Number(candidate.proposed_value),
   };
 }
 
@@ -68,7 +70,7 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
     const candidateId = String(candidate.id || "unknown");
     const productId = positiveId(candidate.product_id);
     const field = String(candidate.proposed_field || "");
-    const value = numeric(candidate.proposed_value);
+    const value = numeric(candidate.approved_value);
     const flags = Array.isArray(candidate.warning_flags) ? candidate.warning_flags.map(String) : [];
     if (candidate.status !== "approved" || candidate.run_id !== runId) {
       blockers.push({ code: "CANDIDATE_NOT_APPROVED_FOR_RUN", candidate_id: candidateId });
@@ -80,6 +82,10 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
     }
     if (!CANDIDATE_FIELD_SET.has(field) || EXPECTED_UNITS[field] !== candidate.proposed_unit || !Number.isFinite(value) || value <= 0) {
       blockers.push({ code: "UNSUPPORTED_OR_INVALID_FACT", candidate_id: candidateId, product_id: productId, field });
+      continue;
+    }
+    if (field === "serving_count_verified" && !Number.isInteger(value)) {
+      blockers.push({ code: "SERVING_COUNT_MUST_BE_INTEGER", candidate_id: candidateId, product_id: productId, field });
       continue;
     }
     if (flags.some((flag) => UNSAFE_FLAGS.test(flag))) {
@@ -136,8 +142,36 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
     }
   }
   const productUpdates = [...changesByProduct.values()].sort((a, b) => Number(a.product_id) - Number(b.product_id));
+  for (const update of productUpdates) {
+    const product = productById.get(update.product_id);
+    const effective = (field) => update.changes[field]?.after ?? numeric(product?.[field]);
+    const beforeWeight = numeric(product?.net_weight_g);
+    const afterWeight = effective("net_weight_g");
+    if (beforeWeight !== null && afterWeight !== null && beforeWeight !== afterWeight) {
+      blockers.push({
+        code: "PACK_SIZE_CHANGE_REQUIRES_VARIANT_TRANSITION",
+        product_id: update.product_id,
+        before_net_weight_g: beforeWeight,
+        proposed_net_weight_g: afterWeight,
+      });
+    }
+    const servingCount = effective("serving_count_verified");
+    const servingSize = effective("serving_size_g");
+    const packageTolerance = afterWeight === null ? null : Math.max(1, afterWeight * 0.01);
+    if (afterWeight !== null && servingCount !== null && servingSize !== null &&
+        servingCount * servingSize > afterWeight + packageTolerance) {
+      blockers.push({
+        code: "PACKAGE_SERVING_MISMATCH",
+        product_id: update.product_id,
+        net_weight_g: afterWeight,
+        serving_count_verified: servingCount,
+        serving_size_g: servingSize,
+        implied_weight_g: servingCount * servingSize,
+      });
+    }
+  }
   const core = {
-    schema_version: 1,
+    schema_version: 2,
     kind: PLAN_KIND,
     run_id: runId,
     generated_at: new Date(generatedAt).toISOString(),
@@ -152,7 +186,7 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
 }
 
 function validatePlan(plan) {
-  if (!plan || plan.schema_version !== 1 || plan.kind !== PLAN_KIND ||
+  if (!plan || plan.schema_version !== 2 || plan.kind !== PLAN_KIND ||
       plan.status !== "READY_FOR_EXPLICIT_APPLY" || !Array.isArray(plan.allowed_fields) ||
       JSON.stringify(plan.allowed_fields) !== JSON.stringify(ALLOWED_FIELDS) ||
       !Array.isArray(plan.source_candidate_ids) || !plan.source_candidate_ids.length ||
@@ -166,13 +200,18 @@ function validatePlan(plan) {
   for (const product of plan.product_updates) {
     if (!positiveId(product.product_id) || !product.changes || typeof product.changes !== "object") fail("Invalid product update entry");
     for (const [field, change] of Object.entries(product.changes)) {
+      const validEvidence = Array.isArray(change?.evidence) && change.evidence.length &&
+        change.evidence.every((evidence) => Number.isFinite(evidence.proposed_value) && evidence.proposed_value > 0 &&
+          Number.isFinite(evidence.source_value) && evidence.source_value > 0 &&
+          typeof evidence.owner_corrected === "boolean" &&
+          evidence.owner_corrected === (evidence.proposed_value !== evidence.source_value));
       const validDerivedVerification = field === "nutrition_verified" && change && change.after === true &&
         typeof change.before === "boolean" && change.derived_from_reviewed_nutrition === true &&
-        Array.isArray(change.evidence) && change.evidence.length &&
+        validEvidence &&
         change.evidence.every((evidence) => NUTRITION_SOURCE_FIELDS.has(evidence.source_field) &&
           Number.isFinite(evidence.source_value) && evidence.source_value > 0);
       const validNumericChange = FIELDS.includes(field) && change && Number.isFinite(change.after) && change.after > 0 &&
-        (change.before === null || Number.isFinite(change.before)) && Array.isArray(change.evidence) && change.evidence.length;
+        (change.before === null || Number.isFinite(change.before)) && validEvidence;
       if (!validDerivedVerification && !validNumericChange) {
         fail("Invalid product change in approved plan");
       }
@@ -200,9 +239,18 @@ function writePlan(plan, cwd = process.cwd()) {
   return file;
 }
 
-async function loadApprovedCandidates(supabase, runId) {
+async function loadApprovedCandidates(supabase, runId, candidateIds) {
+  const query = supabase.from("nutrition_candidates")
+    .select("id,product_id,proposed_field,proposed_value,approved_value,proposed_unit,confidence,source_url,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint")
+    .eq("run_id", runId).eq("status", "approved").in("id", candidateIds).order("id", { ascending: true });
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+}
+
+async function loadApprovedCandidatesForRun(supabase, runId) {
   const { data, error } = await supabase.from("nutrition_candidates")
-    .select("id,product_id,proposed_field,proposed_value,proposed_unit,confidence,source_url,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint")
+    .select("id,product_id,proposed_field,proposed_value,approved_value,proposed_unit,confidence,source_url,evidence_snippet,source_locator,warning_flags,status,run_id,candidate_fingerprint")
     .eq("run_id", runId).eq("status", "approved").order("id", { ascending: true });
   if (error) throw error;
   return data || [];
@@ -244,6 +292,7 @@ module.exports = {
   buildApprovedPlan,
   createSupabase,
   loadApprovedCandidates,
+  loadApprovedCandidatesForRun,
   loadProducts,
   resolveTmpFile,
   updateProduct,

@@ -339,11 +339,11 @@ approval is not product verification and has no automatic downstream effect.
 
 ## End-to-end reviewed workflow
 
-Create and store a batch of at most ten explicitly listed official manufacturer
+Create and store a batch of at most fifty explicitly listed official manufacturer
 pages:
 
 ```powershell
-npm run nutrition:candidate-batch -- --input=tmp/nutrition-batch-1/pages.json --max-products=10 --confirm-official-pages-only=true --store-candidates=true
+npm run nutrition:candidate-batch -- --input=tmp/nutrition-batch-1/pages.json --max-products=50 --confirm-official-pages-only=true --store-candidates=true
 ```
 
 This command reuses the bounded page collector, HTML extractor, HIGH-only image
@@ -354,13 +354,83 @@ pages continue. OCR-only facts remain LOW confidence. The candidate artifact,
 candidate-only CSV, raw snapshots, hashes, OCR text and per-product report all
 remain below ignored `tmp/`.
 
+The admin groups pending facts by product. When a product has at least two
+safe proposals, `Approve all safe facts for this product` accepts their exact
+proposed values in one review action. Candidates carrying conflict, ambiguity,
+unclear, mismatch or exceeds warnings are excluded and remain in individual
+review. Corrected values also stay in the individual form. Bulk approval writes
+only review metadata in `nutrition_candidates`; it never updates products and
+does not replace the approved-plan and explicit-apply gates.
+
 Review the run at `/admin/nutrition-candidates?run=<run_id>`. Approval only
 changes candidate review metadata. After every intended fact has been reviewed,
 generate a read-only before/after plan:
 
 ```powershell
-npm run nutrition:approved-plan -- --run-id=<run_id>
+npm run nutrition:approved-plan -- --run-id=<run_id> --safe-approved-for-run=true
 ```
+
+This product-safe batch mode reads every approved candidate in the run, removes
+an entire product when any of its facts hits a planner blocker, writes one ready
+plan for the remaining products and reports every excluded candidate and
+reason. It never silently weakens a blocker. Use
+`--candidate-ids=<id,id,...>` instead when the owner wants an exact reviewed
+subset. Both modes are read-only and explicit apply remains separate.
+
+Use the durable read-only coverage report to measure both levels:
+
+```powershell
+npm run nutrition:protein-audit
+```
+
+`COMPARISON_READY` requires pack weight/volume, serving size, protein per
+serving, product format and reviewed nutrition. `FULL_SERVING_VERIFIED` also
+requires a positive integer serving count. The report separately names
+`unit_pricing_verified` as a public-metric blocker; coverage status never sets
+that flag. Add `--include-products=true` only when the full product-level queue
+is needed.
+
+### Owner-approved values and pack transitions
+
+Approving a candidate requires an explicit numeric `approved_value`. The admin
+form starts with the extracted `proposed_value`, but the owner may correct it
+from the reviewed label evidence. `review_note` remains explanatory only;
+free-form text is never parsed into catalogue data. Approval still authorises
+planning only and never bypasses pending review or performs a product update.
+
+For pack applicability, the current retailer identity wins over a newer pack
+shown on the manufacturer page. While a retailer still sells the larger pack,
+candidate planning must use facts applicable to that larger pack and must not
+replace it with the manufacturer's newly introduced smaller pack. The newer
+manufacturer page is retained as transition evidence until a retailer's
+current weight, SKU, GTIN or equivalent reviewed identity shows that its stock
+has changed.
+
+The approved planner fails closed when:
+
+- `serving_count_verified` is not a whole number;
+- serving count multiplied by serving size exceeds net pack weight beyond a
+  one-percent rounding tolerance;
+- an update would replace an existing `products.net_weight_g` with a different
+  pack size.
+
+An existing pack-size change is a variant transition, not a product correction.
+Create or review the new `product_variants` row with its own size and GTIN, keep
+the old variant while any retailer still sells it, and rebind each retailer
+mapping/offer only after its size, SKU or GTIN identifies the new pack. A
+retailer page or feed may establish commercial pack identity, but official
+manufacturer evidence remains required for nutrition values. Ambiguous
+same-URL transitions stay in review and are never rebound automatically.
+
+If the formulation is unchanged, `serving_size_g` and
+`protein_per_serving_g` may remain shared. `net_weight_g` and
+`serving_count_verified` remain pack-specific and must be reviewed for each
+pack. The existing `product_match_review_queue` decision
+`APPROVE_NEW_VARIANT_SEED` is the review route when the smaller retailer pack
+first appears; routine offer refresh must not create or rebind that variant.
+
+Plans created before schema version 2 are rejected by the apply command and
+must be regenerated so these checks cannot be bypassed.
 
 The planner reads only `approved` candidates. It blocks unmapped products,
 unsupported fields, conflicting approved values, and unsafe conflict or
@@ -376,7 +446,8 @@ npm run nutrition:approved-apply -- --plan=tmp/nutrition-approved-plan/<plan>.js
 Apply rechecks candidate approval and fingerprints plus each product's planned
 before value inside one production-owner PostgreSQL transaction. It validates
 the existing production project identity, locks the reviewed rows, and rolls the
-whole batch back on an error. It can update only the seven nutrition fields
-documented above on `products`; it cannot update offers, retailer products,
-GTIN, prices, verification flags, or any pending/rejected candidate. A successful
+whole batch back on an error. It can update only the seven numeric nutrition
+fields documented above plus the derived `nutrition_verified` flag on
+`products`; it cannot update offers, retailer products, GTIN, prices,
+`unit_pricing_verified`, or any pending/rejected candidate. A successful
 audit JSON is written below `tmp/`.

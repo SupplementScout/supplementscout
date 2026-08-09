@@ -79,7 +79,12 @@ const CONTRACTS = Object.freeze({
       "20260804020000_correct_dolphin_scope_fingerprint.sql":
         "80ba2c95f23efb45d7abc533188b960f2f9de0f683bcbe11ad5b07c67ba723f8",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260809120000_add_nutrition_candidate_approved_value.sql",
+        sha256: "709b8165b97910c72f89ee34b4817fc94bb5d31c81a1af5cdb96762a83b85104",
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -88,9 +93,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 92,
+    ledgerCount: 93,
     ledgerFingerprint:
-      "d3109052792d581608c315ee42e26d2f6cd872d0b726217d48187ab989a2baf0",
+      "5217aaf745398422cbb626965119e22604be6415f6993191f960f1ff9736716c",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",

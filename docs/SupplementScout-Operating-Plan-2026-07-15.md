@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 1 August 2026<br>
+**Status date:** 9 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -377,6 +377,81 @@ two matching source captures, verifies the exact owner-approved offer IDs and
 seals the manifest. This does not give an agent unattended production-write
 authority; future mass-OOS execution still requires explicit owner approval of
 the exact IDs and the existing hash-bound reviewed executor.
+
+### 0.0.12 Protein pack-transition policy - 9 August 2026
+
+This is the binding rule for manufacturer shrinkflation and other protein pack
+size changes. The public catalogue must describe the pack that each retailer is
+currently selling, not a newer manufacturer pack that has not yet reached that
+retailer's stock. A manufacturer's current product page is authoritative
+nutrition evidence and may warn of an upcoming pack transition, but it does not
+by itself prove that a retailer has stopped selling the older pack.
+
+- While a retailer still identifies the larger pack by its current title,
+  weight, SKU, GTIN or reviewed source identity, its mapping and offer remain on
+  the larger canonical variant. Do not copy the manufacturer's newer smaller
+  net weight or serving count onto that offer.
+- A retailer page or feed may be used as commercial pack-identity evidence, but
+  never as nutrition evidence. Nutrition facts continue to require an official
+  manufacturer source or other explicitly owner-reviewed first-party label
+  evidence.
+- `serving_size_g` and `protein_per_serving_g` may remain shared when the exact
+  formulation is unchanged and no source contradicts them. `net_weight_g` and
+  `serving_count_verified` are pack-specific: a smaller pack normally changes
+  both even when serving size and protein per serving stay the same.
+- When the first retailer demonstrably changes to the smaller pack, create or
+  approve the smaller canonical `product_variants` identity and rebind only
+  that retailer's mapping and offer through the existing guarded review/apply
+  path. Keep the larger variant active while any retailer still sells it.
+- A retailer keeping the same URL does not preserve pack identity. Ambiguous
+  same-URL changes without weight, SKU, GTIN or equivalent reviewed evidence
+  remain pending and must not be rebound automatically.
+- In Admin nutrition review, the owner's structured `approved_value` is the
+  authoritative value consumed by the planner, including a correction of an
+  extracted proposal. `proposed_value` is only machine output and
+  `review_note` explains the decision; free-form notes are not parsed into
+  product writes. Approval still authorises planning only, followed by a fresh
+  approved plan and explicit apply.
+- Arithmetic remains a mandatory fail-closed check. A verified serving count
+  must be a whole number and must fit the reviewed pack weight and serving size
+  within the documented rounding tolerance. A calculated count may expose a
+  conflict, but it is not labelled verified without reviewed evidence.
+
+This policy reuses canonical variants, `product_match_review_queue`, retailer
+mappings, nutrition candidates and guarded apply mechanisms. It does not
+create a second catalogue and grants no unattended product, variant, mapping or
+offer write authority.
+
+### 0.0.13 Protein coverage acceleration policy - 9 August 2026
+
+Protein coverage uses two explicit operational levels so commercially useful
+comparison facts can be published before every serving field is complete:
+
+- `COMPARISON_READY` requires a reviewed pack weight or volume, serving size,
+  protein per serving, product format and reviewed nutrition evidence. It does
+  not claim a verified serving count or price per serving.
+- `FULL_SERVING_VERIFIED` additionally requires a positive whole-number
+  `serving_count_verified`. Only this level is complete for all serving-based
+  comparison facts.
+
+The public calculator remains fail-closed under its existing verification
+flags. A coverage label never makes a price or nutrition value verified and
+never bypasses `unit_pricing_verified` or `nutrition_verified`.
+
+Candidate collection may process up to 50 exact manifest URLs in one run. The
+larger bound does not permit crawling, sitemap scanning, following links,
+retailer nutrition evidence, marketplaces, competitor pages or cloud OCR. Each
+URL must still name an allowed official manufacturer domain.
+
+Admin review may approve all safe unchanged proposals for one product in one
+database statement. Conflict, ambiguity, unclear, mismatch and exceeds flags,
+non-integer serving counts, corrected values and cross-product selections stay
+in individual review. Bulk review changes only `nutrition_candidates`; a fresh
+approved plan and explicit apply remain mandatory before `products` changes.
+
+Missing `product_format` may receive a deterministic report-only suggestion of
+`powder` when both the protein-powder category and a gram-based pack support it.
+The suggestion is not approval and is never written automatically.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

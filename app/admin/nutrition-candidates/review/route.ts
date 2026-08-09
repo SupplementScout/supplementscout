@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
   const input = parseNutritionCandidateReviewInput({
     id: formData.get("id"),
     status: formData.get("status"),
+    approvedValue: formData.get("approvedValue"),
     reviewNote: formData.get("reviewNote"),
   });
   if (!input) {

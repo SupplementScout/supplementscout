@@ -24,7 +24,7 @@ const {
 
 const PAGE_LIST_KIND = "nutrition-ocr-page-source-list-v1";
 const REPORT_KIND = "nutrition-ocr-canary-report-v1";
-const MAX_PAGES = 10;
+const MAX_PAGES = 50;
 const MAX_CANARY_PRODUCTS = 5;
 const MAX_IMAGES_PER_PRODUCT = 2;
 const MAX_IMAGE_BYTES = 8_000_000;
@@ -46,7 +46,7 @@ const CURRENT_VALUE_FIELDS = Object.freeze([
   "serving_size_ml", "protein_per_serving_g", "creatine_per_serving_g",
 ]);
 const MISSING_FIELD_VALUES = new Set([
-  "net_weight_g", "serving_count_verified", "serving_size_g",
+  "net_weight_g", "net_volume_ml", "serving_count_verified", "serving_size_g", "serving_size_ml",
   "protein_per_serving_g", "product_format", "nutrition_verified",
 ]);
 const FORBIDDEN_SOURCE_DOMAIN_LABELS = Object.freeze([

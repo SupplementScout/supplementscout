@@ -52,6 +52,9 @@ test("page manifest requires exact identity binding and explicit safe domains", 
   assert.deepEqual(validatePageList(list([page({
     missing_fields: ["serving_size_g", "protein_per_serving_g"],
   })])).pages[0].missing_fields, ["serving_size_g", "protein_per_serving_g"]);
+  assert.deepEqual(validatePageList(list([page({
+    missing_fields: ["net_volume_ml", "serving_size_ml", "protein_per_serving_g"],
+  })])).pages[0].missing_fields, ["net_volume_ml", "serving_size_ml", "protein_per_serving_g"]);
   assert.throws(() => validatePageList(list([page({
     missing_fields: ["serving_size_g", "serving_size_g"],
   })])), /unique non-empty list/);
@@ -72,12 +75,12 @@ test("page manifest requires exact identity binding and explicit safe domains", 
   assert.throws(() => validatePageList(list([page({ expected_domain: "127.0.0.1" })])), /public DNS|IP address/);
 });
 
-test("manifest is bounded to ten unique explicit pages", () => {
-  assert.throws(() => validatePageList(list([])), /1-10/);
-  assert.throws(() => validatePageList(list(Array.from({ length: 11 }, (_, index) => page({
+test("manifest is bounded to fifty unique explicit pages", () => {
+  assert.throws(() => validatePageList(list([])), /1-50/);
+  assert.throws(() => validatePageList(list(Array.from({ length: 51 }, (_, index) => page({
     source_record_id: `record-${index}`,
     source_page_url: `https://gymhigh.co.uk/product/item-${index}/`,
-  })))), /1-10/);
+  })))), /1-50/);
   assert.throws(() => validatePageList(list([page(), page()])), /Duplicate OCR/);
 });
 

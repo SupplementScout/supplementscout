@@ -16,6 +16,7 @@
     "nutrition:candidate-batch": "node scripts/nutrition-candidate-batch.js",
     "nutrition:approved-plan": "node scripts/nutrition-approved-plan.js",
     "nutrition:approved-apply": "node scripts/nutrition-approved-apply.js",
+    "nutrition:protein-audit": "node scripts/protein-coverage-audit.js",
     "verify:baseline": "node scripts/verify-baseline-migrations.js",
     "verify:project": "node scripts/project-guardian.js"
   },

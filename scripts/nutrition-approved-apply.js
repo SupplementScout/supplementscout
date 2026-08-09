@@ -33,6 +33,7 @@ function candidateSnapshot(candidate) {
     product_id: candidate.product_id == null ? null : String(candidate.product_id),
     proposed_field: String(candidate.proposed_field),
     proposed_value: Number(candidate.proposed_value),
+    approved_value: Number(candidate.approved_value),
     proposed_unit: String(candidate.proposed_unit),
     status: String(candidate.status),
     run_id: String(candidate.run_id),
@@ -52,7 +53,8 @@ function verifyCandidates(plan, candidates) {
         const expectedSourceValue = field === "nutrition_verified" ? evidence.source_value : change.after;
         if (!snapshot || snapshot.status !== "approved" || snapshot.run_id !== plan.run_id ||
             snapshot.product_id !== product.product_id || snapshot.proposed_field !== expectedSourceField ||
-            snapshot.proposed_value !== expectedSourceValue || snapshot.candidate_fingerprint !== evidence.candidate_fingerprint) {
+            snapshot.proposed_value !== evidence.proposed_value || snapshot.approved_value !== expectedSourceValue ||
+            snapshot.candidate_fingerprint !== evidence.candidate_fingerprint) {
           fail(`Approved candidate ${evidence.candidate_id} changed after plan generation`);
         }
       }
@@ -113,7 +115,7 @@ async function applyTransaction(plan, dependencies = {}) {
     if (target.target_environment !== "PRODUCTION" || target.project_ref !== PRODUCTION.projectRef ||
         target.database_identity !== PRODUCTION.databaseIdentity) fail("Production database identity mismatch");
     const candidateResult = await client.query(`
-      select id,product_id,proposed_field,proposed_value,proposed_unit,status,run_id,candidate_fingerprint
+      select id,product_id,proposed_field,proposed_value,approved_value,proposed_unit,status,run_id,candidate_fingerprint
       from public.nutrition_candidates
       where run_id=$1 and id=any($2::bigint[])
       order by id for share

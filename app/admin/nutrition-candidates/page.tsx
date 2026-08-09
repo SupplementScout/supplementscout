@@ -9,6 +9,7 @@ import {
   groupNutritionCandidatesByProduct,
   groupNutritionCandidatesByRun,
 } from "../lib/nutritionCandidateRuns";
+import { isBulkApprovableNutritionCandidate } from "../lib/nutritionCandidateReview";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +91,21 @@ function CandidateCard({ candidate, runFilter }: { candidate: NutritionCandidate
         >
           <input type="hidden" name="id" value={candidate.id} />
           <label className="block text-sm font-semibold text-zinc-700">
+            Approved value
+            <input
+              name="approvedValue"
+              type="number"
+              min="0.000001"
+              step="any"
+              defaultValue={candidate.proposed_value}
+              required
+              className="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2 font-mono font-normal"
+            />
+            <span className="mt-1 block text-xs font-normal text-zinc-500">
+              This is the exact value used by the approved-plan. Correct the extracted proposal here when needed.
+            </span>
+          </label>
+          <label className="block text-sm font-semibold text-zinc-700">
             Review note (optional)
             <input
               name="reviewNote"
@@ -110,6 +126,7 @@ function CandidateCard({ candidate, runFilter }: { candidate: NutritionCandidate
               type="submit"
               name="status"
               value="rejected"
+              formNoValidate
               className="rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white hover:bg-red-800"
             >
               Reject candidate
@@ -121,10 +138,51 @@ function CandidateCard({ candidate, runFilter }: { candidate: NutritionCandidate
           Reviewed {candidate.reviewed_at
             ? new Date(candidate.reviewed_at).toLocaleString("en-GB")
             : "at an unknown time"}
+          {candidate.approved_value
+            ? ` · approved value ${candidate.approved_value} ${candidate.proposed_unit}`
+            : ""}
           {candidate.review_note ? ` — ${candidate.review_note}` : ""}
         </div>
       )}
     </article>
+  );
+}
+
+function BulkApproveProduct({
+  candidates,
+  productId,
+  runId,
+}: {
+  candidates: NutritionCandidateRow[];
+  productId: string | null;
+  runId: string;
+}) {
+  const safeCandidates = candidates.filter(isBulkApprovableNutritionCandidate);
+  if (!productId || safeCandidates.length < 2) return null;
+  return (
+    <form
+      action={`/admin/nutrition-candidates/review-bulk?run=${encodeURIComponent(runId)}`}
+      method="post"
+      className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
+    >
+      <input type="hidden" name="productId" value={productId} />
+      <input type="hidden" name="runId" value={runId} />
+      {safeCandidates.map((candidate) => (
+        <input key={candidate.id} type="hidden" name="candidateId" value={candidate.id} />
+      ))}
+      <p className="text-sm font-semibold text-emerald-950">
+        {safeCandidates.length} safe proposed facts can be accepted together.
+      </p>
+      <p className="mt-1 text-xs leading-5 text-emerald-900">
+        This accepts the displayed proposed values only. Conflicts, mismatches and corrected values stay in individual review.
+      </p>
+      <button
+        type="submit"
+        className="mt-3 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800"
+      >
+        Approve all safe facts for this product
+      </button>
+    </form>
   );
 }
 
@@ -251,6 +309,13 @@ export default async function NutritionCandidatesPage({
                                 Product ID: {productGroup.product_id ?? "Needs mapping"} · {productGroup.candidates.length} facts
                               </span>
                             </div>
+                            {status === "pending" ? (
+                              <BulkApproveProduct
+                                candidates={productGroup.candidates}
+                                productId={productGroup.product_id}
+                                runId={group.run_id}
+                              />
+                            ) : null}
                             <div className="grid gap-4">
                               {productGroup.candidates.map((candidate) => (
                                 <CandidateCard
