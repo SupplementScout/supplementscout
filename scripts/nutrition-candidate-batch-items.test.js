@@ -134,6 +134,24 @@ test("manual candidates stay pending, low confidence and owner-review flagged", 
   assert.ok(rows.every((row) => !Object.hasOwn(row, "nutrition_verified")));
 });
 
+test("manual candidate validation accepts numeric database work-item IDs", () => {
+  const input = {
+    workItemId: "2", runId: "NCR1-batch",
+    values: { net_weight_g: 2300, serving_count_verified: 66, serving_size_g: 34, protein_per_serving_g: 24 },
+    note: null,
+  };
+  assert.equal(validateManualValuesAgainstWorkItem(input, workItem({
+    id: 2,
+    missing_fields: ["net_weight_g", "serving_count_verified", "serving_size_g", "protein_per_serving_g"],
+    current_values: {
+      net_weight_g: null,
+      serving_count_verified: null,
+      serving_size_g: null,
+      protein_per_serving_g: null,
+    },
+  })), true);
+});
+
 test("manual candidate safety rejects package arithmetic and non-missing fields", () => {
   assert.equal(validateManualValuesAgainstWorkItem({
     workItemId: "10", runId: "NCR1-batch", values: { serving_count_verified: 29, serving_size_g: 31 }, note: null,

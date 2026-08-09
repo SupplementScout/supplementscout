@@ -20,7 +20,7 @@ export type ManualNutritionCandidateInput = {
 };
 
 export type NutritionBatchWorkItemForManualCandidate = {
-  id: string;
+  id: string | number;
   run_id: string;
   product_id: string;
   product_name: string;
@@ -84,7 +84,7 @@ export function validateManualValuesAgainstWorkItem(
   input: ManualNutritionCandidateInput,
   item: NutritionBatchWorkItemForManualCandidate
 ) {
-  if (input.workItemId !== item.id || input.runId !== item.run_id) return false;
+  if (input.workItemId !== String(item.id) || input.runId !== item.run_id) return false;
   const missing = new Set(item.missing_fields);
   if (Object.keys(input.values).some((field) => !isField(field) || !missing.has(field))) return false;
   const resolved = { ...item.current_values, ...input.values };
