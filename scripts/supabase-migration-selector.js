@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 77,
+    ledgerCount: 79,
     ledgerFingerprint:
-      "006281e46382b016f477e4290777e6484daadadad4694d253d1c47bb56be1f0a",
+      "00018acb7fb7f71a1c77ae2deb91268cb501997c89829e6934339eadd97b8a04",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -79,12 +79,7 @@ const CONTRACTS = Object.freeze({
       "20260804020000_correct_dolphin_scope_fingerprint.sql":
         "80ba2c95f23efb45d7abc533188b960f2f9de0f683bcbe11ad5b07c67ba723f8",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260809120000_add_nutrition_candidate_approved_value.sql",
-        sha256: "709b8165b97910c72f89ee34b4817fc94bb5d31c81a1af5cdb96762a83b85104",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -93,9 +88,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 93,
+    ledgerCount: 94,
     ledgerFingerprint:
-      "5217aaf745398422cbb626965119e22604be6415f6993191f960f1ff9736716c",
+      "fe09bcb72bcf1bd01badd4ffe6830bace0a6cc0bee4408705f4d2e339a25088b",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",

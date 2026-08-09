@@ -19,6 +19,7 @@ const UNITS = Object.freeze({
 });
 const SOURCE_TYPES = new Set([
   "manufacturer_product_page", "retailer_product_page", "retailer_feed",
+  "owner_transcribed_official_page",
 ]);
 
 function optionalPositiveId(value) {

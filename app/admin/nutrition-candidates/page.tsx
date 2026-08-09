@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdminPage } from "../../lib/adminAuth";
 import type {
+  NutritionCandidateBatchItem,
   NutritionCandidateReport,
   NutritionCandidateRow,
   NutritionCandidateStatus,
@@ -18,6 +19,98 @@ const SECTION_LABELS: Record<NutritionCandidateStatus, string> = {
   approved: "Approved candidates",
   rejected: "Rejected candidates",
 };
+
+const FIELD_UNITS: Record<string, string> = {
+  net_weight_g: "g",
+  net_volume_ml: "ml",
+  serving_count_verified: "count",
+  serving_size_g: "g",
+  serving_size_ml: "ml",
+  protein_per_serving_g: "g",
+  creatine_per_serving_g: "g",
+};
+
+function BatchWorkItems({
+  items,
+  report,
+}: {
+  items: NutritionCandidateBatchItem[];
+  report: NutritionCandidateReport;
+}) {
+  const candidateKeys = new Set(
+    Object.values(report).flat().map((candidate) =>
+      `${candidate.run_id}:${candidate.product_id}:${candidate.proposed_field}`)
+  );
+  const fetched = items.filter((item) => item.page_status === "FETCHED").length;
+  return (
+    <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/60 p-5 md:p-7">
+      <div className="border-b border-blue-200 pb-5">
+        <h2 className="text-xl font-bold">Batch work items: {items.length} products</h2>
+        <p className="mt-2 text-sm text-blue-950">
+          {fetched} official pages fetched · {items.length - fetched} unavailable. Entered values create pending candidates only; they still require separate approval.
+        </p>
+      </div>
+      <div className="mt-6 space-y-5">
+        {items.map((item) => {
+          const openFields = item.missing_fields.filter((field) =>
+            !candidateKeys.has(`${item.run_id}:${item.product_id}:${field}`));
+          return (
+            <article key={item.id} className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{item.brand}</p>
+                  <h3 className="mt-1 text-lg font-bold">{item.product_name}</h3>
+                  <p className="mt-1 text-sm text-zinc-600">Product ID: {item.product_id}</p>
+                </div>
+                <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
+                  item.page_status === "FETCHED"
+                    ? "bg-emerald-100 text-emerald-900"
+                    : "bg-amber-100 text-amber-950"
+                }`}>
+                  {item.page_status}
+                </span>
+              </div>
+              <a href={item.source_url} target="_blank" rel="noreferrer" className="mt-3 block break-all text-sm font-semibold text-blue-700 underline">
+                Official manufacturer page: {item.source_domain}
+              </a>
+              {item.page_error ? <p className="mt-2 text-xs text-amber-900">{item.page_error}</p> : null}
+              {item.manifest_note ? <p className="mt-2 text-xs leading-5 text-zinc-600">{item.manifest_note}</p> : null}
+              {openFields.length ? (
+                <form action={`/admin/nutrition-candidates/manual?run=${encodeURIComponent(item.run_id)}`} method="post" className="mt-5 border-t border-zinc-200 pt-4">
+                  <input type="hidden" name="workItemId" value={item.id} />
+                  <input type="hidden" name="runId" value={item.run_id} />
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {openFields.map((field) => (
+                      <label key={field} className="text-sm font-semibold text-zinc-700">
+                        {field} ({FIELD_UNITS[field] || "value"})
+                        <input
+                          name={`value_${field}`}
+                          type="number"
+                          min="0.000001"
+                          step={field === "serving_count_verified" ? "1" : "any"}
+                          className="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2 font-mono font-normal"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <label className="mt-4 block text-sm font-semibold text-zinc-700">
+                    Source note (optional)
+                    <input name="sourceNote" maxLength={200} className="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2 font-normal" />
+                  </label>
+                  <button type="submit" className="mt-4 rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800">
+                    Save entered values as pending candidates
+                  </button>
+                </form>
+              ) : (
+                <p className="mt-4 rounded-lg bg-zinc-50 p-3 text-sm text-zinc-600">Every requested field already has a candidate in this run.</p>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 function CandidateCard({ candidate, runFilter }: { candidate: NutritionCandidateRow; runFilter?: string }) {
   const warnings = candidate.warning_flags.length
@@ -199,11 +292,17 @@ export default async function NutritionCandidatesPage({
     : undefined;
 
   let report: NutritionCandidateReport | null = null;
+  let batchItems: NutritionCandidateBatchItem[] = [];
   try {
-    const { getNutritionCandidateReport } = await import(
+    const { getNutritionCandidateBatchItems, getNutritionCandidateReport } = await import(
       "../lib/nutritionCandidates"
     );
     report = await getNutritionCandidateReport(runFilter);
+    try {
+      batchItems = await getNutritionCandidateBatchItems(runFilter);
+    } catch {
+      // Batch-item migration may be deploying while candidate review remains available.
+    }
   } catch {
     // The migration may not be applied yet. Never expose service-role errors.
   }
@@ -253,6 +352,8 @@ export default async function NutritionCandidatesPage({
             Candidate review saved.
           </p>
         ) : null}
+
+        {report && batchItems.length ? <BatchWorkItems items={batchItems} report={report} /> : null}
 
         {!report ? (
           <p className="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
@@ -336,11 +437,11 @@ export default async function NutritionCandidatesPage({
               </section>
             ))}
           </div>
-        ) : (
+        ) : !batchItems.length ? (
           <p className="mt-8 rounded-lg border border-zinc-200 bg-white p-5 text-sm text-zinc-600">
             No nutrition candidates found.
           </p>
-        )}
+        ) : null}
       </div>
     </main>
   );

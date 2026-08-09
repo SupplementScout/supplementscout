@@ -11,7 +11,8 @@ const {
 } = require("./lib/nutrition-candidates");
 const { MAX_PAGES, runCanary, validatePageList } = require("./lib/nutrition-ocr");
 const { resolveInputInsideTmp } = require("./nutrition-ocr-canary");
-const { storeRows, validateArtifact } = require("./store-nutrition-candidates");
+const { createCandidateSupabase, storeRows, validateArtifact } = require("./store-nutrition-candidates");
+const { buildBatchItemRows, storeBatchItemRows } = require("./lib/nutrition-batch-items");
 
 function fail(message) {
   throw new Error(message);
@@ -165,7 +166,7 @@ function mergeArtifacts(htmlArtifact, ocrArtifact, pages = []) {
   return { ...core, artifact_fingerprint: fingerprint("ARTIFACT", { ...core, generated_at: null }) };
 }
 
-function buildBatchReport(input, ocrReport, artifact, storedCandidates) {
+function buildBatchReport(input, ocrReport, artifact, storedCandidates, storedBatchItems = 0) {
   const sourceById = new Map(input.pages.map((page) => [page.source_record_id, page]));
   const candidates = artifact?.candidates || [];
   return {
@@ -181,6 +182,7 @@ function buildBatchReport(input, ocrReport, artifact, storedCandidates) {
       html_candidates: artifact?.summary.html_candidate_facts || 0,
       ocr_candidates: artifact?.summary.ocr_candidate_facts || 0,
       stored_candidates: storedCandidates,
+      stored_batch_items: storedBatchItems,
       destination: "nutrition_candidates",
       product_updates: 0,
       verified_csv_files: 0,
@@ -229,12 +231,23 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
   });
   const htmlManifest = buildHtmlManifest(input, ocr.report, inputPath, cwd);
   if (!htmlManifest) {
+    const runId = `NCR1-${fingerprint("BATCH_WORK_ITEM_RUN", { manifest_sha256: fingerprint("MANIFEST", input) }).slice(0, 24)}`;
+    const candidateSupabase = dependencies.supabase || createCandidateSupabase();
+    const batchItemRows = buildBatchItemRows(input, ocr.report, null, runId);
+    await storeBatchItemRows(batchItemRows, { supabase: candidateSupabase });
     const batchReportPath = path.join(path.dirname(inputPath), "candidate-batch-report.json");
-    fs.writeFileSync(batchReportPath, `${JSON.stringify(buildBatchReport(input, ocr.report, null, 0), null, 2)}\n`, { flag: "wx" });
+    fs.writeFileSync(batchReportPath, `${JSON.stringify(buildBatchReport(
+      input,
+      ocr.report,
+      { run_id: runId, generated_at: ocr.report.generated_at, candidates: [], summary: {} },
+      0,
+      batchItemRows.length,
+    ), null, 2)}\n`, { flag: "wx" });
     return {
-      run_id: null,
+      run_id: runId,
       status: "NO_FETCHED_PRODUCT_PAGES",
       stored_candidates: 0,
+      stored_batch_items: batchItemRows.length,
       product_updates: 0,
       report: relative(cwd, batchReportPath),
       ocr_report: relative(cwd, ocr.reportPath),
@@ -255,8 +268,11 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
   assertRealPathInsideRoot(path.resolve(cwd, "tmp"), outputDirectory);
   const output = writeArtifactFiles(artifact, outputDirectory, path.resolve(cwd, "tmp"));
   const rows = artifact.candidates.length ? validateArtifact(artifact) : [];
-  if (rows.length) await storeRows(rows, dependencies);
-  const batchReport = buildBatchReport(input, ocr.report, artifact, rows.length);
+  const batchItemRows = buildBatchItemRows(input, ocr.report, htmlManifest, artifact.run_id);
+  const candidateSupabase = dependencies.supabase || createCandidateSupabase();
+  await storeBatchItemRows(batchItemRows, { supabase: candidateSupabase });
+  if (rows.length) await storeRows(rows, { ...dependencies, supabase: candidateSupabase });
+  const batchReport = buildBatchReport(input, ocr.report, artifact, rows.length, batchItemRows.length);
   const batchReportPath = path.join(batchDirectory, "candidate-batch-report.json");
   fs.writeFileSync(batchReportPath, `${JSON.stringify(batchReport, null, 2)}\n`, { flag: "wx" });
   return {
@@ -267,6 +283,7 @@ async function runCli(argv = process.argv.slice(2), dependencies = {}) {
     ocr_candidates: artifact.summary.ocr_candidate_facts,
     manifest_focus_excluded_candidates: artifact.summary.manifest_focus_excluded_candidate_facts,
     stored_candidates: rows.length,
+    stored_batch_items: batchItemRows.length,
     destination: "nutrition_candidates",
     product_updates: 0,
     verified_csv_files: 0,

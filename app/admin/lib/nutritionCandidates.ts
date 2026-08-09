@@ -36,6 +36,25 @@ export type NutritionCandidateReport = Record<
   NutritionCandidateRow[]
 >;
 
+export type NutritionCandidateBatchItem = {
+  id: string;
+  created_at: string;
+  run_id: string;
+  source_record_id: string;
+  product_id: string;
+  product_name: string;
+  brand: string;
+  manufacturer: string;
+  source_url: string;
+  source_domain: string;
+  official_domains: string[];
+  missing_fields: string[];
+  current_values: Record<string, unknown>;
+  manifest_note: string | null;
+  page_status: "FETCHED" | "FAILED";
+  page_error: string | null;
+};
+
 function rowString(value: unknown) {
   return value === null || value === undefined ? null : String(value);
 }
@@ -95,4 +114,51 @@ export async function getNutritionCandidateReport(runId?: string): Promise<Nutri
     if (row.status in report) report[row.status].push(row);
   }
   return report;
+}
+
+function normalizeBatchItem(row: Record<string, unknown>): NutritionCandidateBatchItem {
+  return {
+    id: String(row.id),
+    created_at: String(row.created_at),
+    run_id: String(row.run_id),
+    source_record_id: String(row.source_record_id),
+    product_id: String(row.product_id),
+    product_name: String(row.product_name),
+    brand: String(row.brand),
+    manufacturer: String(row.manufacturer),
+    source_url: String(row.source_url),
+    source_domain: String(row.source_domain),
+    official_domains: Array.isArray(row.official_domains) ? row.official_domains.map(String) : [],
+    missing_fields: Array.isArray(row.missing_fields) ? row.missing_fields.map(String) : [],
+    current_values: row.current_values && typeof row.current_values === "object" && !Array.isArray(row.current_values)
+      ? row.current_values as Record<string, unknown>
+      : {},
+    manifest_note: rowString(row.manifest_note),
+    page_status: String(row.page_status) as NutritionCandidateBatchItem["page_status"],
+    page_error: rowString(row.page_error),
+  };
+}
+
+export async function getNutritionCandidateBatchItems(runId?: string): Promise<NutritionCandidateBatchItem[]> {
+  let selectedRun = runId;
+  if (!selectedRun) {
+    const { data, error } = await supabaseAdmin
+      .from("nutrition_candidate_batch_items")
+      .select("run_id")
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    selectedRun = data?.run_id ? String(data.run_id) : undefined;
+  }
+  if (!selectedRun) return [];
+  const { data, error } = await supabaseAdmin
+    .from("nutrition_candidate_batch_items")
+    .select("id,created_at,run_id,source_record_id,product_id,product_name,brand,manufacturer,source_url,source_domain,official_domains,missing_fields,current_values,manifest_note,page_status,page_error")
+    .eq("run_id", selectedRun)
+    .order("id", { ascending: true })
+    .limit(50);
+  if (error) throw error;
+  return (data || []).map((row) => normalizeBatchItem(row as Record<string, unknown>));
 }

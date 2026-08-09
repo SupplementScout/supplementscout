@@ -329,8 +329,8 @@ the candidates in the private table:
 npm run nutrition:candidates:store -- --store-candidates --confirm-candidate-table-only=true --input=tmp/nutrition-candidates/nutrition-candidates-<run-id>.json
 ```
 
-The storage command uses server-side service-role credentials and writes only
-`nutrition_candidates`. Duplicate fingerprints are ignored. It never updates
+The standalone candidate storage command uses server-side service-role credentials
+and writes only `nutrition_candidates`. Duplicate fingerprints are ignored. It never updates
 `products`, creates a verified CSV, or runs the verified importer.
 
 The authenticated page `/admin/nutrition-candidates` shows pending, approved,
@@ -353,6 +353,29 @@ CSV, or run an importer. One page failure is recorded and the remaining listed
 pages continue. OCR-only facts remain LOW confidence. The candidate artifact,
 candidate-only CSV, raw snapshots, hashes, OCR text and per-product report all
 remain below ignored `tmp/`.
+
+The batch also writes one immutable private `nutrition_candidate_batch_items`
+row for every manifest product, including pages that failed to fetch or yielded
+no numeric extraction. These work items contain only manifest scope, official
+domain provenance, missing-field hints, fetch status and snapshot metadata;
+they are not candidates, verification or approval. They never update catalogue
+tables.
+
+When a run is filtered in admin, all work items are shown. The owner can enter
+one or more still-missing values from the linked official manufacturer page.
+That submission creates LOW-confidence `pending` candidates carrying an
+`OWNER_TRANSCRIBED_OFFICIAL_PAGE_REQUIRES_REVIEW` warning. It does not approve
+them. The normal pending review, approved-plan and explicit-apply gates remain
+mandatory. Serving counts must be integers, entered fields must be listed in
+the manifest, protein cannot exceed serving size, and package arithmetic fails
+closed.
+
+An older completed candidate run can load its already captured manifest/report
+into the work-item table without fetching again or creating candidates:
+
+```powershell
+npm run nutrition:batch-items:store -- --input=tmp/<batch>/pages.json --report=tmp/<batch>/candidate-batch-report.json --source-manifest=tmp/<batch>/candidate-source-manifest.json --run-id=<run_id> --confirm-work-items-only=true
+```
 
 The admin groups pending facts by product. When a product has at least two
 safe proposals, `Approve all safe facts for this product` accepts their exact
