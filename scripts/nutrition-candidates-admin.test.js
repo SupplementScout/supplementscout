@@ -235,6 +235,7 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /field === "serving_count_verified" \? "1" : "any"/);
   assert.match(page, /name="returnTo"/);
   assert.match(page, /nutrition-work-item-/);
+  assert.match(page, /Skip for now — no data saved/);
   assert.match(page, /nutrition-product-/);
   assert.match(page, /productGroup\.candidates\.every\(isBulkApprovableNutritionCandidate\)/);
   assert.match(page, /Data entered:/);

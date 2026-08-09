@@ -133,9 +133,17 @@ function BatchWorkItems({
                     Source note (optional)
                     <input name="sourceNote" maxLength={200} className="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2 font-normal" />
                   </label>
-                  <button type="submit" className="mt-4 rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800">
-                    Save entered values as pending candidates
-                  </button>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <button type="submit" className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800">
+                      Save entered values as pending candidates
+                    </button>
+                    <a
+                      href={`#${returnTarget}`}
+                      className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-bold text-zinc-700 hover:bg-zinc-50"
+                    >
+                      Skip for now — no data saved
+                    </a>
+                  </div>
                 </form>
               ) : (
                 <p className="mt-4 rounded-lg bg-zinc-50 p-3 text-sm text-zinc-600">Every requested field already has a candidate in this run.</p>
