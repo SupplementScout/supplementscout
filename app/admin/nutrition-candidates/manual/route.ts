@@ -1,24 +1,26 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRoute } from "../../../lib/adminAuth";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { addNutritionCandidateReturnTarget } from "../../lib/nutritionCandidateNavigation";
 import {
   buildManualCandidateRows,
   parseManualNutritionCandidateInput,
   type NutritionBatchWorkItemForManualCandidate,
 } from "../../lib/nutritionCandidateManual";
 
-function redirectToRun(request: NextRequest, runId: string) {
+function redirectToRun(request: NextRequest, runId: string, returnTo: FormDataEntryValue | null) {
   const url = new URL("/admin/nutrition-candidates", request.url);
   url.searchParams.set("run", runId);
   url.searchParams.set("saved", "pending");
-  return NextResponse.redirect(url, 303);
+  return NextResponse.redirect(addNutritionCandidateReturnTarget(url, returnTo), 303);
 }
 
 export async function POST(request: NextRequest) {
   const unauthorized = requireAdminRoute(request);
   if (unauthorized) return unauthorized;
 
-  const input = parseManualNutritionCandidateInput(await request.formData());
+  const formData = await request.formData();
+  const input = parseManualNutritionCandidateInput(formData);
   if (!input) return new NextResponse("Invalid manual nutrition candidate.", { status: 400 });
 
   const { data, error } = await supabaseAdmin
@@ -39,5 +41,5 @@ export async function POST(request: NextRequest) {
     .from("nutrition_candidates")
     .upsert(rows, { onConflict: "candidate_fingerprint", ignoreDuplicates: true });
   if (insertError) return new NextResponse("Pending candidates were not stored.", { status: 409 });
-  return redirectToRun(request, input.runId);
+  return redirectToRun(request, input.runId, formData.get("returnTo"));
 }

@@ -36,6 +36,22 @@ const {
 } = loadTsModule(
   "app/admin/lib/nutritionCandidateRuns.ts"
 );
+const {
+  addNutritionCandidateReturnTarget,
+  parseNutritionCandidateReturnTarget,
+} = loadTsModule("app/admin/lib/nutritionCandidateNavigation.ts");
+
+test("candidate review navigation accepts only local product queue anchors", () => {
+  assert.equal(parseNutritionCandidateReturnTarget("nutrition-product-32"), "nutrition-product-32");
+  assert.equal(parseNutritionCandidateReturnTarget("nutrition-work-item-51"), "nutrition-work-item-51");
+  assert.equal(parseNutritionCandidateReturnTarget("nutrition-candidate-review"), "nutrition-candidate-review");
+  assert.equal(parseNutritionCandidateReturnTarget("https://attacker.example"), null);
+  assert.equal(parseNutritionCandidateReturnTarget("nutrition-product-0"), null);
+  assert.equal(
+    addNutritionCandidateReturnTarget(new URL("https://example.test/admin?run=NCR1"), "nutrition-product-32").toString(),
+    "https://example.test/admin?run=NCR1#nutrition-product-32"
+  );
+});
 
 test("nutrition candidate runs are grouped with the newest batch first", () => {
   const candidate = (id, run_id, created_at, status) => ({
@@ -191,6 +207,10 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /Latest batch/);
   assert.match(page, /field === "serving_count_verified" \? "1" : "0\.000001"/);
   assert.match(page, /field === "serving_count_verified" \? "1" : "any"/);
+  assert.match(page, /name="returnTo"/);
+  assert.match(page, /nutrition-work-item-/);
+  assert.match(page, /nutrition-product-/);
+  assert.match(page, /productGroup\.candidates\.every\(isBulkApprovableNutritionCandidate\)/);
   assert.doesNotMatch(page, /error\.message/);
 });
 
@@ -206,6 +226,7 @@ test("review route authenticates before parsing or writing and updates candidate
   assert(auth < post.indexOf("supabaseAdmin"));
   assert.match(post, /\.from\("nutrition_candidates"\)/);
   assert.match(post, /\.eq\("status", "pending"\)/);
+  assert.match(post, /formData\.get\("returnTo"\)/);
   assert.doesNotMatch(post, /\.from\("products"\)|nutrition_verified|unit_pricing_verified/);
 });
 
@@ -219,6 +240,7 @@ test("bulk review route authenticates, validates, and only updates pending candi
   assert.match(post, /validateNutritionCandidateBulkSelection/);
   assert.match(post, /\.from\("nutrition_candidates"\)/);
   assert.match(post, /\.eq\("status", "pending"\)/);
+  assert.match(post, /formData\.get\("returnTo"\)/);
   assert.doesNotMatch(post, /\.from\("products"\)|nutrition_verified|unit_pricing_verified/);
 });
 

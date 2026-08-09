@@ -51,11 +51,15 @@ function BatchWorkItems({
         </p>
       </div>
       <div className="mt-6 space-y-5">
-        {items.map((item) => {
+        {items.map((item, itemIndex) => {
           const openFields = item.missing_fields.filter((field) =>
             !candidateKeys.has(`${item.run_id}:${item.product_id}:${field}`));
+          const nextItem = items[itemIndex + 1];
+          const returnTarget = nextItem
+            ? `nutrition-work-item-${nextItem.id}`
+            : "nutrition-candidate-review";
           return (
-            <article key={item.id} className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <article id={`nutrition-work-item-${item.id}`} key={item.id} className="scroll-mt-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{item.brand}</p>
@@ -79,6 +83,7 @@ function BatchWorkItems({
                 <form action={`/admin/nutrition-candidates/manual?run=${encodeURIComponent(item.run_id)}`} method="post" className="mt-5 border-t border-zinc-200 pt-4">
                   <input type="hidden" name="workItemId" value={item.id} />
                   <input type="hidden" name="runId" value={item.run_id} />
+                  <input type="hidden" name="returnTo" value={returnTarget} />
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {openFields.map((field) => (
                       <label key={field} className="text-sm font-semibold text-zinc-700">
@@ -112,7 +117,15 @@ function BatchWorkItems({
   );
 }
 
-function CandidateCard({ candidate, runFilter }: { candidate: NutritionCandidateRow; runFilter?: string }) {
+function CandidateCard({
+  candidate,
+  runFilter,
+  returnTarget,
+}: {
+  candidate: NutritionCandidateRow;
+  runFilter?: string;
+  returnTarget: string;
+}) {
   const warnings = candidate.warning_flags.length
     ? candidate.warning_flags.join(", ")
     : "None";
@@ -183,6 +196,7 @@ function CandidateCard({ candidate, runFilter }: { candidate: NutritionCandidate
           className="mt-5 border-t border-zinc-200 pt-4"
         >
           <input type="hidden" name="id" value={candidate.id} />
+          <input type="hidden" name="returnTo" value={returnTarget} />
           <label className="block text-sm font-semibold text-zinc-700">
             Approved value
             <input
@@ -245,10 +259,12 @@ function BulkApproveProduct({
   candidates,
   productId,
   runId,
+  returnTarget,
 }: {
   candidates: NutritionCandidateRow[];
   productId: string | null;
   runId: string;
+  returnTarget: string;
 }) {
   const safeCandidates = candidates.filter(isBulkApprovableNutritionCandidate);
   if (!productId || safeCandidates.length < 2) return null;
@@ -260,6 +276,7 @@ function BulkApproveProduct({
     >
       <input type="hidden" name="productId" value={productId} />
       <input type="hidden" name="runId" value={runId} />
+      <input type="hidden" name="returnTo" value={returnTarget} />
       {safeCandidates.map((candidate) => (
         <input key={candidate.id} type="hidden" name="candidateId" value={candidate.id} />
       ))}
@@ -360,7 +377,7 @@ export default async function NutritionCandidatesPage({
             Nutrition candidates are unavailable. Confirm that the private migration has been reviewed and applied.
           </p>
         ) : runGroups.length ? (
-          <div className="mt-8 space-y-12">
+          <div id="nutrition-candidate-review" className="mt-8 scroll-mt-4 space-y-12">
             {runGroups.map((group, groupIndex) => (
               <section
                 key={group.run_id}
@@ -400,8 +417,20 @@ export default async function NutritionCandidatesPage({
                     </div>
                     {group.report[status].length ? (
                       <div className="mt-5 space-y-8">
-                        {groupNutritionCandidatesByProduct(group.report[status]).map((productGroup) => (
-                          <section key={productGroup.key}>
+                        {groupNutritionCandidatesByProduct(group.report[status]).map((productGroup, productIndex, productGroups) => {
+                          const productAnchor = `nutrition-product-${productGroup.product_id ?? productGroup.candidates[0].id}`;
+                          const nextProduct = productGroups[productIndex + 1];
+                          const nextProductAnchor = nextProduct
+                            ? `nutrition-product-${nextProduct.product_id ?? nextProduct.candidates[0].id}`
+                            : "nutrition-candidate-review";
+                          const candidateReturnTarget = productGroup.candidates.length === 1
+                            ? nextProductAnchor
+                            : productAnchor;
+                          const bulkReturnTarget = productGroup.candidates.every(isBulkApprovableNutritionCandidate)
+                            ? nextProductAnchor
+                            : productAnchor;
+                          return (
+                          <section id={productAnchor} key={productGroup.key} className="scroll-mt-4">
                             <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
                               <h4 className="text-base font-bold text-zinc-900">
                                 {productGroup.product_name}
@@ -415,6 +444,7 @@ export default async function NutritionCandidatesPage({
                                 candidates={productGroup.candidates}
                                 productId={productGroup.product_id}
                                 runId={group.run_id}
+                                returnTarget={bulkReturnTarget}
                               />
                             ) : null}
                             <div className="grid gap-4">
@@ -423,11 +453,13 @@ export default async function NutritionCandidatesPage({
                                   key={candidate.id}
                                   candidate={candidate}
                                   runFilter={group.run_id}
+                                  returnTarget={candidateReturnTarget}
                                 />
                               ))}
                             </div>
                           </section>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <p className="mt-4 text-sm text-zinc-500">No {status} candidates.</p>

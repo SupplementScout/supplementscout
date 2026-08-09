@@ -1,17 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRoute } from "../../../lib/adminAuth";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { addNutritionCandidateReturnTarget } from "../../lib/nutritionCandidateNavigation";
 import {
   buildNutritionCandidateReviewUpdate,
   parseNutritionCandidateReviewInput,
 } from "../../lib/nutritionCandidateReview";
 
-function redirectToReview(request: NextRequest, saved: string) {
+function redirectToReview(request: NextRequest, saved: string, returnTo: FormDataEntryValue | null) {
   const url = new URL("/admin/nutrition-candidates", request.url);
   url.searchParams.set("saved", saved);
   const run = request.nextUrl.searchParams.get("run");
   if (run && /^[A-Za-z0-9._:-]{1,200}$/.test(run)) url.searchParams.set("run", run);
-  return NextResponse.redirect(url, 303);
+  return NextResponse.redirect(addNutritionCandidateReturnTarget(url, returnTo), 303);
 }
 
 export async function POST(request: NextRequest) {
@@ -50,5 +51,5 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return redirectToReview(request, input.status);
+  return redirectToReview(request, input.status, formData.get("returnTo"));
 }
