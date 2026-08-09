@@ -86,7 +86,7 @@ function BatchWorkItems({
                         <input
                           name={`value_${field}`}
                           type="number"
-                          min="0.000001"
+                          min={field === "serving_count_verified" ? "1" : "0.000001"}
                           step={field === "serving_count_verified" ? "1" : "any"}
                           className="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2 font-mono font-normal"
                         />

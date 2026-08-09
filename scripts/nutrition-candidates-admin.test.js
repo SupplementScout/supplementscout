@@ -189,6 +189,8 @@ test("admin page authenticates before loading the service-role report", () => {
   assert.match(page, /groupNutritionCandidatesByRun/);
   assert.match(page, /groupNutritionCandidatesByProduct/);
   assert.match(page, /Latest batch/);
+  assert.match(page, /field === "serving_count_verified" \? "1" : "0\.000001"/);
+  assert.match(page, /field === "serving_count_verified" \? "1" : "any"/);
   assert.doesNotMatch(page, /error\.message/);
 });
 
