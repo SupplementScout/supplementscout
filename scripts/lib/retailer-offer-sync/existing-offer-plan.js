@@ -40,7 +40,7 @@ function buildExistingOfferUpdatePlan(input) {
   const plan={
     meta:{version:2,plan_kind:"feed",operation_type:"standard_import",source_row_fingerprint:sourceRowFingerprint(sourceRecord),plan_fingerprint:null,source_snapshot_sha256:input.sourceSnapshotFingerprint,source_captured_at:capturedAt},
     product:{action:"existing",id:state.product.id},
-    product_variant:{action:"existing",id:state.variant.id,evidence:{flavour:state.variant.flavour_code||state.variant.flavour_label||null,size_value:state.variant.size_value,size_unit:state.variant.size_unit,pack_count:state.variant.pack_count,product_format:state.variant.product_format,external_options:null,approved_mapping_id:state.mapping.id}},
+    product_variant:{action:"existing",id:state.variant.id,evidence:{flavour:state.variant.flavour_code||state.variant.flavour_label||null,size_value:state.variant.size_value,size_unit:state.variant.size_unit,pack_count:state.variant.pack_count,product_format:state.variant.product_format,external_options:urlChanged?state.mapping.external_options:null,approved_mapping_id:state.mapping.id}},
     retailer:{action:"existing",id:state.retailer.id},
     retailer_product:{action:urlChanged?"update":"noop",id:state.mapping.id,values:{...select(state.mapping,MAPPING_VALUE_KEYS),external_url:urlChanged?next.url:state.mapping.external_url}},
     offer:{action:"update",id:state.offer.id,values:next},
