@@ -90,6 +90,8 @@ const CONTRACTS = Object.freeze({
         "8a4713c5b6afdee070f0af5950f3d3ef3740ecabb1e97f9e94196f965431db52",
       "20260810210000_authorize_reviewed_jons_23_oos_changes.sql":
         "4d9be74c2aff36b258bb65380ae9a4e2051abb43605cafe8f16d8d9b09fa8337",
+      "20260810220000_correct_jons_strom_buttered_pancake_variant.sql":
+        "2fa4db1f530a53c19a8a74f6b6f15ce1a3dc2e006888a204e5ac929395bd1b58",
     }),
     pending: Object.freeze([]),
   }),
@@ -119,7 +121,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260810220000_correct_jons_strom_buttered_pancake_variant.sql",
+        sha256: "2fa4db1f530a53c19a8a74f6b6f15ce1a3dc2e006888a204e5ac929395bd1b58",
+      }),
+    ]),
   }),
 });
 
