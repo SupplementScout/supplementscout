@@ -104,9 +104,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 101,
+    ledgerCount: 102,
     ledgerFingerprint:
-      "4a6c12eee632470f008480d7c6ac2a73fb4b08dd745b68e9de0d21c3bccda4f8",
+      "3f287ecf8e7957b6b1ec7482520eb7ce9171ef0cda3195a6a63118e8a1d04c02",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -123,13 +123,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260810230000_complete_jons_strom_buttered_pancake_variant_move.sql",
-        sha256: "6e13a2ea76d0569d4e72dab8bbb6dcc8b9ecce643007cb9c28798d6756785efb",
-        expectedCatalogueDeltas: Object.freeze({ product_variants: 1 }),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
