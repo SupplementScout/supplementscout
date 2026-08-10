@@ -151,12 +151,11 @@ test("a changed excluded migration SHA fails closed", () => {
 
 test("production records the completed reviewed Jon's 17-variant repair", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(contract.pending.length, 1);
-  assert.equal(contract.pending[0].filename, "20260810250000_supersede_abandoned_partial_jons_plan.sql");
-  assert.equal(contract.ledgerCount, 103);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 104);
   assert.equal(
     contract.ledgerFingerprint,
-    "29de963daff5332b99546b3514bf2dfe30f3a4049523ce2441ca7df4c1f0d185",
+    "0391d5f81f03d2d2764495d6972894b9b4b4ed6607d118a7cef68635b9ebe96f",
   );
 });
 
@@ -259,14 +258,14 @@ test("production binds its exact post-manifest-rebind ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 103);
+  assert.equal(result.ledger_count, 104);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
   assert.equal(result.selected_files.length, 104);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(result.pending_file, contract.pending[0].filename);
-  assert.equal(result.pending_sha256, contract.pending[0].sha256);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
