@@ -176,12 +176,16 @@ async function main(argv = process.argv.slice(2)) {
     previousSourceProductCount: config.source_baseline.product_count,
   });
   invariant(classification.reason === "MASS_OOS", "current source is not blocked only by MASS_OOS");
-  const changed = classification.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE");
-  const changedIds = changed.map((row) => String(row.offer_id)).sort((a, b) => Number(a) - Number(b));
   const approvedIds = [...options.offerIds].sort((a, b) => Number(a) - Number(b));
-  invariant(canonicalJson(changedIds) === canonicalJson(approvedIds),
-    "live changed offers differ from owner-approved offer IDs");
-  invariant(changed.every((row) => row.action === "UPDATE_STOCK"
+  const newOos = classification.rows.filter((row) =>
+    row.target.in_stock === true && row.source.in_stock === false);
+  const newOosIds = newOos.map((row) => String(row.offer_id))
+    .sort((a, b) => Number(a) - Number(b));
+  invariant(canonicalJson(newOosIds) === canonicalJson(approvedIds),
+    "live new-OOS offers differ from owner-approved offer IDs");
+  const changed = classification.rows.filter((row) =>
+    approvedIds.includes(String(row.offer_id)));
+  invariant(changed.length === approvedIds.length && changed.every((row) => row.action === "UPDATE_STOCK"
     && row.target.in_stock === true && row.source.in_stock === false
     && money(row.target.price) === money(row.source.price)
     && row.target.url === canonicalVariantUrl(config.store_url,

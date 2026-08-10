@@ -108,6 +108,23 @@ function classificationDiagnostic(classification){
   };
 }
 
+function selectReviewedClassificationRows(classification,reviewed){
+  invariant(classification.reason==="MASS_OOS"&&classification.rows.length===506,
+    "reviewed execution requires an exact full-scope MASS_OOS block");
+  const expected=reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
+  const expectedIdentity=new Set(reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}`));
+  const selected=classification.rows.filter(row=>expectedIdentity.has(`${row.external_product_id}:${row.external_variant_id}`));
+  const stable=selected.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
+  invariant(JSON.stringify(stable)===JSON.stringify(expected),
+    "live reviewed rows differ from the exact owner-approved scope");
+  const unapprovedNewOos=classification.rows.filter(row=>row.target.in_stock===true
+    && row.source.in_stock===false
+    && !expectedIdentity.has(`${row.external_product_id}:${row.external_variant_id}`));
+  invariant(unapprovedNewOos.length===0,
+    "a new OOS transition exists outside the owner-approved scope");
+  return selected;
+}
+
 function guardrailsFor(rows,sourceProducts,policyFingerprint=rows[0]?.policy_fingerprint){invariant(/^[0-9a-f]{64}$/.test(String(policyFingerprint||"")),"policy fingerprint is required");const changed=rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"),newOos=rows.filter(row=>row.atomic_plan.expected_state.offer.in_stock&&!row.atomic_plan.offer.values.in_stock),currentOos=rows.filter(row=>!row.atomic_plan.offer.values.in_stock),previousOos=rows.filter(row=>!row.atomic_plan.expected_state.offer.in_stock),price=rows.filter(row=>row.changed_fields.price);return{schema_version:1,policy_fingerprint:policyFingerprint,source_product_count:sourceProducts,previous_source_product_count:config.source_baseline.product_count,required_source_rows:rows.length,matched_source_rows:rows.length,new_oos_count:newOos.length,total_oos_count:currentOos.length,previous_oos_count:previousOos.length,changed_row_count:changed.length,price_changed_row_count:price.length,price_anomaly_count:0,limits:{minimum_source_count_ratio:String(config.guardrails.full_snapshot_minimum_source_count_ratio),maximum_new_oos_count:String(config.guardrails.mass_oos_block_count-1),maximum_oos_increase_ratio:String(config.guardrails.maximum_oos_increase_percentage_points),maximum_total_oos_ratio:String(config.guardrails.maximum_total_oos_ratio),maximum_changed_record_ratio:String(config.guardrails.maximum_changed_record_ratio),mass_price_change_ratio:String(config.guardrails.mass_price_change_block_ratio),price_anomaly_ratio:String(config.guardrails.per_row_price_hard_block_ratio),price_anomaly_absolute_gbp:String(config.guardrails.per_row_price_hard_block_absolute_gbp)},result:"PASS"}}
 
 function partitionExecutionRows(rows,maximumRows=50){
@@ -173,26 +190,25 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
     diagnostic.mappings_missing=Math.max(0,targets.length-diagnostic.mappings_matched);
     if(classification.guard_evidence)for(const guard of classification.guard_evidence.guards)diagnostic.guard_results.push({...guard,scope_name:classification.guard_evidence.scope_name,retailer:classification.guard_evidence.retailer,scope_row_ids:classification.guard_evidence.scope_row_ids});
   }
+  let reviewedRows=null;
   if(reviewed){
-    const changed=classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE");
-    const stable=changed.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
-    const expected=reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
-    if(classification.reason!=="MASS_OOS"
-       || classification.rows.length!==506
-       || (!reviewed.scoped&&!reviewed.mapped&&snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256)
-       || JSON.stringify(stable)!==JSON.stringify(expected)){
-      throw new RefreshError("REVIEWED_MANIFEST_DRIFT","live Jon's source/state differs from reviewed mixed-change manifest","REVIEWED_CONTRACT",{classifier_reason:classification.reason||null,reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint,reviewed_scope:expected,live_scope:stable});
+    try{reviewedRows=selectReviewedClassificationRows(classification,reviewed)}catch(error){
+      throw new RefreshError("REVIEWED_MANIFEST_DRIFT",error.message,"REVIEWED_CONTRACT",{classifier_reason:classification.reason||null,reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint});
+    }
+    if(!reviewed.scoped&&!reviewed.mapped&&snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256){
+      throw new RefreshError("REVIEWED_MANIFEST_DRIFT","live Jon's source fingerprint differs from reviewed manifest","REVIEWED_CONTRACT",{reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint});
     }
   }else if(classification.state!=="DRY_RUN_READY"||classification.rows.length!==506)throw new RefreshError(classification.reason||"CLASSIFIER_BLOCKED","full Jon's classifier blocked","CLASSIFIER",{...(classification.detail||{}),guard_evidence:classification.guard_evidence||null});
   const sourceByVariant=new Map(effectiveSourceVariants.map(row=>[String(row.external_variant_id),row])),recordByOffer=new Map(state.records.map(row=>[String(row.offer.id),row])),binding=migrationBinding(spec.environment),head=process.env.GITHUB_SHA||git("rev-parse","HEAD"),policyFingerprint=sha256(config),adapterFingerprint=sha256({reader:fs.readFileSync(path.join(ROOT,"scripts","lib","shopify-snapshot-reader.js"),"utf8"),classifier:fs.readFileSync(path.join(ROOT,"scripts","lib","retailer-offer-sync","classifier.js"),"utf8"),config}),expectedStateFingerprint=canonicalHash(state.records.map(row=>({product:row.product,variant:row.variant,mapping:row.mapping,offer:row.offer}))),rows=[];
-  const plannedRows=reviewed?classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"):classification.rows;
+  const plannedRows=reviewed?reviewedRows:classification.rows;
   for(const classified of plannedRows){const record=recordByOffer.get(String(classified.offer_id)),source=sourceFor(record,sourceByVariant);let plan;if(classified.action==="VERIFY_NO_CHANGE")plan=buildVerifiedNoChangePlan(verificationRecord(record,source,snapshot.semantic_source_fingerprint,capturedAt),{targetEnvironment:spec.environment,targetProjectRef:spec.ref,sourceSnapshotSha256s:new Set([snapshot.semantic_source_fingerprint]),now:new Date(capturedAt)}).plan;else{const built=buildExistingOfferUpdatePlan({product:record.product,variant:record.variant,retailer:record.retailer,mapping:record.mapping,offer:record.offer,source:{...source,url:source.url,shipping_cost:source.shipping_cost,total_price:source.total_price},sourceCapturedAt:capturedAt,sourceSnapshotFingerprint:snapshot.semantic_source_fingerprint});plan=built.plan;invariant(built.changed.price===classified.changed_fields.price&&built.changed.stock===classified.changed_fields.stock&&built.changed.url===classified.changed_fields.url,"classifier/plan changed-field mismatch")}
     rows.push({...classified,atomic_plan:plan,policy_fingerprint:policyFingerprint});
   }
   const artifacts=[];const partitions=reviewed?[rows]:partitionExecutionRows(rows,50);for(const partition of partitions){const part=partition.map(executionRow),expected=sumDeltas(part),actionManifestFingerprint=canonicalHash({state:"DRY_RUN_READY",rows:part,expected_deltas:expected});artifacts.push(sealArtifact({kind:"retailer-existing-offer-mixed-batch-execution",retailer_slug:"jon-s-supplements",retailer_id:"10",target_environment:spec.environment,target_project_ref:spec.ref,target_database_identity:spec.identity,expected_migration_versions:binding.versions,expected_migration_fingerprint:binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",source_snapshot_fingerprint:snapshot.semantic_source_fingerprint,adapter_fingerprint:adapterFingerprint,policy_fingerprint:policyFingerprint,code_commit:head,expected_state_fingerprint:expectedStateFingerprint,source_captured_at:capturedAt,state:"DRY_RUN_READY",block:null,rows:part,expected_deltas:expected,action_manifest_fingerprint:actionManifestFingerprint}))}
   const manifest=[...state.records].sort((a,b)=>Number(a.mapping.id)-Number(b.mapping.id)).map(row=>({mapping_id:String(row.mapping.id),offer_id:String(row.offer.id),external_product_id:String(row.mapping.external_product_id),external_variant_id:String(row.mapping.external_variant_id)}));
-  const sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),mappedIds=new Set(manifest.map(row=>row.external_variant_id));
+  const sourceIds=new Set(effectiveSourceVariants.map(row=>String(row.external_variant_id))),rawSourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),mappedIds=new Set(manifest.map(row=>row.external_variant_id));
   const discovery={new_variants:[...sourceIds].filter(id=>!mappedIds.has(id)),missing_variants:[...mappedIds].filter(id=>!sourceIds.has(id))};
+  discovery.reviewed_raw_missing_variants=[...mappedIds].filter(id=>!rawSourceIds.has(id));
   if(diagnostic){diagnostic.mappings_matched=manifest.length-discovery.missing_variants.length;diagnostic.mappings_missing=discovery.missing_variants.length;diagnostic.guard_results.push({guard:"APPROVED_MAPPING_COVERAGE",result:discovery.missing_variants.length===0?"PASS":"BLOCK",expected:manifest.length,matched:diagnostic.mappings_matched,missing:discovery.missing_variants.length})}
   const reviewedExpiresAt=reviewed?new Date(Date.now()+14*60000).toISOString():null;
   const reviewedContract=reviewed?buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt,scopedSourceEvidence,mappedSourceEvidence}):null;
@@ -277,4 +293,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,loadReviewedMissingVariantManifest,migrationBinding,parseArgs,partitionExecutionRows,readState,reconcileReviewedMissingVariants,registrationRequest,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,loadReviewedMissingVariantManifest,migrationBinding,parseArgs,partitionExecutionRows,readState,reconcileReviewedMissingVariants,registrationRequest,runWithDiagnostic,selectReviewedClassificationRows,sourceHealth,sumDeltas,verificationRecord};
