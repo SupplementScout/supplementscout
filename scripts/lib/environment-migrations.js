@@ -31,6 +31,7 @@ const EXCLUSIONS = Object.freeze({
     "20260804010000_add_dolphin_single_offer_validation",
     "20260804020000_correct_dolphin_scope_fingerprint",
     "20260810160000_authorize_simply_offer_635_reviewed_sale",
+    "20260810170000_support_simply_offer_635_reviewed_sale_validation",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

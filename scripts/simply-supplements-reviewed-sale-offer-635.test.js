@@ -17,6 +17,12 @@ const migration = fs.readFileSync(path.resolve(
 const rollback = fs.readFileSync(path.resolve(
   "supabase/rollbacks/20260810160000_authorize_simply_offer_635_reviewed_sale.sql",
 ), "utf8");
+const validatorMigration = fs.readFileSync(path.resolve(
+  "supabase/migrations/20260810170000_support_simply_offer_635_reviewed_sale_validation.sql",
+), "utf8");
+const validatorRollback = fs.readFileSync(path.resolve(
+  "supabase/rollbacks/20260810170000_support_simply_offer_635_reviewed_sale_validation.sql",
+), "utf8");
 
 function target(authorization) {
   const row = authorization.row;
@@ -142,4 +148,25 @@ test("ordinary hard-price protection remains unchanged and special apply is not 
   assert.equal(config.guardrails.per_row_price_hard_block_ratio, 0.6);
   assert.match(ordinary, /HARD_PRICE_ANOMALY/);
   assert.doesNotMatch(workflow, /reviewed-sale-offer-635/);
+});
+
+test("reviewed sale validator exception is exact and preserves ordinary MASS_OOS proof", () => {
+  for (const token of [
+    "simply-offer635-sale-20260810-production",
+    "offer_id'='635'",
+    "retailer_product_id'='627'",
+    "external_variant_id'='64643271033181'",
+    "::numeric=6.41",
+    "::numeric=2.13",
+    "price_anomaly_ratio",
+  ]) assert.match(validatorMigration, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(validatorMigration, /Reviewed mixed-change ordinary MASS_OOS proof mismatch/);
+  assert.match(validatorMigration, /jsonb_array_length\(v_artifact->'rows'\)<>1/);
+  assert.match(validatorMigration, /total_oos_count/);
+  assert.match(validatorMigration, /owner to postgres/);
+  assert.match(validatorMigration, /revoke all on function/);
+  assert.doesNotMatch(validatorMigration, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(validatorRollback, /Reviewed mixed-change ordinary MASS_OOS proof mismatch/);
+  assert.match(validatorRollback, /rollback is forbidden after plan binding/);
+  assert.doesNotMatch(validatorRollback, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
 });
