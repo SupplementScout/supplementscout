@@ -46,7 +46,7 @@ jobs:
         run: node --test scripts/dolphin-vegan-protein-feed.test.js scripts/dolphin-vegan-protein-offer-refresh.test.js scripts/dolphin-vegan-protein-offer-sync-registration.test.js scripts/retailer-offer-sync.test.js
 
       - name: Dry-run the one approved existing Dolphin offer
-        env: &protected_environment
+        env:
           DOLPHIN_REFRESH_PHASE: preflight
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -58,15 +58,23 @@ jobs:
       - name: Apply the one approved existing Dolphin offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
-          <<: *protected_environment
           DOLPHIN_REFRESH_PHASE: apply
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          DOLPHIN_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          DOLPHIN_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/dolphin-vegan-protein-offer-refresh.js --target=production --mode=apply
 
       - name: Verify idempotency with a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
-          <<: *protected_environment
           DOLPHIN_REFRESH_PHASE: idempotency
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          DOLPHIN_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          DOLPHIN_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/dolphin-vegan-protein-offer-refresh.js --target=production --mode=dry-run
 
       - name: Upload protected refresh evidence
