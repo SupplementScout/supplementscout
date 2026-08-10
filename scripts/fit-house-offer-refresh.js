@@ -66,6 +66,8 @@ function sourceHealth(snapshot,sourceVariants){
   if(ratio<baseline.minimum_count_ratio)return{result:"BLOCK",code:"SOURCE_DEGRADED",...evidence};
   return{result:"PASS",code:null,...evidence};
 }
+function approvedStableOosBaseline(){const isFitHouse=config.retailer_id===9&&config.retailer_slug==="fit-house";if(!isFitHouse){invariant(config.approved_stable_oos_baseline===undefined,`${config.retailer_name} must not define the Fit House stable OOS baseline`);return null}const baseline=config.approved_stable_oos_baseline;invariant(baseline&&baseline.retailer_id===9&&baseline.approved_mapping_count===286&&baseline.count===103&&baseline.maximum_new_oos_count===3&&baseline.require_total_oos_not_above_previous===true&&baseline.authority==="owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes"&&baseline.reviewed_manifest_sha256==="168b5c604482280dc17842b93b9b27c24db42952b0873b14b0b326a6c10883f1","Fit House approved stable OOS baseline contract mismatch");return baseline}
+function applyApprovedStableOosBaselineGuard(state,diagnostic=null){const baseline=approvedStableOosBaseline();if(!baseline)return null;const databaseOosCount=state.records.filter(record=>!record.offer.in_stock).length;if(databaseOosCount>baseline.count)throw new RefreshError("STABLE_OOS_BASELINE_EXCEEDED",`Fit House current OOS count ${databaseOosCount} exceeds approved stable baseline ${baseline.count}`,"STATE_GUARD",{current_oos_count:databaseOosCount,approved_stable_oos_count:baseline.count,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256});const result={guard:"FIT_HOUSE_APPROVED_STABLE_OOS_BASELINE",result:"PASS",current_oos_count:databaseOosCount,maximum_approved_oos_count:baseline.count,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256};if(diagnostic)diagnostic.guard_results.push(result);return result}
 function projectSourceVariants(snapshot){
   const rows=projectShopifyVariants(snapshot,{shippingCost:config.shipping_policy.mode==="fixed"?config.shipping_policy.cost_gbp:null});
   if(config.shipping_policy.mode==="threshold")for(const row of rows){const price=Number(row.price);row.shipping_cost=(price>=Number(config.shipping_policy.free_from_gbp)?0:Number(config.shipping_policy.standard_gbp)).toFixed(2)}
@@ -256,6 +258,7 @@ function guardrailsFor(rows,sourceProducts,policyFingerprint=rows[0]?.policy_fin
 
 async function buildRun(target,state,diagnostic=null,reviewed=null){
   const spec=TARGETS[target],capturedAt=new Date().toISOString();
+  applyApprovedStableOosBaselineGuard(state,diagnostic);
   let snapshot;
   try{
     snapshot=config.source_platform==="PRODUCT_PAGE"
@@ -412,4 +415,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executeRefresh,executionRow,guardrailsFor,isExactOwnerBoundAuditedMissingReview,loadApprovedManifest,loadAuditedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,applyApprovedStableOosBaselineGuard,approvedStableOosBaseline,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executeRefresh,executionRow,guardrailsFor,isExactOwnerBoundAuditedMissingReview,loadApprovedManifest,loadAuditedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};

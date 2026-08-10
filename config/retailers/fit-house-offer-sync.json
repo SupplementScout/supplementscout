@@ -8,6 +8,15 @@
   "manifest_path": "config/retailers/fit-house-approved-offer-manifest.json",
   "manifest_sha256": "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292",
   "approved_mapping_count": 286,
+  "approved_stable_oos_baseline": {
+    "retailer_id": 9,
+    "approved_mapping_count": 286,
+    "count": 103,
+    "maximum_new_oos_count": 3,
+    "require_total_oos_not_above_previous": true,
+    "authority": "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes",
+    "reviewed_manifest_sha256": "168b5c604482280dc17842b93b9b27c24db42952b0873b14b0b326a6c10883f1"
+  },
   "source_baseline": {
     "product_count": 207,
     "variant_count": 325,

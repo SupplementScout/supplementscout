@@ -149,16 +149,16 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the completed Fit House rebind with exactly the reviewed 47 migration pending", () => {
+test("production records the reviewed Fit House apply with exactly the stable OOS validator pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
-    filename: "20260811000000_authorize_reviewed_fit_house_47_changes.sql",
-    sha256: "338409d7377f99903a5026d70b3848fd3b98ba14a520836b22ae12ee94c570a3",
+    filename: "20260811010000_add_fit_house_stable_oos_validator.sql",
+    sha256: "770c216405db745cbffd9260006910bdab9708664859fe22cfac56e3e0ef2169",
   }]);
-  assert.equal(contract.ledgerCount, 105);
+  assert.equal(contract.ledgerCount, 106);
   assert.equal(
     contract.ledgerFingerprint,
-    "3756cd235ca944b22a347a9ad6bd0c6f540aa6359ee67f1456aa1f5963194387",
+    "35faf51ace005f5439ef8e6b624335ab853e31bd8217a9e4adae5d668ba9a623",
   );
 });
 
@@ -261,14 +261,14 @@ test("production binds its exact ledger plus the single reviewed Fit House migra
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 105);
+  assert.equal(result.ledger_count, 106);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260811000000_authorize_reviewed_fit_house_47_changes"]);
-  assert.equal(result.selected_files.length, 106);
-  assert.deepEqual(result.pending_files, ["20260811000000_authorize_reviewed_fit_house_47_changes.sql"]);
+  assert.deepEqual(result.pending, ["20260811010000_add_fit_house_stable_oos_validator"]);
+  assert.equal(result.selected_files.length, 107);
+  assert.deepEqual(result.pending_files, ["20260811010000_add_fit_house_stable_oos_validator.sql"]);
   assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(result.pending_file, "20260811000000_authorize_reviewed_fit_house_47_changes.sql");
-  assert.equal(result.pending_sha256, "338409d7377f99903a5026d70b3848fd3b98ba14a520836b22ae12ee94c570a3");
+  assert.equal(result.pending_file, "20260811010000_add_fit_house_stable_oos_validator.sql");
+  assert.equal(result.pending_sha256, "770c216405db745cbffd9260006910bdab9708664859fe22cfac56e3e0ef2169");
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

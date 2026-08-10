@@ -25,6 +25,20 @@ test("Dolphin automation is frozen to one existing mapping and offer", () => {
   assert.equal(config.discovery_policy.catalogue_creates, false);
 });
 
+test("Dolphin build start does not inherit the Fit House stable OOS exception", () => {
+  assert.equal(config.approved_stable_oos_baseline, undefined);
+  assert.equal(engine.approvedStableOosBaseline(), null);
+  const diagnostic = { guard_results: [] };
+  assert.equal(engine.applyApprovedStableOosBaselineGuard({ records: [] }, diagnostic), null);
+  assert.deepEqual(diagnostic.guard_results, []);
+  try {
+    config.approved_stable_oos_baseline = { count: 103 };
+    assert.throws(() => engine.approvedStableOosBaseline(), /must not define the Fit House stable OOS baseline/);
+  } finally {
+    delete config.approved_stable_oos_baseline;
+  }
+});
+
 test("Dolphin uses product-page source and the protected common executor", () => {
   assert.equal(config.source_platform, "PRODUCT_PAGE");
   assert.equal(config.approved_mapping_count, 1);

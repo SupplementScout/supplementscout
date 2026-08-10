@@ -20,6 +20,21 @@ test("Simply automation is bound to the approved 120-row identity authority", ()
   assert.match(config.approved_scope_fingerprint, /^[0-9a-f]{64}$/);
 });
 
+test("Simply build start does not inherit the Fit House stable OOS exception", () => {
+  const engine = require("./simply-supplements-offer-refresh");
+  assert.equal(config.approved_stable_oos_baseline, undefined);
+  assert.equal(engine.approvedStableOosBaseline(), null);
+  const diagnostic = { guard_results: [] };
+  assert.equal(engine.applyApprovedStableOosBaselineGuard({ records: [] }, diagnostic), null);
+  assert.deepEqual(diagnostic.guard_results, []);
+  try {
+    config.approved_stable_oos_baseline = { count: 103 };
+    assert.throws(() => engine.approvedStableOosBaseline(), /must not define the Fit House stable OOS baseline/);
+  } finally {
+    delete config.approved_stable_oos_baseline;
+  }
+});
+
 test("Simply shipping follows the existing £20 threshold", () => {
   const rows = projectSourceVariants({ products: [{ id: 1, handle: "p", variants: [
     { id: 2, price: "19.99", available: true },

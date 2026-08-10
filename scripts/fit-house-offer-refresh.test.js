@@ -6,6 +6,7 @@ const test = require("node:test");
 
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
+  approvedStableOosBaseline,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
   loadAuditedMissingVariantManifest,
@@ -48,6 +49,20 @@ test("source growth is healthy and does not alter the approved scope", () => {
   const variants = Array.from({ length: 370 }, () => ({}));
   assert.equal(sourceHealth(snapshot, variants).result, "PASS");
   assert.equal(config.discovery_policy.catalogue_creates, false);
+});
+
+test("owner-approved stable Fit House OOS baseline is exact and does not raise generic limits", () => {
+  assert.deepEqual(approvedStableOosBaseline(), {
+    retailer_id: 9,
+    approved_mapping_count: 286,
+    count: 103,
+    maximum_new_oos_count: 3,
+    require_total_oos_not_above_previous: true,
+    authority: "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes",
+    reviewed_manifest_sha256: "168b5c604482280dc17842b93b9b27c24db42952b0873b14b0b326a6c10883f1",
+  });
+  assert.equal(config.guardrails.maximum_total_oos_ratio, 0.35);
+  assert.equal(config.guardrails.mass_oos_block_count, 4);
 });
 
 test("source collapse remains fail closed", () => {
