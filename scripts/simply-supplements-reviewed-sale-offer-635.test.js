@@ -23,6 +23,12 @@ const validatorMigration = fs.readFileSync(path.resolve(
 const validatorRollback = fs.readFileSync(path.resolve(
   "supabase/rollbacks/20260810170000_support_simply_offer_635_reviewed_sale_validation.sql",
 ), "utf8");
+const registrationMigration = fs.readFileSync(path.resolve(
+  "supabase/migrations/20260810180000_support_simply_offer_635_reviewed_sale_registration.sql",
+), "utf8");
+const registrationRollback = fs.readFileSync(path.resolve(
+  "supabase/rollbacks/20260810180000_support_simply_offer_635_reviewed_sale_registration.sql",
+), "utf8");
 
 function target(authorization) {
   const row = authorization.row;
@@ -169,4 +175,18 @@ test("reviewed sale validator exception is exact and preserves ordinary MASS_OOS
   assert.match(validatorRollback, /Reviewed mixed-change ordinary MASS_OOS proof mismatch/);
   assert.match(validatorRollback, /rollback is forbidden after plan binding/);
   assert.doesNotMatch(validatorRollback, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+});
+
+test("reviewed sale registration adds only the exact new authorization", () => {
+  for (const token of [
+    "simply-49-2bc798f9fb7db4af-production",
+    "simply-offer635-sale-20260810-production",
+    "retailer_slug'='simply-supplements'",
+    "source_domain'='simplysupplements.co.uk'",
+  ]) assert.match(registrationMigration, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(registrationMigration, /owner to postgres/);
+  assert.match(registrationMigration, /revoke all on function/);
+  assert.doesNotMatch(registrationMigration, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(registrationRollback, /rollback is forbidden after plan binding/);
+  assert.doesNotMatch(registrationRollback, /(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
 });

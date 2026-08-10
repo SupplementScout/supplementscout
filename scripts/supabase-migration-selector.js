@@ -82,6 +82,8 @@ const CONTRACTS = Object.freeze({
         "c84cdd9742e1e5f269fd51c303a3bc6054f37020417a63561723c78212d61cf1",
       "20260810170000_support_simply_offer_635_reviewed_sale_validation.sql":
         "e63fcebe84266a88ee750209c6fa25bf21631b124781e73dbf2226dfe24c142f",
+      "20260810180000_support_simply_offer_635_reviewed_sale_registration.sql":
+        "b117892b3c719eaa25b7b88cc6af7b2e126a0b9fe3e13bcb4e806c552c0501ca",
     }),
     pending: Object.freeze([]),
   }),
@@ -92,9 +94,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 96,
+    ledgerCount: 97,
     ledgerFingerprint:
-      "138258476330353dfee9420e70c0ce8f7a791f3ebc7f62d7547ce9213ad24f70",
+      "f1440165d73477b488a9e77063970b8b468d69cbd978e96ced7c1024a22c4472",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
