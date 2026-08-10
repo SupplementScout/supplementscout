@@ -151,7 +151,12 @@ test("a changed excluded migration SHA fails closed", () => {
 
 test("production records the completed Strom variant move", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.pending.length, 1);
+  assert.equal(
+    contract.pending[0].filename,
+    "20260810240000_create_reviewed_jons_17_explicit_variants.sql",
+  );
+  assert.deepEqual(contract.pending[0].expectedCatalogueDeltas, { product_variants: 17 });
   assert.equal(contract.ledgerCount, 102);
   assert.equal(
     contract.ledgerFingerprint,
@@ -261,11 +266,11 @@ test("production binds its exact post-manifest-rebind ledger", () => {
   assert.equal(result.ledger_count, 102);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
-  assert.equal(result.selected_files.length, 102);
+  assert.equal(result.selected_files.length, 103);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(result.pending_file, contract.pending[0].filename);
+  assert.equal(result.pending_sha256, contract.pending[0].sha256);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

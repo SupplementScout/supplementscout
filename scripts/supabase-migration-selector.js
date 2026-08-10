@@ -94,6 +94,8 @@ const CONTRACTS = Object.freeze({
         "2fa4db1f530a53c19a8a74f6b6f15ce1a3dc2e006888a204e5ac929395bd1b58",
       "20260810230000_complete_jons_strom_buttered_pancake_variant_move.sql":
         "6e13a2ea76d0569d4e72dab8bbb6dcc8b9ecce643007cb9c28798d6756785efb",
+      "20260810240000_create_reviewed_jons_17_explicit_variants.sql":
+        "5067320e24d8c1a79eaea8adf98550ab440993a1531fb78c29f346f2c54c6411",
     }),
     pending: Object.freeze([]),
   }),
@@ -123,7 +125,13 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260810240000_create_reviewed_jons_17_explicit_variants.sql",
+        sha256: "5067320e24d8c1a79eaea8adf98550ab440993a1531fb78c29f346f2c54c6411",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 17 }),
+      }),
+    ]),
   }),
 });
 
