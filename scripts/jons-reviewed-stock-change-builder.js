@@ -369,7 +369,7 @@ async function main(argv = process.argv.slice(2)) {
   process.stdout.write(`${JSON.stringify({ result: "PASS", output: path.relative(ROOT, options.output),
     manifest_sha256: sha256, row_count: rows.length, offer_ids: rows.map((row) => row.offer_id),
     source_fingerprint: manifest.source_capture_sha256,
-    mapped_scope_fingerprint: manifest.mapped_source_contract.mapped_scope_fingerprint,
+    mapped_scope_fingerprint: manifest.mapped_source_contract?.mapped_scope_fingerprint || null,
     production_state_sha256: productionStateSha256, database_writes: 0 }, null, 2)}\n`);
 }
 
