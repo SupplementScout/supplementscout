@@ -9,6 +9,7 @@ const MANIFEST_KINDS = Object.freeze({
   11: "jons-existing-offer-11-change-reviewed-manifest",
   15: "jons-existing-offer-15-change-reviewed-manifest",
   16: "jons-existing-offer-16-change-reviewed-manifest",
+  23: "jons-existing-offer-23-change-reviewed-manifest",
 });
 const CONTRACT_KIND = "retailer-reviewed-mixed-change-v1";
 const SCOPED_CONTRACT_KIND = "retailer-reviewed-mixed-change-v2";
@@ -97,12 +98,18 @@ const EXPECTED_DELTAS_10_STOCK_ONLY = Object.freeze({
   stock_updates: 10,
   freshness_updates: 10,
 });
+const EXPECTED_DELTAS_23_STOCK_ONLY = Object.freeze({
+  ...EXPECTED_DELTAS_11_STOCK_ONLY,
+  stock_updates: 23,
+  freshness_updates: 23,
+});
 
 function expectedManifestDeltas(rowCount) {
   return rowCount === 10 ? EXPECTED_DELTAS_10_STOCK_ONLY
     : rowCount === 11 ? EXPECTED_DELTAS_11_STOCK_ONLY
     : rowCount === 15 ? EXPECTED_DELTAS
     : rowCount === 16 ? EXPECTED_DELTAS_16
+    : rowCount === 23 ? EXPECTED_DELTAS_23_STOCK_ONLY
       : null;
 }
 

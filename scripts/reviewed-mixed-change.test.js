@@ -59,6 +59,50 @@ test("immutable Jon's manifest loads only at the required raw-byte SHA", () => {
   assert.throws(() => loadReviewedMixedChangeManifest(manifestFile, "0".repeat(64)), /SHA-256 mismatch/);
 });
 
+test("exact 23-row stock-only manifest is an allowed reviewed scope", () => {
+  const base = JSON.parse(fs.readFileSync(
+    path.resolve("config/retailers/jons-reviewed-stock-changes-2026-08-03.json"),
+    "utf8",
+  ));
+  const template = base.rows[0];
+  const rows = Array.from({ length: 23 }, (_, index) => ({
+    ...structuredClone(template),
+    offer_id: String(9000 + index),
+    mapping_id: String(8000 + index),
+    jons_product_id: String(7000 + index),
+    jons_variant_id: String(6000 + index),
+  }));
+  const manifest = {
+    ...base,
+    kind: "jons-existing-offer-23-change-reviewed-manifest",
+    row_count: 23,
+    immutable_scope_offer_ids: rows.map((row) => row.offer_id),
+    expected_deltas: {
+      ...base.expected_deltas,
+      stock_updates: 23,
+      freshness_updates: 23,
+    },
+    rows,
+  };
+  delete manifest.mapped_source_contract;
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-23-")), "manifest.json");
+  fs.writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);
+  const bytes = fs.readFileSync(file);
+  const hash = require("node:crypto").createHash("sha256").update(bytes).digest("hex");
+  const reviewed = loadReviewedMixedChangeManifest(file, hash);
+  assert.equal(reviewed.reviewed_rows.length, 23);
+  assert.deepEqual(expectedArtifactDeltas(reviewed.manifest).logical_field_deltas, {
+    offer_price_updates: 0,
+    offer_shipping_updates: 0,
+    offer_total_updates: 0,
+    offer_stock_updates: 23,
+    offer_url_updates: 0,
+    mapping_url_updates: 0,
+    mapping_updated_at_updates: 0,
+    last_checked_at_updates: 23,
+  });
+});
+
 test("manifest parsing is fail-closed for semantic edits even with a matching replacement byte hash", () => {
   const changed = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
   changed.rows[0].new_stock = true;

@@ -2,7 +2,12 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
-const { readState, sourceHealth } = require("./jons-offer-refresh");
+const {
+  loadReviewedMissingVariantManifest,
+  readState,
+  reconcileReviewedMissingVariants,
+  sourceHealth,
+} = require("./jons-offer-refresh");
 const { RETAILER_SCOPE } = require("./creatine-offer-refresh");
 const {
   canonicalVariantUrl,
@@ -139,6 +144,13 @@ async function main(argv = process.argv.slice(2)) {
     "two source captures differ");
   const source = prepareSource(second.snapshot, before);
   invariant(sourceHealth(second.snapshot, source).result === "PASS", "source health blocked");
+  const firstSource = prepareSource(first.snapshot, before);
+  const firstMissing = reconcileReviewedMissingVariants(before.records, firstSource);
+  const secondMissing = reconcileReviewedMissingVariants(before.records, source);
+  invariant(canonicalJson(firstMissing.reviewed_missing)
+    === canonicalJson(secondMissing.reviewed_missing),
+  "reviewed missing variants differ between captures");
+  const effectiveSource = secondMissing.sourceVariants;
   const targets = before.records.map((record) => ({
     offer_id: String(record.offer.id),
     retailer_product_id: String(record.mapping.id),
@@ -155,7 +167,7 @@ async function main(argv = process.argv.slice(2)) {
   }));
   const classification = classifyExistingOffers({
     targets,
-    sourceVariants: source,
+    sourceVariants: effectiveSource,
     policy: { ...config.guardrails, required_matched_offers: 506, store_url: config.store_url },
     guardScope: { name: "JONS_FULL_506", retailer: "Jon's Supplements" },
     sourceCapturedAt: second.capturedAt,
@@ -176,18 +188,77 @@ async function main(argv = process.argv.slice(2)) {
       row.source.product_handle, row.source.external_variant_id)),
   "approved scope is not exact stock-only in-stock to OOS");
 
-  const mappedRows = mappedSourceRows({ snapshot: second.snapshot, sourceVariants: source,
-    records: before.records, storeUrl: config.store_url });
-  const unmappedRows = unmappedIdentityRows({ snapshot: second.snapshot, sourceVariants: source,
-    records: before.records, storeUrl: config.store_url });
-  const collisions = unmappedCollisionEvidence(unmappedRows, mappedRows);
+  const hasReviewedAbsence = secondMissing.reviewed_missing.length > 0;
+  const mappedRows = hasReviewedAbsence ? null : mappedSourceRows({
+    snapshot: second.snapshot, sourceVariants: source,
+    records: before.records, storeUrl: config.store_url,
+  });
+  const unmappedRows = hasReviewedAbsence ? null : unmappedIdentityRows({
+    snapshot: second.snapshot, sourceVariants: source,
+    records: before.records, storeUrl: config.store_url,
+  });
+  const collisions = hasReviewedAbsence ? null : unmappedCollisionEvidence(unmappedRows, mappedRows);
+  const reviewedMissing = loadReviewedMissingVariantManifest();
+  const reviewedMissingByVariant = new Map(reviewedMissing.manifest.rows.map((row) => [
+    String(row.external_variant_id), row,
+  ]));
   const creatineIds = new Set(RETAILER_SCOPE["Jon's Supplements"].offerIds.map(String));
   const rows = [];
   for (const current of changed.sort((a, b) => Number(a.offer_id) - Number(b.offer_id))) {
     const record = before.records.find((row) => String(row.offer.id) === String(current.offer_id));
     const rawFirst = rawVariant(first.snapshot, String(current.external_variant_id));
     const rawSecond = rawVariant(second.snapshot, String(current.external_variant_id));
-    invariant(record && rawFirst && rawSecond, "reviewed identity evidence is missing");
+    invariant(record, "reviewed canonical identity evidence is missing");
+    const approvedMissing = reviewedMissingByVariant.get(String(current.external_variant_id));
+    invariant((rawFirst && rawSecond) || (approvedMissing && !rawFirst && !rawSecond),
+      "reviewed identity presence differs between captures");
+    if (approvedMissing) {
+      invariant(secondMissing.reviewed_missing.includes(String(current.external_variant_id)),
+        "reviewed missing identity unexpectedly exists in source");
+      const sourceProduct = second.snapshot.products.find((product) =>
+        String(product.id) === String(record.mapping.external_product_id));
+      rows.push({
+        offer_id: String(record.offer.id), mapping_id: String(record.mapping.id),
+        canonical_product_id: String(record.product.id), canonical_product: record.product.name,
+        canonical_variant_id: String(record.variant.id), canonical_variant: record.variant.display_name,
+        jons_product_id: String(record.mapping.external_product_id),
+        jons_variant_id: String(record.mapping.external_variant_id),
+        product: sourceProduct?.title || record.product.name,
+        flavour: identity(record.variant.flavour_label) || identity(record.variant.display_name) || "Default",
+        old_price: money(record.offer.price), new_price: money(current.source.price),
+        old_stock: Boolean(record.offer.in_stock), new_stock: Boolean(current.source.in_stock),
+        old_url: record.offer.url, new_url: record.offer.url,
+        source_sku: identity(record.mapping.external_sku),
+        mapping_gtin: identity(record.mapping.external_gtin), source_gtin: null,
+        exact_action: "UPDATE_STOCK", changed_fields: ["stock"],
+        review_classification: "APPROVE_REVIEWED_SOURCE_ABSENCE_AS_OOS",
+        source_evidence_timestamp: first.capturedAt,
+        second_evidence_timestamp: second.capturedAt,
+        identity_stability: "STABLY_ABSENT_IN_TWO_CAPTURES",
+        creatine_refresh_subset: creatineIds.has(String(record.offer.id)),
+        evidence: {
+          source_product_exists: Boolean(sourceProduct), source_variant_exists: false,
+          source_variant_available_explicit: null,
+          source_stock_interpretation: "OWNER_REVIEWED_SOURCE_ABSENCE_AS_OOS",
+          first_capture_same_semantics: true, exact_external_ids: true,
+          canonical_target_stable: Boolean(record.product.is_active
+            && !record.product.merged_into_product_id && record.variant.is_active
+            && String(record.variant.product_id) === String(record.product.id)
+            && String(record.offer.product_id) === String(record.product.id)
+            && String(record.mapping.product_variant_id) === String(record.variant.id)),
+          source_sku_matches_mapping: null, duplicate_source_sku_exception: false,
+          same_sku_other_identities: [],
+          source_gtin_matches_mapping_when_both_present: true,
+          same_gtin_other_identities: [], direct_current_url: null, old_url_check: null,
+          duplicate_source_variant_identity: false,
+          duplicate_source_sku_or_gtin_candidates: [], replacement_variant_found: false,
+          replacement_assessment: "OWNER_REVIEWED_NO_SAFE_REPLACEMENT",
+          parsing_ambiguity: false, temporary_source_failure: false,
+          reviewed_missing_manifest_sha256: reviewedMissing.sha256,
+        },
+      });
+      continue;
+    }
     const firstSemantics = {
       product_id: String(rawFirst.product.id), handle: rawFirst.product.handle,
       variant_id: String(rawFirst.variant.id), title: rawFirst.variant.title,
@@ -276,7 +347,8 @@ async function main(argv = process.argv.slice(2)) {
       freshness_updates: rows.length, price_history_rows: 0, retailers: 0,
     },
     rows,
-    mapped_source_contract: {
+  };
+  if (!hasReviewedAbsence) manifest.mapped_source_contract = {
       schema_version: 1,
       baseline_full_source_fingerprint: second.snapshot.semantic_source_fingerprint,
       baseline_product_count: second.snapshot.products.length,
@@ -286,8 +358,7 @@ async function main(argv = process.argv.slice(2)) {
       allowed_unmapped_collisions: collisions,
       allowed_unmapped_collisions_hash: fingerprint(collisions),
       unmapped_drift_policy: POLICY,
-    },
-  };
+    };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx" });
   const sha256 = crypto.createHash("sha256").update(fs.readFileSync(options.output)).digest("hex");
