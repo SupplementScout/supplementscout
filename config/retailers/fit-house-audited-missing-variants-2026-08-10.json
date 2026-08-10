@@ -1,0 +1,807 @@
+{
+  "schema_version": 1,
+  "kind": "fit-house-audited-missing-variants-v1",
+  "authority": "read-only-double-source-audit-2026-08-10",
+  "review_status": "OWNER_OOS_APPROVAL_REQUIRED",
+  "owner_authority": "owner-approved-only-two-rebinds-2026-08-10-no-approval-for-78-oos",
+  "retailer_id": "9",
+  "retailer_slug": "fit-house",
+  "row_count": 78,
+  "policy": "CLASSIFICATION_EVIDENCE_ONLY_PRESERVE_CANONICAL_IDENTITY_NO_OOS_APPLY_AUTHORITY",
+  "audit": {
+    "capture_a": {
+      "captured_at": "2026-08-10T18:51:13.244Z",
+      "semantic_source_fingerprint": "90afc8b4715d56976769ecb490fb00455a028ab2f3e09dd01d33afd7a69ec86d",
+      "product_count": 240,
+      "variant_count": 332
+    },
+    "capture_b": {
+      "captured_at": "2026-08-10T18:51:13.550Z",
+      "semantic_source_fingerprint": "90afc8b4715d56976769ecb490fb00455a028ab2f3e09dd01d33afd7a69ec86d",
+      "product_count": 240,
+      "variant_count": 332
+    }
+  },
+  "rows": [
+    {
+      "mapping_id": "681",
+      "offer_id": "689",
+      "canonical_product_id": "671",
+      "canonical_variant_id": "499",
+      "external_product_id": "9678096761072",
+      "external_variant_id": "48135749271792",
+      "external_sku": null,
+      "label": "Swanson Valerian, Chamomile & Hops 60 Capsules - Default"
+    },
+    {
+      "mapping_id": "736",
+      "offer_id": "712",
+      "canonical_product_id": "694",
+      "canonical_variant_id": "565",
+      "external_product_id": "8493486047472",
+      "external_variant_id": "45060015816944",
+      "external_sku": null,
+      "label": "OstroVit Pure Glycine 200g - Default"
+    },
+    {
+      "mapping_id": "737",
+      "offer_id": "713",
+      "canonical_product_id": "695",
+      "canonical_variant_id": "566",
+      "external_product_id": "9370163708144",
+      "external_variant_id": "47256749310192",
+      "external_sku": null,
+      "label": "Trec Nutrition Korean Ginseng 90 Capsules - Default"
+    },
+    {
+      "mapping_id": "741",
+      "offer_id": "717",
+      "canonical_product_id": "698",
+      "canonical_variant_id": "571",
+      "external_product_id": "9060070064368",
+      "external_variant_id": "46672200106224",
+      "external_sku": null,
+      "label": "Swanson Milk Thistle 120 Capsules - Default"
+    },
+    {
+      "mapping_id": "747",
+      "offer_id": "723",
+      "canonical_product_id": "704",
+      "canonical_variant_id": "580",
+      "external_product_id": "8776286798064",
+      "external_variant_id": "45938772279536",
+      "external_sku": null,
+      "label": "Doctor's Best Real Krill 350mg 60 Softgels - Default"
+    },
+    {
+      "mapping_id": "791",
+      "offer_id": "729",
+      "canonical_product_id": "710",
+      "canonical_variant_id": "587",
+      "external_product_id": "9347456499952",
+      "external_variant_id": "47199527305456",
+      "external_sku": null,
+      "label": "Now Foods Potassium Plus Iodine 180 Tablets - Default"
+    },
+    {
+      "mapping_id": "792",
+      "offer_id": "730",
+      "canonical_product_id": "711",
+      "canonical_variant_id": "588",
+      "external_product_id": "9179043856624",
+      "external_variant_id": "47000406130928",
+      "external_sku": null,
+      "label": "Swanson Nattokinase 2000 FU 100mg 30 Capsules - Default"
+    },
+    {
+      "mapping_id": "799",
+      "offer_id": "737",
+      "canonical_product_id": "718",
+      "canonical_variant_id": "597",
+      "external_product_id": "8339449184496",
+      "external_variant_id": "44283614494960",
+      "external_sku": null,
+      "label": "Now Foods Glycine 1000mg 100 Capsules - Default"
+    },
+    {
+      "mapping_id": "857",
+      "offer_id": "743",
+      "canonical_product_id": "724",
+      "canonical_variant_id": "618",
+      "external_product_id": "8271509946608",
+      "external_variant_id": "44086559310064",
+      "external_sku": null,
+      "label": "Now Foods Vitamin A 10000 IU 100 Softgels - Default"
+    },
+    {
+      "mapping_id": "864",
+      "offer_id": "750",
+      "canonical_product_id": "731",
+      "canonical_variant_id": "624",
+      "external_product_id": "9176724177136",
+      "external_variant_id": "46992608657648",
+      "external_sku": null,
+      "label": "7Nutrition Coenzyme Q10 200mg 60 Capsules - Default"
+    },
+    {
+      "mapping_id": "865",
+      "offer_id": "751",
+      "canonical_product_id": "732",
+      "canonical_variant_id": "630",
+      "external_product_id": "9176635834608",
+      "external_variant_id": "46992502718704",
+      "external_sku": null,
+      "label": "7Nutrition Vitamin C Pure Powder 250g - Default"
+    },
+    {
+      "mapping_id": "872",
+      "offer_id": "758",
+      "canonical_product_id": "739",
+      "canonical_variant_id": "635",
+      "external_product_id": "8333086884080",
+      "external_variant_id": "44260687118576",
+      "external_sku": null,
+      "label": "Olimp ZMA + B6 120 Capsules - Default"
+    },
+    {
+      "mapping_id": "1094",
+      "offer_id": "908",
+      "canonical_product_id": "273",
+      "canonical_variant_id": "900",
+      "external_product_id": "9675385569520",
+      "external_variant_id": "48126623351024",
+      "external_sku": null,
+      "label": "Applied Nutrition ABE - Energy RTD Drink - Cloudy Lemonade / 330ml"
+    },
+    {
+      "mapping_id": "1097",
+      "offer_id": "911",
+      "canonical_product_id": "224",
+      "canonical_variant_id": "903",
+      "external_product_id": "9674436903152",
+      "external_variant_id": "48124151103728",
+      "external_sku": null,
+      "label": "Barebells High Protein Milkshake 330ml - Chocolate / 330ml"
+    },
+    {
+      "mapping_id": "1098",
+      "offer_id": "912",
+      "canonical_product_id": "502",
+      "canonical_variant_id": "913",
+      "external_product_id": "9674414915824",
+      "external_variant_id": "48123945156848",
+      "external_sku": null,
+      "label": "Lenny & Larry Fitzels Pretzels 85g - Everything Bagel / 85g"
+    },
+    {
+      "mapping_id": "1100",
+      "offer_id": "914",
+      "canonical_product_id": "165",
+      "canonical_variant_id": "915",
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051751152",
+      "external_sku": null,
+      "label": "Lenny & Larry's Complete Vegan Cookie  113g - Chocolate Chip / 113g"
+    },
+    {
+      "mapping_id": "1101",
+      "offer_id": "915",
+      "canonical_product_id": "165",
+      "canonical_variant_id": "916",
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051718384",
+      "external_sku": null,
+      "label": "Lenny & Larry's Complete Vegan Cookie  113g - Lemon Poppy Seed / 113g"
+    },
+    {
+      "mapping_id": "1103",
+      "offer_id": "917",
+      "canonical_product_id": "165",
+      "canonical_variant_id": "918",
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051783920",
+      "external_sku": null,
+      "label": "Lenny & Larry's Complete Vegan Cookie  113g - Strawberry Shortcake / 113g"
+    },
+    {
+      "mapping_id": "1122",
+      "offer_id": "936",
+      "canonical_product_id": "764",
+      "canonical_variant_id": "922",
+      "external_product_id": "9675414634736",
+      "external_variant_id": "48126659264752",
+      "external_sku": null,
+      "label": "NOCCO Electrolyte Energy Drink 355ml - Blood Orange / 355ml"
+    },
+    {
+      "mapping_id": "1123",
+      "offer_id": "937",
+      "canonical_product_id": "764",
+      "canonical_variant_id": "924",
+      "external_product_id": "9675414634736",
+      "external_variant_id": "48126659231984",
+      "external_sku": null,
+      "label": "NOCCO Electrolyte Energy Drink 355ml - Lemon Lime / 355ml"
+    },
+    {
+      "mapping_id": "1143",
+      "offer_id": "957",
+      "canonical_product_id": "773",
+      "canonical_variant_id": "954",
+      "external_product_id": "8151663378672",
+      "external_variant_id": "46405976883440",
+      "external_sku": null,
+      "label": "Condemned Labz Convict V2 25 servings - Citrus Cherry / 25 servings"
+    },
+    {
+      "mapping_id": "1171",
+      "offer_id": "985",
+      "canonical_product_id": "885",
+      "canonical_variant_id": "2700",
+      "external_product_id": "9123689627888",
+      "external_variant_id": "46850321645808",
+      "external_sku": null,
+      "label": "Innovapharm MVPRE 3.0 Pre Workout 437g - Watermelon Lemonade / 437g"
+    },
+    {
+      "mapping_id": "1172",
+      "offer_id": "986",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "937",
+      "external_product_id": "8147819069680",
+      "external_variant_id": "43583990006000",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 1kg - Natural / 1000g"
+    },
+    {
+      "mapping_id": "1173",
+      "offer_id": "987",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "938",
+      "external_product_id": "8147819069680",
+      "external_variant_id": "46969740820720",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 1kg - Strawberry / 1000g"
+    },
+    {
+      "mapping_id": "1174",
+      "offer_id": "988",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "939",
+      "external_product_id": "8147819069680",
+      "external_variant_id": "46717176381680",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 1kg - Vanilla / 1000g"
+    },
+    {
+      "mapping_id": "1175",
+      "offer_id": "989",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "940",
+      "external_product_id": "8147819069680",
+      "external_variant_id": "47789301268720",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 1kg - White Chocolate / 1000g"
+    },
+    {
+      "mapping_id": "2046",
+      "offer_id": "1860",
+      "canonical_product_id": "976",
+      "canonical_variant_id": "1905",
+      "external_product_id": "8142828896496",
+      "external_variant_id": "43567036858608",
+      "external_sku": "20",
+      "label": "MetaHuman Elite Vitamins 120 Capsules - Default"
+    },
+    {
+      "mapping_id": "2047",
+      "offer_id": "1861",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1932",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "43571891831024",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Strawberry / 1800g"
+    },
+    {
+      "mapping_id": "2048",
+      "offer_id": "1862",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1925",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "43571891929328",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Blueberry / 1800g"
+    },
+    {
+      "mapping_id": "2049",
+      "offer_id": "1863",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1931",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "43816860909808",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Peanut Butter / 1800g"
+    },
+    {
+      "mapping_id": "2050",
+      "offer_id": "1864",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1924",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "44122716045552",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Apple Pie / 1800g"
+    },
+    {
+      "mapping_id": "2051",
+      "offer_id": "1865",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1926",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "44147173720304",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Chocolate / 1800g"
+    },
+    {
+      "mapping_id": "2052",
+      "offer_id": "1866",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1933",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "44260636721392",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Tiramisu / 1800g"
+    },
+    {
+      "mapping_id": "2053",
+      "offer_id": "1867",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1929",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556653296",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Cookies Cream / 2270g"
+    },
+    {
+      "mapping_id": "2054",
+      "offer_id": "1868",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1927",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556686064",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Chocolate / 2270g"
+    },
+    {
+      "mapping_id": "2055",
+      "offer_id": "1869",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1928",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556718832",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Chocolate Caramel / 2270g"
+    },
+    {
+      "mapping_id": "2056",
+      "offer_id": "1870",
+      "canonical_product_id": "984",
+      "canonical_variant_id": "1934",
+      "external_product_id": "8144512745712",
+      "external_variant_id": "46935556751600",
+      "external_sku": null,
+      "label": "Olimp Whey Protein Complex 100% 1800 2270g - Vanilla Ice Cream / 2270g"
+    },
+    {
+      "mapping_id": "2057",
+      "offer_id": "1871",
+      "canonical_product_id": "955",
+      "canonical_variant_id": "1862",
+      "external_product_id": "8147386859760",
+      "external_variant_id": "43582249337072",
+      "external_sku": "10",
+      "label": "7Nutrition Zinc Citrate 100 Capsules - Default"
+    },
+    {
+      "mapping_id": "2059",
+      "offer_id": "1873",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "1967",
+      "external_product_id": "8147819069680",
+      "external_variant_id": "43583989973232",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 1kg - Belgian Chocolate / 1000g"
+    },
+    {
+      "mapping_id": "2060",
+      "offer_id": "1874",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "1966",
+      "external_product_id": "8147819069680",
+      "external_variant_id": "47593698590960",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 1kg - Banana / 1000g"
+    },
+    {
+      "mapping_id": "2061",
+      "offer_id": "1875",
+      "canonical_product_id": "773",
+      "canonical_variant_id": "1976",
+      "external_product_id": "8151663378672",
+      "external_variant_id": "44066061582576",
+      "external_sku": null,
+      "label": "Condemned Labz Convict V2 25 servings - Kiwi Strawberry / 25servings"
+    },
+    {
+      "mapping_id": "2063",
+      "offer_id": "1877",
+      "canonical_product_id": "988",
+      "canonical_variant_id": "1940",
+      "external_product_id": "8262988988656",
+      "external_variant_id": "44061761044720",
+      "external_sku": null,
+      "label": "Osavi Cod Liver Oil + D3 250 ml Lemon Flavour (Omega 3) - Default"
+    },
+    {
+      "mapping_id": "2064",
+      "offer_id": "1878",
+      "canonical_product_id": "971",
+      "canonical_variant_id": "1897",
+      "external_product_id": "8264696103152",
+      "external_variant_id": "44066164769008",
+      "external_sku": null,
+      "label": "Kilo Labs Stim Thug 20 servings - Mother Pucker / 20servings"
+    },
+    {
+      "mapping_id": "2065",
+      "offer_id": "1879",
+      "canonical_product_id": "971",
+      "canonical_variant_id": "1899",
+      "external_product_id": "8264696103152",
+      "external_variant_id": "44066164801776",
+      "external_sku": null,
+      "label": "Kilo Labs Stim Thug 20 servings - Still Sippin - Watermelon & Peach / 20servings"
+    },
+    {
+      "mapping_id": "2066",
+      "offer_id": "1880",
+      "canonical_product_id": "971",
+      "canonical_variant_id": "1898",
+      "external_product_id": "8264696103152",
+      "external_variant_id": "44267064164592",
+      "external_sku": null,
+      "label": "Kilo Labs Stim Thug 20 servings - Slay My Name - Dragonfruit / 20servings"
+    },
+    {
+      "mapping_id": "2067",
+      "offer_id": "1881",
+      "canonical_product_id": "971",
+      "canonical_variant_id": "1896",
+      "external_product_id": "8264696103152",
+      "external_variant_id": "46849622868208",
+      "external_sku": null,
+      "label": "Kilo Labs Stim Thug 20 servings - It Was All A Dream / 20servings"
+    },
+    {
+      "mapping_id": "2068",
+      "offer_id": "1882",
+      "canonical_product_id": "971",
+      "canonical_variant_id": "1900",
+      "external_product_id": "8264696103152",
+      "external_variant_id": "47593676472560",
+      "external_sku": null,
+      "label": "Kilo Labs Stim Thug 20 servings - Strawberry Lemonade / 20servings"
+    },
+    {
+      "mapping_id": "2070",
+      "offer_id": "1884",
+      "canonical_product_id": "950",
+      "canonical_variant_id": "1852",
+      "external_product_id": "8271486812400",
+      "external_variant_id": "44086506455280",
+      "external_sku": null,
+      "label": "7Nutrition L-Glutathione 90 Capsules - Default"
+    },
+    {
+      "mapping_id": "2071",
+      "offer_id": "1885",
+      "canonical_product_id": "958",
+      "canonical_variant_id": "1869",
+      "external_product_id": "8273802395888",
+      "external_variant_id": "44093690675440",
+      "external_sku": null,
+      "label": "Barebells Protein Bar 55g - Caramel Choco / 55g"
+    },
+    {
+      "mapping_id": "2072",
+      "offer_id": "1886",
+      "canonical_product_id": "958",
+      "canonical_variant_id": "1872",
+      "external_product_id": "8273802395888",
+      "external_variant_id": "44093690708208",
+      "external_sku": null,
+      "label": "Barebells Protein Bar 55g - Peanut Caramel / 55g"
+    },
+    {
+      "mapping_id": "2073",
+      "offer_id": "1887",
+      "canonical_product_id": "958",
+      "canonical_variant_id": "1870",
+      "external_product_id": "8273802395888",
+      "external_variant_id": "45781468872944",
+      "external_sku": null,
+      "label": "Barebells Protein Bar 55g - Coco Choco / 55g"
+    },
+    {
+      "mapping_id": "2074",
+      "offer_id": "1888",
+      "canonical_product_id": "958",
+      "canonical_variant_id": "1868",
+      "external_product_id": "8273802395888",
+      "external_variant_id": "45781468905712",
+      "external_sku": null,
+      "label": "Barebells Protein Bar 55g - Banana Dream / 55g"
+    },
+    {
+      "mapping_id": "2078",
+      "offer_id": "1892",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1861",
+      "external_product_id": "8291604234480",
+      "external_variant_id": "44147266683120",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 500g - White Chocolate / 500g"
+    },
+    {
+      "mapping_id": "2079",
+      "offer_id": "1893",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1857",
+      "external_product_id": "8291604234480",
+      "external_variant_id": "44147266715888",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 500g - Cookies & Cream / 500g"
+    },
+    {
+      "mapping_id": "2080",
+      "offer_id": "1894",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1860",
+      "external_product_id": "8291604234480",
+      "external_variant_id": "47789290488048",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 500g - Strawberry / 500g"
+    },
+    {
+      "mapping_id": "2081",
+      "offer_id": "1895",
+      "canonical_product_id": "954",
+      "canonical_variant_id": "1856",
+      "external_product_id": "8291604234480",
+      "external_variant_id": "47789290520816",
+      "external_sku": null,
+      "label": "7Nutrition Whey Isolate 90 500g - Chocolate / 500g"
+    },
+    {
+      "mapping_id": "2082",
+      "offer_id": "1896",
+      "canonical_product_id": "951",
+      "canonical_variant_id": "1853",
+      "external_product_id": "8291615637744",
+      "external_variant_id": "44147305251056",
+      "external_sku": null,
+      "label": "7Nutrition Melatonin 1mg 60 Capsules - Default"
+    },
+    {
+      "mapping_id": "2097",
+      "offer_id": "1911",
+      "canonical_product_id": "969",
+      "canonical_variant_id": "1890",
+      "external_product_id": "8334867103984",
+      "external_variant_id": "46876488302832",
+      "external_sku": null,
+      "label": "HR Labs Defib v3 40/20 servings - Cherryade"
+    },
+    {
+      "mapping_id": "2107",
+      "offer_id": "1921",
+      "canonical_product_id": "965",
+      "canonical_variant_id": "1884",
+      "external_product_id": "8522813571312",
+      "external_variant_id": "45160981823728",
+      "external_sku": null,
+      "label": "Doctor's Best Magnesium Lysinate Glycinate 240 tablets - Default"
+    },
+    {
+      "mapping_id": "2108",
+      "offer_id": "1922",
+      "canonical_product_id": "1004",
+      "canonical_variant_id": "1965",
+      "external_product_id": "8544510640368",
+      "external_variant_id": "45221064147184",
+      "external_sku": null,
+      "label": "Swanson P-5-P Double Strength 40 mg 60 Capsules - Default"
+    },
+    {
+      "mapping_id": "2113",
+      "offer_id": "1927",
+      "canonical_product_id": "421",
+      "canonical_variant_id": "396",
+      "external_product_id": "8774010274032",
+      "external_variant_id": "45932414894320",
+      "external_sku": null,
+      "label": "5% Nutrition Rich Piana Core Series DIM 60 Capsules - Default"
+    },
+    {
+      "mapping_id": "2119",
+      "offer_id": "1933",
+      "canonical_product_id": "1002",
+      "canonical_variant_id": "1963",
+      "external_product_id": "8964644765936",
+      "external_variant_id": "46442695885040",
+      "external_sku": null,
+      "label": "Swanson Collagen Peptides Unflavoured 28 Servings - Default"
+    },
+    {
+      "mapping_id": "2127",
+      "offer_id": "1941",
+      "canonical_product_id": "966",
+      "canonical_variant_id": "1885",
+      "external_product_id": "9123317678320",
+      "external_variant_id": "46849789100272",
+      "external_sku": null,
+      "label": "Fresh Out  Pre-Workout by Fresh  & Condemned Labz 25 servings - Default"
+    },
+    {
+      "mapping_id": "2128",
+      "offer_id": "1942",
+      "canonical_product_id": "885",
+      "canonical_variant_id": "1422",
+      "external_product_id": "9123689627888",
+      "external_variant_id": "46850321678576",
+      "external_sku": null,
+      "label": "Innovapharm MVPRE 3.0 Pre Workout 437g - Sweet Apple Punch / 437g"
+    },
+    {
+      "mapping_id": "2129",
+      "offer_id": "1943",
+      "canonical_product_id": "959",
+      "canonical_variant_id": "1875",
+      "external_product_id": "9131870388464",
+      "external_variant_id": "46876612100336",
+      "external_sku": null,
+      "label": "Black Magic BZRK Pre-Workout 25 Servings - Peach Rings / 25servings"
+    },
+    {
+      "mapping_id": "2130",
+      "offer_id": "1944",
+      "canonical_product_id": "959",
+      "canonical_variant_id": "1873",
+      "external_product_id": "9131870388464",
+      "external_variant_id": "46876612133104",
+      "external_sku": null,
+      "label": "Black Magic BZRK Pre-Workout 25 Servings - Cherry Lime / 25servings"
+    },
+    {
+      "mapping_id": "2133",
+      "offer_id": "1947",
+      "canonical_product_id": "1003",
+      "canonical_variant_id": "1964",
+      "external_product_id": "9347509354736",
+      "external_variant_id": "47199606571248",
+      "external_sku": "SWH284",
+      "label": "Swanson Curcumin Complex 120 Capsules - Default"
+    },
+    {
+      "mapping_id": "2134",
+      "offer_id": "1948",
+      "canonical_product_id": "960",
+      "canonical_variant_id": "1877",
+      "external_product_id": "9368900960496",
+      "external_variant_id": "48129621721328",
+      "external_sku": null,
+      "label": "Brain Gains Switch On 225g Nootropic Day-time Formula - Miami Peach / 225g"
+    },
+    {
+      "mapping_id": "2149",
+      "offer_id": "1963",
+      "canonical_product_id": "957",
+      "canonical_variant_id": "1865",
+      "external_product_id": "9623289856240",
+      "external_variant_id": "47984405872880",
+      "external_sku": null,
+      "label": "Applied Nutrition ABE 30 servings - Cherry Cola / 30servings"
+    },
+    {
+      "mapping_id": "2151",
+      "offer_id": "1965",
+      "canonical_product_id": "999",
+      "canonical_variant_id": "1960",
+      "external_product_id": "9623362011376",
+      "external_variant_id": "47984607690992",
+      "external_sku": null,
+      "label": "Soma Melatonin 4 mg - 100 Tablets - Default"
+    },
+    {
+      "mapping_id": "2153",
+      "offer_id": "1967",
+      "canonical_product_id": "997",
+      "canonical_variant_id": "1958",
+      "external_product_id": "9623373840624",
+      "external_variant_id": "47984666542320",
+      "external_sku": null,
+      "label": "Soma D3 4000 IU + K2 1000 ug 100 Tablets - Default"
+    },
+    {
+      "mapping_id": "2154",
+      "offer_id": "1968",
+      "canonical_product_id": "1000",
+      "canonical_variant_id": "1961",
+      "external_product_id": "9623375118576",
+      "external_variant_id": "47984670376176",
+      "external_sku": null,
+      "label": "Soma Methyl B-Complex   30 Capsules - Default"
+    },
+    {
+      "mapping_id": "2155",
+      "offer_id": "1969",
+      "canonical_product_id": "998",
+      "canonical_variant_id": "1959",
+      "external_product_id": "9623376527600",
+      "external_variant_id": "47984677028080",
+      "external_sku": null,
+      "label": "Soma Magnesium Glycinate   90 Capsules - Default"
+    },
+    {
+      "mapping_id": "2156",
+      "offer_id": "1970",
+      "canonical_product_id": "968",
+      "canonical_variant_id": "1887",
+      "external_product_id": "9673589522672",
+      "external_variant_id": "48119163355376",
+      "external_sku": null,
+      "label": "GYM HIGH Cream Of Rice 2.1kg - Blueberry / 2100g"
+    },
+    {
+      "mapping_id": "2157",
+      "offer_id": "1971",
+      "canonical_product_id": "968",
+      "canonical_variant_id": "1889",
+      "external_product_id": "9673589522672",
+      "external_variant_id": "48119163388144",
+      "external_sku": null,
+      "label": "GYM HIGH Cream Of Rice 2.1kg - Maple Syrup / 2100g"
+    },
+    {
+      "mapping_id": "2162",
+      "offer_id": "1976",
+      "canonical_product_id": "165",
+      "canonical_variant_id": "1758",
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051685616",
+      "external_sku": null,
+      "label": "Lenny & Larry's Complete Vegan Cookie  113g - White Chocolate Macadamia / 113g"
+    },
+    {
+      "mapping_id": "2163",
+      "offer_id": "1977",
+      "canonical_product_id": "165",
+      "canonical_variant_id": "1054",
+      "external_product_id": "9674420912368",
+      "external_variant_id": "48124051849456",
+      "external_sku": null,
+      "label": "Lenny & Larry's Complete Vegan Cookie  113g - Apple Pie / 113g"
+    },
+    {
+      "mapping_id": "2169",
+      "offer_id": "1983",
+      "canonical_product_id": "964",
+      "canonical_variant_id": "1883",
+      "external_product_id": "9678103445744",
+      "external_variant_id": "48135761395952",
+      "external_sku": null,
+      "label": "Doctor's Best L-Theanine AlphaWave 200mg 60 Capsules - Default"
+    }
+  ]
+}

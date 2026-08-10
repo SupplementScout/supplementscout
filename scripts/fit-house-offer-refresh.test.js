@@ -8,9 +8,12 @@ const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
   authorizeReviewedMassOos,
   balancedExecutionBatches,
+  loadAuditedMissingVariantManifest,
   loadReviewedMassOosManifest,
   parseArgs,
+  reconcileAuditedMissingVariants,
   reconcileMissingMappedVariants,
+  requireAuditedMissingOwnerApproval,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
 
@@ -103,6 +106,131 @@ test("missing mapped variant reconciliation fails closed outside its exact limit
     maximum_missing_mapped_variants: 1,
     maximum_missing_mapped_variant_ratio: 1,
   }), /URL domain drift/);
+});
+
+test("audited 78-row absence manifest is immutable evidence and not owner OOS authority", () => {
+  const audited = loadAuditedMissingVariantManifest();
+  assert.equal(audited.sha256, config.discovery_policy.audited_missing_variant_manifest_sha256);
+  assert.equal(audited.manifest.row_count, 78);
+  assert.equal(audited.manifest.review_status, "OWNER_OOS_APPROVAL_REQUIRED");
+  assert.equal(audited.manifest.owner_authority, "owner-approved-only-two-rebinds-2026-08-10-no-approval-for-78-oos");
+  assert.equal(audited.manifest.audit.capture_a.semantic_source_fingerprint, audited.manifest.audit.capture_b.semantic_source_fingerprint);
+  assert.equal(new Set(audited.manifest.rows.map((row) => row.external_variant_id)).size, 78);
+  assert.ok(!audited.manifest.rows.some((row) => ["45060374167792", "48124051816688"].includes(row.external_variant_id)));
+});
+
+function auditedRecord(row, overrides = {}) {
+  return {
+    product: { id: row.canonical_product_id },
+    variant: { id: row.canonical_variant_id },
+    mapping: {
+      id: row.mapping_id,
+      external_product_id: row.external_product_id,
+      external_variant_id: row.external_variant_id,
+      external_sku: row.external_sku,
+      external_url: `https://fithouse.uk/products/audited-${row.mapping_id}?variant=${row.external_variant_id}`,
+    },
+    offer: { id: row.offer_id, price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true },
+    ...overrides,
+  };
+}
+
+test("audited reconciliation synthesizes only exact absences and a returned allowlisted variant uses live source", () => {
+  const audited = loadAuditedMissingVariantManifest();
+  const records = audited.manifest.rows.map((row) => auditedRecord(row));
+  const returned = audited.manifest.rows[0];
+  const live = {
+    external_product_id: returned.external_product_id,
+    external_variant_id: returned.external_variant_id,
+    product_handle: "returned-live",
+    external_sku: returned.external_sku,
+    price: "7.77",
+    shipping_cost: "3.99",
+    in_stock: true,
+  };
+  const result = reconcileAuditedMissingVariants(records, [live], audited);
+  assert.equal(result.sourceVariants.length, 78);
+  assert.equal(result.sourceVariants[0], live);
+  assert.deepEqual(result.returnedLive, [returned.external_variant_id]);
+  assert.equal(result.missingVariantIds.length, 77);
+  assert.ok(result.sourceVariants.slice(1).every((row) => row.audited_source_absent === true && row.in_stock === false));
+  assert.equal(result.review_status, "OWNER_OOS_APPROVAL_REQUIRED");
+});
+
+test("a 79th missing mapping and any allowlisted tuple drift fail closed", () => {
+  const audited = loadAuditedMissingVariantManifest();
+  const records = audited.manifest.rows.map((row) => auditedRecord(row));
+  const extra = auditedRecord({
+    mapping_id: "99999", offer_id: "99998", canonical_product_id: "1", canonical_variant_id: "2",
+    external_product_id: "3", external_variant_id: "4", external_sku: null,
+  });
+  assert.throws(
+    () => reconcileAuditedMissingVariants([...records, extra], [], audited),
+    (error) => error.code === "IDENTITY_DRIFT" && error.detail.unallowlisted_missing_variants.length === 1,
+  );
+  const drifted = structuredClone(records);
+  drifted[0].variant.id = "999";
+  assert.throws(() => reconcileAuditedMissingVariants(drifted, [], audited), /no longer matches its canonical mapping/);
+});
+
+test("audited evidence does not weaken generic missing or MASS_OOS limits", () => {
+  assert.equal(config.discovery_policy.maximum_missing_mapped_variants, 28);
+  assert.equal(config.discovery_policy.maximum_missing_mapped_variant_ratio, 0.1);
+  assert.equal(config.guardrails.mass_oos_block_count, 4);
+  assert.doesNotMatch(automation, /mass_oos_block_count:\s*config\.guardrails\.mass_oos_block_count\s*\+/);
+  assert.match(automation, /review_status:\s*reconciled\.review_status/);
+  assert.match(automation, /if\(auditedMissing\)\{\s*requireAuditedMissingOwnerApproval\(auditedMissing,reconciled,classified,reviewed\);\s*massOosAuthorization=\{classification:classified,review:null\};/);
+});
+
+test("three newly absent audited rows require owner approval before artifacts or registration", () => {
+  const audited = loadAuditedMissingVariantManifest();
+  const records = audited.manifest.rows.map((row, index) => auditedRecord(row, {
+    offer: { id: row.offer_id, price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: index >= 75 },
+  }));
+  const reconciled = reconcileAuditedMissingVariants(records, [], audited);
+  assert.equal(reconciled.missingVariantIds.length, 78);
+  assert.equal(reconciled.newUnavailableCount, 3);
+  const classification = { state: "DRY_RUN_READY", reason: null, rows: [] };
+  assert.throws(
+    () => requireAuditedMissingOwnerApproval(audited, reconciled, classification, null),
+    (error) => error.code === "OWNER_OOS_APPROVAL_REQUIRED"
+      && error.stage === "OWNER_APPROVAL"
+      && error.detail.new_unavailable_count === 3
+      && error.detail.artifacts_created === 0
+      && error.detail.registration_attempted === false,
+  );
+  assert.ok(automation.indexOf("requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classified,reviewed)") < automation.indexOf("const artifacts=[]"));
+});
+
+test("a returned audited variant may restock but cannot become absent again without owner approval", () => {
+  const audited = loadAuditedMissingVariantManifest();
+  const returned = audited.manifest.rows[0];
+  const initiallyOos = audited.manifest.rows.map((row) => auditedRecord(row, {
+    offer: { id: row.offer_id, price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: false },
+  }));
+  const live = {
+    external_product_id: returned.external_product_id,
+    external_variant_id: returned.external_variant_id,
+    product_handle: "returned-live",
+    external_sku: returned.external_sku,
+    price: "10.00",
+    shipping_cost: "3.99",
+    in_stock: true,
+  };
+  const restock = reconcileAuditedMissingVariants(initiallyOos, [live], audited);
+  assert.equal(restock.newUnavailableCount, 0);
+  assert.doesNotThrow(() => requireAuditedMissingOwnerApproval(audited, restock, { state: "DRY_RUN_READY", reason: null }, null));
+
+  const afterRestock = structuredClone(initiallyOos);
+  afterRestock[0].offer.in_stock = true;
+  const absentAgain = reconcileAuditedMissingVariants(afterRestock, [], audited);
+  assert.equal(absentAgain.newUnavailableCount, 1);
+  assert.throws(
+    () => requireAuditedMissingOwnerApproval(audited, absentAgain, { state: "DRY_RUN_READY", reason: null }, null),
+    (error) => error.code === "OWNER_OOS_APPROVAL_REQUIRED"
+      && error.detail.artifacts_created === 0
+      && error.detail.registration_attempted === false,
+  );
 });
 
 test("reviewed mass OOS authorization is hash-bound to the exact source and rows", () => {

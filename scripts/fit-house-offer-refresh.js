@@ -126,6 +126,38 @@ function reconcileMissingMappedVariants(targets,sourceVariants,discoveryPolicy=c
   return{sourceVariants:[...sourceVariants,...unavailable],missingVariantIds:missing.map(row=>String(row.external_variant_id)),newUnavailableCount:missing.filter(row=>row.in_stock).length};
 }
 
+function loadAuditedMissingVariantManifest(){
+  const policy=config.discovery_policy,file=path.join(ROOT,policy.audited_missing_variant_manifest_path||""),bytes=fs.readFileSync(file),digest=crypto.createHash("sha256").update(bytes).digest("hex");
+  invariant(digest===policy.audited_missing_variant_manifest_sha256,"Fit House audited missing-variant manifest SHA mismatch");
+  const manifest=JSON.parse(bytes),topKeys=["schema_version","kind","authority","review_status","owner_authority","retailer_id","retailer_slug","row_count","policy","audit","rows"].sort();
+  invariant(JSON.stringify(Object.keys(manifest).sort())===JSON.stringify(topKeys)
+    &&manifest.schema_version===1
+    &&manifest.kind==="fit-house-audited-missing-variants-v1"
+    &&manifest.authority==="read-only-double-source-audit-2026-08-10"
+    &&manifest.review_status==="OWNER_OOS_APPROVAL_REQUIRED"
+    &&manifest.owner_authority==="owner-approved-only-two-rebinds-2026-08-10-no-approval-for-78-oos"
+    &&manifest.retailer_id==="9"&&manifest.retailer_slug==="fit-house"
+    &&manifest.row_count===78
+    &&manifest.policy==="CLASSIFICATION_EVIDENCE_ONLY_PRESERVE_CANONICAL_IDENTITY_NO_OOS_APPLY_AUTHORITY"
+    &&Array.isArray(manifest.rows)&&manifest.rows.length===78,"Fit House audited missing-variant manifest schema mismatch");
+  const captureKeys=["captured_at","semantic_source_fingerprint","product_count","variant_count"].sort();
+  for(const capture of[manifest.audit?.capture_a,manifest.audit?.capture_b])invariant(capture&&JSON.stringify(Object.keys(capture).sort())===JSON.stringify(captureKeys)&&Number.isFinite(Date.parse(capture.captured_at))&&/^[0-9a-f]{64}$/.test(capture.semantic_source_fingerprint)&&capture.product_count===240&&capture.variant_count===332,"Fit House audited missing-variant capture mismatch");
+  invariant(manifest.audit.capture_a.semantic_source_fingerprint===manifest.audit.capture_b.semantic_source_fingerprint,"Fit House audited missing-variant captures disagree");
+  const rowKeys=["mapping_id","offer_id","canonical_product_id","canonical_variant_id","external_product_id","external_variant_id","external_sku","label"].sort();
+  for(const row of manifest.rows)invariant(JSON.stringify(Object.keys(row).sort())===JSON.stringify(rowKeys)&&[row.mapping_id,row.offer_id,row.canonical_product_id,row.canonical_variant_id,row.external_product_id,row.external_variant_id].every(value=>/^\d+$/.test(value))&&(row.external_sku===null||typeof row.external_sku==="string")&&typeof row.label==="string"&&row.label.length>0,"Fit House audited missing-variant row mismatch");
+  invariant(new Set(manifest.rows.map(row=>row.mapping_id)).size===78&&new Set(manifest.rows.map(row=>row.offer_id)).size===78&&new Set(manifest.rows.map(row=>row.external_variant_id)).size===78&&manifest.rows.every((row,index)=>index===0||Number(manifest.rows[index-1].mapping_id)<Number(row.mapping_id)),"Fit House audited missing-variant identities must be unique and ascending");
+  return{manifest,sha256:digest};
+}
+
+function reconcileAuditedMissingVariants(records,sourceVariants,audited=loadAuditedMissingVariantManifest()){
+  const byMapping=new Map(records.map(record=>[String(record.mapping.id),record])),sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),allowlisted=new Set(audited.manifest.rows.map(row=>row.external_variant_id)),synthetic=[],returnedLive=[];
+  for(const row of audited.manifest.rows){const record=byMapping.get(row.mapping_id);invariant(record&&String(record.offer.id)===row.offer_id&&String(record.product.id)===row.canonical_product_id&&String(record.variant.id)===row.canonical_variant_id&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&(record.mapping.external_sku||null)===(row.external_sku||null),"Fit House audited missing variant no longer matches its canonical mapping");if(sourceIds.has(row.external_variant_id))returnedLive.push(row.external_variant_id)}
+  const unallowlisted=[];
+  for(const record of records){const variantId=String(record.mapping.external_variant_id);if(sourceIds.has(variantId))continue;if(!allowlisted.has(variantId)){unallowlisted.push({mapping_id:String(record.mapping.id),offer_id:String(record.offer.id),external_product_id:String(record.mapping.external_product_id),external_variant_id:variantId});continue}const direct=new URL(record.mapping.external_url),expectedHost=new URL(config.store_url).hostname.toLowerCase().replace(/^www\./,""),parts=direct.pathname.split("/").filter(Boolean),productHandle=parts[0]==="products"?parts[1]:null;invariant(direct.hostname.toLowerCase().replace(/^www\./,"")===expectedHost&&productHandle,"Fit House audited missing variant URL is invalid");synthetic.push({external_product_id:String(record.mapping.external_product_id),external_variant_id:variantId,product_handle:productHandle,external_sku:record.mapping.external_sku||null,price:money(record.offer.price),shipping_cost:money(record.offer.shipping_cost),total_price:money(record.offer.total_price),in_stock:false,source_updated_at:null,audited_source_absent:true})}
+  if(unallowlisted.length)throw new RefreshError("IDENTITY_DRIFT","an unallowlisted Fit House mapped variant is absent from source","CLASSIFIER",{unallowlisted_missing_variants:unallowlisted});
+  return{sourceVariants:[...sourceVariants,...synthetic],missingVariantIds:synthetic.map(row=>row.external_variant_id),newUnavailableCount:synthetic.filter(row=>{const record=records.find(item=>String(item.mapping.external_variant_id)===row.external_variant_id);return Boolean(record.offer.in_stock)}).length,returnedLive,manifest_sha256:audited.sha256,review_status:audited.manifest.review_status};
+}
+
 function loadReviewedMassOosManifest(){
   const policy=config.discovery_policy,file=path.join(ROOT,policy.reviewed_mass_oos_manifest_path||""),bytes=fs.readFileSync(file),actual=crypto.createHash("sha256").update(bytes).digest("hex");
   invariant(actual===policy.reviewed_mass_oos_manifest_sha256,"reviewed mass OOS manifest SHA mismatch");
@@ -147,6 +179,11 @@ function authorizeReviewedMassOos(classification,sourceFingerprint){
   const rows=classification.rows.filter(row=>row.target.in_stock&&!row.source.in_stock).map(row=>({offer_id:String(row.offer_id),mapping_id:String(row.retailer_product_id),external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id),action:row.action,old_price:money(row.target.price),new_price:money(row.source.price),old_stock:true,new_stock:false}));
   invariant(canonicalHash(rows)===canonicalHash(reviewed.manifest.rows),"reviewed mass OOS scope drift");
   return{classification:{...classification,state:"DRY_RUN_READY",reason:null,action:"REVIEWED_MASS_OOS"},review:{manifest_sha256:reviewed.sha256,authorized_by:reviewed.manifest.authorized_by,authorized_at:reviewed.manifest.authorized_at,row_count:reviewed.manifest.row_count,source_snapshot_fingerprint:sourceFingerprint}};
+}
+
+function requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classification,reviewed){
+  if(!auditedMissing||reviewed||Number(reconciled.newUnavailableCount)===0)return;
+  throw new RefreshError("OWNER_OOS_APPROVAL_REQUIRED","new Fit House OOS transitions from audited missing-source evidence require an exact owner-bound reviewed contract","OWNER_APPROVAL",{audited_manifest_sha256:reconciled.manifest_sha256,review_status:reconciled.review_status,new_unavailable_count:Number(reconciled.newUnavailableCount),classifier_state:classification.state,classifier_reason:classification.reason||null,artifacts_created:0,registration_attempted:false});
 }
 
 async function readState(target){
@@ -224,13 +261,20 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
       throw new RefreshError("REVIEWED_MANIFEST_DRIFT",error.message,"REVIEWED_CONTRACT",{reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint});
     }
   }
-  const reconciled=reconcileMissingMappedVariants(targets,sourceVariants);
-  const policy={...config.guardrails,mass_oos_block_count:config.guardrails.mass_oos_block_count+reconciled.newUnavailableCount,required_matched_offers:config.approved_mapping_count,store_url:config.store_url};
+  const auditedMissing=config.discovery_policy.audited_missing_variant_manifest_path?loadAuditedMissingVariantManifest():null;
+  const reconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,sourceVariants,auditedMissing):reconcileMissingMappedVariants(targets,sourceVariants);
+  const policy={...config.guardrails,required_matched_offers:config.approved_mapping_count,store_url:config.store_url};
   const classified=reviewed?.classify
     ? reviewed.classify({targets,sourceVariants:reconciled.sourceVariants,sourceCapturedAt:capturedAt,sourceFingerprint:snapshot.semantic_source_fingerprint})
     : classifyExistingOffers({targets,sourceVariants:reconciled.sourceVariants,policy,guardScope:{name:config.guard_scope_name,retailer:config.retailer_name},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count});
-  const massOosAuthorization=authorizeReviewedMassOos(classified,snapshot.semantic_source_fingerprint),classification=massOosAuthorization.classification;
+  let massOosAuthorization;
+  if(auditedMissing){
+    requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classified,reviewed);
+    massOosAuthorization={classification:classified,review:null};
+  }else massOosAuthorization=authorizeReviewedMassOos(classified,snapshot.semantic_source_fingerprint);
+  const classification=massOosAuthorization.classification;
   if(diagnostic){
+    if(auditedMissing)diagnostic.guard_results.push({guard:"AUDITED_MISSING_VARIANTS",result:"EVIDENCE_ONLY",manifest_sha256:reconciled.manifest_sha256,review_status:reconciled.review_status,source_absent:reconciled.missingVariantIds.length,returned_live:reconciled.returnedLive});
     diagnostic.classifier_summary=classificationDiagnostic(classification);
     diagnostic.mappings_matched=Array.isArray(classification.rows)?classification.rows.length:0;
     diagnostic.mappings_missing=Math.max(0,targets.length-diagnostic.mappings_matched);
@@ -341,4 +385,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executeRefresh,executionRow,guardrailsFor,loadApprovedManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileMissingMappedVariants,registrationRequest,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executeRefresh,executionRow,guardrailsFor,loadApprovedManifest,loadAuditedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};
