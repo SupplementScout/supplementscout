@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "kind": "jons-reviewed-missing-variants-v1",
+  "authority": "owner-approved-chat-2026-08-10-five-jons-recommendations",
+  "retailer_id": "10",
+  "retailer_slug": "jon-s-supplements",
+  "row_count": 3,
+  "policy": "KEEP_CANONICAL_IDENTITY_AND_MARK_OFFER_OOS_WHILE_EXACT_SOURCE_VARIANT_IS_ABSENT",
+  "rows": [
+    {
+      "mapping_id": "1398",
+      "offer_id": "1212",
+      "canonical_product_id": "858",
+      "canonical_variant_id": "1284",
+      "external_product_id": "10044164899154",
+      "external_variant_id": "50651557757266",
+      "external_sku": "CNP60005",
+      "label": "CNP Cream of Rice 2kg — Disco Biscuit"
+    },
+    {
+      "mapping_id": "1429",
+      "offer_id": "1243",
+      "canonical_product_id": "866",
+      "canonical_variant_id": "1315",
+      "external_product_id": "10032290431314",
+      "external_variant_id": "50602413949266",
+      "external_sku": "CNP09013",
+      "label": "CNP Premium Whey 2kg — White Chocolate Hazelnut"
+    },
+    {
+      "mapping_id": "1654",
+      "offer_id": "1468",
+      "canonical_product_id": "931",
+      "canonical_variant_id": "1540",
+      "external_product_id": "10085668684114",
+      "external_variant_id": "50825200271698",
+      "external_sku": null,
+      "label": "Swedish Supplements Cutter 120 Caps"
+    }
+  ]
+}

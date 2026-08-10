@@ -34,6 +34,7 @@ const EXCLUSIONS = Object.freeze({
     "20260810170000_support_simply_offer_635_reviewed_sale_validation",
     "20260810180000_support_simply_offer_635_reviewed_sale_registration",
     "20260810190000_rebind_jons_loaded_eaa_fruit_twist_variant",
+    "20260810200000_rebind_two_reviewed_jons_variants",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
