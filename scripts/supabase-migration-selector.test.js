@@ -149,16 +149,17 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the completed authorization and exact pending Strom correction", () => {
+test("production records completed Strom correction and exact pending variant move", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
-    filename: "20260810220000_correct_jons_strom_buttered_pancake_variant.sql",
-    sha256: "2fa4db1f530a53c19a8a74f6b6f15ce1a3dc2e006888a204e5ac929395bd1b58",
+    filename: "20260810230000_complete_jons_strom_buttered_pancake_variant_move.sql",
+    sha256: "6e13a2ea76d0569d4e72dab8bbb6dcc8b9ecce643007cb9c28798d6756785efb",
+    expectedCatalogueDeltas: { product_variants: 1 },
   }]);
-  assert.equal(contract.ledgerCount, 100);
+  assert.equal(contract.ledgerCount, 101);
   assert.equal(
     contract.ledgerFingerprint,
-    "56be8fafb13998d9531187330e1a65edaca5ee57ea196f215d7686f312c41107",
+    "4a6c12eee632470f008480d7c6ac2a73fb4b08dd745b68e9de0d21c3bccda4f8",
   );
 });
 
@@ -261,10 +262,10 @@ test("production binds its exact post-manifest-rebind ledger", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 100);
+  assert.equal(result.ledger_count, 101);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, contract.pending.map(({ filename }) => filename.slice(0, -4)));
-  assert.equal(result.selected_files.length, 101);
+  assert.equal(result.selected_files.length, 102);
   assert.deepEqual(result.pending_files, contract.pending.map(({ filename }) => filename));
   assert.equal(Object.keys(result.pending_sha256s).length, 1);
   assert.equal(result.pending_file, contract.pending[0].filename);

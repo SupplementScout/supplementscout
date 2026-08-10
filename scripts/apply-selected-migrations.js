@@ -22,6 +22,27 @@ const CATALOGUE_TABLES = Object.freeze([
   "price_history",
 ]);
 
+function expectedCatalogueCounts(before, pending) {
+  invariant(before && Array.isArray(pending), "catalogue count inputs are required");
+  const deltas = Object.fromEntries(CATALOGUE_TABLES.map((table) => [table, 0]));
+  for (const migration of pending) {
+    const declared = migration.expectedCatalogueDeltas || {};
+    invariant(
+      declared && typeof declared === "object" && !Array.isArray(declared)
+        && Object.keys(declared).every((key) => CATALOGUE_TABLES.includes(key))
+        && Object.values(declared).every(Number.isInteger),
+      "invalid expected catalogue deltas",
+    );
+    for (const [table, delta] of Object.entries(declared)) deltas[table] += delta;
+  }
+  return Object.fromEntries(CATALOGUE_TABLES.map((table) => {
+    invariant(/^\d+$/.test(String(before[table])), `invalid before count for ${table}`);
+    const expected = BigInt(before[table]) + BigInt(deltas[table]);
+    invariant(expected >= 0n, `negative expected count for ${table}`);
+    return [table, expected.toString()];
+  }));
+}
+
 function invariant(value, message) {
   if (!value) throw new Error(message);
 }
@@ -188,6 +209,7 @@ async function main(argv = process.argv.slice(2)) {
     );
 
     const beforeCounts = await catalogueCounts(client);
+    const expectedAfterCounts = expectedCatalogueCounts(beforeCounts, contract.pending);
     for (const migration of pendingSql) {
       const identifier = migration.filename.slice(0, -4);
       const split = identifier.indexOf("_");
@@ -205,10 +227,8 @@ async function main(argv = process.argv.slice(2)) {
 
     const checks = await validateResult(client);
     const afterCounts = await catalogueCounts(client);
-    invariant(
-      JSON.stringify(afterCounts) === JSON.stringify(beforeCounts),
-      "catalogue row counts changed during schema migration",
-    );
+    invariant(JSON.stringify(afterCounts) === JSON.stringify(expectedAfterCounts),
+      "catalogue row counts differ from exact reviewed migration deltas");
 
     let committedState = null;
     if (options.mode === "rehearse") {
@@ -232,10 +252,8 @@ async function main(argv = process.argv.slice(2)) {
         "post-commit migration ledger sequence mismatch",
       );
       const committedCounts = await catalogueCounts(client);
-      invariant(
-        JSON.stringify(committedCounts) === JSON.stringify(beforeCounts),
-        "catalogue row counts changed after commit",
-      );
+      invariant(JSON.stringify(committedCounts) === JSON.stringify(expectedAfterCounts),
+        "catalogue row counts differ from exact reviewed deltas after commit");
       await validateResult(client);
       committedState = {
         ledger_count: afterCommitState.remoteLedger.length,
@@ -253,6 +271,7 @@ async function main(argv = process.argv.slice(2)) {
       pending: selection.pending,
       confirmation,
       catalogue_counts_before: beforeCounts,
+      catalogue_counts_expected: expectedAfterCounts,
       catalogue_counts_after: afterCounts,
       schema_checks: checks,
       committed: options.mode === "apply",
@@ -276,6 +295,7 @@ if (require.main === module) {
 module.exports = {
   catalogueCounts,
   databaseState,
+  expectedCatalogueCounts,
   loadEnvFile,
   parseArgs,
   pendingConfirmation,

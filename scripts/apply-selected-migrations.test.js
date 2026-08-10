@@ -3,6 +3,7 @@ const test = require("node:test");
 const {
   parseArgs,
   pendingConfirmation,
+  expectedCatalogueCounts,
   unwrapTransaction,
 } = require("./apply-selected-migrations");
 const { CONTRACTS } = require("./supabase-migration-selector");
@@ -38,4 +39,15 @@ test("transaction wrapper is required and removed", () => {
     () => unwrapTransaction("begin; begin; select 1; commit; commit;", "one.sql"),
     /nested transaction/,
   );
+});
+
+test("catalogue deltas default to zero and allow only exact declared table changes", () => {
+  const before = { products: "10", product_variants: "20", retailer_products: "30", offers: "40", price_history: "50" };
+  assert.deepEqual(expectedCatalogueCounts(before, [{}]), before);
+  assert.deepEqual(expectedCatalogueCounts(before, [{ expectedCatalogueDeltas: { product_variants: 1 } }]), {
+    ...before,
+    product_variants: "21",
+  });
+  assert.throws(() => expectedCatalogueCounts(before, [{ expectedCatalogueDeltas: { unknown: 1 } }]), /invalid expected/);
+  assert.throws(() => expectedCatalogueCounts(before, [{ expectedCatalogueDeltas: { offers: 0.5 } }]), /invalid expected/);
 });
