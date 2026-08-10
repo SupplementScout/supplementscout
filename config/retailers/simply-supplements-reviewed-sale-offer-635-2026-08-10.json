@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "simply-supplements-reviewed-single-sale-v1",
+  "authorization_id": "simply-offer635-sale-20260810-production",
+  "authority": "owner-approved-chat-2026-08-10-after-exact-identity-and-price-review",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": "7",
+  "retailer_slug": "simply-supplements",
+  "source_country": "GB",
+  "source_capture_sha256": "6db3040a902152799bd3e77334ebd32b59f5909f3f5c85902eb0f640173bf689",
+  "source_evidence_captured_at": "2026-08-10T14:33:36.577Z",
+  "row_count": 1,
+  "expected_deltas": {
+    "row_count_deltas": {
+      "products": 0,
+      "product_variants": 0,
+      "retailer_products": 0,
+      "offers": 0,
+      "price_history": 1
+    },
+    "logical_field_deltas": {
+      "offer_price_updates": 1,
+      "offer_shipping_updates": 0,
+      "offer_total_updates": 1,
+      "offer_stock_updates": 0,
+      "offer_url_updates": 0,
+      "mapping_url_updates": 0,
+      "mapping_updated_at_updates": 0,
+      "last_checked_at_updates": 1
+    }
+  },
+  "row": {
+    "offer_id": "635",
+    "mapping_id": "627",
+    "canonical_product_id": "628",
+    "canonical_product": "Potassium Citrate 1300mg with Vitamin C",
+    "canonical_variant_id": "644",
+    "canonical_variant": "Default",
+    "external_product_id": "15934232691037",
+    "external_variant_id": "64643271033181",
+    "external_sku": "C697",
+    "external_gtin": "5056049518292",
+    "external_options": {
+      "Size": "180 tablets",
+      "Subscription": "[Multibuy 1]"
+    },
+    "old_price": "6.41",
+    "new_price": "2.13",
+    "source_compare_at_price": "10.69",
+    "shipping_cost": "1.99",
+    "old_total_price": "8.40",
+    "new_total_price": "4.12",
+    "old_stock": true,
+    "new_stock": true,
+    "offer_url": "https://www.awin1.com/pclick.php?p=45010750835&a=2973875&m=5959",
+    "mapping_url": "https://www.simplysupplements.co.uk/products/potassium-1300mg-vitamin-c?variant=64643271033181",
+    "action": "UPDATE_PRICE",
+    "changed_fields": [
+      "price"
+    ]
+  }
+}
