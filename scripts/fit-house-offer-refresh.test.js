@@ -156,6 +156,25 @@ test("historical OOS rows are balanced across validator children without changin
     batch.filter((row) => !row.atomic_plan.offer.values.in_stock).length / batch.length < 0.35));
 });
 
+test("price and other changes are spread below per-child database guard ratios", () => {
+  const rows = Array.from({ length: 120 }, (_, index) => ({
+    offer_id: String(index + 1),
+    action: index < 17 ? "UPDATE_PRICE" : index < 19 ? "UPDATE_STOCK" : "VERIFY_NO_CHANGE",
+    changed_fields: { price: index < 17, stock: index >= 17 && index < 19, url: false, blocked: false },
+    atomic_plan: {
+      expected_state: { offer: { in_stock: true } },
+      offer: { values: { in_stock: true } },
+    },
+  }));
+  const batches = balancedExecutionBatches(rows, 50, 3);
+  assert.equal(batches.length, 3);
+  assert.equal(batches.flat().length, 120);
+  for (const batch of batches) {
+    assert.ok(batch.filter((row) => row.changed_fields.price).length / batch.length < 0.2);
+    assert.ok(batch.filter((row) => row.action !== "VERIFY_NO_CHANGE").length / batch.length <= 0.25);
+  }
+});
+
 test("new unavailable rows are split within the database validator limit", () => {
   const rows = Array.from({ length: 286 }, (_, index) => ({
     offer_id: String(index + 1),
