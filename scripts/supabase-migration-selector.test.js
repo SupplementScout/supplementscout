@@ -149,9 +149,12 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the completed Fit House rebind with no migration pending", () => {
+test("production records the completed Fit House rebind with exactly the reviewed 47 migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260811000000_authorize_reviewed_fit_house_47_changes.sql",
+    sha256: "338409d7377f99903a5026d70b3848fd3b98ba14a520836b22ae12ee94c570a3",
+  }]);
   assert.equal(contract.ledgerCount, 105);
   assert.equal(
     contract.ledgerFingerprint,
@@ -232,7 +235,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact post-manifest-rebind ledger", () => {
+test("production binds its exact ledger plus the single reviewed Fit House migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -260,12 +263,12 @@ test("production binds its exact post-manifest-rebind ledger", () => {
   });
   assert.equal(result.ledger_count, 105);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 105);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending, ["20260811000000_authorize_reviewed_fit_house_47_changes"]);
+  assert.equal(result.selected_files.length, 106);
+  assert.deepEqual(result.pending_files, ["20260811000000_authorize_reviewed_fit_house_47_changes.sql"]);
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.equal(result.pending_file, "20260811000000_authorize_reviewed_fit_house_47_changes.sql");
+  assert.equal(result.pending_sha256, "338409d7377f99903a5026d70b3848fd3b98ba14a520836b22ae12ee94c570a3");
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

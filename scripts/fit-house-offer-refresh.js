@@ -181,8 +181,35 @@ function authorizeReviewedMassOos(classification,sourceFingerprint){
   return{classification:{...classification,state:"DRY_RUN_READY",reason:null,action:"REVIEWED_MASS_OOS"},review:{manifest_sha256:reviewed.sha256,authorized_by:reviewed.manifest.authorized_by,authorized_at:reviewed.manifest.authorized_at,row_count:reviewed.manifest.row_count,source_snapshot_fingerprint:sourceFingerprint}};
 }
 
+function isExactOwnerBoundAuditedMissingReview(auditedMissing,reconciled,classification,reviewed){
+  if(!reviewed||reviewed.manifest?.retailer_id!=="9"
+    ||reviewed.manifest?.authority!=="owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes"
+    ||reviewed.manifest?.audited_missing_manifest_sha256!==auditedMissing.sha256)return false;
+  const auditedByVariant=new Map(auditedMissing.manifest.rows.map(row=>[row.external_variant_id,row]));
+  const approvedRows=new Map(reviewed.manifest.rows.map(row=>[String(row.offer_id),row]));
+  const newlyUnavailable=classification.rows.filter(row=>row.target.in_stock&&!row.source.in_stock);
+  const reconciledMissing=new Set(reconciled.missingVariantIds.map(String));
+  const syntheticNewlyUnavailable=newlyUnavailable.filter(row=>reconciledMissing.has(String(row.external_variant_id)));
+  if(newlyUnavailable.length!==36||syntheticNewlyUnavailable.length!==Number(reconciled.newUnavailableCount))return false;
+  return newlyUnavailable.every(row=>{
+    const approved=approvedRows.get(String(row.offer_id)),audited=auditedByVariant.get(String(row.external_variant_id));
+    const synthetic=reconciledMissing.has(String(row.external_variant_id));
+    return approved
+      &&String(approved.mapping_id)===String(row.retailer_product_id)
+      &&String(approved.external_product_id)===String(row.external_product_id)
+      &&String(approved.external_variant_id)===String(row.external_variant_id)
+      &&approved.old_stock===true&&approved.new_stock===false
+      &&Boolean(approved.evidence?.audited_source_absent)===synthetic
+      &&(!synthetic||(audited
+        &&String(audited.offer_id)===String(row.offer_id)
+        &&String(audited.mapping_id)===String(row.retailer_product_id)
+        &&String(audited.external_product_id)===String(row.external_product_id)
+        &&String(audited.external_variant_id)===String(row.external_variant_id)));
+  });
+}
 function requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classification,reviewed){
-  if(!auditedMissing||reviewed||Number(reconciled.newUnavailableCount)===0)return;
+  if(!auditedMissing||Number(reconciled.newUnavailableCount)===0)return;
+  if(isExactOwnerBoundAuditedMissingReview(auditedMissing,reconciled,classification,reviewed))return;
   throw new RefreshError("OWNER_OOS_APPROVAL_REQUIRED","new Fit House OOS transitions from audited missing-source evidence require an exact owner-bound reviewed contract","OWNER_APPROVAL",{audited_manifest_sha256:reconciled.manifest_sha256,review_status:reconciled.review_status,new_unavailable_count:Number(reconciled.newUnavailableCount),classifier_state:classification.state,classifier_reason:classification.reason||null,artifacts_created:0,registration_attempted:false});
 }
 
@@ -385,4 +412,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executeRefresh,executionRow,guardrailsFor,loadApprovedManifest,loadAuditedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executeRefresh,executionRow,guardrailsFor,isExactOwnerBoundAuditedMissingReview,loadApprovedManifest,loadAuditedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,sourceHealth,sumDeltas,verificationRecord};

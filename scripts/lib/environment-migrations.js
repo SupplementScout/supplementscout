@@ -41,6 +41,7 @@ const EXCLUSIONS = Object.freeze({
     "20260810240000_create_reviewed_jons_17_explicit_variants",
     "20260810250000_supersede_abandoned_partial_jons_plan",
     "20260810260000_rebind_two_reviewed_fit_house_variants",
+    "20260811000000_authorize_reviewed_fit_house_47_changes",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

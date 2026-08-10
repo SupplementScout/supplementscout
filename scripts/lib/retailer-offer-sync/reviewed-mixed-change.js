@@ -10,6 +10,7 @@ const MANIFEST_KINDS = Object.freeze({
   15: "jons-existing-offer-15-change-reviewed-manifest",
   16: "jons-existing-offer-16-change-reviewed-manifest",
   23: "jons-existing-offer-23-change-reviewed-manifest",
+  47: "fit-house-existing-offer-47-change-reviewed-manifest",
 });
 const CONTRACT_KIND = "retailer-reviewed-mixed-change-v1";
 const SCOPED_CONTRACT_KIND = "retailer-reviewed-mixed-change-v2";
@@ -26,6 +27,10 @@ const EXPECTED_SCOPED_MANIFEST_KEYS = Object.freeze([...EXPECTED_MANIFEST_KEYS, 
 const EXPECTED_MAPPED_SCOPE_MANIFEST_KEYS = Object.freeze([
   ...EXPECTED_MANIFEST_KEYS,
   "mapped_source_contract",
+]);
+const EXPECTED_FIT_HOUSE_MANIFEST_KEYS = Object.freeze([
+  ...EXPECTED_MANIFEST_KEYS,
+  "audited_missing_manifest_sha256",
 ]);
 const EXPECTED_SCOPED_SOURCE_KEYS = Object.freeze([
   "schema_version", "reviewed_full_source_fingerprint", "observed_full_source_fingerprint",
@@ -60,6 +65,15 @@ const EXPECTED_ROW_KEYS = Object.freeze([
   "review_classification", "source_evidence_timestamp",
   "second_evidence_timestamp", "identity_stability",
   "creatine_refresh_subset", "evidence",
+]);
+const EXPECTED_FIT_HOUSE_ROW_KEYS = Object.freeze([
+  "offer_id", "mapping_id", "canonical_product_id", "canonical_product",
+  "canonical_variant_id", "canonical_variant", "external_product_id",
+  "external_variant_id", "product", "option", "old_price", "new_price",
+  "old_stock", "new_stock", "old_url", "new_url", "source_sku",
+  "mapping_gtin", "source_gtin", "exact_action", "changed_fields",
+  "review_classification", "source_evidence_timestamp",
+  "second_evidence_timestamp", "identity_stability", "evidence",
 ]);
 const EXPECTED_DELTAS = Object.freeze({
   products: 0,
@@ -103,6 +117,24 @@ const EXPECTED_DELTAS_23_STOCK_ONLY = Object.freeze({
   stock_updates: 23,
   freshness_updates: 23,
 });
+const EXPECTED_DELTAS_47_FIT_HOUSE = Object.freeze({
+  ...EXPECTED_DELTAS_11_STOCK_ONLY,
+  stock_updates: 45,
+  item_price_updates: 3,
+  delivered_total_updates: 3,
+  freshness_updates: 47,
+  price_history_rows: 3,
+});
+const FIT_HOUSE_47_OFFER_IDS = Object.freeze([
+  "689", "691", "712", "713", "717", "723", "729", "730", "735", "737", "743", "750",
+  "751", "758", "908", "911", "912", "914", "915", "917", "928", "936", "937", "939",
+  "957", "985", "1857", "1877", "1896", "1897", "1910", "1915", "1921", "1927", "1928",
+  "1933", "1934", "1935", "1941", "1946", "1953", "1954", "1955", "1963", "1973", "1978", "1979",
+]);
+const FIT_HOUSE_AUDITED_MISSING_SHA256 = "d30eb618689228c6787df885cebc8855fa72c36cf312d25733434be98ba15aeb";
+const FIT_HOUSE_47_TUPLE_HASH = "b23226d28b5da0cede2e4395bbfd35cf4ba2b66803924ebe19bb48b2321510ea";
+const FIT_HOUSE_36_OOS_TUPLE_HASH = "aea97f0ade63240431dfaf837f428a78f36fcd25fe3d8d751a14205e0547c4ed";
+const FIT_HOUSE_29_AUDITED_ABSENCE_TUPLE_HASH = "2dbe16d3226f089787ba70f93f1f03f63c65a6561529644e444d5f744630a2e7";
 
 function expectedManifestDeltas(rowCount) {
   return rowCount === 10 ? EXPECTED_DELTAS_10_STOCK_ONLY
@@ -110,6 +142,7 @@ function expectedManifestDeltas(rowCount) {
     : rowCount === 15 ? EXPECTED_DELTAS
     : rowCount === 16 ? EXPECTED_DELTAS_16
     : rowCount === 23 ? EXPECTED_DELTAS_23_STOCK_ONLY
+    : rowCount === 47 ? EXPECTED_DELTAS_47_FIT_HOUSE
       : null;
 }
 
@@ -130,8 +163,12 @@ function money(value, label) {
 
 function stableReviewedRows(manifest) {
   return manifest.rows.map((row) => {
-    if (!exactKeys(row, EXPECTED_ROW_KEYS)) throw new Error("reviewed manifest row keys mismatch");
-    if (!/^\d+$/.test(String(row.jons_product_id)) || !/^\d+$/.test(String(row.jons_variant_id))) {
+    const fitHouse = manifest.retailer_id === "9";
+    const expectedKeys = fitHouse ? EXPECTED_FIT_HOUSE_ROW_KEYS : EXPECTED_ROW_KEYS;
+    if (!exactKeys(row, expectedKeys)) throw new Error("reviewed manifest row keys mismatch");
+    const externalProductId = fitHouse ? row.external_product_id : row.jons_product_id;
+    const externalVariantId = fitHouse ? row.external_variant_id : row.jons_variant_id;
+    if (!/^\d+$/.test(String(externalProductId)) || !/^\d+$/.test(String(externalVariantId))) {
       throw new Error("reviewed manifest Shopify identity is invalid");
     }
     if (!ACTIONS.has(row.exact_action)) throw new Error("reviewed manifest action is not allowed");
@@ -145,17 +182,17 @@ function stableReviewedRows(manifest) {
       throw new Error("reviewed manifest changed fields mismatch");
     }
     return {
-      external_product_id: String(row.jons_product_id),
-      external_variant_id: String(row.jons_variant_id),
+      external_product_id: String(externalProductId),
+      external_variant_id: String(externalVariantId),
       action: row.exact_action,
       changed_fields: changedFields,
       before: {
-        price: money(row.old_price, "old_price"),
+        price: fitHouse ? String(Number(money(row.old_price, "old_price"))) : money(row.old_price, "old_price"),
         in_stock: Boolean(row.old_stock),
         url: String(row.old_url),
       },
       after: {
-        price: money(row.new_price, "new_price"),
+        price: fitHouse ? String(Number(money(row.new_price, "new_price"))) : money(row.new_price, "new_price"),
         in_stock: Boolean(row.new_stock),
         url: String(row.new_url),
       },
@@ -507,14 +544,18 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
   const manifest = JSON.parse(bytes.toString("utf8"));
   const scoped = exactKeys(manifest, EXPECTED_SCOPED_MANIFEST_KEYS);
   const mapped = exactKeys(manifest, EXPECTED_MAPPED_SCOPE_MANIFEST_KEYS);
+  const fitHouse = exactKeys(manifest, EXPECTED_FIT_HOUSE_MANIFEST_KEYS);
   const expectedDeltas = expectedManifestDeltas(manifest.row_count);
-  if (!(exactKeys(manifest, EXPECTED_MANIFEST_KEYS) || scoped || mapped)
+  if (!(exactKeys(manifest, EXPECTED_MANIFEST_KEYS) || scoped || mapped || fitHouse)
       || manifest.schema_version !== 1
       || manifest.kind !== MANIFEST_KINDS[manifest.row_count]
       || manifest.target_environment !== "PRODUCTION"
       || manifest.target_project_ref !== "aftboxmrdgyhizicfsfu"
-      || manifest.retailer_id !== "10"
-      || manifest.retailer_slug !== "jon-s-supplements"
+      || !((manifest.retailer_id === "10" && manifest.retailer_slug === "jon-s-supplements")
+        || (manifest.retailer_id === "9" && manifest.retailer_slug === "fit-house"
+          && manifest.row_count === 47
+          && manifest.authority === "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes"
+          && SHA256.test(manifest.audited_missing_manifest_sha256)))
       || manifest.source_country !== "GB"
       || !SHA256.test(manifest.source_capture_sha256)
       || !expectedDeltas
@@ -567,6 +608,43 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
       throw new Error("mapped reviewed source contract mismatch");
     }
   }
+  if (fitHouse) {
+    const tuples = manifest.rows.map((row) => [row.offer_id, row.mapping_id,
+      row.canonical_product_id, row.canonical_variant_id,
+      row.external_product_id, row.external_variant_id]);
+    const newlyOos = manifest.rows.filter((row) => row.old_stock === true && row.new_stock === false);
+    const restocked = manifest.rows.filter((row) => row.old_stock === false && row.new_stock === true);
+    const priceChanged = manifest.rows.filter((row) => row.old_price !== row.new_price);
+    const auditedAbsences = newlyOos.filter((row) => row.evidence?.audited_source_absent === true);
+    const actions = manifest.rows.reduce((counts, row) => ({
+      ...counts, [row.exact_action]: (counts[row.exact_action] || 0) + 1,
+    }), {});
+    const overlap = manifest.rows.find((row) => row.offer_id === "1910");
+    if (manifest.audited_missing_manifest_sha256 !== FIT_HOUSE_AUDITED_MISSING_SHA256
+        || JSON.stringify(manifest.immutable_scope_offer_ids) !== JSON.stringify(FIT_HOUSE_47_OFFER_IDS)
+        || fingerprint(tuples) !== FIT_HOUSE_47_TUPLE_HASH
+        || newlyOos.length !== 36 || restocked.length !== 9 || priceChanged.length !== 3
+        || fingerprint(newlyOos.map((row) => [row.offer_id, row.mapping_id,
+          row.canonical_product_id, row.canonical_variant_id,
+          row.external_product_id, row.external_variant_id])) !== FIT_HOUSE_36_OOS_TUPLE_HASH
+        || auditedAbsences.length !== 29
+        || fingerprint(auditedAbsences.map((row) => [row.offer_id, row.mapping_id,
+          row.canonical_product_id, row.canonical_variant_id,
+          row.external_product_id, row.external_variant_id])) !== FIT_HOUSE_29_AUDITED_ABSENCE_TUPLE_HASH
+        || newlyOos.some((row) => row.evidence?.audited_source_absent !== true
+          && row.evidence?.audited_source_absent !== false)
+        || JSON.stringify(priceChanged.map((row) => row.offer_id)) !== JSON.stringify(["691", "1910", "1935"])
+        || actions.UPDATE_STOCK !== 44 || actions.UPDATE_PRICE !== 2
+        || actions.UPDATE_PRICE_AND_STOCK !== 1 || Object.keys(actions).length !== 3
+        || !overlap || overlap.old_stock !== false || overlap.new_stock !== true
+        || overlap.old_price !== "24.99" || overlap.new_price !== "34.99"
+        || overlap.exact_action !== "UPDATE_PRICE_AND_STOCK"
+        || JSON.stringify([...overlap.changed_fields].sort()) !== JSON.stringify(["price", "stock"])
+        || manifest.rows.some((row) => row.old_url !== row.new_url
+          || row.changed_fields.includes("url"))) {
+      throw new Error("Fit House reviewed 47-row owner scope mismatch");
+    }
+  }
   const reviewedRows = stableReviewedRows(manifest);
   if (new Set(reviewedRows.map((row) => row.external_variant_id)).size !== reviewedRows.length) {
     throw new Error("reviewed manifest has duplicate Shopify variant identity");
@@ -583,6 +661,11 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
 }
 
 function artifactReviewedRows(artifact) {
+  const artifactMoney = (value) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric < 0) throw new Error("artifact price must be exact GBP");
+    return String(numeric);
+  };
   return artifact.rows.map((row) => ({
     external_product_id: String(row.external_product_id),
     external_variant_id: String(row.external_variant_id),
@@ -592,12 +675,12 @@ function artifactReviewedRows(artifact) {
       .map(([key]) => key)
       .sort(),
     before: {
-      price: String(row.atomic_plan.expected_state.offer.price),
+      price: artifactMoney(row.atomic_plan.expected_state.offer.price),
       in_stock: Boolean(row.atomic_plan.expected_state.offer.in_stock),
       url: String(row.atomic_plan.expected_state.offer.url),
     },
     after: {
-      price: String(row.atomic_plan.offer.values.price),
+      price: artifactMoney(row.atomic_plan.offer.values.price),
       in_stock: Boolean(row.atomic_plan.offer.values.in_stock),
       url: String(row.atomic_plan.offer.values.url),
     },
@@ -659,7 +742,7 @@ function buildReviewedMixedChangeContract({
       || artifact.rows.length !== reviewed.manifest.row_count
       || JSON.stringify(artifactReviewedRows(artifact)) !== JSON.stringify(reviewed.reviewed_rows)
       || JSON.stringify(artifact.expected_deltas) !== JSON.stringify(expectedArtifactDeltas(reviewed.manifest))) {
-    throw new Error("live artifact differs from reviewed mixed-change manifest");
+    throw new Error(`live artifact differs from reviewed mixed-change manifest (target=${artifact.target_environment === targetEnvironment},retailer=${artifact.retailer_id === reviewed.manifest.retailer_id},source=${artifact.source_snapshot_fingerprint === reviewed.manifest.source_capture_sha256},rows=${artifact.rows.length === reviewed.manifest.row_count && JSON.stringify(artifactReviewedRows(artifact)) === JSON.stringify(reviewed.reviewed_rows)},deltas=${JSON.stringify(artifact.expected_deltas) === JSON.stringify(expectedArtifactDeltas(reviewed.manifest))})`);
   }
   const expiry = new Date(expiresAt);
   const captured = new Date(artifact.source_captured_at);
@@ -672,7 +755,7 @@ function buildReviewedMixedChangeContract({
     schema_version: 1,
     kind: CONTRACT_KIND,
     authorization_id:
-      `jons-${reviewed.manifest.row_count}-${reviewed.sha256.slice(0, 16)}-${targetEnvironment.toLowerCase()}`,
+      `${reviewed.manifest.retailer_id === "10" ? "jons" : reviewed.manifest.retailer_slug}-${reviewed.manifest.row_count}-${reviewed.sha256.slice(0, 16)}-${targetEnvironment.toLowerCase()}`,
     target_environment: targetEnvironment,
     retailer_id: reviewed.manifest.retailer_id,
     source_country: reviewed.manifest.source_country,
@@ -770,6 +853,7 @@ module.exports = {
   EXPECTED_DELTAS,
   EXPECTED_DELTAS_10_STOCK_ONLY,
   EXPECTED_DELTAS_16,
+  EXPECTED_DELTAS_47_FIT_HOUSE,
   artifactReviewedRows,
   bindReviewedMixedChangeContract,
   buildMappedScopeEvidence,

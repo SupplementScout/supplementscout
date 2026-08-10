@@ -15,9 +15,12 @@ const expectedSha = "214ace99e775f443692a19410a3b6e19e076472371f070cd10dd5bbaa0c
 test("migration is hash-bound and transactional", () => {
   assert.equal(crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"), expectedSha);
   assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
-  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 77);
-  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, []);
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 89);
+  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 79);
+  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, [{
+    filename: "20260811000000_authorize_reviewed_fit_house_47_changes.sql",
+    sha256: "338409d7377f99903a5026d70b3848fd3b98ba14a520836b22ae12ee94c570a3",
+  }]);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 105);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });
