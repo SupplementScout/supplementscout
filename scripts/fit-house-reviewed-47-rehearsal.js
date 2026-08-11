@@ -1,3 +1,4 @@
+// HISTORICAL ONE-TIME REHEARSAL: retained as audit evidence, never scheduled.
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");

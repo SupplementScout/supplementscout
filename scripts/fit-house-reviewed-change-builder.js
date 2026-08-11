@@ -1,3 +1,4 @@
+// HISTORICAL ONE-TIME BUILDER: retained as audit evidence, never scheduled.
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");

@@ -1,3 +1,4 @@
+// HISTORICAL ONE-TIME REVIEWED OPERATION: not used by the scheduled Fit House refresh.
 const path = require("node:path");
 const engine = require("./fit-house-offer-refresh");
 const { loadReviewedMixedChangeManifest } = require("./lib/retailer-offer-sync/reviewed-mixed-change");
