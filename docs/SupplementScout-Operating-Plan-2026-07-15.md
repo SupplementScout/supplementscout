@@ -213,6 +213,17 @@ Supplements offers in three validator batches and returned
 zero writes. Routine automation remains the only active path; no new mechanism
 is required for this closeout.
 
+### 0.0.6C Dolphin automation verification - 11 August 2026
+
+The invalid GitHub Actions YAML mapping-merge syntax was removed in commit
+`160c956`; the active workflow now has ordinary explicit environment fields and
+retains schedule/manual-only execution. Twenty focused source, refresh,
+registration and shared-sync tests pass. A fresh production dry-run fetched the
+exact approved product page with HTTP 200 and classified the single approved
+mapping/offer as `VERIFY_NO_CHANGE`. Missing identities, commercial changes,
+catalogue deltas and writes were all zero. Dolphin's one-offer routine path is
+healthy; no replacement workflow or additional engine is required.
+
 ### 0.0.7 Competitive growth sequence - 31 July 2026
 
 The refreshed WheyWise comparison shows that SupplementScout's main competitive

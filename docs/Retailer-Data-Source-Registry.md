@@ -466,6 +466,19 @@ Products with at least 2 active retailers.
   identities and zero writes.
 - Status: **ROUTINE AUTOMATION HEALTHY; NO PENDING OFFER-635 ACTION**.
 
+## Dolphin Fitness current record - 11 August 2026
+
+- The active workflow syntax is valid after removal of the unsupported YAML
+  mapping merge. It remains limited to schedule and manual dispatch on `main`.
+- Approved automated scope: exactly one existing mapping and offer, read from
+  the exact Dolphin product page; routine execution cannot create catalogue
+  identities.
+- Focused contracts: 20/20 PASS. Fresh production dry-run: HTTP 200, one source
+  product/variant, `VERIFY_NO_CHANGE` x1, zero missing identities and zero
+  writes.
+- Status: **ROUTINE AUTOMATION HEALTHY; NEXT REAL SCHEDULED RUN IS REMOTE
+  GITHUB ACTIONS CONFIRMATION**.
+
 ## GYM HIGH current record - 1 August 2026
 
 - Retailer ID: `1`; domain: `gymhigh.co.uk`; source: public WooCommerce Store API for complete discovery plus the existing bounded WooCommerce product-page reader for exact live variant price, stock and identity.
