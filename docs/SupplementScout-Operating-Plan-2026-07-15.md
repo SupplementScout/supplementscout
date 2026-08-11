@@ -2456,6 +2456,11 @@ Current binding decisions:
   writes. The generic `MASS_OOS = 2` threshold remains unchanged. The reviewed
   selector is manual-only, cannot be used by push/schedule, and fails closed on
   replay after the two rows are already OOS.
+- GitHub Actions run `31464407687` initially stopped before writes because the
+  runner could not reach the database. Its guarded rerun (attempt 2) completed
+  successfully on 11 August 2026, including the 506-plan apply and fresh
+  idempotency check. The workflow no longer runs on ordinary pushes; only its
+  daily schedule and explicit manual operations remain.
 
 ---
 
