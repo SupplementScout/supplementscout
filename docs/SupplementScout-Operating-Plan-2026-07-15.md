@@ -2376,7 +2376,7 @@ Current binding decisions:
   allowed.
 - The single shared Six Pack automation manifest now contains 506 offers across
   279 retailer product pages, SHA-256
-  `8612d617616bf3f35a2ac5017dfaf5fed1af6ca320d100c7222e1f76a072e6c1`.
+  `6e0d2efa9589ad9fe8ea191d3a256f521d660afce5d465e630a9a120c974820f`.
   A fresh live read of all 279 pages returned `VERIFY_NO_CHANGE ×506`, zero
   blocked rows, zero price/stock/URL changes and all mass-change guards passed.
 - Delivery is enforced as GBP 4.99 below GBP 99.99 and free at or above the
@@ -2408,6 +2408,16 @@ Current binding decisions:
 - Direct retailer URLs are complete. Affiliate tracking for 6 Pack remains
   explicitly not configured and is a later commercial task, not a catalogue or
   refresh blocker.
+- On 11 August 2026 the owner approved exact stock transitions for Banana
+  (offer `2029`, mapping `2215`) and Belgian Chocolate (offer `2422`, mapping
+  `2608`) in the existing 7Nutrition Whey Isolate 90 1kg family. Two matching
+  source captures and a full 506-offer preflight proved unchanged GBP 41.99
+  prices and stock-only `true -> false` changes. The existing split-role
+  executor applied exactly those two transitions; the immediate fresh ordinary
+  postflight returned `VERIFY_NO_CHANGE` x506, zero further changes and zero
+  writes. The generic `MASS_OOS = 2` threshold remains unchanged. The reviewed
+  selector is manual-only, cannot be used by push/schedule, and fails closed on
+  replay after the two rows are already OOS.
 
 ---
 
