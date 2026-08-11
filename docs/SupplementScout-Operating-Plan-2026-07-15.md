@@ -2090,8 +2090,10 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 by deploying and live-verifying the guarded Multivitamins
-comparison page built with the existing shared comparison mechanism. The complete
+Continue SEO-13 with bounded multi-retailer coverage remediation for Protein
+Bars, the first deferred candidate in the fixed order. Audit exact same-pack
+overlaps against existing approved retailer sources before authorising any
+catalogue or offer change; do not weaken its quality gate. The complete
 fixed-order cluster was rechecked on 11 August: Protein Bars, Electrolytes,
 Magnesium Glycinate and Ashwagandha remain below their unchanged
 coverage gates; Creatine Monohydrate remains correctly consolidated into
@@ -2108,16 +2110,18 @@ framework. Mass Gainer is live verified at `/mass-gainer`: its
 public page has `index, follow`, the exact canonical, eight visible products,
 50 fresh offers, three retailers, three multi-retailer products, complete
 CollectionPage/ItemList/BreadcrumbList data, the consent-aware analytics marker
-and one sitemap entry. Four of ten controlled SEO-13 candidates are now live
-verified; six remain deferred behind their recorded gates.
+and one sitemap entry. Five of ten controlled SEO-13 candidates are now live
+verified; the other five outcomes remain deferred or consolidated behind their
+recorded gates.
 
-The local Multivitamins release candidate is complete. It reuses the shared
+The Multivitamins release is complete. It reuses the shared
 category-comparison mechanism, 24-hour freshness rule and unchanged `3 / 2 / 20`
-gate. A production-backed build rendered 16 visible products, 20 fresh offers,
-five retailers and four multi-retailer products with `index, follow`, the exact
-canonical, structured data, consent-aware analytics, homepage discovery and one
-sitemap entry. This is not yet live evidence; the next action is deployment and
-public verification before the page can be recorded as `LIVE VERIFIED`.
+gate. Public verification returned HTTP `200` and rendered 16 visible products,
+20 fresh offers, five retailers and four multi-retailer products with
+`index, follow`, the exact canonical, complete CollectionPage/ItemList/
+BreadcrumbList data, consent-aware analytics, homepage discovery and one
+sitemap entry. Multivitamins is `LIVE VERIFIED`; SEO-13 remains active for its
+recorded deferred coverage blockers.
 
 The earlier Mass Gainer gate failure remains recorded in the SEO ledger as the
 pre-correction baseline. It was resolved through the guarded two-row metadata

@@ -123,9 +123,10 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — deploy and live-verify the guarded
-Multivitamins comparison page built with the existing shared comparison
-mechanism.
+**Next executable task:** SEO-13 — begin bounded multi-retailer coverage
+remediation for Protein Bars, the first deferred candidate in the fixed order.
+Audit exact same-pack overlaps against existing approved retailer sources before
+authorising any catalogue or offer change; do not weaken the page gate.
 The owner approved the exact Strom MultiMAX and TBJP The One Discount
 identities. The guarded rollout corrected TBJP to 60 capsules, recorded Strom
 as 180 tablets and added only those two Discount mappings/offers. Fresh
@@ -307,6 +308,22 @@ SEO-07 manual evidence queue is now complete:
   release evidence only: Multivitamins is not `LIVE VERIFIED` until the public
   URL, robots directive, canonical, schema, analytics marker and sitemap entry
   are checked after deployment. SEO-13 remains `IN PROGRESS`.
+
+### 11 August 2026 — SEO-13 Multivitamins live verification
+
+- Commit `35e44ca` deployed the guarded `/multivitamins` page. The public URL
+  returned HTTP `200` with `index, follow`, title `Compare Multivitamin Prices
+  UK | SupplementScout` and canonical
+  `https://www.supplementscout.co.uk/multivitamins`.
+- Public HTML showed 16 visible products, 20 fresh offers, five retailers and
+  four products with multiple retailers. Discount Supplements was visible.
+- Public HTML contained one CollectionPage, one ItemList with 16 product
+  entries, one BreadcrumbList and the `multivitamins_comparison` analytics
+  marker. The public sitemap contained `/multivitamins` exactly once.
+- Multivitamins is `LIVE VERIFIED`. Five of ten controlled SEO-13 candidates
+  are now live. Protein Bars is the first deferred candidate in the fixed order
+  and becomes the next bounded coverage-remediation task; its unchanged quality
+  gate must not be weakened. SEO-13 remains `IN PROGRESS`.
 
 ### 11 August 2026 — SEO-13 remaining-candidate recheck and remediation choice
 
