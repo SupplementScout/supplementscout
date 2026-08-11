@@ -329,11 +329,14 @@ Products with at least 2 active retailers.
 - Manual production dry-runs [`30074666550`](https://github.com/SupplementScout/supplementscout/actions/runs/30074666550) and [`30074733707`](https://github.com/SupplementScout/supplementscout/actions/runs/30074733707), plus scheduled-context dry-run [`30074802757`](https://github.com/SupplementScout/supplementscout/actions/runs/30074802757), passed on commit `c5eae74bf072d1b93b206fd2853075c0485a3b7a`, including 120/120 contract tests, 586-row validation and artifacts.
 - Status: **TECHNICALLY COMPLETE — AWAITING SCHEDULED PROOF** until the real `25 July 2026 02:17 UTC` and `26 July 2026 02:17 UTC` cron runs pass.
 
-## Jon's Supplements current record - 22 July 2026
+## Jon's Supplements current record - 11 August 2026
 
 - Retailer ID: `10`; domain: `jonssupplements.co.uk`; platform/source: public Shopify product JSON through the existing Shopify snapshot reader.
 - Every capture must explicitly request the `GB` market context. A non-GB or collapsed market response is not acceptable evidence for price, stock or catalogue completeness.
-- Fresh closeout source: 224 products and 844 variants. Production now has 506 exact Jon's mappings and 506 offers.
+- Fresh current source: 241 products and 872 variants. Production has 506 exact
+  Jon's mappings and 506 offers. The 11 August ordinary production dry-run
+  returned `VERIFY_NO_CHANGE` x506 across 11 validator batches, with zero
+  missing variants, commercial changes, catalogue deltas or writes.
 - Catalogue closeout ledger: 506 `MAPPED_APPROVED`, 8 `EXCLUDE_PROHIBITED`, 318 `EXCLUDE_OOS_BUNDLE_BBE_OR_NONPRODUCT`, 10 `EXCEPTION_UNRESOLVED`, 2 `DEFER_LOW_VALUE`, and 0 unclassified variants.
 - SARMs and real peptide products are permanently prohibited. Ordinary collagen, hydrolysed protein and normal protein-peptide wording are not prohibited by that rule.
 - Catalogue status: closed for the reviewed safe scope. Every source variant is mapped, excluded, deferred or retained in the explicit exception ledger.

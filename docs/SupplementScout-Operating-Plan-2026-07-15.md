@@ -414,6 +414,14 @@ seals the manifest. This does not give an agent unattended production-write
 authority; future mass-OOS execution still requires explicit owner approval of
 the exact IDs and the existing hash-bound reviewed executor.
 
+Current verification on 11 August 2026 supersedes the older source-count
+snapshots in historical sections. A fresh production dry-run read 241 Shopify
+products and 872 variants, reconciled the exact 506 approved mappings/offers,
+and returned `VERIFY_NO_CHANGE` x506 across 11 validator batches. Missing
+variants, price changes, stock changes, URL changes, catalogue deltas and writes
+were all zero. Jon's routine automation therefore remains complete; no new
+reviewed operation or mechanism is pending.
+
 ### 0.0.12 Protein pack-transition policy - 9 August 2026
 
 This is the binding rule for manufacturer shrinkflation and other protein pack
