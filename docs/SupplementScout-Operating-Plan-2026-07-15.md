@@ -530,6 +530,9 @@ On 11 August 2026 the overlapping Fit House and Jon's Supplements rows were
 removed after their full retailer automations passed fresh production dry-runs.
 The shared read-source, classifier and generic safety guards remain unchanged;
 only the exact routine scope and non-colliding schedule changed.
+The first manual GitHub Actions dry-run from the resulting main commit
+`850d6d7` completed successfully as run `31472813466`: all 12 authorised
+Discount Supplements offers were verified without production writes.
 
 No-source creatine retailers remain excluded from the automatic refresh: Whey Okay 22, GYM HIGH 3 and Simply Supplements 1. The next product/data step is Jon's catalogue review and one reviewed 25-50 offer catalogue-growth batch using the existing importer; increasing 2+ retailer coverage still requires another authorised overlapping source.
 
