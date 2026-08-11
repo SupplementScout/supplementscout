@@ -2090,8 +2090,8 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 by building the guarded Multivitamins comparison page with the
-existing shared comparison mechanism. The complete
+Continue SEO-13 by deploying and live-verifying the guarded Multivitamins
+comparison page built with the existing shared comparison mechanism. The complete
 fixed-order cluster was rechecked on 11 August: Protein Bars, Electrolytes,
 Magnesium Glycinate and Ashwagandha remain below their unchanged
 coverage gates; Creatine Monohydrate remains correctly consolidated into
@@ -2102,7 +2102,7 @@ added exactly two mappings, two offers and two history rows, corrected TBJP to
 refresh from 12 to 14 immutable Shopify variant identities. Fresh postflight
 returned 14/14 `VERIFY_NO_CHANGE`, zero blockers and public visibility for both
 Discount offers. Multivitamins now passes the unchanged `3 / 2 / 20` gate with
-four multi-retailer products, 20 fresh offers, four retailers and four visible
+four multi-retailer products, 20 fresh offers, five retailers and four visible
 verified-value products. Do not introduce a second importer or comparison
 framework. Mass Gainer is live verified at `/mass-gainer`: its
 public page has `index, follow`, the exact canonical, eight visible products,
@@ -2110,6 +2110,14 @@ public page has `index, follow`, the exact canonical, eight visible products,
 CollectionPage/ItemList/BreadcrumbList data, the consent-aware analytics marker
 and one sitemap entry. Four of ten controlled SEO-13 candidates are now live
 verified; six remain deferred behind their recorded gates.
+
+The local Multivitamins release candidate is complete. It reuses the shared
+category-comparison mechanism, 24-hour freshness rule and unchanged `3 / 2 / 20`
+gate. A production-backed build rendered 16 visible products, 20 fresh offers,
+five retailers and four multi-retailer products with `index, follow`, the exact
+canonical, structured data, consent-aware analytics, homepage discovery and one
+sitemap entry. This is not yet live evidence; the next action is deployment and
+public verification before the page can be recorded as `LIVE VERIFIED`.
 
 The earlier Mass Gainer gate failure remains recorded in the SEO ledger as the
 pre-correction baseline. It was resolved through the guarded two-row metadata

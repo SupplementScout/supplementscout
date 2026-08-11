@@ -123,14 +123,15 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — build the guarded
-Multivitamins comparison page using the existing shared comparison mechanism.
+**Next executable task:** SEO-13 — deploy and live-verify the guarded
+Multivitamins comparison page built with the existing shared comparison
+mechanism.
 The owner approved the exact Strom MultiMAX and TBJP The One Discount
 identities. The guarded rollout corrected TBJP to 60 capsules, recorded Strom
 as 180 tablets and added only those two Discount mappings/offers. Fresh
 postflight returned 14/14 authorised Discount offers as `VERIFY_NO_CHANGE`, and
 both public product pages expose Discount alongside Jon's. Multivitamins now
-has four multi-retailer products, 20 fresh offers, four retailers and four
+has four multi-retailer products, 20 fresh offers, five retailers and four
 visible verified-value products, so the unchanged `3 / 2 / 20` gate passes.
 Applied Nutrition Multi-Vitamin Complex remains deferred. The fixed-order cluster
 was rechecked on 11 August: Amino Acids / BCAA / EAA, Whey Isolate, Vegan
@@ -287,6 +288,25 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 11 August 2026 — SEO-13 Multivitamins local release candidate
+
+- The guarded `/multivitamins` comparison page reuses the existing shared
+  category-comparison mechanism, 24-hour offer freshness and unchanged
+  `3 / 2 / 20` indexability gate. It introduces no second importer, comparison
+  framework or catalogue-write path.
+- A production-backed local build found 18 products inside the reviewed
+  explicit-multivitamin boundary. Sixteen were visible with 20 fresh offers
+  across five retailers; four products had fresh offers from multiple
+  retailers, so the unchanged gate returned `index, follow`.
+- The rendered HTML contains the canonical `/multivitamins`, 16 ItemList
+  entries, CollectionPage and BreadcrumbList structured data, current coverage,
+  the consent-aware category analytics marker and only verified pack/value
+  evidence. One sitemap entry and homepage discovery links were added.
+- Focused tests, lint and the production-backed Next build passed. This is local
+  release evidence only: Multivitamins is not `LIVE VERIFIED` until the public
+  URL, robots directive, canonical, schema, analytics marker and sitemap entry
+  are checked after deployment. SEO-13 remains `IN PROGRESS`.
 
 ### 11 August 2026 — SEO-13 remaining-candidate recheck and remediation choice
 
