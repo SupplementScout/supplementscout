@@ -1,6 +1,7 @@
-const PROTEIN_SCOPE = /protein|mass gainer/i;
+const PROTEIN_SCOPE = /whey protein|protein powder|clear whey|whey isolate|vegan protein|plant protein|mass gainer|meal replacement/i;
 const POWDER_CATEGORY = /whey|casein|protein powder|clear whey|isolate|vegan protein|plant protein|mass gainer/i;
 const KNOWN_NON_PROTEIN_IDENTITIES = /\baxe\s*&\s*sledge\s+demo\s*day\b/i;
+const NON_POWDER_IDENTITIES = /\b(?:protein bars?|cookie|cremes?|croissant|pancakes?|chips|spread|shake|wafer|flapjack|peanut butter|sauce|jam|bundle)\b/i;
 
 function positiveNumber(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -11,7 +12,8 @@ function positiveNumber(value) {
 function isProteinScopeProduct(product) {
   return product?.is_active === true && product?.merged_into_product_id == null &&
     PROTEIN_SCOPE.test(String(product.category || "")) &&
-    !KNOWN_NON_PROTEIN_IDENTITIES.test(String(product.name || ""));
+    !KNOWN_NON_PROTEIN_IDENTITIES.test(String(product.name || "")) &&
+    !NON_POWDER_IDENTITIES.test(String(product.name || ""));
 }
 
 function proteinCoverage(product) {

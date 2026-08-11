@@ -33,6 +33,9 @@ test("protein scope excludes inactive, merged and unrelated categories", () => {
   assert.equal(isProteinScopeProduct(product({ category: "Creatine" })), false);
   assert.equal(isProteinScopeProduct(product({ is_active: false })), false);
   assert.equal(isProteinScopeProduct(product({ merged_into_product_id: 2 })), false);
+  assert.equal(isProteinScopeProduct(product({ category: "Protein Bars" })), false);
+  assert.equal(isProteinScopeProduct(product({ name: "Barebells Vegan Protein Bar 55g" })), false);
+  assert.equal(isProteinScopeProduct(product({ name: "Whey Pro Synergy BCAA Bundle" })), false);
   assert.equal(isProteinScopeProduct(product({
     name: "Axe & Sledge DemoDay Powder 930g",
     category: "Whey Protein",
