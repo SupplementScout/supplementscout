@@ -8,7 +8,7 @@ const {
   RETAILER_SCOPE,
   applyRefreshPlan,
   assertExecutionEnvironment,
-  authorisedOfferIds,
+  authorisedExternalVariantIds,
   buildRefreshPlan,
   classifyRetailerScope,
   parseArgs,
@@ -79,8 +79,8 @@ function shopifySnapshotForRows(rows, mutate = () => {}) {
 }
 
 function retailerRows(retailerName, retailerId, retailerSlug, scope) {
-  return scope.offerIds.map((offerId, index) => {
-    const externalVariantId = `${retailerSlug}-v-${index}`;
+  return scope.externalVariantIds.map((externalVariantId, index) => {
+    const offerId = 1_000 + index;
     const handle = `${retailerSlug}-creatine-${index}`;
     return row({
       offerId,
@@ -193,7 +193,7 @@ function responseForSnapshot(snapshot) {
 }
 
 function planRows() {
-  const ids = authorisedOfferIds();
+  const ids = authorisedExternalVariantIds();
   return ids.map((id, index) => {
     const oldPrice = "10.00";
     const sourcePrice = index === 0 ? "11.00" : oldPrice;
@@ -322,24 +322,25 @@ test("environment guard allows only production main schedule or manual dispatch"
   assert.throws(() => assertExecutionEnvironment(env({ GITHUB_EVENT_NAME: "pull_request" })), /cannot run/);
 });
 
-test("daily scope is exactly the 12 approved Discount Supplements creatine offers", () => {
-  const ids = authorisedOfferIds();
-  assert.equal(ids.length, 12);
-  assert.equal(new Set(ids).size, 12);
-  assert.deepEqual(Object.fromEntries(Object.entries(RETAILER_SCOPE).map(([name, scope]) => [name, scope.offerIds.length])), {
-    "Discount Supplements": 12,
+test("daily scope is exactly the 14 approved Discount Supplements source variants", () => {
+  const ids = authorisedExternalVariantIds();
+  assert.equal(ids.length, 14);
+  assert.equal(new Set(ids).size, 14);
+  assert.deepEqual(Object.fromEntries(Object.entries(RETAILER_SCOPE).map(([name, scope]) => [name, scope.externalVariantIds.length])), {
+    "Discount Supplements": 14,
   });
-  assert.deepEqual(ids.map(Number), [763, 861, 862, 863, 864, 762, 894, 895, 896, 834, 897, 898]);
+  assert.equal(ids.includes("42518690463940"), true);
+  assert.equal(ids.includes("55157496185210"), true);
   assert.equal(ids.includes("999999"), false);
 });
 
-test("scope validation rejects inactive creatine, merged products and missing Shopify identity", () => {
+test("scope validation rejects inactive or merged products and missing Shopify identity", () => {
   const good = row();
-  const scope = { ...RETAILER_SCOPE["Discount Supplements"], expectedCount: 1, offerIds: [763] };
+  const scope = { ...RETAILER_SCOPE["Discount Supplements"], expectedCount: 1, externalVariantIds: ["v1"] };
   assert.equal(scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([good]) }).length, 1);
-  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, product: { ...good.product, is_active: false } }]) }), /not active creatine/);
-  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, product: { ...good.product, merged_into_product_id: 88 } }]) }), /not active creatine/);
-  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, mapping: { ...good.mapping, external_variant_id: null } }]) }), /missing Shopify identity/);
+  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, product: { ...good.product, is_active: false } }]) }), /inactive or merged/);
+  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, product: { ...good.product, merged_into_product_id: 88 } }]) }), /inactive or merged/);
+  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, mapping: { ...good.mapping, external_product_id: null } }]) }), /missing Shopify identity/);
 });
 
 test("existing classifier is reused for no-change, price, url and blockers", () => {
@@ -353,7 +354,7 @@ test("existing classifier is reused for no-change, price, url and blockers", () 
     sku: `sku-${index}`,
     url: `https://www.discount-supplements.co.uk/products/example-${index}?variant=v${index}`,
   }));
-  const scope = { ...RETAILER_SCOPE["Discount Supplements"], expectedCount: 7, offerIds: rows.map((entry) => entry.offer.id), previousSourceProductCount: 7 };
+  const scope = { ...RETAILER_SCOPE["Discount Supplements"], expectedCount: 7, externalVariantIds: rows.map((entry) => entry.mapping.external_variant_id), previousSourceProductCount: 7 };
   const noChange = classifyRetailerScope({ retailerName: "Discount Supplements", scope, state: stateFromRows(rows), snapshot: shopifySnapshotForRows(rows), sourceCapturedAt: "2026-07-19T03:17:00.000Z", now: new Date("2026-07-19T03:17:00.000Z") });
   assert.equal(noChange.classification.state, "DRY_RUN_READY");
   assert.equal(noChange.classified_rows.every((entry) => entry.action === "VERIFY_NO_CHANGE"), true);
@@ -424,14 +425,14 @@ test("existing classifier is reused for no-change, price, url and blockers", () 
   assert.equal(policyFor(scope).ignore_source_sku, false);
 });
 
-test("full exact-12 Discount plan is ready only for the authorised unchanged offers", async () => {
+test("full exact-14 Discount plan is ready only for the authorised unchanged offers", async () => {
   const { discountRows, state } = creatinePlanState();
   const snapshot = paddedShopifySnapshot({
     rows: discountRows,
     storeOrigin: RETAILER_SCOPE["Discount Supplements"].storeUrl,
-    productCount: 12,
-    variantCount: 12,
-    availableCount: 12,
+    productCount: 14,
+    variantCount: 14,
+    availableCount: 14,
   });
   const plan = await buildRefreshPlan({
     client: clientFromState(state),
@@ -440,8 +441,8 @@ test("full exact-12 Discount plan is ready only for the authorised unchanged off
   });
 
   assert.equal(plan.status, "DRY_RUN_READY");
-  assert.deepEqual(plan.classified_rows.map((entry) => Number(entry.offer_id)).sort((a, b) => a - b), authorisedOfferIds().map(Number).sort((a, b) => a - b));
-  assert.deepEqual(plan.classification_counts, { VERIFY_NO_CHANGE: 12 });
+  assert.deepEqual(plan.classified_rows.map((entry) => entry.external_variant_id).sort(), authorisedExternalVariantIds().sort());
+  assert.deepEqual(plan.classification_counts, { VERIFY_NO_CHANGE: 14 });
   assert.equal(plan.classified_rows.every((entry) => entry.action === "VERIFY_NO_CHANGE"), true);
   assert.deepEqual(plan.blockers, []);
 });
@@ -451,9 +452,9 @@ test("full Discount plan fails closed when one authorised source identity is mis
   const snapshot = paddedShopifySnapshot({
     rows: discountRows.slice(1),
     storeOrigin: RETAILER_SCOPE["Discount Supplements"].storeUrl,
-    productCount: 12,
-    variantCount: 12,
-    availableCount: 12,
+    productCount: 14,
+    variantCount: 14,
+    availableCount: 14,
   });
   const plan = await buildRefreshPlan({
     client: clientFromState(state),
@@ -476,7 +477,7 @@ test("apply updates only offers, mapping URLs and price history, and replay is i
   assert.deepEqual(first.count_delta, { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 1 });
   assert.equal(first.logical_deltas.price_changes, 1);
   assert.equal(first.logical_deltas.url_changes, 1);
-  assert.equal(first.logical_deltas.last_checked_at_updates, 12);
+  assert.equal(first.logical_deltas.last_checked_at_updates, 14);
   assert.equal(fake.db.offers.find((entry) => String(entry.id) === refreshPlan.classified_rows[0].offer_id).price, "11.00");
   assert.equal(fake.db.retailer_products.find((entry) => String(entry.id) === refreshPlan.classified_rows[1].retailer_product_id).external_url, plannedValues(refreshPlan.classified_rows[1]).url);
   const second = await applyRefreshPlan({ client: fake, plan: refreshPlan });

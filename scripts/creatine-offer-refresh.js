@@ -19,14 +19,20 @@ const ACTIONS_ALLOWED_TO_APPLY = new Set([
 
 const RETAILER_SCOPE = Object.freeze({
   "Discount Supplements": Object.freeze({
-    expectedCount: 12,
+    expectedCount: 14,
     storeUrl: "https://www.discount-supplements.co.uk",
     shippingCost: "4.99",
     previousSourceProductCount: 3,
-    offerIds: Object.freeze([763, 861, 862, 863, 864, 762, 894, 895, 896, 834, 897, 898]),
+    externalVariantIds: Object.freeze([
+      "54879874810234", "54863968076154", "32398067793967",
+      "41971290996932", "41971291029700", "41971291062468",
+      "41971291095236", "41823848038596", "41823848071364",
+      "41823848104132", "43541068120260", "43541068153028",
+      "42518690463940", "55157496185210",
+    ]),
   }),
 });
-const EXPECTED_SCOPE_COUNT = 12;
+const EXPECTED_SCOPE_COUNT = 14;
 
 function parseArgs(args) {
   const options = { mode: "dry-run", writeArtifacts: true };
@@ -59,14 +65,14 @@ function projectRefFromUrl(supabaseUrl) {
 }
 
 function assertExecutionEnvironment(env = process.env) {
-  if (env.SAFE_UPDATE) throw new Error("SAFE_UPDATE must be unset for the automated creatine refresh");
+  if (env.SAFE_UPDATE) throw new Error("SAFE_UPDATE must be unset for the automated Discount refresh");
   if (!String(env.NEXT_PUBLIC_SUPABASE_URL || "").trim()) throw new Error("NEXT_PUBLIC_SUPABASE_URL is required");
   if (!String(env.SUPABASE_SERVICE_ROLE_KEY || "").trim()) throw new Error("SUPABASE_SERVICE_ROLE_KEY is required");
   const projectRef = projectRefFromUrl(env.NEXT_PUBLIC_SUPABASE_URL);
   if (projectRef !== EXPECTED_PRODUCTION_REF || projectRef === STAGING_REF) throw new Error(`production ref mismatch: ${projectRef}`);
   if (env.GITHUB_ACTIONS === "true") {
-    if (env.GITHUB_REF !== "refs/heads/main") throw new Error("scheduled creatine refresh can run only on main");
-    if (!["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME)) throw new Error("scheduled creatine refresh cannot run for this GitHub event");
+    if (env.GITHUB_REF !== "refs/heads/main") throw new Error("scheduled Discount refresh can run only on main");
+    if (!["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME)) throw new Error("scheduled Discount refresh cannot run for this GitHub event");
     if (env.GITHUB_REPOSITORY && env.GITHUB_REPOSITORY !== "SupplementScout/supplementscout") throw new Error("unexpected GitHub repository");
   }
   return projectRef;
@@ -87,8 +93,8 @@ function bool(value) {
   return value === true || value === "true";
 }
 
-function authorisedOfferIds() {
-  return Object.values(RETAILER_SCOPE).flatMap((scope) => scope.offerIds.map(String));
+function authorisedExternalVariantIds() {
+  return Object.values(RETAILER_SCOPE).flatMap((scope) => scope.externalVariantIds.map(String));
 }
 
 function policyFor(scope) {
@@ -301,7 +307,7 @@ function assertSafePlan(plan) {
   if (plan.project_ref !== EXPECTED_PRODUCTION_REF) throw new Error("plan is not bound to production");
   if (plan.status !== "DRY_RUN_READY") throw new Error("plan is not ready");
   if (plan.safe_update !== "UNSET") throw new Error("SAFE_UPDATE must be unset in the plan");
-  if (!Array.isArray(plan.classified_rows) || plan.classified_rows.length !== EXPECTED_SCOPE_COUNT) throw new Error(`plan must contain exactly ${EXPECTED_SCOPE_COUNT} authorised creatine offers`);
+  if (!Array.isArray(plan.classified_rows) || plan.classified_rows.length !== EXPECTED_SCOPE_COUNT) throw new Error(`plan must contain exactly ${EXPECTED_SCOPE_COUNT} authorised Discount offers`);
   const ids = new Set(plan.classified_rows.map((row) => String(row.offer_id)));
   if (ids.size !== EXPECTED_SCOPE_COUNT) throw new Error("plan contains duplicate offer IDs");
   for (const row of plan.classified_rows) {
@@ -312,8 +318,12 @@ function assertSafePlan(plan) {
 
 function scopeRowsForRetailer({ retailerName, scope, state }) {
   const indexes = indexState(state);
-  const offerIds = new Set(scope.offerIds.map(String));
-  const targetOffers = state.offers.filter((offer) => offerIds.has(String(offer.id)));
+  const externalVariantIds = new Set(scope.externalVariantIds.map(String));
+  const targetMappingIds = new Set(state.mappings
+    .filter((mapping) => externalVariantIds.has(String(mapping.external_variant_id)))
+    .map((mapping) => String(mapping.id)));
+  if (targetMappingIds.size !== scope.expectedCount) throw new Error(`${retailerName}: expected ${scope.expectedCount} authorised mappings, found ${targetMappingIds.size}`);
+  const targetOffers = state.offers.filter((offer) => targetMappingIds.has(String(offer.retailer_product_id)));
   if (targetOffers.length !== scope.expectedCount) throw new Error(`${retailerName}: expected ${scope.expectedCount} authorised offers, found ${targetOffers.length}`);
   return targetOffers.map((offer) => {
     const retailer = indexes.retailerById.get(String(offer.retailer_id));
@@ -322,7 +332,7 @@ function scopeRowsForRetailer({ retailerName, scope, state }) {
     const mapping = indexes.mappingById.get(String(offer.retailer_product_id));
     if (!retailer || retailer.name !== retailerName) throw new Error(`${retailerName}: offer ${offer.id} retailer mismatch`);
     if (!mapping || String(mapping.retailer_id) !== String(retailer.id)) throw new Error(`${retailerName}: offer ${offer.id} mapping mismatch`);
-    if (!product || String(product.category || "").toLowerCase() !== "creatine" || product.is_active !== true || product.merged_into_product_id || product.merged_at) throw new Error(`${retailerName}: offer ${offer.id} is not active creatine`);
+    if (!product || product.is_active !== true || product.merged_into_product_id || product.merged_at) throw new Error(`${retailerName}: offer ${offer.id} product is inactive or merged`);
     if (!variant || variant.is_active !== true) throw new Error(`${retailerName}: offer ${offer.id} variant missing/inactive`);
     if (!mapping.external_product_id || !mapping.external_variant_id) throw new Error(`${retailerName}: offer ${offer.id} mapping is missing Shopify identity`);
     return { offer, retailer, product, variant, mapping };
@@ -338,7 +348,7 @@ function classifyRetailerScope({ retailerName, scope, state, snapshot, sourceCap
     sourceVariants,
     policy: policyFor(scope),
     guardScope: {
-      name: `CREATINE_${retailerName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${scope.expectedCount}`,
+      name: `DISCOUNT_${retailerName.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${scope.expectedCount}`,
       retailer: retailerName,
     },
     sourceCapturedAt,
@@ -449,7 +459,7 @@ async function buildRefreshPlan({ client, fetchImpl = globalThis.fetch, now = ne
     safe_update: process.env.SAFE_UPDATE || "UNSET",
     state_origin: "FRESH_DATABASE_AND_SOURCE_READS",
     prior_artifact_input: false,
-    scope: Object.fromEntries(Object.entries(RETAILER_SCOPE).map(([name, scope]) => [name, { expected_count: scope.expectedCount, offer_ids: [...scope.offerIds] }])),
+    scope: Object.fromEntries(Object.entries(RETAILER_SCOPE).map(([name, scope]) => [name, { expected_count: scope.expectedCount, external_variant_ids: [...scope.externalVariantIds] }])),
     status: blockers.length === 0 && classifiedRows.length === EXPECTED_SCOPE_COUNT ? "DRY_RUN_READY" : "BLOCKED",
     retailer_results: retailerResults,
     classification_counts: summarizeActions(classifiedRows),
@@ -607,7 +617,7 @@ async function applyRefreshPlan({ client, plan }) {
 
 function renderSummary(report) {
   const lines = [];
-  lines.push("## Daily creatine offer refresh");
+  lines.push("## Daily Discount Supplements offer refresh");
   lines.push("");
   lines.push(`Status: ${report.status}`);
   lines.push(`Mode: ${report.mode}`);
@@ -693,7 +703,7 @@ module.exports = {
   applyRefreshPlan,
   assertExecutionEnvironment,
   assertSafePlan,
-  authorisedOfferIds,
+  authorisedExternalVariantIds,
   buildRefreshPlan,
   classifyRetailerScope,
   currentMatchesPlanned,

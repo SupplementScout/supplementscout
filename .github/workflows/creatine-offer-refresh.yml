@@ -1,4 +1,4 @@
-name: Creatine Offer Refresh
+name: Discount Supplements Offer Refresh
 
 on:
   workflow_dispatch:
@@ -62,17 +62,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test creatine refresh contract
+      - name: Test Discount refresh contract
         run: node --test scripts/creatine-offer-refresh.test.js scripts/retailer-offer-sync.test.js
 
-      - name: Dry-run authorised creatine offers
+      - name: Dry-run authorised Discount offers
         env:
           CREATINE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/creatine-offer-refresh.js --dry-run
 
-      - name: Apply safe authorised creatine refresh
+      - name: Apply safe authorised Discount refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
           CREATINE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
@@ -80,7 +80,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/creatine-offer-refresh.js --apply
 
-      - name: Summarize creatine refresh
+      - name: Summarize Discount refresh
         if: always()
         run: |
           if [ -f tmp/creatine-offer-refresh/creatine-offer-refresh-apply.md ]; then
@@ -88,12 +88,12 @@ jobs:
           elif [ -f tmp/creatine-offer-refresh/creatine-offer-refresh-dry-run.md ]; then
             cat tmp/creatine-offer-refresh/creatine-offer-refresh-dry-run.md >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "## Daily creatine offer refresh" >> "$GITHUB_STEP_SUMMARY"
+            echo "## Daily Discount Supplements offer refresh" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "> Refresh report was not produced; preflight failed closed." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Upload creatine refresh reports
+      - name: Upload Discount refresh reports
         if: always()
         uses: actions/upload-artifact@v7
         with:

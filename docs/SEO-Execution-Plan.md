@@ -123,17 +123,19 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — obtain owner review for the exact Discount
-Supplements Multivitamins overlap candidates found on 11 August, then use the
-existing guarded retailer path only for approved identities. Strom MultiMAX 180
-Tablets is an exact same-product candidate. TBJP The One requires a bounded
-tablet-to-60-capsules canonical correction before its Discount offer can be
-linked. Applied Nutrition Multi-Vitamin Complex also requires a separate
-90-tablets-to-90-capsules correction and remains outside the minimum rollout
-until reviewed. The complete fixed-order cluster
+**Next executable task:** SEO-13 — build the guarded
+Multivitamins comparison page using the existing shared comparison mechanism.
+The owner approved the exact Strom MultiMAX and TBJP The One Discount
+identities. The guarded rollout corrected TBJP to 60 capsules, recorded Strom
+as 180 tablets and added only those two Discount mappings/offers. Fresh
+postflight returned 14/14 authorised Discount offers as `VERIFY_NO_CHANGE`, and
+both public product pages expose Discount alongside Jon's. Multivitamins now
+has four multi-retailer products, 20 fresh offers, four retailers and four
+visible verified-value products, so the unchanged `3 / 2 / 20` gate passes.
+Applied Nutrition Multi-Vitamin Complex remains deferred. The fixed-order cluster
 was rechecked on 11 August: Amino Acids / BCAA / EAA, Whey Isolate, Vegan
 Protein and Mass Gainer are live verified; Protein Bars, Electrolytes,
-Magnesium Glycinate, Multivitamins and Ashwagandha remain below their unchanged
+Magnesium Glycinate and Ashwagandha remain below their unchanged
 coverage gates, while Creatine Monohydrate remains correctly consolidated into
 the existing `/creatine` canonical. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing

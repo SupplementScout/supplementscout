@@ -524,7 +524,7 @@ This is a global SupplementScout catalogue rule. It applies to every retailer, s
 
 `/creatine` is launched and indexable. Its current-price ranking, retailer ranking and JSON-LD use fresh offers only; stale/no-source offers remain excluded from current-price claims.
 
-Daily creatine offer refresh is active via the existing GitHub Actions scheduling method in `.github/workflows/creatine-offer-refresh.yml`. It runs once per day at `06:47 UTC`, after the read-only Discount Supplements snapshot at `06:17 UTC`. The exact automatic scope is the 12 existing approved Discount Supplements creatine offers only. Fit House and Jon's Supplements are excluded from this overlapping category refresh because their complete retailer automations now own those offers. The job may update only price, stock, offer URL, `last_checked_at`, and price history when delivered-price inputs genuinely change. It must not create products, variants, retailer mappings, retailers, merges, deletions or identity repairs.
+Daily Discount Supplements offer refresh remains on the proven workflow path `.github/workflows/creatine-offer-refresh.yml` and runs at `06:47 UTC`, after the read-only snapshot at `06:17 UTC`. Its exact scope is now 14 owner-approved Shopify variant identities: the earlier 12 creatine offers plus Strom MultiMAX and TBJP The One. The legacy filename is retained to avoid replacing a working workflow, while its displayed name and reports now say Discount Supplements. Fit House and Jon's Supplements remain excluded because their complete automations own those offers. The job may update only price, stock, offer URL, `last_checked_at`, and price history when delivered-price inputs genuinely change. It must not create products, variants, mappings, retailers, merges, deletions or identity repairs.
 
 On 11 August 2026 the overlapping Fit House and Jon's Supplements rows were
 removed after their full retailer automations passed fresh production dry-runs.
@@ -1221,6 +1221,19 @@ shipping, delivered totals, URLs, catalogue identities and price history were
 unchanged. A fresh full Stage 1 postflight returned zero remaining offer or
 stock changes. The consumed manual workflow is archived in
 `docs/archive/completed-workflows/`; the normal daily Stage 1 remains read-only.
+
+On 11 August 2026 the owner approved two exact existing-product overlaps for
+the SEO-13 Multivitamins gate. Production migration
+`20260811113000_add_two_reviewed_discount_multivitamin_offers` corrected TBJP
+The One from tablet/unknown count to 60 capsules, recorded Strom MultiMAX as
+180 tablets and added only their Discount mappings, offers and first history
+rows. Exact catalogue deltas were products `0`, variants `0`, mappings `+2`,
+offers `+2`, history `+2`. Applied Nutrition Multi-Vitamin Complex remained
+deferred. The same existing scheduled Discount refresh was expanded from 12 to
+14 immutable Shopify variant identities; no new importer or schedule was
+created. Fresh postflight returned 14 `VERIFY_NO_CHANGE`, zero blockers and
+zero writes. Both public product pages returned HTTP 200 and displayed the
+Discount Supplements offer.
 
 ### 8.6 Fit House
 
@@ -2077,27 +2090,21 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 with owner review of the bounded Multivitamins coverage
-remediation. The complete
+Continue SEO-13 by building the guarded Multivitamins comparison page with the
+existing shared comparison mechanism. The complete
 fixed-order cluster was rechecked on 11 August: Protein Bars, Electrolytes,
-Magnesium Glycinate, Multivitamins and Ashwagandha remain below their unchanged
+Magnesium Glycinate and Ashwagandha remain below their unchanged
 coverage gates; Creatine Monohydrate remains correctly consolidated into
-`/creatine`. Multivitamins is closest at 16 visible products, 18 fresh offers,
-four retailers, two multi-retailer products and two verified value metrics.
-Only products `380` and `381` currently have mappings at two retailers, so
-there is no dormant third comparison to revive. The next action is read-only
-exact-overlap discovery for the remaining single-retailer products against
-existing approved retailer sources found three Discount Supplements candidates.
-Product `824`, Strom MultiMAX 180 Tablets, is an exact same-product match.
-Product `816`, TBJP The One, requires an exact correction from tablet/unknown
-count to 60 capsules before its Discount offer can be linked. Product `1042`,
-Applied Nutrition Multi-Vitamin Complex, requires a separate correction from 90
-tablets to 90 capsules and is not part of the minimum rollout. Owner approval is
-required before any identity or production write. If the first two are
-approved and the guarded postflight confirms their current source state, the
-Multivitamins gate should move from two to four multi-retailer products and 18
-to 20 fresh offers. Do not create a page, relax the `3 / 2 / 20` gate or
-introduce a new importer. Mass Gainer is live verified at `/mass-gainer`: its
+`/creatine`. The owner approved the exact Strom MultiMAX and TBJP The One
+Discount identities; Applied Nutrition remains deferred. The guarded rollout
+added exactly two mappings, two offers and two history rows, corrected TBJP to
+60 capsules, recorded Strom as 180 tablets and expanded the same Discount
+refresh from 12 to 14 immutable Shopify variant identities. Fresh postflight
+returned 14/14 `VERIFY_NO_CHANGE`, zero blockers and public visibility for both
+Discount offers. Multivitamins now passes the unchanged `3 / 2 / 20` gate with
+four multi-retailer products, 20 fresh offers, four retailers and four visible
+verified-value products. Do not introduce a second importer or comparison
+framework. Mass Gainer is live verified at `/mass-gainer`: its
 public page has `index, follow`, the exact canonical, eight visible products,
 50 fresh offers, three retailers, three multi-retailer products, complete
 CollectionPage/ItemList/BreadcrumbList data, the consent-aware analytics marker
