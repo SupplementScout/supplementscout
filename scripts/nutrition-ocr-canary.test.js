@@ -55,6 +55,9 @@ test("page manifest requires exact identity binding and explicit safe domains", 
   assert.deepEqual(validatePageList(list([page({
     missing_fields: ["net_volume_ml", "serving_size_ml", "protein_per_serving_g"],
   })])).pages[0].missing_fields, ["net_volume_ml", "serving_size_ml", "protein_per_serving_g"]);
+  assert.deepEqual(validatePageList(list([page({
+    missing_fields: ["serving_size_g", "creatine_per_serving_g"],
+  })])).pages[0].missing_fields, ["serving_size_g", "creatine_per_serving_g"]);
   assert.throws(() => validatePageList(list([page({
     missing_fields: ["serving_size_g", "serving_size_g"],
   })])), /unique non-empty list/);

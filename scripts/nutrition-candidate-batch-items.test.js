@@ -161,6 +161,21 @@ test("manual candidate safety rejects package arithmetic and non-missing fields"
   }, workItem()), false);
 });
 
+test("manual candidate safety rejects creatine above the gram serving size", () => {
+  const creatineItem = workItem({
+    missing_fields: ["serving_size_g", "creatine_per_serving_g"],
+    current_values: { net_weight_g: 250 },
+  });
+  assert.equal(validateManualValuesAgainstWorkItem({
+    workItemId: "10", runId: "NCR1-batch",
+    values: { serving_size_g: 5, creatine_per_serving_g: 6 }, note: null,
+  }, creatineItem), false);
+  assert.equal(validateManualValuesAgainstWorkItem({
+    workItemId: "10", runId: "NCR1-batch",
+    values: { serving_size_g: 5, creatine_per_serving_g: 5 }, note: null,
+  }, creatineItem), true);
+});
+
 test("migration and route keep work items private and products untouched", () => {
   const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260809130000_add_nutrition_candidate_batch_items.sql"), "utf8");
   assert.match(migration, /create table public\.nutrition_candidate_batch_items/);

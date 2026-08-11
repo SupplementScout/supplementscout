@@ -47,7 +47,7 @@ const CURRENT_VALUE_FIELDS = Object.freeze([
 ]);
 const MISSING_FIELD_VALUES = new Set([
   "net_weight_g", "net_volume_ml", "serving_count_verified", "serving_size_g", "serving_size_ml",
-  "protein_per_serving_g", "product_format", "nutrition_verified",
+  "protein_per_serving_g", "creatine_per_serving_g", "product_format", "nutrition_verified",
 ]);
 const FORBIDDEN_SOURCE_DOMAIN_LABELS = Object.freeze([
   "amazon", "ebay", "walmart", "hollandandbarrett", "boots", "superdrug",

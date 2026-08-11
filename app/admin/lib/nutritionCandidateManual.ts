@@ -92,9 +92,11 @@ export function validateManualValuesAgainstWorkItem(
   const servingSize = positive(resolved.serving_size_g);
   const weight = positive(resolved.net_weight_g);
   const protein = positive(resolved.protein_per_serving_g);
+  const creatine = positive(resolved.creatine_per_serving_g);
   if (count !== null && !Number.isInteger(count)) return false;
   if (count && servingSize && weight && count * servingSize > weight + Math.max(1, weight * 0.01)) return false;
   if (protein && servingSize && protein > servingSize) return false;
+  if (creatine && servingSize && creatine > servingSize) return false;
   return true;
 }
 

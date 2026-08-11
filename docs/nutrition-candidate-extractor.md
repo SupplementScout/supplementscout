@@ -413,6 +413,21 @@ requires a positive integer serving count. The report separately names
 that flag. Add `--include-products=true` only when the full product-level queue
 is needed.
 
+Creatine coverage uses the same read-only reporting boundary:
+
+```powershell
+npm run nutrition:creatine-audit
+```
+
+For powders, full format-aware facts require net weight, verified servings,
+gram serving size, creatine per serving, product format and reviewed nutrition.
+For capsules, tablets and gummies, pack identity uses `unit_count` and
+`unit_type`; a capsule/tablet/gummy count must never be entered as
+`serving_size_g`. The report keeps source-fact completeness separate from the
+public cost-per-5-g calculation gates and lists `unit_pricing_verified` only as
+a calculation blocker. Manual entry and approved-plan validation both reject
+creatine or protein amounts greater than an available gram serving size.
+
 ### Owner-approved values and pack transitions
 
 Approving a candidate requires an explicit numeric `approved_value`. The admin

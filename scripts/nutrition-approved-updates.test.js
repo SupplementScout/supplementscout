@@ -103,6 +103,22 @@ test("planner blocks impossible package arithmetic", () => {
   assert.ok(plan.blockers.some((blocker) => blocker.code === "PACKAGE_SERVING_MISMATCH"));
 });
 
+test("planner blocks reviewed creatine above the gram serving size", () => {
+  const plan = buildApprovedPlan(
+    [candidate({ proposed_field: "creatine_per_serving_g", proposed_value: 6, proposed_unit: "g" })],
+    [{
+      id: "337", name: "Creatine 250g", net_weight_g: 250,
+      serving_size_g: 5, creatine_per_serving_g: null, nutrition_verified: false,
+    }],
+    runId,
+    "2026-08-02T12:00:00.000Z",
+  );
+  assert.equal(plan.status, "BLOCKED");
+  assert.ok(plan.blockers.some((blocker) =>
+    blocker.code === "NUTRIENT_EXCEEDS_SERVING_SIZE" &&
+    blocker.field === "creatine_per_serving_g"));
+});
+
 test("planner blocks even a one-serving overstatement beyond rounding tolerance", () => {
   const plan = buildApprovedPlan(
     [candidate({ proposed_field: "serving_count_verified", proposed_value: 15, approved_value: 15, proposed_unit: "count" })],
@@ -148,6 +164,31 @@ test("planner blocks unmapped, unsafe and conflicting approved candidates", () =
     assert.equal(plan.status, "BLOCKED");
     assert.ok(plan.blockers.some((blocker) => blocker.code === code));
     assert.throws(() => validatePlan(plan), /invalid or blocked/);
+  }
+});
+
+test("planner accepts an owner-resolved source conflict only when approved values converge", () => {
+  const candidates = [
+    candidate({ id: "1", proposed_value: 3, approved_value: 3, warning_flags: ["CROSS_SOURCE_CONFLICT"] }),
+    candidate({ id: "2", proposed_value: 5, approved_value: 3, warning_flags: ["CROSS_SOURCE_CONFLICT"], candidate_fingerprint: "b".repeat(64) }),
+  ];
+  const plan = buildApprovedPlan(candidates, [{ id: "337", name: "Creatine 150g", serving_size_g: null }], runId, "2026-08-02T12:00:00.000Z");
+  assert.equal(plan.status, "READY_FOR_EXPLICIT_APPLY");
+  assert.equal(plan.product_updates[0].changes.serving_size_g.after, 3);
+  assert.equal(plan.product_updates[0].changes.serving_size_g.evidence.some((row) => row.owner_corrected), true);
+});
+
+test("owner correction never resolves mismatch or non-convergent conflict flags", () => {
+  const cases = [
+    [candidate({ proposed_value: 5, approved_value: 3, warning_flags: ["PACKAGE_SERVING_MISMATCH"] })],
+    [
+      candidate({ id: "1", proposed_value: 3, approved_value: 3, warning_flags: ["CROSS_SOURCE_CONFLICT"] }),
+      candidate({ id: "2", proposed_value: 5, approved_value: 4, warning_flags: ["CROSS_SOURCE_CONFLICT"], candidate_fingerprint: "b".repeat(64) }),
+    ],
+  ];
+  for (const candidates of cases) {
+    const plan = buildApprovedPlan(candidates, [{ id: "337", name: "Creatine", serving_size_g: null }], runId, "2026-08-02T12:00:00.000Z");
+    assert.equal(plan.status, "BLOCKED");
   }
 });
 

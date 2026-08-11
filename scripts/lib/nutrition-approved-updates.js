@@ -88,13 +88,9 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
       blockers.push({ code: "SERVING_COUNT_MUST_BE_INTEGER", candidate_id: candidateId, product_id: productId, field });
       continue;
     }
-    if (flags.some((flag) => UNSAFE_FLAGS.test(flag))) {
-      blockers.push({ code: "UNSAFE_WARNING_FLAG", candidate_id: candidateId, product_id: productId, field });
-      continue;
-    }
     const key = `${productId}|${field}`;
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push({ candidate, productId, field, value });
+    groups.get(key).push({ candidate, productId, field, value, flags });
   }
   const changesByProduct = new Map();
   for (const group of groups.values()) {
@@ -107,6 +103,25 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
         candidate_ids: group.map((item) => String(item.candidate.id)),
       });
       continue;
+    }
+    const unsafe = group.filter((item) => item.flags.some((flag) => UNSAFE_FLAGS.test(flag)));
+    if (unsafe.length) {
+      const ownerResolvedSourceConflict = group.some((item) =>
+        Number(item.candidate.approved_value) !== Number(item.candidate.proposed_value)) &&
+        unsafe.every((item) => item.flags
+          .filter((flag) => UNSAFE_FLAGS.test(flag))
+          .every((flag) => /CONFLICT/i.test(flag) && !/MISMATCH|EXCEEDS|AMBIGUOUS|UNCLEAR/i.test(flag)));
+      if (!ownerResolvedSourceConflict) {
+        for (const item of unsafe) {
+          blockers.push({
+            code: "UNSAFE_WARNING_FLAG",
+            candidate_id: String(item.candidate.id),
+            product_id: item.productId,
+            field: item.field,
+          });
+        }
+        continue;
+      }
     }
     const { productId, field, value } = group[0];
     const product = productById.get(productId);
@@ -157,6 +172,18 @@ function buildApprovedPlan(candidates, products, runId, generatedAt = new Date()
     }
     const servingCount = effective("serving_count_verified");
     const servingSize = effective("serving_size_g");
+    for (const field of NUTRITION_SOURCE_FIELDS) {
+      const nutrient = effective(field);
+      if (servingSize !== null && nutrient !== null && nutrient > servingSize) {
+        blockers.push({
+          code: "NUTRIENT_EXCEEDS_SERVING_SIZE",
+          product_id: update.product_id,
+          field,
+          nutrient_per_serving_g: nutrient,
+          serving_size_g: servingSize,
+        });
+      }
+    }
     const packageTolerance = afterWeight === null ? null : Math.max(1, afterWeight * 0.01);
     if (afterWeight !== null && servingCount !== null && servingSize !== null &&
         servingCount * servingSize > afterWeight + packageTolerance) {
