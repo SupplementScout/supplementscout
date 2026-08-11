@@ -149,16 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the stable validator apply with exactly its fingerprint repair pending", () => {
+test("production records the completed Fit House runtime fingerprint repair", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260811020000_repair_fit_house_runtime_policy_fingerprint.sql",
-    sha256: "64e76dcedbbbaa4e05823ed2e5c62cf7e58c63f13915dddfa9a48e082395cbab",
-  }]);
-  assert.equal(contract.ledgerCount, 107);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 108);
   assert.equal(
     contract.ledgerFingerprint,
-    "7cc8a04024c0e6c05df9a38706f47b322db9ed06b0fdce8fc4ac929e9afe0d4d",
+    "9475d72eb594e1b3b55f53b15beda6d7a507c922c81aec59392657eb7aab78da",
   );
 });
 
@@ -261,14 +258,14 @@ test("production binds its exact ledger plus the single reviewed Fit House migra
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 107);
+  assert.equal(result.ledger_count, 108);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260811020000_repair_fit_house_runtime_policy_fingerprint"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 108);
-  assert.deepEqual(result.pending_files, ["20260811020000_repair_fit_house_runtime_policy_fingerprint.sql"]);
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
-  assert.equal(result.pending_file, "20260811020000_repair_fit_house_runtime_policy_fingerprint.sql");
-  assert.equal(result.pending_sha256, "64e76dcedbbbaa4e05823ed2e5c62cf7e58c63f13915dddfa9a48e082395cbab");
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {
