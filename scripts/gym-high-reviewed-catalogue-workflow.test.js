@@ -3,9 +3,13 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 
-const workflow = fs.readFileSync(path.join(__dirname, "..", ".github", "workflows", "gym-high-reviewed-catalogue-bootstrap.yml"), "utf8");
+const activeWorkflow = path.join(__dirname, "..", ".github", "workflows", "gym-high-reviewed-catalogue-bootstrap.yml");
+const archivedWorkflow = path.join(__dirname, "..", "docs", "archive", "completed-workflows", "gym-high-reviewed-catalogue-bootstrap.yml");
+const workflow = fs.readFileSync(archivedWorkflow, "utf8");
 
-test("reviewed bootstrap workflow is manual, exact and fail-closed", () => {
+test("completed reviewed bootstrap is archived outside active Actions and preserves its exact guards", () => {
+  assert.equal(fs.existsSync(activeWorkflow), false);
+  assert.equal(fs.existsSync(archivedWorkflow), true);
   assert.match(workflow, /^  workflow_dispatch:/m);
   assert.doesNotMatch(workflow, /^  (push|schedule):/m);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);

@@ -23,7 +23,11 @@ test("SEO-13 pilot CLI keeps output in tmp and limits modes", () => {
 });
 
 test("SEO-13 workflow is manual, role-separated and has no service-role credential", () => {
-  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/seo13-vegan-protein-pilot.yml"), "utf8");
+  const activeWorkflow = path.join(ROOT, ".github/workflows/seo13-vegan-protein-pilot.yml");
+  const archivedWorkflow = path.join(ROOT, "docs/archive/completed-workflows/seo13-vegan-protein-pilot.yml");
+  assert.equal(fs.existsSync(activeWorkflow), false);
+  assert.equal(fs.existsSync(archivedWorkflow), true);
+  const workflow = fs.readFileSync(archivedWorkflow, "utf8");
   assert.match(workflow, /workflow_dispatch:/);
   assert.doesNotMatch(workflow, /schedule:|SUPABASE_SERVICE_ROLE_KEY/);
   assert.doesNotMatch(workflow, /JONS_SYNC_VALIDATOR_DATABASE_URL/);

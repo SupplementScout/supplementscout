@@ -2445,7 +2445,15 @@ Current binding decisions:
   timeout; the fresh post-apply check also returned 506/506 no-change.
 - Direct retailer URLs are complete. Affiliate tracking for 6 Pack remains
   explicitly not configured and is a later commercial task, not a catalogue or
-  refresh blocker.
+refresh blocker.
+
+On 11 August 2026 the consumed GYM HIGH bootstrap and legacy identity workflows,
+and the completed Vegan Protein pilot workflow, were moved from
+`.github/workflows/` to `docs/archive/completed-workflows/`. Their exact YAML,
+guards, scripts and evidence remain preserved, but GitHub can no longer offer
+or execute those one-time production actions. The active GYM HIGH daily source
+monitor and 66-offer catalogue refresh remain unchanged; SEO-13 also remains in
+progress through its normal page roadmap.
 - On 11 August 2026 the owner approved exact stock transitions for Banana
   (offer `2029`, mapping `2215`) and Belgian Chocolate (offer `2422`, mapping
   `2608`) in the existing 7Nutrition Whey Isolate 90 1kg family. Two matching
