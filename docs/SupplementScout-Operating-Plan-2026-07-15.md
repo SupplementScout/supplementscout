@@ -177,6 +177,25 @@ because unrelated source variant `43583990006000` for `7Nutrition Whey Isolate
 90 1kg` was absent from the retailer's current Shopify snapshot; that source
 change made 0 database writes and is a separate retailer-source review item.
 
+### 0.0.6A Fit House automation closeout - 11 August 2026
+
+Fit House now uses one shared routine refresh path:
+`.github/workflows/fit-house-offer-refresh.yml` calls
+`scripts/fit-house-offer-refresh.js` for the exact approved 286-offer scope.
+The audited-missing manifest is identity evidence only; reviewed-change
+manifests, builders and migrations are one-time approval/audit records and are
+not additional scheduled automation engines.
+
+The approved source changes were applied without creating or deleting catalogue
+entities. The stable-OOS validator retains the generic 35% guard for every other
+retailer and allows Fit House's reviewed 103/286 baseline only when the exact
+retailer, scope and runtime policy fingerprint match and total OOS does not
+increase. Migration `20260811020000` corrected only that runtime fingerprint;
+catalogue counts remained unchanged. The final production dry-run returned
+`VERIFY_NO_CHANGE` for all 286 offers across six validated batches, with zero
+business or control writes. Do not create another Fit House refresh engine;
+future source changes must enter this same guarded path.
+
 ### 0.0.7 Competitive growth sequence - 31 July 2026
 
 The refreshed WheyWise comparison shows that SupplementScout's main competitive
@@ -1166,7 +1185,9 @@ Completed:
 - RTD, snack and servings evidence support,
 - public UI verification for Batch F.
 
-Fit House is not yet in a scheduled update workflow.
+Fit House has one scheduled guarded offer-refresh workflow at `02:47 UTC`.
+Its binding current status and safety boundary are recorded in section 0.0.6A
+and `docs/Retailer-Data-Source-Registry.md`.
 
 ### 8.7 Whey Okay
 

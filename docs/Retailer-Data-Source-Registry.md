@@ -391,7 +391,33 @@ Products with at least 2 active retailers.
 - Status: **440 APPROVED OFFERS / ONE SHARED DAILY AUTOMATION OPERATIONAL; V14
   CATALOGUE, OFFERS AND POST-APPLY IDEMPOTENCY VERIFIED**.
 
-## Fit House current record - 1 August 2026
+## Fit House current record - 11 August 2026
+
+- Retailer ID: `9`; domain: `fithouse.uk`; guarded Shopify products JSON.
+- Approved routine scope: 286 exact mappings/offers in
+  `config/retailers/fit-house-approved-offer-manifest.json`. Routine refreshes
+  cannot create, delete or automatically remap catalogue identities.
+- One routine engine is authoritative:
+  `.github/workflows/fit-house-offer-refresh.yml` ->
+  `scripts/fit-house-offer-refresh.js`. It runs daily at `02:47 UTC`.
+- The immutable 78-row audited-missing manifest is source-identity evidence.
+  It cannot authorise stock writes. Reviewed manifests/builders and SQL
+  migrations are one-time approval and audit evidence, not parallel scheduled
+  engines.
+- The reviewed 47-change operation completed with unchanged catalogue entity
+  counts. The exact Fit House stable-OOS boundary is 103 of 286, may not
+  increase, and does not alter the generic 35% guard used elsewhere.
+- Migration `20260811020000` repaired only the runtime policy fingerprint.
+  Production counts remained `1112` products, `2641` variants, `2522`
+  mappings, `2522` offers and `2673` price-history rows.
+- Final production dry-run: source `240` products / `332` variants; exact scope
+  `286`; `VERIFY_NO_CHANGE` x286; six validator batches; zero business/control
+  writes.
+- Status: **ROUTINE AUTOMATION HEALTHY; ONE SHARED GUARDED PATH; NEXT SCHEDULED
+  RUN IS THE REMOTE GITHUB ACTIONS CONFIRMATION**. Future identity changes must
+  use owner review and the existing path.
+
+## Fit House historical blocked record - 1 August 2026
 
 - Retailer ID: `9`; domain: `fithouse.uk`; platform/source: guarded Shopify
   products JSON through the existing Fit House adapter and shared retailer
