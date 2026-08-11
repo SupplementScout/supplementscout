@@ -2064,11 +2064,10 @@ Target experience:
 
 ### Current active task
 
-`SEO-13` is the single active implementation. Page 1, Amino Acids / BCAA /
-EAA, page 3, Whey Isolate, and page 4, Vegan Protein, are live verified through
-the existing shared category/decision-page system. The remaining seven candidates have been
-reviewed and deferred with recorded identity, coverage or distinct-value
-blockers. The existing
+`SEO-13` is the single active implementation. Amino Acids / BCAA / EAA, Whey
+Isolate, Vegan Protein and Mass Gainer are live verified through the existing
+shared category/decision-page system. Six candidates remain deferred with
+recorded identity, coverage or distinct-value blockers. The existing
 `/hydration` canonical was hardened instead of creating a duplicate
 Electrolytes URL, and Creatine Monohydrate remains consolidated into the
 existing `/creatine` canonical to avoid keyword cannibalisation. SEO-13 stays
@@ -2078,16 +2077,34 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 by rechecking Protein Bars, the earliest remaining deferred
-fixed-order candidate, through its exact product and pack-identity gate before
-any implementation. Mass Gainer is now live verified at `/mass-gainer`: its
+Continue SEO-13 with owner review of the bounded Multivitamins coverage
+remediation. The complete
+fixed-order cluster was rechecked on 11 August: Protein Bars, Electrolytes,
+Magnesium Glycinate, Multivitamins and Ashwagandha remain below their unchanged
+coverage gates; Creatine Monohydrate remains correctly consolidated into
+`/creatine`. Multivitamins is closest at 16 visible products, 18 fresh offers,
+four retailers, two multi-retailer products and two verified value metrics.
+Only products `380` and `381` currently have mappings at two retailers, so
+there is no dormant third comparison to revive. The next action is read-only
+exact-overlap discovery for the remaining single-retailer products against
+existing approved retailer sources found three Discount Supplements candidates.
+Product `824`, Strom MultiMAX 180 Tablets, is an exact same-product match.
+Product `816`, TBJP The One, requires an exact correction from tablet/unknown
+count to 60 capsules before its Discount offer can be linked. Product `1042`,
+Applied Nutrition Multi-Vitamin Complex, requires a separate correction from 90
+tablets to 90 capsules and is not part of the minimum rollout. Owner approval is
+required before any identity or production write. If the first two are
+approved and the guarded postflight confirms their current source state, the
+Multivitamins gate should move from two to four multi-retailer products and 18
+to 20 fresh offers. Do not create a page, relax the `3 / 2 / 20` gate or
+introduce a new importer. Mass Gainer is live verified at `/mass-gainer`: its
 public page has `index, follow`, the exact canonical, eight visible products,
 50 fresh offers, three retailers, three multi-retailer products, complete
 CollectionPage/ItemList/BreadcrumbList data, the consent-aware analytics marker
 and one sitemap entry. Four of ten controlled SEO-13 candidates are now live
 verified; six remain deferred behind their recorded gates.
 
-The earlier 11 August gate failure remains recorded in the SEO ledger as the
+The earlier Mass Gainer gate failure remains recorded in the SEO ledger as the
 pre-correction baseline. It was resolved through the guarded two-row metadata
 change rather than by weakening the gate, adding products or creating another
 comparison system.

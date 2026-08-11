@@ -123,11 +123,19 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — recheck Protein Bars, the earliest remaining
-deferred fixed-order candidate, through its existing exact bar/wafer/flapjack
-and single-versus-box pack gate before any implementation. Amino Acids / BCAA /
-EAA, Whey Isolate, Vegan Protein and Mass Gainer are live verified; the other
-six candidates remain deferred. The existing `/hydration` canonical was
+**Next executable task:** SEO-13 — obtain owner review for the exact Discount
+Supplements Multivitamins overlap candidates found on 11 August, then use the
+existing guarded retailer path only for approved identities. Strom MultiMAX 180
+Tablets is an exact same-product candidate. TBJP The One requires a bounded
+tablet-to-60-capsules canonical correction before its Discount offer can be
+linked. Applied Nutrition Multi-Vitamin Complex also requires a separate
+90-tablets-to-90-capsules correction and remains outside the minimum rollout
+until reviewed. The complete fixed-order cluster
+was rechecked on 11 August: Amino Acids / BCAA / EAA, Whey Isolate, Vegan
+Protein and Mass Gainer are live verified; Protein Bars, Electrolytes,
+Magnesium Glycinate, Multivitamins and Ashwagandha remain below their unchanged
+coverage gates, while Creatine Monohydrate remains correctly consolidated into
+the existing `/creatine` canonical. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
 competing URL. The first authenticated Search Console and GA4 measurement is
@@ -277,6 +285,85 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 11 August 2026 — SEO-13 remaining-candidate recheck and remediation choice
+
+- Electrolytes was rechecked through the existing `/hydration` boundary. The
+  read-only production audit found 18 scoped products, 12 visible products, 44
+  fresh offers and four retailers. Only product `37`, Applied Nutrition BCAA
+  Amino Hydrate 450g, had fresh offers from multiple retailers. The unchanged
+  `3 / 2 / 8` Hydration gate therefore still fails on multi-retailer depth; the
+  existing page remains the only canonical and continues to fail closed rather
+  than creating `/electrolytes`.
+- Magnesium Glycinate reviewed 20 magnesium-named products. Five passed the
+  exact glycinate/bisglycinate boundary without a conflicting magnesium form or
+  blend; three were visible, with three fresh offers from three retailers and
+  zero multi-retailer products. The unchanged `3 / 2 / 20` gate failed.
+- Multivitamins reviewed 18 explicit multivitamin products. Sixteen were
+  visible with 18 fresh offers across four retailers; products `380` and `381`
+  had fresh offers from both 6 Pack Supplements and Whey Okay. Two visible
+  products had verified value metrics. The unchanged gate still failed at two
+  rather than three multi-retailer products and 18 rather than 20 fresh offers.
+- Ashwagandha reviewed nine named products and excluded the Shilajit blend.
+  Eight passed the identity boundary; six were visible with seven fresh offers
+  across three retailers. Only product `402`, BioTech USA Ashwagandha 60 Caps,
+  had fresh multi-retailer coverage, so the unchanged gate failed.
+- Creatine Monohydrate remains consolidated into `/creatine`. The established
+  canonical already compares creatine products, delivered prices and verified
+  cost per 5 g, and includes explicit monohydrate products. A second route would
+  duplicate the same products and intent without distinct decision value.
+- A follow-up read-only mapping audit found no dormant third Multivitamins
+  comparison to revive: only products `380` and `381` have mappings at two
+  retailers; every other candidate has exactly one retailer mapping. The next
+  bounded task is therefore exact overlap discovery against existing approved
+  retailer sources, not a page, a relaxed gate or another import mechanism.
+- A fresh 341-product / 997-variant Discount Supplements snapshot then found
+  three bounded overlap candidates. Product `824`, Strom Sports MultiMAX, is an
+  exact 180-tablet match to Discount external product `7467845877956`, variant
+  `42518690463940`, in stock at GBP 27.95; current Jon's and Discount evidence
+  agrees with the manufacturer's 180-tablet / 90-serving identity. Product
+  `816`, TBJP The One, is the same formula, but canonical format `tablet` is
+  wrong: the manufacturer describes capsules and Discount external product
+  `15002692616570`, variant `55157496185210`, identifies 60 capsules in stock at
+  GBP 11.99. It requires an owner-reviewed metadata and variant correction
+  before mapping. Product `1042`, Applied Nutrition Multi-Vitamin Complex,
+  similarly says 90 tablets locally while the manufacturer and Discount
+  external product `4670592974895`, variant `54864037708154`, identify 90
+  capsules. It remains a separate correction rather than being silently linked.
+- Applying only the exact Strom mapping and the reviewed TBJP correction/mapping
+  would raise the current Multivitamins gate from two to four multi-retailer
+  products and from 18 to 20 fresh offers, subject to a fresh post-apply audit.
+  These findings are planning evidence, not production-write authority.
+- All audits were read-only and performed zero catalogue, mapping, offer or
+  analytics writes. SEO-13 remains `IN PROGRESS` with four live candidates and
+  six explicit deferred outcomes.
+
+### 11 August 2026 — SEO-13 Protein Bars gate rechecked and remains deferred
+
+- A fresh read-only production audit reviewed all 52 active, unmerged products
+  in the exact `Protein Bars` category, 183 canonical variant rows and 172
+  mapping/offer rows. It performed zero catalogue, mapping, offer or analytics
+  writes.
+- The unchanged safe boundary required an explicit bar, wafer or flapjack
+  canonical identity; `bar` or `snack` format; a known product-consistent pack
+  count across every concrete active variant; and an in-stock, positive-price,
+  mapped offer checked within 24 hours. Jams, sauces, spreads, cookies,
+  milkshakes, pancake mix, liquid egg white and other non-bar foods remained
+  outside this category-specific comparison even though they are allowed in
+  the wider catalogue.
+- Twelve products passed the identity, format and pack boundary. Nine were
+  visible with 46 fresh offers across 6 Pack Supplements, Whey Okay and Jon's
+  Supplements. Single products and boxes remained separate; Warrior Crunch
+  and 6Pak Protein Wafer were excluded because their current families still
+  mix pack counts `1` and `12`.
+- Zero eligible products had fresh offers from multiple retailers. The
+  unchanged `3 / 2 / 20` index gate therefore failed on comparable retailer
+  overlap even though fresh-offer volume passed. No `/protein-bars` route,
+  sitemap entry or metadata was created, and the gate was not weakened.
+- Protein Bars remains deferred until at least three exact same-pack products
+  have fresh multi-retailer coverage. Electrolytes is the next fixed-order
+  candidate and must be rechecked through the existing `/hydration` canonical
+  rather than through a duplicate route.
 
 ### 11 August 2026 — SEO-13 Mass Gainer live verification
 
