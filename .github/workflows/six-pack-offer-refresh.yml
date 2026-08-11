@@ -1,17 +1,6 @@
 name: 6 Pack Supplements Offer Refresh
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/six-pack-offer-refresh.yml
-      - config/retailers/six-pack-approved-offer-manifest.json
-      - config/retailers/six-pack-supplements-woocommerce.json
-      - config/retailers/six-pack-reviewed-mass-oos-2026-08-11.json
-      - scripts/six-pack-canary-builder.js
-      - scripts/six-pack-offer-refresh.js
-      - scripts/six-pack-offer-refresh-executor.js
   workflow_dispatch:
     inputs:
       operation:
@@ -36,7 +25,7 @@ concurrency:
 
 jobs:
   six-pack-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly
@@ -52,7 +41,7 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
           case "$GITHUB_EVENT_NAME" in
-            push|schedule|workflow_dispatch) ;;
+            schedule|workflow_dispatch) ;;
             *) exit 1 ;;
           esac
 
@@ -99,7 +88,7 @@ jobs:
           done
 
       - name: Apply exact approved manifest
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
         env:
           SIX_PACK_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SIX_PACK_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
@@ -115,7 +104,7 @@ jobs:
             "${reviewed_args[@]}"
 
       - name: Verify idempotency against a fresh source capture
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

@@ -107,6 +107,10 @@ test("executor CLI preserves the exact reviewed selector and rejects unknown sel
 test("scheduled workflow always preflights, applies through split roles and verifies idempotency", () => {
   const workflow = fs.readFileSync(path.join(__dirname, "..", ".github", "workflows", "six-pack-offer-refresh.yml"), "utf8");
   assert.match(workflow, /cron: "17 3 \* \* \*"/);
+  assert.match(workflow, /^  workflow_dispatch:/m);
+  assert.doesNotMatch(workflow, /^  push:/m);
+  assert.doesNotMatch(workflow, /github\.event_name == 'push'|\bpush\|schedule\b/);
+  assert.match(workflow, /github\.event_name == 'schedule' \|\| inputs\.operation == 'apply' \|\| inputs\.operation == 'reviewed-mass-oos-apply'/);
   assert.match(workflow, /Fresh live-source dry-run/);
   assert.match(workflow, /SIX_PACK_SYNC_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /SIX_PACK_SYNC_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
