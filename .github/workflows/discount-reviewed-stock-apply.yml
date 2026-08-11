@@ -1,0 +1,65 @@
+name: Discount reviewed stock changes
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Validate first; apply only the exact owner-approved package
+        required: true
+        default: validate
+        type: choice
+        options: [validate, apply]
+      selector:
+        description: Exact reviewed package selector
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discount-reviewed-stock-production
+  cancel-in-progress: false
+
+jobs:
+  reviewed-stock:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.selector == 'discount-stock-12-2026-08-11' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test exact reviewed package
+        run: node --test scripts/discount-reviewed-stock-executor.test.js scripts/import-products.test.js
+      - name: Validate and optionally apply all 12 atomically
+        env:
+          GITHUB_EVENT_NAME: workflow_dispatch
+          DISCOUNT_STOCK_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          DISCOUNT_STOCK_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/discount-reviewed-stock-executor.js --mode=${{ inputs.operation }} --manifest=docs/rollouts/discount-stock-2026-08-11/manifest.json --output=tmp/discount-stock/execution.json
+      - name: Fresh read-only postflight after apply
+        if: ${{ inputs.operation == 'apply' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPPLEMENTSCOUT_STAGE1_READ_ONLY: "true"
+        run: |
+          node scripts/adapters/discount-supplements-shopify.js --full-snapshot
+          node scripts/adapters/discount-supplements-stage1.js
+          node -e 'const r=require("./tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-report.json");if(r.database_writes!==0||r.dry_run.actions.offer_update!==0||r.change_counts.stock_changes!==0)process.exit(1)'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: discount-reviewed-stock-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/discount-stock/*.json
+            tmp/retailer-feeds/discount-supplements/discount-supplements-stage1-report.json
+          if-no-files-found: warn
+          retention-days: 30

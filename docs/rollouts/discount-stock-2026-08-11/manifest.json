@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "discount-supplements-reviewed-stock-changes-v1",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": "4",
+  "retailer_slug": "discount-supplements",
+  "authority": "owner-approved-chat-2026-08-11-all-12-discount-stock-changes",
+  "approved_at": "2026-08-11",
+  "artifact": "docs/rollouts/discount-stock-2026-08-11/stage1-artifact.json",
+  "artifact_sha256": "4d9245e0a7342ef0b461ce33ee63fb0f30b6af6b3dea07b5f037279c6404d1db",
+  "artifact_run_id": "10755b8f-1d9c-451e-bd9c-160f79f60f1c",
+  "row_count": 12,
+  "new_oos_count": 11,
+  "restock_count": 1,
+  "rows": [
+    {"offer_id":"773","mapping_id":"959","product_id":"38","product_variant_id":"728","external_product_id":"7060933935300","external_variant_id":"41859737485508","plan_fingerprint":"c1718d908fca84b2f61ad15dbe427b1e","before_in_stock":true,"after_in_stock":false,"price":"18.99","shipping_cost":"4.99","total_price":"23.98","url":"https://www.discount-supplements.co.uk/products/applied-pump-3g-pre-workout-375g?variant=41859737485508"},
+    {"offer_id":"822","mapping_id":"1008","product_id":"296","product_variant_id":"790","external_product_id":"4665196576815","external_variant_id":"32392491761711","plan_fingerprint":"41d515d068f1949a9cbddbacd0f16382","before_in_stock":true,"after_in_stock":false,"price":"63.99","shipping_cost":"4.99","total_price":"68.98","url":"https://www.discount-supplements.co.uk/products/usn-muscle-fuel-anabolic?variant=32392491761711"},
+    {"offer_id":"852","mapping_id":"1038","product_id":"743","product_variant_id":"804","external_product_id":"4670575968303","external_variant_id":"32414029119535","plan_fingerprint":"7eeddbbbe026b53ddcae141b4ae02528","before_in_stock":true,"after_in_stock":false,"price":"44.99","shipping_cost":"4.99","total_price":"49.98","url":"https://www.discount-supplements.co.uk/products/applied-nutrition-critical-whey-2-2kg?variant=32414029119535"},
+    {"offer_id":"872","mapping_id":"1058","product_id":"745","product_variant_id":"820","external_product_id":"6080779157700","external_variant_id":"54945708048762","plan_fingerprint":"fddd7834c699652cebaf848c564438e4","before_in_stock":true,"after_in_stock":false,"price":"16.99","shipping_cost":"4.99","total_price":"21.98","url":"https://www.discount-supplements.co.uk/products/cnp-pro-loaded-eaa-300g?variant=54945708048762"},
+    {"offer_id":"878","mapping_id":"1064","product_id":"747","product_variant_id":"830","external_product_id":"4659501596719","external_variant_id":"32362082402351","plan_fingerprint":"9bf6234fb0564ff1b11bac2fa096128d","before_in_stock":true,"after_in_stock":false,"price":"34.99","shipping_cost":"4.99","total_price":"39.98","url":"https://www.discount-supplements.co.uk/products/xl-nutrition-xtra-whey-2kg?variant=32362082402351"},
+    {"offer_id":"879","mapping_id":"1065","product_id":"747","product_variant_id":"831","external_product_id":"4659501596719","external_variant_id":"41919830851780","plan_fingerprint":"c53cf6d6064c60ddb9f9bf7984c6c54d","before_in_stock":true,"after_in_stock":false,"price":"34.99","shipping_cost":"4.99","total_price":"39.98","url":"https://www.discount-supplements.co.uk/products/xl-nutrition-xtra-whey-2kg?variant=41919830851780"},
+    {"offer_id":"881","mapping_id":"1067","product_id":"747","product_variant_id":"833","external_product_id":"4659501596719","external_variant_id":"51667445252474","plan_fingerprint":"0518ba5319066d5b72f56e2ba31cd183","before_in_stock":true,"after_in_stock":false,"price":"34.99","shipping_cost":"4.99","total_price":"39.98","url":"https://www.discount-supplements.co.uk/products/xl-nutrition-xtra-whey-2kg?variant=51667445252474"},
+    {"offer_id":"882","mapping_id":"1068","product_id":"747","product_variant_id":"834","external_product_id":"4659501596719","external_variant_id":"32362082533423","plan_fingerprint":"1ea41882ae5e4559d411e4e1fbed0d97","before_in_stock":false,"after_in_stock":true,"price":"34.99","shipping_cost":"4.99","total_price":"39.98","url":"https://www.discount-supplements.co.uk/products/xl-nutrition-xtra-whey-2kg?variant=32362082533423"},
+    {"offer_id":"886","mapping_id":"1072","product_id":"747","product_variant_id":"839","external_product_id":"4659501596719","external_variant_id":"32362082598959","plan_fingerprint":"24da10600eac8124dea3c75702890e31","before_in_stock":true,"after_in_stock":false,"price":"34.99","shipping_cost":"4.99","total_price":"39.98","url":"https://www.discount-supplements.co.uk/products/xl-nutrition-xtra-whey-2kg?variant=32362082598959"},
+    {"offer_id":"891","mapping_id":"1077","product_id":"753","product_variant_id":"874","external_product_id":"7243002708164","external_variant_id":"55675744092538","plan_fingerprint":"3c0ed780a87b833807a624d748c5d879","before_in_stock":true,"after_in_stock":false,"price":"52.95","shipping_cost":"4.99","total_price":"57.94","url":"https://www.discount-supplements.co.uk/products/dy-nutrition-shadowhey-protein-concentrate-2kg?variant=55675744092538"},
+    {"offer_id":"893","mapping_id":"1079","product_id":"753","product_variant_id":"877","external_product_id":"7243002708164","external_variant_id":"41823846170820","plan_fingerprint":"b54ef90f8deafbf2a97bc3798d52d1bc","before_in_stock":true,"after_in_stock":false,"price":"52.95","shipping_cost":"4.99","total_price":"57.94","url":"https://www.discount-supplements.co.uk/products/dy-nutrition-shadowhey-protein-concentrate-2kg?variant=41823846170820"},
+    {"offer_id":"1502","mapping_id":"1688","product_id":"856","product_variant_id":"1280","external_product_id":"14630387843450","external_variant_id":"51667348193658","plan_fingerprint":"12df0de8e1f6f3c19a2e82cbbd1bdb75","before_in_stock":true,"after_in_stock":false,"price":"15.99","shipping_cost":"4.99","total_price":"20.98","url":"https://www.discount-supplements.co.uk/products/trained-by-jp-eaa?variant=51667348193658"}
+  ]
+}
