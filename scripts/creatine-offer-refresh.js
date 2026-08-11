@@ -18,14 +18,6 @@ const ACTIONS_ALLOWED_TO_APPLY = new Set([
 ]);
 
 const RETAILER_SCOPE = Object.freeze({
-  "Fit House": Object.freeze({
-    expectedCount: 18,
-    storeUrl: "https://fithouse.uk",
-    shippingCost: "3.99",
-    ignoreSourceSku: true,
-    previousSourceProductCount: 85,
-    offerIds: Object.freeze([952, 984, 954, 958, 981, 709, 697, 708, 955, 966, 941, 942, 696, 962, 968, 970, 698, 728]),
-  }),
   "Discount Supplements": Object.freeze({
     expectedCount: 12,
     storeUrl: "https://www.discount-supplements.co.uk",
@@ -33,22 +25,8 @@ const RETAILER_SCOPE = Object.freeze({
     previousSourceProductCount: 3,
     offerIds: Object.freeze([763, 861, 862, 863, 864, 762, 894, 895, 896, 834, 897, 898]),
   }),
-  "Jon's Supplements": Object.freeze({
-    expectedCount: 5,
-    storeUrl: "https://jonssupplements.co.uk",
-    marketCountry: "GB",
-    shippingCost: "3.99",
-    previousSourceProductCount: 224,
-    previousSourceVariantCount: 844,
-    sourceAvailabilityGuard: Object.freeze({
-      minimumVariantCount: 100,
-      maximumAvailableVariantCount: 10,
-      maximumAvailableVariantRatio: 0.02,
-    }),
-    retryOnSourceDegraded: true,
-    offerIds: Object.freeze([1013, 1014, 1015, 1016, 1017]),
-  }),
 });
+const EXPECTED_SCOPE_COUNT = 12;
 
 function parseArgs(args) {
   const options = { mode: "dry-run", writeArtifacts: true };
@@ -323,9 +301,9 @@ function assertSafePlan(plan) {
   if (plan.project_ref !== EXPECTED_PRODUCTION_REF) throw new Error("plan is not bound to production");
   if (plan.status !== "DRY_RUN_READY") throw new Error("plan is not ready");
   if (plan.safe_update !== "UNSET") throw new Error("SAFE_UPDATE must be unset in the plan");
-  if (!Array.isArray(plan.classified_rows) || plan.classified_rows.length !== 35) throw new Error("plan must contain exactly 35 authorised creatine offers");
+  if (!Array.isArray(plan.classified_rows) || plan.classified_rows.length !== EXPECTED_SCOPE_COUNT) throw new Error(`plan must contain exactly ${EXPECTED_SCOPE_COUNT} authorised creatine offers`);
   const ids = new Set(plan.classified_rows.map((row) => String(row.offer_id)));
-  if (ids.size !== 35) throw new Error("plan contains duplicate offer IDs");
+  if (ids.size !== EXPECTED_SCOPE_COUNT) throw new Error("plan contains duplicate offer IDs");
   for (const row of plan.classified_rows) {
     if (!ACTIONS_ALLOWED_TO_APPLY.has(row.action)) throw new Error(`unsupported action ${row.action} for offer ${row.offer_id}`);
     if (row.changed_fields?.blocked) throw new Error(`blocked row reached apply for offer ${row.offer_id}`);
@@ -472,7 +450,7 @@ async function buildRefreshPlan({ client, fetchImpl = globalThis.fetch, now = ne
     state_origin: "FRESH_DATABASE_AND_SOURCE_READS",
     prior_artifact_input: false,
     scope: Object.fromEntries(Object.entries(RETAILER_SCOPE).map(([name, scope]) => [name, { expected_count: scope.expectedCount, offer_ids: [...scope.offerIds] }])),
-    status: blockers.length === 0 && classifiedRows.length === 35 ? "DRY_RUN_READY" : "BLOCKED",
+    status: blockers.length === 0 && classifiedRows.length === EXPECTED_SCOPE_COUNT ? "DRY_RUN_READY" : "BLOCKED",
     retailer_results: retailerResults,
     classification_counts: summarizeActions(classifiedRows),
     classified_rows: classifiedRows.sort((left, right) => Number(left.offer_id) - Number(right.offer_id)),
@@ -614,8 +592,8 @@ async function applyRefreshPlan({ client, plan }) {
     row_results: rowResults,
   };
   result.status =
-    result.rows_checked === 35 &&
-    result.rows_applied_or_verified === 35 &&
+    result.rows_checked === EXPECTED_SCOPE_COUNT &&
+    result.rows_applied_or_verified === EXPECTED_SCOPE_COUNT &&
     delta.products === 0 &&
     delta.product_variants === 0 &&
     delta.retailer_products === 0 &&

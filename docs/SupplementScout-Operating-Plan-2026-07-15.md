@@ -524,13 +524,12 @@ This is a global SupplementScout catalogue rule. It applies to every retailer, s
 
 `/creatine` is launched and indexable. Its current-price ranking, retailer ranking and JSON-LD use fresh offers only; stale/no-source offers remain excluded from current-price claims.
 
-Daily creatine offer refresh is active via the existing GitHub Actions scheduling method in `.github/workflows/creatine-offer-refresh.yml`. It runs once per day at `03:17 UTC`, which is `03:17 Europe/London` in winter and `04:17 Europe/London` during British Summer Time. The exact automatic scope is 35 existing approved creatine offers only: Fit House 18, Discount Supplements 12 and Jon's Supplements 5. The job may update only price, stock, offer URL, `last_checked_at`, and price history when delivered-price inputs genuinely change. It must not create products, variants, retailer mappings, retailers, merges, deletions or identity repairs.
+Daily creatine offer refresh is active via the existing GitHub Actions scheduling method in `.github/workflows/creatine-offer-refresh.yml`. It runs once per day at `06:47 UTC`, after the read-only Discount Supplements snapshot at `06:17 UTC`. The exact automatic scope is the 12 existing approved Discount Supplements creatine offers only. Fit House and Jon's Supplements are excluded from this overlapping category refresh because their complete retailer automations now own those offers. The job may update only price, stock, offer URL, `last_checked_at`, and price history when delivered-price inputs genuinely change. It must not create products, variants, retailer mappings, retailers, merges, deletions or identity repairs.
 
-On 29 July 2026 the creatine refresh was corrected to use the same reviewed
-Fit House identity rule as the full Fit House automation: stable Shopify
-product and variant IDs remain mandatory, while retailer-removed source SKU
-metadata is non-authoritative. The fresh production dry-run passed all 35
-offers as `VERIFY_NO_CHANGE`, with zero blockers and zero writes.
+On 11 August 2026 the overlapping Fit House and Jon's Supplements rows were
+removed after their full retailer automations passed fresh production dry-runs.
+The shared read-source, classifier and generic safety guards remain unchanged;
+only the exact routine scope and non-colliding schedule changed.
 
 No-source creatine retailers remain excluded from the automatic refresh: Whey Okay 22, GYM HIGH 3 and Simply Supplements 1. The next product/data step is Jon's catalogue review and one reviewed 25-50 offer catalogue-growth batch using the existing importer; increasing 2+ retailer coverage still requires another authorised overlapping source.
 
