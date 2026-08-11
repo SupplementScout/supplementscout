@@ -22,7 +22,11 @@ test("CLI is restricted to validate/apply and tmp evidence", () => {
 });
 
 test("workflow is manual-only, role-separated and exact-selector gated", () => {
-  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/discount-reviewed-stock-apply.yml"), "utf8");
+  const activeWorkflow = path.join(ROOT, ".github/workflows/discount-reviewed-stock-apply.yml");
+  const archivedWorkflow = path.join(ROOT, "docs/archive/completed-workflows/discount-reviewed-stock-apply.yml");
+  assert.equal(fs.existsSync(activeWorkflow), false);
+  assert.equal(fs.existsSync(archivedWorkflow), true);
+  const workflow = fs.readFileSync(archivedWorkflow, "utf8");
   assert.match(workflow, /workflow_dispatch:/);
   assert.doesNotMatch(workflow, /^  (push|schedule):/m);
   assert.match(workflow, /inputs\.selector == 'discount-stock-12-2026-08-11'/);

@@ -16,6 +16,10 @@ Archived on 11 August 2026:
   successfully in run `30707297893`; the public page was subsequently marked
   live verified. SEO-13 itself remains active and continues through its normal
   page roadmap, not through this consumed pilot workflow.
+- `discount-reviewed-stock-apply.yml` — the exact owner-approved package of 12
+  existing Discount Supplements offers passed rollback validation in run
+  `31479221584` and applied atomically in run `31479348558`. Its fresh Stage 1
+  postflight found zero remaining offer or stock changes.
 
 The associated scripts, immutable rollout evidence and tests remain in place.
 Tests assert that these files stay archived and that their original guards are

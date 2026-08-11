@@ -1211,6 +1211,17 @@ Stage 1 currently performs:
 
 It does not perform production writes.
 
+On 11 August 2026 a fresh double source read and production dry-run identified
+exactly 12 stock-only changes in existing Discount Supplements offers: 11
+`in_stock -> out_of_stock` transitions and one restock. The owner approved the
+exact offer/mapping list. Immutable package validation passed in GitHub run
+`31479221584`; protected run `31479348558` then applied all 12 through the
+existing approver/importer executor roles in one executor transaction. Prices,
+shipping, delivered totals, URLs, catalogue identities and price history were
+unchanged. A fresh full Stage 1 postflight returned zero remaining offer or
+stock changes. The consumed manual workflow is archived in
+`docs/archive/completed-workflows/`; the normal daily Stage 1 remains read-only.
+
 ### 8.6 Fit House
 
 Completed:
