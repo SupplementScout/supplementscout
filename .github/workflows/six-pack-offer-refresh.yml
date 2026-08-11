@@ -8,8 +8,10 @@ on:
       - .github/workflows/six-pack-offer-refresh.yml
       - config/retailers/six-pack-approved-offer-manifest.json
       - config/retailers/six-pack-supplements-woocommerce.json
+      - config/retailers/six-pack-reviewed-mass-oos-2026-08-11.json
       - scripts/six-pack-canary-builder.js
       - scripts/six-pack-offer-refresh.js
+      - scripts/six-pack-offer-refresh-executor.js
   workflow_dispatch:
     inputs:
       operation:
@@ -20,6 +22,8 @@ on:
         options:
           - dry-run
           - apply
+          - reviewed-mass-oos-dry-run
+          - reviewed-mass-oos-apply
   schedule:
     - cron: "17 3 * * *"
 
@@ -76,28 +80,42 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPERATION: ${{ inputs.operation || 'automatic' }}
         run: |
+          reviewed_args=()
+          case "$OPERATION" in
+            reviewed-mass-oos-dry-run|reviewed-mass-oos-apply)
+              reviewed_args+=(--reviewed-mass-oos=2026-08-11-whey-isolate-stock)
+              ;;
+          esac
           for attempt in 1 2 3 4 5; do
             node scripts/six-pack-offer-refresh.js \
               --target=production \
               --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
-              --report=tmp/six-pack-offer-refresh/production-preflight-report.json && break
+              --report=tmp/six-pack-offer-refresh/production-preflight-report.json \
+              "${reviewed_args[@]}" && break
             test "$attempt" -eq 5 && exit 1
             sleep $((attempt * 5))
           done
 
       - name: Apply exact approved manifest
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
         env:
           SIX_PACK_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SIX_PACK_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+          OPERATION: ${{ inputs.operation || 'automatic' }}
         run: |
+          reviewed_args=()
+          if [ "$OPERATION" = "reviewed-mass-oos-apply" ]; then
+            reviewed_args+=(--reviewed-mass-oos=2026-08-11-whey-isolate-stock)
+          fi
           node scripts/six-pack-offer-refresh-executor.js \
             --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
-            --output=tmp/six-pack-offer-refresh/production-execution.json
+            --output=tmp/six-pack-offer-refresh/production-execution.json \
+            "${reviewed_args[@]}"
 
       - name: Verify idempotency against a fresh source capture
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -117,7 +135,7 @@ jobs:
         run: |
           echo "## 6 Pack Supplements approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
           if [ -f tmp/six-pack-offer-refresh/production-preflight-report.json ]; then
-            node -e 'const r=require("./tmp/six-pack-offer-refresh/production-preflight-report.json"); console.log(`- Preflight: ${r.result}\n- Approved offers: ${r.approved_mapping_count}\n- Product pages: ${r.fetched_product_page_count}\n- Actions: ${JSON.stringify(r.action_counts)}\n- Block: ${r.block_reason}`)' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const r=require("./tmp/six-pack-offer-refresh/production-preflight-report.json"); console.log(`- Preflight: ${r.result}\n- Approved offers: ${r.approved_mapping_count}\n- Product pages: ${r.fetched_product_page_count}\n- Actions: ${JSON.stringify(r.action_counts)}\n- Block: ${r.block_reason}\n- Reviewed MASS_OOS: ${JSON.stringify(r.reviewed_mass_oos)}`)' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Preflight report unavailable; workflow failed closed." >> "$GITHUB_STEP_SUMMARY"
           fi

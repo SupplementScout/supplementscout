@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
 const { loadDryRunArtifact } = require("./import-products");
+const { loadReviewedMassOosManifest } = require("./six-pack-offer-refresh");
 const config = require("../config/retailers/six-pack-supplements-woocommerce.json");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -14,13 +15,18 @@ function fail(message) {
 function parseArgs(argv) {
   const out = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(artifact|output)=(.*)$/);
+    const match = argument.match(/^--(artifact|output|reviewed-mass-oos)=(.*)$/);
     if (!match || out[match[1]]) fail(`Invalid argument ${argument}`);
-    out[match[1]] = path.resolve(match[2]);
+    out[match[1]] = match[1] === "reviewed-mass-oos" ? match[2] : path.resolve(match[2]);
   }
   for (const key of ["artifact", "output"]) if (!out[key]) fail(`Required --${key}=<path>`);
   const relative = path.relative(path.join(ROOT, "tmp"), out.output);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Output must be inside repository tmp");
+  out.reviewedMassOosSelector = out["reviewed-mass-oos"] || null;
+  if (
+    out["reviewed-mass-oos"] !== undefined &&
+    out["reviewed-mass-oos"] !== config.automation.reviewed_mass_oos_selector
+  ) fail("Unknown reviewed MASS_OOS selector");
   return out;
 }
 
@@ -52,7 +58,73 @@ function hasExpectedShipping(offer) {
   );
 }
 
-function validateArtifactScope(artifact, manifest) {
+function reviewedPlanRows(artifact) {
+  return artifact.plans
+    .filter((entry) => {
+      const plan = entry.resolved_plan;
+      const before = plan.expected_state?.offer;
+      const after = plan.offer?.values;
+      return before && after && (
+        Number(before.price) !== Number(after.price) ||
+        before.in_stock !== after.in_stock ||
+        before.url !== after.url
+      );
+    })
+    .map((entry) => {
+      const plan = entry.resolved_plan;
+      const source = artifact.source_rows.find((row) => row.row_number === entry.row_number)?.normalized_source_row?.source;
+      const before = plan.expected_state.offer;
+      const after = plan.offer.values;
+      const priceChanged = Number(before.price) !== Number(after.price);
+      const stockChanged = before.in_stock !== after.in_stock;
+      const urlChanged = before.url !== after.url;
+      const action = priceChanged && stockChanged && urlChanged
+        ? "UPDATE_PRICE_STOCK_URL"
+        : priceChanged && stockChanged
+          ? "UPDATE_PRICE_AND_STOCK"
+          : priceChanged
+            ? "UPDATE_PRICE"
+            : stockChanged
+              ? "UPDATE_STOCK"
+              : "UPDATE_URL";
+      return {
+        offer_id: String(plan.offer.id),
+        mapping_id: String(plan.retailer_product.id),
+        external_product_id: String(source.external_product_id),
+        external_variant_id: String(source.external_variant_id),
+        action,
+        old_price: Number(before.price).toFixed(2),
+        new_price: Number(after.price).toFixed(2),
+        old_stock: Boolean(before.in_stock),
+        new_stock: Boolean(after.in_stock),
+      };
+    })
+    .sort((left, right) => Number(left.offer_id) - Number(right.offer_id));
+}
+
+function validateReviewedMassOosArtifact(artifact, reviewed) {
+  if (!reviewed) return false;
+  if (!String(artifact.run_id || "").startsWith(`six-pack-reviewed-mass-oos-${reviewed.sha256}-`)) {
+    fail("Reviewed MASS_OOS artifact selector or manifest binding mismatch");
+  }
+  const expected = reviewed.manifest.rows.map((row) => ({
+    offer_id: row.offer_id,
+    mapping_id: row.mapping_id,
+    external_product_id: row.external_product_id,
+    external_variant_id: row.external_variant_id,
+    action: row.action,
+    old_price: row.old_price,
+    new_price: row.new_price,
+    old_stock: row.old_stock,
+    new_stock: row.new_stock,
+  }));
+  if (JSON.stringify(reviewedPlanRows(artifact)) !== JSON.stringify(expected)) {
+    fail("Reviewed MASS_OOS artifact changed row scope drift");
+  }
+  return true;
+}
+
+function validateArtifactScope(artifact, manifest, reviewed = null) {
   if (
     artifact.environment_marker !== "production" ||
     artifact.plans.length !== manifest.rows.length ||
@@ -125,12 +197,13 @@ function validateArtifactScope(artifact, manifest) {
     seen.add(binding.external_variant_id);
   }
   const total = manifest.rows.length;
+  const reviewedMassOos = validateReviewedMassOosArtifact(artifact, reviewed);
   if (
     seen.size !== total ||
     snapshots.size !== 1 ||
     changedRows / total > config.guardrails.maximum_changed_record_ratio ||
     priceChangedRows / total >= config.guardrails.mass_price_change_block_ratio ||
-    newOosRows >= config.guardrails.mass_oos_block_count ||
+    (newOosRows >= config.guardrails.mass_oos_block_count && !reviewedMassOos) ||
     currentOosRows / total > config.guardrails.maximum_total_oos_ratio ||
     (currentOosRows - previousOosRows) / total > config.guardrails.maximum_oos_increase_percentage_points
   ) fail("Refresh artifact violates independent execution guardrails");
@@ -173,11 +246,11 @@ async function roleTransaction(client, kind, callback) {
   }
 }
 
-async function executeEntry(entry, artifactSha256, runId, clients) {
+async function executeEntry(entry, artifactSha256, runId, clients, approvalReason) {
   const approval = await roleTransaction(clients.approver, "approver", async (client) => {
     const response = await client.query(
       "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result",
-      [entry.resolved_plan, artifactSha256, runId, "six-pack-scheduled-offer-refresh"]
+      [entry.resolved_plan, artifactSha256, runId, approvalReason]
     );
     return response.rows[0].result;
   });
@@ -224,14 +297,16 @@ async function run(options) {
     approved.manifest.retailer?.id !== 11 ||
     approved.manifest.approved_mapping_count !== config.automation.approved_mapping_count
   ) fail("Approved manifest is invalid");
+  const reviewed = loadReviewedMassOosManifest(options.reviewedMassOosSelector, approved.manifest);
   const loaded = loadDryRunArtifact(options.artifact);
-  const plans = validateArtifactScope(loaded.artifact, approved.manifest);
+  const plans = validateArtifactScope(loaded.artifact, approved.manifest, reviewed);
   const clients = {};
   try {
     clients.approver = await openRoleClient("approver");
     clients.executor = await openRoleClient("executor");
     const rows = [];
-    for (const entry of plans) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients));
+    const approvalReason = reviewed ? "six-pack-reviewed-mass-oos" : "six-pack-scheduled-offer-refresh";
+    for (const entry of plans) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason));
     const report = {
       schema_version: 1,
       kind: "six-pack-approved-offer-refresh-execution",
@@ -240,6 +315,11 @@ async function run(options) {
       manifest_sha256: approved.sha256,
       artifact_sha256: loaded.artifactSha256,
       executed_plan_count: rows.length,
+      reviewed_mass_oos: reviewed ? {
+        selector: reviewed.manifest.selector,
+        manifest_sha256: reviewed.sha256,
+        row_count: reviewed.manifest.row_count,
+      } : null,
       rows,
       completed_at: new Date().toISOString(),
     };
@@ -260,4 +340,10 @@ if (require.main === module) {
     });
 }
 
-module.exports = { hasExpectedShipping, parseArgs, validateArtifactScope };
+module.exports = {
+  hasExpectedShipping,
+  parseArgs,
+  reviewedPlanRows,
+  validateArtifactScope,
+  validateReviewedMassOosArtifact,
+};

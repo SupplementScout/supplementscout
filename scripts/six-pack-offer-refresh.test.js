@@ -4,7 +4,12 @@ const path = require("node:path");
 const test = require("node:test");
 const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
 const { loadDryRunArtifact } = require("./import-products");
-const { parseArgs, run, shippingForPrice } = require("./six-pack-offer-refresh");
+const {
+  loadReviewedMassOosManifest,
+  parseArgs,
+  run,
+  shippingForPrice,
+} = require("./six-pack-offer-refresh");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -54,6 +59,39 @@ function paths() {
     artifact: path.join(ROOT, "tmp", "six-pack-offer-refresh-tests", `${id}.json`),
     report: path.join(ROOT, "tmp", "six-pack-offer-refresh-tests", `${id}-report.json`),
   };
+}
+
+function reviewedMassOosFixture() {
+  const source = fixture();
+  const productId = "3980";
+  const url = "https://6pack-supplements.co.uk/product/whey-isolate-90-1000g-7nutrition/";
+  const live = source.byProduct.get(productId);
+  live.canonical_url = url;
+  const flavours = new Map([
+    ["3991", { attribute_flavours: "Chocolate" }],
+    ["3995", { attribute_flavours: "Banana" }],
+  ]);
+  for (const record of source.state.records.filter((row) => row.mapping.external_product_id === productId)) {
+    record.mapping.external_url = url;
+    record.offer.url = url;
+    const variation = live.variations.find(
+      (candidate) => candidate.external_variant_id === record.mapping.external_variant_id
+    );
+    if (!flavours.has(record.mapping.external_variant_id)) continue;
+    record.offer.price = "41.99";
+    record.offer.shipping_cost = "4.99";
+    record.offer.total_price = "46.98";
+    record.variant.display_name = record.mapping.external_variant_id === "3991"
+      ? "Belgian Chocolate / 1000g"
+      : "Banana / 1000g";
+    variation.attributes = flavours.get(record.mapping.external_variant_id);
+    variation.price = "41.99";
+    variation.in_stock = false;
+    variation.active = true;
+    variation.purchasable = true;
+    variation.sku = "5903111089986";
+  }
+  return source;
 }
 
 test("refresh creates one exact verified-no-change plan per approved mapping", async () => {
@@ -119,11 +157,98 @@ test("one price change is planned atomically while a mass price change blocks", 
   );
 });
 
+test("exact reviewed MASS_OOS selector permits only the two sealed stock transitions", async () => {
+  const source = reviewedMassOosFixture();
+  await assert.rejects(
+    run(
+      { target: "production", ...paths(), requireNoChange: false, reviewedMassOosSelector: null },
+      { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+    ),
+    /Classifier blocked: MASS_OOS/
+  );
+  const output = paths();
+  const result = await run(
+    {
+      target: "production",
+      artifact: output.artifact,
+      report: output.report,
+      requireNoChange: false,
+      reviewedMassOosSelector: "2026-08-11-whey-isolate-stock",
+    },
+    { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+  );
+  assert.equal(result.report.result, "PASS");
+  assert.deepEqual(result.report.action_counts, {
+    VERIFY_NO_CHANGE: manifest.rows.length - 2,
+    UPDATE_STOCK: 2,
+  });
+  assert.equal(result.report.reviewed_mass_oos.row_count, 2);
+  assert.match(
+    loadDryRunArtifact(output.artifact).artifact.run_id,
+    /^six-pack-reviewed-mass-oos-[0-9a-f]{64}-\d+$/
+  );
+});
+
+test("reviewed MASS_OOS fails closed on semantic source drift", async () => {
+  const source = reviewedMassOosFixture();
+  source.byProduct.get("3980").variations.find((row) => row.external_variant_id === "3995").sku = "changed";
+  await assert.rejects(
+    run(
+      {
+        target: "production",
+        ...paths(),
+        requireNoChange: false,
+        reviewedMassOosSelector: "2026-08-11-whey-isolate-stock",
+      },
+      { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+    ),
+    /live semantic source drift/
+  );
+});
+
+test("reviewed MASS_OOS replay fails closed after the two stock transitions are already applied", async () => {
+  const source = reviewedMassOosFixture();
+  for (const record of source.state.records.filter((row) => ["3991", "3995"].includes(row.mapping.external_variant_id))) {
+    record.offer.in_stock = false;
+  }
+  await assert.rejects(
+    run(
+      {
+        target: "production",
+        ...paths(),
+        requireNoChange: false,
+        reviewedMassOosSelector: "2026-08-11-whey-isolate-stock",
+      },
+      { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+    ),
+    /selector is not applicable/
+  );
+});
+
+test("reviewed MASS_OOS manifest is SHA-bound to the approved 2-row scope", () => {
+  const reviewed = loadReviewedMassOosManifest(
+    "2026-08-11-whey-isolate-stock",
+    manifest
+  );
+  assert.equal(reviewed.manifest.row_count, 2);
+  assert.deepEqual(reviewed.manifest.rows.map((row) => row.offer_id), ["2029", "2422"]);
+  assert.equal(reviewed.sha256, require("../config/retailers/six-pack-supplements-woocommerce.json").automation.reviewed_mass_oos_manifest_sha256);
+});
+
 test("CLI is production-only and confines artifacts to tmp", () => {
   assert.throws(() => parseArgs([]), /target=production/);
   assert.throws(
     () => parseArgs(["--target=production", "--artifact=outside.json", "--report=tmp/report.json"]),
     /inside repository tmp/
+  );
+  assert.throws(
+    () => parseArgs([
+      "--target=production",
+      "--artifact=tmp/a.json",
+      "--report=tmp/b.json",
+      "--reviewed-mass-oos=unknown",
+    ]),
+    /Unknown reviewed MASS_OOS selector/
   );
 });
 

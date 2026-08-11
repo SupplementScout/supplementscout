@@ -116,6 +116,9 @@
     "approved_product_page_count": 279,
     "model": "ONE_SHARED_RETAILER_MANIFEST",
     "new_products": "REPORT_ONLY_UNTIL_REVIEWED",
+    "reviewed_mass_oos_selector": "2026-08-11-whey-isolate-stock",
+    "reviewed_mass_oos_manifest_path": "config/retailers/six-pack-reviewed-mass-oos-2026-08-11.json",
+    "reviewed_mass_oos_manifest_sha256": "002be1127ca657a7412c5b5e7f63d541267dde3b7a6557e817f8c9ea2767365f",
     "status": "OPERATIONAL",
     "schedule_cron_utc": "17 3 * * *",
     "first_successful_run_id": "30272677883"

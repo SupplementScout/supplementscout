@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "kind": "six-pack-reviewed-mass-oos-v1",
+  "selector": "2026-08-11-whey-isolate-stock",
+  "retailer_id": 11,
+  "retailer_slug": "6-pack-supplements",
+  "target_environment": "PRODUCTION",
+  "authorized_by": "owner-instruction-2026-08-11-fix-automation-queue",
+  "authorized_at": "2026-08-11T05:53:05.234Z",
+  "source_capture_evidence": [
+    {
+      "captured_at": "2026-08-11T05:52:59.905Z",
+      "html_sha256": "33831c6e52c10cc3b9dc5e4b909be7d8829b21a10888157acc53f6ad9afc63e8"
+    },
+    {
+      "captured_at": "2026-08-11T05:53:05.234Z",
+      "html_sha256": "33831c6e52c10cc3b9dc5e4b909be7d8829b21a10888157acc53f6ad9afc63e8"
+    }
+  ],
+  "source_semantic_fingerprint": "92f5857e4c6d426dff814c1a823e3ef7da735f2e3e244aeb86c35d3a4c3cdd39",
+  "source_semantic_rows": [
+    {
+      "external_product_id": "3980",
+      "external_variant_id": "3991",
+      "attributes": {
+        "attribute_flavours": "Chocolate"
+      },
+      "price": "41.99",
+      "in_stock": false,
+      "purchasable": true,
+      "active": true,
+      "sku": "5903111089986",
+      "canonical_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-1000g-7nutrition/"
+    },
+    {
+      "external_product_id": "3980",
+      "external_variant_id": "3995",
+      "attributes": {
+        "attribute_flavours": "Banana"
+      },
+      "price": "41.99",
+      "in_stock": false,
+      "purchasable": true,
+      "active": true,
+      "sku": "5903111089986",
+      "canonical_url": "https://6pack-supplements.co.uk/product/whey-isolate-90-1000g-7nutrition/"
+    }
+  ],
+  "row_count": 2,
+  "rows": [
+    {
+      "offer_id": "2029",
+      "mapping_id": "2215",
+      "external_product_id": "3980",
+      "external_variant_id": "3995",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "1966",
+      "display_name": "Banana / 1000g",
+      "action": "UPDATE_STOCK",
+      "old_price": "41.99",
+      "new_price": "41.99",
+      "old_stock": true,
+      "new_stock": false
+    },
+    {
+      "offer_id": "2422",
+      "mapping_id": "2608",
+      "external_product_id": "3980",
+      "external_variant_id": "3991",
+      "canonical_product_id": "68",
+      "canonical_variant_id": "1967",
+      "display_name": "Belgian Chocolate / 1000g",
+      "action": "UPDATE_STOCK",
+      "old_price": "41.99",
+      "new_price": "41.99",
+      "old_stock": true,
+      "new_stock": false
+    }
+  ]
+}
