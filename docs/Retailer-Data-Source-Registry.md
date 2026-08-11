@@ -449,6 +449,20 @@ Products with at least 2 active retailers.
   replacement identity review, then rerun the protected dry-run. Do not edit
   the manifest or production mapping solely to restore freshness.
 
+## Simply Supplements current record - 11 August 2026
+
+- Retailer ID: `7`; approved routine scope: 120 exact mappings/offers through
+  the existing shared Shopify offer-refresh engine.
+- Owner-reviewed offer `635` / mapping `627` is complete: price GBP 2.13,
+  shipping GBP 1.99, delivered total GBP 4.12, still in stock. Identity, source
+  URL and Awin offer URL are unchanged; price history contains the move from
+  GBP 6.41.
+- The exact one-time reviewed authorization is consumed and replay-protected.
+- Fresh ordinary production dry-run: source 270 products / 469 variants;
+  `VERIFY_NO_CHANGE` x120 across three validator batches; zero missing
+  identities and zero writes.
+- Status: **ROUTINE AUTOMATION HEALTHY; NO PENDING OFFER-635 ACTION**.
+
 ## GYM HIGH current record - 1 August 2026
 
 - Retailer ID: `1`; domain: `gymhigh.co.uk`; source: public WooCommerce Store API for complete discovery plus the existing bounded WooCommerce product-page reader for exact live variant price, stock and identity.

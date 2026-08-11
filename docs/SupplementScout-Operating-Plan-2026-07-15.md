@@ -196,6 +196,23 @@ catalogue counts remained unchanged. The final production dry-run returned
 business or control writes. Do not create another Fit House refresh engine;
 future source changes must enter this same guarded path.
 
+### 0.0.6B Simply Supplements offer-refresh closeout - 11 August 2026
+
+The owner-reviewed offer `635` / mapping `627` sale was already consumed in
+production through the existing reviewed-commercial-change path. The exact
+identity remains product `628`, variant `644`, external product
+`15934232691037`, external variant `64643271033181`. The current price is GBP
+2.13, shipping GBP 1.99 and delivered total GBP 4.12; stock and both source and
+affiliate URLs are unchanged. Price history records the move from GBP 6.41 / GBP
+8.40 delivered to the current values. The one-time authorization is `CONSUMED`
+and must not be replayed.
+
+A fresh ordinary production dry-run then covered all 120 approved Simply
+Supplements offers in three validator batches and returned
+`VERIFY_NO_CHANGE` x120, zero missing identities, zero commercial changes and
+zero writes. Routine automation remains the only active path; no new mechanism
+is required for this closeout.
+
 ### 0.0.7 Competitive growth sequence - 31 July 2026
 
 The refreshed WheyWise comparison shows that SupplementScout's main competitive
