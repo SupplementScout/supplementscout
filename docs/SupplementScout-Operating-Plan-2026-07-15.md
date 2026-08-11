@@ -2090,10 +2090,10 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 with bounded multi-retailer coverage remediation for Protein
-Bars, the first deferred candidate in the fixed order. Audit exact same-pack
-overlaps against existing approved retailer sources before authorising any
-catalogue or offer change; do not weaken its quality gate. The complete
+Continue SEO-13 with owner review of the bounded Protein Bars coverage
+candidates recorded on 11 August. Prepare guarded changes only for exact
+approved identities; do not count OOS rows, mix single bars with boxes or weaken
+the quality gate. The complete
 fixed-order cluster was rechecked on 11 August: Protein Bars, Electrolytes,
 Magnesium Glycinate and Ashwagandha remain below their unchanged
 coverage gates; Creatine Monohydrate remains correctly consolidated into
@@ -2122,6 +2122,19 @@ gate. Public verification returned HTTP `200` and rendered 16 visible products,
 BreadcrumbList data, consent-aware analytics, homepage discovery and one
 sitemap entry. Multivitamins is `LIVE VERIFIED`; SEO-13 remains active for its
 recorded deferred coverage blockers.
+
+A fresh read-only Protein Bars overlap audit covered Discount (341 products),
+Fit House (240), Jon's (241), Whey Okay (1,684 feed rows) and existing Six Pack
+evidence. It found one in-stock exact-pack mapping candidate: Discount's Optimum
+Nutrition Marshmallow Crunch `10 x 65g` box for canonical product `159`, variant
+`1755`, at GBP 18.99. Jon's exact CNP Protein Flapjack `12 x 75g` family matched
+Six Pack product `1081`, but every Jon's variant was OOS. Barebells requires a
+reviewed duplicate-family and explicit-variant correction between legacy
+product `151` and Fit House product `958`; it is not safe to merge by name alone.
+Whey Okay Battle Bites rows were OOS, and PER4M singles remain correctly
+separate from boxes. No writes were performed. These candidates do not yet
+prove three fresh multi-retailer families, so Protein Bars remains deferred
+behind the unchanged gate pending owner decisions.
 
 The earlier Mass Gainer gate failure remains recorded in the SEO ledger as the
 pre-correction baseline. It was resolved through the guarded two-row metadata

@@ -123,10 +123,10 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — begin bounded multi-retailer coverage
-remediation for Protein Bars, the first deferred candidate in the fixed order.
-Audit exact same-pack overlaps against existing approved retailer sources before
-authorising any catalogue or offer change; do not weaken the page gate.
+**Next executable task:** SEO-13 — owner review of the bounded Protein Bars
+coverage candidates recorded on 11 August. Prepare guarded work only for exact
+approved identities; do not count OOS rows, mix single bars with boxes or weaken
+the page gate.
 The owner approved the exact Strom MultiMAX and TBJP The One Discount
 identities. The guarded rollout corrected TBJP to 60 capsules, recorded Strom
 as 180 tablets and added only those two Discount mappings/offers. Fresh
@@ -324,6 +324,36 @@ SEO-07 manual evidence queue is now complete:
   are now live. Protein Bars is the first deferred candidate in the fixed order
   and becomes the next bounded coverage-remediation task; its unchanged quality
   gate must not be weakened. SEO-13 remains `IN PROGRESS`.
+
+### 11 August 2026 — SEO-13 Protein Bars source-overlap audit
+
+- Fresh read-only source checks covered Discount Supplements (341 products),
+  Fit House (240), Jon's Supplements (241) and Whey Okay (1,684 feed rows), plus
+  the existing Six Pack approved catalogue evidence. No database or catalogue
+  writes were performed.
+- Discount exposed four bar families. Optimum Nutrition High Protein Bar
+  `10 x 65g` is the only current same-family candidate already represented in
+  the catalogue: its in-stock Marshmallow Crunch box at GBP 18.99 corresponds
+  to canonical product `159` and explicit `Marshmallow / 65g`, pack `10`
+  variant `1755`. This remains an owner-review candidate, not an authorised
+  mapping.
+- Jon's exposed exact CNP Protein Flapjack `12 x 75g` box variants matching the
+  existing Six Pack family `1081`, but every current Jon's variant was OOS.
+  Mapping those identities would not satisfy the fresh in-stock comparison gate
+  today and must not be counted as coverage.
+- Fit House exposed two in-stock single Barebells variants, while Whey Okay
+  exposed in-stock Barebells singles under legacy canonical product `151` and
+  Fit House's older reviewed variants are under product `958`. This is a
+  duplicate-family/explicit-variant review, not a safe automatic merge. Current
+  flavour sets also differ.
+- Whey Okay's current Battle Bites single and box rows were OOS. PER4M single
+  bars and boxes remain correctly separated, and no other exact current overlap
+  was found in these bounded sources.
+- The evidence therefore does not yet prove three safe, current multi-retailer
+  product families. Protein Bars remains deferred behind the unchanged
+  `3 / 2 / 20` gate. The next step is owner review of the Optimum candidate,
+  the Barebells duplicate-family repair and whether to preserve the exact OOS
+  CNP Jon's mappings for future stock recovery.
 
 ### 11 August 2026 — SEO-13 remaining-candidate recheck and remediation choice
 
