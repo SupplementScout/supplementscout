@@ -2078,14 +2078,14 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Deploy and live-verify the locally complete SEO-13 Mass Gainer page. The exact
-owner-reviewed metadata correction for products `128` and `132` preserved all
-catalogue row counts and raised the fresh reviewed boundary to nine scoped
-products, eight visible products, 50 fresh offers, three retailers and three
-multi-retailer products. The unchanged gate therefore passes. Do not mark the
-page `LIVE VERIFIED` until the public canonical, robots state, visible coverage,
-structured data, sitemap and analytics marker are confirmed. Vegan Protein
-remains live verified at `/vegan-protein`.
+Continue SEO-13 by rechecking Protein Bars, the earliest remaining deferred
+fixed-order candidate, through its exact product and pack-identity gate before
+any implementation. Mass Gainer is now live verified at `/mass-gainer`: its
+public page has `index, follow`, the exact canonical, eight visible products,
+50 fresh offers, three retailers, three multi-retailer products, complete
+CollectionPage/ItemList/BreadcrumbList data, the consent-aware analytics marker
+and one sitemap entry. Four of ten controlled SEO-13 candidates are now live
+verified; six remain deferred behind their recorded gates.
 
 The earlier 11 August gate failure remains recorded in the SEO ledger as the
 pre-correction baseline. It was resolved through the guarded two-row metadata

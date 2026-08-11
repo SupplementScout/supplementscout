@@ -123,13 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — deploy and live-verify the locally complete
-Mass Gainer page. Its unchanged 3-product / 2-retailer / 20-fresh-offer gate
-now passes after the exact owner-reviewed metadata correction for products
-`128` and `132`; do not mark it live verified until the public canonical,
-robots state, visible coverage, structured data, sitemap and analytics marker
-are confirmed. All ten candidate gates have now been reviewed: Amino Acids /
-BCAA / EAA, Whey Isolate and Vegan Protein are live verified. The existing `/hydration` canonical was
+**Next executable task:** SEO-13 — recheck Protein Bars, the earliest remaining
+deferred fixed-order candidate, through its existing exact bar/wafer/flapjack
+and single-versus-box pack gate before any implementation. Amino Acids / BCAA /
+EAA, Whey Isolate, Vegan Protein and Mass Gainer are live verified; the other
+six candidates remain deferred. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
 competing URL. The first authenticated Search Console and GA4 measurement is
@@ -280,7 +278,7 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 11 August 2026 — SEO-13 Mass Gainer local implementation
+### 11 August 2026 — SEO-13 Mass Gainer live verification
 
 - The owner explicitly approved changing only products `128` and `132` from
   `Health Supplements` / null format to `Mass Gainer` / `powder`. Production
@@ -307,8 +305,13 @@ SEO-07 manual evidence queue is now complete:
   canonical, eight visible product cards, 50 fresh offers, three retailers,
   three multi-retailer products, all three structured-data types and the
   `mass_gainer_comparison` analytics marker.
-- This is local code completion only. Deployment and public verification are
-  still required before Mass Gainer becomes `LIVE VERIFIED`.
+- Commit `ed585c1` was pushed to `main`. Public `/mass-gainer` returned HTTP
+  200 with `index, follow`, the exact canonical, eight visible product cards,
+  50 fresh offers, three retailers and three multi-retailer products. It
+  rendered CollectionPage, ItemList and BreadcrumbList data, contained the
+  consent-aware `mass_gainer_comparison` analytics marker, and appeared exactly
+  once in the public sitemap. Mass Gainer is `LIVE VERIFIED`; SEO-13 remains
+  `IN PROGRESS` with four of ten controlled candidates live verified.
 
 ### 11 August 2026 — SEO-13 Mass Gainer gate rechecked and remains deferred
 
