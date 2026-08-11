@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 9 August 2026<br>
+**Status date:** 11 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -2078,13 +2078,19 @@ unrelated retailer-source failures remain separate fail-closed review items.
 
 ### Next task
 
-Continue SEO-13 with the next fixed-order candidate, Mass Gainer, through its
-existing recorded gate. It remains deferred until at least three products have
-fresh multi-retailer coverage across at least two retailers and at least 20
-fresh offers remain available. Reuse guarded retailer and catalogue mechanisms
-to recheck or improve that evidence; do not weaken the gate or create a thin
-page. Vegan Protein is live verified at `/vegan-protein` with 7 visible
-products, 32 fresh offers, 4 retailers and 3 multi-retailer products.
+Deploy and live-verify the locally complete SEO-13 Mass Gainer page. The exact
+owner-reviewed metadata correction for products `128` and `132` preserved all
+catalogue row counts and raised the fresh reviewed boundary to nine scoped
+products, eight visible products, 50 fresh offers, three retailers and three
+multi-retailer products. The unchanged gate therefore passes. Do not mark the
+page `LIVE VERIFIED` until the public canonical, robots state, visible coverage,
+structured data, sitemap and analytics marker are confirmed. Vegan Protein
+remains live verified at `/vegan-protein`.
+
+The earlier 11 August gate failure remains recorded in the SEO ledger as the
+pre-correction baseline. It was resolved through the guarded two-row metadata
+change rather than by weakening the gate, adding products or creating another
+comparison system.
 
 ### Then
 

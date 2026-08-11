@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 6 August 2026<br>
+**Status date:** 11 August 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -123,12 +123,13 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — continue with the next fixed-order candidate,
-Mass Gainer, through its existing recorded coverage gate. Do not implement or
-index the page unless the unchanged 3-product / 2-retailer / 20-fresh-offer
-gate passes. All ten candidate gates have now been reviewed: Amino Acids / BCAA
-/ EAA, Whey Isolate and Vegan Protein are live verified, while the other seven
-candidates remain deferred. The existing `/hydration` canonical was
+**Next executable task:** SEO-13 — deploy and live-verify the locally complete
+Mass Gainer page. Its unchanged 3-product / 2-retailer / 20-fresh-offer gate
+now passes after the exact owner-reviewed metadata correction for products
+`128` and `132`; do not mark it live verified until the public canonical,
+robots state, visible coverage, structured data, sitemap and analytics marker
+are confirmed. All ten candidate gates have now been reviewed: Amino Acids /
+BCAA / EAA, Whey Isolate and Vegan Protein are live verified. The existing `/hydration` canonical was
 hardened instead of creating a duplicate Electrolytes URL, and the existing
 `/creatine` canonical retains Creatine Monohydrate intent instead of creating a
 competing URL. The first authenticated Search Console and GA4 measurement is
@@ -278,6 +279,61 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 11 August 2026 — SEO-13 Mass Gainer local implementation
+
+- The owner explicitly approved changing only products `128` and `132` from
+  `Health Supplements` / null format to `Mass Gainer` / `powder`. Production
+  migration `20260811030000_correct_reviewed_mass_gainer_metadata` passed an
+  all-or-nothing rollback rehearsal and then applied successfully. Product,
+  variant, mapping, offer and price-history row counts remained exactly
+  `1112 / 2641 / 2522 / 2522 / 2673`; no price, stock, URL, identity or history
+  row changed.
+- A fresh read-only post-correction audit found nine scoped products, eight
+  visible products, 50 offers checked within 24 hours and three retailers.
+  Products `128`, `132` and `403` had fresh multi-retailer coverage, so the
+  unchanged `3 / 2 / 20` gate passed.
+- Added `/mass-gainer` through the existing shared category comparison
+  normalizer, with the exact reviewed category-and-powder boundary, a strict
+  24-hour page freshness rule, dynamic indexability, known delivered prices,
+  verified-only value metrics, consent-aware category analytics and
+  CollectionPage, ItemList and BreadcrumbList structured data. Added one
+  sitemap entry and bounded links from the homepage and Whey Protein page.
+- Forty-two focused migration, selector, comparison and transparency tests
+  passed. TypeScript passed. ESLint reported zero errors and only ten existing
+  unrelated warnings. The Next.js 16.2.9 production build passed with the
+  system certificate store and emitted `/mass-gainer` with one-hour
+  revalidation. Its generated HTML contained `index, follow`, the exact
+  canonical, eight visible product cards, 50 fresh offers, three retailers,
+  three multi-retailer products, all three structured-data types and the
+  `mass_gainer_comparison` analytics marker.
+- This is local code completion only. Deployment and public verification are
+  still required before Mass Gainer becomes `LIVE VERIFIED`.
+
+### 11 August 2026 — SEO-13 Mass Gainer gate rechecked and remains deferred
+
+- A fresh read-only production audit reused the recorded safe boundary: active,
+  unmerged products in the exact `Mass Gainer` category with canonical
+  `product_format = powder`, plus offers checked within the shared 24-hour SEO
+  gate window. It performed zero catalogue, offer or analytics writes.
+- Seven canonical products remained in scope. Six had current offers: 30 fresh
+  offers across 6 Pack Supplements, GYM HIGH and Whey Okay. Only product `403`,
+  `GYM HIGH Mass Gainer 2100g`, had fresh offers from multiple retailers.
+- The 20-offer and 2-retailer parts of the unchanged gate passed, but the
+  requirement for three products with fresh multi-retailer coverage still
+  failed at one. No `/mass-gainer` page, sitemap entry or metadata was created,
+  and the gate was not weakened.
+- The audit identified two bounded catalogue-metadata candidates rather than a
+  new page mechanism. Products `128` (`7Nutrition Bodybuilder 1.5kg`) and `132`
+  (`Applied Nutrition Critical Mass Lean Mass Gainz 2.4kg`) already have fresh
+  mapped offers from both Whey Okay and 6 Pack Supplements, and every reviewed
+  non-default variant is explicitly a powder with a verified 1,500 g or 2,400 g
+  size. Both canonical products are still labelled `Health Supplements` with a
+  null product format. Any correction to `Mass Gainer` / `powder` remains a
+  separate exact owner-reviewed catalogue write; it was not inferred or
+  applied by this SEO audit.
+- SEO-13 remains `IN PROGRESS`; Mass Gainer remains the next fixed-order
+  candidate and must be rechecked after any guarded catalogue correction.
 
 ### 4 August 2026 — SEO-13 Vegan Protein live verification
 

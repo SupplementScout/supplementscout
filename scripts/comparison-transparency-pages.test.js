@@ -154,7 +154,8 @@ test("published explanations remain bound to the implemented pricing and freshne
   );
   assert.match(sharedFreshness, /MAXIMUM_CURRENT_OFFER_AGE_DAYS\s*=\s*24/);
   assert.match(sharedFreshness, /MAXIMUM_CURRENT_OFFER_AGE_DAYS \* 24/);
-  assert.match(categoryComparison, /isCreatineOfferFresh\(offer\.last_checked_at, now\)/);
+  assert.match(categoryComparison, /isOfferFresh:[\s\S]*?=\s*isCreatineOfferFresh/);
+  assert.match(categoryComparison, /!isOfferFresh\(offer\.last_checked_at, now\)/);
   assert.match(categoryComparison, /Number\.POSITIVE_INFINITY/);
 });
 
