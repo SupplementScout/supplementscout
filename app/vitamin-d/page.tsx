@@ -10,6 +10,7 @@ import {
   isCanonicalCategoryLandingPageParam,
   normalizeCategoryLandingPage,
 } from "../lib/categoryLandingPagination";
+import { formatCurrency } from "../lib/pricing";
 import {
   getLandingProducts,
   isReviewedLandingProductMatch,
@@ -62,6 +63,11 @@ export default async function VitaminDPage({
     redirect(categoryLandingPageHref(basePath, page));
   }
 
+  const lowestDeliveredPrice =
+    page === 1
+      ? results[0]?.cheapestOffer?.deliveredPrice.totalPrice ?? null
+      : null;
+
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
@@ -98,6 +104,27 @@ export default async function VitaminDPage({
           </p>
         </div>
       </section>
+
+      {lowestDeliveredPrice !== null && (
+        <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
+          <div className="max-w-3xl rounded-lg border border-zinc-200 bg-white p-5 sm:p-6">
+            <h2 className="text-2xl font-bold">
+              How much does vitamin D cost in the UK?
+            </h2>
+            <p className="mt-3 leading-7 text-zinc-700">
+              SupplementScout currently compares {totalCount} Vitamin D products
+              with in-stock offers. The lowest current delivered price in the
+              comparison below is {formatCurrency(lowestDeliveredPrice)}.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              Vitamin D prices vary by pack size, strength, number of servings
+              and delivery cost. Compare the current offers below; where the
+              serving count is verified, the product card also shows the
+              delivered cost per serving.
+            </p>
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

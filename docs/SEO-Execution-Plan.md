@@ -262,6 +262,7 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
+| 2026-08-10 | Weekly GSC/GA4 | Authenticated read-only workflow run `31377198053`, artifact `9058392768`, covering 2026-08-03 through 2026-08-09: GSC 582 impressions, 3 clicks, 0.52% CTR and average position 61.03; GA4 Organic Search 4 sessions, 3 users, 2 views and 2 organic retailer-offer clicks. Sitemap reported 1,089 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors; the five canonical `www` URLs were submitted and indexed, while the apex hostname correctly resolved as a redirect to the indexed `www` homepage. | `CAPTURED` |
 | 2026-08-03 | Weekly GSC/GA4 | Authenticated read-only workflow run `30812538721`, covering 2026-07-27 through 2026-08-02: GSC 772 impressions, 1 click, 0.13% CTR and average position 59.56; GA4 43 total sessions, 3 users and 486 views (Direct), and 0 organic sessions with 0 organic retailer-offer clicks; sitemap 1,088 submitted URLs, 0 warnings and 0 errors. | `CAPTURED PARTIAL`; SEO-07 remains blocked on aggregate indexed/excluded totals, Core Web Vitals and Links evidence. |
 | 2026-08-06 | Search Console manual export | Coverage export (updated 2026-07-24): 794 indexed pages, 181 not indexed pages. Major exclusion reasons: 27 noindex, 6 404, 5 robots.txt blocked, 4 redirect, 1 alternate canonical, 133 discovered not indexed, 5 crawled not indexed. | `CAPTURED PARTIAL`; SEO-07 remains blocked on Core Web Vitals and Links evidence. |
 | 2026-08-04 | Search Console manual export | Core Web Vitals: last 90 days shows “Not enough usage data in the last 90 days” for device types; use PageSpeed Insights for page-level diagnostics. Links: External total 0 with no external top linked pages/sites/text; Internal total 25 with top linked pages `/affiliate-disclosure` (9), `/contact` (4), `/glucosamine` (2), `/magnesium` (2), `/omega-3` (2), `/privacy` (2), `/vitamin-d` (2), `/cookies` (1), `/vitamins` (1). | `CAPTURED` |
@@ -289,6 +290,25 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 12 August 2026 — Vitamin D cost-intent audit and local enhancement
+
+- The existing `/vitamin-d` URL, canonical, title, description, H1, reviewed
+  relevance gate, crawlable pagination, product links, delivered-price cards,
+  verified price-per-serving display and internal links were retained without
+  changes. No new route, pricing logic, FAQ or structured-data mechanism was
+  introduced.
+- The read-only public audit returned HTTP `200`, the exact canonical, one H1,
+  72 product links, visible delivered-price breakdowns and ten visible
+  price-per-serving labels. The page remained included once in the public
+  sitemap and was indexable under the existing robots policy.
+- A small server-rendered answer block was added only to canonical page one. It
+  answers how much Vitamin D costs in the UK using the existing total product
+  count and the lowest delivered total from the already price-sorted landing
+  results, then explains the existing verified cost-per-serving display. This
+  is local release evidence only; the established SEO-03 page remains live,
+  while this enhancement is not live verified until deployment and public
+  post-checks.
 
 ### 11 August 2026 — SEO-13 Multivitamins local release candidate
 
