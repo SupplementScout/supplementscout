@@ -10,10 +10,11 @@ const file = path.join(
 );
 const sql = fs.readFileSync(file, "utf8");
 const selector = require("./supabase-migration-selector");
-const expectedSha = "214ace99e775f443692a19410a3b6e19e076472371f070cd10dd5bbaa0c9554a";
+const expectedSha = "94894a4ec1a083fa167ec87d487aa409cc9f48e9482ee441733c34858d29da85";
 
 test("migration is hash-bound and transactional", () => {
-  assert.equal(crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"), expectedSha);
+  const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
+  assert.equal(crypto.createHash("sha256").update(repositoryBytes).digest("hex"), expectedSha);
   assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 79);
   assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, []);

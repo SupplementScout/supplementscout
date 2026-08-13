@@ -90,6 +90,14 @@ function wait(container) {
 function recreate(container) {
   ok(exec(container, ["dropdb", "-U", "postgres", "--force", "--if-exists", database]), "drop db");
   ok(exec(container, ["createdb", "-U", "postgres", database]), "create db");
+  ok(psql(container, [
+    "-c",
+    "do $roles$ begin "
+      + "if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin; end if; "
+      + "if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if; "
+      + "if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role nologin; end if; "
+      + "end $roles$;",
+  ]), "create baseline roles");
   ok(psql(container, ["-f", `/workspace/${path.relative(root, baseline).replaceAll("\\", "/")}`]), "baseline");
   query(
     container,
