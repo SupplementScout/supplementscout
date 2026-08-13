@@ -31,9 +31,15 @@ function psqlFile(container, database, file, variables = []) {
   return exec(container, args);
 }
 function wait(container) {
+  let consecutiveReadyChecks = 0;
   for (let attempt = 0; attempt < 80; attempt += 1) {
     const result = exec(container, ["psql", "-X", "--no-psqlrc", "-U", "postgres", "-d", "postgres", "-tAc", "select 1"], 5000);
-    if (result.status === 0 && result.stdout.trim() === "1") return;
+    if (result.status === 0 && result.stdout.trim() === "1") {
+      consecutiveReadyChecks += 1;
+      if (consecutiveReadyChecks === 8) return;
+    } else {
+      consecutiveReadyChecks = 0;
+    }
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
   assert.fail("disposable PostgreSQL did not start");
