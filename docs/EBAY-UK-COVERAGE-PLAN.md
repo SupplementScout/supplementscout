@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** AUDIT COMPLETE — ACCESS SETUP BLOCKED ON USER ACTION  
+**Status:** GTIN AUDIT COMPLETE — PILOT COHORT AND ACCESS STILL BLOCKED
 **Last verified:** 13 August 2026  
 **Production writes:** 0  
 **Public changes:** 0
@@ -49,10 +49,11 @@ reasons:
 
 1. eBay/EPN account, keyset and Buy API access status is unknown and requires
    user confirmation/action.
-2. Production contains only 9 active canonical products with a GTIN and 0
-   active canonical variants with a GTIN. Only 2 of those 9 products currently
-   have exactly one positive-price in-stock retailer. A truthful 100 exact-GTIN
-   cohort cannot yet be selected.
+2. Canonical fields still contain only 9 active product GTINs and 0 variant
+   GTINs. The read-only GTIN recovery audit found 14 `AUTO_SAFE` variant-GTIN
+   identities across 13 products, but only 2 of those products currently have
+   exactly one positive-price in-stock retailer. A truthful 100 exact-GTIN
+   cohort still cannot be selected.
 
 ## Completed
 
@@ -60,6 +61,7 @@ reasons:
 - [x] Product, variant, retailer, mapping, offer and price-history schema audit.
 - [x] Read-only production coverage and GTIN baseline.
 - [x] Existing importer, matching, review, refresh and secret-path audit.
+- [x] Read-only recovery audit of existing GTIN and barcode evidence.
 - [x] Marketplace architecture recommendation.
 - [x] Conservative offer and matching policy proposal.
 - [x] Official eBay Developer and EPN requirements review.
@@ -131,10 +133,148 @@ offers, 758 of those fresh within 24 hours, 2,677 price-history rows and nine
 retailers. None of the nine retailer rows has `affiliate_id` or
 `affiliate_network` configured.
 
-`retailer_products` is not readable to the anonymous role in the current
-production RLS configuration, so no live mapping total or field-completeness
-claim is made from that read. Mapping structure and constraints below are
-verified from the repository schema and migrations.
+The anonymous role cannot read `retailer_products` under current production
+RLS. The follow-up GTIN audit therefore used the existing local service-role
+configuration for SELECT-only reads at `2026-08-13T14:07:38Z`. It performed no
+insert, update, delete, RPC, migration or public change.
+
+## Existing-data GTIN recovery audit
+
+This audit distinguishes source evidence from canonical fields. A normalized
+source value removes spaces and hyphens only; it must then be exactly 8, 12,
+13 or 14 digits and pass the GS1 check-digit calculation. Counts below cover
+active mappings to active, unmerged products and active variants.
+
+### Source baseline
+
+| Existing source | Records/identities | GTIN evidence |
+|---|---:|---:|
+| Active `retailer_products` | 2,524 | 787 rows with `external_gtin` |
+| Distinct normalized `external_gtin` | — | 769 |
+| Valid mapping rows / distinct valid GTINs | 782 | 764 distinct |
+| Active canonical products reached by any mapping GTIN | 414 | 410 with at least one valid GTIN |
+| Active variants reached by any mapping GTIN | 773 | 768 with at least one valid GTIN |
+| `products.gtin` | 9 active products | 9 valid, unique GTIN-13 values |
+| `product_variants.gtin` | 2,586 active variants | 0 populated |
+| `product_match_review_queue.source_gtin` | 141 queue rows | 18 rows / 15 distinct source values |
+
+The review queue and repository CSV/JSON artifacts are provenance or staging
+views of retailer evidence, not additional canonical identities. Repository
+search also found GTIN/barcode-bearing retailer configs and feeds, adapters,
+the bulk snapshot contracts, migrations and admin review UI. No separate
+completed GTIN-promotion or barcode-enrichment pipeline exists.
+
+For the 764 valid product-GTIN identities, retailer confirmation is:
+
+| Independent retailers confirming the same product-GTIN | Identities |
+|---|---:|
+| 1 | 749 |
+| 2 | 15 |
+| 3+ | 0 |
+
+Rolled up to canonical products, 396 products have only one-retailer support
+for their best-supported GTIN, 14 have at least one same-GTIN confirmation from
+two retailers, and 0 have a three-plus-retailer confirmation.
+
+Different flavours, sizes and packs under one canonical product legitimately
+produce different GTINs. After grouping by exact canonical variant, there are
+754 single-retailer targets, 14 two-retailer targets and 0 three-plus-retailer
+targets. There are 0 exact-variant cases where retailers disagree by supplying
+different valid GTINs, and 0 valid GTINs used by more than one canonical
+product.
+
+### Validation classification
+
+The following categories are mutually exclusive and account for all 787
+mapping rows with a non-empty `external_gtin`:
+
+| Classification | Mapping rows | Meaning |
+|---|---:|---|
+| `VALID` | 776 | Valid checksum and one unambiguous canonical variant target |
+| `INVALID_CHECKSUM` | 3 | Supported length but failed check digit |
+| `INVALID_LENGTH` | 2 | 10- or 11-digit value |
+| `CONFLICT` | 0 | No cross-product reuse or retailer disagreement on one exact variant |
+| `AMBIGUOUS_VARIANT` | 6 | Valid GTIN reused across multiple variants of one product |
+
+The six ambiguous rows are confined to product 364. GTIN `5904067876088`
+maps both to its default variant and the exact Apple Cinnamon / 1 kg variant.
+GTIN `5904067876118` appears on four different flavour variants even though
+all four source names say Apple Cinnamon. None may be promoted automatically.
+
+### Product versus variant decision
+
+Use option **C: both, according to the trade item**, with the variant as the
+default destination for recovered retailer GTINs:
+
+- every one of the 782 valid retailer mapping rows already points to an
+  explicit canonical variant;
+- 478 distinct valid GTINs are clearly variant-level because they are attached
+  to a non-default variant or to a product family having multiple GTINs;
+- flavour, size, weight, unit count, format and pack count can change the trade
+  item and therefore its barcode;
+- a product-level GTIN is acceptable only for a genuinely single-trade-item
+  product whose default variant has exactly the same identity;
+- never copy `retailer_products.external_gtin` blindly into either canonical
+  field. The current schema already has `product_variants.gtin`, so no new
+  column or migration is needed before a reviewed promotion design.
+
+### Promotion candidates
+
+Candidate counts use mapping rows for a complete reconciliation and also show
+the deduplicated identities relevant to eBay:
+
+| Decision | Source rows | Deduplicated result | Rule |
+|---|---:|---:|---|
+| `AUTO_SAFE` | 28 | 14 variant-GTIN identities / 13 products | Two independent retailers, valid checksum, one exact target, and matching brand, name, size/count, flavour and format evidence |
+| `REVIEW` | 748 | 748 variant-GTIN identities | Valid and unambiguous, but supported by only one retailer |
+| `REJECT` | 11 | 11 mapping targets | 5 invalid values plus 6 ambiguous/conflicting variant assignments |
+
+`AUTO_SAFE` is deliberately conservative. It includes the two exact Critical
+Cookie 85 g flavours, Applied Nutrition Creatine 120 Capsules, two KIOR 60-cap
+products and nine GYM HIGH identities. It does not treat a correct checksum as
+proof of product identity.
+
+### eBay pilot impact
+
+The 14 `AUTO_SAFE` identities cover 13 of 1,070 active products (1.21%) and 14
+of 2,586 active variants (0.54%). All 14 are usable as exact-GTIN lookup inputs
+for a bounded read-only pilot, but only 2 currently intersect the desired
+exactly-one-positive-price-in-stock-retailer cohort: GYM HIGH ZMB 60 Capsules
+and GYM HIGH Creatine Monohydrate Powder 250 g.
+
+The present exact-GTIN cohort is therefore 14, not 100, leaving 86 identities
+to reach the planned sample. For the primary coverage KPI, only the 2
+single-retailer intersections can add a second retailer. The broad baseline is
+112 products with 2+ positive-price in-stock offers; the mathematical maximum
+after a fully successful two-record eBay intersection would be 114. This is a
+ceiling, not a forecast: the audit does not assume either listing exists or
+qualifies on eBay. The fresh-24-hour baseline remains 18 and must not be mixed
+with the broad count.
+
+### Reuse decision and external enrichment
+
+Recommendation **B: existing data partially suffices; run a small, bounded
+GTIN enrichment sprint before the 100-record pilot**. Existing mechanisms to
+reuse are:
+
+- retailer adapters and CSV/feed `external_gtin` capture;
+- the canonical snapshot GTIN index and exact-GTIN matcher;
+- `SAFE_EXISTING_VARIANT`, quarantine and collision controls;
+- `product_match_review_queue` plus the existing admin review screen;
+- importer dry-run, immutable approval artifact, atomic apply and duplicate
+  protections.
+
+`SAFE_UPDATE` classification exists for approved volatile offer changes, but
+production `SAFE_UPDATE` remains disabled and is not a GTIN-promotion path.
+
+Do not build a second importer or a parallel review framework. The missing
+piece is a reusable GTIN-8/12/13/14 checksum-and-classification gate plus a
+reviewed promotion step into the already existing variant field. The current
+snapshot contract names invalid-GTIN reason codes, but repository search found
+no implemented reusable checksum validator. External lookup was not performed
+in this audit. A later approved sprint should first review existing one-source
+evidence, then obtain a second authoritative source only for a bounded priority
+cohort, starting with products that have exactly one active retailer.
 
 ## Relevant SupplementScout model
 
@@ -527,7 +667,10 @@ rollback and explicit approval.
 
 ## Risks and open problems
 
-- Canonical GTIN coverage is only 0.84%; this is the immediate data blocker.
+- Canonical GTIN coverage remains 0.84% at product level and 0% at variant
+  level; 14 recovered identities are safe candidates but have not been written.
+- Another 748 valid mapping identities have only one retailer source and must
+  not be promoted automatically without review or stronger evidence.
 - eBay seller listings can be incorrect even when a GTIN is supplied.
 - Seller/listing identity can change between refreshes.
 - Shipping can depend on postcode and may be missing or calculated.
@@ -546,19 +689,22 @@ rollback and explicit approval.
 
 - `USER ACTION REQUIRED`: confirm EPN and Developer account status.
 - `USER ACTION REQUIRED`: pursue EPN/Buy API production approval.
-- `DATA BLOCKED`: only 9 active canonical products and 0 active variants have
-  canonical GTIN; only 2 GTIN products have exactly one active retailer.
+- `DATA BLOCKED`: only 14 recovered identities meet `AUTO_SAFE`, leaving 86
+  identities before the planned 100-record exact-GTIN cohort; only 2 of the 14
+  currently have exactly one positive-price in-stock retailer.
 - `DESIGN BLOCKED`: seller/listing metadata storage awaits pilot evidence and
   separate approval.
 
 ## Next action
 
-`USER ACTION REQUIRED — do not implement API code yet:` the owner must report
-the status of the EPN account and eBay Developers account as `DONE` or
-`NOT STARTED`, then begin/complete the registration and Buy API access checklist
-above. After credentials/access status is known, the next separately approved
-task is a credentials-free Sandbox transport/schema test plan plus a bounded
-canonical-GTIN coverage plan; it is not the production pilot.
+`OWNER APPROVAL REQUIRED — do not start automatically:` approve a small,
+read-only-first GTIN enrichment sprint that reuses the existing snapshot,
+review queue, admin review and guarded importer. Its bounded goal is to review
+the 748 one-source identities in priority order, seek second authoritative
+evidence only for the single-retailer cohort, and produce at least 86 further
+exact variant-GTIN candidates without writing production data. In parallel,
+the owner must report EPN and eBay Developers account status as `DONE` or
+`NOT STARTED`. API implementation and the production pilot remain out of scope.
 
 Do not proceed to that next task without explicit owner confirmation.
 
@@ -566,19 +712,28 @@ Do not proceed to that next task without explicit owner confirmation.
 
 13 August 2026:
 
-- `npm run verify:project` passed after both documentation changes.
-- The production baseline was collected through the anonymous public client;
-  service-role and write credentials were not used.
+- `npm run verify:project` passed after the GTIN audit documentation update.
+- The initial production baseline was collected through the anonymous public
+  client. The GTIN recovery follow-up used the existing local service role for
+  SELECT-only access because RLS hides retailer mappings from anonymous reads.
+- GTIN-8/12/13/14 length and check digits were evaluated locally; no external
+  GTIN lookup was performed.
 - Official eBay Developer and EPN pages linked above were checked on this date.
 - Repository search found no existing eBay adapter, eBay credential convention,
   eBay retailer or completed eBay account-status record.
-- No API implementation, account action, database write, public change, commit
-  or push was performed.
+- No API implementation, account action, database write, migration, public
+  change, commit or push was performed.
 
 ## Decision changelog
 
 ### 13 August 2026
 
+- Audited all existing GTIN sources and recorded the 787-row retailer mapping
+  baseline, checksum results, conflicts and product-versus-variant decision.
+- Classified 28 source rows into 14 `AUTO_SAFE` identities, 748 as `REVIEW`
+  and 11 as `REJECT`; kept all production promotion blocked.
+- Chose recommendation B: reuse the existing guarded identity pipeline for a
+  bounded enrichment sprint rather than build a duplicate framework.
 - Created the durable eBay UK coverage workstream.
 - Chose special marketplace adapter plus reuse of the existing guarded import
   control plane; rejected a second importer and a retailer-ID hack.
