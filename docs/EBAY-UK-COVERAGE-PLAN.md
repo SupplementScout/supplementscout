@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** SCALED GTIN CONFIRMATION BATCH COMPLETE — FINAL COVERAGE GAP REMAINS
+**Status:** GUARDED GTIN PROMOTION BUILT — PREFLIGHT PENDING; MIGRATION AND WRITE NOT EXECUTED
 **Last verified:** 13 August 2026  
 **Production writes:** 0  
 **Public changes:** 0
@@ -64,6 +64,8 @@ reasons:
 - [x] Read-only recovery audit of existing GTIN and barcode evidence.
 - [x] Read-only GTIN confirmation cohort 1 (10 checked; 9 confirmed; 1 conflict).
 - [x] Read-only scaled GTIN confirmation batch (46 checked; 31 confirmed; 15 conflicts).
+- [x] Read-only GTIN promotion planner and 54-identity production dry-run.
+- [x] Owner review pack for the exact 45 write-bearing GTIN candidates.
 - [x] Marketplace architecture recommendation.
 - [x] Conservative offer and matching policy proposal.
 - [x] Official eBay Developer and EPN requirements review.
@@ -457,12 +459,245 @@ was exposed rather than silently accepted.
 - Forty-six further identities are still needed for a 100-record pilot.
 - eBay/EPN access remains independently blocked on owner action.
 
-`NEXT ACTION — OWNER APPROVAL REQUIRED:` run one final read-only confirmation
-batch capped at 60 identities, prioritising opened manufacturer pages and
-credible retailer/distributor pages for the remaining simple exact packs. Stop
-confirmation work as soon as 100 cumulative safe identities are reached, then
-propose `GTIN Promotion Pipeline`. Do not write the 40 GTINs, resolve conflicts,
-start promotion or call eBay without separate approval.
+Superseded by the separately approved `GTIN Promotion Pipeline` dry-run below.
+Do not run another confirmation batch. No GTIN write or eBay call is authorised.
+
+## GTIN Promotion Pipeline
+
+### Reuse architecture
+
+The promotion planner extends the existing control plane instead of creating a
+second importer. It reuses the production canonical snapshot and GTIN collision
+index, the owner-review evidence recorded in this ledger, and the existing
+fingerprint/immutable-artifact conventions. The future write must reuse the
+same approval-ledger properties already enforced for product imports: one
+reviewed artifact, short expiry, exact expected state, one-time consumption,
+transactional apply and an audit result bound to the artifact and row
+fingerprints.
+
+The existing `validate_product_import_plan_read_only` and
+`apply_approved_product_import_plan` RPCs cannot apply this operation unchanged:
+their closed schema permits product/variant create-or-existing actions and
+retailer/offer changes, but no canonical GTIN update action. Reusing the
+framework therefore meant adding one narrowly allowlisted `GTIN_PROMOTION`
+operation beside those RPCs in the same approval ledger, not using the CSV
+importer or enabling `SAFE_UPDATE`. The operation and migration now exist
+locally, but the migration has not been deployed and no apply RPC has been run.
+
+The read-only planning slice is:
+
+1. parse the 40 independently confirmed identities from this durable ledger;
+2. recompute the 14 existing two-retailer `AUTO_SAFE` identities from a fresh
+   production SELECT-only canonical snapshot;
+3. validate checksum, exact product/variant binding, semantic evidence,
+   quarantine, destination value and canonical/proposed GTIN collisions;
+4. select `product_variants.gtin` by default, preserving an already identical
+   `products.gtin` value as an idempotent no-op;
+5. emit a new fingerprinted, 15-minute preview under `tmp/gtin-promotion` with
+   `write_enabled: false` and `safe_update_enabled: false`.
+
+The guarded write slice now prepared locally:
+
+1. extends `approved_import_plans` with only the `gtin_promotion` plan kind and
+   an immutable apply result;
+2. stores all 16 known conflicts in an RLS-protected quarantine table;
+3. validates the exact 45-row envelope, checksum, two-source evidence,
+   destination, expected product/variant state, uniqueness and quarantine
+   inside PostgreSQL;
+4. separates approver and executor database roles, applies all 45 variant
+   updates in one transaction, consumes approval once and records before/after
+   audit evidence;
+5. exposes a manual-main-only GitHub workflow with `preflight`, `validate` and
+   `apply` choices. `preflight` runs the full disposable-database gate without
+   production access. Protected modes then create a fresh 15-minute artifact,
+   and the protected step never receives the service-role key.
+
+The owner approval recorded below fixes the allowed identity scope. It does not
+deploy the migration or authorize an `apply` workflow run by itself.
+
+### Safety and future-write gate
+
+A row can be `READY_TO_PROMOTE` only with a valid GTIN-8/12/13/14 checksum, at
+least two independent evidence sources or prior `AUTO_SAFE` evidence, one
+active unmerged canonical product, one exact active variant, and confirmed
+brand, size/weight/count, relevant flavour and format. Any quarantine,
+canonical/proposed duplicate, conflicting destination value, inactive target
+or semantic mismatch is `BLOCKED`; incomplete evidence or an ambiguous variant
+is `MANUAL_REVIEW`.
+
+For a future write, each row must still be `READY_TO_PROMOTE` in a newly
+generated preview. The database operation must lock all destination rows,
+re-read and compare their exact expected state and snapshot binding, re-run
+global GTIN uniqueness and quarantine checks, then apply the whole approved
+batch in one transaction. The approval must expire, be consumable once, and
+record before/after values plus artifact, preview and candidate fingerprints.
+An exact apply replay is blocked because the approval has already been
+consumed; a changed catalogue becomes `STALE_PREVIEW` and writes nothing. The
+separate nine already-present identities remain verified no-ops and never enter
+the write-bearing 45-row artifact.
+
+### Production dry-run result
+
+Captured `2026-08-13T15:20:20.920Z` with SELECT-only production access. The
+preview covered all 54 current potential safe identities and made 0 database
+writes. Canonical snapshot fingerprint:
+`c4bb8f2cf069bbf26bad5f34136471a8875d3bdc609780353f066d526b4d8e0e`;
+source fingerprint:
+`0649f9881cff87f3e596466061c35fe452084c7749f188b3fb5d44514b402848`;
+preview fingerprint:
+`8765743c98f03fed479d81a93333919b1cfc5bfc574b6b62798d94cf0542ae64`.
+
+| Decision | Count | Meaning |
+|---|---:|---|
+| `READY_TO_PROMOTE` | 45 | Empty exact variant destination; all gates passed |
+| `ALREADY_PRESENT` | 9 | Same GTIN already present in the canonical product field; no write |
+| `MANUAL_REVIEW` | 0 | No incomplete or ambiguous candidate in the 54-row safe set |
+| `BLOCKED` | 0 | No new conflict inside the 54-row safe set |
+
+The 16 known confirmation conflicts remain outside this safe candidate set and
+stay quarantined. Evidence abbreviations below: `R1`, `R3`, `R8`, `R11` are
+the independent retailer IDs in the fresh canonical snapshot; `MAP+CONF` means
+the existing retailer mapping plus the independent source recorded in the
+confirmation tables above. `—` means an empty current field or no blocker.
+
+| Product / variant | Product name | Variant | GTIN | Destination | Current | Proposed | Evidence | Blockers | Decision |
+|---|---|---|---|---|---|---|---|---|---|
+| `1` / `559` | GYM HIGH CREA-4 Elite Capsules | Default | `0742978960459` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `444` / `533` | GYM HIGH Beta-Alanine 250g | Default | `0742978960480` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `429` / `391` | GYM HIGH Testo Pro 180 Capsules | Default | `0742978960411` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `427` / `379` | GYM HIGH BCAA 120 Capsules | Default | `0742978960497` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `412` / `400` | GYM HIGH L-Glutamine Powder 500g | Default | `0742978960350` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `413` / `390` | GYM HIGH ZMB 60 Capsules | Default | `0742978960381` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `389` / `555` | GYM HIGH Creatine Monohydrate Powder 250g | Default | `0794179368862` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `516` / `572` | GYM HIGH Pure L-Arginine Powder 500g | Default | `0691057494654` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `529` / `507` | GYM HIGH Creatine Monohydrate 400g | Default | `0691057494883` | `products.gtin` | same | same | 2: R1+R3 | — | `ALREADY_PRESENT` |
+| `435` / `414` | KIOR Health Collagen Probio 60 Caps | Default | `0754590525954` | `product_variants.gtin` | — | same | 2: R3+R8 | — | `READY_TO_PROMOTE` |
+| `426` / `410` | Applied Nutrition Creatine 120 Capsules | Default | `5056555205297` | `product_variants.gtin` | — | same | 2: R3+R11 | — | `READY_TO_PROMOTE` |
+| `439` / `422` | KIOR Health Astragalus+ 60 Caps | Default | `0754590525916` | `product_variants.gtin` | — | same | 2: R3+R8 | — | `READY_TO_PROMOTE` |
+| `469` / `2313` | Critical Cookie 85g | Double Chocolate / 85g | `0634158940033` | `product_variants.gtin` | — | same | 2: R3+R11 | — | `READY_TO_PROMOTE` |
+| `469` / `2699` | Critical Cookie 85g | Chocolate Chip / 85g | `0634158940026` | `product_variants.gtin` | — | same | 2: R3+R11 | — | `READY_TO_PROMOTE` |
+| `81` / `67` | BioTech USA Tri-Creatine Malate 300g | Default | `5999076228171` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `88` / `54` | PEScience TruCreatine 120 Caps | Default | `040232661082` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `360` / `364` | Olimp TCM 1100 Mega Caps 120 Capsules | Default | `5901330020520` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `393` / `334` | Trec Nutrition CM3 1250 90 Capsules | Default | `5902114044664` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `425` / `397` | Creatine Caps 250 Capsules | Default | `5999100029293` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `1040` / `2176` | 7Nutrition Creatine HCL 350 Caps | Unflavoured / 350 capsules | `5903111089412` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `138` / `90` | Solgar Skin, Nail And Hair Formula | Default | `033984017351` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `176` / `227` | Olimp Chela Mag B6 Forte 60 Capsules | Default | `5901330022685` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `258` / `248` | Swanson Potassium Citrate 120 Capsules | Default | `087614023953` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `11` / `1002` | USN Blue Lab Whey 2kg | Caramel Chocolate / 2kg | `6009544910770` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `11` / `1713` | USN Blue Lab Whey 2kg | Strawberry / 2kg | `6009544910718` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `11` / `1714` | USN Blue Lab Whey 2kg | Vanilla / 2kg | `6009544910732` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `11` / `1715` | USN Blue Lab Whey 2kg | Banana / 2kg | `6009544910756` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `11` / `1717` | USN Blue Lab Whey 2kg | Chocolate / 2kg | `6009544910695` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `11` / `1720` | USN Blue Lab Whey 2kg | Salted Caramel / 2kg | `6009544942368` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `11` / `1722` | USN Blue Lab Whey 2kg | Wheytella / 2kg | `6009544918745` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `338` / `1020` | Applied Nutrition Clear Whey 875g | Cherry & Apple / 875g | `658556043769` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `338` / `1782` | Applied Nutrition Clear Whey 875g | Orange Squash / 875g | `5056555214473` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `338` / `1783` | Applied Nutrition Clear Whey 875g | Strawberry & Lime / 875g | `5056555214510` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `338` / `1784` | Applied Nutrition Clear Whey 875g | Strawberry & Raspberry / 875g | `5056555214527` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `338` / `1786` | Applied Nutrition Clear Whey 875g | Watermelon / 875g | `5056555214534` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `10` / `1710` | BioTech USA Iso Whey Zero 1816g | Pineapple-Mango / 1.816kg | `5999076263882` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `55` / `1029` | BioTech USA Nitrox Therapy 340g | Blue Grape / 340g | `5999076253548` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `55` / `1599` | BioTech USA Nitrox Therapy 340g | Tropical Fruit / 340g | `5999076253555` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `55` / `1600` | BioTech USA Nitrox Therapy 340g | Peach / 340g | `5999076253524` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `790` / `1094` | Per4m Creatine Sherbet 310g | Cherry Fizz / 310g | `5061097264619` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `790` / `1095` | Per4m Creatine Sherbet 310g | Fizzy Bubblegum Bottles / 310g | `5061097264633` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `790` / `1096` | Per4m Creatine Sherbet 310g | Original Sherbet / 310g | `5061097264596` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `790` / `1097` | Per4m Creatine Sherbet 310g | Peach Sweets / 310g | `5061097264657` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `790` / `1098` | Per4m Creatine Sherbet 310g | Rainbow Candy / 310g | `5061097264671` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `789` / `1084` | Per4m Pre-Workout Stim 570g | Blackberry / 570g | `5061097261878` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `789` / `1085` | Per4m Pre-Workout Stim 570g | Berry Blast / 570g | `5060660084821` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `789` / `1086` | Per4m Pre-Workout Stim 570g | Cola Bottles / 570g | `5060660084760` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `789` / `1088` | Per4m Pre-Workout Stim 570g | Orange & Mango / 570g | `5060660084784` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `789` / `1089` | Per4m Pre-Workout Stim 570g | Passionfruit / 570g | `5060660084746` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `789` / `1092` | Per4m Pre-Workout Stim 570g | Watermelon Lemonade / 570g | `5060660084807` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `56` / `1601` | Warrior Rage Pre Workout 392g | Energy Burst / 392g | `5060424707256` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `56` / `1604` | Warrior Rage Pre Workout 392g | Wicked Watermelon / 392g | `5060424700363` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `56` / `1605` | Warrior Rage Pre Workout 392g | Charged Cherry / 392g | `5060756342927` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+| `139` / `142` | Himalaya Liv.52 100 Tablets | Default | `8901138110710` | `product_variants.gtin` | — | same | 2: MAP+CONF | — | `READY_TO_PROMOTE` |
+
+### Owner review — exact 45 write-bearing candidates
+
+Rechecked `2026-08-13T15:26:18.936Z` against a fresh production SELECT-only
+view. The review covered exactly the 45 prior `READY_TO_PROMOTE` rows, checked
+all 16 quarantined GTINs, and made 0 database writes. Every row retained a
+valid checksum, unique canonical/proposed GTIN assignment, active exact product
+and variant binding, documented brand/size/count/flavour/format agreement,
+empty destination field and no quarantine match. `Current` is therefore `—`
+for every row and every proposed value would be a real write. On 13 August 2026
+the owner explicitly approved this exact 45-row set. That decision authorizes
+the bounded build and future approval scope, but is not a production execution
+instruction; a fresh unexpired preview and all runtime gates remain mandatory.
+
+| Product / variant | Brand | Product | Variant / flavour / size | GTIN | Destination | Evidence | Sources | Current | Proposed | Status |
+|---|---|---|---|---|---|---:|---|---|---|---|
+| `435` / `414` | KIOR Health | KIOR Health Collagen Probio 60 Caps | Default | `0754590525954` | `product_variants.gtin` | 2 | Whey Okay + KIOR Health | — | `0754590525954` | `APPROVE_CANDIDATE` |
+| `426` / `410` | Applied Nutrition | Applied Nutrition Creatine 120 Capsules | Default | `5056555205297` | `product_variants.gtin` | 2 | Whey Okay + 6 Pack Supplements | — | `5056555205297` | `APPROVE_CANDIDATE` |
+| `439` / `422` | KIOR Health | KIOR Health Astragalus+ 60 Caps | Default | `0754590525916` | `product_variants.gtin` | 2 | Whey Okay + KIOR Health | — | `0754590525916` | `APPROVE_CANDIDATE` |
+| `469` / `2313` | Applied Nutrition | Critical Cookie 85g | Double Chocolate / 85g | `0634158940033` | `product_variants.gtin` | 2 | Whey Okay + 6 Pack Supplements | — | `0634158940033` | `APPROVE_CANDIDATE` |
+| `469` / `2699` | Applied Nutrition | Critical Cookie 85g | Chocolate Chip / 85g | `0634158940026` | `product_variants.gtin` | 2 | Whey Okay + 6 Pack Supplements | — | `0634158940026` | `APPROVE_CANDIDATE` |
+| `81` / `67` | BioTech USA | BioTech USA Tri-Creatine Malate 300g | Default | `5999076228171` | `product_variants.gtin` | 2 | Whey Okay + Farmacia Tei | — | `5999076228171` | `APPROVE_CANDIDATE` |
+| `88` / `54` | PEScience | PEScience TruCreatine 120 Caps | Default | `040232661082` | `product_variants.gtin` | 2 | Whey Okay + Get Yok'd | — | `040232661082` | `APPROVE_CANDIDATE` |
+| `360` / `364` | Olimp | Olimp TCM 1100 Mega Caps 120 Capsules | Default | `5901330020520` | `product_variants.gtin` | 2 | Whey Okay + official Olimp Store | — | `5901330020520` | `APPROVE_CANDIDATE` |
+| `393` / `334` | Trec Nutrition | Trec Nutrition CM3 1250 90 Capsules | Default | `5902114044664` | `product_variants.gtin` | 2 | Whey Okay + Tanie Odzywki | — | `5902114044664` | `APPROVE_CANDIDATE` |
+| `425` / `397` | Scitec Nutrition | Creatine Caps 250 Capsules | Default | `5999100029293` | `product_variants.gtin` | 2 | Whey Okay + Dr. Max | — | `5999100029293` | `APPROVE_CANDIDATE` |
+| `1040` / `2176` | 7Nutrition | 7Nutrition Creatine HCL 350 Caps | Unflavoured / 350 capsules | `5903111089412` | `product_variants.gtin` | 2 | Whey Okay + Mega Protein Store | — | `5903111089412` | `APPROVE_CANDIDATE` |
+| `138` / `90` | Solgar | Solgar Skin, Nail And Hair Formula | Default / 60 tablets | `033984017351` | `product_variants.gtin` | 2 | Whey Okay + Target | — | `033984017351` | `APPROVE_CANDIDATE` |
+| `176` / `227` | Olimp | Olimp Chela Mag B6 Forte | Default / 60 capsules | `5901330022685` | `product_variants.gtin` | 2 | Whey Okay + official Olimp Store | — | `5901330022685` | `APPROVE_CANDIDATE` |
+| `258` / `248` | Swanson | Swanson Potassium Citrate 99 mg | Default / 120 capsules | `087614023953` | `product_variants.gtin` | 2 | Whey Okay + iHerb | — | `087614023953` | `APPROVE_CANDIDATE` |
+| `11` / `1002` | USN | USN Blue Lab Whey 2kg | Caramel Chocolate / 2kg | `6009544910770` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `6009544910770` | `APPROVE_CANDIDATE` |
+| `11` / `1713` | USN | USN Blue Lab Whey 2kg | Strawberry / 2kg | `6009544910718` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `6009544910718` | `APPROVE_CANDIDATE` |
+| `11` / `1714` | USN | USN Blue Lab Whey 2kg | Vanilla / 2kg | `6009544910732` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `6009544910732` | `APPROVE_CANDIDATE` |
+| `11` / `1715` | USN | USN Blue Lab Whey 2kg | Banana / 2kg | `6009544910756` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `6009544910756` | `APPROVE_CANDIDATE` |
+| `11` / `1717` | USN | USN Blue Lab Whey 2kg | Chocolate / 2kg | `6009544910695` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `6009544910695` | `APPROVE_CANDIDATE` |
+| `11` / `1720` | USN | USN Blue Lab Whey 2kg | Salted Caramel / 2kg | `6009544942368` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `6009544942368` | `APPROVE_CANDIDATE` |
+| `11` / `1722` | USN | USN Blue Lab Whey 2kg | Wheytella / 2kg | `6009544918745` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `6009544918745` | `APPROVE_CANDIDATE` |
+| `338` / `1020` | Applied Nutrition | Applied Nutrition Clear Whey 875g | Cherry & Apple / 875g | `658556043769` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `658556043769` | `APPROVE_CANDIDATE` |
+| `338` / `1782` | Applied Nutrition | Applied Nutrition Clear Whey 875g | Orange Squash / 875g | `5056555214473` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5056555214473` | `APPROVE_CANDIDATE` |
+| `338` / `1783` | Applied Nutrition | Applied Nutrition Clear Whey 875g | Strawberry & Lime / 875g | `5056555214510` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5056555214510` | `APPROVE_CANDIDATE` |
+| `338` / `1784` | Applied Nutrition | Applied Nutrition Clear Whey 875g | Strawberry & Raspberry / 875g | `5056555214527` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5056555214527` | `APPROVE_CANDIDATE` |
+| `338` / `1786` | Applied Nutrition | Applied Nutrition Clear Whey 875g | Watermelon / 875g | `5056555214534` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5056555214534` | `APPROVE_CANDIDATE` |
+| `10` / `1710` | BioTech USA | BioTech USA Iso Whey Zero 1816g | Pineapple-Mango / 1.816kg | `5999076263882` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5999076263882` | `APPROVE_CANDIDATE` |
+| `55` / `1029` | BioTech USA | BioTech USA Nitrox Therapy 340g | Blue Grape / 340g | `5999076253548` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5999076253548` | `APPROVE_CANDIDATE` |
+| `55` / `1599` | BioTech USA | BioTech USA Nitrox Therapy 340g | Tropical Fruit / 340g | `5999076253555` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5999076253555` | `APPROVE_CANDIDATE` |
+| `55` / `1600` | BioTech USA | BioTech USA Nitrox Therapy 340g | Peach / 340g | `5999076253524` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5999076253524` | `APPROVE_CANDIDATE` |
+| `790` / `1094` | Per4m | Per4m Creatine Sherbet 310g | Cherry Fizz / 310g | `5061097264619` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5061097264619` | `APPROVE_CANDIDATE` |
+| `790` / `1095` | Per4m | Per4m Creatine Sherbet 310g | Fizzy Bubblegum Bottles / 310g | `5061097264633` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5061097264633` | `APPROVE_CANDIDATE` |
+| `790` / `1096` | Per4m | Per4m Creatine Sherbet 310g | Original Sherbet / 310g | `5061097264596` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5061097264596` | `APPROVE_CANDIDATE` |
+| `790` / `1097` | Per4m | Per4m Creatine Sherbet 310g | Peach Sweets / 310g | `5061097264657` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5061097264657` | `APPROVE_CANDIDATE` |
+| `790` / `1098` | Per4m | Per4m Creatine Sherbet 310g | Rainbow Candy / 310g | `5061097264671` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5061097264671` | `APPROVE_CANDIDATE` |
+| `789` / `1084` | Per4m | Per4m Pre-Workout Stim 570g | Blackberry / 570g | `5061097261878` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5061097261878` | `APPROVE_CANDIDATE` |
+| `789` / `1085` | Per4m | Per4m Pre-Workout Stim 570g | Berry Blast / 570g | `5060660084821` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5060660084821` | `APPROVE_CANDIDATE` |
+| `789` / `1086` | Per4m | Per4m Pre-Workout Stim 570g | Cola Bottles / 570g | `5060660084760` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5060660084760` | `APPROVE_CANDIDATE` |
+| `789` / `1088` | Per4m | Per4m Pre-Workout Stim 570g | Orange & Mango / 570g | `5060660084784` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5060660084784` | `APPROVE_CANDIDATE` |
+| `789` / `1089` | Per4m | Per4m Pre-Workout Stim 570g | Passionfruit / 570g | `5060660084746` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5060660084746` | `APPROVE_CANDIDATE` |
+| `789` / `1092` | Per4m | Per4m Pre-Workout Stim 570g | Watermelon Lemonade / 570g | `5060660084807` | `product_variants.gtin` | 2 | Jon's Supplements + Tropicana Wholesale | — | `5060660084807` | `APPROVE_CANDIDATE` |
+| `56` / `1601` | Warrior | Warrior Rage Pre Workout 392g | Energy Burst / 392g | `5060424707256` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5060424707256` | `APPROVE_CANDIDATE` |
+| `56` / `1604` | Warrior | Warrior Rage Pre Workout 392g | Wicked Watermelon / 392g | `5060424700363` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5060424700363` | `APPROVE_CANDIDATE` |
+| `56` / `1605` | Warrior | Warrior Rage Pre Workout 392g | Charged Cherry / 392g | `5060756342927` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `5060756342927` | `APPROVE_CANDIDATE` |
+| `139` / `142` | Himalaya | Himalaya Liv.52 100 Tablets | Default / 100 tablets | `8901138110710` | `product_variants.gtin` | 2 | Whey Okay + Tropicana Wholesale | — | `8901138110710` | `APPROVE_CANDIDATE` |
+
+Owner review totals: 45 reviewed, 45 `APPROVE_CANDIDATE`, 0
+`OWNER_CHECK_REQUIRED`, 0 `products.gtin` destinations, 45
+`product_variants.gtin` destinations, 45 real future writes and 0 no-ops in
+this reviewed set. The separate nine `ALREADY_PRESENT` identities remain
+outside the 45-row review and require no write. The owner approved all 45 in
+one decision bound to this exact set; any future write must still use a newly
+generated, unexpired, stale-safe preview.
+
+### Promotion next action
+
+`NEXT ACTION: Run GTIN_PROMOTION preflight.` Run the disposable-PostgreSQL
+integration test where Docker is available (the workflow's `preflight` mode),
+review its
+rollback/atomicity/role-separation evidence, and only then
+authorize deployment of migration `20260813170000_add_guarded_gtin_promotion`.
+After deployment, run the workflow in `validate` mode first. A production
+`apply` remains a separate execution instruction. Preserve the nine
+`ALREADY_PRESENT` rows as no-ops and all 16 conflicts in quarantine. Do not
+enable `SAFE_UPDATE`, run another confirmation batch, call eBay, or write any
+canonical GTIN before those gates pass.
 
 ## Relevant SupplementScout model
 
@@ -878,31 +1113,60 @@ rollback and explicit approval.
 
 - `USER ACTION REQUIRED`: confirm EPN and Developer account status.
 - `USER ACTION REQUIRED`: pursue EPN/Buy API production approval.
-- `DATA BLOCKED`: 14 identities are already `AUTO_SAFE` and 40 more are
-  independently confirmed but not promoted, leaving 46 identities before the
-  planned 100-record exact-GTIN cohort.
+- `DEPLOYMENT BLOCKED`: the guarded migration is intentionally unapplied until
+  its disposable-PostgreSQL integration test passes in an environment with a
+  working Docker daemon. The 45 approved identities remain unwritten; 9 further
+  identities are already present and 16 conflicts remain quarantined.
 - `DESIGN BLOCKED`: seller/listing metadata storage awaits pilot evidence and
   separate approval.
 
 ## Next action
 
-`OWNER APPROVAL REQUIRED — FINAL GTIN CONFIRMATION BATCH:` check at most 60
-additional single-retailer identities with the unchanged opened-source and
-semantic gate, stopping once cumulative safe identity evidence reaches 100.
-Keep all 40 confirmations unwritten and all 16 conflicts quarantined. If the
-threshold is reached, the next separately approved task becomes `GTIN Promotion
-Pipeline`, reusing the existing review, immutable approval, dry-run, guarded
-import and audit framework. The framework is sufficient as the control plane,
-but the dedicated canonical-GTIN promotion operation and reusable checksum gate
-still need a scoped design and implementation. eBay API work remains out of
-scope and independently blocked on account/access confirmation.
-
-Do not proceed to that next task without explicit owner confirmation.
+`NEXT ACTION: Run GTIN_PROMOTION preflight.` This runs the prepared
+disposable-PostgreSQL test with Docker available. If rollback, exact-45 atomic
+apply, idempotency/replay block, quarantine, audit and role ACL checks pass,
+review and separately authorize the migration deployment. Then run the manual
+workflow in `validate` mode against a freshly generated artifact. Production
+`apply` requires a separate explicit execution instruction. Do not run another
+confirmation batch. The 9 `ALREADY_PRESENT` rows remain no-ops and all 16
+conflicts remain quarantined. eBay API work remains independently blocked on
+account/access confirmation.
 
 ## Last verified
 
 13 August 2026:
 
+- The owner explicitly approved the exact 45-row promotion scope. This approval
+  authorized the guarded mechanism and scope; it did not instruct a production
+  database write.
+- Built the narrow `GTIN_PROMOTION` approval/apply operation locally on the
+  existing `approved_import_plans` ledger, with exact-state validation,
+  checksum/duplicate/quarantine gates, separate approver/executor roles,
+  atomic 45-row apply, stale-preview protection, single consumption and an
+  immutable audit result. The migration remains unapplied.
+- Added a manual-main-only workflow with production-free `preflight`; protected
+  modes always rebuild a fresh 15-minute artifact and support `validate` before
+  `apply`. Fresh plan evidence:
+  artifact SHA-256
+  `390c4c06c60f9e7b186486e17da889eee2c9192c655001538b89aed09bea117e`,
+  plan fingerprint `7f316af9a47ab6676f0aab4dabb5660e`, 45 rows, 0 writes.
+- Non-Docker unit/contract/workflow tests passed 27/27. Typecheck passed. Full
+  lint passed with 0 errors and 10 pre-existing warnings, the production build
+  passed, Project Guardian passed, and `git diff --check` passed.
+  `PostgreSQL integration test: PENDING PREFLIGHT` because the local Docker
+  daemon is unavailable; therefore migration deployment and production apply
+  remain blocked.
+- Owner review rechecked the exact 45 write-bearing candidates against fresh
+  production state and all 16 quarantined GTINs: 45 `APPROVE_CANDIDATE`, 0
+  `OWNER_CHECK_REQUIRED`, 45 variant destinations, 45 future writes and 0
+  no-ops.
+- GTIN promotion SELECT-only dry-run covered all 54 potential safe identities:
+  45 `READY_TO_PROMOTE`, 9 `ALREADY_PRESENT`, 0 `MANUAL_REVIEW` and 0
+  `BLOCKED`; database writes remained 0.
+- Added a reusable checksum/classification planner, proposed/canonical duplicate
+  protection, variant-first destination logic, stale-preview expiry and
+  fingerprinted audit artifacts. `SAFE_UPDATE` remains disabled; no migration,
+  approval RPC, apply RPC, eBay call or UI change was executed.
 - The scaled read-only batch checked 46 new identities: 31 `CONFIRMED`, 0
   `REVIEW`, 15 `CONFLICT` and 0 `NOT_FOUND`; batch confirmation rate 67.39%.
 - Sprint cumulative result is 56 checked, 40 confirmed and 16 conflicts, a
@@ -932,6 +1196,21 @@ Do not proceed to that next task without explicit owner confirmation.
 
 ### 13 August 2026
 
+- Recorded the owner's approval of the exact 45-row scope and built the guarded
+  `GTIN_PROMOTION` mechanism without deploying its migration or writing GTINs.
+- Reused the existing approval ledger and added a manual fresh-plan-first
+  workflow; held deployment at the database integration gate because Docker is
+  unavailable locally.
+- Completed the exact 45-row owner review pack without changing code or data;
+  no new anomaly was found and the next action is the separately authorised
+  `Build guarded GTIN_PROMOTION write operation` task.
+- Completed the 54-identity GTIN promotion dry-run and recorded its exact
+  per-row destinations, evidence classes, decisions and immutable fingerprints.
+- Reused the existing import control-plane design and explicitly limited the
+  missing future code to one allowlisted `GTIN_PROMOTION` operation; no second
+  importer or parallel approval workflow was created.
+- Superseded the final confirmation-batch next action with owner review of the
+  exact 45-row promotion scope.
 - Completed the scaled read-only confirmation batch without filling the
   150-record ceiling with unsupported `NOT_FOUND` decisions.
 - Confirmed 31 exact identities and quarantined 15 size/version conflicts;

@@ -1,0 +1,75 @@
+name: Guarded GTIN promotion
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Test only, validate production, or apply after the final execution instruction
+        required: true
+        default: preflight
+        type: choice
+        options: [preflight, validate, apply]
+      owner_confirmation:
+        description: Type OWNER_APPROVED_EXACT_45
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: guarded-gtin-promotion-production
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_45' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify guarded GTIN promotion contracts
+        run: node --test scripts/gtin-promotion.test.js scripts/gtin-promotion-operation.test.js scripts/gtin-promotion-migration.test.js
+      - name: Verify migration atomically on disposable PostgreSQL
+        run: node --test scripts/gtin-promotion-postgres.integration.test.js
+
+  promotion:
+    needs: integration
+    if: ${{ inputs.operation != 'preflight' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Build fresh immutable 45-row plan
+        env:
+          NODE_OPTIONS: --use-system-ca
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run gtin:promotion -- --mode=plan --target=production --output=tmp/gtin-promotion/approved-exact-45.json
+      - name: Validate or apply with separated database roles
+        env:
+          GTIN_PROMOTION_APPROVER_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_APPROVER_DATABASE_URL }}
+          GTIN_PROMOTION_EXECUTOR_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_EXECUTOR_DATABASE_URL }}
+        run: npm run gtin:promotion -- --mode=${{ inputs.operation }} --target=production --artifact=tmp/gtin-promotion/approved-exact-45.json --confirm=OWNER_APPROVED_EXACT_45
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: gtin-promotion-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tmp/gtin-promotion/**
+          if-no-files-found: warn
+          retention-days: 90

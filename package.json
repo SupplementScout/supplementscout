@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "analytics:weekly": "node scripts/growth-analytics-report.js",
+    "gtin:promotion": "node scripts/gtin-promotion-operation.js",
     "nutrition:candidates": "node scripts/nutrition-candidate-extractor.js",
     "nutrition:manufacturer-plan": "node scripts/manufacturer-source-collector.js",
     "nutrition:ocr-plan": "node scripts/nutrition-ocr-canary.js --dry-plan",
