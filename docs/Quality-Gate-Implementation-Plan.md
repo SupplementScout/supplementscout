@@ -1,6 +1,6 @@
 # SupplementScout Quality Gate
 
-**Status:** local and integration implementation verified; final GitHub full-gate evidence pending  
+**Status:** COMPLETE — local, integration and GitHub full-gate evidence verified
 **Scope:** deterministic repository verification only  
 **Authority:** this is a technical execution record, not a second product or SEO roadmap. The Operating Plan and SEO Execution Plan remain authoritative.
 
@@ -64,7 +64,7 @@ npm run verify:integration  # isolated Docker/local-database tests
 - [x] GitHub workflow covers pull request, `main`, manual and scheduled runs.
 - [x] Agent instructions require quick verification after code changes and full verification before completion.
 - [x] Project Guardian still passes after all documentation changes.
-- [ ] Live GitHub Actions evidence is recorded before this document is marked complete.
+- [x] Live GitHub Actions evidence is recorded before this document is marked complete.
 
 ## Local evidence — 13 August 2026
 
@@ -90,6 +90,9 @@ npm run verify:integration  # isolated Docker/local-database tests
 
 ## GitHub evidence — 13 August 2026
 
+- Workflow run `31699246353`, job `94444092868`: the complete deterministic
+  full gate passed on a clean Ubuntu checkout after the final artifact boundary
+  was applied.
 - Workflow run `31697538988`, job `94438661013`: all 40 integration-classified
   test files passed on the read-only Ubuntu runner with disposable Docker
   PostgreSQL instances and no repository secrets.
