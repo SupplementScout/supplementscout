@@ -68,11 +68,11 @@ npm run verify:integration  # isolated Docker/local-database tests
 
 ## Local evidence — 13 August 2026
 
-- Inventory: 260 tests, including 218 safe, 40 integration-classified and two
+- Inventory: 260 tests, including 217 safe, 40 integration-classified and three
   explicitly artifact-bound historical tests;
   the inventory contract tests passed 5/5.
 - `npm run verify:quick`: PASS, including 176 smoke assertions.
-- `npm run verify:full`: PASS. All 218 safe test files passed in controlled
+- `npm run verify:full`: PASS. All 217 safe test files passed in controlled
   batches, TypeScript passed, ESLint returned zero errors and ten existing
   warnings, baseline validation passed with 116 post-baseline migrations, and
   the Next.js 16.2.9 production build passed.
@@ -93,7 +93,7 @@ npm run verify:integration  # isolated Docker/local-database tests
 - Workflow run `31697538988`, job `94438661013`: all 40 integration-classified
   test files passed on the read-only Ubuntu runner with disposable Docker
   PostgreSQL instances and no repository secrets.
-- Clean-checkout full-gate rehearsals exposed two historical tests whose sealed
+- Clean-checkout full-gate rehearsals exposed three historical tests whose sealed
   owner-review inputs intentionally live under ignored `tmp/` paths. They are
   now explicitly listed with reasons under the manifest's `artifact` category;
   they are not silently omitted or represented as passing in CI.

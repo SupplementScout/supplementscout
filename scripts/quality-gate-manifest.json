@@ -54,6 +54,10 @@
     {
       "file": "scripts/no-sku-shopify-variant-import.test.js",
       "reason": "Requires the immutable, intentionally untracked owner-review candidate tmp/jons-no-sku-variant-review/jons-no-sku-safe-variant-candidates.csv."
+    },
+    {
+      "file": "scripts/simply-supplements-reviewed-offer-apply.test.js",
+      "reason": "Requires the immutable, intentionally untracked owner-approved production manifest tmp/simply-supplements/approved-existing-offers-manifest.json."
     }
   ],
   "quick": [
