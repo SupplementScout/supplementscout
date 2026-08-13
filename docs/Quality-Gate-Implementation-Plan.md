@@ -72,7 +72,7 @@ npm run verify:integration  # isolated Docker/local-database tests
   explicitly artifact-bound historical tests;
   the inventory contract tests passed 5/5.
 - `npm run verify:quick`: PASS, including 176 smoke assertions.
-- `npm run verify:full`: PASS. All 220 safe test files passed in controlled
+- `npm run verify:full`: PASS. All 218 safe test files passed in controlled
   batches, TypeScript passed, ESLint returned zero errors and ten existing
   warnings, baseline validation passed with 116 post-baseline migrations, and
   the Next.js 16.2.9 production build passed.
@@ -97,3 +97,6 @@ npm run verify:integration  # isolated Docker/local-database tests
   owner-review inputs intentionally live under ignored `tmp/` paths. They are
   now explicitly listed with reasons under the manifest's `artifact` category;
   they are not silently omitted or represented as passing in CI.
+- The staging executor's non-sensitive, ten-record historical canary fixture is
+  now versioned at its established path, so that safety test executes on clean
+  checkouts instead of being excluded from the gate.
