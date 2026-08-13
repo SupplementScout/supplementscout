@@ -50,6 +50,10 @@
     {
       "file": "scripts/build-reviewed-variant-nutrition-manifest.test.js",
       "reason": "Requires the immutable, intentionally untracked owner-review candidate tmp/nutrition-data/priority-batch-1-candidates.json."
+    },
+    {
+      "file": "scripts/no-sku-shopify-variant-import.test.js",
+      "reason": "Requires the immutable, intentionally untracked owner-review candidate tmp/jons-no-sku-variant-review/jons-no-sku-safe-variant-candidates.csv."
     }
   ],
   "quick": [

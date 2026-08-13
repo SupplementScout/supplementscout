@@ -1,6 +1,6 @@
 # SupplementScout Quality Gate
 
-**Status:** local implementation verified; GitHub integration evidence pending  
+**Status:** local and integration implementation verified; final GitHub full-gate evidence pending  
 **Scope:** deterministic repository verification only  
 **Authority:** this is a technical execution record, not a second product or SEO roadmap. The Operating Plan and SEO Execution Plan remain authoritative.
 
@@ -60,7 +60,7 @@ npm run verify:integration  # isolated Docker/local-database tests
 - [x] Inventory accounts for every test and rejects unreviewed changes.
 - [x] Quick gate passes locally.
 - [x] Full gate passes locally.
-- [ ] Integration gate passes in its isolated supported environment.
+- [x] Integration gate passes in its isolated supported environment.
 - [x] GitHub workflow covers pull request, `main`, manual and scheduled runs.
 - [x] Agent instructions require quick verification after code changes and full verification before completion.
 - [x] Project Guardian still passes after all documentation changes.
@@ -68,8 +68,8 @@ npm run verify:integration  # isolated Docker/local-database tests
 
 ## Local evidence — 13 August 2026
 
-- Inventory: 260 tests, including 219 safe, 40 integration-classified and one
-  explicitly artifact-bound historical test;
+- Inventory: 260 tests, including 218 safe, 40 integration-classified and two
+  explicitly artifact-bound historical tests;
   the inventory contract tests passed 5/5.
 - `npm run verify:quick`: PASS, including 176 smoke assertions.
 - `npm run verify:full`: PASS. All 220 safe test files passed in controlled
@@ -86,4 +86,14 @@ npm run verify:integration  # isolated Docker/local-database tests
   policies; application and production-data behaviour were not changed.
 - Local integration execution is unavailable because the Docker daemon is not
   installed/running in this workspace. The 40 isolated tests remain assigned to
-  the Linux GitHub runner and must pass there before final completion.
+  the Linux GitHub runner.
+
+## GitHub evidence — 13 August 2026
+
+- Workflow run `31697538988`, job `94438661013`: all 40 integration-classified
+  test files passed on the read-only Ubuntu runner with disposable Docker
+  PostgreSQL instances and no repository secrets.
+- Clean-checkout full-gate rehearsals exposed two historical tests whose sealed
+  owner-review inputs intentionally live under ignored `tmp/` paths. They are
+  now explicitly listed with reasons under the manifest's `artifact` category;
+  they are not silently omitted or represented as passing in CI.
