@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** GTIN AUDIT COMPLETE — PILOT COHORT AND ACCESS STILL BLOCKED
+**Status:** SCALED GTIN CONFIRMATION BATCH COMPLETE — FINAL COVERAGE GAP REMAINS
 **Last verified:** 13 August 2026  
 **Production writes:** 0  
 **Public changes:** 0
@@ -51,8 +51,8 @@ reasons:
    user confirmation/action.
 2. Canonical fields still contain only 9 active product GTINs and 0 variant
    GTINs. The read-only GTIN recovery audit found 14 `AUTO_SAFE` variant-GTIN
-   identities across 13 products, but only 2 of those products currently have
-   exactly one positive-price in-stock retailer. A truthful 100 exact-GTIN
+   identities. The confirmation sprint independently confirmed 40 more without
+   writing them, projecting 54 safe identities. A truthful 100 exact-GTIN
    cohort still cannot be selected.
 
 ## Completed
@@ -62,6 +62,8 @@ reasons:
 - [x] Read-only production coverage and GTIN baseline.
 - [x] Existing importer, matching, review, refresh and secret-path audit.
 - [x] Read-only recovery audit of existing GTIN and barcode evidence.
+- [x] Read-only GTIN confirmation cohort 1 (10 checked; 9 confirmed; 1 conflict).
+- [x] Read-only scaled GTIN confirmation batch (46 checked; 31 confirmed; 15 conflicts).
 - [x] Marketplace architecture recommendation.
 - [x] Conservative offer and matching policy proposal.
 - [x] Official eBay Developer and EPN requirements review.
@@ -275,6 +277,192 @@ no implemented reusable checksum validator. External lookup was not performed
 in this audit. A later approved sprint should first review existing one-source
 evidence, then obtain a second authoritative source only for a bounded priority
 cohort, starting with products that have exactly one active retailer.
+
+## GTIN Confirmation Sprint
+
+### Cohort 1 scope and selection
+
+Captured 13 August 2026. Production access was SELECT-only and external source
+work was read-only. No canonical or retailer GTIN, mapping, offer, migration,
+importer, eBay API or public UI was changed.
+
+The 748 one-source `REVIEW` identities were filtered deterministically to:
+
+1. an active, unmerged product with exactly one positive-price in-stock
+   retailer;
+2. a valid GTIN checksum and one unambiguous canonical variant target;
+3. a priority Creatine, Whey, Vitamins, Magnesium, Electrolytes or Pre Workout
+   identity;
+4. known brand and explicit size, weight or unit count;
+5. stable product ID and variant ID order within category priority.
+
+There were 233 records meeting those gates. Cohort 1 was deliberately capped
+at 10 simple, non-flavoured single-SKU identities from Creatine, Vitamins and
+Magnesium. It tests source quality before spending effort on large flavour
+families and does not weaken the gate to approach 100.
+
+### Evidence standard and sources
+
+Source 1 is the existing Whey Okay retailer mapping. Source 2 was opened and
+checked directly; search snippets, marketplaces, forums, social media and
+barcode-only databases were not accepted. Official manufacturer stores were
+used where they exposed EAN. Otherwise an established pharmacy, distributor or
+retailer page was accepted only when it displayed the exact GTIN and the exact
+commercial pack. Non-UK sources were necessary for several globally identified
+trade items because no opened official or UK page exposed both barcode and pack
+identity; their use is explicit below rather than silently treated as official
+evidence.
+
+| Product / variant | Identity and current evidence | Independent evidence | Validation and decision |
+|---|---|---|---|
+| `81` / `67` — BioTech USA Tri-Creatine Malate 300g | Brand BioTech USA; Whey Okay; `5999076228171`; powder; 300 g; no flavour; unit count n/a; [source 1](https://wheyokay.com/biotech-usa-tri-creatine-malate-300g-396-p.asp) | Farmacia Tei product page: BioTech USA, Tri Creatine Malate, 300 g and product code `5999076228171`; [source 2](https://comenzi.farmaciatei.ro/dieta-si-wellness/suplimente-pentru-sportivi/creatina/tri-creatine-malate-300-g-biotech-usa-p354392) | GTIN-13 checksum valid; brand/name/weight/format match; `CONFIRMED` |
+| `87` / `38` — USN 100% Micronised Creatine Powder 200g | Brand USN; Whey Okay; `6009544961161`; powder; canonical/source pack 200 g; no flavour; unit count n/a; [source 1](https://wheyokay.com/usn-100-micronised-creatine-powder-200g-520-p.asp) | UK distributor Tropicana Wholesale assigns the same barcode to **230 g / Unflavoured**, not 200 g; [source 2](https://www.tropicanawholesale.com/monthly-offers/Monthly-Non-Gift-Offers/usn-creatine-monohydrate/) | GTIN-13 checksum valid, but pack weight conflicts 200 g vs 230 g; `CONFLICT`; do not promote |
+| `88` / `54` — PEScience TruCreatine 120 Caps | Brand PEScience; Whey Okay; `040232661082`; capsules; 120 count; no flavour; [source 1](https://wheyokay.com/pescience-trucreatine-120-caps-522-p.asp) | Get Yok'd opened product page and embedded Shopify variant show PEScience TruCreatine, 120 capsules and barcode `040232661082`; [source 2](https://www.getyokd.com/products/pescience-trucreatine-120-capsules) | GTIN-12 checksum valid; brand/name/count/format match; `CONFIRMED` |
+| `360` / `364` — Olimp TCM 1100 Mega Caps 120 Capsules | Brand Olimp; Whey Okay; `5901330020520`; capsules; 120 count; no flavour; [source 1](https://wheyokay.com/olimp-tcm-1100-mega-caps-120-capsules-2594-p.asp) | Official Olimp Store page shows TCM 1100 Mega Caps, 120 capsules and EAN `5901330020520`; [source 2](https://olimpstore.pl/olimp-tcm-1100-mega-caps-120-capsules-359) | GTIN-13 checksum valid; official brand/name/count/format match; `CONFIRMED` |
+| `393` / `334` — Trec Nutrition CM3 1250 90 Capsules | Brand Trec Nutrition; Whey Okay; `5902114044664`; capsules; 90 count; no flavour; [source 1](https://wheyokay.com/trec-nutrition-cm3-1250-90-capsules-3085-p.asp) | Opened specialist retailer page shows TREC CM3, 90 capsules and EAN-13 `5902114044664`; [source 2](https://tanie-odzywki.pl/314-trec-cm3-90caps.html) | GTIN-13 checksum valid; brand/family/count/format match; `CONFIRMED` |
+| `425` / `397` — Scitec Nutrition Creatine Caps 250 Capsules | Brand Scitec Nutrition; Whey Okay; `5999100029293`; capsules; 250 count; no flavour; [source 1](https://wheyokay.com/creatine-caps---250-capsules-3339-p.asp) | Dr. Max pharmacy page shows Scitec Nutrition Crea Caps, 250 capsules and EAN `5999100029293`; [source 2](https://www.drmax.sk/scitec-nutrition-crea-caps-250-kapsul) | GTIN-13 checksum valid; brand/name/count/format match; `CONFIRMED` |
+| `1040` / `2176` — 7Nutrition Creatine Hydrochloride HCL 350 caps | Brand 7Nutrition; Whey Okay; `5903111089412`; capsules; 350 count; unflavoured; [source 1](https://wheyokay.com/7nutrition-creatine-hcl-350-caps-509-p.asp) | Mega Protein Store page shows 7Nutrition HCL Creatine, 350 caps and EAN `5903111089412`; [source 2](https://megaproteinstore.gr/hcl_creatine_350_caps_7nutrition) | GTIN-13 checksum valid; brand/formulation/count/format match; `CONFIRMED` |
+| `138` / `90` — Solgar Skin, Nail And Hair Formula 60 Tablets | Brand Solgar; Whey Okay; `033984017351`; tablets; 60 count; no flavour; [source 1](https://wheyokay.com/solgar-skin-nail-and-hair-formula-60-tablets-765-p.asp) | Target product page shows Solgar Skin, Nails & Hair Advanced MSM Formula, 60 tablets and UPC `033984017351`; [source 2](https://www.target.com/p/-/A-1002587551) | GTIN-12 checksum valid; brand/formula/count/format match; `CONFIRMED` |
+| `176` / `227` — Olimp Chela Mag B6 Forte 60 Capsules | Brand Olimp; Whey Okay; `5901330022685`; capsules; 60 count; no flavour; [source 1](https://wheyokay.com/olimp-chela-mag-b6-forte-60-capsules-1102-p.asp) | Official Olimp Store page shows Chela-Mag B6 Forte, 60 capsules and EAN `5901330022685`; [source 2](https://olimpstore.pl/olimp-chela-mag-b6-forte-mega-caps-60-capsules-87) | GTIN-13 checksum valid; official brand/formula/count/format match; `CONFIRMED` |
+| `258` / `248` — Swanson Potassium Citrate 99 mg 120 Capsules | Brand Swanson; Whey Okay; `087614023953`; capsules; 99 mg; 120 count; no flavour; [source 1](https://wheyokay.com/swanson-potassium-citrate-99-mg-120-capsules-1693-p.asp) | iHerb page shows Swanson Potassium Citrate, 99 mg, 120 vegan capsules and UPC `087614023953`; [source 2](https://de.iherb.com/pr/swanson-vitamins-potassium-citrate-99-mg-120-vegan-capsules/111029) | GTIN-12 checksum valid; brand/formula/strength/count/format match; `CONFIRMED` |
+
+### Cohort 1 result
+
+| Measure | Result |
+|---|---:|
+| Checked | 10 |
+| `CONFIRMED` | 9 |
+| `REVIEW` | 0 |
+| `CONFLICT` | 1 |
+| `NOT_FOUND` | 0 |
+| Confirmation rate | 90% (9/10) |
+| Potential new `AUTO_SAFE` identities | 9 |
+| Existing plus potential `AUTO_SAFE` | 23 |
+| Remaining to the 100-identity target | 77 |
+
+The projected exact-GTIN eBay pilot grows from 14 to 23 identities only after
+owner approval of the evidence; this sprint did not write or promote them.
+The high confirmation rate supports proposing another bounded cohort, but the
+USN weight conflict proves that checksum plus a familiar product name is not
+enough and the semantic gate must remain unchanged.
+
+### Scaled batch scope and method
+
+Captured 13 August 2026 after the owner approved moving beyond small cohorts.
+The production reads remained SELECT-only. The same checksum, exact-variant,
+known-brand, explicit-size/count and exactly-one-active-retailer gates were
+applied, and all 10 cohort-1 variants were excluded. This left 215 current
+priority candidates: 16 Creatine, 47 Whey, 54 Vitamins, 4 Magnesium and 94 Pre
+Workout; no Electrolytes identity met every gate.
+
+The batch checked 46 new identities for which an opened independent UK
+distributor page displayed the candidate barcode in a size/flavour table.
+Tropicana Wholesale identifies itself as an official trade supplier and is not
+the current retailer for any record below. Search snippets were used only to
+locate pages; every decision came from the opened product page. A candidate was
+not classified `NOT_FOUND` merely because this one distributor lacked a page.
+That prevents false negatives and avoids weakening the source standard to fill
+the 150-record ceiling.
+
+Source 1 abbreviations: `WO` = the existing Whey Okay mapping; `JON` = the
+existing Jon's Supplements mapping. Source 2 is `TW`, the linked Tropicana
+Wholesale product page. All rows have a valid GTIN checksum, one unambiguous
+canonical variant target, one active retailer, known brand, powder format
+unless stated otherwise, and the product/variant IDs shown below.
+
+### Scaled batch — confirmed evidence
+
+| Product / variant | Identity; current retailer; existing `external_gtin` | Source 1 / source 2 | Matched size, flavour, count and decision |
+|---|---|---|---|
+| `11` / `1002` | USN Blue Lab Whey; Caramel Chocolate; WO; `6009544910770` | [WO](https://wheyokay.com/usn-blue-lab-100-whey-premium-protein-2kg-18-p.asp) / [TW](https://www.tropicanawholesale.com/shop-by-brand/USN/USN-Blue-Lab-Whey-2kg/) | 2 kg; Caramel Chocolate; 1 tub; `CONFIRMED` |
+| `11` / `1713` | USN Blue Lab Whey; Strawberry; WO; `6009544910718` | WO / [TW](https://www.tropicanawholesale.com/shop-by-brand/USN/USN-Blue-Lab-Whey-2kg/) | 2 kg; Strawberry; 1 tub; `CONFIRMED` |
+| `11` / `1714` | USN Blue Lab Whey; Vanilla; WO; `6009544910732` | WO / TW above | 2 kg; Vanilla; 1 tub; `CONFIRMED` |
+| `11` / `1715` | USN Blue Lab Whey; Banana; WO; `6009544910756` | WO / TW above | 2 kg; Banana; 1 tub; `CONFIRMED` |
+| `11` / `1717` | USN Blue Lab Whey; Chocolate; WO; `6009544910695` | WO / TW above | 2 kg; Chocolate; 1 tub; `CONFIRMED` |
+| `11` / `1720` | USN Blue Lab Whey; Salted Caramel; WO; `6009544942368` | WO / TW above | 2 kg; Salted Caramel; 1 tub; `CONFIRMED` |
+| `11` / `1722` | USN Blue Lab Whey; Wheytella; WO; `6009544918745` | WO / TW above | 2 kg; Wheytella; 1 tub; `CONFIRMED` |
+| `338` / `1020` | Applied Nutrition Clear Whey; Cherry & Apple; WO; `658556043769` | [WO](https://wheyokay.com/applied-nutrition-clear-whey-protein-875g-2418-p.asp) / [TW](https://www.tropicanawholesale.com/shop-by-brand/Applied-Nutrition/Applied-Nutrition-Clear-Whey-875g/) | 875 g; Cherry & Apple; 1 tub; `CONFIRMED` |
+| `338` / `1782` | Applied Nutrition Clear Whey; Orange Squash; WO; `5056555214473` | WO / TW above | 875 g; Orange Squash; 1 tub; `CONFIRMED` |
+| `338` / `1783` | Applied Nutrition Clear Whey; Strawberry & Lime; WO; `5056555214510` | WO / TW above | 875 g; Strawberry & Lime; 1 tub; `CONFIRMED` |
+| `338` / `1784` | Applied Nutrition Clear Whey; Strawberry & Raspberry; WO; `5056555214527` | WO / TW above | 875 g; Strawberry & Raspberry; 1 tub; `CONFIRMED` |
+| `338` / `1786` | Applied Nutrition Clear Whey; Watermelon; WO; `5056555214534` | WO / TW above | 875 g; Watermelon; 1 tub; `CONFIRMED` |
+| `10` / `1710` | BioTech USA Iso Whey Zero; Pineapple-Mango; WO; `5999076263882` | [WO](https://wheyokay.com/biotech-usa-iso-whey-zero-1816g-11-p.asp) / [TW](https://www.tropicanawholesale.com/shop-by-brand/Biotech-USA/biotech-usa-iso-whey-zero-2-27kg-pineapple-mango/) | 1.816 kg; Pineapple-Mango; 1 tub; `CONFIRMED` |
+| `55` / `1029` | BioTech USA Nitrox Therapy; Blue Grape; WO; `5999076253548` | [WO](https://wheyokay.com/biotech-usa-nitrox-therapy-340g-233-p.asp) / [TW](https://www.tropicanawholesale.com/shop-by-brand/Biotech-USA/BioTech-USA-Nitrox-Therapy-340g/) | 340 g; Blue Grape; 1 tub; `CONFIRMED` |
+| `55` / `1599` | BioTech USA Nitrox Therapy; Tropical Fruit; WO; `5999076253555` | WO / TW above | 340 g; Tropical Fruit; 1 tub; `CONFIRMED` |
+| `55` / `1600` | BioTech USA Nitrox Therapy; Peach; WO; `5999076253524` | WO / TW above | 340 g; Peach; 1 tub; `CONFIRMED` |
+| `790` / `1094` | Per4m Creatine Sherbet; Cherry Fizz; JON; `5061097264619` | [JON](https://jonssupplements.co.uk/products/per4m-creatine-sherbet-100-servings?variant=53868239389010) / [TW](https://www.tropicanawholesale.com/shop-by-brand/Per4m/Per4m-Creatine-Sherbet-310g/) | 310 g; Cherry Fizz; 1 tub; `CONFIRMED` |
+| `790` / `1095` | Per4m Creatine Sherbet; Fizzy Bubblegum Bottles; JON; `5061097264633` | JON / TW above | 310 g; Fizzy Bubblegum Bottles; 1 tub; `CONFIRMED` |
+| `790` / `1096` | Per4m Creatine Sherbet; Original Sherbet; JON; `5061097264596` | JON / TW above | 310 g; Original; 1 tub; `CONFIRMED` |
+| `790` / `1097` | Per4m Creatine Sherbet; Peach Sweets; JON; `5061097264657` | JON / TW above | 310 g; Peach Sweets; 1 tub; `CONFIRMED` |
+| `790` / `1098` | Per4m Creatine Sherbet; Rainbow Candy; JON; `5061097264671` | JON / TW above | 310 g; Rainbow Candy; 1 tub; `CONFIRMED` |
+| `789` / `1084` | Per4m Pre-Workout Stim; Blackberry; JON; `5061097261878` | [JON](https://jonssupplements.co.uk/products/per4m-pre-workout-stim-570g?variant=53925321277778) / [TW](https://www.tropicanawholesale.com/shop-by-brand/Per4m/Per4m-Pre-570g/) | 570 g; Blackberry; 1 tub; `CONFIRMED` |
+| `789` / `1085` | Per4m Pre-Workout Stim; Berry Blast; JON; `5060660084821` | JON / TW above | 570 g; Berry Blast; 1 tub; `CONFIRMED` |
+| `789` / `1086` | Per4m Pre-Workout Stim; Cola Bottles; JON; `5060660084760` | JON / TW above | 570 g; Cola Bottle; 1 tub; `CONFIRMED` |
+| `789` / `1088` | Per4m Pre-Workout Stim; Orange & Mango; JON; `5060660084784` | JON / TW above | 570 g; Orange Mango; 1 tub; `CONFIRMED` |
+| `789` / `1089` | Per4m Pre-Workout Stim; Passionfruit; JON; `5060660084746` | JON / TW above | 570 g; Passion Fruit; 1 tub; `CONFIRMED` |
+| `789` / `1092` | Per4m Pre-Workout Stim; Watermelon Lemonade; JON; `5060660084807` | JON / TW above | 570 g; Watermelon Lemonade; 1 tub; `CONFIRMED` |
+| `56` / `1601` | Warrior Rage; Energy Burst; WO; `5060424707256` | [WO](https://wheyokay.com/warrior-rage-unleash-hell-pre-workout-392g-236-p.asp) / [TW](https://www.tropicanawholesale.com/shop-by-brand/Warrior/Warrior-Rage-392g/) | 392 g; Energy Burst; 1 tub; `CONFIRMED` |
+| `56` / `1604` | Warrior Rage; Wicked Watermelon; WO; `5060424700363` | WO / TW above | 392 g; Watermelon; 1 tub; `CONFIRMED` |
+| `56` / `1605` | Warrior Rage; Charged Cherry; WO; `5060756342927` | WO / TW above | 392 g; Charged Cherry; 1 tub; `CONFIRMED` |
+| `139` / `142` | Himalaya Liv.52; default; WO; `8901138110710` | [WO](https://wheyokay.com/himalaya-liv52-100-tablets-767-p.asp) / [TW](https://www.tropicanawholesale.com/shop-by-brand/Himalaya/Himalaya-Liv-52/) | 100 tablets; no flavour; tablet; `CONFIRMED` |
+
+### Scaled batch — conflicts
+
+| Product / variant | Identity; current retailer; existing `external_gtin` | Independent evidence | Decision and notes |
+|---|---|---|---|
+| `58` / `1007` | 5% Nutrition Full As F*ck; Blue Raspberry; WO; `850054547989` | [TW](https://www.tropicanawholesale.com/shop-by-brand/Rich-Piana-5-Percent-Nutrition/Rich-Piana-5-Nutrition-FULL-AS-F-CK-Legendary-Series-372g/) | Barcode matches flavour but TW pack is 372 g, canonical is 387 g; `CONFLICT` |
+| `58` / `1607` | same family; Fruit Punch; WO; `850054547996` | TW above | 372 g versus 387 g; `CONFLICT` |
+| `58` / `1611` | same family; Wild Berry; WO; `850060014024` | TW above | 372 g versus 387 g; `CONFLICT` |
+| `49` / `1028` | Ghost Pump; Pineapple; WO; `810028296107` | [TW](https://www.tropicanawholesale.com/shop-by-brand/Ghost/Ghost-Pump-V2-270g/) | TW identifies 270 g V2, canonical says 350 g; `CONFLICT` |
+| `49` / `1596` | Ghost Pump; Warheads Sour Watermelon; WO; `810028296084` | TW above | 270 g V2 versus 350 g; `CONFLICT` |
+| `49` / `1597` | Ghost Pump; Natty; WO; `810028296114` | TW above | 270 g V2 versus 350 g; `CONFLICT` |
+| `49` / `1598` | Ghost Pump; Peach; WO; `810028296091` | TW above | 270 g V2 versus 350 g; `CONFLICT` |
+| `291` / `1040` | Reflex Muscle Bomb; Blue Raspberry; WO; `5033579002576` | [TW](https://www.tropicanawholesale.com/shop-by-brand/Reflex-Nutrition/Reflex-Nutrition-The-Muscle-Bomb-400g/) | TW pack is 400 g, canonical is 600 g; `CONFLICT` |
+| `291` / `1691` | same family; Lemon Sherbet; WO; `5033579002545` | TW above | 400 g versus 600 g; `CONFLICT` |
+| `291` / `1692` | same family; Twizzle Lolly; WO; `5033579002538` | TW above | 400 g versus 600 g; `CONFLICT` |
+| `291` / `1693` | same family; Sour Apple; WO; `5033579002552` | TW above | 400 g versus 600 g; `CONFLICT` |
+| `232` / `1017` | Ghost Vegan Protein; Banana Pancake Batter; WO; `810028290532` | [TW](https://www.tropicanawholesale.com/shop-by-brand/Ghost/Ghost-Vegan-Protein-989g/) | TW table says 896 g, canonical says 989 g; `CONFLICT` |
+| `232` / `1812` | same family; Pancake Batter; WO; `850001610094` | TW above | 896 g versus 989 g; `CONFLICT` |
+| `232` / `1813` | same family; Chocolate Cereal Milk; WO; `810028291942` | TW above | TW says 980 g, canonical says 989 g; `CONFLICT` |
+| `27` / `1593` | Cellucor C4 Original; Cosmic Rainbow; WO; `5056569900409` | [TW](https://www.tropicanawholesale.com/shop-by-brand/Cellucor/Cellucor-C4-Original-30-Servings/) | TW says 207 g, canonical says 195 g; `CONFLICT` |
+
+### Scaled batch result and cumulative gate
+
+| Measure | Scaled batch | Confirmation sprint cumulative |
+|---|---:|---:|
+| Checked | 46 | 56 |
+| `CONFIRMED` | 31 | 40 |
+| `REVIEW` | 0 | 0 |
+| `CONFLICT` | 15 | 16 |
+| `NOT_FOUND` | 0 | 0 |
+| Confirmation rate | 67.39% (31/46) | 71.43% (40/56) |
+| Potential new `AUTO_SAFE` | 31 | 40 |
+| Existing plus potential `AUTO_SAFE` | — | 54 |
+| Remaining to 100 | — | 46 |
+
+All 31 confirmed identities belong to products with exactly one active
+retailer. They cover eight distinct products in this batch; cumulatively, the
+40 confirmations cover 17 such products. The 100-identity decision gate is not
+met, so neither an eBay API pilot nor a GTIN promotion apply is authorised.
+The lower batch rate is expected and useful: family-level pack/version drift
+was exposed rather than silently accepted.
+
+### Sprint blockers and next action
+
+- Canonical GTIN promotion remains unimplemented and unapproved.
+- The 40 confirmed identities are evidence candidates, not production state.
+- Product `87` / variant `38` is quarantined from promotion until authoritative
+  packaging evidence resolves 200 g versus 230 g.
+- All 15 scaled-batch pack/version conflicts are also quarantined.
+- Forty-six further identities are still needed for a 100-record pilot.
+- eBay/EPN access remains independently blocked on owner action.
+
+`NEXT ACTION — OWNER APPROVAL REQUIRED:` run one final read-only confirmation
+batch capped at 60 identities, prioritising opened manufacturer pages and
+credible retailer/distributor pages for the remaining simple exact packs. Stop
+confirmation work as soon as 100 cumulative safe identities are reached, then
+propose `GTIN Promotion Pipeline`. Do not write the 40 GTINs, resolve conflicts,
+start promotion or call eBay without separate approval.
 
 ## Relevant SupplementScout model
 
@@ -668,7 +856,8 @@ rollback and explicit approval.
 ## Risks and open problems
 
 - Canonical GTIN coverage remains 0.84% at product level and 0% at variant
-  level; 14 recovered identities are safe candidates but have not been written.
+  level; 14 recovered identities and 40 independently confirmed identities are
+  safe candidates but have not been written.
 - Another 748 valid mapping identities have only one retailer source and must
   not be promoted automatically without review or stronger evidence.
 - eBay seller listings can be incorrect even when a GTIN is supplied.
@@ -689,22 +878,24 @@ rollback and explicit approval.
 
 - `USER ACTION REQUIRED`: confirm EPN and Developer account status.
 - `USER ACTION REQUIRED`: pursue EPN/Buy API production approval.
-- `DATA BLOCKED`: only 14 recovered identities meet `AUTO_SAFE`, leaving 86
-  identities before the planned 100-record exact-GTIN cohort; only 2 of the 14
-  currently have exactly one positive-price in-stock retailer.
+- `DATA BLOCKED`: 14 identities are already `AUTO_SAFE` and 40 more are
+  independently confirmed but not promoted, leaving 46 identities before the
+  planned 100-record exact-GTIN cohort.
 - `DESIGN BLOCKED`: seller/listing metadata storage awaits pilot evidence and
   separate approval.
 
 ## Next action
 
-`OWNER APPROVAL REQUIRED — do not start automatically:` approve a small,
-read-only-first GTIN enrichment sprint that reuses the existing snapshot,
-review queue, admin review and guarded importer. Its bounded goal is to review
-the 748 one-source identities in priority order, seek second authoritative
-evidence only for the single-retailer cohort, and produce at least 86 further
-exact variant-GTIN candidates without writing production data. In parallel,
-the owner must report EPN and eBay Developers account status as `DONE` or
-`NOT STARTED`. API implementation and the production pilot remain out of scope.
+`OWNER APPROVAL REQUIRED — FINAL GTIN CONFIRMATION BATCH:` check at most 60
+additional single-retailer identities with the unchanged opened-source and
+semantic gate, stopping once cumulative safe identity evidence reaches 100.
+Keep all 40 confirmations unwritten and all 16 conflicts quarantined. If the
+threshold is reached, the next separately approved task becomes `GTIN Promotion
+Pipeline`, reusing the existing review, immutable approval, dry-run, guarded
+import and audit framework. The framework is sufficient as the control plane,
+but the dedicated canonical-GTIN promotion operation and reusable checksum gate
+still need a scoped design and implementation. eBay API work remains out of
+scope and independently blocked on account/access confirmation.
 
 Do not proceed to that next task without explicit owner confirmation.
 
@@ -712,7 +903,20 @@ Do not proceed to that next task without explicit owner confirmation.
 
 13 August 2026:
 
-- `npm run verify:project` passed after the GTIN audit documentation update.
+- The scaled read-only batch checked 46 new identities: 31 `CONFIRMED`, 0
+  `REVIEW`, 15 `CONFLICT` and 0 `NOT_FOUND`; batch confirmation rate 67.39%.
+- Sprint cumulative result is 56 checked, 40 confirmed and 16 conflicts, a
+  71.43% confirmation rate. Existing plus potential `AUTO_SAFE` is 54, leaving
+  46 to the 100-identity gate.
+- The 31 batch confirmations cover eight products, each with exactly one active
+  retailer. No GTIN was promoted and no eBay call was made.
+- GTIN confirmation cohort 1 checked 10 priority single-retailer identities
+  against opened independent sources: 9 `CONFIRMED`, 0 `REVIEW`, 1 `CONFLICT`
+  and 0 `NOT_FOUND`; confirmation rate 90%.
+- Historical cohort-1 checkpoint: its nine confirmations projected 23 total
+  safe identities and 77 remaining. The scaled-batch totals above supersede
+  that checkpoint; no canonical GTIN was written or promoted.
+- `npm run verify:project` passed after the GTIN confirmation documentation update.
 - The initial production baseline was collected through the anonymous public
   client. The GTIN recovery follow-up used the existing local service role for
   SELECT-only access because RLS hides retailer mappings from anonymous reads.
@@ -728,6 +932,16 @@ Do not proceed to that next task without explicit owner confirmation.
 
 ### 13 August 2026
 
+- Completed the scaled read-only confirmation batch without filling the
+  150-record ceiling with unsupported `NOT_FOUND` decisions.
+- Confirmed 31 exact identities and quarantined 15 size/version conflicts;
+  cumulative potential safe identity count is 54.
+- Replaced the superseded 25-record cohort proposal with one final, separately
+  approved confirmation batch capped at 60 and a hard stop at 100.
+- Completed read-only GTIN confirmation cohort 1 with exact per-record source,
+  pack and decision evidence; quarantined the USN 200 g / 230 g conflict.
+- Historical and superseded after the scaled batch: proposed, but did not
+  start, a separately approved cohort 2 capped at 25.
 - Audited all existing GTIN sources and recorded the 787-row retailer mapping
   baseline, checksum results, conflicts and product-versus-variant decision.
 - Classified 28 source rows into 14 `AUTO_SAFE` identities, 748 as `REVIEW`
