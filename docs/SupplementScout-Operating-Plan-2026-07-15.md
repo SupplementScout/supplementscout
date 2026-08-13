@@ -523,14 +523,19 @@ canonical GTINs (0.84%); no active variant had a canonical GTIN. Positive-price
 in-stock product coverage was 197 with zero retailers, 761 with one, 96 with
 two and 16 with at least three. No eBay account/API status is assumed.
 
-The binding sequence is: audit, user-led EPN/Developer access setup, read-only
-pilot, quality decision, then separately approved import design. No eBay API
-implementation, retailer row, production offer, public UI or automation is
-authorized by this entry. The architecture decision is a marketplace-specific
-adapter that may later feed the existing guarded dry-run/approval/import path;
-it is not a second importer and must retain seller/listing evidence. Future
-agents must read the eBay plan's `Current status` and `Next action` and update
-that plan after every eBay task.
+The binding sequence is: audit, credential-ready read-only pilot implementation,
+user-led EPN/Developer access setup, 54-identity live read-only run, quality
+decision, then separately approved import design. The read-only pilot is now
+built and its immutable input contains exactly the 54 safe canonical variant
+GTIN identities; preparation made 0 database writes and 0 eBay calls. EPN is
+pending review and Developer/Buy API access is pending approval. No retailer
+row, production offer, public UI or write automation is authorized by this
+entry. The architecture is a marketplace-specific adapter around the existing
+guarded identity/control plane, not a second importer, and it retains
+seller/listing evidence. Future agents must read the eBay plan's `Current
+status` and `Next action` and update that plan after every eBay task. Binding
+next action: `Wait for eBay Developers approval, create keyset, add credentials
+securely, run read-only 54-GTIN pilot.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

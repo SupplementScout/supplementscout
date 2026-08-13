@@ -181,4 +181,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { buildReadOnlyPreview, deriveAutoSafeCandidates, parseArgs, parseConfirmedCandidates, readAll };
+module.exports = { buildReadOnlyPreview, deriveAutoSafeCandidates, loadClient, parseArgs, parseConfirmedCandidates, readAll };

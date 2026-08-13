@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** GUARDED `release_exact_45` BUILT — NOT RUN; MIGRATION AND WRITE NOT EXECUTED
+**Status:** READ-ONLY 54-GTIN BROWSE PILOT BUILT — AWAITING EBAY/EPN APPROVALS AND CREDENTIALS
 **Last verified:** 13 August 2026  
 **Production writes:** 0  
 **Public changes:** 0
@@ -43,6 +43,17 @@ and is eligible for compliant tracking.
 `ETAP 0–5 DESIGN/AUDIT COMPLETE`. Repository, data model, coverage, importer,
 matching controls, secret conventions and current official eBay requirements
 were audited. No eBay account status can be inferred from the repository.
+
+The guarded GTIN release is complete. The pilot cohort is exactly 54 active
+canonical variant identities with safe canonical GTINs: 45 promoted and 9
+already present; 16 conflicts remain quarantined and outside the cohort. The
+local read-only Browse API adapter, policy engine, immutable input/report
+artifacts and mock-only tests are implemented. A production input artifact was
+prepared with 54 identities, fingerprint
+`9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`,
+0 database writes and 0 eBay API calls. EPN remains `PENDING REVIEW`, eBay
+Developers access remains `PENDING APPROVAL`, and no eBay credentials are
+available or stored in the repository.
 
 The intended 100-record exact-GTIN pilot is currently blocked for two separate
 reasons:
@@ -1011,12 +1022,57 @@ Proposed names, only after access is approved:
 - `EBAY_MARKETPLACE_ID=EBAY_GB` (non-secret configuration)
 - `EBAY_EPN_CAMPAIGN_ID`
 - `EBAY_UK_DELIVERY_POSTCODE` (private operational configuration)
+- optional pilot-only policy controls:
+  `EBAY_PILOT_MIN_FEEDBACK_PERCENTAGE` and
+  `EBAY_PILOT_MIN_FEEDBACK_SCORE` (non-secret; defaults 98 and 100, not final
+  production thresholds)
 
 Do not persist short-lived OAuth access tokens in Git. Mint and cache them at
 runtime within their lifetime. Never print client secret, access token or full
 Authorization headers in reports or CI logs.
 
-## Read-only pilot specification — target 100 verified GTIN identities
+## Implemented read-only 54-GTIN Browse API pilot
+
+The pilot reuses the canonical GTIN promotion preview as its identity source
+and requires exactly 54 current `ALREADY_PRESENT` safe identities. It enriches
+them through SELECT-only reads of products, variants, retailer mappings and
+offers. It contains no insert, update, delete, upsert, RPC, migration, retailer
+creation or public publication path.
+
+- CLI: `npm run ebay:pilot`
+- input-only preparation without an eBay call:
+  `npm run ebay:pilot -- --prepare-input`
+- ignored immutable artifacts and SHA-256 sidecars:
+  `tmp/ebay-uk-coverage/`
+- OAuth: client credentials; token cached only in process memory until shortly
+  before expiry; secrets, tokens and Authorization headers are excluded from
+  artifacts and errors
+- Browse requests: exact GTIN, `EBAY_GB`, fixed-price, new, delivery country GB
+  and a controlled contextual UK postcode; item detail is fetched only from a
+  validated `api.ebay.com/buy/browse/v1/item/` URL
+- decisions: exactly `AUTO_ELIGIBLE`, `REVIEW`, `REJECT`, `NOT_FOUND`; at most
+  one selected offer per canonical variant
+- identity qualification precedes price ranking; unknown shipping, incomplete
+  identity or seller quality below the proposed threshold cannot become
+  `AUTO_ELIGIBLE`
+- raw API evidence, normalized evidence, seller fields, rejection reasons,
+  prices and KPI denominators stay in ignored local artifacts
+- affiliate readiness is true only when eBay returns `itemAffiliateWebUrl`;
+  the adapter never substitutes or publishes an untracked ordinary item URL
+
+Required configuration after approvals: `EBAY_CLIENT_ID`,
+`EBAY_CLIENT_SECRET`, `EBAY_MARKETPLACE_ID=EBAY_GB`,
+`EBAY_UK_DELIVERY_POSTCODE`, and optional `EBAY_EPN_CAMPAIGN_ID` only after EPN
+approval.
+
+The report records checked/found/exact/qualified/safely-addable counts; Tier
+A/B/C; decision and blocker counts; seller evidence; how many eBay offers would
+become a second retailer; how many beat the current complete delivered price;
+median delivered-price difference; and how many products remain
+single-retailer. Primary KPI:
+`increase in products with 2+ qualified offers`.
+
+## Read-only pilot specification — historical target 100 verified GTIN identities
 
 ### Entry gate
 
@@ -1153,8 +1209,8 @@ rollback and explicit approval.
 
 ## Blockers
 
-- `USER ACTION REQUIRED`: confirm EPN and Developer account status.
-- `USER ACTION REQUIRED`: pursue EPN/Buy API production approval.
+- `PENDING REVIEW`: EPN acceptance, campaign and affiliate use.
+- `PENDING APPROVAL`: eBay Developer/Buy API production access and credentials.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1163,14 +1219,26 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Confirm eBay/EPN account and Buy API access status.` The completed
-GTIN release must not be repeated. eBay API setup remains independently blocked
-on account/access confirmation and requires its own approval boundary.
+`NEXT ACTION: Wait for eBay Developers approval, create keyset, add credentials securely, run read-only 54-GTIN pilot.`
+
+The completed GTIN release must not be repeated. The Browse pilot remains
+read-only; no result can enter the catalogue or public site without a separate
+owner-reviewed production design and approval.
 
 ## Last verified
 
 13 August 2026:
 
+- Built the complete read-only 54-GTIN Browse API pilot without credentials or
+  live eBay calls. Added exact-identity input preparation, EBAY_GB/OAuth client,
+  listing/condition/delivery/seller/semantic policy, deterministic one-offer
+  selection, immutable raw/report artifacts and KPI output. Prepared the local
+  production input for exactly 54 safe identities with fingerprint
+  `9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`;
+  database writes and eBay API calls were both 0.
+- Focused mocked policy/API tests passed 14/14. The Project Guardian, sealed
+  test inventory, typecheck, lint (0 errors; 10 pre-existing warnings), full
+  safe test suite and production build passed. `git diff --check` passed.
 - Completed manual `release_exact_45` run `31728827733` after its full quality,
   exact-contract and disposable PostgreSQL gates passed; production apply and
   post-write verification both completed successfully.
@@ -1237,13 +1305,19 @@ on account/access confirmation and requires its own approval boundary.
 - Official eBay Developer and EPN pages linked above were checked on this date.
 - Repository search found no existing eBay adapter, eBay credential convention,
   eBay retailer or completed eBay account-status record.
-- No API implementation, account action, database write, migration, public
-  change, commit or push was performed.
+- Historical audit checkpoint: at that earlier point no API implementation,
+  account action, database write, migration, public change, commit or push had
+  been performed. The read-only adapter evidence above supersedes only the
+  implementation part; it still made no live eBay call or production write.
 
 ## Decision changelog
 
 ### 13 August 2026
 
+- Implemented the credential-ready, read-only Browse API pilot around the
+  existing guarded identity/control framework. No second importer, database
+  mutation, eBay call, public link or automation was introduced; account
+  approvals and credentials remain the gate to the 54-identity run.
 - Completed guarded production run `31728827733`: migration deployed, exact
   45-row atomic apply passed, 45/45 variant GTINs verified, nine existing
   identities unchanged, 16 conflicts still quarantined and all 54 safe
