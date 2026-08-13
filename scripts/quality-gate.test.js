@@ -14,7 +14,10 @@ test("the complete test inventory is explicitly sealed", () => {
   const classification = classifyInventory(manifest, files);
   assert.equal(files.length, manifest.inventory.count);
   assert.equal(inventorySha256(files), manifest.inventory.sha256);
-  assert.equal(classification.safe.length + classification.integration.length, files.length);
+  assert.equal(
+    classification.safe.length + classification.integration.length + classification.artifact.length,
+    files.length,
+  );
 });
 
 test("an unreviewed test inventory change fails closed", () => {

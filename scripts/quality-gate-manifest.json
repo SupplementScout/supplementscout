@@ -46,6 +46,12 @@
     "scripts/whey-okay-medium-batch-3-canonical-variants-data-migration.test.js",
     "scripts/whey-okay-reviewed-product-formats-data-migration.test.js"
   ],
+  "artifact": [
+    {
+      "file": "scripts/build-reviewed-variant-nutrition-manifest.test.js",
+      "reason": "Requires the immutable, intentionally untracked owner-review candidate tmp/nutrition-data/priority-batch-1-candidates.json."
+    }
+  ],
   "quick": [
     "scripts/quality-gate.test.js",
     "scripts/project-guardian.test.js",

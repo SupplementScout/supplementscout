@@ -26,6 +26,9 @@ The sealed inventory is stored in `scripts/quality-gate-manifest.json`.
 - `quick`: small representative smoke suite used during normal implementation.
 - `safe`: every inventoried test not classified as integration; runs without production-write credentials.
 - `integration`: Docker/local-database or subprocess-heavy tests, run separately.
+- `artifact`: an explicitly named historical owner-review test whose immutable
+  input is intentionally untracked. It is never silently counted as passing;
+  its path and reason remain visible in the manifest.
 
 The manifest stores the exact count and SHA-256 fingerprint of every
 `scripts/**/*.test.js` path. Adding, removing or renaming a test without
@@ -65,7 +68,8 @@ npm run verify:integration  # isolated Docker/local-database tests
 
 ## Local evidence — 13 August 2026
 
-- Inventory: 260 tests, including 220 safe and 40 integration-classified tests;
+- Inventory: 260 tests, including 219 safe, 40 integration-classified and one
+  explicitly artifact-bound historical test;
   the inventory contract tests passed 5/5.
 - `npm run verify:quick`: PASS, including 176 smoke assertions.
 - `npm run verify:full`: PASS. All 220 safe test files passed in controlled

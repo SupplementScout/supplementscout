@@ -53,20 +53,28 @@ function classifyInventory(manifest, files) {
 
   const known = new Set(files);
   const integration = new Set(manifest.integration);
+  const artifact = new Set(manifest.artifact.map((entry) => entry.file));
   const quick = new Set(manifest.quick);
-  for (const [category, entries] of [["integration", integration], ["quick", quick]]) {
+  for (const [category, entries] of [["integration", integration], ["artifact", artifact], ["quick", quick]]) {
     for (const file of entries) {
       if (!known.has(file)) throw new Error(`${category} manifest entry does not exist: ${file}`);
     }
   }
   for (const file of quick) {
-    if (integration.has(file)) throw new Error(`Quick test cannot be integration-classified: ${file}`);
+    if (integration.has(file) || artifact.has(file)) throw new Error(`Quick test cannot be isolated from CI: ${file}`);
+  }
+  for (const file of integration) {
+    if (artifact.has(file)) throw new Error(`Test cannot be both integration and artifact-classified: ${file}`);
+  }
+  for (const entry of manifest.artifact) {
+    if (!entry.reason || !entry.reason.trim()) throw new Error(`Artifact test requires a reason: ${entry.file}`);
   }
 
   return {
     all: files,
-    safe: files.filter((file) => !integration.has(file)),
+    safe: files.filter((file) => !integration.has(file) && !artifact.has(file)),
     integration: [...integration].sort(),
+    artifact: [...artifact].sort(),
     quick: [...quick].sort()
   };
 }
@@ -116,6 +124,7 @@ function printInventory(classification) {
   console.log(`All tests: ${classification.all.length}`);
   console.log(`Safe tests: ${classification.safe.length}`);
   console.log(`Integration tests: ${classification.integration.length}`);
+  console.log(`Artifact-bound tests: ${classification.artifact.length}`);
   console.log(`Quick smoke tests: ${classification.quick.length}`);
 }
 
