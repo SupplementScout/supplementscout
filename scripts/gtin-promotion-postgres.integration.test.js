@@ -88,7 +88,7 @@ test("guarded GTIN promotion runs atomically on disposable PostgreSQL", { skip: 
     success(psqlFile(container, database, MIGRATIONS[4]), "GTIN promotion migration rerun");
 
     const plan = sqlLiteral(JSON.stringify(artifact.plan));
-    const scenario = `\set ON_ERROR_STOP on
+    const scenario = `\\set ON_ERROR_STOP on
 do $test$
 declare
   v_plan jsonb := ${plan}::jsonb;
