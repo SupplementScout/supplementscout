@@ -481,8 +481,9 @@ their closed schema permits product/variant create-or-existing actions and
 retailer/offer changes, but no canonical GTIN update action. Reusing the
 framework therefore meant adding one narrowly allowlisted `GTIN_PROMOTION`
 operation beside those RPCs in the same approval ledger, not using the CSV
-importer or enabling `SAFE_UPDATE`. The operation and migration now exist
-locally, but the migration has not been deployed and no apply RPC has been run.
+importer or enabling `SAFE_UPDATE`. The guarded release completed successfully
+on 13 August 2026; the migration is deployed and its one approved apply wrote
+exactly 45 variant GTINs.
 
 The read-only planning slice is:
 
@@ -526,13 +527,40 @@ checks the 16-row quarantine and consumed 45-row audit result, and requires all
 `FAILED_VERIFICATION` with the exact check diff and never triggers automatic
 rollback.
 
-The owner approval recorded below fixes the allowed identity scope. It does not
-deploy the migration or authorize an `apply` workflow run by itself.
-Before the release run, the protected environment must contain
+The owner approval recorded below fixes the allowed identity scope. The
+completed release used that exact scope and did not widen it. The protected
+environment contains
 `SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL`; it is materialized only in the
 runner temporary directory, removed in an `always()` cleanup step and never
 uploaded. Existing least-privilege approver/executor URLs are reused, with the
 GTIN-specific secret names preferred when configured.
+
+### Production release result
+
+The manual `release_exact_45` run `31728827733` completed successfully on
+commit `4336126c6b51abac2ecfb709bd1544c9d4b42ca9`. The full quality gate, exact
+contract tests and disposable PostgreSQL integration test passed before the
+production job received access to its protected environment. Production
+preflight then built a fresh exact artifact, sealed the no-change baseline,
+deployed migration `20260813170000_add_guarded_gtin_promotion`, validated the
+plan, applied it atomically and completed post-write verification.
+
+The immutable release report records `PASS`, 45 verified writes and 54 final
+no-ops. All 45 owner-approved values are present in `product_variants.gtin`;
+the nine previously present GTIN identities remained unchanged and the 16
+quarantined conflicts remained quarantined. The report found zero anomalies,
+no duplicate GTIN conflicts and a consumed 45-row approval audit result. The
+full `products.gtin`, offers and `retailer_products` snapshots matched the
+sealed baseline; no product GTIN, offer or retailer-mapping change escaped the
+approved variant-only scope. A fresh dry-run classified all 54 safe identities
+as `ALREADY_PRESENT`/no-op. The report itself performed zero additional writes.
+
+Release evidence is retained as GitHub Actions artifact
+`gtin-promotion-31728827733-1`, digest
+`sha256:ca051cfdb14b8440f823c852046deabfae6b5d32c20f68523a3b0860a911a872`.
+The GTIN promotion release is complete and must not be rerun. The next eBay
+work remains separately gated and must consume these canonical identities
+rather than rebuilding or re-promoting them.
 
 ### Safety and future-write gate
 
@@ -707,12 +735,11 @@ generated, unexpired, stale-safe preview.
 
 ### Promotion next action
 
-`NEXT ACTION: Run release_exact_45.` This remains a separate manual GitHub
-Actions operation and has not been run. Its default remains non-writing
-`preflight`; selecting `release_exact_45` requires
-`OWNER_APPROVED_EXACT_45` and GitHub production-environment approval. Preserve
-the nine `ALREADY_PRESENT` rows as no-ops and all 16 conflicts in quarantine.
-Do not enable `SAFE_UPDATE`, run another confirmation batch or call eBay.
+`NEXT ACTION: Confirm eBay/EPN account and Buy API access status.` The guarded
+GTIN promotion is complete and must not be run again. Preserve all 54 safe
+identities as no-ops and all 16 conflicts in quarantine. Do not enable
+`SAFE_UPDATE`, run another confirmation batch or call eBay before the separate
+account/access gate is complete.
 
 ## Relevant SupplementScout model
 
@@ -1128,31 +1155,25 @@ rollback and explicit approval.
 
 - `USER ACTION REQUIRED`: confirm EPN and Developer account status.
 - `USER ACTION REQUIRED`: pursue EPN/Buy API production approval.
-- `DEPLOYMENT BLOCKED`: the guarded migration is intentionally unapplied until
-  its disposable-PostgreSQL integration test passes in an environment with a
-  working Docker daemon. The 45 approved identities remain unwritten; 9 further
-  identities are already present and 16 conflicts remain quarantined.
+- GTIN deployment is complete: the disposable PostgreSQL gate, migration,
+  exact 45-row apply and post-write verification passed. All 54 safe identities
+  are now no-ops and 16 conflicts remain quarantined.
 - `DESIGN BLOCKED`: seller/listing metadata storage awaits pilot evidence and
   separate approval.
 
 ## Next action
 
-`NEXT ACTION: Run release_exact_45.` The single manual run performs PRECHECK,
-the required disposable PostgreSQL test, production preflight, exact migration
-deployment-or-already-present check, production validate, atomic apply and
-post-write verification. Each successor requires PASS from its predecessor.
-The 9 `ALREADY_PRESENT` rows remain no-ops and all 16 conflicts remain
-quarantined. eBay API work remains independently blocked on account/access
-confirmation.
+`NEXT ACTION: Confirm eBay/EPN account and Buy API access status.` The completed
+GTIN release must not be repeated. eBay API setup remains independently blocked
+on account/access confirmation and requires its own approval boundary.
 
 ## Last verified
 
 13 August 2026:
 
-- Built, but did not run, the single manual `release_exact_45` path. Default
-  operation remains non-writing `preflight`; the production job requires exact
-  owner confirmation and approval from the existing protected
-  `production-readonly` GitHub environment.
+- Completed manual `release_exact_45` run `31728827733` after its full quality,
+  exact-contract and disposable PostgreSQL gates passed; production apply and
+  post-write verification both completed successfully.
 - Bound both artifact validation and the database RPC to the exact 45-identity
   allowlist and approved scope fingerprint. Added sealed before/after checks for
   product GTINs, variant GTINs, offers, retailer mappings, quarantine, audit
@@ -1223,6 +1244,13 @@ confirmation.
 
 ### 13 August 2026
 
+- Completed guarded production run `31728827733`: migration deployed, exact
+  45-row atomic apply passed, 45/45 variant GTINs verified, nine existing
+  identities unchanged, 16 conflicts still quarantined and all 54 safe
+  identities now idempotent no-ops.
+- Verified zero unintended changes to `products.gtin`, offers or
+  `retailer_products`, zero duplicate conflicts and a correct consumed audit
+  trail; archived the immutable release artifact and closed GTIN promotion.
 - Replaced the stop-after-each-stage path with one manually selected,
   fail-closed `release_exact_45` sequence; no release run was started.
 - Added exact owner-scope/destination allowlists, reviewed migration selection,
