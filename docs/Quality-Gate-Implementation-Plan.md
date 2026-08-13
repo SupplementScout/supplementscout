@@ -47,8 +47,9 @@ npm run verify:integration  # isolated Docker/local-database tests
 - Pull requests and pushes to `main`: `verify:full`.
 - Manual dispatch: choose `full` or `integration`.
 - Weekly schedule: `verify:integration`.
-- A push that changes the quality-gate workflow itself also bootstraps the
-  integration run, so workflow changes receive live evidence without secrets.
+- A deliberately titled `Run quality gate integration...` commit may bootstrap
+  the integration run when an authenticated manual dispatcher is unavailable.
+  Ordinary pushes do not pay the heavy integration cost.
 - Workflow permissions are read-only and no production secrets are supplied.
 
 ## Definition of done

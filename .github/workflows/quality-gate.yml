@@ -44,7 +44,7 @@ jobs:
         run: npm run verify:full
 
   integration:
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.level == 'integration') || (github.event_name == 'push' && contains(github.event.head_commit.modified, '.github/workflows/quality-gate.yml')) }}
+    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.level == 'integration') || (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Run quality gate integration')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
