@@ -17,7 +17,7 @@ test("default operation is manual, main-only and non-writing", () => {
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_45'/);
   assert.match(workflow, /default: preflight/);
-  assert.match(workflow, /options: \[preflight, validate, release_exact_45\]/);
+  assert.match(workflow, /options: \[preflight, validate, apply, release_exact_45\]/);
   assert.match(workflow, /permissions:\s*\n\s*contents: read/);
 });
 

@@ -8,7 +8,7 @@ on:
         required: true
         default: preflight
         type: choice
-        options: [preflight, validate, release_exact_45]
+        options: [preflight, validate, apply, release_exact_45]
       owner_confirmation:
         description: Type OWNER_APPROVED_EXACT_45
         required: true
@@ -50,8 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production-readonly
-    env:
-      GTIN_OWNER_ENV_FILE: ${{ runner.temp }}/gtin-production-owner.env
     steps:
       - uses: actions/checkout@v6
         with:
@@ -63,6 +61,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Materialize protected owner credential file
         env:
+          GTIN_OWNER_ENV_FILE: ${{ runner.temp }}/gtin-production-owner.env
           PRODUCTION_PROJECT_REF: aftboxmrdgyhizicfsfu
           PRODUCTION_OWNER_DATABASE_URL: ${{ secrets.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL }}
         run: node -e "require('node:fs').writeFileSync(process.env.GTIN_OWNER_ENV_FILE,'SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF='+process.env.PRODUCTION_PROJECT_REF+'\nSUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL='+process.env.PRODUCTION_OWNER_DATABASE_URL+'\n',{mode:0o600})"
@@ -77,34 +76,34 @@ jobs:
           NODE_OPTIONS: --use-system-ca
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/gtin-promotion-release.js --mode=capture --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --output=tmp/gtin-promotion/release-baseline.json --env-file=$GTIN_OWNER_ENV_FILE --confirm=OWNER_APPROVED_EXACT_45
+        run: node scripts/gtin-promotion-release.js --mode=capture --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --output=tmp/gtin-promotion/release-baseline.json --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
       - name: Migration preflight
         if: ${{ inputs.operation == 'release_exact_45' }}
-        run: node scripts/gtin-promotion-release.js --mode=migration-preflight --target=production --env-file=$GTIN_OWNER_ENV_FILE --confirm=OWNER_APPROVED_EXACT_45
+        run: node scripts/gtin-promotion-release.js --mode=migration-preflight --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
       - name: Deploy exact reviewed migration or verify it is already present
         if: ${{ inputs.operation == 'release_exact_45' }}
-        run: node scripts/gtin-promotion-release.js --mode=deploy --target=production --env-file=$GTIN_OWNER_ENV_FILE --confirm=OWNER_APPROVED_EXACT_45
+        run: node scripts/gtin-promotion-release.js --mode=deploy --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
       - name: Validate exact 45 after migration
         env:
           GTIN_PROMOTION_APPROVER_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_APPROVER_DATABASE_URL || secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           GTIN_PROMOTION_EXECUTOR_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_EXECUTOR_DATABASE_URL || secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: npm run gtin:promotion -- --mode=validate --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --confirm=OWNER_APPROVED_EXACT_45
       - name: Apply exact 45 atomically
-        if: ${{ inputs.operation == 'release_exact_45' }}
+        if: ${{ inputs.operation == 'apply' || inputs.operation == 'release_exact_45' }}
         env:
           GTIN_PROMOTION_APPROVER_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_APPROVER_DATABASE_URL || secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           GTIN_PROMOTION_EXECUTOR_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_EXECUTOR_DATABASE_URL || secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: npm run gtin:promotion -- --mode=apply --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --confirm=OWNER_APPROVED_EXACT_45
       - name: Post-write verification
-        if: ${{ inputs.operation == 'release_exact_45' }}
+        if: ${{ inputs.operation == 'apply' || inputs.operation == 'release_exact_45' }}
         env:
           NODE_OPTIONS: --use-system-ca
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/gtin-promotion-release.js --mode=verify --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --baseline=tmp/gtin-promotion/release-baseline.json --output=tmp/gtin-promotion/release-report.json --env-file=$GTIN_OWNER_ENV_FILE --confirm=OWNER_APPROVED_EXACT_45
+        run: node scripts/gtin-promotion-release.js --mode=verify --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --baseline=tmp/gtin-promotion/release-baseline.json --output=tmp/gtin-promotion/release-report.json --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
       - name: Remove owner credential file
         if: always()
-        run: rm -f "$GTIN_OWNER_ENV_FILE"
+        run: rm -f "$RUNNER_TEMP/gtin-production-owner.env"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
