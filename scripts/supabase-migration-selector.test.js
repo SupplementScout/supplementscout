@@ -149,9 +149,10 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the completed reviewed Discount multivitamin rollout", () => {
+test("production records one exact pending GTIN promotion migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.pending.length, 1);
+  assert.equal(contract.pending[0].filename, "20260813170000_add_guarded_gtin_promotion.sql");
   assert.equal(contract.ledgerCount, 110);
   assert.equal(
     contract.ledgerFingerprint,
@@ -260,12 +261,11 @@ test("production binds its exact ledger after the reviewed Discount rollout", ()
   });
   assert.equal(result.ledger_count, 110);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 110);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending, ["20260813170000_add_guarded_gtin_promotion"]);
+  assert.equal(result.selected_files.length, 111);
+  assert.deepEqual(result.pending_files, ["20260813170000_add_guarded_gtin_promotion.sql"]);
+  assert.equal(result.pending_file, "20260813170000_add_guarded_gtin_promotion.sql");
+  assert.equal(result.pending_sha256, contract.pending[0].sha256);
 });
 
 test("production exclusions are exact and do not exclude its enablement migration", () => {

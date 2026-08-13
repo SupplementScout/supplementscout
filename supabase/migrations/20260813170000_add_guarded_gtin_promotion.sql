@@ -116,7 +116,7 @@ begin
     or p_plan#>>'{owner_review,decision}' <> 'APPROVED_EXACT_SCOPE'
     or p_plan#>>'{owner_review,reviewed_count}' <> '45'
     or p_plan#>>'{owner_review,document}' <> 'docs/EBAY-UK-COVERAGE-PLAN.md'
-    or (p_plan#>>'{owner_review,scope_fingerprint}') !~ '^[0-9a-f]{64}$'
+    or p_plan#>>'{owner_review,scope_fingerprint}' <> 'a79b0f29d9ba141e3421a76a58b4cda4fb0995f4513e9d7004e6ab6308d50046'
     or jsonb_typeof(p_plan->'rows') <> 'array'
     or jsonb_array_length(p_plan->'rows') <> 45
     or md5(public.atomic_import_canonical_json(
@@ -137,6 +137,64 @@ begin
     raise exception 'GTIN promotion plan contains duplicate targets or GTINs';
   end if;
 
+  if exists (
+    select 1
+    from jsonb_array_elements(p_plan->'rows') item
+    left join (values
+      ('435','414','0754590525954'),
+      ('426','410','5056555205297'),
+      ('439','422','0754590525916'),
+      ('469','2313','0634158940033'),
+      ('469','2699','0634158940026'),
+      ('81','67','5999076228171'),
+      ('88','54','040232661082'),
+      ('360','364','5901330020520'),
+      ('393','334','5902114044664'),
+      ('425','397','5999100029293'),
+      ('1040','2176','5903111089412'),
+      ('138','90','033984017351'),
+      ('176','227','5901330022685'),
+      ('258','248','087614023953'),
+      ('11','1002','6009544910770'),
+      ('11','1713','6009544910718'),
+      ('11','1714','6009544910732'),
+      ('11','1715','6009544910756'),
+      ('11','1717','6009544910695'),
+      ('11','1720','6009544942368'),
+      ('11','1722','6009544918745'),
+      ('338','1020','658556043769'),
+      ('338','1782','5056555214473'),
+      ('338','1783','5056555214510'),
+      ('338','1784','5056555214527'),
+      ('338','1786','5056555214534'),
+      ('10','1710','5999076263882'),
+      ('55','1029','5999076253548'),
+      ('55','1599','5999076253555'),
+      ('55','1600','5999076253524'),
+      ('790','1094','5061097264619'),
+      ('790','1095','5061097264633'),
+      ('790','1096','5061097264596'),
+      ('790','1097','5061097264657'),
+      ('790','1098','5061097264671'),
+      ('789','1084','5061097261878'),
+      ('789','1085','5060660084821'),
+      ('789','1086','5060660084760'),
+      ('789','1088','5060660084784'),
+      ('789','1089','5060660084746'),
+      ('789','1092','5060660084807'),
+      ('56','1601','5060424707256'),
+      ('56','1604','5060424700363'),
+      ('56','1605','5060756342927'),
+      ('139','142','8901138110710')
+    ) approved(product_id,variant_id,gtin)
+      on approved.product_id=item->>'product_id'
+     and approved.variant_id=item->>'variant_id'
+     and approved.gtin=item->>'gtin'
+    where approved.product_id is null
+  ) then
+    raise exception 'GTIN promotion row is outside the exact owner-approved identity allowlist';
+  end if;
+
   for v_row in select value from jsonb_array_elements(p_plan->'rows') loop
     if not public.atomic_import_has_exact_keys(
       v_row,
@@ -152,8 +210,10 @@ begin
       )
       or (v_row->>'product_id') !~ '^[1-9][0-9]*$'
       or (v_row->>'variant_id') !~ '^[1-9][0-9]*$'
-      or v_row->>'destination_field' not in ('products.gtin','product_variants.gtin')
+      or v_row->>'destination_field' <> 'product_variants.gtin'
       or jsonb_typeof(v_row->'single_trade_item') <> 'boolean'
+      or v_row->'single_trade_item' <> 'false'::jsonb
+      or v_row->'expected_current_gtin' <> 'null'::jsonb
       or (v_row->>'evidence_count') !~ '^[2-9][0-9]*$'
       or jsonb_typeof(v_row->'evidence_sources') <> 'array'
       or jsonb_array_length(v_row->'evidence_sources') <> (v_row->>'evidence_count')::integer

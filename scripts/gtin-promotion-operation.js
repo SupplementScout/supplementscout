@@ -12,6 +12,24 @@ const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const KIND = "gtin-promotion-approved-exact-45-v1";
 const CONFIRMATION = "OWNER_APPROVED_EXACT_45";
+const APPROVED_SCOPE_FINGERPRINT = "a79b0f29d9ba141e3421a76a58b4cda4fb0995f4513e9d7004e6ab6308d50046";
+const APPROVED_IDENTITIES = Object.freeze([
+  ["435","414","0754590525954"],["426","410","5056555205297"],["439","422","0754590525916"],
+  ["469","2313","0634158940033"],["469","2699","0634158940026"],["81","67","5999076228171"],
+  ["88","54","040232661082"],["360","364","5901330020520"],["393","334","5902114044664"],
+  ["425","397","5999100029293"],["1040","2176","5903111089412"],["138","90","033984017351"],
+  ["176","227","5901330022685"],["258","248","087614023953"],["11","1002","6009544910770"],
+  ["11","1713","6009544910718"],["11","1714","6009544910732"],["11","1715","6009544910756"],
+  ["11","1717","6009544910695"],["11","1720","6009544942368"],["11","1722","6009544918745"],
+  ["338","1020","658556043769"],["338","1782","5056555214473"],["338","1783","5056555214510"],
+  ["338","1784","5056555214527"],["338","1786","5056555214534"],["10","1710","5999076263882"],
+  ["55","1029","5999076253548"],["55","1599","5999076253555"],["55","1600","5999076253524"],
+  ["790","1094","5061097264619"],["790","1095","5061097264633"],["790","1096","5061097264596"],
+  ["790","1097","5061097264657"],["790","1098","5061097264671"],["789","1084","5061097261878"],
+  ["789","1085","5060660084821"],["789","1086","5060660084760"],["789","1088","5060660084784"],
+  ["789","1089","5060660084746"],["789","1092","5060660084807"],["56","1601","5060424707256"],
+  ["56","1604","5060424700363"],["56","1605","5060756342927"],["139","142","8901138110710"],
+].map(([product_id, variant_id, gtin]) => Object.freeze({ product_id, variant_id, gtin })));
 const OWNER_DOCUMENT = "docs/EBAY-UK-COVERAGE-PLAN.md";
 const PROTECTED_DATABASE_ENV = Object.freeze({
   approver: "GTIN_PROMOTION_APPROVER_DATABASE_URL",
@@ -95,7 +113,10 @@ function buildArtifact(preview, products, variants, options = {}) {
   const productById = new Map(products.map((row) => [String(row.id), row]));
   const variantById = new Map(variants.map((row) => [String(row.id), row]));
   const ownerRows = ready.map((row) => ({ product_id: row.product_id, variant_id: row.variant_id, gtin: row.gtin, decision: "APPROVE_CANDIDATE" }));
+  const identityRows = ownerRows.map(({ product_id, variant_id, gtin }) => ({ product_id, variant_id, gtin }));
+  if (JSON.stringify(identityRows) !== JSON.stringify(APPROVED_IDENTITIES)) fail("Owner-approved exact 45 identity list mismatch");
   const scopeFingerprint = hash("GTIN-PROMOTION-OWNER-SCOPE:1", ownerRows);
+  if (scopeFingerprint !== APPROVED_SCOPE_FINGERPRINT) fail("Owner-approved exact 45 scope fingerprint mismatch");
   const rows = ready.map((row) => {
     const product = productById.get(row.product_id);
     const variant = variantById.get(row.variant_id);
@@ -152,26 +173,27 @@ function buildArtifact(preview, products, variants, options = {}) {
   return artifact;
 }
 
-function validateArtifact(artifact) {
-  if (artifact.artifact_version !== "1" || artifact.kind !== KIND || artifact.target_environment !== "PRODUCTION" || artifact.target_project_ref !== PROJECT_REF || artifact.row_count !== "45" || artifact.owner_confirmation !== CONFIRMATION || !Array.isArray(artifact.plan?.rows) || artifact.plan.rows.length !== 45) fail("GTIN promotion artifact envelope mismatch");
-  if (Date.parse(artifact.expires_at) <= Date.now()) fail("GTIN promotion artifact expired; generate a fresh plan");
+function validateArtifact(artifact, options = {}) {
+  if (artifact.artifact_version !== "1" || artifact.kind !== KIND || artifact.target_environment !== "PRODUCTION" || artifact.target_project_ref !== PROJECT_REF || artifact.row_count !== "45" || artifact.owner_confirmation !== CONFIRMATION || artifact.plan?.owner_review?.scope_fingerprint !== APPROVED_SCOPE_FINGERPRINT || !Array.isArray(artifact.plan?.rows) || artifact.plan.rows.length !== 45) fail("GTIN promotion artifact envelope mismatch");
+  if (!options.allowExpired && Date.parse(artifact.expires_at) <= Date.now()) fail("GTIN promotion artifact expired; generate a fresh plan");
   const artifactFingerprint = artifact.artifact_fingerprint;
   if (artifactFingerprint !== hash("GTIN-PROMOTION-ARTIFACT:1", { ...artifact, artifact_fingerprint: null })) fail("GTIN promotion artifact fingerprint mismatch");
   const expectedPlanFingerprint = md5(canonicalJson({ ...artifact.plan, meta: { ...artifact.plan.meta, plan_fingerprint: null } }));
   if (artifact.plan.meta.plan_fingerprint !== expectedPlanFingerprint) fail("GTIN promotion plan fingerprint mismatch");
   const uniqueTargets = new Set(artifact.plan.rows.map((row) => `${row.destination_field}:${row.destination_field === "products.gtin" ? row.product_id : row.variant_id}`));
   const uniqueGtins = new Set(artifact.plan.rows.map((row) => row.gtin));
-  if (uniqueTargets.size !== 45 || uniqueGtins.size !== 45 || artifact.plan.rows.some((row) => row.owner_decision !== "APPROVE_CANDIDATE" || row.evidence_sources.length < 2)) fail("GTIN promotion artifact row scope mismatch");
+  const identities = artifact.plan.rows.map(({ product_id, variant_id, gtin }) => ({ product_id, variant_id, gtin }));
+  if (uniqueTargets.size !== 45 || uniqueGtins.size !== 45 || JSON.stringify(identities) !== JSON.stringify(APPROVED_IDENTITIES) || artifact.plan.rows.some((row) => row.owner_decision !== "APPROVE_CANDIDATE" || row.destination_field !== "product_variants.gtin" || row.single_trade_item !== false || row.expected_current_gtin !== null || row.evidence_sources.length < 2)) fail("GTIN promotion artifact row scope mismatch");
   return artifact;
 }
 
-function readArtifact(file) {
+function readArtifact(file, options = {}) {
   const sidecar = `${file}.sha256`;
   if (!fs.existsSync(file) || !fs.existsSync(sidecar)) fail("Immutable GTIN promotion artifact or SHA-256 sidecar missing");
   const bytes = fs.readFileSync(file);
   const expected = fs.readFileSync(sidecar, "utf8").trim().toLowerCase();
   if (!/^[0-9a-f]{64}$/.test(expected) || sha256(bytes) !== expected) fail("GTIN promotion artifact SHA-256 mismatch");
-  return { artifact: validateArtifact(JSON.parse(bytes.toString("utf8"))), artifactSha256: expected };
+  return { artifact: validateArtifact(JSON.parse(bytes.toString("utf8")), options), artifactSha256: expected };
 }
 
 function writeArtifact(artifact, output) {
@@ -273,4 +295,4 @@ if (require.main === module) {
   run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 }
 
-module.exports = { buildArtifact, buildFreshArtifact, parseArgs, readArtifact, run, validateArtifact, writeArtifact };
+module.exports = { APPROVED_IDENTITIES, APPROVED_SCOPE_FINGERPRINT, buildArtifact, buildFreshArtifact, parseArgs, readArtifact, run, validateArtifact, writeArtifact };

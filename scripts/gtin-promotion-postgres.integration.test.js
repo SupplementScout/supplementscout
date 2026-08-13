@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
-const { buildArtifact } = require("./gtin-promotion-operation");
+const { APPROVED_IDENTITIES, buildArtifact } = require("./gtin-promotion-operation");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -38,30 +38,29 @@ function wait(container) {
   }
   assert.fail("disposable PostgreSQL did not start");
 }
-function validGtin(index) {
-  const base = `29000000${String(index).padStart(4, "0")}`;
-  const sum = [...base].reverse().reduce((total, digit, position) => total + Number(digit) * (position % 2 === 0 ? 3 : 1), 0);
-  return `${base}${(10 - sum % 10) % 10}`;
-}
 function sqlLiteral(value) { return `'${String(value).replaceAll("'", "''")}'`; }
 
 function fixture() {
-  const products = [];
+  const productMap = new Map();
   const variants = [];
   const rows = [];
-  for (let index = 1; index <= 45; index += 1) {
-    const productId = String(10000 + index);
-    const variantId = String(20000 + index);
-    const gtin = validGtin(index);
-    products.push({ id: productId, name: `GTIN Product ${index}`, brand: "Integration Brand", product_format: "powder", gtin: null, is_active: true, merged_into_product_id: null });
+  for (let index = 1; index <= APPROVED_IDENTITIES.length; index += 1) {
+    const { product_id: productId, variant_id: variantId, gtin } = APPROVED_IDENTITIES[index - 1];
+    if (!productMap.has(productId)) productMap.set(productId, { id: productId, name: `GTIN Product ${productId}`, brand: "Integration Brand", product_format: "powder", gtin: null, is_active: true, merged_into_product_id: null });
     variants.push({ id: variantId, product_id: productId, display_name: `Flavour ${index} / 300g`, flavour_label: `Flavour ${index}`, size_value: 300, size_unit: "g", pack_count: 1, product_format: "powder", gtin: null, is_active: true, is_default: false });
     rows.push({ product_id: productId, variant_id: variantId, gtin, destination_field: "product_variants.gtin", current_value: null, proposed_value: gtin, evidence_count: 2, evidence_sources: ["fixture:a", "fixture:b"], blockers: [], decision: "READY_TO_PROMOTE", candidate_source: "INTEGRATION", candidate_fingerprint: crypto.createHash("sha256").update(`candidate:${index}`).digest("hex") });
   }
+  const products = [...productMap.values()];
   const preview = { rows, preview_fingerprint: "a".repeat(64), canonical_snapshot_fingerprint: "b".repeat(64) };
   return { products, variants, artifact: buildArtifact(preview, products, variants, { createdAt: "2099-01-01T00:00:00.000Z", expiresAt: "2099-01-01T00:15:00.000Z", runId: "gtin-postgres-integration" }) };
 }
 
-test("guarded GTIN promotion runs atomically on disposable PostgreSQL", { skip: !dockerAvailable() && "Docker daemon unavailable" }, () => {
+const dockerIsAvailable = dockerAvailable();
+if (process.env.GTIN_PROMOTION_REQUIRE_DOCKER === "true" && !dockerIsAvailable) {
+  throw new Error("GTIN promotion preflight requires an available Docker daemon");
+}
+
+test("guarded GTIN promotion runs atomically on disposable PostgreSQL", { skip: !dockerIsAvailable && "Docker daemon unavailable" }, () => {
   const container = `supplementscout-gtin-${crypto.randomBytes(6).toString("hex")}`;
   const database = "supplementscout_stage2_test_atomic_import_gtin";
   const tempFile = path.join(ROOT, "tmp", `gtin-promotion-integration-${crypto.randomUUID()}.sql`);
@@ -78,6 +77,7 @@ test("guarded GTIN promotion runs atomically on disposable PostgreSQL", { skip: 
     success(psqlFile(container, database, MIGRATIONS[3]), "approval ledger");
 
     const { products, variants, artifact } = fixture();
+    const targetVariantIds = variants.map((row) => row.id).join(",");
     const quarantineBindings = [[87,38],[58,1007],[58,1607],[58,1611],[49,1028],[49,1596],[49,1597],[49,1598],[291,1040],[291,1691],[291,1692],[291,1693],[232,1017],[232,1812],[232,1813],[27,1593]];
     const quarantineProducts = [...new Set(quarantineBindings.map(([product]) => product))].map((id) => `(${id},'Quarantine ${id}','quarantine-${id}','Fixture','Health Supplements',true)`).join(",");
     const quarantineVariants = quarantineBindings.map(([product, variant]) => `(${variant},${product},'fixture-${variant}','Fixture',true,false)`).join(",");
@@ -107,11 +107,11 @@ begin
     if sqlerrm='expected failpoint rejection' then raise; end if;
   end;
   perform set_config('app.gtin_promotion_test_failpoint','',true);
-  if exists(select 1 from public.product_variants where id between 20001 and 20045 and gtin is not null) then raise exception 'partial write escaped rollback'; end if;
+  if exists(select 1 from public.product_variants where id in (${targetVariantIds}) and gtin is not null) then raise exception 'partial write escaped rollback'; end if;
   if (select status from public.approved_import_plans where id=v_id) <> 'approved' then raise exception 'failed apply consumed approval'; end if;
   v_result := public.apply_approved_gtin_promotion_plan(v_id,repeat('c',64),v_plan#>>'{meta,plan_fingerprint}',v_plan#>>'{meta,source_row_fingerprint}','gtin-postgres-integration');
   if v_result->>'status'<>'APPLIED' or v_result->>'applied_count'<>'45' then raise exception 'apply result'; end if;
-  if (select count(*) from public.product_variants where id between 20001 and 20045 and gtin is not null)<>45 then raise exception 'write count'; end if;
+  if (select count(*) from public.product_variants where id in (${targetVariantIds}) and gtin is not null)<>45 then raise exception 'write count'; end if;
   if (select apply_result->>'applied_count' from public.approved_import_plans where id=v_id)<>'45' then raise exception 'audit result'; end if;
   begin
     perform public.apply_approved_gtin_promotion_plan(v_id,repeat('c',64),v_plan#>>'{meta,plan_fingerprint}',v_plan#>>'{meta,source_row_fingerprint}','gtin-postgres-integration');

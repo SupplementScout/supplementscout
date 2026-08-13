@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** GUARDED GTIN PROMOTION BUILT — PREFLIGHT PENDING; MIGRATION AND WRITE NOT EXECUTED
+**Status:** GUARDED `release_exact_45` BUILT — NOT RUN; MIGRATION AND WRITE NOT EXECUTED
 **Last verified:** 13 August 2026  
 **Production writes:** 0  
 **Public changes:** 0
@@ -508,12 +508,31 @@ The guarded write slice now prepared locally:
    updates in one transaction, consumes approval once and records before/after
    audit evidence;
 5. exposes a manual-main-only GitHub workflow with `preflight`, `validate` and
-   `apply` choices. `preflight` runs the full disposable-database gate without
-   production access. Protected modes then create a fresh 15-minute artifact,
-   and the protected step never receives the service-role key.
+   `release_exact_45` choices. `preflight` runs the full disposable-database
+   gate without production access. One explicit `release_exact_45` selection,
+   exact owner confirmation and approval from the existing protected GitHub
+   `production-readonly` environment then
+   run production preflight, reviewed migration deployment, validate, atomic
+   apply and post-write verification in strict order. Any failed step stops all
+   successors, and the write step never receives the service-role key.
+
+The release artifact is additionally bound in JavaScript and PostgreSQL to the
+exact owner-approved identity allowlist and scope fingerprint
+`a79b0f29d9ba141e3421a76a58b4cda4fb0995f4513e9d7004e6ab6308d50046`.
+Post-write verification compares full product/variant GTIN fingerprints and
+full offers/retailer-mapping fingerprints with the sealed pre-write baseline,
+checks the 16-row quarantine and consumed 45-row audit result, and requires all
+54 safe identities to become no-ops. A verification anomaly reports
+`FAILED_VERIFICATION` with the exact check diff and never triggers automatic
+rollback.
 
 The owner approval recorded below fixes the allowed identity scope. It does not
 deploy the migration or authorize an `apply` workflow run by itself.
+Before the release run, the protected environment must contain
+`SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL`; it is materialized only in the
+runner temporary directory, removed in an `always()` cleanup step and never
+uploaded. Existing least-privilege approver/executor URLs are reused, with the
+GTIN-specific secret names preferred when configured.
 
 ### Safety and future-write gate
 
@@ -688,16 +707,12 @@ generated, unexpired, stale-safe preview.
 
 ### Promotion next action
 
-`NEXT ACTION: Run GTIN_PROMOTION preflight.` Run the disposable-PostgreSQL
-integration test where Docker is available (the workflow's `preflight` mode),
-review its
-rollback/atomicity/role-separation evidence, and only then
-authorize deployment of migration `20260813170000_add_guarded_gtin_promotion`.
-After deployment, run the workflow in `validate` mode first. A production
-`apply` remains a separate execution instruction. Preserve the nine
-`ALREADY_PRESENT` rows as no-ops and all 16 conflicts in quarantine. Do not
-enable `SAFE_UPDATE`, run another confirmation batch, call eBay, or write any
-canonical GTIN before those gates pass.
+`NEXT ACTION: Run release_exact_45.` This remains a separate manual GitHub
+Actions operation and has not been run. Its default remains non-writing
+`preflight`; selecting `release_exact_45` requires
+`OWNER_APPROVED_EXACT_45` and GitHub production-environment approval. Preserve
+the nine `ALREADY_PRESENT` rows as no-ops and all 16 conflicts in quarantine.
+Do not enable `SAFE_UPDATE`, run another confirmation batch or call eBay.
 
 ## Relevant SupplementScout model
 
@@ -1122,20 +1137,32 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Run GTIN_PROMOTION preflight.` This runs the prepared
-disposable-PostgreSQL test with Docker available. If rollback, exact-45 atomic
-apply, idempotency/replay block, quarantine, audit and role ACL checks pass,
-review and separately authorize the migration deployment. Then run the manual
-workflow in `validate` mode against a freshly generated artifact. Production
-`apply` requires a separate explicit execution instruction. Do not run another
-confirmation batch. The 9 `ALREADY_PRESENT` rows remain no-ops and all 16
-conflicts remain quarantined. eBay API work remains independently blocked on
-account/access confirmation.
+`NEXT ACTION: Run release_exact_45.` The single manual run performs PRECHECK,
+the required disposable PostgreSQL test, production preflight, exact migration
+deployment-or-already-present check, production validate, atomic apply and
+post-write verification. Each successor requires PASS from its predecessor.
+The 9 `ALREADY_PRESENT` rows remain no-ops and all 16 conflicts remain
+quarantined. eBay API work remains independently blocked on account/access
+confirmation.
 
 ## Last verified
 
 13 August 2026:
 
+- Built, but did not run, the single manual `release_exact_45` path. Default
+  operation remains non-writing `preflight`; the production job requires exact
+  owner confirmation and approval from the existing protected
+  `production-readonly` GitHub environment.
+- Bound both artifact validation and the database RPC to the exact 45-identity
+  allowlist and approved scope fingerprint. Added sealed before/after checks for
+  product GTINs, variant GTINs, offers, retailer mappings, quarantine, audit
+  consumption, duplicates and the final 54-identity no-op dry-run.
+- Focused GTIN release, workflow, migration selector and deployment-contract
+  tests passed 63/63. The local disposable PostgreSQL test remained skipped
+  because Docker is unavailable; the workflow converts that condition into a
+  hard failure before production. Build, typecheck, lint with 0 errors, Project
+  Guardian and `git diff --check` passed. Production writes remain 0, the
+  migration remains undeployed and `release_exact_45` was not run.
 - The owner explicitly approved the exact 45-row promotion scope. This approval
   authorized the guarded mechanism and scope; it did not instruct a production
   database write.
@@ -1196,6 +1223,10 @@ account/access confirmation.
 
 ### 13 August 2026
 
+- Replaced the stop-after-each-stage path with one manually selected,
+  fail-closed `release_exact_45` sequence; no release run was started.
+- Added exact owner-scope/destination allowlists, reviewed migration selection,
+  already-deployed detection and immutable full-table post-write comparison.
 - Recorded the owner's approval of the exact 45-row scope and built the guarded
   `GTIN_PROMOTION` mechanism without deploying its migration or writing GTINs.
 - Reused the existing approval ledger and added a manual fresh-plan-first

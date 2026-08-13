@@ -110,6 +110,8 @@ const CONTRACTS = Object.freeze({
         "fa34c95a734da3bd4f281a5a6d124885f86d9cbf5f539018556d67631b61b309",
       "20260811113000_add_two_reviewed_discount_multivitamin_offers.sql":
         "dfaf949e26a37f639008dd5c8d09d28a7e63a1d4c03bf04839c57ad7ff3a9783",
+      "20260813170000_add_guarded_gtin_promotion.sql":
+        "60114659dc4b3c8052f722a8d094768ea64ee5d11ae0afe7a9a8280c8a3ed129",
     }),
     pending: Object.freeze([]),
   }),
@@ -139,7 +141,19 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260813170000_add_guarded_gtin_promotion.sql",
+        sha256: "60114659dc4b3c8052f722a8d094768ea64ee5d11ae0afe7a9a8280c8a3ed129",
+        expectedCatalogueDeltas: Object.freeze({
+          products: 0,
+          product_variants: 0,
+          retailer_products: 0,
+          offers: 0,
+          price_history: 0,
+        }),
+      }),
+    ]),
   }),
 });
 

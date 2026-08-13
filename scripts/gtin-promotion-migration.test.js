@@ -19,6 +19,9 @@ test("migration reuses the approval ledger and keeps GTIN promotion role-separat
 test("database gate enforces exact owner scope, checksum, quarantine, uniqueness and stale state", () => {
   assert.match(migration, /jsonb_array_length\(p_plan->'rows'\) <> 45/);
   assert.match(migration, /owner_review,reviewed_count.*<> '45'/s);
+  assert.match(migration, /owner_review,scope_fingerprint.*<> 'a79b0f29d9ba141e3421a76a58b4cda4fb0995f4513e9d7004e6ab6308d50046'/s);
+  assert.equal((migration.match(/\('[0-9]+','[0-9]+','[0-9]+'\)/g) || []).length, 45);
+  assert.match(migration, /outside the exact owner-approved identity allowlist/);
   assert.match(migration, /gtin_promotion_is_valid_gtin/);
   assert.match(migration, /public\.gtin_promotion_quarantine/);
   assert.match(migration, /product_variants_gtin_unique/);
@@ -26,6 +29,8 @@ test("database gate enforces exact owner scope, checksum, quarantine, uniqueness
   assert.match(migration, /stale GTIN promotion canonical identity/);
   assert.match(migration, /stale GTIN promotion destination value/);
   assert.match(migration, /cannot overwrite a conflicting value/);
+  assert.match(migration, /destination_field' <> 'product_variants\.gtin'/);
+  assert.match(migration, /expected_current_gtin' <> 'null'::jsonb/);
   const seededGtins = [...migration.matchAll(/\('([0-9]{8}|[0-9]{12,14})',\d+,\d+,/g)].map((match) => match[1]);
   assert.equal(seededGtins.length, 16);
   assert.equal(new Set(seededGtins).size, 16);
