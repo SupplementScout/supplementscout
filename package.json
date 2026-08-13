@@ -25,7 +25,13 @@
     "nutrition:unit-pricing": "node scripts/protein-unit-pricing.js",
     "nutrition:creatine-unit-pricing": "node scripts/creatine-unit-pricing.js",
     "verify:baseline": "node scripts/verify-baseline-migrations.js",
-    "verify:project": "node scripts/project-guardian.js"
+    "verify:project": "node scripts/project-guardian.js",
+    "verify:inventory": "node scripts/quality-gate.js inventory",
+    "verify:quick": "node scripts/quality-gate.js quick",
+    "test:safe": "node scripts/quality-gate.js safe",
+    "verify:full": "node scripts/quality-gate.js full",
+    "verify:integration": "node scripts/quality-gate.js integration",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

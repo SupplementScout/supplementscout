@@ -240,7 +240,7 @@ test("launch readiness reports implementation ready but stale launch blocked", (
     activeOffers: 61,
     retailers: 6,
     productsWithMultipleRetailers: 6,
-    latestOfferCheckedAt: "2026-07-16T20:48:02.382Z",
+    latestOfferCheckedAt: "2026-06-16T20:48:02.382Z",
     implementationChecks: {
       metadata: true,
       structuredData: true,
@@ -376,7 +376,7 @@ test("stale offers are excluded from current ranking, retailer counts and verifi
             price: 1,
             shipping_cost: 1,
             in_stock: true,
-            last_checked_at: "2026-07-14T20:00:00.000Z",
+            last_checked_at: "2026-06-14T20:00:00.000Z",
             retailer: { id: 1, name: "Stale Cheap Retailer", slug: "stale" },
           },
           {
@@ -513,7 +513,7 @@ test("stale-only products stay visible in HTML but stale prices do not enter JSO
               price: 1.23,
               shipping_cost: 0,
               in_stock: true,
-              last_checked_at: "2026-07-14T20:00:00.000Z",
+              last_checked_at: "2026-06-14T20:00:00.000Z",
               retailer: { id: 100, name: "Old Retailer", slug: "old-retailer" },
             },
           ],

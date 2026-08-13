@@ -19,3 +19,12 @@ For SEO, catalogue, retailer, automation or roadmap work:
 5. Do not mark work complete without the required local and live evidence.
 6. Never give an agent autonomous product-identity or production-write
    authority; retain existing owner approvals and guarded data paths.
+
+## Quality gate
+
+For code or workflow changes, run `npm run verify:quick` after implementation.
+Run `npm run verify:full` before declaring the change complete. Tests that use
+Docker or a local database remain isolated under `npm run verify:integration`;
+quality-gate jobs must never receive production-write credentials. When adding,
+removing or renaming a test, review and reseal
+`scripts/quality-gate-manifest.json` so no test is silently omitted.
