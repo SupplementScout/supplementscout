@@ -508,6 +508,30 @@ Missing `product_format` may receive a deterministic report-only suggestion of
 `powder` when both the protein-powder category and a gram-based pack support it.
 The suggestion is not approval and is never written automatically.
 
+### 0.0.14 eBay UK offer-coverage workstream - 13 August 2026
+
+`eBay UK Offer Coverage` is a durable, separately controlled data-source
+workstream whose technical source of truth is
+`docs/EBAY-UK-COVERAGE-PLAN.md`. Its purpose is to increase products with at
+least two qualified offers by using eBay only as a controlled second-offer
+coverage layer for canonical products/variants that already exist. It must not
+mass-create the catalogue.
+
+The initial read-only audit is complete. On 13 August production had 1,070
+active unmerged products, 2,586 active variants and only nine product-level
+canonical GTINs (0.84%); no active variant had a canonical GTIN. Positive-price
+in-stock product coverage was 197 with zero retailers, 761 with one, 96 with
+two and 16 with at least three. No eBay account/API status is assumed.
+
+The binding sequence is: audit, user-led EPN/Developer access setup, read-only
+pilot, quality decision, then separately approved import design. No eBay API
+implementation, retailer row, production offer, public UI or automation is
+authorized by this entry. The architecture decision is a marketplace-specific
+adapter that may later feed the existing guarded dry-run/approval/import path;
+it is not a second importer and must retain seller/listing evidence. Future
+agents must read the eBay plan's `Current status` and `Next action` and update
+that plan after every eBay task.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
