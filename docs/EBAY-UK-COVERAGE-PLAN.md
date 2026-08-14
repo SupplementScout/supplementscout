@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** READ-ONLY 54-GTIN PILOT COMPLETE; OWNER QUALITY REVIEW NEXT
+**Status:** OWNER QUALITY REVIEW COMPLETE; BOUNDED PRODUCTION PILOT DESIGN NEXT
 **Last verified:** 14 August 2026
 **Production writes:** 0  
 **Public changes:** 1 guarded account-deletion API route
@@ -59,6 +59,13 @@ configured, so no result is ready for publication. No eBay credential is
 stored in the repository. The historical 100-identity target remains
 unavailable and must not be reached by weakening the identity gate.
 
+The owner accepted the bounded quality review on 14 August 2026. The two
+`AUTO_ELIGIBLE` rows passed review for inclusion in a future production-pilot
+design only. Solgar 60 Tablets is rejected because the selected listing is 120
+tablets. Applied Nutrition Creatine 120 Capsules and Per4m Pre-Workout Stim
+570g Berry Blast remain `REVIEW` because the selected listings did not return
+their GTINs. This approval is not authority to write or publish an offer.
+
 ## Completed
 
 - [x] Repository and operating-document audit.
@@ -84,7 +91,7 @@ unavailable and must not be reached by weakening the identity gate.
 - [x] Production keyset no longer marked `Non Compliant`, owner-verified.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
 - [x] Read-only API pilot executed for all 54 safe identities.
-- [ ] Pilot quality reviewed by owner.
+- [x] Pilot quality reviewed and accepted by owner.
 - [ ] Production pilot designed or approved.
 
 ## Baseline — read-only production evidence
@@ -1176,6 +1183,24 @@ Affiliate campaign configuration was absent. Ordinary eBay URLs must not be
 substituted for tracked affiliate URLs, and none of these results may be
 published or written before a separate owner-approved production design.
 
+### Owner quality review — 14 August 2026
+
+The owner accepted the quality review after the immutable report was checked
+row by row. Existing pilot decisions remain the control vocabulary; no second
+classification or pipeline was created.
+
+| Pilot row | Review outcome | Reason |
+|---|---|---|
+| Warrior Rage Charged Cherry, `56` / `1605`, item `203341686447` | `AUTO_ELIGIBLE` accepted for future design | Exact GTIN, brand family, 392g, Charged Cherry, powder, new fixed-price listing, qualified business seller and complete delivered price agree |
+| Olimp Chela Mag B6 Forte 60 Capsules, `176` / `227`, item `373250053773` | `AUTO_ELIGIBLE` accepted for future design | Exact GTIN, brand, 60 capsules, capsule format, new fixed-price listing, qualified business seller and complete delivered price agree |
+| Solgar Skin, Nail And Hair Formula 60 Tablets, `138` / `90`, item `365921935616` | `REJECT` | Canonical identity is 60 tablets but the listing title and aspects state 120 tablets; returned GTIN is absent |
+| Applied Nutrition Creatine 120 Capsules, `426` / `410`, item `227411188622` | remains `REVIEW` | Brand, format and 120-count text agree, but eBay did not return the GTIN; do not infer exact identity from the title |
+| Per4m Pre-Workout Stim 570g Berry Blast, `789` / `1085`, item `227219788408` | remains `REVIEW` | Brand, flavour, powder format and 570g text agree, but eBay did not return the GTIN; do not infer exact identity from the title |
+
+Review totals: 5 checked, 2 accepted for future design, 1 rejected and 2
+still held in `REVIEW`. The accepted rows are not affiliate-ready and remain
+outside the database and public site.
+
 ## Read-only pilot specification — historical target 100 verified GTIN identities
 
 ### Entry gate
@@ -1318,7 +1343,10 @@ rollback and explicit approval.
 - `OWNER VERIFIED`: Production keyset is no longer marked `Non Compliant`.
 - `LIVE VERIFIED`: Production Browse API access; the guarded 54-identity
   read-only run completed.
-- `PENDING`: campaign/affiliate configuration and owner quality review.
+- `OWNER REVIEWED`: 2 `AUTO_ELIGIBLE` rows accepted for future design; one
+  reviewed row rejected and two remain held in `REVIEW`.
+- `PENDING`: campaign/affiliate configuration and bounded production-pilot
+  design.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1327,7 +1355,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner-review the exact 2 AUTO_ELIGIBLE and 3 REVIEW pilot rows; do not import or publish any eBay offer.`
+`NEXT ACTION: Design a guarded, read-only-first production pilot for exactly the 2 owner-accepted AUTO_ELIGIBLE rows; do not import or publish any eBay offer.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1372,6 +1400,12 @@ owner-reviewed production design and approval.
   public changes. Affiliate tracking remains unconfigured, so publication is
   blocked pending owner quality review and a separately approved production
   design.
+- The owner accepted the row-level quality review. Both `AUTO_ELIGIBLE` rows
+  passed for future design only. Solgar 60 Tablets was rejected because the
+  selected listing is 120 tablets; Applied Nutrition Creatine 120 Capsules and
+  Per4m Pre-Workout Stim 570g Berry Blast remain held because their selected
+  listings did not return GTINs. Production writes and public changes remained
+  zero.
 
 13 August 2026:
 

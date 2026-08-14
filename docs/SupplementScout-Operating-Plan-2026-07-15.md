@@ -549,14 +549,19 @@ delivered price; the median price difference across the two was -GBP 6.42.
 Input fingerprint was
 `9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`.
 The run made 0 database, offer, mapping or public changes, and affiliate
-tracking was not configured. No retailer
+tracking was not configured. The owner accepted the row-level quality review:
+both `AUTO_ELIGIBLE` rows passed for a future bounded production-pilot design,
+Solgar 60 Tablets was rejected because the selected listing is 120 tablets,
+and the Applied Nutrition and Per4m rows remain held because eBay did not
+return their GTINs. This is not approval to write or publish an offer. No retailer
 row, production offer, public UI or write automation is authorized by this
 entry. The architecture is a marketplace-specific adapter around the existing
 guarded identity/control plane, not a second importer, and it retains
 seller/listing evidence. Future agents must read the eBay plan's `Current
 status` and `Next action` and update that plan after every eBay task. Binding
-next action: `Owner-review the exact 2 AUTO_ELIGIBLE and 3 REVIEW pilot rows;
-do not import or publish any eBay offer.`
+next action: `Design a guarded, read-only-first production pilot for exactly
+the 2 owner-accepted AUTO_ELIGIBLE rows; do not import or publish any eBay
+offer.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
