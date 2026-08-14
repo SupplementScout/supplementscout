@@ -605,12 +605,19 @@ All mappings are unique `gtin`/`100`, all offers are in stock with known free
 delivery and affiliate URLs, and the canonical product/variant GTIN fields
 remain untouched. Public HTTP readback passed 5/5 with the exact eBay price and
 offer route on every product page. Batch A is complete and live-verified;
-Batch B remains read-only and requires a new exact owner approval before any
-write.
+Batch B was then revalidated through the same unchanged read-only path. The
+five exact approved item IDs returned 5/5 expected GTINs, 5/5
+`AUTO_ELIGIBLE`, 5/5 affiliate URLs and zero blockers/review reasons. A fresh
+existing-importer dry-run produced five plans, zero blocked rows and zero
+skipped rows; retailer, products and variants remain existing, while each plan
+would create only one `gtin`/`100` mapping, one offer and one price-history
+row. Dry-run artifact SHA-256 is
+`916c8a8717193491e81e1391438794c634f7c22288b9d1770a71e9145376fdd3`.
+No Batch B write occurred. Binding next action: owner review and exact approval
+of these five sealed Batch B plans; do not apply without that new approval.
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Revalidate and
-dry-run the five owner-reviewed Batch B candidates through the existing Browse
-adapter and guarded importer; do not apply Batch B without a new exact owner
+update that plan after every eBay task. Binding next action: `Owner review and
+exact approval of the five sealed Batch B plans; do not apply without that new
 approval.`
 
 ### Binding catalogue exclusion policy - 27 July 2026

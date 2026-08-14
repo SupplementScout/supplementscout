@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** BATCH A 5/5 LIVE VERIFIED; BATCH B REMAINS READ-ONLY
+**Status:** BATCH A 5/5 LIVE VERIFIED; BATCH B 5/5 DRY-RUN READY, WRITE NOT APPROVED
 **Last verified:** 14 August 2026
 **Production writes:** 5 owner-approved canary plans (1 retailer, 5 mappings, 5 offers, 5 price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 5 live eBay offers
@@ -142,6 +142,25 @@ returned HTTP 200 for products `10`, `71`, `27`, `489` and `528`; every page
 contained eBay UK, the exact price and its expected `/go/{offerId}` route.
 Batch A is therefore live-verified 5/5. No Batch B write is approved.
 
+The exact five owner-reviewed Batch B listings were revalidated read-only on
+14 August 2026 through the existing title-lead Browse path. All five exact
+approved item IDs were found; all five returned the expected GTIN, remained
+`AUTO_ELIGIBLE`, returned affiliate URLs and had zero blockers or review
+reasons. Four beat the current complete delivered price; Blood & Guts Mango
+was GBP 25.90 delivered versus the current GBP 24.98. The median delivered
+price difference was GBP -0.71. No substitute listing was selected.
+
+The existing importer then produced five exact plans and zero blocked or
+skipped rows. Every plan keeps the retailer, product and variant as existing
+and proposes only one new `gtin`/`100` eBay mapping, one offer and one
+price-history row. Critical Cookie is correctly bound to its sole active
+default variant `462`; its 73 g and White Chocolate & Raspberry evidence is
+preserved in the sealed eBay response rather than represented as a new
+canonical variant. The final dry-run artifact SHA-256 is
+`916c8a8717193491e81e1391438794c634f7c22288b9d1770a71e9145376fdd3`.
+Database writes remain zero for Batch B and a new exact owner approval is
+required before any guarded apply.
+
 ## Completed
 
 - [x] Repository and operating-document audit.
@@ -178,6 +197,8 @@ Batch A is therefore live-verified 5/5. No Batch B write is approved.
 - [x] Remaining four Batch A previews regenerated after retailer bootstrap (4 plans, 0 blockers).
 - [x] Remaining four Batch A offers owner-approved, applied and postflight-verified.
 - [x] Batch A public live verification passed 5/5.
+- [x] Batch B exact listing refresh passed 5/5 with affiliate URLs and zero blockers.
+- [x] Existing-importer Batch B dry-run passed 5 plans and 0 blocked rows.
 - [ ] At least 50 independent owner-safe eBay offers available.
 - [x] Production pilot completed; all five exact Batch A offers owner-approved, applied and live-verified.
 
@@ -1579,6 +1600,9 @@ rollback and explicit approval.
 - `LIVE VERIFIED`: the separately approved remaining four Batch A plans
   executed 4/4 and their postflight is an exact no-op; Batch A is complete
   5/5.
+- `READ-ONLY VERIFIED`: the exact five Batch B item IDs remain
+  `AUTO_ELIGIBLE` and affiliate-ready; the existing importer produced five
+  create plans with zero blockers. No Batch B write is approved.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1587,7 +1611,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Revalidate and dry-run the five owner-reviewed Batch B candidates through the existing Browse adapter and guarded importer; do not apply Batch B without a new exact owner approval.`
+`NEXT ACTION: Owner review and exact approval of the five sealed Batch B plans; do not apply without that new approval.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
