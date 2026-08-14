@@ -524,18 +524,21 @@ in-stock product coverage was 197 with zero retailers, 761 with one, 96 with
 two and 16 with at least three. No eBay account/API status is assumed.
 
 The binding sequence is: audit, credential-ready read-only pilot implementation,
-user-led EPN/Developer access setup, 54-identity live read-only run, quality
-decision, then separately approved import design. The read-only pilot is now
-built and its immutable input contains exactly the 54 safe canonical variant
-GTIN identities; preparation made 0 database writes and 0 eBay calls. EPN is
-pending review and Developer/Buy API access is pending approval. No retailer
+EPN/Developer access setup, Production keyset notification compliance,
+54-identity live read-only run, quality decision, then separately approved
+import design. The read-only pilot is built and its immutable input contains
+exactly the 54 safe canonical variant GTIN identities; preparation made 0
+database writes and 0 eBay calls. On 14 August the owner confirmed EPN and eBay
+Developers approval and created Sandbox and Production keysets. Production is
+disabled pending deployment and eBay validation of the guarded marketplace
+account-deletion endpoint now implemented locally. No retailer
 row, production offer, public UI or write automation is authorized by this
 entry. The architecture is a marketplace-specific adapter around the existing
 guarded identity/control plane, not a second importer, and it retains
 seller/listing evidence. Future agents must read the eBay plan's `Current
 status` and `Next action` and update that plan after every eBay task. Binding
-next action: `Wait for eBay Developers approval, create keyset, add credentials
-securely, run read-only 54-GTIN pilot.`
+next action: `Deploy the guarded account-deletion endpoint, add its secrets in
+deployment storage, validate it in eBay, then run the read-only 54-GTIN pilot.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

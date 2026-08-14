@@ -2,8 +2,8 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** READ-ONLY 54-GTIN BROWSE PILOT BUILT — AWAITING EBAY/EPN APPROVALS AND CREDENTIALS
-**Last verified:** 13 August 2026  
+**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT BUILT LOCALLY; PRODUCTION KEYSET ENABLEMENT PENDING
+**Last verified:** 14 August 2026
 **Production writes:** 0  
 **Public changes:** 0
 
@@ -51,9 +51,11 @@ local read-only Browse API adapter, policy engine, immutable input/report
 artifacts and mock-only tests are implemented. A production input artifact was
 prepared with 54 identities, fingerprint
 `9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`,
-0 database writes and 0 eBay API calls. EPN remains `PENDING REVIEW`, eBay
-Developers access remains `PENDING APPROVAL`, and no eBay credentials are
-available or stored in the repository.
+0 database writes and 0 eBay API calls. The owner confirmed eBay Developers
+and EPN approval on 14 August 2026. Sandbox and Production keysets were created,
+but the Production keyset remains disabled until marketplace account-deletion
+notification compliance is configured. No eBay credential is stored in the
+repository.
 
 The intended 100-record exact-GTIN pilot is currently blocked for two separate
 reasons:
@@ -82,7 +84,10 @@ reasons:
 - [x] Official eBay Developer and EPN requirements review.
 - [x] User registration checklist.
 - [x] Read-only 100-record pilot specification.
-- [ ] eBay/EPN account access confirmed.
+- [x] eBay Developers and EPN account access confirmed by owner.
+- [x] Sandbox and Production application keysets created by owner.
+- [x] Guarded marketplace account-deletion endpoint built and tested locally.
+- [ ] Account-deletion endpoint deployed, configured and accepted by eBay.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
 - [ ] Read-only API pilot executed.
 - [ ] Pilot quality reviewed by owner.
@@ -953,6 +958,44 @@ Official references:
 - https://partnernetwork.ebay.com/page/network-agreement
 - https://developer.ebay.com/api-docs/buy/api-browse.html
 
+## Marketplace account-deletion notification endpoint
+
+The existing Browse pilot did not include this compliance endpoint. A focused
+audit found no prior route, challenge handler or signed-notification verifier,
+so the implementation extends the existing OAuth mechanism instead of building
+a second eBay client.
+
+- Canonical HTTPS endpoint:
+  `https://www.supplementscout.co.uk/api/ebay/account-deletion`.
+- `GET` validates the exact endpoint and returns eBay's SHA-256 challenge
+  response using `challenge_code + verification token + endpoint URL`.
+- `POST` is fail-closed: it limits payload size, requires
+  `X-EBAY-SIGNATURE`, retrieves eBay's signing key through the official public
+  key API using application OAuth, caches only the public key in memory and
+  rejects invalid signatures with HTTP 412.
+- The route accepts only `MARKETPLACE_ACCOUNT_DELETION` schema `1.0`, never
+  logs user identifiers, secrets or authorization headers, and performs no
+  database write.
+- SupplementScout currently has no persistent production eBay seller, buyer or
+  user-data store, so a valid deletion event has zero stored records to delete.
+  This explicit no-op boundary must be replaced and owner-reviewed before any
+  such persistent eBay data store is introduced.
+- Required production secrets are `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET` and
+  `EBAY_NOTIFICATION_VERIFICATION_TOKEN`. The verification token must be a
+  private 32-80 character value using only letters, digits, underscore or
+  hyphen. Values must be stored only in deployment secret storage and must
+  never be committed or pasted into project documentation.
+
+Local tests use generated RSA fixture keys and mocked OAuth/public-key
+responses. They make no real eBay API call. Deployment, secret configuration,
+the live eBay challenge and eBay's test notification remain pending.
+
+Official references:
+
+- https://developer.ebay.com/develop/guides-v2/marketplace-user-account-deletion
+- https://developer.ebay.com/api-docs/sell/notification/resources/public_key/methods/getPublicKey
+- https://github.com/eBay/event-notification-nodejs-sdk
+
 ## USER ACTION REQUIRED
 
 Do not mark a box from repository evidence. The owner must confirm each status.
@@ -961,8 +1004,8 @@ Do not mark a box from repository evidence. The owner must confirm each status.
 
 - [ ] `UNKNOWN — USER ACTION REQUIRED`: confirm an ordinary eBay account exists
   and record only `DONE`/`NOT STARTED`, never credentials.
-- [ ] `UNKNOWN — USER ACTION REQUIRED`: confirm or create an eBay Partner
-  Network account.
+- [x] Owner confirmed the eBay Partner Network account was approved on
+  14 August 2026.
 - [ ] `USER ACTION REQUIRED`: complete accurate person/company, payment/tax and
   contact information requested by EPN.
 - [ ] `USER ACTION REQUIRED`: register SupplementScout and describe its website
@@ -978,13 +1021,13 @@ Do not mark a box from repository evidence. The owner must confirm each status.
 
 ### Developer
 
-- [ ] `UNKNOWN — USER ACTION REQUIRED`: confirm or create an eBay Developers
-  Program account.
-- [ ] `USER ACTION REQUIRED`: create the SupplementScout application/keyset.
-- [ ] `USER ACTION REQUIRED`: create Sandbox credentials and, when eligible,
-  Production credentials.
-- [ ] `USER ACTION REQUIRED`: configure required account deletion/closure
-  notification compliance for Production keys.
+- [x] Owner confirmed the eBay Developers Program account was created.
+- [x] Owner created the SupplementScout application.
+- [x] Owner created Sandbox and Production keysets; Production remains disabled
+  pending notification compliance.
+- [ ] `USER ACTION REQUIRED`: deploy the account-deletion endpoint, add its
+  three production secrets, then configure and validate the exact endpoint and
+  matching verification token in eBay.
 - [ ] `USER ACTION REQUIRED`: store client ID, client secret and access tokens
   only in approved secret storage, never in Git or documentation.
 - [ ] `USER ACTION REQUIRED`: confirm the Browse scope and generate a Sandbox
@@ -1019,6 +1062,7 @@ Proposed names, only after access is approved:
 
 - `EBAY_CLIENT_ID`
 - `EBAY_CLIENT_SECRET`
+- `EBAY_NOTIFICATION_VERIFICATION_TOKEN`
 - `EBAY_MARKETPLACE_ID=EBAY_GB` (non-secret configuration)
 - `EBAY_EPN_CAMPAIGN_ID`
 - `EBAY_UK_DELIVERY_POSTCODE` (private operational configuration)
@@ -1198,8 +1242,9 @@ rollback and explicit approval.
 - Shipping can depend on postcode and may be missing or calculated.
 - Pack, flavour, formulation and condition ambiguity create false positives.
 - Current schema lacks first-class marketplace seller and selection evidence.
-- Production Browse API and price-comparison business-model approval are not
-  known.
+- Production keyset use remains disabled until eBay accepts the account-
+  deletion endpoint; Browse API production eligibility must still be verified
+  after that compliance gate.
 - Affiliate disclosure requires a future public design change, separately
   approved.
 - eBay API beta/contract and field behavior can change; reverify official docs
@@ -1209,8 +1254,11 @@ rollback and explicit approval.
 
 ## Blockers
 
-- `PENDING REVIEW`: EPN acceptance, campaign and affiliate use.
-- `PENDING APPROVAL`: eBay Developer/Buy API production access and credentials.
+- `APPROVED BY OWNER`: EPN account and eBay Developers account.
+- `PENDING CONFIGURATION`: deploy and validate the account-deletion endpoint so
+  eBay can enable the Production keyset.
+- `PENDING VERIFICATION`: Production Browse API access and campaign/affiliate
+  configuration after keyset enablement.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1219,13 +1267,25 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Wait for eBay Developers approval, create keyset, add credentials securely, run read-only 54-GTIN pilot.`
+`NEXT ACTION: Deploy the guarded account-deletion endpoint, add its secrets in deployment storage, validate it in eBay, then run the read-only 54-GTIN pilot.`
 
 The completed GTIN release must not be repeated. The Browse pilot remains
 read-only; no result can enter the catalogue or public site without a separate
 owner-reviewed production design and approval.
 
 ## Last verified
+
+14 August 2026:
+
+- Owner evidence confirms eBay Developers and EPN approval plus Sandbox and
+  Production keyset creation. The Production keyset is disabled pending the
+  marketplace account-deletion notification gate.
+- Audited the repo and confirmed that the earlier Browse pilot did not already
+  contain the required endpoint. Built the exact HTTPS route, deterministic
+  challenge response, signed POST verification, official public-key retrieval,
+  in-memory public-key cache, payload/size gates and explicit zero-store
+  deletion boundary. No database, offer, retailer mapping or public UI write
+  path was introduced.
 
 13 August 2026:
 
