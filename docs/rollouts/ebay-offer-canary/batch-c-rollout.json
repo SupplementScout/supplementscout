@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-c-exact-7-v1",
+  "approved": true,
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_C_EXACT_7",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-c.csv",
+  "csv_sha256": "3dbc35e0f8aebf04603a1c5781d293058d4ed5be23cfc877800e869feebce61a",
+  "artifact": "docs/rollouts/ebay-offer-canary/batch-c-artifact.json",
+  "artifact_sha256": "822e6d0b053b8f626309e9331b4b2a4e4ef1a67d6c4c961cbf99751501ede928",
+  "entries": [
+    { "plan_fingerprint": "931209f8132138f2a1e17e0b42260366", "source_row_fingerprint": "f09cb30aa61780c251e3b86773ecfd22dda94c9d378892a8a93fb05919ba194d", "product_id": "468", "product_variant_id": "2696", "gtin": "658556043530", "external_product_id": "167559344554", "external_variant_id": "v1|167559344554|467178581570", "flavour": "double-chocolate", "size_value": "73", "size_unit": "g", "pack_count": "12", "product_format": "snack", "price": "26.99", "shipping_cost": "0", "total_price": "26.99" },
+    { "plan_fingerprint": "1fcd3016ceb22233e9b76a1991037fa2", "source_row_fingerprint": "a0e22b719f46270acfd088768b5db6e27716250b5118be1d8ce9507103677cf0", "product_id": "176", "product_variant_id": "227", "gtin": "5901330022685", "external_product_id": "373250053773", "external_variant_id": "v1|373250053773|0", "flavour": null, "size_value": null, "size_unit": null, "pack_count": "1", "product_format": null, "price": "14.49", "shipping_cost": "0", "total_price": "14.49" },
+    { "plan_fingerprint": "b49af10464ed30b273ec4ec7aff736c9", "source_row_fingerprint": "5a5169747b208515dd4b765fe617adc2981f1ad2f82c6fb926e9750140c01523", "product_id": "348", "product_variant_id": "1063", "gtin": "810028291898", "external_product_id": "188580263639", "external_variant_id": "v1|188580263639|0", "flavour": "lime", "size_value": "330", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "38.5", "shipping_cost": "0", "total_price": "38.5" },
+    { "plan_fingerprint": "02677c31f7a43486508ae4a6ad8616f2", "source_row_fingerprint": "ab7050a4de865ae4cdbfe9d47244cb8d7b723faeaaf6197088373a4983b15758", "product_id": "338", "product_variant_id": "1785", "gtin": "5056555214503", "external_product_id": "406077156302", "external_variant_id": "v1|406077156302|677152097372", "flavour": "slush puppie cherry chill", "size_value": "875", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "43.99", "shipping_cost": "3.99", "total_price": "47.98" },
+    { "plan_fingerprint": "7a522e0cf1a9d1b6968d5cd570ccaa9d", "source_row_fingerprint": "8680ff8b3afe953488e2b0a828cb241365a504856966fba14791ab8524d6f9bf", "product_id": "789", "product_variant_id": "1087", "gtin": "3000992025781", "external_product_id": "236709473396", "external_variant_id": "v1|236709473396|537208106162", "flavour": "lemon sherbet fizz", "size_value": "570", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "29.99", "shipping_cost": "0", "total_price": "29.99" },
+    { "plan_fingerprint": "bb5908dec61be980976449aba32af2b4", "source_row_fingerprint": "f052353f706f41649129e0389394dd48ab10a3a591391da9bc10463582cb452b", "product_id": "67", "product_variant_id": "1033", "gtin": "5999076232857", "external_product_id": "206313508150", "external_variant_id": "v1|206313508150|507030098401", "flavour": "chocolate", "size_value": "908", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "35.08", "shipping_cost": "14.58", "total_price": "49.66" },
+    { "plan_fingerprint": "b8bd478c932579607837955057eedea0", "source_row_fingerprint": "a29a4052d0dce2e44b930ce8eed3646756ba983254a12f6535e0f734377a1d27", "product_id": "77", "product_variant_id": "1009", "gtin": "5060211301674", "external_product_id": "354815561341", "external_variant_id": "v1|354815561341|624134728915", "flavour": "vanilla ice cream", "size_value": "900", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "26.29", "shipping_cost": "0", "total_price": "26.29" }
+  ],
+  "rollout_fingerprint": "22cb09f8e3abc3d1c2dcfa27d67c9c1c050db5eebb753c4dc931d288bc8670c6"
+}

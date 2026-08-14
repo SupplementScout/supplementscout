@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: "Validate unless the owner explicitly approved the exact Batch B five apply"
+        description: "Validate unless the owner explicitly approved the exact Batch C seven apply"
         required: true
         default: validate
         type: choice
@@ -13,7 +13,7 @@ on:
           - apply
           - postflight
       owner_confirmation:
-        description: "Exact Batch B owner confirmation required; apply is blocked without it"
+        description: "Exact Batch C owner confirmation required; apply is blocked without it"
         required: true
         type: string
 
@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   canary:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_BATCH_B_EXACT_5') }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_BATCH_C_EXACT_7') }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment: production-readonly
@@ -53,7 +53,7 @@ jobs:
       - name: Run quality gate without production credentials
         run: npm run verify:quick
 
-      - name: Validate and optionally apply the exact reviewed Batch B five
+      - name: Validate and optionally apply the exact reviewed Batch C seven
         env:
           EBAY_CANARY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
           EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
@@ -66,8 +66,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          node scripts/import-products.js --dry-run --csv=docs/rollouts/ebay-offer-canary/batch-b.csv --artifact=tmp/ebay-offer-canary/postflight.json
-          node -e 'const a=require("./tmp/ebay-offer-canary/postflight.json");if(a.blocked_rows.length||a.plans.length!==5||a.plans.some(x=>{const p=x.resolved_plan;return p.product.action!=="existing"||p.product_variant.action!=="existing"||p.retailer.action!=="existing"||p.retailer_product.action!=="noop"||p.offer.action!=="noop"||p.price_history.action!=="noop"}))process.exit(1)'
+          node scripts/import-products.js --dry-run --csv=docs/rollouts/ebay-offer-canary/batch-c.csv --artifact=tmp/ebay-offer-canary/postflight.json
+          node -e 'const a=require("./tmp/ebay-offer-canary/postflight.json");if(a.blocked_rows.length||a.plans.length!==7||a.plans.some(x=>{const p=x.resolved_plan;return p.product.action!=="existing"||p.product_variant.action!=="existing"||p.retailer.action!=="existing"||p.retailer_product.action!=="noop"||p.offer.action!=="noop"||p.price_history.action!=="noop"}))process.exit(1)'
 
       - name: Publish result
         if: always()

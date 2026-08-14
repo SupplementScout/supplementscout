@@ -1,0 +1,1023 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-14T21:25:50.382Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "931209f8132138f2a1e17e0b42260366",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "468",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Critical Cookie 12 x 73g",
+            "product_format": "snack"
+          },
+          "product_variant": {
+            "display_name": "Double Chocolate Box of 12 / 73g",
+            "flavour_code": "double-chocolate",
+            "flavour_label": "Double Chocolate",
+            "id": "2696",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "12",
+            "product_format": "snack",
+            "product_id": "468",
+            "size_unit": "g",
+            "size_value": "73",
+            "variant_key": "double-chocolate-73g-12-pack"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "931209f8132138f2a1e17e0b42260366",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "f09cb30aa61780c251e3b86773ecfd22dda94c9d378892a8a93fb05919ba194d",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T21:25:48.139Z",
+            "price": "26.99",
+            "shipping_cost": "0",
+            "total_price": "26.99",
+            "url": "https://www.ebay.co.uk/itm/167559344554?var=467178581570&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "468"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Double Chocolate",
+              "Pack Count": "12",
+              "Size": "73g"
+            },
+            "flavour": "double-chocolate",
+            "pack_count": "12",
+            "product_format": "snack",
+            "size_unit": "g",
+            "size_value": "73"
+          },
+          "id": "2696"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "658556043530",
+            "external_name": "Critical Cookie 12 x 73g",
+            "external_options": {
+              "Flavour": "Double Chocolate",
+              "Pack Count": "12",
+              "Size": "73g"
+            },
+            "external_product_id": "167559344554",
+            "external_sku": null,
+            "external_slug": "ebay-167559344554-467178581570",
+            "external_url": "https://www.ebay.co.uk/itm/167559344554?var=467178581570",
+            "external_variant_id": "v1|167559344554|467178581570",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2696"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "f09cb30aa61780c251e3b86773ecfd22dda94c9d378892a8a93fb05919ba194d"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "1fcd3016ceb22233e9b76a1991037fa2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "176",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Olimp Chela Mag B6 Forte 60 Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "227",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "176",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "1fcd3016ceb22233e9b76a1991037fa2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "a0e22b719f46270acfd088768b5db6e27716250b5118be1d8ce9507103677cf0",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T21:25:48.567Z",
+            "price": "14.49",
+            "shipping_cost": "0",
+            "total_price": "14.49",
+            "url": "https://www.ebay.co.uk/itm/373250053773?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "176"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {},
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "227"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5901330022685",
+            "external_name": "Olimp Chela Mag B6 Forte 60 Capsules",
+            "external_options": {},
+            "external_product_id": "373250053773",
+            "external_sku": null,
+            "external_slug": "ebay-373250053773",
+            "external_url": "https://www.ebay.co.uk/itm/373250053773",
+            "external_variant_id": "v1|373250053773|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "227"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "a0e22b719f46270acfd088768b5db6e27716250b5118be1d8ce9507103677cf0"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "b49af10464ed30b273ec4ec7aff736c9",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "348",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Ghost Greens 330g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Lime / 330g",
+            "flavour_code": "lime",
+            "flavour_label": "Lime",
+            "id": "1063",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "348",
+            "size_unit": "g",
+            "size_value": "330",
+            "variant_key": "lime-330g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "b49af10464ed30b273ec4ec7aff736c9",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "5a5169747b208515dd4b765fe617adc2981f1ad2f82c6fb926e9750140c01523",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T21:25:48.954Z",
+            "price": "38.5",
+            "shipping_cost": "0",
+            "total_price": "38.5",
+            "url": "https://www.ebay.co.uk/itm/188580263639?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "348"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Lime",
+              "Size": "330g"
+            },
+            "flavour": "lime",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "330"
+          },
+          "id": "1063"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "810028291898",
+            "external_name": "Ghost Greens 330g",
+            "external_options": {
+              "Flavour": "Lime",
+              "Size": "330g"
+            },
+            "external_product_id": "188580263639",
+            "external_sku": null,
+            "external_slug": "ebay-188580263639",
+            "external_url": "https://www.ebay.co.uk/itm/188580263639",
+            "external_variant_id": "v1|188580263639|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1063"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "5a5169747b208515dd4b765fe617adc2981f1ad2f82c6fb926e9750140c01523"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "02677c31f7a43486508ae4a6ad8616f2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "338",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Clear Whey Protein 875g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Slush Puppie Cherry Chill / 875g",
+            "flavour_code": "slush puppie cherry chill",
+            "flavour_label": "Slush Puppie Cherry Chill",
+            "id": "1785",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "338",
+            "size_unit": "g",
+            "size_value": "875",
+            "variant_key": "slush-puppie-cherry-chill-875g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "02677c31f7a43486508ae4a6ad8616f2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "ab7050a4de865ae4cdbfe9d47244cb8d7b723faeaaf6197088373a4983b15758",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T21:25:49.324Z",
+            "price": "43.99",
+            "shipping_cost": "3.99",
+            "total_price": "47.98",
+            "url": "https://www.ebay.co.uk/itm/406077156302?var=677152097372&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "338"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Slush Puppie Cherry Chill",
+              "Size": "875g"
+            },
+            "flavour": "slush puppie cherry chill",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "875"
+          },
+          "id": "1785"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555214503",
+            "external_name": "Applied Nutrition Clear Whey Protein 875g",
+            "external_options": {
+              "Flavour": "Slush Puppie Cherry Chill",
+              "Size": "875g"
+            },
+            "external_product_id": "406077156302",
+            "external_sku": null,
+            "external_slug": "ebay-406077156302-677152097372",
+            "external_url": "https://www.ebay.co.uk/itm/406077156302?var=677152097372",
+            "external_variant_id": "v1|406077156302|677152097372",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1785"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "ab7050a4de865ae4cdbfe9d47244cb8d7b723faeaaf6197088373a4983b15758"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7a522e0cf1a9d1b6968d5cd570ccaa9d",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "789",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m Pre-Workout Stim 570g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Lemon Sherbet Fizz / 570g",
+            "flavour_code": "lemon sherbet fizz",
+            "flavour_label": "Lemon Sherbet Fizz",
+            "id": "1087",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "789",
+            "size_unit": "g",
+            "size_value": "570",
+            "variant_key": "lemon-sherbet-fizz-570g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7a522e0cf1a9d1b6968d5cd570ccaa9d",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "8680ff8b3afe953488e2b0a828cb241365a504856966fba14791ab8524d6f9bf",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T21:25:49.692Z",
+            "price": "29.99",
+            "shipping_cost": "0",
+            "total_price": "29.99",
+            "url": "https://www.ebay.co.uk/itm/236709473396?var=537208106162&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xAaZ6cMIR%2BzllnOQZ9GI6FKH9ZUn6IBlDqg87r6zwNFV%2BmzZf7UhpcvHpZv0Qr9UDjM01oq76ZiMxjabLC2pDXAr4QO14PewFxjBX1W%2BNcvUpVFOf9%2F284KUKrS2%2BPpFeG0AFyPkBHuM0Y95i1xXPqvh3Wrd3Rvd1GQgqtpTp4ACh%2FHnZ4hTcNg9Kx7PrdnBiI%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "789"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Lemon Sherbet Fizz",
+              "Size": "570g"
+            },
+            "flavour": "lemon sherbet fizz",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "570"
+          },
+          "id": "1087"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "3000992025781",
+            "external_name": "Per4m Pre-Workout Stim 570g",
+            "external_options": {
+              "Flavour": "Lemon Sherbet Fizz",
+              "Size": "570g"
+            },
+            "external_product_id": "236709473396",
+            "external_sku": null,
+            "external_slug": "ebay-236709473396-537208106162",
+            "external_url": "https://www.ebay.co.uk/itm/236709473396?var=537208106162",
+            "external_variant_id": "v1|236709473396|537208106162",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1087"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "8680ff8b3afe953488e2b0a828cb241365a504856966fba14791ab8524d6f9bf"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "bb5908dec61be980976449aba32af2b4",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "67",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Micellar Casein 908g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Chocolate / 908g",
+            "flavour_code": "chocolate",
+            "flavour_label": "Chocolate",
+            "id": "1033",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "67",
+            "size_unit": "g",
+            "size_value": "908",
+            "variant_key": "chocolate-908g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "bb5908dec61be980976449aba32af2b4",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "f052353f706f41649129e0389394dd48ab10a3a591391da9bc10463582cb452b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T21:25:50.033Z",
+            "price": "35.08",
+            "shipping_cost": "14.58",
+            "total_price": "49.66",
+            "url": "https://www.ebay.co.uk/itm/206313508150?var=507030098401&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "67"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Chocolate",
+              "Size": "908g"
+            },
+            "flavour": "chocolate",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "908"
+          },
+          "id": "1033"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076232857",
+            "external_name": "BioTech USA Micellar Casein 908g",
+            "external_options": {
+              "Flavour": "Chocolate",
+              "Size": "908g"
+            },
+            "external_product_id": "206313508150",
+            "external_sku": null,
+            "external_slug": "ebay-206313508150-507030098401",
+            "external_url": "https://www.ebay.co.uk/itm/206313508150?var=507030098401",
+            "external_variant_id": "v1|206313508150|507030098401",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1033"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "f052353f706f41649129e0389394dd48ab10a3a591391da9bc10463582cb452b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "b8bd478c932579607837955057eedea0",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "77",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Boditronics Diet Whey 900g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Vanilla Ice Cream / 900g",
+            "flavour_code": "vanilla ice cream",
+            "flavour_label": "Vanilla Ice Cream",
+            "id": "1009",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "77",
+            "size_unit": "g",
+            "size_value": "900",
+            "variant_key": "vanilla-ice-cream-900g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "b8bd478c932579607837955057eedea0",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "a29a4052d0dce2e44b930ce8eed3646756ba983254a12f6535e0f734377a1d27",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T21:25:50.380Z",
+            "price": "26.29",
+            "shipping_cost": "0",
+            "total_price": "26.29",
+            "url": "https://www.ebay.co.uk/itm/354815561341?var=624134728915&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xBPs3djH%2BDh9w6tvzbf%2FZ1qtJmx8vBWnQrSZtp4f2n%2FZv4bktXrAIT2DivDI5MPpTYniWBAoo9vhGLCyb%2FIu8Eim5V7lFHWbiCEPBUMwZeBICw86UDak7UXizsLvXOHo6Iw2HWdfh5nBpHCGTPwqxdt2HCZ%2FwV0PlQ4crdhQ4uDSDDTHKysrwlTLwaD6f18EgI%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "77"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Vanilla Ice Cream",
+              "Size": "900g"
+            },
+            "flavour": "vanilla ice cream",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "900"
+          },
+          "id": "1009"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060211301674",
+            "external_name": "Boditronics Diet Whey 900g",
+            "external_options": {
+              "Flavour": "Vanilla Ice Cream",
+              "Size": "900g"
+            },
+            "external_product_id": "354815561341",
+            "external_sku": null,
+            "external_slug": "ebay-354815561341-624134728915",
+            "external_url": "https://www.ebay.co.uk/itm/354815561341?var=624134728915",
+            "external_variant_id": "v1|354815561341|624134728915",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1009"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "a29a4052d0dce2e44b930ce8eed3646756ba983254a12f6535e0f734377a1d27"
+    }
+  ],
+  "row_count": "7",
+  "run_id": "0e212ebd-5ee5-4656-9b25-eb409b4c9525",
+  "source_file_name": "ebay-owner-approved-7-import-2026-08-14T21-24-58-136Z.csv",
+  "source_file_sha256": "3dbc35e0f8aebf04603a1c5781d293058d4ed5be23cfc877800e869feebce61a",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/167559344554?var=467178581570&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Bars",
+        "external_gtin": "658556043530",
+        "external_options": "{\"Size\":\"73g\",\"Flavour\":\"Double Chocolate\",\"Pack Count\":12}",
+        "external_product_id": "167559344554",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/167559344554?var=467178581570",
+        "external_variant_id": "v1|167559344554|467178581570",
+        "flavour": "Double Chocolate",
+        "image": "https://i.ebayimg.com/images/g/w3IAAOSwFx5oPsDo/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "12",
+        "price": "26.99",
+        "product_format": "snack",
+        "product_id": "468",
+        "product_name": "Critical Cookie 12 x 73g",
+        "product_variant_id": "2696",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "73g",
+        "size_unit": "g",
+        "slug": "ebay-167559344554-467178581570",
+        "variant_name": "Double Chocolate Box of 12 / 73g"
+      },
+      "plan_fingerprint": "931209f8132138f2a1e17e0b42260366",
+      "row_number": "2",
+      "source_row_fingerprint": "f09cb30aa61780c251e3b86773ecfd22dda94c9d378892a8a93fb05919ba194d",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/373250053773?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Olimp",
+        "category": "Vitamins",
+        "external_gtin": "5901330022685",
+        "external_options": "{}",
+        "external_product_id": "373250053773",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/373250053773",
+        "external_variant_id": "v1|373250053773|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/-7kAAeSwVZdptpLw/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "14.49",
+        "product_format": "",
+        "product_id": "176",
+        "product_name": "Olimp Chela Mag B6 Forte 60 Capsules",
+        "product_variant_id": "227",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "ebay-373250053773",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "1fcd3016ceb22233e9b76a1991037fa2",
+      "row_number": "3",
+      "source_row_fingerprint": "a0e22b719f46270acfd088768b5db6e27716250b5118be1d8ce9507103677cf0",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/188580263639?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Ghost",
+        "category": "Health Supplements",
+        "external_gtin": "810028291898",
+        "external_options": "{\"Size\":\"330g\",\"Flavour\":\"Lime\"}",
+        "external_product_id": "188580263639",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/188580263639",
+        "external_variant_id": "v1|188580263639|0",
+        "flavour": "Lime",
+        "image": "https://i.ebayimg.com/images/g/Dz4AAeSwrzFqQ6lV/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "38.5",
+        "product_format": "powder",
+        "product_id": "348",
+        "product_name": "Ghost Greens 330g",
+        "product_variant_id": "1063",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "330g",
+        "size_unit": "g",
+        "slug": "ebay-188580263639",
+        "variant_name": "Lime / 330g"
+      },
+      "plan_fingerprint": "b49af10464ed30b273ec4ec7aff736c9",
+      "row_number": "4",
+      "source_row_fingerprint": "5a5169747b208515dd4b765fe617adc2981f1ad2f82c6fb926e9750140c01523",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/406077156302?var=677152097372&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Whey Protein",
+        "external_gtin": "5056555214503",
+        "external_options": "{\"Size\":\"875g\",\"Flavour\":\"Slush Puppie Cherry Chill\"}",
+        "external_product_id": "406077156302",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/406077156302?var=677152097372",
+        "external_variant_id": "v1|406077156302|677152097372",
+        "flavour": "Slush Puppie Cherry Chill",
+        "image": "https://cdn.shopify.com/s/files/1/0710/8932/4300/files/6AD21A54-0C10-47F4-8063-2554E38218E5.jpg?v=1779710115",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "43.99",
+        "product_format": "powder",
+        "product_id": "338",
+        "product_name": "Applied Nutrition Clear Whey Protein 875g",
+        "product_variant_id": "1785",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "875g",
+        "size_unit": "g",
+        "slug": "ebay-406077156302-677152097372",
+        "variant_name": "Slush Puppie Cherry Chill / 875g"
+      },
+      "plan_fingerprint": "02677c31f7a43486508ae4a6ad8616f2",
+      "row_number": "5",
+      "source_row_fingerprint": "ab7050a4de865ae4cdbfe9d47244cb8d7b723faeaaf6197088373a4983b15758",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/236709473396?var=537208106162&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xAaZ6cMIR%2BzllnOQZ9GI6FKH9ZUn6IBlDqg87r6zwNFV%2BmzZf7UhpcvHpZv0Qr9UDjM01oq76ZiMxjabLC2pDXAr4QO14PewFxjBX1W%2BNcvUpVFOf9%2F284KUKrS2%2BPpFeG0AFyPkBHuM0Y95i1xXPqvh3Wrd3Rvd1GQgqtpTp4ACh%2FHnZ4hTcNg9Kx7PrdnBiI%3D",
+        "brand": "Per4m",
+        "category": "Pre Workout",
+        "external_gtin": "3000992025781",
+        "external_options": "{\"Size\":\"570g\",\"Flavour\":\"Lemon Sherbet Fizz\"}",
+        "external_product_id": "236709473396",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/236709473396?var=537208106162",
+        "external_variant_id": "v1|236709473396|537208106162",
+        "flavour": "Lemon Sherbet Fizz",
+        "image": "https://i.ebayimg.com/images/g/va4AAeSwYnNpwqo~/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "29.99",
+        "product_format": "powder",
+        "product_id": "789",
+        "product_name": "Per4m Pre-Workout Stim 570g",
+        "product_variant_id": "1087",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "570g",
+        "size_unit": "g",
+        "slug": "ebay-236709473396-537208106162",
+        "variant_name": "Lemon Sherbet Fizz / 570g"
+      },
+      "plan_fingerprint": "7a522e0cf1a9d1b6968d5cd570ccaa9d",
+      "row_number": "6",
+      "source_row_fingerprint": "8680ff8b3afe953488e2b0a828cb241365a504856966fba14791ab8524d6f9bf",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/206313508150?var=507030098401&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Whey Protein",
+        "external_gtin": "5999076232857",
+        "external_options": "{\"Size\":\"908g\",\"Flavour\":\"Chocolate\"}",
+        "external_product_id": "206313508150",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/206313508150?var=507030098401",
+        "external_variant_id": "v1|206313508150|507030098401",
+        "flavour": "Chocolate",
+        "image": "https://i.ebayimg.com/images/g/fp0AAOSwu~lklaKx/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "35.08",
+        "product_format": "powder",
+        "product_id": "67",
+        "product_name": "BioTech USA Micellar Casein 908g",
+        "product_variant_id": "1033",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "14.58",
+        "shipping_known": "true",
+        "size": "908g",
+        "size_unit": "g",
+        "slug": "ebay-206313508150-507030098401",
+        "variant_name": "Chocolate / 908g"
+      },
+      "plan_fingerprint": "bb5908dec61be980976449aba32af2b4",
+      "row_number": "7",
+      "source_row_fingerprint": "f052353f706f41649129e0389394dd48ab10a3a591391da9bc10463582cb452b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/354815561341?var=624134728915&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xBPs3djH%2BDh9w6tvzbf%2FZ1qtJmx8vBWnQrSZtp4f2n%2FZv4bktXrAIT2DivDI5MPpTYniWBAoo9vhGLCyb%2FIu8Eim5V7lFHWbiCEPBUMwZeBICw86UDak7UXizsLvXOHo6Iw2HWdfh5nBpHCGTPwqxdt2HCZ%2FwV0PlQ4crdhQ4uDSDDTHKysrwlTLwaD6f18EgI%3D",
+        "brand": "Boditronics",
+        "category": "Whey Protein",
+        "external_gtin": "5060211301674",
+        "external_options": "{\"Size\":\"900g\",\"Flavour\":\"Vanilla Ice Cream\"}",
+        "external_product_id": "354815561341",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/354815561341?var=624134728915",
+        "external_variant_id": "v1|354815561341|624134728915",
+        "flavour": "Vanilla Ice Cream",
+        "image": "https://i.ebayimg.com/images/g/Y98AAOSwwdhkdHg6/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "26.29",
+        "product_format": "powder",
+        "product_id": "77",
+        "product_name": "Boditronics Diet Whey 900g",
+        "product_variant_id": "1009",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "900g",
+        "size_unit": "g",
+        "slug": "ebay-354815561341-624134728915",
+        "variant_name": "Vanilla Ice Cream / 900g"
+      },
+      "plan_fingerprint": "b8bd478c932579607837955057eedea0",
+      "row_number": "8",
+      "source_row_fingerprint": "a29a4052d0dce2e44b930ce8eed3646756ba983254a12f6535e0f734377a1d27",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "7",
+    "skipped_row_count": "0"
+  }
+}
