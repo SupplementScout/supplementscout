@@ -6,19 +6,15 @@ const { loadDryRunArtifact } = require("./import-products");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const KIND = "ebay-offer-canary-bootstrap-v1";
-const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_A_BOOTSTRAP_1";
-const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "rollout.json");
-const EXPECTED_SCOPE = {
-  product_id: "10",
-  product_variant_id: "1704",
-  gtin: "5999076263851",
-  external_product_id: "323304007010",
-  external_variant_id: "v1|323304007010|515705810394",
-  retailer_action: "create",
-  retailer_product_action: "create",
-  offer_action: "create",
-};
+const KIND = "ebay-offer-canary-remaining-4-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_A_REMAINING_4";
+const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "remaining-4-rollout.json");
+const EXPECTED_SCOPE = [
+  { product_id: "71", product_variant_id: "1008", gtin: "5999076228362", external_product_id: "394018039646", external_variant_id: "v1|394018039646|662564730390", flavour: "chocolate-cinnamon", size_value: "500", price: "19.99" },
+  { product_id: "27", product_variant_id: "1586", gtin: "842595109191", external_product_id: "373707858011", external_variant_id: "v1|373707858011|642746534512", flavour: "green apple", size_value: "195", price: "19.99" },
+  { product_id: "489", product_variant_id: "1792", gtin: "627933026183", external_product_id: "204481126203", external_variant_id: "v1|204481126203|505073669739", flavour: "roadside lemonade", size_value: "225", price: "19.95" },
+  { product_id: "528", product_variant_id: "1847", gtin: "8594073170477", external_product_id: "145921318153", external_variant_id: "v1|145921318153|444963406167", flavour: "rainbow", size_value: "225", price: "18.1" },
+];
 
 function fail(message) { throw new Error(message); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
@@ -41,10 +37,20 @@ function parseArgs(argv) {
 function validateRollout() {
   const rollout = JSON.parse(fs.readFileSync(ROLLOUT_PATH, "utf8"));
   const fingerprint = sha256(JSON.stringify({ ...rollout, rollout_fingerprint: null }));
+  const approvedScope = rollout.entries?.map((entry) => ({
+    product_id: entry.product_id,
+    product_variant_id: entry.product_variant_id,
+    gtin: entry.gtin,
+    external_product_id: entry.external_product_id,
+    external_variant_id: entry.external_variant_id,
+    flavour: entry.flavour,
+    size_value: entry.size_value,
+    price: entry.price,
+  }));
   if (
     rollout.schema_version !== 1 || rollout.kind !== KIND || rollout.approved !== true ||
     rollout.owner_confirmation !== CONFIRMATION || rollout.target_project_ref !== PROJECT_REF ||
-    rollout.rollout_fingerprint !== fingerprint || JSON.stringify(rollout.scope) !== JSON.stringify(EXPECTED_SCOPE)
+    rollout.rollout_fingerprint !== fingerprint || JSON.stringify(approvedScope) !== JSON.stringify(EXPECTED_SCOPE)
   ) fail("Rollout approval, target, scope or fingerprint mismatch");
 
   const csvPath = path.resolve(ROOT, rollout.csv);
@@ -58,30 +64,35 @@ function validateRollout() {
   const csvSha = sha256(fs.readFileSync(csvPath));
   if (
     loaded.artifactSha256 !== rollout.artifact_sha256 || csvSha !== rollout.csv_sha256 ||
-    loaded.artifact.source_file_sha256 !== csvSha || loaded.artifact.plans.length !== 1 ||
+    loaded.artifact.source_file_sha256 !== csvSha || loaded.artifact.plans.length !== EXPECTED_SCOPE.length ||
     loaded.artifact.blocked_rows.length !== 0
   ) fail("Artifact or source hash mismatch");
 
-  const entry = loaded.artifact.plans[0];
-  const plan = entry.resolved_plan;
-  if (
-    entry.plan_fingerprint !== rollout.plan_fingerprint ||
-    entry.source_row_fingerprint !== rollout.source_row_fingerprint || entry.plan_kind !== "manual" ||
-    entry.retailer_id !== null || String(plan.product?.id) !== EXPECTED_SCOPE.product_id || plan.product?.action !== "existing" ||
-    String(plan.product_variant?.id) !== EXPECTED_SCOPE.product_variant_id || plan.product_variant?.action !== "existing" ||
-    plan.product_variant?.evidence?.flavour !== "vanilla" || String(plan.product_variant?.evidence?.size_value) !== "1816" ||
-    plan.product_variant?.evidence?.size_unit !== "g" || String(plan.product_variant?.evidence?.pack_count) !== "1" ||
-    plan.product_variant?.evidence?.product_format !== "powder" || plan.retailer?.action !== EXPECTED_SCOPE.retailer_action ||
-    plan.retailer?.values?.slug !== "ebay-uk" || plan.retailer_product?.action !== EXPECTED_SCOPE.retailer_product_action ||
-    plan.retailer_product?.values?.external_gtin !== EXPECTED_SCOPE.gtin ||
-    plan.retailer_product?.values?.external_product_id !== EXPECTED_SCOPE.external_product_id ||
-    plan.retailer_product?.values?.external_variant_id !== EXPECTED_SCOPE.external_variant_id ||
-    plan.retailer_product?.values?.match_method !== "gtin" || String(plan.retailer_product?.values?.match_confidence) !== "100" ||
-    plan.offer?.action !== EXPECTED_SCOPE.offer_action || plan.offer?.values?.price !== "77.99" ||
-    plan.offer?.values?.shipping_cost !== "0" || plan.offer?.values?.total_price !== "77.99" ||
-    plan.offer?.values?.in_stock !== true || !/[?&]campid=\d+/.test(plan.offer?.values?.url || "")
-  ) fail("Reviewed plan identity or mutation scope mismatch");
-  return { rollout, loaded, entry };
+  const entries = loaded.artifact.plans.map((entry, index) => {
+    const expected = EXPECTED_SCOPE[index];
+    const approved = rollout.entries[index];
+    const plan = entry.resolved_plan;
+    if (
+      entry.plan_fingerprint !== approved.plan_fingerprint || entry.source_row_fingerprint !== approved.source_row_fingerprint ||
+      entry.plan_kind !== "manual" || String(entry.retailer_id) !== "12" ||
+      String(plan.product?.id) !== expected.product_id || plan.product?.action !== "existing" ||
+      String(plan.product_variant?.id) !== expected.product_variant_id || plan.product_variant?.action !== "existing" ||
+      plan.product_variant?.evidence?.flavour !== expected.flavour ||
+      String(plan.product_variant?.evidence?.size_value) !== expected.size_value || plan.product_variant?.evidence?.size_unit !== "g" ||
+      String(plan.product_variant?.evidence?.pack_count) !== "1" || plan.product_variant?.evidence?.product_format !== "powder" ||
+      plan.retailer?.action !== "existing" || String(plan.retailer?.id) !== "12" ||
+      plan.retailer_product?.action !== "create" || plan.retailer_product?.values?.external_gtin !== expected.gtin ||
+      plan.retailer_product?.values?.external_product_id !== expected.external_product_id ||
+      plan.retailer_product?.values?.external_variant_id !== expected.external_variant_id ||
+      plan.retailer_product?.values?.match_method !== "gtin" || String(plan.retailer_product?.values?.match_confidence) !== "100" ||
+      plan.offer?.action !== "create" || plan.offer?.values?.price !== expected.price ||
+      plan.offer?.values?.shipping_cost !== "0" || plan.offer?.values?.total_price !== expected.price ||
+      plan.offer?.values?.in_stock !== true || !/[?&]campid=\d+/.test(plan.offer?.values?.url || "") ||
+      plan.price_history?.action !== "create"
+    ) fail(`Reviewed plan ${index + 1} identity or mutation scope mismatch`);
+    return { loaded, entry };
+  });
+  return { rollout, entries };
 }
 
 function credential(kind) {
@@ -131,7 +142,7 @@ async function executePlan(item) {
   ) fail("Approval metadata mismatch");
   const applied = await roleCall("executor", async (client) => (await client.query(
     "select public.apply_approved_product_import_plan($1::uuid,$2,$3,$4,$5::bigint,$6,$7) result",
-    [approval.approval_id, loaded.artifactSha256, entry.plan_fingerprint, entry.source_row_fingerprint, null, entry.plan_kind, loaded.artifact.run_id]
+    [approval.approval_id, loaded.artifactSha256, entry.plan_fingerprint, entry.source_row_fingerprint, entry.retailer_id, entry.plan_kind, loaded.artifact.run_id]
   )).rows[0].result);
   if (applied?.approval_status !== "consumed" || applied.plan_fingerprint !== entry.plan_fingerprint) fail("Apply metadata mismatch");
   return {
@@ -147,16 +158,18 @@ async function executePlan(item) {
 async function run(options) {
   if (
     process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REF !== "refs/heads/main" ||
-    process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" ||
-    process.env.EBAY_CANARY_OWNER_CONFIRMATION !== CONFIRMATION
+    process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" || process.env.EBAY_CANARY_OWNER_CONFIRMATION !== CONFIRMATION
   ) fail("Production canary requires the exact owner-approved manual GitHub Actions dispatch on main");
-  const item = validateRollout();
-  const rows = options.mode === "apply" ? [await executePlan(item)] : [];
+  const validated = validateRollout();
+  const rows = [];
+  if (options.mode === "apply") {
+    for (const item of validated.entries) rows.push(await executePlan(item));
+  }
   const report = {
     schema_version: 1,
     kind: `${KIND}-${options.mode}`,
-    rollout_fingerprint: item.rollout.rollout_fingerprint,
-    validated_plan_count: 1,
+    rollout_fingerprint: validated.rollout.rollout_fingerprint,
+    validated_plan_count: validated.entries.length,
     executed_plan_count: rows.length,
     rows,
     completed_at: new Date().toISOString(),

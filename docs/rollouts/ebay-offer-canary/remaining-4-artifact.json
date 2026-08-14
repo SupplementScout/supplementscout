@@ -1,0 +1,595 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-14T16:30:11.733Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "313c2ee34617c9a8233af1f5873c2d46",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "71",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Vegan Protein 500g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Chocolate-Cinnamon / 500g",
+            "flavour_code": "chocolate-cinnamon",
+            "flavour_label": "Chocolate-Cinnamon",
+            "id": "1008",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "71",
+            "size_unit": "g",
+            "size_value": "500",
+            "variant_key": "chocolate-cinnamon-500g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "313c2ee34617c9a8233af1f5873c2d46",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "940cead4a63fdc65c5a8760b81d68564642d8f928362c84f45e388db9e6980f3",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:30:09.997Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/394018039646?var=662564730390&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "71"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Chocolate-Cinnamon",
+              "Size": "500g"
+            },
+            "flavour": "chocolate-cinnamon",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "500"
+          },
+          "id": "1008"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076228362",
+            "external_name": "BioTech USA Vegan Protein 500g",
+            "external_options": {
+              "Flavour": "Chocolate-Cinnamon",
+              "Size": "500g"
+            },
+            "external_product_id": "394018039646",
+            "external_sku": null,
+            "external_slug": "ebay-394018039646-662564730390",
+            "external_url": "https://www.ebay.co.uk/itm/394018039646?var=662564730390",
+            "external_variant_id": "v1|394018039646|662564730390",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1008"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "940cead4a63fdc65c5a8760b81d68564642d8f928362c84f45e388db9e6980f3"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "53638ac1fecd4627eab5f2ea17aee273",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "27",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Cellucor C4 Original 195g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Green Apple / 195g",
+            "flavour_code": "green apple",
+            "flavour_label": "Green Apple",
+            "id": "1586",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "27",
+            "size_unit": "g",
+            "size_value": "195",
+            "variant_key": "green-apple-195g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "53638ac1fecd4627eab5f2ea17aee273",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "32b7c4920fc1115d6c0ae97b67f5c7351e11becc298235cd6de7579c2eafcfa7",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:30:10.596Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/373707858011?var=642746534512&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "27"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Green Apple",
+              "Size": "195g"
+            },
+            "flavour": "green apple",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "195"
+          },
+          "id": "1586"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "842595109191",
+            "external_name": "Cellucor C4 Original 195g",
+            "external_options": {
+              "Flavour": "Green Apple",
+              "Size": "195g"
+            },
+            "external_product_id": "373707858011",
+            "external_sku": null,
+            "external_slug": "ebay-373707858011-642746534512",
+            "external_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534512",
+            "external_variant_id": "v1|373707858011|642746534512",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1586"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "32b7c4920fc1115d6c0ae97b67f5c7351e11becc298235cd6de7579c2eafcfa7"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c2da103f91b1e8f5bada0bb4fbf52000",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "489",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Mutant Madness Pre Workout 225g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Roadside Lemonade / 225g",
+            "flavour_code": "roadside lemonade",
+            "flavour_label": "Roadside Lemonade",
+            "id": "1792",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "489",
+            "size_unit": "g",
+            "size_value": "225",
+            "variant_key": "roadside-lemonade-225g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c2da103f91b1e8f5bada0bb4fbf52000",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "02f0b624a37ed1d05248255f7535418fb5166a8788e5135dfa9047540561c9f3",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:30:11.179Z",
+            "price": "19.95",
+            "shipping_cost": "0",
+            "total_price": "19.95",
+            "url": "https://www.ebay.co.uk/itm/204481126203?var=505073669739&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "489"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Roadside Lemonade",
+              "Size": "225g"
+            },
+            "flavour": "roadside lemonade",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "225"
+          },
+          "id": "1792"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "627933026183",
+            "external_name": "Mutant Madness Pre Workout 225g",
+            "external_options": {
+              "Flavour": "Roadside Lemonade",
+              "Size": "225g"
+            },
+            "external_product_id": "204481126203",
+            "external_sku": null,
+            "external_slug": "ebay-204481126203-505073669739",
+            "external_url": "https://www.ebay.co.uk/itm/204481126203?var=505073669739",
+            "external_variant_id": "v1|204481126203|505073669739",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1792"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "02f0b624a37ed1d05248255f7535418fb5166a8788e5135dfa9047540561c9f3"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "28dbbfd931e6a52f8f99c705c58b255b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "528",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Nutrend  Pump Pre-Workout",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Rainbow / 225g",
+            "flavour_code": "rainbow",
+            "flavour_label": "Rainbow",
+            "id": "1847",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "528",
+            "size_unit": "g",
+            "size_value": "225",
+            "variant_key": "rainbow-225g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "28dbbfd931e6a52f8f99c705c58b255b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "654cc10a5a60c04f99cebba7aeabfee60b29908a1efedb83234d96135dea4c17",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:30:11.731Z",
+            "price": "18.1",
+            "shipping_cost": "0",
+            "total_price": "18.1",
+            "url": "https://www.ebay.co.uk/itm/145921318153?var=444963406167&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "528"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Rainbow",
+              "Size": "225g"
+            },
+            "flavour": "rainbow",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "225"
+          },
+          "id": "1847"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "8594073170477",
+            "external_name": "Nutrend Pump Pre-Workout",
+            "external_options": {
+              "Flavour": "Rainbow",
+              "Size": "225g"
+            },
+            "external_product_id": "145921318153",
+            "external_sku": null,
+            "external_slug": "ebay-145921318153-444963406167",
+            "external_url": "https://www.ebay.co.uk/itm/145921318153?var=444963406167",
+            "external_variant_id": "v1|145921318153|444963406167",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1847"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "654cc10a5a60c04f99cebba7aeabfee60b29908a1efedb83234d96135dea4c17"
+    }
+  ],
+  "row_count": "4",
+  "run_id": "047d1131-cd19-4fbc-a209-6e09e9bfd0b7",
+  "source_file_name": "remaining-4.csv",
+  "source_file_sha256": "9c3d74e9c7020f114880221feeea5d63bb99c36bdc164143fa401624ad7da282",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/394018039646?var=662564730390&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Whey Protein",
+        "external_gtin": "5999076228362",
+        "external_options": "{\"Size\":\"500g\",\"Flavour\":\"Chocolate-Cinnamon\"}",
+        "external_product_id": "394018039646",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/394018039646?var=662564730390",
+        "external_variant_id": "v1|394018039646|662564730390",
+        "flavour": "Chocolate-Cinnamon",
+        "image": "https://files.ekmcdn.com/2ab763/images/biotech-usa-vegan-protein-500g-312-dv-p.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.99",
+        "product_format": "powder",
+        "product_id": "71",
+        "product_name": "BioTech USA Vegan Protein 500g",
+        "product_variant_id": "1008",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "500g",
+        "size_unit": "g",
+        "slug": "ebay-394018039646-662564730390",
+        "variant_name": "Chocolate-Cinnamon / 500g"
+      },
+      "plan_fingerprint": "313c2ee34617c9a8233af1f5873c2d46",
+      "row_number": "2",
+      "source_row_fingerprint": "940cead4a63fdc65c5a8760b81d68564642d8f928362c84f45e388db9e6980f3",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534512&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Cellucor",
+        "category": "Pre Workout",
+        "external_gtin": "842595109191",
+        "external_options": "{\"Size\":\"195g\",\"Flavour\":\"Green Apple\"}",
+        "external_product_id": "373707858011",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534512",
+        "external_variant_id": "v1|373707858011|642746534512",
+        "flavour": "Green Apple",
+        "image": "https://files.ekmcdn.com/2ab763/images/cellucor-c4-original-195g-105-p.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.99",
+        "product_format": "powder",
+        "product_id": "27",
+        "product_name": "Cellucor C4 Original 195g",
+        "product_variant_id": "1586",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "195g",
+        "size_unit": "g",
+        "slug": "ebay-373707858011-642746534512",
+        "variant_name": "Green Apple / 195g"
+      },
+      "plan_fingerprint": "53638ac1fecd4627eab5f2ea17aee273",
+      "row_number": "3",
+      "source_row_fingerprint": "32b7c4920fc1115d6c0ae97b67f5c7351e11becc298235cd6de7579c2eafcfa7",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/204481126203?var=505073669739&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Mutant",
+        "category": "Pre Workout",
+        "external_gtin": "627933026183",
+        "external_options": "{\"Size\":\"225g\",\"Flavour\":\"Roadside Lemonade\"}",
+        "external_product_id": "204481126203",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/204481126203?var=505073669739",
+        "external_variant_id": "v1|204481126203|505073669739",
+        "flavour": "Roadside Lemonade",
+        "image": "https://files.ekmcdn.com/2ab763/images/mutant-madness-pre-workout-225g-3789-p.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.95",
+        "product_format": "powder",
+        "product_id": "489",
+        "product_name": "Mutant Madness Pre Workout 225g",
+        "product_variant_id": "1792",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "225g",
+        "size_unit": "g",
+        "slug": "ebay-204481126203-505073669739",
+        "variant_name": "Roadside Lemonade / 225g"
+      },
+      "plan_fingerprint": "c2da103f91b1e8f5bada0bb4fbf52000",
+      "row_number": "4",
+      "source_row_fingerprint": "02f0b624a37ed1d05248255f7535418fb5166a8788e5135dfa9047540561c9f3",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/145921318153?var=444963406167&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Nutrend",
+        "category": "Pre Workout",
+        "external_gtin": "8594073170477",
+        "external_options": "{\"Size\":\"225g\",\"Flavour\":\"Rainbow\"}",
+        "external_product_id": "145921318153",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/145921318153?var=444963406167",
+        "external_variant_id": "v1|145921318153|444963406167",
+        "flavour": "Rainbow",
+        "image": "https://files.ekmcdn.com/2ab763/images/nutrend-pump-pre-workout-4162-p.avif",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "18.10",
+        "product_format": "powder",
+        "product_id": "528",
+        "product_name": "Nutrend Pump Pre-Workout",
+        "product_variant_id": "1847",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "225g",
+        "size_unit": "g",
+        "slug": "ebay-145921318153-444963406167",
+        "variant_name": "Rainbow / 225g"
+      },
+      "plan_fingerprint": "28dbbfd931e6a52f8f99c705c58b255b",
+      "row_number": "5",
+      "source_row_fingerprint": "654cc10a5a60c04f99cebba7aeabfee60b29908a1efedb83234d96135dea4c17",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "4",
+    "skipped_row_count": "0"
+  }
+}

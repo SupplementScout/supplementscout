@@ -5268,15 +5268,26 @@ test("legacy mapping upgrade fixture 948 produces one exact update and no offer 
   }
 });
 
-test("eBay offer canary accepts only the exact owner-reviewed bootstrap plan", () => {
+test("eBay offer canary accepts only the exact owner-reviewed remaining four", () => {
   const { CONFIRMATION, EXPECTED_SCOPE, parseArgs: parseCanaryArgs, validateRollout } = require("./ebay-offer-canary-executor");
   const result = validateRollout();
-  assert.equal(result.loaded.artifact.plans.length, 1);
+  assert.equal(result.entries.length, 4);
   assert.equal(result.rollout.owner_confirmation, CONFIRMATION);
-  assert.deepEqual(result.rollout.scope, EXPECTED_SCOPE);
-  assert.equal(result.entry.resolved_plan.retailer_product.values.match_method, "gtin");
-  assert.equal(String(result.entry.resolved_plan.retailer_product.values.match_confidence), "100");
-  assert.match(result.entry.resolved_plan.offer.values.url, /[?&]campid=\d+/);
+  assert.deepEqual(result.rollout.entries.map((entry) => ({
+    product_id: entry.product_id,
+    product_variant_id: entry.product_variant_id,
+    gtin: entry.gtin,
+    external_product_id: entry.external_product_id,
+    external_variant_id: entry.external_variant_id,
+    flavour: entry.flavour,
+    size_value: entry.size_value,
+    price: entry.price,
+  })), EXPECTED_SCOPE);
+  for (const { entry } of result.entries) {
+    assert.equal(entry.resolved_plan.retailer_product.values.match_method, "gtin");
+    assert.equal(String(entry.resolved_plan.retailer_product.values.match_confidence), "100");
+    assert.match(entry.resolved_plan.offer.values.url, /[?&]campid=\d+/);
+  }
   assert.equal(parseCanaryArgs(["--mode=validate", "--output=tmp/ebay-offer-canary/test.json"]).mode, "validate");
   assert.throws(() => parseCanaryArgs(["--mode=other", "--output=tmp/x.json"]), /validate\|apply/);
   assert.throws(() => parseCanaryArgs(["--mode=apply", "--output=docs/x.json"]), /inside repository tmp/);
@@ -5289,7 +5300,7 @@ test("eBay offer canary workflow is manual, exact-confirmation guarded and role 
   assert.doesNotMatch(workflow, /\bschedule:|\bpush:/);
   assert.match(workflow, /default: validate/);
   assert.match(workflow, /- postflight/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_A_BOOTSTRAP_1/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_A_REMAINING_4/);
   assert.match(workflow, /environment: production-readonly/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /JONS_SYNC_EXECUTOR_DATABASE_URL/);
@@ -5297,6 +5308,7 @@ test("eBay offer canary workflow is manual, exact-confirmation guarded and role 
   const qualityStep = workflow.indexOf("Run quality gate without production credentials");
   const secretStep = workflow.indexOf("EBAY_CANARY_APPROVER_DATABASE_URL");
   assert.ok(qualityStep > -1 && secretStep > qualityStep);
+  assert.match(workflow, /a\.plans\.length!==4/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
 });
 

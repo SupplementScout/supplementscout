@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-canary-remaining-4-v1",
+  "approved": true,
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_A_REMAINING_4",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/remaining-4.csv",
+  "csv_sha256": "9c3d74e9c7020f114880221feeea5d63bb99c36bdc164143fa401624ad7da282",
+  "artifact": "docs/rollouts/ebay-offer-canary/remaining-4-artifact.json",
+  "artifact_sha256": "b22cb5ac40dd870aa45cec6b0773bd2cff8344305b14b9120a2ffc7c6e96b393",
+  "entries": [
+    {
+      "plan_fingerprint": "313c2ee34617c9a8233af1f5873c2d46",
+      "source_row_fingerprint": "940cead4a63fdc65c5a8760b81d68564642d8f928362c84f45e388db9e6980f3",
+      "product_id": "71",
+      "product_variant_id": "1008",
+      "gtin": "5999076228362",
+      "external_product_id": "394018039646",
+      "external_variant_id": "v1|394018039646|662564730390",
+      "flavour": "chocolate-cinnamon",
+      "size_value": "500",
+      "price": "19.99"
+    },
+    {
+      "plan_fingerprint": "53638ac1fecd4627eab5f2ea17aee273",
+      "source_row_fingerprint": "32b7c4920fc1115d6c0ae97b67f5c7351e11becc298235cd6de7579c2eafcfa7",
+      "product_id": "27",
+      "product_variant_id": "1586",
+      "gtin": "842595109191",
+      "external_product_id": "373707858011",
+      "external_variant_id": "v1|373707858011|642746534512",
+      "flavour": "green apple",
+      "size_value": "195",
+      "price": "19.99"
+    },
+    {
+      "plan_fingerprint": "c2da103f91b1e8f5bada0bb4fbf52000",
+      "source_row_fingerprint": "02f0b624a37ed1d05248255f7535418fb5166a8788e5135dfa9047540561c9f3",
+      "product_id": "489",
+      "product_variant_id": "1792",
+      "gtin": "627933026183",
+      "external_product_id": "204481126203",
+      "external_variant_id": "v1|204481126203|505073669739",
+      "flavour": "roadside lemonade",
+      "size_value": "225",
+      "price": "19.95"
+    },
+    {
+      "plan_fingerprint": "28dbbfd931e6a52f8f99c705c58b255b",
+      "source_row_fingerprint": "654cc10a5a60c04f99cebba7aeabfee60b29908a1efedb83234d96135dea4c17",
+      "product_id": "528",
+      "product_variant_id": "1847",
+      "gtin": "8594073170477",
+      "external_product_id": "145921318153",
+      "external_variant_id": "v1|145921318153|444963406167",
+      "flavour": "rainbow",
+      "size_value": "225",
+      "price": "18.1"
+    }
+  ],
+  "rollout_fingerprint": "b832dedcf86196db7712b2431ac6942a5324091c511299558ec015ca2086180d"
+}
