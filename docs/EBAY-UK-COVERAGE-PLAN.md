@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT DEPLOYED; EBAY SIGNED TEST RETRY PENDING
+**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT LIVE AND EBAY TEST VERIFIED; KEYSET STATUS CHECK NEXT
 **Last verified:** 14 August 2026
 **Production writes:** 0  
-**Public changes:** 1 guarded API route; unavailable until secrets are configured
+**Public changes:** 1 guarded account-deletion API route
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -53,8 +53,10 @@ prepared with 54 identities, fingerprint
 `9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`,
 0 database writes and 0 eBay API calls. The owner confirmed eBay Developers
 and EPN approval on 14 August 2026. Sandbox and Production keysets were created,
-but the Production keyset remains disabled until marketplace account-deletion
-notification compliance is configured. No eBay credential is stored in the
+and all three endpoint secrets were configured outside Git. eBay accepted the
+challenge and reported `A test notification was sent successfully!` after the
+guarded endpoint fixes. Production keyset activation and Browse API eligibility
+still require a fresh portal/API check. No eBay credential is stored in the
 repository.
 
 The intended 100-record exact-GTIN pilot is currently blocked for two separate
@@ -89,7 +91,7 @@ reasons:
 - [x] Guarded marketplace account-deletion endpoint built, tested and deployed.
 - [x] Account-deletion endpoint Production secrets configured by owner.
 - [x] Challenge endpoint accepted and saved by eBay.
-- [ ] Signed test notification accepted by eBay after acknowledgement-order fix.
+- [x] Signed test notification accepted by eBay after guarded endpoint fixes.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
 - [ ] Read-only API pilot executed.
 - [ ] Pilot quality reviewed by owner.
@@ -1258,9 +1260,9 @@ rollback and explicit approval.
 - Shipping can depend on postcode and may be missing or calculated.
 - Pack, flavour, formulation and condition ambiguity create false positives.
 - Current schema lacks first-class marketplace seller and selection evidence.
-- Production keyset use remains disabled until eBay accepts the account-
-  deletion endpoint; Browse API production eligibility must still be verified
-  after that compliance gate.
+- Account-deletion notification compliance is live-verified; Production keyset
+  activation and Browse API production eligibility still require a fresh
+  portal/API check.
 - Affiliate disclosure requires a future public design change, separately
   approved.
 - eBay API beta/contract and field behavior can change; reverify official docs
@@ -1271,10 +1273,9 @@ rollback and explicit approval.
 ## Blockers
 
 - `APPROVED BY OWNER`: EPN account and eBay Developers account.
-- `PENDING LIVE RETEST`: retry eBay's signed test after deployment of the
-  documented immediate-acknowledgement order.
-- `PENDING VERIFICATION`: Production Browse API access and campaign/affiliate
-  configuration after keyset enablement.
+- `LIVE VERIFIED`: eBay challenge and signed test delivery both succeeded.
+- `PENDING VERIFICATION`: Production keyset activation, Browse API access and
+  campaign/affiliate configuration.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1283,7 +1284,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Retry eBay Send Test Notification after the acknowledgement-order deployment; only after success confirm keyset activation and run the read-only 54-GTIN pilot.`
+`NEXT ACTION: Confirm the Production keyset is active/compliant, then run the existing read-only 54-GTIN Browse API pilot.`
 
 The completed GTIN release must not be repeated. The Browse pilot remains
 read-only; no result can enter the catalogue or public site without a separate
@@ -1314,6 +1315,10 @@ owner-reviewed production design and approval.
   not a full deletion notification. Pre-acknowledgement checks now require a
   bounded body, valid signature-header envelope and valid JSON; signature and
   full deletion schema remain mandatory before any processing after the 204.
+- After deployment of that bounded change, eBay reported
+  `A test notification was sent successfully!`. Account-deletion challenge and
+  test delivery are therefore live-verified. No database write, offer change,
+  retailer mapping change or public catalogue change occurred.
 
 13 August 2026:
 
