@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION COMPLIANT; PRODUCTION KEYSET ACTIVE; READ-ONLY PILOT NEXT
+**Status:** READ-ONLY 54-GTIN PILOT COMPLETE; OWNER QUALITY REVIEW NEXT
 **Last verified:** 14 August 2026
 **Production writes:** 0  
 **Public changes:** 1 guarded account-deletion API route
@@ -47,28 +47,17 @@ were audited. No eBay account status can be inferred from the repository.
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
 already present; 16 conflicts remain quarantined and outside the cohort. The
-local read-only Browse API adapter, policy engine, immutable input/report
-artifacts and mock-only tests are implemented. A production input artifact was
-prepared with 54 identities, fingerprint
+read-only Browse API adapter, policy engine, immutable input/report artifacts
+and mock-only tests are implemented. The live production pilot completed on
+14 August 2026 for all 54 identities, fingerprint
 `9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`,
-0 database writes and 0 eBay API calls. The owner confirmed eBay Developers
-and EPN approval on 14 August 2026. Sandbox and Production keysets were created,
-and all three endpoint secrets were configured outside Git. eBay accepted the
-challenge and reported `A test notification was sent successfully!` after the
-guarded endpoint fixes. The owner then confirmed the `Non Compliant` marker
-disappeared from the Production keyset. Browse API eligibility still requires
-a live read-only call. No eBay credential is stored in the repository.
-
-The intended 100-record exact-GTIN pilot is currently blocked for two separate
-reasons:
-
-1. eBay/EPN account, keyset and Buy API access status is unknown and requires
-   user confirmation/action.
-2. Canonical fields still contain only 9 active product GTINs and 0 variant
-   GTINs. The read-only GTIN recovery audit found 14 `AUTO_SAFE` variant-GTIN
-   identities. The confirmation sprint independently confirmed 40 more without
-   writing them, projecting 54 safe identities. A truthful 100 exact-GTIN
-   cohort still cannot be selected.
+with 10 identities found: 2 `AUTO_ELIGIBLE`, 3 `REVIEW`, 5 `REJECT` and 44
+`NOT_FOUND`. Both safe offers would add a second retailer and were cheaper than
+the current complete delivered price. The run made 0 database writes, 0 offer
+or retailer-mapping changes and 0 public changes. Affiliate tracking was not
+configured, so no result is ready for publication. No eBay credential is
+stored in the repository. The historical 100-identity target remains
+unavailable and must not be reached by weakening the identity gate.
 
 ## Completed
 
@@ -94,7 +83,7 @@ reasons:
 - [x] Signed test notification accepted by eBay after guarded endpoint fixes.
 - [x] Production keyset no longer marked `Non Compliant`, owner-verified.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
-- [ ] Read-only API pilot executed.
+- [x] Read-only API pilot executed for all 54 safe identities.
 - [ ] Pilot quality reviewed by owner.
 - [ ] Production pilot designed or approved.
 
@@ -1135,6 +1124,58 @@ median delivered-price difference; and how many products remain
 single-retailer. Primary KPI:
 `increase in products with 2+ qualified offers`.
 
+## Live read-only pilot result — 14 August 2026
+
+The production Browse API run completed for the immutable 54-identity cohort.
+The first local attempt failed before reaching eBay because Node did not use
+the Windows system certificate store; rerunning the unchanged command with
+`NODE_OPTIONS=--use-system-ca` completed normally. This was a local TLS setup
+issue, not a change to the input, policy or API safety gates.
+
+| Measure | Result |
+|---|---:|
+| Checked | 54 |
+| Found | 10 |
+| Exact returned GTIN | 5 |
+| Fully qualified | 2 |
+| `AUTO_ELIGIBLE` / safely addable | 2 |
+| `REVIEW` | 3 |
+| `REJECT` | 5 |
+| `NOT_FOUND` | 44 |
+| Tier A / B / C | 2 / 3 / 5 |
+| Would become second retailer | 2 |
+| Lowest complete delivered price | 2 |
+| Median delivered-price difference | -GBP 6.42 |
+| Products still single-retailer | 39 |
+| Database writes | 0 |
+
+The two `AUTO_ELIGIBLE` candidates are evidence only, not approved catalogue
+writes:
+
+| Product / variant | eBay evidence | Delivered-price comparison |
+|---|---|---|
+| `56` / `1605` — Warrior Rage Unleash Hell Pre Workout 392g, Charged Cherry, GTIN `5060756342927` | item `203341686447`; seller `bodybuildingwarehouse`; 99.8%, score 412628; exact returned GTIN | GBP 11.99 versus GBP 22.60 current |
+| `176` / `227` — Olimp Chela Mag B6 Forte 60 Capsules, GTIN `5901330022685` | item `373250053773`; seller `nutrafituk`; 100%, score 123417; exact returned GTIN | GBP 14.49 versus GBP 16.73 current |
+
+The three `REVIEW` rows are Solgar Skin, Nail And Hair Formula 60 Tablets
+(`138` / `90`; listing title says 120 tablets), Applied Nutrition Creatine 120
+Capsules (`426` / `410`) and Per4m Pre-Workout Stim 570g Berry Blast (`789` /
+`1085`). Each lacks a returned GTIN; the Solgar unit-count difference is an
+additional owner-review warning. The five rejected rows remain excluded. Their
+blockers comprise three flavour mismatches, two unit-count mismatches, one
+unproven size, one unproven format and five unproven returned GTINs; a row can
+have more than one blocker.
+
+The ignored local evidence is sealed by these file SHA-256 values:
+
+- input: `9117B0C2A8A092EFC4E266E08F8ACC408B1EF89973D808A761B3DB0F6EAAAA31`;
+- raw response: `1A3A3670DB698856F6EC7289B72C98A07850A1345ADEB96B6CFAEFB820DFCD70`;
+- report: `072AA67EAF378E29B6D2F9FCBAA574961829FF0564CAB8AC559924ADB41F8857`.
+
+Affiliate campaign configuration was absent. Ordinary eBay URLs must not be
+substituted for tracked affiliate URLs, and none of these results may be
+published or written before a separate owner-approved production design.
+
 ## Read-only pilot specification — historical target 100 verified GTIN identities
 
 ### Entry gate
@@ -1261,9 +1302,8 @@ rollback and explicit approval.
 - Shipping can depend on postcode and may be missing or calculated.
 - Pack, flavour, formulation and condition ambiguity create false positives.
 - Current schema lacks first-class marketplace seller and selection evidence.
-- Account-deletion notification compliance and Production keyset activation
-  are owner/live-verified; Browse API eligibility still requires the planned
-  live read-only call.
+- Account-deletion notification compliance, Production keyset activation and
+  production Browse API access are live-verified.
 - Affiliate disclosure requires a future public design change, separately
   approved.
 - eBay API beta/contract and field behavior can change; reverify official docs
@@ -1276,8 +1316,9 @@ rollback and explicit approval.
 - `APPROVED BY OWNER`: EPN account and eBay Developers account.
 - `LIVE VERIFIED`: eBay challenge and signed test delivery both succeeded.
 - `OWNER VERIFIED`: Production keyset is no longer marked `Non Compliant`.
-- `PENDING VERIFICATION`: Production Browse API access and campaign/affiliate
-  configuration.
+- `LIVE VERIFIED`: Production Browse API access; the guarded 54-identity
+  read-only run completed.
+- `PENDING`: campaign/affiliate configuration and owner quality review.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1286,10 +1327,10 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Run the existing read-only 54-GTIN Browse API pilot; do not build a second pilot or introduce any write path.`
+`NEXT ACTION: Owner-review the exact 2 AUTO_ELIGIBLE and 3 REVIEW pilot rows; do not import or publish any eBay offer.`
 
-The completed GTIN release must not be repeated. The Browse pilot remains
-read-only; no result can enter the catalogue or public site without a separate
+The completed GTIN release and read-only Browse pilot must not be repeated.
+No result can enter the catalogue or public site without a separate
 owner-reviewed production design and approval.
 
 ## Last verified
@@ -1323,8 +1364,14 @@ owner-reviewed production design and approval.
   retailer mapping change or public catalogue change occurred.
 - Owner refreshed the Production keyset and confirmed its `Non Compliant`
   marker disappeared. Account-deletion compliance and keyset activation are
-  complete and must not be rebuilt; the next work is the existing read-only
-  54-GTIN pilot.
+  complete and must not be rebuilt.
+- The existing read-only Browse pilot checked the immutable 54-identity
+  production cohort. It returned 2 `AUTO_ELIGIBLE`, 3 `REVIEW`, 5 `REJECT` and
+  44 `NOT_FOUND`; both safe candidates would become second retailers and both
+  had lower complete delivered prices. The run made 0 database writes and 0
+  public changes. Affiliate tracking remains unconfigured, so publication is
+  blocked pending owner quality review and a separately approved production
+  design.
 
 13 August 2026:
 

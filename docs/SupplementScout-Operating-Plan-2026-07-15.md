@@ -527,8 +527,7 @@ The binding sequence is: audit, credential-ready read-only pilot implementation,
 EPN/Developer access setup, Production keyset notification compliance,
 54-identity live read-only run, quality decision, then separately approved
 import design. The read-only pilot is built and its immutable input contains
-exactly the 54 safe canonical variant GTIN identities; preparation made 0
-database writes and 0 eBay calls. On 14 August the owner confirmed EPN and eBay
+exactly the 54 safe canonical variant GTIN identities. On 14 August the owner confirmed EPN and eBay
 Developers approval and created Sandbox and Production keysets. Production is
 subject to a fresh activation check after eBay validation of the guarded
 marketplace account-deletion endpoint deployed on 14 August. The owner
@@ -543,14 +542,21 @@ without accepting it for processing. eBay then reported
 `A test notification was sent successfully!`, completing live notification
 compliance evidence. The owner then confirmed the Production keyset's
 `Non Compliant` marker disappeared. Account-deletion setup is complete and must
-not be rebuilt. No retailer
+not be rebuilt. The production Browse API run then completed for all 54 safe
+identities: 2 `AUTO_ELIGIBLE`, 3 `REVIEW`, 5 `REJECT` and 44 `NOT_FOUND`.
+Both safe candidates would add a second retailer and beat the current complete
+delivered price; the median price difference across the two was -GBP 6.42.
+Input fingerprint was
+`9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`.
+The run made 0 database, offer, mapping or public changes, and affiliate
+tracking was not configured. No retailer
 row, production offer, public UI or write automation is authorized by this
 entry. The architecture is a marketplace-specific adapter around the existing
 guarded identity/control plane, not a second importer, and it retains
 seller/listing evidence. Future agents must read the eBay plan's `Current
 status` and `Next action` and update that plan after every eBay task. Binding
-next action: `Run the existing read-only 54-GTIN Browse API pilot; do not build
-a second pilot or introduce any write path.`
+next action: `Owner-review the exact 2 AUTO_ELIGIBLE and 3 REVIEW pilot rows;
+do not import or publish any eBay offer.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
