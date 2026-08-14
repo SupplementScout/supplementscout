@@ -149,14 +149,14 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records one exact pending GTIN promotion migration", () => {
+test("production records the applied GTIN migration and one exact pending Critical Cookie correction", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.equal(contract.pending.length, 1);
-  assert.equal(contract.pending[0].filename, "20260813170000_add_guarded_gtin_promotion.sql");
-  assert.equal(contract.ledgerCount, 110);
+  assert.equal(contract.pending[0].filename, "20260814213000_correct_critical_cookie_73g_identity.sql");
+  assert.equal(contract.ledgerCount, 111);
   assert.equal(
     contract.ledgerFingerprint,
-    "5ce9228f7d5d20b20a5daeb637ba690bc88e8d21505cc6c0c00700f1661b56de",
+    "a044a5c40dba9ee637ae500b2d7fcef6c5b90532b989be1a68cb45d183b1f676",
   );
 });
 
@@ -233,7 +233,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the reviewed Discount rollout", () => {
+test("production binds its exact ledger after GTIN promotion and selects only Critical Cookie", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -259,12 +259,12 @@ test("production binds its exact ledger after the reviewed Discount rollout", ()
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 110);
+  assert.equal(result.ledger_count, 111);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260813170000_add_guarded_gtin_promotion"]);
-  assert.equal(result.selected_files.length, 111);
-  assert.deepEqual(result.pending_files, ["20260813170000_add_guarded_gtin_promotion.sql"]);
-  assert.equal(result.pending_file, "20260813170000_add_guarded_gtin_promotion.sql");
+  assert.deepEqual(result.pending, ["20260814213000_correct_critical_cookie_73g_identity"]);
+  assert.equal(result.selected_files.length, 112);
+  assert.deepEqual(result.pending_files, ["20260814213000_correct_critical_cookie_73g_identity.sql"]);
+  assert.equal(result.pending_file, "20260814213000_correct_critical_cookie_73g_identity.sql");
   assert.equal(result.pending_sha256, contract.pending[0].sha256);
 });
 

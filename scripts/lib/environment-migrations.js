@@ -47,6 +47,7 @@ const EXCLUSIONS = Object.freeze({
     "20260811030000_correct_reviewed_mass_gainer_metadata",
     "20260811113000_add_two_reviewed_discount_multivitamin_offers",
     "20260813170000_add_guarded_gtin_promotion",
+    "20260814213000_correct_critical_cookie_73g_identity",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

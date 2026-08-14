@@ -30,10 +30,12 @@ test("post-write fingerprint changes only the exact approved variant destination
   assert.equal(summary.retailer_products_count, 1);
 });
 
-test("migration selector binds only the reviewed GTIN migration and zero catalogue row deltas", () => {
+test("deployed GTIN migration remains frozen while the selector advances to one zero-delta correction", () => {
   const pending = CONTRACTS.PRODUCTION.pending;
   assert.equal(pending.length, 1);
-  assert.equal(pending[0].filename, MIGRATION);
+  assert.notEqual(pending[0].filename, MIGRATION);
+  assert.equal(pending[0].filename, "20260814213000_correct_critical_cookie_73g_identity.sql");
+  assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.deepEqual(pending[0].expectedCatalogueDeltas, { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 });
 });
 

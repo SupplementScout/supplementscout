@@ -112,6 +112,8 @@ const CONTRACTS = Object.freeze({
         "dfaf949e26a37f639008dd5c8d09d28a7e63a1d4c03bf04839c57ad7ff3a9783",
       "20260813170000_add_guarded_gtin_promotion.sql":
         "60114659dc4b3c8052f722a8d094768ea64ee5d11ae0afe7a9a8280c8a3ed129",
+      "20260814213000_correct_critical_cookie_73g_identity.sql":
+        "95bcd592f30a37072f960763b623e76911f1451440576986021a227031510f7e",
     }),
     pending: Object.freeze([]),
   }),
@@ -122,9 +124,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 110,
+    ledgerCount: 111,
     ledgerFingerprint:
-      "5ce9228f7d5d20b20a5daeb637ba690bc88e8d21505cc6c0c00700f1661b56de",
+      "a044a5c40dba9ee637ae500b2d7fcef6c5b90532b989be1a68cb45d183b1f676",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -143,8 +145,8 @@ const CONTRACTS = Object.freeze({
     }),
     pending: Object.freeze([
       Object.freeze({
-        filename: "20260813170000_add_guarded_gtin_promotion.sql",
-        sha256: "60114659dc4b3c8052f722a8d094768ea64ee5d11ae0afe7a9a8280c8a3ed129",
+        filename: "20260814213000_correct_critical_cookie_73g_identity.sql",
+        sha256: "95bcd592f30a37072f960763b623e76911f1451440576986021a227031510f7e",
         expectedCatalogueDeltas: Object.freeze({
           products: 0,
           product_variants: 0,
