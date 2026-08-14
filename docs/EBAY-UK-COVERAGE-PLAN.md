@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** BATCH A 5/5 LIVE VERIFIED; BATCH B 5/5 DRY-RUN READY, WRITE NOT APPROVED
+**Status:** CONTROLLED 10-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5)
 **Last verified:** 14 August 2026
-**Production writes:** 5 owner-approved canary plans (1 retailer, 5 mappings, 5 offers, 5 price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 5 live eBay offers
+**Production writes:** 10 owner-approved canary plans (1 retailer, 10 mappings, 10 offers, 10 price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 10 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -161,6 +161,26 @@ canonical variant. The final dry-run artifact SHA-256 is
 Database writes remain zero for Batch B and a new exact owner approval is
 required before any guarded apply.
 
+The owner explicitly approved those exact five Batch B plans on 14 August
+2026. Commit `0b2db32` bound the existing manual executor to rollout
+fingerprint
+`47532d6b515cdb5d96a42d2ac630d530693b62cc5f7aeaf2f40f84d8dd550a65`
+and confirmation `OWNER_APPROVED_EBAY_BATCH_B_EXACT_5`; it did not add a new
+importer. Manual GitHub run `31824324247` validated and atomically executed
+5/5, creating mappings `2729`-`2733`, offers `2544`-`2548` and price-history
+rows `2739`-`2743`. Its immediate fresh postflight returned five exact no-ops
+with zero blockers.
+
+Independent production readback confirmed retailer `12`, five unique
+products/variants/items/GTINs, `gtin`/`100` matching, the exact item price,
+shipping and delivered total, in-stock state and affiliate campaign URLs.
+Canonical `products.gtin` and `product_variants.gtin` remained unchanged.
+eBay UK now has exactly 10 unique mappings and 10 offers with no duplicate
+variant, GTIN or legacy item identity. All five Batch B public product pages
+returned HTTP 200 and contained eBay UK, the expected delivered price and the
+exact `/go/2544`-`/go/2548` route. The controlled 10-offer rollout is therefore
+live-verified 10/10.
+
 ## Completed
 
 - [x] Repository and operating-document audit.
@@ -199,6 +219,9 @@ required before any guarded apply.
 - [x] Batch A public live verification passed 5/5.
 - [x] Batch B exact listing refresh passed 5/5 with affiliate URLs and zero blockers.
 - [x] Existing-importer Batch B dry-run passed 5 plans and 0 blocked rows.
+- [x] Batch B five exact plans owner-approved and atomically applied.
+- [x] Batch B postflight, production readback and public verification passed 5/5.
+- [x] Controlled first 10 eBay offers are live-verified end to end.
 - [ ] At least 50 independent owner-safe eBay offers available.
 - [x] Production pilot completed; all five exact Batch A offers owner-approved, applied and live-verified.
 
@@ -1602,7 +1625,10 @@ rollback and explicit approval.
   5/5.
 - `READ-ONLY VERIFIED`: the exact five Batch B item IDs remain
   `AUTO_ELIGIBLE` and affiliate-ready; the existing importer produced five
-  create plans with zero blockers. No Batch B write is approved.
+  create plans with zero blockers.
+- `LIVE VERIFIED`: owner-approved Batch B run `31824324247` executed 5/5 and
+  postflight returned five exact no-ops; production and public readback passed
+  5/5. The controlled rollout is complete 10/10.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1611,7 +1637,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner review and exact approval of the five sealed Batch B plans; do not apply without that new approval.`
+`NEXT ACTION: Run a read-only refresh/monitoring audit across the 10 live eBay offers, then prepare the next bounded owner-review cohort toward 50 using the same adapter and guarded importer.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate

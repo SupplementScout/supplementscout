@@ -615,10 +615,25 @@ row. Dry-run artifact SHA-256 is
 `916c8a8717193491e81e1391438794c634f7c22288b9d1770a71e9145376fdd3`.
 No Batch B write occurred. Binding next action: owner review and exact approval
 of these five sealed Batch B plans; do not apply without that new approval.
+The owner then explicitly approved those exact five plans. Commit `0b2db32`
+reused the existing manual executor with rollout fingerprint
+`47532d6b515cdb5d96a42d2ac630d530693b62cc5f7aeaf2f40f84d8dd550a65`.
+GitHub run `31824324247` executed 5/5 and its fresh postflight returned five
+exact no-ops with zero blockers. Production created mappings `2729`-`2733`,
+offers `2544`-`2548` and price-history rows `2739`-`2743`; retailer `12` and
+all canonical products/variants remained existing, and canonical GTIN fields
+were unchanged. Production has exactly 10 unique eBay mappings and 10 offers,
+with no duplicate eBay variant, GTIN or item identity. Public verification
+passed 5/5 for Batch B with HTTP 200, exact delivered prices and `/go/2544`-
+`/go/2548`. The controlled 10-offer rollout is live-verified 10/10. Binding
+next action: run a read-only refresh/monitoring audit across those 10 live
+offers, then prepare the next bounded owner-review cohort toward 50 through
+the same adapter and guarded importer.
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Owner review and
-exact approval of the five sealed Batch B plans; do not apply without that new
-approval.`
+update that plan after every eBay task. Binding next action: `Run a read-only
+refresh/monitoring audit across the 10 live eBay offers, then prepare the next
+bounded owner-review cohort toward 50 using the same adapter and guarded
+importer.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
