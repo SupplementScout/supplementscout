@@ -5288,6 +5288,7 @@ test("eBay offer canary workflow is manual, exact-confirmation guarded and role 
   assert.match(workflow, /workflow_dispatch:/);
   assert.doesNotMatch(workflow, /\bschedule:|\bpush:/);
   assert.match(workflow, /default: validate/);
+  assert.match(workflow, /- postflight/);
   assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_A_BOOTSTRAP_1/);
   assert.match(workflow, /environment: production-readonly/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
@@ -5296,6 +5297,7 @@ test("eBay offer canary workflow is manual, exact-confirmation guarded and role 
   const qualityStep = workflow.indexOf("Run quality gate without production credentials");
   const secretStep = workflow.indexOf("EBAY_CANARY_APPROVER_DATABASE_URL");
   assert.ok(qualityStep > -1 && secretStep > qualityStep);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
 });
 
 test("Simply identity-only legacy upgrade stores exact reviewed options and preserves all offer fields", async () => {

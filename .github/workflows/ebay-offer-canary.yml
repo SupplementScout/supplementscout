@@ -11,6 +11,7 @@ on:
         options:
           - validate
           - apply
+          - postflight
       owner_confirmation:
         description: "Exact owner confirmation required; apply is blocked without it"
         required: true
@@ -57,16 +58,16 @@ jobs:
           EBAY_CANARY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
           EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/ebay-offer-canary-executor.js --mode=${{ inputs.operation }} --output=tmp/ebay-offer-canary/execution.json
+        run: node scripts/ebay-offer-canary-executor.js --mode=${{ inputs.operation == 'apply' && 'apply' || 'validate' }} --output=tmp/ebay-offer-canary/execution.json
 
       - name: Verify exact post-write no-op
-        if: ${{ inputs.operation == 'apply' }}
+        if: ${{ inputs.operation == 'apply' || inputs.operation == 'postflight' }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           node scripts/import-products.js --dry-run --csv=docs/rollouts/ebay-offer-canary/bootstrap.csv --artifact=tmp/ebay-offer-canary/postflight.json
-          node -e 'const a=require("./tmp/ebay-offer-canary/postflight.json");const p=a.plans[0]?.resolved_plan;if(a.blocked_rows.length||a.plans.length!==1||p.product.action!=="existing"||p.product_variant.action!=="existing"||p.retailer.action!=="existing"||p.retailer_product.action!=="unchanged"||p.offer.action!=="unchanged"||p.price_history.action!=="none")process.exit(1)'
+          node -e 'const a=require("./tmp/ebay-offer-canary/postflight.json");const p=a.plans[0]?.resolved_plan;if(a.blocked_rows.length||a.plans.length!==1||p.product.action!=="existing"||p.product_variant.action!=="existing"||p.retailer.action!=="existing"||p.retailer_product.action!=="noop"||p.offer.action!=="noop"||p.price_history.action!=="noop")process.exit(1)'
 
       - name: Publish result
         if: always()
