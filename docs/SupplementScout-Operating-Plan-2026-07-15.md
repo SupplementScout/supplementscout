@@ -541,14 +541,16 @@ processing only after post-response signature and full deletion-schema
 verification succeed. This accommodates eBay's reduced synthetic test payload
 without accepting it for processing. eBay then reported
 `A test notification was sent successfully!`, completing live notification
-compliance evidence. No retailer
+compliance evidence. The owner then confirmed the Production keyset's
+`Non Compliant` marker disappeared. Account-deletion setup is complete and must
+not be rebuilt. No retailer
 row, production offer, public UI or write automation is authorized by this
 entry. The architecture is a marketplace-specific adapter around the existing
 guarded identity/control plane, not a second importer, and it retains
 seller/listing evidence. Future agents must read the eBay plan's `Current
 status` and `Next action` and update that plan after every eBay task. Binding
-next action: `Confirm the Production keyset is active/compliant, then run the
-existing read-only 54-GTIN Browse API pilot.`
+next action: `Run the existing read-only 54-GTIN Browse API pilot; do not build
+a second pilot or introduce any write path.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

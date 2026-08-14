@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT LIVE AND EBAY TEST VERIFIED; KEYSET STATUS CHECK NEXT
+**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION COMPLIANT; PRODUCTION KEYSET ACTIVE; READ-ONLY PILOT NEXT
 **Last verified:** 14 August 2026
 **Production writes:** 0  
 **Public changes:** 1 guarded account-deletion API route
@@ -55,9 +55,9 @@ prepared with 54 identities, fingerprint
 and EPN approval on 14 August 2026. Sandbox and Production keysets were created,
 and all three endpoint secrets were configured outside Git. eBay accepted the
 challenge and reported `A test notification was sent successfully!` after the
-guarded endpoint fixes. Production keyset activation and Browse API eligibility
-still require a fresh portal/API check. No eBay credential is stored in the
-repository.
+guarded endpoint fixes. The owner then confirmed the `Non Compliant` marker
+disappeared from the Production keyset. Browse API eligibility still requires
+a live read-only call. No eBay credential is stored in the repository.
 
 The intended 100-record exact-GTIN pilot is currently blocked for two separate
 reasons:
@@ -92,6 +92,7 @@ reasons:
 - [x] Account-deletion endpoint Production secrets configured by owner.
 - [x] Challenge endpoint accepted and saved by eBay.
 - [x] Signed test notification accepted by eBay after guarded endpoint fixes.
+- [x] Production keyset no longer marked `Non Compliant`, owner-verified.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
 - [ ] Read-only API pilot executed.
 - [ ] Pilot quality reviewed by owner.
@@ -1260,9 +1261,9 @@ rollback and explicit approval.
 - Shipping can depend on postcode and may be missing or calculated.
 - Pack, flavour, formulation and condition ambiguity create false positives.
 - Current schema lacks first-class marketplace seller and selection evidence.
-- Account-deletion notification compliance is live-verified; Production keyset
-  activation and Browse API production eligibility still require a fresh
-  portal/API check.
+- Account-deletion notification compliance and Production keyset activation
+  are owner/live-verified; Browse API eligibility still requires the planned
+  live read-only call.
 - Affiliate disclosure requires a future public design change, separately
   approved.
 - eBay API beta/contract and field behavior can change; reverify official docs
@@ -1274,8 +1275,9 @@ rollback and explicit approval.
 
 - `APPROVED BY OWNER`: EPN account and eBay Developers account.
 - `LIVE VERIFIED`: eBay challenge and signed test delivery both succeeded.
-- `PENDING VERIFICATION`: Production keyset activation, Browse API access and
-  campaign/affiliate configuration.
+- `OWNER VERIFIED`: Production keyset is no longer marked `Non Compliant`.
+- `PENDING VERIFICATION`: Production Browse API access and campaign/affiliate
+  configuration.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1284,7 +1286,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Confirm the Production keyset is active/compliant, then run the existing read-only 54-GTIN Browse API pilot.`
+`NEXT ACTION: Run the existing read-only 54-GTIN Browse API pilot; do not build a second pilot or introduce any write path.`
 
 The completed GTIN release must not be repeated. The Browse pilot remains
 read-only; no result can enter the catalogue or public site without a separate
@@ -1319,6 +1321,10 @@ owner-reviewed production design and approval.
   `A test notification was sent successfully!`. Account-deletion challenge and
   test delivery are therefore live-verified. No database write, offer change,
   retailer mapping change or public catalogue change occurred.
+- Owner refreshed the Production keyset and confirmed its `Non Compliant`
+  marker disappeared. Account-deletion compliance and keyset activation are
+  complete and must not be rebuilt; the next work is the existing read-only
+  54-GTIN pilot.
 
 13 August 2026:
 
