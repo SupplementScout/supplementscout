@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT BUILT LOCALLY; PRODUCTION KEYSET ENABLEMENT PENDING
+**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT DEPLOYED; SECRET CONFIGURATION AND EBAY VALIDATION PENDING
 **Last verified:** 14 August 2026
 **Production writes:** 0  
-**Public changes:** 0
+**Public changes:** 1 guarded API route; unavailable until secrets are configured
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -86,8 +86,8 @@ reasons:
 - [x] Read-only 100-record pilot specification.
 - [x] eBay Developers and EPN account access confirmed by owner.
 - [x] Sandbox and Production application keysets created by owner.
-- [x] Guarded marketplace account-deletion endpoint built and tested locally.
-- [ ] Account-deletion endpoint deployed, configured and accepted by eBay.
+- [x] Guarded marketplace account-deletion endpoint built, tested and deployed.
+- [ ] Account-deletion endpoint secrets configured and endpoint accepted by eBay.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
 - [ ] Read-only API pilot executed.
 - [ ] Pilot quality reviewed by owner.
@@ -987,8 +987,11 @@ a second eBay client.
   never be committed or pasted into project documentation.
 
 Local tests use generated RSA fixture keys and mocked OAuth/public-key
-responses. They make no real eBay API call. Deployment, secret configuration,
-the live eBay challenge and eBay's test notification remain pending.
+responses. They make no real eBay API call. Vercel deployment for commit
+`dce0c95046ea74e274e50501d9e3502dc5f5462a` completed successfully. A live
+secret-free GET returned the intended fail-closed HTTP 503 response. Secret
+configuration, the live eBay challenge and eBay's test notification remain
+pending.
 
 Official references:
 
@@ -1025,9 +1028,9 @@ Do not mark a box from repository evidence. The owner must confirm each status.
 - [x] Owner created the SupplementScout application.
 - [x] Owner created Sandbox and Production keysets; Production remains disabled
   pending notification compliance.
-- [ ] `USER ACTION REQUIRED`: deploy the account-deletion endpoint, add its
-  three production secrets, then configure and validate the exact endpoint and
-  matching verification token in eBay.
+- [ ] `USER ACTION REQUIRED`: add the endpoint's three Production secrets in
+  Vercel, redeploy, then configure and validate the exact endpoint and matching
+  verification token in eBay.
 - [ ] `USER ACTION REQUIRED`: store client ID, client secret and access tokens
   only in approved secret storage, never in Git or documentation.
 - [ ] `USER ACTION REQUIRED`: confirm the Browse scope and generate a Sandbox
@@ -1255,8 +1258,8 @@ rollback and explicit approval.
 ## Blockers
 
 - `APPROVED BY OWNER`: EPN account and eBay Developers account.
-- `PENDING CONFIGURATION`: deploy and validate the account-deletion endpoint so
-  eBay can enable the Production keyset.
+- `PENDING CONFIGURATION`: add deployment secrets and validate the deployed
+  account-deletion endpoint so eBay can enable the Production keyset.
 - `PENDING VERIFICATION`: Production Browse API access and campaign/affiliate
   configuration after keyset enablement.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
@@ -1267,7 +1270,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Deploy the guarded account-deletion endpoint, add its secrets in deployment storage, validate it in eBay, then run the read-only 54-GTIN pilot.`
+`NEXT ACTION: Add the three account-deletion secrets in Vercel Production, redeploy, validate the endpoint in eBay, then run the read-only 54-GTIN pilot.`
 
 The completed GTIN release must not be repeated. The Browse pilot remains
 read-only; no result can enter the catalogue or public site without a separate
@@ -1286,6 +1289,9 @@ owner-reviewed production design and approval.
   in-memory public-key cache, payload/size gates and explicit zero-store
   deletion boundary. No database, offer, retailer mapping or public UI write
   path was introduced.
+- Committed and deployed the guarded route through Vercel. Deployment status
+  was successful and the live endpoint returned the expected fail-closed HTTP
+  503 while its Production secrets remain absent.
 
 13 August 2026:
 
