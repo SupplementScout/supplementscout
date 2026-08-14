@@ -972,9 +972,9 @@ a second eBay client.
 - `GET` validates the exact endpoint and returns eBay's SHA-256 challenge
   response using `challenge_code + verification token + endpoint URL`.
 - `POST` limits payload size, requires a structurally valid
-  `X-EBAY-SIGNATURE` and validates the deletion payload before immediately
-  acknowledging receipt with HTTP 204, as required by eBay's receiving guide.
-  It then verifies the signature after the response using Next.js `after()`,
+  `X-EBAY-SIGNATURE` and valid JSON before immediately acknowledging receipt
+  with HTTP 204, as required by eBay's receiving guide. It then verifies the
+  signature and full deletion-payload schema after the response using Next.js `after()`,
   retrieves eBay's signing key through the official public-key API using
   application OAuth and caches only the public key in memory. No deletion
   processing runs unless that background signature verification succeeds.
@@ -999,7 +999,11 @@ configuration was owner-confirmed and the live eBay challenge was accepted.
 The first signed test exposed that the endpoint verified before acknowledging,
 which caused an HTTP 503 while the keyset was still non-compliant. The order was
 aligned with eBay's documented immediate-acknowledgement sequence; a live eBay
-test retry remains pending.
+  retry returned HTTP 400 because eBay's synthetic test body did not satisfy
+  the full real-notification schema. Full payload validation was therefore
+  moved behind signature verification, where it continues to block all
+  processing without blocking the required immediate acknowledgement. Another
+  live eBay test retry remains pending.
 
 Official references:
 
@@ -1306,6 +1310,10 @@ owner-reviewed production design and approval.
   Official eBay guidance requires immediate acknowledgement before validity
   verification; the route was corrected to return 204 after structural checks
   and to verify/process only inside a supported post-response task.
+- The next eBay test returned HTTP 400, proving its synthetic test payload is
+  not a full deletion notification. Pre-acknowledgement checks now require a
+  bounded body, valid signature-header envelope and valid JSON; signature and
+  full deletion schema remain mandatory before any processing after the 204.
 
 13 August 2026:
 

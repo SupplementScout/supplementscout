@@ -535,8 +535,10 @@ account-deletion endpoint deployed on 14 August. The owner configured all three
 Production secrets and eBay accepted the challenge endpoint. Its first signed
 test exposed acknowledgement ordering: eBay requires immediate receipt
 acknowledgement and subsequent validity verification. The route now performs
-structural gates before HTTP 204 and permits deletion processing only after
-post-response signature verification succeeds. No retailer
+bounded JSON and signature-envelope gates before HTTP 204 and permits deletion
+processing only after post-response signature and full deletion-schema
+verification succeed. This accommodates eBay's reduced synthetic test payload
+without accepting it for processing. No retailer
 row, production offer, public UI or write automation is authorized by this
 entry. The architecture is a marketplace-specific adapter around the existing
 guarded identity/control plane, not a second importer, and it retains

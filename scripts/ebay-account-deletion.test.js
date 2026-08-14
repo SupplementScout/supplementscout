@@ -192,6 +192,37 @@ test("background signature failure never processes deletion data", async () => {
   }
 });
 
+test("test-shaped JSON is acknowledged but full payload validation stays behind signature verification", async () => {
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const route = loadRoute({ verifyNotificationSignature: async () => true });
+    const signature = Buffer.from(JSON.stringify({ kid: "key-1", signature: "YWJj" })).toString("base64");
+    const response = await route.POST(new Request(ENDPOINT_URL, {
+      method: "POST",
+      headers: { "x-ebay-signature": signature },
+      body: JSON.stringify({ test: true }),
+    }));
+    assert.equal(response.status, 204);
+    assert.equal(route.__scheduled.length, 1);
+    await route.__scheduled[0]();
+  } finally {
+    console.error = originalError;
+  }
+});
+
+test("malformed JSON is rejected before acknowledgement", async () => {
+  const route = loadRoute();
+  const signature = Buffer.from(JSON.stringify({ kid: "key-1", signature: "YWJj" })).toString("base64");
+  const response = await route.POST(new Request(ENDPOINT_URL, {
+    method: "POST",
+    headers: { "x-ebay-signature": signature },
+    body: "not-json",
+  }));
+  assert.equal(response.status, 400);
+  assert.equal(route.__scheduled.length, 0);
+});
+
 test("endpoint contains no database mutation, user identifier logging or secret literals", () => {
   const source = [
     "app/api/ebay/account-deletion/route.ts",

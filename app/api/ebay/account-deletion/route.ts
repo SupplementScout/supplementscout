@@ -5,7 +5,6 @@ import {
   decodeSignatureHeader,
   generateChallengeResponse,
   processDeletionNotification,
-  validateDeletionPayload,
   verifyNotificationSignature,
 } from "@/lib/ebay-account-deletion";
 
@@ -44,7 +43,7 @@ export async function POST(request: Request) {
     }
     const signature = request.headers.get("x-ebay-signature");
     decodeSignatureHeader(signature);
-    const payload = validateDeletionPayload(JSON.parse(rawBody));
+    const payload = JSON.parse(rawBody);
     const config = {
       client_id: process.env.EBAY_CLIENT_ID,
       client_secret: process.env.EBAY_CLIENT_SECRET,
