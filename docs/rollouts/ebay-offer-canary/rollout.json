@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-canary-bootstrap-v1",
+  "approved": true,
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_A_BOOTSTRAP_1",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/bootstrap.csv",
+  "csv_sha256": "b342acca34b655bff26645f00bef5e4df4b1b824096ebb98f7817c5dfa419829",
+  "artifact": "docs/rollouts/ebay-offer-canary/bootstrap-artifact.json",
+  "artifact_sha256": "190617dbeb871e122b9d0b051f1be33a346f911bb3f9bb387dc4412a07168456",
+  "plan_fingerprint": "00096fa994632be8e86a949b42a70b0f",
+  "source_row_fingerprint": "cacea28b21dfd4323a40085fc16b4db6a2904cfc19d4e1f490efb600e46b9b5d",
+  "scope": {
+    "product_id": "10",
+    "product_variant_id": "1704",
+    "gtin": "5999076263851",
+    "external_product_id": "323304007010",
+    "external_variant_id": "v1|323304007010|515705810394",
+    "retailer_action": "create",
+    "retailer_product_action": "create",
+    "offer_action": "create"
+  },
+  "rollout_fingerprint": "7489901942933d43e1c219b25867acf35f897f1124106f0141b46c28f6521cec"
+}

@@ -1,0 +1,162 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-14T15:42:11.295Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "00096fa994632be8e86a949b42a70b0f",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "10",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Iso Whey Zero 1816g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Vanilla / 1.816kg",
+            "flavour_code": "vanilla",
+            "flavour_label": "Vanilla",
+            "id": "1704",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "10",
+            "size_unit": "g",
+            "size_value": "1816",
+            "variant_key": "vanilla-1816g"
+          },
+          "retailer": null,
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "00096fa994632be8e86a949b42a70b0f",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "cacea28b21dfd4323a40085fc16b4db6a2904cfc19d4e1f490efb600e46b9b5d",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T15:42:11.291Z",
+            "price": "77.99",
+            "shipping_cost": "0",
+            "total_price": "77.99",
+            "url": "https://www.ebay.co.uk/itm/323304007010?var=515705810394&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "10"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Vanilla",
+              "Size": "1816g"
+            },
+            "flavour": "vanilla",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "1816"
+          },
+          "id": "1704"
+        },
+        "retailer": {
+          "action": "create",
+          "values": {
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          }
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076263851",
+            "external_name": "BioTech USA Iso Whey Zero 1816g",
+            "external_options": {
+              "Flavour": "Vanilla",
+              "Size": "1816g"
+            },
+            "external_product_id": "323304007010",
+            "external_sku": null,
+            "external_slug": "ebay-323304007010-515705810394",
+            "external_url": "https://www.ebay.co.uk/itm/323304007010?var=515705810394",
+            "external_variant_id": "v1|323304007010|515705810394",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1704"
+          }
+        }
+      },
+      "retailer_id": null,
+      "row_number": "2",
+      "source_row_fingerprint": "cacea28b21dfd4323a40085fc16b4db6a2904cfc19d4e1f490efb600e46b9b5d"
+    }
+  ],
+  "row_count": "1",
+  "run_id": "5e08e7ad-c216-4b52-aa77-6f3a29e8730a",
+  "source_file_name": "bootstrap.csv",
+  "source_file_sha256": "b342acca34b655bff26645f00bef5e4df4b1b824096ebb98f7817c5dfa419829",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/323304007010?var=515705810394&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Whey Protein",
+        "external_gtin": "5999076263851",
+        "external_options": "{\"Size\":\"1816g\",\"Flavour\":\"Vanilla\"}",
+        "external_product_id": "323304007010",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/323304007010?var=515705810394",
+        "external_variant_id": "v1|323304007010|515705810394",
+        "flavour": "Vanilla",
+        "image": "https://files.ekmcdn.com/2ab763/images/biotech-usa-iso-whey-zero-1816g-flavour-coconut-17-p.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "77.99",
+        "product_format": "powder",
+        "product_id": "10",
+        "product_name": "BioTech USA Iso Whey Zero 1816g",
+        "product_variant_id": "1704",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "1816g",
+        "size_unit": "g",
+        "slug": "ebay-323304007010-515705810394",
+        "variant_name": "Vanilla / 1.816kg"
+      },
+      "plan_fingerprint": "00096fa994632be8e86a949b42a70b0f",
+      "row_number": "2",
+      "source_row_fingerprint": "cacea28b21dfd4323a40085fc16b4db6a2904cfc19d4e1f490efb600e46b9b5d",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "1",
+    "skipped_row_count": "0"
+  }
+}
