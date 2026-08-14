@@ -594,13 +594,24 @@ price, shipping, stock and affiliate URL, and the public product page exposed
 the eBay offer through `/go/2539`. A fresh remaining-four dry-run then produced
 four exact create plans, zero blockers and artifact SHA-256
 `2c32c3de960cd52d4691d8fa1db35aa1bf02988205dd3ea2e829e858e0cdc096`.
-Those four plans remain unapplied. Batch B remains blocked until all five Batch
-A offers are live-verified.
+The owner then separately approved exactly those remaining four. Commit
+`63f34eb` sealed fresh artifact SHA-256
+`b22cb5ac40dd870aa45cec6b0773bd2cff8344305b14b9120a2ffc7c6e96b393`
+and restricted the active executor to only that scope. GitHub run
+`31820209540` executed 4/4 and its immediate postflight returned four exact
+no-ops with zero blockers. Production now has one eBay retailer, mappings
+`2724`-`2728`, offers `2539`-`2543` and price-history rows `2734`-`2738`.
+All mappings are unique `gtin`/`100`, all offers are in stock with known free
+delivery and affiliate URLs, and the canonical product/variant GTIN fields
+remain untouched. Public HTTP readback passed 5/5 with the exact eBay price and
+offer route on every product page. Batch A is complete and live-verified;
+Batch B remains read-only and requires a new exact owner approval before any
+write.
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Owner-review the
-freshly regenerated remaining four Batch A plans; if accepted, seal and apply
-exactly those four through the existing guarded importer, then live-verify all
-five before starting Batch B.`
+update that plan after every eBay task. Binding next action: `Revalidate and
+dry-run the five owner-reviewed Batch B candidates through the existing Browse
+adapter and guarded importer; do not apply Batch B without a new exact owner
+approval.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
