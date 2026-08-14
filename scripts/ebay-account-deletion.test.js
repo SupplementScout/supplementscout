@@ -31,7 +31,7 @@ const payload = {
 };
 const token = "fixture_verification_token_1234567890";
 
-function loadRoute() {
+function loadRoute(libraryOverrides = {}) {
   const filename = path.join(process.cwd(), "app", "api", "ebay", "account-deletion", "route.ts");
   const output = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -39,15 +39,19 @@ function loadRoute() {
   }).outputText;
   const mod = new Module(filename);
   const originalLoad = Module._load;
+  const scheduled = [];
   Module._load = function patched(request, parent, isMain) {
-    if (request === "@/lib/ebay-account-deletion") return require("../lib/ebay-account-deletion");
+    if (request === "next/server") return { after: (callback) => scheduled.push(callback) };
+    if (request === "@/lib/ebay-account-deletion") {
+      return { ...require("../lib/ebay-account-deletion"), ...libraryOverrides };
+    }
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
     mod.filename = filename;
     mod.paths = Module._nodeModulePaths(path.dirname(filename));
     mod._compile(output, filename);
-    return mod.exports;
+    return { ...mod.exports, __scheduled: scheduled };
   } finally {
     Module._load = originalLoad;
   }
@@ -137,18 +141,55 @@ test("GET route fails closed without secret and returns exact JSON challenge wit
   else process.env.EBAY_NOTIFICATION_VERIFICATION_TOKEN = previous;
 });
 
-test("POST route fails closed before network without credentials or signature", async () => {
+test("POST route rejects a missing signature before scheduling background work", async () => {
   const route = loadRoute();
-  const previousId = process.env.EBAY_CLIENT_ID;
-  const previousSecret = process.env.EBAY_CLIENT_SECRET;
-  delete process.env.EBAY_CLIENT_ID;
-  delete process.env.EBAY_CLIENT_SECRET;
-  assert.equal((await route.POST(new Request(ENDPOINT_URL, { method: "POST", body: JSON.stringify(payload) }))).status, 503);
-  process.env.EBAY_CLIENT_ID = "fixture-id";
-  process.env.EBAY_CLIENT_SECRET = "fixture-secret";
   assert.equal((await route.POST(new Request(ENDPOINT_URL, { method: "POST", body: JSON.stringify(payload) }))).status, 412);
-  if (previousId === undefined) delete process.env.EBAY_CLIENT_ID; else process.env.EBAY_CLIENT_ID = previousId;
-  if (previousSecret === undefined) delete process.env.EBAY_CLIENT_SECRET; else process.env.EBAY_CLIENT_SECRET = previousSecret;
+  assert.equal(route.__scheduled.length, 0);
+});
+
+test("POST acknowledges a valid notification immediately and verifies before processing", async () => {
+  let verified = 0;
+  let processed = 0;
+  const route = loadRoute({
+    verifyNotificationSignature: async () => { verified += 1; return true; },
+    processDeletionNotification: () => { processed += 1; },
+  });
+  const signature = Buffer.from(JSON.stringify({ kid: "key-1", signature: "YWJj" })).toString("base64");
+  const response = await route.POST(new Request(ENDPOINT_URL, {
+    method: "POST",
+    headers: { "x-ebay-signature": signature },
+    body: JSON.stringify(payload),
+  }));
+  assert.equal(response.status, 204);
+  assert.equal(verified, 0);
+  assert.equal(processed, 0);
+  assert.equal(route.__scheduled.length, 1);
+  await route.__scheduled[0]();
+  assert.equal(verified, 1);
+  assert.equal(processed, 1);
+});
+
+test("background signature failure never processes deletion data", async () => {
+  let processed = 0;
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const route = loadRoute({
+      verifyNotificationSignature: async () => false,
+      processDeletionNotification: () => { processed += 1; },
+    });
+    const signature = Buffer.from(JSON.stringify({ kid: "key-1", signature: "YWJj" })).toString("base64");
+    const response = await route.POST(new Request(ENDPOINT_URL, {
+      method: "POST",
+      headers: { "x-ebay-signature": signature },
+      body: JSON.stringify(payload),
+    }));
+    assert.equal(response.status, 204);
+    await route.__scheduled[0]();
+    assert.equal(processed, 0);
+  } finally {
+    console.error = originalError;
+  }
 });
 
 test("endpoint contains no database mutation, user identifier logging or secret literals", () => {
@@ -158,6 +199,7 @@ test("endpoint contains no database mutation, user identifier logging or secret 
     "lib/ebay-oauth.js",
   ].map((file) => fs.readFileSync(path.join(process.cwd(), file), "utf8")).join("\n");
   assert.doesNotMatch(source, /\.insert\s*\(|\.upsert\s*\(|\.delete\s*\(|\.rpc\s*\(|supabase|createClient\s*\(/i);
-  assert.doesNotMatch(source, /console\.(?:log|error)|fixture-seller|fixture-user|fixture-eias/);
+  assert.doesNotMatch(source, /fixture-seller|fixture-user|fixture-eias/);
+  assert.doesNotMatch(source, /console\.(?:log|error)\(\s*(?:payload|rawBody|signature|config|error)\b/);
   assert.match(source, /process\.env\.EBAY_NOTIFICATION_VERIFICATION_TOKEN/);
 });

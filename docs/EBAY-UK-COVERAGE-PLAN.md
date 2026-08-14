@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT DEPLOYED; SECRET CONFIGURATION AND EBAY VALIDATION PENDING
+**Status:** EBAY/EPN APPROVED; ACCOUNT-DELETION ENDPOINT DEPLOYED; EBAY SIGNED TEST RETRY PENDING
 **Last verified:** 14 August 2026
 **Production writes:** 0  
 **Public changes:** 1 guarded API route; unavailable until secrets are configured
@@ -87,7 +87,9 @@ reasons:
 - [x] eBay Developers and EPN account access confirmed by owner.
 - [x] Sandbox and Production application keysets created by owner.
 - [x] Guarded marketplace account-deletion endpoint built, tested and deployed.
-- [ ] Account-deletion endpoint secrets configured and endpoint accepted by eBay.
+- [x] Account-deletion endpoint Production secrets configured by owner.
+- [x] Challenge endpoint accepted and saved by eBay.
+- [ ] Signed test notification accepted by eBay after acknowledgement-order fix.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
 - [ ] Read-only API pilot executed.
 - [ ] Pilot quality reviewed by owner.
@@ -969,10 +971,13 @@ a second eBay client.
   `https://www.supplementscout.co.uk/api/ebay/account-deletion`.
 - `GET` validates the exact endpoint and returns eBay's SHA-256 challenge
   response using `challenge_code + verification token + endpoint URL`.
-- `POST` is fail-closed: it limits payload size, requires
-  `X-EBAY-SIGNATURE`, retrieves eBay's signing key through the official public
-  key API using application OAuth, caches only the public key in memory and
-  rejects invalid signatures with HTTP 412.
+- `POST` limits payload size, requires a structurally valid
+  `X-EBAY-SIGNATURE` and validates the deletion payload before immediately
+  acknowledging receipt with HTTP 204, as required by eBay's receiving guide.
+  It then verifies the signature after the response using Next.js `after()`,
+  retrieves eBay's signing key through the official public-key API using
+  application OAuth and caches only the public key in memory. No deletion
+  processing runs unless that background signature verification succeeds.
 - The route accepts only `MARKETPLACE_ACCOUNT_DELETION` schema `1.0`, never
   logs user identifiers, secrets or authorization headers, and performs no
   database write.
@@ -990,8 +995,11 @@ Local tests use generated RSA fixture keys and mocked OAuth/public-key
 responses. They make no real eBay API call. Vercel deployment for commit
 `dce0c95046ea74e274e50501d9e3502dc5f5462a` completed successfully. A live
 secret-free GET returned the intended fail-closed HTTP 503 response. Secret
-configuration, the live eBay challenge and eBay's test notification remain
-pending.
+configuration was owner-confirmed and the live eBay challenge was accepted.
+The first signed test exposed that the endpoint verified before acknowledging,
+which caused an HTTP 503 while the keyset was still non-compliant. The order was
+aligned with eBay's documented immediate-acknowledgement sequence; a live eBay
+test retry remains pending.
 
 Official references:
 
@@ -1028,9 +1036,10 @@ Do not mark a box from repository evidence. The owner must confirm each status.
 - [x] Owner created the SupplementScout application.
 - [x] Owner created Sandbox and Production keysets; Production remains disabled
   pending notification compliance.
-- [ ] `USER ACTION REQUIRED`: add the endpoint's three Production secrets in
-  Vercel, redeploy, then configure and validate the exact endpoint and matching
-  verification token in eBay.
+- [x] Owner added the endpoint's three Production secrets in Vercel and saved
+  the exact endpoint with its matching verification token in eBay.
+- [ ] `USER ACTION REQUIRED`: retry `Send Test Notification` after the
+  acknowledgement-order fix is deployed.
 - [ ] `USER ACTION REQUIRED`: store client ID, client secret and access tokens
   only in approved secret storage, never in Git or documentation.
 - [ ] `USER ACTION REQUIRED`: confirm the Browse scope and generate a Sandbox
@@ -1258,8 +1267,8 @@ rollback and explicit approval.
 ## Blockers
 
 - `APPROVED BY OWNER`: EPN account and eBay Developers account.
-- `PENDING CONFIGURATION`: add deployment secrets and validate the deployed
-  account-deletion endpoint so eBay can enable the Production keyset.
+- `PENDING LIVE RETEST`: retry eBay's signed test after deployment of the
+  documented immediate-acknowledgement order.
 - `PENDING VERIFICATION`: Production Browse API access and campaign/affiliate
   configuration after keyset enablement.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
@@ -1270,7 +1279,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Add the three account-deletion secrets in Vercel Production, redeploy, validate the endpoint in eBay, then run the read-only 54-GTIN pilot.`
+`NEXT ACTION: Retry eBay Send Test Notification after the acknowledgement-order deployment; only after success confirm keyset activation and run the read-only 54-GTIN pilot.`
 
 The completed GTIN release must not be repeated. The Browse pilot remains
 read-only; no result can enter the catalogue or public site without a separate
@@ -1292,6 +1301,11 @@ owner-reviewed production design and approval.
 - Committed and deployed the guarded route through Vercel. Deployment status
   was successful and the live endpoint returned the expected fail-closed HTTP
   503 while its Production secrets remain absent.
+- Owner configured all three Vercel Production secrets and eBay accepted the
+  challenge endpoint. The first signed test reached the route but returned 503.
+  Official eBay guidance requires immediate acknowledgement before validity
+  verification; the route was corrected to return 204 after structural checks
+  and to verify/process only inside a supported post-response task.
 
 13 August 2026:
 

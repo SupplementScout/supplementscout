@@ -1,8 +1,11 @@
+import { after } from "next/server";
 import {
   MAX_BODY_BYTES,
   assertEndpointRequest,
+  decodeSignatureHeader,
   generateChallengeResponse,
   processDeletionNotification,
+  validateDeletionPayload,
   verifyNotificationSignature,
 } from "@/lib/ebay-account-deletion";
 
@@ -29,9 +32,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!process.env.EBAY_CLIENT_ID || !process.env.EBAY_CLIENT_SECRET) {
-    return Response.json({ error: "Endpoint unavailable" }, { status: 503, headers: noStoreHeaders });
-  }
   try {
     assertEndpointRequest(request.url);
     const contentLength = Number(request.headers.get("content-length") || 0);
@@ -43,12 +43,24 @@ export async function POST(request: Request) {
       return Response.json({ error: "Payload too large" }, { status: 413, headers: noStoreHeaders });
     }
     const signature = request.headers.get("x-ebay-signature");
-    const valid = await verifyNotificationSignature(rawBody, signature, {
+    decodeSignatureHeader(signature);
+    const payload = validateDeletionPayload(JSON.parse(rawBody));
+    const config = {
       client_id: process.env.EBAY_CLIENT_ID,
       client_secret: process.env.EBAY_CLIENT_SECRET,
+    };
+    after(async () => {
+      try {
+        const valid = await verifyNotificationSignature(rawBody, signature, config);
+        if (!valid) {
+          console.error("eBay account-deletion notification signature was rejected");
+          return;
+        }
+        processDeletionNotification(payload);
+      } catch {
+        console.error("eBay account-deletion notification verification failed");
+      }
     });
-    if (!valid) return new Response(null, { status: 412, headers: noStoreHeaders });
-    processDeletionNotification(JSON.parse(rawBody));
     return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof SyntaxError) {
@@ -57,6 +69,6 @@ export async function POST(request: Request) {
     if (error instanceof Error && /X-EBAY-SIGNATURE|notification body|endpoint URL mismatch/.test(error.message)) {
       return new Response(null, { status: 412, headers: noStoreHeaders });
     }
-    return Response.json({ error: "Temporary verification failure" }, { status: 503, headers: noStoreHeaders });
+    return Response.json({ error: "Invalid eBay notification" }, { status: 400, headers: noStoreHeaders });
   }
 }

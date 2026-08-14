@@ -530,16 +530,21 @@ import design. The read-only pilot is built and its immutable input contains
 exactly the 54 safe canonical variant GTIN identities; preparation made 0
 database writes and 0 eBay calls. On 14 August the owner confirmed EPN and eBay
 Developers approval and created Sandbox and Production keysets. Production is
-disabled pending secret configuration and eBay validation of the guarded
-marketplace account-deletion endpoint deployed on 14 August. The live route
-fails closed with HTTP 503 until its Production secrets exist. No retailer
+disabled pending completion of eBay validation for the guarded marketplace
+account-deletion endpoint deployed on 14 August. The owner configured all three
+Production secrets and eBay accepted the challenge endpoint. Its first signed
+test exposed acknowledgement ordering: eBay requires immediate receipt
+acknowledgement and subsequent validity verification. The route now performs
+structural gates before HTTP 204 and permits deletion processing only after
+post-response signature verification succeeds. No retailer
 row, production offer, public UI or write automation is authorized by this
 entry. The architecture is a marketplace-specific adapter around the existing
 guarded identity/control plane, not a second importer, and it retains
 seller/listing evidence. Future agents must read the eBay plan's `Current
 status` and `Next action` and update that plan after every eBay task. Binding
-next action: `Add the three account-deletion secrets in Vercel Production,
-redeploy, validate the endpoint in eBay, then run the read-only 54-GTIN pilot.`
+next action: `Retry eBay Send Test Notification after the acknowledgement-order
+deployment; only after success confirm keyset activation and run the read-only
+54-GTIN pilot.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
