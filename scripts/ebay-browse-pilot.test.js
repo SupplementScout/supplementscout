@@ -2,8 +2,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache } = require("./lib/ebay-browse-pilot");
-const { currentOfferEvidence, parseArgs, sealInput } = require("./ebay-browse-pilot");
+const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
+const { buildDiscoveryRows, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, sealInput } = require("./ebay-browse-pilot");
+const { hash } = require("./lib/retailer-snapshot/fingerprints");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -61,6 +62,14 @@ test("unknown shipping and proposed seller threshold fail closed to REVIEW", () 
   assert.ok(lowSeller.review_reasons.includes("SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"));
   assert.ok(lowSeller.review_reasons.includes("SELLER_SCORE_BELOW_PROPOSED_THRESHOLD"));
   assert.equal(lowSeller.match_tier, "B");
+});
+
+test("an eBay seller matching the current retailer is not independent coverage", () => {
+  const sameRetailer = { ...identity, source_locations: ["https://www.simplysupplements.co.uk/products/example"] };
+  const result = evaluateItem(sameRetailer, item({ seller: { username: "simplyssupplements", feedbackPercentage: 99.8, feedbackScore: 50000 } }));
+  assert.equal(result.decision, "REJECT");
+  assert.ok(result.blockers.includes("SELLER_NOT_INDEPENDENT"));
+  assert.equal(sellerMatchesCurrentSource(sameRetailer, "unrelated-seller"), false);
 });
 
 test("unit-count mismatch and bundles are rejected", () => {
@@ -175,10 +184,70 @@ test("mock Browse request has exact read-only filters, follows safe detail URL a
   assert.ok(requests.slice(1).every((request) => !request.options.method || request.options.method === "GET"));
 });
 
+test("scaled discovery caps exact-GTIN result and detail reads", async () => {
+  resetTokenCache();
+  const requests = [];
+  const mockFetch = async (url) => {
+    requests.push(String(url));
+    if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    if (String(url).includes("item_summary/search")) return { ok: true, json: async () => ({ itemSummaries: Array.from({ length: 5 }, (_, index) => ({ itemHref: `https://api.ebay.com/buy/browse/v1/item/${index}` })) }) };
+    return { ok: true, json: async () => item() };
+  };
+  const rows = await browseIdentity(identity, { client_id: "id", client_secret: "secret", marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: null }, mockFetch, { limit: 5, maxDetails: 2 });
+  assert.equal(rows.length, 2);
+  assert.match(requests.find((url) => url.includes("item_summary/search")), /limit=5/);
+  assert.equal(requests.filter((url) => url.includes("\/buy\/browse\/v1\/item\/") && !url.includes("item_summary")).length, 2);
+});
+
+test("title-lead search remains GET-only and does not pretend to be exact-GTIN search", async () => {
+  resetTokenCache();
+  const requests = [];
+  const mockFetch = async (url) => {
+    requests.push(String(url));
+    if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    return { ok: true, json: async () => ({ itemSummaries: [] }) };
+  };
+  await browseIdentity(identity, { client_id: "id", client_secret: "secret", marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: null }, mockFetch, { limit: 5, maxDetails: 5, searchMode: "title" });
+  const search = requests.find((url) => url.includes("item_summary/search"));
+  assert.match(search, /[?&]q=/);
+  assert.doesNotMatch(search, /[?&]gtin=/);
+});
+
+test("title-lead input accepts only intact read-only discovery reports and one row per missing product", () => {
+  const report = {
+    operation_type: "EBAY_BROWSE_API_DISCOVERY", write_enabled: false,
+    rows: [{ ...identity, decision: "NOT_FOUND" }, { ...identity, variant_id: "1003", decision: "NOT_FOUND" }, { ...identity, product_id: "12", decision: "REVIEW" }],
+    artifact_fingerprint: null,
+  };
+  report.artifact_fingerprint = hash("EBAY-BROWSE-REPORT:1", report);
+  const input = buildTitleLeadInput(report, 10, "2026-08-14T14:00:00.000Z");
+  assert.equal(input.rows.length, 1);
+  assert.equal(input.rows[0].product_id, "11");
+  assert.throws(() => buildTitleLeadInput({ ...report, artifact_fingerprint: "tampered" }, 10), /fingerprint mismatch/);
+});
+
+test("one-retailer discovery excludes canonical, quarantined, duplicate and ambiguous GTIN identities", () => {
+  const products = [{ id: 1, name: "Safe", brand: "Brand", category: "Creatine", unit_count: 60, is_active: true, gtin: null }, { id: 2, name: "Other", brand: "Brand", category: "Vitamins", unit_count: 30, is_active: true, gtin: "12345670" }];
+  const variants = [{ id: 11, product_id: 1, display_name: "60 caps", product_format: "capsule", is_active: true, gtin: null }, { id: 12, product_id: 2, display_name: "30 caps", product_format: "capsule", is_active: true, gtin: null }];
+  const mappings = [
+    { id: 101, retailer_id: 7, product_id: 1, product_variant_id: 11, external_gtin: "96385074", external_url: "https://retailer.example/safe" },
+    { id: 102, retailer_id: 7, product_id: 2, product_variant_id: 12, external_gtin: "12345670" },
+  ];
+  const offers = [{ retailer_product_id: 101, retailer_id: 7, price: 10, shipping_cost: 0, in_stock: true }];
+  const rows = buildDiscoveryRows({ products, variants, mappings, offers }, "", 10);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].gtin, "96385074");
+  assert.deepEqual([...parseQuarantinedGtins("| x | `96385074` | `CONFLICT` |")], ["96385074"]);
+  assert.equal(buildDiscoveryRows({ products, variants, mappings, offers }, "| x | `96385074` | `CONFLICT` |", 10).length, 0);
+});
+
 test("runner and library contain no production mutation or public publication path", () => {
   const source = ["scripts/ebay-browse-pilot.js", "scripts/lib/ebay-browse-pilot.js"].map((file) => fs.readFileSync(path.join(process.cwd(), file), "utf8")).join("\n");
   assert.doesNotMatch(source, /\.insert\s*\(|\.update\s*\(|\.upsert\s*\(|\.delete\s*\(|\.rpc\s*\(/);
   assert.doesNotMatch(source, /offers\).*insert|retailer_products\).*insert/);
   assert.deepEqual(parseArgs(["--prepare-input"]).prepareInput, true);
+  assert.equal(parseArgs(["--discover-one-retailer", "--max-identities=200"]).maxIdentities, 200);
+  assert.throws(() => parseArgs(["--max-identities=200"]), /requires --discover-one-retailer/);
+  assert.throws(() => parseArgs(["--title-leads-from=tmp/ebay-uk-coverage/report.json"]), /requires --discover-one-retailer/);
   assert.throws(() => parseArgs(["--apply"]), /Unsupported argument/);
 });

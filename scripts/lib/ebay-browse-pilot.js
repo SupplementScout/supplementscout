@@ -20,6 +20,27 @@ function normalized(value) {
   return clean(value).toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+function compactIdentity(value) {
+  return normalized(value).replace(/\s+/g, "").replace(/(.)\1+/g, "$1");
+}
+
+function sellerMatchesCurrentSource(identity, username) {
+  const seller = compactIdentity(username);
+  if (seller.length < 6) return false;
+  const candidates = [...(identity.current_retailer_identities || [])];
+  for (const location of identity.source_locations || []) {
+    try {
+      candidates.push(new URL(location).hostname.replace(/^www\./, "").split(".")[0]);
+    } catch {
+      // Invalid evidence URLs cannot establish retailer independence.
+    }
+  }
+  return candidates.some((candidate) => {
+    const current = compactIdentity(candidate);
+    return current.length >= 6 && (seller === current || seller.includes(current) || current.includes(seller));
+  });
+}
+
 function finiteNumber(value) {
   const number = Number(value);
   return value !== null && value !== "" && Number.isFinite(number) ? number : null;
@@ -160,6 +181,7 @@ function evaluateItem(identity, item, policy = DEFAULT_POLICY) {
   if (!clean(seller.username) || feedbackPercentage === null || feedbackScore === null) {
     review.push("SELLER_QUALITY_UNPROVEN");
   } else {
+    if (sellerMatchesCurrentSource(identity, seller.username)) blockers.push("SELLER_NOT_INDEPENDENT");
     if (feedbackPercentage < policy.minimum_feedback_percentage) review.push("SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD");
     if (feedbackScore < policy.minimum_feedback_score) review.push("SELLER_SCORE_BELOW_PROPOSED_THRESHOLD");
   }
@@ -231,7 +253,7 @@ function buildReport(input, results, policy = DEFAULT_POLICY, metadata = {}) {
   const median = differences.length ? differences.length % 2 ? differences[(differences.length - 1) / 2] : Number(((differences[differences.length / 2 - 1] + differences[differences.length / 2]) / 2).toFixed(2)) : null;
   const report = {
     schema_version: 1,
-    operation_type: "EBAY_BROWSE_API_PILOT",
+    operation_type: metadata.operation_type || "EBAY_BROWSE_API_PILOT",
     write_enabled: false,
     captured_at: metadata.captured_at || new Date().toISOString(),
     input_fingerprint: input.artifact_fingerprint,
@@ -240,10 +262,13 @@ function buildReport(input, results, policy = DEFAULT_POLICY, metadata = {}) {
     affiliate_campaign_configured: metadata.affiliate_campaign_configured === true,
     summary: {
       checked: results.length,
+      products_checked: new Set(results.map((row) => row.product_id)).size,
       found: results.filter((row) => row.found).length,
+      products_found: new Set(results.filter((row) => row.found).map((row) => row.product_id)).size,
       exact_gtin: results.filter((row) => row.selected_offer?.returned_gtin === row.gtin).length,
       fully_qualified: count("AUTO_ELIGIBLE"),
       safely_addable: count("AUTO_ELIGIBLE"),
+      products_auto_eligible: new Set(results.filter((row) => row.decision === "AUTO_ELIGIBLE").map((row) => row.product_id)).size,
       AUTO_ELIGIBLE: count("AUTO_ELIGIBLE"), REVIEW: count("REVIEW"), REJECT: count("REJECT"), NOT_FOUND: count("NOT_FOUND"),
       tier_a: results.filter((row) => row.selected_offer?.match_tier === "A").length,
       tier_b: results.filter((row) => row.selected_offer?.match_tier === "B").length,
@@ -276,11 +301,17 @@ function assertConfig(env = process.env) {
   };
 }
 
-async function browseIdentity(identity, config, fetchImpl = fetch) {
+async function browseIdentity(identity, config, fetchImpl = fetch, options = {}) {
   const token = await getApplicationToken(config, fetchImpl);
+  const limit = Number(options.limit || 50);
+  const maxDetails = Number(options.maxDetails || limit);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 50) throw new Error("Browse result limit must be between 1 and 50");
+  if (!Number.isInteger(maxDetails) || maxDetails < 1 || maxDetails > limit) throw new Error("Browse detail limit must be between 1 and the result limit");
+  const titleQuery = [identity.brand, identity.product_name, identity.flavour_label, identity.size_value != null && identity.size_unit ? `${identity.size_value}${identity.size_unit}` : null]
+    .filter(Boolean).join(" ");
   const query = new URLSearchParams({
-    gtin: identity.gtin,
-    limit: "50",
+    [options.searchMode === "title" ? "q" : "gtin"]: options.searchMode === "title" ? titleQuery : identity.gtin,
+    limit: String(limit),
     filter: "buyingOptions:{FIXED_PRICE},conditions:{NEW},deliveryCountry:GB",
   });
   const headers = { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id };
@@ -291,7 +322,7 @@ async function browseIdentity(identity, config, fetchImpl = fetch) {
   if (!response.ok) throw new Error(`eBay Browse search failed with HTTP ${response.status} for product ${identity.product_id} variant ${identity.variant_id}`);
   const body = await response.json();
   const items = [];
-  for (const summary of body.itemSummaries || []) {
+  for (const summary of (body.itemSummaries || []).slice(0, maxDetails)) {
     if (!clean(summary.itemHref)) { items.push(summary); continue; }
     const href = new URL(summary.itemHref);
     if (href.origin !== "https://api.ebay.com" || !href.pathname.startsWith("/buy/browse/v1/item/")) throw new Error("eBay returned an unsafe itemHref");
@@ -302,4 +333,4 @@ async function browseIdentity(identity, config, fetchImpl = fetch) {
   return items;
 }
 
-module.exports = { DECISIONS, DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache };
+module.exports = { DECISIONS, DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource };

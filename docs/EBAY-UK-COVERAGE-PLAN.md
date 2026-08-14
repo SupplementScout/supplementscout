@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** OWNER QUALITY REVIEW COMPLETE; BOUNDED PRODUCTION PILOT DESIGN NEXT
+**Status:** SCALED DISCOVERY COMPLETE; 144 PRODUCT LEADS; 50 SAFE OFFERS NOT YET MET
 **Last verified:** 14 August 2026
 **Production writes:** 0  
 **Public changes:** 1 guarded account-deletion API route
@@ -66,6 +66,16 @@ tablets. Applied Nutrition Creatine 120 Capsules and Per4m Pre-Workout Stim
 570g Berry Blast remain `REVIEW` because the selected listings did not return
 their GTINs. This approval is not authority to write or publish an offer.
 
+A scaled continuation of the same read-only mechanism then checked 355 new
+one-retailer variant GTIN identities across 150 products and a bounded title
+fallback for products missed by exact-GTIN search. Across the original pilot
+and both discovery artifacts, eBay listing evidence now exists for 144 unique
+products, exceeding the owner's 50-product discovery target. This is not 144
+safe offers: only 46 products have an eBay-returned exact GTIN, 36 of those are
+from an independent eBay seller, and current automatic plus owner-reviewed
+gates leave 12 strong independent candidates including the original two. No
+offer was written or published.
+
 ## Completed
 
 - [x] Repository and operating-document audit.
@@ -92,6 +102,9 @@ their GTINs. This approval is not authority to write or publish an offer.
 - [ ] Pilot cohort of 100 verified canonical GTIN identities available.
 - [x] Read-only API pilot executed for all 54 safe identities.
 - [x] Pilot quality reviewed and accepted by owner.
+- [x] Scaled read-only discovery found listing evidence for 144 unique products.
+- [x] Same-retailer eBay sellers excluded from independent coverage.
+- [ ] At least 50 independent owner-safe eBay offers available.
 - [ ] Production pilot designed or approved.
 
 ## Baseline — read-only production evidence
@@ -1201,6 +1214,68 @@ Review totals: 5 checked, 2 accepted for future design, 1 rejected and 2
 still held in `REVIEW`. The accepted rows are not affiliate-ready and remain
 outside the database and public site.
 
+## Scaled offer discovery — 14 August 2026
+
+The existing runner was extended rather than replaced. Its default 54-GTIN
+pilot remains unchanged. The new `--discover-one-retailer` mode accepts only
+active, unmerged, checksum-valid, unambiguous variant GTINs with exactly one
+current retailer, excludes canonical and documented quarantined GTINs, caps
+Browse results and item-detail reads at five per identity, writes only ignored
+immutable artifacts and has no mutation or publication method.
+
+The exact-GTIN discovery input contained 355 variants across 150 products,
+fingerprint
+`36aa3fca1595cfbf3c7ab2689ca31bb2ca8d21b052eeb976ba154f07c31c87b7`.
+It returned 59 found variants across 29 products, 45 exact-GTIN rows across 19
+products, 19 `REVIEW`, 40 `REJECT` and 296 `NOT_FOUND`. Zero rows passed every
+automatic semantic gate; the exact GTIN alone did not override flavour, size,
+format, marketplace, count or seller-quality failures.
+
+A bounded title fallback used one missing representative per product and kept
+title-only evidence out of automatic approval unless item detail returned the
+same GTIN and all existing gates passed. It checked 140 products, found 126,
+returned 27 exact GTINs and initially classified 19 as `AUTO_ELIGIBLE`, 26 as
+`REVIEW`, 81 as `REJECT` and 14 as `NOT_FOUND`. Manual independence review
+found nine of those 19 automatic rows were eBay listings operated by the same
+Simply Supplements retailer already attached to the product. They are not
+second-retailer coverage. A durable `SELLER_NOT_INDEPENDENT` gate now compares
+the eBay seller with current retailer identities and evidence domains.
+
+Combined, deduplicated evidence across the three runs is:
+
+| Measure | Result |
+|---|---:|
+| Unique products with at least one eBay listing lead | 144 |
+| Unique products with eBay-returned exact GTIN | 46 |
+| Unique products with independent-seller exact GTIN | 36 |
+| Strong independent candidates after current gates | 12 |
+| Additional strong candidates from scaled discovery | 10 |
+| Same-source products detected across reports | 12 |
+| Database writes / public offer publications | 0 / 0 |
+
+The 10 additional strong candidates are BioTech USA Iso Whey Zero 1816g
+Vanilla; BioTech USA Vegan Protein 500g Chocolate-Cinnamon; Applied Nutrition
+ISO-XP 1.8kg Cafe Latte; Dorian Yates Blood & Guts 380g Mango; Cellucor C4
+Original 195g Green Apple; Mutant Madness 225g Roadside Lemonade; Nutrend Pump
+225g Rainbow; HR Labs Basic 510g Strawberry And Fuzzy Fruits; Applied
+Nutrition Critical Cookie White Chocolate & Raspberry; and Per4m EAA Xtra
+420g Blue Raspberry. These are candidates for owner review and future design,
+not database writes.
+
+Local artifact file SHA-256 evidence:
+
+- exact input: `892D859BDF27D16647A95B5A0E327ACD1E07732A28EEC6E1FC6870B3B7DD2080`;
+- exact raw: `365D826CA2BFE81C04D2B839BA3BEDA26FE997BE3FB7733DF0C8DB28C08E27AF`;
+- exact report: `E0F0818F85657254EB959E848B9AEA7E72BF25312CD9468D968B2EFE388AACAA`;
+- title input: `7173BD922E4D2A3FF10FEBE88B5C87F7B8231CD962F08E8A84867F2D64AAC546`;
+- title raw: `3E198028EB7AEEBCEF54B62AE65DCD0747EE4FCB41A7AB9595141073EF405272`;
+- title report: `D87ADB0D9A7C127710FC86C72798C6CB4CFDDD8FA14DE0C7C96FC3B51FE70229`.
+
+The 50-product discovery goal is complete, but the 50-safe-independent-offer
+goal is not. Reaching it requires bounded owner review and stronger source or
+listing evidence for at least 38 more products; the gate must not be weakened
+and the 144 listing leads must not be presented as catalogue-ready offers.
+
 ## Read-only pilot specification — historical target 100 verified GTIN identities
 
 ### Entry gate
@@ -1345,8 +1420,11 @@ rollback and explicit approval.
   read-only run completed.
 - `OWNER REVIEWED`: 2 `AUTO_ELIGIBLE` rows accepted for future design; one
   reviewed row rejected and two remain held in `REVIEW`.
-- `PENDING`: campaign/affiliate configuration and bounded production-pilot
-  design.
+- `LIVE READ-ONLY EVIDENCE`: 144 unique products have eBay listing leads; 46
+  have returned exact GTIN and 36 combine exact GTIN with an independent
+  seller.
+- `PENDING`: owner review/enrichment to reach 50 safe independent offers,
+  campaign/affiliate configuration and bounded production-pilot design.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1355,7 +1433,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Design a guarded, read-only-first production pilot for exactly the 2 owner-accepted AUTO_ELIGIBLE rows; do not import or publish any eBay offer.`
+`NEXT ACTION: Owner-review the 10 new strong independent candidates, then enrich the highest-quality held rows toward 50 safe independent offers; do not import or publish any eBay offer.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1406,6 +1484,13 @@ owner-reviewed production design and approval.
   Per4m Pre-Workout Stim 570g Berry Blast remain held because their selected
   listings did not return GTINs. Production writes and public changes remained
   zero.
+- Scaled read-only discovery checked 355 new variant identities across 150
+  products and a bounded title fallback. Deduplicated listing evidence now
+  covers 144 products; 46 have returned exact GTIN, 36 also have an independent
+  seller and 12 currently qualify as strong candidates after the owner-reviewed
+  original pair and the new same-retailer exclusion. No offer was written or
+  published. The next controlled task is review and evidence enrichment, not a
+  bulk import.
 
 13 August 2026:
 

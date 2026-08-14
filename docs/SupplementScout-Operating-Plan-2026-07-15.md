@@ -553,14 +553,23 @@ tracking was not configured. The owner accepted the row-level quality review:
 both `AUTO_ELIGIBLE` rows passed for a future bounded production-pilot design,
 Solgar 60 Tablets was rejected because the selected listing is 120 tablets,
 and the Applied Nutrition and Per4m rows remain held because eBay did not
-return their GTINs. This is not approval to write or publish an offer. No retailer
-row, production offer, public UI or write automation is authorized by this
-entry. The architecture is a marketplace-specific adapter around the existing
-guarded identity/control plane, not a second importer, and it retains
-seller/listing evidence. Future agents must read the eBay plan's `Current
-status` and `Next action` and update that plan after every eBay task. Binding
-next action: `Design a guarded, read-only-first production pilot for exactly
-the 2 owner-accepted AUTO_ELIGIBLE rows; do not import or publish any eBay
+return their GTINs. This is not approval to write or publish an offer. No
+retailer row, production offer, public UI or write automation is authorized by
+this entry. The architecture is a marketplace-specific adapter around the
+existing guarded identity/control plane, not a second importer, and it retains
+seller/listing evidence. The same read-only runner was then extended with a
+bounded one-retailer discovery mode. It checked 355 new variant identities
+across 150 products and a title fallback without weakening automatic identity
+gates. Deduplicated eBay listing evidence now covers 144 products, exceeding
+the 50-product search target; 46 have an eBay-returned exact GTIN and 36 combine
+exact GTIN with an independent seller. Manual review exposed same-retailer
+marketplace sellers, so a durable `SELLER_NOT_INDEPENDENT` gate was added.
+Current strong independent candidates total 12 including the original two.
+Database writes, offer writes, mapping writes and public changes remained zero.
+Future agents must read the eBay plan's `Current status` and `Next action` and
+update that plan after every eBay task. Binding next action: `Owner-review the
+10 new strong independent candidates, then enrich the highest-quality held
+rows toward 50 safe independent offers; do not import or publish any eBay
 offer.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
