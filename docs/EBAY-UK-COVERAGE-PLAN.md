@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** SCALED DISCOVERY COMPLETE; 144 PRODUCT LEADS; 50 SAFE OFFERS NOT YET MET
+**Status:** BATCH A 5/5 AFFILIATE-READY AND DRY-RUN VERIFIED; PRODUCTION WRITE AWAITS OWNER APPROVAL
 **Last verified:** 14 August 2026
 **Production writes:** 0  
 **Public changes:** 1 guarded account-deletion API route
@@ -76,6 +76,35 @@ from an independent eBay seller, and current automatic plus owner-reviewed
 gates leave 12 strong independent candidates including the original two. No
 offer was written or published.
 
+On 14 August 2026 the owner approved the exact 10 new strong independent
+candidates for a controlled `5 + 5` rollout design. Revalidation against the
+sealed title-discovery report found 10 unique products, variants and eBay
+listings; all 10 remain `AUTO_ELIGIBLE`, have the exact returned GTIN, are new
+fixed-price `EBAY_GB` business-seller listings and have zero blockers or review
+reasons. This approval permits preparation and dry-run only. It does not yet
+authorize a database write or public publication.
+
+The existing canonical importer is the binding write path. It already supports
+an existing canonical product/variant plus a new retailer mapping, offer and
+price-history row; creates a missing retailer; produces a dry-run artifact and
+fingerprint; requires a separate approval; and applies exactly one approved
+plan atomically. CSV writes are disabled. No second importer, new schema or
+migration is required for the canary. Production currently has nine retailer
+rows and no eBay retailer row. The approved source artifact, not an unrelated
+database field, remains the seller/listing audit evidence.
+
+`EBAY_EPN_CAMPAIGN_ID` is now configured in the local controlled environment;
+its value is not stored in the repository or this document. The Browse adapter
+passes it through `X-EBAY-C-ENDUSERCTX` and accepts only eBay's returned
+`itemAffiliateWebUrl` as affiliate-ready. Ordinary `itemWebUrl` values must not
+be published as monetized links.
+
+The exact five Batch A listings were refreshed by item ID on 14 August 2026.
+All five were found, returned the expected GTIN, remained `AUTO_ELIGIBLE`, had
+zero blockers/review reasons and returned an `itemAffiliateWebUrl`. All five
+would add a second retailer and were the lowest complete delivered price in the
+fresh result; median difference was GBP -6.41. Database writes remained zero.
+
 ## Completed
 
 - [x] Repository and operating-document audit.
@@ -104,8 +133,12 @@ offer was written or published.
 - [x] Pilot quality reviewed and accepted by owner.
 - [x] Scaled read-only discovery found listing evidence for 144 unique products.
 - [x] Same-retailer eBay sellers excluded from independent coverage.
+- [x] Exact 10 new strong independent offers owner-approved for rollout design.
+- [x] Existing guarded importer proved suitable for the eBay canary; no second importer.
+- [x] Batch A affiliate refresh passed 5/5 using the exact approved item IDs.
+- [x] Existing-importer Batch A dry-run passed 5 plans and 0 blocked rows.
 - [ ] At least 50 independent owner-safe eBay offers available.
-- [ ] Production pilot designed or approved.
+- [x] Production pilot designed; apply not yet owner-approved.
 
 ## Baseline — read-only production evidence
 
@@ -1262,6 +1295,77 @@ Nutrition Critical Cookie White Chocolate & Raspberry; and Per4m EAA Xtra
 420g Blue Raspberry. These are candidates for owner review and future design,
 not database writes.
 
+### Owner approval and controlled 5 + 5 rollout boundary
+
+The owner approved exactly these 10 rows on 14 August 2026. Evidence is bound
+to title report SHA-256
+`D87ADB0D9A7C127710FC86C72798C6CB4CFDDD8FA14DE0C7C96FC3B51FE70229`.
+
+| Batch | Product / variant | GTIN | eBay item | Seller | Delivered / current best | Owner status |
+|---|---|---|---|---|---:|---|
+| A | `10` / `1704` BioTech USA Iso Whey Zero, Vanilla 1.816kg | `5999076263851` | `323304007010` | `trainingfuels` | GBP 77.99 / 88.66 | APPROVED FOR DRY-RUN |
+| A | `71` / `1008` BioTech USA Vegan Protein, Chocolate-Cinnamon 500g | `5999076228362` | `394018039646` | `ukesupps-2008` | GBP 19.99 / 21.66 | APPROVED FOR DRY-RUN |
+| A | `27` / `1586` Cellucor C4 Original, Green Apple 195g | `842595109191` | `373707858011` | `nutrafituk` | GBP 19.99 / 26.76 | APPROVED FOR DRY-RUN |
+| A | `489` / `1792` Mutant Madness, Roadside Lemonade 225g | `627933026183` | `204481126203` | `superfoodsinc` | GBP 19.95 / 26.36 | APPROVED FOR DRY-RUN |
+| A | `528` / `1847` Nutrend Pump, Rainbow 225g | `8594073170477` | `145921318153` | `powerbodyltd` | GBP 18.10 / 23.98 | APPROVED FOR DRY-RUN |
+| B | `178` / `1762` Applied Nutrition ISO-XP, Cafe Latte 1.8kg | `5056555204627` | `137546859794` | `powerbodyltd` | GBP 84.81 / 85.52 | APPROVED FOR DRY-RUN |
+| B | `19` / `767` Dorian Yates Blood & Guts, Mango 380g | `5060763890480` | `256978504929` | `thesupplementstoreuk` | GBP 25.90 / 24.98 | APPROVED FOR DRY-RUN |
+| B | `220` / `1057` HR Labs Basic, Strawberry And Fuzzy Fruits 510g | `5060662330162` | `404774853352` | `ukesupps-2008` | GBP 36.99 / 37.98 | APPROVED FOR DRY-RUN |
+| B | `471` / `462` Critical Cookie, White Chocolate & Raspberry | `5056555201039` | `406431647826` | `muscle-factory-co-uk` | GBP 6.18 / 6.28 | APPROVED FOR DRY-RUN |
+| B | `788` / `1074` Per4m EAA Xtra, Blue Raspberry 420g | `5060660086122` | `326796105372` | `trainingfuels` | GBP 25.99 / 27.48 | APPROVED FOR DRY-RUN |
+
+Batch A intentionally covers five different sellers. After Campaign ID is
+configured, refresh only these five listings and require five returned
+`itemAffiliateWebUrl` values. Then prepare five ordinary input rows for the
+existing importer, run dry-run, inspect canonical IDs, listing URLs, prices,
+shipping and proposed deltas, and request a separate apply approval. Only after
+live link, tracking, catalogue and idempotency verification may Batch B follow
+through the same unchanged path. No row may move from A to B or be substituted
+without a new owner review.
+
+Importer reuse decision:
+
+- use `scripts/import-products.js`; do not build another importer;
+- bind every row explicitly to the existing product and variant IDs;
+- let the plan create one `eBay UK` retailer row when absent, then create only
+  the mapping, offer and price-history rows expected for that listing;
+- use eBay's REST item ID / legacy item ID, returned GTIN, direct listing URL
+  and returned affiliate URL in their existing identity/URL fields;
+- retain seller, exact-match and shipping evidence in the sealed owner-approved
+  source artifact and its hash rather than overloading `external_options`;
+- keep one active eBay offer per canonical variant in the approved manifest;
+- require dry-run, immutable artifact, plan fingerprint, separate approval,
+  single-plan atomic apply, live verification and replay/no-op verification.
+
+The final existing-importer dry-run passed with five plans and zero blocked
+rows. Every plan uses an existing product and existing variant, proposes one
+new exact-GTIN retailer mapping, one affiliate offer and one price-history row,
+and proposes no canonical product or variant creation/update. New mappings now
+record `match_method = gtin` and confidence `100`; a narrowly scoped importer
+correction preserves all historical mapping values and changes only new mapping
+metadata. Focused importer tests pass.
+
+Evidence:
+
+- canary input SHA-256:
+  `6be53037891303e990e3191defbf653204e7cbac7557c135b1bdd23db11fb2bc`;
+- canary raw response SHA-256:
+  `f84d1f0be781f043015e5e6bfa9919466b71f3d61d6b1017408038bfc2b0e2e6`;
+- canary report SHA-256:
+  `af6123c51f9c3ca6c4d0a67e3679f125aa6876093b4e84644a84f7932f3ab984`;
+- exact five-row importer source SHA-256:
+  `54030992c5cc8d2b8e7240473365f4b7b59c42d1e39a9d18d95aa8d16d316d29`;
+- final dry-run artifact SHA-256:
+  `33a234cba05d441abf0551546d7933a2ba6e64a5fc5e683035b8905138fcabac`.
+
+No approval record or production write has been created. Because the retailer
+does not yet exist, all five previews contain `retailer.action = create`.
+Applying one would make the other four previews stale. The safe release order
+is therefore: separately approve and apply the first exact plan to bootstrap
+the retailer plus its offer; live-verify it; regenerate the remaining exact
+four against the new state; then separately approve/apply and verify those four.
+This is still logical Batch A and does not change its five approved listings.
+
 Local artifact file SHA-256 evidence:
 
 - exact input: `892D859BDF27D16647A95B5A0E327ACD1E07732A28EEC6E1FC6870B3B7DD2080`;
@@ -1423,8 +1527,13 @@ rollback and explicit approval.
 - `LIVE READ-ONLY EVIDENCE`: 144 unique products have eBay listing leads; 46
   have returned exact GTIN and 36 combine exact GTIN with an independent
   seller.
-- `PENDING`: owner review/enrichment to reach 50 safe independent offers,
-  campaign/affiliate configuration and bounded production-pilot design.
+- `OWNER APPROVED`: exact 10 new strong independent rows for controlled dry-run
+  design; together with the original two, 12 strong candidates are available.
+- `LIVE READ-ONLY VERIFIED`: EPN Campaign ID is configured; exact Batch A
+  refresh returned 5/5 affiliate URLs and final importer dry-run returned five
+  exact plans with zero blockers.
+- `PENDING OWNER APPROVAL`: bootstrap the eBay retailer with the first exact
+  plan, live-verify it, then regenerate the remaining four previews.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1433,7 +1542,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner-review the 10 new strong independent candidates, then enrich the highest-quality held rows toward 50 safe independent offers; do not import or publish any eBay offer.`
+`NEXT ACTION: Obtain explicit owner approval to apply the first exact Batch A plan as the eBay retailer bootstrap, then live-verify it and regenerate the remaining four previews; do not apply any plan without that approval.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate

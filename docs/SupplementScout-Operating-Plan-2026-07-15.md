@@ -566,11 +566,31 @@ exact GTIN with an independent seller. Manual review exposed same-retailer
 marketplace sellers, so a durable `SELLER_NOT_INDEPENDENT` gate was added.
 Current strong independent candidates total 12 including the original two.
 Database writes, offer writes, mapping writes and public changes remained zero.
+The owner approved the exact 10 new rows on 14 August for a controlled `5 + 5`
+rollout design, not for a production write. Revalidation found 10 unique
+products, variants and listings, all still exact-GTIN `AUTO_ELIGIBLE` with no
+blockers or review reasons. Existing-importer reuse is confirmed: the current
+guarded product importer can create the missing eBay retailer and add mappings,
+offers and price history to explicit existing variants through its dry-run,
+artifact fingerprint, separate approval and atomic single-plan apply. No
+second importer, schema or migration is authorized. `EBAY_EPN_CAMPAIGN_ID` is
+now locally configured without entering the repository. The exact five Batch A
+listings then passed a fresh item-ID refresh: 5/5 exact GTIN, 5/5
+`AUTO_ELIGIBLE`, 5/5 eBay-returned affiliate URLs and zero blockers. The final
+existing-importer dry-run produced five plans and zero blocked rows, touching
+only a missing eBay retailer, five mappings, five offers and five price-history
+rows; products and variants remain existing. A minimal importer correction
+marks only newly created external-GTIN mappings as `gtin`/`100` while
+preserving historical mapping metadata and idempotency. Because every preview
+was generated before the retailer exists, first apply one separately approved
+bootstrap plan, live-verify it, then regenerate the remaining four against the
+fresh state. No approval or production write has yet occurred. Batch B remains
+blocked until all five Batch A offers are live-verified.
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Owner-review the
-10 new strong independent candidates, then enrich the highest-quality held
-rows toward 50 safe independent offers; do not import or publish any eBay
-offer.`
+update that plan after every eBay task. Binding next action: `Obtain explicit
+owner approval for the first exact Batch A bootstrap plan; after apply and live
+verification, regenerate the remaining four previews. Do not apply without
+that separate approval.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

@@ -3397,8 +3397,8 @@ function buildAtomicImportPlan(item) {
         name: required(row.product_name, "product_name", item.rowNumber),
         slug: required(row.slug, "slug", item.rowNumber),
         offerUrl: required(getRetailerProductUrl(row), "url", item.rowNumber),
-        matchMethod: getProductLevelGtin(row, "feed") ? "gtin" : "slug",
-        matchConfidence: getProductLevelGtin(row, "feed") ? 100 : 90,
+        matchMethod: mapping?.match_method || (getExternalGtin(row) ? "gtin" : "slug"),
+        matchConfidence: mapping?.match_confidence ?? (getExternalGtin(row) ? 100 : 90),
       });
   const mappingValues = completeObject(rawMappingValues, RETAILER_PRODUCT_PLAN_FIELDS);
   const mappingChanged = Boolean(

@@ -3189,6 +3189,14 @@ test("safe-create allows an out-of-stock offer for an existing canonical product
   assert.equal(result.report.retailerProductsToCreate.length, 1);
   assert.equal(result.report.offersToCreate.length, 1);
   assert.equal(result.report.priceHistoryRowsToCreate.length, 1);
+  assert.equal(
+    result.report.approvedRows[0].importPlan.retailer_product.values.match_method,
+    "gtin"
+  );
+  assert.equal(
+    result.report.approvedRows[0].importPlan.retailer_product.values.match_confidence,
+    "100"
+  );
   assert.equal(supabase.writes.length, 0);
 });
 
