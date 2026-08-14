@@ -6,14 +6,15 @@ const { loadDryRunArtifact } = require("./import-products");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const KIND = "ebay-offer-canary-remaining-4-v1";
-const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_A_REMAINING_4";
-const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "remaining-4-rollout.json");
+const KIND = "ebay-offer-batch-b-exact-5-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_B_EXACT_5";
+const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-b-rollout.json");
 const EXPECTED_SCOPE = [
-  { product_id: "71", product_variant_id: "1008", gtin: "5999076228362", external_product_id: "394018039646", external_variant_id: "v1|394018039646|662564730390", flavour: "chocolate-cinnamon", size_value: "500", price: "19.99" },
-  { product_id: "27", product_variant_id: "1586", gtin: "842595109191", external_product_id: "373707858011", external_variant_id: "v1|373707858011|642746534512", flavour: "green apple", size_value: "195", price: "19.99" },
-  { product_id: "489", product_variant_id: "1792", gtin: "627933026183", external_product_id: "204481126203", external_variant_id: "v1|204481126203|505073669739", flavour: "roadside lemonade", size_value: "225", price: "19.95" },
-  { product_id: "528", product_variant_id: "1847", gtin: "8594073170477", external_product_id: "145921318153", external_variant_id: "v1|145921318153|444963406167", flavour: "rainbow", size_value: "225", price: "18.1" },
+  { product_id: "178", product_variant_id: "1762", gtin: "5056555204627", external_product_id: "137546859794", external_variant_id: "v1|137546859794|435678842297", flavour: "cafe latte", size_value: "1800", size_unit: "g", pack_count: "1", product_format: "powder", price: "84.81", shipping_cost: "0", total_price: "84.81" },
+  { product_id: "19", product_variant_id: "767", gtin: "5060763890480", external_product_id: "256978504929", external_variant_id: "v1|256978504929|557601482644", flavour: "mango", size_value: "380", size_unit: "g", pack_count: "1", product_format: "powder", price: "21.95", shipping_cost: "3.95", total_price: "25.9" },
+  { product_id: "220", product_variant_id: "1057", gtin: "5060662330162", external_product_id: "404774853352", external_variant_id: "v1|404774853352|674791941888", flavour: "strawberry and fuzzy fruits", size_value: "510", size_unit: "g", pack_count: "1", product_format: "powder", price: "36.99", shipping_cost: "0", total_price: "36.99" },
+  { product_id: "471", product_variant_id: "462", gtin: "5056555201039", external_product_id: "406431647826", external_variant_id: "v1|406431647826|676750282312", flavour: null, size_value: null, size_unit: null, pack_count: "1", product_format: null, price: "2.19", shipping_cost: "3.99", total_price: "6.18" },
+  { product_id: "788", product_variant_id: "1074", gtin: "5060660086122", external_product_id: "326796105372", external_variant_id: "v1|326796105372|515780120439", flavour: "blue raspberry", size_value: "420", size_unit: "g", pack_count: "1", product_format: "powder", price: "25.99", shipping_cost: "0", total_price: "25.99" },
 ];
 
 function fail(message) { throw new Error(message); }
@@ -45,7 +46,12 @@ function validateRollout() {
     external_variant_id: entry.external_variant_id,
     flavour: entry.flavour,
     size_value: entry.size_value,
+    size_unit: entry.size_unit,
+    pack_count: entry.pack_count,
+    product_format: entry.product_format,
     price: entry.price,
+    shipping_cost: entry.shipping_cost,
+    total_price: entry.total_price,
   }));
   if (
     rollout.schema_version !== 1 || rollout.kind !== KIND || rollout.approved !== true ||
@@ -78,15 +84,16 @@ function validateRollout() {
       String(plan.product?.id) !== expected.product_id || plan.product?.action !== "existing" ||
       String(plan.product_variant?.id) !== expected.product_variant_id || plan.product_variant?.action !== "existing" ||
       plan.product_variant?.evidence?.flavour !== expected.flavour ||
-      String(plan.product_variant?.evidence?.size_value) !== expected.size_value || plan.product_variant?.evidence?.size_unit !== "g" ||
-      String(plan.product_variant?.evidence?.pack_count) !== "1" || plan.product_variant?.evidence?.product_format !== "powder" ||
+      (plan.product_variant?.evidence?.size_value == null ? null : String(plan.product_variant.evidence.size_value)) !== expected.size_value ||
+      plan.product_variant?.evidence?.size_unit !== expected.size_unit ||
+      String(plan.product_variant?.evidence?.pack_count) !== expected.pack_count || plan.product_variant?.evidence?.product_format !== expected.product_format ||
       plan.retailer?.action !== "existing" || String(plan.retailer?.id) !== "12" ||
       plan.retailer_product?.action !== "create" || plan.retailer_product?.values?.external_gtin !== expected.gtin ||
       plan.retailer_product?.values?.external_product_id !== expected.external_product_id ||
       plan.retailer_product?.values?.external_variant_id !== expected.external_variant_id ||
       plan.retailer_product?.values?.match_method !== "gtin" || String(plan.retailer_product?.values?.match_confidence) !== "100" ||
       plan.offer?.action !== "create" || plan.offer?.values?.price !== expected.price ||
-      plan.offer?.values?.shipping_cost !== "0" || plan.offer?.values?.total_price !== expected.price ||
+      plan.offer?.values?.shipping_cost !== expected.shipping_cost || plan.offer?.values?.total_price !== expected.total_price ||
       plan.offer?.values?.in_stock !== true || !/[?&]campid=\d+/.test(plan.offer?.values?.url || "") ||
       plan.price_history?.action !== "create"
     ) fail(`Reviewed plan ${index + 1} identity or mutation scope mismatch`);

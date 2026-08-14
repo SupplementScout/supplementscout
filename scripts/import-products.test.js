@@ -5268,10 +5268,10 @@ test("legacy mapping upgrade fixture 948 produces one exact update and no offer 
   }
 });
 
-test("eBay offer canary accepts only the exact owner-reviewed remaining four", () => {
+test("eBay offer canary accepts only the exact owner-reviewed Batch B five", () => {
   const { CONFIRMATION, EXPECTED_SCOPE, parseArgs: parseCanaryArgs, validateRollout } = require("./ebay-offer-canary-executor");
   const result = validateRollout();
-  assert.equal(result.entries.length, 4);
+  assert.equal(result.entries.length, 5);
   assert.equal(result.rollout.owner_confirmation, CONFIRMATION);
   assert.deepEqual(result.rollout.entries.map((entry) => ({
     product_id: entry.product_id,
@@ -5281,7 +5281,12 @@ test("eBay offer canary accepts only the exact owner-reviewed remaining four", (
     external_variant_id: entry.external_variant_id,
     flavour: entry.flavour,
     size_value: entry.size_value,
+    size_unit: entry.size_unit,
+    pack_count: entry.pack_count,
+    product_format: entry.product_format,
     price: entry.price,
+    shipping_cost: entry.shipping_cost,
+    total_price: entry.total_price,
   })), EXPECTED_SCOPE);
   for (const { entry } of result.entries) {
     assert.equal(entry.resolved_plan.retailer_product.values.match_method, "gtin");
@@ -5300,7 +5305,7 @@ test("eBay offer canary workflow is manual, exact-confirmation guarded and role 
   assert.doesNotMatch(workflow, /\bschedule:|\bpush:/);
   assert.match(workflow, /default: validate/);
   assert.match(workflow, /- postflight/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_A_REMAINING_4/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_B_EXACT_5/);
   assert.match(workflow, /environment: production-readonly/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /JONS_SYNC_EXECUTOR_DATABASE_URL/);
@@ -5308,7 +5313,7 @@ test("eBay offer canary workflow is manual, exact-confirmation guarded and role 
   const qualityStep = workflow.indexOf("Run quality gate without production credentials");
   const secretStep = workflow.indexOf("EBAY_CANARY_APPROVER_DATABASE_URL");
   assert.ok(qualityStep > -1 && secretStep > qualityStep);
-  assert.match(workflow, /a\.plans\.length!==4/);
+  assert.match(workflow, /a\.plans\.length!==5/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
 });
 

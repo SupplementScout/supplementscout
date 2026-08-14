@@ -1,0 +1,733 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-14T16:55:07.408Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7b956376733fc06003cc42106ababdf2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "178",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition ISO-XP 1.8kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Cafe Latte / 1.8kg",
+            "flavour_code": "cafe latte",
+            "flavour_label": "Cafe Latte",
+            "id": "1762",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "178",
+            "size_unit": "g",
+            "size_value": "1800",
+            "variant_key": "cafe-latte-1800g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7b956376733fc06003cc42106ababdf2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "6108dc416a1d0bcc57a259e6053af29dd626251fdd4ec905a40fe724961c3e8e",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:55:05.151Z",
+            "price": "84.81",
+            "shipping_cost": "0",
+            "total_price": "84.81",
+            "url": "https://www.ebay.co.uk/itm/137546859794?var=435678842297&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "178"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Cafe Latte",
+              "Size": "1800g"
+            },
+            "flavour": "cafe latte",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "1800"
+          },
+          "id": "1762"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555204627",
+            "external_name": "Applied Nutrition ISO-XP 1.8kg",
+            "external_options": {
+              "Flavour": "Cafe Latte",
+              "Size": "1800g"
+            },
+            "external_product_id": "137546859794",
+            "external_sku": null,
+            "external_slug": "ebay-137546859794-435678842297",
+            "external_url": "https://www.ebay.co.uk/itm/137546859794?var=435678842297",
+            "external_variant_id": "v1|137546859794|435678842297",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1762"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "6108dc416a1d0bcc57a259e6053af29dd626251fdd4ec905a40fe724961c3e8e"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "3fb7c49ca74e98943c3aa445050621d6",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "19",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Dorian Yates Blood & Guts Pre Workout 380g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Mango / 380g",
+            "flavour_code": "mango",
+            "flavour_label": "Mango",
+            "id": "767",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "19",
+            "size_unit": "g",
+            "size_value": "380",
+            "variant_key": "mango-380g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "3fb7c49ca74e98943c3aa445050621d6",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "bed1ff68e4074db06a75d8403cffe81ebb0c52461779ad25f7e5d668aac4d686",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:55:05.737Z",
+            "price": "21.95",
+            "shipping_cost": "3.95",
+            "total_price": "25.9",
+            "url": "https://www.ebay.co.uk/itm/256978504929?var=557601482644&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xAue2w2mYjtMev6GCWo5tPyLn4n1uplYUnWoBzlMHKYNwfhHTTzyZ4VkBzmVbgOv8gL5ahpdTGC%2F4rSyMdwLsSH6Y5fN6nAx7uIQBxzAX7h%2FraZYLixeYk%2Fl5AnnNMCRUbaf%2BSJwkf6lqF38BM84tP62zA53LutO3a%2FFoKXfFPL64fuGeDX9LdaZXO91S%2BzyCo%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "19"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Mango",
+              "Size": "380g"
+            },
+            "flavour": "mango",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "380"
+          },
+          "id": "767"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060763890480",
+            "external_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+            "external_options": {
+              "Flavour": "Mango",
+              "Size": "380g"
+            },
+            "external_product_id": "256978504929",
+            "external_sku": null,
+            "external_slug": "ebay-256978504929-557601482644",
+            "external_url": "https://www.ebay.co.uk/itm/256978504929?var=557601482644",
+            "external_variant_id": "v1|256978504929|557601482644",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "767"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "bed1ff68e4074db06a75d8403cffe81ebb0c52461779ad25f7e5d668aac4d686"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "9b99b0ac8d5fc029e7c4d6124bcb6edc",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "220",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "HR Labs Basic 510g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Strawberry And Fuzzy Fruits / 510g",
+            "flavour_code": "strawberry and fuzzy fruits",
+            "flavour_label": "Strawberry And Fuzzy Fruits",
+            "id": "1057",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "220",
+            "size_unit": "g",
+            "size_value": "510",
+            "variant_key": "strawberry-and-fuzzy-fruits-510g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "9b99b0ac8d5fc029e7c4d6124bcb6edc",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "6564d28aa070252e9493e3cb48acf28092568563b147df5453a9677aa7e3f8e0",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:55:06.316Z",
+            "price": "36.99",
+            "shipping_cost": "0",
+            "total_price": "36.99",
+            "url": "https://www.ebay.co.uk/itm/404774853352?var=674791941888&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "220"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Strawberry And Fuzzy Fruits",
+              "Size": "510g"
+            },
+            "flavour": "strawberry and fuzzy fruits",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "510"
+          },
+          "id": "1057"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060662330162",
+            "external_name": "HR Labs Basic 510g",
+            "external_options": {
+              "Flavour": "Strawberry And Fuzzy Fruits",
+              "Size": "510g"
+            },
+            "external_product_id": "404774853352",
+            "external_sku": null,
+            "external_slug": "ebay-404774853352-674791941888",
+            "external_url": "https://www.ebay.co.uk/itm/404774853352?var=674791941888",
+            "external_variant_id": "v1|404774853352|674791941888",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1057"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "6564d28aa070252e9493e3cb48acf28092568563b147df5453a9677aa7e3f8e0"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "39dde0f4e3b32cb220924b91137c1c85",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "471",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Critical Cookie White Chocolate & Raspberry",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "462",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "471",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "39dde0f4e3b32cb220924b91137c1c85",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "fd95c83756f2ae7740cd7672e5f839816a4ea42ca4f3a7f32b180b66c9bff680",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:55:06.899Z",
+            "price": "2.19",
+            "shipping_cost": "3.99",
+            "total_price": "6.18",
+            "url": "https://www.ebay.co.uk/itm/406431647826?var=676750282312&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "471"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {},
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "462"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555201039",
+            "external_name": "Critical Cookie White Chocolate & Raspberry",
+            "external_options": {},
+            "external_product_id": "406431647826",
+            "external_sku": null,
+            "external_slug": "ebay-406431647826-676750282312",
+            "external_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282312",
+            "external_variant_id": "v1|406431647826|676750282312",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "462"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "fd95c83756f2ae7740cd7672e5f839816a4ea42ca4f3a7f32b180b66c9bff680"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "deb3d6e7937e0fbf54c6423bbaf31b27",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "788",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m EAA Xtra 420g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Blue Raspberry / 420g",
+            "flavour_code": "blue raspberry",
+            "flavour_label": "Blue Raspberry",
+            "id": "1074",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "788",
+            "size_unit": "g",
+            "size_value": "420",
+            "variant_key": "blue-raspberry-420g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "deb3d6e7937e0fbf54c6423bbaf31b27",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "9849a27c2332dc18402d195574dd1330dc85a095865cbecccb854e4f9adbef9a",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-14T16:55:07.406Z",
+            "price": "25.99",
+            "shipping_cost": "0",
+            "total_price": "25.99",
+            "url": "https://www.ebay.co.uk/itm/326796105372?var=515780120439&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "788"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "420g"
+            },
+            "flavour": "blue raspberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "420"
+          },
+          "id": "1074"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060660086122",
+            "external_name": "Per4m EAA Xtra 420g",
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "420g"
+            },
+            "external_product_id": "326796105372",
+            "external_sku": null,
+            "external_slug": "ebay-326796105372-515780120439",
+            "external_url": "https://www.ebay.co.uk/itm/326796105372?var=515780120439",
+            "external_variant_id": "v1|326796105372|515780120439",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1074"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "9849a27c2332dc18402d195574dd1330dc85a095865cbecccb854e4f9adbef9a"
+    }
+  ],
+  "row_count": "5",
+  "run_id": "98d6f709-60c0-450f-a40e-d290ee05ac61",
+  "source_file_name": "ebay-batch-b-import-2026-08-14T16-54-28-294Z.csv",
+  "source_file_sha256": "efab27642b7b785286512baa551db3f0f9aab2f0b5c936af8925075bd4e3d6cf",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/137546859794?var=435678842297&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Whey Protein",
+        "external_gtin": "5056555204627",
+        "external_options": "{\"Size\":\"1800g\",\"Flavour\":\"Cafe Latte\"}",
+        "external_product_id": "137546859794",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/137546859794?var=435678842297",
+        "external_variant_id": "v1|137546859794|435678842297",
+        "flavour": "Cafe Latte",
+        "image": "https://www.powerbody.co.uk/media/catalog/product/ebay/auction_image_2026-07-07_6a4d09cac73c2.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "84.81",
+        "product_format": "powder",
+        "product_id": "178",
+        "product_name": "Applied Nutrition ISO-XP 1.8kg",
+        "product_variant_id": "1762",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "1800g",
+        "size_unit": "g",
+        "slug": "ebay-137546859794-435678842297",
+        "variant_name": "Cafe Latte / 1.8kg"
+      },
+      "plan_fingerprint": "7b956376733fc06003cc42106ababdf2",
+      "row_number": "2",
+      "source_row_fingerprint": "6108dc416a1d0bcc57a259e6053af29dd626251fdd4ec905a40fe724961c3e8e",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/256978504929?var=557601482644&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xAue2w2mYjtMev6GCWo5tPyLn4n1uplYUnWoBzlMHKYNwfhHTTzyZ4VkBzmVbgOv8gL5ahpdTGC%2F4rSyMdwLsSH6Y5fN6nAx7uIQBxzAX7h%2FraZYLixeYk%2Fl5AnnNMCRUbaf%2BSJwkf6lqF38BM84tP62zA53LutO3a%2FFoKXfFPL64fuGeDX9LdaZXO91S%2BzyCo%3D",
+        "brand": "Dorian Yates",
+        "category": "Pre Workout",
+        "external_gtin": "5060763890480",
+        "external_options": "{\"Size\":\"380g\",\"Flavour\":\"Mango\"}",
+        "external_product_id": "256978504929",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/256978504929?var=557601482644",
+        "external_variant_id": "v1|256978504929|557601482644",
+        "flavour": "Mango",
+        "image": "https://cdn.shopify.com/s/files/1/0737/5572/1994/files/dy-blood-guts-mango.jpg?v=1755874321",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "21.95",
+        "product_format": "powder",
+        "product_id": "19",
+        "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+        "product_variant_id": "767",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.95",
+        "shipping_known": "true",
+        "size": "380g",
+        "size_unit": "g",
+        "slug": "ebay-256978504929-557601482644",
+        "variant_name": "Mango / 380g"
+      },
+      "plan_fingerprint": "3fb7c49ca74e98943c3aa445050621d6",
+      "row_number": "3",
+      "source_row_fingerprint": "bed1ff68e4074db06a75d8403cffe81ebb0c52461779ad25f7e5d668aac4d686",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/404774853352?var=674791941888&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "HR Labs",
+        "category": "Health Supplements",
+        "external_gtin": "5060662330162",
+        "external_options": "{\"Size\":\"510g\",\"Flavour\":\"Strawberry And Fuzzy Fruits\"}",
+        "external_product_id": "404774853352",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/404774853352?var=674791941888",
+        "external_variant_id": "v1|404774853352|674791941888",
+        "flavour": "Strawberry And Fuzzy Fruits",
+        "image": "https://i.ebayimg.com/images/g/yTsAAeSwbHlpa12j/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "36.99",
+        "product_format": "powder",
+        "product_id": "220",
+        "product_name": "HR Labs Basic 510g",
+        "product_variant_id": "1057",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "510g",
+        "size_unit": "g",
+        "slug": "ebay-404774853352-674791941888",
+        "variant_name": "Strawberry And Fuzzy Fruits / 510g"
+      },
+      "plan_fingerprint": "9b99b0ac8d5fc029e7c4d6124bcb6edc",
+      "row_number": "4",
+      "source_row_fingerprint": "6564d28aa070252e9493e3cb48acf28092568563b147df5453a9677aa7e3f8e0",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282312&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Bars",
+        "external_gtin": "5056555201039",
+        "external_options": "{}",
+        "external_product_id": "406431647826",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282312",
+        "external_variant_id": "v1|406431647826|676750282312",
+        "flavour": "",
+        "image": "https://cdn.shopify.com/s/files/1/0710/8932/4300/files/IMG-5419.jpg?v=1716579733",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "2.19",
+        "product_format": "",
+        "product_id": "471",
+        "product_name": "Critical Cookie White Chocolate & Raspberry",
+        "product_variant_id": "462",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "ebay-406431647826-676750282312",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "39dde0f4e3b32cb220924b91137c1c85",
+      "row_number": "5",
+      "source_row_fingerprint": "fd95c83756f2ae7740cd7672e5f839816a4ea42ca4f3a7f32b180b66c9bff680",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/326796105372?var=515780120439&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Per4m",
+        "category": "Amino Acids",
+        "external_gtin": "5060660086122",
+        "external_options": "{\"Size\":\"420g\",\"Flavour\":\"Blue Raspberry\"}",
+        "external_product_id": "326796105372",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/326796105372?var=515780120439",
+        "external_variant_id": "v1|326796105372|515780120439",
+        "flavour": "Blue Raspberry",
+        "image": "https://i.ebayimg.com/images/g/k50AAeSw3y1o29e-/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "25.99",
+        "product_format": "powder",
+        "product_id": "788",
+        "product_name": "Per4m EAA Xtra 420g",
+        "product_variant_id": "1074",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "420g",
+        "size_unit": "g",
+        "slug": "ebay-326796105372-515780120439",
+        "variant_name": "Blue Raspberry / 420g"
+      },
+      "plan_fingerprint": "deb3d6e7937e0fbf54c6423bbaf31b27",
+      "row_number": "6",
+      "source_row_fingerprint": "9849a27c2332dc18402d195574dd1330dc85a095865cbecccb854e4f9adbef9a",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "5",
+    "skipped_row_count": "0"
+  }
+}
