@@ -582,15 +582,25 @@ only a missing eBay retailer, five mappings, five offers and five price-history
 rows; products and variants remain existing. A minimal importer correction
 marks only newly created external-GTIN mappings as `gtin`/`100` while
 preserving historical mapping metadata and idempotency. Because every preview
-was generated before the retailer exists, first apply one separately approved
-bootstrap plan, live-verify it, then regenerate the remaining four against the
-fresh state. No approval or production write has yet occurred. Batch B remains
-blocked until all five Batch A offers are live-verified.
+was generated before the retailer exists, the owner separately approved the
+first exact bootstrap plan. GitHub run `31816406873` atomically created eBay UK
+retailer `12`, mapping `2724`, offer `2539` and price-history row `2734`; the
+canonical product and variant remained existing. The apply passed and was not
+repeated when only the old postflight wording failed. Commit `ad3747b` changed
+the assertion from the obsolete `unchanged`/`none` terms to the importer's
+current `noop` contract and added a non-writing postflight mode. Run
+`31817084379` passed, production readback matched the exact approved GTIN,
+price, shipping, stock and affiliate URL, and the public product page exposed
+the eBay offer through `/go/2539`. A fresh remaining-four dry-run then produced
+four exact create plans, zero blockers and artifact SHA-256
+`2c32c3de960cd52d4691d8fa1db35aa1bf02988205dd3ea2e829e858e0cdc096`.
+Those four plans remain unapplied. Batch B remains blocked until all five Batch
+A offers are live-verified.
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Obtain explicit
-owner approval for the first exact Batch A bootstrap plan; after apply and live
-verification, regenerate the remaining four previews. Do not apply without
-that separate approval.`
+update that plan after every eBay task. Binding next action: `Owner-review the
+freshly regenerated remaining four Batch A plans; if accepted, seal and apply
+exactly those four through the existing guarded importer, then live-verify all
+five before starting Batch B.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** BATCH A 5/5 AFFILIATE-READY AND DRY-RUN VERIFIED; PRODUCTION WRITE AWAITS OWNER APPROVAL
+**Status:** BATCH A 1/5 LIVE VERIFIED; REMAINING 4 FRESH DRY-RUN READY
 **Last verified:** 14 August 2026
-**Production writes:** 0  
-**Public changes:** 1 guarded account-deletion API route
+**Production writes:** 1 owner-approved canary plan (1 retailer, 1 mapping, 1 offer, 1 price-history row)
+**Public changes:** 1 guarded account-deletion API route and 1 live eBay offer
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -105,6 +105,28 @@ zero blockers/review reasons and returned an `itemAffiliateWebUrl`. All five
 would add a second retailer and were the lowest complete delivered price in the
 fresh result; median difference was GBP -6.41. Database writes remained zero.
 
+The owner then explicitly approved the first exact Batch A bootstrap plan.
+Manual GitHub Actions run `31816406873` consumed approval
+`1edacfea-c2ad-4114-b2cd-9f6620889d58` and atomically created eBay UK retailer
+`12`, retailer mapping `2724`, offer `2539` and price-history row `2734`. The
+approved canonical product `10` and variant `1704` remained existing and were
+not updated. The first run's apply passed; only its postflight assertion failed
+because the current importer correctly reports idempotent actions as `noop`,
+not the older expected words. Apply was not repeated. Commit `ad3747b` fixed
+only that assertion and added a non-writing `postflight` mode. Run
+`31817084379` then passed every step, with the fresh dry-run reporting the
+retailer, mapping, offer and price history as exact no-ops. Production readback
+confirmed GTIN `5999076263851`, `gtin`/`100` matching, GBP 77.99 delivered,
+in-stock state and an affiliate campaign URL. The public product page returned
+HTTP 200 and contained eBay UK, GBP 77.99 and `/go/2539`.
+
+After the bootstrap, a fresh read-only dry-run regenerated the remaining four
+Batch A rows against retailer `12`. It produced 4 plans, 0 blockers, an
+existing retailer and exactly four mapping/offer/price-history creates. The
+artifact SHA-256 is
+`2c32c3de960cd52d4691d8fa1db35aa1bf02988205dd3ea2e829e858e0cdc096`.
+Those four plans have not been approved or applied.
+
 ## Completed
 
 - [x] Repository and operating-document audit.
@@ -137,8 +159,10 @@ fresh result; median difference was GBP -6.41. Database writes remained zero.
 - [x] Existing guarded importer proved suitable for the eBay canary; no second importer.
 - [x] Batch A affiliate refresh passed 5/5 using the exact approved item IDs.
 - [x] Existing-importer Batch A dry-run passed 5 plans and 0 blocked rows.
+- [x] First owner-approved Batch A offer applied atomically and live-verified.
+- [x] Remaining four Batch A previews regenerated after retailer bootstrap (4 plans, 0 blockers).
 - [ ] At least 50 independent owner-safe eBay offers available.
-- [x] Production pilot designed; apply not yet owner-approved.
+- [x] Production pilot designed; first exact offer owner-approved, applied and live-verified.
 
 ## Baseline — read-only production evidence
 
@@ -1532,8 +1556,12 @@ rollback and explicit approval.
 - `LIVE READ-ONLY VERIFIED`: EPN Campaign ID is configured; exact Batch A
   refresh returned 5/5 affiliate URLs and final importer dry-run returned five
   exact plans with zero blockers.
-- `PENDING OWNER APPROVAL`: bootstrap the eBay retailer with the first exact
-  plan, live-verify it, then regenerate the remaining four previews.
+- `LIVE VERIFIED`: the first exact Batch A plan created one eBay retailer, one
+  mapping, one offer and one price-history row; public offer `/go/2539` is
+  visible and the postflight is an exact no-op.
+- `PENDING OWNER APPROVAL`: the freshly regenerated remaining four Batch A
+  plans are read-only evidence only and must not be applied without a separate
+  exact approval.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1542,7 +1570,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Obtain explicit owner approval to apply the first exact Batch A plan as the eBay retailer bootstrap, then live-verify it and regenerate the remaining four previews; do not apply any plan without that approval.`
+`NEXT ACTION: Owner-review the freshly regenerated four remaining Batch A plans; if accepted, seal and apply exactly those four through the existing guarded importer, then live-verify all five before starting Batch B.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
