@@ -655,18 +655,20 @@ GTIN narrow reviews and nine unavailable. Independent evidence then confirmed
 the missing 392 g size for Warrior Rage Blazin Berry and the powder format plus
 250 g size for JNX The Curse Pina Colada. The owner approved exactly those two
 rows for preparation and dry-run. A fresh exact-item refresh passed both, and
-the existing importer produced two create plans with zero blocked rows and
-artifact SHA-256
-`827eaea06e34d2f8334a200ed017325d938a4f516c9168c34488e7321ac31da6`.
-Writes remained zero; production apply is not approved.
+the existing importer produced two create plans with zero blocked rows. The
+initial feed-mode preview remained non-writing; the executor test required the
+established manual plan kind, so the same exact scope was regenerated as the
+binding artifact SHA-256
+`b7e3491b8e852e0c0c30bad668b3256bfaa63119cf9e5a51f792941baf1b0779`.
+The owner approved production apply of exactly those two plans. Writes remain
+zero pending the guarded workflow.
 
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Owner approve or
-reject production apply of exactly the two completed dry-run plans: Warrior
-Rage Unleash Hell Blazin Berry 392g (56/1006/item 202053708757; GBP 13.99
-delivered) and JNX Sports The Curse Pina Colada 250g
-(482/1022/item 227339481787; GBP 29.78 delivered). Do not seal or execute a
-production apply before that separate decision.`
+update that plan after every eBay task. Binding next action: `Run the manual
+eBay Offer Canary apply with exact confirmation
+OWNER_APPROVED_EBAY_BATCH_D_EXACT_2, then require its immediate two-row no-op
+postflight and independent production/public readback. Do not expand or
+substitute the sealed scope.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

@@ -1,0 +1,307 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-15T08:07:42.875Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c0f2c831ea329e028bb6a44777c66a1f",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "56",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Warrior Rage Unleash Hell Pre Workout 392g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Blazin Berry / 392g",
+            "flavour_code": "blazin berry",
+            "flavour_label": "Blazin Berry",
+            "id": "1006",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "56",
+            "size_unit": "g",
+            "size_value": "392",
+            "variant_key": "blazin-berry-392g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c0f2c831ea329e028bb6a44777c66a1f",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "64388a91a04954f0af1e0105c261c29a523f02adcc59fce262bbd81f1c951a34",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-15T08:07:42.334Z",
+            "price": "13.99",
+            "shipping_cost": "0",
+            "total_price": "13.99",
+            "url": "https://www.ebay.co.uk/itm/202053708757?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "56"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Blazin Berry",
+              "Size": "392g"
+            },
+            "flavour": "blazin berry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "392"
+          },
+          "id": "1006"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060292834924",
+            "external_name": "Warrior Rage Unleash Hell Pre Workout 392g",
+            "external_options": {
+              "Flavour": "Blazin Berry",
+              "Size": "392g"
+            },
+            "external_product_id": "202053708757",
+            "external_sku": null,
+            "external_slug": "ebay-202053708757",
+            "external_url": "https://www.ebay.co.uk/itm/202053708757",
+            "external_variant_id": "v1|202053708757|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1006"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "64388a91a04954f0af1e0105c261c29a523f02adcc59fce262bbd81f1c951a34"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "1ea8aee930f544090f1eee71da804114",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "482",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Curse 250g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Pina Colada / 250g",
+            "flavour_code": "pina colada",
+            "flavour_label": "Pina Colada",
+            "id": "1022",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "482",
+            "size_unit": "g",
+            "size_value": "250",
+            "variant_key": "pina-colada-250g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "1ea8aee930f544090f1eee71da804114",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "05972c9e3c19c8ce070fc5670377d872ab613a95f1f5fb1ebc340776784d3ca3",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-15T08:07:42.872Z",
+            "price": "25.79",
+            "shipping_cost": "3.99",
+            "total_price": "29.78",
+            "url": "https://www.ebay.co.uk/itm/227339481787?var=526541736171&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xC4045Ei7He3d0Cviaacb%2BizG47oKKRDpELzFelX7hgOa6js9tIqHchjJkdtKq1vjPXRk5WNgKNEi7NyN%2BIvdS0u0zdDFhalne8tXBf86jM8Nlu8B2oMD%2FRWvmcd7s16LV%2BdhQXbzkmtaIuSBtaL61F9Wc0qRzGwLpD80Lzrx9HOflXeCEPeqcwqST%2BMAhPcK4%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "482"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Pina Colada",
+              "Size": "250g"
+            },
+            "flavour": "pina colada",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "250"
+          },
+          "id": "1022"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "799439669956",
+            "external_name": "JNX Sports The Curse 250g",
+            "external_options": {
+              "Flavour": "Pina Colada",
+              "Size": "250g"
+            },
+            "external_product_id": "227339481787",
+            "external_sku": null,
+            "external_slug": "ebay-227339481787-526541736171",
+            "external_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736171",
+            "external_variant_id": "v1|227339481787|526541736171",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1022"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "05972c9e3c19c8ce070fc5670377d872ab613a95f1f5fb1ebc340776784d3ca3"
+    }
+  ],
+  "row_count": "2",
+  "run_id": "5bf6e3b1-034d-48cf-b393-633ac9ab6e8c",
+  "source_file_name": "ebay-owner-approved-2-import-2026-08-15T07-57-26-007Z.csv",
+  "source_file_sha256": "e1ade802019e4fdfc20ec44c43e007059cdacaca7c340a654b4b2465de059272",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/202053708757?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Warrior",
+        "category": "Pre Workout",
+        "external_gtin": "5060292834924",
+        "external_options": "{\"Size\":\"392g\",\"Flavour\":\"Blazin Berry\"}",
+        "external_product_id": "202053708757",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/202053708757",
+        "external_variant_id": "v1|202053708757|0",
+        "flavour": "Blazin Berry",
+        "image": "https://i.ebayimg.com/images/g/hO0AAOSw4HxnWYZ8/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "13.99",
+        "product_format": "powder",
+        "product_id": "56",
+        "product_name": "Warrior Rage Unleash Hell Pre Workout 392g",
+        "product_variant_id": "1006",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "392g",
+        "size_unit": "g",
+        "slug": "ebay-202053708757",
+        "variant_name": "Blazin Berry / 392g"
+      },
+      "plan_fingerprint": "c0f2c831ea329e028bb6a44777c66a1f",
+      "row_number": "2",
+      "source_row_fingerprint": "64388a91a04954f0af1e0105c261c29a523f02adcc59fce262bbd81f1c951a34",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736171&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoGfYFPkwiKCW4ZNSs2u11xC4045Ei7He3d0Cviaacb%2BizG47oKKRDpELzFelX7hgOa6js9tIqHchjJkdtKq1vjPXRk5WNgKNEi7NyN%2BIvdS0u0zdDFhalne8tXBf86jM8Nlu8B2oMD%2FRWvmcd7s16LV%2BdhQXbzkmtaIuSBtaL61F9Wc0qRzGwLpD80Lzrx9HOflXeCEPeqcwqST%2BMAhPcK4%3D",
+        "brand": "JNX Sports",
+        "category": "Pre Workout",
+        "external_gtin": "799439669956",
+        "external_options": "{\"Size\":\"250g\",\"Flavour\":\"Pina Colada\"}",
+        "external_product_id": "227339481787",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736171",
+        "external_variant_id": "v1|227339481787|526541736171",
+        "flavour": "Pina Colada",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/8546bcdfc45d99428007605f2cb3ba9e.png",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "25.79",
+        "product_format": "powder",
+        "product_id": "482",
+        "product_name": "JNX Sports The Curse 250g",
+        "product_variant_id": "1022",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "250g",
+        "size_unit": "g",
+        "slug": "ebay-227339481787-526541736171",
+        "variant_name": "Pina Colada / 250g"
+      },
+      "plan_fingerprint": "1ea8aee930f544090f1eee71da804114",
+      "row_number": "3",
+      "source_row_fingerprint": "05972c9e3c19c8ce070fc5670377d872ab613a95f1f5fb1ebc340776784d3ca3",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "2",
+    "skipped_row_count": "0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-d-exact-2-v1",
+  "approved": true,
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_D_EXACT_2",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-d.csv",
+  "csv_sha256": "e1ade802019e4fdfc20ec44c43e007059cdacaca7c340a654b4b2465de059272",
+  "artifact": "docs/rollouts/ebay-offer-canary/batch-d-artifact.json",
+  "artifact_sha256": "b7e3491b8e852e0c0c30bad668b3256bfaa63119cf9e5a51f792941baf1b0779",
+  "entries": [
+    { "plan_fingerprint": "c0f2c831ea329e028bb6a44777c66a1f", "source_row_fingerprint": "64388a91a04954f0af1e0105c261c29a523f02adcc59fce262bbd81f1c951a34", "product_id": "56", "product_variant_id": "1006", "gtin": "5060292834924", "external_product_id": "202053708757", "external_variant_id": "v1|202053708757|0", "flavour": "blazin berry", "size_value": "392", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "13.99", "shipping_cost": "0", "total_price": "13.99" },
+    { "plan_fingerprint": "1ea8aee930f544090f1eee71da804114", "source_row_fingerprint": "05972c9e3c19c8ce070fc5670377d872ab613a95f1f5fb1ebc340776784d3ca3", "product_id": "482", "product_variant_id": "1022", "gtin": "799439669956", "external_product_id": "227339481787", "external_variant_id": "v1|227339481787|526541736171", "flavour": "pina colada", "size_value": "250", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "25.79", "shipping_cost": "3.99", "total_price": "29.78" }
+  ],
+  "rollout_fingerprint": "5b89bc7dcc5474953bff004b1bbe75c4c574945a20d39a10cc5e46393cf10e3e"
+}

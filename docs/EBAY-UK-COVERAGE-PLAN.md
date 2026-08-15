@@ -1675,7 +1675,7 @@ rollback and explicit approval.
   external-GTIN identities. All 339 were already checked by exact GTIN, and all
   137 relevant products missed by that search were already checked by title.
   No new unseen identity remains in the current catalogue.
-- `OWNER APPROVED — DRY-RUN ONLY`: a bounded refresh of the remaining 36 unresolved
+- `OWNER APPROVED — GUARDED APPLY`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
   two retain exact GTIN, and nine are no longer available. Independent
@@ -1683,7 +1683,10 @@ rollback and explicit approval.
   the owner approved exactly Warrior Rage Blazin Berry and JNX The Curse Pina
   Colada for preparation and dry-run. A fresh exact-item refresh passed both,
   and the existing importer produced two create plans with zero blocked rows.
-  Database writes remained 0; production apply is not yet approved.
+  The owner subsequently approved production apply of exactly those two plans.
+  A manual-mode immutable artifact and the existing fail-closed executor are
+  sealed for that scope. Database writes remain 0 until the guarded workflow
+  succeeds.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1692,7 +1695,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner approve or reject production apply of exactly the two dry-run plans for Warrior Rage Unleash Hell Blazin Berry 392g (product 56 / variant 1006 / item 202053708757; GBP 13.99 delivered) and JNX Sports The Curse Pina Colada 250g (product 482 / variant 1022 / item 227339481787; GBP 29.78 delivered). Do not seal or execute a production apply before that separate decision.`
+`NEXT ACTION: Run the manual eBay Offer Canary apply with exact confirmation OWNER_APPROVED_EBAY_BATCH_D_EXACT_2, then require its immediate two-row no-op postflight and independent production/public readback. Do not expand or substitute the sealed scope.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1729,11 +1732,18 @@ owner-reviewed production design and approval.
   rejected a duplicated size-unit representation in the temporary CSV; the
   input was corrected to the importer's established numeric-size plus
   separate-unit contract without changing identity or safety gates. The final
-  dry-run artifact SHA-256 is
+  feed-mode dry-run artifact SHA-256 was
   `827eaea06e34d2f8334a200ed017325d938a4f516c9168c34488e7321ac31da6`:
-  two plans, zero blocked rows and zero writes. Each plan keeps retailer,
-  product and variant existing and proposes only one new eBay mapping, offer
-  and price-history row. Canonical GTIN writes remain blocked.
+  two plans, zero blocked rows and zero writes. Before release sealing, the
+  executor test correctly rejected that plan kind because the established
+  eBay path requires `manual`. The exact same reviewed CSV was regenerated
+  through manual mode, producing binding artifact SHA-256
+  `b7e3491b8e852e0c0c30bad668b3256bfaa63119cf9e5a51f792941baf1b0779`,
+  two plans and zero blocked rows. Each plan keeps retailer, product and
+  variant existing and proposes only one new eBay mapping, offer and
+  price-history row. Canonical GTIN writes remain blocked. The owner approved
+  production apply of exactly these two plans; no write had occurred at this
+  checkpoint.
 - Corrected the current Critical Cookie canonical family from stale 85 g data
   to manufacturer-confirmed 73 g through a guarded production migration.
 - Refreshed, sealed and owner-approved the exact seven-row Batch C scope; the

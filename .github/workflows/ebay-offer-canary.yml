@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: "Validate unless the owner explicitly approved the exact Batch C seven apply"
+        description: "Validate unless the owner explicitly approved the exact Batch D two apply"
         required: true
         default: validate
         type: choice
@@ -13,7 +13,7 @@ on:
           - apply
           - postflight
       owner_confirmation:
-        description: "Exact Batch C owner confirmation required; apply is blocked without it"
+        description: "Exact Batch D owner confirmation required; apply is blocked without it"
         required: true
         type: string
 
@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   canary:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_BATCH_C_EXACT_7') }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_BATCH_D_EXACT_2') }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment: production-readonly
@@ -53,7 +53,7 @@ jobs:
       - name: Run quality gate without production credentials
         run: npm run verify:quick
 
-      - name: Validate and optionally apply the exact reviewed Batch C seven
+      - name: Validate and optionally apply the exact reviewed Batch D two
         env:
           EBAY_CANARY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
           EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
@@ -66,8 +66,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          node scripts/import-products.js --dry-run --csv=docs/rollouts/ebay-offer-canary/batch-c.csv --artifact=tmp/ebay-offer-canary/postflight.json
-          node -e 'const a=require("./tmp/ebay-offer-canary/postflight.json");const n=v=>v&&typeof v==="object"?Array.isArray(v)?v.map(n):Object.fromEntries(Object.keys(v).sort().map(k=>[k,n(v[k])])):typeof v==="number"?String(v):v;const same=(before,after)=>Object.keys(after).every(k=>JSON.stringify(n(before[k]))===JSON.stringify(n(after[k])));if(a.blocked_rows.length||a.plans.length!==7||a.plans.some(x=>{const p=x.resolved_plan;const exactCriticalMetadataNoop=String(p.product.id)==="468"&&p.retailer_product.action==="update"&&same(p.expected_state.retailer_product,p.retailer_product.values);return p.product.action!=="existing"||p.product_variant.action!=="existing"||p.retailer.action!=="existing"||(p.retailer_product.action!=="noop"&&!exactCriticalMetadataNoop)||p.offer.action!=="noop"||p.price_history.action!=="noop"}))process.exit(1)'
+          node scripts/import-products.js --dry-run --csv=docs/rollouts/ebay-offer-canary/batch-d.csv --artifact=tmp/ebay-offer-canary/postflight.json
+          node -e 'const a=require("./tmp/ebay-offer-canary/postflight.json");if(a.blocked_rows.length||a.plans.length!==2||a.plans.some(x=>{const p=x.resolved_plan;return p.product.action!=="existing"||p.product_variant.action!=="existing"||p.retailer.action!=="existing"||p.retailer_product.action!=="noop"||p.offer.action!=="noop"||p.price_history.action!=="noop"}))process.exit(1)'
 
       - name: Publish result
         if: always()

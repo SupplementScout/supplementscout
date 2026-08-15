@@ -6,17 +6,12 @@ const { loadDryRunArtifact } = require("./import-products");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const KIND = "ebay-offer-batch-c-exact-7-v1";
-const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_C_EXACT_7";
-const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-c-rollout.json");
+const KIND = "ebay-offer-batch-d-exact-2-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_D_EXACT_2";
+const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-d-rollout.json");
 const EXPECTED_SCOPE = [
-  { product_id: "468", product_variant_id: "2696", gtin: "658556043530", external_product_id: "167559344554", external_variant_id: "v1|167559344554|467178581570", flavour: "double-chocolate", size_value: "73", size_unit: "g", pack_count: "12", product_format: "snack", price: "26.99", shipping_cost: "0", total_price: "26.99" },
-  { product_id: "176", product_variant_id: "227", gtin: "5901330022685", external_product_id: "373250053773", external_variant_id: "v1|373250053773|0", flavour: null, size_value: null, size_unit: null, pack_count: "1", product_format: null, price: "14.49", shipping_cost: "0", total_price: "14.49" },
-  { product_id: "348", product_variant_id: "1063", gtin: "810028291898", external_product_id: "188580263639", external_variant_id: "v1|188580263639|0", flavour: "lime", size_value: "330", size_unit: "g", pack_count: "1", product_format: "powder", price: "38.5", shipping_cost: "0", total_price: "38.5" },
-  { product_id: "338", product_variant_id: "1785", gtin: "5056555214503", external_product_id: "406077156302", external_variant_id: "v1|406077156302|677152097372", flavour: "slush puppie cherry chill", size_value: "875", size_unit: "g", pack_count: "1", product_format: "powder", price: "43.99", shipping_cost: "3.99", total_price: "47.98" },
-  { product_id: "789", product_variant_id: "1087", gtin: "3000992025781", external_product_id: "236709473396", external_variant_id: "v1|236709473396|537208106162", flavour: "lemon sherbet fizz", size_value: "570", size_unit: "g", pack_count: "1", product_format: "powder", price: "29.99", shipping_cost: "0", total_price: "29.99" },
-  { product_id: "67", product_variant_id: "1033", gtin: "5999076232857", external_product_id: "206313508150", external_variant_id: "v1|206313508150|507030098401", flavour: "chocolate", size_value: "908", size_unit: "g", pack_count: "1", product_format: "powder", price: "35.08", shipping_cost: "14.58", total_price: "49.66" },
-  { product_id: "77", product_variant_id: "1009", gtin: "5060211301674", external_product_id: "354815561341", external_variant_id: "v1|354815561341|624134728915", flavour: "vanilla ice cream", size_value: "900", size_unit: "g", pack_count: "1", product_format: "powder", price: "26.29", shipping_cost: "0", total_price: "26.29" },
+  { product_id: "56", product_variant_id: "1006", gtin: "5060292834924", external_product_id: "202053708757", external_variant_id: "v1|202053708757|0", flavour: "blazin berry", size_value: "392", size_unit: "g", pack_count: "1", product_format: "powder", price: "13.99", shipping_cost: "0", total_price: "13.99" },
+  { product_id: "482", product_variant_id: "1022", gtin: "799439669956", external_product_id: "227339481787", external_variant_id: "v1|227339481787|526541736171", flavour: "pina colada", size_value: "250", size_unit: "g", pack_count: "1", product_format: "powder", price: "25.79", shipping_cost: "3.99", total_price: "29.78" },
 ];
 
 function fail(message) { throw new Error(message); }
