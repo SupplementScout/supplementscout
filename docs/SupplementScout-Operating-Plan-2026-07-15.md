@@ -642,11 +642,23 @@ commit `080f219` corrected that exact check and non-writing postflight run
 `31869339692` passed. Independent production and public readback passed 7/7.
 Production now has exactly 17 eBay mappings and 17 offers.
 
+The next binding read-only monitor checked all 17 exact live items. All remain
+available and affiliate-ready, with zero blockers and zero price, shipping or
+delivered-total drift; three retain only their previously owner-accepted lack
+of a returned GTIN. A fresh production discovery rebuild found 339 current
+eligible one-retailer external-GTIN identities, but every identity had already
+been exact searched and all 137 relevant exact-search misses had already been
+title searched. The current catalogue therefore contains no unseen candidate
+pool. A bounded refresh of the remaining 36 unresolved candidate/listing pairs
+found 27 live: 10 same-retailer rejects, 15 without returned GTIN, two exact-
+GTIN narrow reviews and nine unavailable. Writes remained zero.
+
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Run a read-only
-refresh/monitoring audit across the 17 live eBay offers, then discover and
-owner-review the next bounded cohort using the current catalogue, same adapter
-and same guarded importer.`
+update that plan after every eBay task. Binding next action: `Owner-review
+exactly Warrior Rage Unleash Hell Blazin Berry 392g (56/1006/item 202053708757;
+exact GTIN, size unproven) and JNX Sports The Curse Pina Colada 250g
+(482/1022/item 227339481787; exact GTIN, format unproven). Do not prepare an
+import or production write before that decision.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

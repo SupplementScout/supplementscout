@@ -1664,7 +1664,22 @@ rollback and explicit approval.
   create plans with zero blockers.
 - `LIVE VERIFIED`: owner-approved Batch B run `31824324247` executed 5/5 and
   postflight returned five exact no-ops; production and public readback passed
-  5/5. The controlled rollout is complete 10/10.
+  5/5. Batch C subsequently passed 7/7, so the controlled rollout is complete
+  17/17.
+- `READ-ONLY VERIFIED`: the 15 August monitor checked all 17 live listings.
+  Every exact item remained available and affiliate-ready, with 0 blockers and
+  0 price, shipping or delivered-total drift. Fourteen passed the automatic
+  gate; three retained only their previously owner-accepted missing returned
+  GTIN evidence.
+- `DISCOVERY EXHAUSTED`: production currently has 339 eligible one-retailer
+  external-GTIN identities. All 339 were already checked by exact GTIN, and all
+  137 relevant products missed by that search were already checked by title.
+  No new unseen identity remains in the current catalogue.
+- `OWNER REVIEW READY`: a bounded refresh of the remaining 36 unresolved
+  candidate/listing pairs found 27 live listings: 10 are blocked because the
+  eBay seller is the same existing retailer, 15 still lack a returned GTIN,
+  two retain exact GTIN and one narrow evidence gap, and nine are no longer
+  available. Database writes remained 0.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1673,7 +1688,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Run a read-only refresh/monitoring audit across the 17 live eBay offers, then discover and owner-review the next bounded cohort using the current catalogue, the same adapter and the same guarded importer.`
+`NEXT ACTION: Owner-review exactly two current eBay candidates: Warrior Rage Unleash Hell Blazin Berry 392g (product 56 / variant 1006 / item 202053708757; exact GTIN, size unproven) and JNX Sports The Curse Pina Colada 250g (product 482 / variant 1022 / item 227339481787; exact GTIN, format unproven). Do not prepare an import or production write before that decision.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1683,6 +1698,19 @@ owner-reviewed production design and approval.
 
 15 August 2026:
 
+- Read-only monitor artifact
+  `4e64291706d8fd64757b420aadb04987bf12a49bf499fcd318278530b799c5f5`
+  checked all 17 live eBay offers: 17/17 exact items available, 0 blockers,
+  0 price drift, 0 shipping drift, 0 delivered-total drift and 0 writes.
+- Rebuilt the production discovery pool and confirmed 339 current eligible
+  one-retailer identities, with zero unseen exact-GTIN candidates and zero
+  unseen title-lead products. The earlier search space is exhausted rather
+  than eligible for another duplicate batch.
+- Refreshed the remaining 36 unique unresolved candidate/listing pairs in two
+  immutable read-only reports (`637d9c8d2f01b4ec955eb7725ad525aafbd5b1941900269df8ad63c3bf6007d4`
+  and `a78b741cb7436ad0de4cd646d4bb9ca41661ab23be29e53b89e5971cc492e1be`):
+  27 found, 10 same-retailer rejects, 15 missing-returned-GTIN reviews, two
+  exact-GTIN narrow reviews and nine not found. Database writes remained 0.
 - Corrected the current Critical Cookie canonical family from stale 85 g data
   to manufacturer-confirmed 73 g through a guarded production migration.
 - Refreshed, sealed and owner-approved the exact seven-row Batch C scope; the
