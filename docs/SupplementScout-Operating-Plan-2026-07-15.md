@@ -653,16 +653,20 @@ pool. A bounded refresh of the remaining 36 unresolved candidate/listing pairs
 found 27 live: 10 same-retailer rejects, 15 without returned GTIN, two exact-
 GTIN narrow reviews and nine unavailable. Independent evidence then confirmed
 the missing 392 g size for Warrior Rage Blazin Berry and the powder format plus
-250 g size for JNX The Curse Pina Colada. Both exact rows are now
-`APPROVE_CANDIDATE`; writes remained zero.
+250 g size for JNX The Curse Pina Colada. The owner approved exactly those two
+rows for preparation and dry-run. A fresh exact-item refresh passed both, and
+the existing importer produced two create plans with zero blocked rows and
+artifact SHA-256
+`827eaea06e34d2f8334a200ed017325d938a4f516c9168c34488e7321ac31da6`.
+Writes remained zero; production apply is not approved.
 
 Future agents must read the eBay plan's `Current status` and `Next action` and
 update that plan after every eBay task. Binding next action: `Owner approve or
-reject exactly Warrior Rage Unleash Hell Blazin Berry 392g
-(56/1006/item 202053708757) and JNX Sports The Curse Pina Colada 250g
-(482/1022/item 227339481787). Both are evidence-complete
-APPROVE_CANDIDATE rows. Do not prepare an import or production write before
-that decision.`
+reject production apply of exactly the two completed dry-run plans: Warrior
+Rage Unleash Hell Blazin Berry 392g (56/1006/item 202053708757; GBP 13.99
+delivered) and JNX Sports The Curse Pina Colada 250g
+(482/1022/item 227339481787; GBP 29.78 delivered). Do not seal or execute a
+production apply before that separate decision.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

@@ -1675,13 +1675,15 @@ rollback and explicit approval.
   external-GTIN identities. All 339 were already checked by exact GTIN, and all
   137 relevant products missed by that search were already checked by title.
   No new unseen identity remains in the current catalogue.
-- `OWNER REVIEW READY`: a bounded refresh of the remaining 36 unresolved
+- `OWNER APPROVED — DRY-RUN ONLY`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
   two retain exact GTIN, and nine are no longer available. Independent
   product evidence subsequently closed the two narrow eBay metadata gaps;
-  both exact rows are ready for an explicit owner approve/reject decision.
-  Database writes remained 0.
+  the owner approved exactly Warrior Rage Blazin Berry and JNX The Curse Pina
+  Colada for preparation and dry-run. A fresh exact-item refresh passed both,
+  and the existing importer produced two create plans with zero blocked rows.
+  Database writes remained 0; production apply is not yet approved.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1690,7 +1692,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner approve or reject exactly two evidence-complete current eBay candidates: Warrior Rage Unleash Hell Blazin Berry 392g (product 56 / variant 1006 / item 202053708757) and JNX Sports The Curse Pina Colada 250g (product 482 / variant 1022 / item 227339481787). Do not prepare an import or production write before that decision.`
+`NEXT ACTION: Owner approve or reject production apply of exactly the two dry-run plans for Warrior Rage Unleash Hell Blazin Berry 392g (product 56 / variant 1006 / item 202053708757; GBP 13.99 delivered) and JNX Sports The Curse Pina Colada 250g (product 482 / variant 1022 / item 227339481787; GBP 29.78 delivered). Do not seal or execute a production apply before that separate decision.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1721,6 +1723,17 @@ owner-reviewed production design and approval.
   independent-seller and affiliate-ready. Both rows are `APPROVE_CANDIDATE`,
   pending explicit owner approval; no import was prepared and writes remained
   zero.
+- The owner then approved exactly those two rows for preparation and dry-run.
+  A fresh exact-item Browse refresh found both exact items with their expected
+  GTINs, affiliate URLs and zero new blockers. The existing importer initially
+  rejected a duplicated size-unit representation in the temporary CSV; the
+  input was corrected to the importer's established numeric-size plus
+  separate-unit contract without changing identity or safety gates. The final
+  dry-run artifact SHA-256 is
+  `827eaea06e34d2f8334a200ed017325d938a4f516c9168c34488e7321ac31da6`:
+  two plans, zero blocked rows and zero writes. Each plan keeps retailer,
+  product and variant existing and proposes only one new eBay mapping, offer
+  and price-history row. Canonical GTIN writes remain blocked.
 - Corrected the current Critical Cookie canonical family from stale 85 g data
   to manufacturer-confirmed 73 g through a guarded production migration.
 - Refreshed, sealed and owner-approved the exact seven-row Batch C scope; the
