@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 17-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7)
+**Status:** CONTROLLED 19-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2)
 **Last verified:** 15 August 2026
-**Production writes:** 17 owner-approved canary plans (1 retailer, 17 mappings, 17 offers, 17 price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 17 live eBay offers
+**Production writes:** 19 owner-approved canary plans (1 retailer, 19 mappings, 19 offers, 19 price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 19 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -1675,7 +1675,7 @@ rollback and explicit approval.
   external-GTIN identities. All 339 were already checked by exact GTIN, and all
   137 relevant products missed by that search were already checked by title.
   No new unseen identity remains in the current catalogue.
-- `OWNER APPROVED — GUARDED APPLY`: a bounded refresh of the remaining 36 unresolved
+- `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
   two retain exact GTIN, and nine are no longer available. Independent
@@ -1684,9 +1684,9 @@ rollback and explicit approval.
   Colada for preparation and dry-run. A fresh exact-item refresh passed both,
   and the existing importer produced two create plans with zero blocked rows.
   The owner subsequently approved production apply of exactly those two plans.
-  A manual-mode immutable artifact and the existing fail-closed executor are
-  sealed for that scope. Database writes remain 0 until the guarded workflow
-  succeeds.
+  Manual workflow `31873994325` validated and executed 2/2, and its immediate
+  postflight returned two exact no-ops. Independent production and public
+  readback passed 2/2. Production now has 19 eBay mappings and 19 offers.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1695,7 +1695,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Run the manual eBay Offer Canary apply with exact confirmation OWNER_APPROVED_EBAY_BATCH_D_EXACT_2, then require its immediate two-row no-op postflight and independent production/public readback. Do not expand or substitute the sealed scope.`
+`NEXT ACTION: Monitor the exact 19 live eBay offers read-only. Do not repeat the exhausted discovery pool; rebuild discovery only after the canonical catalogue gains new eligible one-retailer identities.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1744,6 +1744,17 @@ owner-reviewed production design and approval.
   price-history row. Canonical GTIN writes remain blocked. The owner approved
   production apply of exactly these two plans; no write had occurred at this
   checkpoint.
+- Commit `6e4aabf` sealed the binding two-row artifact, rollout fingerprint
+  `5b89bc7dcc5474953bff004b1bbe75c4c574945a20d39a10cc5e46393cf10e3e`
+  and confirmation `OWNER_APPROVED_EBAY_BATCH_D_EXACT_2` into the existing
+  executor. Manual workflow `31873994325` passed every step, executed 2/2 and
+  completed its immediate exact no-op postflight. Independent production
+  readback confirmed mappings `2741`-`2742`, offers `2556`-`2557` and
+  price-history rows `2751`-`2752`, with 19 total unique eBay mappings/offers,
+  zero duplicate variant or GTIN identities and unchanged canonical
+  `products.gtin` / `product_variants.gtin` values. Both public product pages
+  returned HTTP 200 and showed eBay UK, the exact delivered price and
+  `/go/2556` or `/go/2557`. Batch D is live verified 2/2.
 - Corrected the current Critical Cookie canonical family from stale 85 g data
   to manufacturer-confirmed 73 g through a guarded production migration.
 - Refreshed, sealed and owner-approved the exact seven-row Batch C scope; the

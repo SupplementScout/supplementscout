@@ -660,15 +660,18 @@ initial feed-mode preview remained non-writing; the executor test required the
 established manual plan kind, so the same exact scope was regenerated as the
 binding artifact SHA-256
 `b7e3491b8e852e0c0c30bad668b3256bfaa63119cf9e5a51f792941baf1b0779`.
-The owner approved production apply of exactly those two plans. Writes remain
-zero pending the guarded workflow.
+The owner approved production apply of exactly those two plans. Commit
+`6e4aabf` sealed them into the existing executor, and manual workflow
+`31873994325` executed 2/2 with an immediate two-row no-op postflight.
+Independent production readback confirmed mappings `2741`-`2742`, offers
+`2556`-`2557`, histories `2751`-`2752`, 19 total unique eBay mappings/offers
+and zero duplicate variant or GTIN identities. Public readback passed 2/2.
 
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Run the manual
-eBay Offer Canary apply with exact confirmation
-OWNER_APPROVED_EBAY_BATCH_D_EXACT_2, then require its immediate two-row no-op
-postflight and independent production/public readback. Do not expand or
-substitute the sealed scope.`
+update that plan after every eBay task. Binding next action: `Monitor the exact
+19 live eBay offers read-only. Do not repeat the exhausted discovery pool;
+rebuild discovery only after the canonical catalogue gains new eligible
+one-retailer identities.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
