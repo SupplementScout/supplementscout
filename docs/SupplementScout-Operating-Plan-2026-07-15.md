@@ -613,8 +613,8 @@ skipped rows; retailer, products and variants remain existing, while each plan
 would create only one `gtin`/`100` mapping, one offer and one price-history
 row. Dry-run artifact SHA-256 is
 `916c8a8717193491e81e1391438794c634f7c22288b9d1770a71e9145376fdd3`.
-No Batch B write occurred. Binding next action: owner review and exact approval
-of these five sealed Batch B plans; do not apply without that new approval.
+At that checkpoint no Batch B write had occurred; its next action was owner
+review and exact approval of those five sealed plans.
 The owner then explicitly approved those exact five plans. Commit `0b2db32`
 reused the existing manual executor with rollout fingerprint
 `47532d6b515cdb5d96a42d2ac630d530693b62cc5f7aeaf2f40f84d8dd550a65`.
@@ -625,15 +625,28 @@ all canonical products/variants remained existing, and canonical GTIN fields
 were unchanged. Production has exactly 10 unique eBay mappings and 10 offers,
 with no duplicate eBay variant, GTIN or item identity. Public verification
 passed 5/5 for Batch B with HTTP 200, exact delivered prices and `/go/2544`-
-`/go/2548`. The controlled 10-offer rollout is live-verified 10/10. Binding
-next action: run a read-only refresh/monitoring audit across those 10 live
-offers, then prepare the next bounded owner-review cohort toward 50 through
-the same adapter and guarded importer.
+`/go/2548`. The controlled 10-offer rollout was live-verified 10/10 before the
+subsequent Batch C work below.
+The owner subsequently rejected Boditronics Mass Attack Vanilla, retained
+BioTech Iso Whey behind the canonical-parent drift blocker and approved seven
+exact replacements. The current Critical Cookie family was first corrected
+from stale 85 g data to manufacturer-confirmed 73 g through guarded migration
+`20260814213000_correct_critical_cookie_73g_identity.sql`, preserving its URL,
+GTINs and existing retailer/offer records. Fresh eBay item refresh and importer
+dry-run returned seven exact create plans and zero blockers. Commit `9736d74`
+sealed the existing executor to the seven-row artifact and owner confirmation.
+GitHub run `31843061483` executed 7/7, creating mappings `2734`-`2740`, offers
+`2549`-`2555` and seven history rows. Apply was not repeated when only the
+postflight assertion rejected one metadata-equivalent Critical Cookie mapping;
+commit `080f219` corrected that exact check and non-writing postflight run
+`31869339692` passed. Independent production and public readback passed 7/7.
+Production now has exactly 17 eBay mappings and 17 offers.
+
 Future agents must read the eBay plan's `Current status` and `Next action` and
 update that plan after every eBay task. Binding next action: `Run a read-only
-refresh/monitoring audit across the 10 live eBay offers, then prepare the next
-bounded owner-review cohort toward 50 using the same adapter and guarded
-importer.`
+refresh/monitoring audit across the 17 live eBay offers, then discover and
+owner-review the next bounded cohort using the current catalogue, same adapter
+and same guarded importer.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

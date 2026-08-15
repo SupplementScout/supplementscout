@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 10-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5)
-**Last verified:** 14 August 2026
-**Production writes:** 10 owner-approved canary plans (1 retailer, 10 mappings, 10 offers, 10 price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 10 live eBay offers
+**Status:** CONTROLLED 17-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7)
+**Last verified:** 15 August 2026
+**Production writes:** 17 owner-approved canary plans (1 retailer, 17 mappings, 17 offers, 17 price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 17 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -40,24 +40,27 @@ and is eligible for compliant tracking.
 
 ## Current status
 
-`ETAP 0–5 DESIGN/AUDIT COMPLETE`. Repository, data model, coverage, importer,
-matching controls, secret conventions and current official eBay requirements
-were audited. No eBay account status can be inferred from the repository.
+Design, audit, Developers/EPN access, Production keyset compliance, the
+read-only Browse pilot and the controlled 17-offer rollout are complete. The
+existing adapter and guarded importer remain the only approved paths. Current
+production evidence is the 15 August 2026 Batch C readback below; credentials
+remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
 already present; 16 conflicts remain quarantined and outside the cohort. The
 read-only Browse API adapter, policy engine, immutable input/report artifacts
-and mock-only tests are implemented. The live production pilot completed on
+and mock-only tests are implemented. The initial live production pilot completed on
 14 August 2026 for all 54 identities, fingerprint
 `9d277525865ebaf7ce33e435db6ce1c9348b576a19e5c05e4168f5b549a1a885`,
 with 10 identities found: 2 `AUTO_ELIGIBLE`, 3 `REVIEW`, 5 `REJECT` and 44
 `NOT_FOUND`. Both safe offers would add a second retailer and were cheaper than
-the current complete delivered price. The run made 0 database writes, 0 offer
-or retailer-mapping changes and 0 public changes. Affiliate tracking was not
-configured, so no result is ready for publication. No eBay credential is
-stored in the repository. The historical 100-identity target remains
-unavailable and must not be reached by weakening the identity gate.
+the current complete delivered price. That historical pilot made 0 database
+writes, 0 offer or retailer-mapping changes and 0 public changes. Affiliate
+tracking was not configured at that checkpoint; it was configured before the
+later guarded rollouts. No eBay credential is stored in the repository. The
+historical 100-identity target remains unavailable and must not be reached by
+weakening the identity gate.
 
 The owner accepted the bounded quality review on 14 August 2026. The two
 `AUTO_ELIGIBLE` rows passed review for inclusion in a future production-pilot
@@ -180,6 +183,40 @@ variant, GTIN or legacy item identity. All five Batch B public product pages
 returned HTTP 200 and contained eBay UK, the expected delivered price and the
 exact `/go/2544`-`/go/2548` route. The controlled 10-offer rollout is therefore
 live-verified 10/10.
+
+The next owner review rejected Boditronics Mass Attack Vanilla and retained
+BioTech Iso Whey Banana 908g behind the importer's canonical-parent drift
+blocker. The owner approved the remaining seven exact listings. Official
+manufacturer evidence showed that the current Critical Cookie family is 73 g,
+not the stale 85 g identity held in the catalogue. Guarded migration
+`20260814213000_correct_critical_cookie_73g_identity.sql` therefore updated the
+existing product name and all four canonical variant size identities from 85 g
+to 73 g while preserving the canonical URL, GTINs, mappings, offers and price
+history. Production rehearsal, rollback, apply and independent readback all
+passed; table counts were unchanged.
+
+A fresh exact-item eBay refresh then found all seven approved listings with no
+new blocker, reject or missing result. The existing importer produced seven
+create plans and zero blocked rows. Commit `9736d74` sealed artifact SHA-256
+`822e6d0b053b8f626309e9331b4b2a4e4ef1a67d6c4c961cbf99751501ede928`,
+rollout fingerprint
+`22cb09f8e3abc3d1c2dcfa27d67c9c1c050db5eebb753c4dc931d288bc8670c6`
+and confirmation `OWNER_APPROVED_EBAY_BATCH_C_EXACT_7` into the existing
+guarded executor. No second importer was created.
+
+Manual GitHub run `31843061483` validated and executed 7/7, creating mappings
+`2734`-`2740`, offers `2549`-`2555` and seven price-history rows. Apply was not
+repeated when the first postflight exposed one semantically identical Critical
+Cookie mapping as technical `update`; the other six mappings and all seven
+offers/history rows were no-ops. Commit `080f219` made the postflight accept
+that one exact metadata-equivalent state without weakening identity, offer or
+history checks. Non-writing postflight run `31869339692` then passed.
+
+Independent production readback confirmed seven unique products, variants,
+items and GTINs, seven in-stock affiliate URLs with known delivered prices and
+seven price-history rows. eBay UK now has exactly 17 mappings and 17 offers.
+All seven public product pages returned HTTP 200 and contained eBay UK plus the
+expected `/go/2549`-`/go/2555` routes. Batch C is live-verified 7/7.
 
 ## Completed
 
@@ -881,13 +918,12 @@ outside the 45-row review and require no write. The owner approved all 45 in
 one decision bound to this exact set; any future write must still use a newly
 generated, unexpired, stale-safe preview.
 
-### Promotion next action
+### Promotion handoff (completed)
 
-`NEXT ACTION: Confirm eBay/EPN account and Buy API access status.` The guarded
-GTIN promotion is complete and must not be run again. Preserve all 54 safe
-identities as no-ops and all 16 conflicts in quarantine. Do not enable
-`SAFE_UPDATE`, run another confirmation batch or call eBay before the separate
-account/access gate is complete.
+The promotion handoff was to confirm eBay/EPN account and Buy API access. That
+access gate is now complete. The guarded GTIN promotion must not be run again:
+preserve all 54 safe identities as no-ops and all 16 conflicts in quarantine,
+and do not enable `SAFE_UPDATE` or run another confirmation batch.
 
 ## Relevant SupplementScout model
 
@@ -1637,13 +1673,27 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Run a read-only refresh/monitoring audit across the 10 live eBay offers, then prepare the next bounded owner-review cohort toward 50 using the same adapter and guarded importer.`
+`NEXT ACTION: Run a read-only refresh/monitoring audit across the 17 live eBay offers, then discover and owner-review the next bounded cohort using the current catalogue, the same adapter and the same guarded importer.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
 owner-reviewed production design and approval.
 
 ## Last verified
+
+15 August 2026:
+
+- Corrected the current Critical Cookie canonical family from stale 85 g data
+  to manufacturer-confirmed 73 g through a guarded production migration.
+- Refreshed, sealed and owner-approved the exact seven-row Batch C scope; the
+  existing importer dry-run returned seven create plans and zero blockers.
+- GitHub apply run `31843061483` executed 7/7. The apply was not repeated after
+  a postflight-only assertion mismatch; non-writing run `31869339692` passed
+  after the exact metadata-equivalence check was corrected.
+- Production readback confirmed mappings `2734`-`2740`, offers `2549`-`2555`,
+  seven price-history rows and 17 total eBay mappings/offers. Public verification
+  passed 7/7 with HTTP 200, visible eBay UK offers and exact `/go/{offerId}`
+  routes.
 
 14 August 2026:
 
