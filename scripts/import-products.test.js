@@ -5314,6 +5314,7 @@ test("eBay offer canary workflow is manual, exact-confirmation guarded and role 
   const secretStep = workflow.indexOf("EBAY_CANARY_APPROVER_DATABASE_URL");
   assert.ok(qualityStep > -1 && secretStep > qualityStep);
   assert.match(workflow, /a\.plans\.length!==7/);
+  assert.match(workflow, /exactCriticalMetadataNoop/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
 });
 
