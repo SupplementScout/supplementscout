@@ -651,14 +651,18 @@ been exact searched and all 137 relevant exact-search misses had already been
 title searched. The current catalogue therefore contains no unseen candidate
 pool. A bounded refresh of the remaining 36 unresolved candidate/listing pairs
 found 27 live: 10 same-retailer rejects, 15 without returned GTIN, two exact-
-GTIN narrow reviews and nine unavailable. Writes remained zero.
+GTIN narrow reviews and nine unavailable. Independent evidence then confirmed
+the missing 392 g size for Warrior Rage Blazin Berry and the powder format plus
+250 g size for JNX The Curse Pina Colada. Both exact rows are now
+`APPROVE_CANDIDATE`; writes remained zero.
 
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Owner-review
-exactly Warrior Rage Unleash Hell Blazin Berry 392g (56/1006/item 202053708757;
-exact GTIN, size unproven) and JNX Sports The Curse Pina Colada 250g
-(482/1022/item 227339481787; exact GTIN, format unproven). Do not prepare an
-import or production write before that decision.`
+update that plan after every eBay task. Binding next action: `Owner approve or
+reject exactly Warrior Rage Unleash Hell Blazin Berry 392g
+(56/1006/item 202053708757) and JNX Sports The Curse Pina Colada 250g
+(482/1022/item 227339481787). Both are evidence-complete
+APPROVE_CANDIDATE rows. Do not prepare an import or production write before
+that decision.`
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

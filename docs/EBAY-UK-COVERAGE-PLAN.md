@@ -1678,8 +1678,10 @@ rollback and explicit approval.
 - `OWNER REVIEW READY`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
-  two retain exact GTIN and one narrow evidence gap, and nine are no longer
-  available. Database writes remained 0.
+  two retain exact GTIN, and nine are no longer available. Independent
+  product evidence subsequently closed the two narrow eBay metadata gaps;
+  both exact rows are ready for an explicit owner approve/reject decision.
+  Database writes remained 0.
 - GTIN deployment is complete: the disposable PostgreSQL gate, migration,
   exact 45-row apply and post-write verification passed. All 54 safe identities
   are now no-ops and 16 conflicts remain quarantined.
@@ -1688,7 +1690,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner-review exactly two current eBay candidates: Warrior Rage Unleash Hell Blazin Berry 392g (product 56 / variant 1006 / item 202053708757; exact GTIN, size unproven) and JNX Sports The Curse Pina Colada 250g (product 482 / variant 1022 / item 227339481787; exact GTIN, format unproven). Do not prepare an import or production write before that decision.`
+`NEXT ACTION: Owner approve or reject exactly two evidence-complete current eBay candidates: Warrior Rage Unleash Hell Blazin Berry 392g (product 56 / variant 1006 / item 202053708757) and JNX Sports The Curse Pina Colada 250g (product 482 / variant 1022 / item 227339481787). Do not prepare an import or production write before that decision.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1711,6 +1713,14 @@ owner-reviewed production design and approval.
   and `a78b741cb7436ad0de4cd646d4bb9ca41661ab23be29e53b89e5971cc492e1be`):
   27 found, 10 same-retailer rejects, 15 missing-returned-GTIN reviews, two
   exact-GTIN narrow reviews and nine not found. Database writes remained 0.
+- Completed independent evidence review for the only two exact-GTIN rows.
+  Tropicana Wholesale and MyGymSupplements confirm Warrior Rage Blazin Berry,
+  392 g and GTIN `5060292834924`. The official JNX product page confirms The
+  Curse Pina Colada as a pre-workout powder, while Target confirms 250 g,
+  powder format and UPC `799439669956`. The eBay listings remain exact,
+  independent-seller and affiliate-ready. Both rows are `APPROVE_CANDIDATE`,
+  pending explicit owner approval; no import was prepared and writes remained
+  zero.
 - Corrected the current Critical Cookie canonical family from stale 85 g data
   to manufacturer-confirmed 73 g through a guarded production migration.
 - Refreshed, sealed and owner-approved the exact seven-row Batch C scope; the
