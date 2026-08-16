@@ -279,6 +279,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
+  assert.match(workflow, /vars\.EBAY_REFRESH_ENABLED == 'true'/);
   assert.match(workflow, /Verify fresh no-op after apply/);
 });
 

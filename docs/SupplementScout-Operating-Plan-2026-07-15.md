@@ -797,6 +797,9 @@ contract tests, then failed closed in the read-only preflight because
 `EBAY_UK_DELIVERY_POSTCODE`. Apply and postflight were skipped. Adding those
 three existing values as GitHub environment secrets and rerunning dry-run is
 the only activation next action; the code must not weaken this gate.
+Scheduled apply additionally requires GitHub environment variable
+`EBAY_REFRESH_ENABLED=true`, which must remain absent until the first manual
+apply and its fresh no-op postflight both pass.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

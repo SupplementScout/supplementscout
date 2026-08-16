@@ -1823,7 +1823,10 @@ rollback and explicit approval.
   environment `production-readonly` does not contain `EBAY_CLIENT_ID`,
   `EBAY_CLIENT_SECRET` or `EBAY_UK_DELIVERY_POSTCODE`. Apply and postflight were
   skipped. The schedule cannot write until those existing credential values
-  are added securely under these exact GitHub environment-secret names.
+  are added securely under these exact GitHub environment-secret names. Even
+  after that, scheduled apply remains disabled unless environment variable
+  `EBAY_REFRESH_ENABLED` is explicitly set to `true` after the first successful
+  manual apply and postflight.
 - `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
@@ -1848,7 +1851,8 @@ rollback and explicit approval.
 EBAY_UK_DELIVERY_POSTCODE to the GitHub production-readonly environment without
 exposing their values, then rerun eBay Offer Refresh in dry-run mode. If it
 passes, run one manual guarded apply plus a fresh no-op verification; only then
-treat the daily schedule for offer 2558 as enabled. Expand the same fixed scope
+set environment variable `EBAY_REFRESH_ENABLED=true` and treat the daily
+schedule for offer 2558 as enabled. Expand the same fixed scope
 to other approved eBay offers only in reviewed batches. All REVIEW, REJECT and
 GTIN-conflict rows remain blocked.`
 
