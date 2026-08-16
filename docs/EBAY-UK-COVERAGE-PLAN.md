@@ -1783,6 +1783,23 @@ rollback and explicit approval.
   offers unchanged, retailer mappings unchanged, 16 quarantined conflicts
   unchanged and no duplicate GTIN ownership. The one-time exact-36 write and
   recovery operations were then removed from the manual workflow.
+- `EXACT-36 EBAY DISCOVERY COMPLETE — READ ONLY`: the existing Browse pilot
+  was extended with one fixed `owner-reviewed-36` input scope; no second eBay
+  adapter or importer was created. The sealed input contained exactly 36
+  already-present canonical variant GTINs. Exact-GTIN Browse search checked
+  36, found 3 and returned 0 `AUTO_ELIGIBLE`, 1 `REVIEW`, 2 `REJECT` and 33
+  `NOT_FOUND` (report fingerprint
+  `924ed6a60282b4a2b26f464f50ca2ccfccb8ec6f76b1831398579a90699551c6`).
+  The existing title fallback then checked 30 of the 33 missing products and
+  returned 1 `AUTO_ELIGIBLE`, 13 `REVIEW`, 11 `REJECT` and 5 `NOT_FOUND`
+  (report fingerprint
+  `8c2038b6f6f7742eb1e4979e85ccf0b29dc478fc94afbf180a5fc71c6d141721`).
+  The single safe candidate is product 1107 / variant 2401, Trec Nutrition
+  Creatine Monohydrate + Taurine 400 g, GTIN `5902114017811`, eBay item
+  `204137434720`, business seller `superfoodsinc` (99.7%, score 4912), GBP
+  19.95 delivered, affiliate-ready and with no blockers. Database writes and
+  catalogue changes remained zero. Every `REVIEW`/`REJECT` row remains blocked
+  from the importer.
 - `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
@@ -1803,11 +1820,13 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Reuse and audit the existing eBay Browse discovery, guarded
-offer importer and refresh mechanisms for the newly GTIN-enriched identities.
-Start with read-only exact-GTIN discovery and produce an owner-review cohort;
-do not add or refresh eBay offers until that evidence is approved. The six
-REVIEW and eight CONFLICT rows remain outside scope.`
+`NEXT ACTION: Owner review exactly one AUTO_ELIGIBLE eBay candidate: product
+1107 / variant 2401 / item 204137434720. If approved, build its immutable
+one-row artifact through the existing importer, validate, apply and live-verify
+it. In parallel, design eBay price/stock refresh by reusing the existing
+retailer-offer-sync framework for already approved eBay mappings; do not enable
+scheduled production writes before its separate guarded review. All REVIEW,
+REJECT and GTIN-conflict rows remain blocked.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate

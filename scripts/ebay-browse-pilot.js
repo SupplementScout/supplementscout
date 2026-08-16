@@ -8,23 +8,28 @@ const { assertConfig, browseIdentity, buildReport, DEFAULT_POLICY, evaluateIdent
 
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUTPUT = path.join(ROOT, "tmp", "ebay-uk-coverage");
-const EXPECTED_IDENTITIES = 54;
+const EXPECTED_IDENTITIES = Object.freeze({ "legacy-54": 54, "owner-reviewed-36": 36 });
 
 function parseArgs(argv) {
-  const options = { prepareInput: false, discovery: false, titleLeadsReport: null, maxIdentities: 750, outputDir: DEFAULT_OUTPUT };
+  const options = { prepareInput: false, discovery: false, titleLeadsReport: null, maxIdentities: 750, outputDir: DEFAULT_OUTPUT, scope: "legacy-54" };
   for (const argument of argv) {
     if (argument === "--prepare-input") options.prepareInput = true;
     else if (argument === "--discover-one-retailer") options.discovery = true;
     else if (argument.startsWith("--title-leads-from=")) {
       const resolved = path.resolve(ROOT, argument.slice("--title-leads-from=".length));
-      const relative = path.relative(path.join(ROOT, "tmp", "ebay-uk-coverage"), resolved);
-      if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) throw new Error("Title-leads report must be inside tmp/ebay-uk-coverage");
+      const relative = path.relative(path.join(ROOT, "tmp"), resolved);
+      if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) throw new Error("Title-leads report must be inside repository tmp");
       options.titleLeadsReport = resolved;
     }
     else if (argument.startsWith("--max-identities=")) {
       const value = Number(argument.slice("--max-identities=".length));
       if (!Number.isInteger(value) || value < 1 || value > 750) throw new Error("Max identities must be between 1 and 750");
       options.maxIdentities = value;
+    }
+    else if (argument.startsWith("--scope=")) {
+      const scope = argument.slice("--scope=".length);
+      if (!Object.hasOwn(EXPECTED_IDENTITIES, scope)) throw new Error("Unsupported eBay pilot identity scope");
+      options.scope = scope;
     }
     else if (argument.startsWith("--output-dir=")) {
       const resolved = path.resolve(ROOT, argument.slice("--output-dir=".length));
@@ -35,6 +40,7 @@ function parseArgs(argv) {
   }
   if (!options.discovery && options.maxIdentities !== 750) throw new Error("--max-identities requires --discover-one-retailer");
   if (options.titleLeadsReport && !options.discovery) throw new Error("--title-leads-from requires --discover-one-retailer");
+  if ((options.discovery || options.titleLeadsReport) && options.scope !== "legacy-54") throw new Error("--scope cannot be combined with discovery modes");
   return options;
 }
 
@@ -46,7 +52,7 @@ const IDENTITY_FIELDS = Object.freeze([
 ]);
 
 function buildTitleLeadInput(report, maxIdentities, capturedAt = new Date().toISOString()) {
-  if (report.operation_type !== "EBAY_BROWSE_API_DISCOVERY" || report.write_enabled !== false) throw new Error("Invalid discovery report for title leads");
+  if (!["EBAY_BROWSE_API_DISCOVERY", "EBAY_BROWSE_API_PILOT"].includes(report.operation_type) || report.write_enabled !== false) throw new Error("Invalid read-only report for title leads");
   const expected = hash("EBAY-BROWSE-REPORT:1", { ...report, artifact_fingerprint: null });
   if (report.artifact_fingerprint !== expected) throw new Error("Discovery report fingerprint mismatch");
   const seenProducts = new Set();
@@ -167,17 +173,19 @@ function currentOfferEvidence(identity, mappings, offers, retailers = []) {
   };
 }
 
-async function buildInput(client, capturedAt = new Date().toISOString()) {
+async function buildInput(client, capturedAt = new Date().toISOString(), scope = "legacy-54") {
+  const identityCount = EXPECTED_IDENTITIES[scope];
+  if (!identityCount) throw new Error("Unsupported eBay pilot identity scope");
   const [{ preview }, products, variants, mappings, offers, retailers] = await Promise.all([
-    buildReadOnlyPreview({ target: "production", output: null }, { client }),
+    buildReadOnlyPreview({ target: "production", output: null, scope, expectedState: scope === "owner-reviewed-36" ? "post-apply" : undefined }, { client }),
     readAll(client, "products", "id,name,brand,category,net_weight_g,unit_count,unit_type,product_format,is_active,merged_into_product_id"),
     readAll(client, "product_variants", "id,product_id,display_name,flavour_label,size_value,size_unit,pack_count,product_format,gtin,is_active"),
     readAll(client, "retailer_products", "id,retailer_id,product_id,product_variant_id"),
     readAll(client, "offers", "id,retailer_id,retailer_product_id,product_id,product_variant_id,price,shipping_cost,total_price,in_stock,last_checked_at"),
     readAll(client, "retailers", "id,name,slug"),
   ]);
-  if (preview.candidate_count !== EXPECTED_IDENTITIES || preview.rows.some((row) => row.decision !== "ALREADY_PRESENT")) {
-    throw new Error("Safe GTIN identity gate failed: expected exactly 54 ALREADY_PRESENT identities");
+  if (preview.candidate_count !== identityCount || preview.rows.some((row) => row.decision !== "ALREADY_PRESENT")) {
+    throw new Error(`Safe GTIN identity gate failed: expected exactly ${identityCount} ALREADY_PRESENT identities`);
   }
   const rows = preview.rows.map((row) => {
     const product = products.find((value) => String(value.id) === row.product_id);
@@ -264,10 +272,10 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
     const client = dependencies.client || loadClient();
     input = options.discovery
       ? await buildDiscoveryInput(client, options.maxIdentities, capturedAt)
-      : await buildInput(client, capturedAt);
+      : await buildInput(client, capturedAt, options.scope);
   }
   const stamp = input.captured_at.replace(/[:.]/g, "-");
-  const prefix = options.titleLeadsReport ? "ebay-title-leads" : options.discovery ? "ebay-discovery" : "ebay-pilot";
+  const prefix = options.titleLeadsReport ? "ebay-title-leads" : options.discovery ? "ebay-discovery" : options.scope === "owner-reviewed-36" ? "ebay-owner-reviewed-36" : "ebay-pilot";
   const inputPath = writeImmutableJson(options.outputDir, `${prefix}-input-${stamp}.json`, input);
   if (options.prepareInput) {
     console.log(JSON.stringify({ mode: "prepare-input", input: inputPath, identities: input.identity_count, database_writes: 0, ebay_api_calls: 0, fingerprint: input.artifact_fingerprint }, null, 2));

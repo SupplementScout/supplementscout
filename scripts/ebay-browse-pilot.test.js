@@ -223,6 +223,7 @@ test("title-lead input accepts only intact read-only discovery reports and one r
   const input = buildTitleLeadInput(report, 10, "2026-08-14T14:00:00.000Z");
   assert.equal(input.rows.length, 1);
   assert.equal(input.rows[0].product_id, "11");
+  assert.equal(buildTitleLeadInput({ ...report, operation_type: "EBAY_BROWSE_API_PILOT", artifact_fingerprint: hash("EBAY-BROWSE-REPORT:1", { ...report, operation_type: "EBAY_BROWSE_API_PILOT", artifact_fingerprint: null }) }, 10).rows.length, 1);
   assert.throws(() => buildTitleLeadInput({ ...report, artifact_fingerprint: "tampered" }, 10), /fingerprint mismatch/);
 });
 
@@ -247,6 +248,9 @@ test("runner and library contain no production mutation or public publication pa
   assert.doesNotMatch(source, /offers\).*insert|retailer_products\).*insert/);
   assert.deepEqual(parseArgs(["--prepare-input"]).prepareInput, true);
   assert.equal(parseArgs(["--discover-one-retailer", "--max-identities=200"]).maxIdentities, 200);
+  assert.equal(parseArgs(["--scope=owner-reviewed-36"]).scope, "owner-reviewed-36");
+  assert.throws(() => parseArgs(["--scope=other"]), /Unsupported eBay pilot identity scope/);
+  assert.throws(() => parseArgs(["--discover-one-retailer", "--scope=owner-reviewed-36"]), /cannot be combined/);
   assert.throws(() => parseArgs(["--max-identities=200"]), /requires --discover-one-retailer/);
   assert.throws(() => parseArgs(["--title-leads-from=tmp/ebay-uk-coverage/report.json"]), /requires --discover-one-retailer/);
   assert.throws(() => parseArgs(["--apply"]), /Unsupported argument/);

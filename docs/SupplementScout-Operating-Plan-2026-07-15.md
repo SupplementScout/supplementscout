@@ -766,6 +766,19 @@ the existing eBay Browse discovery/import/refresh path for these newly
 GTIN-enriched identities, beginning read-only and requiring owner review before
 any new offer write.
 
+The existing eBay Browse pilot was then minimally extended to accept the fixed
+post-promotion `owner-reviewed-36` scope. Live read-only exact-GTIN discovery
+checked all 36 and returned 0 auto-eligible, 1 review, 2 reject and 33 not
+found. The existing title fallback checked 30 missing products and returned
+one auto-eligible candidate, 13 review, 11 reject and five not found. The sole
+safe row is product 1107 / variant 2401, Trec Nutrition Creatine Monohydrate +
+Taurine 400 g, GTIN `5902114017811`, eBay item `204137434720`, GBP 19.95
+delivered with an affiliate-ready URL. No database write occurred. The binding
+next action is owner review of exactly that one listing, followed—only if
+approved—by the existing guarded importer. eBay price/stock scheduling must
+reuse the existing retailer-offer-sync framework and remains a separate
+reviewed production enablement; it must not become a second importer.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
