@@ -11,7 +11,7 @@ const OFFER_KEYS = ["id", "product_id", "retailer_id", "product_variant_id", "re
 function select(value, keys) { return Object.fromEntries(keys.map((key) => [key, value[key] ?? null])); }
 function decimal(value) { return value === null || value === undefined ? null : normalizeDecimalString(value); }
 function id(value, label) { const out=String(value ?? ""); if (!/^\d+$/.test(out)) throw new Error(`${label} must be an ID`); return out; }
-function externalIdentity(value) { return /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(String(value ?? "")); }
+function externalIdentity(value) { return /^[A-Za-z0-9][A-Za-z0-9._:|\-]{0,127}$/.test(String(value ?? "")); }
 function databaseTimestamp(value,label){const text=value instanceof Date?value.toISOString():String(value??"");if(!text||!Number.isFinite(Date.parse(text)))throw new Error(`${label} must be a timestamp`);return text}
 
 function normalizeState(input) {

@@ -1,0 +1,89 @@
+name: eBay Offer Refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Dry-run unless the exact approved refresh apply is selected"
+        required: true
+        default: dry-run
+        type: choice
+        options: [dry-run, apply]
+      owner_confirmation:
+        description: "Required only for a manual apply"
+        required: false
+        type: string
+  schedule:
+    - cron: "43 5 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ebay-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (github.event_name != 'workflow_dispatch' || inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_REFRESH_EXACT_1') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - name: Validate protected execution context
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          case "$GITHUB_EVENT_NAME" in schedule|workflow_dispatch) ;; *) exit 1 ;; esac
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test exact eBay refresh contracts without production credentials
+        run: node --test --test-name-pattern="eBay.*refresh" scripts/ebay-browse-pilot.test.js
+      - name: Fresh read-only preflight
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_UK_DELIVERY_POSTCODE: ${{ secrets.EBAY_UK_DELIVERY_POSTCODE }}
+          EBAY_MARKETPLACE_ID: EBAY_GB
+          EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run ebay:refresh -- --target=production --mode=dry-run
+      - name: Apply exact approved existing-offer refresh
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          EBAY_REFRESH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_UK_DELIVERY_POSTCODE: ${{ secrets.EBAY_UK_DELIVERY_POSTCODE }}
+          EBAY_MARKETPLACE_ID: EBAY_GB
+          EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: npm run ebay:refresh -- --target=production --mode=apply
+      - name: Verify fresh no-op after apply
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_UK_DELIVERY_POSTCODE: ${{ secrets.EBAY_UK_DELIVERY_POSTCODE }}
+          EBAY_MARKETPLACE_ID: EBAY_GB
+          EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run ebay:refresh -- --target=production --mode=dry-run
+      - name: Upload refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ebay-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/ebay-offer-refresh/*.json

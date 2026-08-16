@@ -133,11 +133,11 @@ async function roleCall(kind, callback) {
   }
 }
 
-async function executePlan(item) {
+async function executePlan(item, approvalKind = KIND) {
   const { loaded, entry } = item;
   const approval = await roleCall("approver", async (client) => (await client.query(
     "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result",
-    [entry.resolved_plan, loaded.artifactSha256, loaded.artifact.run_id, KIND]
+    [entry.resolved_plan, loaded.artifactSha256, loaded.artifact.run_id, approvalKind]
   )).rows[0].result);
   if (
     approval?.status !== "approved" || approval.artifact_sha256 !== loaded.artifactSha256 ||
@@ -188,4 +188,4 @@ if (require.main === module) {
     .catch((error) => { console.error(error.message); process.exit(1); });
 }
 
-module.exports = { CONFIRMATION, EXPECTED_SCOPE, parseArgs, validateRollout };
+module.exports = { CONFIRMATION, EXPECTED_SCOPE, executePlan, parseArgs, validateRollout };

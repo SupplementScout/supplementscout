@@ -10,6 +10,7 @@
     "analytics:weekly": "node scripts/growth-analytics-report.js",
     "gtin:promotion": "node scripts/gtin-promotion-operation.js",
     "ebay:pilot": "node scripts/ebay-browse-pilot.js",
+    "ebay:refresh": "node scripts/ebay-offer-refresh.js",
     "nutrition:candidates": "node scripts/nutrition-candidate-extractor.js",
     "nutrition:manufacturer-plan": "node scripts/manufacturer-source-collector.js",
     "nutrition:ocr-plan": "node scripts/nutrition-ocr-canary.js --dry-plan",

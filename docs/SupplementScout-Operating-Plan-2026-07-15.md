@@ -779,6 +779,19 @@ approved—by the existing guarded importer. eBay price/stock scheduling must
 reuse the existing retailer-offer-sync framework and remains a separate
 reviewed production enablement; it must not become a second importer.
 
+The owner subsequently approved the sole exact-36 eBay candidate. Guarded
+Batch E run `31963949261` created exactly mapping `2743` and offer `2558` for
+product `1107` / variant `2401`; immediate importer postflight was a no-op and
+the public product page and affiliate redirect were live verified at GBP 19.95
+delivered. A thin exact-one eBay refresh adapter was then built on the existing
+importer approval/apply RPCs. It directly reads only the approved REST item ID,
+revalidates full identity and seller evidence, blocks automatic OOS on absence,
+allows bounded volatile offer fields only, and uses the existing verified
+no-change plan to keep `last_checked_at` current without false price history.
+Its first live local production dry-run passed with zero writes. GitHub
+read-only preflight and one guarded manual apply remain the activation gate
+before the daily schedule is treated as enabled.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

@@ -1800,6 +1800,23 @@ rollback and explicit approval.
   19.95 delivered, affiliate-ready and with no blockers. Database writes and
   catalogue changes remained zero. Every `REVIEW`/`REJECT` row remains blocked
   from the importer.
+- `BATCH E LIVE VERIFIED 1/1`: the owner approved exactly product `1107`,
+  variant `2401`, GTIN `5902114017811`, eBay item `204137434720`. Existing
+  importer artifact fingerprint
+  `413450efe289f4a6669961d25e7ec274b1d1e054414600baa32b7416a86ee956`
+  produced one create plan and zero blockers. Protected GitHub run
+  `31963949261` created mapping `2743` and offer `2558`; its fresh postflight
+  returned the exact plan as a no-op. Public readback shows eBay UK, GBP 19.95
+  delivered and `/go/2558` redirecting to the approved Campaign-ID URL.
+- `EBAY REFRESH PILOT BUILT — EXACT ONE`: the existing importer approval/apply
+  path now has a thin eBay Browse source adapter for offer `2558`; it is not a
+  second importer. Every run directly reads the sealed REST item ID, rechecks
+  GTIN, brand, 400 g, Unflavoured, powder, condition, seller and UK delivered
+  price, then permits only a bounded existing-offer update or the established
+  `verify_offer_no_change` timestamp operation. Product, variant, mapping,
+  affiliate URL and identity writes are blocked; a missing listing blocks the
+  run rather than automatically marking OOS. Local live production dry-run
+  passed at GBP 19.95 delivered with `verify_no_change` and zero writes.
 - `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
@@ -1820,13 +1837,12 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner review exactly one AUTO_ELIGIBLE eBay candidate: product
-1107 / variant 2401 / item 204137434720. If approved, build its immutable
-one-row artifact through the existing importer, validate, apply and live-verify
-it. In parallel, design eBay price/stock refresh by reusing the existing
-retailer-offer-sync framework for already approved eBay mappings; do not enable
-scheduled production writes before its separate guarded review. All REVIEW,
-REJECT and GTIN-conflict rows remain blocked.`
+`NEXT ACTION: Commit and run the eBay exact-one refresh workflow in read-only
+mode. If GitHub has the required eBay client credentials and the dry-run passes,
+run one manual guarded apply plus a fresh no-op verification; only then retain
+the daily schedule for offer 2558. Expand the same manifest to other already
+approved eBay offers in reviewed batches, without creating another importer.
+All REVIEW, REJECT and GTIN-conflict rows remain blocked.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
