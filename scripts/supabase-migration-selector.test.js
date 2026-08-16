@@ -149,14 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Critical Cookie and selects one exact pending exact-36 extension", () => {
+test("production records Critical Cookie and exact-36 with no pending migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(contract.pending.length, 1);
-  assert.equal(contract.pending[0].filename, "20260816173000_extend_guarded_gtin_promotion_exact_36.sql");
-  assert.equal(contract.ledgerCount, 112);
+  assert.equal(contract.pending.length, 0);
+  assert.equal(contract.ledgerCount, 113);
   assert.equal(
     contract.ledgerFingerprint,
-    "642219ab49b5a8fed4564d7d488dca833baa0f74f09a40ef3770f2a9e8d1230f",
+    "000c4464c63fbfded955d8ca1a4a29b75e122fe277e34be33b30a5a6ddbaaed4",
   );
 });
 
@@ -233,7 +232,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after Critical Cookie and selects only exact-36", () => {
+test("production binds its exact ledger after exact-36 with nothing pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -259,13 +258,13 @@ test("production binds its exact ledger after Critical Cookie and selects only e
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 112);
+  assert.equal(result.ledger_count, 113);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260816173000_extend_guarded_gtin_promotion_exact_36"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 113);
-  assert.deepEqual(result.pending_files, ["20260816173000_extend_guarded_gtin_promotion_exact_36.sql"]);
-  assert.equal(result.pending_file, "20260816173000_extend_guarded_gtin_promotion_exact_36.sql");
-  assert.equal(result.pending_sha256, contract.pending[0].sha256);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and exact-36 is selected rather than excluded", () => {

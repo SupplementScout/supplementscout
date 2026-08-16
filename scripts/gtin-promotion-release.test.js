@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const { APPROVED_IDENTITIES } = require("./gtin-promotion-operation");
-const { EXACT36_MIGRATION, EXACT36_MIGRATION_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, exactRowDiff, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
+const { MIGRATION, QUARANTINED_GTINS, exactRowDiff, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
 const { CONTRACTS } = require("./supabase-migration-selector");
 
 test("release accepts only production and exact owner confirmation", () => {
@@ -11,13 +11,6 @@ test("release accepts only production and exact owner confirmation", () => {
   assert.equal(parsed.mode, "deploy");
   assert.throws(() => parseArgs(["--mode=deploy", "--target=production", "--env-file=tmp/owner.env", "--confirm=WRONG"]), /OWNER_APPROVED_EXACT_45/);
   assert.throws(() => parseArgs(["--mode=deploy", "--target=staging", "--env-file=tmp/owner.env", "--confirm=OWNER_APPROVED_EXACT_45"]), /target=production/);
-});
-
-test("exact-36 migration deployment has a separate confirmation and no apply mode", () => {
-  const parsed = parseArgs(["--mode=exact36-deploy", "--target=production", "--env-file=tmp/owner.env", `--confirm=${EXACT36_MIGRATION_CONFIRMATION}`]);
-  assert.equal(parsed.mode, "exact36-deploy");
-  assert.equal(EXACT36_MIGRATION, "20260816173000_extend_guarded_gtin_promotion_exact_36.sql");
-  assert.throws(() => parseArgs(["--mode=exact36-deploy", "--target=production", "--env-file=tmp/owner.env", "--confirm=OWNER_APPROVED_EXACT_36"]), /OWNER_APPROVED_EXACT_36_MIGRATION/);
 });
 
 test("release contract is exactly 45 writes and 16 quarantined conflicts", () => {
@@ -37,13 +30,11 @@ test("post-write fingerprint changes only the exact approved variant destination
   assert.equal(summary.retailer_products_count, 1);
 });
 
-test("deployed exact-45 migration remains frozen while the selector advances to exact-36", () => {
+test("deployed GTIN migrations remain frozen with no pending schema work", () => {
   const pending = CONTRACTS.PRODUCTION.pending;
-  assert.equal(pending.length, 1);
-  assert.notEqual(pending[0].filename, MIGRATION);
-  assert.equal(pending[0].filename, EXACT36_MIGRATION);
+  assert.equal(pending.length, 0);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
-  assert.deepEqual(pending[0].expectedCatalogueDeltas, { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 });
+  assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
 });
 
 test("failed verification reports exact changed rows", () => {

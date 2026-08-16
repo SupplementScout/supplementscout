@@ -737,6 +737,19 @@ Migration deployed: no. Production writes: 0. The binding next action is a
 separate owner review/authorization of migration deployment; the later atomic
 36-row apply remains a different explicit decision.
 
+The owner separately authorized migration deployment. Manual workflow run
+`31960257039` on commit `66a066809d592ba8463afa5a9c53959c1835feca`
+passed the full gate and PostgreSQL integration, skipped every artifact,
+validate, GTIN apply and post-write step, and deployed only the exact-36 schema
+migration. Independent production readback confirmed ledger count 113,
+fingerprint
+`000c4464c63fbfded955d8ca1a4a29b75e122fe277e34be33b30a5a6ddbaaed4`,
+all exact-36/dispatcher functions present, 36/36 target variant GTIN fields
+still null, zero approved GTINs assigned and zero exact-36 approval rows. The
+one-time deployment option is removed from the current workflow and production
+has no pending migration. The binding next action is a fresh exact-36 artifact
+and guarded validate-only owner review; apply remains a separate decision.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

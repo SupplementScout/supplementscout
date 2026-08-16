@@ -17,22 +17,9 @@ test("default operation is manual, main-only and non-writing", () => {
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_45'/);
   assert.match(workflow, /inputs\.operation == 'preflight_exact_36' && inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36'/);
-  assert.match(workflow, /inputs\.operation == 'deploy_exact_36_migration' && inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36_MIGRATION'/);
   assert.match(workflow, /default: preflight/);
-  assert.match(workflow, /options: \[preflight, preflight_exact_36, deploy_exact_36_migration, validate, apply, release_exact_45\]/);
+  assert.match(workflow, /options: \[preflight, preflight_exact_36, validate, apply, release_exact_45\]/);
   assert.match(workflow, /permissions:\s*\n\s*contents: read/);
-});
-
-test("exact-36 migration operation deploys schema only and cannot reach GTIN apply", () => {
-  const preflight = position("Exact-36 migration preflight");
-  const deploy = position("Deploy exact-36 migration only");
-  const verify = position("Verify exact-36 migration deployment");
-  assert.ok(preflight < deploy && deploy < verify);
-  assert.match(workflow, /--mode=exact36-deploy[^\n]*--confirm=OWNER_APPROVED_EXACT_36_MIGRATION/);
-  assert.match(workflow, /Production preflight[^\n]*build fresh exact artifact[\s\S]*?if: \$\{\{ inputs\.operation != 'deploy_exact_36_migration' \}\}/);
-  assert.match(workflow, /Validate exact 45 after migration\s*\n\s*if: \$\{\{ inputs\.operation != 'deploy_exact_36_migration' \}\}/);
-  assert.doesNotMatch(workflow, /--mode=apply[^\n]*OWNER_APPROVED_EXACT_36/);
-  assert.doesNotMatch(workflow, /release_exact_36/);
 });
 
 test("preflight failure stops migration and has no production secrets", () => {

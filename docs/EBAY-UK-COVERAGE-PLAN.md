@@ -1753,6 +1753,21 @@ rollback and explicit approval.
   contract suite and disposable PostgreSQL integration test all passed. The
   `production` job was skipped, so migration deployment and production writes
   remained zero.
+- `EXACT-36 MIGRATION LIVE VERIFIED — APPLY STILL BLOCKED`: after separate
+  owner authorization, manual workflow run `31960257039` on commit
+  `66a066809d592ba8463afa5a9c53959c1835feca` passed the full quality gate,
+  exact contract suite and disposable PostgreSQL integration test. Its
+  production job skipped artifact creation, GTIN validation, GTIN apply and
+  post-write verification, then passed exact-36 migration preflight, deployed
+  only `20260816173000_extend_guarded_gtin_promotion_exact_36.sql` and verified
+  the schema. Independent production readback returned migration ledger 113,
+  fingerprint
+  `000c4464c63fbfded955d8ca1a4a29b75e122fe277e34be33b30a5a6ddbaaed4`,
+  the exact-36 migration as the final ledger row and all four exact/dispatcher
+  functions present. All 36 target `product_variants.gtin` fields remain null,
+  none of the 36 approved GTINs is assigned and the exact-36 approval count is
+  zero. The one-time migration operation was removed from the current workflow
+  after verification and the selector now has no pending production migration.
 - `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
@@ -1773,9 +1788,9 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Separately review and authorize deployment of the exact-36
-migration. Keep apply blocked; migration deployment and the later atomic 36-row
-apply remain separate owner decisions. The six REVIEW and eight CONFLICT rows
+`NEXT ACTION: Prepare a fresh exact-36 production artifact and guarded
+validate-only run for owner review. Do not apply. The later atomic 36-row apply
+remains a separate owner decision. The six REVIEW and eight CONFLICT rows
 remain outside scope.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
