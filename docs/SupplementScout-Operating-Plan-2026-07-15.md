@@ -729,10 +729,13 @@ the non-writing `preflight_exact_36` option; it cannot enter the production job
 and no `release_exact_36` option exists. The migration is hash-bound and
 explicitly excluded from staging and production selectors, so an unrelated
 deployment cannot pick it up. Migration deployed: no. Production writes: 0.
-Local focused/static gates pass; the disposable PostgreSQL integration remains
-`PENDING PREFLIGHT` because Docker was unavailable locally. The binding next
-action is review/commit followed by only `preflight_exact_36`; deployment and
-apply require a separate owner decision after that preflight passes.
+Local focused/static gates passed. Manual GitHub Actions run `31959277752` on
+commit `051a5129280c7174fb5f3d70aaa8db872e202677` then completed
+`preflight_exact_36`: the full quality gate, exact contracts and disposable
+PostgreSQL integration test passed, while the `production` job was skipped.
+Migration deployed: no. Production writes: 0. The binding next action is a
+separate owner review/authorization of migration deployment; the later atomic
+36-row apply remains a different explicit decision.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

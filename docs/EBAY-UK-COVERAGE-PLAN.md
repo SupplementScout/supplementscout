@@ -1747,9 +1747,12 @@ rollback and explicit approval.
   `release_exact_36` option. The new migration is hash-bound and explicitly
   excluded from both staging and production deployment selectors pending a
   separate review/deployment decision. Production writes remain 0 and the
-  migration is not deployed. Static/focused tests pass; the disposable
-  PostgreSQL integration test is `PENDING PREFLIGHT` because Docker was not
-  available locally.
+  migration is not deployed. Static/focused tests pass. Manual GitHub Actions
+  run `31959277752` then ran `preflight_exact_36` on commit
+  `051a5129280c7174fb5f3d70aaa8db872e202677`: the full quality gate, exact
+  contract suite and disposable PostgreSQL integration test all passed. The
+  `production` job was skipped, so migration deployment and production writes
+  remained zero.
 - `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
@@ -1770,11 +1773,10 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Review and commit the exact-36 guarded extension, then run only
-the non-writing preflight_exact_36 workflow. Keep the migration excluded from
-deployment and keep apply blocked until the PostgreSQL integration preflight
-passes and the owner separately authorizes deployment. The six REVIEW and
-eight CONFLICT rows remain outside scope.`
+`NEXT ACTION: Separately review and authorize deployment of the exact-36
+migration. Keep apply blocked; migration deployment and the later atomic 36-row
+apply remain separate owner decisions. The six REVIEW and eight CONFLICT rows
+remain outside scope.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
