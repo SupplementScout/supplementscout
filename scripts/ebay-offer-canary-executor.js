@@ -6,12 +6,11 @@ const { loadDryRunArtifact } = require("./import-products");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const KIND = "ebay-offer-batch-d-exact-2-v1";
-const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_D_EXACT_2";
-const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-d-rollout.json");
+const KIND = "ebay-offer-batch-e-exact-1-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_E_EXACT_1";
+const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-e-rollout.json");
 const EXPECTED_SCOPE = [
-  { product_id: "56", product_variant_id: "1006", gtin: "5060292834924", external_product_id: "202053708757", external_variant_id: "v1|202053708757|0", flavour: "blazin berry", size_value: "392", size_unit: "g", pack_count: "1", product_format: "powder", price: "13.99", shipping_cost: "0", total_price: "13.99" },
-  { product_id: "482", product_variant_id: "1022", gtin: "799439669956", external_product_id: "227339481787", external_variant_id: "v1|227339481787|526541736171", flavour: "pina colada", size_value: "250", size_unit: "g", pack_count: "1", product_format: "powder", price: "25.79", shipping_cost: "3.99", total_price: "29.78" },
+  { product_id: "1107", product_variant_id: "2401", gtin: "5902114017811", external_product_id: "204137434720", external_variant_id: "v1|204137434720|0", flavour: "unflavoured", size_value: "400", size_unit: "g", pack_count: "1", product_format: "powder", price: "19.95", shipping_cost: "0", total_price: "19.95" },
 ];
 
 function fail(message) { throw new Error(message); }

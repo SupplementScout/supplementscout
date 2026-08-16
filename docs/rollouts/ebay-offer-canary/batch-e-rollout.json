@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-e-exact-1-v1",
+  "approved": true,
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_E_EXACT_1",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-e.csv",
+  "csv_sha256": "b500f94370744ec1675c900d9b743329ff8f0a4ad33d93a8e1ae566d57a6ca55",
+  "artifact": "docs/rollouts/ebay-offer-canary/batch-e-artifact.json",
+  "artifact_sha256": "05cfde8a401b00516f9d58d33e2a5c417a5d114a4c7dfcbdd8490b25742b3c85",
+  "entries": [
+    { "plan_fingerprint": "3864ca073246d2517fa11f4417c92167", "source_row_fingerprint": "34f9f29ff271204daa9d908063a4b6c7b60e6203675dce9ff4c6f2a82bff8fec", "product_id": "1107", "product_variant_id": "2401", "gtin": "5902114017811", "external_product_id": "204137434720", "external_variant_id": "v1|204137434720|0", "flavour": "unflavoured", "size_value": "400", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "19.95", "shipping_cost": "0", "total_price": "19.95" }
+  ],
+  "rollout_fingerprint": "413450efe289f4a6669961d25e7ec274b1d1e054414600baa32b7416a86ee956"
+}

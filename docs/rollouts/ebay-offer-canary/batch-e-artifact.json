@@ -1,0 +1,163 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-16T18:07:00.488Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "3864ca073246d2517fa11f4417c92167",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1107",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trec Nutrition Creatine Monohydrate + Taurine 400g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 400g",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "2401",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "1107",
+            "size_unit": "g",
+            "size_value": "400",
+            "variant_key": "unflavoured-400g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "3864ca073246d2517fa11f4417c92167",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "34f9f29ff271204daa9d908063a4b6c7b60e6203675dce9ff4c6f2a82bff8fec",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-16T18:07:00.480Z",
+            "price": "19.95",
+            "shipping_cost": "0",
+            "total_price": "19.95",
+            "url": "https://www.ebay.co.uk/itm/204137434720?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1107"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "400g"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "400"
+          },
+          "id": "2401"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5902114017811",
+            "external_name": "Trec Nutrition Creatine Monohydrate + Taurine 400g",
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "400g"
+            },
+            "external_product_id": "204137434720",
+            "external_sku": null,
+            "external_slug": "ebay-204137434720",
+            "external_url": "https://www.ebay.co.uk/itm/204137434720",
+            "external_variant_id": "v1|204137434720|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2401"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "34f9f29ff271204daa9d908063a4b6c7b60e6203675dce9ff4c6f2a82bff8fec"
+    }
+  ],
+  "row_count": "1",
+  "run_id": "e3464be6-a3b7-43cf-b37f-da388fc28d99",
+  "source_file_name": "batch-e.csv",
+  "source_file_sha256": "b500f94370744ec1675c900d9b743329ff8f0a4ad33d93a8e1ae566d57a6ca55",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/204137434720?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trec Nutrition",
+        "category": "Creatine",
+        "external_gtin": "5902114017811",
+        "external_options": "{\"Size\":\"400g\",\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "204137434720",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/204137434720",
+        "external_variant_id": "v1|204137434720|0",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/NNsAAOSw-U5iBqLf/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.95",
+        "product_format": "powder",
+        "product_id": "1107",
+        "product_name": "Trec Nutrition Creatine Monohydrate + Taurine 400g",
+        "product_variant_id": "2401",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0",
+        "shipping_known": "true",
+        "size": "400g",
+        "size_unit": "g",
+        "slug": "ebay-204137434720",
+        "variant_name": "Unflavoured / 400g"
+      },
+      "plan_fingerprint": "3864ca073246d2517fa11f4417c92167",
+      "row_number": "2",
+      "source_row_fingerprint": "34f9f29ff271204daa9d908063a4b6c7b60e6203675dce9ff4c6f2a82bff8fec",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "1",
+    "skipped_row_count": "0"
+  }
+}
