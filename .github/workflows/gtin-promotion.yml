@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Test only, validate production, or release the exact owner-approved 45
+        description: Test only, validate production, or release an explicitly supported owner-approved scope
         required: true
         default: preflight
         type: choice
-        options: [preflight, validate, apply, release_exact_45]
+        options: [preflight, preflight_exact_36, validate, apply, release_exact_45]
       owner_confirmation:
-        description: Type OWNER_APPROVED_EXACT_45
+        description: Type OWNER_APPROVED_EXACT_45, or OWNER_APPROVED_EXACT_36 for preflight_exact_36
         required: true
         type: string
 
@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   integration:
-    if: ${{ github.ref == 'refs/heads/main' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_45' }}
+    if: ${{ github.ref == 'refs/heads/main' && ((inputs.operation == 'preflight_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36') || (inputs.operation != 'preflight_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_45')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -46,7 +46,7 @@ jobs:
 
   production:
     needs: integration
-    if: ${{ inputs.operation != 'preflight' }}
+    if: ${{ inputs.operation != 'preflight' && inputs.operation != 'preflight_exact_36' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production-readonly

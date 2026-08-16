@@ -5,6 +5,8 @@ const test = require("node:test");
 
 const migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260813170000_add_guarded_gtin_promotion.sql"), "utf8");
 const rollback = fs.readFileSync(path.resolve(__dirname, "../supabase/rollbacks/20260813170000_add_guarded_gtin_promotion.sql"), "utf8");
+const exact36Migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260816173000_extend_guarded_gtin_promotion_exact_36.sql"), "utf8");
+const exact36Rollback = fs.readFileSync(path.resolve(__dirname, "../supabase/rollbacks/20260816173000_extend_guarded_gtin_promotion_exact_36.sql"), "utf8");
 
 test("migration reuses the approval ledger and keeps GTIN promotion role-separated", () => {
   assert.match(migration, /^begin;/i);
@@ -54,4 +56,37 @@ test("rollback refuses to erase an applied or audited promotion", () => {
   assert.match(rollback, /refusing GTIN promotion rollback while canonical variant GTINs exist/);
   assert.match(rollback, /commit;\s*$/i);
   assert.doesNotMatch(rollback, /drop\s+table[^;]*public\.(?:offers|retailer_products|products|product_variants)\b/i);
+});
+
+test("exact-36 extension reuses the guarded operation and cannot widen its owner scope", () => {
+  assert.match(exact36Migration, /^begin;/i);
+  assert.match(exact36Migration, /rename to validate_gtin_promotion_plan_exact_45_read_only/);
+  assert.match(exact36Migration, /rename to apply_approved_gtin_promotion_plan_exact_45/);
+  assert.match(exact36Migration, /jsonb_array_length\(p_plan->'rows'\)<>36/);
+  assert.match(exact36Migration, /scope_fingerprint}'<>'415142d4ba069103441a908bba4a15c3de73a828b9b7896a8556e29f32a97c02'/);
+  assert.equal((exact36Migration.match(/\('[0-9]+','[0-9]+','[0-9]+'\)/g) || []).length, 36);
+  assert.match(exact36Migration, /outside exact-36 owner allowlist/);
+  assert.match(exact36Migration, /gtin_promotion_is_valid_gtin/);
+  assert.match(exact36Migration, /gtin_promotion_quarantine/);
+  assert.match(exact36Migration, /destination_field'<>'product_variants\.gtin'/);
+  assert.match(exact36Migration, /expected_current_gtin'<>'null'::jsonb/);
+  assert.match(exact36Migration, /is distinct from v_product_id or rp\.product_variant_id is distinct from v_variant_id/);
+  assert.doesNotMatch(exact36Migration, /update\s+public\.(?:products|offers|retailer_products)/i);
+  assert.match(exact36Migration, /update public\.product_variants set gtin=/);
+  assert.match(exact36Migration, /if v_count<>36/);
+  assert.match(exact36Migration, /pg_advisory_xact_lock/);
+  assert.match(exact36Migration, /set status='consumed',consumed_at=now\(\),apply_result=v_result/);
+  assert.doesNotMatch(exact36Migration, /grant execute[^;]+to (?:public|anon|authenticated|service_role)/i);
+  assert.match(exact36Migration, /commit;\s*$/i);
+});
+
+test("exact-36 rollback removes only the extension and restores the exact-45 public operation", () => {
+  assert.match(exact36Rollback, /^begin;/i);
+  assert.match(exact36Rollback, /refusing exact-36 GTIN promotion rollback while approval audit rows exist/);
+  assert.match(exact36Rollback, /drop function public\.apply_approved_gtin_promotion_plan_exact_36/);
+  assert.match(exact36Rollback, /drop function public\.validate_gtin_promotion_plan_exact_36_read_only/);
+  assert.match(exact36Rollback, /rename to validate_gtin_promotion_plan_read_only/);
+  assert.match(exact36Rollback, /rename to apply_approved_gtin_promotion_plan/);
+  assert.doesNotMatch(exact36Rollback, /delete from|update\s+public\.(?:products|product_variants|offers|retailer_products)|drop\s+table/i);
+  assert.match(exact36Rollback, /commit;\s*$/i);
 });

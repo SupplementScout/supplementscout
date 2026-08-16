@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
-const { APPROVED_IDENTITIES, buildArtifact } = require("./gtin-promotion-operation");
+const { SCOPE_CONFIGS, buildArtifact } = require("./gtin-promotion-operation");
 
 const ROOT = path.resolve(__dirname, "..");
 const IMAGE = "postgres:17-alpine";
@@ -14,9 +14,10 @@ const MIGRATIONS = [
   "20260713180000_atomic_product_import_rpc.sql",
   "20260713190000_approved_import_plan_ledger.sql",
   "20260813170000_add_guarded_gtin_promotion.sql",
+  "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
 ].map((file) => path.join(ROOT, "supabase", "migrations", file));
 const STAGE2_SETUP = path.join(ROOT, "supabase", "test", "product_variants_stage2_migration_test.sql");
-const ROLLBACK = path.join(ROOT, "supabase", "rollbacks", "20260813170000_add_guarded_gtin_promotion.sql");
+const ROLLBACK = path.join(ROOT, "supabase", "rollbacks", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql");
 
 function run(command, args, timeout = 120000) { return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout }); }
 function output(result) { return `${result.stdout || ""}\n${result.stderr || ""}`; }
@@ -47,18 +48,19 @@ function wait(container) {
 function sqlLiteral(value) { return `'${String(value).replaceAll("'", "''")}'`; }
 
 function fixture() {
+  const scope = SCOPE_CONFIGS["owner-reviewed-36"];
   const productMap = new Map();
   const variants = [];
   const rows = [];
-  for (let index = 1; index <= APPROVED_IDENTITIES.length; index += 1) {
-    const { product_id: productId, variant_id: variantId, gtin } = APPROVED_IDENTITIES[index - 1];
+  for (let index = 1; index <= scope.identities.length; index += 1) {
+    const { product_id: productId, variant_id: variantId, gtin } = scope.identities[index - 1];
     if (!productMap.has(productId)) productMap.set(productId, { id: productId, name: `GTIN Product ${productId}`, brand: "Integration Brand", product_format: "powder", gtin: null, is_active: true, merged_into_product_id: null });
     variants.push({ id: variantId, product_id: productId, display_name: `Flavour ${index} / 300g`, flavour_code: `flavour-${index}`, flavour_label: `Flavour ${index}`, size_value: 300, size_unit: "g", pack_count: 1, product_format: "powder", gtin: null, is_active: true, is_default: false });
     rows.push({ product_id: productId, variant_id: variantId, gtin, destination_field: "product_variants.gtin", current_value: null, proposed_value: gtin, evidence_count: 2, evidence_sources: ["fixture:a", "fixture:b"], blockers: [], decision: "READY_TO_PROMOTE", candidate_source: "INTEGRATION", candidate_fingerprint: crypto.createHash("sha256").update(`candidate:${index}`).digest("hex") });
   }
   const products = [...productMap.values()];
   const preview = { rows, preview_fingerprint: "a".repeat(64), canonical_snapshot_fingerprint: "b".repeat(64) };
-  return { products, variants, artifact: buildArtifact(preview, products, variants, { createdAt: "2099-01-01T00:00:00.000Z", expiresAt: "2099-01-01T00:15:00.000Z", runId: "gtin-postgres-integration" }) };
+  return { products, variants, artifact: buildArtifact(preview, products, variants, { scope: "owner-reviewed-36", createdAt: "2099-01-01T00:00:00.000Z", expiresAt: "2099-01-01T00:15:00.000Z", runId: "gtin-postgres-integration" }) };
 }
 
 const dockerIsAvailable = dockerAvailable();
@@ -92,6 +94,7 @@ test("guarded GTIN promotion runs atomically on disposable PostgreSQL", { skip: 
     success(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", `insert into public.products(id,name,slug,brand,category,is_active) values ${quarantineProducts}; insert into public.product_variants(id,product_id,variant_key,display_name,is_active,is_default) values ${quarantineVariants}; insert into public.products(id,name,slug,brand,category,product_format,is_active) values ${targetProducts}; insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default) values ${targetVariants};`]), "seed GTIN fixtures");
     success(psqlFile(container, database, MIGRATIONS[4]), "GTIN promotion migration");
     success(psqlFile(container, database, MIGRATIONS[4]), "GTIN promotion migration rerun");
+    success(psqlFile(container, database, MIGRATIONS[5]), "exact-36 GTIN promotion extension");
 
     const plan = sqlLiteral(JSON.stringify(artifact.plan));
     const scenario = `\\set ON_ERROR_STOP on
@@ -102,7 +105,7 @@ declare
   v_id uuid;
   v_result jsonb;
 begin
-  if (public.validate_gtin_promotion_plan_read_only(v_plan)->>'row_count') <> '45' then raise exception 'validation count'; end if;
+  if (public.validate_gtin_promotion_plan_read_only(v_plan)->>'row_count') <> '36' then raise exception 'validation count'; end if;
   v_approval := public.approve_gtin_promotion_plan(v_plan,repeat('c',64),'gtin-postgres-integration','integration',now()+interval '15 minutes');
   v_id := (v_approval->>'approval_id')::uuid;
   perform set_config('app.gtin_promotion_test_failpoint','after_first_row',true);
@@ -116,9 +119,9 @@ begin
   if exists(select 1 from public.product_variants where id in (${targetVariantIds}) and gtin is not null) then raise exception 'partial write escaped rollback'; end if;
   if (select status from public.approved_import_plans where id=v_id) <> 'approved' then raise exception 'failed apply consumed approval'; end if;
   v_result := public.apply_approved_gtin_promotion_plan(v_id,repeat('c',64),v_plan#>>'{meta,plan_fingerprint}',v_plan#>>'{meta,source_row_fingerprint}','gtin-postgres-integration');
-  if v_result->>'status'<>'APPLIED' or v_result->>'applied_count'<>'45' then raise exception 'apply result'; end if;
-  if (select count(*) from public.product_variants where id in (${targetVariantIds}) and gtin is not null)<>45 then raise exception 'write count'; end if;
-  if (select apply_result->>'applied_count' from public.approved_import_plans where id=v_id)<>'45' then raise exception 'audit result'; end if;
+  if v_result->>'status'<>'APPLIED' or v_result->>'applied_count'<>'36' then raise exception 'apply result'; end if;
+  if (select count(*) from public.product_variants where id in (${targetVariantIds}) and gtin is not null)<>36 then raise exception 'write count'; end if;
+  if (select apply_result->>'applied_count' from public.approved_import_plans where id=v_id)<>'36' then raise exception 'audit result'; end if;
   begin
     perform public.apply_approved_gtin_promotion_plan(v_id,repeat('c',64),v_plan#>>'{meta,plan_fingerprint}',v_plan#>>'{meta,source_row_fingerprint}','gtin-postgres-integration');
     raise exception 'expected replay rejection';
@@ -142,7 +145,7 @@ $acl$;`;
     success(psqlFile(container, database, tempFile), "GTIN promotion scenarios");
     const rollbackResult = psqlFile(container, database, ROLLBACK);
     assert.notEqual(rollbackResult.status, 0);
-    assert.match(output(rollbackResult), /refusing GTIN promotion rollback while approval audit rows exist/);
+    assert.match(output(rollbackResult), /refusing exact-36 GTIN promotion rollback while approval audit rows exist/);
   } catch (error) {
     primaryError = error;
   } finally {

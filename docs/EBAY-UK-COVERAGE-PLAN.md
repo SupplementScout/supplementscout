@@ -3,7 +3,7 @@
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
 **Status:** CONTROLLED 19-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2)
-**Last verified:** 15 August 2026
+**Last verified:** 16 August 2026
 **Production writes:** 19 owner-approved canary plans (1 retailer, 19 mappings, 19 offers, 19 price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 19 live eBay offers
 
@@ -1675,6 +1675,81 @@ rollback and explicit approval.
   external-GTIN identities. All 339 were already checked by exact GTIN, and all
   137 relevant products missed by that search were already checked by title.
   No new unseen identity remains in the current catalogue.
+- `MISSING-GTIN PRIORITY AUDIT COMPLETE`: a fresh SELECT-only production audit
+  checked 2,641 variant rows and found 904 active variant identities across
+  406 distinct products that have exactly one fresh non-eBay retailer, no eBay
+  mapping and no valid canonical or retailer GTIN. The bounded priority cohort
+  contains exactly 50 distinct products: 13 Creatine, 20 Whey Protein and 17
+  Vitamins; their current source retailers are 25 Six Pack Supplements, 20
+  Jon's Supplements and five Discount Supplements. Ten rows with an internal
+  weight conflict were excluded before ranking. This cohort is new barcode-
+  recovery work, not a repeat of the 339 already-searched GTIN identities.
+  Audit fingerprint:
+  `7c096b18452a4117e48758364e00a39ee4ab2c0a35fbdc94ff28f0fd1ab34498`.
+  Production writes, eBay calls and canonical changes remained zero.
+- `READ-ONLY GTIN CONFIRMATION COMPLETE`: the exact 50-product cohort was
+  checked against its current retailer source and a second independent source,
+  with checksum, pack, flavour, format, canonical collision and documented
+  quarantine gates retained. Result: 36 `CONFIRMED`, 6 `REVIEW`, 8 `CONFLICT`
+  and 0 `NOT_FOUND`; confirmation rate 72%. No GTIN was written and no eBay
+  call was made. The exact confirmed and blocked scopes are recorded under
+  `Last verified`; they are not authority for a production write.
+- `OWNER REVIEW COMPLETE — EXACT 36`: after explicit owner authorization, a
+  fresh production readback re-ran the existing promotion planner plus
+  checksum, canonical destination, retailer-mapping collision, quarantine and
+  identity-drift checks for exactly the 36 confirmed rows. Result: 36
+  `APPROVE_CANDIDATE`, 0 `OWNER_CHECK_REQUIRED`; all 36 destinations are
+  `product_variants.gtin`, all current destination values remain empty, so the
+  future guarded operation would contain 36 writes and 0 no-ops. Review
+  fingerprint: `e5f6a0fbaefad881c713cb138c626282396a98794fdb53bca5b508fdbbc2d619`.
+  This completed review made zero database writes and is not apply authority.
+- `GUARDED DRY-RUN COMPLETE — EXACT 36`: after separate owner authorization,
+  the existing `gtin-promotion-dry-run` received a fail-closed
+  `owner-reviewed-36` scope. Its code-bound allowlist must exactly match the
+  documented 36 identities; it also checks current canonical state, checksum,
+  destination, documented quarantine and foreign retailer-mapping collisions.
+  Fresh production preview: 36 `READY_TO_PROMOTE`, 0 `ALREADY_PRESENT`, 0
+  `MANUAL_REVIEW`, 0 `BLOCKED`; 36 empty `product_variants.gtin` destinations.
+  Owner-scope fingerprint:
+  `415142d4ba069103441a908bba4a15c3de73a828b9b7896a8556e29f32a97c02`;
+  preview fingerprint:
+  `141b60e898ec1eb41a5482d1c481f19d4064867091c3917a99ab0934efe141e8`;
+  local immutable preview SHA-256:
+  `5c058fcd9883c3cee5f9eefb1a5420fc91bdd8392f3822b5b4b8c956a82a2d92`.
+  The preview explicitly has `write_enabled=false` and
+  `safe_update_enabled=false`; database writes, migrations, approvals, apply
+  and eBay calls remained zero.
+- `EXACT-36 ARTIFACT CONTRACT BUILT LOCALLY`: the existing
+  `gtin:promotion` operation now accepts the same closed
+  `owner-reviewed-36` scope in plan mode and creates the normal immutable plan
+  envelope with exact expected product/variant state, row fingerprints, plan
+  fingerprint and SHA-256 sidecar. Fresh artifact SHA-256:
+  `b1b8996d1555ed0dbf48f952ef1c75a7cefd4cdfb78e052516eb5ff0042f26c1`;
+  plan fingerprint: `98af96f0c6d1533495b828781a69a771`; rows: 36. The
+  completed exact-45 constants and workflow remain unchanged. Exact-36
+  protected `validate` and `apply` fail closed until a separately reviewed
+  database migration is deployed; the current workflow exposes no exact-36
+  release option. This prevents the local design from becoming accidental
+  write authority.
+- `EXACT-36 GUARDED EXTENSION BUILT LOCALLY — NOT DEPLOYED`: one narrow
+  migration extends the existing validator, approval ledger and atomic RPC;
+  it does not create a second importer. The database allowlist contains
+  exactly the 36 owner-reviewed product/variant/GTIN tuples, accepts only
+  `product_variants.gtin`, requires an empty current destination and rechecks
+  checksum, quarantine, canonical snapshot, retailer-mapping collisions,
+  duplicate GTINs, immutable fingerprints and approval metadata under row
+  locks. Apply must update exactly 36 rows in one transaction or rolls back all
+  rows, consumes the existing approval audit record and blocks replay. The
+  rollback refuses to remove the extension while an exact-36 approval audit
+  exists. The existing GitHub workflow now exposes only
+  `preflight_exact_36`; that option runs tests without production secrets and
+  is explicitly barred from the production job. There is no
+  `release_exact_36` option. The new migration is hash-bound and explicitly
+  excluded from both staging and production deployment selectors pending a
+  separate review/deployment decision. Production writes remain 0 and the
+  migration is not deployed. Static/focused tests pass; the disposable
+  PostgreSQL integration test is `PENDING PREFLIGHT` because Docker was not
+  available locally.
 - `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
@@ -1695,13 +1770,110 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Monitor the exact 19 live eBay offers read-only. Do not repeat the exhausted discovery pool; rebuild discovery only after the canonical catalogue gains new eligible one-retailer identities.`
+`NEXT ACTION: Review and commit the exact-36 guarded extension, then run only
+the non-writing preflight_exact_36 workflow. Keep the migration excluded from
+deployment and keep apply blocked until the PostgreSQL integration preflight
+passes and the owner separately authorizes deployment. The six REVIEW and
+eight CONFLICT rows remain outside scope.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
 owner-reviewed production design and approval.
 
 ## Last verified
+
+16 August 2026:
+
+- Extended only the existing artifact builder—not the importer—with an exact
+  owner-reviewed-36 configuration. A fresh production plan built 36 rows and
+  zero writes, and immutable artifact validation passed. Local protected modes
+  are explicitly blocked before reading an artifact unless a future reviewed
+  schema-ready gate is enabled; GitHub Actions still exposes only the completed
+  exact-45 contract. Focused promotion/workflow tests now pass 32/32.
+- Generated the explicitly authorized guarded production dry-run for exactly
+  the owner-reviewed 36 rows. The exact allowlist matched documentation and
+  returned 36 `READY_TO_PROMOTE`, 0 no-ops, 0 review, 0 blocked, 36 variant
+  destinations, 36 empty current values and zero writes. The scope is separate
+  from the dynamic catalogue-wide AUTO_SAFE count, which is now 33 and does
+  not widen this batch. Focused tests passed 17/17; the combined promotion and
+  workflow tests passed 30/30; `verify:quick` passed with 0 lint errors and the
+  10 pre-existing warnings. No old exact-45 release guard, migration or
+  workflow operation was changed.
+- Completed the explicitly authorized OWNER REVIEW for exactly the 36
+  confirmed candidates against fresh production state. All 36 returned
+  `READY_TO_PROMOTE` from the existing planner and `APPROVE_CANDIDATE` from the
+  owner-review presentation: 0 blockers, 0 new anomalies, 0 foreign retailer
+  mapping collisions, 0 quarantine matches, 36 valid unique checksums, 36
+  unique variant destinations, 36 empty current values, 36 future writes and
+  0 already-present no-ops. `products.gtin` destinations remain zero. No
+  database write, migration, GTIN apply or eBay call occurred.
+- Completed read-only source confirmation for the exact fingerprinted
+  50-product missing-GTIN cohort: 36 `CONFIRMED`, 6 `REVIEW`, 8 `CONFLICT`, 0
+  `NOT_FOUND`; confirmation rate 72%. A production SELECT-only collision check
+  covered all initially supported codes and the sealed 16-row quarantine.
+  Production writes and eBay API calls remained zero.
+- Exact `CONFIRMED` owner-review scope, all proposed for
+  `product_variants.gtin`: `769/2014=5903111089085`,
+  `742/795=5056555202128`, `754/878=5060763896734`,
+  `231/783=5060245605397`, `755/883=5060751997351`,
+  `1068/2252=5033579000084`, `1108/2403=5902114017446`,
+  `1067/2250=5902114018849`, `1107/2401=5902114017811`,
+  `863/1300=5060547319022`, `865/1307=5060547316106`,
+  `866/1309=5060547316144`, `867/1316=5060547316229`,
+  `868/1320=5060547317752`, `746/1196=5060347312919`,
+  `843/1222=5060660087068`, `12/1099=5060660080212`,
+  `897/1483=5060660082131`, `902/1494=5060723199097`,
+  `898/1486=5056371005545`, `874/1336=640516785468`,
+  `875/1339=659048417532`, `877/1350=659048417440`,
+  `1032/2160=5907368855059`, `1129/2471=5902837751917`,
+  `1128/2469=5902837742663`, `1117/2421=5902837750415`,
+  `1116/2419=5902837742649`, `1115/2417=5902837749389`,
+  `1054/2204=5902837731155`, `1052/2200=5902837755762`,
+  `1051/2198=5902837737447`, `1050/2196=5999076234554`,
+  `1033/2162=5999076216703`, `1037/2170=5999076234363` and
+  `1022/2140=5999076232451`.
+- Independent confirmation came from manufacturer pages/labels or established
+  retailers and distributors including 7Nutrition, Activlab, BioTechUSA,
+  Tropicana Wholesale, Dr Max, Hemprove, Mellericks, Gymgrossisten, Rozetka,
+  Medpak, Super-Pharm, Farmacia Tei, Lifestyle Health Store and the current
+  retailer's exact structured variant feed. These confirmations are review
+  evidence only; a future approved promotion artifact must bind the exact
+  row-level evidence locations and fresh destination state before any write.
+- `REVIEW` remains: `1071/2268`, `849/1270`, `894/1475`, `936/1545` and
+  `747/834` lack a second exact-code source; `407/2015` uses correct GTIN
+  `5060547314546`, but that code is already attached to the same product's
+  older default variant `386`, so canonical variant duplication must be
+  resolved first.
+- `CONFLICT` remains: `1123/2450` has Orange versus Mango-Passion Fruit;
+  `864/1305` has 1.8 kg versus 2 kg evidence; `836/1205` has invalid checksum
+  plus pack/version drift; `837/2766` uses a Cookies & Cream code for Chocolate
+  Peanut Butter; `1019/2134`, `1034/2164` and `1094/2375` use codes belonging
+  to other brands/products; `1049/2194` code `5999076240715` is already mapped
+  in production to BioTechUSA ZMAttack `142/77`. None may be promoted.
+
+- Ran a fresh production SELECT-only missing-GTIN audit using the same 24-day
+  offer-freshness rule as the public catalogue. Of 2,641 checked variant rows,
+  904 identities across 406 products have one current non-eBay retailer, no
+  eBay mapping and no usable product, variant or mapping GTIN. The audit
+  excluded 578 identities with an existing usable GTIN, 19 already carrying
+  eBay, 105 with multiple current retailers, 970 without a current offer, 55
+  inactive/merged rows and 10 internal weight conflicts.
+- Sealed a 50-distinct-product priority cohort under fingerprint
+  `7c096b18452a4117e48758364e00a39ee4ab2c0a35fbdc94ff28f0fd1ab34498`.
+  Exact product/variant scope: `769/2014`, `1071/2268`, `742/795`, `407/2015`,
+  `754/878`, `849/1270`, `231/783`, `755/883`, `1123/2450`, `1068/2252`,
+  `1108/2403`, `1067/2250`, `1107/2401`, `863/1300`, `864/1305`, `865/1307`,
+  `866/1309`, `867/1316`, `868/1320`, `836/1205`, `746/1196`, `837/2766`,
+  `843/1222`, `12/1099`, `897/1483`, `894/1475`, `902/1494`, `898/1486`,
+  `936/1545`, `874/1336`, `875/1339`, `877/1350`, `747/834`, `1019/2134`,
+  `1034/2164`, `1094/2375`, `1032/2160`, `1129/2471`, `1128/2469`,
+  `1117/2421`, `1116/2419`, `1115/2417`, `1054/2204`, `1052/2200`,
+  `1051/2198`, `1050/2196`, `1033/2162`, `1037/2170`, `1049/2194` and
+  `1022/2140`. These are confirmation candidates, not approved GTINs and not
+  authority for a database write or eBay import.
+- Reused the existing GTIN promotion and eBay discovery control model. No new
+  importer, migration, scheduled job, public UI change, API call or production
+  write was created.
 
 15 August 2026:
 

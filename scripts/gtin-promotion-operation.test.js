@@ -2,14 +2,15 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const { APPROVED_IDENTITIES, APPROVED_SCOPE_FINGERPRINT, buildArtifact, parseArgs, validateArtifact } = require("./gtin-promotion-operation");
+const { APPROVED_IDENTITIES, APPROVED_SCOPE_FINGERPRINT, SCOPE_CONFIGS, buildArtifact, parseArgs, run, validateArtifact } = require("./gtin-promotion-operation");
 
-function fixture() {
+function fixture(scopeName = "exact-45") {
+  const scope = SCOPE_CONFIGS[scopeName];
   const products = [];
   const variants = [];
   const rows = [];
-  for (let index = 1; index <= 45; index += 1) {
-    const approved = APPROVED_IDENTITIES[index - 1];
+  for (let index = 1; index <= scope.rowCount; index += 1) {
+    const approved = scope.identities[index - 1];
     const productId = approved.product_id;
     const variantId = approved.variant_id;
     products.push({ id: productId, name: `Product ${index}`, brand: "Brand", product_format: "powder", gtin: null, is_active: true, merged_into_product_id: null });
@@ -92,11 +93,34 @@ test("rejects changing an approved variant destination to products.gtin", () => 
 });
 
 test("CLI separates plan, validation and explicit apply authority", () => {
-  assert.deepEqual(parseArgs(["--mode=plan", "--target=production"]), { mode: "plan", target: "production" });
+  assert.deepEqual(parseArgs(["--mode=plan", "--target=production"]), { mode: "plan", target: "production", scope: "exact-45" });
   assert.throws(() => parseArgs(["--mode=apply", "--target=production", "--artifact=tmp/a.json"]), /confirm/);
   const parsed = parseArgs(["--mode=apply", "--target=production", "--artifact=tmp/a.json", "--confirm=OWNER_APPROVED_EXACT_45"]);
   assert.equal(parsed.mode, "apply");
   assert.equal(parsed.confirm, "OWNER_APPROVED_EXACT_45");
+});
+
+test("builds the exact owner-reviewed 36 artifact without changing the completed exact-45 contract", () => {
+  const input = fixture("owner-reviewed-36");
+  const artifact = buildArtifact(input.preview, input.products, input.variants, {
+    scope: "owner-reviewed-36",
+    createdAt: "2099-01-01T00:00:00.000Z",
+    expiresAt: "2099-01-01T00:15:00.000Z",
+    runId: "00000000-0000-4000-8000-000000000036",
+  });
+  assert.equal(validateArtifact(artifact), artifact);
+  assert.equal(artifact.row_count, "36");
+  assert.equal(artifact.owner_confirmation, "OWNER_APPROVED_EXACT_36");
+  assert.equal(artifact.plan.owner_review.scope_fingerprint, SCOPE_CONFIGS["owner-reviewed-36"].scopeFingerprint);
+  assert.deepEqual(artifact.plan.rows.map(({ product_id, variant_id, gtin }) => ({ product_id, variant_id, gtin })), SCOPE_CONFIGS["owner-reviewed-36"].identities);
+  assert.equal(APPROVED_IDENTITIES.length, 45);
+  assert.equal(APPROVED_SCOPE_FINGERPRINT, SCOPE_CONFIGS["exact-45"].scopeFingerprint);
+  assert.throws(() => parseArgs(["--mode=validate", "--target=production", "--scope=owner-reviewed-36", "--artifact=tmp/a.json", "--confirm=OWNER_APPROVED_EXACT_45"]), /OWNER_APPROVED_EXACT_36/);
+});
+
+test("exact-36 validate and apply remain blocked until a separately reviewed schema migration is deployed", async () => {
+  await assert.rejects(() => run({ mode: "validate", target: "production", scope: "owner-reviewed-36", artifact: "does-not-matter.json", confirm: "OWNER_APPROVED_EXACT_36" }), /remain blocked/);
+  await assert.rejects(() => run({ mode: "apply", target: "production", scope: "owner-reviewed-36", artifact: "does-not-matter.json", confirm: "OWNER_APPROVED_EXACT_36" }), /remain blocked/);
 });
 
 test("protected operation has no generic importer or service-role write path", () => {

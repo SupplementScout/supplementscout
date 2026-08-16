@@ -48,6 +48,7 @@ const EXCLUSIONS = Object.freeze({
     "20260811113000_add_two_reviewed_discount_multivitamin_offers",
     "20260813170000_add_guarded_gtin_promotion",
     "20260814213000_correct_critical_cookie_73g_identity",
+    "20260816173000_extend_guarded_gtin_promotion_exact_36",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
@@ -57,6 +58,7 @@ const EXCLUSIONS = Object.freeze({
     "20260718160000_add_retailer_offer_mixed_batch_executor",
     "20260718170000_add_read_only_mixed_batch_validator",
     "20260719090000_add_expired_retailer_offer_sync_approval_close",
+    "20260816173000_extend_guarded_gtin_promotion_exact_36",
   ]),
 });
 

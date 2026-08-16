@@ -16,8 +16,9 @@ test("default operation is manual, main-only and non-writing", () => {
   assert.doesNotMatch(workflow, /^\s*(?:push|schedule):/m);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_45'/);
+  assert.match(workflow, /inputs\.operation == 'preflight_exact_36' && inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36'/);
   assert.match(workflow, /default: preflight/);
-  assert.match(workflow, /options: \[preflight, validate, apply, release_exact_45\]/);
+  assert.match(workflow, /options: \[preflight, preflight_exact_36, validate, apply, release_exact_45\]/);
   assert.match(workflow, /permissions:\s*\n\s*contents: read/);
 });
 
@@ -27,6 +28,8 @@ test("preflight failure stops migration and has no production secrets", () => {
   assert.match(integration, /npm run verify:full/);
   assert.doesNotMatch(integration, /secrets\.|environment:\s*production|continue-on-error/);
   assert.match(workflow, /production:\s*\n\s*needs: integration/);
+  assert.match(workflow, /inputs\.operation != 'preflight' && inputs\.operation != 'preflight_exact_36'/);
+  assert.doesNotMatch(workflow, /release_exact_36|--scope=owner-reviewed-36[\s\S]*--mode=apply/);
 });
 
 test("release steps are strictly ordered and each failure stops its successors", () => {

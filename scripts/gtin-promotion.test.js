@@ -5,7 +5,7 @@ const {
   buildPromotionPreview,
   isValidGtin,
 } = require("./lib/gtin-promotion");
-const { parseConfirmedCandidates } = require("./gtin-promotion-dry-run");
+const { OWNER_REVIEWED_36_IDENTITIES, parseArgs, parseConfirmedCandidates, parseOwnerReviewed36Candidates } = require("./gtin-promotion-dry-run");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -154,4 +154,19 @@ test("durable confirmation ledger still yields exactly 40 safe candidates", () =
   const candidates = parseConfirmedCandidates(markdown);
   assert.equal(candidates.length, 40);
   assert.equal(new Set(candidates.map((item) => `${item.product_id}:${item.variant_id}:${item.gtin}`)).size, 40);
+});
+
+test("exact owner-reviewed 36 scope is immutable and only available as a read-only dry-run scope", () => {
+  const markdown = fs.readFileSync(path.resolve(__dirname, "..", "docs", "EBAY-UK-COVERAGE-PLAN.md"), "utf8");
+  const candidates = parseOwnerReviewed36Candidates(markdown);
+  assert.equal(candidates.length, 36);
+  assert.deepEqual(candidates.map(({ product_id, variant_id, gtin }) => ({ product_id, variant_id, gtin })), OWNER_REVIEWED_36_IDENTITIES);
+  assert.ok(candidates.every((row) => row.destination_hint === "variant" && row.evidence_confirmed === true && row.evidence_sources.length === 2));
+  assert.equal(parseArgs(["--target=production", "--scope=owner-reviewed-36"]).scope, "owner-reviewed-36");
+  assert.throws(() => parseArgs(["--target=production", "--scope=anything-else"]), /Unsupported GTIN promotion scope/);
+});
+
+test("owner-reviewed 36 parser fails closed if documentation scope changes", () => {
+  const markdown = fs.readFileSync(path.resolve(__dirname, "..", "docs", "EBAY-UK-COVERAGE-PLAN.md"), "utf8");
+  assert.throws(() => parseOwnerReviewed36Candidates(markdown.replace("769/2014=5903111089085", "769/2014=5903111089086")), /scope drift/);
 });

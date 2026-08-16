@@ -268,9 +268,13 @@ test("production binds its exact ledger after GTIN promotion and selects only Cr
   assert.equal(result.pending_sha256, contract.pending[0].sha256);
 });
 
-test("production exclusions are exact and do not exclude its enablement migration", () => {
+test("production exclusions are exact, hold exact-36, and do not exclude its enablement migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 7);
+  assert.equal(Object.keys(contract.excluded).length, 8);
+  assert.ok(Object.hasOwn(
+    contract.excluded,
+    "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
+  ));
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260719100000_add_production_retailer_sync_enablement.sql",

@@ -6,7 +6,7 @@ const { Client } = require("pg");
 const { createClient } = require("@supabase/supabase-js");
 const { canonicalJson } = require("./lib/canonical-json");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
-const { buildReadOnlyPreview } = require("./gtin-promotion-dry-run");
+const { OWNER_REVIEWED_36_IDENTITIES, buildReadOnlyPreview } = require("./gtin-promotion-dry-run");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
@@ -30,6 +30,20 @@ const APPROVED_IDENTITIES = Object.freeze([
   ["789","1089","5060660084746"],["789","1092","5060660084807"],["56","1601","5060424707256"],
   ["56","1604","5060424700363"],["56","1605","5060756342927"],["139","142","8901138110710"],
 ].map(([product_id, variant_id, gtin]) => Object.freeze({ product_id, variant_id, gtin })));
+const SCOPE_CONFIGS = Object.freeze({
+  "exact-45": Object.freeze({
+    kind: KIND, confirmation: CONFIRMATION, identities: APPROVED_IDENTITIES,
+    scopeFingerprint: APPROVED_SCOPE_FINGERPRINT, rowCount: 45, previewScope: "legacy-54",
+  }),
+  "owner-reviewed-36": Object.freeze({
+    kind: "gtin-promotion-owner-reviewed-exact-36-v1",
+    confirmation: "OWNER_APPROVED_EXACT_36",
+    identities: OWNER_REVIEWED_36_IDENTITIES,
+    scopeFingerprint: "415142d4ba069103441a908bba4a15c3de73a828b9b7896a8556e29f32a97c02",
+    rowCount: 36,
+    previewScope: "owner-reviewed-36",
+  }),
+});
 const OWNER_DOCUMENT = "docs/EBAY-UK-COVERAGE-PLAN.md";
 const PROTECTED_DATABASE_ENV = Object.freeze({
   approver: "GTIN_PROMOTION_APPROVER_DATABASE_URL",
@@ -44,18 +58,21 @@ function nullableString(value) { return value == null || String(value).trim() ==
 function parseArgs(argv) {
   const result = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(mode|target|artifact|output|confirm)=(.+)$/);
+    const match = argument.match(/^--(mode|target|artifact|output|confirm|scope)=(.+)$/);
     if (!match || result[match[1]] !== undefined) fail(`Unsupported argument: ${argument}`);
     result[match[1]] = match[2];
   }
   if (!["plan", "validate", "apply"].includes(result.mode)) fail("Required --mode=plan|validate|apply");
   if (result.target !== "production") fail("Required --target=production");
+  result.scope ||= "exact-45";
+  const scope = SCOPE_CONFIGS[result.scope];
+  if (!scope) fail("Unsupported GTIN promotion scope");
   if (result.mode === "plan") {
     if (result.artifact || result.confirm) fail("Plan mode cannot approve or consume an artifact");
   } else {
     if (!result.artifact) fail("Protected modes require --artifact=<path>");
     result.artifact = path.resolve(ROOT, result.artifact);
-    if (result.confirm !== CONFIRMATION) fail(`Protected modes require --confirm=${CONFIRMATION}`);
+    if (result.confirm !== scope.confirmation) fail(`Protected modes require --confirm=${scope.confirmation}`);
   }
   if (result.output) {
     result.output = path.resolve(ROOT, result.output);
@@ -106,17 +123,19 @@ function expectedVariant(variant) {
 }
 
 function buildArtifact(preview, products, variants, options = {}) {
+  const scope = SCOPE_CONFIGS[options.scope || "exact-45"];
+  if (!scope) fail("Unsupported GTIN promotion scope");
   const ready = preview.rows.filter((row) => row.decision === "READY_TO_PROMOTE");
-  if (ready.length !== 45 || ready.some((row) => row.destination_field !== "product_variants.gtin" || row.current_value !== null || row.blockers.length)) {
-    fail("Owner-approved exact 45 scope drifted from the reviewed preview");
+  if (ready.length !== scope.rowCount || ready.some((row) => row.destination_field !== "product_variants.gtin" || row.current_value !== null || row.blockers.length)) {
+    fail(`Owner-approved ${options.scope || "exact-45"} scope drifted from the reviewed preview`);
   }
   const productById = new Map(products.map((row) => [String(row.id), row]));
   const variantById = new Map(variants.map((row) => [String(row.id), row]));
   const ownerRows = ready.map((row) => ({ product_id: row.product_id, variant_id: row.variant_id, gtin: row.gtin, decision: "APPROVE_CANDIDATE" }));
   const identityRows = ownerRows.map(({ product_id, variant_id, gtin }) => ({ product_id, variant_id, gtin }));
-  if (JSON.stringify(identityRows) !== JSON.stringify(APPROVED_IDENTITIES)) fail("Owner-approved exact 45 identity list mismatch");
+  if (JSON.stringify(identityRows) !== JSON.stringify(scope.identities)) fail("Owner-approved identity list mismatch");
   const scopeFingerprint = hash("GTIN-PROMOTION-OWNER-SCOPE:1", ownerRows);
-  if (scopeFingerprint !== APPROVED_SCOPE_FINGERPRINT) fail("Owner-approved exact 45 scope fingerprint mismatch");
+  if (scopeFingerprint !== scope.scopeFingerprint) fail("Owner-approved scope fingerprint mismatch");
   const rows = ready.map((row) => {
     const product = productById.get(row.product_id);
     const variant = variantById.get(row.variant_id);
@@ -148,7 +167,7 @@ function buildArtifact(preview, products, variants, options = {}) {
     },
     owner_review: {
       decision: "APPROVED_EXACT_SCOPE",
-      reviewed_count: "45",
+      reviewed_count: String(scope.rowCount),
       document: OWNER_DOCUMENT,
       scope_fingerprint: scopeFingerprint,
     },
@@ -158,14 +177,14 @@ function buildArtifact(preview, products, variants, options = {}) {
   const createdAt = options.createdAt || new Date().toISOString();
   const artifact = {
     artifact_version: "1",
-    kind: KIND,
+    kind: scope.kind,
     target_environment: "PRODUCTION",
     target_project_ref: PROJECT_REF,
     run_id: options.runId || crypto.randomUUID(),
     created_at: createdAt,
     expires_at: options.expiresAt || new Date(Date.parse(createdAt) + 15 * 60 * 1000).toISOString(),
-    row_count: "45",
-    owner_confirmation: CONFIRMATION,
+    row_count: String(scope.rowCount),
+    owner_confirmation: scope.confirmation,
     plan,
     artifact_fingerprint: null,
   };
@@ -174,7 +193,8 @@ function buildArtifact(preview, products, variants, options = {}) {
 }
 
 function validateArtifact(artifact, options = {}) {
-  if (artifact.artifact_version !== "1" || artifact.kind !== KIND || artifact.target_environment !== "PRODUCTION" || artifact.target_project_ref !== PROJECT_REF || artifact.row_count !== "45" || artifact.owner_confirmation !== CONFIRMATION || artifact.plan?.owner_review?.scope_fingerprint !== APPROVED_SCOPE_FINGERPRINT || !Array.isArray(artifact.plan?.rows) || artifact.plan.rows.length !== 45) fail("GTIN promotion artifact envelope mismatch");
+  const scope = Object.values(SCOPE_CONFIGS).find((value) => value.kind === artifact.kind);
+  if (!scope || artifact.artifact_version !== "1" || artifact.target_environment !== "PRODUCTION" || artifact.target_project_ref !== PROJECT_REF || artifact.row_count !== String(scope.rowCount) || artifact.owner_confirmation !== scope.confirmation || artifact.plan?.owner_review?.scope_fingerprint !== scope.scopeFingerprint || !Array.isArray(artifact.plan?.rows) || artifact.plan.rows.length !== scope.rowCount) fail("GTIN promotion artifact envelope mismatch");
   if (!options.allowExpired && Date.parse(artifact.expires_at) <= Date.now()) fail("GTIN promotion artifact expired; generate a fresh plan");
   const artifactFingerprint = artifact.artifact_fingerprint;
   if (artifactFingerprint !== hash("GTIN-PROMOTION-ARTIFACT:1", { ...artifact, artifact_fingerprint: null })) fail("GTIN promotion artifact fingerprint mismatch");
@@ -183,7 +203,7 @@ function validateArtifact(artifact, options = {}) {
   const uniqueTargets = new Set(artifact.plan.rows.map((row) => `${row.destination_field}:${row.destination_field === "products.gtin" ? row.product_id : row.variant_id}`));
   const uniqueGtins = new Set(artifact.plan.rows.map((row) => row.gtin));
   const identities = artifact.plan.rows.map(({ product_id, variant_id, gtin }) => ({ product_id, variant_id, gtin }));
-  if (uniqueTargets.size !== 45 || uniqueGtins.size !== 45 || JSON.stringify(identities) !== JSON.stringify(APPROVED_IDENTITIES) || artifact.plan.rows.some((row) => row.owner_decision !== "APPROVE_CANDIDATE" || row.destination_field !== "product_variants.gtin" || row.single_trade_item !== false || row.expected_current_gtin !== null || row.evidence_sources.length < 2)) fail("GTIN promotion artifact row scope mismatch");
+  if (uniqueTargets.size !== scope.rowCount || uniqueGtins.size !== scope.rowCount || JSON.stringify(identities) !== JSON.stringify(scope.identities) || artifact.plan.rows.some((row) => row.owner_decision !== "APPROVE_CANDIDATE" || row.destination_field !== "product_variants.gtin" || row.single_trade_item !== false || row.expected_current_gtin !== null || row.evidence_sources.length < 2)) fail("GTIN promotion artifact row scope mismatch");
   return artifact;
 }
 
@@ -197,7 +217,8 @@ function readArtifact(file, options = {}) {
 }
 
 function writeArtifact(artifact, output) {
-  const resolved = output || path.join(ROOT, "tmp", "gtin-promotion", `approved-exact-45-${artifact.run_id}.json`);
+  const label = artifact.row_count === "36" ? "owner-reviewed-exact-36" : "approved-exact-45";
+  const resolved = output || path.join(ROOT, "tmp", "gtin-promotion", `${label}-${artifact.run_id}.json`);
   const relative = path.relative(path.join(ROOT, "tmp"), resolved);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Artifact output must be inside repository tmp");
   const bytes = Buffer.from(`${JSON.stringify(artifact, null, 2)}\n`, "utf8");
@@ -209,7 +230,9 @@ function writeArtifact(artifact, output) {
 }
 
 async function buildFreshArtifact(options = {}) {
-  const previewResult = await buildReadOnlyPreview({ target: "production", output: null });
+  const scope = SCOPE_CONFIGS[options.scope || "exact-45"];
+  if (!scope) fail("Unsupported GTIN promotion scope");
+  const previewResult = await buildReadOnlyPreview({ target: "production", output: null, scope: scope.previewScope });
   const ready = previewResult.preview.rows.filter((row) => row.decision === "READY_TO_PROMOTE");
   const readClient = loadReadClient();
   const [products, variants] = await Promise.all([
@@ -271,28 +294,31 @@ async function applyArtifact(loaded) {
       [approval.approval_id, loaded.artifactSha256, artifact.plan.meta.plan_fingerprint, artifact.plan.meta.source_row_fingerprint, artifact.run_id]
     );
     const applied = response.rows[0].result;
-    if (applied.status !== "APPLIED" || applied.approval_status !== "consumed" || applied.applied_count !== "45") fail("GTIN promotion apply result mismatch");
+    if (applied.status !== "APPLIED" || applied.approval_status !== "consumed" || applied.applied_count !== loaded.artifact.row_count) fail("GTIN promotion apply result mismatch");
     return applied;
   }, true);
 }
 
 async function run(options) {
   if (options.mode === "plan") {
-    const artifact = await buildFreshArtifact();
+    const artifact = await buildFreshArtifact({ scope: options.scope });
     const written = writeArtifact(artifact, options.output);
-    return { mode: "plan", database_writes: 0, artifact: path.relative(ROOT, written.path), artifact_sha256: written.sha256, plan_fingerprint: artifact.plan.meta.plan_fingerprint, rows: 45 };
+    return { mode: "plan", scope: options.scope, database_writes: 0, artifact: path.relative(ROOT, written.path), artifact_sha256: written.sha256, plan_fingerprint: artifact.plan.meta.plan_fingerprint, rows: Number(artifact.row_count) };
+  }
+  if (options.scope === "owner-reviewed-36" && process.env.GTIN_PROMOTION_EXACT_36_SCHEMA_READY !== "true") {
+    fail("Exact-36 protected modes remain blocked until the reviewed database migration is deployed");
   }
   const loaded = readArtifact(options.artifact);
   if (options.mode === "validate") {
     const approval = await approveArtifact(loaded, false);
-    return { mode: "validate", database_writes: 0, approval_rolled_back: true, plan_fingerprint: approval.plan_fingerprint, rows: 45 };
+    return { mode: "validate", database_writes: 0, approval_rolled_back: true, plan_fingerprint: approval.plan_fingerprint, rows: Number(loaded.artifact.row_count) };
   }
   const applied = await applyArtifact(loaded);
-  return { mode: "apply", database_writes: 45, approval_id: applied.approval_id, consumed_at: applied.consumed_at, rows: 45 };
+  return { mode: "apply", database_writes: Number(loaded.artifact.row_count), approval_id: applied.approval_id, consumed_at: applied.consumed_at, rows: Number(loaded.artifact.row_count) };
 }
 
 if (require.main === module) {
   run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 }
 
-module.exports = { APPROVED_IDENTITIES, APPROVED_SCOPE_FINGERPRINT, buildArtifact, buildFreshArtifact, parseArgs, readArtifact, run, validateArtifact, writeArtifact };
+module.exports = { APPROVED_IDENTITIES, APPROVED_SCOPE_FINGERPRINT, SCOPE_CONFIGS, buildArtifact, buildFreshArtifact, parseArgs, readArtifact, run, validateArtifact, writeArtifact };

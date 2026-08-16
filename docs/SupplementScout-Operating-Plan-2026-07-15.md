@@ -668,10 +668,71 @@ Independent production readback confirmed mappings `2741`-`2742`, offers
 and zero duplicate variant or GTIN identities. Public readback passed 2/2.
 
 Future agents must read the eBay plan's `Current status` and `Next action` and
-update that plan after every eBay task. Binding next action: `Monitor the exact
-19 live eBay offers read-only. Do not repeat the exhausted discovery pool;
-rebuild discovery only after the canonical catalogue gains new eligible
-one-retailer identities.`
+update that plan after every eBay task. The 16 August missing-GTIN audit below
+supersedes the earlier monitor-only next action; the existing 19 live eBay
+offers still remain under read-only monitoring.
+
+On 16 August 2026 a fresh SELECT-only catalogue audit opened the next safe
+source of new identities without repeating eBay searches. It checked 2,641
+variant rows and found 904 active identities across 406 products with exactly
+one fresh non-eBay retailer, no eBay mapping and no valid product, variant or
+retailer-mapping GTIN. A bounded, fingerprinted priority cohort contains 50
+distinct products: 13 Creatine, 20 Whey Protein and 17 Vitamins, sourced from
+25 Six Pack Supplements, 20 Jon's Supplements and five Discount Supplements
+rows. Ten internal weight conflicts were excluded. This is a barcode-recovery
+queue only. Its read-only confirmation is now complete: 36 are `CONFIRMED`,
+six remain `REVIEW`, eight are `CONFLICT` and none are `NOT_FOUND` (72%
+confirmation rate). A production SELECT-only collision check stopped one
+same-product variant association and one cross-product GTIN collision. No GTIN
+or offer was written and no eBay call occurred. The existing guarded
+`GTIN_PROMOTION` mechanism remains the sole future write path. The binding next
+action is owner review of exactly the 36 confirmed variant-GTIN candidates;
+the six review and eight conflict rows remain blocked. eBay discovery may be
+rebuilt only after separately approved promotion.
+
+The owner authorized that exact 36-row review on 16 August. A fresh production
+readback and the existing promotion planner returned 36
+`APPROVE_CANDIDATE`, 0 `OWNER_CHECK_REQUIRED`, 36
+`product_variants.gtin` destinations, 36 future writes and 0 already-present
+no-ops. There were no checksum, canonical, duplicate, retailer-mapping,
+quarantine or identity-drift anomalies. The review itself made zero writes and
+does not authorize apply. The binding next action is a guarded, non-writing
+`GTIN_PROMOTION` dry-run for exactly those 36 rows using the existing mechanism;
+the six review and eight conflict identities stay excluded.
+
+That exact-36 dry-run is now complete. A code-bound allowlist matching the
+documented owner scope returned 36 `READY_TO_PROMOTE`, 0 `ALREADY_PRESENT`, 0
+`MANUAL_REVIEW`, 0 `BLOCKED`, 36 empty `product_variants.gtin` destinations
+and zero writes. Scope fingerprint:
+`415142d4ba069103441a908bba4a15c3de73a828b9b7896a8556e29f32a97c02`;
+preview fingerprint:
+`141b60e898ec1eb41a5482d1c481f19d4064867091c3917a99ab0934efe141e8`.
+The dry-run cannot validate or apply and leaves the completed exact-45 release
+contract unchanged. The binding next action is design of a minimal guarded
+exact-36 write extension on the existing approval/RPC framework, without
+migration deployment or apply; that requires separate authorization.
+
+The existing `gtin:promotion` artifact builder now implements that local
+exact-36 contract without a second importer. It produced a 36-row immutable
+plan (`b1b8996d1555ed0dbf48f952ef1c75a7cefd4cdfb78e052516eb5ff0042f26c1`)
+with plan fingerprint `98af96f0c6d1533495b828781a69a771` and zero writes.
+Exact-36 validate/apply remain explicitly blocked until a separately reviewed
+database migration is deployed, and the workflow still exposes no exact-36
+release branch. The next necessary work is only that narrow migration and
+existing-workflow branch, without deployment or apply.
+
+That narrow extension is now built locally on the existing approval/RPC path.
+It is closed to the exact 36 owner-reviewed variant GTINs, atomically requires
+36/36 writes, retains stale/duplicate/quarantine/canonical checks and audit
+consumption, and adds a guarded rollback. The existing workflow exposes only
+the non-writing `preflight_exact_36` option; it cannot enter the production job
+and no `release_exact_36` option exists. The migration is hash-bound and
+explicitly excluded from staging and production selectors, so an unrelated
+deployment cannot pick it up. Migration deployed: no. Production writes: 0.
+Local focused/static gates pass; the disposable PostgreSQL integration remains
+`PENDING PREFLIGHT` because Docker was unavailable locally. The binding next
+action is review/commit followed by only `preflight_exact_36`; deployment and
+apply require a separate owner decision after that preflight passes.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
