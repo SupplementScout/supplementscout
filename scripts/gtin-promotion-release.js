@@ -14,6 +14,9 @@ const CONTRACT = CONTRACTS.PRODUCTION;
 const MIGRATION = "20260813170000_add_guarded_gtin_promotion.sql";
 const MIGRATION_ID = MIGRATION.slice(0, -4);
 const CONFIRMATION = "OWNER_APPROVED_EXACT_45";
+const EXACT36_MIGRATION = "20260816173000_extend_guarded_gtin_promotion_exact_36.sql";
+const EXACT36_MIGRATION_ID = EXACT36_MIGRATION.slice(0, -4);
+const EXACT36_MIGRATION_CONFIRMATION = "OWNER_APPROVED_EXACT_36_MIGRATION";
 const QUARANTINED_GTINS = Object.freeze([
   "6009544961161","850054547989","850054547996","850060014024",
   "810028296107","810028296084","810028296114","810028296091",
@@ -31,14 +34,15 @@ function parseArgs(argv) {
     if (!match || result[match[1]] !== undefined) fail(`Unsupported argument: ${argument}`);
     result[match[1]] = match[2];
   }
-  if (!["capture", "migration-preflight", "deploy", "verify"].includes(result.mode)) fail("Required --mode=capture|migration-preflight|deploy|verify");
+  if (!["capture", "migration-preflight", "deploy", "verify", "exact36-migration-preflight", "exact36-deploy"].includes(result.mode)) fail("Unsupported GTIN promotion release mode");
   if (result.target !== "production") fail("Required --target=production");
-  if (result.confirm !== CONFIRMATION) fail(`Required --confirm=${CONFIRMATION}`);
+  const requiredConfirmation = result.mode.startsWith("exact36-") ? EXACT36_MIGRATION_CONFIRMATION : CONFIRMATION;
+  if (result.confirm !== requiredConfirmation) fail(`Required --confirm=${requiredConfirmation}`);
   for (const key of ["artifact", "baseline", "output", "env-file"]) if (result[key]) result[key] = path.resolve(ROOT, result[key]);
   if (["capture", "verify"].includes(result.mode) && !result.artifact) fail("Artifact is required");
   if (result.mode === "capture" && !result.output) fail("Capture output is required");
   if (result.mode === "verify" && (!result.baseline || !result.output)) fail("Verification baseline and output are required");
-  if (["migration-preflight", "deploy", "capture", "verify"].includes(result.mode) && !result["env-file"]) fail("Owner env file is required");
+  if (["migration-preflight", "deploy", "capture", "verify", "exact36-migration-preflight", "exact36-deploy"].includes(result.mode) && !result["env-file"]) fail("Owner env file is required");
   return result;
 }
 
@@ -170,6 +174,41 @@ async function deploy(options) {
   return { result: "PASS", migration_status: "APPLIED", database_writes: 0, deploy_output_sha256: sha256(child.stdout || "") };
 }
 
+async function exact36MigrationPreflight(options) {
+  const pending = CONTRACT.pending.find((row) => row.filename === EXACT36_MIGRATION);
+  if (!pending || sha256File(path.join(ROOT, "supabase", "migrations", EXACT36_MIGRATION)) !== pending.sha256) fail("Reviewed exact-36 migration contract mismatch");
+  return ownerRead(options["env-file"], async (client, state) => {
+    const ids = state.remoteLedger.map(ledgerIdentifier);
+    if (ids.length === CONTRACT.ledgerCount && ledgerRowsFingerprint(state.remoteLedger) === CONTRACT.ledgerFingerprint && !ids.includes(EXACT36_MIGRATION_ID)) {
+      const baseSchema = (await client.query("select to_regprocedure('public.apply_approved_gtin_promotion_plan(uuid,text,text,text,text)') is not null apply_exists, to_regclass('public.gtin_promotion_quarantine') is not null quarantine_exists")).rows[0];
+      if (!baseSchema.apply_exists || !baseSchema.quarantine_exists) fail("Base GTIN promotion schema is incomplete");
+      return { result: "PASS", migration_status: "PENDING", database_writes: 0 };
+    }
+    const prefix = state.remoteLedger.slice(0, CONTRACT.ledgerCount);
+    if (ids.length === CONTRACT.ledgerCount + 1 && ids.at(-1) === EXACT36_MIGRATION_ID && ledgerRowsFingerprint(prefix) === CONTRACT.ledgerFingerprint) {
+      const schema = (await client.query(`select
+        to_regprocedure('public.validate_gtin_promotion_plan_exact_36_read_only(jsonb)') is not null exact36_validate_exists,
+        to_regprocedure('public.apply_approved_gtin_promotion_plan_exact_36(uuid,text,text,text,text)') is not null exact36_apply_exists,
+        to_regprocedure('public.validate_gtin_promotion_plan_read_only(jsonb)') is not null dispatcher_validate_exists,
+        to_regprocedure('public.apply_approved_gtin_promotion_plan(uuid,text,text,text,text)') is not null dispatcher_apply_exists`)).rows[0];
+      if (!Object.values(schema).every(Boolean)) fail("Applied exact-36 migration schema is incomplete");
+      return { result: "PASS", migration_status: "ALREADY_PRESENT", database_writes: 0 };
+    }
+    fail("Production migration ledger differs from the exact-36 deployment state");
+  });
+}
+
+async function deployExact36Migration(options) {
+  const preflight = await exact36MigrationPreflight(options);
+  if (preflight.migration_status === "ALREADY_PRESENT") return { result: "PASS", migration_status: "ALREADY_PRESENT", database_writes: 0 };
+  const confirmation = pendingConfirmation(CONTRACT);
+  const child = spawnSync(process.execPath, [path.join(__dirname, "apply-selected-migrations.js"), "--environment=PRODUCTION", `--project-ref=${CONTRACT.projectRef}`, "--mode=apply", `--confirm=${confirmation}`, `--env-file=${options["env-file"]}`], { cwd: ROOT, encoding: "utf8", env: { ...process.env, SAFE_UPDATE: "" } });
+  if (child.status !== 0) fail(`Exact-36 migration deploy failed: ${child.stderr || child.stdout}`);
+  const after = await exact36MigrationPreflight(options);
+  if (after.migration_status !== "ALREADY_PRESENT") fail("Exact-36 migration was not recorded after deploy");
+  return { result: "PASS", migration_status: "APPLIED", database_writes: 0, deploy_output_sha256: sha256(child.stdout || "") };
+}
+
 function compare(anomalies, name, expected, actual) {
   if (JSON.stringify(expected) !== JSON.stringify(actual)) anomalies.push({ check: name, expected, actual });
 }
@@ -240,9 +279,11 @@ async function run(options) {
   if (options.mode === "capture") return capture(options);
   if (options.mode === "migration-preflight") return migrationPreflight(options);
   if (options.mode === "deploy") return deploy(options);
+  if (options.mode === "exact36-migration-preflight") return exact36MigrationPreflight(options);
+  if (options.mode === "exact36-deploy") return deployExact36Migration(options);
   return verify(options);
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { MIGRATION, QUARANTINED_GTINS, exactRowDiff, parseArgs, run, snapshotSummary };
+module.exports = { EXACT36_MIGRATION, EXACT36_MIGRATION_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, exactRowDiff, parseArgs, run, snapshotSummary };

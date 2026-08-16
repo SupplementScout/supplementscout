@@ -8,9 +8,9 @@ on:
         required: true
         default: preflight
         type: choice
-        options: [preflight, preflight_exact_36, validate, apply, release_exact_45]
+        options: [preflight, preflight_exact_36, deploy_exact_36_migration, validate, apply, release_exact_45]
       owner_confirmation:
-        description: Type OWNER_APPROVED_EXACT_45, or OWNER_APPROVED_EXACT_36 for preflight_exact_36
+        description: Type the exact confirmation required by the selected operation
         required: true
         type: string
 
@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   integration:
-    if: ${{ github.ref == 'refs/heads/main' && ((inputs.operation == 'preflight_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36') || (inputs.operation != 'preflight_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_45')) }}
+    if: ${{ github.ref == 'refs/heads/main' && ((inputs.operation == 'preflight_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36') || (inputs.operation == 'deploy_exact_36_migration' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36_MIGRATION') || (inputs.operation != 'preflight_exact_36' && inputs.operation != 'deploy_exact_36_migration' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_45')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -66,17 +66,28 @@ jobs:
           PRODUCTION_OWNER_DATABASE_URL: ${{ secrets.SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL }}
         run: node -e "require('node:fs').writeFileSync(process.env.GTIN_OWNER_ENV_FILE,'SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF='+process.env.PRODUCTION_PROJECT_REF+'\nSUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL='+process.env.PRODUCTION_OWNER_DATABASE_URL+'\n',{mode:0o600})"
       - name: Production preflight — build fresh exact artifact
+        if: ${{ inputs.operation != 'deploy_exact_36_migration' }}
         env:
           NODE_OPTIONS: --use-system-ca
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run gtin:promotion -- --mode=plan --target=production --output=tmp/gtin-promotion/release-exact-45.json
       - name: Production preflight — seal no-change baseline
+        if: ${{ inputs.operation != 'deploy_exact_36_migration' }}
         env:
           NODE_OPTIONS: --use-system-ca
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/gtin-promotion-release.js --mode=capture --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --output=tmp/gtin-promotion/release-baseline.json --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
+      - name: Exact-36 migration preflight
+        if: ${{ inputs.operation == 'deploy_exact_36_migration' }}
+        run: node scripts/gtin-promotion-release.js --mode=exact36-migration-preflight --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_36_MIGRATION
+      - name: Deploy exact-36 migration only
+        if: ${{ inputs.operation == 'deploy_exact_36_migration' }}
+        run: node scripts/gtin-promotion-release.js --mode=exact36-deploy --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_36_MIGRATION
+      - name: Verify exact-36 migration deployment
+        if: ${{ inputs.operation == 'deploy_exact_36_migration' }}
+        run: node scripts/gtin-promotion-release.js --mode=exact36-migration-preflight --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_36_MIGRATION
       - name: Migration preflight
         if: ${{ inputs.operation == 'release_exact_45' }}
         run: node scripts/gtin-promotion-release.js --mode=migration-preflight --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
@@ -84,6 +95,7 @@ jobs:
         if: ${{ inputs.operation == 'release_exact_45' }}
         run: node scripts/gtin-promotion-release.js --mode=deploy --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
       - name: Validate exact 45 after migration
+        if: ${{ inputs.operation != 'deploy_exact_36_migration' }}
         env:
           GTIN_PROMOTION_APPROVER_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_APPROVER_DATABASE_URL || secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           GTIN_PROMOTION_EXECUTOR_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_EXECUTOR_DATABASE_URL || secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}

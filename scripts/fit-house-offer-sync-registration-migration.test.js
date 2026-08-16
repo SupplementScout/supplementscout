@@ -19,9 +19,9 @@ test("migration is hash-bound and transactional", () => {
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 79);
   assert.deepEqual(
     selector.CONTRACTS.PRODUCTION.pending.map(({ filename }) => filename),
-    ["20260814213000_correct_critical_cookie_73g_identity.sql"],
+    ["20260816173000_extend_guarded_gtin_promotion_exact_36.sql"],
   );
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 111);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 112);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });
