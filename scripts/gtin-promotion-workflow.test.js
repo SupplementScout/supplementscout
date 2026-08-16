@@ -17,10 +17,11 @@ test("default operation is manual, main-only and non-writing", () => {
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_45'/);
   assert.match(workflow, /inputs\.operation == 'preflight_exact_36' && inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36'/);
-  assert.match(workflow, /inputs\.operation == 'release_exact_36' && inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36_APPLY'/);
+  assert.match(workflow, /inputs\.operation == 'release_exact_36' \|\| inputs\.operation == 'verify_exact_36_release'/);
+  assert.match(workflow, /inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36_APPLY'/);
   assert.match(workflow, /default: preflight/);
-  assert.match(workflow, /options: \[preflight, preflight_exact_36, validate, apply, release_exact_45, release_exact_36\]/);
-  assert.match(workflow, /permissions:\s*\n\s*contents: read/);
+  assert.match(workflow, /options: \[preflight, preflight_exact_36, validate, apply, release_exact_45, release_exact_36, verify_exact_36_release\]/);
+  assert.match(workflow, /permissions:\s*\n\s*actions: read\s*\n\s*contents: read/);
 });
 
 test("preflight failure stops migration and has no production secrets", () => {
@@ -61,6 +62,8 @@ test("apply success triggers exact post-write verification and rerun cannot wide
   assert.match(workflow, /--mode=verify[^\n]*--scope=owner-reviewed-36[^\n]*--baseline=tmp\/gtin-promotion\/release-exact-36-baseline\.json[^\n]*--confirm=OWNER_APPROVED_EXACT_36_APPLY/);
   assert.doesNotMatch(workflow, /inputs\.(?:artifact|gtin|count|fingerprint)/);
   assert.match(workflow, /concurrency:[\s\S]*cancel-in-progress: false/);
+  assert.match(workflow, /name: gtin-promotion-31961892019-1[\s\S]*run-id: 31961892019/);
+  assert.match(workflow, /inputs\.operation == 'verify_exact_36_release'/);
 });
 
 test("secrets are step-scoped and logs do not print them", () => {

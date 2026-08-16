@@ -59,4 +59,5 @@ test("verification source checks dynamic exact scope, audit, no-ops and protecte
   for (const contract of ["products.gtin unchanged", "exact variant GTIN postcondition", "offers unchanged", "retailer_products unchanged", "16 quarantined unchanged", "audit write count", "approved now already present", "identity dry-run is no-op", "duplicate GTIN conflicts"]) assert.match(source, new RegExp(contract.replace(/[.]/g, "\\.")));
   assert.match(source, /FAILED_VERIFICATION/);
   assert.doesNotMatch(source, /gtin-promotion[^\n]*rollback\.sql|--mode=rollback/i);
+  assert.match(source, /expectedState: config\.scope === "owner-reviewed-36" \? "post-apply"/);
 });

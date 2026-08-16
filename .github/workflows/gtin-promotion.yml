@@ -8,13 +8,14 @@ on:
         required: true
         default: preflight
         type: choice
-        options: [preflight, preflight_exact_36, validate, apply, release_exact_45, release_exact_36]
+        options: [preflight, preflight_exact_36, validate, apply, release_exact_45, release_exact_36, verify_exact_36_release]
       owner_confirmation:
         description: Type the fixed confirmation required by the selected operation
         required: true
         type: string
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -23,7 +24,7 @@ concurrency:
 
 jobs:
   integration:
-    if: ${{ github.ref == 'refs/heads/main' && ((inputs.operation == 'preflight_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36') || (inputs.operation == 'release_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36_APPLY') || (inputs.operation != 'preflight_exact_36' && inputs.operation != 'release_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_45')) }}
+    if: ${{ github.ref == 'refs/heads/main' && ((inputs.operation == 'preflight_exact_36' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36') || ((inputs.operation == 'release_exact_36' || inputs.operation == 'verify_exact_36_release') && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_36_APPLY') || (inputs.operation != 'preflight_exact_36' && inputs.operation != 'release_exact_36' && inputs.operation != 'verify_exact_36_release' && inputs.owner_confirmation == 'OWNER_APPROVED_EXACT_45')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -70,14 +71,14 @@ jobs:
           NODE_OPTIONS: --use-system-ca
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        if: ${{ inputs.operation != 'release_exact_36' }}
+        if: ${{ inputs.operation != 'release_exact_36' && inputs.operation != 'verify_exact_36_release' }}
         run: npm run gtin:promotion -- --mode=plan --target=production --output=tmp/gtin-promotion/release-exact-45.json
       - name: Production preflight — seal no-change baseline
         env:
           NODE_OPTIONS: --use-system-ca
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        if: ${{ inputs.operation != 'release_exact_36' }}
+        if: ${{ inputs.operation != 'release_exact_36' && inputs.operation != 'verify_exact_36_release' }}
         run: node scripts/gtin-promotion-release.js --mode=capture --target=production --artifact=tmp/gtin-promotion/release-exact-45.json --output=tmp/gtin-promotion/release-baseline.json --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
       - name: Migration preflight
         if: ${{ inputs.operation == 'release_exact_45' }}
@@ -86,7 +87,7 @@ jobs:
         if: ${{ inputs.operation == 'release_exact_45' }}
         run: node scripts/gtin-promotion-release.js --mode=deploy --target=production --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_45
       - name: Validate exact 45 after migration
-        if: ${{ inputs.operation != 'release_exact_36' }}
+        if: ${{ inputs.operation != 'release_exact_36' && inputs.operation != 'verify_exact_36_release' }}
         env:
           GTIN_PROMOTION_APPROVER_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_APPROVER_DATABASE_URL || secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           GTIN_PROMOTION_EXECUTOR_DATABASE_URL: ${{ secrets.GTIN_PROMOTION_EXECUTOR_DATABASE_URL || secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
@@ -139,6 +140,21 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/gtin-promotion-release.js --mode=verify --target=production --scope=owner-reviewed-36 --artifact=tmp/gtin-promotion/release-exact-36.json --baseline=tmp/gtin-promotion/release-exact-36-baseline.json --output=tmp/gtin-promotion/release-exact-36-report.json --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_36_APPLY
+      - name: Recover immutable exact 36 release evidence
+        if: ${{ inputs.operation == 'verify_exact_36_release' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: gtin-promotion-31961892019-1
+          path: tmp/gtin-promotion
+          github-token: ${{ github.token }}
+          run-id: 31961892019
+      - name: Complete exact 36 post-write verification
+        if: ${{ inputs.operation == 'verify_exact_36_release' }}
+        env:
+          NODE_OPTIONS: --use-system-ca
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/gtin-promotion-release.js --mode=verify --target=production --scope=owner-reviewed-36 --artifact=tmp/gtin-promotion/release-exact-36.json --baseline=tmp/gtin-promotion/release-exact-36-baseline.json --output=tmp/gtin-promotion/recovered-exact-36-report.json --env-file=$RUNNER_TEMP/gtin-production-owner.env --confirm=OWNER_APPROVED_EXACT_36_APPLY
       - name: Remove owner credential file
         if: always()
         run: rm -f "$RUNNER_TEMP/gtin-production-owner.env"

@@ -221,11 +221,17 @@ async function buildReadOnlyPreview(options, dependencies = {}) {
     sourceFingerprint,
     quarantinedGtins: [...parseQuarantinedGtins(markdown)],
   });
-  if (scope === "owner-reviewed-36" &&
-    (preview.summary.READY_TO_PROMOTE !== 36 || preview.summary.ALREADY_PRESENT !== 0 ||
-      preview.summary.MANUAL_REVIEW !== 0 || preview.summary.BLOCKED !== 0 ||
-      preview.rows.some((row) => row.destination_field !== "product_variants.gtin" || row.current_value !== null))) {
-    throw new Error("Owner-reviewed exact 36 production dry-run is not 36 writes / 0 no-ops / 0 review / 0 blocked");
+  const expectedState = options.expectedState || "pre-apply";
+  if (!['pre-apply', 'post-apply'].includes(expectedState)) throw new Error("Unsupported owner-reviewed GTIN expected state");
+  if (scope === "owner-reviewed-36") {
+    const expectedSummary = expectedState === "post-apply"
+      ? { READY_TO_PROMOTE: 0, ALREADY_PRESENT: 36, MANUAL_REVIEW: 0, BLOCKED: 0 }
+      : { READY_TO_PROMOTE: 36, ALREADY_PRESENT: 0, MANUAL_REVIEW: 0, BLOCKED: 0 };
+    if (JSON.stringify(preview.summary) !== JSON.stringify(expectedSummary) ||
+      preview.rows.some((row) => row.destination_field !== "product_variants.gtin" ||
+        (expectedState === "post-apply" ? row.current_value !== row.proposed_value : row.current_value !== null))) {
+      throw new Error(`Owner-reviewed exact 36 production dry-run does not match ${expectedState} state`);
+    }
   }
   return {
     preview,

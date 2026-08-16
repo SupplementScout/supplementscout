@@ -249,7 +249,7 @@ async function verify(options) {
     compare(anomalies, "duplicate GTIN conflicts", [], [...owners].filter(([, targets]) => targets.length > 1));
     return current;
   });
-  const preview = await buildReadOnlyPreview({ target: "production", output: null, scope: config.previewScope });
+  const preview = await buildReadOnlyPreview({ target: "production", output: null, scope: config.previewScope, expectedState: config.scope === "owner-reviewed-36" ? "post-apply" : undefined });
   const approved = new Set(config.identities.map((row) => `${row.product_id}:${row.variant_id}:${row.gtin}`));
   const approvedNoOps = preview.preview.rows.filter((row) => approved.has(`${row.product_id}:${row.variant_id}:${row.gtin}`) && row.decision === "ALREADY_PRESENT");
   compare(anomalies, `${config.rowCount} approved now already present`, config.rowCount, approvedNoOps.length);
