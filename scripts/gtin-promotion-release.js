@@ -5,7 +5,7 @@ const { spawnSync } = require("node:child_process");
 const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
 const { buildReadOnlyPreview } = require("./gtin-promotion-dry-run");
-const { APPROVED_IDENTITIES, readArtifact } = require("./gtin-promotion-operation");
+const { APPROVED_IDENTITIES, SCOPE_CONFIGS, readArtifact } = require("./gtin-promotion-operation");
 const { databaseState, loadEnvFile, pendingConfirmation } = require("./apply-selected-migrations");
 const { CONTRACTS, ledgerIdentifier, ledgerRowsFingerprint, sha256File, validateDatabaseOwner } = require("./supabase-migration-selector");
 
@@ -14,6 +14,7 @@ const CONTRACT = CONTRACTS.PRODUCTION;
 const MIGRATION = "20260813170000_add_guarded_gtin_promotion.sql";
 const MIGRATION_ID = MIGRATION.slice(0, -4);
 const CONFIRMATION = "OWNER_APPROVED_EXACT_45";
+const EXACT36_CONFIRMATION = "OWNER_APPROVED_EXACT_36_APPLY";
 const QUARANTINED_GTINS = Object.freeze([
   "6009544961161","850054547989","850054547996","850060014024",
   "810028296107","810028296084","810028296114","810028296091",
@@ -24,16 +25,36 @@ const QUARANTINED_GTINS = Object.freeze([
 function fail(message) { throw new Error(message); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
 function releaseFingerprint(label, value) { return sha256(`GTIN-PROMOTION-RELEASE:1\n${label}\n${canonicalJson(value)}`); }
+const RELEASE_CONFIGS = Object.freeze({
+  "exact-45": Object.freeze({ scope: "exact-45", previewScope: "legacy-54", kind: SCOPE_CONFIGS["exact-45"].kind, confirmation: CONFIRMATION, identities: APPROVED_IDENTITIES, rowCount: 45, initialAlreadyPresent: 9, postAlreadyPresent: 54, operationType: "GTIN_PROMOTION_RELEASE_EXACT_45" }),
+  "owner-reviewed-36": Object.freeze({ scope: "owner-reviewed-36", previewScope: "owner-reviewed-36", kind: SCOPE_CONFIGS["owner-reviewed-36"].kind, confirmation: EXACT36_CONFIRMATION, identities: SCOPE_CONFIGS["owner-reviewed-36"].identities, rowCount: 36, initialAlreadyPresent: 0, postAlreadyPresent: 36, operationType: "GTIN_PROMOTION_RELEASE_EXACT_36" }),
+});
+
+function releaseConfig(scope = "exact-45") {
+  const config = RELEASE_CONFIGS[scope];
+  if (!config) fail("Unsupported GTIN promotion release scope");
+  return config;
+}
+
+function artifactReleaseConfig(artifact, requestedScope) {
+  const config = Object.values(RELEASE_CONFIGS).find((entry) => entry.kind === artifact.kind);
+  if (!config || (requestedScope && requestedScope !== config.scope)) fail("GTIN promotion release artifact scope mismatch");
+  return config;
+}
+
 function parseArgs(argv) {
   const result = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(mode|target|artifact|baseline|output|confirm|env-file)=(.+)$/);
+    const match = argument.match(/^--(mode|target|artifact|baseline|output|confirm|env-file|scope)=(.+)$/);
     if (!match || result[match[1]] !== undefined) fail(`Unsupported argument: ${argument}`);
     result[match[1]] = match[2];
   }
   if (!["capture", "migration-preflight", "deploy", "verify"].includes(result.mode)) fail("Required --mode=capture|migration-preflight|deploy|verify");
   if (result.target !== "production") fail("Required --target=production");
-  if (result.confirm !== CONFIRMATION) fail(`Required --confirm=${CONFIRMATION}`);
+  result.scope ||= "exact-45";
+  const config = releaseConfig(result.scope);
+  if (result.confirm !== config.confirmation) fail(`Required --confirm=${config.confirmation}`);
+  if (["migration-preflight", "deploy"].includes(result.mode) && result.scope !== "exact-45") fail("Migration operations are limited to the frozen exact-45 release contract");
   for (const key of ["artifact", "baseline", "output", "env-file"]) if (result[key]) result[key] = path.resolve(ROOT, result[key]);
   if (["capture", "verify"].includes(result.mode) && !result.artifact) fail("Artifact is required");
   if (result.mode === "capture" && !result.output) fail("Capture output is required");
@@ -116,21 +137,22 @@ function snapshotSummary(data, approvedRows = []) {
 
 async function capture(options) {
   const loaded = readArtifact(options.artifact);
-  const preview = await buildReadOnlyPreview({ target: "production", output: null });
-  if (preview.preview.summary.READY_TO_PROMOTE !== 45 || preview.preview.summary.ALREADY_PRESENT !== 9 || preview.preview.summary.BLOCKED !== 0 || preview.preview.summary.MANUAL_REVIEW !== 0) fail("Production preflight is not exact 45 writes / 9 no-ops / 0 conflicts");
+  const config = artifactReleaseConfig(loaded.artifact, options.scope);
+  const preview = await buildReadOnlyPreview({ target: "production", output: null, scope: config.previewScope });
+  if (preview.preview.summary.READY_TO_PROMOTE !== config.rowCount || preview.preview.summary.ALREADY_PRESENT !== config.initialAlreadyPresent || preview.preview.summary.BLOCKED !== 0 || preview.preview.summary.MANUAL_REVIEW !== 0) fail(`Production preflight is not exact ${config.rowCount} writes / ${config.initialAlreadyPresent} no-ops / 0 conflicts`);
   const noOps = preview.preview.rows.filter((row) => row.decision === "ALREADY_PRESENT").map(({ product_id, variant_id, gtin, destination_field, current_value }) => ({ product_id, variant_id, gtin, destination_field, current_value }));
   const baseline = await ownerRead(options["env-file"], async (client) => {
     const data = await snapshot(client);
     return {
       schema_version: 1,
-      operation_type: "GTIN_PROMOTION_RELEASE_EXACT_45",
+      operation_type: config.operationType,
       artifact_sha256: loaded.artifactSha256,
       artifact_fingerprint: loaded.artifact.artifact_fingerprint,
       plan_fingerprint: loaded.artifact.plan.meta.plan_fingerprint,
       source_row_fingerprint: loaded.artifact.plan.meta.source_row_fingerprint,
       run_id: loaded.artifact.run_id,
       captured_at: new Date().toISOString(),
-      approved_writes: APPROVED_IDENTITIES,
+      approved_writes: config.identities,
       already_present: noOps,
       quarantined_gtins: QUARANTINED_GTINS,
       snapshots: data,
@@ -140,7 +162,7 @@ async function capture(options) {
   });
   baseline.baseline_fingerprint = releaseFingerprint("BASELINE", baseline);
   writeImmutable(options.output, baseline);
-  return { result: "PASS", mode: "production-preflight", expected_writes: 45, already_present: 9, conflicts: 0, database_writes: 0, baseline_fingerprint: baseline.baseline_fingerprint };
+  return { result: "PASS", mode: "production-preflight", scope: config.scope, expected_writes: config.rowCount, already_present: config.initialAlreadyPresent, conflicts: 0, database_writes: 0, baseline_fingerprint: baseline.baseline_fingerprint };
 }
 
 async function migrationPreflight(options) {
@@ -188,10 +210,12 @@ function compareRows(anomalies, name, expected, actual) {
 
 async function verify(options) {
   const loaded = readArtifact(options.artifact, { allowExpired: true });
+  const config = artifactReleaseConfig(loaded.artifact, options.scope);
   const baseline = readImmutable(options.baseline);
   const anomalies = [];
+  compare(anomalies, "operation_type", config.operationType, baseline.operation_type);
   compare(anomalies, "artifact_sha256", baseline.artifact_sha256, loaded.artifactSha256);
-  compare(anomalies, "approved_writes", APPROVED_IDENTITIES, baseline.approved_writes);
+  compare(anomalies, "approved_writes", config.identities, baseline.approved_writes);
   const verification = await ownerRead(options["env-file"], async (client) => {
     const data = await snapshot(client);
     const current = snapshotSummary(data, []);
@@ -213,8 +237,8 @@ async function verify(options) {
     compare(anomalies, "one audit ledger row", 1, approvalRows.length);
     if (approvalRows.length === 1) {
       compare(anomalies, "audit consumed", "consumed", approvalRows[0].status);
-      compare(anomalies, "audit write count", "45", approvalRows[0].apply_result?.applied_count);
-      compare(anomalies, "audit row count", 45, approvalRows[0].apply_result?.rows?.length);
+      compare(anomalies, "audit write count", String(config.rowCount), approvalRows[0].apply_result?.applied_count);
+      compare(anomalies, "audit row count", config.rowCount, approvalRows[0].apply_result?.rows?.length);
     }
     const owners = new Map();
     for (const row of [...data.products.map((item) => ({ ...item, field: "products.gtin" })), ...data.variants.map((item) => ({ ...item, field: "product_variants.gtin" }))]) {
@@ -225,12 +249,12 @@ async function verify(options) {
     compare(anomalies, "duplicate GTIN conflicts", [], [...owners].filter(([, targets]) => targets.length > 1));
     return current;
   });
-  const preview = await buildReadOnlyPreview({ target: "production", output: null });
-  const approved = new Set(APPROVED_IDENTITIES.map((row) => `${row.product_id}:${row.variant_id}:${row.gtin}`));
+  const preview = await buildReadOnlyPreview({ target: "production", output: null, scope: config.previewScope });
+  const approved = new Set(config.identities.map((row) => `${row.product_id}:${row.variant_id}:${row.gtin}`));
   const approvedNoOps = preview.preview.rows.filter((row) => approved.has(`${row.product_id}:${row.variant_id}:${row.gtin}`) && row.decision === "ALREADY_PRESENT");
-  compare(anomalies, "45 approved now already present", 45, approvedNoOps.length);
-  compare(anomalies, "full 54 identity dry-run is no-op", { READY_TO_PROMOTE: 0, ALREADY_PRESENT: 54, MANUAL_REVIEW: 0, BLOCKED: 0 }, preview.preview.summary);
-  const report = { result: anomalies.length ? "FAILED_VERIFICATION" : "PASS", operation_type: "GTIN_PROMOTION_RELEASE_EXACT_45", verified_writes: approvedNoOps.length, full_no_ops: preview.preview.summary.ALREADY_PRESENT, anomalies, verification, database_writes: 0 };
+  compare(anomalies, `${config.rowCount} approved now already present`, config.rowCount, approvedNoOps.length);
+  compare(anomalies, `${config.postAlreadyPresent} identity dry-run is no-op`, { READY_TO_PROMOTE: 0, ALREADY_PRESENT: config.postAlreadyPresent, MANUAL_REVIEW: 0, BLOCKED: 0 }, preview.preview.summary);
+  const report = { result: anomalies.length ? "FAILED_VERIFICATION" : "PASS", operation_type: config.operationType, scope: config.scope, verified_writes: approvedNoOps.length, full_no_ops: preview.preview.summary.ALREADY_PRESENT, anomalies, verification, database_writes: 0 };
   writeImmutable(options.output, { ...report, baseline_fingerprint: releaseFingerprint("BASELINE", { ...report, baseline_fingerprint: null }) });
   if (anomalies.length) fail(`FAILED_VERIFICATION: ${JSON.stringify(anomalies)}`);
   return report;
@@ -245,4 +269,4 @@ async function run(options) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { MIGRATION, QUARANTINED_GTINS, exactRowDiff, parseArgs, run, snapshotSummary };
+module.exports = { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, exactRowDiff, parseArgs, run, snapshotSummary };

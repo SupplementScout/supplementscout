@@ -17,8 +17,9 @@ test("default operation is manual, main-only and non-writing", () => {
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_45'/);
   assert.match(workflow, /inputs\.operation == 'preflight_exact_36' && inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36'/);
+  assert.match(workflow, /inputs\.operation == 'release_exact_36' && inputs\.owner_confirmation == 'OWNER_APPROVED_EXACT_36_APPLY'/);
   assert.match(workflow, /default: preflight/);
-  assert.match(workflow, /options: \[preflight, preflight_exact_36, validate, apply, release_exact_45\]/);
+  assert.match(workflow, /options: \[preflight, preflight_exact_36, validate, apply, release_exact_45, release_exact_36\]/);
   assert.match(workflow, /permissions:\s*\n\s*contents: read/);
 });
 
@@ -29,7 +30,7 @@ test("preflight failure stops migration and has no production secrets", () => {
   assert.doesNotMatch(integration, /secrets\.|environment:\s*production|continue-on-error/);
   assert.match(workflow, /production:\s*\n\s*needs: integration/);
   assert.match(workflow, /inputs\.operation != 'preflight' && inputs\.operation != 'preflight_exact_36'/);
-  assert.doesNotMatch(workflow, /release_exact_36|--scope=owner-reviewed-36[\s\S]*--mode=apply/);
+  assert.match(workflow, /inputs\.operation != 'preflight' && inputs\.operation != 'preflight_exact_36'/);
 });
 
 test("release steps are strictly ordered and each failure stops its successors", () => {
@@ -49,11 +50,15 @@ test("validate mismatch or incorrect count/fingerprint cannot reach apply", () =
   assert.match(workflow, /--mode=validate[^\n]*--artifact=tmp\/gtin-promotion\/release-exact-45\.json[^\n]*--confirm=OWNER_APPROVED_EXACT_45/);
   assert.match(workflow, /--mode=apply[^\n]*--artifact=tmp\/gtin-promotion\/release-exact-45\.json[^\n]*--confirm=OWNER_APPROVED_EXACT_45/);
   assert.doesNotMatch(workflow, /--mode=apply[^\n]*(?:inputs\.artifact|inputs\.count|inputs\.fingerprint)/);
+  assert.match(workflow, /--mode=validate[^\n]*--scope=owner-reviewed-36[^\n]*--artifact=tmp\/gtin-promotion\/release-exact-36\.json[^\n]*--confirm=OWNER_APPROVED_EXACT_36/);
+  assert.match(workflow, /--mode=apply[^\n]*--scope=owner-reviewed-36[^\n]*--artifact=tmp\/gtin-promotion\/release-exact-36\.json[^\n]*--confirm=OWNER_APPROVED_EXACT_36/);
+  assert.match(workflow, /GTIN_PROMOTION_EXACT_36_SCHEMA_READY: "true"/);
 });
 
 test("apply success triggers exact post-write verification and rerun cannot widen scope", () => {
   assert.match(workflow, /--mode=verify[^\n]*--baseline=tmp\/gtin-promotion\/release-baseline\.json/);
   assert.match(workflow, /release-exact-45\.json/);
+  assert.match(workflow, /--mode=verify[^\n]*--scope=owner-reviewed-36[^\n]*--baseline=tmp\/gtin-promotion\/release-exact-36-baseline\.json[^\n]*--confirm=OWNER_APPROVED_EXACT_36_APPLY/);
   assert.doesNotMatch(workflow, /inputs\.(?:artifact|gtin|count|fingerprint)/);
   assert.match(workflow, /concurrency:[\s\S]*cancel-in-progress: false/);
 });

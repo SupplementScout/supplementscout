@@ -2,8 +2,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const { APPROVED_IDENTITIES } = require("./gtin-promotion-operation");
-const { MIGRATION, QUARANTINED_GTINS, exactRowDiff, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
+const { APPROVED_IDENTITIES, SCOPE_CONFIGS } = require("./gtin-promotion-operation");
+const { EXACT36_CONFIRMATION, MIGRATION, QUARANTINED_GTINS, RELEASE_CONFIGS, exactRowDiff, parseArgs, snapshotSummary } = require("./gtin-promotion-release");
 const { CONTRACTS } = require("./supabase-migration-selector");
 
 test("release accepts only production and exact owner confirmation", () => {
@@ -11,6 +11,15 @@ test("release accepts only production and exact owner confirmation", () => {
   assert.equal(parsed.mode, "deploy");
   assert.throws(() => parseArgs(["--mode=deploy", "--target=production", "--env-file=tmp/owner.env", "--confirm=WRONG"]), /OWNER_APPROVED_EXACT_45/);
   assert.throws(() => parseArgs(["--mode=deploy", "--target=staging", "--env-file=tmp/owner.env", "--confirm=OWNER_APPROVED_EXACT_45"]), /target=production/);
+});
+
+test("owner-reviewed exact 36 release has a separate fixed write confirmation and cannot deploy schema", () => {
+  const parsed = parseArgs(["--mode=capture", "--target=production", "--scope=owner-reviewed-36", "--artifact=tmp/artifact.json", "--output=tmp/baseline.json", "--env-file=tmp/owner.env", `--confirm=${EXACT36_CONFIRMATION}`]);
+  assert.equal(parsed.scope, "owner-reviewed-36");
+  assert.equal(RELEASE_CONFIGS["owner-reviewed-36"].identities.length, 36);
+  assert.deepEqual(RELEASE_CONFIGS["owner-reviewed-36"].identities, SCOPE_CONFIGS["owner-reviewed-36"].identities);
+  assert.throws(() => parseArgs(["--mode=capture", "--target=production", "--scope=owner-reviewed-36", "--artifact=tmp/artifact.json", "--output=tmp/baseline.json", "--env-file=tmp/owner.env", "--confirm=OWNER_APPROVED_EXACT_36"]), /OWNER_APPROVED_EXACT_36_APPLY/);
+  assert.throws(() => parseArgs(["--mode=deploy", "--target=production", "--scope=owner-reviewed-36", "--env-file=tmp/owner.env", `--confirm=${EXACT36_CONFIRMATION}`]), /limited to the frozen exact-45/);
 });
 
 test("release contract is exactly 45 writes and 16 quarantined conflicts", () => {
@@ -45,9 +54,9 @@ test("failed verification reports exact changed rows", () => {
   ]);
 });
 
-test("verification source checks audit, exact 45, 54 no-ops and protected tables", () => {
+test("verification source checks dynamic exact scope, audit, no-ops and protected tables", () => {
   const source = fs.readFileSync(path.join(__dirname, "gtin-promotion-release.js"), "utf8");
-  for (const contract of ["products.gtin unchanged", "exact variant GTIN postcondition", "offers unchanged", "retailer_products unchanged", "16 quarantined unchanged", "audit write count", "45 approved now already present", "full 54 identity dry-run is no-op", "duplicate GTIN conflicts"]) assert.match(source, new RegExp(contract.replace(/[.]/g, "\\.")));
+  for (const contract of ["products.gtin unchanged", "exact variant GTIN postcondition", "offers unchanged", "retailer_products unchanged", "16 quarantined unchanged", "audit write count", "approved now already present", "identity dry-run is no-op", "duplicate GTIN conflicts"]) assert.match(source, new RegExp(contract.replace(/[.]/g, "\\.")));
   assert.match(source, /FAILED_VERIFICATION/);
   assert.doesNotMatch(source, /gtin-promotion[^\n]*rollback\.sql|--mode=rollback/i);
 });
