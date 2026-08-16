@@ -750,6 +750,22 @@ one-time deployment option is removed from the current workflow and production
 has no pending migration. The binding next action is a fresh exact-36 artifact
 and guarded validate-only owner review; apply remains a separate decision.
 
+The owner then authorized the exact 36-row production release. Manual workflow
+`31961892019` created a fresh immutable artifact, sealed the pre-write state,
+validated the exact scope and atomically applied 36/36 variant GTINs. Approval
+`42c92610-1c2b-4c36-9790-fbe72ae43f50` was consumed with 36 audit rows. Its
+first post-write step failed only because the read-only preview still enforced
+the pre-apply expectation after a successful write. No apply was replayed.
+After the verifier was corrected, read-only recovery workflow `31962357242`
+reused the original artifact and baseline and passed with 36 verified writes,
+36 already-present no-ops and zero anomalies. Products, offers and retailer
+mappings matched the pre-write baseline; the 16 quarantined conflicts and
+duplicate protections remained unchanged. The temporary release/recovery
+workflow options were removed. The binding next action is to reuse and inspect
+the existing eBay Browse discovery/import/refresh path for these newly
+GTIN-enriched identities, beginning read-only and requiring owner review before
+any new offer write.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.

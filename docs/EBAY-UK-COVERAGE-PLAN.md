@@ -1768,6 +1768,21 @@ rollback and explicit approval.
   none of the 36 approved GTINs is assigned and the exact-36 approval count is
   zero. The one-time migration operation was removed from the current workflow
   after verification and the selector now has no pending production migration.
+- `EXACT-36 GTIN RELEASE LIVE VERIFIED`: owner-authorized workflow run
+  `31961892019` on commit `e01720dc9492317cc5eeec70642cbe9522ac0644`
+  passed the full quality gate, exact contract tests and disposable PostgreSQL
+  integration test. Its fresh production preflight returned exactly 36 writes,
+  0 no-ops and 0 conflicts; guarded validation passed and the atomic apply
+  wrote exactly 36 `product_variants.gtin` values under approval
+  `42c92610-1c2b-4c36-9790-fbe72ae43f50`. The first post-write check exposed
+  a verifier-state bug after the successful apply, not a data conflict. The
+  verifier was corrected without replaying apply. Read-only recovery run
+  `31962357242` on commit `0d5fde7b19c7ab051b1330700fa415fc40c6cdba`
+  reused the original immutable artifact and pre-write baseline and passed:
+  36/36 verified, 36 already-present no-ops, 0 anomalies, products unchanged,
+  offers unchanged, retailer mappings unchanged, 16 quarantined conflicts
+  unchanged and no duplicate GTIN ownership. The one-time exact-36 write and
+  recovery operations were then removed from the manual workflow.
 - `LIVE VERIFIED — BATCH D 2/2`: a bounded refresh of the remaining 36 unresolved
   candidate/listing pairs found 27 live listings: 10 are blocked because the
   eBay seller is the same existing retailer, 15 still lack a returned GTIN,
@@ -1788,10 +1803,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Prepare a fresh exact-36 production artifact and guarded
-validate-only run for owner review. Do not apply. The later atomic 36-row apply
-remains a separate owner decision. The six REVIEW and eight CONFLICT rows
-remain outside scope.`
+`NEXT ACTION: Reuse and audit the existing eBay Browse discovery, guarded
+offer importer and refresh mechanisms for the newly GTIN-enriched identities.
+Start with read-only exact-GTIN discovery and produce an owner-review cohort;
+do not add or refresh eBay offers until that evidence is approved. The six
+REVIEW and eight CONFLICT rows remain outside scope.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
