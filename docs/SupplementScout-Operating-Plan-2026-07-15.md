@@ -791,6 +791,12 @@ no-change plan to keep `last_checked_at` current without false price history.
 Its first live local production dry-run passed with zero writes. GitHub
 read-only preflight and one guarded manual apply remain the activation gate
 before the daily schedule is treated as enabled.
+GitHub run `31964579226` subsequently passed workflow registration, context and
+contract tests, then failed closed in the read-only preflight because
+`production-readonly` lacks `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET` and
+`EBAY_UK_DELIVERY_POSTCODE`. Apply and postflight were skipped. Adding those
+three existing values as GitHub environment secrets and rerunning dry-run is
+the only activation next action; the code must not weaken this gate.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
