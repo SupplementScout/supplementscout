@@ -16,6 +16,7 @@ type StructuredOfferInput = {
 };
 
 type BuildProductStructuredDataInput = {
+  categoryComparison?: { name: string; url: string } | null;
   description: string;
   offers: StructuredOfferInput[];
   product: StructuredProductInput;
@@ -99,6 +100,7 @@ function buildAggregateOffer(
 }
 
 export function buildProductStructuredData({
+  categoryComparison,
   description,
   offers,
   product,
@@ -107,24 +109,40 @@ export function buildProductStructuredData({
   const aggregateOffer = buildAggregateOffer(offers, canonicalUrl);
   const brand = trimmed(product.brand);
   const image = safeAbsoluteHttpUrl(product.image);
+  const categoryName = trimmed(categoryComparison?.name);
+  const categoryPath = trimmed(categoryComparison?.url);
+  const categoryUrl = /^\/[a-z0-9-]+$/.test(categoryPath)
+    ? `${SITE_URL}${categoryPath}`
+    : "";
+  const breadcrumbItems = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "SupplementScout",
+      item: SITE_URL,
+    },
+    ...(categoryName && categoryUrl
+      ? [
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: categoryName,
+            item: categoryUrl,
+          },
+        ]
+      : []),
+    {
+      "@type": "ListItem",
+      position: categoryName && categoryUrl ? 3 : 2,
+      name: product.name,
+      item: canonicalUrl,
+    },
+  ];
 
   const breadcrumbEntity = {
     "@type": "BreadcrumbList",
     "@id": `${canonicalUrl}#breadcrumb`,
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "SupplementScout",
-        item: SITE_URL,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: product.name,
-        item: canonicalUrl,
-      },
-    ],
+    itemListElement: breadcrumbItems,
   };
 
   return {

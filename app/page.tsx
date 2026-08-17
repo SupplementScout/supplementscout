@@ -3,6 +3,10 @@ import ComparisonTransparencyLinks from "./components/ComparisonTransparencyLink
 import HomeCategories from "./components/HomeCategories";
 import HomeHeader from "./components/HomeHeader";
 import SearchInput from "./components/SearchInput";
+import {
+  categoryBrowseHref,
+  COMPARISON_CATEGORY_LINKS,
+} from "./lib/categoryRoutes";
 import { getHomepageData } from "./lib/homepageData";
 
 export const revalidate = 3600;
@@ -54,22 +58,7 @@ const goalLinks = [
   },
 ];
 
-const landingCategories = [
-  { label: "Vitamins", href: "/vitamins" },
-  { label: "Creatine", href: "/creatine" },
-  { label: "Whey Protein", href: "/whey-protein" },
-  { label: "Whey Isolate", href: "/whey-isolate" },
-  { label: "Vegan Protein", href: "/vegan-protein" },
-  { label: "Mass Gainer", href: "/mass-gainer" },
-  { label: "Multivitamins", href: "/multivitamins" },
-  { label: "Pre Workout", href: "/pre-workout" },
-  { label: "Amino Acids", href: "/amino-acids" },
-  { label: "Magnesium", href: "/magnesium" },
-  { label: "Vitamin D", href: "/vitamin-d" },
-  { label: "Omega 3", href: "/omega-3" },
-  { label: "Hydration", href: "/hydration" },
-  { label: "Glucosamine", href: "/glucosamine" },
-];
+const landingCategories = COMPARISON_CATEGORY_LINKS;
 
 const landingCategoryHrefs = new Map(
   landingCategories.map((category) => [
@@ -83,13 +72,6 @@ function searchHref(query: string) {
     pathname: "/search",
     query: { q: query },
   };
-}
-
-function categoryHref(category: string) {
-  return (
-    landingCategoryHrefs.get(category.toLowerCase()) ||
-    `/search?q=${encodeURIComponent(category)}`
-  );
 }
 
 function itemHref(item: { href?: string; query?: string }) {
@@ -117,7 +99,7 @@ export default async function Home() {
     ),
   ];
   const categoryLinks = browseCategories.map((category) => ({
-    href: categoryHref(category),
+    href: categoryBrowseHref(category),
     label: category,
   }));
   const latestCheckDate = checkedDate(latestOfferCheckAt);

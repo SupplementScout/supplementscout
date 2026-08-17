@@ -29,11 +29,35 @@ function loadStructuredDataModule() {
   return mod.exports;
 }
 
+function loadCategoryRoutesModule() {
+  const filename = path.join(process.cwd(), "app", "lib", "categoryRoutes.ts");
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+
+  return mod.exports;
+}
+
 const {
   buildProductStructuredData,
   productCanonicalUrl,
   serializeJsonLd,
 } = loadStructuredDataModule();
+const {
+  categoryBrowseHref,
+  COMPARISON_CATEGORY_LINKS,
+  comparisonLinkForCategory,
+} = loadCategoryRoutesModule();
 
 function product(overrides = {}) {
   return {
@@ -138,6 +162,77 @@ test("Product and BreadcrumbList use one canonical identity", () => {
   );
 });
 
+test("approved exact categories add the comparison page to product breadcrumbs", () => {
+  const data = buildProductStructuredData({
+    categoryComparison: { name: "Creatine", url: "/creatine" },
+    description: "Visible product summary.",
+    product: product(),
+    offers: [offer()],
+  });
+  const breadcrumbs = data["@graph"][1];
+
+  assert.deepEqual(
+    breadcrumbs.itemListElement.map(({ position, name, item }) => ({
+      position,
+      name,
+      item,
+    })),
+    [
+      {
+        position: 1,
+        name: "SupplementScout",
+        item: "https://www.supplementscout.co.uk",
+      },
+      {
+        position: 2,
+        name: "Creatine",
+        item: "https://www.supplementscout.co.uk/creatine",
+      },
+      {
+        position: 3,
+        name: "Example Creatine 300g",
+        item:
+          "https://www.supplementscout.co.uk/product/example-creatine-300g",
+      },
+    ]
+  );
+});
+
+test("unapproved category paths cannot enter product structured data", () => {
+  const data = buildProductStructuredData({
+    categoryComparison: {
+      name: "External category",
+      url: "https://example.com/category",
+    },
+    description: "Visible product summary.",
+    product: product(),
+    offers: [offer()],
+  });
+  const breadcrumbs = data["@graph"][1];
+
+  assert.equal(breadcrumbs.itemListElement.length, 2);
+  assert.equal(breadcrumbs.itemListElement[1].position, 2);
+  assert.equal(breadcrumbs.itemListElement[1].name, "Example Creatine 300g");
+});
+
+test("comparison category routing is shared, exact and safely falls back", () => {
+  assert.equal(COMPARISON_CATEGORY_LINKS.length, 14);
+  assert.equal(
+    new Set(COMPARISON_CATEGORY_LINKS.map(({ href }) => href)).size,
+    COMPARISON_CATEGORY_LINKS.length
+  );
+  assert.deepEqual(comparisonLinkForCategory(" creatine "), {
+    label: "Creatine",
+    href: "/creatine",
+  });
+  assert.equal(comparisonLinkForCategory("Creatine blends"), null);
+  assert.equal(categoryBrowseHref("Creatine"), "/creatine");
+  assert.equal(
+    categoryBrowseHref("Joint support & mobility"),
+    "/search?q=Joint%20support%20%26%20mobility"
+  );
+});
+
 test("unknown brands and unsafe image URLs are omitted", () => {
   const data = buildProductStructuredData({
     description: "Visible product summary.",
@@ -171,5 +266,8 @@ test("product page renders native JSON-LD and visible breadcrumbs", () => {
   assert.match(source, /serializeJsonLd\(structuredData\)/);
   assert.match(source, /<nav aria-label="Breadcrumb">/);
   assert.match(source, /aria-current="page"/);
+  assert.match(source, /comparisonLinkForCategory\(product\.category\)/);
+  assert.match(source, /href=\{comparisonLink\.href\}/);
+  assert.match(source, /categoryComparison: comparisonLink/);
   assert.doesNotMatch(source, /from "next\/script"/);
 });

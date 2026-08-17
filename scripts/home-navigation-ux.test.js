@@ -15,6 +15,10 @@ const categoriesSource = fs.readFileSync(
   path.join(process.cwd(), "app", "components", "HomeCategories.tsx"),
   "utf8"
 );
+const categoryRoutesSource = fs.readFileSync(
+  path.join(process.cwd(), "app", "lib", "categoryRoutes.ts"),
+  "utf8"
+);
 const searchInputSource = fs.readFileSync(
   path.join(process.cwd(), "app", "components", "SearchInput.tsx"),
   "utf8"
@@ -143,6 +147,8 @@ test("Shop by goal uses six controlled existing destinations", () => {
 
 test("mobile category list is limited without changing category routes", () => {
   assert.match(pageSource, /<HomeCategories items=\{categoryLinks\}/);
+  assert.match(pageSource, /COMPARISON_CATEGORY_LINKS/);
+  assert.match(pageSource, /categoryBrowseHref\(category\)/);
   assert.match(categoriesSource, /MOBILE_CATEGORY_LIMIT = 7/);
   assert.match(categoriesSource, /index >= MOBILE_CATEGORY_LIMIT/);
   assert.match(categoriesSource, /"hidden md:block"/);
@@ -159,6 +165,6 @@ test("mobile category list is limited without changing category routes", () => {
     "/hydration",
     "/glucosamine",
   ]) {
-    assert.match(pageSource, new RegExp(`href: "${route}"`));
+    assert.match(categoryRoutesSource, new RegExp(`href: "${route}"`));
   }
 });

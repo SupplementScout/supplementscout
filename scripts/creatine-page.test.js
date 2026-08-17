@@ -46,6 +46,7 @@ const launchPath = path.join(process.cwd(), "app", "lib", "creatineLaunch.ts");
 const comparisonPath = path.join(process.cwd(), "app", "lib", "creatineComparison.ts");
 const pagePath = path.join(process.cwd(), "app", "creatine", "page.tsx");
 const homepagePath = path.join(process.cwd(), "app", "page.tsx");
+const categoryRoutesPath = path.join(process.cwd(), "app", "lib", "categoryRoutes.ts");
 const sitemapPath = path.join(process.cwd(), "app", "sitemap.ts");
 
 const pricing = compileModule(pricingPath);
@@ -580,12 +581,16 @@ test("comparison table has an explicit mobile overflow guard", () => {
 
 test("homepage provides contextual discovery links to /creatine", () => {
   const source = fs.readFileSync(homepagePath, "utf8");
+  const categoryRoutesSource = fs.readFileSync(categoryRoutesPath, "utf8");
   const configuredCreatineLinks =
-    source.match(/\{ label: "Creatine", href: "\/creatine" \}/g) || [];
+    `${source}\n${categoryRoutesSource}`.match(
+      /\{ label: "Creatine", href: "\/creatine" \}/g
+    ) || [];
 
   assert.ok(configuredCreatineLinks.length >= 2);
   assert.match(source, /href=\{itemHref\(item\)\}/);
-  assert.match(source, /href: categoryHref\(category\)/);
+  assert.match(source, /href: categoryBrowseHref\(category\)/);
+  assert.match(source, /COMPARISON_CATEGORY_LINKS/);
   assert.match(source, /<HomeCategories items=\{categoryLinks\}/);
 });
 

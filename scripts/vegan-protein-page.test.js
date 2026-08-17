@@ -192,8 +192,13 @@ test("server HTML and structured data explain the reviewed boundary", () => {
 test("route has one sitemap URL and intentional internal links", () => {
   const sitemap = fs.readFileSync(path.join(process.cwd(), "app/sitemap.ts"), "utf8");
   const home = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
+  const categoryRoutes = fs.readFileSync(
+    path.join(process.cwd(), "app/lib/categoryRoutes.ts"),
+    "utf8"
+  );
   assert.equal((sitemap.match(/`\$\{siteUrl\}\/vegan-protein`/g) || []).length, 1);
-  assert.match(home, /Vegan Protein", href: "\/vegan-protein"/);
+  assert.match(home, /COMPARISON_CATEGORY_LINKS/);
+  assert.match(categoryRoutes, /Vegan Protein", href: "\/vegan-protein"/);
   for (const route of ["whey-protein", "whey-isolate"]) {
     const source = fs.readFileSync(path.join(process.cwd(), "app", route, "page.tsx"), "utf8");
     assert.match(source, /href="\/vegan-protein"/, route);
