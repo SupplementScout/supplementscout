@@ -219,8 +219,11 @@ test("the /creatine route exists and is a Server Component", () => {
 
 test("Creatine metadata is unique, canonical and index follow after fresh-offer launch", () => {
   const { page } = loadPage();
-  assert.match(page.metadata.title, /Compare Creatine Supplements/);
-  assert.match(page.metadata.description, /delivery costs/);
+  assert.equal(page.metadata.title, "Compare Creatine Supplements & Prices UK");
+  assert.equal(
+    page.metadata.description,
+    "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.",
+  );
   assert.equal(page.metadata.alternates.canonical, "/creatine");
   assert.deepEqual(page.metadata.robots, { index: true, follow: true });
   assert.equal(page.metadata.openGraph.url, "/creatine");
@@ -425,6 +428,11 @@ test("SSR content includes direct answer, comparison fields, stale catalogue row
 
   assert.match(html, /Compare Creatine Supplements UK/);
   assert.match(html, /This page compares creatine products available from UK supplement retailers/);
+  assert.match(html, /What is the lowest current creatine delivered price\?/);
+  assert.match(html, /Across 3 active creatine products in this comparison/);
+  assert.match(html, /lowest known delivered price is <strong>£14\.00<\/strong>/);
+  assert.match(html, /href="\/product\/verified-creatine"/);
+  assert.match(html, /not a claim about every UK seller/);
   for (const heading of ["Product", "Brand", "Best available retailer", "Product price", "Delivered price", "Retailer count", "Cost per 5 g", "Stock\/status"]) {
     assert.match(html, new RegExp(heading));
   }

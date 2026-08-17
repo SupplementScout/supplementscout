@@ -180,6 +180,12 @@ function ProductIdentity({ row }: { row: CreatineComparisonRow }) {
 export function CreatinePageContent({ result }: { result: CreatineComparisonResult }) {
   const lastUpdated = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const jsonLd = buildCreatineStructuredData(result.rows, result.summary.latestOfferCheckedAt);
+  const lowestDeliveredRow = result.rows.find(
+    (row) => row.bestOffer?.deliveredPrice !== null
+  );
+  const lowestDeliveredOffer = lowestDeliveredRow?.bestOffer?.deliveredPrice
+    ? lowestDeliveredRow.bestOffer
+    : null;
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950">
@@ -224,6 +230,38 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
           )}
         </div>
       </section>
+
+      {lowestDeliveredRow && lowestDeliveredOffer?.deliveredPrice && (
+        <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
+          <div className="max-w-4xl rounded-xl border border-zinc-200 bg-white p-5 sm:p-6">
+            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              Quick price answer
+            </p>
+            <h2 className="mt-2 text-2xl font-bold">
+              What is the lowest current creatine delivered price?
+            </h2>
+            <p className="mt-3 leading-7 text-zinc-700">
+              Across {result.summary.activeProducts} active creatine products
+              in this comparison, the lowest known delivered price is{" "}
+              <strong>{formatCurrency(lowestDeliveredOffer.deliveredPrice.totalPrice)}</strong>{" "}
+              for{" "}
+              <Link
+                href={lowestDeliveredRow.productUrl}
+                className="font-semibold text-zinc-950 underline"
+              >
+                {lowestDeliveredRow.name}
+              </Link>
+              .
+            </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              This is the lowest recently checked total in SupplementScout&apos;s
+              current retailer coverage, including known delivery costs. It is
+              not a claim about every UK seller. Confirm the final price and
+              stock with the retailer before buying.
+            </p>
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="comparison-heading" className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
