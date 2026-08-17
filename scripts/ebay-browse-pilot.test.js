@@ -479,6 +479,37 @@ test("Batch G owner review is sealed to exactly nine approved rows and excludes 
   assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
 });
 
+test("Batch H owner review seals exactly eleven official Applied Nutrition variants without apply authority", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-h-review.json"), "utf8"));
+  const csvBuffer = fs.readFileSync(path.join(process.cwd(), review.csv));
+  const artifactBuffer = fs.readFileSync(path.join(process.cwd(), review.artifact));
+  const rows = parse(csvBuffer, { columns: true, skip_empty_lines: true });
+  assert.equal(crypto.createHash("sha256").update(csvBuffer).digest("hex"), review.csv_sha256);
+  assert.equal(crypto.createHash("sha256").update(artifactBuffer).digest("hex"), review.artifact_sha256);
+  assert.equal(review.owner_approval.confirmation, "Zatwierdzam Batch H — dokładnie te 11");
+  assert.equal(review.owner_approval.approved_for_guarded_preparation, true);
+  assert.equal(review.owner_approval.approved_for_production_apply, false);
+  assert.equal(review.seller, "appliednutritionplc");
+  assert.equal(review.dry_run.plan_count, 11);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(review.dry_run.database_writes, 0);
+  assert.deepEqual(rows.map((row) => `${row.product_id}:${row.product_variant_id}:${row.external_variant_id}`), [
+    "423:1840:v1|134544280111|434047778882",
+    "750:859:v1|134958705150|434408005073",
+    "748:844:v1|136417907667|435227077948",
+    "748:846:v1|136417907667|435227077952",
+    "1100:2387:v1|134969867983|434417692669",
+    "1100:2497:v1|134969867983|434417692667",
+    "1100:2498:v1|134969867983|434417692668",
+    "1126:2459:v1|134504071381|433990375237",
+    "1126:2461:v1|134504071381|433990375234",
+    "1126:2463:v1|134504071381|433990375233",
+    "1126:2465:v1|134504071381|433990375235",
+  ]);
+  assert.ok(rows.every((row) => row.external_gtin && row.shipping_known === "true" && row.shipping_cost === "0.00"));
+  assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
+});
+
 test("Batch G production rollout is bound to the exact nine approved plans", () => {
   const validated = validateRollout();
   assert.equal(CANARY_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_G_EXACT_9");

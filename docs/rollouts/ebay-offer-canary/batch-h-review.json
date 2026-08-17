@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-h-exact-11-owner-review-v1",
+  "owner_approval": {
+    "confirmation": "Zatwierdzam Batch H — dokładnie te 11",
+    "scope": "exact_eleven_official_appliednutritionplc_variants",
+    "approved_for_guarded_preparation": true,
+    "approved_for_production_apply": false,
+    "approved_count": 11
+  },
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "seller": "appliednutritionplc",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-h.csv",
+  "csv_sha256": "0e67c22fd63b5d9b254d26b1edc61c18724111fb71ef45647bf93f42eb837a22",
+  "artifact": "docs/rollouts/ebay-offer-canary/batch-h-artifact.json",
+  "artifact_sha256": "1b3aeb65805063cc2fa5850020f9140f3bd43664bc9ad62d7bd94433f73bd403",
+  "dry_run": {
+    "run_id": "56c632e6-b366-46cc-96a6-1d7233579a8f",
+    "plan_count": 11,
+    "blocked_row_count": 0,
+    "database_writes": 0
+  },
+  "entries": [
+    {
+      "plan_fingerprint": "0c68a2b2c9044c328f1ea3e6c48705fb",
+      "source_row_fingerprint": "60ba4e8f8875624e861c4a83295916036d15d3f5f000b0796c861db51157a653",
+      "product_id": "423",
+      "product_variant_id": "1840",
+      "gtin": "5056555200759",
+      "external_product_id": "134544280111",
+      "external_variant_id": "v1|134544280111|434047778882",
+      "flavour": "unflavoured",
+      "size_value": "2000",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "19.85",
+      "shipping_cost": "0",
+      "total_price": "19.85",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "f497c508811c9b1a6ec6a106b9a235d5",
+      "source_row_fingerprint": "ed80cb5f99139a25ed67485d18023ea84dea9eb77ce5b3aa2eb7670be65969cc",
+      "product_id": "750",
+      "product_variant_id": "859",
+      "gtin": "5056555205693",
+      "external_product_id": "134958705150",
+      "external_variant_id": "v1|134958705150|434408005073",
+      "flavour": "chocolate",
+      "size_value": "1800",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "35.95",
+      "shipping_cost": "0",
+      "total_price": "35.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "087ed12fee0a4113c4440225c9557b0b",
+      "source_row_fingerprint": "5aa8238c1050b78e0a796e982dc517d73e2553a3da507e83cf90bd5e9f11998f",
+      "product_id": "748",
+      "product_variant_id": "844",
+      "gtin": "5056555210062",
+      "external_product_id": "136417907667",
+      "external_variant_id": "v1|136417907667|435227077948",
+      "flavour": "frozen berries",
+      "size_value": "3130",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "49.95",
+      "shipping_cost": "0",
+      "total_price": "49.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "694a8713fdc9d833ce87fe1efe378189",
+      "source_row_fingerprint": "015b8b90d4d9737140f21f96464c54385bfc244ac7e43c33d17bf904f0dc3f3a",
+      "product_id": "748",
+      "product_variant_id": "846",
+      "gtin": "5056555210109",
+      "external_product_id": "136417907667",
+      "external_variant_id": "v1|136417907667|435227077952",
+      "flavour": "tropical vibes",
+      "size_value": "3130",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "49.95",
+      "shipping_cost": "0",
+      "total_price": "49.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "9ab1a8a7e92c4ff6a5d753b12f3a0085",
+      "source_row_fingerprint": "4497ece93589fe0f5edb1bdc4229375f425a8d6cbbf442e4d4f76e897e99a4d4",
+      "product_id": "1100",
+      "product_variant_id": "2387",
+      "gtin": "5056555205785",
+      "external_product_id": "134969867983",
+      "external_variant_id": "v1|134969867983|434417692669",
+      "flavour": "cookies and cream",
+      "size_value": "600",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "15.95",
+      "shipping_cost": "0",
+      "total_price": "15.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "32d00ac3791c2f46d81e0a66625251c1",
+      "source_row_fingerprint": "1209f371b1d5552bf5b8a83345a6812c8aa87e4ece1629805616e9ebdbd1688a",
+      "product_id": "1100",
+      "product_variant_id": "2497",
+      "gtin": "5056555205778",
+      "external_product_id": "134969867983",
+      "external_variant_id": "v1|134969867983|434417692667",
+      "flavour": "chocolate",
+      "size_value": "600",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "15.95",
+      "shipping_cost": "0",
+      "total_price": "15.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "52b42ac3f1adebda735603555d12a099",
+      "source_row_fingerprint": "114a4ff67f6a1a5be6a28398cab79c00ff7575ab99254c0de7893924f3ae523a",
+      "product_id": "1100",
+      "product_variant_id": "2498",
+      "gtin": "5056555205853",
+      "external_product_id": "134969867983",
+      "external_variant_id": "v1|134969867983|434417692668",
+      "flavour": "golden syrup",
+      "size_value": "600",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "15.95",
+      "shipping_cost": "0",
+      "total_price": "15.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "f5be813ac1cb32db141eaf0e2e230bae",
+      "source_row_fingerprint": "f404b0cd1b4e681b540840e5e422ada706c0a05d62fbf305ed0647773c6aa8f5",
+      "product_id": "1126",
+      "product_variant_id": "2459",
+      "gtin": "5056555200483",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375237",
+      "flavour": "double chocolate",
+      "size_value": "500",
+      "size_unit": "ml",
+      "pack_count": "8",
+      "product_format": "liquid",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "36851f13799d8b6b4f1996fd82f8db69",
+      "source_row_fingerprint": "8f4926e0082e7917e0f13c5126662edccf70dc017010c9eb38da0fd9d1648ca7",
+      "product_id": "1126",
+      "product_variant_id": "2461",
+      "gtin": "5056555200490",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375234",
+      "flavour": "strawberries and cream",
+      "size_value": "500",
+      "size_unit": "ml",
+      "pack_count": "8",
+      "product_format": "liquid",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "25bddbeae1990984ee80308fcef8c421",
+      "source_row_fingerprint": "b0a22c9297eadeda4d860f8e52e3e70878938ce7980a133731546dda1d7a9c1f",
+      "product_id": "1126",
+      "product_variant_id": "2463",
+      "gtin": "5056555200506",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375233",
+      "flavour": "vanilla ice cream",
+      "size_value": "500",
+      "size_unit": "ml",
+      "pack_count": "8",
+      "product_format": "liquid",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "7f52b80686e8cc6b30dfa196d8df4589",
+      "source_row_fingerprint": "a44dde37e700debe863f016f12d69fccef8812e35e6897fca1e7fbbebcdee5b9",
+      "product_id": "1126",
+      "product_variant_id": "2465",
+      "gtin": "5056555200469",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375235",
+      "flavour": "banana delight",
+      "size_value": "500",
+      "size_unit": "ml",
+      "pack_count": "8",
+      "product_format": "liquid",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    }
+  ],
+  "review_fingerprint": "67195708277d8dc0bada144c8e2c5f8665614d0ea3313fbea0ac0de6e7a03694"
+}

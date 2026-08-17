@@ -1,0 +1,1611 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-17T20:57:29.593Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "0c68a2b2c9044c328f1ea3e6c48705fb",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "423",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Cream Of Rice 2kg",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 2kg",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "1840",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "423",
+            "size_unit": "g",
+            "size_value": "2000",
+            "variant_key": "unflavoured-2000g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "0c68a2b2c9044c328f1ea3e6c48705fb",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "60ba4e8f8875624e861c4a83295916036d15d3f5f000b0796c861db51157a653",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:26.054Z",
+            "price": "19.85",
+            "shipping_cost": "0",
+            "total_price": "19.85",
+            "url": "https://www.ebay.co.uk/itm/134544280111?var=434047778882&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "423"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "2000g"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "2000"
+          },
+          "id": "1840"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555200759",
+            "external_name": "Applied Nutrition Cream Of Rice 2kg",
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "2000g"
+            },
+            "external_product_id": "134544280111",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-cream-of-rice-2kg",
+            "external_url": "https://www.ebay.co.uk/itm/134544280111?var=434047778882",
+            "external_variant_id": "v1|134544280111|434047778882",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1840"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "60ba4e8f8875624e861c4a83295916036d15d3f5f000b0796c861db51157a653"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "f497c508811c9b1a6ec6a106b9a235d5",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "750",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Critical Plant Protein 1.8kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Chocolate / 1.8kg",
+            "flavour_code": "chocolate",
+            "flavour_label": "Chocolate",
+            "id": "859",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "750",
+            "size_unit": "g",
+            "size_value": "1800",
+            "variant_key": "chocolate-1800g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "f497c508811c9b1a6ec6a106b9a235d5",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "ed80cb5f99139a25ed67485d18023ea84dea9eb77ce5b3aa2eb7670be65969cc",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:26.673Z",
+            "price": "35.95",
+            "shipping_cost": "0",
+            "total_price": "35.95",
+            "url": "https://www.ebay.co.uk/itm/134958705150?var=434408005073&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "750"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Chocolate",
+              "Size": "1800g"
+            },
+            "flavour": "chocolate",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "1800"
+          },
+          "id": "859"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555205693",
+            "external_name": "Applied Nutrition Critical Plant Protein 1.8kg",
+            "external_options": {
+              "Flavour": "Chocolate",
+              "Size": "1800g"
+            },
+            "external_product_id": "134958705150",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-critical-plant-protein-1-8kg",
+            "external_url": "https://www.ebay.co.uk/itm/134958705150?var=434408005073",
+            "external_variant_id": "v1|134958705150|434408005073",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "859"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "ed80cb5f99139a25ed67485d18023ea84dea9eb77ce5b3aa2eb7670be65969cc"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "087ed12fee0a4113c4440225c9557b0b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "748",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Beef Mass Gainer 3.13kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Frozen Berries / 3.13kg",
+            "flavour_code": "frozen berries",
+            "flavour_label": "Frozen Berries",
+            "id": "844",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "748",
+            "size_unit": "g",
+            "size_value": "3130",
+            "variant_key": "frozen-berries-3130g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "087ed12fee0a4113c4440225c9557b0b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "5aa8238c1050b78e0a796e982dc517d73e2553a3da507e83cf90bd5e9f11998f",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:26.991Z",
+            "price": "49.95",
+            "shipping_cost": "0",
+            "total_price": "49.95",
+            "url": "https://www.ebay.co.uk/itm/136417907667?var=435227077948&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "748"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Frozen Berries",
+              "Size": "3130g"
+            },
+            "flavour": "frozen berries",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "3130"
+          },
+          "id": "844"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555210062",
+            "external_name": "Applied Nutrition Beef Mass Gainer 3.13kg",
+            "external_options": {
+              "Flavour": "Frozen Berries",
+              "Size": "3130g"
+            },
+            "external_product_id": "136417907667",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-beef-mass-gainer-3-13kg",
+            "external_url": "https://www.ebay.co.uk/itm/136417907667?var=435227077948",
+            "external_variant_id": "v1|136417907667|435227077948",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "844"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "5aa8238c1050b78e0a796e982dc517d73e2553a3da507e83cf90bd5e9f11998f"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "694a8713fdc9d833ce87fe1efe378189",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "748",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Beef Mass Gainer 3.13kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Tropical Vibes / 3.13kg",
+            "flavour_code": "tropical vibes",
+            "flavour_label": "Tropical Vibes",
+            "id": "846",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "748",
+            "size_unit": "g",
+            "size_value": "3130",
+            "variant_key": "tropical-vibes-3130g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "694a8713fdc9d833ce87fe1efe378189",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "015b8b90d4d9737140f21f96464c54385bfc244ac7e43c33d17bf904f0dc3f3a",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:27.306Z",
+            "price": "49.95",
+            "shipping_cost": "0",
+            "total_price": "49.95",
+            "url": "https://www.ebay.co.uk/itm/136417907667?var=435227077952&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "748"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Tropical Vibes",
+              "Size": "3130g"
+            },
+            "flavour": "tropical vibes",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "3130"
+          },
+          "id": "846"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555210109",
+            "external_name": "Applied Nutrition Beef Mass Gainer 3.13kg",
+            "external_options": {
+              "Flavour": "Tropical Vibes",
+              "Size": "3130g"
+            },
+            "external_product_id": "136417907667",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-beef-mass-gainer-3-13kg",
+            "external_url": "https://www.ebay.co.uk/itm/136417907667?var=435227077952",
+            "external_variant_id": "v1|136417907667|435227077952",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "846"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "015b8b90d4d9737140f21f96464c54385bfc244ac7e43c33d17bf904f0dc3f3a"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "9ab1a8a7e92c4ff6a5d753b12f3a0085",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1100",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Cookies & Cream / 600g",
+            "flavour_code": "cookies and cream",
+            "flavour_label": "Cookies & Cream",
+            "id": "2387",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "1100",
+            "size_unit": "g",
+            "size_value": "600",
+            "variant_key": "cookies-and-cream-600g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "9ab1a8a7e92c4ff6a5d753b12f3a0085",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "4497ece93589fe0f5edb1bdc4229375f425a8d6cbbf442e4d4f76e897e99a4d4",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:27.646Z",
+            "price": "15.95",
+            "shipping_cost": "0",
+            "total_price": "15.95",
+            "url": "https://www.ebay.co.uk/itm/134969867983?var=434417692669&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1100"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Cookies & Cream",
+              "Size": "600g"
+            },
+            "flavour": "cookies and cream",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "600"
+          },
+          "id": "2387"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555205785",
+            "external_name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+            "external_options": {
+              "Flavour": "Cookies & Cream",
+              "Size": "600g"
+            },
+            "external_product_id": "134969867983",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-critical-oats-protein-porridge-600g",
+            "external_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692669",
+            "external_variant_id": "v1|134969867983|434417692669",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2387"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "4497ece93589fe0f5edb1bdc4229375f425a8d6cbbf442e4d4f76e897e99a4d4"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "32d00ac3791c2f46d81e0a66625251c1",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1100",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Chocolate / 600g",
+            "flavour_code": "chocolate",
+            "flavour_label": "Chocolate",
+            "id": "2497",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "1100",
+            "size_unit": "g",
+            "size_value": "600",
+            "variant_key": "chocolate-600g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "32d00ac3791c2f46d81e0a66625251c1",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "1209f371b1d5552bf5b8a83345a6812c8aa87e4ece1629805616e9ebdbd1688a",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:27.959Z",
+            "price": "15.95",
+            "shipping_cost": "0",
+            "total_price": "15.95",
+            "url": "https://www.ebay.co.uk/itm/134969867983?var=434417692667&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1100"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Chocolate",
+              "Size": "600g"
+            },
+            "flavour": "chocolate",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "600"
+          },
+          "id": "2497"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555205778",
+            "external_name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+            "external_options": {
+              "Flavour": "Chocolate",
+              "Size": "600g"
+            },
+            "external_product_id": "134969867983",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-critical-oats-protein-porridge-600g",
+            "external_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692667",
+            "external_variant_id": "v1|134969867983|434417692667",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2497"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "1209f371b1d5552bf5b8a83345a6812c8aa87e4ece1629805616e9ebdbd1688a"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "52b42ac3f1adebda735603555d12a099",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1100",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Golden Syrup / 600g",
+            "flavour_code": "golden syrup",
+            "flavour_label": "Golden Syrup",
+            "id": "2498",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "1100",
+            "size_unit": "g",
+            "size_value": "600",
+            "variant_key": "golden-syrup-600g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "52b42ac3f1adebda735603555d12a099",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "114a4ff67f6a1a5be6a28398cab79c00ff7575ab99254c0de7893924f3ae523a",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:28.282Z",
+            "price": "15.95",
+            "shipping_cost": "0",
+            "total_price": "15.95",
+            "url": "https://www.ebay.co.uk/itm/134969867983?var=434417692668&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1100"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Golden Syrup",
+              "Size": "600g"
+            },
+            "flavour": "golden syrup",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "600"
+          },
+          "id": "2498"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555205853",
+            "external_name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+            "external_options": {
+              "Flavour": "Golden Syrup",
+              "Size": "600g"
+            },
+            "external_product_id": "134969867983",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-critical-oats-protein-porridge-600g",
+            "external_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692668",
+            "external_variant_id": "v1|134969867983|434417692668",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2498"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "114a4ff67f6a1a5be6a28398cab79c00ff7575ab99254c0de7893924f3ae523a"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "f5be813ac1cb32db141eaf0e2e230bae",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1126",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition High Protein Shake 500ml",
+            "product_format": "ready-to-drink"
+          },
+          "product_variant": {
+            "display_name": "Double Chocolate / 8-Pack / 500ml",
+            "flavour_code": "double chocolate",
+            "flavour_label": "Double Chocolate",
+            "id": "2459",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "8",
+            "product_format": "ready-to-drink",
+            "product_id": "1126",
+            "size_unit": "ml",
+            "size_value": "500",
+            "variant_key": "double-chocolate-500ml-8-pack"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "f5be813ac1cb32db141eaf0e2e230bae",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "f404b0cd1b4e681b540840e5e422ada706c0a05d62fbf305ed0647773c6aa8f5",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:28.617Z",
+            "price": "24.95",
+            "shipping_cost": "0",
+            "total_price": "24.95",
+            "url": "https://www.ebay.co.uk/itm/134504071381?var=433990375237&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1126"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Double Chocolate",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "flavour": "double chocolate",
+            "pack_count": "8",
+            "product_format": "liquid",
+            "size_unit": "ml",
+            "size_value": "500"
+          },
+          "id": "2459"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555200483",
+            "external_name": "Applied Nutrition High Protein Shake 500ml",
+            "external_options": {
+              "Flavour": "Double Chocolate",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "external_product_id": "134504071381",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-high-protein-shake-500ml",
+            "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375237",
+            "external_variant_id": "v1|134504071381|433990375237",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2459"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "f404b0cd1b4e681b540840e5e422ada706c0a05d62fbf305ed0647773c6aa8f5"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "36851f13799d8b6b4f1996fd82f8db69",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1126",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition High Protein Shake 500ml",
+            "product_format": "ready-to-drink"
+          },
+          "product_variant": {
+            "display_name": "Strawberries & Cream / 8-Pack / 500ml",
+            "flavour_code": "strawberries and cream",
+            "flavour_label": "Strawberries & Cream",
+            "id": "2461",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "8",
+            "product_format": "ready-to-drink",
+            "product_id": "1126",
+            "size_unit": "ml",
+            "size_value": "500",
+            "variant_key": "strawberries-and-cream-500ml-8-pack"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "36851f13799d8b6b4f1996fd82f8db69",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "8f4926e0082e7917e0f13c5126662edccf70dc017010c9eb38da0fd9d1648ca7",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:28.940Z",
+            "price": "24.95",
+            "shipping_cost": "0",
+            "total_price": "24.95",
+            "url": "https://www.ebay.co.uk/itm/134504071381?var=433990375234&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1126"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Strawberries & Cream",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "flavour": "strawberries and cream",
+            "pack_count": "8",
+            "product_format": "liquid",
+            "size_unit": "ml",
+            "size_value": "500"
+          },
+          "id": "2461"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555200490",
+            "external_name": "Applied Nutrition High Protein Shake 500ml",
+            "external_options": {
+              "Flavour": "Strawberries & Cream",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "external_product_id": "134504071381",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-high-protein-shake-500ml",
+            "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375234",
+            "external_variant_id": "v1|134504071381|433990375234",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2461"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "10",
+      "source_row_fingerprint": "8f4926e0082e7917e0f13c5126662edccf70dc017010c9eb38da0fd9d1648ca7"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "25bddbeae1990984ee80308fcef8c421",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1126",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition High Protein Shake 500ml",
+            "product_format": "ready-to-drink"
+          },
+          "product_variant": {
+            "display_name": "Vanilla Ice Cream / 8-Pack / 500ml",
+            "flavour_code": "vanilla ice cream",
+            "flavour_label": "Vanilla Ice Cream",
+            "id": "2463",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "8",
+            "product_format": "ready-to-drink",
+            "product_id": "1126",
+            "size_unit": "ml",
+            "size_value": "500",
+            "variant_key": "vanilla-ice-cream-500ml-8-pack"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "25bddbeae1990984ee80308fcef8c421",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "b0a22c9297eadeda4d860f8e52e3e70878938ce7980a133731546dda1d7a9c1f",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:29.249Z",
+            "price": "24.95",
+            "shipping_cost": "0",
+            "total_price": "24.95",
+            "url": "https://www.ebay.co.uk/itm/134504071381?var=433990375233&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1126"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Vanilla Ice Cream",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "flavour": "vanilla ice cream",
+            "pack_count": "8",
+            "product_format": "liquid",
+            "size_unit": "ml",
+            "size_value": "500"
+          },
+          "id": "2463"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555200506",
+            "external_name": "Applied Nutrition High Protein Shake 500ml",
+            "external_options": {
+              "Flavour": "Vanilla Ice Cream",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "external_product_id": "134504071381",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-high-protein-shake-500ml",
+            "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375233",
+            "external_variant_id": "v1|134504071381|433990375233",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2463"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "11",
+      "source_row_fingerprint": "b0a22c9297eadeda4d860f8e52e3e70878938ce7980a133731546dda1d7a9c1f"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7f52b80686e8cc6b30dfa196d8df4589",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1126",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition High Protein Shake 500ml",
+            "product_format": "ready-to-drink"
+          },
+          "product_variant": {
+            "display_name": "Banana Delight / 8-Pack / 500ml",
+            "flavour_code": "banana delight",
+            "flavour_label": "Banana Delight",
+            "id": "2465",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "8",
+            "product_format": "ready-to-drink",
+            "product_id": "1126",
+            "size_unit": "ml",
+            "size_value": "500",
+            "variant_key": "banana-delight-500ml-8-pack"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7f52b80686e8cc6b30dfa196d8df4589",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "a44dde37e700debe863f016f12d69fccef8812e35e6897fca1e7fbbebcdee5b9",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-17T20:57:29.590Z",
+            "price": "24.95",
+            "shipping_cost": "0",
+            "total_price": "24.95",
+            "url": "https://www.ebay.co.uk/itm/134504071381?var=433990375235&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1126"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Banana Delight",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "flavour": "banana delight",
+            "pack_count": "8",
+            "product_format": "liquid",
+            "size_unit": "ml",
+            "size_value": "500"
+          },
+          "id": "2465"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555200469",
+            "external_name": "Applied Nutrition High Protein Shake 500ml",
+            "external_options": {
+              "Flavour": "Banana Delight",
+              "Pack": "8",
+              "Size": "500ml"
+            },
+            "external_product_id": "134504071381",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-high-protein-shake-500ml",
+            "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375235",
+            "external_variant_id": "v1|134504071381|433990375235",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2465"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "12",
+      "source_row_fingerprint": "a44dde37e700debe863f016f12d69fccef8812e35e6897fca1e7fbbebcdee5b9"
+    }
+  ],
+  "row_count": "11",
+  "run_id": "56c632e6-b366-46cc-96a6-1d7233579a8f",
+  "source_file_name": "batch-h.csv",
+  "source_file_sha256": "0e67c22fd63b5d9b254d26b1edc61c18724111fb71ef45647bf93f42eb837a22",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134544280111?var=434047778882&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Health Supplements",
+        "external_gtin": "5056555200759",
+        "external_options": "{\"Size\":\"2000g\",\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "134544280111",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134544280111?var=434047778882",
+        "external_variant_id": "v1|134544280111|434047778882",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/W-MAAOSwgwRn~3Az/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.85",
+        "product_format": "powder",
+        "product_id": "423",
+        "product_name": "Applied Nutrition Cream Of Rice 2kg",
+        "product_variant_id": "1840",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "2000",
+        "size_unit": "g",
+        "slug": "applied-nutrition-cream-of-rice-2kg",
+        "variant_name": "Unflavoured / 2kg"
+      },
+      "plan_fingerprint": "0c68a2b2c9044c328f1ea3e6c48705fb",
+      "row_number": "2",
+      "source_row_fingerprint": "60ba4e8f8875624e861c4a83295916036d15d3f5f000b0796c861db51157a653",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134958705150?var=434408005073&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Whey Protein",
+        "external_gtin": "5056555205693",
+        "external_options": "{\"Size\":\"1800g\",\"Flavour\":\"Chocolate\"}",
+        "external_product_id": "134958705150",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134958705150?var=434408005073",
+        "external_variant_id": "v1|134958705150|434408005073",
+        "flavour": "Chocolate",
+        "image": "https://i.ebayimg.com/images/g/KukAAOSwSc5l4dFJ/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "35.95",
+        "product_format": "powder",
+        "product_id": "750",
+        "product_name": "Applied Nutrition Critical Plant Protein 1.8kg",
+        "product_variant_id": "859",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "1800",
+        "size_unit": "g",
+        "slug": "applied-nutrition-critical-plant-protein-1-8kg",
+        "variant_name": "Chocolate / 1.8kg"
+      },
+      "plan_fingerprint": "f497c508811c9b1a6ec6a106b9a235d5",
+      "row_number": "3",
+      "source_row_fingerprint": "ed80cb5f99139a25ed67485d18023ea84dea9eb77ce5b3aa2eb7670be65969cc",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/136417907667?var=435227077948&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Mass Gainer",
+        "external_gtin": "5056555210062",
+        "external_options": "{\"Size\":\"3130g\",\"Flavour\":\"Frozen Berries\"}",
+        "external_product_id": "136417907667",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/136417907667?var=435227077948",
+        "external_variant_id": "v1|136417907667|435227077948",
+        "flavour": "Frozen Berries",
+        "image": "https://i.ebayimg.com/images/g/TXUAAeSwCpRoupjc/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "49.95",
+        "product_format": "powder",
+        "product_id": "748",
+        "product_name": "Applied Nutrition Beef Mass Gainer 3.13kg",
+        "product_variant_id": "844",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "3130",
+        "size_unit": "g",
+        "slug": "applied-nutrition-beef-mass-gainer-3-13kg",
+        "variant_name": "Frozen Berries / 3.13kg"
+      },
+      "plan_fingerprint": "087ed12fee0a4113c4440225c9557b0b",
+      "row_number": "4",
+      "source_row_fingerprint": "5aa8238c1050b78e0a796e982dc517d73e2553a3da507e83cf90bd5e9f11998f",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/136417907667?var=435227077952&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Mass Gainer",
+        "external_gtin": "5056555210109",
+        "external_options": "{\"Size\":\"3130g\",\"Flavour\":\"Tropical Vibes\"}",
+        "external_product_id": "136417907667",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/136417907667?var=435227077952",
+        "external_variant_id": "v1|136417907667|435227077952",
+        "flavour": "Tropical Vibes",
+        "image": "https://i.ebayimg.com/images/g/~~oAAeSwgOFouqG6/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "49.95",
+        "product_format": "powder",
+        "product_id": "748",
+        "product_name": "Applied Nutrition Beef Mass Gainer 3.13kg",
+        "product_variant_id": "846",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "3130",
+        "size_unit": "g",
+        "slug": "applied-nutrition-beef-mass-gainer-3-13kg",
+        "variant_name": "Tropical Vibes / 3.13kg"
+      },
+      "plan_fingerprint": "694a8713fdc9d833ce87fe1efe378189",
+      "row_number": "5",
+      "source_row_fingerprint": "015b8b90d4d9737140f21f96464c54385bfc244ac7e43c33d17bf904f0dc3f3a",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692669&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Powder",
+        "external_gtin": "5056555205785",
+        "external_options": "{\"Size\":\"600g\",\"Flavour\":\"Cookies & Cream\"}",
+        "external_product_id": "134969867983",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692669",
+        "external_variant_id": "v1|134969867983|434417692669",
+        "flavour": "Cookies & Cream",
+        "image": "https://i.ebayimg.com/images/g/WgYAAOSw8w9l6vr-/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "15.95",
+        "product_format": "powder",
+        "product_id": "1100",
+        "product_name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+        "product_variant_id": "2387",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "600",
+        "size_unit": "g",
+        "slug": "applied-nutrition-critical-oats-protein-porridge-600g",
+        "variant_name": "Cookies & Cream / 600g"
+      },
+      "plan_fingerprint": "9ab1a8a7e92c4ff6a5d753b12f3a0085",
+      "row_number": "6",
+      "source_row_fingerprint": "4497ece93589fe0f5edb1bdc4229375f425a8d6cbbf442e4d4f76e897e99a4d4",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692667&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Powder",
+        "external_gtin": "5056555205778",
+        "external_options": "{\"Size\":\"600g\",\"Flavour\":\"Chocolate\"}",
+        "external_product_id": "134969867983",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692667",
+        "external_variant_id": "v1|134969867983|434417692667",
+        "flavour": "Chocolate",
+        "image": "https://i.ebayimg.com/images/g/CH8AAOSwWRll6vrm/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "15.95",
+        "product_format": "powder",
+        "product_id": "1100",
+        "product_name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+        "product_variant_id": "2497",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "600",
+        "size_unit": "g",
+        "slug": "applied-nutrition-critical-oats-protein-porridge-600g",
+        "variant_name": "Chocolate / 600g"
+      },
+      "plan_fingerprint": "32d00ac3791c2f46d81e0a66625251c1",
+      "row_number": "7",
+      "source_row_fingerprint": "1209f371b1d5552bf5b8a83345a6812c8aa87e4ece1629805616e9ebdbd1688a",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692668&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Powder",
+        "external_gtin": "5056555205853",
+        "external_options": "{\"Size\":\"600g\",\"Flavour\":\"Golden Syrup\"}",
+        "external_product_id": "134969867983",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134969867983?var=434417692668",
+        "external_variant_id": "v1|134969867983|434417692668",
+        "flavour": "Golden Syrup",
+        "image": "https://i.ebayimg.com/images/g/27wAAOSwObll6vsX/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "15.95",
+        "product_format": "powder",
+        "product_id": "1100",
+        "product_name": "Applied Nutrition Critical Oats Protein Porridge 600g",
+        "product_variant_id": "2498",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "600",
+        "size_unit": "g",
+        "slug": "applied-nutrition-critical-oats-protein-porridge-600g",
+        "variant_name": "Golden Syrup / 600g"
+      },
+      "plan_fingerprint": "52b42ac3f1adebda735603555d12a099",
+      "row_number": "8",
+      "source_row_fingerprint": "114a4ff67f6a1a5be6a28398cab79c00ff7575ab99254c0de7893924f3ae523a",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375237&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Powder",
+        "external_gtin": "5056555200483",
+        "external_options": "{\"Size\":\"500ml\",\"Flavour\":\"Double Chocolate\",\"Pack\":\"8\"}",
+        "external_product_id": "134504071381",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375237",
+        "external_variant_id": "v1|134504071381|433990375237",
+        "flavour": "Double Chocolate",
+        "image": "https://i.ebayimg.com/images/g/XccAAOSwkFRoPbAL/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "8",
+        "price": "24.95",
+        "product_format": "ready-to-drink",
+        "product_id": "1126",
+        "product_name": "Applied Nutrition High Protein Shake 500ml",
+        "product_variant_id": "2459",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "500",
+        "size_unit": "ml",
+        "slug": "applied-nutrition-high-protein-shake-500ml",
+        "variant_name": "Double Chocolate / 8-Pack / 500ml"
+      },
+      "plan_fingerprint": "f5be813ac1cb32db141eaf0e2e230bae",
+      "row_number": "9",
+      "source_row_fingerprint": "f404b0cd1b4e681b540840e5e422ada706c0a05d62fbf305ed0647773c6aa8f5",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375234&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Powder",
+        "external_gtin": "5056555200490",
+        "external_options": "{\"Size\":\"500ml\",\"Flavour\":\"Strawberries & Cream\",\"Pack\":\"8\"}",
+        "external_product_id": "134504071381",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375234",
+        "external_variant_id": "v1|134504071381|433990375234",
+        "flavour": "Strawberries & Cream",
+        "image": "https://i.ebayimg.com/images/g/aqwAAOSwp3poPbBK/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "8",
+        "price": "24.95",
+        "product_format": "ready-to-drink",
+        "product_id": "1126",
+        "product_name": "Applied Nutrition High Protein Shake 500ml",
+        "product_variant_id": "2461",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "500",
+        "size_unit": "ml",
+        "slug": "applied-nutrition-high-protein-shake-500ml",
+        "variant_name": "Strawberries & Cream / 8-Pack / 500ml"
+      },
+      "plan_fingerprint": "36851f13799d8b6b4f1996fd82f8db69",
+      "row_number": "10",
+      "source_row_fingerprint": "8f4926e0082e7917e0f13c5126662edccf70dc017010c9eb38da0fd9d1648ca7",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375233&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Powder",
+        "external_gtin": "5056555200506",
+        "external_options": "{\"Size\":\"500ml\",\"Flavour\":\"Vanilla Ice Cream\",\"Pack\":\"8\"}",
+        "external_product_id": "134504071381",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375233",
+        "external_variant_id": "v1|134504071381|433990375233",
+        "flavour": "Vanilla Ice Cream",
+        "image": "https://i.ebayimg.com/images/g/CBIAAOSwmg5oPbEm/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "8",
+        "price": "24.95",
+        "product_format": "ready-to-drink",
+        "product_id": "1126",
+        "product_name": "Applied Nutrition High Protein Shake 500ml",
+        "product_variant_id": "2463",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "500",
+        "size_unit": "ml",
+        "slug": "applied-nutrition-high-protein-shake-500ml",
+        "variant_name": "Vanilla Ice Cream / 8-Pack / 500ml"
+      },
+      "plan_fingerprint": "25bddbeae1990984ee80308fcef8c421",
+      "row_number": "11",
+      "source_row_fingerprint": "b0a22c9297eadeda4d860f8e52e3e70878938ce7980a133731546dda1d7a9c1f",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375235&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Powder",
+        "external_gtin": "5056555200469",
+        "external_options": "{\"Size\":\"500ml\",\"Flavour\":\"Banana Delight\",\"Pack\":\"8\"}",
+        "external_product_id": "134504071381",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134504071381?var=433990375235",
+        "external_variant_id": "v1|134504071381|433990375235",
+        "flavour": "Banana Delight",
+        "image": "https://i.ebayimg.com/images/g/6XAAAOSw40RoPa7F/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "8",
+        "price": "24.95",
+        "product_format": "ready-to-drink",
+        "product_id": "1126",
+        "product_name": "Applied Nutrition High Protein Shake 500ml",
+        "product_variant_id": "2465",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "500",
+        "size_unit": "ml",
+        "slug": "applied-nutrition-high-protein-shake-500ml",
+        "variant_name": "Banana Delight / 8-Pack / 500ml"
+      },
+      "plan_fingerprint": "7f52b80686e8cc6b30dfa196d8df4589",
+      "row_number": "12",
+      "source_row_fingerprint": "a44dde37e700debe863f016f12d69fccef8812e35e6897fca1e7fbbebcdee5b9",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "11",
+    "skipped_row_count": "0"
+  }
+}

@@ -54,6 +54,13 @@ business seller and reviewed metadata-gap set. No second scheduler or importer
 was introduced.
 Credential values remain outside the repository.
 
+Batch H is prepared but not applied. The owner approved the exact 11 official
+Applied Nutrition variants for guarded preparation. A fresh direct-item
+preflight and production dry-run passed 11/11 with zero blocked rows and zero
+database writes. The sealed review explicitly retains
+`approved_for_production_apply: false`; therefore production remains at 31
+eBay offers until a separate exact production-apply approval is received.
+
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
 already present; 16 conflicts remain quarantined and outside the cohort. The
@@ -1858,11 +1865,11 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Monitor the first scheduled exact-31 refresh at 05:43 UTC on 18
-August 2026 (06:43 BST). Separately, obtain owner review for the 11 bounded
-Applied Nutrition official-store variant candidates recorded below before
-preparing any production plan. Continue coverage discovery only through the
-existing read-only pipeline; do not include any rejected row or weaken the
-exact identity, seller, delivery, affiliate or continuity gates.`
+August 2026 (06:43 BST). Batch H is sealed and dry-run verified; obtain a
+separate owner confirmation for the production apply of exactly those 11 rows
+before creating any write-capable rollout. Continue coverage discovery only
+through the existing read-only pipeline; do not include any rejected row or
+weaken the exact identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1871,6 +1878,25 @@ owner-reviewed production design and approval.
 ## Last verified
 
 17 August 2026:
+
+- The owner confirmed `Zatwierdzam Batch H — dokładnie te 11`, authorizing
+  guarded preparation of the exact official Applied Nutrition candidates but
+  not a production write. Direct Browse item reads passed 11/11 against seller
+  `appliednutritionplc`, `BUSINESS` account type, minimum seller quality, new
+  fixed-price condition, UK availability, complete free-delivery evidence,
+  exact selected flavour and affiliate campaign URL. All 11 returned distinct
+  GTIN evidence. The production catalogue had no eBay variant or listing
+  collision for the closed scope. Database writes were zero.
+- The immutable Batch H source CSV, dry-run artifact and owner-review record
+  are now sealed. Dry-run run `56c632e6-b366-46cc-96a6-1d7233579a8f`
+  produced exactly 11 plans, zero blocked rows and the narrow action set
+  `retailer_product:create`, `offer:create`, `price_history:create`. CSV SHA-256
+  is `0e67c22fd63b5d9b254d26b1edc61c18724111fb71ef45647bf93f42eb837a22`;
+  artifact SHA-256 is
+  `1b3aeb65805063cc2fa5850020f9140f3bd43664bc9ad62d7bd94433f73bd403`.
+  The review record sets `approved_for_production_apply` to `false`. No
+  write-capable Batch H rollout, scheduler change, database mutation or public
+  page change occurred.
 
 - The existing read-only Browse adapter now supports an optional exact seller
   allow-list. Seller usernames are syntax-validated, bounded to eBay's 250
