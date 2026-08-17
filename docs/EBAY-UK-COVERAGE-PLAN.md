@@ -1847,13 +1847,14 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Expand the same guarded refresh mechanism from the successful
-exact-one canary to one immutable manifest covering the 20 already live-verified
-eBay offers. Re-read all 20 listings and production targets, then run one
-read-only batch dry-run and present exact classifications, deltas, blockers and
-artifact fingerprint for owner review. Do not enable EBAY_REFRESH_ENABLED or
-execute the 20-offer batch before that reviewed dry-run passes. All REVIEW,
-REJECT, replacement-listing and GTIN-conflict rows remain blocked.`
+`NEXT ACTION: Owner review of exact-20 dry-run 32037679947 and its currently
+eligible 12-offer subset: 2539-2548, 2550 and 2558. If approved, run one manual
+guarded apply with confirmation OWNER_APPROVED_EBAY_REFRESH_EXACT_20; the
+workflow must freshly re-read all 20, prepare and execute only rows that remain
+AUTO_ELIGIBLE, skip every REVIEW/REJECT row, and pass immediate postflight.
+Only after that manual apply and postflight pass may EBAY_REFRESH_ENABLED be
+set to true. The eight current REVIEW rows, replacement listings and every
+GTIN-conflict row remain blocked.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1907,6 +1908,25 @@ owner-reviewed production design and approval.
   `fe6f0a3520fc9d6dfb2a3cff51c84719c92a815eaea202a43132d74051bf0fb3`.
   `EBAY_REFRESH_ENABLED` remains unset, so scheduled production apply is still
   disabled pending a reviewed all-20 manifest and dry-run.
+- Commit `a0e0bae` expanded the same mechanism, not the importer, to one
+  integrity-checked manifest sourced from all six approved rollout files A-E.
+  It binds exactly 20 unique products, variants, GTINs and item IDs to mappings
+  `2724`-`2743` and offers `2539`-`2558`. One run re-reads all 20; only current
+  `AUTO_ELIGIBLE` rows can enter fresh 15-minute apply artifacts. REVIEW and
+  REJECT rows remain unchanged and automatic OOS remains blocked. Volatile
+  eBay `amdata` query values are intentionally discarded in favour of the
+  already approved stable direct and affiliate URLs.
+- Local exact-20 production dry-run checked all 20 with zero writes: 12 were
+  `verify_no_change` and eight were held in REVIEW. Offers `2553`-`2555` no
+  longer returned GTIN; `2549`, `2551`, `2552`, `2556` and `2557` lacked one or
+  more current format, count or size evidence fields. No price delta was
+  proposed for any eligible row.
+- GitHub Actions dry-run `32037679947` on commit `a0e0bae` independently passed
+  the five exact refresh contract tests and reproduced the same 20 checked / 12
+  eligible / 8 blocked result with 12 `verify_no_change` plans and zero writes.
+  Apply and postflight were skipped. Evidence artifact `9291197853` has SHA-256
+  `40add195e31a3608789ce983c804a86fba788de7160c9b5da9248008eb9c264b`.
+  `EBAY_REFRESH_ENABLED` remains unset.
 
 16 August 2026:
 
