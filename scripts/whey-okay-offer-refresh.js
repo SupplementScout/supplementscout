@@ -63,9 +63,10 @@ function git(...args) {
 }
 function parseArgs(argv) {
   const result = {};
+  const allowed = new Set(["target", "mode", "reviewed-mass-oos"]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
-    if (!match || result[match[1]] !== undefined) {
+    if (!match || !allowed.has(match[1]) || result[match[1]] !== undefined) {
       throw new Error(`invalid argument ${argument}`);
     }
     result[match[1]] = match[2];
@@ -76,6 +77,13 @@ function parseArgs(argv) {
   ) {
     throw new Error(
       "required --target=staging|production --mode=dry-run|apply",
+    );
+  }
+  if (result["reviewed-mass-oos"] !== undefined) {
+    invariant(
+      result.target === "production" &&
+        result["reviewed-mass-oos"] === config.reviewed_mass_oos.selector,
+      "unknown reviewed MASS_OOS selector",
     );
   }
   return result;
@@ -190,6 +198,177 @@ function loadManifest() {
     );
   }
   return { manifest, sha256: actual };
+}
+function reviewedSourceRow(row) {
+  return {
+    source_key: row.source_key,
+    external_product_id: String(row.external_product_id),
+    external_variant_id: String(row.external_variant_id),
+    title: row.title,
+    brand: row.brand,
+    price: Number(row.price).toFixed(2),
+    in_stock: Boolean(row.in_stock),
+    url: row.url,
+    source_url: row.source_url,
+    feed_shipping_cost: Number(row.feed_shipping_cost).toFixed(2),
+    gtin: row.gtin || null,
+    mpn: row.mpn || null,
+  };
+}
+function loadReviewedMassOosManifest(selector, approvedManifest) {
+  if (!selector) return null;
+  const reviewedConfig = config.reviewed_mass_oos;
+  invariant(
+    selector === reviewedConfig.selector,
+    "reviewed MASS_OOS selector mismatch",
+  );
+  const bytes = fs.readFileSync(path.join(ROOT, reviewedConfig.manifest_path));
+  const actual = sha256(bytes);
+  invariant(
+    actual === reviewedConfig.manifest_sha256,
+    "reviewed MASS_OOS manifest SHA mismatch",
+  );
+  const manifest = JSON.parse(bytes);
+  invariant(
+    manifest.schema_version === 1 &&
+      manifest.kind === "whey-okay-reviewed-mass-oos-v1" &&
+      manifest.selector === selector &&
+      manifest.retailer_id === config.retailer_id &&
+      manifest.retailer_slug === config.retailer_slug &&
+      manifest.target_environment === "PRODUCTION" &&
+      manifest.authorized_by ===
+        "owner-instruction-chat-2026-08-17-six-ghost-whey-oos" &&
+      Number.isFinite(Date.parse(manifest.authorized_at)) &&
+      /^[0-9a-f]{64}$/.test(manifest.source_semantic_fingerprint) &&
+      Array.isArray(manifest.source_capture_evidence) &&
+      manifest.source_capture_evidence.length === 2 &&
+      Array.isArray(manifest.source_semantic_rows) &&
+      manifest.source_semantic_rows.length === 6 &&
+      canonicalHash(manifest.source_semantic_rows) ===
+        manifest.source_semantic_fingerprint &&
+      Array.isArray(manifest.rows) &&
+      manifest.row_count === 6 &&
+      manifest.rows.length === 6,
+    "reviewed MASS_OOS manifest contract mismatch",
+  );
+  const [firstCapture, secondCapture] = manifest.source_capture_evidence;
+  invariant(
+    Date.parse(firstCapture.captured_at) < Date.parse(secondCapture.captured_at) &&
+      firstCapture.raw_sha256 === secondCapture.raw_sha256 &&
+      firstCapture.semantic_fingerprint === secondCapture.semantic_fingerprint &&
+      firstCapture.last_modified === secondCapture.last_modified &&
+      /^[0-9a-f]{64}$/.test(firstCapture.raw_sha256) &&
+      /^[0-9a-f]{64}$/.test(firstCapture.semantic_fingerprint),
+    "reviewed MASS_OOS capture evidence mismatch",
+  );
+  const offerIds = new Set();
+  const sourceKeys = new Set();
+  for (const row of manifest.rows) {
+    const sourceKey = `${row.external_product_id}:${row.external_variant_id}`;
+    const approved = approvedManifest.rows.find(
+      (candidate) => candidate.source_key === sourceKey,
+    );
+    const binding = approved?.environment_bindings.production;
+    invariant(
+      row.action === "UPDATE_STOCK" &&
+        row.old_stock === true &&
+        row.new_stock === false &&
+        Number(row.old_price).toFixed(2) === "39.87" &&
+        Number(row.new_price).toFixed(2) === "39.87" &&
+        binding?.mapping_id === Number(row.mapping_id) &&
+        binding?.offer_id === Number(row.offer_id) &&
+        binding?.canonical_product_id === Number(row.canonical_product_id) &&
+        binding?.canonical_variant_id === Number(row.canonical_variant_id),
+      "reviewed MASS_OOS row escaped approved binding",
+    );
+    offerIds.add(row.offer_id);
+    sourceKeys.add(sourceKey);
+  }
+  invariant(
+    offerIds.size === 6 && sourceKeys.size === 6,
+    "reviewed MASS_OOS identities must be unique",
+  );
+  return { manifest, sha256: actual };
+}
+function authorizeReviewedMassOos(
+  classification,
+  records,
+  feedRows,
+  reviewed,
+) {
+  if (!reviewed) return { classification, review: null };
+  invariant(
+    classification.state === "BLOCKED" &&
+      classification.reason === "MASS_OOS",
+    "reviewed MASS_OOS selector is not applicable",
+  );
+  for (const guardName of ["MASS_CHANGE", "MASS_PRICE"]) {
+    const guard = classification.guard_evidence.guards.find(
+      (candidate) => candidate.guard === guardName,
+    );
+    invariant(
+      guard?.result === "PASS",
+      `reviewed MASS_OOS cannot bypass ${guardName}`,
+    );
+  }
+  const feedByKey = new Map(feedRows.map((row) => [row.source_key, row]));
+  const liveSemanticRows = reviewed.manifest.source_semantic_rows.map(
+    (expected) => {
+      const live = feedByKey.get(expected.source_key);
+      invariant(live, "reviewed MASS_OOS source identity missing");
+      return reviewedSourceRow(live);
+    },
+  );
+  invariant(
+    canonicalHash(liveSemanticRows) ===
+      reviewed.manifest.source_semantic_fingerprint,
+    "reviewed MASS_OOS live source drift",
+  );
+  const recordByOffer = new Map(
+    records.map((record) => [String(record.offer.id), record]),
+  );
+  const newOosRows = classification.rows
+    .filter((row) => row.target.in_stock && !row.source.in_stock)
+    .map((row) => {
+      const record = recordByOffer.get(String(row.offer_id));
+      invariant(record, "reviewed MASS_OOS canonical record missing");
+      return {
+        offer_id: String(row.offer_id),
+        mapping_id: String(row.retailer_product_id),
+        external_product_id: String(row.external_product_id),
+        external_variant_id: String(row.external_variant_id),
+        canonical_product_id: String(record.product.id),
+        canonical_variant_id: String(record.variant.id),
+        display_name: record.variant.display_name,
+        action: row.action,
+        old_price: Number(row.target.price).toFixed(2),
+        new_price: Number(row.source.price).toFixed(2),
+        old_stock: Boolean(row.target.in_stock),
+        new_stock: Boolean(row.source.in_stock),
+      };
+    })
+    .sort((left, right) => Number(left.offer_id) - Number(right.offer_id));
+  invariant(
+    canonicalHash(newOosRows) === canonicalHash(reviewed.manifest.rows),
+    "reviewed MASS_OOS changed row scope drift",
+  );
+  return {
+    classification: {
+      ...classification,
+      state: "DRY_RUN_READY",
+      reason: null,
+      action: "REVIEWED_MASS_OOS",
+    },
+    review: {
+      selector: reviewed.manifest.selector,
+      manifest_sha256: reviewed.sha256,
+      authorized_by: reviewed.manifest.authorized_by,
+      authorized_at: reviewed.manifest.authorized_at,
+      row_count: reviewed.manifest.row_count,
+      source_semantic_fingerprint:
+        reviewed.manifest.source_semantic_fingerprint,
+    },
+  };
 }
 function normalizeStatePayload(value) {
   return typeof value === "string" ? JSON.parse(value) : value;
@@ -455,6 +634,11 @@ function diagnosticTemplate(argv, env = process.env) {
 }
 async function buildRun(target, state, diagnostic = null, options = {}) {
   const spec = TARGETS[target];
+  const approved = loadManifest();
+  const reviewed = loadReviewedMassOosManifest(
+    options.reviewedMassOosSelector,
+    approved.manifest,
+  );
   const capturedAt = new Date().toISOString();
   let feed;
   try {
@@ -518,7 +702,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     required_matched_offers: config.approved_mapping_count,
     store_url: config.store_url,
   };
-  const classification = classifyExistingOffers({
+  let classification = classifyExistingOffers({
     targets,
     sourceVariants,
     policy,
@@ -527,6 +711,20 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     sourceProductCount: feed.product_count,
     previousSourceProductCount: config.source_baseline.product_count,
   });
+  const reviewedAuthorization = authorizeReviewedMassOos(
+    classification,
+    state.records,
+    feed.rows,
+    reviewed,
+  );
+  classification = reviewedAuthorization.classification;
+  if (diagnostic && reviewedAuthorization.review) {
+    diagnostic.guard_results.push({
+      guard: "REVIEWED_MASS_OOS",
+      result: "PASS",
+      ...reviewedAuthorization.review,
+    });
+  }
   if (
     classification.state !== "DRY_RUN_READY" ||
     classification.rows.length !== config.approved_mapping_count
@@ -647,7 +845,6 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
       }),
     );
   }
-  const approved = loadManifest();
   const manifest = state.records
     .map((row) => ({
       mapping_id: String(row.mapping.id),
@@ -722,6 +919,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
       rows: manifest,
     }),
     approvedManifestSha256: approved.sha256,
+    reviewedMassOos: reviewedAuthorization.review,
     binding,
     head,
     discovery,
@@ -996,7 +1194,9 @@ async function executeRefresh(args, diagnostic) {
   }
   const before = await readState(args.target);
   diagnostic.database_before = before.counts;
-  const run = await buildRun(args.target, before, diagnostic);
+  const run = await buildRun(args.target, before, diagnostic, {
+    reviewedMassOosSelector: args["reviewed-mass-oos"] || null,
+  });
   if (run.discovery.missing_rows.length !== 0) {
     throw new RefreshError(
       "SOURCE_INCOMPLETE",
@@ -1040,6 +1240,7 @@ async function executeRefresh(args, diagnostic) {
       actual: run.shippingDifferences.length,
       mutations: 0,
     },
+    reviewed_mass_oos: run.reviewedMassOos,
     validator_batches: validations.length,
     safe_update: "unset",
   };
@@ -1162,6 +1363,7 @@ if (require.main === module) {
 
 module.exports = {
   RefreshError,
+  authorizeReviewedMassOos,
   artifactPrefix,
   balancedExecutionBatches,
   buildRun,
@@ -1170,6 +1372,7 @@ module.exports = {
   diagnosticTemplate,
   guardrailsFor,
   loadManifest,
+  loadReviewedMassOosManifest,
   parseArgs,
   readState,
   registrationRequest,

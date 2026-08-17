@@ -48,6 +48,11 @@
     "audited_difference_count": 31,
     "previously_expected_difference_count": 28
   },
+  "reviewed_mass_oos": {
+    "selector": "2026-08-17-ghost-whey-907g-oos",
+    "manifest_path": "config/retailers/whey-okay-reviewed-mass-oos-2026-08-17.json",
+    "manifest_sha256": "cb47ab11bf9582ce56b128e4661163ea567e1ea8ca2006b8c86622b5d957ee9f"
+  },
   "schedule": {
     "cron_utc": "17 2 * * *",
     "reason": "Runs after the observed approximately 01:01 UTC EKM feed generation and before other daily retailer refreshes."

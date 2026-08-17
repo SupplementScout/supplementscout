@@ -11,11 +11,13 @@ const {
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
   RefreshError,
+  authorizeReviewedMassOos,
   balancedExecutionBatches,
   changeSummary,
   deliveredTotalForSourcePrice,
   guardrailsFor,
   loadManifest,
+  loadReviewedMassOosManifest,
   parseArgs,
   runWithDiagnostic,
   sourceHealth,
@@ -139,6 +141,93 @@ test("7Nutrition creatine binding follows the reviewed production merge", () => 
   assert.equal(row.environment_bindings.production.canonical_variant_id, 2176);
   assert.equal(row.environment_bindings.staging.canonical_product_id, 84);
   assert.equal(row.environment_bindings.staging.canonical_variant_id, 53);
+});
+
+test("reviewed Ghost MASS_OOS scope is SHA-bound to six exact production rows", () => {
+  const approved = loadManifest();
+  const reviewed = loadReviewedMassOosManifest(
+    config.reviewed_mass_oos.selector,
+    approved.manifest,
+  );
+  assert.equal(reviewed.manifest.row_count, 6);
+  assert.deepEqual(
+    reviewed.manifest.rows.map((row) => row.offer_id),
+    ["237", "1686", "1687", "1688", "1689", "1690"],
+  );
+  assert.ok(
+    reviewed.manifest.rows.every(
+      (row) =>
+        row.action === "UPDATE_STOCK" &&
+        row.old_stock === true &&
+        row.new_stock === false &&
+        row.old_price === "39.87" &&
+        row.new_price === "39.87",
+    ),
+  );
+});
+
+test("reviewed Ghost authorization permits only the six approved new OOS rows", () => {
+  const approved = loadManifest();
+  const reviewed = loadReviewedMassOosManifest(
+    config.reviewed_mass_oos.selector,
+    approved.manifest,
+  );
+  const records = reviewed.manifest.rows.map((row) => ({
+    product: { id: Number(row.canonical_product_id) },
+    variant: {
+      id: Number(row.canonical_variant_id),
+      display_name: row.display_name,
+    },
+    mapping: { id: Number(row.mapping_id) },
+    offer: { id: Number(row.offer_id) },
+  }));
+  const rows = reviewed.manifest.rows.map((row) => ({
+    offer_id: row.offer_id,
+    retailer_product_id: row.mapping_id,
+    external_product_id: row.external_product_id,
+    external_variant_id: row.external_variant_id,
+    action: "UPDATE_STOCK",
+    target: { price: row.old_price, in_stock: true },
+    source: { price: row.new_price, in_stock: false },
+  }));
+  const classification = {
+    state: "BLOCKED",
+    reason: "MASS_OOS",
+    rows,
+    guard_evidence: {
+      guards: [
+        { guard: "MASS_OOS", result: "BLOCK" },
+        { guard: "MASS_CHANGE", result: "PASS" },
+        { guard: "MASS_PRICE", result: "PASS" },
+      ],
+    },
+  };
+  const result = authorizeReviewedMassOos(
+    classification,
+    records,
+    reviewed.manifest.source_semantic_rows,
+    reviewed,
+  );
+  assert.equal(result.classification.state, "DRY_RUN_READY");
+  assert.equal(result.classification.action, "REVIEWED_MASS_OOS");
+  assert.equal(result.review.row_count, 6);
+
+  const escaped = structuredClone(classification);
+  escaped.rows.push({
+    ...escaped.rows[0],
+    offer_id: "9999",
+    retailer_product_id: "9999",
+  });
+  assert.throws(
+    () =>
+      authorizeReviewedMassOos(
+        escaped,
+        records,
+        reviewed.manifest.source_semantic_rows,
+        reviewed,
+      ),
+    /canonical record missing|scope drift/,
+  );
 });
 
 test("all 586 exact manifest identities classify idempotently", () => {
@@ -468,6 +557,32 @@ test("CLI is closed and diagnostic artifacts exist on success and failure", asyn
     mode: "dry-run",
   });
   assert.throws(() => parseArgs(["--target=other", "--mode=apply"]));
+  assert.deepEqual(
+    parseArgs([
+      "--target=production",
+      "--mode=dry-run",
+      `--reviewed-mass-oos=${config.reviewed_mass_oos.selector}`,
+    ]),
+    {
+      target: "production",
+      mode: "dry-run",
+      "reviewed-mass-oos": config.reviewed_mass_oos.selector,
+    },
+  );
+  assert.throws(() =>
+    parseArgs([
+      "--target=staging",
+      "--mode=dry-run",
+      `--reviewed-mass-oos=${config.reviewed_mass_oos.selector}`,
+    ]),
+  );
+  assert.throws(() =>
+    parseArgs([
+      "--target=production",
+      "--mode=dry-run",
+      "--reviewed-mass-oos=other",
+    ]),
+  );
   const successDir = fs.mkdtempSync(
     path.join(os.tmpdir(), "whey-refresh-success-"),
   );
