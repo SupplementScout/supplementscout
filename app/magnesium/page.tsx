@@ -20,9 +20,9 @@ export const revalidate = 3600;
 const magnesiumSearchTerms = ["magnesium", "zma", "zmb", "zmpro"];
 
 const basePath = "/magnesium";
-const pageTitle = "Compare Magnesium Supplements UK";
+const pageTitle = "Magnesium Tablets & Supplements UK - Compare Prices";
 const pageDescription =
-  "Compare magnesium supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.";
+  "Compare magnesium tablets, capsules and supplements from UK retailers. Check product prices, delivery costs and total delivered prices.";
 
 type MagnesiumPageProps = {
   searchParams: Promise<{ page?: string | string[] }>;
@@ -80,7 +80,7 @@ export default async function MagnesiumPage({
             Magnesium supplements
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-            Compare Magnesium Supplements UK
+            Compare Magnesium Tablets &amp; Supplements UK
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
             Find magnesium tablets, capsules and formulas from UK supplement

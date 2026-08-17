@@ -111,6 +111,30 @@ test("Glucosamine preserves ranking terms while adding a delivered-price answer"
   assert.doesNotMatch(source, /best Glucosamine|health ranking/i);
 });
 
+test("Magnesium targets the observed tablets and supplements demand without changing route mechanics", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "magnesium", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(
+    source,
+    /const pageTitle = "Magnesium Tablets & Supplements UK - Compare Prices"/
+  );
+  assert.match(
+    source,
+    /Compare magnesium tablets, capsules and supplements from UK retailers/
+  );
+  assert.match(
+    source,
+    /<h1[^>]*>[\s\S]*Compare Magnesium Tablets &amp; Supplements UK[\s\S]*<\/h1>/
+  );
+  assert.equal((source.match(/<h1\b/g) || []).length, 1);
+  assert.match(source, /isReviewedLandingProductMatch\("magnesium", product\)/);
+  assert.match(source, /CategoryLandingPagination/);
+  assert.doesNotMatch(source, /best magnesium|medical advice for/i);
+});
+
 function loadPaginationModule() {
   const filename = path.join(
     process.cwd(),
