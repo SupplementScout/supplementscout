@@ -117,7 +117,11 @@ test("batch guard rejects count collapse and duplicate targets", () => {
 });
 
 test("immutable artifact loader accepts the operation and rejects tampering", () => {
-  const dryRun = buildVerifiedNoChangeDryRun([record()], OPTIONS);
+  const input = record();
+  input.source.url = "https://www.awin1.com/pclick.php?p=1";
+  input.source.external_url = input.target.retailer_product.external_url;
+  input.target.offer.url = input.source.url;
+  const dryRun = buildVerifiedNoChangeDryRun([input], OPTIONS);
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "verified-no-change-"));
   const artifactPath = path.join(directory, "artifact.json");
   const written = writeDryRunArtifact(dryRun.records, dryRun.result, {

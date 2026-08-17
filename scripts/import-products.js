@@ -385,7 +385,7 @@ function loadDryRunArtifact(artifactPath) {
         plan.product_variant?.evidence?.external_variant_id !== sourceEvidence.external_variant_id ||
         target.retailer_product?.external_product_id !== sourceEvidence.external_product_id ||
         target.retailer_product?.external_variant_id !== sourceEvidence.external_variant_id ||
-        target.retailer_product?.external_url !== sourceEvidence.url ||
+        target.retailer_product?.external_url !== (sourceEvidence.external_url ?? sourceEvidence.url) ||
         target.offer?.url !== sourceEvidence.url ||
         target.offer?.price !== sourceEvidence.price ||
         target.offer?.in_stock !== sourceEvidence.in_stock ||
