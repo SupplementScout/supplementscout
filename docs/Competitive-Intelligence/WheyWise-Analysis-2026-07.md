@@ -1,7 +1,7 @@
 # WheyWise Competitive Intelligence Analysis
 
 _Original audit: 17 July 2026_<br>
-_Current verified comparison: 31 July 2026_
+_Current verified comparison: 17 August 2026_
 
 ## Purpose
 
@@ -9,7 +9,61 @@ This document records competitive intelligence about wheywise.co.uk and converts
 
 This is a supporting document. It does not replace the SupplementScout Operating Plan. The Operating Plan remains the source of truth for priorities and execution.
 
-## Current verified comparison - 31 July 2026
+## Current verified comparison - 17 August 2026
+
+This read-only spot check compared both public sitemaps and current public
+WheyWise acquisition pages. Sitemap counts describe published URLs, not
+confirmed Google indexation or traffic.
+
+| Measure | SupplementScout | WheyWise | Change since 31 July |
+|---|---:|---:|---|
+| Total sitemap URLs | 1,090 | 1,383 | SupplementScout added seven URLs while WheyWise fell by two; the footprint gap narrowed only from 302 to 293 URLs. |
+| Product-like sitemap URLs | 1,070 `/product/` | 745 `/product/` plus 480 `/vitamin/` | Raw item-page breadth remains close enough that it is not the primary acquisition gap. |
+| Query, editorial and decision-support footprint | A small controlled set of comparison/category and methodology pages | 79 blog, 30 `/compare/`, 16 protein-review, nine vitamin-comparison, five supplement-comparison, five supplement-review and three vitamin-review URLs, plus finder, calculator, deals and pair-comparison tools | WheyWise continues to lead materially in non-product search entry points and interactive decision support. |
+| Public catalogue claims | 1,070 active public product URLs | 1,337 protein products and 98 retailers on the main comparison pages | WheyWise's main commercial pages retain the scale claim seen on 31 July. |
+| Public claim consistency | Canonical catalogue counts and guarded source evidence | Other current pages simultaneously claim 1,958 or more than 1,900 products and 85+ rather than 98 retailers | The earlier warning about inconsistent public counts remains valid. |
+
+### What WheyWise is doing now
+
+- It has strengthened commercial-intent hubs around `cheapest`, budgets,
+  protein type, brand, supplement category and pairwise comparisons. Current
+  examples include `/compare`, `/compare/whey-isolate`,
+  `/compare/protein-under-30`, `/compare/brand`, `/compare-supplements` and
+  `/protein-comparison`.
+- It puts the answer and value metric above the fold: top cheapest products,
+  cost per 25 g protein, cost per 5 g creatine or cost per serving, followed by
+  filters and buyer-guide copy.
+- It uses tools and repeated internal navigation to create more routes into the
+  catalogue: a finder, calculator, pair-comparison tool, deal page and review
+  hubs.
+- It continues to trade precision for publishing speed. The current whey
+  isolate page visibly includes `Protein+Carbs` and a beef isolate, the creatine
+  page inherits protein-specific copy, several spec fields display as missing,
+  and product/retailer counts disagree across current pages.
+
+### Updated response for SupplementScout
+
+The July conclusion is reinforced, not overturned. SupplementScout has already
+shipped five controlled SEO-13 candidates, including Whey Isolate with a
+server-rendered lowest-known-delivered-price answer, and its sitemap increased
+to 1,090 URLs. That is progress, but it has not materially closed the
+acquisition gap yet.
+
+The fastest defensible response remains:
+
+1. keep the current SEO-13 sequence and expose delivered-cost answers on pages
+   with real coverage and impressions;
+2. restore approved offer freshness and increase exact multi-retailer overlap,
+   because weak overlap limits both page usefulness and click opportunity;
+3. begin owner-approved retailer authority outreach using the already prepared
+   live comparison evidence;
+4. after the controlled cluster, ship eligible brand/retailer pages, deals and
+   guarded two-product comparison in the existing binding order.
+
+Do not respond by copying WheyWise's unsupported popularity signals, medical
+claims, inconsistent counts or broad thin-page production.
+
+## Previous verified comparison - 31 July 2026
 
 This section supersedes older counts and immediate-action recommendations in
 this document. It is based on a read-only review of both public sites, their
@@ -670,3 +724,17 @@ Review monthly:
   250-product multi-retailer coverage checkpoint.
 - SupplementScout will preserve delivered-price ranking, canonical identity and
   guarded automation as its trust advantage.
+
+### 17 August 2026
+
+- Public sitemap counts were rechecked at 1,090 for SupplementScout and 1,383
+  for WheyWise; the footprint gap narrowed from 302 to 293 URLs.
+- WheyWise's strongest recent move is presentation and decision support around
+  commercial queries: cheapest lists, budget/type/brand hubs, pair comparison,
+  review hubs, finder, calculator and deals.
+- Current WheyWise pages still expose inconsistent product and retailer counts
+  and visible category/copy quality problems, so SupplementScout will retain
+  its identity and delivered-cost gates.
+- The binding response remains SEO-13, exact multi-retailer coverage and
+  authority acquisition, followed by the already planned brand/retailer,
+  deals and two-product comparison work.

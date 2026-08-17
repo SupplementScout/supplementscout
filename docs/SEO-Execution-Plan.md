@@ -291,6 +291,41 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
+### 17 August 2026 — approved Whey Okay freshness preflight repaired
+
+- A fresh protected production dry-run initially failed before classification
+  because approved source identity `509:509` still referenced canonical product
+  `84` / variant `53`. Existing guarded merge code, the current production
+  mapping and GTIN evidence all prove that mapping `151` and offer `88` were
+  intentionally moved to canonical product `1040` / variant `2176`.
+- Commit `2b4016b` resealed only that reviewed manifest identity and its SHA,
+  retained the unchanged staging binding and added a regression test. The
+  focused suite passed 21/21; `verify:quick` and `verify:full` both passed.
+- The follow-up read-only production dry-run passed all 586 environment-binding
+  checks and source health. It then failed closed at `MASS_OOS`: six variants
+  from the single `Ghost 100% Whey Protein 907g` family changed from in stock to
+  OOS at an unchanged GBP 39.87. Zero database writes and zero approvals were
+  performed.
+- The generic OOS limit remains unchanged. Those six exact stock transitions
+  require an owner-reviewed, SHA-bound scope before any apply. All other Whey
+  Okay refresh changes remain blocked with them, so this is a current catalogue
+  freshness and comparison-click constraint rather than completion evidence.
+
+### 17 August 2026 — WheyWise competitive spot check
+
+- Public sitemap reads counted 1,090 SupplementScout URLs and 1,383 WheyWise
+  URLs, compared with 1,083 and 1,385 respectively on 31 July. The footprint
+  gap narrowed from 302 to 293 URLs but remains material.
+- WheyWise has strengthened commercial query presentation around cheapest,
+  budget, type, brand and supplement-category hubs plus finder, calculator,
+  deals and two-product comparison tools. Its current pages also retain
+  inconsistent 1,337 / 1,958 / 1,900+ product and 85+ / 98 retailer claims and
+  visible classification/copy defects.
+- The evidence reinforces the existing sequence: finish useful controlled
+  SEO-13 pages, restore approved offer freshness and multi-retailer overlap,
+  pursue legitimate authority, then execute the planned brand/retailer, deals
+  and guarded comparison work. No second SEO implementation was opened.
+
 ### 17 August 2026 — SEO-13 Whey Isolate cost-intent local enhancement
 
 - The latest available authenticated report, covering 3–9 August, confirmed
