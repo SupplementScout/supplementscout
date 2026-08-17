@@ -10,6 +10,7 @@ import {
   isCanonicalCategoryLandingPageParam,
   normalizeCategoryLandingPage,
 } from "../lib/categoryLandingPagination";
+import { formatCurrency } from "../lib/pricing";
 import {
   getLandingProducts,
   isReviewedLandingProductMatch,
@@ -28,9 +29,9 @@ const omega3SearchTerms = [
 ];
 
 const basePath = "/omega-3";
-const pageTitle = "Compare Omega 3 Supplements UK";
+const pageTitle = "Omega 3 Prices UK â€“ Compare Delivered Cost";
 const pageDescription =
-  "Compare Omega 3, fish oil and cod liver oil supplement prices from UK retailers. See product price, delivery cost and total delivered price with SupplementScout.";
+  "Compare Omega 3 and fish oil prices from UK retailers. See recently checked offers, delivery costs and the lowest current delivered price in our comparison.";
 
 type Omega3PageProps = {
   searchParams: Promise<{ page?: string | string[] }>;
@@ -67,6 +68,9 @@ export default async function Omega3Page({ searchParams }: Omega3PageProps) {
     redirect(categoryLandingPageHref(basePath, page));
   }
 
+  const lowestDeliveredProduct =
+    page === 1 && results[0]?.cheapestOffer ? results[0] : null;
+
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
@@ -89,12 +93,12 @@ export default async function Omega3Page({ searchParams }: Omega3PageProps) {
             Omega 3 supplements
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-            Compare Omega 3 Supplements UK
+            Omega 3 Prices UK â€“ Compare Delivered Cost
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
-            Find Omega 3 capsules, fish oil, cod liver oil and related formulas
-            from UK supplement retailers. Compare product prices, delivery costs
-            and total delivered prices in one place.
+            Compare recently checked prices for Omega 3 capsules, fish oil, cod
+            liver oil and related formulas from UK supplement retailers. Known
+            delivery costs are included in the displayed total.
           </p>
           <p className="mt-4 text-sm leading-6 text-zinc-600">
             Omega 3 products are commonly sold as fish oil, cod liver oil, vegan
@@ -103,6 +107,39 @@ export default async function Omega3Page({ searchParams }: Omega3PageProps) {
           </p>
         </div>
       </section>
+
+      {lowestDeliveredProduct && (
+        <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
+          <div className="max-w-3xl rounded-lg border border-zinc-200 bg-white p-5 sm:p-6">
+            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              Quick price answer
+            </p>
+            <h2 className="mt-2 text-2xl font-bold">
+              What is the lowest current Omega 3 delivered price?
+            </h2>
+            <p className="mt-3 leading-7 text-zinc-700">
+              Of the {totalCount} matching products currently in this comparison, the
+              lowest known delivered price is{" "}
+              {formatCurrency(
+                lowestDeliveredProduct.cheapestOffer!.deliveredPrice.totalPrice
+              )}{" "}
+              for{" "}
+              <Link
+                href={`/product/${lowestDeliveredProduct.slug || lowestDeliveredProduct.id}`}
+                className="font-semibold underline"
+              >
+                {lowestDeliveredProduct.name}
+              </Link>
+              .
+            </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              This is the lowest recently checked total in SupplementScout&apos;s
+              current retailer coverage, not a claim about every UK seller.
+              Prices and stock can change, so confirm the final amount before buying.
+            </p>
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

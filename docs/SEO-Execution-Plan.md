@@ -359,7 +359,7 @@ SEO-07 manual evidence queue is now complete:
   as a complete market comparison.
 - The existing dynamic robots metadata, exact category gates, freshness rules,
   canonical URLs, structured data, catalogue reads and analytics are unchanged.
-  This is presentation work inside the existing SEO-13 comparison mechanism,
+  This is presentation work inside the existing comparison-page mechanism,
   not a second SEO implementation or a weakened indexing policy.
 - A regression assertion now blocks the identified internal phrases from
   returning to shopper-facing comparison copy. Nine focused page and
@@ -371,7 +371,34 @@ SEO-07 manual evidence queue is now complete:
   Workout, Whey Isolate, Whey Protein and Data Freshness retained `index,
   follow`; Hydration, Mass Gainer, Multivitamins and Vegan Protein retained
   `noindex, follow` under their unchanged live coverage gates. The language
-  cleanup is `LIVE VERIFIED`; SEO-13 remains `IN PROGRESS`.
+  cleanup is `LIVE VERIFIED`; the active comparison-page cluster remains
+  `IN PROGRESS`.
+
+### 17 August 2026 — SEO-13 Omega 3 price-intent local enhancement
+
+- The latest available authenticated page report for 3–9 August identified
+  `/omega-3` as the highest-impression current category landing page with 141
+  impressions. Its existing title and H1 described a broad supplement list but
+  did not lead with the delivered-price answer that differentiates
+  SupplementScout.
+- A current public search-result sample also showed price-led competitors using
+  `prices`, `cheapest`, `deals`, per-unit value and multi-store comparison
+  language. SupplementScout retains the safer delivered-cost claim and does not
+  invent a best-product, health or complete-market ranking.
+- The title, description, H1 and opening copy now target `Omega 3 Prices UK`
+  and delivered-cost intent. A server-rendered quick answer uses the first row
+  from the existing globally delivered-price-sorted landing data to state the
+  current lowest known delivered price and link to the canonical product. It
+  appears on page one only and explicitly limits the claim to current
+  SupplementScout retailer coverage.
+- The reviewed Omega 3 scope, freshness checks, price calculation, product
+  cards, pagination, canonical policy, catalogue reads and internal links are
+  unchanged. No second landing mechanism or manually maintained price was
+  introduced.
+- The focused landing suite passed 15 tests. Targeted ESLint and TypeScript,
+  `npm run verify:quick` and `npm run verify:full`, including the Next.js
+  production build, passed. This remains local release evidence until the
+  title, H1, quick answer, canonical and robots state are verified publicly.
 
 ### 17 August 2026 — SEO-13 Whey Isolate cost-intent local enhancement
 

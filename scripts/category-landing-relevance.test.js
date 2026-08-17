@@ -57,6 +57,23 @@ test("reviewed landing source queries do not fetch known excluded identities", (
   assert.doesNotMatch(omega3, /"starflower oil"|"evening primrose oil"/);
 });
 
+test("Omega 3 targets price intent and answers with existing delivered-price data", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "omega-3", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(source, /const pageTitle = "Omega 3 Prices UK/);
+  assert.match(source, /<h1[^>]*>[\s\S]*Omega 3 Prices UK/);
+  assert.equal((source.match(/<h1\b/g) || []).length, 1);
+  assert.match(source, /What is the lowest current Omega 3 delivered price\?/);
+  assert.match(source, /page === 1 && results\[0\]\?\.cheapestOffer/);
+  assert.match(source, /formatCurrency\(/);
+  assert.match(source, /not a claim about every UK seller/);
+  assert.match(source, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
+  assert.doesNotMatch(source, /best Omega 3|health ranking/i);
+});
+
 function loadPaginationModule() {
   const filename = path.join(
     process.cwd(),
