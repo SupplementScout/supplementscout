@@ -4,7 +4,7 @@
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
 **Status:** CONTROLLED 20-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1)
 **Last verified:** 17 August 2026
-**Production writes:** 20 owner-approved canary plans (1 retailer, 20 mappings, 20 offers, 20 price-history rows)
+**Production writes:** 20 owner-approved create plans plus 1 exact existing-offer verification refresh (1 retailer, 20 mappings, 20 offers, 20 price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 20 live eBay offers
 
 Every future eBay task must read this document first and continue from
@@ -41,10 +41,10 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 17-offer rollout are complete. The
+read-only Browse pilot and the controlled 20-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
-production evidence is the 15 August 2026 Batch C readback below; credentials
-remain outside the repository.
+production evidence includes the 17 August 2026 exact-offer refresh and
+postflight below; credential values remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1847,14 +1847,13 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner review of successful read-only refresh run 32034428466.
-If the exact existing-offer refresh is approved, run one manual guarded apply
-with confirmation OWNER_APPROVED_EBAY_REFRESH_EXACT_1 plus the workflow's
-immediate fresh no-op verification. Only after both pass may environment
-variable EBAY_REFRESH_ENABLED be set to true and the daily schedule for offer
-2558 be treated as enabled. Expand the same fixed scope to other approved eBay
-offers only in reviewed batches. All REVIEW, REJECT and GTIN-conflict rows
-remain blocked.`
+`NEXT ACTION: Expand the same guarded refresh mechanism from the successful
+exact-one canary to one immutable manifest covering the 20 already live-verified
+eBay offers. Re-read all 20 listings and production targets, then run one
+read-only batch dry-run and present exact classifications, deltas, blockers and
+artifact fingerprint for owner review. Do not enable EBAY_REFRESH_ENABLED or
+execute the 20-offer batch before that reviewed dry-run passes. All REVIEW,
+REJECT, replacement-listing and GTIN-conflict rows remain blocked.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1887,6 +1886,27 @@ owner-reviewed production design and approval.
   `52871dd2f070a1b07bfc2da1df809c8068ef94ba696b99b1702e1e0d1eba7719`.
 - Apply and postflight steps were skipped, and `EBAY_REFRESH_ENABLED` remains
   unset. No database, offer, price, mapping or public-page change occurred.
+- The first owner-approved exact-one apply attempt, run `32034913023`, failed
+  closed before approval or database execution because its write process also
+  received `SUPABASE_SERVICE_ROLE_KEY`. The executor's existing credential
+  separation guard stopped it; writes were zero. Commit `cdda005` split fresh
+  source preparation and execution into separate processes, kept the service
+  role out of the executor and added a 15-minute immutable-artifact expiry.
+- Run `32035913998` proved that the separated prepare step and credential-free
+  executor boundary worked, then failed closed while loading a verified-no-change
+  artifact whose mapping URL and affiliate offer URL differ. Writes were zero.
+  Commit `155a131` corrected the generic immutable loader to validate the
+  mapping against `source.external_url` while retaining `source.url` for the
+  offer; the regression test now loads an artifact with separate URLs.
+- Owner-approved manual run `32036314282` passed all five exact refresh contract
+  tests, fresh preflight, prepare, separated apply, immediate postflight and
+  evidence upload. Offer `2558` remained GBP 19.95 plus GBP 0 shipping and
+  classified `verify_no_change`; exactly one approved plan refreshed only its
+  verification timestamp. Postflight returned the same `verify_no_change`,
+  proving idempotency. Evidence artifact `9290814995` has SHA-256
+  `fe6f0a3520fc9d6dfb2a3cff51c84719c92a815eaea202a43132d74051bf0fb3`.
+  `EBAY_REFRESH_ENABLED` remains unset, so scheduled production apply is still
+  disabled pending a reviewed all-20 manifest and dry-run.
 
 16 August 2026:
 
