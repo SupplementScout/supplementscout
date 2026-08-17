@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 19-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2)
-**Last verified:** 16 August 2026
-**Production writes:** 19 owner-approved canary plans (1 retailer, 19 mappings, 19 offers, 19 price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 19 live eBay offers
+**Status:** CONTROLLED 20-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1)
+**Last verified:** 17 August 2026
+**Production writes:** 20 owner-approved canary plans (1 retailer, 20 mappings, 20 offers, 20 price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 20 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -1847,20 +1847,46 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Add EBAY_CLIENT_ID, EBAY_CLIENT_SECRET and
-EBAY_UK_DELIVERY_POSTCODE to the GitHub production-readonly environment without
-exposing their values, then rerun eBay Offer Refresh in dry-run mode. If it
-passes, run one manual guarded apply plus a fresh no-op verification; only then
-set environment variable `EBAY_REFRESH_ENABLED=true` and treat the daily
-schedule for offer 2558 as enabled. Expand the same fixed scope
-to other approved eBay offers only in reviewed batches. All REVIEW, REJECT and
-GTIN-conflict rows remain blocked.`
+`NEXT ACTION: Owner review of successful read-only refresh run 32034428466.
+If the exact existing-offer refresh is approved, run one manual guarded apply
+with confirmation OWNER_APPROVED_EBAY_REFRESH_EXACT_1 plus the workflow's
+immediate fresh no-op verification. Only after both pass may environment
+variable EBAY_REFRESH_ENABLED be set to true and the daily schedule for offer
+2558 be treated as enabled. Expand the same fixed scope to other approved eBay
+offers only in reviewed batches. All REVIEW, REJECT and GTIN-conflict rows
+remain blocked.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
 owner-reviewed production design and approval.
 
 ## Last verified
+
+17 August 2026:
+
+- A live duplicate/configuration audit confirmed that the four existing eBay
+  values were already present in the controlled local environment, while the
+  GitHub repository had no repository-level Actions secrets and its
+  `production-readonly` environment contained seven non-eBay secrets. The
+  earlier successful canary consumed sealed artifacts and therefore did not
+  prove that a GitHub runner could call eBay. Failed refresh run `31964579226`
+  independently showed all four eBay workflow variables as empty.
+- With explicit owner approval, the existing local `EBAY_CLIENT_ID`,
+  `EBAY_CLIENT_SECRET`, `EBAY_UK_DELIVERY_POSTCODE` and
+  `EBAY_EPN_CAMPAIGN_ID` values were encrypted with the GitHub environment
+  public key and stored as environment secrets in `production-readonly`.
+  Values were not printed, committed or copied into application files; GitHub
+  confirmed only the four secret names.
+- Manual GitHub Actions dry-run `32034428466` on commit `e483cef` passed the
+  five exact eBay refresh contract tests and the fresh read-only preflight.
+  Offer `2558` matched sealed item `v1|204137434720|0`, GTIN
+  `5902114017811`, GBP 19.95 item price, GBP 0 shipping and GBP 19.95 delivered
+  total. Classification was `verify_no_change`; executed writes were 0,
+  `safe_update` remained unset and automatic OOS remained blocked. Evidence
+  artifact `9290100758` has SHA-256
+  `52871dd2f070a1b07bfc2da1df809c8068ef94ba696b99b1702e1e0d1eba7719`.
+- Apply and postflight steps were skipped, and `EBAY_REFRESH_ENABLED` remains
+  unset. No database, offer, price, mapping or public-page change occurred.
 
 16 August 2026:
 
