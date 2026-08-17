@@ -5,7 +5,7 @@ const test = require("node:test");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
 const { buildDiscoveryRows, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
-const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
+const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -223,6 +223,11 @@ test("eBay refresh is frozen to the exact approved existing offer", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
+  assert.equal(REFRESH_SCOPES.length, 20);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 20 }, (_, index) => String(2539 + index)));
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.retailer_product_id), Array.from({ length: 20 }, (_, index) => String(2724 + index)));
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 20);
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.gtin)).size, 20);
 });
 
 test("eBay refresh converts only a fully qualified exact listing into importer input", () => {
@@ -233,13 +238,14 @@ test("eBay refresh converts only a fully qualified exact listing into importer i
     localizedAspects: [{ name: "Flavour", value: "Unflavoured" }, { name: "Size", value: "400g" }, { name: "Formulation", value: "Powder" }],
     itemWebUrl: REFRESH_SCOPE.direct_url,
   }), { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
-  const row = rowFromEvaluation(evaluation);
+  const row = rowFromEvaluation(REFRESH_SCOPE, evaluation);
   assert.equal(row.product_id, "1107");
   assert.equal(row.product_variant_id, "2401");
   assert.equal(row.external_gtin, REFRESH_SCOPE.gtin);
   assert.equal(row.price, "29.00");
-  assert.match(row.affiliate_url, /campid=5339189922/);
-  assert.throws(() => rowFromEvaluation({ ...evaluation, returned_gtin: identity.gtin }), /no longer eligible/);
+  assert.equal(row.affiliate_url, REFRESH_SCOPE.affiliate_url);
+  assert.notEqual(row.affiliate_url, evaluation.affiliate_url);
+  assert.throws(() => rowFromEvaluation(REFRESH_SCOPE, { ...evaluation, returned_gtin: identity.gtin }), /no longer eligible/);
 });
 
 test("eBay refresh reads the approved item directly and remains GET-only", async () => {
@@ -251,7 +257,7 @@ test("eBay refresh reads the approved item directly and remains GET-only", async
     if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "private", expires_in: 7200 }) };
     return { ok: true, json: async () => exact };
   };
-  const result = await buildRefreshSource({ client_id: "id", client_secret: "secret", marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: "123" }, fetchImpl);
+  const result = await buildRefreshSource(REFRESH_SCOPE, { client_id: "id", client_secret: "secret", marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: "123" }, fetchImpl);
   assert.equal(result.returned_gtin, REFRESH_SCOPE.gtin);
   assert.match(requests[1].url, /\/item\/v1%7C204137434720%7C0$/);
   assert.ok(requests.slice(1).every((request) => !request.options.method || request.options.method === "GET"));
@@ -266,12 +272,12 @@ test("eBay refresh plan permits only noop or bounded update of offer 2558", () =
     price_history: { action: "create" }, expected_state: { offer: { price: "19.95", retailer_product_id: "2743" } },
   };
   const loaded = { artifact: { blocked_rows: [], plans: [{ plan_kind: "manual", retailer_id: "12", resolved_plan: plan }] }, artifactSha256: "a".repeat(64) };
-  assert.equal(validateRefreshPlan(loaded).entry.resolved_plan.offer.id, "2558");
-  assert.throws(() => validateRefreshPlan({ ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, product: { action: "existing", id: "999" } } }] } }), /escaped/);
-  assert.throws(() => validateRefreshPlan({ ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, offer: { ...plan.offer, values: { ...plan.offer.values, price: "45.00", total_price: "45.00" } } } }] } }), /hard limit/);
+  assert.equal(validateRefreshPlan(REFRESH_SCOPE, loaded).entry.resolved_plan.offer.id, "2558");
+  assert.throws(() => validateRefreshPlan(REFRESH_SCOPE, { ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, product: { action: "existing", id: "999" } } }] } }), /escaped/);
+  assert.throws(() => validateRefreshPlan(REFRESH_SCOPE, { ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, offer: { ...plan.offer, values: { ...plan.offer.values, price: "45.00", total_price: "45.00" } } } }] } }), /hard limit/);
   const fresh = { ...loaded, artifact: { ...loaded.artifact, environment_marker: "production", created_at: "2026-08-17T10:00:00.000Z" } };
-  assert.equal(validatePreparedArtifact(fresh, new Date("2026-08-17T10:14:59.000Z")).entry.resolved_plan.offer.id, "2558");
-  assert.throws(() => validatePreparedArtifact(fresh, new Date("2026-08-17T10:15:01.000Z")), /not fresh/);
+  assert.equal(validatePreparedArtifact(REFRESH_SCOPE, fresh, new Date("2026-08-17T10:14:59.000Z")).entry.resolved_plan.offer.id, "2558");
+  assert.throws(() => validatePreparedArtifact(REFRESH_SCOPE, fresh, new Date("2026-08-17T10:15:01.000Z")), /not fresh/);
 });
 
 test("eBay refresh workflow is scheduled, default dry-run and has no push trigger", () => {
@@ -280,7 +286,8 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_20/);
+  assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /vars\.EBAY_REFRESH_ENABLED == 'true'/);

@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { parse } = require("csv-parse/sync");
 const { assertConfig, evaluateItem, DEFAULT_POLICY, getApplicationToken } = require("./lib/ebay-browse-pilot");
 const { loadDryRunArtifact, runImportRows, writeDryRunArtifact } = require("./import-products");
 const { executePlan } = require("./ebay-offer-canary-executor");
@@ -8,23 +9,76 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
-const PENDING_ARTIFACT = path.join(OUT, "pending-apply.json");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_1";
-const KIND = "ebay-existing-offer-refresh-exact-1-v1";
-const SCOPE = Object.freeze({
-  product_id: "1107", product_variant_id: "2401", retailer_id: "12",
-  retailer_product_id: "2743", offer_id: "2558", gtin: "5902114017811",
-  external_product_id: "204137434720", external_variant_id: "v1|204137434720|0",
-  brand: "Trec Nutrition", product_name: "Trec Nutrition Creatine Monohydrate + Taurine 400g",
-  variant: "Unflavoured / 400g", flavour_label: "Unflavoured", size_value: 400,
-  size_unit: "g", pack_count: 1, unit_count: null, unit_type: null,
-  net_weight_g: 400, product_format: "powder", category: "Creatine",
-  direct_url: "https://www.ebay.co.uk/itm/204137434720",
-  affiliate_url: "https://www.ebay.co.uk/itm/204137434720?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
-  image: "https://i.ebayimg.com/images/g/NNsAAOSw-U5iBqLf/s-l1600.jpg",
-});
+const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_20";
+const KIND = "ebay-existing-offer-refresh-exact-20-v1";
+const PROJECT_REF = "aftboxmrdgyhizicfsfu";
+const PENDING_BATCH = path.join(OUT, "pending-batch.json");
+const ROLLOUTS = Object.freeze([
+  { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
+  { csv: "remaining-4.csv", approval: "remaining-4-rollout.json", count: 4 },
+  { csv: "batch-b.csv", approval: "batch-b-rollout.json", count: 5 },
+  { csv: "batch-c.csv", approval: "batch-c-rollout.json", count: 7 },
+  { csv: "batch-d.csv", approval: "batch-d-rollout.json", count: 2 },
+  { csv: "batch-e.csv", approval: "batch-e-rollout.json", count: 1 },
+]);
 
 function fail(message) { throw new Error(message); }
+function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
+
+function loadScopes() {
+  const rows = [];
+  for (const source of ROLLOUTS) {
+    const csvPath = path.join(ROLLOUT_DIR, source.csv);
+    const approval = JSON.parse(fs.readFileSync(path.join(ROLLOUT_DIR, source.approval), "utf8"));
+    const bytes = fs.readFileSync(csvPath);
+    if (approval.approved !== true || approval.target_project_ref !== PROJECT_REF || approval.csv_sha256 !== sha256(bytes)) fail(`Reviewed rollout integrity mismatch: ${source.approval}`);
+    const parsed = parse(bytes, { columns: true, skip_empty_lines: true, bom: true });
+    if (parsed.length !== source.count) fail(`Reviewed rollout count mismatch: ${source.csv}`);
+    const approvedEntries = approval.entries || [approval.scope];
+    for (let index = 0; index < parsed.length; index += 1) {
+      const row = parsed[index], approved = approvedEntries[index];
+      if (String(row.product_id) !== String(approved.product_id) || String(row.product_variant_id) !== String(approved.product_variant_id) || row.external_gtin !== approved.gtin || row.external_product_id !== approved.external_product_id || row.external_variant_id !== approved.external_variant_id) fail(`Reviewed rollout row identity mismatch: ${source.csv} row ${index + 2}`);
+      rows.push({
+        ...row,
+        flavour_label: row.flavour || null,
+        size_value: approved.size_value ?? String(row.size || "").match(/\d+(?:\.\d+)?/)?.[0] ?? null,
+        size_unit: approved.size_unit ?? row.size_unit ?? null,
+        pack_count: approved.pack_count ?? row.pack_count ?? "1",
+        unit_count: approved.unit_count ?? null,
+        unit_type: approved.unit_type ?? null,
+        product_format: approved.product_format ?? row.product_format ?? null,
+        rollout: source.approval,
+      });
+    }
+  }
+  if (rows.length !== 20) fail("Exact eBay refresh manifest must contain 20 rows");
+  const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
+  if (!["product_id", "product_variant_id", "external_gtin", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
+  return Object.freeze(rows.map((row, index) => Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: String(2724 + index), offer_id: String(2539 + index) })));
+}
+
+const SCOPES = loadScopes();
+const SCOPE = SCOPES[SCOPES.length - 1];
+function pendingArtifact(scope) { return path.join(OUT, `pending-${scope.offer_id}.json`); }
+
+function writePendingBatch(report, now) {
+  const manifest = { schema_version: 1, kind: KIND, created_at: now.toISOString(), offer_ids: SCOPES.map((scope) => scope.offer_id), eligible_offer_ids: Object.keys(report.classifications), blocked_rows: report.blocked_rows };
+  const bytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
+  fs.writeFileSync(PENDING_BATCH, bytes, { flag: "wx" });
+  fs.writeFileSync(`${PENDING_BATCH}.sha256`, `${sha256(bytes)}\n`, { flag: "wx" });
+}
+
+function loadPendingBatch(now = new Date()) {
+  const bytes = fs.readFileSync(PENDING_BATCH);
+  const expectedHash = fs.readFileSync(`${PENDING_BATCH}.sha256`, "utf8").trim();
+  if (sha256(bytes) !== expectedHash) fail("Pending eBay refresh batch SHA-256 mismatch");
+  const manifest = JSON.parse(bytes.toString("utf8"));
+  const ageMs = now.getTime() - new Date(manifest.created_at).getTime();
+  const eligible = new Set(manifest.eligible_offer_ids || []), blocked = new Set((manifest.blocked_rows || []).map((row) => row.offer_id));
+  if (manifest.schema_version !== 1 || manifest.kind !== KIND || !Number.isFinite(ageMs) || ageMs < -120000 || ageMs > 15 * 60 * 1000 || JSON.stringify(manifest.offer_ids) !== JSON.stringify(SCOPES.map((scope) => scope.offer_id)) || eligible.size !== (manifest.eligible_offer_ids || []).length || blocked.size !== (manifest.blocked_rows || []).length || [...eligible].some((id) => blocked.has(id)) || eligible.size + blocked.size !== SCOPES.length || SCOPES.some((scope) => !eligible.has(scope.offer_id) && !blocked.has(scope.offer_id))) fail("Pending eBay refresh batch scope, partition or freshness mismatch");
+  return { manifest, eligible };
+}
 
 function parseArgs(argv) {
   const options = {};
@@ -44,90 +98,110 @@ function assertExecutionContext(mode, env = process.env) {
   if (env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.EBAY_REFRESH_OWNER_CONFIRMATION !== CONFIRMATION) fail("Manual eBay refresh apply requires exact owner confirmation");
 }
 
-function validatePreparedArtifact(loaded, now = new Date()) {
-  if (loaded.artifact.environment_marker !== "production") fail("Prepared refresh artifact target mismatch");
-  const createdAt = new Date(loaded.artifact.created_at);
-  const ageMs = now.getTime() - createdAt.getTime();
-  if (!Number.isFinite(createdAt.getTime()) || ageMs < -120000 || ageMs > 15 * 60 * 1000) fail("Prepared refresh artifact is not fresh");
-  return validatePlan(loaded);
-}
-
-function rowFromEvaluation(evaluation) {
-  if (evaluation.decision !== "AUTO_ELIGIBLE" || evaluation.item_id !== SCOPE.external_variant_id || evaluation.legacy_item_id !== SCOPE.external_product_id || evaluation.returned_gtin !== SCOPE.gtin) fail("Exact eBay listing identity is no longer eligible");
-  if (!evaluation.item_price || !evaluation.uk_shipping || !evaluation.delivered_price || evaluation.item_price.currency !== "GBP" || evaluation.uk_shipping.currency !== "GBP" || evaluation.delivered_price.currency !== "GBP") fail("Complete GBP delivered price is required");
+function rowFromEvaluation(scope, evaluation) {
+  if (evaluation.decision !== "AUTO_ELIGIBLE" || evaluation.item_id !== scope.external_variant_id || evaluation.legacy_item_id !== scope.external_product_id || evaluation.returned_gtin !== scope.external_gtin) fail(`Exact eBay listing identity is no longer eligible for offer ${scope.offer_id}`);
+  if (!evaluation.item_price || !evaluation.uk_shipping || !evaluation.delivered_price || evaluation.item_price.currency !== "GBP" || evaluation.uk_shipping.currency !== "GBP" || evaluation.delivered_price.currency !== "GBP" || !evaluation.affiliate_ready || !evaluation.affiliate_url) fail(`Complete affiliate-ready GBP delivered price is required for offer ${scope.offer_id}`);
   return {
-    retailer_name: "eBay UK", retailer_website: "https://www.ebay.co.uk",
-    product_id: SCOPE.product_id, product_variant_id: SCOPE.product_variant_id,
-    external_product_id: SCOPE.external_product_id, external_variant_id: SCOPE.external_variant_id,
-    external_sku: "", product_name: SCOPE.product_name, variant_name: SCOPE.variant,
-    brand: SCOPE.brand, category: SCOPE.category, slug: `ebay-${SCOPE.external_product_id}`,
-    external_url: SCOPE.direct_url, affiliate_url: SCOPE.affiliate_url,
-    external_gtin: SCOPE.gtin, external_options: JSON.stringify({ Size: "400g", Flavour: "Unflavoured" }),
+    ...Object.fromEntries(Object.entries(scope).filter(([key]) => !["gtin", "flavour_label", "size_value", "unit_count", "unit_type", "retailer_id", "retailer_product_id", "offer_id", "rollout"].includes(key))),
+    external_url: scope.external_url,
+    affiliate_url: scope.affiliate_url,
     price: evaluation.item_price.value.toFixed(2), shipping_known: "true",
     shipping_cost: evaluation.uk_shipping.value.toFixed(2), in_stock: "true", is_for_sale: "true",
-    image: SCOPE.image, size: "400g", size_unit: "g", flavour: "Unflavoured",
-    pack_count: "1", product_format: "powder",
   };
 }
 
-function validatePlan(loaded) {
-  if (loaded.artifact.blocked_rows.length || loaded.artifact.plans.length !== 1) fail("Refresh importer must return exactly one unblocked plan");
+function validatePlan(scope, loaded) {
+  if (loaded.artifact.blocked_rows.length || loaded.artifact.plans.length !== 1) fail(`Refresh importer must return exactly one unblocked plan for offer ${scope.offer_id}`);
   const entry = loaded.artifact.plans[0], plan = entry.resolved_plan;
   const before = plan.expected_state?.offer, after = plan.offer?.values;
-  if (!["manual", "feed"].includes(entry.plan_kind) || String(entry.retailer_id) !== SCOPE.retailer_id || plan.product?.action !== "existing" || String(plan.product.id) !== SCOPE.product_id || plan.product_variant?.action !== "existing" || String(plan.product_variant.id) !== SCOPE.product_variant_id || plan.retailer?.action !== "existing" || String(plan.retailer.id) !== SCOPE.retailer_id || plan.retailer_product?.action !== "noop" || String(plan.retailer_product.id) !== SCOPE.retailer_product_id || !["update", "verify_no_change"].includes(plan.offer?.action) || String(plan.offer.id) !== SCOPE.offer_id || !["noop", "create"].includes(plan.price_history?.action)) fail("Refresh plan escaped the exact existing offer scope");
-  if (!before || !after || String(before.retailer_product_id) !== SCOPE.retailer_product_id || after.url !== SCOPE.affiliate_url || after.in_stock !== true) fail("Refresh plan changed identity, URL or guarded stock policy");
+  if (!["manual", "feed"].includes(entry.plan_kind) || String(entry.retailer_id) !== scope.retailer_id || plan.product?.action !== "existing" || String(plan.product.id) !== scope.product_id || plan.product_variant?.action !== "existing" || String(plan.product_variant.id) !== scope.product_variant_id || plan.retailer?.action !== "existing" || String(plan.retailer.id) !== scope.retailer_id || plan.retailer_product?.action !== "noop" || String(plan.retailer_product.id) !== scope.retailer_product_id || !["update", "verify_no_change"].includes(plan.offer?.action) || String(plan.offer.id) !== scope.offer_id || !["noop", "create"].includes(plan.price_history?.action)) fail(`Refresh plan escaped exact scope for offer ${scope.offer_id}`);
+  if (!before || !after || String(before.retailer_product_id) !== scope.retailer_product_id || after.url !== scope.affiliate_url || after.in_stock !== true) fail(`Refresh plan changed identity, URL or guarded stock policy for offer ${scope.offer_id}`);
   const oldPrice = Number(before.price), newPrice = Number(after.price), absolute = Math.abs(newPrice - oldPrice), ratio = absolute / Math.max(0.01, oldPrice);
-  if (!(newPrice > 0) || ratio >= 0.6 || absolute >= 20) fail("Refresh price change exceeds the approved hard limit");
+  if (!(newPrice > 0) || ratio >= 0.6 || absolute >= 20) fail(`Refresh price change exceeds the approved hard limit for offer ${scope.offer_id}`);
   return { loaded, entry };
 }
 
-async function buildSource(config, fetchImpl = fetch) {
-  const token = await getApplicationToken(config, fetchImpl);
-  const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`];
-  if (config.campaign_id) context.push(`affiliateCampaignId=${encodeURIComponent(config.campaign_id)}`);
-  const response = await fetchImpl(`https://api.ebay.com/buy/browse/v1/item/${encodeURIComponent(SCOPE.external_variant_id)}`, { headers: { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id, "X-EBAY-C-ENDUSERCTX": context.join(",") } });
-  if (!response.ok) fail(`Approved eBay listing direct read failed with HTTP ${response.status}; automatic OOS is intentionally blocked`);
-  const exact = await response.json();
-  if (String(exact.itemId) !== SCOPE.external_variant_id || String(exact.legacyItemId) !== SCOPE.external_product_id) fail("Direct eBay item identity drift");
-  return evaluateItem(SCOPE, exact, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
+function validatePreparedArtifact(scope, loaded, now = new Date()) {
+  if (loaded.artifact.environment_marker !== "production") fail("Prepared refresh artifact target mismatch");
+  const createdAt = new Date(loaded.artifact.created_at), ageMs = now.getTime() - createdAt.getTime();
+  if (!Number.isFinite(createdAt.getTime()) || ageMs < -120000 || ageMs > 15 * 60 * 1000) fail("Prepared refresh artifact is not fresh");
+  return validatePlan(scope, loaded);
 }
 
-async function run(options, dependencies = {}) {
-  assertExecutionContext(options.mode, dependencies.env || process.env);
-  if (options.mode === "execute-apply") {
-    const loaded = (dependencies.loadDryRunArtifact || loadDryRunArtifact)(PENDING_ARTIFACT);
-    const approved = validatePreparedArtifact(loaded, dependencies.now || new Date());
-    await (dependencies.executePlan || executePlan)(approved, KIND);
-    const report = { result: "PASS", mode: options.mode, scope: { offers: 1, offer_ids: [SCOPE.offer_id] }, classification: approved.entry.resolved_plan.offer.action, executed: 1, safe_update: "unset", automatic_oos: "blocked" };
-    fs.writeFileSync(path.join(OUT, `execute-apply-${new Date().toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
-    return report;
-  }
-  const config = dependencies.config || assertConfig(dependencies.env || process.env);
-  const evaluation = dependencies.evaluation || await buildSource(config, dependencies.fetchImpl || fetch);
-  const row = rowFromEvaluation(evaluation);
+async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = null) {
+  const token = tokenOverride || await getApplicationToken(config, fetchImpl);
+  const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`];
+  if (config.campaign_id) context.push(`affiliateCampaignId=${encodeURIComponent(config.campaign_id)}`);
+  const response = await fetchImpl(`https://api.ebay.com/buy/browse/v1/item/${encodeURIComponent(scope.external_variant_id)}`, { headers: { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id, "X-EBAY-C-ENDUSERCTX": context.join(",") } });
+  if (!response.ok) fail(`Approved eBay listing ${scope.external_variant_id} direct read failed with HTTP ${response.status}; automatic OOS is intentionally blocked`);
+  const exact = await response.json();
+  if (String(exact.itemId) !== scope.external_variant_id || String(exact.legacyItemId) !== scope.external_product_id) fail(`Direct eBay item identity drift for offer ${scope.offer_id}`);
+  return evaluateItem(scope, exact, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
+}
+
+async function prepareScope(scope, evaluation, mode, dependencies, stamp) {
+  const row = rowFromEvaluation(scope, evaluation);
   let artifactRows = [row];
   let result = await (dependencies.runImportRows || runImportRows)([row], { mode: "manual", dryRun: true });
   const initialPlan = result.report?.approvedRows?.[0]?.importPlan;
   if (initialPlan?.offer?.action === "noop") {
     const capturedAt = new Date().toISOString();
-    const snapshotHash = crypto.createHash("sha256").update(JSON.stringify({ item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price, shipping: evaluation.uk_shipping, delivered: evaluation.delivered_price, captured_at: capturedAt })).digest("hex");
+    const snapshotHash = sha256(JSON.stringify({ item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price, shipping: evaluation.uk_shipping, delivered: evaluation.delivered_price, captured_at: capturedAt }));
     const target = JSON.parse(JSON.stringify(initialPlan.expected_state));
     delete target.retailer_product.updated_at;
-    const verification = buildVerifiedNoChangeDryRun([{ source_snapshot_sha256: snapshotHash, source_captured_at: capturedAt, source: { external_product_id: SCOPE.external_product_id, external_variant_id: SCOPE.external_variant_id, price: row.price, in_stock: true, url: SCOPE.affiliate_url, external_url: SCOPE.direct_url }, target }], { targetEnvironment: "PRODUCTION", targetProjectRef: "aftboxmrdgyhizicfsfu", expectedCount: 1, sourceSnapshotSha256s: [snapshotHash], now: new Date(capturedAt) });
+    const verification = buildVerifiedNoChangeDryRun([{ source_snapshot_sha256: snapshotHash, source_captured_at: capturedAt, source: { external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id, price: row.price, in_stock: true, url: row.affiliate_url, external_url: row.external_url }, target }], { targetEnvironment: "PRODUCTION", targetProjectRef: PROJECT_REF, expectedCount: 1, sourceSnapshotSha256s: [snapshotHash], now: new Date(capturedAt) });
     artifactRows = verification.records;
     result = verification.result;
   }
+  const artifactPath = mode === "prepare-apply" ? pendingArtifact(scope) : path.join(OUT, `artifact-${scope.offer_id}-${stamp}.json`);
+  const written = (dependencies.writeDryRunArtifact || writeDryRunArtifact)(artifactRows, result, { artifactPath, sourceFileName: `ebay-browse-live-${scope.offer_id}.json`, environmentMarker: "production" });
+  const approved = validatePlan({ ...scope, affiliate_url: row.affiliate_url }, { artifact: written.artifact, artifactSha256: written.artifactSha256 });
+  return { approved, evaluation };
+}
+
+async function run(options, dependencies = {}) {
+  assertExecutionContext(options.mode, dependencies.env || process.env);
   fs.mkdirSync(OUT, { recursive: true });
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const artifactPath = options.mode === "prepare-apply" ? PENDING_ARTIFACT : path.join(OUT, `artifact-${stamp}.json`);
-  const written = (dependencies.writeDryRunArtifact || writeDryRunArtifact)(artifactRows, result, { artifactPath, sourceFileName: "ebay-browse-live.json", environmentMarker: "production" });
-  const approved = validatePlan({ artifact: written.artifact, artifactSha256: written.artifactSha256 });
-  const report = { result: "PASS", mode: options.mode, scope: { offers: 1, offer_ids: [SCOPE.offer_id] }, source: { item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price.value, shipping: evaluation.uk_shipping.value, delivered: evaluation.delivered_price.value }, classification: approved.entry.resolved_plan.offer.action, executed: 0, safe_update: "unset", automatic_oos: "blocked" };
+  const now = dependencies.now || new Date();
+  if (options.mode === "execute-apply") {
+    const batch = (dependencies.loadPendingBatch || loadPendingBatch)(now);
+    const approved = SCOPES.filter((scope) => batch.eligible.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
+    for (const item of approved) await (dependencies.executePlan || executePlan)(item, KIND);
+    const report = { result: "PASS", mode: options.mode, scope: { offers: 20, eligible: approved.length, blocked: batch.manifest.blocked_rows.length, offer_ids: SCOPES.map((scope) => scope.offer_id) }, executed: approved.length, blocked_rows: batch.manifest.blocked_rows, automatic_oos: "blocked" };
+    fs.writeFileSync(path.join(OUT, `execute-apply-${now.toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
+    return report;
+  }
+  const config = dependencies.config || assertConfig(dependencies.env || process.env);
+  const token = dependencies.token || await getApplicationToken(config, dependencies.fetchImpl || fetch);
+  const stamp = now.toISOString().replace(/[:.]/g, "-");
+  const evaluations = [];
+  for (const scope of SCOPES) evaluations.push(dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token));
+  const blocked = evaluations.flatMap((evaluation, index) => evaluation.decision === "AUTO_ELIGIBLE" ? [] : [{
+    offer_id: SCOPES[index].offer_id,
+    item_id: evaluation.item_id,
+    decision: evaluation.decision,
+    blockers: evaluation.blockers,
+    review_reasons: evaluation.review_reasons,
+    returned_gtin: evaluation.returned_gtin,
+  }]);
+  const prepared = [];
+  for (let index = 0; index < SCOPES.length; index += 1) {
+    if (evaluations[index].decision !== "AUTO_ELIGIBLE") continue;
+    prepared.push(await prepareScope(SCOPES[index], evaluations[index], options.mode, dependencies, stamp));
+  }
+  const report = {
+    result: blocked.length ? "PASS_WITH_BLOCKS" : "PASS", mode: options.mode,
+    scope: { offers: SCOPES.length, eligible: prepared.length, blocked: blocked.length, offer_ids: SCOPES.map((scope) => scope.offer_id) },
+    classifications: Object.fromEntries(prepared.map(({ approved }) => [String(approved.entry.resolved_plan.offer.id), approved.entry.resolved_plan.offer.action])),
+    source: evaluations.map((evaluation, index) => ({ offer_id: SCOPES[index].offer_id, item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price?.value ?? null, shipping: evaluation.uk_shipping?.value ?? null, delivered: evaluation.delivered_price?.value ?? null })),
+    blocked_rows: blocked, executed: 0, automatic_oos: "blocked",
+  };
+  if (options.mode === "prepare-apply") (dependencies.writePendingBatch || writePendingBatch)(report, now);
   fs.writeFileSync(path.join(OUT, `${options.mode}-${stamp}.json`), `${JSON.stringify(report, null, 2)}\n`);
   return report;
 }
 
-async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); }
+async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); if (!report.result.startsWith("PASS")) process.exitCode = 2; }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, PENDING_ARTIFACT, SCOPE, assertExecutionContext, buildSource, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact };
+module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, assertExecutionContext, buildSource, loadPendingBatch, loadScopes, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
