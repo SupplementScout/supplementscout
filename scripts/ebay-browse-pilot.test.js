@@ -277,6 +277,27 @@ test("eBay existing-listing continuity tolerates only narrow evidence disappeara
   assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, affiliate_ready: false, affiliate_url: null }).eligible, false);
 });
 
+test("Batch F refresh continuity is exact to each reviewed item, seller and missing-evidence set", () => {
+  const [olimp, dymatize] = REFRESH_SCOPES.slice(-2);
+  const evaluation = (scope, seller, review_reasons) => ({
+    decision: "REVIEW",
+    item_id: scope.external_variant_id,
+    legacy_item_id: scope.external_product_id,
+    returned_gtin: null,
+    blockers: [],
+    review_reasons,
+    affiliate_ready: true,
+    affiliate_url: scope.affiliate_url,
+    seller: { username: seller },
+  });
+
+  assert.equal(classifyContinuity(olimp, evaluation(olimp, "muscle-factory-co-uk", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"])).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  assert.equal(classifyContinuity(dymatize, evaluation(dymatize, "snober_trade_ltd", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"])).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  assert.equal(classifyContinuity(olimp, evaluation(olimp, "different-seller", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"])).eligible, false);
+  assert.equal(classifyContinuity(olimp, evaluation(olimp, "muscle-factory-co-uk", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"])).eligible, false);
+  assert.equal(classifyContinuity(dymatize, { ...evaluation(dymatize, "snober_trade_ltd", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]), item_id: "v1|other|0" }).eligible, false);
+});
+
 test("eBay refresh reads the approved item directly and remains GET-only", async () => {
   resetTokenCache();
   const requests = [];

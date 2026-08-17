@@ -15,6 +15,10 @@ const KIND = "ebay-existing-offer-refresh-exact-22-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
+const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
+  ["2559", { seller: "muscle-factory-co-uk", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2560", { seller: "snober_trade_ltd", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
   { csv: "remaining-4.csv", approval: "remaining-4-rollout.json", count: 4 },
@@ -107,6 +111,11 @@ function classifyContinuity(scope, evaluation) {
   const reasons = new Set(evaluation.review_reasons);
   if (evaluation.returned_gtin === scope.gtin && reasons.size > 0 && [...reasons].every((reason) => EXACT_GTIN_METADATA_GAPS.has(reason))) return { eligible: true, tier: "live_exact_gtin_with_metadata_gap" };
   if (evaluation.returned_gtin === null && reasons.size === 1 && reasons.has("RETURNED_GTIN_UNPROVEN")) return { eligible: true, tier: "sealed_existing_identity_continuity" };
+  const reviewed = REVIEWED_MISSING_GTIN_CONTINUITY.get(scope.offer_id);
+  if (
+    evaluation.returned_gtin === null && reviewed && evaluation.seller?.username === reviewed.seller &&
+    reasons.size === reviewed.review_reasons.size && [...reasons].every((reason) => reviewed.review_reasons.has(reason))
+  ) return { eligible: true, tier: "sealed_owner_reviewed_missing_gtin_continuity" };
   return { eligible: false, tier: "blocked" };
 }
 
