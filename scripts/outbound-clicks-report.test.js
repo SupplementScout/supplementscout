@@ -296,6 +296,33 @@ test("source counts aggregated correctly", async () => {
   });
 });
 
+test("traffic classes preserve raw requests and keep legacy rows unknown", async () => {
+  const rows = [
+    syntheticClick(0, { traffic_class: "likely_human" }),
+    syntheticClick(1, { traffic_class: "likely_automated" }),
+    syntheticClick(2, { traffic_class: "unknown" }),
+    syntheticClick(3, { traffic_class: null }),
+  ];
+  const { dataSource } = createDataSource({ rows, recentRows: rows });
+  const report = await getOutboundClicksReport({
+    period: "30d",
+    now,
+    dataSource,
+  });
+
+  assert.deepEqual(report.trafficCounts, {
+    rawRequests: 4,
+    likelyHuman: 1,
+    likelyAutomated: 1,
+    unknown: 2,
+  });
+  assert.equal(
+    report.recentClicks.find((click) => click.offerId === "10000000000000000003")
+      .trafficClass,
+    "unknown"
+  );
+});
+
 test("deleted/null product and retailer fallbacks render safely", async () => {
   const { dataSource } = createDataSource();
   const report = await getOutboundClicksReport({
@@ -527,4 +554,17 @@ test("external destination links use noopener noreferrer", () => {
 
   assert(pageSource.includes('target="_blank"'));
   assert(pageSource.includes('rel="noopener noreferrer"'));
+});
+
+test("admin separates raw requests from classified traffic", () => {
+  const pageSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "admin", "outbound-clicks", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(pageSource, /Raw requests in selected period/);
+  assert.match(pageSource, /Likely human/);
+  assert.match(pageSource, /Likely automated/);
+  assert.match(pageSource, /Unknown \/ historical/);
+  assert.match(pageSource, /Historical requests recorded before[\s\S]*remain unknown/);
 });

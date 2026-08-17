@@ -39,11 +39,12 @@ test("post-write fingerprint changes only the exact approved variant destination
   assert.equal(summary.retailer_products_count, 1);
 });
 
-test("deployed GTIN and Whey Okay rebind migrations remain frozen with nothing pending", () => {
+test("deployed GTIN, Whey Okay rebind and traffic classification migrations remain frozen", () => {
   const pending = CONTRACTS.PRODUCTION.pending;
-  assert.equal(pending.length, 0);
+  assert.deepEqual(pending, []);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
+  assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
 });
 
 test("failed verification reports exact changed rows", () => {

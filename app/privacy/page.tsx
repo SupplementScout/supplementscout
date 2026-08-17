@@ -22,7 +22,7 @@ const sections = [
   },
   {
     title: "Other operational records",
-    body: "SupplementScout separately records privacy-filtered search outcomes and outbound retailer redirects needed to operate and improve the comparison service. Retailer links must continue to work if analytics is unavailable.",
+    body: "SupplementScout separately records privacy-filtered search outcomes and outbound retailer redirects needed to operate and improve the comparison service. Redirect records may include coarse classifications such as likely human, likely automated or unknown, browser family and navigation context. We do not store a raw IP address or full user-agent string in these redirect records. Retailer links must continue to work if analytics is unavailable.",
   },
 ];
 

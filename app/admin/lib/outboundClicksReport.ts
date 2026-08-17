@@ -20,6 +20,12 @@ export type OutboundClickRow = {
   retailer_id: string | number | null;
   destination_url: string;
   source_page: string;
+  traffic_class?: string | null;
+  classification_reason?: string | null;
+  client_family?: string | null;
+  referrer_class?: string | null;
+  fetch_context?: string | null;
+  request_method?: string | null;
 };
 
 export type NamedRecord = {
@@ -48,6 +54,11 @@ export type RecentOutboundClick = {
   retailerName: string;
   destinationUrl: string;
   sourcePage: string;
+  trafficClass: "likely_human" | "likely_automated" | "unknown";
+  classificationReason: string;
+  clientFamily: string;
+  referrerClass: string;
+  fetchContext: string;
 };
 
 export type RankedClickTarget = {
@@ -69,6 +80,12 @@ export type OutboundClicksReport = {
   topProducts: RankedClickTarget[];
   topRetailers: RankedClickTarget[];
   sourceCounts: Record<OutboundClickSource, number>;
+  trafficCounts: {
+    rawRequests: number;
+    likelyHuman: number;
+    likelyAutomated: number;
+    unknown: number;
+  };
 };
 
 export function getUtcDayStart(now: Date) {
@@ -187,6 +204,32 @@ function sourceCounts(rows: OutboundClickRow[]) {
   return counts;
 }
 
+function normalizedTrafficClass(
+  value: string | null | undefined
+): "likely_human" | "likely_automated" | "unknown" {
+  return value === "likely_human" || value === "likely_automated"
+    ? value
+    : "unknown";
+}
+
+function trafficCounts(rows: OutboundClickRow[]) {
+  const counts = {
+    rawRequests: rows.length,
+    likelyHuman: 0,
+    likelyAutomated: 0,
+    unknown: 0,
+  };
+
+  for (const row of rows) {
+    const trafficClass = normalizedTrafficClass(row.traffic_class);
+    if (trafficClass === "likely_human") counts.likelyHuman += 1;
+    else if (trafficClass === "likely_automated") counts.likelyAutomated += 1;
+    else counts.unknown += 1;
+  }
+
+  return counts;
+}
+
 async function fetchAllAggregationRows(input: {
   sinceIso: string | null;
   dataSource: OutboundClicksReportDataSource;
@@ -281,6 +324,12 @@ export async function getOutboundClicksReport(input: {
         retailerName: retailerName(retailerId, retailersById),
         destinationUrl: row.destination_url,
         sourcePage: row.source_page,
+        trafficClass: normalizedTrafficClass(row.traffic_class),
+        classificationReason:
+          row.classification_reason || "legacy_unclassified",
+        clientFamily: row.client_family || "unknown",
+        referrerClass: row.referrer_class || "missing",
+        fetchContext: row.fetch_context || "missing",
       };
     });
 
@@ -309,6 +358,7 @@ export async function getOutboundClicksReport(input: {
       "Retailer"
     ),
     sourceCounts: sourceCounts(aggregationRows),
+    trafficCounts: trafficCounts(aggregationRows),
   };
 }
 
@@ -355,7 +405,7 @@ function createSupabaseOutboundClicksDataSource(): OutboundClicksReportDataSourc
           supabaseAdmin
             .from("outbound_clicks")
             .select(
-              "created_at, offer_id, product_id, retailer_id, destination_url, source_page"
+              "created_at, offer_id, product_id, retailer_id, destination_url, source_page, traffic_class, classification_reason, client_family, referrer_class, fetch_context, request_method"
             )
             .order("created_at", { ascending: false })
             .limit(50),
@@ -372,7 +422,7 @@ function createSupabaseOutboundClicksDataSource(): OutboundClicksReportDataSourc
           supabaseAdmin
             .from("outbound_clicks")
             .select(
-              "id, created_at, offer_id, product_id, retailer_id, destination_url, source_page"
+              "id, created_at, offer_id, product_id, retailer_id, destination_url, source_page, traffic_class, classification_reason, client_family, referrer_class, fetch_context, request_method"
             )
             .order("created_at", { ascending: true })
             .order("id", { ascending: true })

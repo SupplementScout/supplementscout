@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  classifyOutboundRequest,
   isCrawlerUserAgent,
   resolveOutboundRedirect,
   type OutboundClickDataSource,
@@ -66,10 +67,19 @@ export async function GET(
   }
 
   const { offerId } = await params;
+  const diagnostics = classifyOutboundRequest({
+    userAgent: request.headers.get("user-agent"),
+    referer: request.headers.get("referer"),
+    secFetchSite: request.headers.get("sec-fetch-site"),
+    secFetchMode: request.headers.get("sec-fetch-mode"),
+    secFetchDest: request.headers.get("sec-fetch-dest"),
+    siteOrigin: request.nextUrl.origin,
+  });
   const result = await resolveOutboundRedirect({
     offerId,
     source: request.nextUrl.searchParams.get("source"),
     dataSource: createDataSource(),
+    diagnostics,
     log: console,
   });
 
@@ -78,4 +88,8 @@ export async function GET(
   }
 
   return withRobotsHeader(NextResponse.redirect(result.destinationUrl));
+}
+
+export async function HEAD() {
+  return withRobotsHeader(new Response(null, { status: 204 }));
 }

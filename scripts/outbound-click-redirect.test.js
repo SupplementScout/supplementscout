@@ -25,6 +25,7 @@ function loadOutboundModule() {
 }
 
 const {
+  classifyOutboundRequest,
   isCrawlerUserAgent,
   normalizeOutboundSource,
   resolveOutboundRedirect,
@@ -309,6 +310,79 @@ test("obvious crawler user agents are detected conservatively", () => {
   assert.equal(isCrawlerUserAgent("Googlebot/2.1"), true);
   assert.equal(isCrawlerUserAgent("facebookexternalhit/1.1"), true);
   assert.equal(isCrawlerUserAgent("HeadlessChrome Lighthouse"), true);
+  assert.equal(isCrawlerUserAgent("ChatGPT-User/1.0"), true);
+});
+
+test("request classification keeps only coarse privacy-safe diagnostics", () => {
+  const likelyHuman = classifyOutboundRequest({
+    userAgent:
+      "Mozilla/5.0 Chrome/126.0.0.0 Safari/537.36",
+    referer: "https://www.supplementscout.co.uk/product/example",
+    secFetchSite: "same-origin",
+    secFetchMode: "navigate",
+    secFetchDest: "document",
+    siteOrigin: "https://www.supplementscout.co.uk",
+  });
+  const automated = classifyOutboundRequest({
+    userAgent: "curl/8.0",
+    referer: null,
+    secFetchSite: null,
+    secFetchMode: null,
+    secFetchDest: null,
+    siteOrigin: "https://www.supplementscout.co.uk",
+  });
+  const unknown = classifyOutboundRequest({
+    userAgent: "Mozilla/5.0 Safari/605.1.15",
+    referer: null,
+    secFetchSite: null,
+    secFetchMode: null,
+    secFetchDest: null,
+    siteOrigin: "https://www.supplementscout.co.uk",
+  });
+
+  assert.deepEqual(likelyHuman, {
+    traffic_class: "likely_human",
+    classification_reason: "browser_same_origin_navigation",
+    client_family: "chrome",
+    referrer_class: "same_origin_product",
+    fetch_context: "same_origin_navigation",
+    request_method: "GET",
+  });
+  assert.equal(automated.traffic_class, "likely_automated");
+  assert.equal(automated.classification_reason, "known_automation_client");
+  assert.equal(unknown.traffic_class, "unknown");
+  assert.deepEqual(Object.keys(likelyHuman).sort(), [
+    "classification_reason",
+    "client_family",
+    "fetch_context",
+    "referrer_class",
+    "request_method",
+    "traffic_class",
+  ]);
+});
+
+test("non-navigation and missing-user-agent requests are not likely human", () => {
+  const nonNavigation = classifyOutboundRequest({
+    userAgent: "Mozilla/5.0 Chrome/126.0.0.0 Safari/537.36",
+    referer: "https://www.supplementscout.co.uk/product/example",
+    secFetchSite: "same-origin",
+    secFetchMode: "cors",
+    secFetchDest: "empty",
+    siteOrigin: "https://www.supplementscout.co.uk",
+  });
+  const missingAgent = classifyOutboundRequest({
+    userAgent: null,
+    referer: null,
+    secFetchSite: null,
+    secFetchMode: null,
+    secFetchDest: null,
+    siteOrigin: "https://www.supplementscout.co.uk",
+  });
+
+  assert.equal(nonNavigation.traffic_class, "likely_automated");
+  assert.equal(nonNavigation.classification_reason, "non_navigation_fetch");
+  assert.equal(missingAgent.traffic_class, "likely_automated");
+  assert.equal(missingAgent.classification_reason, "missing_user_agent");
 });
 
 test("click insert failure still redirects to valid retailer URL", async () => {
@@ -358,4 +432,30 @@ test("structurally invalid IDs are rejected without database calls", async () =>
   assert.equal(result.status, 400);
   assert.equal(calls.fetchOfferIds.length, 0);
   assert.equal(calls.insertedClicks.length, 0);
+});
+
+test("traffic classification migration is transactional, reversible and stores no raw fingerprint", () => {
+  const name = "20260817114500_add_outbound_click_traffic_classification.sql";
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase", "migrations", name),
+    "utf8"
+  );
+  const rollback = fs.readFileSync(
+    path.join(process.cwd(), "supabase", "rollbacks", name),
+    "utf8"
+  );
+
+  for (const sql of [migration, rollback]) {
+    assert.match(sql, /^begin;[\s\S]*commit;\s*$/);
+    assert.equal((sql.match(/\bbegin\s*;/gi) || []).length, 1);
+    assert.equal((sql.match(/\bcommit\s*;/gi) || []).length, 1);
+  }
+  assert.match(migration, /current_user <> 'postgres'/);
+  assert.match(migration, /add column traffic_class/);
+  assert.match(migration, /legacy_unclassified/);
+  assert.match(migration, /likely_human/);
+  assert.match(migration, /likely_automated/);
+  assert.doesNotMatch(migration, /\bip_address\b|\buser_agent\b|\braw_referrer\b/i);
+  assert.match(rollback, /version = '20260817114500'/);
+  assert.match(rollback, /drop column traffic_class/);
 });

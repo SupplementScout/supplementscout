@@ -155,6 +155,13 @@ export default async function OutboundClicksPage({
 
         {report && (
           <>
+            <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+              Raw requests include every successful retailer redirect. Likely
+              human is a conservative browser-navigation classification, not a
+              guaranteed person count. Historical requests recorded before
+              this classifier remain unknown and are not rewritten.
+            </div>
+
             <section className="mt-6 grid gap-4 md:grid-cols-4">
               <SummaryCard label="Clicks today" value={report.summary.today} />
               <SummaryCard
@@ -166,6 +173,25 @@ export default async function OutboundClicksPage({
                 value={report.summary.last30Days}
               />
               <SummaryCard label="Total clicks" value={report.summary.total} />
+            </section>
+
+            <section className="mt-4 grid gap-4 md:grid-cols-4">
+              <SummaryCard
+                label="Raw requests in selected period"
+                value={report.trafficCounts.rawRequests}
+              />
+              <SummaryCard
+                label="Likely human"
+                value={report.trafficCounts.likelyHuman}
+              />
+              <SummaryCard
+                label="Likely automated"
+                value={report.trafficCounts.likelyAutomated}
+              />
+              <SummaryCard
+                label="Unknown / historical"
+                value={report.trafficCounts.unknown}
+              />
             </section>
 
             <section className="mt-8 rounded-lg border border-zinc-200 bg-white">
@@ -181,13 +207,15 @@ export default async function OutboundClicksPage({
                       <th className="px-4 py-3">Retailer</th>
                       <th className="px-4 py-3">Offer ID</th>
                       <th className="px-4 py-3">Source</th>
+                      <th className="px-4 py-3">Traffic class</th>
+                      <th className="px-4 py-3">Diagnostic</th>
                       <th className="px-4 py-3">Destination</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100">
                     {report.recentClicks.length === 0 ? (
                       <tr>
-                        <td className="px-4 py-5 text-zinc-500" colSpan={6}>
+                        <td className="px-4 py-5 text-zinc-500" colSpan={8}>
                           No outbound clicks found for this period.
                         </td>
                       </tr>
@@ -210,6 +238,13 @@ export default async function OutboundClicksPage({
                           </td>
                           <td className="px-4 py-3 text-zinc-700">
                             {click.sourcePage}
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 font-semibold text-zinc-950">
+                            {click.trafficClass}
+                          </td>
+                          <td className="min-w-56 px-4 py-3 text-xs leading-5 text-zinc-600">
+                            {click.classificationReason}; {click.clientFamily};{" "}
+                            {click.referrerClass}; {click.fetchContext}
                           </td>
                           <td className="max-w-xs px-4 py-3">
                             {isExternalHttpUrl(click.destinationUrl) ? (
@@ -238,7 +273,7 @@ export default async function OutboundClicksPage({
             <div className="mt-8 grid gap-6 lg:grid-cols-2">
               <section className="rounded-lg border border-zinc-200 bg-white">
                 <div className="border-b border-zinc-200 p-5">
-                  <h2 className="text-xl font-bold">Top products</h2>
+                  <h2 className="text-xl font-bold">Top products (raw requests)</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-zinc-200 text-sm">
@@ -270,7 +305,7 @@ export default async function OutboundClicksPage({
 
               <section className="rounded-lg border border-zinc-200 bg-white">
                 <div className="border-b border-zinc-200 p-5">
-                  <h2 className="text-xl font-bold">Top retailers</h2>
+                  <h2 className="text-xl font-bold">Top retailers (raw requests)</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-zinc-200 text-sm">

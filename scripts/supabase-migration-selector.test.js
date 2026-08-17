@@ -72,12 +72,12 @@ test.after(() => {
   }
 });
 
-test("staging records both applied nutrition workflow migrations", () => {
+test("staging records the applied traffic-classification migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 79);
+  assert.equal(result.ledger_count, 80);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 79);
+  assert.equal(result.selected_files.length, 80);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -149,13 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed Whey Okay rebind with nothing pending", () => {
+test("production records the reviewed Whey Okay rebind and traffic-classification migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(contract.pending.length, 0);
-  assert.equal(contract.ledgerCount, 114);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 115);
   assert.equal(
     contract.ledgerFingerprint,
-    "c783bd03207ff7b1e18fca8bd5dd4e2641a8330bd4b878dd3f53a68434da56a4",
+    "4afae6d2489727b56f9c69cb022890d080f764c8973a62685af4200fa25b013e",
   );
 });
 
@@ -216,7 +216,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 79);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 80);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -232,7 +232,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the Whey Okay rebind", () => {
+test("production binds its exact ledger with the traffic-classification migration applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -258,10 +258,10 @@ test("production binds its exact ledger after the Whey Okay rebind", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 114);
+  assert.equal(result.ledger_count, 115);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 114);
+  assert.equal(result.selected_files.length, 115);
   assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
@@ -300,7 +300,7 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending nutrition migrations", () => {
+test("staging output reports no pending migration after classification apply", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);

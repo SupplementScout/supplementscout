@@ -120,10 +120,11 @@ function loadGoRouteModule(supabaseAdmin) {
   );
 }
 
-function createRequest(url, userAgent) {
+function createRequest(url, userAgent, headers = {}) {
   const request = new Request(url, {
     headers: {
       "user-agent": userAgent,
+      ...headers,
     },
   });
 
@@ -158,7 +159,13 @@ test("normal User-Agent inserts outbound click and redirects", async () => {
   const response = await GET(
     createRequest(
       "https://www.supplementscout.co.uk/go/123?source=product_best_offer",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36",
+      {
+        referer: "https://www.supplementscout.co.uk/product/safe-product",
+        "sec-fetch-site": "same-origin",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-dest": "document",
+      }
     ),
     { params: Promise.resolve({ offerId: "123" }) }
   );
@@ -177,8 +184,26 @@ test("normal User-Agent inserts outbound click and redirects", async () => {
       destination_url:
         "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
       source_page: "product_best_offer",
+      traffic_class: "likely_human",
+      classification_reason: "browser_same_origin_navigation",
+      client_family: "chrome",
+      referrer_class: "same_origin_product",
+      fetch_context: "same_origin_navigation",
+      request_method: "GET",
     },
   ]);
+});
+
+test("HEAD returns 204 without database access or redirect", async () => {
+  const { calls, supabaseAdmin } = createMockSupabase();
+  const { HEAD } = loadGoRouteModule(supabaseAdmin);
+  const response = await HEAD();
+
+  assert.equal(response.status, 204);
+  assert.equal(response.headers.get("location"), null);
+  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow, noarchive");
+  assert.deepEqual(calls.tables, []);
+  assert.deepEqual(calls.insertedClicks, []);
 });
 
 test("robots disallows admin and go paths", () => {
