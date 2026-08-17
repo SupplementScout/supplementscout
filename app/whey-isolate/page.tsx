@@ -15,7 +15,7 @@ const siteUrl = "https://www.supplementscout.co.uk";
 const pagePath = "/whey-isolate";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
-  "Compare current Whey Isolate prices from UK supplement retailers using known delivery, fresh retailer coverage and verified value metrics.";
+  "Compare Whey Isolate prices across UK supplement retailers. See the lowest known delivered cost, fresh offers and verified protein value when available.";
 
 export const revalidate = 3600;
 
@@ -25,19 +25,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const indexable = !result.error && readiness.indexable;
 
   return {
-    title: "Compare Whey Isolate Prices UK",
+    title: "Whey Isolate Prices UK – Delivered Cost",
     description,
     robots: { index: indexable, follow: true },
     alternates: { canonical: pagePath },
     openGraph: {
-      title: "Compare Whey Isolate Prices UK | SupplementScout",
+      title: "Whey Isolate Prices UK – Compare Delivered Cost | SupplementScout",
       description,
       url: pagePath,
       type: "website",
     },
     twitter: {
       card: "summary",
-      title: "Compare Whey Isolate Prices UK | SupplementScout",
+      title: "Whey Isolate Prices UK – Compare Delivered Cost | SupplementScout",
       description,
     },
   };
@@ -62,7 +62,7 @@ export function buildWheyIsolateStructuredData(rows: WheyIsolateComparisonRow[])
         "@type": "CollectionPage",
         "@id": pageUrl,
         url: pageUrl,
-        name: "Compare Whey Isolate Prices UK",
+        name: "Whey Isolate Prices UK – Compare Delivered Cost",
         description,
         mainEntity: { "@id": itemListId },
         breadcrumb: { "@id": breadcrumbId },
@@ -90,6 +90,21 @@ export function buildWheyIsolateStructuredData(rows: WheyIsolateComparisonRow[])
       },
     ],
   };
+}
+
+export function getLowestDeliveredWheyIsolateRows(
+  rows: WheyIsolateComparisonRow[],
+  limit = 3,
+) {
+  return rows
+    .filter((row) => row.bestOffer.deliveredPrice !== null)
+    .sort((left, right) => {
+      const priceDifference =
+        left.bestOffer.deliveredPrice!.totalPrice -
+        right.bestOffer.deliveredPrice!.totalPrice;
+      return priceDifference || left.name.localeCompare(right.name, "en-GB");
+    })
+    .slice(0, limit);
 }
 
 function IsolateProductCard({ row, position }: { row: WheyIsolateComparisonRow; position: number }) {
@@ -140,6 +155,8 @@ function IsolateProductCard({ row, position }: { row: WheyIsolateComparisonRow; 
 export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparisonResult }) {
   const jsonLd = buildWheyIsolateStructuredData(result.rows);
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
+  const lowestDeliveredRows = getLowestDeliveredWheyIsolateRows(result.rows);
+  const lowestDeliveredRow = lowestDeliveredRows[0] ?? null;
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <CategoryViewAnalytics category="Whey Isolate" sourcePage="whey_isolate_comparison" />
@@ -156,13 +173,37 @@ export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparis
         </nav>
         <div className="mt-6 max-w-4xl">
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">UK retailer price comparison</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Compare Whey Isolate Prices UK</h1>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Whey Isolate Prices UK – Compare Delivered Cost</h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg">
             Compare recently checked offers for products whose canonical identity explicitly states whey isolate, ISO or WPI. Known delivery is included when available; missing prices, delivery and nutrition are never estimated.
           </p>
           {!result.error && <p className="mt-4 text-sm leading-6 text-zinc-600">Current coverage: {result.summary.visibleProducts} products, {result.summary.freshOffers} fresh offers and {result.summary.freshRetailers} retailers. {result.summary.productsWithMultipleFreshRetailers} products currently have multiple retailers.</p>}
         </div>
       </section>
+      {lowestDeliveredRows.length > 0 && (
+        <section className="border-y border-zinc-200 bg-white">
+          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+            <div className="max-w-4xl">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Quick price answer</p>
+              <h2 className="mt-2 text-2xl font-bold">Lowest known delivered Whey Isolate prices</h2>
+              <p className="mt-3 leading-7 text-zinc-700">
+                These are the lowest recently checked in-stock totals where delivery is known. Offers with missing delivery are excluded from this shortlist rather than estimated.
+              </p>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {lowestDeliveredRows.map((row, index) => (
+                <article key={row.id} className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">#{index + 1} lowest known delivered total</p>
+                  <h3 className="mt-2 font-bold"><Link href={row.productUrl} className="hover:underline">{row.name}</Link></h3>
+                  <p className="mt-3 text-2xl font-extrabold">{formatCurrency(row.bestOffer.deliveredPrice!.totalPrice)}</p>
+                  <p className="mt-1 text-sm text-zinc-600">From {row.bestOffer.retailer.name}, including known delivery.</p>
+                  <Link href={row.productUrl} className="mt-4 inline-flex min-h-11 items-center font-semibold underline">Compare offers</Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><h2 className="text-2xl font-bold">Current Whey Isolate comparison</h2><p className="text-sm text-zinc-600">{latestCheck ? `Latest retailer check: ${latestCheck}` : "No current check time available"}</p></div>
         <p className="mt-4 max-w-4xl text-sm leading-6 text-zinc-600">Products with broader retailer coverage appear first. This is a coverage and price ordering, not a nutritional or health ranking.</p>
@@ -183,6 +224,9 @@ export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparis
           <div><h3 className="font-bold">Does the first product mean the best isolate?</h3><p className="mt-2 leading-7 text-zinc-700">No. Products with more current retailer coverage appear first; no unsupported quality, formulation or health ranking is made.</p></div>
           <div><h3 className="font-bold">Why can a product have only one retailer?</h3><p className="mt-2 leading-7 text-zinc-700">It remains useful when its offer is current, but only products with multiple retailers contribute to the indexability coverage gate.</p></div>
           <div><h3 className="font-bold">Why is a value metric missing?</h3><p className="mt-2 leading-7 text-zinc-700">The current price can be valid while package, serving or nutrition evidence is incomplete. Unverified calculations remain hidden.</p></div>
+          {lowestDeliveredRow && (
+            <div><h3 className="font-bold">Which Whey Isolate has the lowest known delivered price?</h3><p className="mt-2 leading-7 text-zinc-700">From the fresh offers with known delivery currently included here, <Link href={lowestDeliveredRow.productUrl} className="underline">{lowestDeliveredRow.name}</Link> has the lowest delivered total at {formatCurrency(lowestDeliveredRow.bestOffer.deliveredPrice!.totalPrice)}. Coverage and prices can change, so check the dated retailer offers before buying.</p></div>
+          )}
         </div>
         <aside className="mt-10 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">Related comparisons and information</h2><div className="mt-4 flex flex-wrap gap-4 text-sm"><Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link><Link href="/vegan-protein" className="font-semibold underline">Vegan Protein comparison</Link><Link href="/creatine" className="font-semibold underline">Creatine comparison</Link><Link href="/pre-workout" className="font-semibold underline">Pre Workout comparison</Link><Link href="/search?q=whey%20isolate" className="font-semibold underline">Search Whey Isolate</Link><ComparisonTransparencyLinks /></div></aside>
         <p className="mt-8 text-xs leading-5 text-zinc-500">Indexing quality gate: at least {WHEY_ISOLATE_INDEX_GATE.minimumProductsWithMultipleFreshRetailers} multi-retailer products, {WHEY_ISOLATE_INDEX_GATE.minimumFreshRetailersAcrossComparisons} retailers across those comparisons and {WHEY_ISOLATE_INDEX_GATE.minimumFreshOffers} fresh offers. If coverage falls, the page stays useful but becomes noindex.</p>

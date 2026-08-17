@@ -134,10 +134,19 @@ test("page metadata, SSR, structured data and discovery links use one canonical"
   });
   const metadata = await page.generateMetadata();
   assert.equal(metadata.alternates.canonical, "/whey-isolate");
+  assert.equal(metadata.title, "Whey Isolate Prices UK – Delivered Cost");
   const html = renderToStaticMarkup(React.createElement(page.WheyIsolatePageContent, { result }));
-  assert.match(html, /Compare Whey Isolate Prices UK/);
+  assert.match(html, /Whey Isolate Prices UK – Compare Delivered Cost/);
   assert.match(html, /explicit isolate, ISO or WPI identity/);
   assert.match(html, /coverage and price ordering, not a nutritional or health ranking/);
+  assert.match(html, /Lowest known delivered Whey Isolate prices/);
+  assert.match(html, /Which Whey Isolate has the lowest known delivered price\?/);
+  assert.match(html, /has the lowest delivered total at £33\.99/);
+  const lowestRows = page.getLowestDeliveredWheyIsolateRows([
+    { ...result.rows[0], id: 2, name: "Higher price", bestOffer: { ...result.rows[0].bestOffer, deliveredPrice: { totalPrice: 40, shippingCost: 10 } } },
+    result.rows[0],
+  ]);
+  assert.deepEqual(lowestRows.map((row) => row.name), ["Whey Isolate One", "Higher price"]);
   const schema = page.buildWheyIsolateStructuredData(result.rows);
   assert.deepEqual(schema["@graph"].map((node) => node["@type"]), ["CollectionPage", "ItemList", "BreadcrumbList"]);
   const sitemap = fs.readFileSync(path.join(process.cwd(), "app/sitemap.ts"), "utf8");

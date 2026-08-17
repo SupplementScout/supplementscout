@@ -291,6 +291,61 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
+### 17 August 2026 — SEO-13 Whey Isolate cost-intent local enhancement
+
+- The latest available authenticated report, covering 3–9 August, confirmed
+  that indexing is not the immediate traffic blocker: GSC recorded 582
+  impressions, three clicks and average position 61.03, while GA4 recorded four
+  organic sessions and two organic retailer-offer clicks. The report artefact
+  remains read-only; a fresh scheduled report is still required for the next
+  weekly comparison.
+- Public search-result sampling showed that current Whey Isolate competition
+  leads with `cheapest`, price-comparison and cost-per-protein intent. The
+  existing live `/whey-isolate` page was therefore enhanced inside the active
+  SEO-13 implementation rather than starting a second SEO task or route.
+- Metadata and the H1 now lead with UK Whey Isolate price intent and the
+  delivered-cost distinction. A server-rendered quick-answer block selects up
+  to three lowest fresh in-stock totals only where delivery is known, excludes
+  unknown delivery instead of estimating it, and links to the existing
+  canonical product pages. A conditional answer states the lowest known
+  delivered product and price without claiming full-market coverage.
+- The existing canonical, reviewed isolate boundary, 24-hour freshness policy,
+  `3 / 2 / 20` indexability gate, coverage-first main ranking, structured-data
+  types, consent-aware analytics and catalogue read paths remain unchanged.
+- Five focused Whey Isolate tests, `npm run verify:quick` and
+  `npm run verify:full` passed. The isolated production build emitted title
+  `Whey Isolate Prices UK – Delivered Cost | SupplementScout`. This is local
+  release evidence only; the enhancement is not live verified until deployment
+  and public HTML, robots, canonical, price-answer and analytics checks pass.
+
+### 17 August 2026 — SEO-12 first-party retailer authority prospect audit
+
+- Search Console Links still reports zero external links, so the first
+  authority work is restricted to retailers already represented by current
+  SupplementScout offers. No cold-list scraping, paid links, automated messages
+  or third-party endorsements are authorised.
+- Discount Supplements is the first commercial prospect because its official
+  affiliate page explicitly welcomes content sites and aggregators and provides
+  a Partnerize/Visualsoft application path:
+  `https://www.discount-supplements.co.uk/pages/affiliates`. The proposed ask is
+  an approved affiliate relationship, verified deep links and, only if useful
+  to the retailer's customers, a natural partner/resource mention.
+- Jon's Supplements, 6 Pack Supplements and Fit House are the first direct
+  retailer prospects because they already have audited catalogue coverage and
+  publish first-party contact paths at
+  `https://jonssupplements.co.uk/pages/contact`,
+  `https://6pack-supplements.co.uk/contact-us/` and
+  `https://fithouse.uk/pages/about-us`. The proposed message offers a link to
+  their live SupplementScout coverage, invites corrections to retailer data and
+  asks whether they maintain a partners, press or useful-resources page where a
+  factual comparison listing belongs.
+- Outreach copy must lead with the retailer's existing coverage and
+  SupplementScout's delivered-price transparency, make no ranking or traffic
+  promise and never require a reciprocal link. No message has been sent; owner
+  approval remains required before external communication. Four tailored,
+  unsent owner-review messages and a pre-send accuracy checklist are recorded
+  in `docs/SEO-Retailer-Outreach-Drafts-2026-08-17.md`.
+
 ### 12 August 2026 — Vitamin D cost-intent audit and local enhancement
 
 - The existing `/vitamin-d` URL, canonical, title, description, H1, reviewed
