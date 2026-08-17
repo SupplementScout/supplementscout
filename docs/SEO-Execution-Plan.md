@@ -317,6 +317,16 @@ SEO-07 manual evidence queue is now complete:
   `Whey Isolate Prices UK – Delivered Cost | SupplementScout`. This is local
   release evidence only; the enhancement is not live verified until deployment
   and public HTML, robots, canonical, price-answer and analytics checks pass.
+- Commit `25c6a3c` was pushed to `main`; its GitHub `full` and project-control
+  checks passed and Vercel reported a successful deployment. A direct public
+  read after deployment returned HTTP `200`, title
+  `Whey Isolate Prices UK – Delivered Cost | SupplementScout`, H1
+  `Whey Isolate Prices UK – Compare Delivered Cost`, the exact canonical and
+  `index, follow`. Server-returned HTML contained the delivered-price quick
+  answer, the conditional lowest-price answer, explicit unknown-delivery
+  exclusion, CollectionPage, ItemList and BreadcrumbList data and the
+  `whey_isolate_comparison` analytics marker. The cost-intent enhancement is
+  `LIVE VERIFIED`; SEO-13 remains `IN PROGRESS`.
 
 ### 17 August 2026 — SEO-12 first-party retailer authority prospect audit
 
