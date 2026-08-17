@@ -3,20 +3,34 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
 const { loadDryRunArtifact } = require("./import-products");
-const { assertConfig, DEFAULT_POLICY, evaluateItem, getApplicationToken } = require("./lib/ebay-browse-pilot");
+const { assertConfig, getApplicationToken } = require("./lib/ebay-browse-pilot");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const KIND = "ebay-offer-batch-f-exact-2-v1";
-const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_F_EXACT_2";
-const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-f-rollout.json");
+const KIND = "ebay-offer-batch-g-exact-9-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_G_EXACT_9";
+const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-g-rollout.json");
 const EXPECTED_SCOPE = [
-  { product_id: "520", product_variant_id: "1025", gtin: "5901330044861", external_product_id: "407021140091", external_variant_id: "v1|407021140091|677211935188", flavour: "blueberry", size_value: "480", size_unit: "g", pack_count: "1", product_format: "powder", price: "34.99", shipping_cost: "3.99", total_price: "38.98" },
-  { product_id: "134", product_variant_id: "1644", gtin: "4029679671522", external_product_id: "306694054274", external_variant_id: "v1|306694054274|0", flavour: "gourmet vanilla", size_value: "2270", size_unit: "g", pack_count: "1", product_format: "powder", price: "149", shipping_cost: "0", total_price: "149" },
+  { product_id: "865", product_variant_id: "1307", gtin: null, external_product_id: "234804379561", external_variant_id: "v1|234804379561|534609926235", flavour: "chocolate", size_value: "2270", size_unit: "g", pack_count: "1", product_format: "powder", price: "69.99", shipping_cost: "3.5", total_price: "73.49" },
+  { product_id: "865", product_variant_id: "1308", gtin: null, external_product_id: "234804379561", external_variant_id: "v1|234804379561|534609926237", flavour: "vanilla", size_value: "2270", size_unit: "g", pack_count: "1", product_format: "powder", price: "69.99", shipping_cost: "3.5", total_price: "73.49" },
+  { product_id: "868", product_variant_id: "1322", gtin: null, external_product_id: "406077245568", external_variant_id: "v1|406077245568|676400597329", flavour: "salted caramel", size_value: "1800", size_unit: "g", pack_count: "1", product_format: "powder", price: "76.99", shipping_cost: "3.99", total_price: "80.98" },
+  { product_id: "885", product_variant_id: "1420", gtin: null, external_product_id: "267663811829", external_variant_id: "v1|267663811829|567469691560", flavour: "rainbow rock candy", size_value: "437", size_unit: "g", pack_count: "1", product_format: "powder", price: "39.99", shipping_cost: "0", total_price: "39.99" },
+  { product_id: "789", product_variant_id: "1090", gtin: null, external_product_id: "236709473396", external_variant_id: "v1|236709473396|537208106165", flavour: "pink lemonade", size_value: "570", size_unit: "g", pack_count: "1", product_format: "powder", price: "29.99", shipping_cost: "0", total_price: "29.99" },
+  { product_id: "1026", product_variant_id: "2148", gtin: null, external_product_id: "800474478717", external_variant_id: "v1|800474478717|0", flavour: "unflavoured", size_value: null, size_unit: null, pack_count: "1", product_format: "capsule", price: "10.89", shipping_cost: "0", total_price: "10.89" },
+  { product_id: "1048", product_variant_id: "2192", gtin: null, external_product_id: "386965889224", external_variant_id: "v1|386965889224|0", flavour: "unflavoured", size_value: null, size_unit: null, pack_count: "1", product_format: "capsule", price: "11.69", shipping_cost: "0", total_price: "11.69" },
+  { product_id: "1021", product_variant_id: "2138", gtin: null, external_product_id: "325098747981", external_variant_id: "v1|325098747981|0", flavour: "unflavoured", size_value: null, size_unit: null, pack_count: "1", product_format: "capsule", price: "12.89", shipping_cost: "0", total_price: "12.89" },
+  { product_id: "1028", product_variant_id: "2152", gtin: null, external_product_id: "366034420732", external_variant_id: "v1|366034420732|0", flavour: "unflavoured", size_value: null, size_unit: null, pack_count: "1", product_format: "capsule", price: "14.96", shipping_cost: "0", total_price: "14.96" },
 ];
 const LIVE_EXPECTATIONS = [
-  { brand: "Olimp", product_name: "Olimp Redweiler Preworkout 480g", flavour_label: "Blueberry", seller: "muscle-factory-co-uk", review_reasons: ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"] },
-  { brand: "Dymatize", product_name: "Dymatize Iso 100 2.27Kg", flavour_label: "Gourmet Vanilla", seller: "snober_trade_ltd", review_reasons: ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"] },
+  { title: "CNP Pro Peptide 2.27kg (NEW) Mix Blend Protein Powder", flavour: "Chocolate", seller: "icebergsupplements" },
+  { title: "CNP Pro Peptide 2.27kg (NEW) Mix Blend Protein Powder", flavour: "Vanilla", seller: "icebergsupplements" },
+  { title: "CNP ISOLATE Protein 1.8KG", flavour: "Salted Caramel", seller: "muscle-factory-co-uk" },
+  { title: "MVPre 3.0 437g InnovaPharm – Advanced Pre-Workout Energy, Focus & Pump Formula", flavour: "Rainbow Rock Candy", seller: "gorilla_muscle" },
+  { title: "PER4M Advanced Stim Pre Workout 570g (30 Servings) ALL FLAVOURS Fitness Gym High", flavour: "Pink Lemonade", seller: "dcelectricsltd" },
+  { title: "Olimp Nutrition Vita-Min One 60 caps - Exp.03/28", flavour: null, seller: "ccolta" },
+  { title: "Osavi Zinc Picolinate 50mg, 60 vegan caps - Exp. 09/27", flavour: null, seller: "ccolta" },
+  { title: "Olimp Vita-Min Multiple Sport Mega Caps multi vitamin mineral formula (1 Box)", flavour: null, seller: "trainingfuels" },
+  { title: "The Good Guru Magnesium Complex", flavour: null, seller: "healthyessentialsuk" },
 ];
 
 function fail(message) { throw new Error(message); }
@@ -37,8 +51,13 @@ function parseArgs(argv) {
   return options;
 }
 
-function sameSet(left, right) {
-  return left.length === right.length && [...left].sort().every((value, index) => value === [...right].sort()[index]);
+function valueOf(value) { return Number(value?.value); }
+function cheapestShipping(item) {
+  const values = (item.shippingOptions || []).map((option) => valueOf(option.shippingCost)).filter(Number.isFinite);
+  return values.length ? Math.min(...values) : null;
+}
+function aspect(item, name) {
+  return (item.localizedAspects || []).find((entry) => String(entry.name).toLowerCase() === name.toLowerCase())?.value || null;
 }
 
 async function validateLiveSources(fetchImpl = fetch, env = process.env) {
@@ -51,22 +70,25 @@ async function validateLiveSources(fetchImpl = fetch, env = process.env) {
     const live = LIVE_EXPECTATIONS[index];
     const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`, `affiliateCampaignId=${encodeURIComponent(config.campaign_id)}`].join(",");
     const response = await fetchImpl(`https://api.ebay.com/buy/browse/v1/item/${encodeURIComponent(scope.external_variant_id)}`, { headers: { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id, "X-EBAY-C-ENDUSERCTX": context } });
-    if (!response.ok) fail(`Batch F item ${scope.external_variant_id} direct read failed with HTTP ${response.status}`);
+    if (!response.ok) fail(`Batch G item ${scope.external_variant_id} direct read failed with HTTP ${response.status}`);
     const item = await response.json();
-    if (String(item.itemId) !== scope.external_variant_id || String(item.legacyItemId) !== scope.external_product_id) fail(`Batch F item identity drift at row ${index + 1}`);
-    const evaluation = evaluateItem({
-      product_id: scope.product_id, variant_id: scope.product_variant_id, gtin: scope.gtin,
-      brand: live.brand, product_name: live.product_name, flavour_label: live.flavour_label,
-      size_value: Number(scope.size_value), size_unit: scope.size_unit, pack_count: Number(scope.pack_count),
-      product_format: scope.product_format, current_retailer_count: 1, current_retailer_identities: [],
-    }, item, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
+    if (String(item.itemId) !== scope.external_variant_id || String(item.legacyItemId) !== scope.external_product_id) fail(`Batch G item identity drift at row ${index + 1}`);
+    const shipping = cheapestShipping(item);
+    const delivered = Number((valueOf(item.price) + shipping).toFixed(2));
+    const seller = item.seller || {};
+    const inStock = (item.estimatedAvailabilities || []).some((entry) => entry.estimatedAvailabilityStatus === "IN_STOCK");
     if (
-      evaluation.seller?.username !== live.seller || evaluation.blockers.length || !evaluation.affiliate_ready ||
-      !sameSet(evaluation.review_reasons, live.review_reasons) ||
-      String(evaluation.item_price?.value) !== scope.price || String(evaluation.uk_shipping?.value) !== scope.shipping_cost ||
-      String(evaluation.delivered_price?.value) !== scope.total_price
-    ) fail(`Batch F live safety evidence drift at row ${index + 1}`);
-    rows.push({ product_id: scope.product_id, product_variant_id: scope.product_variant_id, item_id: scope.external_variant_id, seller: live.seller, decision: evaluation.decision, review_reasons: evaluation.review_reasons, delivered_price: evaluation.delivered_price.value });
+      item.title !== live.title || (live.flavour && aspect(item, "Flavour") !== live.flavour) ||
+      item.listingMarketplaceId !== "EBAY_GB" || !item.buyingOptions?.includes("FIXED_PRICE") ||
+      (item.conditionId !== "1000" && String(item.condition).toLowerCase() !== "new") || !inStock ||
+      seller.username !== live.seller || seller.sellerAccountType !== "BUSINESS" ||
+      Number(seller.feedbackPercentage) < 98 || Number(seller.feedbackScore) < 100 ||
+      !Number.isFinite(shipping) || String(valueOf(item.price)) !== scope.price ||
+      String(shipping) !== scope.shipping_cost || String(delivered) !== scope.total_price ||
+      !String(item.itemAffiliateWebUrl || "").includes(`campid=${config.campaign_id}`) ||
+      /\b(sample|sachet|bundle|damaged|opened|used|refurbished|empty container)\b/i.test(item.title)
+    ) fail(`Batch G live safety evidence drift at row ${index + 1}`);
+    rows.push({ product_id: scope.product_id, product_variant_id: scope.product_variant_id, item_id: scope.external_variant_id, seller: live.seller, decision: "OWNER_REVIEWED_EXACT_ITEM", delivered_price: delivered });
   }
   return rows;
 }
@@ -127,7 +149,7 @@ function validateRollout() {
       plan.retailer_product?.action !== "create" || plan.retailer_product?.values?.external_gtin !== expected.gtin ||
       plan.retailer_product?.values?.external_product_id !== expected.external_product_id ||
       plan.retailer_product?.values?.external_variant_id !== expected.external_variant_id ||
-      plan.retailer_product?.values?.match_method !== "gtin" || String(plan.retailer_product?.values?.match_confidence) !== "100" ||
+      plan.retailer_product?.values?.match_method !== "slug" || String(plan.retailer_product?.values?.match_confidence) !== "90" ||
       plan.offer?.action !== "create" || plan.offer?.values?.price !== expected.price ||
       plan.offer?.values?.shipping_cost !== expected.shipping_cost || plan.offer?.values?.total_price !== expected.total_price ||
       plan.offer?.values?.in_stock !== true || !/[?&]campid=\d+/.test(plan.offer?.values?.url || "") ||

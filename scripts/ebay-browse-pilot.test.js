@@ -8,7 +8,7 @@ const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdent
 const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
-const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
+const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -413,57 +413,72 @@ test("Batch F dry-run review is sealed to exactly two rows and cannot authorize 
   assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
 });
 
-test("Batch F production rollout is bound to the exact two approved plans", () => {
-  const validated = validateRollout();
-  assert.equal(CANARY_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_F_EXACT_2");
-  assert.equal(validated.entries.length, 2);
-  assert.deepEqual(CANARY_SCOPE.map((row) => `${row.product_id}:${row.product_variant_id}:${row.external_variant_id}`), [
-    "520:1025:v1|407021140091|677211935188",
-    "134:1644:v1|306694054274|0",
-  ]);
-  assert.equal(parseCanaryArgs(["--mode=preflight", "--output=tmp/batch-f-preflight.json"]).mode, "preflight");
-  assert.throws(() => parseCanaryArgs(["--mode=execute", "--output=tmp/batch-f.json"]), /preflight\|validate\|apply/);
+test("Batch G owner review is sealed to exactly nine approved rows and excludes both rejected items", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-g-review.json"), "utf8"));
+  const csvBuffer = fs.readFileSync(path.join(process.cwd(), review.csv));
+  const rows = parse(csvBuffer, { columns: true, skip_empty_lines: true });
+  assert.equal(crypto.createHash("sha256").update(csvBuffer).digest("hex"), review.csv_sha256);
+  assert.equal(review.owner_approval.confirmation, "tak wdrozmy te 9");
+  assert.equal(review.owner_approval.approved_for_production_apply, true);
+  assert.equal(review.dry_run.plan_count, 9);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(rows.length, 9);
+  assert.ok(rows.every((row) => row.product_id !== "1071" && row.product_id !== "1019"));
+  assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
 });
 
-test("Batch F live preflight rechecks both exact items and fails on drift", async () => {
+test("Batch G production rollout is bound to the exact nine approved plans", () => {
+  const validated = validateRollout();
+  assert.equal(CANARY_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_G_EXACT_9");
+  assert.equal(validated.entries.length, 9);
+  assert.deepEqual(CANARY_SCOPE.map((row) => `${row.product_id}:${row.product_variant_id}:${row.external_variant_id}`), [
+    "865:1307:v1|234804379561|534609926235",
+    "865:1308:v1|234804379561|534609926237",
+    "868:1322:v1|406077245568|676400597329",
+    "885:1420:v1|267663811829|567469691560",
+    "789:1090:v1|236709473396|537208106165",
+    "1026:2148:v1|800474478717|0",
+    "1048:2192:v1|386965889224|0",
+    "1021:2138:v1|325098747981|0",
+    "1028:2152:v1|366034420732|0",
+  ]);
+  assert.equal(parseCanaryArgs(["--mode=preflight", "--output=tmp/batch-g-preflight.json"]).mode, "preflight");
+  assert.throws(() => parseCanaryArgs(["--mode=execute", "--output=tmp/batch-g.json"]), /preflight\|validate\|apply/);
+});
+
+test("Batch G live preflight rechecks all nine exact items and fails on drift", async () => {
   resetTokenCache();
-  const olimp = item({
-    itemId: "v1|407021140091|677211935188", legacyItemId: "407021140091",
-    title: "Olimp Redweiler R-weiler Pre Workout 480g 80 Servings", gtin: "Does not apply", brand: "Olimp",
-    price: { value: "34.99", currency: "GBP" }, shippingOptions: [{ shippingCost: { value: "3.99", currency: "GBP" } }],
-    seller: { username: "muscle-factory-co-uk", sellerAccountType: "BUSINESS", feedbackPercentage: "100", feedbackScore: 270 },
-    localizedAspects: [{ name: "Flavour", value: "Blueberry Madness" }],
-    itemWebUrl: "https://www.ebay.co.uk/itm/407021140091?var=677211935188", itemAffiliateWebUrl: "https://www.ebay.co.uk/itm/407021140091?var=677211935188&campid=123",
-  });
-  const dymatize = item({
-    itemId: "v1|306694054274|0", legacyItemId: "306694054274",
-    title: "Dymatize ISO 100 Hydrolyzed Gourmet Vanilla Protein Powder 2264g", gtin: "DoesNotApply", brand: "Dymatize",
-    price: { value: "149.00", currency: "GBP" }, shippingOptions: [{ shippingCost: { value: "0.00", currency: "GBP" } }],
-    seller: { username: "snober_trade_ltd", sellerAccountType: "BUSINESS", feedbackPercentage: "99.9", feedbackScore: 3656 },
-    localizedAspects: [{ name: "Flavour", value: "Vanilla" }, { name: "Item Weight", value: "2264g" }, { name: "Formulation", value: "Powder" }],
-    itemWebUrl: "https://www.ebay.co.uk/itm/306694054274", itemAffiliateWebUrl: "https://www.ebay.co.uk/itm/306694054274?campid=123",
-  });
+  const fixtures = CANARY_SCOPE.map((scope, index) => item({
+    itemId: scope.external_variant_id, legacyItemId: scope.external_product_id,
+    title: CANARY_LIVE[index].title, gtin: "Does not apply",
+    price: { value: scope.price, currency: "GBP" }, shippingOptions: [{ shippingCost: { value: scope.shipping_cost, currency: "GBP" } }],
+    seller: { username: CANARY_LIVE[index].seller, sellerAccountType: "BUSINESS", feedbackPercentage: "99.9", feedbackScore: 5000 },
+    localizedAspects: CANARY_LIVE[index].flavour ? [{ name: "Flavour", value: CANARY_LIVE[index].flavour }] : [],
+    itemAffiliateWebUrl: `https://www.ebay.co.uk/itm/${scope.external_product_id}?campid=123`,
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK" }],
+  }));
   const config = { EBAY_CLIENT_ID: "id", EBAY_CLIENT_SECRET: "secret", EBAY_UK_DELIVERY_POSTCODE: "SW1A 1AA", EBAY_EPN_CAMPAIGN_ID: "123" };
   const fetchImpl = async (url) => {
     if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
-    return { ok: true, status: 200, json: async () => String(url).includes("407021140091") ? olimp : dymatize };
+    return { ok: true, status: 200, json: async () => fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId))) };
   };
   const rows = await validateLiveSources(fetchImpl, config);
-  assert.equal(rows.length, 2);
+  assert.equal(rows.length, 9);
   await assert.rejects(() => validateLiveSources(async (url) => {
     if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
-    return { ok: true, status: 200, json: async () => String(url).includes("407021140091") ? { ...olimp, price: { value: "35.99", currency: "GBP" } } : dymatize };
+    const found = fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId)));
+    return { ok: true, status: 200, json: async () => found === fixtures[0] ? { ...found, price: { value: "70.99", currency: "GBP" } } : found };
   }, config), /live safety evidence drift/);
   resetTokenCache();
 });
 
-test("eBay canary workflow exposes only the exact Batch F apply and two-row postflight", () => {
+test("eBay canary workflow exposes only the exact Batch G apply and nine-row postflight", () => {
   const workflow = fs.readFileSync(path.resolve(__dirname, "../.github/workflows/ebay-offer-canary.yml"), "utf8");
-  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_F_EXACT_2/);
-  assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_BATCH_E_EXACT_1/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_G_EXACT_9/);
+  assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_BATCH_F_EXACT_2/);
   assert.match(workflow, /--mode=preflight/);
-  assert.match(workflow, /batch-f\.csv/);
-  assert.match(workflow, /a\.plans\.length!==2/);
+  assert.match(workflow, /batch-g\.csv/);
+  assert.match(workflow, /a\.plans\.length!==9/);
   assert.doesNotMatch(workflow, /\bpush:/);
 });
 

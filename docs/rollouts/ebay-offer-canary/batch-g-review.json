@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-g-exact-9-owner-review-v1",
+  "owner_approval": {
+    "confirmation": "tak wdrozmy te 9",
+    "scope": "exact_nine_excluding_review_items_1_and_10",
+    "approved_for_production_apply": true,
+    "approved_count": 9
+  },
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-g.csv",
+  "csv_sha256": "aa19cfed8d480fde4b4b99fbd836f0952676be54e6f49d17561a4b9c5a04bafb",
+  "artifact": "docs/rollouts/ebay-offer-canary/batch-g-artifact.json",
+  "artifact_sha256": "10ecbe20a823c9fe66eed8b778b1f6b39fe009cc8202ba5d7d9c6dd587e7d01a",
+  "dry_run": {
+    "run_id": "51069e66-1cd1-4b9f-8d33-8ec2067a50cc",
+    "plan_count": 9,
+    "blocked_row_count": 0,
+    "database_writes": 0
+  },
+  "entries": [
+    {
+      "plan_fingerprint": "5cacfcf4c20312908b64ab3044538b34",
+      "source_row_fingerprint": "857e0cd4474eb33a4c0261d89bc11e7157fa624883d05c95489af811f063e4b0",
+      "product_id": "865",
+      "product_variant_id": "1307",
+      "gtin": null,
+      "external_product_id": "234804379561",
+      "external_variant_id": "v1|234804379561|534609926235",
+      "flavour": "chocolate",
+      "size_value": "2270",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "69.99",
+      "shipping_cost": "3.5",
+      "total_price": "73.49",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "6595d9d2d3c6971248b43fbaae782ac5",
+      "source_row_fingerprint": "889b0c3ab12bca2fce8899b057f58f3316cdb6f6a0d409bffdb4711d4d1ce3ad",
+      "product_id": "865",
+      "product_variant_id": "1308",
+      "gtin": null,
+      "external_product_id": "234804379561",
+      "external_variant_id": "v1|234804379561|534609926237",
+      "flavour": "vanilla",
+      "size_value": "2270",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "69.99",
+      "shipping_cost": "3.5",
+      "total_price": "73.49",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "a4c9000f367f68c173d8022136b14345",
+      "source_row_fingerprint": "37e13ea004bd7f7d4fd3f399c2cd59afc40815f5bfec5a69b48d45a2a51a6569",
+      "product_id": "868",
+      "product_variant_id": "1322",
+      "gtin": null,
+      "external_product_id": "406077245568",
+      "external_variant_id": "v1|406077245568|676400597329",
+      "flavour": "salted caramel",
+      "size_value": "1800",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "76.99",
+      "shipping_cost": "3.99",
+      "total_price": "80.98",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "9b20a6495a5518baa34637ec28b51b4b",
+      "source_row_fingerprint": "5aa48b30db104666d74da3931479ebe928b3dd27bfbd9036646e1eb7b030083a",
+      "product_id": "885",
+      "product_variant_id": "1420",
+      "gtin": null,
+      "external_product_id": "267663811829",
+      "external_variant_id": "v1|267663811829|567469691560",
+      "flavour": "rainbow rock candy",
+      "size_value": "437",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "39.99",
+      "shipping_cost": "0",
+      "total_price": "39.99",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "de847ee43d9539d874aee82cd185688e",
+      "source_row_fingerprint": "641c787918e1b796e17be9e672537a45710ee23785d6db8852423eed7e09386c",
+      "product_id": "789",
+      "product_variant_id": "1090",
+      "gtin": null,
+      "external_product_id": "236709473396",
+      "external_variant_id": "v1|236709473396|537208106165",
+      "flavour": "pink lemonade",
+      "size_value": "570",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "29.99",
+      "shipping_cost": "0",
+      "total_price": "29.99",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "f569107f33c92b95ecc70e48dd1f71da",
+      "source_row_fingerprint": "b3195765fc24f401914b1d439bcf1a9888ca4c20fc1e3b557040b9eaa2450543",
+      "product_id": "1026",
+      "product_variant_id": "2148",
+      "gtin": null,
+      "external_product_id": "800474478717",
+      "external_variant_id": "v1|800474478717|0",
+      "flavour": "unflavoured",
+      "size_value": null,
+      "size_unit": null,
+      "pack_count": "1",
+      "product_format": "capsule",
+      "price": "10.89",
+      "shipping_cost": "0",
+      "total_price": "10.89",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "48b18e801b6b4eb86faf21718b84e169",
+      "source_row_fingerprint": "ce0b47bbe79689f4a7958ae514f92b7de16d5bcca2a0c6e4b8a5a48bd13de641",
+      "product_id": "1048",
+      "product_variant_id": "2192",
+      "gtin": null,
+      "external_product_id": "386965889224",
+      "external_variant_id": "v1|386965889224|0",
+      "flavour": "unflavoured",
+      "size_value": null,
+      "size_unit": null,
+      "pack_count": "1",
+      "product_format": "capsule",
+      "price": "11.69",
+      "shipping_cost": "0",
+      "total_price": "11.69",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "f113dd5dfb52a3118c640eac9cc8bd71",
+      "source_row_fingerprint": "aa04984b4eeb55495931ad1cab692db7e125d6d01698d73f2faf31651352d3e3",
+      "product_id": "1021",
+      "product_variant_id": "2138",
+      "gtin": null,
+      "external_product_id": "325098747981",
+      "external_variant_id": "v1|325098747981|0",
+      "flavour": "unflavoured",
+      "size_value": null,
+      "size_unit": null,
+      "pack_count": "1",
+      "product_format": "capsule",
+      "price": "12.89",
+      "shipping_cost": "0",
+      "total_price": "12.89",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    },
+    {
+      "plan_fingerprint": "21c36b321da2e427b5218f88f4705594",
+      "source_row_fingerprint": "465fb5d19f8c2493e416ec27b1761158448bb307012d6ec1597a2b78b05949a4",
+      "product_id": "1028",
+      "product_variant_id": "2152",
+      "gtin": null,
+      "external_product_id": "366034420732",
+      "external_variant_id": "v1|366034420732|0",
+      "flavour": "unflavoured",
+      "size_value": null,
+      "size_unit": null,
+      "pack_count": "1",
+      "product_format": "capsule",
+      "price": "14.96",
+      "shipping_cost": "0",
+      "total_price": "14.96",
+      "planned_actions": [
+        "retailer_product:create",
+        "offer:create",
+        "price_history:create"
+      ]
+    }
+  ],
+  "rollout_fingerprint": "8da1d1e0d7c2400fe71830f584da2f6ddd958bd2a2e0e8faa8fc6a35cc0aca00"
+}
