@@ -292,6 +292,31 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
+### 17 August 2026 - SEO-13 Creatine no-click price reinforcement live verification
+
+- The authenticated GSC report for 10-16 August recorded 36 impressions, zero
+  clicks and average position 70.56 for `/creatine`. This was the next largest
+  no-click comparison page visible in the report after the already reinforced
+  `/glucosamine` page.
+- The existing title `Compare Creatine Supplements & Prices UK`, description,
+  H1 `Compare Creatine Supplements UK`, canonical, robots policy, structured
+  data and comparison table were preserved. Exact regression assertions now
+  protect the title and description rather than permitting a broad match.
+- Commit `34ecd9d` added one server-rendered quick answer using the already
+  sorted, freshness-filtered comparison data. It reports the current product
+  count, the lowest known delivered total and a direct canonical product link,
+  while explicitly limiting the statement to SupplementScout's current
+  retailer coverage.
+- The focused Creatine suite passed 24/24. Targeted ESLint, TypeScript,
+  `verify:quick`, `verify:full` and the Next.js production build passed.
+- Cache-bypassed live HTML returned HTTP 200 with the preserved title, H1,
+  canonical and index/follow state. It rendered 57 active creatine products
+  and the lowest known delivered price of GBP 11.98 for
+  `PER4M Micronised Creatine 150g`, linked to its canonical product page.
+  The scope limitation was present. This reinforcement is `LIVE VERIFIED`;
+  the page is frozen until a later GSC comparison is available and SEO-13
+  remains `IN PROGRESS`.
+
 ### 17 August 2026 - SEO-13 outbound measurement integrity live verification
 
 - Investigation of the admin report found 59 raw redirect requests between
