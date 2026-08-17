@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 22-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2)
+**Status:** CONTROLLED 31-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9)
 **Last verified:** 17 August 2026
-**Production writes:** 22 owner-approved create plans plus 63 exact existing-offer verification refreshes (1 retailer, 22 mappings, 22 offers, 22 price-history rows; refreshes changed verification timestamps only)
-**Public changes:** 1 guarded account-deletion API route and 22 live eBay offers
+**Production writes:** 31 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 31 mappings, 31 offers, 31 price-history rows; latest refresh changed verification timestamps only)
+**Public changes:** 1 guarded account-deletion API route and 31 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,17 +41,17 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 22-offer rollout are complete. The
+read-only Browse pilot and the controlled 31-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below. The exact-22 daily refresh is enabled at `05:43 UTC`; each
+postflight below. The exact-31 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
-evidence changes. A fresh expansion audit found no unseen identity in the
-current GTIN-qualified discovery pool and reduced the remaining reviewed-item
-queue to two exact owner-reviewed Batch F candidates. Both were separately
-owner-approved, freshly re-read, atomically applied and live-verified. They are
-now part of the same guarded exact-22 scheduled refresh manifest; no second
-scheduler or importer was introduced.
+evidence changes. Batch G added exactly nine owner-reviewed listings across
+nine variants and eight products after direct item-ID preflight. All nine are
+now part of the same guarded exact-31 scheduled refresh manifest; missing GTIN
+remains explicit evidence and is accepted only for the exact approved item,
+business seller and reviewed metadata-gap set. No second scheduler or importer
+was introduced.
 Credential values remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
@@ -268,6 +268,7 @@ expected `/go/2549`-`/go/2555` routes. Batch C is live-verified 7/7.
 - [x] Batch B postflight, production readback and public verification passed 5/5.
 - [x] Controlled first 10 eBay offers are live-verified end to end.
 - [x] Batch F exact two offers owner-approved, applied, postflight-verified and publicly live-verified.
+- [x] Batch G exact nine offers owner-approved, applied, postflight-verified and added to the existing daily refresh.
 - [ ] At least 50 independent owner-safe eBay offers available.
 - [x] Production pilot completed; all five exact Batch A offers owner-approved, applied and live-verified.
 
@@ -1856,7 +1857,7 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Monitor the first scheduled exact-22 refresh at 05:43 UTC on 18
+`NEXT ACTION: Monitor the first scheduled exact-31 refresh at 05:43 UTC on 18
 August 2026 (06:43 BST). Continue coverage discovery only through the existing
 read-only pipeline; do not include any of the other 13 rejected rows or weaken
 the exact identity, seller, delivery, affiliate or continuity gates.`
@@ -2061,7 +2062,39 @@ owner-reviewed production design and approval.
   and identities were unchanged; verification timestamps were refreshed.
   Evidence artifact `9293012601` has SHA-256
   `e7b4180d037d08e8844e5598c55e649b636fcd321294ac7c02584b551929d61f`.
-  The enabled daily `43 5 * * *` schedule now covers all 22 live eBay offers.
+  The enabled daily `43 5 * * *` schedule then covered all 22 live eBay offers.
+- The owner approved Batch G as exactly nine listings: two CNP Peptide
+  variants plus CNP Isolate, Innovapharm MVPRE, PER4M Stim, Olimp Vita-Min One,
+  Osavi Zinc, Olimp Multiple Sport and Good Guru Magnesium. The rejected
+  individual-seller listing and the conflicting 100-versus-60 capsule listing
+  remained excluded. Guarded run `32063866981` on commit `cf305e2` executed
+  9/9, creating mappings `2746`-`2754`, offers `2561`-`2569` and nine
+  price-history rows. Immediate postflight returned exact mapping, offer and
+  history no-ops for all nine with zero blockers. Evidence artifact
+  `9299159112` has SHA-256
+  `f9e3b5b3cb050d832b3b315d650bcc44d759d320ce34aeab2c8d1c69b62dad80`.
+- Commits `596fa77` and `b03015a` extended the existing daily workflow from 22
+  to exactly 31 offers. No synthetic GTIN is used: each Batch G source is
+  evaluated with its actual blank canonical GTIN, and continuity accepts only
+  the exact expected `CANONICAL_GTIN_INVALID` state together with the sealed
+  item ID, legacy ID, business seller and reviewed semantic gaps. Any added
+  blocker, returned mismatching GTIN, individual seller or identity drift
+  fails closed. `npm run verify:quick` and `npm run verify:full` both passed.
+- Manual GitHub Actions run `32066137554` on commit `b03015a` passed every
+  contract, fresh preflight, prepare, guarded apply, immediate no-op postflight
+  and artifact upload. It checked 31/31, executed 31/31 and blocked 0. All 31
+  plans were `verify_no_change`; the nine Batch G delivered prices remained
+  GBP 73.49, 73.49, 80.98, 39.99, 29.99, 10.89, 11.69, 12.89 and 14.96.
+  Evidence artifact `9300084745` has SHA-256
+  `1f687d33995293f2f38a4baa0b0a17f4a97bf0a6051ae02226211c4174d9a53c`.
+  The enabled daily `43 5 * * *` schedule now covers all 31 live eBay offers.
+- Public readback returned HTTP 200 for all eight Batch G product pages. Seven
+  pages exposed the corresponding new `/go` route; product `865` exposed one
+  of its two same-retailer flavours and product `789` retained its existing
+  same-retailer flavour in the product-level comparison. Direct GET readback
+  passed 9/9 for `/go/2561`-`/go/2569`: every route returned HTTP 307 to the
+  exact approved eBay item/variation with the configured campaign parameter.
+  No offer was missing from the guarded redirect path.
 
 16 August 2026:
 
