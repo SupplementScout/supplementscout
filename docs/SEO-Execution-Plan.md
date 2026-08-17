@@ -292,6 +292,30 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
+### 17 August 2026 - SEO-13 Magnesium query-alignment live verification
+
+- The weekly report mechanism was expanded in commit `dd89312` without changing
+  its Google read-only scopes, GitHub permissions or protected environment. It
+  now retains up to 100 pages, 100 queries and 250 page-query rows, and derives
+  a zero-click opportunity queue. Protected workflow run `32025282683` passed;
+  private artifact `9286849927` contains schema-v2 evidence for 96 pages, 100
+  queries and 176 page-query rows for 10-16 August.
+- The detailed evidence identified `/magnesium` as the largest unaddressed
+  landing-page cluster: `magnesium tablets` had 43 impressions at position
+  72.53, `magnesium supplements` 30 at 84.40 and `magnesium supplement` 25 at
+  82.48, all with zero clicks. Search Console privacy thresholds mean the
+  page-query rows are directional and need not sum to site totals.
+- Commit `aeef872` aligned the page title, description and single H1 with both
+  observed intents: tablets and supplements. The `/magnesium` URL, canonical,
+  index/follow policy, reviewed relevance filter, pagination, product cards,
+  prices and catalogue reads were unchanged.
+- The focused landing suite passed 17/17; targeted ESLint, TypeScript,
+  `verify:full` and the Next.js production build passed. Cache-bypassed live
+  HTML returned HTTP 200 with the exact new title, description and H1, the
+  unchanged canonical and index/follow state, and crawlable product links.
+  This query alignment is `LIVE VERIFIED`; `/magnesium` is frozen until later
+  GSC comparison and SEO-13 remains `IN PROGRESS`.
+
 ### 17 August 2026 - SEO-13 Creatine no-click price reinforcement live verification
 
 - The authenticated GSC report for 10-16 August recorded 36 impressions, zero
