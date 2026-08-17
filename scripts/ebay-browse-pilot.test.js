@@ -5,7 +5,7 @@ const test = require("node:test");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
 const { buildDiscoveryRows, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
-const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
+const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -246,6 +246,22 @@ test("eBay refresh converts only a fully qualified exact listing into importer i
   assert.equal(row.affiliate_url, REFRESH_SCOPE.affiliate_url);
   assert.notEqual(row.affiliate_url, evaluation.affiliate_url);
   assert.throws(() => rowFromEvaluation(REFRESH_SCOPE, { ...evaluation, returned_gtin: identity.gtin }), /no longer eligible/);
+});
+
+test("eBay existing-listing continuity tolerates only narrow evidence disappearance", () => {
+  const base = {
+    decision: "AUTO_ELIGIBLE", item_id: REFRESH_SCOPE.external_variant_id,
+    legacy_item_id: REFRESH_SCOPE.external_product_id, returned_gtin: REFRESH_SCOPE.gtin,
+    blockers: [], review_reasons: [], affiliate_ready: true,
+    affiliate_url: REFRESH_SCOPE.affiliate_url,
+  };
+  assert.equal(classifyContinuity(REFRESH_SCOPE, base).tier, "live_exact_gtin");
+  assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REVIEW", review_reasons: ["FORMAT_UNPROVEN"] }).tier, "live_exact_gtin_with_metadata_gap");
+  assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REVIEW", returned_gtin: null, review_reasons: ["RETURNED_GTIN_UNPROVEN"] }).tier, "sealed_existing_identity_continuity");
+  assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REVIEW", returned_gtin: null, review_reasons: ["RETURNED_GTIN_UNPROVEN", "FORMAT_UNPROVEN"] }).eligible, false);
+  assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REJECT", returned_gtin: "842595109191", blockers: ["GTIN_MISMATCH"] }).eligible, false);
+  assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, item_id: "v1|other|0" }).eligible, false);
+  assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, affiliate_ready: false, affiliate_url: null }).eligible, false);
 });
 
 test("eBay refresh reads the approved item directly and remains GET-only", async () => {

@@ -14,6 +14,7 @@ const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_20";
 const KIND = "ebay-existing-offer-refresh-exact-20-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
+const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
   { csv: "remaining-4.csv", approval: "remaining-4-rollout.json", count: 4 },
@@ -98,8 +99,18 @@ function assertExecutionContext(mode, env = process.env) {
   if (env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.EBAY_REFRESH_OWNER_CONFIRMATION !== CONFIRMATION) fail("Manual eBay refresh apply requires exact owner confirmation");
 }
 
+function classifyContinuity(scope, evaluation) {
+  const exactIdentity = evaluation.item_id === scope.external_variant_id && evaluation.legacy_item_id === scope.external_product_id;
+  if (!exactIdentity || evaluation.blockers.length || !evaluation.affiliate_ready || !evaluation.affiliate_url) return { eligible: false, tier: "blocked" };
+  if (evaluation.decision === "AUTO_ELIGIBLE" && evaluation.returned_gtin === scope.gtin) return { eligible: true, tier: "live_exact_gtin" };
+  const reasons = new Set(evaluation.review_reasons);
+  if (evaluation.returned_gtin === scope.gtin && reasons.size > 0 && [...reasons].every((reason) => EXACT_GTIN_METADATA_GAPS.has(reason))) return { eligible: true, tier: "live_exact_gtin_with_metadata_gap" };
+  if (evaluation.returned_gtin === null && reasons.size === 1 && reasons.has("RETURNED_GTIN_UNPROVEN")) return { eligible: true, tier: "sealed_existing_identity_continuity" };
+  return { eligible: false, tier: "blocked" };
+}
+
 function rowFromEvaluation(scope, evaluation) {
-  if (evaluation.decision !== "AUTO_ELIGIBLE" || evaluation.item_id !== scope.external_variant_id || evaluation.legacy_item_id !== scope.external_product_id || evaluation.returned_gtin !== scope.external_gtin) fail(`Exact eBay listing identity is no longer eligible for offer ${scope.offer_id}`);
+  if (!(evaluation.continuity || classifyContinuity(scope, evaluation)).eligible) fail(`Exact eBay listing identity is no longer eligible for offer ${scope.offer_id}`);
   if (!evaluation.item_price || !evaluation.uk_shipping || !evaluation.delivered_price || evaluation.item_price.currency !== "GBP" || evaluation.uk_shipping.currency !== "GBP" || evaluation.delivered_price.currency !== "GBP" || !evaluation.affiliate_ready || !evaluation.affiliate_url) fail(`Complete affiliate-ready GBP delivered price is required for offer ${scope.offer_id}`);
   return {
     ...Object.fromEntries(Object.entries(scope).filter(([key]) => !["gtin", "flavour_label", "size_value", "unit_count", "unit_type", "retailer_id", "retailer_product_id", "offer_id", "rollout"].includes(key))),
@@ -175,8 +186,11 @@ async function run(options, dependencies = {}) {
   const token = dependencies.token || await getApplicationToken(config, dependencies.fetchImpl || fetch);
   const stamp = now.toISOString().replace(/[:.]/g, "-");
   const evaluations = [];
-  for (const scope of SCOPES) evaluations.push(dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token));
-  const blocked = evaluations.flatMap((evaluation, index) => evaluation.decision === "AUTO_ELIGIBLE" ? [] : [{
+  for (const scope of SCOPES) {
+    const evaluation = dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token);
+    evaluations.push({ ...evaluation, continuity: classifyContinuity(scope, evaluation) });
+  }
+  const blocked = evaluations.flatMap((evaluation, index) => evaluation.continuity.eligible ? [] : [{
     offer_id: SCOPES[index].offer_id,
     item_id: evaluation.item_id,
     decision: evaluation.decision,
@@ -186,14 +200,14 @@ async function run(options, dependencies = {}) {
   }]);
   const prepared = [];
   for (let index = 0; index < SCOPES.length; index += 1) {
-    if (evaluations[index].decision !== "AUTO_ELIGIBLE") continue;
+    if (!evaluations[index].continuity.eligible) continue;
     prepared.push(await prepareScope(SCOPES[index], evaluations[index], options.mode, dependencies, stamp));
   }
   const report = {
     result: blocked.length ? "PASS_WITH_BLOCKS" : "PASS", mode: options.mode,
     scope: { offers: SCOPES.length, eligible: prepared.length, blocked: blocked.length, offer_ids: SCOPES.map((scope) => scope.offer_id) },
     classifications: Object.fromEntries(prepared.map(({ approved }) => [String(approved.entry.resolved_plan.offer.id), approved.entry.resolved_plan.offer.action])),
-    source: evaluations.map((evaluation, index) => ({ offer_id: SCOPES[index].offer_id, item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price?.value ?? null, shipping: evaluation.uk_shipping?.value ?? null, delivered: evaluation.delivered_price?.value ?? null })),
+    source: evaluations.map((evaluation, index) => ({ offer_id: SCOPES[index].offer_id, item_id: evaluation.item_id, gtin: evaluation.returned_gtin, continuity_tier: evaluation.continuity.tier, price: evaluation.item_price?.value ?? null, shipping: evaluation.uk_shipping?.value ?? null, delivered: evaluation.delivered_price?.value ?? null })),
     blocked_rows: blocked, executed: 0, automatic_oos: "blocked",
   };
   if (options.mode === "prepare-apply") (dependencies.writePendingBatch || writePendingBatch)(report, now);
@@ -204,4 +218,4 @@ async function run(options, dependencies = {}) {
 async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); if (!report.result.startsWith("PASS")) process.exitCode = 2; }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, assertExecutionContext, buildSource, loadPendingBatch, loadScopes, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
+module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
