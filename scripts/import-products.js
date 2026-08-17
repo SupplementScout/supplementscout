@@ -2263,8 +2263,11 @@ function collectCanonicalVariantEvidence(row) {
       supplied: true,
     };
   }
+  const csvSize = row.size && row.size_unit && !parseExplicitSize(row.size)
+    ? `${row.size} ${row.size_unit}`
+    : row.size;
   const explicitSizeValues = [
-    row.size,
+    csvSize,
     ...externalOptionValues(options, ["size"]),
   ].filter((value) => String(value ?? "").trim());
   for (const value of explicitSizeValues) {
@@ -2295,7 +2298,7 @@ function collectCanonicalVariantEvidence(row) {
       : fallbackFlavours;
   const sizes = normalizedEvidenceValues(
     [
-      row.size,
+      csvSize,
       ...variantText,
       ...externalOptionValues(options, ["size"]),
     ],

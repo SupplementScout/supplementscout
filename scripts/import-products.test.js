@@ -79,6 +79,21 @@ test("reviewed Six Pack RTD evidence preserves the sealed catalogue format", () 
   assert.equal(evidence.size.unit, "ml");
 });
 
+test("canonical evidence accepts numeric size with a separate size unit", () => {
+  const evidence = collectCanonicalVariantEvidence({
+    size: "480",
+    size_unit: "g",
+    external_options: JSON.stringify({ Size: "480g", Flavour: "Blueberry" }),
+    flavour: "Blueberry",
+    variant_name: "Blueberry / 480g",
+    product_format: "powder",
+    pack_count: "1",
+  });
+
+  assert.deepEqual(evidence.size, { value: "480", unit: "g", dimension: "mass" });
+  assert.equal(evidence.flavour, "blueberry");
+});
+
 async function runImportRows(rows, options = {}) {
   if (options.dryRun) {
     return runImportRowsRaw(rows, options);
