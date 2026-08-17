@@ -292,6 +292,34 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
+### 17 August 2026 - exact product-to-comparison internal links live verification
+
+- A duplicate-mechanism audit confirmed that the homepage already held the 14
+  approved comparison-category routes, while product pages exposed only the
+  existing `SupplementScout / Product` breadcrumb. No product-to-comparison
+  category helper or equivalent middle breadcrumb already existed.
+- Commit `c8898a9` moved the existing approved homepage routes into one shared
+  module and reused that same source on product pages. A comparison link is
+  added only when the stored product category is an exact, case-insensitive
+  match; broader or unknown categories keep the prior two-level breadcrumb.
+  No product-name inference, second route map or new page framework was added.
+- The visible product breadcrumb and `BreadcrumbList` JSON-LD now agree on
+  `SupplementScout / comparison category / product` for exact matches. Unsafe
+  or external category paths are rejected. Product metadata, H1, canonical,
+  offer ordering, prices, freshness rules and catalogue data were unchanged.
+- Focused tests passed 41/41 before the compatibility adjustment and the
+  existing Vegan Protein suite passed 8/8 afterward. TypeScript, targeted
+  ESLint, `verify:quick`, `verify:full`, all 269 registered-test inventory
+  checks and the Next.js production build passed.
+- Live HTML returned HTTP 200 for `PER4M Micronised Creatine 150g` and
+  `BioTech USA 100% Pure Whey 454g`, with exact canonical URLs, unchanged
+  product titles/H1s, visible `/creatine` and `/whey-protein` breadcrumbs and
+  matching category entries in JSON-LD. `Trained By JP Collagen Powder 300g`
+  returned HTTP 200 with its exact canonical and unchanged title/H1, and
+  correctly retained no comparison-category link or category schema entry.
+  This internal-link reinforcement is `LIVE VERIFIED`; SEO-13 remains
+  `IN PROGRESS`.
+
 ### 17 August 2026 - SEO-13 Whey Protein price-query reinforcement live verification
 
 - The schema-v2 authenticated GSC artifact for 10-16 August recorded
