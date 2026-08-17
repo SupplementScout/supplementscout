@@ -4,7 +4,7 @@
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
 **Status:** CONTROLLED 20-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1)
 **Last verified:** 17 August 2026
-**Production writes:** 20 owner-approved create plans plus 1 exact existing-offer verification refresh (1 retailer, 20 mappings, 20 offers, 20 price-history rows)
+**Production writes:** 20 owner-approved create plans plus 21 exact existing-offer verification refreshes (1 retailer, 20 mappings, 20 offers, 20 price-history rows; refreshes changed verification timestamps only)
 **Public changes:** 1 guarded account-deletion API route and 20 live eBay offers
 
 Every future eBay task must read this document first and continue from
@@ -44,7 +44,9 @@ Design, audit, Developers/EPN access, Production keyset compliance, the
 read-only Browse pilot and the controlled 20-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below; credential values remain outside the repository.
+postflight below. The exact-20 daily refresh is enabled at `05:43 UTC`; each
+row continues to fail closed independently if its approved identity or safety
+evidence changes. Credential values remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1847,15 +1849,12 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner review of continuity dry-run 32039150019. If its exact
-20-offer scope is approved, run one manual guarded apply with confirmation
-OWNER_APPROVED_EBAY_REFRESH_EXACT_20. The workflow must freshly re-read all 20,
-accept only live exact-GTIN rows, narrow metadata disappearance with an exact
-GTIN, or a previously sealed exact item whose sole missing evidence is the
-currently returned GTIN. It must reject changed item identity, GTIN mismatch,
-additional semantic/seller/delivery/affiliate gaps and pass immediate
-postflight. Only after that manual apply and postflight pass may
-EBAY_REFRESH_ENABLED be set to true.`
+`NEXT ACTION: Monitor the first enabled scheduled exact-20 refresh at 05:43 UTC
+on 18 August 2026 (06:43 BST). Confirm that its fresh preflight, guarded apply
+and immediate postflight pass for every still-qualified row, while any changed
+item identity, GTIN mismatch or additional semantic, seller, delivery or
+affiliate gap fails closed for that row. Do not widen the immutable 20-offer
+scope or automatically mark a missing listing out of stock.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1947,6 +1946,22 @@ owner-reviewed production design and approval.
   `9291581276` has SHA-256
   `3bb6d4b6e796d1434f2a793e278fb048dfd6d95fea4d8543391b92d0640c8c83`.
   `EBAY_REFRESH_ENABLED` remains unset.
+- The owner then explicitly approved the exact-20 manual apply and enabling the
+  daily schedule only after a successful immediate postflight. GitHub Actions
+  run `32039661320` completed successfully: fresh preflight, preparation,
+  guarded execution and postflight each passed 20/20 with zero blocked rows.
+  All 20 operations were `verify_no_change`; no price, URL, stock, product,
+  variant, mapping or listing-identity value changed, and only verification
+  timestamps were refreshed. Evidence artifact `9291719160` has SHA-256
+  `343aacde47f98d6d3e8c3082cf7dda7e8eee35774efad1cd718ecef7d2d3f387`.
+- An independent public readback after the apply passed 20/20: every product
+  page returned HTTP 200, displayed `eBay UK` and contained its exact existing
+  `/go/{offer_id}` route for offers `2539`-`2558`. No offer was lost.
+- After the successful apply and postflight, environment variable
+  `EBAY_REFRESH_ENABLED=true` was created and verified at
+  `2026-08-17T14:40:12Z`. The existing single workflow is therefore enabled on
+  its daily `43 5 * * *` schedule; no second importer or automation path was
+  introduced.
 
 16 August 2026:
 
