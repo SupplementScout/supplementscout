@@ -42,6 +42,20 @@ const manifestRebindRollback = fs.readFileSync(
   ),
   "utf8",
 );
+const creatineManifestRebindMigration = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "supabase/migrations/20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
+  ),
+  "utf8",
+);
+const creatineManifestRebindRollback = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "supabase/rollbacks/20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
+  ),
+  "utf8",
+);
 
 test("migration reuses control ledgers through narrow state and registration RPCs", () => {
   assert.match(
@@ -133,6 +147,29 @@ test("reviewed family rebinding updates only the frozen manifest hash and is rev
   );
   assert.match(
     manifestRebindRollback,
+    /execute replace\(v_definition, v_rebound_hash, v_previous_hash\)/,
+  );
+});
+
+test("reviewed creatine rebinding advances only the frozen manifest hash and is reversible", () => {
+  const previousHash =
+    "9532725e0ad538b1656172c1531c49d8acd68e95d1ef459917bbdbd3f4e9d8f7";
+  const reboundHash =
+    "52565db2747d905fa2db68162ebd56b1b4e5b8a3d007bb10c144f2213e216905";
+
+  assert.match(creatineManifestRebindMigration, /pg_get_functiondef/);
+  assert.match(creatineManifestRebindMigration, new RegExp(previousHash));
+  assert.match(creatineManifestRebindMigration, new RegExp(reboundHash));
+  assert.match(
+    creatineManifestRebindMigration,
+    /execute replace\(v_definition, v_previous_hash, v_rebound_hash\)/,
+  );
+  assert.doesNotMatch(
+    creatineManifestRebindMigration,
+    /\b(?:insert into|update|delete from|merge|truncate)\s+public\./i,
+  );
+  assert.match(
+    creatineManifestRebindRollback,
     /execute replace\(v_definition, v_rebound_hash, v_previous_hash\)/,
   );
 });

@@ -149,9 +149,12 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Critical Cookie and exact-36 with no pending migrations", () => {
+test("production records exact-36 with one reviewed Whey Okay rebind pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(contract.pending.length, 0);
+  assert.deepEqual(
+    contract.pending.map(({ filename }) => filename),
+    ["20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql"],
+  );
   assert.equal(contract.ledgerCount, 113);
   assert.equal(
     contract.ledgerFingerprint,
@@ -232,7 +235,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after exact-36 with nothing pending", () => {
+test("production binds its exact ledger with only the Whey Okay rebind pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -260,11 +263,21 @@ test("production binds its exact ledger after exact-36 with nothing pending", ()
   });
   assert.equal(result.ledger_count, 113);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 113);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending, [
+    "20260817100000_rebind_whey_okay_manifest_after_creatine_merge",
+  ]);
+  assert.equal(result.selected_files.length, 114);
+  assert.deepEqual(result.pending_files, [
+    "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
+  ]);
+  assert.equal(
+    result.pending_file,
+    "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
+  );
+  assert.equal(
+    result.pending_sha256,
+    "a586d67e2141d4139d7f39370e7562fb752b0ae1d9609cc730cac9b9195b74e6",
+  );
 });
 
 test("production exclusions are exact and exact-36 is selected rather than excluded", () => {

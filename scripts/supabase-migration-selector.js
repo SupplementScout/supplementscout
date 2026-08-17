@@ -116,6 +116,8 @@ const CONTRACTS = Object.freeze({
         "95bcd592f30a37072f960763b623e76911f1451440576986021a227031510f7e",
       "20260816173000_extend_guarded_gtin_promotion_exact_36.sql":
         "dd105cbcfe23116875ba8eb6aacb4c519d266088d1993eaf1ca27fb755cebccd",
+      "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql":
+        "a586d67e2141d4139d7f39370e7562fb752b0ae1d9609cc730cac9b9195b74e6",
     }),
     pending: Object.freeze([]),
   }),
@@ -145,7 +147,15 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename:
+          "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
+        sha256:
+          "a586d67e2141d4139d7f39370e7562fb752b0ae1d9609cc730cac9b9195b74e6",
+        expectedCatalogueDeltas: Object.freeze({}),
+      }),
+    ]),
   }),
 });
 

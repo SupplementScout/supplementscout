@@ -39,9 +39,12 @@ test("post-write fingerprint changes only the exact approved variant destination
   assert.equal(summary.retailer_products_count, 1);
 });
 
-test("deployed GTIN migrations remain frozen with no pending schema work", () => {
+test("deployed GTIN migrations remain frozen while only the Whey Okay rebind is pending", () => {
   const pending = CONTRACTS.PRODUCTION.pending;
-  assert.equal(pending.length, 0);
+  assert.deepEqual(
+    pending.map(({ filename }) => filename),
+    ["20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql"],
+  );
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
 });
