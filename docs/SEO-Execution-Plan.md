@@ -292,6 +292,30 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
+### 17 August 2026 - SEO-13 Whey Protein price-query reinforcement live verification
+
+- The schema-v2 authenticated GSC artifact for 10-16 August recorded
+  `whey protein price` at 10 impressions, zero clicks and average position
+  37.10 for `/whey-protein`. Four adjacent price-comparison queries added one
+  impression each at average positions 40-47.
+- The page already used the exact title and H1
+  `Compare Whey Protein Prices UK`, so commit `baed49f` preserved those terms,
+  the description, URL, canonical, dynamic robots gate, structured data,
+  coverage-first ranking and current-offer filter. Exact metadata regression
+  assertions were added.
+- One server-rendered quick answer now scans the existing freshness-filtered
+  rows for the lowest known delivered total across the comparison. It links to
+  the canonical product page and limits the statement to current
+  SupplementScout retailer coverage rather than claiming the whole UK market.
+- The focused Whey Protein suite passed 13/13; targeted ESLint, TypeScript,
+  `verify:full` and the Next.js production build passed. Cache-bypassed live
+  HTML returned HTTP 200 with the preserved title, H1, canonical and
+  index/follow state. It rendered 39 current products and GBP 19.98 for
+  `BioTech USA 100% Pure Whey 454g` as the lowest known delivered price, with
+  the scope limitation present. This reinforcement is `LIVE VERIFIED`;
+  `/whey-protein` is frozen until later GSC comparison and SEO-13 remains
+  `IN PROGRESS`.
+
 ### 17 August 2026 - SEO-13 Magnesium query-alignment live verification
 
 - The weekly report mechanism was expanded in commit `dd89312` without changing
