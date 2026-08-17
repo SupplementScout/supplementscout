@@ -63,9 +63,16 @@ test("Omega 3 targets price intent and answers with existing delivered-price dat
     "utf8"
   );
 
-  assert.match(source, /const pageTitle = "Omega 3 Prices UK/);
-  assert.match(source, /<h1[^>]*>[\s\S]*Omega 3 Prices UK/);
+  assert.match(
+    source,
+    /const pageTitle = "Omega 3 Prices UK - Compare Delivered Cost"/
+  );
+  assert.match(
+    source,
+    /<h1[^>]*>[\s\S]*Omega 3 Prices UK - Compare Delivered Cost[\s\S]*<\/h1>/
+  );
   assert.equal((source.match(/<h1\b/g) || []).length, 1);
+  assert.doesNotMatch(source, /â€“/);
   assert.match(source, /What is the lowest current Omega 3 delivered price\?/);
   assert.match(source, /page === 1 && results\[0\]\?\.cheapestOffer/);
   assert.match(source, /formatCurrency\(/);

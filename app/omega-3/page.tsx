@@ -29,7 +29,7 @@ const omega3SearchTerms = [
 ];
 
 const basePath = "/omega-3";
-const pageTitle = "Omega 3 Prices UK â€“ Compare Delivered Cost";
+const pageTitle = "Omega 3 Prices UK - Compare Delivered Cost";
 const pageDescription =
   "Compare Omega 3 and fish oil prices from UK retailers. See recently checked offers, delivery costs and the lowest current delivered price in our comparison.";
 
@@ -93,7 +93,7 @@ export default async function Omega3Page({ searchParams }: Omega3PageProps) {
             Omega 3 supplements
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-            Omega 3 Prices UK â€“ Compare Delivered Cost
+            Omega 3 Prices UK - Compare Delivered Cost
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
             Compare recently checked prices for Omega 3 capsules, fish oil, cod
