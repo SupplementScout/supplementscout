@@ -74,6 +74,36 @@ test("Omega 3 targets price intent and answers with existing delivered-price dat
   assert.doesNotMatch(source, /best Omega 3|health ranking/i);
 });
 
+test("Glucosamine preserves ranking terms while adding a delivered-price answer", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "app", "glucosamine", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(
+    source,
+    /const pageTitle = "Compare Glucosamine Supplements UK"/
+  );
+  assert.match(
+    source,
+    /Compare glucosamine, chondroitin and joint-support supplement prices from UK retailers/
+  );
+  assert.match(
+    source,
+    /<h1[^>]*>[\s\S]*Compare Glucosamine Supplements UK[\s\S]*<\/h1>/
+  );
+  assert.equal((source.match(/<h1\b/g) || []).length, 1);
+  assert.match(
+    source,
+    /What is the lowest current Glucosamine delivered price\?/
+  );
+  assert.match(source, /page === 1 && results\[0\]\?\.cheapestOffer/);
+  assert.match(source, /formatCurrency\(/);
+  assert.match(source, /not a claim about every UK seller/);
+  assert.match(source, /<ProductResultCard key=\{product\.id\} product=\{product\}/);
+  assert.doesNotMatch(source, /best Glucosamine|health ranking/i);
+});
+
 function loadPaginationModule() {
   const filename = path.join(
     process.cwd(),

@@ -262,6 +262,7 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
+| 2026-08-17 | Weekly GSC/GA4 | Authenticated read-only workflow run `32014837584`, artifact `9283110120`, covering 2026-08-10 through 2026-08-16: GSC 736 impressions, 9 clicks, 1.22% CTR and average position 61.68; GA4 Organic Search 12 sessions, 4 users, 107 views and 3 organic retailer-offer clicks. Sitemap reported 1,090 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors; the five canonical `www` URLs were submitted and indexed, while the apex hostname correctly resolved as a redirect to the indexed `www` homepage. | `CAPTURED` |
 | 2026-08-10 | Weekly GSC/GA4 | Authenticated read-only workflow run `31377198053`, artifact `9058392768`, covering 2026-08-03 through 2026-08-09: GSC 582 impressions, 3 clicks, 0.52% CTR and average position 61.03; GA4 Organic Search 4 sessions, 3 users, 2 views and 2 organic retailer-offer clicks. Sitemap reported 1,089 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors; the five canonical `www` URLs were submitted and indexed, while the apex hostname correctly resolved as a redirect to the indexed `www` homepage. | `CAPTURED` |
 | 2026-08-03 | Weekly GSC/GA4 | Authenticated read-only workflow run `30812538721`, covering 2026-07-27 through 2026-08-02: GSC 772 impressions, 1 click, 0.13% CTR and average position 59.56; GA4 43 total sessions, 3 users and 486 views (Direct), and 0 organic sessions with 0 organic retailer-offer clicks; sitemap 1,088 submitted URLs, 0 warnings and 0 errors. | `CAPTURED PARTIAL`; SEO-07 remains blocked on aggregate indexed/excluded totals, Core Web Vitals and Links evidence. |
 | 2026-08-06 | Search Console manual export | Coverage export (updated 2026-07-24): 794 indexed pages, 181 not indexed pages. Major exclusion reasons: 27 noindex, 6 404, 5 robots.txt blocked, 4 redirect, 1 alternate canonical, 133 discovered not indexed, 5 crawled not indexed. | `CAPTURED PARTIAL`; SEO-07 remains blocked on Core Web Vitals and Links evidence. |
@@ -290,6 +291,23 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 August 2026 — SEO-13 Glucosamine no-click reinforcement local candidate
+
+- The fresh authenticated weekly report for 10–16 August recorded 90
+  impressions, zero clicks and average position 68.94 for `/glucosamine`, the
+  largest no-click landing page in the report's current top-ten page sample.
+- The report does not include page-query pairs, so the existing title, H1,
+  description, canonical, relevance gate and crawlable pagination were
+  preserved rather than guessing which ranking terms to rewrite.
+- The first page now adds one dynamic quick answer using the already sorted
+  landing results: current matching-product count, lowest known delivered
+  price and its canonical product link. The copy limits the claim to current
+  SupplementScout retailer coverage and tells shoppers to confirm changing
+  price and stock before buying.
+- The focused category landing suite passed 16/16; targeted ESLint, TypeScript
+  and `git diff --check` also passed. Publication and live verification remain
+  required before this candidate can be marked `LIVE VERIFIED`.
 
 ### 17 August 2026 — approved Whey Okay freshness preflight repaired
 

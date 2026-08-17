@@ -14,6 +14,7 @@ import {
   getLandingProducts,
   isReviewedLandingProductMatch,
 } from "../lib/products";
+import { formatCurrency } from "../lib/pricing";
 
 export const revalidate = 3600;
 
@@ -62,6 +63,9 @@ export default async function GlucosaminePage({
     redirect(categoryLandingPageHref(basePath, page));
   }
 
+  const lowestDeliveredProduct =
+    page === 1 && results[0]?.cheapestOffer ? results[0] : null;
+
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
@@ -100,6 +104,45 @@ export default async function GlucosaminePage({
           </p>
         </div>
       </section>
+
+      {lowestDeliveredProduct && (
+        <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
+          <div className="max-w-3xl rounded-xl border border-zinc-200 bg-white p-5 sm:p-6">
+            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              Quick price answer
+            </p>
+            <h2 className="mt-2 text-2xl font-bold">
+              What is the lowest current Glucosamine delivered price?
+            </h2>
+            <p className="mt-3 leading-7 text-zinc-700">
+              Of the {totalCount} matching products currently in this
+              comparison, the lowest known delivered price is{" "}
+              <strong>
+                {formatCurrency(
+                  lowestDeliveredProduct.cheapestOffer!.deliveredPrice
+                    .totalPrice
+                )}
+              </strong>{" "}
+              for{" "}
+              <Link
+                href={`/product/${
+                  lowestDeliveredProduct.slug || lowestDeliveredProduct.id
+                }`}
+                className="font-semibold text-zinc-950 underline"
+              >
+                {lowestDeliveredProduct.name}
+              </Link>
+              .
+            </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              This is the lowest recently checked total in SupplementScout&apos;s
+              current retailer coverage, not a claim about every UK seller.
+              Prices and stock can change, so confirm the final amount before
+              buying.
+            </p>
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
