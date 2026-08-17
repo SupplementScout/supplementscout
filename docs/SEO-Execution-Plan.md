@@ -306,10 +306,29 @@ SEO-07 manual evidence queue is now complete:
   from the single `Ghost 100% Whey Protein 907g` family changed from in stock to
   OOS at an unchanged GBP 39.87. Zero database writes and zero approvals were
   performed.
-- The generic OOS limit remains unchanged. Those six exact stock transitions
-  require an owner-reviewed, SHA-bound scope before any apply. All other Whey
-  Okay refresh changes remain blocked with them, so this is a current catalogue
-  freshness and comparison-click constraint rather than completion evidence.
+- The owner explicitly approved only those six Ghost stock transitions. Commit
+  `d422910` added a SHA-bound production-only selector and tests that reject a
+  seventh row, a different selector, staging use, source drift or any attempt
+  to bypass `MASS_CHANGE` / `MASS_PRICE`; the generic OOS limit stayed
+  unchanged. The production dry-run passed 586/586 mappings in 12 batches.
+- The first apply failed before business writes because the registration RPC
+  still pinned the pre-creatine-merge manifest SHA. Commit `9f847f3` added one
+  reversible migration that changes only that exact hash. Its production
+  rehearsal and apply preserved all product, variant, mapping, offer and price
+  history row counts; the migration ledger advanced from 113 to 114.
+- The guarded refresh then passed. It refreshed all 586 approved offers,
+  applied exactly six reviewed OOS transitions, seven normal price changes and
+  four normal URL changes, and created seven price-history rows. Product,
+  variant, mapping, offer and retailer row counts were unchanged; 12 approvals
+  were created and consumed and no recovery call was required.
+- A final ordinary dry-run without the reviewed selector returned
+  `VERIFY_NO_CHANGE: 586`, zero price/stock/URL deltas and zero new price-history
+  rows. The special approval is therefore no longer needed for routine runs.
+- The immediate 24-hour Protein Bars gate was rechecked after the refresh.
+  Eleven products passed the identity/format/pack boundary, but only three were
+  visible with 15 fresh offers, one retailer and zero multi-retailer products.
+  The unchanged `3 / 2 / 20` gate remains closed; no route or thin page was
+  created.
 
 ### 17 August 2026 — WheyWise competitive spot check
 

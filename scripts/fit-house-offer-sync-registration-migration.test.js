@@ -19,9 +19,9 @@ test("migration is hash-bound and transactional", () => {
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 79);
   assert.deepEqual(
     selector.CONTRACTS.PRODUCTION.pending.map(({ filename }) => filename),
-    ["20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql"],
+    [],
   );
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 113);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 114);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });

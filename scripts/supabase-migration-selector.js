@@ -128,9 +128,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 113,
+    ledgerCount: 114,
     ledgerFingerprint:
-      "000c4464c63fbfded955d8ca1a4a29b75e122fe277e34be33b30a5a6ddbaaed4",
+      "c783bd03207ff7b1e18fca8bd5dd4e2641a8330bd4b878dd3f53a68434da56a4",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -147,15 +147,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename:
-          "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
-        sha256:
-          "a586d67e2141d4139d7f39370e7562fb752b0ae1d9609cc730cac9b9195b74e6",
-        expectedCatalogueDeltas: Object.freeze({}),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
