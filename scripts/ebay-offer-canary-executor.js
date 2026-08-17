@@ -3,14 +3,20 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
 const { loadDryRunArtifact } = require("./import-products");
+const { assertConfig, DEFAULT_POLICY, evaluateItem, getApplicationToken } = require("./lib/ebay-browse-pilot");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const KIND = "ebay-offer-batch-e-exact-1-v1";
-const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_E_EXACT_1";
-const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-e-rollout.json");
+const KIND = "ebay-offer-batch-f-exact-2-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_BATCH_F_EXACT_2";
+const ROLLOUT_PATH = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary", "batch-f-rollout.json");
 const EXPECTED_SCOPE = [
-  { product_id: "1107", product_variant_id: "2401", gtin: "5902114017811", external_product_id: "204137434720", external_variant_id: "v1|204137434720|0", flavour: "unflavoured", size_value: "400", size_unit: "g", pack_count: "1", product_format: "powder", price: "19.95", shipping_cost: "0", total_price: "19.95" },
+  { product_id: "520", product_variant_id: "1025", gtin: "5901330044861", external_product_id: "407021140091", external_variant_id: "v1|407021140091|677211935188", flavour: "blueberry", size_value: "480", size_unit: "g", pack_count: "1", product_format: "powder", price: "34.99", shipping_cost: "3.99", total_price: "38.98" },
+  { product_id: "134", product_variant_id: "1644", gtin: "4029679671522", external_product_id: "306694054274", external_variant_id: "v1|306694054274|0", flavour: "gourmet vanilla", size_value: "2270", size_unit: "g", pack_count: "1", product_format: "powder", price: "149", shipping_cost: "0", total_price: "149" },
+];
+const LIVE_EXPECTATIONS = [
+  { brand: "Olimp", product_name: "Olimp Redweiler Preworkout 480g", flavour_label: "Blueberry", seller: "muscle-factory-co-uk", review_reasons: ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"] },
+  { brand: "Dymatize", product_name: "Dymatize Iso 100 2.27Kg", flavour_label: "Gourmet Vanilla", seller: "snober_trade_ltd", review_reasons: ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"] },
 ];
 
 function fail(message) { throw new Error(message); }
@@ -23,12 +29,46 @@ function parseArgs(argv) {
     if (!match || options[match[1]] !== undefined) fail(`Invalid argument ${argument}`);
     options[match[1]] = match[2];
   }
-  if (!new Set(["validate", "apply"]).has(options.mode)) fail("Required --mode=validate|apply");
+  if (!new Set(["preflight", "validate", "apply"]).has(options.mode)) fail("Required --mode=preflight|validate|apply");
   if (!options.output) fail("Required --output=<path>");
   options.output = path.resolve(options.output);
   const relative = path.relative(path.join(ROOT, "tmp"), options.output);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Output must be inside repository tmp");
   return options;
+}
+
+function sameSet(left, right) {
+  return left.length === right.length && [...left].sort().every((value, index) => value === [...right].sort()[index]);
+}
+
+async function validateLiveSources(fetchImpl = fetch, env = process.env) {
+  const config = assertConfig(env);
+  if (!config.campaign_id) fail("EPN campaign ID is required");
+  const token = await getApplicationToken(config, fetchImpl);
+  const rows = [];
+  for (let index = 0; index < EXPECTED_SCOPE.length; index += 1) {
+    const scope = EXPECTED_SCOPE[index];
+    const live = LIVE_EXPECTATIONS[index];
+    const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`, `affiliateCampaignId=${encodeURIComponent(config.campaign_id)}`].join(",");
+    const response = await fetchImpl(`https://api.ebay.com/buy/browse/v1/item/${encodeURIComponent(scope.external_variant_id)}`, { headers: { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id, "X-EBAY-C-ENDUSERCTX": context } });
+    if (!response.ok) fail(`Batch F item ${scope.external_variant_id} direct read failed with HTTP ${response.status}`);
+    const item = await response.json();
+    if (String(item.itemId) !== scope.external_variant_id || String(item.legacyItemId) !== scope.external_product_id) fail(`Batch F item identity drift at row ${index + 1}`);
+    const evaluation = evaluateItem({
+      product_id: scope.product_id, variant_id: scope.product_variant_id, gtin: scope.gtin,
+      brand: live.brand, product_name: live.product_name, flavour_label: live.flavour_label,
+      size_value: Number(scope.size_value), size_unit: scope.size_unit, pack_count: Number(scope.pack_count),
+      product_format: scope.product_format, current_retailer_count: 1, current_retailer_identities: [],
+    }, item, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
+    if (
+      evaluation.seller?.username !== live.seller || evaluation.blockers.length || !evaluation.affiliate_ready ||
+      !sameSet(evaluation.review_reasons, live.review_reasons) ||
+      String(evaluation.item_price?.value) !== scope.price || String(evaluation.uk_shipping?.value) !== scope.shipping_cost ||
+      String(evaluation.delivered_price?.value) !== scope.total_price
+    ) fail(`Batch F live safety evidence drift at row ${index + 1}`);
+    rows.push({ product_id: scope.product_id, product_variant_id: scope.product_variant_id, item_id: scope.external_variant_id, seller: live.seller, decision: evaluation.decision, review_reasons: evaluation.review_reasons, delivered_price: evaluation.delivered_price.value });
+  }
+  return rows;
 }
 
 function validateRollout() {
@@ -76,7 +116,7 @@ function validateRollout() {
     const plan = entry.resolved_plan;
     if (
       entry.plan_fingerprint !== approved.plan_fingerprint || entry.source_row_fingerprint !== approved.source_row_fingerprint ||
-      entry.plan_kind !== "manual" || String(entry.retailer_id) !== "12" ||
+      entry.plan_kind !== "feed" || String(entry.retailer_id) !== "12" ||
       String(plan.product?.id) !== expected.product_id || plan.product?.action !== "existing" ||
       String(plan.product_variant?.id) !== expected.product_variant_id || plan.product_variant?.action !== "existing" ||
       plan.product_variant?.evidence?.flavour !== expected.flavour ||
@@ -158,14 +198,16 @@ async function executePlan(item, approvalKind = KIND) {
   };
 }
 
-async function run(options) {
+async function run(options, dependencies = {}) {
   if (
     process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REF !== "refs/heads/main" ||
     process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" || process.env.EBAY_CANARY_OWNER_CONFIRMATION !== CONFIRMATION
   ) fail("Production canary requires the exact owner-approved manual GitHub Actions dispatch on main");
   const validated = validateRollout();
   const rows = [];
-  if (options.mode === "apply") {
+  if (options.mode === "preflight") {
+    rows.push(...await validateLiveSources(dependencies.fetchImpl || fetch, dependencies.env || process.env));
+  } else if (options.mode === "apply") {
     for (const item of validated.entries) rows.push(await executePlan(item));
   }
   const report = {
@@ -173,7 +215,8 @@ async function run(options) {
     kind: `${KIND}-${options.mode}`,
     rollout_fingerprint: validated.rollout.rollout_fingerprint,
     validated_plan_count: validated.entries.length,
-    executed_plan_count: rows.length,
+    live_checked_count: options.mode === "preflight" ? rows.length : 0,
+    executed_plan_count: options.mode === "apply" ? rows.length : 0,
     rows,
     completed_at: new Date().toISOString(),
   };
@@ -188,4 +231,4 @@ if (require.main === module) {
     .catch((error) => { console.error(error.message); process.exit(1); });
 }
 
-module.exports = { CONFIRMATION, EXPECTED_SCOPE, executePlan, parseArgs, validateRollout };
+module.exports = { CONFIRMATION, EXPECTED_SCOPE, LIVE_EXPECTATIONS, executePlan, parseArgs, validateLiveSources, validateRollout };

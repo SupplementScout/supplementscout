@@ -8,6 +8,13 @@
     "approved_for_production_dry_run": true,
     "approved_for_production_apply": false
   },
+  "production_apply_approval": {
+    "confirmation": "Zatwierdzam produkcyjny apply Batch F — dokładnie te 2",
+    "executor_confirmation": "OWNER_APPROVED_EBAY_BATCH_F_EXACT_2",
+    "approved": true,
+    "scope_count": 2,
+    "rollout_fingerprint": "3c34757ddff5fbfe6d7bb09b34b141a4b126600d1eb5c3e1bf699f54e3b7f59d"
+  },
   "target_project_ref": "aftboxmrdgyhizicfsfu",
   "csv": "docs/rollouts/ebay-offer-canary/batch-f.csv",
   "csv_sha256": "0623ace99bf29f3ac9ca58a0553199032af95469a26980acf2c3684bc8e4535a",

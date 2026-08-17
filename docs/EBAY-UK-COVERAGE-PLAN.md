@@ -49,8 +49,9 @@ row continues to fail closed independently if its approved identity or safety
 evidence changes. A fresh expansion audit found no unseen identity in the
 current GTIN-qualified discovery pool and reduced the remaining reviewed-item
 queue to two exact owner-reviewed Batch F candidates. Their preparation and
-production dry-run are complete; production apply is not authorised and neither
-offer is live yet.
+production dry-run are complete and the owner separately authorised production
+apply of exactly those two plans; execution and live verification are still
+pending, so neither offer is represented as live yet.
 Credential values remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
@@ -1854,13 +1855,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner review of the successful, zero-write Batch F dry-run bound
-to docs/rollouts/ebay-offer-canary/batch-f.csv at SHA-256
-0623ace99bf29f3ac9ca58a0553199032af95469a26980acf2c3684bc8e4535a.
-Production apply requires a new explicit approval for exactly its two create
-plans; the existing preparation/dry-run approval is insufficient. If approved,
-bind only those current fresh plans to the existing guarded executor, require
-an immediate exact no-op postflight and independently verify both public pages.
+`NEXT ACTION: Execute the separately owner-approved Batch F exact-two rollout
+through the existing guarded eBay canary workflow with confirmation
+OWNER_APPROVED_EBAY_BATCH_F_EXACT_2. The workflow must freshly re-read both
+sealed items before any write, validate the two immutable plans, require an
+immediate exact no-op postflight and independently verify both public pages.
 Do not include any of the other 13 checked rows or weaken seller, identity,
 GTIN, format, flavour, size, delivery or affiliate gates. Separately monitor
 the already enabled exact-20 scheduled refresh at 05:43 UTC on 18 August 2026
@@ -2027,6 +2026,15 @@ owner-reviewed production design and approval.
   SHA-256 `6fa9ce81c1d3e6e9e2f32954bba2ce295141480c2c5d454bf507e3a15e444b12`.
   The pack explicitly records `approved_for_production_apply: false`; no apply
   or public change occurred.
+- The owner then separately confirmed `Zatwierdzam produkcyjny apply Batch F —
+  dokładnie te 2`. Rollout fingerprint
+  `3c34757ddff5fbfe6d7bb09b34b141a4b126600d1eb5c3e1bf699f54e3b7f59d`
+  binds the exact two plans, CSV and dry-run artifact to executor confirmation
+  `OWNER_APPROVED_EBAY_BATCH_F_EXACT_2`. The existing canary workflow now adds a
+  direct live preflight before apply and requires a two-row exact no-op
+  postflight. Local rollout, workflow and drift tests pass 31/31. This records
+  authority and guarded release preparation only; production execution and
+  public verification remain pending.
 
 16 August 2026:
 

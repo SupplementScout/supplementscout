@@ -1,0 +1,79 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-17T15:42:51.586Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "3035a2bbab318fe41e097cda20e0b3ac",
+      "plan_kind": "feed",
+      "resolved_plan": {
+        "approval": { "approval_type": "none", "approved": false },
+        "expected_state": {
+          "offer": null,
+          "product": { "id": "520", "is_active": true, "merged_into_product_id": null, "name": "Olimp Redweiler Preworkout 480g", "product_format": null },
+          "product_variant": { "display_name": "Blueberry / 480g", "flavour_code": "blueberry", "flavour_label": "Blueberry", "id": "1025", "is_active": true, "is_default": false, "pack_count": "1", "product_format": "powder", "product_id": "520", "size_unit": "g", "size_value": "480", "variant_key": "blueberry-480g" },
+          "retailer": { "id": "12", "name": "eBay UK", "slug": "ebay-uk", "website": "https://www.ebay.co.uk" },
+          "retailer_product": null
+        },
+        "meta": { "operation_type": "standard_import", "plan_fingerprint": "3035a2bbab318fe41e097cda20e0b3ac", "plan_kind": "feed", "source_row_fingerprint": "16839181b85771b80f6653496b7d7a67c00abc6d4989886534ab4068cf88a9c8", "version": "2" },
+        "offer": { "action": "create", "values": { "in_stock": true, "last_checked_at": "2026-08-17T15:42:51.581Z", "price": "34.99", "shipping_cost": "3.99", "total_price": "38.98", "url": "https://www.ebay.co.uk/itm/407021140091?var=677211935188&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050" } },
+        "price_history": { "action": "create" },
+        "product": { "action": "existing", "id": "520" },
+        "product_variant": { "action": "existing", "evidence": { "approved_mapping_id": null, "external_options": { "Flavour": "Blueberry", "Size": "480g" }, "flavour": "blueberry", "pack_count": "1", "product_format": "powder", "size_unit": "g", "size_value": "480" }, "id": "1025" },
+        "retailer": { "action": "existing", "id": "12" },
+        "retailer_product": { "action": "create", "values": { "external_gtin": "5901330044861", "external_name": "Olimp Redweiler Preworkout 480g", "external_options": { "Flavour": "Blueberry", "Size": "480g" }, "external_product_id": "407021140091", "external_sku": null, "external_slug": "ebay-407021140091-677211935188", "external_url": "https://www.ebay.co.uk/itm/407021140091?var=677211935188", "external_variant_id": "v1|407021140091|677211935188", "match_confidence": "100", "match_method": "gtin", "product_variant_id": "1025" } }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "16839181b85771b80f6653496b7d7a67c00abc6d4989886534ab4068cf88a9c8"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "509dca4d2f43ec7990be9b9320f43b70",
+      "plan_kind": "feed",
+      "resolved_plan": {
+        "approval": { "approval_type": "none", "approved": false },
+        "expected_state": {
+          "offer": null,
+          "product": { "id": "134", "is_active": true, "merged_into_product_id": null, "name": "Dymatize Iso 100 2.27Kg", "product_format": "powder" },
+          "product_variant": { "display_name": "Gourmet Vanilla / 2.27kg", "flavour_code": "gourmet vanilla", "flavour_label": "Gourmet Vanilla", "id": "1644", "is_active": true, "is_default": false, "pack_count": "1", "product_format": "powder", "product_id": "134", "size_unit": "g", "size_value": "2270", "variant_key": "gourmet-vanilla-2270g" },
+          "retailer": { "id": "12", "name": "eBay UK", "slug": "ebay-uk", "website": "https://www.ebay.co.uk" },
+          "retailer_product": null
+        },
+        "meta": { "operation_type": "standard_import", "plan_fingerprint": "509dca4d2f43ec7990be9b9320f43b70", "plan_kind": "feed", "source_row_fingerprint": "f08abc4dd782a7e59b8bcfe22fbcfc2578066b1aa4faeb4294305b4f58917f75", "version": "2" },
+        "offer": { "action": "create", "values": { "in_stock": true, "last_checked_at": "2026-08-17T15:42:51.584Z", "price": "149", "shipping_cost": "0", "total_price": "149", "url": "https://www.ebay.co.uk/itm/306694054274?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050" } },
+        "price_history": { "action": "create" },
+        "product": { "action": "existing", "id": "134" },
+        "product_variant": { "action": "existing", "evidence": { "approved_mapping_id": null, "external_options": { "Flavour": "Gourmet Vanilla", "Size": "2270g" }, "flavour": "gourmet vanilla", "pack_count": "1", "product_format": "powder", "size_unit": "g", "size_value": "2270" }, "id": "1644" },
+        "retailer": { "action": "existing", "id": "12" },
+        "retailer_product": { "action": "create", "values": { "external_gtin": "4029679671522", "external_name": "Dymatize Iso 100 2.27Kg", "external_options": { "Flavour": "Gourmet Vanilla", "Size": "2270g" }, "external_product_id": "306694054274", "external_sku": null, "external_slug": "ebay-306694054274", "external_url": "https://www.ebay.co.uk/itm/306694054274", "external_variant_id": "v1|306694054274|0", "match_confidence": "100", "match_method": "gtin", "product_variant_id": "1644" } }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "f08abc4dd782a7e59b8bcfe22fbcfc2578066b1aa4faeb4294305b4f58917f75"
+    }
+  ],
+  "row_count": "2",
+  "run_id": "0fd51c64-43aa-4017-bfd8-44a6f6256120",
+  "source_file_name": "batch-f.csv",
+  "source_file_sha256": "0623ace99bf29f3ac9ca58a0553199032af95469a26980acf2c3684bc8e4535a",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/407021140091?var=677211935188&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Olimp", "category": "Pre Workout", "external_gtin": "5901330044861", "external_options": "{\"Size\":\"480g\",\"Flavour\":\"Blueberry\"}", "external_product_id": "407021140091", "external_sku": "", "external_url": "https://www.ebay.co.uk/itm/407021140091?var=677211935188", "external_variant_id": "v1|407021140091|677211935188", "flavour": "Blueberry", "image": "https://i.ebayimg.com/images/g/HK8AAeSwZVNqOjnG/s-l1600.jpg", "in_stock": "true", "is_for_sale": "true", "pack_count": "1", "price": "34.99", "product_format": "powder", "product_id": "520", "product_name": "Olimp Redweiler Preworkout 480g", "product_variant_id": "1025", "retailer_name": "eBay UK", "retailer_website": "https://www.ebay.co.uk", "shipping_cost": "3.99", "shipping_known": "true", "size": "480 g", "size_unit": "g", "slug": "ebay-407021140091-677211935188", "variant": "Blueberry / 480g pack of 1", "variant_name": "Blueberry / 480g"
+      },
+      "plan_fingerprint": "3035a2bbab318fe41e097cda20e0b3ac", "row_number": "2", "source_row_fingerprint": "16839181b85771b80f6653496b7d7a67c00abc6d4989886534ab4068cf88a9c8", "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/306694054274?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Dymatize", "category": "Whey Protein", "external_gtin": "4029679671522", "external_options": "{\"Size\":\"2270g\",\"Flavour\":\"Gourmet Vanilla\"}", "external_product_id": "306694054274", "external_sku": "", "external_url": "https://www.ebay.co.uk/itm/306694054274", "external_variant_id": "v1|306694054274|0", "flavour": "Gourmet Vanilla", "image": "https://i.ebayimg.com/images/g/H1AAAeSwkwVpWuxi/s-l1600.jpg", "in_stock": "true", "is_for_sale": "true", "pack_count": "1", "price": "149", "product_format": "powder", "product_id": "134", "product_name": "Dymatize Iso 100 2.27Kg", "product_variant_id": "1644", "retailer_name": "eBay UK", "retailer_website": "https://www.ebay.co.uk", "shipping_cost": "0", "shipping_known": "true", "size": "2270 g", "size_unit": "g", "slug": "ebay-306694054274", "variant": "Gourmet Vanilla / 2.27kg pack of 1", "variant_name": "Gourmet Vanilla / 2.27kg"
+      },
+      "plan_fingerprint": "509dca4d2f43ec7990be9b9320f43b70", "row_number": "3", "source_row_fingerprint": "f08abc4dd782a7e59b8bcfe22fbcfc2578066b1aa4faeb4294305b4f58917f75", "status": "planned"
+    }
+  ],
+  "summary": { "blocked_row_count": "0", "plan_count": "2", "skipped_row_count": "0" }
+}

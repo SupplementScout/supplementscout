@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-f-exact-2-v1",
+  "approved": true,
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_F_EXACT_2",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-f.csv",
+  "csv_sha256": "0623ace99bf29f3ac9ca58a0553199032af95469a26980acf2c3684bc8e4535a",
+  "artifact": "docs/rollouts/ebay-offer-canary/batch-f-artifact.json",
+  "artifact_sha256": "502091480049111adbde70fd4a9d964a767c2a451d99077c65bc20151c56efa2",
+  "entries": [
+    { "plan_fingerprint": "3035a2bbab318fe41e097cda20e0b3ac", "source_row_fingerprint": "16839181b85771b80f6653496b7d7a67c00abc6d4989886534ab4068cf88a9c8", "product_id": "520", "product_variant_id": "1025", "gtin": "5901330044861", "external_product_id": "407021140091", "external_variant_id": "v1|407021140091|677211935188", "flavour": "blueberry", "size_value": "480", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "34.99", "shipping_cost": "3.99", "total_price": "38.98" },
+    { "plan_fingerprint": "509dca4d2f43ec7990be9b9320f43b70", "source_row_fingerprint": "f08abc4dd782a7e59b8bcfe22fbcfc2578066b1aa4faeb4294305b4f58917f75", "product_id": "134", "product_variant_id": "1644", "gtin": "4029679671522", "external_product_id": "306694054274", "external_variant_id": "v1|306694054274|0", "flavour": "gourmet vanilla", "size_value": "2270", "size_unit": "g", "pack_count": "1", "product_format": "powder", "price": "149", "shipping_cost": "0", "total_price": "149" }
+  ],
+  "rollout_fingerprint": "3c34757ddff5fbfe6d7bb09b34b141a4b126600d1eb5c3e1bf699f54e3b7f59d"
+}
