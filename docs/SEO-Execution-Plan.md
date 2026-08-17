@@ -397,8 +397,15 @@ SEO-07 manual evidence queue is now complete:
   introduced.
 - The focused landing suite passed 15 tests. Targeted ESLint and TypeScript,
   `npm run verify:quick` and `npm run verify:full`, including the Next.js
-  production build, passed. This remains local release evidence until the
-  title, H1, quick answer, canonical and robots state are verified publicly.
+  production build, passed.
+- Commit `3815e01` was pushed to `main` and deployed. A cache-bypassed public
+  read returned HTTP 200, title and H1 `Omega 3 Prices UK – Compare Delivered
+  Cost`, the updated description, the exact `/omega-3` canonical and ordinary
+  index/follow behaviour. The server-rendered answer used 24 current matching
+  products and stated a lowest known delivered price of GBP 6.23 for `Omega 3
+  Capsules 500mg`, linked to its canonical product, with the current-coverage
+  limitation visible. The Omega 3 enhancement is `LIVE VERIFIED`; the wider
+  active cluster remains `IN PROGRESS`.
 
 ### 17 August 2026 — SEO-13 Whey Isolate cost-intent local enhancement
 
