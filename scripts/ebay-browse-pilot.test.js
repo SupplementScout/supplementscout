@@ -217,7 +217,7 @@ test("title-lead search remains GET-only and does not pretend to be exact-GTIN s
   assert.doesNotMatch(search, /[?&]gtin=/);
 });
 
-test("eBay refresh is frozen to the exact 22 approved existing offers", () => {
+test("eBay refresh is frozen to the exact 31 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
@@ -226,20 +226,28 @@ test("eBay refresh is frozen to the exact 22 approved existing offers", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
-  assert.equal(REFRESH_SCOPES.length, 22);
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 22 }, (_, index) => String(2539 + index)));
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.retailer_product_id), Array.from({ length: 22 }, (_, index) => String(2724 + index)));
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 22);
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.gtin)).size, 22);
-  assert.deepEqual(REFRESH_SCOPES.slice(-2).map((scope) => ({
+  assert.equal(REFRESH_SCOPES.length, 31);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 31 }, (_, index) => String(2539 + index)));
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.retailer_product_id), Array.from({ length: 31 }, (_, index) => String(2724 + index)));
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 31);
+  assert.equal(new Set(REFRESH_SCOPES.slice(0, 22).map((scope) => scope.gtin)).size, 22);
+  assert.ok(REFRESH_SCOPES.slice(22).every((scope) => scope.gtin === ""));
+  assert.deepEqual(REFRESH_SCOPES.slice(-9).map((scope) => ({
     product_id: scope.product_id,
     product_variant_id: scope.product_variant_id,
     external_variant_id: scope.external_variant_id,
     retailer_product_id: scope.retailer_product_id,
     offer_id: scope.offer_id,
   })), [
-    { product_id: "520", product_variant_id: "1025", external_variant_id: "v1|407021140091|677211935188", retailer_product_id: "2744", offer_id: "2559" },
-    { product_id: "134", product_variant_id: "1644", external_variant_id: "v1|306694054274|0", retailer_product_id: "2745", offer_id: "2560" },
+    { product_id: "865", product_variant_id: "1307", external_variant_id: "v1|234804379561|534609926235", retailer_product_id: "2746", offer_id: "2561" },
+    { product_id: "865", product_variant_id: "1308", external_variant_id: "v1|234804379561|534609926237", retailer_product_id: "2747", offer_id: "2562" },
+    { product_id: "868", product_variant_id: "1322", external_variant_id: "v1|406077245568|676400597329", retailer_product_id: "2748", offer_id: "2563" },
+    { product_id: "885", product_variant_id: "1420", external_variant_id: "v1|267663811829|567469691560", retailer_product_id: "2749", offer_id: "2564" },
+    { product_id: "789", product_variant_id: "1090", external_variant_id: "v1|236709473396|537208106165", retailer_product_id: "2750", offer_id: "2565" },
+    { product_id: "1026", product_variant_id: "2148", external_variant_id: "v1|800474478717|0", retailer_product_id: "2751", offer_id: "2566" },
+    { product_id: "1048", product_variant_id: "2192", external_variant_id: "v1|386965889224|0", retailer_product_id: "2752", offer_id: "2567" },
+    { product_id: "1021", product_variant_id: "2138", external_variant_id: "v1|325098747981|0", retailer_product_id: "2753", offer_id: "2568" },
+    { product_id: "1028", product_variant_id: "2152", external_variant_id: "v1|366034420732|0", retailer_product_id: "2754", offer_id: "2569" },
   ]);
 });
 
@@ -278,7 +286,7 @@ test("eBay existing-listing continuity tolerates only narrow evidence disappeara
 });
 
 test("Batch F refresh continuity is exact to each reviewed item, seller and missing-evidence set", () => {
-  const [olimp, dymatize] = REFRESH_SCOPES.slice(-2);
+  const [olimp, dymatize] = REFRESH_SCOPES.slice(20, 22);
   const evaluation = (scope, seller, review_reasons) => ({
     decision: "REVIEW",
     item_id: scope.external_variant_id,
@@ -288,7 +296,7 @@ test("Batch F refresh continuity is exact to each reviewed item, seller and miss
     review_reasons,
     affiliate_ready: true,
     affiliate_url: scope.affiliate_url,
-    seller: { username: seller },
+    seller: { username: seller, account_type: "BUSINESS" },
   });
 
   assert.equal(classifyContinuity(olimp, evaluation(olimp, "muscle-factory-co-uk", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"])).tier, "sealed_owner_reviewed_missing_gtin_continuity");
@@ -296,6 +304,33 @@ test("Batch F refresh continuity is exact to each reviewed item, seller and miss
   assert.equal(classifyContinuity(olimp, evaluation(olimp, "different-seller", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"])).eligible, false);
   assert.equal(classifyContinuity(olimp, evaluation(olimp, "muscle-factory-co-uk", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"])).eligible, false);
   assert.equal(classifyContinuity(dymatize, { ...evaluation(dymatize, "snober_trade_ltd", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]), item_id: "v1|other|0" }).eligible, false);
+});
+
+test("Batch G refresh continuity remains sealed to the nine reviewed listings and business sellers", () => {
+  const scopes = REFRESH_SCOPES.slice(22);
+  const reviewed = [
+    ["icebergsupplements", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]],
+    ["icebergsupplements", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]],
+    ["muscle-factory-co-uk", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]],
+    ["gorilla_muscle", ["RETURNED_GTIN_UNPROVEN"]],
+    ["dcelectricsltd", ["RETURNED_GTIN_UNPROVEN"]],
+    ["ccolta", ["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]],
+    ["ccolta", ["FLAVOUR_UNPROVEN", "FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]],
+    ["trainingfuels", ["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]],
+    ["healthyessentialsuk", ["FLAVOUR_UNPROVEN", "FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]],
+  ];
+  const evaluation = (scope, seller, reasons, accountType = "BUSINESS") => ({
+    decision: "REVIEW", item_id: scope.external_variant_id, legacy_item_id: scope.external_product_id,
+    returned_gtin: null, blockers: [], review_reasons: reasons, affiliate_ready: true,
+    affiliate_url: scope.affiliate_url, seller: { username: seller, account_type: accountType },
+  });
+
+  for (let index = 0; index < scopes.length; index += 1) {
+    assert.equal(classifyContinuity(scopes[index], evaluation(scopes[index], ...reviewed[index])).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  }
+  assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], "different-seller", reviewed[0][1])).eligible, false);
+  assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], reviewed[0][0], reviewed[0][1], "INDIVIDUAL")).eligible, false);
+  assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], reviewed[0][0], ["RETURNED_GTIN_UNPROVEN"])).eligible, false);
 });
 
 test("eBay refresh reads the approved item directly and remains GET-only", async () => {
@@ -336,7 +371,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_22/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_31/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
