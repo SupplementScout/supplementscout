@@ -367,6 +367,11 @@ test("metadata is canonical and indexability follows live coverage", async () =>
   };
   const readyPage = loadPage(readyResult);
   const readyMetadata = await readyPage.page.generateMetadata();
+  assert.equal(readyMetadata.title, "Compare Whey Protein Prices UK");
+  assert.equal(
+    readyMetadata.description,
+    "Compare current Whey Protein prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.",
+  );
   assert.equal(readyMetadata.alternates.canonical, "/whey-protein");
   assert.deepEqual(readyMetadata.robots, { index: true, follow: true });
 
@@ -407,6 +412,11 @@ test("server-rendered page explains ranking, delivery and verification limits", 
   );
 
   assert.match(html, /Compare Whey Protein Prices UK/);
+  assert.match(html, /What is the lowest current Whey Protein delivered price\?/);
+  assert.match(html, /Across 2 Whey Protein products with recently checked offers/);
+  assert.match(html, /lowest known delivered price is <strong>£28\.99<\/strong>/);
+  assert.match(html, /href="\/product\/example-whey-protein-1kg"/);
+  assert.match(html, /not a claim about every UK seller/);
   assert.match(html, /Includes known delivery/);
   assert.match(html, /coverage-first comparison/i);
   assert.match(html, /not a claim that the first product is nutritionally superior/i);
