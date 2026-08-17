@@ -321,7 +321,7 @@ test("Batch G refresh continuity remains sealed to the nine reviewed listings an
   ];
   const evaluation = (scope, seller, reasons, accountType = "BUSINESS") => ({
     decision: "REVIEW", item_id: scope.external_variant_id, legacy_item_id: scope.external_product_id,
-    returned_gtin: null, blockers: [], review_reasons: reasons, affiliate_ready: true,
+    returned_gtin: null, blockers: ["CANONICAL_GTIN_INVALID"], review_reasons: reasons, affiliate_ready: true,
     affiliate_url: scope.affiliate_url, seller: { username: seller, account_type: accountType },
   });
 
@@ -331,6 +331,7 @@ test("Batch G refresh continuity remains sealed to the nine reviewed listings an
   assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], "different-seller", reviewed[0][1])).eligible, false);
   assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], reviewed[0][0], reviewed[0][1], "INDIVIDUAL")).eligible, false);
   assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], reviewed[0][0], ["RETURNED_GTIN_UNPROVEN"])).eligible, false);
+  assert.equal(classifyContinuity(scopes[0], { ...evaluation(scopes[0], reviewed[0][0], reviewed[0][1]), blockers: ["CANONICAL_GTIN_INVALID", "GTIN_MISMATCH"], returned_gtin: "6009544910770" }).eligible, false);
 });
 
 test("eBay refresh reads the approved item directly and remains GET-only", async () => {

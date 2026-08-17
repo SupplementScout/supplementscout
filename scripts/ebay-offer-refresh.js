@@ -120,16 +120,20 @@ function assertExecutionContext(mode, env = process.env) {
 
 function classifyContinuity(scope, evaluation) {
   const exactIdentity = evaluation.item_id === scope.external_variant_id && evaluation.legacy_item_id === scope.external_product_id;
-  if (!exactIdentity || evaluation.blockers.length || !evaluation.affiliate_ready || !evaluation.affiliate_url) return { eligible: false, tier: "blocked" };
-  if (evaluation.decision === "AUTO_ELIGIBLE" && evaluation.returned_gtin === scope.gtin) return { eligible: true, tier: "live_exact_gtin" };
+  if (!exactIdentity || !evaluation.affiliate_ready || !evaluation.affiliate_url) return { eligible: false, tier: "blocked" };
+  const blockers = new Set(evaluation.blockers);
   const reasons = new Set(evaluation.review_reasons);
-  if (evaluation.returned_gtin === scope.gtin && reasons.size > 0 && [...reasons].every((reason) => EXACT_GTIN_METADATA_GAPS.has(reason))) return { eligible: true, tier: "live_exact_gtin_with_metadata_gap" };
-  if (scope.gtin && evaluation.returned_gtin === null && reasons.size === 1 && reasons.has("RETURNED_GTIN_UNPROVEN")) return { eligible: true, tier: "sealed_existing_identity_continuity" };
   const reviewed = REVIEWED_MISSING_GTIN_CONTINUITY.get(scope.offer_id);
+  const expectedBlockers = scope.gtin ? new Set() : new Set(["CANONICAL_GTIN_INVALID"]);
   if (
     evaluation.returned_gtin === null && reviewed && evaluation.seller?.username === reviewed.seller && evaluation.seller?.account_type === "BUSINESS" &&
+    blockers.size === expectedBlockers.size && [...blockers].every((blocker) => expectedBlockers.has(blocker)) &&
     reasons.size === reviewed.review_reasons.size && [...reasons].every((reason) => reviewed.review_reasons.has(reason))
   ) return { eligible: true, tier: "sealed_owner_reviewed_missing_gtin_continuity" };
+  if (blockers.size) return { eligible: false, tier: "blocked" };
+  if (evaluation.decision === "AUTO_ELIGIBLE" && evaluation.returned_gtin === scope.gtin) return { eligible: true, tier: "live_exact_gtin" };
+  if (evaluation.returned_gtin === scope.gtin && reasons.size > 0 && [...reasons].every((reason) => EXACT_GTIN_METADATA_GAPS.has(reason))) return { eligible: true, tier: "live_exact_gtin_with_metadata_gap" };
+  if (scope.gtin && evaluation.returned_gtin === null && reasons.size === 1 && reasons.has("RETURNED_GTIN_UNPROVEN")) return { eligible: true, tier: "sealed_existing_identity_continuity" };
   return { eligible: false, tier: "blocked" };
 }
 
@@ -171,8 +175,7 @@ async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = nul
   if (!response.ok) fail(`Approved eBay listing ${scope.external_variant_id} direct read failed with HTTP ${response.status}; automatic OOS is intentionally blocked`);
   const exact = await response.json();
   if (String(exact.itemId) !== scope.external_variant_id || String(exact.legacyItemId) !== scope.external_product_id) fail(`Direct eBay item identity drift for offer ${scope.offer_id}`);
-  const evaluationScope = scope.gtin ? scope : { ...scope, gtin: "6009544910770" };
-  return evaluateItem(evaluationScope, exact, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
+  return evaluateItem(scope, exact, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
 }
 
 async function prepareScope(scope, evaluation, mode, dependencies, stamp) {
