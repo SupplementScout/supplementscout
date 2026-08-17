@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-f-exact-2-dry-run-review-v1",
+  "owner_approval": {
+    "confirmation": "Zatwierdzam Batch F — te 2",
+    "scope": "preparation_and_production_dry_run_only",
+    "approved_for_preparation": true,
+    "approved_for_production_dry_run": true,
+    "approved_for_production_apply": false
+  },
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-f.csv",
+  "csv_sha256": "0623ace99bf29f3ac9ca58a0553199032af95469a26980acf2c3684bc8e4535a",
+  "source_report_fingerprint": "3c678cce052fb8cdb056c98444ff83ee554bdf424e1bb54337806c37d91f0437",
+  "dry_run": {
+    "run_id": "0fd51c64-43aa-4017-bfd8-44a6f6256120",
+    "artifact_sha256": "6fa9ce81c1d3e6e9e2f32954bba2ce295141480c2c5d454bf507e3a15e444b12",
+    "plan_count": 2,
+    "blocked_row_count": 0,
+    "database_writes": 0
+  },
+  "entries": [
+    {
+      "plan_fingerprint": "3035a2bbab318fe41e097cda20e0b3ac",
+      "source_row_fingerprint": "16839181b85771b80f6653496b7d7a67c00abc6d4989886534ab4068cf88a9c8",
+      "product_id": "520",
+      "product_variant_id": "1025",
+      "gtin": "5901330044861",
+      "external_product_id": "407021140091",
+      "external_variant_id": "v1|407021140091|677211935188",
+      "flavour": "blueberry",
+      "size_value": "480",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "34.99",
+      "shipping_cost": "3.99",
+      "total_price": "38.98",
+      "planned_actions": ["retailer_product:create", "offer:create", "price_history:create"]
+    },
+    {
+      "plan_fingerprint": "509dca4d2f43ec7990be9b9320f43b70",
+      "source_row_fingerprint": "f08abc4dd782a7e59b8bcfe22fbcfc2578066b1aa4faeb4294305b4f58917f75",
+      "product_id": "134",
+      "product_variant_id": "1644",
+      "gtin": "4029679671522",
+      "external_product_id": "306694054274",
+      "external_variant_id": "v1|306694054274|0",
+      "flavour": "gourmet vanilla",
+      "size_value": "2270",
+      "size_unit": "g",
+      "pack_count": "1",
+      "product_format": "powder",
+      "price": "149",
+      "shipping_cost": "0",
+      "total_price": "149",
+      "planned_actions": ["retailer_product:create", "offer:create", "price_history:create"]
+    }
+  ]
+}

@@ -48,7 +48,9 @@ postflight below. The exact-20 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. A fresh expansion audit found no unseen identity in the
 current GTIN-qualified discovery pool and reduced the remaining reviewed-item
-queue to two exact owner-review candidates; neither is authorised or live yet.
+queue to two exact owner-reviewed Batch F candidates. Their preparation and
+production dry-run are complete; production apply is not authorised and neither
+offer is live yet.
 Credential values remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
@@ -1852,14 +1854,16 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner review of exactly two proposed Batch F identities below:
-Olimp Redweiler Blueberry 480 g (product 520 / variant 1025 / eBay item
-407021140091, variation 677211935188) and Dymatize ISO100 Gourmet Vanilla
-2.27 kg (product 134 / variant 1644 / eBay item 306694054274). Approval would
-authorise guarded preparation and dry-run only, not production apply. Do not
-include any of the other 13 checked rows or weaken seller, identity, GTIN,
-format, flavour, size, delivery or affiliate gates. Separately monitor the
-already enabled exact-20 scheduled refresh at 05:43 UTC on 18 August 2026
+`NEXT ACTION: Owner review of the successful, zero-write Batch F dry-run bound
+to docs/rollouts/ebay-offer-canary/batch-f.csv at SHA-256
+0623ace99bf29f3ac9ca58a0553199032af95469a26980acf2c3684bc8e4535a.
+Production apply requires a new explicit approval for exactly its two create
+plans; the existing preparation/dry-run approval is insufficient. If approved,
+bind only those current fresh plans to the existing guarded executor, require
+an immediate exact no-op postflight and independently verify both public pages.
+Do not include any of the other 13 checked rows or weaken seller, identity,
+GTIN, format, flavour, size, delivery or affiliate gates. Separately monitor
+the already enabled exact-20 scheduled refresh at 05:43 UTC on 18 August 2026
 (06:43 BST).`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
@@ -2004,6 +2008,25 @@ owner-reviewed production design and approval.
   Other rows had an unavailable listing, explicit flavour/size/formula mismatch,
   an ambiguous multi-product listing, or a seller below the unchanged trust
   threshold. None may enter Batch F.
+- The owner explicitly approved `Batch F — these 2` for guarded preparation and
+  production dry-run only. A fresh direct-item preflight re-read exactly Olimp
+  item `v1|407021140091|677211935188` and Dymatize item
+  `v1|306694054274|0`; both retained the approved seller, identity, delivery,
+  affiliate and narrow missing-evidence state. It checked 2/2, found 2/2,
+  returned zero hard blockers and made zero database writes.
+- The existing production importer then accepted the exact two-row source with
+  2 approved rows, 0 invalid, unmatched, ambiguous, collision, GTIN, external
+  GTIN, size, pack or format conflicts and 0 blocked rows. It planned exactly
+  two retailer-product creates, two offer creates and two price-history creates;
+  no retailer, product or variant create/update is present. Dry-run writes were
+  zero.
+- The durable review pack is
+  `docs/rollouts/ebay-offer-canary/batch-f-review.json`. Its source CSV has
+  SHA-256 `0623ace99bf29f3ac9ca58a0553199032af95469a26980acf2c3684bc8e4535a`.
+  The final dry-run ID is `0fd51c64-43aa-4017-bfd8-44a6f6256120`, artifact
+  SHA-256 `6fa9ce81c1d3e6e9e2f32954bba2ce295141480c2c5d454bf507e3a15e444b12`.
+  The pack explicitly records `approved_for_production_apply: false`; no apply
+  or public change occurred.
 
 16 August 2026:
 

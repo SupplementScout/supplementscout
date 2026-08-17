@@ -1,7 +1,9 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
+const { parse } = require("csv-parse/sync");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
 const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
@@ -356,6 +358,27 @@ test("exact-item refresh reads only the sealed item and rejects identity drift",
   assert.equal(items.length, 1);
   assert.deepEqual(requests, ["https://api.ebay.com/buy/browse/v1/item/v1%7C123%7C0"]);
   await assert.rejects(() => readExactItem(current, config, async () => ({ ok: true, status: 200, json: async () => ({ itemId: "v1|999|0", legacyItemId: "999" }) }), "token"), /identity drift/);
+});
+
+test("Batch F dry-run review is sealed to exactly two rows and cannot authorize apply", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-f-review.json"), "utf8"));
+  const csvBuffer = fs.readFileSync(path.join(process.cwd(), review.csv));
+  const rows = parse(csvBuffer, { columns: true, skip_empty_lines: true });
+  assert.equal(crypto.createHash("sha256").update(csvBuffer).digest("hex"), review.csv_sha256);
+  assert.equal(review.owner_approval.approved_for_production_dry_run, true);
+  assert.equal(review.owner_approval.approved_for_production_apply, false);
+  assert.equal(review.dry_run.plan_count, 2);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(review.dry_run.database_writes, 0);
+  assert.deepEqual(rows.map((row) => `${row.product_id}:${row.product_variant_id}:${row.external_variant_id}`), [
+    "520:1025:v1|407021140091|677211935188",
+    "134:1644:v1|306694054274|0",
+  ]);
+  assert.deepEqual(review.entries.map((row) => `${row.product_id}:${row.product_variant_id}:${row.external_variant_id}`), [
+    "520:1025:v1|407021140091|677211935188",
+    "134:1644:v1|306694054274|0",
+  ]);
+  assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
 });
 
 test("one-retailer discovery excludes canonical, quarantined, duplicate and ambiguous GTIN identities", () => {
