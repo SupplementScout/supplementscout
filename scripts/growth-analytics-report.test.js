@@ -97,6 +97,9 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     if (url.includes("searchAnalytics") && body.dimensions?.[0] === "query") {
       return response({ rows: [{ keys: ["whey protein"], clicks: 8, impressions: 100, ctr: 0.08, position: 4.2 }] });
     }
+    if (url.includes("searchAnalytics") && body.dimensions?.length === 2) {
+      return response({ rows: [{ keys: ["https://www.supplementscout.co.uk/creatine", "creatine prices uk"], clicks: 0, impressions: 24, ctr: 0, position: 18.5 }] });
+    }
     if (url.includes("searchAnalytics") && body.dimensions?.[0] === "page") {
       return response({ rows: [{ keys: ["https://www.supplementscout.co.uk/whey-protein"], clicks: 6, impressions: 80, ctr: 0.075, position: 3.8 }] });
     }
@@ -154,6 +157,15 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
 
   assert.equal(report.searchConsole.totals.clicks, 10);
   assert.equal(report.searchConsole.topQueries[0].query, "whey protein");
+  assert.deepEqual(report.searchConsole.opportunities[0], {
+    page: "https://www.supplementscout.co.uk/creatine",
+    query: "creatine prices uk",
+    clicks: 0,
+    impressions: 24,
+    ctr: 0,
+    position: 18.5,
+  });
+  assert.equal(report.schemaVersion, 2);
   assert.equal(report.searchConsole.sitemaps[0].errors, 0);
   assert.deepEqual(report.ga4.organicSearch, {
     sessions: 20,
@@ -165,7 +177,12 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
   assert.equal(report.searchConsole.indexing.inspections[0].state, "ok");
   assert.equal(report.searchConsole.indexing.inspectedCount, 2);
   assert.match(report.limitations.pageIndexingTotals, /URL-level/);
-  assert.equal(requests.length, 9);
+  assert.equal(requests.length, 10);
+  const gscBodies = requests
+    .filter(({ url }) => url.includes("searchAnalytics"))
+    .map(({ options }) => JSON.parse(options.body));
+  assert.ok(gscBodies.some((body) => body.rowLimit === 100 && body.dimensions?.[0] === "page"));
+  assert.ok(gscBodies.some((body) => body.rowLimit === 250 && body.dimensions?.join(",") === "page,query"));
   assert.ok(requests.slice(1).every(({ options }) => options.headers.Authorization === "Bearer test-token"));
 });
 

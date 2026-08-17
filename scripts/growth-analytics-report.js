@@ -191,8 +191,14 @@ function numberValue(value) {
 }
 
 function gscRows(response, keyName) {
+  return gscDimensionRows(response, [keyName]);
+}
+
+function gscDimensionRows(response, keyNames) {
   return (response.rows || []).map((row) => ({
-    [keyName]: row.keys?.[0] || "",
+    ...Object.fromEntries(
+      keyNames.map((keyName, index) => [keyName, row.keys?.[index] || ""])
+    ),
     clicks: numberValue(row.clicks),
     impressions: numberValue(row.impressions),
     ctr: numberValue(row.ctr),
@@ -272,19 +278,25 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const gaReportUrl = `${GA4_API_ROOT}/properties/${propertyId}:runReport`;
   const dateRanges = [{ startDate: period.startDate, endDate: period.endDate }];
 
-  const [gscTotals, gscQueries, gscPages, sitemaps, gaChannels, gaOfferClicks] =
+  const [gscTotals, gscQueries, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks] =
     await Promise.all([
       postJson(fetchImpl, gscQueryUrl, accessToken, { ...period, rowLimit: 1 }),
       postJson(fetchImpl, gscQueryUrl, accessToken, {
         ...period,
         dimensions: ["query"],
-        rowLimit: 10,
+        rowLimit: 100,
         dataState: "final",
       }),
       postJson(fetchImpl, gscQueryUrl, accessToken, {
         ...period,
         dimensions: ["page"],
-        rowLimit: 10,
+        rowLimit: 100,
+        dataState: "final",
+      }),
+      postJson(fetchImpl, gscQueryUrl, accessToken, {
+        ...period,
+        dimensions: ["page", "query"],
+        rowLimit: 250,
         dataState: "final",
       }),
       googleRequest(
@@ -338,6 +350,17 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   ) || { sessions: 0, totalUsers: 0, screenPageViews: 0 };
   const offerClicks = gaMetricRows(gaOfferClicks)[0]?.eventCount || 0;
   const topPages = gscRows(gscPages, "page");
+  const pageQueryRows = gscDimensionRows(gscPageQueries, ["page", "query"]);
+  const opportunities = pageQueryRows
+    .filter((row) => row.clicks === 0 && row.impressions > 0)
+    .sort(
+      (left, right) =>
+        right.impressions - left.impressions ||
+        left.position - right.position ||
+        left.page.localeCompare(right.page) ||
+        left.query.localeCompare(right.query)
+    )
+    .slice(0, 100);
   const inspectionTargets = buildInspectionTargets(siteUrl, topPages);
   const inspectionResults = await Promise.all(
     inspectionTargets.map((inspectionUrl) =>
@@ -352,7 +375,7 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const inspectedCount = inspectionResults.filter((item) => item.state === "ok").length;
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: now.toISOString(),
     period,
     source: {
@@ -364,6 +387,8 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
       totals: total,
       topQueries: gscRows(gscQueries, "query"),
       topPages,
+      pageQueryRows,
+      opportunities,
       indexing: {
         inspectionTargets,
         inspectedCount,
@@ -397,6 +422,8 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         "not included; use Search Console UI or a separately reviewed CrUX mechanism",
       links:
         "not exposed by the supported Search Console API",
+      queryPrivacy:
+        "Search Console may omit anonymized or very low-volume queries; page-query rows will not necessarily sum to site totals",
     },
   };
 }
