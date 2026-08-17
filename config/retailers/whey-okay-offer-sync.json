@@ -7,7 +7,7 @@
   "source_url": "https://wheyokay.com/ekmps/shops/2ab763/data/ekm_p_2ab763.txt",
   "source_classification": "FULL_AUTOMATIC_SOURCE",
   "manifest_path": "config/retailers/whey-okay-approved-offer-manifest.json",
-  "manifest_sha256": "9532725E0AD538B1656172C1531C49D8ACD68E95D1EF459917BBDBD3F4E9D8F7",
+  "manifest_sha256": "52565DB2747D905FA2DB68162EBD56B1B4E5B8A3D007BB10C144F2213E216905",
   "approved_mapping_count": 586,
   "legacy_mapping_count": 284,
   "source_baseline": {

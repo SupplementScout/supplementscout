@@ -126,6 +126,21 @@ test("Critical Cookie bindings follow the reviewed production family variants", 
   }
 });
 
+test("7Nutrition creatine binding follows the reviewed production merge", () => {
+  const { manifest } = loadManifest();
+  const row = manifest.rows.find((item) => item.source_key === "509:509");
+
+  assert.equal(row.evidence.gtin, "5903111089412");
+  assert.equal(row.canonical_target.product_id, 1040);
+  assert.equal(row.canonical_target.variant_key, "unflavoured-350capsule");
+  assert.equal(row.environment_bindings.production.mapping_id, 151);
+  assert.equal(row.environment_bindings.production.offer_id, 88);
+  assert.equal(row.environment_bindings.production.canonical_product_id, 1040);
+  assert.equal(row.environment_bindings.production.canonical_variant_id, 2176);
+  assert.equal(row.environment_bindings.staging.canonical_product_id, 84);
+  assert.equal(row.environment_bindings.staging.canonical_variant_id, 53);
+});
+
 test("all 586 exact manifest identities classify idempotently", () => {
   const targets = Array.from({ length: 586 }, (_, index) => target(index + 1));
   const result = classify(targets, targets.map((row) => source(row)));

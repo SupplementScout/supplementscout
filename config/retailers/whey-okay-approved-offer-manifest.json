@@ -8891,17 +8891,17 @@
       "ekm_parent_id": "509",
       "ekm_variant_id": "509",
       "canonical_target": {
-        "product_id": 84,
-        "variant_key": "default",
-        "display_name": "Default",
-        "flavour_code": null,
-        "flavour_label": null,
+        "product_id": 1040,
+        "variant_key": "unflavoured-350capsule",
+        "display_name": "Unflavoured / 350 capsules",
+        "flavour_code": "unflavoured",
+        "flavour_label": "Unflavoured",
         "size_value": null,
         "size_unit": null,
-        "pack_count": null,
-        "product_format": null,
+        "pack_count": 1,
+        "product_format": "capsule",
         "is_active": true,
-        "is_default": true
+        "is_default": false
       },
       "evidence": {
         "sku": "5903111089412",
@@ -8929,13 +8929,13 @@
         "production": {
           "mapping_id": 151,
           "offer_id": 88,
-          "canonical_product_id": 84,
-          "canonical_variant_id": 53,
+          "canonical_product_id": 1040,
+          "canonical_variant_id": 2176,
           "mapping_updated_at": "2026-07-23T18:34:43.14121+00:00",
           "offer_last_checked_at": "2026-06-29T12:32:30.793+00:00"
         }
       },
-      "evidence_timestamp": "2026-07-24T06:12:58.942Z"
+      "evidence_timestamp": "2026-08-17T06:24:51.828Z"
     },
     {
       "source_key": "510:511",
