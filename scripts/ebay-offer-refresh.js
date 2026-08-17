@@ -2,12 +2,13 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { assertConfig, evaluateItem, DEFAULT_POLICY, getApplicationToken } = require("./lib/ebay-browse-pilot");
-const { runImportRows, writeDryRunArtifact } = require("./import-products");
+const { loadDryRunArtifact, runImportRows, writeDryRunArtifact } = require("./import-products");
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refresh");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
+const PENDING_ARTIFACT = path.join(OUT, "pending-apply.json");
 const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_1";
 const KIND = "ebay-existing-offer-refresh-exact-1-v1";
 const SCOPE = Object.freeze({
@@ -33,14 +34,22 @@ function parseArgs(argv) {
     options[match[1]] = match[2];
   }
   if (options.target !== "production") fail("Required --target=production");
-  if (!new Set(["dry-run", "apply"]).has(options.mode)) fail("Required --mode=dry-run|apply");
+  if (!new Set(["dry-run", "prepare-apply", "execute-apply"]).has(options.mode)) fail("Required --mode=dry-run|prepare-apply|execute-apply");
   return options;
 }
 
 function assertExecutionContext(mode, env = process.env) {
-  if (mode !== "apply") return;
+  if (mode === "dry-run") return;
   if (env.GITHUB_ACTIONS !== "true" || env.GITHUB_REF !== "refs/heads/main" || !["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME)) fail("eBay refresh apply requires GitHub Actions schedule or manual dispatch on main");
   if (env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.EBAY_REFRESH_OWNER_CONFIRMATION !== CONFIRMATION) fail("Manual eBay refresh apply requires exact owner confirmation");
+}
+
+function validatePreparedArtifact(loaded, now = new Date()) {
+  if (loaded.artifact.environment_marker !== "production") fail("Prepared refresh artifact target mismatch");
+  const createdAt = new Date(loaded.artifact.created_at);
+  const ageMs = now.getTime() - createdAt.getTime();
+  if (!Number.isFinite(createdAt.getTime()) || ageMs < -120000 || ageMs > 15 * 60 * 1000) fail("Prepared refresh artifact is not fresh");
+  return validatePlan(loaded);
 }
 
 function rowFromEvaluation(evaluation) {
@@ -85,6 +94,14 @@ async function buildSource(config, fetchImpl = fetch) {
 
 async function run(options, dependencies = {}) {
   assertExecutionContext(options.mode, dependencies.env || process.env);
+  if (options.mode === "execute-apply") {
+    const loaded = (dependencies.loadDryRunArtifact || loadDryRunArtifact)(PENDING_ARTIFACT);
+    const approved = validatePreparedArtifact(loaded, dependencies.now || new Date());
+    await (dependencies.executePlan || executePlan)(approved, KIND);
+    const report = { result: "PASS", mode: options.mode, scope: { offers: 1, offer_ids: [SCOPE.offer_id] }, classification: approved.entry.resolved_plan.offer.action, executed: 1, safe_update: "unset", automatic_oos: "blocked" };
+    fs.writeFileSync(path.join(OUT, `execute-apply-${new Date().toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
+    return report;
+  }
   const config = dependencies.config || assertConfig(dependencies.env || process.env);
   const evaluation = dependencies.evaluation || await buildSource(config, dependencies.fetchImpl || fetch);
   const row = rowFromEvaluation(evaluation);
@@ -102,10 +119,10 @@ async function run(options, dependencies = {}) {
   }
   fs.mkdirSync(OUT, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const written = (dependencies.writeDryRunArtifact || writeDryRunArtifact)(artifactRows, result, { artifactPath: path.join(OUT, `artifact-${stamp}.json`), sourceFileName: "ebay-browse-live.json", environmentMarker: "production" });
+  const artifactPath = options.mode === "prepare-apply" ? PENDING_ARTIFACT : path.join(OUT, `artifact-${stamp}.json`);
+  const written = (dependencies.writeDryRunArtifact || writeDryRunArtifact)(artifactRows, result, { artifactPath, sourceFileName: "ebay-browse-live.json", environmentMarker: "production" });
   const approved = validatePlan({ artifact: written.artifact, artifactSha256: written.artifactSha256 });
   const report = { result: "PASS", mode: options.mode, scope: { offers: 1, offer_ids: [SCOPE.offer_id] }, source: { item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price.value, shipping: evaluation.uk_shipping.value, delivered: evaluation.delivered_price.value }, classification: approved.entry.resolved_plan.offer.action, executed: 0, safe_update: "unset", automatic_oos: "blocked" };
-  if (options.mode === "apply") { await (dependencies.executePlan || executePlan)(approved, KIND); report.executed = 1; }
   fs.writeFileSync(path.join(OUT, `${options.mode}-${stamp}.json`), `${JSON.stringify(report, null, 2)}\n`);
   return report;
 }
@@ -113,4 +130,4 @@ async function run(options, dependencies = {}) {
 async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, SCOPE, assertExecutionContext, buildSource, parseArgs, rowFromEvaluation, run, validatePlan };
+module.exports = { CONFIRMATION, KIND, PENDING_ARTIFACT, SCOPE, assertExecutionContext, buildSource, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact };

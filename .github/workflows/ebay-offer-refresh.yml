@@ -54,7 +54,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run ebay:refresh -- --target=production --mode=dry-run
-      - name: Apply exact approved existing-offer refresh
+      - name: Prepare exact approved existing-offer refresh
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:
           EBAY_REFRESH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
@@ -65,9 +65,14 @@ jobs:
           EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run ebay:refresh -- --target=production --mode=prepare-apply
+      - name: Apply exact approved existing-offer refresh
+        if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
+        env:
+          EBAY_REFRESH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
           EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: npm run ebay:refresh -- --target=production --mode=apply
+        run: npm run ebay:refresh -- --target=production --mode=execute-apply
       - name: Verify fresh no-op after apply
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:

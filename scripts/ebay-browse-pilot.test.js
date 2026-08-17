@@ -5,7 +5,7 @@ const test = require("node:test");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
 const { buildDiscoveryRows, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
-const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan } = require("./ebay-offer-refresh");
+const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -216,9 +216,10 @@ test("title-lead search remains GET-only and does not pretend to be exact-GTIN s
 
 test("eBay refresh is frozen to the exact approved existing offer", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
-  assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=apply"]), /production/);
-  assert.throws(() => assertExecutionContext("apply", { GITHUB_ACTIONS: "true", GITHUB_REF: "refs/heads/main", GITHUB_EVENT_NAME: "workflow_dispatch", EBAY_REFRESH_OWNER_CONFIRMATION: "wrong" }), /exact owner confirmation/);
-  assert.doesNotThrow(() => assertExecutionContext("apply", { GITHUB_ACTIONS: "true", GITHUB_REF: "refs/heads/main", GITHUB_EVENT_NAME: "workflow_dispatch", EBAY_REFRESH_OWNER_CONFIRMATION: REFRESH_CONFIRMATION }));
+  assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
+  assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
+  assert.throws(() => assertExecutionContext("execute-apply", { GITHUB_ACTIONS: "true", GITHUB_REF: "refs/heads/main", GITHUB_EVENT_NAME: "workflow_dispatch", EBAY_REFRESH_OWNER_CONFIRMATION: "wrong" }), /exact owner confirmation/);
+  assert.doesNotThrow(() => assertExecutionContext("execute-apply", { GITHUB_ACTIONS: "true", GITHUB_REF: "refs/heads/main", GITHUB_EVENT_NAME: "workflow_dispatch", EBAY_REFRESH_OWNER_CONFIRMATION: REFRESH_CONFIRMATION }));
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
@@ -268,6 +269,9 @@ test("eBay refresh plan permits only noop or bounded update of offer 2558", () =
   assert.equal(validateRefreshPlan(loaded).entry.resolved_plan.offer.id, "2558");
   assert.throws(() => validateRefreshPlan({ ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, product: { action: "existing", id: "999" } } }] } }), /escaped/);
   assert.throws(() => validateRefreshPlan({ ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, offer: { ...plan.offer, values: { ...plan.offer.values, price: "45.00", total_price: "45.00" } } } }] } }), /hard limit/);
+  const fresh = { ...loaded, artifact: { ...loaded.artifact, environment_marker: "production", created_at: "2026-08-17T10:00:00.000Z" } };
+  assert.equal(validatePreparedArtifact(fresh, new Date("2026-08-17T10:14:59.000Z")).entry.resolved_plan.offer.id, "2558");
+  assert.throws(() => validatePreparedArtifact(fresh, new Date("2026-08-17T10:15:01.000Z")), /not fresh/);
 });
 
 test("eBay refresh workflow is scheduled, default dry-run and has no push trigger", () => {
@@ -281,6 +285,9 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /vars\.EBAY_REFRESH_ENABLED == 'true'/);
   assert.match(workflow, /Verify fresh no-op after apply/);
+  const applyStep = workflow.match(/- name: Apply exact approved existing-offer refresh[\s\S]*?run: npm run ebay:refresh -- --target=production --mode=execute-apply/)?.[0] || "";
+  assert.match(applyStep, /EBAY_CANARY_APPROVER_DATABASE_URL/);
+  assert.doesNotMatch(applyStep, /SUPABASE_SERVICE_ROLE_KEY|EBAY_CLIENT_SECRET/);
 });
 
 test("title-lead input accepts only intact read-only discovery reports and one row per missing product", () => {
