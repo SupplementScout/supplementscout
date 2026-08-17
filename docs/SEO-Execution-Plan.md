@@ -365,8 +365,13 @@ SEO-07 manual evidence queue is now complete:
   returning to shopper-facing comparison copy. Nine focused page and
   transparency suites passed 77 tests; `npm run verify:quick` and
   `npm run verify:full`, including the Next.js production build, passed.
-- This is local release evidence only. Live completion requires deployment and
-  public HTML plus robots/canonical verification on the affected routes.
+- Commit `00d00b2` was pushed to `main` and deployed. Cache-bypassed public
+  reads returned HTTP 200, the new shopper-language copy, no identified old
+  jargon and the exact canonical on all nine affected routes. Amino Acids, Pre
+  Workout, Whey Isolate, Whey Protein and Data Freshness retained `index,
+  follow`; Hydration, Mass Gainer, Multivitamins and Vegan Protein retained
+  `noindex, follow` under their unchanged live coverage gates. The language
+  cleanup is `LIVE VERIFIED`; SEO-13 remains `IN PROGRESS`.
 
 ### 17 August 2026 — SEO-13 Whey Isolate cost-intent local enhancement
 
