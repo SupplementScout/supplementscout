@@ -292,7 +292,7 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 17 August 2026 — SEO-13 Glucosamine no-click reinforcement local candidate
+### 17 August 2026 — SEO-13 Glucosamine no-click reinforcement live verification
 
 - The fresh authenticated weekly report for 10–16 August recorded 90
   impressions, zero clicks and average position 68.94 for `/glucosamine`, the
@@ -305,9 +305,15 @@ SEO-07 manual evidence queue is now complete:
   price and its canonical product link. The copy limits the claim to current
   SupplementScout retailer coverage and tells shoppers to confirm changing
   price and stock before buying.
-- The focused category landing suite passed 16/16; targeted ESLint, TypeScript
-  and `git diff --check` also passed. Publication and live verification remain
-  required before this candidate can be marked `LIVE VERIFIED`.
+- The focused category landing suite passed 16/16; targeted ESLint, TypeScript,
+  `git diff --check`, `verify:quick` and `verify:full` all passed. Commit
+  `2ecc328` was pushed to `main`.
+- A cache-bypassed public read returned HTTP 200 and the exact preserved title,
+  description, H1 and canonical. The route retained ordinary index/follow
+  behaviour, rendered 18 matching products and answered with GBP 4.98 for
+  `Glucosamine Sulphate 500mg`; the retailer-coverage limitation and existing
+  comparison results were present. This reinforcement is `LIVE VERIFIED`;
+  measurement now freezes the page until a later GSC comparison is available.
 
 ### 17 August 2026 — approved Whey Okay freshness preflight repaired
 
