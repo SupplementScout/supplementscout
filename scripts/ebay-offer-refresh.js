@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_20";
-const KIND = "ebay-existing-offer-refresh-exact-20-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_22";
+const KIND = "ebay-existing-offer-refresh-exact-22-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -22,6 +22,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-c.csv", approval: "batch-c-rollout.json", count: 7 },
   { csv: "batch-d.csv", approval: "batch-d-rollout.json", count: 2 },
   { csv: "batch-e.csv", approval: "batch-e-rollout.json", count: 1 },
+  { csv: "batch-f.csv", approval: "batch-f-rollout.json", count: 2 },
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -53,14 +54,14 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 20) fail("Exact eBay refresh manifest must contain 20 rows");
+  if (rows.length !== 22) fail("Exact eBay refresh manifest must contain 22 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_id", "product_variant_id", "external_gtin", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: String(2724 + index), offer_id: String(2539 + index) })));
 }
 
 const SCOPES = loadScopes();
-const SCOPE = SCOPES[SCOPES.length - 1];
+const SCOPE = SCOPES.find((scope) => scope.offer_id === "2558");
 function pendingArtifact(scope) { return path.join(OUT, `pending-${scope.offer_id}.json`); }
 
 function writePendingBatch(report, now) {
@@ -178,7 +179,7 @@ async function run(options, dependencies = {}) {
     const batch = (dependencies.loadPendingBatch || loadPendingBatch)(now);
     const approved = SCOPES.filter((scope) => batch.eligible.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
     for (const item of approved) await (dependencies.executePlan || executePlan)(item, KIND);
-    const report = { result: "PASS", mode: options.mode, scope: { offers: 20, eligible: approved.length, blocked: batch.manifest.blocked_rows.length, offer_ids: SCOPES.map((scope) => scope.offer_id) }, executed: approved.length, blocked_rows: batch.manifest.blocked_rows, automatic_oos: "blocked" };
+    const report = { result: "PASS", mode: options.mode, scope: { offers: SCOPES.length, eligible: approved.length, blocked: batch.manifest.blocked_rows.length, offer_ids: SCOPES.map((scope) => scope.offer_id) }, executed: approved.length, blocked_rows: batch.manifest.blocked_rows, automatic_oos: "blocked" };
     fs.writeFileSync(path.join(OUT, `execute-apply-${now.toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
     return report;
   }

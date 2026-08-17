@@ -217,7 +217,7 @@ test("title-lead search remains GET-only and does not pretend to be exact-GTIN s
   assert.doesNotMatch(search, /[?&]gtin=/);
 });
 
-test("eBay refresh is frozen to the exact approved existing offer", () => {
+test("eBay refresh is frozen to the exact 22 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
@@ -226,11 +226,21 @@ test("eBay refresh is frozen to the exact approved existing offer", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
-  assert.equal(REFRESH_SCOPES.length, 20);
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 20 }, (_, index) => String(2539 + index)));
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.retailer_product_id), Array.from({ length: 20 }, (_, index) => String(2724 + index)));
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 20);
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.gtin)).size, 20);
+  assert.equal(REFRESH_SCOPES.length, 22);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 22 }, (_, index) => String(2539 + index)));
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.retailer_product_id), Array.from({ length: 22 }, (_, index) => String(2724 + index)));
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 22);
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.gtin)).size, 22);
+  assert.deepEqual(REFRESH_SCOPES.slice(-2).map((scope) => ({
+    product_id: scope.product_id,
+    product_variant_id: scope.product_variant_id,
+    external_variant_id: scope.external_variant_id,
+    retailer_product_id: scope.retailer_product_id,
+    offer_id: scope.offer_id,
+  })), [
+    { product_id: "520", product_variant_id: "1025", external_variant_id: "v1|407021140091|677211935188", retailer_product_id: "2744", offer_id: "2559" },
+    { product_id: "134", product_variant_id: "1644", external_variant_id: "v1|306694054274|0", retailer_product_id: "2745", offer_id: "2560" },
+  ]);
 });
 
 test("eBay refresh converts only a fully qualified exact listing into importer input", () => {
@@ -305,7 +315,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_20/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_22/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
