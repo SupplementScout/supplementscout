@@ -4,14 +4,14 @@ const dotenv = require("dotenv");
 const { buildReadOnlyPreview, loadClient, readAll } = require("./gtin-promotion-dry-run");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { isValidGtin, normalizeGtin } = require("./lib/gtin-promotion");
-const { assertConfig, browseIdentity, buildReport, DEFAULT_POLICY, evaluateIdentity } = require("./lib/ebay-browse-pilot");
+const { assertConfig, browseIdentity, buildReport, DEFAULT_POLICY, evaluateIdentity, getApplicationToken } = require("./lib/ebay-browse-pilot");
 
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUTPUT = path.join(ROOT, "tmp", "ebay-uk-coverage");
 const EXPECTED_IDENTITIES = Object.freeze({ "legacy-54": 54, "owner-reviewed-36": 36 });
 
 function parseArgs(argv) {
-  const options = { prepareInput: false, discovery: false, titleLeadsReport: null, maxIdentities: 750, outputDir: DEFAULT_OUTPUT, scope: "legacy-54" };
+  const options = { prepareInput: false, discovery: false, titleLeadsReport: null, refreshItemsReport: null, maxIdentities: 750, outputDir: DEFAULT_OUTPUT, scope: "legacy-54" };
   for (const argument of argv) {
     if (argument === "--prepare-input") options.prepareInput = true;
     else if (argument === "--discover-one-retailer") options.discovery = true;
@@ -20,6 +20,12 @@ function parseArgs(argv) {
       const relative = path.relative(path.join(ROOT, "tmp"), resolved);
       if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) throw new Error("Title-leads report must be inside repository tmp");
       options.titleLeadsReport = resolved;
+    }
+    else if (argument.startsWith("--refresh-items-from=")) {
+      const resolved = path.resolve(ROOT, argument.slice("--refresh-items-from=".length));
+      const relative = path.relative(path.join(ROOT, "tmp"), resolved);
+      if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) throw new Error("Item-refresh report must be inside repository tmp");
+      options.refreshItemsReport = resolved;
     }
     else if (argument.startsWith("--max-identities=")) {
       const value = Number(argument.slice("--max-identities=".length));
@@ -40,7 +46,9 @@ function parseArgs(argv) {
   }
   if (!options.discovery && options.maxIdentities !== 750) throw new Error("--max-identities requires --discover-one-retailer");
   if (options.titleLeadsReport && !options.discovery) throw new Error("--title-leads-from requires --discover-one-retailer");
+  if (options.refreshItemsReport && (options.discovery || options.titleLeadsReport)) throw new Error("--refresh-items-from cannot be combined with discovery modes");
   if ((options.discovery || options.titleLeadsReport) && options.scope !== "legacy-54") throw new Error("--scope cannot be combined with discovery modes");
+  if (options.refreshItemsReport && options.scope !== "legacy-54") throw new Error("--scope cannot be combined with --refresh-items-from");
   return options;
 }
 
@@ -65,6 +73,46 @@ function buildTitleLeadInput(report, maxIdentities, capturedAt = new Date().toIS
   }
   if (!rows.length) throw new Error("No NOT_FOUND products remain for title-lead discovery");
   return sealInput(rows, capturedAt, report.artifact_fingerprint);
+}
+
+function buildItemRefreshInput(report, currentRows, capturedAt = new Date().toISOString()) {
+  if (!String(report.operation_type || "").startsWith("EBAY_BROWSE_API_") || report.write_enabled !== false) {
+    throw new Error("Invalid read-only report for item refresh");
+  }
+  const expected = hash("EBAY-BROWSE-REPORT:1", { ...report, artifact_fingerprint: null });
+  if (report.artifact_fingerprint !== expected) throw new Error("Item-refresh report fingerprint mismatch");
+  const currentByKey = new Map(currentRows.map((row) => [`${row.product_id}:${row.variant_id}`, row]));
+  const seenItems = new Set();
+  const rows = [];
+  for (const prior of report.rows || []) {
+    if (!['AUTO_ELIGIBLE', 'REVIEW'].includes(prior.decision) || !prior.selected_offer?.item_id || !prior.selected_offer?.legacy_item_id) continue;
+    const current = currentByKey.get(`${prior.product_id}:${prior.variant_id}`);
+    if (!current || current.gtin !== prior.gtin) continue;
+    if (seenItems.has(prior.selected_offer.item_id)) continue;
+    seenItems.add(prior.selected_offer.item_id);
+    rows.push({ ...current, refresh_item_id: prior.selected_offer.item_id, refresh_legacy_item_id: String(prior.selected_offer.legacy_item_id) });
+  }
+  if (!rows.length) throw new Error("No current unresolved exact items remain for refresh");
+  return sealInput(rows, capturedAt, report.artifact_fingerprint);
+}
+
+async function readExactItem(identity, config, fetchImpl, token) {
+  const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`];
+  if (config.campaign_id) context.push(`affiliateCampaignId=${encodeURIComponent(config.campaign_id)}`);
+  const response = await fetchImpl(`https://api.ebay.com/buy/browse/v1/item/${encodeURIComponent(identity.refresh_item_id)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id,
+      "X-EBAY-C-ENDUSERCTX": context.join(","),
+    },
+  });
+  if (response.status === 404) return [];
+  if (!response.ok) throw new Error(`eBay Browse item refresh failed with HTTP ${response.status} for product ${identity.product_id} variant ${identity.variant_id}`);
+  const item = await response.json();
+  if (String(item.itemId) !== identity.refresh_item_id || String(item.legacyItemId) !== identity.refresh_legacy_item_id) {
+    throw new Error(`Direct eBay item identity drift for product ${identity.product_id} variant ${identity.variant_id}`);
+  }
+  return [item];
 }
 
 function parseQuarantinedGtins(markdown) {
@@ -265,7 +313,12 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
   const config = options.prepareInput ? null : assertConfig(dependencies.env || process.env);
   const capturedAt = dependencies.now?.() || new Date().toISOString();
   let input;
-  if (options.titleLeadsReport) {
+  if (options.refreshItemsReport) {
+    const report = JSON.parse(fs.readFileSync(options.refreshItemsReport, "utf8"));
+    const client = dependencies.client || loadClient();
+    const current = await buildDiscoveryInput(client, 750, capturedAt);
+    input = buildItemRefreshInput(report, current.rows, capturedAt);
+  } else if (options.titleLeadsReport) {
     const report = JSON.parse(fs.readFileSync(options.titleLeadsReport, "utf8"));
     input = buildTitleLeadInput(report, options.maxIdentities, capturedAt);
   } else {
@@ -275,7 +328,7 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
       : await buildInput(client, capturedAt, options.scope);
   }
   const stamp = input.captured_at.replace(/[:.]/g, "-");
-  const prefix = options.titleLeadsReport ? "ebay-title-leads" : options.discovery ? "ebay-discovery" : options.scope === "owner-reviewed-36" ? "ebay-owner-reviewed-36" : "ebay-pilot";
+  const prefix = options.refreshItemsReport ? "ebay-item-refresh" : options.titleLeadsReport ? "ebay-title-leads" : options.discovery ? "ebay-discovery" : options.scope === "owner-reviewed-36" ? "ebay-owner-reviewed-36" : "ebay-pilot";
   const inputPath = writeImmutableJson(options.outputDir, `${prefix}-input-${stamp}.json`, input);
   if (options.prepareInput) {
     console.log(JSON.stringify({ mode: "prepare-input", input: inputPath, identities: input.identity_count, database_writes: 0, ebay_api_calls: 0, fingerprint: input.artifact_fingerprint }, null, 2));
@@ -290,17 +343,20 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
     affiliate_campaign_configured: Boolean(config.campaign_id),
   };
   const fetchImpl = dependencies.fetch || fetch;
+  const directToken = options.refreshItemsReport ? await getApplicationToken(config, fetchImpl) : null;
   const results = [];
   const rawRows = [];
   for (const identity of input.rows) {
     const browseOptions = options.titleLeadsReport
       ? { limit: 5, maxDetails: 5, searchMode: "title" }
       : options.discovery ? { limit: 5, maxDetails: 5 } : undefined;
-    const items = await browseIdentity(identity, config, fetchImpl, browseOptions);
+    const items = options.refreshItemsReport
+      ? await readExactItem(identity, config, fetchImpl, directToken)
+      : await browseIdentity(identity, config, fetchImpl, browseOptions);
     rawRows.push({ product_id: identity.product_id, variant_id: identity.variant_id, gtin: identity.gtin, items });
     results.push(evaluateIdentity(identity, items, policy));
   }
-  const operationType = options.titleLeadsReport ? "EBAY_BROWSE_API_TITLE_LEADS" : options.discovery ? "EBAY_BROWSE_API_DISCOVERY" : "EBAY_BROWSE_API_PILOT";
+  const operationType = options.refreshItemsReport ? "EBAY_BROWSE_API_ITEM_REFRESH" : options.titleLeadsReport ? "EBAY_BROWSE_API_TITLE_LEADS" : options.discovery ? "EBAY_BROWSE_API_DISCOVERY" : "EBAY_BROWSE_API_PILOT";
   const report = buildReport(input, results, policy, { captured_at: dependencies.now?.() || new Date().toISOString(), affiliate_campaign_configured: Boolean(config.campaign_id), operation_type: operationType });
   const raw = { schema_version: 1, operation_type: `${operationType}_RAW`, captured_at: report.captured_at, rows: rawRows, artifact_fingerprint: null };
   raw.artifact_fingerprint = hash("EBAY-BROWSE-RAW:1", raw);
@@ -312,4 +368,4 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
 
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { buildDiscoveryInput, buildDiscoveryRows, buildInput, buildTitleLeadInput, currentOfferEvidence, main, parseArgs, parseQuarantinedGtins, sealInput, writeImmutableJson };
+module.exports = { buildDiscoveryInput, buildDiscoveryRows, buildInput, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, main, parseArgs, parseQuarantinedGtins, readExactItem, sealInput, writeImmutableJson };

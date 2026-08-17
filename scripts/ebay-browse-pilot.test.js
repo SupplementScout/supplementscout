@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
-const { buildDiscoveryRows, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, sealInput } = require("./ebay-browse-pilot");
+const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 
@@ -327,6 +327,37 @@ test("title-lead input accepts only intact read-only discovery reports and one r
   assert.throws(() => buildTitleLeadInput({ ...report, artifact_fingerprint: "tampered" }, 10), /fingerprint mismatch/);
 });
 
+test("exact-item refresh accepts only intact review evidence that still matches current identity", () => {
+  const report = {
+    operation_type: "EBAY_BROWSE_API_NEXT_30_REVIEW_REFRESH",
+    write_enabled: false,
+    rows: [{ ...identity, decision: "REVIEW", selected_offer: { item_id: "v1|123|0", legacy_item_id: "123" } }],
+    artifact_fingerprint: null,
+  };
+  report.artifact_fingerprint = hash("EBAY-BROWSE-REPORT:1", report);
+  const input = buildItemRefreshInput(report, [identity], "2026-08-17T15:00:00.000Z");
+  assert.equal(input.rows.length, 1);
+  assert.equal(input.rows[0].refresh_item_id, "v1|123|0");
+  assert.equal(input.rows[0].refresh_legacy_item_id, "123");
+  assert.throws(() => buildItemRefreshInput({ ...report, artifact_fingerprint: "tampered" }, [identity]), /fingerprint mismatch/);
+  assert.throws(() => buildItemRefreshInput(report, [{ ...identity, gtin: "96385074" }]), /No current unresolved exact items/);
+});
+
+test("exact-item refresh reads only the sealed item and rejects identity drift", async () => {
+  resetTokenCache();
+  const current = { ...identity, refresh_item_id: "v1|123|0", refresh_legacy_item_id: "123" };
+  const config = { marketplace_id: "EBAY_GB", postcode: "SW1A1AA", campaign_id: "campaign" };
+  const requests = [];
+  const fetchItem = async (url) => {
+    requests.push(String(url));
+    return { ok: true, status: 200, json: async () => ({ itemId: "v1|123|0", legacyItemId: "123" }) };
+  };
+  const items = await readExactItem(current, config, fetchItem, "token");
+  assert.equal(items.length, 1);
+  assert.deepEqual(requests, ["https://api.ebay.com/buy/browse/v1/item/v1%7C123%7C0"]);
+  await assert.rejects(() => readExactItem(current, config, async () => ({ ok: true, status: 200, json: async () => ({ itemId: "v1|999|0", legacyItemId: "999" }) }), "token"), /identity drift/);
+});
+
 test("one-retailer discovery excludes canonical, quarantined, duplicate and ambiguous GTIN identities", () => {
   const products = [{ id: 1, name: "Safe", brand: "Brand", category: "Creatine", unit_count: 60, is_active: true, gtin: null }, { id: 2, name: "Other", brand: "Brand", category: "Vitamins", unit_count: 30, is_active: true, gtin: "12345670" }];
   const variants = [{ id: 11, product_id: 1, display_name: "60 caps", product_format: "capsule", is_active: true, gtin: null }, { id: 12, product_id: 2, display_name: "30 caps", product_format: "capsule", is_active: true, gtin: null }];
@@ -353,5 +384,8 @@ test("runner and library contain no production mutation or public publication pa
   assert.throws(() => parseArgs(["--discover-one-retailer", "--scope=owner-reviewed-36"]), /cannot be combined/);
   assert.throws(() => parseArgs(["--max-identities=200"]), /requires --discover-one-retailer/);
   assert.throws(() => parseArgs(["--title-leads-from=tmp/ebay-uk-coverage/report.json"]), /requires --discover-one-retailer/);
+  assert.match(parseArgs(["--refresh-items-from=tmp/ebay-uk-coverage/report.json"]).refreshItemsReport, /report\.json$/);
+  assert.throws(() => parseArgs(["--refresh-items-from=docs/report.json"]), /inside repository tmp/);
+  assert.throws(() => parseArgs(["--refresh-items-from=tmp/report.json", "--discover-one-retailer"]), /cannot be combined/);
   assert.throws(() => parseArgs(["--apply"]), /Unsupported argument/);
 });

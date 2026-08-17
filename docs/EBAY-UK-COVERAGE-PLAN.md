@@ -46,7 +46,10 @@ existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
 postflight below. The exact-20 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
-evidence changes. Credential values remain outside the repository.
+evidence changes. A fresh expansion audit found no unseen identity in the
+current GTIN-qualified discovery pool and reduced the remaining reviewed-item
+queue to two exact owner-review candidates; neither is authorised or live yet.
+Credential values remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1849,12 +1852,15 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Monitor the first enabled scheduled exact-20 refresh at 05:43 UTC
-on 18 August 2026 (06:43 BST). Confirm that its fresh preflight, guarded apply
-and immediate postflight pass for every still-qualified row, while any changed
-item identity, GTIN mismatch or additional semantic, seller, delivery or
-affiliate gap fails closed for that row. Do not widen the immutable 20-offer
-scope or automatically mark a missing listing out of stock.`
+`NEXT ACTION: Owner review of exactly two proposed Batch F identities below:
+Olimp Redweiler Blueberry 480 g (product 520 / variant 1025 / eBay item
+407021140091, variation 677211935188) and Dymatize ISO100 Gourmet Vanilla
+2.27 kg (product 134 / variant 1644 / eBay item 306694054274). Approval would
+authorise guarded preparation and dry-run only, not production apply. Do not
+include any of the other 13 checked rows or weaken seller, identity, GTIN,
+format, flavour, size, delivery or affiliate gates. Separately monitor the
+already enabled exact-20 scheduled refresh at 05:43 UTC on 18 August 2026
+(06:43 BST).`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1962,6 +1968,42 @@ owner-reviewed production design and approval.
   `2026-08-17T14:40:12Z`. The existing single workflow is therefore enabled on
   its daily `43 5 * * *` schedule; no second importer or automation path was
   introduced.
+- A fresh production SELECT-only discovery input rebuilt the complete current
+  one-retailer GTIN-qualified pool at 331 identities. Comparison with the
+  previously exhausted 339-identity pool found zero new identities and eight
+  removals, so the prior broad discovery was not repeated. The input fingerprint
+  is `3d033fed52db718dfa9a5fdc5dd2af383d8b4f470fa05d51e8e8f0c1cbb8bba4`;
+  database writes and eBay calls were zero.
+- The existing read-only Browse pilot gained one exact-item refresh mode for an
+  intact fingerprinted REVIEW report. It freshly rebuilds current production
+  identity first, requires the same product, variant and GTIN, reads only the
+  sealed eBay item ID, verifies the legacy item ID and contains no catalogue or
+  offer mutation path. Focused tests passed 27/27.
+- The exact refresh then checked the 15 remaining missing-returned-GTIN rows:
+  14 listings remained available, one was `NOT_FOUND`, none returned a GTIN and
+  no write occurred. Report fingerprint:
+  `3c678cce052fb8cdb056c98444ff83ee554bdf424e1bb54337806c37d91f0437`.
+- Independent evidence leaves exactly two bounded owner-review candidates.
+  Product `520` / variant `1025`, Olimp Redweiler Blueberry 480 g, GTIN
+  `5901330044861`, is eBay item `v1|407021140091|677211935188` from business
+  seller `muscle-factory-co-uk` (100%, score 270), GBP 34.99 plus GBP 3.99
+  shipping. The live eBay variation states Blueberry Madness, 480 g and powder;
+  [Gymgrossisten](https://www.gymgrossisten.com/redweiler-480-g-blueberry-madness/820924-42.html)
+  and [Nutrigroup](https://nutrigroup.eu/redwiler-en) independently bind the same
+  EAN to Blueberry Madness 480 g. Product `134` / variant `1644`, Dymatize ISO100 Gourmet Vanilla
+  2.27 kg, GTIN `4029679671522`, is eBay item `v1|306694054274|0` from business
+  seller `snober_trade_ltd` (99.9%, score 3656), GBP 149 delivered. The listing
+  states Gourmet Vanilla powder at 2264 g (the 5 lb nominal pack), and the
+  [Dymatize product sheet](https://deichmann.scene7.com/is/content/deichmann/osp/shopimages/5654464_claim_dymatize_en.pdf)
+  binds the same EAN to Gourmet Vanilla. Both affiliate
+  URLs are ready and each would add a second retailer, but neither is approved
+  or written.
+- The other 13 rows remain excluded. The review exposed a material source-data
+  conflict for product `1065` / variant `2246`: GTIN `0634158780752` identifies
+  the 250 g Applied Nutrition L-Glutamine pack, not the stored 500 g variant.
+  Other rows had an unavailable listing, explicit flavour/size/formula mismatch,
+  an ambiguous multi-product listing, or a seller below the unchanged trust
+  threshold. None may enter Batch F.
 
 16 August 2026:
 
