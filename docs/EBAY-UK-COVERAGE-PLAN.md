@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 20-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1)
+**Status:** CONTROLLED 22-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2)
 **Last verified:** 17 August 2026
-**Production writes:** 20 owner-approved create plans plus 21 exact existing-offer verification refreshes (1 retailer, 20 mappings, 20 offers, 20 price-history rows; refreshes changed verification timestamps only)
-**Public changes:** 1 guarded account-deletion API route and 20 live eBay offers
+**Production writes:** 22 owner-approved create plans plus 21 exact existing-offer verification refreshes (1 retailer, 22 mappings, 22 offers, 22 price-history rows; refreshes changed verification timestamps only)
+**Public changes:** 1 guarded account-deletion API route and 22 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,17 +41,17 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 20-offer rollout are complete. The
+read-only Browse pilot and the controlled 22-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
 postflight below. The exact-20 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. A fresh expansion audit found no unseen identity in the
 current GTIN-qualified discovery pool and reduced the remaining reviewed-item
-queue to two exact owner-reviewed Batch F candidates. Their preparation and
-production dry-run are complete and the owner separately authorised production
-apply of exactly those two plans; execution and live verification are still
-pending, so neither offer is represented as live yet.
+queue to two exact owner-reviewed Batch F candidates. Both were separately
+owner-approved, freshly re-read, atomically applied and live-verified. They are
+not yet part of the exact-20 scheduled refresh manifest; extending that same
+guarded manifest to exact-22 remains a separate controlled follow-up.
 Credential values remain outside the repository.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
@@ -267,6 +267,7 @@ expected `/go/2549`-`/go/2555` routes. Batch C is live-verified 7/7.
 - [x] Batch B five exact plans owner-approved and atomically applied.
 - [x] Batch B postflight, production readback and public verification passed 5/5.
 - [x] Controlled first 10 eBay offers are live-verified end to end.
+- [x] Batch F exact two offers owner-approved, applied, postflight-verified and publicly live-verified.
 - [ ] At least 50 independent owner-safe eBay offers available.
 - [x] Production pilot completed; all five exact Batch A offers owner-approved, applied and live-verified.
 
@@ -1855,15 +1856,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Execute the separately owner-approved Batch F exact-two rollout
-through the existing guarded eBay canary workflow with confirmation
-OWNER_APPROVED_EBAY_BATCH_F_EXACT_2. The workflow must freshly re-read both
-sealed items before any write, validate the two immutable plans, require an
-immediate exact no-op postflight and independently verify both public pages.
-Do not include any of the other 13 checked rows or weaken seller, identity,
-GTIN, format, flavour, size, delivery or affiliate gates. Separately monitor
-the already enabled exact-20 scheduled refresh at 05:43 UTC on 18 August 2026
-(06:43 BST).`
+`NEXT ACTION: Monitor the already enabled exact-20 scheduled refresh at 05:43
+UTC on 18 August 2026 (06:43 BST). Then prepare a read-only, fail-closed change
+that adds only Batch F offers 2559 and 2560 to the existing refresh manifest,
+with exact item, canonical target, seller and price identity checks; do not
+create a second scheduler or include any of the other 13 rejected rows.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -2032,9 +2029,24 @@ owner-reviewed production design and approval.
   binds the exact two plans, CSV and dry-run artifact to executor confirmation
   `OWNER_APPROVED_EBAY_BATCH_F_EXACT_2`. The existing canary workflow now adds a
   direct live preflight before apply and requires a two-row exact no-op
-  postflight. Local rollout, workflow and drift tests pass 31/31. This records
-  authority and guarded release preparation only; production execution and
-  public verification remain pending.
+  postflight. Local rollout, workflow and drift tests pass 31/31.
+- Manual GitHub Actions run `32044296989` on commit `ba53f6a` passed the fresh
+  direct-item preflight 2/2 and atomically executed exactly 2/2 plans. It created
+  mappings `2744`-`2745`, offers `2559`-`2560` and two price-history rows. The
+  apply was not repeated when its postflight exposed an importer validation bug
+  for the canonical feed representation `size=480|2270` plus `size_unit=g`.
+  Execution artifact `9292513103` has SHA-256
+  `619d6aa509b905a8e032e805742b39260c70fc93162526bec00035f220c2de2a`.
+- Commit `172c2ab` corrected only that representation handling while preserving
+  already unit-bearing values and added regression coverage. The complete
+  importer suite passed 185/185 and `npm run verify:full` passed. Non-writing
+  postflight run `32044675770` then validated 2 plans, 0 blocked rows and exact
+  mapping, offer and price-history no-ops. Evidence artifact `9292594479` has
+  SHA-256 `bf69a4c50c1160eae9be7f1af2a36f15c713a1e5f2aca94bcf535f72fb5c6bbd`.
+- Independent public verification passed 2/2: products `520` and `134` returned
+  HTTP 200, displayed eBay UK and contained `/go/2559` and `/go/2560`. Both
+  routes returned HTTP 307 to the exact approved eBay item/variation with the
+  configured affiliate campaign ID. Batch F is live-verified 2/2.
 
 16 August 2026:
 
