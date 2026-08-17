@@ -1864,12 +1864,12 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Monitor the first scheduled exact-31 refresh at 05:43 UTC on 18
-August 2026 (06:43 BST). Batch H is sealed and dry-run verified; obtain a
-separate owner confirmation for the production apply of exactly those 11 rows
-before creating any write-capable rollout. Continue coverage discovery only
-through the existing read-only pipeline; do not include any rejected row or
-weaken the exact identity, seller, delivery, affiliate or continuity gates.`
+`NEXT ACTION: Execute the separately owner-approved Batch H exact-11 production
+workflow on main. Require its fresh direct-item preflight, narrow-role apply and
+11-row no-op postflight to pass before recording any production or public
+change. After successful readback, extend the existing refresh from 31 to the
+actual verified 42 mapping/offer identities; do not create a second scheduler
+or weaken the exact identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1878,6 +1878,16 @@ owner-reviewed production design and approval.
 ## Last verified
 
 17 August 2026:
+
+- The owner separately confirmed `Zatwierdzam produkcyjny apply Batch H —
+  dokładnie te 11`. The write-capable rollout is sealed to confirmation token
+  `OWNER_APPROVED_EBAY_BATCH_H_EXACT_11`, fingerprint
+  `1d88e534d0678be4e0c1238027c1cb0c0a012947cccd1f6d7bcc54ac8dc1bbb2`
+  and the previously reviewed artifact. Its manual workflow requires a fresh
+  11-item eBay preflight, uses the existing separated approver and executor
+  roles, and requires an exact 11-row no-op postflight. This records authority
+  and execution readiness only; production remains unchanged until live
+  workflow evidence is captured.
 
 - The owner confirmed `Zatwierdzam Batch H — dokładnie te 11`, authorizing
   guarded preparation of the exact official Applied Nutrition candidates but
