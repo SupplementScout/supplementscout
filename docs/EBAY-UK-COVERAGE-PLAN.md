@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 31-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9)
+**Status:** CONTROLLED 42-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11)
 **Last verified:** 17 August 2026
-**Production writes:** 31 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 31 mappings, 31 offers, 31 price-history rows; latest refresh changed verification timestamps only)
-**Public changes:** 1 guarded account-deletion API route and 31 live eBay offers
+**Production writes:** 42 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 42 mappings, 42 offers, 42 price-history rows; latest refresh changed verification timestamps only)
+**Public changes:** 1 guarded account-deletion API route and 42 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -54,12 +54,11 @@ business seller and reviewed metadata-gap set. No second scheduler or importer
 was introduced.
 Credential values remain outside the repository.
 
-Batch H is prepared but not applied. The owner approved the exact 11 official
-Applied Nutrition variants for guarded preparation. A fresh direct-item
-preflight and production dry-run passed 11/11 with zero blocked rows and zero
-database writes. The sealed review explicitly retains
-`approved_for_production_apply: false`; therefore production remains at 31
-eBay offers until a separate exact production-apply approval is received.
+Batch H is live verified 11/11. The exact official Applied Nutrition scope now
+has mappings `2755`-`2765` and offers `2570`-`2580`; all 11 postflight plans are
+no-ops. The existing single scheduled refresh manifest is extended to exactly
+42 offers. Its fresh read-only production check passed 42 eligible, zero
+blocked and zero writes before enablement; no second scheduler exists.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1864,11 +1863,10 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Execute the sealed Batch H recovery for only the four unapplied
-High Protein Shake rows. Seven rows are already live and must remain no-ops.
-Require a fresh 11-item preflight, four narrow-role creates and an 11-row no-op
-postflight before extending the existing refresh to the actual verified 42
-mapping/offer identities. Do not create a second scheduler or weaken any gate.`
+`NEXT ACTION: Monitor the first scheduled exact-42 refresh at 05:43 UTC on 18
+August 2026 (06:43 BST). Continue official-brand-store discovery through the
+existing read-only seller-bounded Browse path; do not create a second scheduler
+or weaken the exact identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1877,6 +1875,21 @@ owner-reviewed production design and approval.
 ## Last verified
 
 17 August 2026:
+
+- Recovery run `32070549102` passed the fresh official-store preflight 11/11,
+  verified seven already-created rows, created only the four remaining shake
+  mappings/offers/history rows and passed the final 11-row no-op postflight.
+  Evidence artifact `9301568719` was uploaded. Independent production readback
+  returned mappings `2755`-`2765`, offers `2570`-`2580`, 11 no-op plans and zero
+  blocked rows. All five affected public product pages returned HTTP 200 and
+  visibly contained eBay UK offer links.
+- The existing refresh manifest was extended from 31 to exactly 42 rows using
+  the verified production IDs. Seven official-store metadata exceptions are
+  sealed to their exact item, GTIN, business seller and observed blocker/review
+  sets; unexpected extra or missing evidence still blocks. A fresh exact-42
+  production dry-run passed 42 eligible, zero blocked and classified every row
+  `verify_no_change`. The existing `05:43 UTC` scheduler remains the only
+  refresh mechanism.
 
 - Batch H production run `32069808784` passed contract tests and the fresh
   direct-item preflight 11/11. The per-plan narrow-role executor committed the

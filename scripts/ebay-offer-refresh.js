@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_31";
-const KIND = "ebay-existing-offer-refresh-exact-31-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_42";
+const KIND = "ebay-existing-offer-refresh-exact-42-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -28,6 +28,15 @@ const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2568", { seller: "trainingfuels", review_reasons: new Set(["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
   ["2569", { seller: "healthyessentialsuk", review_reasons: new Set(["FLAVOUR_UNPROVEN", "FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
 ]);
+const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
+  ["2570", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
+  ["2572", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
+  ["2573", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
+  ["2574", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2575", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2576", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2578", { seller: "appliednutritionplc", blockers: new Set(["FLAVOUR_MISMATCH"]), review_reasons: new Set() }],
+]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
   { csv: "remaining-4.csv", approval: "remaining-4-rollout.json", count: 4 },
@@ -37,6 +46,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-e.csv", approval: "batch-e-rollout.json", count: 1 },
   { csv: "batch-f.csv", approval: "batch-f-rollout.json", count: 2 },
   { csv: "batch-g.csv", approval: "batch-g-rollout.json", count: 9 },
+  { csv: "batch-h.csv", approval: "batch-h-rollout.json", count: 11 },
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -72,7 +82,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 31) fail("Exact eBay refresh manifest must contain 31 rows");
+  if (rows.length !== 42) fail("Exact eBay refresh manifest must contain 42 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: String(2724 + index), offer_id: String(2539 + index) })));
@@ -124,12 +134,19 @@ function classifyContinuity(scope, evaluation) {
   const blockers = new Set(evaluation.blockers);
   const reasons = new Set(evaluation.review_reasons);
   const reviewed = REVIEWED_MISSING_GTIN_CONTINUITY.get(scope.offer_id);
+  const reviewedExactGtin = REVIEWED_EXACT_GTIN_CONTINUITY.get(scope.offer_id);
   const expectedBlockers = scope.gtin ? new Set() : new Set(["CANONICAL_GTIN_INVALID"]);
   if (
     evaluation.returned_gtin === null && reviewed && evaluation.seller?.username === reviewed.seller && evaluation.seller?.account_type === "BUSINESS" &&
     blockers.size === expectedBlockers.size && [...blockers].every((blocker) => expectedBlockers.has(blocker)) &&
     reasons.size === reviewed.review_reasons.size && [...reasons].every((reason) => reviewed.review_reasons.has(reason))
   ) return { eligible: true, tier: "sealed_owner_reviewed_missing_gtin_continuity" };
+  if (
+    scope.gtin && evaluation.returned_gtin === scope.gtin && reviewedExactGtin &&
+    evaluation.seller?.username === reviewedExactGtin.seller && evaluation.seller?.account_type === "BUSINESS" &&
+    blockers.size === reviewedExactGtin.blockers.size && [...blockers].every((blocker) => reviewedExactGtin.blockers.has(blocker)) &&
+    reasons.size === reviewedExactGtin.review_reasons.size && [...reasons].every((reason) => reviewedExactGtin.review_reasons.has(reason))
+  ) return { eligible: true, tier: "sealed_owner_reviewed_exact_gtin_metadata_continuity" };
   if (blockers.size) return { eligible: false, tier: "blocked" };
   if (evaluation.decision === "AUTO_ELIGIBLE" && evaluation.returned_gtin === scope.gtin) return { eligible: true, tier: "live_exact_gtin" };
   if (evaluation.returned_gtin === scope.gtin && reasons.size > 0 && [...reasons].every((reason) => EXACT_GTIN_METADATA_GAPS.has(reason))) return { eligible: true, tier: "live_exact_gtin_with_metadata_gap" };
