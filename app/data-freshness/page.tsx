@@ -153,8 +153,8 @@ export default function DataFreshnessPage() {
             <ul className="mt-4 list-disc space-y-3 pl-5 leading-7 text-zinc-700">
               <li>Stale offers cannot take a place in a current comparison-page ranking.</li>
               <li>Missing delivery stays unknown and is never converted to free delivery.</li>
-              <li>A comparison page can switch to noindex if fresh retailer coverage falls below its published quality gate.</li>
-              <li>A data-loading failure closes the page&apos;s indexing gate instead of publishing a silently partial current comparison.</li>
+              <li>We may temporarily keep a comparison out of search results when current retailer coverage becomes too narrow.</li>
+              <li>If current data cannot be loaded, we avoid presenting a partial result as a complete market comparison.</li>
             </ul>
           </section>
 

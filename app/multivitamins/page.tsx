@@ -5,7 +5,6 @@ import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLin
 import {
   evaluateMultivitaminsIndexability,
   getMultivitaminsComparison,
-  MULTIVITAMINS_INDEX_GATE,
   type MultivitaminsComparisonResult,
   type MultivitaminsComparisonRow,
 } from "../lib/multivitaminsComparison";
@@ -176,11 +175,11 @@ export function MultivitaminsPageContent({ result }: { result: MultivitaminsComp
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div><h3 className="font-bold">Does the first result mean the best Multivitamin?</h3><p className="mt-2 leading-7 text-zinc-700">No. Ordering favours current retailer and offer coverage. We do not make an unsupported health, effectiveness or formulation ranking.</p></div>
           <div><h3 className="font-bold">Are tablets, capsules and gummies equivalent?</h3><p className="mt-2 leading-7 text-zinc-700">No. Formats, pack counts, directions and formulations can differ. Check the exact retailer label before buying.</p></div>
-          <div><h3 className="font-bold">Why can a product have only one retailer?</h3><p className="mt-2 leading-7 text-zinc-700">It remains useful when its offer is current, but only products with multiple retailers contribute to the indexability coverage gate.</p></div>
+          <div><h3 className="font-bold">Why can a product have only one retailer?</h3><p className="mt-2 leading-7 text-zinc-700">A recently checked offer can still be useful, but a product needs offers from more than one retailer before it provides a direct price comparison.</p></div>
           <div><h3 className="font-bold">Why is a pack or serving value missing?</h3><p className="mt-2 leading-7 text-zinc-700">A price may be current while pack or serving evidence is incomplete. Unverified calculations remain hidden.</p></div>
         </div>
         <aside className="mt-10 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">Related comparisons and information</h2><div className="mt-4 flex flex-wrap gap-4 text-sm"><Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link><Link href="/mass-gainer" className="font-semibold underline">Mass Gainer comparison</Link><Link href="/creatine" className="font-semibold underline">Creatine comparison</Link><Link href="/search?q=multivitamin" className="font-semibold underline">Search Multivitamins</Link><ComparisonTransparencyLinks /></div></aside>
-        <p className="mt-8 text-xs leading-5 text-zinc-500">Indexing quality gate: at least {MULTIVITAMINS_INDEX_GATE.minimumProductsWithMultipleFreshRetailers} multi-retailer products, {MULTIVITAMINS_INDEX_GATE.minimumFreshRetailersAcrossComparisons} retailers across those comparisons and {MULTIVITAMINS_INDEX_GATE.minimumFreshOffers} fresh offers. If coverage falls, the page stays useful but becomes noindex.</p>
+        <p className="mt-8 text-xs leading-5 text-zinc-500">We only feature this comparison in search when it includes enough recently checked offers from multiple UK retailers. If coverage is temporarily limited, you can still use the page, but we will not present it as a complete market comparison.</p>
       </section>
     </main>
   );

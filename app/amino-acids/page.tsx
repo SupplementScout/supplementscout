@@ -3,7 +3,6 @@ import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  AMINO_ACIDS_INDEX_GATE,
   evaluateAminoAcidsIndexability,
   getAminoAcidsComparison,
   type AminoAcidsComparisonResult,
@@ -336,7 +335,7 @@ export function AminoAcidsPageContent({
         </aside>
 
         <p className="mt-8 text-xs leading-5 text-zinc-500">
-          Indexing quality gate: at least {AMINO_ACIDS_INDEX_GATE.minimumProductsWithMultipleFreshRetailers} multi-retailer products, {AMINO_ACIDS_INDEX_GATE.minimumFreshRetailersAcrossComparisons} retailers across those comparisons and {AMINO_ACIDS_INDEX_GATE.minimumFreshOffers} fresh offers. If coverage falls below the gate, this page remains available but is marked not to be indexed.
+          We only feature this comparison in search when it includes enough recently checked offers from multiple UK retailers. If coverage is temporarily limited, you can still use the page, but we will not present it as a complete market comparison.
         </p>
       </section>
     </main>

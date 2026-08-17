@@ -130,8 +130,34 @@ test("freshness page scopes the 24-day rule and avoids a false sitewide promise"
   assert.match(html, /Not every page uses the same gate/i);
   assert.match(html, /do not claim one fixed update schedule for every retailer/i);
   assert.match(html, /stale offers cannot take a place in a current comparison-page ranking/i);
-  assert.match(html, /can switch to noindex/i);
+  assert.match(html, /temporarily keep a comparison out of search results/i);
+  assert.doesNotMatch(html, /\bnoindex\b|indexing gate/i);
   assert.match(html, /do not fill those gaps by estimation/i);
+});
+
+test("commercial comparison copy explains coverage without internal SEO jargon", () => {
+  const comparisonPages = [
+    "amino-acids",
+    "hydration",
+    "mass-gainer",
+    "multivitamins",
+    "pre-workout",
+    "vegan-protein",
+    "whey-isolate",
+    "whey-protein",
+  ];
+
+  for (const route of comparisonPages) {
+    const source = fs.readFileSync(
+      path.join(ROOT, "app", route, "page.tsx"),
+      "utf8"
+    );
+    assert.doesNotMatch(
+      source,
+      /Indexing quality gate|becomes noindex|marked not to be indexed|indexability coverage gate|structured data has no major errors/i,
+      `${route} exposes internal SEO terminology in shopper-facing copy`
+    );
+  }
 });
 
 test("published explanations remain bound to the implemented pricing and freshness rules", () => {

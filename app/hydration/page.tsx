@@ -5,7 +5,6 @@ import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLin
 import {
   evaluateHydrationIndexability,
   getHydrationComparison,
-  HYDRATION_INDEX_GATE,
   type HydrationComparisonResult,
   type HydrationComparisonRow,
 } from "../lib/hydrationComparison";
@@ -297,11 +296,12 @@ export function HydrationPageContent({
             </p>
           </div>
           <div>
-            <h2 className="text-2xl font-bold">When this page can be indexed</h2>
+            <h2 className="text-2xl font-bold">Why retailer coverage matters</h2>
             <p className="mt-3 leading-7 text-zinc-700">
-              The page remains out of search indexes until at least {HYDRATION_INDEX_GATE.minimumProductsWithMultipleFreshRetailers} products have
-              recently checked offers from multiple retailers, at least {HYDRATION_INDEX_GATE.minimumFreshRetailersAcrossComparisons} fresh retailers are represented
-              across those comparisons, at least {HYDRATION_INDEX_GATE.minimumFreshOffers} fresh offers remain available, and structured data has no major errors.
+              One current retailer offer is useful for checking availability,
+              but it is not a full price comparison. We only present this page
+              as a retailer comparison in search when enough products have
+              recently checked offers from multiple UK retailers.
             </p>
           </div>
         </div>

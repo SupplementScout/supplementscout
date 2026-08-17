@@ -5,7 +5,6 @@ import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLin
 import {
   evaluatePreWorkoutIndexability,
   getPreWorkoutComparison,
-  PRE_WORKOUT_INDEX_GATE,
   type PreWorkoutComparisonResult,
   type PreWorkoutComparisonRow,
 } from "../lib/preWorkoutComparison";
@@ -478,14 +477,10 @@ export function PreWorkoutPageContent({
         </aside>
 
         <p className="mt-8 text-xs leading-5 text-zinc-500">
-          Indexing quality gate: at least{" "}
-          {PRE_WORKOUT_INDEX_GATE.minimumProductsWithMultipleFreshRetailers}{" "}
-          multi-retailer products,{" "}
-          {PRE_WORKOUT_INDEX_GATE.minimumFreshRetailersAcrossComparisons}{" "}
-          retailers across those comparisons and{" "}
-          {PRE_WORKOUT_INDEX_GATE.minimumFreshOffers} fresh offers. If coverage
-          falls below the gate, the page remains available to users but is
-          marked not to be indexed until coverage recovers.
+          We only feature this comparison in search when it includes enough
+          recently checked offers from multiple UK retailers. If coverage is
+          temporarily limited, you can still use the page, but we will not
+          present it as a complete market comparison.
         </p>
       </section>
     </main>

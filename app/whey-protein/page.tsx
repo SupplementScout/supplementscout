@@ -5,7 +5,6 @@ import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLin
 import {
   evaluateWheyIndexability,
   getWheyComparison,
-  WHEY_INDEX_GATE,
   type WheyComparisonResult,
   type WheyComparisonRow,
 } from "../lib/wheyComparison";
@@ -505,14 +504,10 @@ export function WheyProteinPageContent({
         </aside>
 
         <p className="mt-8 text-xs leading-5 text-zinc-500">
-          Indexing quality gate: at least{" "}
-          {WHEY_INDEX_GATE.minimumProductsWithMultipleFreshRetailers}{" "}
-          multi-retailer products,{" "}
-          {WHEY_INDEX_GATE.minimumFreshRetailersAcrossComparisons} retailers
-          across those comparisons and {WHEY_INDEX_GATE.minimumFreshOffers}{" "}
-          fresh offers. If coverage falls below the gate, the page remains
-          available to users but is marked not to be indexed until coverage
-          recovers.
+          We only feature this comparison in search when it includes enough
+          recently checked offers from multiple UK retailers. If coverage is
+          temporarily limited, you can still use the page, but we will not
+          present it as a complete market comparison.
         </p>
       </section>
     </main>

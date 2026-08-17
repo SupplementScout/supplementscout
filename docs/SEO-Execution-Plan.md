@@ -345,6 +345,29 @@ SEO-07 manual evidence queue is now complete:
   pursue legitimate authority, then execute the planned brand/retailer, deals
   and guarded comparison work. No second SEO implementation was opened.
 
+### 17 August 2026 — comparison-page shopper-language cleanup
+
+- A review of the active comparison templates found internal SEO terminology
+  exposed in shopper copy on Whey Protein, Whey Isolate, Pre Workout, Amino
+  Acids, Vegan Protein, Mass Gainer, Multivitamins, Hydration and the public
+  data-freshness explanation. Examples included `Indexing quality gate`,
+  `noindex`, `indexability coverage gate` and structured-data error language.
+- The visible wording now explains the customer consequence instead: a current
+  single-retailer offer can still help check availability, while a meaningful
+  price comparison needs enough recently checked offers from multiple UK
+  retailers. If coverage becomes narrow, the page is not presented in search
+  as a complete market comparison.
+- The existing dynamic robots metadata, exact category gates, freshness rules,
+  canonical URLs, structured data, catalogue reads and analytics are unchanged.
+  This is presentation work inside the existing SEO-13 comparison mechanism,
+  not a second SEO implementation or a weakened indexing policy.
+- A regression assertion now blocks the identified internal phrases from
+  returning to shopper-facing comparison copy. Nine focused page and
+  transparency suites passed 77 tests; `npm run verify:quick` and
+  `npm run verify:full`, including the Next.js production build, passed.
+- This is local release evidence only. Live completion requires deployment and
+  public HTML plus robots/canonical verification on the affected routes.
+
 ### 17 August 2026 — SEO-13 Whey Isolate cost-intent local enhancement
 
 - The latest available authenticated report, covering 3–9 August, confirmed

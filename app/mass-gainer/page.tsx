@@ -5,7 +5,6 @@ import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLin
 import {
   evaluateMassGainerIndexability,
   getMassGainerComparison,
-  MASS_GAINER_INDEX_GATE,
   type MassGainerComparisonResult,
   type MassGainerComparisonRow,
 } from "../lib/massGainerComparison";
@@ -160,11 +159,11 @@ export function MassGainerPageContent({ result }: { result: MassGainerComparison
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div><h3 className="font-bold">Does the first result mean the best Mass Gainer?</h3><p className="mt-2 leading-7 text-zinc-700">No. Ordering favours current retailer and offer coverage. We do not make an unsupported quality, effectiveness or health ranking.</p></div>
           <div><h3 className="font-bold">Are all pack sizes equivalent?</h3><p className="mt-2 leading-7 text-zinc-700">No. Products and variants can differ in pack size, flavour and serving information. Check the exact variant and retailer label before buying.</p></div>
-          <div><h3 className="font-bold">Why can a product have only one retailer?</h3><p className="mt-2 leading-7 text-zinc-700">It remains useful when its offer is current, but only products with multiple retailers contribute to the indexability coverage gate.</p></div>
+          <div><h3 className="font-bold">Why can a product have only one retailer?</h3><p className="mt-2 leading-7 text-zinc-700">A recently checked offer can still be useful, but a product needs offers from more than one retailer before it provides a direct price comparison.</p></div>
           <div><h3 className="font-bold">Why is a value calculation missing?</h3><p className="mt-2 leading-7 text-zinc-700">A price may be current while package, serving or nutrition evidence is incomplete. Unverified calculations remain hidden.</p></div>
         </div>
         <aside className="mt-10 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">Related comparisons and information</h2><div className="mt-4 flex flex-wrap gap-4 text-sm"><Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link><Link href="/whey-isolate" className="font-semibold underline">Whey Isolate comparison</Link><Link href="/vegan-protein" className="font-semibold underline">Vegan Protein comparison</Link><Link href="/creatine" className="font-semibold underline">Creatine comparison</Link><Link href="/search?q=mass%20gainer" className="font-semibold underline">Search Mass Gainer</Link><ComparisonTransparencyLinks /></div></aside>
-        <p className="mt-8 text-xs leading-5 text-zinc-500">Indexing quality gate: at least {MASS_GAINER_INDEX_GATE.minimumProductsWithMultipleFreshRetailers} multi-retailer products, {MASS_GAINER_INDEX_GATE.minimumFreshRetailersAcrossComparisons} retailers across those comparisons and {MASS_GAINER_INDEX_GATE.minimumFreshOffers} fresh offers. If coverage falls, the page stays useful but becomes noindex.</p>
+        <p className="mt-8 text-xs leading-5 text-zinc-500">We only feature this comparison in search when it includes enough recently checked offers from multiple UK retailers. If coverage is temporarily limited, you can still use the page, but we will not present it as a complete market comparison.</p>
       </section>
     </main>
   );

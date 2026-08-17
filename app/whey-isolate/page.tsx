@@ -6,7 +6,6 @@ import { formatCurrency, formatUnitPrice } from "../lib/pricing";
 import {
   evaluateWheyIsolateIndexability,
   getWheyIsolateComparison,
-  WHEY_ISOLATE_INDEX_GATE,
   type WheyIsolateComparisonResult,
   type WheyIsolateComparisonRow,
 } from "../lib/wheyIsolateComparison";
@@ -222,14 +221,14 @@ export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparis
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div><h3 className="font-bold">Is every whey product included?</h3><p className="mt-2 leading-7 text-zinc-700">No. The broader <Link href="/whey-protein" className="underline">Whey Protein comparison</Link> includes concentrates and reviewed whey blends. This page uses the narrower explicit-isolate boundary.</p></div>
           <div><h3 className="font-bold">Does the first product mean the best isolate?</h3><p className="mt-2 leading-7 text-zinc-700">No. Products with more current retailer coverage appear first; no unsupported quality, formulation or health ranking is made.</p></div>
-          <div><h3 className="font-bold">Why can a product have only one retailer?</h3><p className="mt-2 leading-7 text-zinc-700">It remains useful when its offer is current, but only products with multiple retailers contribute to the indexability coverage gate.</p></div>
+          <div><h3 className="font-bold">Why can a product have only one retailer?</h3><p className="mt-2 leading-7 text-zinc-700">A recently checked offer can still be useful, but a product needs offers from more than one retailer before it provides a direct price comparison.</p></div>
           <div><h3 className="font-bold">Why is a value metric missing?</h3><p className="mt-2 leading-7 text-zinc-700">The current price can be valid while package, serving or nutrition evidence is incomplete. Unverified calculations remain hidden.</p></div>
           {lowestDeliveredRow && (
             <div><h3 className="font-bold">Which Whey Isolate has the lowest known delivered price?</h3><p className="mt-2 leading-7 text-zinc-700">From the fresh offers with known delivery currently included here, <Link href={lowestDeliveredRow.productUrl} className="underline">{lowestDeliveredRow.name}</Link> has the lowest delivered total at {formatCurrency(lowestDeliveredRow.bestOffer.deliveredPrice!.totalPrice)}. Coverage and prices can change, so check the dated retailer offers before buying.</p></div>
           )}
         </div>
         <aside className="mt-10 rounded-xl border border-zinc-200 bg-white p-6"><h2 className="text-xl font-bold">Related comparisons and information</h2><div className="mt-4 flex flex-wrap gap-4 text-sm"><Link href="/whey-protein" className="font-semibold underline">Whey Protein comparison</Link><Link href="/vegan-protein" className="font-semibold underline">Vegan Protein comparison</Link><Link href="/creatine" className="font-semibold underline">Creatine comparison</Link><Link href="/pre-workout" className="font-semibold underline">Pre Workout comparison</Link><Link href="/search?q=whey%20isolate" className="font-semibold underline">Search Whey Isolate</Link><ComparisonTransparencyLinks /></div></aside>
-        <p className="mt-8 text-xs leading-5 text-zinc-500">Indexing quality gate: at least {WHEY_ISOLATE_INDEX_GATE.minimumProductsWithMultipleFreshRetailers} multi-retailer products, {WHEY_ISOLATE_INDEX_GATE.minimumFreshRetailersAcrossComparisons} retailers across those comparisons and {WHEY_ISOLATE_INDEX_GATE.minimumFreshOffers} fresh offers. If coverage falls, the page stays useful but becomes noindex.</p>
+        <p className="mt-8 text-xs leading-5 text-zinc-500">We only feature this comparison in search when it includes enough recently checked offers from multiple UK retailers. If coverage is temporarily limited, you can still use the page, but we will not present it as a complete market comparison.</p>
       </section>
     </main>
   );
