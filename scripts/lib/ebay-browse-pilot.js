@@ -309,10 +309,16 @@ async function browseIdentity(identity, config, fetchImpl = fetch, options = {})
   if (!Number.isInteger(maxDetails) || maxDetails < 1 || maxDetails > limit) throw new Error("Browse detail limit must be between 1 and the result limit");
   const titleQuery = [identity.brand, identity.product_name, identity.flavour_label, identity.size_value != null && identity.size_unit ? `${identity.size_value}${identity.size_unit}` : null]
     .filter(Boolean).join(" ");
+  const sellers = options.sellers || [];
+  if (!Array.isArray(sellers) || sellers.length > 250 || sellers.some((seller) => !/^[A-Za-z0-9_.-]{1,64}$/.test(String(seller)))) {
+    throw new Error("Browse seller filter must contain up to 250 safe eBay usernames");
+  }
+  const filters = ["buyingOptions:{FIXED_PRICE}", "conditions:{NEW}", "deliveryCountry:GB"];
+  if (sellers.length) filters.push("sellerAccountTypes:{BUSINESS}", `sellers:{${sellers.join("|")}}`);
   const query = new URLSearchParams({
     [options.searchMode === "title" ? "q" : "gtin"]: options.searchMode === "title" ? titleQuery : identity.gtin,
     limit: String(limit),
-    filter: "buyingOptions:{FIXED_PRICE},conditions:{NEW},deliveryCountry:GB",
+    filter: filters.join(","),
   });
   const headers = { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id };
   const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`];

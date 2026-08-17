@@ -1858,9 +1858,11 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Monitor the first scheduled exact-31 refresh at 05:43 UTC on 18
-August 2026 (06:43 BST). Continue coverage discovery only through the existing
-read-only pipeline; do not include any of the other 13 rejected rows or weaken
-the exact identity, seller, delivery, affiliate or continuity gates.`
+August 2026 (06:43 BST). Separately, obtain owner review for the 11 bounded
+Applied Nutrition official-store variant candidates recorded below before
+preparing any production plan. Continue coverage discovery only through the
+existing read-only pipeline; do not include any rejected row or weaken the
+exact identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1869,6 +1871,29 @@ owner-reviewed production design and approval.
 ## Last verified
 
 17 August 2026:
+
+- The existing read-only Browse adapter now supports an optional exact seller
+  allow-list. Seller usernames are syntax-validated, bounded to eBay's 250
+  seller filter limit and combined with the `BUSINESS` account filter. Its
+  regression test confirms the exact `appliednutritionplc` request and rejects
+  unsafe filter input. This is discovery capability only and grants no write
+  authority.
+- A production-read-only audit of the official Applied Nutrition eBay seller
+  checked all 56 active, unmerged Applied Nutrition products. Nineteen products
+  had exactly one current non-eBay retailer and no current eBay mapping. The
+  seller-bounded search returned 13 listing variations across 10 of those
+  products, with zero database writes.
+- Variant review narrowed that evidence to 11 plausible exact variants across
+  five products: Cream of Rice Unflavoured 2 kg; Critical Plant Protein
+  Chocolate 1.8 kg; Beef Mass Frozen Berries and Tropical Vibes 3.13 kg;
+  Critical Oats Cookies & Cream, Chocolate and Golden Syrup 600 g; and High
+  Protein Shake Double Chocolate, Strawberry & Cream, Vanilla Ice Cream and
+  Banana Delight as 8 x 500 ml packs. These remain owner-review candidates,
+  not approved offers. The corresponding one-bottle shake variants are
+  explicitly excluded because the official listing is an eight-pack. Critical
+  Whey pack-size mismatches, ABE flavour mismatch, multivitamin formulation and
+  count mismatches, and ambiguous capsule/tablet identities also remain
+  excluded. No catalogue, offer, mapping, scheduler or public page changed.
 
 - A live duplicate/configuration audit confirmed that the four existing eBay
   values were already present in the controlled local environment, while the

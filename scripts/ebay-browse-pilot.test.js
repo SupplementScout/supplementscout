@@ -217,6 +217,22 @@ test("title-lead search remains GET-only and does not pretend to be exact-GTIN s
   assert.doesNotMatch(search, /[?&]gtin=/);
 });
 
+test("official-store search is bounded to the exact business seller username", async () => {
+  resetTokenCache();
+  const requests = [];
+  const mockFetch = async (url) => {
+    requests.push(String(url));
+    if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    return { ok: true, json: async () => ({ itemSummaries: [] }) };
+  };
+  await browseIdentity(identity, { client_id: "id", client_secret: "secret", marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: null }, mockFetch, { limit: 5, maxDetails: 5, searchMode: "title", sellers: ["appliednutritionplc"] });
+  const search = new URL(requests.find((url) => url.includes("item_summary/search")));
+  assert.match(search.searchParams.get("filter"), /sellerAccountTypes:\{BUSINESS\}/);
+  assert.match(search.searchParams.get("filter"), /sellers:\{appliednutritionplc\}/);
+  assert.rejects(() => browseIdentity(identity, { client_id: "id", client_secret: "secret", marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: null }, mockFetch, { searchMode: "title", sellers: ["unsafe|seller"] }), /safe eBay usernames/);
+  resetTokenCache();
+});
+
 test("eBay refresh is frozen to the exact 31 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
