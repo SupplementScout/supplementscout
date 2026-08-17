@@ -1847,14 +1847,15 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Owner review of exact-20 dry-run 32037679947 and its currently
-eligible 12-offer subset: 2539-2548, 2550 and 2558. If approved, run one manual
-guarded apply with confirmation OWNER_APPROVED_EBAY_REFRESH_EXACT_20; the
-workflow must freshly re-read all 20, prepare and execute only rows that remain
-AUTO_ELIGIBLE, skip every REVIEW/REJECT row, and pass immediate postflight.
-Only after that manual apply and postflight pass may EBAY_REFRESH_ENABLED be
-set to true. The eight current REVIEW rows, replacement listings and every
-GTIN-conflict row remain blocked.`
+`NEXT ACTION: Owner review of continuity dry-run 32039150019. If its exact
+20-offer scope is approved, run one manual guarded apply with confirmation
+OWNER_APPROVED_EBAY_REFRESH_EXACT_20. The workflow must freshly re-read all 20,
+accept only live exact-GTIN rows, narrow metadata disappearance with an exact
+GTIN, or a previously sealed exact item whose sole missing evidence is the
+currently returned GTIN. It must reject changed item identity, GTIN mismatch,
+additional semantic/seller/delivery/affiliate gaps and pass immediate
+postflight. Only after that manual apply and postflight pass may
+EBAY_REFRESH_ENABLED be set to true.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1926,6 +1927,25 @@ owner-reviewed production design and approval.
   eligible / 8 blocked result with 12 `verify_no_change` plans and zero writes.
   Apply and postflight were skipped. Evidence artifact `9291197853` has SHA-256
   `40add195e31a3608789ce983c804a86fba788de7160c9b5da9248008eb9c264b`.
+  `EBAY_REFRESH_ENABLED` remains unset.
+- Commit `bd24be6` added an existing-listing continuity tier without widening
+  discovery or new-listing matching. It is restricted to the immutable approved
+  20-offer manifest and requires the same eBay item and legacy item IDs, no
+  blockers, valid affiliate evidence and the same existing canonical target.
+  An absent returned GTIN is accepted only when `RETURNED_GTIN_UNPROVEN` is the
+  sole review reason; any GTIN mismatch, item change or additional missing
+  evidence fails closed. Exact returned GTIN rows may tolerate only the narrow
+  `FORMAT_UNPROVEN`, `SIZE_UNPROVEN` and `UNIT_COUNT_UNPROVEN` evidence gaps.
+- Local production dry-run with that rule checked all 20 and returned 20
+  `verify_no_change`, zero blocked rows, zero price/URL/stock/identity deltas and
+  zero writes. Twelve had complete live exact-GTIN evidence, five had an exact
+  live GTIN with only a narrow metadata gap, and offers `2553`-`2555` used
+  sealed-existing-identity continuity because missing GTIN was their sole gap.
+- GitHub Actions dry-run `32039150019` independently passed six focused
+  continuity/refresh tests and reproduced 20/20 `verify_no_change`, zero blocked
+  rows and zero writes. Apply and postflight were skipped. Evidence artifact
+  `9291581276` has SHA-256
+  `3bb6d4b6e796d1434f2a793e278fb048dfd6d95fea4d8543391b92d0640c8c83`.
   `EBAY_REFRESH_ENABLED` remains unset.
 
 16 August 2026:
