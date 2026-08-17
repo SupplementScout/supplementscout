@@ -422,9 +422,12 @@ SEO-07 manual evidence queue is now complete:
 - The focused landing suite passed 15 tests. Targeted ESLint and TypeScript,
   `npm run verify:quick` and `npm run verify:full`, including the Next.js
   production build, passed.
-- Commit `3815e01` was pushed to `main` and deployed. A cache-bypassed public
-  read returned HTTP 200, title and H1 `Omega 3 Prices UK – Compare Delivered
-  Cost`, the updated description, the exact `/omega-3` canonical and ordinary
+- Commit `3815e01` was pushed to `main` and deployed. Follow-up commit `610a471`
+  replaced a malformed separator with a safe ASCII hyphen and added a
+  regression assertion that rejects the damaged byte sequence. A
+  cache-bypassed public read returned HTTP 200, title and H1 `Omega 3 Prices UK
+  - Compare Delivered Cost`, the updated description, the exact `/omega-3`
+  canonical and ordinary
   index/follow behaviour. The server-rendered answer used 24 current matching
   products and stated a lowest known delivered price of GBP 6.23 for `Omega 3
   Capsules 500mg`, linked to its canonical product, with the current-coverage
