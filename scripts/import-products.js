@@ -3325,12 +3325,17 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
   )
     .trim()
     .toLowerCase();
-  const sealedProductFormat = [
+  const readyToDrinkFormats = [
     "ready-to-drink",
     "ready_to_drink",
     "ready to drink",
-  ].includes(reviewedProductFormat)
+  ];
+  const explicitReadyToDrink = readyToDrinkFormats.includes(String(row.product_format || "").trim().toLowerCase());
+  const canonicalReadyToDrink = readyToDrinkFormats.includes(String(productVariant?.product_format || "").trim().toLowerCase());
+  const sealedProductFormat = readyToDrinkFormats.includes(reviewedProductFormat)
     ? reviewedProductFormat
+    : explicitReadyToDrink && canonicalReadyToDrink
+      ? productVariant.product_format
     : evidence.productFormat;
   const optionTupleMode = String(row.legacy_option_tuple_mode ?? "").trim();
   const canonicalFlavour =

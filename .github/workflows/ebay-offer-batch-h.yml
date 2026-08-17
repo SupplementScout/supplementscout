@@ -8,7 +8,7 @@ on:
         required: true
         default: validate
         type: choice
-        options: [validate, apply, postflight]
+        options: [validate, apply, recover, postflight]
       owner_confirmation:
         description: "Exact Batch H production confirmation"
         required: true
@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   batch-h:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_BATCH_H_EXACT_11') }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (!contains(fromJSON('["apply","recover"]'), inputs.operation) || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_BATCH_H_EXACT_11') }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment: production-readonly
@@ -46,7 +46,7 @@ jobs:
       - name: Test exact Batch H contracts without production credentials
         run: node --test --test-name-pattern="Batch H" scripts/ebay-browse-pilot.test.js
       - name: Freshly re-read the exact reviewed Batch H eleven
-        if: ${{ inputs.operation == 'apply' }}
+        if: ${{ inputs.operation == 'apply' || inputs.operation == 'recover' }}
         env:
           EBAY_CANARY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
@@ -60,8 +60,15 @@ jobs:
           EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/ebay-offer-batch-h-executor.js --mode=${{ inputs.operation == 'apply' && 'apply' || 'validate' }} --output=tmp/ebay-offer-batch-h/execution.json
+      - name: Recover only the exact four unapplied Batch H plans
+        if: ${{ inputs.operation == 'recover' }}
+        env:
+          EBAY_CANARY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+          EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/ebay-offer-batch-h-recovery-executor.js --mode=apply --output=tmp/ebay-offer-batch-h/recovery.json
       - name: Verify exact post-write no-op
-        if: ${{ inputs.operation == 'apply' || inputs.operation == 'postflight' }}
+        if: ${{ inputs.operation == 'apply' || inputs.operation == 'recover' || inputs.operation == 'postflight' }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

@@ -10,6 +10,7 @@ const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
+const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: validateBatchHRecovery } = require("./ebay-offer-batch-h-recovery-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -534,6 +535,17 @@ test("Batch H workflow requires exact production confirmation and postflight", (
   assert.match(workflow, /--mode=.*apply/);
   assert.match(workflow, /plans\.length!==11/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
+});
+
+test("Batch H recovery is sealed to seven existing rows and exactly four unapplied shake offers", () => {
+  const validated = validateBatchHRecovery();
+  assert.equal(validated.noops.length, 7);
+  assert.equal(validated.entries.length, 4);
+  assert.deepEqual(BATCH_H_RECOVERY_IDENTITIES, [
+    "1126:2459:v1|134504071381|433990375237", "1126:2461:v1|134504071381|433990375234",
+    "1126:2463:v1|134504071381|433990375233", "1126:2465:v1|134504071381|433990375235",
+  ]);
+  assert.ok(validated.entries.every(({ entry }) => entry.resolved_plan.product_variant.evidence.product_format === "ready-to-drink"));
 });
 
 test("Batch G production rollout is bound to the exact nine approved plans", () => {

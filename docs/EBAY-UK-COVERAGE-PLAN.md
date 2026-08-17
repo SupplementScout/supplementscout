@@ -1864,12 +1864,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Execute the separately owner-approved Batch H exact-11 production
-workflow on main. Require its fresh direct-item preflight, narrow-role apply and
-11-row no-op postflight to pass before recording any production or public
-change. After successful readback, extend the existing refresh from 31 to the
-actual verified 42 mapping/offer identities; do not create a second scheduler
-or weaken the exact identity, seller, delivery, affiliate or continuity gates.`
+`NEXT ACTION: Execute the sealed Batch H recovery for only the four unapplied
+High Protein Shake rows. Seven rows are already live and must remain no-ops.
+Require a fresh 11-item preflight, four narrow-role creates and an 11-row no-op
+postflight before extending the existing refresh to the actual verified 42
+mapping/offer identities. Do not create a second scheduler or weaken any gate.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1878,6 +1877,23 @@ owner-reviewed production design and approval.
 ## Last verified
 
 17 August 2026:
+
+- Batch H production run `32069808784` passed contract tests and the fresh
+  direct-item preflight 11/11. The per-plan narrow-role executor committed the
+  first seven powder-product mappings/offers/history rows, then failed closed
+  on the first High Protein Shake with `variant evidence format mismatch`.
+  Postflight was skipped. A fresh production dry-run established the exact
+  recoverable partition: seven `noop/noop/noop` rows and four
+  `create/create/create` rows; no ambiguous or blocked row exists.
+- Root cause was the importer's generic normalization of explicit
+  `ready-to-drink` input to `liquid` while the existing canonical shake
+  variants retain `ready-to-drink`. The correction preserves the canonical
+  format only when both the source row and existing variant explicitly belong
+  to the ready-to-drink alias family; generic liquid rows are not widened. A
+  sealed recovery artifact now contains exactly seven no-ops and four creates,
+  with the four creates fixed to canonical product `1126`, variants `2459`,
+  `2461`, `2463` and `2465`. Recovery rollout fingerprint is
+  `e8ce3c1d9491e83e0d3bf0a279120bd717119d7652d6e47eea297f9dc5a3889a`.
 
 - The owner separately confirmed `Zatwierdzam produkcyjny apply Batch H —
   dokładnie te 11`. The write-capable rollout is sealed to confirmation token

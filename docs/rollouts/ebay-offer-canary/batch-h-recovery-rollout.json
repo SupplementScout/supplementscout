@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-offer-batch-h-exact-4-recovery-v1",
+  "approved": true,
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_H_EXACT_11",
+  "authority_scope": "remaining_four_of_owner_approved_exact_eleven",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "seller": "appliednutritionplc",
+  "csv": "docs/rollouts/ebay-offer-canary/batch-h.csv",
+  "csv_sha256": "0e67c22fd63b5d9b254d26b1edc61c18724111fb71ef45647bf93f42eb837a22",
+  "artifact": "docs/rollouts/ebay-offer-canary/batch-h-recovery-artifact.json",
+  "artifact_sha256": "0d08d8a5e2de41c4ac5e074c34f32bee58a4a7872805c2a195a1747f022bde1a",
+  "entries": [
+    {
+      "plan_fingerprint": "49a08c6152de8e6eb5386b0a1718283f",
+      "source_row_fingerprint": "f404b0cd1b4e681b540840e5e422ada706c0a05d62fbf305ed0647773c6aa8f5",
+      "product_id": "1126",
+      "product_variant_id": "2459",
+      "gtin": "5056555200483",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375237",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95"
+    },
+    {
+      "plan_fingerprint": "ddbe089993051024c7683c0341ef7c8c",
+      "source_row_fingerprint": "8f4926e0082e7917e0f13c5126662edccf70dc017010c9eb38da0fd9d1648ca7",
+      "product_id": "1126",
+      "product_variant_id": "2461",
+      "gtin": "5056555200490",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375234",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95"
+    },
+    {
+      "plan_fingerprint": "75f02d11427e34e4336a66dc34469b0e",
+      "source_row_fingerprint": "b0a22c9297eadeda4d860f8e52e3e70878938ce7980a133731546dda1d7a9c1f",
+      "product_id": "1126",
+      "product_variant_id": "2463",
+      "gtin": "5056555200506",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375233",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95"
+    },
+    {
+      "plan_fingerprint": "d503a5799b13c0ee5cab00618bfde899",
+      "source_row_fingerprint": "a44dde37e700debe863f016f12d69fccef8812e35e6897fca1e7fbbebcdee5b9",
+      "product_id": "1126",
+      "product_variant_id": "2465",
+      "gtin": "5056555200469",
+      "external_product_id": "134504071381",
+      "external_variant_id": "v1|134504071381|433990375235",
+      "price": "24.95",
+      "shipping_cost": "0",
+      "total_price": "24.95"
+    }
+  ],
+  "rollout_fingerprint": "e8ce3c1d9491e83e0d3bf0a279120bd717119d7652d6e47eea297f9dc5a3889a"
+}
