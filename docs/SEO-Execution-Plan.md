@@ -292,6 +292,34 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
+### 17 August 2026 - SEO-13 outbound measurement integrity live verification
+
+- Investigation of the admin report found 59 raw redirect requests between
+  08:40 and 10:34 UTC, including repeated same-offer triplets seconds apart.
+  Because the legacy table stored no client or navigation diagnostics, those
+  requests are not presented as proven shoppers and were not deleted.
+- Commit `c3e2f33` keeps the raw request total while adding privacy-limited
+  `likely_human`, `likely_automated` and `unknown` reporting. Classification
+  uses only coarse browser family, referrer class and navigation context; raw
+  IP addresses, full user-agent strings and full referrers are not stored.
+  Historical records remain `unknown / legacy_unclassified` rather than being
+  backfilled with an unsupported conclusion.
+- The schema migration passed staging rehearsal/apply and production
+  rehearsal/apply. Production migration ledger 115 is bound to fingerprint
+  `4afae6d2489727b56f9c69cb022890d080f764c8973a62685af4200fa25b013e`
+  with no pending migrations. Catalogue counts remained unchanged at 1,112
+  products, 2,641 variants, 2,544 retailer products, 2,544 offers and 2,704
+  price-history rows.
+- The final quality gate passed with 269 registered tests and a successful
+  Next.js production build. Public `/privacy` served the new disclosure. A
+  live `HEAD /go/2232` returned HTTP 204, no redirect and
+  `X-Robots-Tag: noindex, nofollow, noarchive`; the production outbound-click
+  count remained exactly 1,705 before and after the request.
+- Measurement hardening is `LIVE VERIFIED`. It does not change page metadata,
+  catalogue identity, ranking content or retailer destinations. SEO-13 remains
+  `IN PROGRESS`, and future traffic decisions should use classified counts
+  alongside GSC and GA4 rather than treating every raw redirect as a person.
+
 ### 17 August 2026 — SEO-13 Glucosamine no-click reinforcement live verification
 
 - The fresh authenticated weekly report for 10–16 August recorded 90
