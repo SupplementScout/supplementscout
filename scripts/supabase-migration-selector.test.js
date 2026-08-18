@@ -149,17 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production exposes only Jon's isolated batch registration as pending", () => {
+test("production records Jon's isolated batches and confirmed prices as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260818100000_allow_jons_isolated_offer_batches.sql",
-    sha256: "be1c392cd9bb3646c98d90af5311fa151ae0cf418eb751454d8249cd3e3a2562",
-    expectedCatalogueDeltas: {},
-  }]);
-  assert.equal(contract.ledgerCount, 118);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 120);
   assert.equal(
     contract.ledgerFingerprint,
-    "554e2556c24d1f3096f983990925e61bfd9d6452c3a159ffac13943f12911e7e",
+    "a805576291e092f730c6a88f3f7d58f9f4edad0b09a2ccb32f28bfbb861821bd",
   );
 });
 
@@ -262,13 +258,13 @@ test("production binds its exact ledger and one isolated Jon's migration", () =>
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 118);
+  assert.equal(result.ledger_count, 120);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260818100000_allow_jons_isolated_offer_batches"]);
-  assert.equal(result.selected_files.length, 119);
-  assert.deepEqual(result.pending_files, ["20260818100000_allow_jons_isolated_offer_batches.sql"]);
-  assert.equal(result.pending_file, "20260818100000_allow_jons_isolated_offer_batches.sql");
-  assert.equal(result.pending_sha256, "be1c392cd9bb3646c98d90af5311fa151ae0cf418eb751454d8249cd3e3a2562");
+  assert.deepEqual(result.pending, []);
+  assert.equal(result.selected_files.length, 120);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and exact-36 is selected rather than excluded", () => {

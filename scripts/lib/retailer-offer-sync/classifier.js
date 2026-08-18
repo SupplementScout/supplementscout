@@ -169,6 +169,27 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     } catch { return block("INVALID_URL"); }
     const allowedHosts = new Set((policy.allowed_url_hosts || [new URL(policy.store_url).hostname]).map((value) => String(value).toLowerCase().replace(/^www\./, "")));
     if (!policy.preserve_existing_urls && !allowedHosts.has(new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ""))) return block("INVALID_URL_DOMAIN");
+    const numericSourcePrice = Number(source.price);
+    if (!Number.isFinite(numericSourcePrice) || numericSourcePrice <= 0) {
+      if (!quarantineUnsafeRows) return block("INVALID_PRICE", { offer_id: target.offer_id });
+      quarantinedRows.push({
+        offer_id: String(target.offer_id),
+        retailer_product_id: String(target.retailer_product_id),
+        external_product_id: String(target.external_product_id),
+        external_variant_id: String(target.external_variant_id),
+        action: "BLOCK_SOURCE_ANOMALY",
+        reason: "INVALID_PRICE",
+        changed_fields: { price: true, stock: false, url: false, blocked: true },
+        source_captured_at: sourceCapturedAt,
+        source: {
+          external_product_id: String(source.external_product_id), external_variant_id: String(source.external_variant_id), external_sku: identityValue(source.external_sku),
+          product_handle: source.product_handle, price: String(source.price), shipping_cost: source.shipping_cost, in_stock: Boolean(source.in_stock),
+        },
+        target,
+        expected_deltas: deltasForChanges({ price: true, stock: false, url: false, blocked: true }, { shippingChanged: false, totalChanged: false }),
+      });
+      continue;
+    }
     const price = money(source.price) !== money(target.price);
     const stock = Boolean(source.in_stock) !== Boolean(target.in_stock);
     const url = policy.preserve_existing_urls ? false : sourceUrl !== target.url || sourceUrl !== target.external_url;
