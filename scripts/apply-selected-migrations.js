@@ -287,7 +287,7 @@ async function main(argv = process.argv.slice(2)) {
 
 if (require.main === module) {
   main().catch((error) => {
-    console.error(error.message);
+    console.error(error.position ? `${error.message} (position ${error.position})` : error.message);
     process.exitCode = 1;
   });
 }

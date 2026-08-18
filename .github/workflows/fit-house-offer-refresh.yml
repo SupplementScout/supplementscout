@@ -75,7 +75,7 @@ jobs:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run
+        run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Apply all approved Fit House offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -87,7 +87,7 @@ jobs:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/fit-house-offer-refresh.js --target=production --mode=apply
+        run: node scripts/fit-house-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
 
       - name: Verify idempotency with a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -99,7 +99,7 @@ jobs:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run
+        run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Publish workflow summary
         if: always()

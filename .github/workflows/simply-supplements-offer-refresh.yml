@@ -79,7 +79,7 @@ jobs:
           SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           SIMPLY_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SIMPLY_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run
+        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Apply approved Simply Supplements offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -91,7 +91,7 @@ jobs:
           SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           SIMPLY_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SIMPLY_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=apply
+        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
 
       - name: Verify idempotency with a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -103,7 +103,7 @@ jobs:
           SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           SIMPLY_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           SIMPLY_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run
+        run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Publish workflow summary
         if: always()

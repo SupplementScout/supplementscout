@@ -404,15 +404,23 @@ test("new unavailable rows are split within the database validator limit", () =>
     ).length <= 3));
 });
 
-test("CLI exposes only normal dry-run and apply modes", () => {
+test("CLI exposes guarded isolation only alongside normal dry-run and apply modes", () => {
   assert.deepEqual(parseArgs(["--target=production", "--mode=dry-run"]), {
     target: "production",
     mode: "dry-run",
+    isolateUnsafe: false,
   });
+  assert.equal(parseArgs(["--target=production", "--mode=apply", "--isolate-unsafe=true"]).isolateUnsafe, true);
   assert.throws(
     () => parseArgs(["--target=production", "--mode=apply", "--reviewed-manifest=x"]),
     /invalid argument/,
   );
+});
+
+test("shared isolation and price confirmation stay retailer-scoped", () => {
+  const migration = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260818120000_add_shared_isolated_confirmed_price_refresh.sql"), "utf8");
+  for (const token of ["retailer-two-capture-price-confirmation-v1", "first_mapped_fingerprint", "second_mapped_fingerprint", "confirmed_offer_ids", "validate_fit_house_confirmed_price_read_only", "validate_simply_confirmed_price_read_only", "validate_dolphin_confirmed_price_read_only", "Isolated child rows do not reconcile with the approved manifest"]) assert.ok(migration.includes(token), `missing ${token}`);
+  assert.doesNotMatch(migration, /(?:insert into|delete from|update) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
 });
 
 test("automation is retailer-scoped, keeps SAFE_UPDATE unset, and creates no catalogue rows", () => {

@@ -25,6 +25,10 @@ test("Dolphin automation is frozen to one existing mapping and offer", () => {
   assert.equal(config.discovery_policy.catalogue_creates, false);
 });
 
+test("Dolphin schedule isolates unsafe rows", () => {
+  assert.match(workflow, /--isolate-unsafe=true/g);
+});
+
 test("Dolphin build start does not inherit the Fit House stable OOS exception", () => {
   assert.equal(config.approved_stable_oos_baseline, undefined);
   assert.equal(engine.approvedStableOosBaseline(), null);

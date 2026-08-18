@@ -20,6 +20,10 @@ test("Simply automation is bound to the approved 120-row identity authority", ()
   assert.match(config.approved_scope_fingerprint, /^[0-9a-f]{64}$/);
 });
 
+test("Simply schedule isolates unsafe rows", () => {
+  assert.match(workflow, /--isolate-unsafe=true/g);
+});
+
 test("Simply build start does not inherit the Fit House stable OOS exception", () => {
   const engine = require("./simply-supplements-offer-refresh");
   assert.equal(config.approved_stable_oos_baseline, undefined);
