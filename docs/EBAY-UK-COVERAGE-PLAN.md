@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 42-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11)
+**Status:** CONTROLLED 50-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8)
 **Last verified:** 18 August 2026
-**Production writes:** 42 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 42 mappings, 42 offers, 42 price-history rows; latest refresh changed verification timestamps only)
-**Public changes:** 1 guarded account-deletion API route and 42 live eBay offers
+**Production writes:** 50 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 50 mappings, 50 offers, 50 price-history rows; latest refresh changed verification timestamps only)
+**Public changes:** 1 guarded account-deletion API route and 50 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,14 +41,14 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 42-offer rollout are complete. The
+read-only Browse pilot and the controlled 50-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below. The exact-42 daily refresh is enabled at `05:43 UTC`; each
+postflight below. The exact-50 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
-part of the same guarded exact-42 scheduled refresh manifest; missing GTIN
+part of the same guarded exact-50 scheduled refresh manifest; missing GTIN
 remains explicit evidence and is accepted only for the exact approved item,
 business seller and reviewed metadata-gap set. No second scheduler or importer
 was introduced.
@@ -79,7 +79,14 @@ and the previously reviewed eight plans. The manual-only workflow has no
 schedule or push trigger, requires a fresh eight-item seller and identity
 preflight, uses the existing separated approver/executor roles and requires an
 eight-row no-op postflight. This records production authority and execution
-readiness; it does not claim that the write has run.
+readiness. Protected run `32104443335` subsequently passed the fresh eight-item
+preflight, created all eight mappings/offers/history rows and passed the exact
+eight-row no-op postflight. Independent production readback confirmed mappings
+`2766`-`2773`, offers `2581`-`2588`, eight no-op plans and zero blocked rows;
+all eight public pages returned HTTP 200 and visibly contained eBay UK links.
+The single existing refresh manifest is now exact 50. Local and GitHub Actions
+dry-runs passed 50 eligible, zero blocked and zero writes; no second scheduler
+exists.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1884,11 +1891,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Run the manual protected Batch I exact-eight apply, require fresh
-8/8 preflight and 8/8 no-op postflight, then independently verify production
-rows and public pages. Extend the existing exact-42 refresh to exact 50 only
-after live verification; do not create a second scheduler or weaken the exact
-identity, seller, delivery, affiliate or continuity gates.`
+`NEXT ACTION: Monitor the first scheduled exact-50 refresh and retain its
+artifact as scheduled-run evidence. Continue official-brand-store discovery
+through the existing read-only seller-bounded Browse path; do not create a
+second scheduler or weaken the exact identity, seller, delivery, affiliate or
+continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1897,6 +1904,25 @@ owner-reviewed production design and approval.
 ## Last verified
 
 18 August 2026:
+
+- `BATCH I LIVE VERIFIED 8/8`: protected run `32104443335` on commit
+  `8b401e2b760dc0da2643cb1033a1c89096e9e11a` passed the fresh seller and item
+  preflight, executed all eight sealed plans and returned exactly eight no-op
+  plans in postflight. Artifact `9312674925` was uploaded. Independent readback
+  confirmed mapping IDs `2766`-`2773`, offer IDs `2581`-`2588`, correct prices,
+  free delivery, in-stock state and Campaign-ID URLs. All eight public product
+  pages returned HTTP 200 and visibly exposed eBay UK links.
+- The existing refresh manifest was extended from exact 42 to exact 50 only
+  after Batch I live verification. Six Time 4 metadata exceptions are sealed
+  to exact offer/item/seller and observed blocker sets; unexpected evidence
+  remains blocked. Local production dry-run passed 50 eligible, zero blocked
+  and 50 `verify_no_change` plans. GitHub Actions dry-run `32105098869` on
+  commit `599c97acec5b7b798670fdd1f28e807bab2e349a` independently passed the
+  exact-50 contract and fresh production preflight with all write steps
+  skipped. Artifact `9312883148` has SHA-256
+  `7b9b67b6b54c6266b222b15e0300809a67b9deb583ad6a8d1ed50c8bc6a9e9fc`.
+  The `05:43 UTC` workflow remains the single scheduler; the first scheduled
+  exact-50 execution remains pending evidence.
 
 - The owner separately confirmed `Zatwierdzam produkcyjny apply Batch I —
   dokładnie te 8`. The write-capable rollout is sealed to confirmation token
