@@ -24,7 +24,7 @@ class RefreshError extends Error{
   constructor(code,message,stage,detail={}){super(message);this.name="RefreshError";this.code=code;this.stage=stage;this.detail=detail}
 }
 function invariant(value,message){if(!value)throw new Error(message)}
-function parseArgs(argv){const out={};for(const arg of argv){const m=arg.match(/^--([^=]+)=(.*)$/);if(!m||out[m[1]]!==undefined||!["target","mode","reviewed-manifest","reviewed-manifest-sha256"].includes(m[1]))throw new Error(`invalid argument ${arg}`);out[m[1]]=m[2]}if(!TARGETS[out.target]||!["dry-run","apply"].includes(out.mode))throw new Error("required --target=staging|production --mode=dry-run|apply");if(Boolean(out["reviewed-manifest"])!==Boolean(out["reviewed-manifest-sha256"]))throw new Error("reviewed manifest path and SHA-256 must be supplied together");return out}
+function parseArgs(argv){const out={};for(const arg of argv){const m=arg.match(/^--([^=]+)=(.*)$/);if(!m||out[m[1]]!==undefined||!["target","mode","reviewed-manifest","reviewed-manifest-sha256","isolate-unsafe"].includes(m[1]))throw new Error(`invalid argument ${arg}`);out[m[1]]=m[2]}if(!TARGETS[out.target]||!["dry-run","apply"].includes(out.mode))throw new Error("required --target=staging|production --mode=dry-run|apply");if(Boolean(out["reviewed-manifest"])!==Boolean(out["reviewed-manifest-sha256"]))throw new Error("reviewed manifest path and SHA-256 must be supplied together");if(out["isolate-unsafe"]!==undefined&&!['true','false'].includes(out["isolate-unsafe"]))throw new Error("isolate-unsafe must be true or false");out.isolateUnsafe=out["isolate-unsafe"]==="true";delete out["isolate-unsafe"];return out}
 function loadEnvFile(file){if(!fs.existsSync(file))return{};const out={};for(const line of fs.readFileSync(file,"utf8").split(/\r?\n/)){const m=line.match(/^([A-Z0-9_]+)=(.*)$/);if(m)out[m[1]]=m[2].trim().replace(/^(['"])(.*)\1$/,"$2")}return out}
 function loadEnvironment(){Object.assign(process.env,Object.fromEntries(Object.entries(loadEnvFile(path.join(ROOT,".env.local"))).filter(([key])=>!process.env[key])))}
 function roleCredential(target,kind){const direct=process.env[`JONS_SYNC_${kind.toUpperCase()}_DATABASE_URL`];let url=direct;if(!url){const file=target==="production"?path.join(process.env.USERPROFILE||"", ".supplementscout","credentials",`production-${kind}.env`):path.join(ROOT,`.env.staging.${kind}.local`);const values=loadEnvFile(file);url=Object.entries(values).find(([key])=>key.endsWith("_DATABASE_URL"))?.[1]}invariant(url,`missing ${kind} database URL`);const parsed=new URL(url);parsed.searchParams.delete("sslmode");invariant(!parsed.href.includes(TARGETS[target==="production"?"staging":"production"].ref),`${kind} opposite target`);return parsed.href}
@@ -98,6 +98,7 @@ function targetFor(record){return{offer_id:String(record.offer.id),retailer_prod
 function verificationRecord(record,source,snapshotFingerprint,capturedAt){const mapping={...record.mapping};delete mapping.updated_at;return{source_snapshot_sha256:snapshotFingerprint,source_captured_at:capturedAt,source:{external_product_id:String(source.external_product_id),external_variant_id:String(source.external_variant_id),price:money(source.price),in_stock:Boolean(source.in_stock),url:source.url},target:{product:{...record.product,id:String(record.product.id),merged_into_product_id:record.product.merged_into_product_id==null?null:String(record.product.merged_into_product_id)},retailer:{...record.retailer,id:String(record.retailer.id)},product_variant:{...record.variant,id:String(record.variant.id),product_id:String(record.variant.product_id),size_value:record.variant.size_value==null?null:String(record.variant.size_value),pack_count:record.variant.pack_count==null?null:String(record.variant.pack_count)},retailer_product:{...mapping,id:String(mapping.id),retailer_id:String(mapping.retailer_id),product_id:String(mapping.product_id),product_variant_id:String(mapping.product_variant_id),match_confidence:mapping.match_confidence==null?null:String(mapping.match_confidence)},offer:{...record.offer,id:String(record.offer.id),product_id:String(record.offer.product_id),retailer_id:String(record.offer.retailer_id),product_variant_id:String(record.offer.product_variant_id),retailer_product_id:String(record.offer.retailer_product_id),price:money(record.offer.price),shipping_cost:money(record.offer.shipping_cost),total_price:money(record.offer.total_price),last_checked_at:timestamp(record.offer.last_checked_at)}}}}
 function classificationDiagnostic(classification){
   const rows=Array.isArray(classification.rows)?classification.rows:[];
+  const quarantined=Array.isArray(classification.quarantined_rows)?classification.quarantined_rows:[];
   return{
     state:classification.state,
     reason:classification.reason||null,
@@ -105,6 +106,7 @@ function classificationDiagnostic(classification){
     action_counts:rows.reduce((counts,row)=>({...counts,[row.action]:(counts[row.action]||0)+1}),{}),
     changed_row_ids:rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").map(row=>String(row.offer_id)),
     changed_rows:rows.filter(row=>row.action!=="VERIFY_NO_CHANGE").map(row=>({offer_id:String(row.offer_id),retailer_product_id:String(row.retailer_product_id),external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id),action:row.action,changed_fields:row.changed_fields})),
+    quarantined_rows:quarantined.map(row=>({offer_id:String(row.offer_id),retailer_product_id:String(row.retailer_product_id),external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id),action:row.action,reason:row.reason,changed_fields:row.changed_fields})),
   };
 }
 
@@ -164,7 +166,71 @@ function partitionExecutionRows(rows,maximumRows=50){
   return buckets;
 }
 
-async function buildRun(target,state,diagnostic=null,reviewed=null){
+function partitionIsolatedExecutionRows(rows,maximumRows=50,maximumChildren=20){
+  invariant(Number.isInteger(maximumRows)&&maximumRows>=12,"isolated maximum rows must be at least 12");
+  const newOos=rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"&&row.target.in_stock===true&&row.source.in_stock===false);
+  const otherChanged=rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"&&!newOos.includes(row));
+  const unchangedOos=rows.filter(row=>row.action==="VERIFY_NO_CHANGE"&&row.source.in_stock===false);
+  const unchangedAvailable=rows.filter(row=>row.action==="VERIFY_NO_CHANGE"&&row.source.in_stock===true);
+  const sensitive=[];
+  for(let index=0;index<newOos.length;index+=3)sensitive.push(newOos.slice(index,index+3));
+  if(!sensitive.length&&otherChanged.length)sensitive.push([]);
+  for(const row of otherChanged){
+    let bucket=sensitive.find(candidate=>candidate.length<12);
+    if(!bucket){bucket=[];sensitive.push(bucket)}
+    bucket.push(row);
+  }
+  const available=[...unchangedAvailable];
+  for(const bucket of sensitive){
+    const currentOos=bucket.filter(row=>row.source.in_stock===false).length;
+    const requiredForChangeRatio=bucket.length*3;
+    const requiredForOosRatio=Math.max(0,Math.ceil(currentOos/0.35)-currentOos);
+    const required=Math.max(requiredForChangeRatio,requiredForOosRatio);
+    invariant(available.length>=required,"not enough unchanged available rows to isolate safe changes");
+    bucket.push(...available.splice(0,required));
+  }
+  for(const bucket of sensitive){
+    while(bucket.length<maximumRows&&available.length)bucket.push(available.shift());
+  }
+  const batches=[...sensitive];
+  for(let index=0;index<unchangedOos.length;index+=maximumRows)batches.push(unchangedOos.slice(index,index+maximumRows));
+  for(let index=0;index<available.length;index+=maximumRows)batches.push(available.slice(index,index+maximumRows));
+  if(!batches.length&&rows.length)batches.push([...rows]);
+  invariant(batches.length>0&&batches.length<=maximumChildren,"isolated execution exceeds the maximum child count");
+  invariant(batches.every(batch=>batch.length>0&&batch.length<=maximumRows),"invalid isolated execution batch size");
+  invariant(batches.reduce((sum,batch)=>sum+batch.length,0)===rows.length,"isolated execution rows do not reconcile");
+  for(const batch of batches){
+    const guard=guardrailsFor(batch,config.source_baseline.product_count,batch[0]?.policy_fingerprint);
+    invariant(guard.new_oos_count<=Number(guard.limits.maximum_new_oos_count),"isolated batch exceeds new OOS limit");
+    invariant(guard.changed_row_count/batch.length<=config.guardrails.maximum_changed_record_ratio,"isolated batch exceeds change ratio");
+    if(guard.new_oos_count>0)invariant(guard.total_oos_count/batch.length<=config.guardrails.maximum_total_oos_ratio,"isolated batch exceeds OOS ratio");
+  }
+  return batches.map(batch=>batch.sort((left,right)=>Number(left.offer_id)-Number(right.offer_id)));
+}
+
+function mappedOfferSourceFingerprint(records,sourceVariants){
+  const byVariant=new Map(sourceVariants.map(row=>[String(row.external_variant_id),row]));
+  return canonicalHash(records.map(record=>{
+    const source=byVariant.get(String(record.mapping.external_variant_id));
+    invariant(source,"mapped source fingerprint is missing a variant");
+    return{offer_id:String(record.offer.id),external_product_id:String(source.external_product_id),external_variant_id:String(source.external_variant_id),product_handle:source.product_handle,price:money(source.price),in_stock:Boolean(source.in_stock)};
+  }).sort((left,right)=>Number(left.offer_id)-Number(right.offer_id)));
+}
+
+async function confirmAggregateSource(state,firstSourceFingerprint,diagnostic){
+  const capturedAt=new Date().toISOString();
+  const snapshot=await readShopifySnapshot({storeUrl:config.store_url,marketCountry:"GB",noCache:true,capturedAt,timeoutMs:config.source_fetch.timeout_ms,maximumPages:config.source_fetch.maximum_pages,maximumAttempts:config.source_fetch.maximum_attempts,retryBaseDelayMs:config.source_fetch.retry_base_delay_ms,userAgent:config.source_fetch.user_agent});
+  const raw=projectShopifyVariants(snapshot,{shippingCost:"3.99"});
+  const health=sourceHealth(snapshot,raw);
+  invariant(health.result==="PASS","second Jon's source capture failed health checks");
+  const reconciled=reconcileReviewedMissingVariants(state.records,raw);
+  const secondFingerprint=mappedOfferSourceFingerprint(state.records,reconciled.sourceVariants);
+  invariant(secondFingerprint===firstSourceFingerprint,"Jon's mapped offers changed between confirmation captures");
+  if(diagnostic)diagnostic.aggregate_confirmation={result:"PASS",first_mapped_fingerprint:firstSourceFingerprint,second_mapped_fingerprint:secondFingerprint,second_source_fingerprint:snapshot.semantic_source_fingerprint,second_captured_at:capturedAt};
+  return{snapshot,sourceVariants:reconciled.sourceVariants,mappedFingerprint:secondFingerprint};
+}
+
+async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe=false){
   const spec=TARGETS[target],capturedAt=new Date().toISOString();
   let snapshot;
   try{
@@ -200,7 +266,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   if(diagnostic)diagnostic.guard_results.push({guard:"REVIEWED_MISSING_VARIANTS",result:"PASS",manifest_sha256:missingReconciliation.manifest_sha256,reviewed_missing:missingReconciliation.reviewed_missing});
   const policy={...config.guardrails,required_matched_offers:506,store_url:config.store_url};
   const reviewedPriceAnomalyOfferIds=reviewed?.manifest.kind==="jons-existing-offer-1-price-change-reviewed-manifest"?reviewed.manifest.immutable_scope_offer_ids:[];
-  const classification=classifyExistingOffers({targets,sourceVariants:effectiveSourceVariants,policy,guardScope:{name:"JONS_FULL_506",retailer:"Jon's Supplements"},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count,reviewedPriceAnomalyOfferIds});
+  const classification=classifyExistingOffers({targets,sourceVariants:effectiveSourceVariants,policy,guardScope:{name:"JONS_FULL_506",retailer:"Jon's Supplements"},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count,reviewedPriceAnomalyOfferIds,quarantineUnsafeRows:isolateUnsafe&&!reviewed});
   if(diagnostic){
     diagnostic.classifier_summary=classificationDiagnostic(classification);
     diagnostic.mappings_matched=Array.isArray(classification.rows)?classification.rows.length:0;
@@ -215,13 +281,21 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
     if(!reviewed.scoped&&!reviewed.mapped&&snapshot.semantic_source_fingerprint!==reviewed.manifest.source_capture_sha256){
       throw new RefreshError("REVIEWED_MANIFEST_DRIFT","live Jon's source fingerprint differs from reviewed manifest","REVIEWED_CONTRACT",{reviewed_manifest_sha256:reviewed.sha256,reviewed_source_fingerprint:reviewed.manifest.source_capture_sha256,live_source_fingerprint:snapshot.semantic_source_fingerprint});
     }
+  }else if(isolateUnsafe){
+    const aggregateReasons=new Set(["MASS_OOS","MASS_CHANGE","MASS_PRICE"]);
+    const accepted=classification.state==="DRY_RUN_READY"||classification.state==="DRY_RUN_READY_WITH_REVIEW"||aggregateReasons.has(classification.reason);
+    if(!accepted||!Array.isArray(classification.rows)||classification.rows.length<1)throw new RefreshError(classification.reason||"CLASSIFIER_BLOCKED","isolated Jon's classifier blocked","CLASSIFIER",{...(classification.detail||{}),guard_evidence:classification.guard_evidence||null});
+    if(aggregateReasons.has(classification.reason)){
+      const firstMappedFingerprint=mappedOfferSourceFingerprint(state.records,effectiveSourceVariants);
+      await confirmAggregateSource(state,firstMappedFingerprint,diagnostic);
+    }
   }else if(classification.state!=="DRY_RUN_READY"||classification.rows.length!==506)throw new RefreshError(classification.reason||"CLASSIFIER_BLOCKED","full Jon's classifier blocked","CLASSIFIER",{...(classification.detail||{}),guard_evidence:classification.guard_evidence||null});
   const sourceByVariant=new Map(effectiveSourceVariants.map(row=>[String(row.external_variant_id),row])),recordByOffer=new Map(state.records.map(row=>[String(row.offer.id),row])),binding=migrationBinding(spec.environment),head=process.env.GITHUB_SHA||git("rev-parse","HEAD"),policyFingerprint=sha256(config),adapterFingerprint=sha256({reader:fs.readFileSync(path.join(ROOT,"scripts","lib","shopify-snapshot-reader.js"),"utf8"),classifier:fs.readFileSync(path.join(ROOT,"scripts","lib","retailer-offer-sync","classifier.js"),"utf8"),config}),expectedStateFingerprint=canonicalHash(state.records.map(row=>({product:row.product,variant:row.variant,mapping:row.mapping,offer:row.offer}))),rows=[];
   const plannedRows=reviewed?reviewedRows:classification.rows;
   for(const classified of plannedRows){const record=recordByOffer.get(String(classified.offer_id)),source=sourceFor(record,sourceByVariant);let plan;if(classified.action==="VERIFY_NO_CHANGE")plan=buildVerifiedNoChangePlan(verificationRecord(record,source,snapshot.semantic_source_fingerprint,capturedAt),{targetEnvironment:spec.environment,targetProjectRef:spec.ref,sourceSnapshotSha256s:new Set([snapshot.semantic_source_fingerprint]),now:new Date(capturedAt)}).plan;else{const built=buildExistingOfferUpdatePlan({product:record.product,variant:record.variant,retailer:record.retailer,mapping:record.mapping,offer:record.offer,source:{...source,url:source.url,shipping_cost:source.shipping_cost,total_price:source.total_price},sourceCapturedAt:capturedAt,sourceSnapshotFingerprint:snapshot.semantic_source_fingerprint});plan=built.plan;invariant(built.changed.price===classified.changed_fields.price&&built.changed.stock===classified.changed_fields.stock&&built.changed.url===classified.changed_fields.url,"classifier/plan changed-field mismatch")}
     rows.push({...classified,atomic_plan:plan,policy_fingerprint:policyFingerprint});
   }
-  const artifacts=[];const partitions=reviewed?[rows]:partitionExecutionRows(rows,50);for(const partition of partitions){const part=partition.map(executionRow),expected=sumDeltas(part),actionManifestFingerprint=canonicalHash({state:"DRY_RUN_READY",rows:part,expected_deltas:expected});artifacts.push(sealArtifact({kind:"retailer-existing-offer-mixed-batch-execution",retailer_slug:"jon-s-supplements",retailer_id:"10",target_environment:spec.environment,target_project_ref:spec.ref,target_database_identity:spec.identity,expected_migration_versions:binding.versions,expected_migration_fingerprint:binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",source_snapshot_fingerprint:snapshot.semantic_source_fingerprint,adapter_fingerprint:adapterFingerprint,policy_fingerprint:policyFingerprint,code_commit:head,expected_state_fingerprint:expectedStateFingerprint,source_captured_at:capturedAt,state:"DRY_RUN_READY",block:null,rows:part,expected_deltas:expected,action_manifest_fingerprint:actionManifestFingerprint}))}
+  const artifacts=[];const partitions=reviewed?[rows]:isolateUnsafe?partitionIsolatedExecutionRows(rows,50,20):partitionExecutionRows(rows,50);for(const partition of partitions){const part=partition.map(executionRow),expected=sumDeltas(part),actionManifestFingerprint=canonicalHash({state:"DRY_RUN_READY",rows:part,expected_deltas:expected});artifacts.push(sealArtifact({kind:"retailer-existing-offer-mixed-batch-execution",retailer_slug:"jon-s-supplements",retailer_id:"10",target_environment:spec.environment,target_project_ref:spec.ref,target_database_identity:spec.identity,expected_migration_versions:binding.versions,expected_migration_fingerprint:binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",source_snapshot_fingerprint:snapshot.semantic_source_fingerprint,adapter_fingerprint:adapterFingerprint,policy_fingerprint:policyFingerprint,code_commit:head,expected_state_fingerprint:expectedStateFingerprint,source_captured_at:capturedAt,state:"DRY_RUN_READY",block:null,rows:part,expected_deltas:expected,action_manifest_fingerprint:actionManifestFingerprint}))}
   const manifest=[...state.records].sort((a,b)=>Number(a.mapping.id)-Number(b.mapping.id)).map(row=>({mapping_id:String(row.mapping.id),offer_id:String(row.offer.id),external_product_id:String(row.mapping.external_product_id),external_variant_id:String(row.mapping.external_variant_id)}));
   const sourceIds=new Set(effectiveSourceVariants.map(row=>String(row.external_variant_id))),rawSourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),mappedIds=new Set(manifest.map(row=>row.external_variant_id));
   const discovery={new_variants:[...sourceIds].filter(id=>!mappedIds.has(id)),missing_variants:[...mappedIds].filter(id=>!sourceIds.has(id))};
@@ -229,7 +303,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   if(diagnostic){diagnostic.mappings_matched=manifest.length-discovery.missing_variants.length;diagnostic.mappings_missing=discovery.missing_variants.length;diagnostic.guard_results.push({guard:"APPROVED_MAPPING_COVERAGE",result:discovery.missing_variants.length===0?"PASS":"BLOCK",expected:manifest.length,matched:diagnostic.mappings_matched,missing:discovery.missing_variants.length})}
   const reviewedExpiresAt=reviewed?new Date(Date.now()+14*60000).toISOString():null;
   const reviewedContract=reviewed?buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt,scopedSourceEvidence,mappedSourceEvidence}):null;
-  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash(manifest),binding,head,discovery,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence,mappedSourceEvidence};
+  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash(manifest),binding,head,discovery,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence,mappedSourceEvidence,isolateUnsafe};
 }
 
 async function roleCall(target,kind,readOnly,body){const spec=TARGETS[target],client=new Client({connectionString:roleCredential(target,kind),ssl:{rejectUnauthorized:false},application_name:`jons-offer-refresh-${kind}`,options:"-c statement_timeout=120000"});await client.connect();try{await client.query(readOnly?"begin read only":"begin");await client.query(`select set_config('app.safe_update','false',true),set_config('app.retailer_catalogue_${target}_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)`);await client.query(`set role retailer_catalogue_${target}_${kind}`);const who=(await client.query("select current_user,session_user,current_setting('transaction_read_only') ro")).rows[0];invariant(who.current_user===`retailer_catalogue_${target}_${kind}`,`${kind} role mismatch`);if(readOnly)invariant(who.ro==="on",`${kind} transaction is not read-only`);const result=await body(client,spec);await client.query(readOnly?"rollback":"commit");return{result,identity:who}}catch(error){try{await client.query("rollback")}catch{}throw error}finally{await client.end()}}
@@ -249,14 +323,15 @@ async function executeRefresh(args,diagnostic){
   diagnostic.approved_mapping_count=before.counts.mappings;
   diagnostic.approved_offer_count=before.counts.offers;
   diagnostic.database_before=before.counts;
-  const run=await buildRun(args.target,before,diagnostic,reviewed);
+  const run=await buildRun(args.target,before,diagnostic,reviewed,args.isolateUnsafe);
   if(run.discovery.missing_variants.length!==0)throw new RefreshError("SOURCE_INCOMPLETE","missing mapped source identity","SOURCE_GUARD",{missing_variants:run.discovery.missing_variants});
   const counts={};for(const row of run.classification.rows)counts[row.action]=(counts[row.action]||0)+1;
   const validations=await validate(run);
   diagnostic.validator_result="PASS";
   diagnostic.guard_results.push({guard:"VALIDATOR",result:"PASS",batches:validations.length});
   const appliedExpected=run.artifacts.reduce((total,artifact)=>{for(const key of Object.keys(total.row_count_deltas))total.row_count_deltas[key]+=artifact.expected_deltas.row_count_deltas[key];for(const key of Object.keys(total.logical_field_deltas))total.logical_field_deltas[key]+=artifact.expected_deltas.logical_field_deltas[key];return total},{row_count_deltas:{...ZERO_ROWS},logical_field_deltas:{...ZERO_LOGICAL}});
-  const base={result:"PASS",mode:args.mode,target:args.target,project_ref:spec.ref,source:{country:"GB",products:run.snapshot.products.length,variants:run.sourceVariants.length,available:run.sourceVariants.filter(row=>row.in_stock).length,fingerprint:run.snapshot.semantic_source_fingerprint,diagnostic:run.snapshot.source_diagnostic},scope:{mappings:506,offers:506,children:run.artifacts.length,rows:run.artifacts.reduce((sum,artifact)=>sum+artifact.rows.length,0)},classification:counts,expected_deltas:appliedExpected,reviewed_mixed_change:reviewed?{manifest_sha256:reviewed.sha256,scope_hash:reviewed.reviewed_scope_hash,authorization_id:run.reviewedContract.authorization_id,contract_kind:run.reviewedContract.kind,full_source_fingerprint:run.reviewedContract.full_source_fingerprint||run.reviewedContract.reviewed_source_fingerprint,mapped_scope_fingerprint:run.reviewedContract.mapped_scope_fingerprint||null,reviewed_change_scope_hash:run.reviewedContract.reviewed_change_scope_hash||run.reviewedContract.reviewed_scope_hash,unmapped_source_delta_hash:run.reviewedContract.unmapped_source_delta_hash||null}:null,discovery:{new_variants:run.discovery.new_variants.length,missing_variants:0},validator_batches:validations.length,safe_update:"unset"};
+  const quarantined=run.classification.quarantined_rows||[];
+  const base={result:quarantined.length?"PASS_WITH_REVIEW":"PASS",mode:args.mode,target:args.target,project_ref:spec.ref,source:{country:"GB",products:run.snapshot.products.length,variants:run.sourceVariants.length,available:run.sourceVariants.filter(row=>row.in_stock).length,fingerprint:run.snapshot.semantic_source_fingerprint,diagnostic:run.snapshot.source_diagnostic},scope:{mappings:506,offers:506,children:run.artifacts.length,rows:run.artifacts.reduce((sum,artifact)=>sum+artifact.rows.length,0)},classification:counts,review:{required:quarantined.length,rows:quarantined.map(row=>({offer_id:row.offer_id,retailer_product_id:row.retailer_product_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,reason:row.reason,old_price:row.target.price,new_price:row.source.price,old_stock:row.target.in_stock,new_stock:row.source.in_stock}))},isolation:{enabled:Boolean(args.isolateUnsafe),aggregate_confirmation:diagnostic.aggregate_confirmation||null},expected_deltas:appliedExpected,reviewed_mixed_change:reviewed?{manifest_sha256:reviewed.sha256,scope_hash:reviewed.reviewed_scope_hash,authorization_id:run.reviewedContract.authorization_id,contract_kind:run.reviewedContract.kind,full_source_fingerprint:run.reviewedContract.full_source_fingerprint||run.reviewedContract.reviewed_source_fingerprint,mapped_scope_fingerprint:run.reviewedContract.mapped_scope_fingerprint||null,reviewed_change_scope_hash:run.reviewedContract.reviewed_change_scope_hash||run.reviewedContract.reviewed_scope_hash,unmapped_source_delta_hash:run.reviewedContract.unmapped_source_delta_hash||null}:null,discovery:{new_variants:run.discovery.new_variants.length,missing_variants:0},validator_batches:validations.length,safe_update:"unset"};
   if(args.mode==="dry-run"){write(`${args.target}-dry-run.json`,base);return base}
   diagnostic.database_writes_attempted=1;
   const registration=registrationRequest(run),registered=await register(run,registration);
@@ -310,4 +385,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,loadReviewedMissingVariantManifest,migrationBinding,parseArgs,partitionExecutionRows,readState,reconcileReviewedMissingVariants,registrationRequest,runWithDiagnostic,selectReviewedClassificationRows,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,loadReviewedMissingVariantManifest,mappedOfferSourceFingerprint,migrationBinding,parseArgs,partitionExecutionRows,partitionIsolatedExecutionRows,readState,reconcileReviewedMissingVariants,registrationRequest,runWithDiagnostic,selectReviewedClassificationRows,sourceHealth,sumDeltas,verificationRecord};

@@ -53,6 +53,7 @@ const EXCLUSIONS = Object.freeze({
     "20260818070000_authorize_reviewed_fit_house_offer_697_oos",
     "20260818080000_authorize_reviewed_jons_offer_1098_price",
     "20260818090000_reauthorize_reviewed_jons_offer_1098_price",
+    "20260818100000_allow_jons_isolated_offer_batches",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

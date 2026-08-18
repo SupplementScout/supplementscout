@@ -134,7 +134,7 @@ function aggregateBlock(reason, detail, rows, guardEvidence) {
   };
 }
 
-function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapturedAt, now = new Date(), sourceProductCount, previousSourceProductCount, guardScope, reviewedPriceAnomalyOfferIds = [] }) {
+function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapturedAt, now = new Date(), sourceProductCount, previousSourceProductCount, guardScope, reviewedPriceAnomalyOfferIds = [], quarantineUnsafeRows = false }) {
   const captured = new Date(sourceCapturedAt);
   const age = now.getTime() - captured.getTime();
   if (!Number.isFinite(captured.getTime()) || age > policy.source_freshness_hours * 3600000 || age < -policy.future_clock_skew_minutes * 60000) return block("SOURCE_FRESHNESS");
@@ -143,6 +143,7 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
   for (const row of sourceVariants) { const key = String(row.external_variant_id); if (!byVariant.has(key)) byVariant.set(key, []); byVariant.get(key).push(row); }
   if (targets.length !== policy.required_matched_offers) return block("TARGET_MANIFEST_COVERAGE", { expected: policy.required_matched_offers, actual: targets.length });
   const rows = [];
+  const quarantinedRows = [];
   const reviewedPriceIds = new Set(reviewedPriceAnomalyOfferIds.map(String));
   const usedReviewedPriceIds = new Set();
   for (const target of sortRows(targets)) {
@@ -179,7 +180,26 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     const absolute = Math.abs(money(source.price) - money(target.price)) / 100;
     const ratio = Math.abs(money(source.price) - money(target.price)) / Math.max(1, money(target.price));
     if (price && (ratio >= policy.per_row_price_hard_block_ratio || absolute >= Number(policy.per_row_price_hard_block_absolute_gbp))) {
-      if (!reviewedPriceIds.has(String(target.offer_id))) return block("HARD_PRICE_ANOMALY", { offer_id: target.offer_id });
+      if (!reviewedPriceIds.has(String(target.offer_id))) {
+        if (!quarantineUnsafeRows) return block("HARD_PRICE_ANOMALY", { offer_id: target.offer_id });
+        quarantinedRows.push({
+          offer_id: String(target.offer_id),
+          retailer_product_id: String(target.retailer_product_id),
+          external_product_id: String(target.external_product_id),
+          external_variant_id: String(target.external_variant_id),
+          action: "BLOCK_SOURCE_ANOMALY",
+          reason: "HARD_PRICE_ANOMALY",
+          changed_fields: { price, stock, url, blocked: true },
+          source_captured_at: sourceCapturedAt,
+          source: {
+            external_product_id: String(source.external_product_id), external_variant_id: String(source.external_variant_id), external_sku: identityValue(source.external_sku),
+            product_handle: source.product_handle, price: String(source.price), shipping_cost: source.shipping_cost, in_stock: Boolean(source.in_stock),
+          },
+          target,
+          expected_deltas: deltasForChanges({ price, stock, url, blocked: true }, { shippingChanged: source.shipping_cost !== target.shipping_cost, totalChanged }),
+        });
+        continue;
+      }
       usedReviewedPriceIds.add(String(target.offer_id));
     }
     const changed_fields = { price, stock, url, blocked: false };
@@ -194,10 +214,10 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
   const massOos = guardEvidence.guards.find((guard) => guard.guard === "MASS_OOS");
   const massChange = guardEvidence.guards.find((guard) => guard.guard === "MASS_CHANGE");
   const massPrice = guardEvidence.guards.find((guard) => guard.guard === "MASS_PRICE");
-  if (massOos.result === "BLOCK") return aggregateBlock("MASS_OOS", { new_oos: guardEvidence.new_oos, total_oos: guardEvidence.current_oos, previous_oos: guardEvidence.previous_oos, oos_increase: guardEvidence.oos_increase }, rows, guardEvidence);
-  if (massChange.result === "BLOCK") return aggregateBlock("MASS_CHANGE", { changed: guardEvidence.changed }, rows, guardEvidence);
-  if (massPrice.result === "BLOCK") return aggregateBlock("MASS_PRICE", { price_changed: massPrice.changed }, rows, guardEvidence);
-  const result = { state: "DRY_RUN_READY", rows, expected_deltas: sumDeltas(rows), guard_evidence: guardEvidence };
+  if (massOos.result === "BLOCK") return { ...aggregateBlock("MASS_OOS", { new_oos: guardEvidence.new_oos, total_oos: guardEvidence.current_oos, previous_oos: guardEvidence.previous_oos, oos_increase: guardEvidence.oos_increase }, rows, guardEvidence), quarantined_rows: quarantinedRows };
+  if (massChange.result === "BLOCK") return { ...aggregateBlock("MASS_CHANGE", { changed: guardEvidence.changed }, rows, guardEvidence), quarantined_rows: quarantinedRows };
+  if (massPrice.result === "BLOCK") return { ...aggregateBlock("MASS_PRICE", { price_changed: massPrice.changed }, rows, guardEvidence), quarantined_rows: quarantinedRows };
+  const result = { state: quarantinedRows.length ? "DRY_RUN_READY_WITH_REVIEW" : "DRY_RUN_READY", rows, quarantined_rows: quarantinedRows, expected_deltas: sumDeltas(rows), guard_evidence: guardEvidence };
   return {
     ...result,
     action_manifest_fingerprint: fingerprint({

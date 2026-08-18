@@ -149,9 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the refreshed Jon's offer 1098 authorization", () => {
+test("production exposes only Jon's isolated batch registration as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260818100000_allow_jons_isolated_offer_batches.sql",
+    sha256: "be1c392cd9bb3646c98d90af5311fa151ae0cf418eb751454d8249cd3e3a2562",
+    expectedCatalogueDeltas: {},
+  }]);
   assert.equal(contract.ledgerCount, 118);
   assert.equal(
     contract.ledgerFingerprint,
@@ -232,7 +236,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the refreshed Jon's migration applied", () => {
+test("production binds its exact ledger and one isolated Jon's migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -260,11 +264,11 @@ test("production binds its exact ledger with the refreshed Jon's migration appli
   });
   assert.equal(result.ledger_count, 118);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 118);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending, ["20260818100000_allow_jons_isolated_offer_batches"]);
+  assert.equal(result.selected_files.length, 119);
+  assert.deepEqual(result.pending_files, ["20260818100000_allow_jons_isolated_offer_batches.sql"]);
+  assert.equal(result.pending_file, "20260818100000_allow_jons_isolated_offer_batches.sql");
+  assert.equal(result.pending_sha256, "be1c392cd9bb3646c98d90af5311fa151ae0cf418eb751454d8249cd3e3a2562");
 });
 
 test("production exclusions are exact and exact-36 is selected rather than excluded", () => {

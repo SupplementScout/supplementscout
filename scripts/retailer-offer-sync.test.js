@@ -121,6 +121,23 @@ test("a hard price anomaly can be reviewed only for one exact offer and must be 
   unused.reviewedPriceAnomalyOfferIds = [unused.targets[0].offer_id];
   assert.equal(classifyExistingOffers(unused).reason, "REVIEWED_PRICE_SCOPE_MISMATCH");
 });
+test("isolation mode quarantines one hard price anomaly without hiding safe rows", () => {
+  const scenario = input((data) => {
+    data.sourceVariants[0].price = "40.00";
+    data.sourceVariants[1].in_stock = false;
+  });
+  scenario.quarantineUnsafeRows = true;
+  const isolated = classifyExistingOffers(scenario);
+  assert.equal(isolated.state, "DRY_RUN_READY_WITH_REVIEW");
+  assert.equal(isolated.rows.length, 25);
+  assert.equal(isolated.rows.filter((row) => row.action === "UPDATE_STOCK").length, 1);
+  assert.deepEqual(isolated.quarantined_rows.map((row) => ({ offer_id: row.offer_id, action: row.action, reason: row.reason })), [{
+    offer_id: scenario.targets[0].offer_id,
+    action: "BLOCK_SOURCE_ANOMALY",
+    reason: "HARD_PRICE_ANOMALY",
+  }]);
+  assert.equal(isolated.quarantined_rows[0].expected_deltas.logical_field_deltas.offer_price_updates, 0);
+});
 test("MASS_OOS ignores an unchanged historical OOS baseline but blocks genuine new transitions", () => {
   function fiveOfferInput(previousOos) {
     const scenario = input((data) => {

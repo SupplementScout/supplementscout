@@ -85,7 +85,7 @@ jobs:
           if [ "$REVIEWED_PRICE_1098" = "true" ]; then
             node scripts/jons-offer-refresh.js --target=production --mode=dry-run --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=6d9a854bc3cdda674b3ded7d27eb54f11aa1903bba851024077770e7ac51158e
           else
-            node scripts/jons-offer-refresh.js --target=production --mode=dry-run
+            node scripts/jons-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
           fi
 
       - name: Apply all approved Jon's offer refresh
@@ -103,7 +103,7 @@ jobs:
           if [ "$REVIEWED_PRICE_1098" = "true" ]; then
             node scripts/jons-offer-refresh.js --target=production --mode=apply --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=6d9a854bc3cdda674b3ded7d27eb54f11aa1903bba851024077770e7ac51158e
           else
-            node scripts/jons-offer-refresh.js --target=production --mode=apply
+            node scripts/jons-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
           fi
 
       - name: Verify idempotency with a fresh source capture
@@ -116,14 +116,14 @@ jobs:
           JONS_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           JONS_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           JONS_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/jons-offer-refresh.js --target=production --mode=dry-run
+        run: node scripts/jons-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Publish workflow summary
         if: always()
         run: |
           echo "## Jon's approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
           if [ -f tmp/jons-offer-refresh/production-apply.json ]; then
-            node -e 'const r=require("./tmp/jons-offer-refresh/production-apply.json"); console.log(`- Apply: ${r.result}\n- Scope: ${r.scope.offers} offers\n- Actions: ${JSON.stringify(r.classification)}\n- Discovery-only variants: ${r.discovery.new_variants}\n- SAFE_UPDATE: ${r.safe_update}`)' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const r=require("./tmp/jons-offer-refresh/production-apply.json"); console.log(`- Apply: ${r.result}\n- Scope: ${r.scope.offers} offers\n- Executed rows: ${r.scope.rows}\n- Actions: ${JSON.stringify(r.classification)}\n- Review queue: ${r.review.required}\n- Discovery-only variants: ${r.discovery.new_variants}\n- SAFE_UPDATE: ${r.safe_update}`)' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Apply report unavailable; workflow failed closed before completion." >> "$GITHUB_STEP_SUMMARY"
           fi
