@@ -2,14 +2,14 @@
   "schema_version": 1,
   "kind": "jons-existing-offer-1-price-change-reviewed-manifest",
   "authority": "owner-approved-chat-2026-08-18-offer-1098-price-9-99",
-  "code_commit": "7007d50dd4b6a9390c04f5cd686d4a48ba6786c7",
-  "generated_at": "2026-08-18T06:38:39.561Z",
+  "code_commit": "49578634735f60d842955c8001f09e6dbd50366c",
+  "generated_at": "2026-08-18T08:03:52.204Z",
   "target_environment": "PRODUCTION",
   "target_project_ref": "aftboxmrdgyhizicfsfu",
   "retailer_id": "10",
   "retailer_slug": "jon-s-supplements",
   "source_country": "GB",
-  "source_capture_sha256": "c9431f5c3cf0091dbae3d574d6683c6bb1ebb01ea60d42e048aace0490e7b694",
+  "source_capture_sha256": "f5eb4ebdf4d3c1bf7d363a7e741d383aaa9ef6dd383d82ad9662d3c93911df92",
   "production_state_sha256": "dde7e4acebab57d0998af0c0e0836eff902f1f102c6d111320fd6a73425b1adb",
   "row_count": 1,
   "immutable_scope_offer_ids": [
@@ -57,8 +57,8 @@
         "price"
       ],
       "review_classification": "APPROVE_PRICE_CHANGE",
-      "source_evidence_timestamp": "2026-08-18T06:38:37.397Z",
-      "second_evidence_timestamp": "2026-08-18T06:38:37.676Z",
+      "source_evidence_timestamp": "2026-08-18T08:03:50.202Z",
+      "second_evidence_timestamp": "2026-08-18T08:03:50.491Z",
       "identity_stability": "STABLE",
       "creatine_refresh_subset": false,
       "evidence": {
@@ -78,7 +78,7 @@
         "same_gtin_other_identities": [],
         "direct_current_url": {
           "requested_url": "https://jonssupplements.co.uk/products/strom-sports-maximise-120-caps?variant=50781523575122",
-          "checked_at": "2026-08-18T06:38:37.889Z",
+          "checked_at": "2026-08-18T08:03:50.695Z",
           "status": 200,
           "location": null,
           "hostname": "jonssupplements.co.uk",

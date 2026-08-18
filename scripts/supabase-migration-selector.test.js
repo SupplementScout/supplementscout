@@ -149,13 +149,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed Jon's offer 1098 authorization", () => {
+test("production records the refreshed Jon's offer 1098 authorization", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 117);
+  assert.equal(contract.ledgerCount, 118);
   assert.equal(
     contract.ledgerFingerprint,
-    "f4f45d15e851d5e612c0008380579245fc0f4d54f4c17bf8922a754d981d5131",
+    "554e2556c24d1f3096f983990925e61bfd9d6452c3a159ffac13943f12911e7e",
   );
 });
 
@@ -232,7 +232,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the reviewed Jon's migration applied", () => {
+test("production binds its exact ledger with the refreshed Jon's migration applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -258,10 +258,10 @@ test("production binds its exact ledger with the reviewed Jon's migration applie
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 117);
+  assert.equal(result.ledger_count, 118);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 117);
+  assert.equal(result.selected_files.length, 118);
   assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);

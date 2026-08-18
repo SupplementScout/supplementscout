@@ -83,7 +83,7 @@ jobs:
           REVIEWED_PRICE_1098: ${{ github.event_name == 'workflow_dispatch' && inputs.reviewed_price_1098 || false }}
         run: |
           if [ "$REVIEWED_PRICE_1098" = "true" ]; then
-            node scripts/jons-offer-refresh.js --target=production --mode=dry-run --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=dfb4624497699b00ae1d789df5d22d31464e404b025d36829c3a0e0e3036e86e
+            node scripts/jons-offer-refresh.js --target=production --mode=dry-run --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=6d9a854bc3cdda674b3ded7d27eb54f11aa1903bba851024077770e7ac51158e
           else
             node scripts/jons-offer-refresh.js --target=production --mode=dry-run
           fi
@@ -101,7 +101,7 @@ jobs:
           REVIEWED_PRICE_1098: ${{ github.event_name == 'workflow_dispatch' && inputs.reviewed_price_1098 || false }}
         run: |
           if [ "$REVIEWED_PRICE_1098" = "true" ]; then
-            node scripts/jons-offer-refresh.js --target=production --mode=apply --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=dfb4624497699b00ae1d789df5d22d31464e404b025d36829c3a0e0e3036e86e
+            node scripts/jons-offer-refresh.js --target=production --mode=apply --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=6d9a854bc3cdda674b3ded7d27eb54f11aa1903bba851024077770e7ac51158e
           else
             node scripts/jons-offer-refresh.js --target=production --mode=apply
           fi
