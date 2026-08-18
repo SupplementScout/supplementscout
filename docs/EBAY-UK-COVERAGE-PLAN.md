@@ -3,7 +3,7 @@
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
 **Status:** CONTROLLED 42-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11)
-**Last verified:** 17 August 2026
+**Last verified:** 18 August 2026
 **Production writes:** 42 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 42 mappings, 42 offers, 42 price-history rows; latest refresh changed verification timestamps only)
 **Public changes:** 1 guarded account-deletion API route and 42 live eBay offers
 
@@ -41,14 +41,14 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 31-offer rollout are complete. The
+read-only Browse pilot and the controlled 42-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below. The exact-31 daily refresh is enabled at `05:43 UTC`; each
+postflight below. The exact-42 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
-now part of the same guarded exact-31 scheduled refresh manifest; missing GTIN
+part of the same guarded exact-42 scheduled refresh manifest; missing GTIN
 remains explicit evidence and is accepted only for the exact approved item,
 business seller and reviewed metadata-gap set. No second scheduler or importer
 was introduced.
@@ -59,6 +59,17 @@ has mappings `2755`-`2765` and offers `2570`-`2580`; all 11 postflight plans are
 no-ops. The existing single scheduled refresh manifest is extended to exactly
 42 offers. Its fresh read-only production check passed 42 eligible, zero
 blocked and zero writes before enablement; no second scheduler exists.
+
+Batch I is prepared and dry-run verified for exactly eight Time 4 listings from
+business seller `time4nutrition` / `Matrix Nutrition Limited`. The owner words
+`Zatwierdzam Batch I — dokładnie te 8` authorize guarded preparation only.
+The existing importer produced eight create plans, zero blocked rows and zero
+database writes. Seven rows have direct eBay GTIN evidence. The one missing-GTIN
+Collagen+ row is sealed only to canonical product `831`, default variant `1178`,
+item `313270204105`, the exact seller, 405 g / 45-serving evidence and the
+reviewed GBP 29.99 delivered price. The unrelated Pre Workout shots listing was
+explicitly rejected and is outside the source. Production apply, public change
+and extension of the exact-42 refresh remain unauthorized.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1863,16 +1874,39 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Monitor the first scheduled exact-42 refresh at 05:43 UTC on 18
-August 2026 (06:43 BST). Continue official-brand-store discovery through the
-existing read-only seller-bounded Browse path; do not create a second scheduler
-or weaken the exact identity, seller, delivery, affiliate or continuity gates.`
+`NEXT ACTION: Obtain a separate explicit owner decision for production apply of
+Batch I exact eight. Until then, keep the reviewed artifact read-only and make
+no production, public or scheduler change. Also monitor the first scheduled
+exact-42 refresh at 05:43 UTC on 18 August 2026 (06:43 BST); do not create a
+second scheduler or weaken the exact identity, seller, delivery, affiliate or
+continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
 owner-reviewed production design and approval.
 
 ## Last verified
+
+18 August 2026:
+
+- The owner confirmed `Zatwierdzam Batch I — dokładnie te 8`, authorizing
+  guarded preparation but not production apply. A fresh exact-item preflight
+  passed 8/8 against eBay business seller `time4nutrition`, legal name
+  `Matrix Nutrition Limited`, with new fixed-price GB listings, complete free
+  delivery, in-stock evidence and Campaign-ID affiliate URLs. Seven rows
+  returned exact GTINs. Collagen+ returned no GTIN and remains a single sealed
+  exact-item exception; the false Pre Workout 300 g to liquid-shots match was
+  excluded.
+- Existing importer dry-run artifact
+  `175e36cddbc29bd098e7b629e6baa4266d84e42911d628b3ab199ef491c36ac6`
+  produced exactly eight plans, zero blocked rows and only
+  `retailer_product:create`, `offer:create`, `price_history:create` actions.
+  CSV SHA-256 is
+  `d8ed7e5d963abc48eaf1c2f4481b733a7162064b599094782f7f9a9f062e379a`;
+  owner-review fingerprint is
+  `78f6f52644dc1240eca84415f408ecf8a3a79464cd1a0321be74ff7062dbf121`.
+  Database writes and public changes were zero; production authorization is
+  explicitly false.
 
 17 August 2026:
 

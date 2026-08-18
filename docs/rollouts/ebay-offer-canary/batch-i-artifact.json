@@ -1,0 +1,1157 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-18T05:12:00.579Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "626fcc4931f8bdfe595b4c0e483acf74",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "831",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Collagen+ 45 Servings",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1178",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "831",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "626fcc4931f8bdfe595b4c0e483acf74",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "1ce11d097fe953a557f837c9e4bb49451096a2c59bac3c96137ab1c7aff335aa",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:11:57.751Z",
+            "price": "29.99",
+            "shipping_cost": "0",
+            "total_price": "29.99",
+            "url": "https://www.ebay.co.uk/itm/313270204105?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "831"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Supply": "45 Servings - 405g Tub"
+            },
+            "flavour": null,
+            "pack_count": null,
+            "product_format": "powder",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1178"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Time 4 Collagen+ 45 Servings",
+            "external_options": {
+              "Supply": "45 Servings - 405g Tub"
+            },
+            "external_product_id": "313270204105",
+            "external_sku": null,
+            "external_slug": "time-4-collagen-45-servings",
+            "external_url": "https://www.ebay.co.uk/itm/313270204105",
+            "external_variant_id": "v1|313270204105|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1178"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "1ce11d097fe953a557f837c9e4bb49451096a2c59bac3c96137ab1c7aff335aa"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "a3d3f350fad38a6a24d347bc5991188a",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "832",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Digestive Enzymes 90 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1179",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "832",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "a3d3f350fad38a6a24d347bc5991188a",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "7f5b421dfcdfdca63a296cc2389d18f284e0a4d215d444d69042f8ac86705c17",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:11:58.543Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/315370516891?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "832"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Number of Pills": "90"
+            },
+            "flavour": null,
+            "pack_count": null,
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1179"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420313208",
+            "external_name": "Time 4 Digestive Enzymes 90 Capsules",
+            "external_options": {
+              "Number of Pills": "90"
+            },
+            "external_product_id": "315370516891",
+            "external_sku": null,
+            "external_slug": "time-4-digestive-enzymes-90-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/315370516891",
+            "external_variant_id": "v1|315370516891|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1179"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "7f5b421dfcdfdca63a296cc2389d18f284e0a4d215d444d69042f8ac86705c17"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "2b4d57d6671d15da3b84f9b367370086",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "833",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 GDA - Glucose Disposal Agent - 180 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1180",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "833",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "2b4d57d6671d15da3b84f9b367370086",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "c8e5242242e9aef3cb5d3cba89c46f81bba798536fa5db32b09b7a5386b7b9aa",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:11:58.901Z",
+            "price": "32.99",
+            "shipping_cost": "0",
+            "total_price": "32.99",
+            "url": "https://www.ebay.co.uk/itm/312254514051?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "833"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Number of Pills": "180"
+            },
+            "flavour": null,
+            "pack_count": null,
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1180"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420311273",
+            "external_name": "Time 4 GDA - Glucose Disposal Agent - 180 Capsules",
+            "external_options": {
+              "Number of Pills": "180"
+            },
+            "external_product_id": "312254514051",
+            "external_sku": null,
+            "external_slug": "time-4-gda-glucose-disposal-agent-180-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/312254514051",
+            "external_variant_id": "v1|312254514051|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1180"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "c8e5242242e9aef3cb5d3cba89c46f81bba798536fa5db32b09b7a5386b7b9aa"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d19e16ed92d72d7bbae6764a2b4d4de2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "834",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Immune Pro 120 Vegan Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1181",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "834",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d19e16ed92d72d7bbae6764a2b4d4de2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "7dcb41e7f96def2c9f6c27e7901d3d9f50020d9bc9f99f043589bd8f5cf2f279",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:11:59.240Z",
+            "price": "24.99",
+            "shipping_cost": "0",
+            "total_price": "24.99",
+            "url": "https://www.ebay.co.uk/itm/203966597198?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "834"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Number of Pills": "120"
+            },
+            "flavour": null,
+            "pack_count": null,
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1181"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420312645",
+            "external_name": "Time 4 Immune Pro 120 Vegan Capsules",
+            "external_options": {
+              "Number of Pills": "120"
+            },
+            "external_product_id": "203966597198",
+            "external_sku": null,
+            "external_slug": "time-4-immune-pro-120-vegan-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/203966597198",
+            "external_variant_id": "v1|203966597198|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1181"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "7dcb41e7f96def2c9f6c27e7901d3d9f50020d9bc9f99f043589bd8f5cf2f279"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "ac132d9ae45a47a07d2f8b9cd8e3d932",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "862",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Omega 3 - 60 Softgels",
+            "product_format": "softgel"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1267",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "862",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "ac132d9ae45a47a07d2f8b9cd8e3d932",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "05c357be1107e8cfcc12fe7018c1aac1c5ddf33795f4a24a6d55d591571e7a22",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:11:59.607Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/196375064210?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "862"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Number of Pills": "60"
+            },
+            "flavour": null,
+            "pack_count": null,
+            "product_format": "softgel",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1267"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420313215",
+            "external_name": "Time 4 Omega 3 - 60 Softgels",
+            "external_options": {
+              "Number of Pills": "60"
+            },
+            "external_product_id": "196375064210",
+            "external_sku": null,
+            "external_slug": "time-4-omega-3-60-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/196375064210",
+            "external_variant_id": "v1|196375064210|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1267"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "05c357be1107e8cfcc12fe7018c1aac1c5ddf33795f4a24a6d55d591571e7a22"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "89d011e7fe415dd1e1471461693c425a",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "932",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Carbs 1.8kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1541",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "932",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "89d011e7fe415dd1e1471461693c425a",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "32e34fb5b8b17bd1efee7f8a5cd966ad3bb4bfeae9641da74d0fab7649c04584",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:11:59.927Z",
+            "price": "17.99",
+            "shipping_cost": "0",
+            "total_price": "17.99",
+            "url": "https://www.ebay.co.uk/itm/311415993246?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "932"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Supply": "1.8kg - 45 Servings"
+            },
+            "flavour": null,
+            "pack_count": null,
+            "product_format": "powder",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1541"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420310245",
+            "external_name": "Time 4 Carbs 1.8kg",
+            "external_options": {
+              "Supply": "1.8kg - 45 Servings"
+            },
+            "external_product_id": "311415993246",
+            "external_sku": null,
+            "external_slug": "time-4-carbs-1-8kg",
+            "external_url": "https://www.ebay.co.uk/itm/311415993246",
+            "external_variant_id": "v1|311415993246|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1541"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "32e34fb5b8b17bd1efee7f8a5cd966ad3bb4bfeae9641da74d0fab7649c04584"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d4789eb9b9be5a5a3a8168cea961cb0c",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "934",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Test 180 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1543",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "934",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d4789eb9b9be5a5a3a8168cea961cb0c",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "0112211cb086bf632e884b34c12ca574b336a918ab680e1bf7c94fce622f4c23",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:12:00.241Z",
+            "price": "24.99",
+            "shipping_cost": "0",
+            "total_price": "24.99",
+            "url": "https://www.ebay.co.uk/itm/311968225657?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "934"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Number of Pills": "180 Vegan Capsules"
+            },
+            "flavour": null,
+            "pack_count": null,
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1543"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420311204",
+            "external_name": "Time 4 Test 180 Capsules",
+            "external_options": {
+              "Number of Pills": "180 Vegan Capsules"
+            },
+            "external_product_id": "311968225657",
+            "external_sku": null,
+            "external_slug": "time-4-test-180-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/311968225657",
+            "external_variant_id": "v1|311968225657|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1543"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "0112211cb086bf632e884b34c12ca574b336a918ab680e1bf7c94fce622f4c23"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d71dba039df367945b79b3fa15d082c9",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "936",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Whey Protein Professional 1.8kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Salted Caramel / 1800g",
+            "flavour_code": "salted caramel",
+            "flavour_label": "Salted Caramel",
+            "id": "1547",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "936",
+            "size_unit": "g",
+            "size_value": "1800",
+            "variant_key": "salted-caramel-1800g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d71dba039df367945b79b3fa15d082c9",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "0e5962a03d0c0d7d93193e2be26a8b7cc24299619f88f1440970ddfb1c42ac2e",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-18T05:12:00.574Z",
+            "price": "49.99",
+            "shipping_cost": "0",
+            "total_price": "49.99",
+            "url": "https://www.ebay.co.uk/itm/314611114352?var=613147465749&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "936"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Salted Caramel",
+              "Size": "1800g"
+            },
+            "flavour": "salted caramel",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "1800"
+          },
+          "id": "1547"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420312782",
+            "external_name": "Time 4 Whey Protein Professional 1.8kg",
+            "external_options": {
+              "Flavour": "Salted Caramel",
+              "Size": "1800g"
+            },
+            "external_product_id": "314611114352",
+            "external_sku": null,
+            "external_slug": "time-4-whey-protein-professional-1-8kg",
+            "external_url": "https://www.ebay.co.uk/itm/314611114352?var=613147465749",
+            "external_variant_id": "v1|314611114352|613147465749",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1547"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "0e5962a03d0c0d7d93193e2be26a8b7cc24299619f88f1440970ddfb1c42ac2e"
+    }
+  ],
+  "row_count": "8",
+  "run_id": "014291df-2270-45e2-843c-9bad283cfcf2",
+  "source_file_name": "batch-i.csv",
+  "source_file_sha256": "d8ed7e5d963abc48eaf1c2f4481b733a7162064b599094782f7f9a9f062e379a",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/313270204105?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Supply\":\"45 Servings - 405g Tub\"}",
+        "external_product_id": "313270204105",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/313270204105",
+        "external_variant_id": "v1|313270204105|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/KnEAAOSwFUxm4XQ0/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "",
+        "price": "29.99",
+        "product_format": "powder",
+        "product_id": "831",
+        "product_name": "Time 4 Collagen+ 45 Servings",
+        "product_variant_id": "1178",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-collagen-45-servings",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "626fcc4931f8bdfe595b4c0e483acf74",
+      "row_number": "2",
+      "source_row_fingerprint": "1ce11d097fe953a557f837c9e4bb49451096a2c59bac3c96137ab1c7aff335aa",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/315370516891?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Health Supplements",
+        "external_gtin": "5060420313208",
+        "external_options": "{\"Number of Pills\":\"90\"}",
+        "external_product_id": "315370516891",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/315370516891",
+        "external_variant_id": "v1|315370516891|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/Iq4AAOSwNtZmRcjj/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "",
+        "price": "19.99",
+        "product_format": "capsule",
+        "product_id": "832",
+        "product_name": "Time 4 Digestive Enzymes 90 Capsules",
+        "product_variant_id": "1179",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-digestive-enzymes-90-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "a3d3f350fad38a6a24d347bc5991188a",
+      "row_number": "3",
+      "source_row_fingerprint": "7f5b421dfcdfdca63a296cc2389d18f284e0a4d215d444d69042f8ac86705c17",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/312254514051?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Health Supplements",
+        "external_gtin": "5060420311273",
+        "external_options": "{\"Number of Pills\":\"180\"}",
+        "external_product_id": "312254514051",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/312254514051",
+        "external_variant_id": "v1|312254514051|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/TKUAAOSwDz9nMgeS/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "",
+        "price": "32.99",
+        "product_format": "capsule",
+        "product_id": "833",
+        "product_name": "Time 4 GDA - Glucose Disposal Agent - 180 Capsules",
+        "product_variant_id": "1180",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-gda-glucose-disposal-agent-180-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "2b4d57d6671d15da3b84f9b367370086",
+      "row_number": "4",
+      "source_row_fingerprint": "c8e5242242e9aef3cb5d3cba89c46f81bba798536fa5db32b09b7a5386b7b9aa",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/203966597198?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Health Supplements",
+        "external_gtin": "5060420312645",
+        "external_options": "{\"Number of Pills\":\"120\"}",
+        "external_product_id": "203966597198",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/203966597198",
+        "external_variant_id": "v1|203966597198|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/y0EAAOSw~jFijkTz/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "",
+        "price": "24.99",
+        "product_format": "capsule",
+        "product_id": "834",
+        "product_name": "Time 4 Immune Pro 120 Vegan Capsules",
+        "product_variant_id": "1181",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-immune-pro-120-vegan-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "d19e16ed92d72d7bbae6764a2b4d4de2",
+      "row_number": "5",
+      "source_row_fingerprint": "7dcb41e7f96def2c9f6c27e7901d3d9f50020d9bc9f99f043589bd8f5cf2f279",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/196375064210?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Health Supplements",
+        "external_gtin": "5060420313215",
+        "external_options": "{\"Number of Pills\":\"60\"}",
+        "external_product_id": "196375064210",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/196375064210",
+        "external_variant_id": "v1|196375064210|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/YDoAAOSwFfRmKi2V/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "",
+        "price": "19.99",
+        "product_format": "softgel",
+        "product_id": "862",
+        "product_name": "Time 4 Omega 3 - 60 Softgels",
+        "product_variant_id": "1267",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-omega-3-60-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "ac132d9ae45a47a07d2f8b9cd8e3d932",
+      "row_number": "6",
+      "source_row_fingerprint": "05c357be1107e8cfcc12fe7018c1aac1c5ddf33795f4a24a6d55d591571e7a22",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/311415993246?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Health Supplements",
+        "external_gtin": "5060420310245",
+        "external_options": "{\"Supply\":\"1.8kg - 45 Servings\"}",
+        "external_product_id": "311415993246",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/311415993246",
+        "external_variant_id": "v1|311415993246|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/jugAAOSwxkdnMe5m/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "",
+        "price": "17.99",
+        "product_format": "powder",
+        "product_id": "932",
+        "product_name": "Time 4 Carbs 1.8kg",
+        "product_variant_id": "1541",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-carbs-1-8kg",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "89d011e7fe415dd1e1471461693c425a",
+      "row_number": "7",
+      "source_row_fingerprint": "32e34fb5b8b17bd1efee7f8a5cd966ad3bb4bfeae9641da74d0fab7649c04584",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/311968225657?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Health Supplements",
+        "external_gtin": "5060420311204",
+        "external_options": "{\"Number of Pills\":\"180 Vegan Capsules\"}",
+        "external_product_id": "311968225657",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/311968225657",
+        "external_variant_id": "v1|311968225657|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/kqUAAOSwaFVijS~~/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "",
+        "price": "24.99",
+        "product_format": "capsule",
+        "product_id": "934",
+        "product_name": "Time 4 Test 180 Capsules",
+        "product_variant_id": "1543",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-test-180-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "d4789eb9b9be5a5a3a8168cea961cb0c",
+      "row_number": "8",
+      "source_row_fingerprint": "0112211cb086bf632e884b34c12ca574b336a918ab680e1bf7c94fce622f4c23",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/314611114352?var=613147465749&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&toolid=10050",
+        "brand": "Time 4",
+        "category": "Whey Protein",
+        "external_gtin": "5060420312782",
+        "external_options": "{\"Size\":\"1800g\",\"Flavour\":\"Salted Caramel\"}",
+        "external_product_id": "314611114352",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/314611114352?var=613147465749",
+        "external_variant_id": "v1|314611114352|613147465749",
+        "flavour": "Salted Caramel",
+        "image": "https://i.ebayimg.com/images/g/oyAAAOSw8VBm8ow9/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "49.99",
+        "product_format": "powder",
+        "product_id": "936",
+        "product_name": "Time 4 Whey Protein Professional 1.8kg",
+        "product_variant_id": "1547",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "1800",
+        "size_unit": "g",
+        "slug": "time-4-whey-protein-professional-1-8kg",
+        "variant_name": "Salted Caramel / 1800g"
+      },
+      "plan_fingerprint": "d71dba039df367945b79b3fa15d082c9",
+      "row_number": "9",
+      "source_row_fingerprint": "0e5962a03d0c0d7d93193e2be26a8b7cc24299619f88f1440970ddfb1c42ac2e",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "8",
+    "skipped_row_count": "0"
+  }
+}

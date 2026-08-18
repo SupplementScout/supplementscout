@@ -529,6 +529,36 @@ test("Batch H owner review seals exactly eleven official Applied Nutrition varia
   assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
 });
 
+test("Batch I owner review seals exactly eight Time 4 listings without production apply authority", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-i-review.json"), "utf8"));
+  const csvBuffer = fs.readFileSync(path.join(process.cwd(), review.csv));
+  const artifactBuffer = fs.readFileSync(path.join(process.cwd(), review.artifact));
+  const rows = parse(csvBuffer, { columns: true, skip_empty_lines: true });
+  assert.equal(crypto.createHash("sha256").update(csvBuffer).digest("hex"), review.csv_sha256);
+  assert.equal(crypto.createHash("sha256").update(artifactBuffer).digest("hex"), review.artifact_sha256);
+  assert.equal(review.owner_approval.confirmation, "Zatwierdzam Batch I — dokładnie te 8");
+  assert.equal(review.owner_approval.approved_for_guarded_preparation, true);
+  assert.equal(review.owner_approval.approved_for_production_apply, false);
+  assert.equal(review.seller, "time4nutrition");
+  assert.equal(review.seller_legal_name, "Matrix Nutrition Limited");
+  assert.equal(review.dry_run.plan_count, 8);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(review.dry_run.database_writes, 0);
+  assert.deepEqual(rows.map((row) => `${row.product_id}:${row.product_variant_id}:${row.external_variant_id}`), [
+    "831:1178:v1|313270204105|0", "832:1179:v1|315370516891|0",
+    "833:1180:v1|312254514051|0", "834:1181:v1|203966597198|0",
+    "862:1267:v1|196375064210|0", "932:1541:v1|311415993246|0",
+    "934:1543:v1|311968225657|0", "936:1547:v1|314611114352|613147465749",
+  ]);
+  assert.equal(rows.filter((row) => row.external_gtin).length, 7);
+  assert.equal(review.identity_summary.exact_gtin_rows, 7);
+  assert.equal(review.identity_summary.exact_item_missing_gtin_exceptions, 1);
+  assert.equal(review.entries.filter((row) => row.missing_gtin_exception).length, 1);
+  assert.ok(rows.every((row) => row.shipping_known === "true" && row.shipping_cost === "0.00"));
+  assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
+  assert.ok(rows.every((row) => !/193325232056/.test(row.external_variant_id)));
+});
+
 test("Batch H production rollout is bound to the exact eleven approved plans", () => {
   const validated = validateBatchHRollout();
   assert.equal(BATCH_H_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_H_EXACT_11");
