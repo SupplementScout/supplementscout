@@ -1,0 +1,78 @@
+name: eBay Offer Batch I
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Validate or apply the exact Batch I eight"
+        required: true
+        default: validate
+        type: choice
+        options: [validate, apply, postflight]
+      owner_confirmation:
+        description: "Exact Batch I production confirmation"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ebay-offer-canary-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  batch-i:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_BATCH_I_EXACT_8') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production-readonly
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test exact Batch I contracts without production credentials
+        run: node --test --test-name-pattern="Batch I" scripts/ebay-browse-pilot.test.js
+      - name: Freshly re-read the exact reviewed Batch I eight
+        if: ${{ inputs.operation == 'apply' }}
+        env:
+          EBAY_CANARY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_UK_DELIVERY_POSTCODE: ${{ secrets.EBAY_UK_DELIVERY_POSTCODE }}
+          EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
+        run: node scripts/ebay-offer-batch-i-executor.js --mode=preflight --output=tmp/ebay-offer-batch-i/preflight.json
+      - name: Validate and optionally apply exact Batch I
+        env:
+          EBAY_CANARY_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+          EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/ebay-offer-batch-i-executor.js --mode=${{ inputs.operation == 'apply' && 'apply' || 'validate' }} --output=tmp/ebay-offer-batch-i/execution.json
+      - name: Verify exact post-write no-op
+        if: ${{ inputs.operation == 'apply' || inputs.operation == 'postflight' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/import-products.js --dry-run --csv=docs/rollouts/ebay-offer-canary/batch-i.csv --artifact=tmp/ebay-offer-batch-i/postflight.json
+          node -e 'const a=require("./tmp/ebay-offer-batch-i/postflight.json");if(a.blocked_rows.length||a.plans.length!==8||a.plans.some(x=>{const p=x.resolved_plan;return p.product.action!=="existing"||p.product_variant.action!=="existing"||p.retailer.action!=="existing"||p.retailer_product.action!=="noop"||p.offer.action!=="noop"||p.price_history.action!=="noop"}))process.exit(1)'
+      - name: Upload immutable execution evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ebay-offer-batch-i-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/ebay-offer-batch-i/*.json

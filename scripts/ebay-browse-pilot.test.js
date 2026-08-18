@@ -11,6 +11,7 @@ const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRE
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
 const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: validateBatchHRecovery } = require("./ebay-offer-batch-h-recovery-executor");
+const { CONFIRMATION: BATCH_I_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_I_IDENTITIES, parseArgs: parseBatchIArgs, validateRollout: validateBatchIRollout } = require("./ebay-offer-batch-i-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -557,6 +558,31 @@ test("Batch I owner review seals exactly eight Time 4 listings without productio
   assert.ok(rows.every((row) => row.shipping_known === "true" && row.shipping_cost === "0.00"));
   assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
   assert.ok(rows.every((row) => !/193325232056/.test(row.external_variant_id)));
+});
+
+test("Batch I production rollout is bound to the exact eight approved plans", () => {
+  const validated = validateBatchIRollout();
+  assert.equal(BATCH_I_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_I_EXACT_8");
+  assert.equal(validated.entries.length, 8);
+  assert.deepEqual(BATCH_I_IDENTITIES, [
+    "831:1178:v1|313270204105|0", "832:1179:v1|315370516891|0",
+    "833:1180:v1|312254514051|0", "834:1181:v1|203966597198|0",
+    "862:1267:v1|196375064210|0", "932:1541:v1|311415993246|0",
+    "934:1543:v1|311968225657|0", "936:1547:v1|314611114352|613147465749",
+  ]);
+  assert.equal(validated.entries.filter(({ approved }) => approved.missing_gtin_exception).length, 1);
+  assert.equal(parseBatchIArgs(["--mode=preflight", "--output=tmp/batch-i-preflight.json"]).mode, "preflight");
+  assert.throws(() => parseBatchIArgs(["--mode=execute", "--output=tmp/batch-i.json"]), /preflight\|validate\|apply/);
+});
+
+test("Batch I workflow requires exact production confirmation and eight-row postflight", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-batch-i.yml"), "utf8");
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_I_EXACT_8/);
+  assert.match(workflow, /--mode=preflight/);
+  assert.match(workflow, /--mode=.*apply/);
+  assert.match(workflow, /plans\.length!==8/);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
+  assert.doesNotMatch(workflow, /schedule:/);
 });
 
 test("Batch H production rollout is bound to the exact eleven approved plans", () => {

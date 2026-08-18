@@ -71,6 +71,16 @@ reviewed GBP 29.99 delivered price. The unrelated Pre Workout shots listing was
 explicitly rejected and is outside the source. Production apply, public change
 and extension of the exact-42 refresh remain unauthorized.
 
+The owner subsequently confirmed `Zatwierdzam produkcyjny apply Batch I —
+dokładnie te 8`. Production authority is sealed to confirmation token
+`OWNER_APPROVED_EBAY_BATCH_I_EXACT_8`, rollout fingerprint
+`03e4bd8b5df70036a1ae3bb9a984b3b985a39a6c9dc3696088100c7bd834464a`
+and the previously reviewed eight plans. The manual-only workflow has no
+schedule or push trigger, requires a fresh eight-item seller and identity
+preflight, uses the existing separated approver/executor roles and requires an
+eight-row no-op postflight. This records production authority and execution
+readiness; it does not claim that the write has run.
+
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
 already present; 16 conflicts remain quarantined and outside the cohort. The
@@ -1874,12 +1884,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Obtain a separate explicit owner decision for production apply of
-Batch I exact eight. Until then, keep the reviewed artifact read-only and make
-no production, public or scheduler change. Also monitor the first scheduled
-exact-42 refresh at 05:43 UTC on 18 August 2026 (06:43 BST); do not create a
-second scheduler or weaken the exact identity, seller, delivery, affiliate or
-continuity gates.`
+`NEXT ACTION: Run the manual protected Batch I exact-eight apply, require fresh
+8/8 preflight and 8/8 no-op postflight, then independently verify production
+rows and public pages. Extend the existing exact-42 refresh to exact 50 only
+after live verification; do not create a second scheduler or weaken the exact
+identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1888,6 +1897,15 @@ owner-reviewed production design and approval.
 ## Last verified
 
 18 August 2026:
+
+- The owner separately confirmed `Zatwierdzam produkcyjny apply Batch I —
+  dokładnie te 8`. The write-capable rollout is sealed to confirmation token
+  `OWNER_APPROVED_EBAY_BATCH_I_EXACT_8` and fingerprint
+  `03e4bd8b5df70036a1ae3bb9a984b3b985a39a6c9dc3696088100c7bd834464a`.
+  Its manual-only workflow has no schedule or push trigger and requires a fresh
+  exact-eight preflight, separated production approver/executor roles and an
+  exact eight-row no-op postflight. A local execution-path preflight passed
+  8/8 with zero writes immediately before release preparation.
 
 - The owner confirmed `Zatwierdzam Batch I — dokładnie te 8`, authorizing
   guarded preparation but not production apply. A fresh exact-item preflight
