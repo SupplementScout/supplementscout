@@ -192,12 +192,26 @@ function partitionIsolatedExecutionRows(rows,maximumRows=50,maximumChildren=20){
     invariant(available.length>=required,"not enough unchanged available rows to isolate safe changes");
     bucket.push(...available.splice(0,required));
   }
-  for(const bucket of sensitive){
-    while(bucket.length<maximumRows&&available.length)bucket.push(available.shift());
-  }
   const batches=[...sensitive];
-  for(let index=0;index<unchangedOos.length;index+=maximumRows)batches.push(unchangedOos.slice(index,index+maximumRows));
-  for(let index=0;index<available.length;index+=maximumRows)batches.push(available.slice(index,index+maximumRows));
+  const remaining=[];
+  const chooseCandidate=(rowIsOos)=>{
+    const candidates=sensitive.filter(bucket=>bucket.length<maximumRows&&(!rowIsOos||(bucket.filter(item=>item.source.in_stock===false).length+1)/(bucket.length+1)<=config.guardrails.maximum_total_oos_ratio));
+    candidates.sort((left,right)=>left.length-right.length||Number(left[0]?.offer_id||0)-Number(right[0]?.offer_id||0));
+    return candidates[0]||null;
+  };
+  const pendingAvailable=[...available];
+  for(const row of unchangedOos){
+    let candidate=chooseCandidate(true);
+    while(!candidate&&pendingAvailable.length){
+      const support=chooseCandidate(false);
+      if(!support)break;
+      support.push(pendingAvailable.shift());
+      candidate=chooseCandidate(true);
+    }
+    if(candidate)candidate.push(row);else remaining.push(row);
+  }
+  for(const row of pendingAvailable){const candidate=chooseCandidate(false);if(candidate)candidate.push(row);else remaining.push(row)}
+  if(remaining.length)batches.push(...partitionExecutionRows(remaining,maximumRows));
   if(!batches.length&&rows.length)batches.push([...rows]);
   invariant(batches.length>0&&batches.length<=maximumChildren,"isolated execution exceeds the maximum child count");
   invariant(batches.every(batch=>batch.length>0&&batch.length<=maximumRows),"invalid isolated execution batch size");
@@ -207,7 +221,7 @@ function partitionIsolatedExecutionRows(rows,maximumRows=50,maximumChildren=20){
     invariant(guard.new_oos_count<=Number(guard.limits.maximum_new_oos_count),"isolated batch exceeds new OOS limit");
     invariant(guard.changed_row_count/batch.length<=config.guardrails.maximum_changed_record_ratio,"isolated batch exceeds change ratio");
     invariant(guard.price_changed_row_count/batch.length<config.guardrails.mass_price_change_block_ratio,"isolated batch exceeds price-change ratio");
-    if(guard.new_oos_count>0)invariant(guard.total_oos_count/batch.length<=config.guardrails.maximum_total_oos_ratio,"isolated batch exceeds OOS ratio");
+    invariant(guard.total_oos_count/batch.length<=config.guardrails.maximum_total_oos_ratio,"isolated batch exceeds OOS ratio");
   }
   return batches.map(batch=>batch.sort((left,right)=>Number(left.offer_id)-Number(right.offer_id)));
 }
