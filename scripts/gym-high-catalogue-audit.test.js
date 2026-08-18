@@ -36,6 +36,23 @@ test("full audit blocks catalogue collapse and variation coverage drift", async 
   await assert.rejects(() => buildCatalogueAudit(scope, { readCatalogue: async () => catalogue([item]), readPage: async () => ({ ...page(item), variations: [] }) }), /coverage drift/);
 });
 
+test("source identity fingerprint is independent of parent-product API order", async () => {
+  const first = product(708, "GYM HIGH Shaker Bottle", "variable", [
+    { external_variant_id: "709", attributes: { Flavour: "black" } },
+    { external_variant_id: "710", attributes: { Flavour: "green" } },
+  ]);
+  const second = product(707, "GYM HIGH ZMB", "simple");
+  const scope = loadScope();
+  scope.config.source.minimum_parent_products = 1;
+  const audit = async (products) => buildCatalogueAudit(scope, {
+    readCatalogue: async () => catalogue(products),
+    readPage: async ({ productId }) => page(products.find((row) => row.external_product_id === productId)),
+  });
+  const forward = await audit([first, second]);
+  const reordered = await audit([second, first]);
+  assert.equal(forward.source_identity_fingerprint, reordered.source_identity_fingerprint);
+});
+
 test("classification policy and bounded concurrency are deterministic", async () => {
   assert.equal(classification(product(1, "Gift Card", "simple")), "EXCLUDE_GIFT_CARD");
   assert.equal(classification(product(2, "Belt", "simple", [], ["Accessories"])), "REVIEW_ACCESSORY");

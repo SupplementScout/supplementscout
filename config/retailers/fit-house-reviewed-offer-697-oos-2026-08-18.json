@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "fit-house-existing-offer-1-stock-change-reviewed-manifest",
+  "authority": "owner-approved-chat-2026-08-18-mutant-creakong-offer-697-oos",
+  "code_commit": "04079c8dbc1dce0f95205342e8968e61e89f1e0a",
+  "generated_at": "2026-08-18T06:47:42.966Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": "9",
+  "retailer_slug": "fit-house",
+  "source_country": "GB",
+  "source_capture_sha256": "0d68058b575a88dd310e8c2808951ace073502936eeff96d464d48e9d42415d1",
+  "audited_missing_manifest_sha256": "d30eb618689228c6787df885cebc8855fa72c36cf312d25733434be98ba15aeb",
+  "production_state_sha256": "e711f052e6ad71c907095cf666ad30ea09826b6dcd806e6890db4507b4f6a5dc",
+  "row_count": 1,
+  "immutable_scope_offer_ids": [
+    "697"
+  ],
+  "expected_deltas": {
+    "products": 0,
+    "product_variants": 0,
+    "retailer_mappings_row_count": 0,
+    "offers_row_count": 0,
+    "stock_updates": 1,
+    "item_price_updates": 0,
+    "shipping_updates": 0,
+    "delivered_total_updates": 0,
+    "offer_url_updates": 0,
+    "mapping_url_updates": 0,
+    "mapping_updated_at_updates": 0,
+    "freshness_updates": 1,
+    "price_history_rows": 0,
+    "retailers": 0
+  },
+  "rows": [
+    {
+      "offer_id": "697",
+      "mapping_id": "689",
+      "canonical_product_id": "679",
+      "canonical_product": "Mutant Creakong Advanced Creatine 1kg",
+      "canonical_variant_id": "532",
+      "canonical_variant": "Default",
+      "external_product_id": "10028457820400",
+      "external_variant_id": "49744956850416",
+      "product": "Mutant Creakong Advanced Creatine 1kg",
+      "option": "Default",
+      "old_price": "26.99",
+      "new_price": "26.99",
+      "old_stock": true,
+      "new_stock": false,
+      "old_url": "https://fithouse.uk/products/mutant-creakong-advanced-creatine-1kg?variant=49744956850416",
+      "new_url": "https://fithouse.uk/products/mutant-creakong-advanced-creatine-1kg?variant=49744956850416",
+      "source_sku": null,
+      "mapping_gtin": null,
+      "source_gtin": null,
+      "exact_action": "UPDATE_STOCK",
+      "changed_fields": [
+        "stock"
+      ],
+      "review_classification": "OWNER_APPROVED_EXACT_SOURCE_ABSENCE_AS_OOS",
+      "source_evidence_timestamp": "2026-08-18T06:47:41.317Z",
+      "second_evidence_timestamp": "2026-08-18T06:47:41.610Z",
+      "identity_stability": "STABLY_ABSENT_IN_TWO_CAPTURES",
+      "evidence": {
+        "exact_external_ids": true,
+        "canonical_target_stable": true,
+        "source_product_exists": false,
+        "source_variant_exists": false,
+        "first_capture_same_semantics": true,
+        "audited_source_absent": true,
+        "audited_missing_manifest_sha256": "d30eb618689228c6787df885cebc8855fa72c36cf312d25733434be98ba15aeb",
+        "owner_approved_full_47_pack": false,
+        "owner_approved_offer_697": true
+      }
+    }
+  ]
+}

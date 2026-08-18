@@ -134,7 +134,7 @@ function aggregateBlock(reason, detail, rows, guardEvidence) {
   };
 }
 
-function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapturedAt, now = new Date(), sourceProductCount, previousSourceProductCount, guardScope }) {
+function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapturedAt, now = new Date(), sourceProductCount, previousSourceProductCount, guardScope, reviewedPriceAnomalyOfferIds = [] }) {
   const captured = new Date(sourceCapturedAt);
   const age = now.getTime() - captured.getTime();
   if (!Number.isFinite(captured.getTime()) || age > policy.source_freshness_hours * 3600000 || age < -policy.future_clock_skew_minutes * 60000) return block("SOURCE_FRESHNESS");
@@ -143,6 +143,8 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
   for (const row of sourceVariants) { const key = String(row.external_variant_id); if (!byVariant.has(key)) byVariant.set(key, []); byVariant.get(key).push(row); }
   if (targets.length !== policy.required_matched_offers) return block("TARGET_MANIFEST_COVERAGE", { expected: policy.required_matched_offers, actual: targets.length });
   const rows = [];
+  const reviewedPriceIds = new Set(reviewedPriceAnomalyOfferIds.map(String));
+  const usedReviewedPriceIds = new Set();
   for (const target of sortRows(targets)) {
     const candidates = byVariant.get(String(target.external_variant_id)) || [];
     if (candidates.length !== 1) return block("IDENTITY_DRIFT", { offer_id: target.offer_id, matches: candidates.length });
@@ -176,7 +178,10 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     if (shipping && !price) return block("SHIPPING_POLICY_DRIFT", { offer_id: target.offer_id });
     const absolute = Math.abs(money(source.price) - money(target.price)) / 100;
     const ratio = Math.abs(money(source.price) - money(target.price)) / Math.max(1, money(target.price));
-    if (price && (ratio >= policy.per_row_price_hard_block_ratio || absolute >= Number(policy.per_row_price_hard_block_absolute_gbp))) return block("HARD_PRICE_ANOMALY", { offer_id: target.offer_id });
+    if (price && (ratio >= policy.per_row_price_hard_block_ratio || absolute >= Number(policy.per_row_price_hard_block_absolute_gbp))) {
+      if (!reviewedPriceIds.has(String(target.offer_id))) return block("HARD_PRICE_ANOMALY", { offer_id: target.offer_id });
+      usedReviewedPriceIds.add(String(target.offer_id));
+    }
     const changed_fields = { price, stock, url, blocked: false };
     const semanticSource = {
       external_product_id: String(source.external_product_id), external_variant_id: String(source.external_variant_id), external_sku: identityValue(source.external_sku),
@@ -184,6 +189,7 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     };
     rows.push({ offer_id: String(target.offer_id), retailer_product_id: String(target.retailer_product_id), external_product_id: String(target.external_product_id), external_variant_id: String(target.external_variant_id), action: actionForChanges(changed_fields), changed_fields, source_captured_at: sourceCapturedAt, source: semanticSource, target, expected_deltas: deltasForChanges(changed_fields, { shippingChanged: source.shipping_cost !== target.shipping_cost, totalChanged }) });
   }
+  if (usedReviewedPriceIds.size !== reviewedPriceIds.size) return block("REVIEWED_PRICE_SCOPE_MISMATCH", { requested_offer_ids: [...reviewedPriceIds], observed_offer_ids: [...usedReviewedPriceIds] });
   const guardEvidence = buildGuardEvidence(rows, policy, guardScope);
   const massOos = guardEvidence.guards.find((guard) => guard.guard === "MASS_OOS");
   const massChange = guardEvidence.guards.find((guard) => guard.guard === "MASS_CHANGE");

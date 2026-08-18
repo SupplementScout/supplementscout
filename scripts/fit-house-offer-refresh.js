@@ -153,6 +153,29 @@ function loadAuditedMissingVariantManifest(){
   return{manifest,sha256:digest};
 }
 
+function loadOwnerApprovedMissingVariantManifest(){
+  const file=path.join(ROOT,"config","retailers","fit-house-owner-approved-missing-variant-2026-08-18.json"),bytes=fs.readFileSync(file),digest=crypto.createHash("sha256").update(bytes).digest("hex");
+  invariant(digest==="613575ec4fc1dfb989c0113c67032d9f5ad30a24c68c23f87b6b04969a3b23a7","Fit House owner-approved missing-variant manifest SHA mismatch");
+  const manifest=JSON.parse(bytes),topKeys=["schema_version","kind","authority","authorized_at","retailer_id","retailer_slug","policy","row_count","audit","rows"].sort();
+  invariant(JSON.stringify(Object.keys(manifest).sort())===JSON.stringify(topKeys)&&manifest.schema_version===1&&manifest.kind==="fit-house-owner-approved-missing-variant-v1"&&manifest.authority==="owner-approved-chat-2026-08-18-mutant-creakong-source-removal-as-oos"&&manifest.authorized_at==="2026-08-18T06:24:12.898Z"&&manifest.retailer_id==="9"&&manifest.retailer_slug==="fit-house"&&manifest.policy==="KEEP_CANONICAL_IDENTITY_AND_MARK_EXACT_OFFER_OOS_WHILE_EXACT_SOURCE_PRODUCT_IS_ABSENT"&&manifest.row_count===1&&Array.isArray(manifest.rows)&&manifest.rows.length===1,"Fit House owner-approved missing-variant manifest schema mismatch");
+  const captureKeys=["captured_at","semantic_source_fingerprint","product_count","variant_count","identity_present","direct_status","direct_location"].sort();
+  for(const capture of[manifest.audit?.capture_a,manifest.audit?.capture_b])invariant(capture&&JSON.stringify(Object.keys(capture).sort())===JSON.stringify(captureKeys)&&Number.isFinite(Date.parse(capture.captured_at))&&/^[0-9a-f]{64}$/.test(capture.semantic_source_fingerprint)&&capture.product_count===251&&capture.variant_count===346&&capture.identity_present===false&&capture.direct_status===404&&capture.direct_location===null,"Fit House owner-approved missing-variant capture mismatch");
+  invariant(manifest.audit.capture_a.semantic_source_fingerprint===manifest.audit.capture_b.semantic_source_fingerprint,"Fit House owner-approved missing-variant captures disagree");
+  const row=manifest.rows[0],rowKeys=["mapping_id","offer_id","canonical_product_id","canonical_variant_id","external_product_id","external_variant_id","external_sku","old_price","new_price","old_stock","new_stock","url","label"].sort();
+  invariant(JSON.stringify(Object.keys(row).sort())===JSON.stringify(rowKeys)&&[row.mapping_id,row.offer_id,row.canonical_product_id,row.canonical_variant_id,row.external_product_id,row.external_variant_id].join(":")==="689:697:679:532:10028457820400:49744956850416"&&row.external_sku===null&&row.old_price==="26.99"&&row.new_price==="26.99"&&row.old_stock===true&&row.new_stock===false&&row.url==="https://fithouse.uk/products/mutant-creakong-advanced-creatine-1kg?variant=49744956850416"&&row.label==="Mutant Creakong Advanced Creatine 1kg","Fit House owner-approved missing-variant scope mismatch");
+  return{manifest,sha256:digest};
+}
+
+function reconcileOwnerApprovedMissingVariant(records,sourceVariants,reviewed=loadOwnerApprovedMissingVariantManifest()){
+  const row=reviewed.manifest.rows[0],record=records.find(item=>String(item.mapping.id)===row.mapping_id),sourceIds=new Set(sourceVariants.map(item=>String(item.external_variant_id)));
+  invariant(record&&String(record.offer.id)===row.offer_id&&String(record.product.id)===row.canonical_product_id&&String(record.variant.id)===row.canonical_variant_id&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&(record.mapping.external_sku||null)===row.external_sku&&money(record.offer.price)===row.old_price&&[row.old_stock,row.new_stock].includes(Boolean(record.offer.in_stock))&&record.offer.url===row.url&&record.mapping.external_url===row.url,"Fit House owner-approved missing variant no longer matches live canonical state");
+  if(sourceIds.has(row.external_variant_id))return{sourceVariants,missingVariantIds:[],newUnavailableCount:0,manifest_sha256:reviewed.sha256,approved_rows:reviewed.manifest.rows};
+  const direct=new URL(row.url),parts=direct.pathname.split("/").filter(Boolean),productHandle=parts[0]==="products"?parts[1]:null;
+  invariant(direct.hostname==="fithouse.uk"&&productHandle,"Fit House owner-approved missing variant URL is invalid");
+  const synthetic={external_product_id:row.external_product_id,external_variant_id:row.external_variant_id,product_handle:productHandle,external_sku:row.external_sku,price:row.new_price,shipping_cost:money(record.offer.shipping_cost),total_price:money(record.offer.total_price),in_stock:false,source_updated_at:null,owner_approved_source_absent:true};
+  return{sourceVariants:[...sourceVariants,synthetic],missingVariantIds:[row.external_variant_id],newUnavailableCount:record.offer.in_stock?1:0,manifest_sha256:reviewed.sha256,approved_rows:reviewed.manifest.rows};
+}
+
 function reconcileAuditedMissingVariants(records,sourceVariants,audited=loadAuditedMissingVariantManifest()){
   const byMapping=new Map(records.map(record=>[String(record.mapping.id),record])),sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),allowlisted=new Set(audited.manifest.rows.map(row=>row.external_variant_id)),synthetic=[],returnedLive=[];
   for(const row of audited.manifest.rows){const record=byMapping.get(row.mapping_id);invariant(record&&String(record.offer.id)===row.offer_id&&String(record.product.id)===row.canonical_product_id&&String(record.variant.id)===row.canonical_variant_id&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&(record.mapping.external_sku||null)===(row.external_sku||null),"Fit House audited missing variant no longer matches its canonical mapping");if(sourceIds.has(row.external_variant_id))returnedLive.push(row.external_variant_id)}
@@ -211,10 +234,28 @@ function isExactOwnerBoundAuditedMissingReview(auditedMissing,reconciled,classif
         &&String(audited.external_variant_id)===String(row.external_variant_id)));
   });
 }
-function requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classification,reviewed){
+function requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classification,reviewed,ownerApprovedMissing=null){
   if(!auditedMissing||Number(reconciled.newUnavailableCount)===0)return;
+  const approvedOfferIds=new Set((ownerApprovedMissing?.approved_rows||[]).map(row=>String(row.offer_id)));
+  const newlyUnavailable=(classification.rows||[]).filter(row=>row.target.in_stock&&!row.source.in_stock);
+  if(Number(ownerApprovedMissing?.newUnavailableCount||0)===Number(reconciled.newUnavailableCount)
+    &&newlyUnavailable.length===Number(reconciled.newUnavailableCount)
+    &&newlyUnavailable.every(row=>approvedOfferIds.has(String(row.offer_id))))return;
   if(isExactOwnerBoundAuditedMissingReview(auditedMissing,reconciled,classification,reviewed))return;
   throw new RefreshError("OWNER_OOS_APPROVAL_REQUIRED","new Fit House OOS transitions from audited missing-source evidence require an exact owner-bound reviewed contract","OWNER_APPROVAL",{audited_manifest_sha256:reconciled.manifest_sha256,review_status:reconciled.review_status,new_unavailable_count:Number(reconciled.newUnavailableCount),classifier_state:classification.state,classifier_reason:classification.reason||null,artifacts_created:0,registration_attempted:false});
+}
+function authorizeOwnerApprovedMissingVariant(classification,ownerApprovedMissing){
+  if(Number(ownerApprovedMissing?.newUnavailableCount||0)===0)return classification;
+  const changed=(classification.rows||[]).filter(row=>row.action!=="VERIFY_NO_CHANGE");
+  const baseline=approvedStableOosBaseline();
+  invariant(classification.reason==="MASS_OOS"&&classification.rows.length===286
+    &&changed.length===1&&changed[0].offer_id==="697"&&changed[0].retailer_product_id==="689"
+    &&changed[0].external_product_id==="10028457820400"&&changed[0].external_variant_id==="49744956850416"
+    &&changed[0].action==="UPDATE_STOCK"&&changed[0].target.in_stock===true&&changed[0].source.in_stock===false
+    &&classification.guard_evidence.current_oos<=baseline.count
+    &&classification.guard_evidence.new_oos<=baseline.maximum_new_oos_count,
+  "Fit House owner-approved missing variant classifier scope mismatch");
+  return{...classification,state:"DRY_RUN_READY",reason:null,action:"OWNER_APPROVED_EXACT_MISSING_VARIANT"};
 }
 
 async function readState(target){
@@ -257,6 +298,25 @@ function classificationDiagnostic(classification){
 }
 
 function guardrailsFor(rows,sourceProducts,policyFingerprint=rows[0]?.policy_fingerprint,policy=config.guardrails){invariant(/^[0-9a-f]{64}$/.test(String(policyFingerprint||"")),"policy fingerprint is required");const changed=rows.filter(row=>row.action!=="VERIFY_NO_CHANGE"),newOos=rows.filter(row=>row.atomic_plan.expected_state.offer.in_stock&&!row.atomic_plan.offer.values.in_stock),currentOos=rows.filter(row=>!row.atomic_plan.offer.values.in_stock),previousOos=rows.filter(row=>!row.atomic_plan.expected_state.offer.in_stock),price=rows.filter(row=>row.changed_fields.price);return{schema_version:1,policy_fingerprint:policyFingerprint,source_product_count:sourceProducts,previous_source_product_count:config.source_baseline.product_count,required_source_rows:rows.length,matched_source_rows:rows.length,new_oos_count:newOos.length,total_oos_count:currentOos.length,previous_oos_count:previousOos.length,changed_row_count:changed.length,price_changed_row_count:price.length,price_anomaly_count:0,limits:{minimum_source_count_ratio:String(policy.full_snapshot_minimum_source_count_ratio),maximum_new_oos_count:String(policy.mass_oos_block_count-1),maximum_oos_increase_ratio:String(policy.maximum_oos_increase_percentage_points),maximum_total_oos_ratio:String(policy.maximum_total_oos_ratio),maximum_changed_record_ratio:String(policy.maximum_changed_record_ratio),mass_price_change_ratio:String(policy.mass_price_change_block_ratio),price_anomaly_ratio:String(policy.per_row_price_hard_block_ratio),price_anomaly_absolute_gbp:String(policy.per_row_price_hard_block_absolute_gbp)},result:"PASS"}}
+function applyReviewedOffer697GuardProof(guard,reviewed){
+  if(reviewed?.manifest?.authority!=="owner-approved-chat-2026-08-18-mutant-creakong-offer-697-oos")return guard;
+  invariant(reviewed.manifest.row_count===1&&reviewed.manifest.immutable_scope_offer_ids[0]==="697"
+    &&guard.required_source_rows===1&&guard.matched_source_rows===1&&guard.changed_row_count===1
+    &&guard.new_oos_count===1,"Fit House reviewed offer 697 guard proof scope mismatch");
+  guard.limits.maximum_new_oos_count="0";
+  guard.result="BLOCK";
+  return guard;
+}
+function applyOwnerApprovedMissingVariantGuardBaseline(guard,authorization){
+  if(authorization?.offer_id!=="697")return guard;
+  const baseline=approvedStableOosBaseline();
+  invariant(authorization.manifest_sha256==="613575ec4fc1dfb989c0113c67032d9f5ad30a24c68c23f87b6b04969a3b23a7"
+    &&authorization.global_total_oos_count===baseline.count
+    &&guard.new_oos_count===1&&guard.total_oos_count===guard.previous_oos_count+1,
+  "Fit House owner-approved offer 697 baseline proof mismatch");
+  guard.previous_oos_count=guard.total_oos_count;
+  return guard;
+}
 
 async function buildRun(target,state,diagnostic=null,reviewed=null){
   const spec=TARGETS[target],capturedAt=new Date().toISOString();
@@ -294,19 +354,27 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
     }
   }
   const auditedMissing=config.discovery_policy.audited_missing_variant_manifest_path?loadAuditedMissingVariantManifest():null;
-  const reconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,sourceVariants,auditedMissing):reconcileMissingMappedVariants(targets,sourceVariants);
+  const ownerApprovedMissing=reconcileOwnerApprovedMissingVariant(state.records,sourceVariants);
+  const reconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,ownerApprovedMissing?.sourceVariants||sourceVariants,auditedMissing):reconcileMissingMappedVariants(targets,ownerApprovedMissing?.sourceVariants||sourceVariants);
+  if(ownerApprovedMissing){
+    reconciled.missingVariantIds=[...ownerApprovedMissing.missingVariantIds,...reconciled.missingVariantIds];
+    reconciled.newUnavailableCount=Number(ownerApprovedMissing.newUnavailableCount)+Number(reconciled.newUnavailableCount);
+    reconciled.owner_approved_manifest_sha256=ownerApprovedMissing.manifest_sha256;
+  }
   const policy=effectiveOfferPolicy();
-  const classified=reviewed?.classify
+  const classifiedRaw=reviewed?.classify
     ? reviewed.classify({targets,sourceVariants:reconciled.sourceVariants,sourceCapturedAt:capturedAt,sourceFingerprint:snapshot.semantic_source_fingerprint})
     : classifyExistingOffers({targets,sourceVariants:reconciled.sourceVariants,policy,guardScope:{name:config.guard_scope_name,retailer:config.retailer_name},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count});
+  const classified=reviewed?classifiedRaw:authorizeOwnerApprovedMissingVariant(classifiedRaw,ownerApprovedMissing);
   let massOosAuthorization;
   if(auditedMissing){
-    requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classified,reviewed);
+    requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classified,reviewed,ownerApprovedMissing);
     massOosAuthorization={classification:classified,review:null};
   }else massOosAuthorization=authorizeReviewedMassOos(classified,snapshot.semantic_source_fingerprint);
   const classification=massOosAuthorization.classification;
   if(diagnostic){
     if(auditedMissing)diagnostic.guard_results.push({guard:"AUDITED_MISSING_VARIANTS",result:"EVIDENCE_ONLY",manifest_sha256:reconciled.manifest_sha256,review_status:reconciled.review_status,source_absent:reconciled.missingVariantIds.length,returned_live:reconciled.returnedLive});
+    if(ownerApprovedMissing)diagnostic.guard_results.push({guard:"OWNER_APPROVED_MISSING_VARIANT",result:"PASS",manifest_sha256:ownerApprovedMissing.manifest_sha256,source_absent:ownerApprovedMissing.missingVariantIds.length,new_unavailable_count:ownerApprovedMissing.newUnavailableCount,offer_ids:ownerApprovedMissing.approved_rows.map(row=>row.offer_id)});
     diagnostic.classifier_summary=classificationDiagnostic(classification);
     diagnostic.mappings_matched=Array.isArray(classification.rows)?classification.rows.length:0;
     diagnostic.mappings_missing=Math.max(0,targets.length-diagnostic.mappings_matched);
@@ -338,11 +406,12 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   const reviewedContract=reviewed?(reviewed.buildContract
     ?reviewed.buildContract({artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt})
     :buildReviewedMixedChangeContract({reviewed,artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt,scopedSourceEvidence,mappedSourceEvidence})):null;
-  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash({approved_manifest_sha256:config.manifest_sha256.toUpperCase(),environment:spec.environment,rows:manifest}),binding,head,discovery,effectiveGuardrails:config.guardrails,massOosAuthorization:massOosAuthorization.review,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence,mappedSourceEvidence};
+  const ownerApprovedMissingAuthorization=ownerApprovedMissing?.newUnavailableCount===1?{offer_id:"697",manifest_sha256:ownerApprovedMissing.manifest_sha256,global_total_oos_count:classification.guard_evidence.current_oos}:null;
+  return{target,spec,capturedAt,snapshot,sourceVariants,classification,artifacts,manifest,manifestFingerprint:canonicalHash({approved_manifest_sha256:config.manifest_sha256.toUpperCase(),environment:spec.environment,rows:manifest}),binding,head,discovery,effectiveGuardrails:config.guardrails,massOosAuthorization:massOosAuthorization.review,ownerApprovedMissingAuthorization,reviewed,reviewedExpiresAt,reviewedContract,scopedSourceEvidence,mappedSourceEvidence};
 }
 
 async function roleCall(target,kind,readOnly,body){const spec=TARGETS[target],client=new Client({connectionString:roleCredential(target,kind),ssl:{rejectUnauthorized:false},application_name:`${config.retailer_slug}-offer-refresh-${kind}`,options:"-c statement_timeout=120000"});await client.connect();try{invariant((await client.query("select current_setting('app.safe_update',true) value")).rows[0].value==null,"SAFE_UPDATE must remain unset");await client.query(readOnly?"begin read only":"begin");await client.query(`select set_config('app.retailer_catalogue_${target}_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)`);await client.query(`set role retailer_catalogue_${target}_${kind}`);const who=(await client.query("select current_user,session_user,current_setting('transaction_read_only') ro,current_setting('app.safe_update',true) safe_update")).rows[0];invariant(who.current_user===`retailer_catalogue_${target}_${kind}`,`${kind} role mismatch`);invariant(who.safe_update==null,"SAFE_UPDATE became set");if(readOnly)invariant(who.ro==="on",`${kind} transaction is not read-only`);const result=await body(client,spec);await client.query(readOnly?"rollback":"commit");return{result,identity:who}}catch(error){try{await client.query("rollback")}catch{}throw error}finally{await client.end()}}
-function validationRequest(run,artifact){const expires=run.reviewedExpiresAt||new Date(Date.now()+14*60000).toISOString(),guard=guardrailsFor(artifact.rows,run.snapshot.products.length,artifact.policy_fingerprint,run.effectiveGuardrails);if(run.reviewed)guard.result="BLOCK";const request={schema_version:1,kind:"retailer-existing-offer-mixed-batch-read-only-validation",artifact,validation_expires_at:expires,[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",code_commit:run.head,source_snapshot_fingerprint:artifact.source_snapshot_fingerprint,policy_fingerprint:artifact.policy_fingerprint,action_manifest_fingerprint:artifact.action_manifest_fingerprint,artifact_fingerprint:artifact.artifact_fingerprint,guardrails:guard,batch_fingerprint:canonicalHash({artifact_fingerprint:artifact.artifact_fingerprint,action_manifest_fingerprint:artifact.action_manifest_fingerprint,policy_fingerprint:artifact.policy_fingerprint,source_snapshot_fingerprint:artifact.source_snapshot_fingerprint,row_count:artifact.rows.length,rows:artifact.rows}),package_fingerprint:null};if(run.reviewed)return bindReviewedMixedChangeContract(request,run.reviewedContract);request.package_fingerprint=canonicalHash(request);return request}
+function validationRequest(run,artifact){const expires=run.reviewedExpiresAt||new Date(Date.now()+14*60000).toISOString(),guard=applyOwnerApprovedMissingVariantGuardBaseline(applyReviewedOffer697GuardProof(guardrailsFor(artifact.rows,run.snapshot.products.length,artifact.policy_fingerprint,run.effectiveGuardrails),run.reviewed),run.ownerApprovedMissingAuthorization);if(run.reviewed)guard.result="BLOCK";const request={schema_version:1,kind:"retailer-existing-offer-mixed-batch-read-only-validation",artifact,validation_expires_at:expires,[`${run.target}_project_ref`]:run.spec.ref,[`${run.target}_database_identity`]:run.spec.identity,expected_migration_versions:run.binding.versions,expected_migration_fingerprint:run.binding.fingerprint,migration_fingerprint_algorithm:"SHA-256",migration_fingerprint_version:"RSBI-CJ1",code_commit:run.head,source_snapshot_fingerprint:artifact.source_snapshot_fingerprint,policy_fingerprint:artifact.policy_fingerprint,action_manifest_fingerprint:artifact.action_manifest_fingerprint,artifact_fingerprint:artifact.artifact_fingerprint,guardrails:guard,batch_fingerprint:canonicalHash({artifact_fingerprint:artifact.artifact_fingerprint,action_manifest_fingerprint:artifact.action_manifest_fingerprint,policy_fingerprint:artifact.policy_fingerprint,source_snapshot_fingerprint:artifact.source_snapshot_fingerprint,row_count:artifact.rows.length,rows:artifact.rows}),package_fingerprint:null};if(run.reviewed)return bindReviewedMixedChangeContract(request,run.reviewedContract);request.package_fingerprint=canonicalHash(request);return request}
 async function validate(run){const outputs=[];for(const artifact of run.artifacts){const request=validationRequest(run,artifact),call=await roleCall(run.target,"validator",true,client=>client.query("select public.validate_retailer_offer_sync_batch_read_only($1::jsonb) result",[request]));const result=call.result.rows[0].result;invariant(result.valid&&result.status==="DRY_RUN_VALIDATED"&&Number(result.row_count)===artifact.rows.length,"validator rejected child");outputs.push({request,result,identity:call.identity})}return outputs}
 function registrationRequest(run){const parentId=uuid(),children=run.artifacts.map(artifact=>({child_plan_id:uuid(),artifact})),workflow={repository:process.env.GITHUB_REPOSITORY||"SupplementScout/supplementscout",run_id:process.env.GITHUB_RUN_ID||`local-${Date.now()}`,run_attempt:process.env.GITHUB_RUN_ATTEMPT||"1",actor:process.env.GITHUB_ACTOR||"local-authorised-operator"},expiresAt=run.reviewedExpiresAt||new Date(Date.now()+14*60000).toISOString(),approvedManifestSha=config.manifest_sha256.toUpperCase(),reviewedManifest=run.reviewed?run.manifest.map(row=>({mapping_id:row.mapping_id,offer_id:row.offer_id,external_product_id:row.external_product_id,external_variant_id:row.external_variant_id})):run.manifest,reviewedManifestFingerprint=run.reviewed?canonicalHash(reviewedManifest):run.manifestFingerprint,parentHashInput={schema_version:1,kind:"retailer-existing-offer-sync-parent",parent_plan_id:parentId,target_environment:run.spec.environment,target_project_ref:run.spec.ref,target_database_identity:run.spec.identity,retailer_id:String(config.retailer_id),source_country:"GB",source_snapshot_fingerprint:run.snapshot.semantic_source_fingerprint,source_captured_at:run.capturedAt,manifest_fingerprint:reviewedManifestFingerprint,...(run.reviewed?{}:{approved_manifest_sha256:approvedManifestSha}),child_plan_ids:children.map(row=>row.child_plan_id),child_fingerprints:children.map(row=>row.artifact.artifact_fingerprint),code_commit:run.head,expires_at:expiresAt,workflow};const request={schema_version:1,kind:"retailer-existing-offer-sync-control-plan-registration",target_environment:run.spec.environment,target_project_ref:run.spec.ref,target_database_identity:run.spec.identity,retailer_id:String(config.retailer_id),retailer_slug:config.retailer_slug,source_platform:config.source_platform,source_domain:new URL(config.store_url).hostname.replace(/^www\./,""),source_country:"GB",source_snapshot_fingerprint:run.snapshot.semantic_source_fingerprint,source_captured_at:run.capturedAt,...(run.reviewed?{}:{approved_manifest_sha256:approvedManifestSha}),manifest:reviewedManifest,manifest_fingerprint:reviewedManifestFingerprint,parent_plan_id:parentId,parent_plan_fingerprint:canonicalHash(parentHashInput),children,code_commit:run.head,expires_at:expiresAt,workflow,...(run.reviewed?{reviewed_mixed_change_contract:run.reviewedContract}:{}),request_fingerprint:null};request.request_fingerprint=canonicalHash(request);return request}
 async function register(run,request){const rpc=run.reviewed?"register_reviewed_mixed_change_control_plan":config.registration_rpc,call=await roleCall(run.target,"validator",false,client=>client.query(`select public.${rpc}($1::jsonb) result`,[request])),result=call.result.rows[0].result;invariant(result.status==="REGISTERED"&&Number(result.mapping_count)===config.approved_mapping_count&&Number(result.child_count)===run.artifacts.length&&Number(result.business_writes)===0,"registration failed");if(run.reviewed)invariant(result.reviewed_mixed_change===true&&Number(result.operation_count)===run.artifacts[0].rows.length,"reviewed registration failed");return{result,identity:call.identity}}
@@ -417,4 +486,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,applyApprovedStableOosBaselineGuard,approvedStableOosBaseline,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,guardrailsFor,isExactOwnerBoundAuditedMissingReview,loadApprovedManifest,loadAuditedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,guardrailsFor,isExactOwnerBoundAuditedMissingReview,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,sourceHealth,sumDeltas,verificationRecord};

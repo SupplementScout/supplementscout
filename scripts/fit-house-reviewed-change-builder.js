@@ -8,6 +8,7 @@ const {
   projectSourceVariants,
   readState,
   reconcileAuditedMissingVariants,
+  reconcileOwnerApprovedMissingVariant,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
 const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
@@ -23,14 +24,17 @@ const APPROVED_OFFER_IDS = Object.freeze([
   "1933", "1934", "1935", "1941", "1946", "1953", "1954", "1955", "1963", "1973", "1978", "1979",
 ]);
 const AUTHORITY = "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes";
+const OFFER_697_AUTHORITY = "owner-approved-chat-2026-08-18-mutant-creakong-offer-697-oos";
 
 function invariant(value, message) {
   if (!value) throw new Error(message);
 }
 
 function parseArgs(argv) {
-  invariant(argv.length === 1 && /^--output=.+/.test(argv[0]), "exactly --output is required");
-  return { output: path.resolve(argv[0].slice("--output=".length)) };
+  invariant((argv.length === 1 || argv.length === 2) && /^--output=.+/.test(argv[0])
+    && (argv.length === 1 || argv[1] === "--approved-offer-697"),
+  "exactly --output and optional --approved-offer-697 are required");
+  return { output: path.resolve(argv[0].slice("--output=".length)), offer697: argv.length === 2 };
 }
 
 function loadEnv(file) {
@@ -89,7 +93,7 @@ function rawVariant(snapshot, variantId) {
 
 async function main(argv = process.argv.slice(2)) {
   invariant(!process.env.SAFE_UPDATE, "SAFE_UPDATE must be unset");
-  const { output } = parseArgs(argv);
+  const { output, offer697 } = parseArgs(argv);
   invariant(!fs.existsSync(output), "refusing to overwrite immutable manifest");
   loadEnv(path.join(ROOT, ".env.local"));
   const before = await readState("production");
@@ -102,8 +106,14 @@ async function main(argv = process.argv.slice(2)) {
   invariant(sourceHealth(first.snapshot, firstSource).result === "PASS"
     && sourceHealth(second.snapshot, secondSource).result === "PASS", "Fit House source health blocked");
   const audited = loadAuditedMissingVariantManifest();
-  const firstEffective = reconcileAuditedMissingVariants(before.records, firstSource, audited);
-  const secondEffective = reconcileAuditedMissingVariants(before.records, secondSource, audited);
+  const firstOwner = offer697 ? reconcileOwnerApprovedMissingVariant(before.records, firstSource) : null;
+  const secondOwner = offer697 ? reconcileOwnerApprovedMissingVariant(before.records, secondSource) : null;
+  const firstEffective = reconcileAuditedMissingVariants(before.records, firstOwner?.sourceVariants || firstSource, audited);
+  const secondEffective = reconcileAuditedMissingVariants(before.records, secondOwner?.sourceVariants || secondSource, audited);
+  if (offer697) {
+    firstEffective.missingVariantIds = [...firstOwner.missingVariantIds, ...firstEffective.missingVariantIds];
+    secondEffective.missingVariantIds = [...secondOwner.missingVariantIds, ...secondEffective.missingVariantIds];
+  }
   invariant(canonicalJson(firstEffective.missingVariantIds) === canonicalJson(secondEffective.missingVariantIds),
     "audited absences differ between fresh captures");
   const targets = before.records.map((record) => ({
@@ -125,13 +135,18 @@ async function main(argv = process.argv.slice(2)) {
   invariant(classification.reason === "MASS_OOS", "current Fit House source is not blocked only by MASS_OOS");
   const changed = classification.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE")
     .sort((left, right) => Number(left.offer_id) - Number(right.offer_id));
-  invariant(canonicalJson(changed.map((row) => String(row.offer_id))) === canonicalJson(APPROVED_OFFER_IDS),
-    "live Fit House changes differ from the exact owner-approved 47 offers");
-  invariant(changed.filter((row) => row.target.in_stock && !row.source.in_stock).length === 36
-    && changed.filter((row) => !row.target.in_stock && row.source.in_stock).length === 9
-    && changed.filter((row) => row.changed_fields.price).length === 3
-    && changed.filter((row) => row.changed_fields.stock).length === 45
-    && changed.every((row) => !row.changed_fields.url), "approved Fit House action counts drifted");
+  const approvedOfferIds = offer697 ? ["697"] : APPROVED_OFFER_IDS;
+  invariant(canonicalJson(changed.map((row) => String(row.offer_id))) === canonicalJson(approvedOfferIds),
+    `live Fit House changes differ from the exact owner-approved ${offer697 ? 1 : 47} offers`);
+  invariant(offer697
+    ? changed.length === 1 && changed[0].action === "UPDATE_STOCK"
+      && changed[0].target.in_stock === true && changed[0].source.in_stock === false
+      && !changed[0].changed_fields.price && !changed[0].changed_fields.url
+    : changed.filter((row) => row.target.in_stock && !row.source.in_stock).length === 36
+      && changed.filter((row) => !row.target.in_stock && row.source.in_stock).length === 9
+      && changed.filter((row) => row.changed_fields.price).length === 3
+      && changed.filter((row) => row.changed_fields.stock).length === 45
+      && changed.every((row) => !row.changed_fields.url), "approved Fit House action counts drifted");
 
   const missing = new Set(secondEffective.missingVariantIds);
   const rows = changed.map((current) => {
@@ -166,7 +181,8 @@ async function main(argv = process.argv.slice(2)) {
       mapping_gtin: identity(record.mapping.external_gtin), source_gtin: identity(rawSecond?.variant.barcode),
       exact_action: current.action,
       changed_fields: Object.entries(current.changed_fields).filter(([key, value]) => key !== "blocked" && value).map(([key]) => key).sort(),
-      review_classification: auditedAbsent ? "OWNER_APPROVED_AUDITED_SOURCE_ABSENCE_AS_OOS" : "OWNER_APPROVED_CURRENT_SOURCE_CHANGE",
+      review_classification: offer697 ? "OWNER_APPROVED_EXACT_SOURCE_ABSENCE_AS_OOS"
+        : auditedAbsent ? "OWNER_APPROVED_AUDITED_SOURCE_ABSENCE_AS_OOS" : "OWNER_APPROVED_CURRENT_SOURCE_CHANGE",
       source_evidence_timestamp: first.capturedAt, second_evidence_timestamp: second.capturedAt,
       identity_stability: auditedAbsent ? "STABLY_ABSENT_IN_TWO_CAPTURES" : "STABLE_IN_TWO_CAPTURES",
       evidence: {
@@ -175,7 +191,8 @@ async function main(argv = process.argv.slice(2)) {
         source_product_exists: Boolean(rawSecond?.product), source_variant_exists: Boolean(rawSecond?.variant),
         first_capture_same_semantics: true, audited_source_absent: auditedAbsent,
         audited_missing_manifest_sha256: auditedAbsent ? audited.sha256 : null,
-        owner_approved_full_47_pack: true,
+        owner_approved_full_47_pack: !offer697,
+        owner_approved_offer_697: offer697,
       },
     };
   });
@@ -183,19 +200,19 @@ async function main(argv = process.argv.slice(2)) {
   const productionStateSha256 = stateFingerprint(before);
   invariant(stateFingerprint(after) === productionStateSha256, "production Fit House state changed during evidence generation");
   const manifest = {
-    schema_version: 1, kind: "fit-house-existing-offer-47-change-reviewed-manifest",
-    authority: AUTHORITY, code_commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim(),
+    schema_version: 1, kind: offer697 ? "fit-house-existing-offer-1-stock-change-reviewed-manifest" : "fit-house-existing-offer-47-change-reviewed-manifest",
+    authority: offer697 ? OFFER_697_AUTHORITY : AUTHORITY, code_commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim(),
     generated_at: new Date().toISOString(), target_environment: "PRODUCTION",
     target_project_ref: "aftboxmrdgyhizicfsfu", retailer_id: "9", retailer_slug: "fit-house",
     source_country: "GB", source_capture_sha256: second.snapshot.semantic_source_fingerprint,
     audited_missing_manifest_sha256: audited.sha256,
-    production_state_sha256: productionStateSha256, row_count: 47,
+    production_state_sha256: productionStateSha256, row_count: rows.length,
     immutable_scope_offer_ids: rows.map((row) => row.offer_id),
     expected_deltas: {
       products: 0, product_variants: 0, retailer_mappings_row_count: 0, offers_row_count: 0,
-      stock_updates: 45, item_price_updates: 3, shipping_updates: 0, delivered_total_updates: 3,
+      stock_updates: offer697 ? 1 : 45, item_price_updates: offer697 ? 0 : 3, shipping_updates: 0, delivered_total_updates: offer697 ? 0 : 3,
       offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0,
-      freshness_updates: 47, price_history_rows: 3, retailers: 0,
+      freshness_updates: rows.length, price_history_rows: offer697 ? 0 : 3, retailers: 0,
     },
     rows,
   };
@@ -204,9 +221,9 @@ async function main(argv = process.argv.slice(2)) {
   const manifestSha256 = crypto.createHash("sha256").update(fs.readFileSync(output)).digest("hex");
   process.stdout.write(`${JSON.stringify({ result: "PASS", output: path.relative(ROOT, output), manifest_sha256: manifestSha256,
     source_fingerprint: manifest.source_capture_sha256, production_state_sha256: productionStateSha256,
-    row_count: 47, stock_updates: 45, price_updates: 3, database_writes: 0 }, null, 2)}\n`);
+    row_count: rows.length, stock_updates: offer697 ? 1 : 45, price_updates: offer697 ? 0 : 3, database_writes: 0 }, null, 2)}\n`);
 }
 
 if (require.main === module) main().catch((error) => { console.error(error.stack || error); process.exitCode = 1; });
 
-module.exports = { APPROVED_OFFER_IDS, AUTHORITY, parseArgs, stateFingerprint };
+module.exports = { APPROVED_OFFER_IDS, AUTHORITY, OFFER_697_AUTHORITY, parseArgs, stateFingerprint };

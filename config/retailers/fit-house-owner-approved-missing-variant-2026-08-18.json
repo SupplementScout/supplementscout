@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "fit-house-owner-approved-missing-variant-v1",
+  "authority": "owner-approved-chat-2026-08-18-mutant-creakong-source-removal-as-oos",
+  "authorized_at": "2026-08-18T06:24:12.898Z",
+  "retailer_id": "9",
+  "retailer_slug": "fit-house",
+  "policy": "KEEP_CANONICAL_IDENTITY_AND_MARK_EXACT_OFFER_OOS_WHILE_EXACT_SOURCE_PRODUCT_IS_ABSENT",
+  "row_count": 1,
+  "audit": {
+    "capture_a": {
+      "captured_at": "2026-08-18T06:24:11.685Z",
+      "semantic_source_fingerprint": "0d68058b575a88dd310e8c2808951ace073502936eeff96d464d48e9d42415d1",
+      "product_count": 251,
+      "variant_count": 346,
+      "identity_present": false,
+      "direct_status": 404,
+      "direct_location": null
+    },
+    "capture_b": {
+      "captured_at": "2026-08-18T06:24:12.898Z",
+      "semantic_source_fingerprint": "0d68058b575a88dd310e8c2808951ace073502936eeff96d464d48e9d42415d1",
+      "product_count": 251,
+      "variant_count": 346,
+      "identity_present": false,
+      "direct_status": 404,
+      "direct_location": null
+    }
+  },
+  "rows": [
+    {
+      "mapping_id": "689",
+      "offer_id": "697",
+      "canonical_product_id": "679",
+      "canonical_variant_id": "532",
+      "external_product_id": "10028457820400",
+      "external_variant_id": "49744956850416",
+      "external_sku": null,
+      "old_price": "26.99",
+      "new_price": "26.99",
+      "old_stock": true,
+      "new_stock": false,
+      "url": "https://fithouse.uk/products/mutant-creakong-advanced-creatine-1kg?variant=49744956850416",
+      "label": "Mutant Creakong Advanced Creatine 1kg"
+    }
+  ]
+}

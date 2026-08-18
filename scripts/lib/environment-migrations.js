@@ -50,6 +50,8 @@ const EXCLUSIONS = Object.freeze({
     "20260814213000_correct_critical_cookie_73g_identity",
     "20260816173000_extend_guarded_gtin_promotion_exact_36",
     "20260817100000_rebind_whey_okay_manifest_after_creatine_merge",
+    "20260818070000_authorize_reviewed_fit_house_offer_697_oos",
+    "20260818080000_authorize_reviewed_jons_offer_1098_price",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

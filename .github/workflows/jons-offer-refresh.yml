@@ -19,6 +19,11 @@ on:
         options:
           - workflow_dispatch
           - schedule
+      reviewed_price_1098:
+        description: "Use the exact owner-reviewed offer 1098 price change to GBP 9.99"
+        required: true
+        default: false
+        type: boolean
   schedule:
     - cron: "47 4 * * *"
 
@@ -75,7 +80,13 @@ jobs:
           JONS_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           JONS_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           JONS_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/jons-offer-refresh.js --target=production --mode=dry-run
+          REVIEWED_PRICE_1098: ${{ github.event_name == 'workflow_dispatch' && inputs.reviewed_price_1098 || false }}
+        run: |
+          if [ "$REVIEWED_PRICE_1098" = "true" ]; then
+            node scripts/jons-offer-refresh.js --target=production --mode=dry-run --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=dfb4624497699b00ae1d789df5d22d31464e404b025d36829c3a0e0e3036e86e
+          else
+            node scripts/jons-offer-refresh.js --target=production --mode=dry-run
+          fi
 
       - name: Apply all approved Jon's offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -87,10 +98,16 @@ jobs:
           JONS_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           JONS_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           JONS_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/jons-offer-refresh.js --target=production --mode=apply
+          REVIEWED_PRICE_1098: ${{ github.event_name == 'workflow_dispatch' && inputs.reviewed_price_1098 || false }}
+        run: |
+          if [ "$REVIEWED_PRICE_1098" = "true" ]; then
+            node scripts/jons-offer-refresh.js --target=production --mode=apply --reviewed-manifest=config/retailers/jons-reviewed-price-change-2026-08-18.json --reviewed-manifest-sha256=dfb4624497699b00ae1d789df5d22d31464e404b025d36829c3a0e0e3036e86e
+          else
+            node scripts/jons-offer-refresh.js --target=production --mode=apply
+          fi
 
       - name: Verify idempotency with a fresh source capture
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ (github.event_name == 'schedule' || inputs.operation == 'apply') && !(github.event_name == 'workflow_dispatch' && inputs.reviewed_price_1098) }}
         env:
           JONS_REFRESH_PHASE: idempotency
           JONS_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}

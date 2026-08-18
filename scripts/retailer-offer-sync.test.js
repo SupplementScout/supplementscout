@@ -107,6 +107,20 @@ test("OOS, changed-row, mass-price and hard-price guardrails fail closed", () =>
   assert.equal(classifyExistingOffers(input((d) => d.sourceVariants.slice(0, 6).forEach((r) => { r.price = (Number(r.price) + 0.1).toFixed(2); }))).reason, "MASS_PRICE");
   assert.equal(classifyExistingOffers(input((d) => { d.sourceVariants[0].price = "40.00"; })).reason, "HARD_PRICE_ANOMALY");
 });
+test("a hard price anomaly can be reviewed only for one exact offer and must be consumed", () => {
+  const scenario = input((data) => { data.sourceVariants[0].price = "40.00"; });
+  scenario.reviewedPriceAnomalyOfferIds = [scenario.targets[0].offer_id];
+  const reviewed = classifyExistingOffers(scenario);
+  assert.equal(reviewed.state, "DRY_RUN_READY");
+  assert.equal(reviewed.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE").length, 1);
+  assert.equal(reviewed.rows.find((row) => row.offer_id === scenario.targets[0].offer_id).action, "UPDATE_PRICE");
+
+  const wrongScope = { ...scenario, reviewedPriceAnomalyOfferIds: [scenario.targets[1].offer_id] };
+  assert.equal(classifyExistingOffers(wrongScope).reason, "HARD_PRICE_ANOMALY");
+  const unused = input();
+  unused.reviewedPriceAnomalyOfferIds = [unused.targets[0].offer_id];
+  assert.equal(classifyExistingOffers(unused).reason, "REVIEWED_PRICE_SCOPE_MISMATCH");
+});
 test("MASS_OOS ignores an unchanged historical OOS baseline but blocks genuine new transitions", () => {
   function fiveOfferInput(previousOos) {
     const scenario = input((data) => {

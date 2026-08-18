@@ -47,7 +47,9 @@ async function buildCatalogueAudit(scope, dependencies = {}) {
   const approved = scope.manifest.rows[0];
   for (const row of rows) if (row.external_product_id === approved.external_product_id && row.external_variant_id === approved.external_variant_id) row.classification = "APPROVED_EXISTING_MAPPING";
   const counts = Object.fromEntries([...new Set(rows.map((row) => row.classification))].sort().map((key) => [key, rows.filter((row) => row.classification === key).length]));
-  const identityRows = rows.map(({ price_gbp, in_stock, ...identity }) => identity);
+  const identityRows = rows
+    .map((row) => { const identity = { ...row }; delete identity.price_gbp; delete identity.in_stock; return identity; })
+    .sort((left, right) => Number(right.external_product_id) - Number(left.external_product_id));
   const sourceIdentityFingerprint = crypto.createHash("sha256").update(canonicalJson(identityRows)).digest("hex");
   return { schema_version: 1, result: "PASS", mode: "FULL_CATALOGUE_READ_ONLY_AUDIT", production_writes: 0, catalogue_creates: 0, captured_at: catalogue.captured_at, parent_product_count: catalogue.products.length, source_row_count: rows.length, source_identity_fingerprint: sourceIdentityFingerprint, classification_counts: counts, rows };
 }

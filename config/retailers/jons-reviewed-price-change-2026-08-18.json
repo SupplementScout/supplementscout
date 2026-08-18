@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "kind": "jons-existing-offer-1-price-change-reviewed-manifest",
+  "authority": "owner-approved-chat-2026-08-18-offer-1098-price-9-99",
+  "code_commit": "7007d50dd4b6a9390c04f5cd686d4a48ba6786c7",
+  "generated_at": "2026-08-18T06:38:39.561Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": "10",
+  "retailer_slug": "jon-s-supplements",
+  "source_country": "GB",
+  "source_capture_sha256": "c9431f5c3cf0091dbae3d574d6683c6bb1ebb01ea60d42e048aace0490e7b694",
+  "production_state_sha256": "dde7e4acebab57d0998af0c0e0836eff902f1f102c6d111320fd6a73425b1adb",
+  "row_count": 1,
+  "immutable_scope_offer_ids": [
+    "1098"
+  ],
+  "expected_deltas": {
+    "products": 0,
+    "product_variants": 0,
+    "retailer_mappings_row_count": 0,
+    "offers_row_count": 0,
+    "stock_updates": 0,
+    "item_price_updates": 1,
+    "shipping_updates": 0,
+    "delivered_total_updates": 1,
+    "offer_url_updates": 0,
+    "mapping_url_updates": 0,
+    "mapping_updated_at_updates": 0,
+    "freshness_updates": 1,
+    "price_history_rows": 1,
+    "retailers": 0
+  },
+  "rows": [
+    {
+      "offer_id": "1098",
+      "mapping_id": "1284",
+      "canonical_product_id": "823",
+      "canonical_product": "Strom Sports Maximise 120 Caps",
+      "canonical_variant_id": "1170",
+      "canonical_variant": "Default",
+      "jons_product_id": "10074965508434",
+      "jons_variant_id": "50781523575122",
+      "product": "Strom Sports Maximise 120 Caps BBE 08/26",
+      "flavour": "Default",
+      "old_price": "27.95",
+      "new_price": "9.99",
+      "old_stock": true,
+      "new_stock": true,
+      "old_url": "https://jonssupplements.co.uk/products/strom-sports-maximise-120-caps?variant=50781523575122",
+      "new_url": "https://jonssupplements.co.uk/products/strom-sports-maximise-120-caps?variant=50781523575122",
+      "source_sku": "STM08001",
+      "mapping_gtin": null,
+      "source_gtin": null,
+      "exact_action": "UPDATE_PRICE",
+      "changed_fields": [
+        "price"
+      ],
+      "review_classification": "APPROVE_PRICE_CHANGE",
+      "source_evidence_timestamp": "2026-08-18T06:38:37.397Z",
+      "second_evidence_timestamp": "2026-08-18T06:38:37.676Z",
+      "identity_stability": "STABLE",
+      "creatine_refresh_subset": false,
+      "evidence": {
+        "source_product_exists": true,
+        "source_variant_exists": true,
+        "source_variant_available_explicit": true,
+        "source_stock_interpretation": "EXPLICITLY_AVAILABLE",
+        "first_capture_same_semantics": true,
+        "exact_external_ids": true,
+        "canonical_target_stable": true,
+        "source_sku_matches_mapping": true,
+        "duplicate_source_sku_exception": true,
+        "same_sku_other_identities": [
+          "50781567713618"
+        ],
+        "source_gtin_matches_mapping_when_both_present": true,
+        "same_gtin_other_identities": [],
+        "direct_current_url": {
+          "requested_url": "https://jonssupplements.co.uk/products/strom-sports-maximise-120-caps?variant=50781523575122",
+          "checked_at": "2026-08-18T06:38:37.889Z",
+          "status": 200,
+          "location": null,
+          "hostname": "jonssupplements.co.uk",
+          "direct_success": true
+        },
+        "old_url_check": null,
+        "duplicate_source_variant_identity": false,
+        "duplicate_source_sku_or_gtin_candidates": [
+          "50781567713618"
+        ],
+        "replacement_variant_found": false,
+        "replacement_assessment": "NO_REPLACEMENT_CANDIDATE",
+        "parsing_ambiguity": false,
+        "temporary_source_failure": false
+      }
+    }
+  ]
+}

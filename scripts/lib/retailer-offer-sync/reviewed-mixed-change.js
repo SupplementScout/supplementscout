@@ -5,6 +5,7 @@ const { fingerprint } = require("./artifacts");
 const { semanticShopifySnapshot, sha256 } = require("../shopify-snapshot-reader");
 
 const MANIFEST_KINDS = Object.freeze({
+  1: "jons-existing-offer-1-price-change-reviewed-manifest",
   10: "jons-existing-offer-10-change-reviewed-manifest",
   11: "jons-existing-offer-11-change-reviewed-manifest",
   15: "jons-existing-offer-15-change-reviewed-manifest",
@@ -112,6 +113,19 @@ const EXPECTED_DELTAS_10_STOCK_ONLY = Object.freeze({
   stock_updates: 10,
   freshness_updates: 10,
 });
+const EXPECTED_DELTAS_1_PRICE_ONLY = Object.freeze({
+  ...EXPECTED_DELTAS_11_STOCK_ONLY,
+  stock_updates: 0,
+  item_price_updates: 1,
+  delivered_total_updates: 1,
+  freshness_updates: 1,
+  price_history_rows: 1,
+});
+const EXPECTED_DELTAS_1_STOCK_ONLY = Object.freeze({
+  ...EXPECTED_DELTAS_11_STOCK_ONLY,
+  stock_updates: 1,
+  freshness_updates: 1,
+});
 const EXPECTED_DELTAS_23_STOCK_ONLY = Object.freeze({
   ...EXPECTED_DELTAS_11_STOCK_ONLY,
   stock_updates: 23,
@@ -136,8 +150,10 @@ const FIT_HOUSE_47_TUPLE_HASH = "b23226d28b5da0cede2e4395bbfd35cf4ba2b66803924eb
 const FIT_HOUSE_36_OOS_TUPLE_HASH = "aea97f0ade63240431dfaf837f428a78f36fcd25fe3d8d751a14205e0547c4ed";
 const FIT_HOUSE_29_AUDITED_ABSENCE_TUPLE_HASH = "2dbe16d3226f089787ba70f93f1f03f63c65a6561529644e444d5f744630a2e7";
 
-function expectedManifestDeltas(rowCount) {
-  return rowCount === 10 ? EXPECTED_DELTAS_10_STOCK_ONLY
+function expectedManifestDeltas(rowCount, retailerId) {
+  return rowCount === 1 && retailerId === "9" ? EXPECTED_DELTAS_1_STOCK_ONLY
+    : rowCount === 1 ? EXPECTED_DELTAS_1_PRICE_ONLY
+    : rowCount === 10 ? EXPECTED_DELTAS_10_STOCK_ONLY
     : rowCount === 11 ? EXPECTED_DELTAS_11_STOCK_ONLY
     : rowCount === 15 ? EXPECTED_DELTAS
     : rowCount === 16 ? EXPECTED_DELTAS_16
@@ -545,16 +561,21 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
   const scoped = exactKeys(manifest, EXPECTED_SCOPED_MANIFEST_KEYS);
   const mapped = exactKeys(manifest, EXPECTED_MAPPED_SCOPE_MANIFEST_KEYS);
   const fitHouse = exactKeys(manifest, EXPECTED_FIT_HOUSE_MANIFEST_KEYS);
-  const expectedDeltas = expectedManifestDeltas(manifest.row_count);
+  const expectedDeltas = expectedManifestDeltas(manifest.row_count, manifest.retailer_id);
+  const expectedKind = manifest.retailer_id === "9" && manifest.row_count === 1
+    ? "fit-house-existing-offer-1-stock-change-reviewed-manifest"
+    : MANIFEST_KINDS[manifest.row_count];
   if (!(exactKeys(manifest, EXPECTED_MANIFEST_KEYS) || scoped || mapped || fitHouse)
       || manifest.schema_version !== 1
-      || manifest.kind !== MANIFEST_KINDS[manifest.row_count]
+      || manifest.kind !== expectedKind
       || manifest.target_environment !== "PRODUCTION"
       || manifest.target_project_ref !== "aftboxmrdgyhizicfsfu"
       || !((manifest.retailer_id === "10" && manifest.retailer_slug === "jon-s-supplements")
         || (manifest.retailer_id === "9" && manifest.retailer_slug === "fit-house"
-          && manifest.row_count === 47
-          && manifest.authority === "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes"
+          && ((manifest.row_count === 47
+            && manifest.authority === "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes")
+            || (manifest.row_count === 1
+              && manifest.authority === "owner-approved-chat-2026-08-18-mutant-creakong-offer-697-oos"))
           && SHA256.test(manifest.audited_missing_manifest_sha256)))
       || manifest.source_country !== "GB"
       || !SHA256.test(manifest.source_capture_sha256)
@@ -608,7 +629,7 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
       throw new Error("mapped reviewed source contract mismatch");
     }
   }
-  if (fitHouse) {
+  if (fitHouse && manifest.row_count === 47) {
     const tuples = manifest.rows.map((row) => [row.offer_id, row.mapping_id,
       row.canonical_product_id, row.canonical_variant_id,
       row.external_product_id, row.external_variant_id]);
@@ -643,6 +664,56 @@ function loadReviewedMixedChangeManifest(file, requiredSha256) {
         || manifest.rows.some((row) => row.old_url !== row.new_url
           || row.changed_fields.includes("url"))) {
       throw new Error("Fit House reviewed 47-row owner scope mismatch");
+    }
+  }
+  if (fitHouse && manifest.row_count === 1) {
+    const row = manifest.rows[0];
+    if (manifest.audited_missing_manifest_sha256 !== FIT_HOUSE_AUDITED_MISSING_SHA256
+        || JSON.stringify(manifest.immutable_scope_offer_ids) !== JSON.stringify(["697"])
+        || row.offer_id !== "697" || row.mapping_id !== "689"
+        || row.canonical_product_id !== "679" || row.canonical_variant_id !== "532"
+        || row.external_product_id !== "10028457820400"
+        || row.external_variant_id !== "49744956850416"
+        || row.source_sku !== null
+        || row.old_price !== "26.99" || row.new_price !== "26.99"
+        || row.old_stock !== true || row.new_stock !== false
+        || row.old_url !== row.new_url
+        || row.exact_action !== "UPDATE_STOCK"
+        || JSON.stringify(row.changed_fields) !== JSON.stringify(["stock"])
+        || row.review_classification !== "OWNER_APPROVED_EXACT_SOURCE_ABSENCE_AS_OOS"
+        || row.identity_stability !== "STABLY_ABSENT_IN_TWO_CAPTURES"
+        || row.evidence?.exact_external_ids !== true
+        || row.evidence?.canonical_target_stable !== true
+        || row.evidence?.source_product_exists !== false
+        || row.evidence?.source_variant_exists !== false
+        || row.evidence?.first_capture_same_semantics !== true
+        || row.evidence?.owner_approved_offer_697 !== true) {
+      throw new Error("Fit House reviewed offer 697 OOS scope mismatch");
+    }
+  }
+  if (manifest.retailer_id === "10" && manifest.row_count === 1) {
+    const row = manifest.rows[0];
+    if (manifest.authority !== "owner-approved-chat-2026-08-18-offer-1098-price-9-99"
+        || JSON.stringify(manifest.immutable_scope_offer_ids) !== JSON.stringify(["1098"])
+        || row.offer_id !== "1098" || row.mapping_id !== "1284"
+        || row.canonical_product_id !== "823" || row.canonical_variant_id !== "1170"
+        || row.jons_product_id !== "10074965508434"
+        || row.jons_variant_id !== "50781523575122"
+        || row.source_sku !== "STM08001"
+        || row.old_price !== "27.95" || row.new_price !== "9.99"
+        || row.old_stock !== true || row.new_stock !== true
+        || row.old_url !== row.new_url
+        || row.exact_action !== "UPDATE_PRICE"
+        || JSON.stringify(row.changed_fields) !== JSON.stringify(["price"])
+        || row.review_classification !== "APPROVE_PRICE_CHANGE"
+        || row.identity_stability !== "STABLE"
+        || row.evidence?.source_product_exists !== true
+        || row.evidence?.source_variant_exists !== true
+        || row.evidence?.source_variant_available_explicit !== true
+        || row.evidence?.first_capture_same_semantics !== true
+        || row.evidence?.exact_external_ids !== true
+        || row.evidence?.canonical_target_stable !== true) {
+      throw new Error("Jon's reviewed offer 1098 price scope mismatch");
     }
   }
   const reviewedRows = stableReviewedRows(manifest);

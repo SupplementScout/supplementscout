@@ -118,6 +118,10 @@ const CONTRACTS = Object.freeze({
         "dd105cbcfe23116875ba8eb6aacb4c519d266088d1993eaf1ca27fb755cebccd",
       "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql":
         "a586d67e2141d4139d7f39370e7562fb752b0ae1d9609cc730cac9b9195b74e6",
+      "20260818070000_authorize_reviewed_fit_house_offer_697_oos.sql":
+        "c90707162419c39da91a825e4d80fa01f9b9e5e2e47a85a60d83ed3b4d760ed2",
+      "20260818080000_authorize_reviewed_jons_offer_1098_price.sql":
+        "6c0dac8726ac3ba6d11cf47e7d997739efe6fe6a281e56929361945d4a75bec3",
     }),
     pending: Object.freeze([]),
   }),
@@ -128,9 +132,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 115,
+    ledgerCount: 117,
     ledgerFingerprint:
-      "4afae6d2489727b56f9c69cb022890d080f764c8973a62685af4200fa25b013e",
+      "f4f45d15e851d5e612c0008380579245fc0f4d54f4c17bf8922a754d981d5131",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",

@@ -174,23 +174,43 @@ async function main(argv = process.argv.slice(2)) {
     now: new Date(second.capturedAt),
     sourceProductCount: second.snapshot.products.length,
     previousSourceProductCount: config.source_baseline.product_count,
+    reviewedPriceAnomalyOfferIds: options.offerIds.length === 1 && options.offerIds[0] === "1098"
+      ? options.offerIds : [],
   });
-  invariant(classification.reason === "MASS_OOS", "current source is not blocked only by MASS_OOS");
   const approvedIds = [...options.offerIds].sort((a, b) => Number(a) - Number(b));
-  const newOos = classification.rows.filter((row) =>
-    row.target.in_stock === true && row.source.in_stock === false);
-  const newOosIds = newOos.map((row) => String(row.offer_id))
-    .sort((a, b) => Number(a) - Number(b));
-  invariant(canonicalJson(newOosIds) === canonicalJson(approvedIds),
-    "live new-OOS offers differ from owner-approved offer IDs");
-  const changed = classification.rows.filter((row) =>
-    approvedIds.includes(String(row.offer_id)));
-  invariant(changed.length === approvedIds.length && changed.every((row) => row.action === "UPDATE_STOCK"
-    && row.target.in_stock === true && row.source.in_stock === false
-    && money(row.target.price) === money(row.source.price)
-    && row.target.url === canonicalVariantUrl(config.store_url,
-      row.source.product_handle, row.source.external_variant_id)),
-  "approved scope is not exact stock-only in-stock to OOS");
+  const priceReview = canonicalJson(approvedIds) === canonicalJson(["1098"])
+    && options.authority === "owner-approved-chat-2026-08-18-offer-1098-price-9-99";
+  let changed;
+  if (priceReview) {
+    invariant((classification.state === "DRY_RUN_READY" || classification.reason === "MASS_OOS")
+      && classification.rows.length === 506,
+      `current source is not ready for the exact reviewed price change: ${classification.reason || classification.state} ${JSON.stringify(classification.detail || {})}`);
+    const allChanged = classification.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE");
+    changed = allChanged.filter((row) => row.offer_id === "1098");
+    invariant(changed.length === 1 && changed[0].retailer_product_id === "1284"
+      && changed[0].external_product_id === "10074965508434"
+      && changed[0].external_variant_id === "50781523575122"
+      && changed[0].action === "UPDATE_PRICE"
+      && money(changed[0].target.price) === "27.95"
+      && money(changed[0].source.price) === "9.99"
+      && changed[0].target.in_stock === true && changed[0].source.in_stock === true,
+    `live changes differ from owner-approved offer 1098 price scope: ${JSON.stringify(allChanged.map((row) => ({ offer_id: row.offer_id, action: row.action, old_price: row.target.price, new_price: row.source.price, old_stock: row.target.in_stock, new_stock: row.source.in_stock })))}`);
+  } else {
+    invariant(classification.reason === "MASS_OOS", "current source is not blocked only by MASS_OOS");
+    const newOos = classification.rows.filter((row) =>
+      row.target.in_stock === true && row.source.in_stock === false);
+    const newOosIds = newOos.map((row) => String(row.offer_id))
+      .sort((a, b) => Number(a) - Number(b));
+    invariant(canonicalJson(newOosIds) === canonicalJson(approvedIds),
+      "live new-OOS offers differ from owner-approved offer IDs");
+    changed = classification.rows.filter((row) => approvedIds.includes(String(row.offer_id)));
+    invariant(changed.length === approvedIds.length && changed.every((row) => row.action === "UPDATE_STOCK"
+      && row.target.in_stock === true && row.source.in_stock === false
+      && money(row.target.price) === money(row.source.price)
+      && row.target.url === canonicalVariantUrl(config.store_url,
+        row.source.product_handle, row.source.external_variant_id)),
+    "approved scope is not exact stock-only in-stock to OOS");
+  }
 
   const hasReviewedAbsence = secondMissing.reviewed_missing.length > 0;
   const mappedRows = hasReviewedAbsence ? null : mappedSourceRows({
@@ -206,7 +226,7 @@ async function main(argv = process.argv.slice(2)) {
   const reviewedMissingByVariant = new Map(reviewedMissing.manifest.rows.map((row) => [
     String(row.external_variant_id), row,
   ]));
-  const creatineIds = new Set(RETAILER_SCOPE["Jon's Supplements"].offerIds.map(String));
+  const creatineIds = new Set((RETAILER_SCOPE["Jon's Supplements"]?.offerIds || []).map(String));
   const rows = [];
   for (const current of changed.sort((a, b) => Number(a.offer_id) - Number(b.offer_id))) {
     const record = before.records.find((row) => String(row.offer.id) === String(current.offer_id));
@@ -298,15 +318,16 @@ async function main(argv = process.argv.slice(2)) {
       old_stock: Boolean(record.offer.in_stock), new_stock: Boolean(current.source.in_stock),
       old_url: record.offer.url, new_url: url, source_sku: identity(rawSecond.variant.sku),
       mapping_gtin: identity(record.mapping.external_gtin), source_gtin: identity(rawSecond.variant.barcode),
-      exact_action: "UPDATE_STOCK", changed_fields: ["stock"],
-      review_classification: "APPROVE_STOCK_CHANGE",
+      exact_action: current.action, changed_fields: Object.entries(current.changed_fields)
+        .filter(([field, value]) => field !== "blocked" && value).map(([field]) => field),
+      review_classification: current.action === "UPDATE_PRICE" ? "APPROVE_PRICE_CHANGE" : "APPROVE_STOCK_CHANGE",
       source_evidence_timestamp: first.capturedAt,
       second_evidence_timestamp: second.capturedAt,
       identity_stability: "STABLE", creatine_refresh_subset: creatineIds.has(String(record.offer.id)),
       evidence: {
         source_product_exists: true, source_variant_exists: true,
-        source_variant_available_explicit: false,
-        source_stock_interpretation: "EXPLICITLY_UNAVAILABLE",
+        source_variant_available_explicit: Boolean(rawSecond.variant.available),
+        source_stock_interpretation: rawSecond.variant.available ? "EXPLICITLY_AVAILABLE" : "EXPLICITLY_UNAVAILABLE",
         first_capture_same_semantics: true, exact_external_ids: true,
         canonical_target_stable: Boolean(record.product.is_active
           && !record.product.merged_into_product_id && record.variant.is_active
@@ -334,7 +355,8 @@ async function main(argv = process.argv.slice(2)) {
     "production Jon's state changed during evidence generation");
   const manifest = {
     schema_version: 1,
-    kind: `jons-existing-offer-${rows.length}-change-reviewed-manifest`,
+    kind: priceReview ? "jons-existing-offer-1-price-change-reviewed-manifest"
+      : `jons-existing-offer-${rows.length}-change-reviewed-manifest`,
     authority: options.authority,
     code_commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim(),
     generated_at: new Date().toISOString(), target_environment: "PRODUCTION",
@@ -345,10 +367,17 @@ async function main(argv = process.argv.slice(2)) {
     row_count: rows.length, immutable_scope_offer_ids: rows.map((row) => row.offer_id),
     expected_deltas: {
       products: 0, product_variants: 0, retailer_mappings_row_count: 0,
-      offers_row_count: 0, stock_updates: rows.length, item_price_updates: 0,
-      shipping_updates: 0, delivered_total_updates: 0, offer_url_updates: 0,
-      mapping_url_updates: 0, mapping_updated_at_updates: 0,
-      freshness_updates: rows.length, price_history_rows: 0, retailers: 0,
+      offers_row_count: 0,
+      stock_updates: rows.filter((row) => row.changed_fields.includes("stock")).length,
+      item_price_updates: rows.filter((row) => row.changed_fields.includes("price")).length,
+      shipping_updates: 0,
+      delivered_total_updates: rows.filter((row) => row.changed_fields.includes("price")).length,
+      offer_url_updates: rows.filter((row) => row.changed_fields.includes("url")).length,
+      mapping_url_updates: rows.filter((row) => row.changed_fields.includes("url")).length,
+      mapping_updated_at_updates: rows.filter((row) => row.changed_fields.includes("url")).length,
+      freshness_updates: rows.length,
+      price_history_rows: rows.filter((row) => row.changed_fields.includes("price")).length,
+      retailers: 0,
     },
     rows,
   };

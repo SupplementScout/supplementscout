@@ -109,6 +109,22 @@ function classificationDiagnostic(classification){
 }
 
 function selectReviewedClassificationRows(classification,reviewed){
+  if(reviewed.manifest?.kind==="jons-existing-offer-1-price-change-reviewed-manifest"){
+    invariant((classification.state==="DRY_RUN_READY"||classification.reason==="MASS_OOS")&&classification.rows.length===506,
+      "reviewed price execution requires an exact full-scope ready or MASS_OOS classification");
+    const expectedIdentity=new Set(reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}`));
+    const changed=classification.rows.filter(row=>row.action!=="VERIFY_NO_CHANGE");
+    const approved=changed.filter(row=>row.offer_id==="1098");
+    invariant(approved.length===1&&approved[0].retailer_product_id==="1284"
+      &&approved[0].external_product_id==="10074965508434"
+      &&approved[0].external_variant_id==="50781523575122"
+      &&approved[0].action==="UPDATE_PRICE"
+      &&approved[0].target.price==="27.95"&&approved[0].source.price==="9.99"
+      &&approved[0].target.in_stock===true&&approved[0].source.in_stock===true
+      &&expectedIdentity.has(`${approved[0].external_product_id}:${approved[0].external_variant_id}`),
+    "live price changes differ from the exact owner-approved offer 1098 scope");
+    return approved;
+  }
   invariant(classification.reason==="MASS_OOS"&&classification.rows.length===506,
     "reviewed execution requires an exact full-scope MASS_OOS block");
   const expected=reviewed.reviewed_rows.map(row=>`${row.external_product_id}:${row.external_variant_id}:${row.action}`).sort();
@@ -183,7 +199,8 @@ async function buildRun(target,state,diagnostic=null,reviewed=null){
   const effectiveSourceVariants=missingReconciliation.sourceVariants;
   if(diagnostic)diagnostic.guard_results.push({guard:"REVIEWED_MISSING_VARIANTS",result:"PASS",manifest_sha256:missingReconciliation.manifest_sha256,reviewed_missing:missingReconciliation.reviewed_missing});
   const policy={...config.guardrails,required_matched_offers:506,store_url:config.store_url};
-  const classification=classifyExistingOffers({targets,sourceVariants:effectiveSourceVariants,policy,guardScope:{name:"JONS_FULL_506",retailer:"Jon's Supplements"},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count});
+  const reviewedPriceAnomalyOfferIds=reviewed?.manifest.kind==="jons-existing-offer-1-price-change-reviewed-manifest"?reviewed.manifest.immutable_scope_offer_ids:[];
+  const classification=classifyExistingOffers({targets,sourceVariants:effectiveSourceVariants,policy,guardScope:{name:"JONS_FULL_506",retailer:"Jon's Supplements"},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:snapshot.products.length,previousSourceProductCount:config.source_baseline.product_count,reviewedPriceAnomalyOfferIds});
   if(diagnostic){
     diagnostic.classifier_summary=classificationDiagnostic(classification);
     diagnostic.mappings_matched=Array.isArray(classification.rows)?classification.rows.length:0;

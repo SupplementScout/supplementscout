@@ -7,13 +7,18 @@ const test = require("node:test");
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
   approvedStableOosBaseline,
+  applyOwnerApprovedMissingVariantGuardBaseline,
+  applyReviewedOffer697GuardProof,
+  authorizeOwnerApprovedMissingVariant,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
   loadAuditedMissingVariantManifest,
+  loadOwnerApprovedMissingVariantManifest,
   loadReviewedMassOosManifest,
   parseArgs,
   reconcileAuditedMissingVariants,
   reconcileMissingMappedVariants,
+  reconcileOwnerApprovedMissingVariant,
   requireAuditedMissingOwnerApproval,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
@@ -134,6 +139,69 @@ test("audited 78-row absence manifest is immutable evidence and not owner OOS au
   assert.ok(!audited.manifest.rows.some((row) => ["45060374167792", "48124051816688"].includes(row.external_variant_id)));
 });
 
+test("owner approval is immutable and limited to missing Fit House offer 697", () => {
+  const reviewed = loadOwnerApprovedMissingVariantManifest();
+  assert.equal(reviewed.sha256, "613575ec4fc1dfb989c0113c67032d9f5ad30a24c68c23f87b6b04969a3b23a7");
+  assert.equal(reviewed.manifest.row_count, 1);
+  assert.equal(reviewed.manifest.rows[0].offer_id, "697");
+  assert.equal(reviewed.manifest.rows[0].external_variant_id, "49744956850416");
+  assert.equal(reviewed.manifest.audit.capture_a.semantic_source_fingerprint, reviewed.manifest.audit.capture_b.semantic_source_fingerprint);
+});
+
+test("owner-approved Fit House absence becomes exact OOS once and is replay-safe", () => {
+  const reviewed = loadOwnerApprovedMissingVariantManifest();
+  const row = reviewed.manifest.rows[0];
+  const record = {
+    product: { id: row.canonical_product_id },
+    variant: { id: row.canonical_variant_id },
+    mapping: { id: row.mapping_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: null, external_url: row.url },
+    offer: { id: row.offer_id, price: row.old_price, shipping_cost: "0.00", total_price: row.old_price, in_stock: true, url: row.url },
+  };
+  const first = reconcileOwnerApprovedMissingVariant([record], [], reviewed);
+  assert.equal(first.newUnavailableCount, 1);
+  assert.deepEqual(first.missingVariantIds, [row.external_variant_id]);
+  assert.equal(first.sourceVariants[0].in_stock, false);
+  assert.equal(first.sourceVariants[0].owner_approved_source_absent, true);
+  const classification = { rows: [{ offer_id: row.offer_id, target: { in_stock: true }, source: { in_stock: false } }] };
+  assert.doesNotThrow(() => requireAuditedMissingOwnerApproval(loadAuditedMissingVariantManifest(), first, classification, null, first));
+
+  record.offer.in_stock = false;
+  const replay = reconcileOwnerApprovedMissingVariant([record], [], reviewed);
+  assert.equal(replay.newUnavailableCount, 0);
+  assert.equal(replay.sourceVariants[0].in_stock, false);
+});
+
+test("reviewed offer 697 presents one exact OOS as a blocked guard proof without weakening routine limits", () => {
+  const guard = { required_source_rows: 1, matched_source_rows: 1, changed_row_count: 1, new_oos_count: 1, limits: { maximum_new_oos_count: "3" }, result: "PASS" };
+  const reviewed = { manifest: { authority: "owner-approved-chat-2026-08-18-mutant-creakong-offer-697-oos", row_count: 1, immutable_scope_offer_ids: ["697"] } };
+  const result = applyReviewedOffer697GuardProof(guard, reviewed);
+  assert.equal(result.limits.maximum_new_oos_count, "0");
+  assert.equal(result.result, "BLOCK");
+  const routine = { ...guard, limits: { maximum_new_oos_count: "3" }, result: "PASS" };
+  assert.equal(applyReviewedOffer697GuardProof(routine, null).limits.maximum_new_oos_count, "3");
+  assert.throws(() => applyReviewedOffer697GuardProof({ ...guard, new_oos_count: 2 }, reviewed), /scope mismatch/);
+});
+
+test("exact offer 697 owner approval converts only its bounded MASS_OOS classification", () => {
+  const approved = loadOwnerApprovedMissingVariantManifest();
+  const row = approved.manifest.rows[0];
+  const changed = { offer_id: row.offer_id, retailer_product_id: row.mapping_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, action: "UPDATE_STOCK", target: { in_stock: true }, source: { in_stock: false } };
+  const rows = [changed, ...Array.from({ length: 285 }, (_, index) => ({ offer_id: String(10_000 + index), action: "VERIFY_NO_CHANGE" }))];
+  const classification = { state: "BLOCKED", reason: "MASS_OOS", rows, guard_evidence: { current_oos: 103, new_oos: 1 } };
+  const result = authorizeOwnerApprovedMissingVariant(classification, { newUnavailableCount: 1 });
+  assert.equal(result.state, "DRY_RUN_READY");
+  assert.equal(result.reason, null);
+  assert.throws(() => authorizeOwnerApprovedMissingVariant({ ...classification, guard_evidence: { current_oos: 104, new_oos: 1 } }, { newUnavailableCount: 1 }), /scope mismatch/);
+});
+
+test("offer 697 validation uses only the already approved stable OOS baseline of 103", () => {
+  const original = { new_oos_count: 1, total_oos_count: 18, previous_oos_count: 17 };
+  const authorization = { offer_id: "697", manifest_sha256: "613575ec4fc1dfb989c0113c67032d9f5ad30a24c68c23f87b6b04969a3b23a7", global_total_oos_count: 103 };
+  assert.equal(applyOwnerApprovedMissingVariantGuardBaseline({ ...original }, authorization).previous_oos_count, 18);
+  assert.equal(applyOwnerApprovedMissingVariantGuardBaseline({ ...original }, null).previous_oos_count, 17);
+  assert.throws(() => applyOwnerApprovedMissingVariantGuardBaseline({ ...original }, { ...authorization, global_total_oos_count: 104 }), /baseline proof mismatch/);
+});
+
 function auditedRecord(row, overrides = {}) {
   return {
     product: { id: row.canonical_product_id },
@@ -194,7 +262,7 @@ test("audited evidence does not weaken generic missing or MASS_OOS limits", () =
   assert.equal(config.guardrails.mass_oos_block_count, 4);
   assert.doesNotMatch(automation, /mass_oos_block_count:\s*config\.guardrails\.mass_oos_block_count\s*\+/);
   assert.match(automation, /review_status:\s*reconciled\.review_status/);
-  assert.match(automation, /if\(auditedMissing\)\{\s*requireAuditedMissingOwnerApproval\(auditedMissing,reconciled,classified,reviewed\);\s*massOosAuthorization=\{classification:classified,review:null\};/);
+  assert.match(automation, /if\(auditedMissing\)\{\s*requireAuditedMissingOwnerApproval\(auditedMissing,reconciled,classified,reviewed,ownerApprovedMissing\);\s*massOosAuthorization=\{classification:classified,review:null\};/);
 });
 
 test("three newly absent audited rows require owner approval before artifacts or registration", () => {
@@ -214,7 +282,7 @@ test("three newly absent audited rows require owner approval before artifacts or
       && error.detail.artifacts_created === 0
       && error.detail.registration_attempted === false,
   );
-  assert.ok(automation.indexOf("requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classified,reviewed)") < automation.indexOf("const artifacts=[]"));
+  assert.ok(automation.indexOf("requireAuditedMissingOwnerApproval(auditedMissing,reconciled,classified,reviewed,ownerApprovedMissing)") < automation.indexOf("const artifacts=[]"));
 });
 
 test("a returned audited variant may restock but cannot become absent again without owner approval", () => {
