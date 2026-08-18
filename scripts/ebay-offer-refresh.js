@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_42";
-const KIND = "ebay-existing-offer-refresh-exact-42-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_50";
+const KIND = "ebay-existing-offer-refresh-exact-50-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -27,6 +27,7 @@ const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2567", { seller: "ccolta", review_reasons: new Set(["FLAVOUR_UNPROVEN", "FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
   ["2568", { seller: "trainingfuels", review_reasons: new Set(["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
   ["2569", { seller: "healthyessentialsuk", review_reasons: new Set(["FLAVOUR_UNPROVEN", "FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
+  ["2581", { seller: "time4nutrition", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
 ]);
 const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2570", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
@@ -36,6 +37,11 @@ const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2575", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
   ["2576", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
   ["2578", { seller: "appliednutritionplc", blockers: new Set(["FLAVOUR_MISMATCH"]), review_reasons: new Set() }],
+  ["2582", { seller: "time4nutrition", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2583", { seller: "time4nutrition", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2585", { seller: "time4nutrition", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2587", { seller: "time4nutrition", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2588", { seller: "time4nutrition", blockers: new Set(["SIZE_MISMATCH"]), review_reasons: new Set() }],
 ]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
@@ -47,6 +53,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-f.csv", approval: "batch-f-rollout.json", count: 2 },
   { csv: "batch-g.csv", approval: "batch-g-rollout.json", count: 9 },
   { csv: "batch-h.csv", approval: "batch-h-rollout.json", count: 11 },
+  { csv: "batch-i.csv", approval: "batch-i-rollout.json", count: 8 },
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -82,7 +89,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 42) fail("Exact eBay refresh manifest must contain 42 rows");
+  if (rows.length !== 50) fail("Exact eBay refresh manifest must contain 50 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: String(2724 + index), offer_id: String(2539 + index) })));
