@@ -240,7 +240,7 @@ test("official-store search is bounded to the exact business seller username", a
   resetTokenCache();
 });
 
-test("eBay refresh is frozen to the exact 80 approved existing offers", () => {
+test("eBay refresh is frozen to the exact 100 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
@@ -249,10 +249,10 @@ test("eBay refresh is frozen to the exact 80 approved existing offers", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
-  assert.equal(REFRESH_SCOPES.length, 80);
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 80 }, (_, index) => String(2539 + index)));
+  assert.equal(REFRESH_SCOPES.length, 100);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 100 }, (_, index) => String(2539 + index)));
   assert.deepEqual(REFRESH_SCOPES.slice(0, 60).map((scope) => scope.retailer_product_id), Array.from({ length: 60 }, (_, index) => String(2724 + index)));
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 80);
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 100);
   assert.equal(new Set(REFRESH_SCOPES.slice(0, 22).map((scope) => scope.gtin)).size, 22);
   assert.ok(REFRESH_SCOPES.slice(22, 31).every((scope) => scope.gtin === ""));
   assert.ok(REFRESH_SCOPES.slice(31, 42).every((scope) => /^5056555\d{6}$/.test(scope.gtin)));
@@ -275,7 +275,7 @@ test("eBay refresh is frozen to the exact 80 approved existing offers", () => {
     { product_id: "222", product_variant_id: "752", retailer_product_id: "2782", offer_id: "2597" },
     { product_id: "222", product_variant_id: "755", retailer_product_id: "2783", offer_id: "2598" },
   ]);
-  assert.deepEqual(REFRESH_SCOPES.slice(60).map((scope) => ({
+  assert.deepEqual(REFRESH_SCOPES.slice(60, 80).map((scope) => ({
     product_id: scope.product_id,
     product_variant_id: scope.product_variant_id,
     retailer_product_id: scope.retailer_product_id,
@@ -301,6 +301,33 @@ test("eBay refresh is frozen to the exact 80 approved existing offers", () => {
     { product_id: "423", product_variant_id: "1048", retailer_product_id: "2802", offer_id: "2616" },
     { product_id: "124", product_variant_id: "1754", retailer_product_id: "2803", offer_id: "2617" },
     { product_id: "470", product_variant_id: "445", retailer_product_id: "2804", offer_id: "2618" },
+  ]);
+  assert.deepEqual(REFRESH_SCOPES.slice(80).map((scope) => ({
+    product_id: scope.product_id,
+    product_variant_id: scope.product_variant_id,
+    retailer_product_id: scope.retailer_product_id,
+    offer_id: scope.offer_id,
+  })), [
+    { product_id: "27", product_variant_id: "1589", retailer_product_id: "2805", offer_id: "2619" },
+    { product_id: "788", product_variant_id: "1075", retailer_product_id: "2806", offer_id: "2620" },
+    { product_id: "1033", product_variant_id: "2162", retailer_product_id: "2807", offer_id: "2621" },
+    { product_id: "294", product_variant_id: "1774", retailer_product_id: "2808", offer_id: "2622" },
+    { product_id: "295", product_variant_id: "1777", retailer_product_id: "2809", offer_id: "2623" },
+    { product_id: "791", product_variant_id: "1138", retailer_product_id: "2810", offer_id: "2624" },
+    { product_id: "796", product_variant_id: "1143", retailer_product_id: "2811", offer_id: "2625" },
+    { product_id: "799", product_variant_id: "1146", retailer_product_id: "2812", offer_id: "2626" },
+    { product_id: "800", product_variant_id: "1147", retailer_product_id: "2813", offer_id: "2627" },
+    { product_id: "882", product_variant_id: "1396", retailer_product_id: "2814", offer_id: "2628" },
+    { product_id: "887", product_variant_id: "1445", retailer_product_id: "2815", offer_id: "2629" },
+    { product_id: "927", product_variant_id: "1535", retailer_product_id: "2816", offer_id: "2630" },
+    { product_id: "481", product_variant_id: "763", retailer_product_id: "2817", offer_id: "2631" },
+    { product_id: "770", product_variant_id: "943", retailer_product_id: "2818", offer_id: "2632" },
+    { product_id: "770", product_variant_id: "944", retailer_product_id: "2819", offer_id: "2633" },
+    { product_id: "66", product_variant_id: "1620", retailer_product_id: "2820", offer_id: "2634" },
+    { product_id: "522", product_variant_id: "497", retailer_product_id: "2821", offer_id: "2635" },
+    { product_id: "794", product_variant_id: "1141", retailer_product_id: "2822", offer_id: "2636" },
+    { product_id: "673", product_variant_id: "513", retailer_product_id: "2823", offer_id: "2637" },
+    { product_id: "696", product_variant_id: "568", retailer_product_id: "2824", offer_id: "2638" },
   ]);
   assert.deepEqual(REFRESH_SCOPES.slice(22, 31).map((scope) => ({
     product_id: scope.product_id,
@@ -454,7 +481,7 @@ test("eBay refresh reads the approved item directly and remains GET-only", async
 });
 
 test("Batch K refresh continuity is sealed to the nine owner-reviewed missing-GTIN items", () => {
-  const scopes = REFRESH_SCOPES.slice(71);
+  const scopes = REFRESH_SCOPES.slice(71, 80);
   const reviewed = [
     ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]],
     ["mpbioscence", ["RETURNED_GTIN_UNPROVEN"]],
@@ -479,6 +506,30 @@ test("Batch K refresh continuity is sealed to the nine owner-reviewed missing-GT
   assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], "different-seller", reviewed[0][1])).eligible, false);
   assert.equal(classifyContinuity(scopes[0], evaluation(scopes[0], reviewed[0][0], ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"])).eligible, false);
   assert.equal(classifyContinuity(scopes[0], { ...evaluation(scopes[0], ...reviewed[0]), item_id: "v1|other|0" }).eligible, false);
+});
+
+test("Batch L refresh continuity is sealed to the six exact reviewed exceptions", () => {
+  const scopes = new Map(REFRESH_SCOPES.slice(80).map((scope) => [scope.offer_id, scope]));
+  const evaluation = (offerId, seller, blockers, reasons, returnedGtin) => ({
+    decision: blockers.length ? "REJECT" : "REVIEW",
+    item_id: scopes.get(offerId).external_variant_id,
+    legacy_item_id: scopes.get(offerId).external_product_id,
+    returned_gtin: returnedGtin,
+    blockers,
+    review_reasons: reasons,
+    affiliate_ready: true,
+    affiliate_url: scopes.get(offerId).affiliate_url,
+    seller: { username: seller, account_type: "BUSINESS" },
+  });
+  assert.equal(classifyContinuity(scopes.get("2621"), evaluation("2621", "trainingfuels", ["CANONICAL_GTIN_INVALID"], ["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN"], null)).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  assert.equal(classifyContinuity(scopes.get("2631"), evaluation("2631", "appliednutritionplc", ["UNIT_COUNT_MISMATCH"], [], scopes.get("2631").gtin)).eligible, true);
+  assert.equal(classifyContinuity(scopes.get("2632"), evaluation("2632", "appliednutritionplc", ["FLAVOUR_MISMATCH", "UNIT_COUNT_MISMATCH"], [], scopes.get("2632").gtin)).eligible, true);
+  assert.equal(classifyContinuity(scopes.get("2633"), evaluation("2633", "appliednutritionplc", ["UNIT_COUNT_MISMATCH"], [], scopes.get("2633").gtin)).eligible, true);
+  for (const offerId of ["2637", "2638"]) {
+    assert.equal(classifyContinuity(scopes.get(offerId), evaluation(offerId, "superfoodmarket", [], ["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"], scopes.get(offerId).gtin)).eligible, true);
+  }
+  assert.equal(classifyContinuity(scopes.get("2637"), evaluation("2637", "different-seller", [], ["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"], scopes.get("2637").gtin)).eligible, false);
+  assert.equal(classifyContinuity(scopes.get("2632"), evaluation("2632", "appliednutritionplc", ["UNIT_COUNT_MISMATCH"], [], scopes.get("2632").gtin)).eligible, false);
 });
 
 test("eBay refresh isolates an unreadable listing without automatic OOS or stopping the remaining scope", () => {
@@ -510,7 +561,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_80/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_100/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);

@@ -5292,6 +5292,13 @@ test("legacy mapping upgrade fixture 948 produces one exact update and no offer 
     assert.equal(entry.exact_url_evidence, fixture.url);
     assert.equal(entry.expected_updated_at, fixture.updatedAt);
 
+    const lfBytes = fs.readFileSync(written.artifactPath, "utf8");
+    fs.writeFileSync(written.artifactPath, lfBytes.replace(/\n/g, "\r\n"));
+    const windowsCheckout = loadDryRunArtifact(written.artifactPath);
+    assert.equal(windowsCheckout.artifactSha256, written.artifactSha256);
+    fs.appendFileSync(written.artifactPath, "tamper");
+    assert.throws(() => loadDryRunArtifact(written.artifactPath), /artifact SHA-256 mismatch/i);
+
     const mismatchedArtifact = structuredClone(written.artifact);
     mismatchedArtifact.plans[0].operation_type = "standard_import";
     const mismatchedPath = path.join(directory, "legacy-948-mismatched.json");
