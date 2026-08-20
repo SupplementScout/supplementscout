@@ -555,7 +555,9 @@ test("CLI is closed and diagnostic artifacts exist on success and failure", asyn
   assert.deepEqual(parseArgs(["--target=production", "--mode=dry-run"]), {
     target: "production",
     mode: "dry-run",
+    isolateUnsafe: false,
   });
+  assert.equal(parseArgs(["--target=production", "--mode=apply", "--isolate-unsafe=true"]).isolateUnsafe, true);
   assert.throws(() => parseArgs(["--target=other", "--mode=apply"]));
   assert.deepEqual(
     parseArgs([
@@ -567,6 +569,7 @@ test("CLI is closed and diagnostic artifacts exist on success and failure", asyn
       target: "production",
       mode: "dry-run",
       "reviewed-mass-oos": config.reviewed_mass_oos.selector,
+      isolateUnsafe: false,
     },
   );
   assert.throws(() =>

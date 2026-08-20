@@ -63,7 +63,7 @@ function git(...args) {
 }
 function parseArgs(argv) {
   const result = {};
-  const allowed = new Set(["target", "mode", "reviewed-mass-oos"]);
+  const allowed = new Set(["target", "mode", "reviewed-mass-oos", "isolate-unsafe"]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
     if (!match || !allowed.has(match[1]) || result[match[1]] !== undefined) {
@@ -86,6 +86,11 @@ function parseArgs(argv) {
       "unknown reviewed MASS_OOS selector",
     );
   }
+  if (result["isolate-unsafe"] !== undefined) {
+    invariant(["true", "false"].includes(result["isolate-unsafe"]), "isolate-unsafe must be true or false");
+  }
+  result.isolateUnsafe = result["isolate-unsafe"] === "true";
+  delete result["isolate-unsafe"];
   return result;
 }
 function loadEnvFile(file) {
@@ -495,17 +500,21 @@ function balancedExecutionBatches(rows, maximumBatchSize = 50) {
   const batchCount = Math.ceil(rows.length / maximumBatchSize);
   const batches = Array.from({ length: batchCount }, () => []);
   const newOos = [];
+  const priceChanged = [];
+  const otherChanged = [];
   const existingOos = [];
-  const inStock = [];
+  const unchanged = [];
   for (const row of rows) {
     const before = Boolean(row.atomic_plan.expected_state.offer.in_stock);
     const after = Boolean(row.atomic_plan.offer.values.in_stock);
     if (!after && before) newOos.push(row);
+    else if (row.changed_fields?.price) priceChanged.push(row);
+    else if (row.action !== "VERIFY_NO_CHANGE") otherChanged.push(row);
     else if (!after) existingOos.push(row);
-    else inStock.push(row);
+    else unchanged.push(row);
   }
   let cursor = 0;
-  for (const group of [newOos, existingOos, inStock]) {
+  for (const group of [newOos, priceChanged, otherChanged, existingOos, unchanged]) {
     for (const row of group) {
       while (batches[cursor % batchCount].length >= maximumBatchSize) {
         cursor += 1;
@@ -541,6 +550,12 @@ function guardrailsFor(rows, sourceProducts, policyFingerprint) {
     (row) => !row.atomic_plan.expected_state.offer.in_stock,
   );
   const price = rows.filter((row) => row.changed_fields.price);
+  const priceAnomalies = price.filter((row) => {
+    const before = Number(row.atomic_plan.expected_state.offer.price);
+    const after = Number(row.atomic_plan.offer.values.price);
+    return Math.abs(after - before) >= Number(config.guardrails.per_row_price_hard_block_absolute_gbp) ||
+      Math.abs(after - before) / Math.max(0.01, before) >= Number(config.guardrails.per_row_price_hard_block_ratio);
+  });
   return {
     schema_version: 1,
     policy_fingerprint: policyFingerprint,
@@ -553,7 +568,7 @@ function guardrailsFor(rows, sourceProducts, policyFingerprint) {
     previous_oos_count: previousOos.length,
     changed_row_count: changed.length,
     price_changed_row_count: price.length,
-    price_anomaly_count: 0,
+    price_anomaly_count: priceAnomalies.length,
     limits: {
       minimum_source_count_ratio: String(
         config.guardrails.full_snapshot_minimum_source_count_ratio,
@@ -632,6 +647,38 @@ function diagnosticTemplate(argv, env = process.env) {
     safe_update: "unset",
   };
 }
+async function readFeedSnapshot(reader, capturedAt) {
+  return reader({
+    url: config.source_url,
+    capturedAt,
+    maximumAttempts: config.source_fetch.maximum_attempts,
+    retryBaseDelayMs: config.source_fetch.retry_base_delay_ms,
+    timeoutMs: config.source_fetch.timeout_ms,
+    maximumRedirects: config.source_fetch.maximum_redirects,
+    freshnessHours: config.guardrails.source_freshness_hours,
+    futureClockSkewMinutes: config.guardrails.future_clock_skew_minutes,
+    userAgent: config.source_fetch.user_agent,
+  });
+}
+function projectFeedVariants(feed, targetByKey) {
+  return feed.rows.map((row) => ({
+    ...row,
+    external_sku: null,
+    product_handle: null,
+    shipping_cost: targetByKey.get(row.source_key)?.shipping_cost || row.feed_shipping_cost,
+    total_price: targetByKey.has(row.source_key)
+      ? deliveredTotalForSourcePrice(row.price, targetByKey.get(row.source_key))
+      : null,
+  }));
+}
+function mappedFeedFingerprint(records, sourceVariants) {
+  const byKey = new Map(sourceVariants.map((row) => [row.source_key, row]));
+  return canonicalHash(records.map((record) => {
+    const source = byKey.get(record.source_key);
+    invariant(source, "mapped Whey Okay source fingerprint is missing a row");
+    return { offer_id: String(record.offer.id), source_key: record.source_key, price: money(source.price), in_stock: Boolean(source.in_stock), url: source.url };
+  }).sort((left, right) => Number(left.offer_id) - Number(right.offer_id)));
+}
 async function buildRun(target, state, diagnostic = null, options = {}) {
   const spec = TARGETS[target];
   const approved = loadManifest();
@@ -641,18 +688,9 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
   );
   const capturedAt = new Date().toISOString();
   let feed;
+  const reader = options.reader || readEkmGoogleProductFeed;
   try {
-    feed = await (options.reader || readEkmGoogleProductFeed)({
-      url: config.source_url,
-      capturedAt,
-      maximumAttempts: config.source_fetch.maximum_attempts,
-      retryBaseDelayMs: config.source_fetch.retry_base_delay_ms,
-      timeoutMs: config.source_fetch.timeout_ms,
-      maximumRedirects: config.source_fetch.maximum_redirects,
-      freshnessHours: config.guardrails.source_freshness_hours,
-      futureClockSkewMinutes: config.guardrails.future_clock_skew_minutes,
-      userAgent: config.source_fetch.user_agent,
-    });
+    feed = await readFeedSnapshot(reader, capturedAt);
   } catch (error) {
     throw new RefreshError(
       error.code || "SOURCE_UNAVAILABLE",
@@ -687,16 +725,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
   const targetByKey = new Map(
     state.records.map((record) => [record.source_key, targetFor(record)]),
   );
-  const sourceVariants = feed.rows.map((row) => ({
-    ...row,
-    external_sku: null,
-    product_handle: null,
-    shipping_cost:
-      targetByKey.get(row.source_key)?.shipping_cost || row.feed_shipping_cost,
-    total_price: targetByKey.has(row.source_key)
-      ? deliveredTotalForSourcePrice(row.price, targetByKey.get(row.source_key))
-      : null,
-  }));
+  const sourceVariants = projectFeedVariants(feed, targetByKey);
   const policy = {
     ...config.guardrails,
     required_matched_offers: config.approved_mapping_count,
@@ -710,6 +739,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     now: new Date(capturedAt),
     sourceProductCount: feed.product_count,
     previousSourceProductCount: config.source_baseline.product_count,
+    quarantineUnsafeRows: options.isolateUnsafe && !reviewed,
   });
   const reviewedAuthorization = authorizeReviewedMassOos(
     classification,
@@ -718,6 +748,39 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     reviewed,
   );
   classification = reviewedAuthorization.classification;
+  let automaticPriceConfirmation = null;
+  if (options.isolateUnsafe && !reviewed) {
+    const aggregateReasons = new Set(["MASS_OOS", "MASS_CHANGE", "MASS_PRICE"]);
+    const accepted = classification.state === "DRY_RUN_READY" || classification.state === "DRY_RUN_READY_WITH_REVIEW" || aggregateReasons.has(classification.reason);
+    if (!accepted || !Array.isArray(classification.rows)) {
+      throw new RefreshError(classification.reason || "CLASSIFIER_BLOCKED", "isolated Whey Okay classifier blocked", "CLASSIFIER", classification.detail || {});
+    }
+    const hardPriceOfferIds = (classification.quarantined_rows || [])
+      .filter((row) => row.reason === "HARD_PRICE_ANOMALY")
+      .map((row) => String(row.offer_id))
+      .sort((left, right) => Number(left) - Number(right));
+    if (aggregateReasons.has(classification.reason) || hardPriceOfferIds.length) {
+      const firstMappedFingerprint = mappedFeedFingerprint(state.records, sourceVariants);
+      const secondCapturedAt = new Date().toISOString();
+      const secondFeed = await readFeedSnapshot(reader, secondCapturedAt);
+      const secondHealth = sourceHealth(secondFeed);
+      invariant(secondHealth.result === "PASS", "second Whey Okay source capture failed health checks");
+      const secondVariants = projectFeedVariants(secondFeed, targetByKey);
+      const secondMappedFingerprint = mappedFeedFingerprint(state.records, secondVariants);
+      invariant(secondMappedFingerprint === firstMappedFingerprint, "Whey Okay mapped offers changed between confirmation captures");
+      if (diagnostic) diagnostic.aggregate_confirmation = { result: "PASS", first_mapped_fingerprint: firstMappedFingerprint, second_mapped_fingerprint: secondMappedFingerprint, second_source_fingerprint: secondFeed.semantic_fingerprint, second_captured_at: secondCapturedAt };
+      if (hardPriceOfferIds.length) {
+        classification = classifyExistingOffers({
+          targets, sourceVariants: secondVariants, policy, sourceCapturedAt: capturedAt, now: new Date(capturedAt),
+          sourceProductCount: secondFeed.product_count, previousSourceProductCount: config.source_baseline.product_count,
+          reviewedPriceAnomalyOfferIds: hardPriceOfferIds, quarantineUnsafeRows: true,
+        });
+        const confirmed = new Set((classification.rows || []).filter((row) => row.changed_fields.price && hardPriceOfferIds.includes(String(row.offer_id))).map((row) => String(row.offer_id)));
+        invariant(confirmed.size === hardPriceOfferIds.length, "confirmed Whey Okay price scope changed during reclassification");
+        automaticPriceConfirmation = { kind: "retailer-two-capture-price-confirmation-v1", retailer_id: String(config.retailer_id), retailer_slug: config.retailer_slug, first_source_fingerprint: feed.semantic_fingerprint, second_source_fingerprint: secondFeed.semantic_fingerprint, first_mapped_fingerprint: firstMappedFingerprint, second_mapped_fingerprint: secondMappedFingerprint, second_captured_at: secondCapturedAt, confirmed_offer_ids: hardPriceOfferIds };
+      }
+    }
+  }
   if (diagnostic && reviewedAuthorization.review) {
     diagnostic.guard_results.push({
       guard: "REVIEWED_MASS_OOS",
@@ -726,8 +789,9 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     });
   }
   if (
+    !options.isolateUnsafe &&
     classification.state !== "DRY_RUN_READY" ||
-    classification.rows.length !== config.approved_mapping_count
+    !options.isolateUnsafe && classification.rows.length !== config.approved_mapping_count
   ) {
     throw new RefreshError(
       classification.reason || "CLASSIFIER_BLOCKED",
@@ -924,6 +988,8 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     head,
     discovery,
     shippingDifferences,
+    isolateUnsafe: options.isolateUnsafe,
+    automaticPriceConfirmation,
   };
 }
 function validationRequest(run, artifact) {
@@ -960,6 +1026,14 @@ function validationRequest(run, artifact) {
     }),
     package_fingerprint: null,
   };
+  const confirmedOfferIds = artifact.rows
+    .filter((row) => run.automaticPriceConfirmation?.confirmed_offer_ids.includes(String(row.offer_id)))
+    .map((row) => String(row.offer_id));
+  if (confirmedOfferIds.length) {
+    const proof = { ...run.automaticPriceConfirmation, confirmed_offer_ids: confirmedOfferIds, proof_fingerprint: null };
+    proof.proof_fingerprint = canonicalHash(proof);
+    request.retailer_price_confirmation = proof;
+  }
   request.package_fingerprint = canonicalHash(request);
   return request;
 }
@@ -1049,7 +1123,7 @@ function registrationRequest(run) {
 async function register(run, request) {
   const call = await roleCall(run.target, "validator", false, (client) =>
     client.query(
-      "select public.register_retailer_offer_sync_control_plan($1::jsonb) result",
+      "select public.register_whey_okay_offer_sync_control_plan($1::jsonb) result",
       [request],
     ),
   );
@@ -1196,6 +1270,7 @@ async function executeRefresh(args, diagnostic) {
   diagnostic.database_before = before.counts;
   const run = await buildRun(args.target, before, diagnostic, {
     reviewedMassOosSelector: args["reviewed-mass-oos"] || null,
+    isolateUnsafe: args.isolateUnsafe,
   });
   if (run.discovery.missing_rows.length !== 0) {
     throw new RefreshError(
@@ -1205,11 +1280,17 @@ async function executeRefresh(args, diagnostic) {
       { missing_rows: run.discovery.missing_rows },
     );
   }
+  const reviewRows = (run.classification.quarantined_rows || []).map((row) => ({ offer_id: String(row.offer_id), reason: row.reason, external_product_id: String(row.external_product_id), external_variant_id: String(row.external_variant_id) }));
+  if (run.artifacts.length === 0) {
+    const output = { result: "PASS_WITH_REVIEW", mode: args.mode, target: args.target, scope: { mappings: config.approved_mapping_count, offers: config.approved_mapping_count, children: 0, rows: 0 }, review_rows: reviewRows, validator_batches: 0, safe_update: "unset" };
+    write(`${artifactPrefix(args.target, args.mode)}-${args.mode}.json`, output);
+    return output;
+  }
   const validations = await validate(run);
   diagnostic.validator_result = "PASS";
   diagnostic.guard_results.push({
     guard: "VALIDATOR",
-    result: "PASS",
+    result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
     batches: validations.length,
   });
   const classification = classificationCounts(run.classification.rows);
@@ -1230,6 +1311,7 @@ async function executeRefresh(args, diagnostic) {
       children: run.artifacts.length,
     },
     classification,
+    review_rows: reviewRows,
     expected_deltas: run.classification.expected_deltas,
     discovery: {
       new_rows: run.discovery.new_rows.length,

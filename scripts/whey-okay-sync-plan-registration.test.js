@@ -14,6 +14,10 @@ const workflow = fs.readFileSync(
   path.join(process.cwd(), ".github/workflows/whey-okay-offer-refresh.yml"),
   "utf8",
 );
+const isolatedRefreshMigration = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260820100000_add_whey_okay_isolated_confirmed_price_refresh.sql"),
+  "utf8",
+);
 const nullTotalMigration = fs.readFileSync(
   path.join(
     process.cwd(),
@@ -73,6 +77,10 @@ test("migration reuses control ledgers through narrow state and registration RPC
     migration,
     /perform public\.retailer_offer_sync_validate_manifest\(v_artifact\)/i,
   );
+  for (const token of ["register_whey_okay_offer_sync_control_plan", "validate_whey_okay_confirmed_price_read_only", "require_retailer_price_confirmation", "Isolated child rows do not reconcile with the approved manifest"]) {
+    assert.match(isolatedRefreshMigration, new RegExp(token));
+  }
+  assert.doesNotMatch(isolatedRefreshMigration, /(?:insert into|delete from|update) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
 });
 
 test("registration writes only existing parent and child control ledgers", () => {
