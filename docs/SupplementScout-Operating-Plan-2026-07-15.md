@@ -863,10 +863,11 @@ identity is already normalized to exact canonical brand `Per4m`. Official
 first-party evidence supports one bounded content treatment: product `328` is
 Whey Isolate and product `1010` is Plant Protein, so those two page display
 groups override misleading internal category labels without changing the
-catalogue. The owner approved one `/brands/per4m` page and its release candidate
-is now code complete. It reuses the Applied Nutrition mechanism, passes the
-sealed local quick/full gates and awaits merge, deployment and live-route
-evidence; no dynamic brand generator or catalogue correction is authorised.
+catalogue. The owner approved one `/brands/per4m` page; production commit
+`bc4f4864` is now live verified with successful Vercel and post-merge checks,
+public HTTP `200`, canonical/indexable metadata, schema, current coverage,
+sitemap and product-link evidence. No dynamic brand generator or catalogue
+correction is authorised.
 
 eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
 in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
@@ -2452,11 +2453,10 @@ page. The shared comparison-card and 24-hour freshness refinement is also live
 verified. The fresh read-only GYM HIGH coverage and content audit passed; the
 owner then deferred that brand from public publication. The next executable
 audit selected Per4m as the strongest alternative candidate. The next
-executable unit is review, merge and deployment of the owner-approved, bounded
-`/brands/per4m` release candidate followed by live verification. It uses only
-the two recorded official-source-backed display groups. No additional page is
-authorised merely by passing the gate, and no dynamic brand-page generator is
-approved.
+bounded `/brands/per4m` unit is live verified. The next executable unit is a
+fresh read-only audit selecting exactly one useful brand or retailer candidate.
+No additional page is authorised merely by passing the gate, and no dynamic
+brand-page generator is approved.
 
 ### Next task
 

@@ -123,12 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — review, merge and deploy the owner-approved,
-bounded `/brands/per4m` release candidate, then capture live HTTP, canonical,
-robots, structured-data, sitemap and desktop/mobile evidence. The implementation
-reuses the Applied Nutrition mechanism and only the two recorded official-source-
-backed display groupings; it does not change catalogue identity or create a
-dynamic brand generator. GYM HIGH remains deferred.
+**Next executable task:** SEO-14 — run a fresh read-only audit to select exactly
+one next useful brand or retailer candidate after the Per4m page was live
+verified. Do not create a dynamic generator or infer catalogue identity changes.
+GYM HIGH remains deferred, and no additional page is authorised merely by
+passing a numerical gate.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -273,7 +272,7 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 20 August 2026 — SEO-14 Per4m brand page CODE COMPLETE; live evidence pending
+### 20 August 2026 — SEO-14 Per4m brand page LIVE VERIFIED
 
 - The owner approved one bounded `/brands/per4m` implementation after the
   alternative-brand audit and the merge of documentation closeout PR #20.
@@ -297,7 +296,19 @@ SEO-07 manual evidence queue is now complete:
   migration validation and the Next.js 16.2.9 production build including
   `/brands/per4m`. A local live-data HTTP render timed out and is not counted as
   evidence; live-route verification remains required after deployment.
-- State is `CODE COMPLETE`, not `LIVE VERIFIED`. SEO-14 remains `IN PROGRESS`.
+- Owner-approved PR #21 was squash-merged to `main` as production commit
+  `bc4f4864`. Vercel production deployment and the post-merge `full` and
+  `verify-project-control` checks succeeded.
+- Public `/brands/per4m` returned HTTP `200` with the exact canonical,
+  `index, follow`, valid `CollectionPage`/`ItemList`/`BreadcrumbList` markup,
+  `33` products, `177` fresh offers, `5` retailers, `12` multi-retailer
+  products and `9` page display groups. The sitemap contains exactly one route
+  entry and product `per4m-isolate-zero-900g` links back to the brand page.
+- Desktop and mobile captures exposed the intended content and product imagery.
+  The mobile capture also reproduced an existing shared horizontal overflow on
+  the live Applied Nutrition control page, so it is recorded as a common-layout
+  limitation rather than a Per4m regression.
+- This bounded unit is `LIVE VERIFIED`; SEO-14 remains `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 alternative brand audit selects Per4m; implementation approved
 
