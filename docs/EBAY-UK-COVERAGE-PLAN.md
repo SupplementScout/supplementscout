@@ -1891,17 +1891,57 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Monitor the first scheduled exact-50 refresh and retain its
-artifact as scheduled-run evidence. Continue official-brand-store discovery
-through the existing read-only seller-bounded Browse path; do not create a
-second scheduler or weaken the exact identity, seller, delivery, affiliate or
-continuity gates.`
+`NEXT ACTION: Obtain separate owner approval for production apply of the exact
+ten prepared Batch J rows, then build the guarded exact-ten live preflight,
+executor and postflight by reusing the Batch I release path. Keep the remaining
+four discovery candidates review-only. Do not create a second scheduler or
+weaken the exact identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
 owner-reviewed production design and approval.
 
 ## Last verified
+
+20 August 2026:
+
+- `FIRST SCHEDULED EXACT-50 EVIDENCE RETAINED`: scheduled run `32337925736`
+  completed successfully on `main`. All contract, fresh preflight, prepare,
+  apply and immediate no-op verification steps passed. The postflight had 50
+  `verify_no_change` rows, zero blocked rows and zero additional executions.
+  Artifact `9395376487` has SHA-256
+  `a25d813f288120b637f3a9979bf27917a90bf4973119e71f2e6c7a55c652a248`.
+  The same exact-50 schedule also passed on 18 and 19 August; no replacement
+  scheduler is needed.
+- A fresh production-read-only discovery checked 327 one-retailer variants
+  across 144 products with zero database writes. It found 58 listing results:
+  40 were safely rejected, 18 require review and 269 identities were not
+  found. The strict automated gate approved zero rows by itself.
+- The exact official seller `appliednutritionplc` was separately rechecked
+  against all 27 remaining Applied Nutrition candidates. It produced zero new
+  eligible rows: 23 were not found and four were rejected as mismatches.
+- Manual triage retained 14 plausible exact-identity review candidates. Four
+  rows were excluded before owner review: Optimum Nutrition variant `1573`
+  for an unqualified zero-feedback seller and unproven size; 5% Nutrition
+  variant `1609` for a 372 g/387 g size conflict; Applied Nutrition variant
+  `1665` and NOW Foods variant `2399` because the returned listing did not
+  prove the expected GTIN. No offer, mapping, catalogue or public-page write
+  occurred.
+- The owner confirmed `Zatwierdzam Batch J — dokładnie te 10`, authorizing
+  guarded preparation but not production apply. The exact selected scope is
+  two JNX Sports The Curse variants, six JNX Sports The Ripper variants and
+  two Mutant Mass variants from eBay business seller `welzohealth`, legal name
+  `Welzo Ltd`. Every row has an exact returned GTIN, fixed-price GB listing,
+  in-stock evidence, complete GBP 3.99 shipping and Campaign-ID affiliate URL.
+  The immutable importer dry-run produced exactly ten create plans, zero
+  blocked rows and zero database writes. CSV SHA-256 is
+  `b5ae4a2375c6ab0c42bfe6f6ba2922977ab2d4863fc6532a6da304bc7286107d`;
+  artifact SHA-256 is
+  `22a8a9a517b0f6acb6277feaf498a71a8c8437fede066bbd49c24faa8a46a53f`;
+  review fingerprint is
+  `d2f06fa9df3dbbc27a9a54ba92157c5011038dec7fd7db4558a6120d410c6a97`.
+  The remaining four plausible discovery rows remain unapproved and outside
+  Batch J. No workflow, executor, database or public-page write occurred.
 
 18 August 2026:
 
