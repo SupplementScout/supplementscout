@@ -830,14 +830,16 @@ page must use current canonical products and offers, visible limitations,
 internal linking, canonical metadata, suitable schema, sitemap inclusion and
 consent-aware analytics.
 
-On 20 August the owner inserted one bounded page-quality refinement before the
-GYM HIGH audit: all current comparison landing pages must use compact product
-imagery and a shared dated red offer-check badge, while the public current-offer
-window returns from 24 days to exactly 24 hours. A read-only production-data
-rehearsal retained index eligibility on all ten audited comparison routes and
-found images for every rendered product on the nine card-based routes. The
-change remains implementation evidence until merged, deployed and publicly
-verified; it does not authorise a second SEO task or a GYM HIGH page.
+On 20 August the owner inserted and live verified one bounded page-quality
+refinement before the GYM HIGH audit: all current comparison landing pages use
+compact product imagery and a shared dated red offer-check badge, while the
+public current-offer window returned from 24 days to exactly 24 hours. A
+read-only production-data rehearsal retained index eligibility on all ten
+audited comparison routes and found images for every rendered product on the
+nine card-based routes. Owner-approved PR #19 shipped as production commit
+`832e3dfe`; Vercel succeeded, and public HTTP plus desktop visual checks
+confirmed the new cards and freshness language. This does not authorise a
+second SEO task or a GYM HIGH page.
 
 eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
 in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
@@ -2419,10 +2421,10 @@ Target experience:
 `SEO-14` is the single active implementation. Launch only useful, individually
 gated brand and retailer pages through the existing catalogue and page-quality
 mechanisms. Applied Nutrition is live verified as the first individually gated
-page. The current bounded unit is the owner-directed shared comparison-card and
-24-hour freshness refinement; after it is live verified, the next executable
-unit is a fresh read-only GYM HIGH coverage and content audit. No second brand
-page is authorised unless the same quality contract passes.
+page. The shared comparison-card and 24-hour freshness refinement is also live
+verified. The next executable unit is a fresh read-only GYM HIGH coverage and
+content audit. No second brand page is authorised unless the same quality
+contract passes.
 
 ### Next task
 

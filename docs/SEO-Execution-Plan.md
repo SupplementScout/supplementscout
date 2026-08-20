@@ -123,9 +123,7 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — ship and live verify the owner-directed
-shared comparison-card presentation and global 24-hour current-offer window.
-After that bounded refinement, continue with a fresh, read-only GYM HIGH
+**Next executable task:** SEO-14 — continue with a fresh, read-only GYM HIGH
 coverage and content-gate audit. GYM HIGH remains a candidate rather than an
 authorised page; the historical `29 / 20 / 6` selection figures do not
 authorise thin mass pages.
@@ -273,7 +271,7 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 20 August 2026 — SEO-14 comparison presentation and 24-hour freshness IMPLEMENTED
+### 20 August 2026 — SEO-14 comparison presentation and 24-hour freshness LIVE VERIFIED
 
 - The owner directed all current comparison landing pages to use the visual
   language proven on Creatine: compact product imagery, concise commercial
@@ -296,9 +294,15 @@ SEO-07 manual evidence queue is now complete:
   compact cards, prices and dated red badges. The nine card-based routes had an
   image for every rendered product in the read-only rehearsal; the safe `No
   image` fallback remains for incomplete catalogue rows.
-- Focused comparison/freshness tests and scoped TypeScript/ESLint checks pass.
-  This evidence is local only until PR merge, deployment and public HTTP/visual
-  verification; SEO-14 remains `IN PROGRESS`.
+- Focused comparison/freshness tests, scoped TypeScript/ESLint checks,
+  `npm run verify:quick` and `npm run verify:full` passed. Owner-approved PR
+  #19 shipped as production commit `832e3dfe`; its Vercel production status is
+  successful. Public checks returned HTTP 200 with `index, follow` for Pre
+  Workout, Applied Nutrition, Creatine and Data Freshness. Pre Workout and
+  Applied Nutrition rendered product images and dated red `Offer checked`
+  badges with no visible `No image` fallback, and production desktop review
+  confirmed the intended compact card layout. Public freshness copy uses
+  `24 hours` and no longer contains `24 days`. SEO-14 remains `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 Applied Nutrition brand page LIVE VERIFIED
 
