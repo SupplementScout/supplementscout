@@ -819,13 +819,16 @@ paused; its gate must not be weakened and its completed pages must not be
 rebuilt.
 
 The preferred first brand-page candidate after normalization is Applied
-Nutrition: 56 products, 27 with at least two retailers and nine with at least
-three. GYM HIGH is the next strong candidate: 29 products, 20 with at least two
-retailers and six with at least three. These figures are selection evidence,
-not permission for thin mass publishing. Every eligible page must use current
-canonical products and offers, visible limitations, internal linking,
-canonical metadata, suitable schema, sitemap inclusion and consent-aware
-analytics.
+Nutrition. Its owner-approved page shipped in production commit `b7fae970` and
+is live verified at `/brands/applied-nutrition`: the fresh page gate exposes 44
+products, 199 recently checked offers from five retailers and 23 products with
+current multi-retailer coverage across ten category groupings. It is the first
+completed SEO-14 unit, not completion of SEO-14. GYM HIGH is the next candidate
+and requires a fresh read-only eligibility audit; its historical `29 / 20 / 6`
+selection figures are not permission for thin mass publishing. Every eligible
+page must use current canonical products and offers, visible limitations,
+internal linking, canonical metadata, suitable schema, sitemap inclusion and
+consent-aware analytics.
 
 eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
 in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
@@ -2406,8 +2409,10 @@ Target experience:
 
 `SEO-14` is the single active implementation. Launch only useful, individually
 gated brand and retailer pages through the existing catalogue and page-quality
-mechanisms. Applied Nutrition is the first evidence-backed brand candidate;
-fresh coverage and content evidence must pass before it becomes indexable.
+mechanisms. Applied Nutrition is live verified as the first individually gated
+page. The next executable unit is a fresh read-only GYM HIGH coverage and
+content audit; no second page is authorised unless the same quality contract
+passes.
 
 ### Next task
 

@@ -123,12 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — launch one useful, individually gated brand
-page through the existing canonical catalogue and decision-page mechanisms.
-Applied Nutrition is the first evidence-backed brand-page candidate (56 products, 27
-with at least two retailers and nine with at least three); GYM HIGH follows
-(29 / 20 / 6). Fresh page-level counts and the full quality contract remain
-mandatory, so these figures do not authorise thin mass pages.
+**Next executable task:** SEO-14 — continue with a fresh, read-only GYM HIGH
+coverage and content-gate audit. Applied Nutrition is the first live-verified
+brand page; GYM HIGH remains the next candidate rather than an authorised page.
+Fresh page-level counts and the full quality contract remain mandatory, so the
+historical `29 / 20 / 6` selection figures do not authorise thin mass pages.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -272,6 +271,32 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 Applied Nutrition brand page LIVE VERIFIED
+
+- Owner-approved PR #17 merged as production commit
+  `b7fae9704e49dbce783e94093a929f3e69b79430`; its Vercel deployment completed
+  successfully and the public `/brands/applied-nutrition` route returned HTTP
+  200.
+- A fresh pre-implementation production audit found 56 active, unmerged
+  exact-brand products. The page's current 24-day offer gate exposed 44 products,
+  199 recently checked offers from five retailers and 23 products with offers
+  from multiple retailers across ten category groupings.
+- The live page has an indexable `index, follow` policy, an absolute canonical,
+  visible freshness/methodology/limitation copy and independent-comparison
+  disclosure. It uses `CollectionPage`, `ItemList` and `BreadcrumbList` JSON-LD
+  without fabricated `Product`, seller, rating or medical-claim data.
+- The canonical route occurs exactly once in the live sitemap. The production
+  homepage links to it, and an exact-brand product page links back to it. The
+  existing consent-aware analytics path records source
+  `applied_nutrition_brand`.
+- Eight focused contract tests, TypeScript, ESLint, Project Guardian,
+  `npm run verify:quick`, `npm run verify:full`, the Next.js production build
+  and PR CI run `32374522830` passed. Only this explicit page was added; no
+  dynamic brand slug or mass page generator exists.
+- This is the first completed unit inside SEO-14, not completion of SEO-14.
+  SEO-14 remains the single `IN PROGRESS` implementation and the next action is
+  a fresh GYM HIGH eligibility audit before any second page is built.
 
 ### 20 August 2026 — SEO-11 brand normalization LIVE VERIFIED
 
