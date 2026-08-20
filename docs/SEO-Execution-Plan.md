@@ -113,24 +113,19 @@ Console evidence and user value.
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `LIVE VERIFIED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
-| SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `IN PROGRESS` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
+| SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `LIVE VERIFIED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
-| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `DEFERRED` | Owner-paused on 20 August 2026 until SEO-11 and SEO-14 finish; retain all completed evidence, then recheck Protein Bars without repeating live pages or weakening the shared gate. |
-| SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `PLANNED` | Identity normalization and minimum coverage/content gates are tested; only useful pages are indexable and every page uses current canonical data. |
+| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `DEFERRED` | Owner-paused on 20 August 2026 until SEO-14 finishes; SEO-11 is complete. Retain all completed evidence, then recheck Protein Bars without repeating live pages or weakening the shared gate. |
+| SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `IN PROGRESS` | Identity normalization and minimum coverage/content gates are tested; only useful pages are indexable and every page uses current canonical data. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-11 — normalize brand identities through the
-existing canonical catalogue. Start with the known `PER4M` / `Per4m` split and
-audit `Unknown` brand values. Do not merge uncertain brands or products, create
-a second brand model, or publish brand pages before the normalization evidence
-and owner-review boundary are complete.
-
-After SEO-11, SEO-14 becomes the single active implementation. Applied
-Nutrition is the first evidence-backed brand-page candidate (56 products, 27
+**Next executable task:** SEO-14 — launch one useful, individually gated brand
+page through the existing canonical catalogue and decision-page mechanisms.
+Applied Nutrition is the first evidence-backed brand-page candidate (56 products, 27
 with at least two retailers and nine with at least three); GYM HIGH follows
 (29 / 20 / 6). Fresh page-level counts and the full quality contract remain
 mandatory, so these figures do not authorise thin mass pages.
@@ -141,8 +136,8 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-11, SEO-14,
-the bounded SEO-13 Protein Bars recheck, the 250-product multi-retailer
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-14, the
+bounded SEO-13 Protein Bars recheck, the 250-product multi-retailer
 checkpoint, SEO-15, SEO-16 and SEO-17.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation or send outreach email
@@ -166,7 +161,7 @@ one independent implementation per category.
 
 The table below preserves SEO-13's reviewed cluster order and historical gate
 contract. The owner paused further SEO-13 execution on 20 August 2026 until
-SEO-11 and SEO-14 finish. When SEO-13 resumes, Protein Bars is rechecked first;
+SEO-14 finishes; SEO-11 is complete. When SEO-13 resumes, Protein Bars is rechecked first;
 completed pages are not rebuilt and no gate is weakened.
 
 | Order | Candidate page | Evidence gate before implementation |
@@ -277,6 +272,26 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-11 brand normalization LIVE VERIFIED
+
+- Owner-approved production migration
+  `20260820140000_normalize_reviewed_brand_aliases` applied from merged PR #15
+  through the database-owner path after a successful rollback-only rehearsal.
+- The exact 40 non-canonical case forms changed to `Per4m`, `NOW Foods`,
+  `OstroVit` and `Activlab`. Production postflight found zero remaining source
+  aliases and canonical totals of `33 / 20 / 10 / 2`.
+- All 19 literal `Unknown` products remained unchanged. The nine strong
+  candidates and ten insufficient or ambiguous identities remain separated in
+  `docs/Brand-Normalization-Review-2026-08-20.md`; no product merge, create,
+  variant, mapping, offer or price-history mutation was authorised.
+- Protected production table counts were unchanged at 1,112 products, 2,641
+  variants, 2,624 retailer mappings, 2,624 offers and 2,803 price-history rows.
+  The production migration ledger advanced exactly once to 126 entries with
+  fingerprint `cd6ce83450ee7030e0bae5eb4eda62349feaca1973b8017e56d077f54f4ebbf5`.
+- Focused tests, `npm run verify:quick`, `npm run verify:full`, the Next.js build,
+  Project Guardian and PR CI passed. SEO-11 is therefore `LIVE VERIFIED`, and
+  SEO-14 is the single active implementation.
 
 ### 20 August 2026 — owner-approved SEO execution reorder
 

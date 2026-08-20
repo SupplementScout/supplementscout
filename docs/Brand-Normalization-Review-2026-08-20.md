@@ -43,14 +43,12 @@ accessories and names that could describe either a brand or a formulation
 untouched. These records do not block normalization of the four exact case-only
 aliases, and they cannot authorize a brand page.
 
-## Release evidence required
+## Release evidence
 
-1. Focused migration tests and the full local quality gate pass.
-2. The exact migration SHA is reviewed and selected only for the production
-   database-owner path; staging excludes it.
-3. The production migration is applied only after the reviewed pull request is
-   merged and CI is green.
-4. SELECT-only postflight proves canonical counts of `33 / 20 / 10 / 2`, zero
-   remaining source aliases, 19 unchanged `Unknown` products and unchanged
-   product, variant, mapping, offer and price-history row counts.
-5. Only then may SEO-11 be marked `LIVE VERIFIED` and SEO-14 become active.
+PR #15 merged after focused tests, the full local quality gate and CI passed.
+The exact migration SHA was applied through the production database-owner path
+after a successful rollback-only rehearsal; staging excludes it. SELECT-only
+postflight proved canonical counts of `33 / 20 / 10 / 2`, zero remaining source
+aliases, 19 unchanged `Unknown` products and unchanged product, variant,
+mapping, offer and price-history row counts. SEO-11 is `LIVE VERIFIED` and
+SEO-14 is active.
