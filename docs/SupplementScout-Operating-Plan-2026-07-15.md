@@ -2454,9 +2454,14 @@ verified. The fresh read-only GYM HIGH coverage and content audit passed; the
 owner then deferred that brand from public publication. The next executable
 audit selected Per4m as the strongest alternative candidate. The next
 bounded `/brands/per4m` unit is live verified. The next executable unit is a
-fresh read-only audit selecting exactly one useful brand or retailer candidate.
-No additional page is authorised merely by passing the gate, and no dynamic
-brand-page generator is approved.
+fresh owner decision on the one candidate selected by the subsequent read-only
+audit: `/brands/biotech-usa`. BioTech USA is the only remaining brand passing
+the unchanged gate at `40` visible products, `109` offers, `11` multi-retailer
+products, `3` comparison retailers and `11` source categories, with `40/40`
+images. Its official-source audit requires eleven products to use eight bounded
+page-local display-group rules rather than repeating misleading internal
+categories. No additional page is authorised merely by passing the gate, and
+no dynamic brand-page generator or catalogue correction is approved.
 
 ### Next task
 

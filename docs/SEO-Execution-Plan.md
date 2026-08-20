@@ -123,11 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — run a fresh read-only audit to select exactly
-one next useful brand or retailer candidate after the Per4m page was live
-verified. Do not create a dynamic generator or infer catalogue identity changes.
-GYM HIGH remains deferred, and no additional page is authorised merely by
-passing a numerical gate.
+**Next executable task:** SEO-14 — owner decision on exactly one bounded
+`/brands/biotech-usa` page after its fresh coverage and official-source content
+audit passed. If approved, reuse the existing brand-page mechanism and only the
+recorded page-local display groups; do not change catalogue identity or create a
+dynamic generator. GYM HIGH remains deferred.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -271,6 +271,34 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 fresh next-candidate audit selects BioTech USA; implementation awaits owner approval
+
+- A fresh production read-only brand audit captured at
+  `2026-08-20T15:39:36.737Z` performed zero production writes and reapplied the
+  exact active/unmerged identity boundary, shared 24-hour freshness rule and
+  unchanged `20 / 10 / 3 / 50 / 5` brand gate after Applied Nutrition and
+  Per4m were live verified and GYM HIGH remained owner-deferred.
+- BioTech USA is the only remaining brand to pass every gate: `40` visible
+  products from `49` scoped products, `109` fresh offers, `11` products with
+  multiple fresh retailers, `3` retailers across comparisons and `11` source
+  categories. All `40` visible products have images. The fresh eligible offers
+  span 6 Pack Supplements, eBay UK, Fit House and Whey Okay, while three of
+  those retailers overlap on multi-retailer comparisons.
+- The official [BioTechUSA category index](https://shop.biotechusa.com/collections)
+  and product/range pages confirm that the current internal categories must not
+  be copied literally for eleven visible products. A bounded page may group the
+  four Iso Whey Zero sizes as `Whey Isolate`, product `71` as `Plant Protein`,
+  product `67` as `Casein Protein`, products `1119` and `1082` as `Food &
+  Snacks`, product `1099` as `Food & Baking Mixes`, product `402` as `Natural
+  Plant Extracts` and product `365` as `Amino Acids`.
+- These are page-local presentation rules backed by official sources, not
+  catalogue corrections. The page must remain independent, omit unsupported
+  manufacturer claims and reuse the exact-brand fail-closed mechanism. No
+  retailer-page mechanism with a comparable proven contract exists in the
+  repository, so BioTech USA is the single selected next candidate.
+- State is `AUDIT PASSED`; implementation is not yet authorised. SEO-14 remains
+  `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 Per4m brand page LIVE VERIFIED
 
