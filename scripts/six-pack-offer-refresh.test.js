@@ -155,6 +155,43 @@ test("one price change is planned atomically while a mass price change blocks", 
     ),
     /Classifier blocked: MASS_(CHANGE|PRICE)/
   );
+
+  const isolatedOutput = paths();
+  const isolated = await run(
+    {
+      target: "production",
+      artifact: isolatedOutput.artifact,
+      report: isolatedOutput.report,
+      requireNoChange: false,
+      isolateUnsafe: true,
+    },
+    { state: mass.state, readLive: async (id) => mass.byProduct.get(String(id)) }
+  );
+  assert.equal(isolated.report.result, "PASS_WITH_REVIEW");
+  assert.equal(isolated.report.review_rows.length, massChanges.size);
+  assert.equal(isolated.report.review_rows.every((row) => /^MASS_(CHANGE|PRICE)$/.test(row.reason)), true);
+  assert.equal(
+    loadDryRunArtifact(isolatedOutput.artifact).artifact.plans.length,
+    manifest.rows.length - massChanges.size
+  );
+});
+
+test("one hard price anomaly is isolated without blocking ordinary rows", async () => {
+  const source = fixture(new Map([["4110", 999.99]]));
+  const output = paths();
+  const result = await run(
+    {
+      target: "production",
+      artifact: output.artifact,
+      report: output.report,
+      requireNoChange: false,
+      isolateUnsafe: true,
+    },
+    { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+  );
+  assert.equal(result.report.result, "PASS_WITH_REVIEW");
+  assert.deepEqual(result.report.review_rows.map((row) => row.reason), ["HARD_PRICE_ANOMALY"]);
+  assert.equal(loadDryRunArtifact(output.artifact).artifact.plans.length, manifest.rows.length - 1);
 });
 
 test("exact reviewed MASS_OOS selector permits only the two sealed stock transitions", async () => {
@@ -249,6 +286,21 @@ test("CLI is production-only and confines artifacts to tmp", () => {
       "--reviewed-mass-oos=unknown",
     ]),
     /Unknown reviewed MASS_OOS selector/
+  );
+  assert.equal(parseArgs([
+    "--target=production",
+    "--artifact=tmp/a.json",
+    "--report=tmp/b.json",
+    "--isolate-unsafe=true",
+  ]).isolateUnsafe, true);
+  assert.throws(
+    () => parseArgs([
+      "--target=production",
+      "--artifact=tmp/a.json",
+      "--report=tmp/b.json",
+      "--isolate-unsafe=yes",
+    ]),
+    /isolate-unsafe must be true\|false/
   );
 });
 

@@ -127,8 +127,8 @@ function validateReviewedMassOosArtifact(artifact, reviewed) {
 function validateArtifactScope(artifact, manifest, reviewed = null) {
   if (
     artifact.environment_marker !== "production" ||
-    artifact.plans.length !== manifest.rows.length ||
-    artifact.source_rows.length !== manifest.rows.length ||
+    artifact.plans.length !== artifact.source_rows.length ||
+    artifact.plans.length > manifest.rows.length ||
     artifact.blocked_rows.length !== 0 ||
     Date.now() - Date.parse(artifact.created_at) > config.guardrails.source_freshness_hours * 3600000
   ) fail("Refresh artifact environment, coverage or freshness mismatch");
@@ -196,16 +196,16 @@ function validateArtifactScope(artifact, manifest, reviewed = null) {
     if (plan.offer.action === "update" && !changed) fail("Update plan does not contain a business-field change");
     seen.add(binding.external_variant_id);
   }
-  const total = manifest.rows.length;
+  const total = artifact.plans.length;
   const reviewedMassOos = validateReviewedMassOosArtifact(artifact, reviewed);
   if (
     seen.size !== total ||
-    snapshots.size !== 1 ||
-    changedRows / total > config.guardrails.maximum_changed_record_ratio ||
-    priceChangedRows / total >= config.guardrails.mass_price_change_block_ratio ||
+    snapshots.size !== (total === 0 ? 0 : 1) ||
+    (total > 0 && changedRows / total > config.guardrails.maximum_changed_record_ratio) ||
+    (total > 0 && priceChangedRows / total >= config.guardrails.mass_price_change_block_ratio) ||
     (newOosRows >= config.guardrails.mass_oos_block_count && !reviewedMassOos) ||
-    currentOosRows / total > config.guardrails.maximum_total_oos_ratio ||
-    (currentOosRows - previousOosRows) / total > config.guardrails.maximum_oos_increase_percentage_points
+    (total > 0 && currentOosRows / total > config.guardrails.maximum_total_oos_ratio) ||
+    (total > 0 && (currentOosRows - previousOosRows) / total > config.guardrails.maximum_oos_increase_percentage_points)
   ) fail("Refresh artifact violates independent execution guardrails");
   return [...artifact.plans].sort((left, right) => Number(left.row_number) - Number(right.row_number));
 }
@@ -300,13 +300,14 @@ async function run(options) {
   const reviewed = loadReviewedMassOosManifest(options.reviewedMassOosSelector, approved.manifest);
   const loaded = loadDryRunArtifact(options.artifact);
   const plans = validateArtifactScope(loaded.artifact, approved.manifest, reviewed);
+  const executablePlans = plans.filter((entry) => entry.operation_type !== "verify_offer_no_change");
   const clients = {};
   try {
     clients.approver = await openRoleClient("approver");
     clients.executor = await openRoleClient("executor");
     const rows = [];
     const approvalReason = reviewed ? "six-pack-reviewed-mass-oos" : "six-pack-scheduled-offer-refresh";
-    for (const entry of plans) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason));
+    for (const entry of executablePlans) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason));
     const report = {
       schema_version: 1,
       kind: "six-pack-approved-offer-refresh-execution",
@@ -314,6 +315,8 @@ async function run(options) {
       target_project_ref: PROJECT_REF,
       manifest_sha256: approved.sha256,
       artifact_sha256: loaded.artifactSha256,
+      verified_plan_count: plans.length,
+      skipped_verified_no_change_count: plans.length - executablePlans.length,
       executed_plan_count: rows.length,
       reviewed_mass_oos: reviewed ? {
         selector: reviewed.manifest.selector,

@@ -80,6 +80,7 @@ jobs:
           for attempt in 1 2 3 4 5; do
             node scripts/six-pack-offer-refresh.js \
               --target=production \
+              --isolate-unsafe=true \
               --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
               --report=tmp/six-pack-offer-refresh/production-preflight-report.json \
               "${reviewed_args[@]}" && break
@@ -112,6 +113,7 @@ jobs:
           for attempt in 1 2 3 4 5; do
             node scripts/six-pack-offer-refresh.js \
               --target=production \
+              --isolate-unsafe=true \
               --require-no-change=true \
               --artifact=tmp/six-pack-offer-refresh/production-idempotency-artifact.json \
               --report=tmp/six-pack-offer-refresh/production-idempotency-report.json && break

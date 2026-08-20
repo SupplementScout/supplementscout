@@ -64,6 +64,16 @@ test("executor accepts only the exact approved existing-offer scope", () => {
   assert.throws(() => validateArtifactScope(changed, manifest), /Unsafe or mismatched/);
 });
 
+test("executor accepts a unique safe subset from the immutable manifest", () => {
+  const subset = artifact();
+  subset.plans = subset.plans.slice(0, 25);
+  subset.source_rows = subset.source_rows.slice(0, 25);
+  assert.equal(validateArtifactScope(subset, manifest).length, 25);
+
+  subset.plans[0].resolved_plan.product.id = "999";
+  assert.throws(() => validateArtifactScope(subset, manifest), /Unsafe or mismatched/);
+});
+
 test("executor independently accepts only the exact selected two-row MASS_OOS artifact", () => {
   const { value, reviewed } = reviewedArtifact();
   assert.throws(() => validateArtifactScope(value, manifest), /independent execution guardrails/);
@@ -115,6 +125,7 @@ test("scheduled workflow always preflights, applies through split roles and veri
   assert.match(workflow, /SIX_PACK_SYNC_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /SIX_PACK_SYNC_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
   assert.match(workflow, /--require-no-change=true/);
+  assert.equal((workflow.match(/--isolate-unsafe=true/g) || []).length, 2);
   const testsStep = workflow.match(/- name: Test 6 Pack refresh contracts[\s\S]*?(?=\n\s{6}- name:)/)?.[0] || "";
   assert.doesNotMatch(testsStep, /SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL/);
 });
@@ -128,11 +139,12 @@ test("reviewed MASS_OOS selector is manual-only and apply needs the exact apply 
   assert.doesNotMatch(workflow, /github\.event_name == 'schedule'[^\n]*reviewed-mass-oos-dry-run/);
 });
 
-test("executor reuses one approver and one executor connection for the whole manifest", () => {
+test("executor reuses role connections and executes only real changes", () => {
   const source = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh-executor.js"), "utf8");
   assert.match(source, /clients\.approver = await openRoleClient\("approver"\)/);
   assert.match(source, /clients\.executor = await openRoleClient\("executor"\)/);
-  assert.match(source, /for \(const entry of plans\) rows\.push\(await executeEntry\(entry, loaded\.artifactSha256, loaded\.artifact\.run_id, clients, approvalReason\)\)/);
+  assert.match(source, /const executablePlans = plans\.filter\(\(entry\) => entry\.operation_type !== "verify_offer_no_change"\)/);
+  assert.match(source, /for \(const entry of executablePlans\) rows\.push\(await executeEntry\(entry, loaded\.artifactSha256, loaded\.artifact\.run_id, clients, approvalReason\)\)/);
   assert.match(source, /Promise\.allSettled\(Object\.values\(clients\)\.map\(\(client\) => client\.end\(\)\)\)/);
   assert.doesNotMatch(source, /async function roleCall/);
 });

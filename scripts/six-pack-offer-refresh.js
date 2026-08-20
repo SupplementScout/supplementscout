@@ -50,7 +50,7 @@ function shippingForPrice(price) {
 
 function parseArgs(argv) {
   const out = {};
-  const allowed = new Set(["target", "artifact", "report", "require-no-change", "reviewed-mass-oos"]);
+  const allowed = new Set(["target", "artifact", "report", "require-no-change", "reviewed-mass-oos", "isolate-unsafe"]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
     if (!match || !allowed.has(match[1]) || out[match[1]] !== undefined) fail(`Invalid argument ${argument}`, "INVALID_ARGUMENT");
@@ -68,11 +68,42 @@ function parseArgs(argv) {
     fail("--require-no-change must be true|false", "INVALID_ARGUMENT");
   }
   out.reviewedMassOosSelector = out["reviewed-mass-oos"] || null;
+  out.isolateUnsafe = out["isolate-unsafe"] === "true";
+  if (out["isolate-unsafe"] !== undefined && !["true", "false"].includes(out["isolate-unsafe"])) {
+    fail("--isolate-unsafe must be true|false", "INVALID_ARGUMENT");
+  }
   if (
     out["reviewed-mass-oos"] !== undefined &&
     out["reviewed-mass-oos"] !== config.automation.reviewed_mass_oos_selector
   ) fail("Unknown reviewed MASS_OOS selector", "INVALID_ARGUMENT");
   return out;
+}
+
+function isolateAggregateChanges(classification) {
+  if (!["MASS_OOS", "MASS_CHANGE", "MASS_PRICE"].includes(classification.reason)) return classification;
+  const safeRows = [];
+  const quarantinedRows = [...(classification.quarantined_rows || [])];
+  for (const row of classification.rows || []) {
+    if (row.action === "VERIFY_NO_CHANGE") {
+      safeRows.push(row);
+      continue;
+    }
+    quarantinedRows.push({
+      ...row,
+      original_action: row.action,
+      action: "BLOCK_SOURCE_ANOMALY",
+      reason: classification.reason,
+      changed_fields: { ...row.changed_fields, blocked: true },
+    });
+  }
+  return {
+    ...classification,
+    state: "DRY_RUN_READY_WITH_REVIEW",
+    action: "PASS_WITH_REVIEW",
+    reason: null,
+    rows: safeRows,
+    quarantined_rows: quarantinedRows,
+  };
 }
 
 function loadApprovedManifest() {
@@ -484,6 +515,7 @@ async function run(options, dependencies = {}) {
     now: new Date(capturedAt),
     sourceProductCount: liveByProduct.size,
     previousSourceProductCount: config.automation.approved_product_page_count,
+    quarantineUnsafeRows: options.isolateUnsafe === true,
   });
   const massOosAuthorization = authorizeReviewedMassOos(
     initialClassification,
@@ -491,11 +523,23 @@ async function run(options, dependencies = {}) {
     liveByProduct,
     reviewed
   );
-  const classification = massOosAuthorization.classification;
+  const classification = options.isolateUnsafe
+    ? isolateAggregateChanges(massOosAuthorization.classification)
+    : massOosAuthorization.classification;
+  const reviewRows = (classification.quarantined_rows || []).map((row) => ({
+    offer_id: String(row.offer_id),
+    mapping_id: String(row.retailer_product_id),
+    external_product_id: String(row.external_product_id),
+    external_variant_id: String(row.external_variant_id),
+    reason: row.reason,
+    original_action: row.original_action || null,
+  }));
+  const accepted = ["DRY_RUN_READY", "DRY_RUN_READY_WITH_REVIEW"].includes(classification.state);
+  const reconciledCount = (classification.rows || []).length + reviewRows.length;
   const report = {
     schema_version: 1,
     kind: "six-pack-approved-offer-refresh-dry-run",
-    result: classification.state === "DRY_RUN_READY" ? "PASS" : "BLOCK",
+    result: accepted ? (reviewRows.length ? "PASS_WITH_REVIEW" : "PASS") : "BLOCK",
     target_project_ref: PROJECT_REF,
     manifest_sha256: approved.sha256,
     source_snapshot_fingerprint: snapshotFingerprint,
@@ -506,6 +550,7 @@ async function run(options, dependencies = {}) {
     block_reason: classification.reason || null,
     guard_evidence: classification.guard_evidence || null,
     reviewed_mass_oos: massOosAuthorization.review,
+    review_rows: reviewRows,
     action_counts: (classification.rows || []).reduce((counts, row) => {
       counts[row.action] = (counts[row.action] || 0) + 1;
       return counts;
@@ -514,7 +559,11 @@ async function run(options, dependencies = {}) {
   };
   fs.mkdirSync(path.dirname(options.report), { recursive: true });
   fs.writeFileSync(options.report, `${JSON.stringify(report, null, 2)}\n`);
-  if (classification.state !== "DRY_RUN_READY" || classification.rows.length !== approved.manifest.rows.length) {
+  if (
+    !accepted ||
+    (!options.isolateUnsafe && classification.rows.length !== approved.manifest.rows.length) ||
+    (options.isolateUnsafe && reconciledCount !== approved.manifest.rows.length)
+  ) {
     fail(`Classifier blocked: ${classification.reason || classification.state}`, classification.reason || "CLASSIFIER_BLOCKED");
   }
   if (options.requireNoChange && classification.rows.some((row) => row.action !== "VERIFY_NO_CHANGE")) {
@@ -565,6 +614,7 @@ module.exports = {
   authorizeReviewedMassOos,
   buildArtifactRows,
   canonicalHash,
+  isolateAggregateChanges,
   liveSourceFor,
   loadApprovedManifest,
   loadReviewedMassOosManifest,
