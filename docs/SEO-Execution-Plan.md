@@ -123,11 +123,12 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — owner decision on exactly one bounded Per4m
-brand page after its fresh opportunity, identity, coverage and content audit
-passed. If approved, reuse the Applied Nutrition mechanism and apply only the
-two recorded official-source-backed display groupings; do not change catalogue
-identity or create a dynamic brand generator. GYM HIGH remains deferred.
+**Next executable task:** SEO-14 — review, merge and deploy the owner-approved,
+bounded `/brands/per4m` release candidate, then capture live HTTP, canonical,
+robots, structured-data, sitemap and desktop/mobile evidence. The implementation
+reuses the Applied Nutrition mechanism and only the two recorded official-source-
+backed display groupings; it does not change catalogue identity or create a
+dynamic brand generator. GYM HIGH remains deferred.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -272,7 +273,33 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 20 August 2026 — SEO-14 alternative brand audit selects Per4m; implementation awaits owner approval
+### 20 August 2026 — SEO-14 Per4m brand page CODE COMPLETE; live evidence pending
+
+- The owner approved one bounded `/brands/per4m` implementation after the
+  alternative-brand audit and the merge of documentation closeout PR #20.
+- The release candidate reuses the Applied Nutrition exact-brand query,
+  coverage-first ordering, current 24-hour offer rules, product imagery, dated
+  offer badge, fail-closed `20 / 10 / 3 / 50 / 5` indexability gate, canonical
+  metadata, `CollectionPage`/`ItemList`/`BreadcrumbList` schema, sitemap,
+  bounded homepage/product links and consent-aware analytics.
+- Scope remains exact canonical brand `Per4m`. The only display exceptions are
+  `Whey Isolate` for product `328` and `Plant Protein` for product `1010`;
+  automated tests prove the exceptions do not alter other product groupings.
+  There are no catalogue or production-data writes and no dynamic brand route.
+- Fresh production read-only evidence captured at `2026-08-20T14:57:06.146Z`
+  passed at `33` visible products, `177` fresh offers, `12` multi-retailer
+  products, `5` comparison retailers and `7` source categories, with images on
+  all `33` visible products. The page-local display rules produce the two
+  official-source-backed groupings without weakening the numerical gate.
+- Local evidence passes the Per4m contract tests (`9/9`), the paired Applied
+  Nutrition/Per4m regression tests (`17/17`), `npm run verify:quick` and
+  `npm run verify:full`: `272` sealed tests, `228` safe tests, baseline
+  migration validation and the Next.js 16.2.9 production build including
+  `/brands/per4m`. A local live-data HTTP render timed out and is not counted as
+  evidence; live-route verification remains required after deployment.
+- State is `CODE COMPLETE`, not `LIVE VERIFIED`. SEO-14 remains `IN PROGRESS`.
+
+### 20 August 2026 — SEO-14 alternative brand audit selects Per4m; implementation approved
 
 - A production read-only ranking applied the exact active/unmerged brand
   boundary, shared 24-hour freshness rule and unchanged `20 / 10 / 3 / 50 / 5`
@@ -299,7 +326,8 @@ SEO-07 manual evidence queue is now complete:
   `Whey Isolate` for product `328` and `Plant Protein` for product `1010`.
   These are content-presentation exceptions backed by first-party evidence,
   not catalogue writes or authority to infer other product categories. The page
-  is not yet authorised or implemented.
+  was subsequently owner-approved and implemented in the bounded release
+  candidate recorded above.
 
 ### 20 August 2026 — SEO-14 GYM HIGH brand gate PASSED; publication DEFERRED
 
