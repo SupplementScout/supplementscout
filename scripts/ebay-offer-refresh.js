@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_50";
-const KIND = "ebay-existing-offer-refresh-exact-50-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_60";
+const KIND = "ebay-existing-offer-refresh-exact-60-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -54,6 +54,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-g.csv", approval: "batch-g-rollout.json", count: 9 },
   { csv: "batch-h.csv", approval: "batch-h-rollout.json", count: 11 },
   { csv: "batch-i.csv", approval: "batch-i-rollout.json", count: 8 },
+  { csv: "batch-j.csv", approval: "batch-j-rollout.json", count: 10 },
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -89,7 +90,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 50) fail("Exact eBay refresh manifest must contain 50 rows");
+  if (rows.length !== 60) fail("Exact eBay refresh manifest must contain 60 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: String(2724 + index), offer_id: String(2539 + index) })));
