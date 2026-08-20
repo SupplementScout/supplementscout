@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 60-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10)
+**Status:** CONTROLLED 80-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10 + BATCH K 20/20)
 **Last verified:** 20 August 2026
-**Production writes:** 60 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 60 mappings, 60 offers, 60 price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 60 live eBay offers
+**Production writes:** 80 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 80 mappings, 80 offers, 80 price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 80 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,14 +41,14 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 60-offer rollout are complete. The
+read-only Browse pilot and the controlled 80-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below. The exact-60 daily refresh is enabled at `05:43 UTC`; each
+postflight below. The exact-80 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
-part of the same guarded exact-60 scheduled refresh manifest; missing GTIN
+part of the same guarded exact-80 scheduled refresh manifest; missing GTIN
 remains explicit evidence and is accepted only for the exact approved item,
 business seller and reviewed metadata-gap set. No second scheduler or importer
 was introduced.
@@ -109,6 +109,23 @@ preflight. It returned 59 eligible no-ops and isolated existing offer `2543`
 because eBay temporarily returned unknown UK shipping. The block did not fail
 the run and cannot remove or overwrite that offer. No second scheduler or
 importer exists.
+
+Batch K is live verified 20/20. The first protected apply stopped safely after
+creating 11 rows when it reached an exact reviewed variant whose canonical
+identity had no external GTIN. Recovery workflow `32354401914` reused the same
+guarded importer, verified the first 11 as no-ops, created only the remaining
+nine rows and completed with an exact 20-row no-op postflight. Artifact
+`9401110568` retains the release evidence. Independent production readback
+confirmed mapping IDs `2784`-`2794` and `2796`-`2804`, offer IDs `2599`-`2618`,
+20 unique external eBay variants, in-stock state and Campaign-ID URLs. The two
+multi-product eBay parent listings are permitted only by an exact owner-approved
+product, variant, item, URL and option contract; no general identity gate was
+weakened. Representative public pages returned HTTP 200 and visibly exposed
+their eBay UK offers. The existing single refresh is now exact 80. Protected
+read-only run `32356085580` on `main` passed 80 eligible no-ops, zero blocked
+rows and zero writes; artifact `9401742531` was retained. Source-read failures
+are isolated per row and can never automatically mark an offer out of stock.
+No second scheduler or importer exists.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1913,11 +1930,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Retain the first scheduled exact-60 execution evidence after the
-next 05:43 UTC run and keep row-level isolation for offer 2543 until eBay
-returns known UK shipping. Then continue the remaining four discovery
-candidates through owner review only. Do not create a second scheduler or
-weaken the exact identity, seller, delivery, affiliate or continuity gates.`
+`NEXT ACTION: Start the next eBay discovery batch as Batch L with a target of
+20 owner-review candidates. Reuse the existing production-read-only discovery,
+exact-item review, guarded importer and single exact-80 scheduler. Do not repeat
+Batches A-K, create a second scheduler, or weaken the exact identity, seller,
+delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1927,6 +1944,23 @@ owner-reviewed production design and approval.
 
 20 August 2026:
 
+- `EXACT-80 REFRESH LIVE PREFLIGHT VERIFIED`: PR `#9` merged to `main` as
+  `1c3bce74e1cbea3352a9205f62ee456b1bed2c3f`. Protected read-only workflow
+  `32356085580` then passed the exact-80 contract and fresh production
+  preflight. Artifact `9401742531` contains all 80 per-offer artifacts and the
+  aggregate report: `PASS`, 80 eligible `verify_no_change` rows, zero blocked
+  rows, zero executions and automatic out-of-stock blocked. The same existing
+  `05:43 UTC` scheduler owns the exact 80; no second scheduler was added.
+- `BATCH K LIVE VERIFIED 20/20`: protected recovery run `32354401914` passed a
+  fresh 20-item preflight, treated the first 11 already-created rows as no-ops,
+  created only the remaining nine and returned all 20 as exact no-ops in
+  postflight. Artifact `9401110568` was retained. Independent production
+  readback confirmed mappings `2784`-`2794` and `2796`-`2804`, offers
+  `2599`-`2618`, 20 unique external variants, in-stock state and Campaign-ID
+  URLs. Representative BioTechUSA Iso Whey Zero, PEScience Prolific and
+  Critical Cookie pages returned HTTP 200 and visibly showed eBay UK offers.
+  The two reviewed cross-product eBay parent variants remain sealed to their
+  exact identities rather than creating a broad exception.
 - `EXACT-60 REFRESH LIVE PREFLIGHT VERIFIED`: protected read-only run
   `32346283399` on merge commit `8d1a8537771cde9e528eaa07388a85d162c950f8`
   passed the exact refresh contract and fresh production preflight. Artifact
