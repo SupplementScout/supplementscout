@@ -123,12 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — review, merge and deploy the owner-approved,
-bounded `/brands/biotech-usa` release candidate, then capture live HTTP,
-canonical, robots, structured-data, sitemap and desktop/mobile evidence. The
-implementation reuses the existing exact-brand mechanism and only the recorded
-page-local display groups; it does not change catalogue identity or create a
-dynamic generator. GYM HIGH remains deferred.
+**Next executable task:** SEO-14 — run one bounded, read-only retailer-page
+feasibility and user-value audit against the existing catalogue, freshness and
+page-quality contracts. The audit does not authorise a retailer page, a dynamic
+generator or any catalogue/production-data write. Applied Nutrition, Per4m and
+BioTech USA are live verified; GYM HIGH remains deferred.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -273,7 +272,7 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 20 August 2026 — SEO-14 BioTech USA brand page CODE COMPLETE; live evidence pending
+### 20 August 2026 — SEO-14 BioTech USA brand page LIVE VERIFIED
 
 - The owner approved exactly one bounded `/brands/biotech-usa` implementation
   after the fresh coverage and official-source audit in merged PR #23.
@@ -293,7 +292,24 @@ SEO-07 manual evidence queue is now complete:
   `npm run verify:quick` and `npm run verify:full`: `273` sealed tests, `229`
   safe tests, baseline migration validation and the Next.js 16.2.9 production
   build including `/brands/biotech-usa`.
-- State is `CODE COMPLETE`, not `LIVE VERIFIED`. SEO-14 remains `IN PROGRESS`.
+- Owner-approved PR #24 was squash-merged as production commit `18f80241`.
+  Vercel reported a successful production deployment, and the post-merge
+  `full` and `verify-project-control` checks passed; the isolated integration
+  job remained intentionally skipped.
+- Public `/brands/biotech-usa` returned HTTP 200 with its exact canonical,
+  `index, follow`, and `CollectionPage`, `ItemList` and `BreadcrumbList`
+  structured data. It visibly reported the shared 24-hour freshness rule and
+  rendered `40` products, `109` recently checked offers from `4` retailers and
+  `11` products with offers from multiple retailers.
+- The eleven bounded exceptions produced the intended page-only display groups
+  within `15` rendered groups. The public sitemap contained the route exactly
+  once, and the checked BioTech USA product page linked back to the brand page.
+- Desktop and mobile captures exposed the intended content and product imagery.
+  Mobile reproduced the shared horizontal overflow already present on the live
+  Applied Nutrition and Per4m controls, so it is recorded as a common-layout
+  limitation rather than a BioTech USA regression.
+- This bounded unit is `LIVE VERIFIED`; SEO-14 remains `IN PROGRESS` while the
+  next retailer-page feasibility audit is performed.
 
 ### 20 August 2026 — SEO-14 fresh next-candidate audit selects BioTech USA; implementation approved
 
