@@ -123,10 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — owner decision on exactly one bounded
-`/brands/biotech-usa` page after its fresh coverage and official-source content
-audit passed. If approved, reuse the existing brand-page mechanism and only the
-recorded page-local display groups; do not change catalogue identity or create a
+**Next executable task:** SEO-14 — review, merge and deploy the owner-approved,
+bounded `/brands/biotech-usa` release candidate, then capture live HTTP,
+canonical, robots, structured-data, sitemap and desktop/mobile evidence. The
+implementation reuses the existing exact-brand mechanism and only the recorded
+page-local display groups; it does not change catalogue identity or create a
 dynamic generator. GYM HIGH remains deferred.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
@@ -272,7 +273,29 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 20 August 2026 — SEO-14 fresh next-candidate audit selects BioTech USA; implementation awaits owner approval
+### 20 August 2026 — SEO-14 BioTech USA brand page CODE COMPLETE; live evidence pending
+
+- The owner approved exactly one bounded `/brands/biotech-usa` implementation
+  after the fresh coverage and official-source audit in merged PR #23.
+- The release candidate reuses the existing exact-brand query, coverage-first
+  ordering, shared 24-hour offer rules, product imagery, dated offer badge,
+  fail-closed `20 / 10 / 3 / 50 / 5` gate, canonical metadata,
+  `CollectionPage`/`ItemList`/`BreadcrumbList` schema, sitemap, bounded
+  homepage/product links and consent-aware analytics.
+- All eleven audited category exceptions are bound to exact product IDs and
+  tested as page-local display rules. Every other product retains its catalogue
+  category. There are no catalogue or production-data writes and no dynamic
+  brand route.
+- Fresh read-only production evidence remains `40` visible products from `49`
+  scoped products, `109` fresh offers, `11` multi-retailer products, `3`
+  comparison retailers and images on all `40` visible products.
+- Local evidence passes the BioTech USA contract (`9/9`), TypeScript,
+  `npm run verify:quick` and `npm run verify:full`: `273` sealed tests, `229`
+  safe tests, baseline migration validation and the Next.js 16.2.9 production
+  build including `/brands/biotech-usa`.
+- State is `CODE COMPLETE`, not `LIVE VERIFIED`. SEO-14 remains `IN PROGRESS`.
+
+### 20 August 2026 — SEO-14 fresh next-candidate audit selects BioTech USA; implementation approved
 
 - A fresh production read-only brand audit captured at
   `2026-08-20T15:39:36.737Z` performed zero production writes and reapplied the
@@ -297,8 +320,8 @@ SEO-07 manual evidence queue is now complete:
   manufacturer claims and reuse the exact-brand fail-closed mechanism. No
   retailer-page mechanism with a comparable proven contract exists in the
   repository, so BioTech USA is the single selected next candidate.
-- State is `AUDIT PASSED`; implementation is not yet authorised. SEO-14 remains
-  `IN PROGRESS`.
+- State is `AUDIT PASSED`; the bounded implementation was subsequently
+  owner-approved and is recorded above. SEO-14 remains `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 Per4m brand page LIVE VERIFIED
 

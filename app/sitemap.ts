@@ -140,6 +140,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.8,
   },
   {
+    url: `${siteUrl}/brands/biotech-usa`,
+    changeFrequency: "daily",
+    priority: 0.8,
+  },
+  {
     url: `${siteUrl}/how-we-compare`,
     changeFrequency: "monthly",
     priority: 0.7,
