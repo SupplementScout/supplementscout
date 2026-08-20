@@ -1,513 +1,92 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 
-const {
-  EXPECTED_PRODUCTION_REF,
-  RETAILER_SCOPE,
-  applyRefreshPlan,
-  assertExecutionEnvironment,
-  authorisedExternalVariantIds,
-  buildRefreshPlan,
-  classifyRetailerScope,
-  parseArgs,
-  plannedValues,
-  policyFor,
-  scopeRowsForRetailer,
-} = require("./creatine-offer-refresh");
-
 const ROOT = path.resolve(__dirname, "..");
+const CONFIG_PATH = path.join(ROOT, "config", "retailers", "discount-supplements-offer-sync.json");
+const MANIFEST_PATH = path.join(ROOT, "config", "retailers", "discount-supplements-approved-offer-manifest.json");
+const WORKFLOW_PATH = path.join(ROOT, ".github", "workflows", "creatine-offer-refresh.yml");
+const MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "20260820110000_add_discount_supplements_isolated_confirmed_price_refresh.sql");
+const config = require(CONFIG_PATH);
+const manifest = require(MANIFEST_PATH);
+const refresh = require("./creatine-offer-refresh");
 
-function env(overrides = {}) {
-  return {
-    NEXT_PUBLIC_SUPABASE_URL: `https://${EXPECTED_PRODUCTION_REF}.supabase.co`,
-    SUPABASE_SERVICE_ROLE_KEY: "test-service-role",
-    GITHUB_ACTIONS: "true",
-    GITHUB_REF: "refs/heads/main",
-    GITHUB_EVENT_NAME: "schedule",
-    GITHUB_REPOSITORY: "SupplementScout/supplementscout",
-    ...overrides,
-  };
+function sha256(file) {
+  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
 
-function row({ offerId = 763, retailerId = 4, retailerName = "Discount Supplements", retailerSlug = "discount-supplements", retailerWebsite = "https://www.discount-supplements.co.uk", retailerProductId = 1763, productId = 7, variantId = 107, externalProductId = "p1", externalVariantId = "v1", sku = "sku-1", price = "10.00", shipping = "4.99", url = "https://www.discount-supplements.co.uk/products/example?variant=v1" } = {}) {
-  return {
-    retailer: { id: retailerId, name: retailerName, slug: retailerSlug, website: retailerWebsite },
-    product: { id: productId, name: "Example Creatine", category: "Creatine", is_active: true, merged_into_product_id: null, merged_at: null },
-    variant: { id: variantId, product_id: productId, display_name: "Default", is_active: true },
-    mapping: { id: retailerProductId, retailer_id: retailerId, product_id: productId, product_variant_id: variantId, external_product_id: externalProductId, external_variant_id: externalVariantId, external_sku: sku, external_url: url },
-    offer: { id: offerId, retailer_id: retailerId, product_id: productId, product_variant_id: variantId, retailer_product_id: retailerProductId, price, shipping_cost: shipping, total_price: "13.99", in_stock: true, url, last_checked_at: "2026-07-18T03:00:00.000Z" },
-  };
-}
-
-function stateFromRows(rows, extra = {}) {
-  return {
-    retailers: [...new Map(rows.map((entry) => [entry.retailer.id, entry.retailer])).values(), ...(extra.retailers || [])],
-    products: [...new Map(rows.map((entry) => [entry.product.id, entry.product])).values(), ...(extra.products || [])],
-    variants: [...new Map(rows.map((entry) => [entry.variant.id, entry.variant])).values(), ...(extra.variants || [])],
-    mappings: rows.map((entry) => ({ ...entry.mapping })),
-    offers: rows.map((entry) => ({ ...entry.offer })),
-    priceHistory: extra.priceHistoryCount || 0,
-    price_history: extra.price_history || [],
-  };
-}
-
-function shopifySnapshotForRows(rows, mutate = () => {}) {
-  return {
-    captured_at: "2026-07-19T03:17:00.000Z",
-    store_origin: "https://www.discount-supplements.co.uk",
-    pages: [{ page: 1, count: rows.length, sha256: "a".repeat(64) }],
-    snapshot_sha256: "b".repeat(64),
-    products: rows.map((entry, index) => {
-      const product = {
-        id: entry.mapping.external_product_id,
-        handle: `example-${index}`,
-        title: entry.product.name,
-        variants: [{
-          id: entry.mapping.external_variant_id,
-          sku: entry.mapping.external_sku,
-          price: entry.offer.price,
-          available: entry.offer.in_stock,
-          title: entry.variant.display_name,
-        }],
-      };
-      mutate(product, product.variants[0], index);
-      return product;
-    }),
-  };
-}
-
-function retailerRows(retailerName, retailerId, retailerSlug, scope) {
-  return scope.externalVariantIds.map((externalVariantId, index) => {
-    const offerId = 1_000 + index;
-    const handle = `${retailerSlug}-creatine-${index}`;
-    return row({
-      offerId,
-      retailerId,
-      retailerName,
-      retailerSlug,
-      retailerWebsite: scope.storeUrl,
-      retailerProductId: 10_000 + Number(offerId),
-      productId: retailerId * 100 + index,
-      variantId: retailerId * 1000 + index,
-      externalProductId: `${retailerSlug}-p-${index}`,
-      externalVariantId,
-      sku: `${retailerSlug}-sku-${index}`,
-      shipping: scope.shippingCost,
-      url: `${scope.storeUrl}/products/${handle}?variant=${externalVariantId}`,
-    });
-  });
-}
-
-function paddedShopifySnapshot({ rows, storeOrigin, productCount, variantCount, availableCount, targetAvailable = true }) {
-  let variants = 0;
-  let available = 0;
-  const products = rows.map((entry) => {
-    const handle = new URL(entry.offer.url).pathname.split("/").pop();
-    variants += 1;
-    if (targetAvailable) available += 1;
-    return {
-      id: entry.mapping.external_product_id,
-      handle,
-      title: entry.product.name,
-      variants: [{
-        id: entry.mapping.external_variant_id,
-        product_id: entry.mapping.external_product_id,
-        sku: entry.mapping.external_sku,
-        price: entry.offer.price,
-        available: targetAvailable,
-        title: entry.variant.display_name,
-      }],
-    };
-  });
-  while (products.length < productCount) {
-    const index = products.length;
-    const isAvailable = available < availableCount;
-    products.push({
-      id: `filler-p-${index}`,
-      handle: `filler-${index}`,
-      title: `Filler ${index}`,
-      variants: [{ id: `filler-v-${index}-0`, product_id: `filler-p-${index}`, sku: `filler-sku-${index}-0`, price: "1.00", available: isAvailable, title: "Default" }],
-    });
-    variants += 1;
-    if (isAvailable) available += 1;
-  }
-  let fillerVariant = 1;
-  while (variants < variantCount) {
-    const product = products[products.length - 1];
-    const isAvailable = available < availableCount;
-    product.variants.push({ id: `filler-extra-${fillerVariant}`, product_id: product.id, sku: `filler-extra-sku-${fillerVariant}`, price: "1.00", available: isAvailable, title: `Extra ${fillerVariant}` });
-    variants += 1;
-    fillerVariant += 1;
-    if (isAvailable) available += 1;
-  }
-  return {
-    captured_at: "2026-07-19T03:17:00.000Z",
-    store_origin: storeOrigin,
-    market_country: null,
-    pages: [{ page: 1, count: productCount, sha256: "a".repeat(64) }],
-    snapshot_sha256: "b".repeat(64),
-    products,
-  };
-}
-
-function clientFromState(state) {
-  const tables = {
-    retailers: state.retailers,
-    products: state.products,
-    product_variants: state.variants,
-    retailer_products: state.mappings,
-    offers: state.offers,
-    price_history: state.price_history || [],
-  };
-  return {
-    from(table) {
-      return {
-        select(_columns, options = {}) {
-          if (options.count === "exact" && options.head === true) return Promise.resolve({ count: tables[table].length, error: null });
-          return this;
-        },
-        range(from, to) {
-          return Promise.resolve({ data: tables[table].slice(from, to + 1).map((entry) => ({ ...entry })), error: null });
-        },
-      };
-    },
-  };
-}
-
-function creatinePlanState() {
-  const discountRows = retailerRows("Discount Supplements", 4, "discount-supplements", RETAILER_SCOPE["Discount Supplements"]);
-  return { discountRows, state: stateFromRows(discountRows) };
-}
-
-function responseForSnapshot(snapshot) {
-  const body = JSON.stringify({ products: snapshot.products });
-  return {
-    ok: true,
-    status: 200,
-    redirected: false,
-    headers: { get: (name) => name.toLowerCase() === "content-type" ? "application/json; charset=utf-8" : name.toLowerCase() === "content-length" ? String(Buffer.byteLength(body)) : null },
-    text: async () => body,
-  };
-}
-
-function planRows() {
-  const ids = authorisedExternalVariantIds();
-  return ids.map((id, index) => {
-    const oldPrice = "10.00";
-    const sourcePrice = index === 0 ? "11.00" : oldPrice;
-    const oldUrl = `https://www.discount-supplements.co.uk/products/example-${id}?variant=${id}`;
-    const sourceUrl = index === 1 ? `https://www.discount-supplements.co.uk/products/new-example-${id}?variant=${id}` : oldUrl;
-    return {
-      offer_id: id,
-      retailer_product_id: String(10_000 + Number(id)),
-      external_product_id: `p-${id}`,
-      external_variant_id: id,
-      action: index === 0 ? "UPDATE_PRICE" : index === 1 ? "UPDATE_URL" : "VERIFY_NO_CHANGE",
-      changed_fields: { price: index === 0, stock: false, url: index === 1, blocked: false },
-      source_captured_at: "2026-07-19T03:17:00.000Z",
-      source: { external_sku: `sku-${id}` },
-      target: {
-        price: oldPrice,
-        shipping_cost: "4.99",
-        total_price: "14.99",
-        in_stock: true,
-        url: oldUrl,
-        external_url: oldUrl,
-      },
-      source_values: {
-        price: sourcePrice,
-        shipping_cost: "4.99",
-        stock: true,
-        url: sourceUrl,
-      },
-    };
-  });
-}
-
-function plan() {
-  const rows = planRows();
-  return {
-    generated_at: "2026-07-19T03:17:00.000Z",
-    project_ref: EXPECTED_PRODUCTION_REF,
-    safe_update: "UNSET",
-    status: "DRY_RUN_READY",
-    classified_rows: rows,
-    retailer_results: [],
-    classification_counts: { VERIFY_NO_CHANGE: 10, UPDATE_PRICE: 1, UPDATE_URL: 1 },
-    blockers: [],
-  };
-}
-
-function fakeClientFromPlanRows(rows) {
-  const db = {
-    retailers: [{ id: 4, name: "Discount Supplements" }],
-    products: [{ id: 1 }],
-    product_variants: [{ id: 1 }],
-    retailer_products: rows.map((entry) => ({
-      id: entry.retailer_product_id,
-      retailer_id: 4,
-      product_id: 1,
-      product_variant_id: 1,
-      external_product_id: entry.external_product_id,
-      external_variant_id: entry.external_variant_id,
-      external_sku: entry.source.external_sku,
-      external_url: entry.target.external_url,
-    })),
-    offers: rows.map((entry) => ({
-      id: entry.offer_id,
-      retailer_id: 4,
-      product_id: 1,
-      product_variant_id: 1,
-      retailer_product_id: entry.retailer_product_id,
-      price: entry.target.price,
-      shipping_cost: entry.target.shipping_cost,
-      total_price: entry.target.total_price,
-      in_stock: entry.target.in_stock,
-      url: entry.target.url,
-      last_checked_at: "2026-07-18T03:00:00.000Z",
-    })),
-    price_history: [],
-  };
-  let nextHistoryId = 1;
-  function filterRows(table, filters) {
-    return db[table].filter((entry) => filters.every(({ field, value }) => String(entry[field]) === String(value)));
-  }
-  return {
-    db,
-    from(table) {
-      const filters = [];
-      let patch = null;
-      return {
-        select(_columns, options = {}) {
-          if (patch) {
-            const matches = filterRows(table, filters);
-            for (const entry of matches) Object.assign(entry, patch);
-            return Promise.resolve({ data: matches.map((entry) => ({ ...entry })), error: null });
-          }
-          if (options.count === "exact" && options.head === true) return Promise.resolve({ count: db[table].length, error: null });
-          return this;
-        },
-        range(from, to) {
-          return Promise.resolve({ data: db[table].slice(from, to + 1).map((entry) => ({ ...entry })), error: null });
-        },
-        eq(field, value) {
-          filters.push({ field, value });
-          return this;
-        },
-        limit(limit) {
-          return Promise.resolve({ data: filterRows(table, filters).slice(0, limit).map((entry) => ({ ...entry })), error: null });
-        },
-        update(value) {
-          patch = value;
-          return this;
-        },
-        insert(value) {
-          const row = { id: nextHistoryId++, ...value };
-          db[table].push(row);
-          return Promise.resolve({ data: [row], error: null });
-        },
-      };
-    },
-  };
-}
-
-test("environment guard allows only production main schedule or manual dispatch", () => {
-  assert.equal(assertExecutionEnvironment(env()), EXPECTED_PRODUCTION_REF);
-  assert.equal(assertExecutionEnvironment(env({ GITHUB_EVENT_NAME: "workflow_dispatch" })), EXPECTED_PRODUCTION_REF);
-  assert.throws(() => assertExecutionEnvironment(env({ SAFE_UPDATE: "1" })), /SAFE_UPDATE/);
-  assert.throws(() => assertExecutionEnvironment(env({ NEXT_PUBLIC_SUPABASE_URL: "https://hxnrsyyqffztlvcrtgbf.supabase.co" })), /production ref mismatch/);
-  assert.throws(() => assertExecutionEnvironment(env({ GITHUB_REF: "refs/heads/feature" })), /only on main/);
-  assert.throws(() => assertExecutionEnvironment(env({ GITHUB_EVENT_NAME: "pull_request" })), /cannot run/);
+test("Discount refresh is frozen to the exact approved 14 mapping and offer identities", () => {
+  assert.equal(config.retailer_id, 4);
+  assert.equal(config.retailer_slug, "discount-supplements");
+  assert.equal(config.approved_mapping_count, 14);
+  assert.equal(manifest.rows.length, 14);
+  assert.equal(sha256(MANIFEST_PATH), config.manifest_sha256);
+  assert.equal(new Set(manifest.rows.map((row) => row.mapping_id)).size, 14);
+  assert.equal(new Set(manifest.rows.map((row) => row.offer_id)).size, 14);
+  assert.deepEqual(manifest.rows.map((row) => row.mapping_id), [
+    "948", "949", "1020", "1047", "1048", "1049", "1050",
+    "1080", "1081", "1082", "1083", "1084", "2722", "2723",
+  ]);
+  assert.deepEqual(manifest.rows.map((row) => row.offer_id), [
+    "762", "763", "834", "861", "862", "863", "864",
+    "894", "895", "896", "897", "898", "2537", "2538",
+  ]);
 });
 
-test("daily scope is exactly the 14 approved Discount Supplements source variants", () => {
-  const ids = authorisedExternalVariantIds();
-  assert.equal(ids.length, 14);
-  assert.equal(new Set(ids).size, 14);
-  assert.deepEqual(Object.fromEntries(Object.entries(RETAILER_SCOPE).map(([name, scope]) => [name, scope.externalVariantIds.length])), {
-    "Discount Supplements": 14,
-  });
-  assert.equal(ids.includes("42518690463940"), true);
-  assert.equal(ids.includes("55157496185210"), true);
-  assert.equal(ids.includes("999999"), false);
+test("Discount source and discovery guards fail closed", () => {
+  assert.equal(config.discovery_policy.catalogue_creates, false);
+  assert.equal(config.discovery_policy.missing_mapped_variant_mode, "BLOCK");
+  assert.equal(config.discovery_policy.maximum_missing_mapped_variants, 0);
+  assert.equal(config.guardrails.required_matched_offers, 14);
+  assert.equal(config.shipping_policy.cost_gbp, "4.99");
+  const healthy = refresh.sourceHealth(
+    { products: Array.from({ length: 341 }, () => ({ variants: [{}, {}, {}] })), source_diagnostic: { pagination_completed: true } },
+    Array.from({ length: 993 }, () => ({})),
+  );
+  assert.equal(healthy.result, "PASS");
+  const collapsed = refresh.sourceHealth(
+    { products: Array.from({ length: 100 }, () => ({ variants: [{}] })), source_diagnostic: { pagination_completed: true } },
+    Array.from({ length: 100 }, () => ({})),
+  );
+  assert.equal(collapsed.result, "BLOCK");
+  assert.equal(collapsed.code, "GENUINE_SOURCE_COLLAPSE");
 });
 
-test("scope validation rejects inactive or merged products and missing Shopify identity", () => {
-  const good = row();
-  const scope = { ...RETAILER_SCOPE["Discount Supplements"], expectedCount: 1, externalVariantIds: ["v1"] };
-  assert.equal(scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([good]) }).length, 1);
-  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, product: { ...good.product, is_active: false } }]) }), /inactive or merged/);
-  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, product: { ...good.product, merged_into_product_id: 88 } }]) }), /inactive or merged/);
-  assert.throws(() => scopeRowsForRetailer({ retailerName: "Discount Supplements", scope, state: stateFromRows([{ ...good, mapping: { ...good.mapping, external_product_id: null } }]) }), /missing Shopify identity/);
+test("CLI accepts only explicit target, mode and isolation", () => {
+  assert.deepEqual(refresh.parseArgs(["--target=production", "--mode=dry-run", "--isolate-unsafe=true"]), {
+    target: "production", mode: "dry-run", isolateUnsafe: true,
+  });
+  assert.throws(() => refresh.parseArgs(["--mode=apply"]), /required --target/);
+  assert.throws(() => refresh.parseArgs(["--target=production", "--mode=apply", "--unsafe=true"]), /invalid argument/);
 });
 
-test("existing classifier is reused for no-change, price, url and blockers", () => {
-  const rows = Array.from({ length: 7 }, (_, index) => row({
-    offerId: 763 + index,
-    retailerProductId: 1763 + index,
-    productId: 70 + index,
-    variantId: 170 + index,
-    externalProductId: `p${index}`,
-    externalVariantId: `v${index}`,
-    sku: `sku-${index}`,
-    url: `https://www.discount-supplements.co.uk/products/example-${index}?variant=v${index}`,
-  }));
-  const scope = { ...RETAILER_SCOPE["Discount Supplements"], expectedCount: 7, externalVariantIds: rows.map((entry) => entry.mapping.external_variant_id), previousSourceProductCount: 7 };
-  const noChange = classifyRetailerScope({ retailerName: "Discount Supplements", scope, state: stateFromRows(rows), snapshot: shopifySnapshotForRows(rows), sourceCapturedAt: "2026-07-19T03:17:00.000Z", now: new Date("2026-07-19T03:17:00.000Z") });
-  assert.equal(noChange.classification.state, "DRY_RUN_READY");
-  assert.equal(noChange.classified_rows.every((entry) => entry.action === "VERIFY_NO_CHANGE"), true);
-  const missingSourceSku = classifyRetailerScope({
-    retailerName: "Discount Supplements",
-    scope,
-    state: stateFromRows(rows),
-    snapshot: shopifySnapshotForRows(rows, (_product, variant, index) => {
-      if (index === 0) variant.sku = null;
-    }),
-    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
-    now: new Date("2026-07-19T03:17:00.000Z"),
-  });
-  assert.equal(missingSourceSku.classification.reason, "IDENTITY_DRIFT");
-  const changed = classifyRetailerScope({
-    retailerName: "Discount Supplements",
-    scope,
-    state: stateFromRows(rows),
-    snapshot: shopifySnapshotForRows(rows, (product, variant, index) => {
-      if (index === 0) {
-        product.handle = "new-example-0";
-        variant.price = "10.50";
-      }
-    }),
-    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
-    now: new Date("2026-07-19T03:17:00.000Z"),
-  });
-  assert.equal(changed.classified_rows.find((entry) => entry.action !== "VERIFY_NO_CHANGE").action, "UPDATE_PRICE_STOCK_URL");
-  const stock = classifyRetailerScope({
-    retailerName: "Discount Supplements",
-    scope,
-    state: stateFromRows(rows),
-    snapshot: shopifySnapshotForRows(rows, (_product, variant, index) => {
-      if (index === 0) variant.available = false;
-    }),
-    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
-    now: new Date("2026-07-19T03:17:00.000Z"),
-  });
-  assert.equal(stock.classified_rows.find((entry) => entry.action !== "VERIFY_NO_CHANGE").action, "UPDATE_STOCK");
-  const drift = classifyRetailerScope({
-    retailerName: "Discount Supplements",
-    scope,
-    state: stateFromRows(rows),
-    snapshot: shopifySnapshotForRows(rows, (product, _variant, index) => {
-      if (index === 0) product.id = "wrong";
-    }),
-    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
-    now: new Date("2026-07-19T03:17:00.000Z"),
-  });
-  assert.equal(drift.classification.state, "BLOCKED");
-  assert.equal(drift.classification.action, "BLOCK_IDENTITY_DRIFT");
-  const stale = classifyRetailerScope({ retailerName: "Discount Supplements", scope, state: stateFromRows(rows), snapshot: shopifySnapshotForRows(rows), sourceCapturedAt: "2026-07-17T03:17:00.000Z", now: new Date("2026-07-19T03:17:00.000Z") });
-  assert.equal(stale.classification.reason, "SOURCE_FRESHNESS");
-  const collapsed = classifyRetailerScope({ retailerName: "Discount Supplements", scope, state: stateFromRows(rows), snapshot: shopifySnapshotForRows(rows.slice(0, 5)), sourceCapturedAt: "2026-07-19T03:17:00.000Z", now: new Date("2026-07-19T03:17:00.000Z") });
-  assert.equal(collapsed.classification.reason, "SOURCE_COLLAPSE");
-  const hardPrice = classifyRetailerScope({
-    retailerName: "Discount Supplements",
-    scope,
-    state: stateFromRows(rows),
-    snapshot: shopifySnapshotForRows(rows, (_product, variant, index) => {
-      if (index === 0) variant.price = "40.00";
-    }),
-    sourceCapturedAt: "2026-07-19T03:17:00.000Z",
-    now: new Date("2026-07-19T03:17:00.000Z"),
-  });
-  assert.equal(hardPrice.classification.reason, "HARD_PRICE_ANOMALY");
-  assert.equal(policyFor(scope).required_matched_offers, 7);
-  assert.equal(policyFor(scope).ignore_source_sku, false);
+test("workflow uses isolated role-separated execution and never invokes the legacy direct-write CLI", () => {
+  const workflow = fs.readFileSync(WORKFLOW_PATH, "utf8");
+  assert.match(workflow, /cron: "47 6 \* \* \*"/);
+  assert.equal((workflow.match(/--isolate-unsafe=true/g) || []).length, 3);
+  assert.match(workflow, /DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL/);
+  assert.match(workflow, /DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL/);
+  assert.match(workflow, /DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL/);
+  assert.doesNotMatch(workflow, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.doesNotMatch(workflow, /creatine-offer-refresh\.js --(?:dry-run|apply)(?:\s|$)/);
 });
 
-test("full exact-14 Discount plan is ready only for the authorised unchanged offers", async () => {
-  const { discountRows, state } = creatinePlanState();
-  const snapshot = paddedShopifySnapshot({
-    rows: discountRows,
-    storeOrigin: RETAILER_SCOPE["Discount Supplements"].storeUrl,
-    productCount: 14,
-    variantCount: 14,
-    availableCount: 14,
-  });
-  const plan = await buildRefreshPlan({
-    client: clientFromState(state),
-    fetchImpl: async () => responseForSnapshot(snapshot),
-    now: new Date("2026-07-19T03:17:00.000Z"),
-  });
-
-  assert.equal(plan.status, "DRY_RUN_READY");
-  assert.deepEqual(plan.classified_rows.map((entry) => entry.external_variant_id).sort(), authorisedExternalVariantIds().sort());
-  assert.deepEqual(plan.classification_counts, { VERIFY_NO_CHANGE: 14 });
-  assert.equal(plan.classified_rows.every((entry) => entry.action === "VERIFY_NO_CHANGE"), true);
-  assert.deepEqual(plan.blockers, []);
+test("legacy entry point is now a thin profile wrapper with no direct database writes", () => {
+  const source = fs.readFileSync(path.join(__dirname, "creatine-offer-refresh.js"), "utf8");
+  assert.match(source, /RETAILER_REFRESH_PROFILE = "discount-supplements"/);
+  assert.match(source, /require\("\.\/fit-house-offer-refresh"\)/);
+  assert.doesNotMatch(source, /\.from\(|\.update\(|\.insert\(|SUPABASE_SERVICE_ROLE_KEY/);
 });
 
-test("full Discount plan fails closed when one authorised source identity is missing", async () => {
-  const { discountRows, state } = creatinePlanState();
-  const snapshot = paddedShopifySnapshot({
-    rows: discountRows.slice(1),
-    storeOrigin: RETAILER_SCOPE["Discount Supplements"].storeUrl,
-    productCount: 14,
-    variantCount: 14,
-    availableCount: 14,
-  });
-  const plan = await buildRefreshPlan({
-    client: clientFromState(state),
-    fetchImpl: async () => responseForSnapshot(snapshot),
-    now: new Date("2026-07-19T03:17:00.000Z"),
-  });
-
-  assert.equal(plan.status, "BLOCKED");
-  assert.equal(plan.blockers.length, 1);
-  assert.equal(plan.blockers[0].retailer, "Discount Supplements");
-  assert.equal(plan.blockers[0].classification.reason, "IDENTITY_DRIFT");
-  assert.equal(plan.classified_rows.length, 0);
-});
-
-test("apply updates only offers, mapping URLs and price history, and replay is idempotent", async () => {
-  const refreshPlan = plan();
-  const fake = fakeClientFromPlanRows(refreshPlan.classified_rows);
-  const first = await applyRefreshPlan({ client: fake, plan: refreshPlan });
-  assert.equal(first.status, "PASS");
-  assert.deepEqual(first.count_delta, { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 1 });
-  assert.equal(first.logical_deltas.price_changes, 1);
-  assert.equal(first.logical_deltas.url_changes, 1);
-  assert.equal(first.logical_deltas.last_checked_at_updates, 14);
-  assert.equal(fake.db.offers.find((entry) => String(entry.id) === refreshPlan.classified_rows[0].offer_id).price, "11.00");
-  assert.equal(fake.db.retailer_products.find((entry) => String(entry.id) === refreshPlan.classified_rows[1].retailer_product_id).external_url, plannedValues(refreshPlan.classified_rows[1]).url);
-  const second = await applyRefreshPlan({ client: fake, plan: refreshPlan });
-  assert.equal(second.status, "PASS");
-  assert.equal(second.count_delta.price_history, 0);
-  assert.equal(second.logical_deltas.last_checked_at_updates, 0);
-  assert.equal(fake.db.price_history.length, 1);
-});
-
-test("workflow is scheduled, main-only, secret-backed and has no public trigger", () => {
-  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/creatine-offer-refresh.yml"), "utf8");
-  assert.match(workflow, /cron:\s*"47 6 \* \* \*"/);
-  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
-  assert.match(workflow, /github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/);
-  assert.match(workflow, /environment:\s*production-readonly/);
-  assert.doesNotMatch(workflow, /pull_request|repository_dispatch|workflow_run/);
-  assert.match(workflow, /permissions:\s*\n\s+contents: read/);
-  assert.match(workflow, /node scripts\/creatine-offer-refresh\.js --dry-run/);
-  assert.match(workflow, /node scripts\/creatine-offer-refresh\.js --apply/);
-  assert.match(workflow, /operation:[\s\S]*default:\s*dry-run/);
-  assert.match(workflow, /validation_context:[\s\S]*workflow_dispatch[\s\S]*schedule/);
-  assert.match(workflow, /if:\s*\$\{\{\s*github\.event_name == 'schedule' \|\| inputs\.operation == 'apply'\s*\}\}/);
-  assert.match(workflow, /CREATINE_REFRESH_TRIGGER_TYPE:/);
-  assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{\s*secrets\.SUPABASE_SERVICE_ROLE_KEY\s*\}\}/);
-  assert.match(workflow, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{\s*secrets\.NEXT_PUBLIC_SUPABASE_URL\s*\}\}/);
-});
-
-test("CLI mode parser remains narrow", () => {
-  assert.deepEqual(parseArgs([]), { mode: "dry-run", writeArtifacts: true });
-  assert.equal(parseArgs(["--apply"]).mode, "apply");
-  assert.equal(parseArgs(["--summary", "--no-artifacts"]).writeArtifacts, false);
-  assert.throws(() => parseArgs(["--retailer=all"]), /Unknown argument/);
+test("production migration freezes the manifest and exposes only validator registration", () => {
+  const sql = fs.readFileSync(MIGRATION_PATH, "utf8");
+  assert.match(sql, /validate_discount_supplements_confirmed_price_read_only/);
+  assert.match(sql, /register_discount_supplements_offer_sync_control_plan/);
+  assert.match(sql, /cf09dcd18094e03ac5c02d62a631588f644439e72b94486b1c0a6723e1d3e9c8/);
+  assert.match(sql, /ce13e2a72d12024aac98005d5d40288bd5f109b6f2a63b4f30c9016d46e017a7/);
+  assert.match(sql, /grant execute .*retailer_catalogue_production_validator/s);
+  assert.match(sql, /revoke all .*public,anon,authenticated,service_role/s);
+  assert.match(sql, /target_environment'<>'PRODUCTION/);
 });
