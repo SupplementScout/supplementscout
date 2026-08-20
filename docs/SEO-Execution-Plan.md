@@ -123,12 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — ship and live verify the owner-directed
-shared comparison-card presentation and global 24-hour current-offer window.
-After that bounded refinement, continue with a fresh, read-only GYM HIGH
-coverage and content-gate audit. GYM HIGH remains a candidate rather than an
-authorised page; the historical `29 / 20 / 6` selection figures do not
-authorise thin mass pages.
+**Next executable task:** SEO-14 — owner decision on exactly one bounded Per4m
+brand page after its fresh opportunity, identity, coverage and content audit
+passed. If approved, reuse the Applied Nutrition mechanism and apply only the
+two recorded official-source-backed display groupings; do not change catalogue
+identity or create a dynamic brand generator. GYM HIGH remains deferred.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -273,7 +272,61 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 20 August 2026 — SEO-14 comparison presentation and 24-hour freshness IMPLEMENTED
+### 20 August 2026 — SEO-14 alternative brand audit selects Per4m; implementation awaits owner approval
+
+- A production read-only ranking applied the exact active/unmerged brand
+  boundary, shared 24-hour freshness rule and unchanged `20 / 10 / 3 / 50 / 5`
+  brand-page gate to every canonical brand except the live Applied Nutrition
+  page and owner-deferred GYM HIGH. It performed zero production writes.
+- Only Per4m and BioTech USA passed every numerical and structured-data gate.
+  Per4m is the stronger first candidate at `33` visible products, `177` fresh
+  offers, `12` multi-retailer products, `5` comparison retailers and `7`
+  categories; all `33` visible products have images. BioTech USA passed at
+  `40 / 109 / 11 / 3 / 11` but has weaker retailer depth and more visible
+  taxonomy/content anomalies.
+- SEO-11 already normalized all `PER4M` product-brand aliases to the exact
+  canonical value `Per4m`, leaving `33` active canonical products and no source
+  alias split. Product names may retain the official uppercase styling without
+  changing their canonical brand identity.
+- The [official Per4m catalogue](https://per4mbetter.com/collections/all)
+  provides a current first-party source and supports the breadth of the range.
+  Two internal category labels must not be repeated literally on the page:
+  product `328`, `Per4m Isolate Zero 900g`, is confirmed by the
+  [official whey-isolate collection](https://per4mbetter.com/collections/isolate-zero),
+  while product `1010`, `PER4M Plant Advanced Vegan Protein 900g`, belongs to
+  the [official plant-protein range](https://per4mbetter.com/collections/plant-protein).
+- A safe `/brands/per4m` implementation may use exact page-local display groups
+  `Whey Isolate` for product `328` and `Plant Protein` for product `1010`.
+  These are content-presentation exceptions backed by first-party evidence,
+  not catalogue writes or authority to infer other product categories. The page
+  is not yet authorised or implemented.
+
+### 20 August 2026 — SEO-14 GYM HIGH brand gate PASSED; publication DEFERRED
+
+- A production read-only audit applied the exact canonical brand `GYM HIGH`,
+  active/unmerged product boundary, shared 24-hour offer rules and the unchanged
+  Applied Nutrition brand-page gate. It performed zero production writes.
+- Current eligible coverage is `23` visible products, `88` fresh offers, `14`
+  products with multiple fresh retailers, `4` retailers across comparisons and
+  `8` visible categories. All `23` visible rows have images, product slugs are
+  valid and the structured-data boundary passes. This exceeds every unchanged
+  gate: `20 / 10 / 3 / 50 / 5`.
+- The existing official-source catalogue audit also passed read-only with `26`
+  parent products and `71` source variants. Its identity fingerprint
+  `abd419fcd0400df086b666110b66a187c5f81747c26ea46ba80ad5cb5a301552`
+  exactly matches the normalized baseline; four gift-card rows remain excluded.
+- One active canonical product, `GYM HIGH Slimming Protein 1000g` (`id 185`),
+  still uses the noncanonical brand spelling `GYMHiGH`. It is absent from the
+  current official-source catalogue and has zero fresh offers. The proposed
+  exact-brand page must exclude it; this SEO audit does not authorise an
+  identity correction.
+- Although the numerical gate passed, the owner explicitly deferred public
+  publication to preserve SupplementScout's independent positioning and avoid
+  an unwanted brand association. No `/brands/gym-high` page, link, sitemap
+  entry, metadata or implementation is authorised. SEO-14 must select a
+  different brand or retailer candidate through a fresh read-only audit.
+
+### 20 August 2026 — SEO-14 comparison presentation and 24-hour freshness LIVE VERIFIED
 
 - The owner directed all current comparison landing pages to use the visual
   language proven on Creatine: compact product imagery, concise commercial
@@ -296,9 +349,15 @@ SEO-07 manual evidence queue is now complete:
   compact cards, prices and dated red badges. The nine card-based routes had an
   image for every rendered product in the read-only rehearsal; the safe `No
   image` fallback remains for incomplete catalogue rows.
-- Focused comparison/freshness tests and scoped TypeScript/ESLint checks pass.
-  This evidence is local only until PR merge, deployment and public HTTP/visual
-  verification; SEO-14 remains `IN PROGRESS`.
+- Focused comparison/freshness tests, scoped TypeScript/ESLint checks,
+  `npm run verify:quick` and `npm run verify:full` passed. Owner-approved PR
+  #19 shipped as production commit `832e3dfe`; its Vercel production status is
+  successful. Public checks returned HTTP 200 with `index, follow` for Pre
+  Workout, Applied Nutrition, Creatine and Data Freshness. Pre Workout and
+  Applied Nutrition rendered product images and dated red `Offer checked`
+  badges with no visible `No image` fallback, and production desktop review
+  confirmed the intended compact card layout. Public freshness copy uses
+  `24 hours` and no longer contains `24 days`. SEO-14 remains `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 Applied Nutrition brand page LIVE VERIFIED
 

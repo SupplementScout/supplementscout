@@ -823,21 +823,48 @@ Nutrition. Its owner-approved page shipped in production commit `b7fae970` and
 is live verified at `/brands/applied-nutrition`: the fresh page gate exposes 44
 products, 199 recently checked offers from five retailers and 23 products with
 current multi-retailer coverage across ten category groupings. It is the first
-completed SEO-14 unit, not completion of SEO-14. GYM HIGH is the next candidate
-and requires a fresh read-only eligibility audit; its historical `29 / 20 / 6`
-selection figures are not permission for thin mass publishing. Every eligible
-page must use current canonical products and offers, visible limitations,
-internal linking, canonical metadata, suitable schema, sitemap inclusion and
-consent-aware analytics.
+completed SEO-14 unit, not completion of SEO-14. GYM HIGH was audited next but
+is now explicitly deferred from public brand-page publication to preserve the
+independent positioning of SupplementScout and avoid an unwanted brand
+association. Every other eligible page must use current canonical products and
+offers, visible limitations, internal linking, canonical metadata, suitable
+schema, sitemap inclusion and consent-aware analytics.
 
-On 20 August the owner inserted one bounded page-quality refinement before the
-GYM HIGH audit: all current comparison landing pages must use compact product
-imagery and a shared dated red offer-check badge, while the public current-offer
-window returns from 24 days to exactly 24 hours. A read-only production-data
-rehearsal retained index eligibility on all ten audited comparison routes and
-found images for every rendered product on the nine card-based routes. The
-change remains implementation evidence until merged, deployed and publicly
-verified; it does not authorise a second SEO task or a GYM HIGH page.
+On 20 August the owner inserted and live verified one bounded page-quality
+refinement before the GYM HIGH audit: all current comparison landing pages use
+compact product imagery and a shared dated red offer-check badge, while the
+public current-offer window returned from 24 days to exactly 24 hours. A
+read-only production-data rehearsal retained index eligibility on all ten
+audited comparison routes and found images for every rendered product on the
+nine card-based routes. Owner-approved PR #19 shipped as production commit
+`832e3dfe`; Vercel succeeded, and public HTTP plus desktop visual checks
+confirmed the new cards and freshness language. This does not authorise a
+second SEO task or a GYM HIGH page.
+
+The subsequent fresh GYM HIGH gate audit is complete and read-only. Exact-brand
+production coverage passes the unchanged brand-page contract with `23` visible
+products, `88` fresh offers, `14` multi-retailer products, `4` comparison
+retailers and `8` categories; every visible product has an image. The current
+official-source audit also passed at `26` parent products and `71` variants with
+the normalized baseline fingerprint unchanged. Product `185`, `GYM HIGH
+Slimming Protein 1000g`, retains the noncanonical `GYMHiGH` spelling but is no
+longer present in the official-source catalogue and has zero fresh offers. It
+must remain outside any exact-brand selection unless a separate owner-reviewed
+identity correction is approved. Despite passing the numerical gate, GYM HIGH
+is owner-deferred from publication. Do not build, link, index or otherwise
+promote a `/brands/gym-high` landing page; select a different SEO-14 candidate.
+
+The next production read-only SEO-14 opportunity audit reviewed every other
+canonical brand through the same 24-hour and `20 / 10 / 3 / 50 / 5` contract.
+Only Per4m and BioTech USA passed. Per4m is the stronger first candidate at `33`
+visible products, `177` fresh offers, `12` multi-retailer products, `5`
+comparison retailers and `7` categories, with images on every visible row. Its
+identity is already normalized to exact canonical brand `Per4m`. Official
+first-party evidence supports one bounded content treatment: product `328` is
+Whey Isolate and product `1010` is Plant Protein, so those two page display
+groups must override misleading internal category labels without changing the
+catalogue. A `/brands/per4m` implementation still requires explicit owner
+approval; no dynamic brand generator or catalogue correction is authorised.
 
 eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
 in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
@@ -2419,10 +2446,14 @@ Target experience:
 `SEO-14` is the single active implementation. Launch only useful, individually
 gated brand and retailer pages through the existing catalogue and page-quality
 mechanisms. Applied Nutrition is live verified as the first individually gated
-page. The current bounded unit is the owner-directed shared comparison-card and
-24-hour freshness refinement; after it is live verified, the next executable
-unit is a fresh read-only GYM HIGH coverage and content audit. No second brand
-page is authorised unless the same quality contract passes.
+page. The shared comparison-card and 24-hour freshness refinement is also live
+verified. The fresh read-only GYM HIGH coverage and content audit passed; the
+owner then deferred that brand from public publication. The next executable
+audit selected Per4m as the strongest alternative candidate. The next
+executable unit is an owner decision on exactly one bounded `/brands/per4m`
+implementation with the two recorded official-source-backed display groups.
+No page is authorised merely by passing the gate, and no dynamic brand-page
+generator is approved.
 
 ### Next task
 
