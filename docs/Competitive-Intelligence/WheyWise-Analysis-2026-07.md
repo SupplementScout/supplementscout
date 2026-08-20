@@ -660,21 +660,21 @@ The task order below replaces the older immediate-action list in this document.
 The Operating Plan and SEO Execution Plan hold the authoritative statuses and
 completion evidence.
 
-1. Complete `SEO-14` eligible brand and retailer landing pages behind identity,
-   usefulness and coverage gates; `SEO-11` normalization is complete.
-2. Resume `SEO-13` for the bounded Protein Bars classification, exact-pack and
+`SEO-11` and `SEO-14` are complete and live verified.
+
+1. `SEO-13`: resume the bounded Protein Bars classification, exact-pack and
    coverage-gate recheck; do not repeat completed pages or weaken the gate.
-3. Increase canonical products with at least two active retailers from the
+2. Increase canonical products with at least two active retailers from the
    20 August checkpoint of 169 to 250.
-4. Complete `SEO-15`, a data-backed deals and price-drops page from existing
+3. Complete `SEO-15`, a data-backed deals and price-drops page from existing
    offer and price-history data; do not create a second pricing store.
-5. Complete `SEO-16`, a guarded two-product comparison using the existing
+4. Complete `SEO-16`, a guarded two-product comparison using the existing
    canonical catalogue, variants, verified metrics and delivered prices.
-6. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
+5. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
    value; clearly separate verified facts from expert judgement.
-7. Record Search Console and GA4 evidence weekly, including organic visibility,
+6. Record Search Console and GA4 evidence weekly, including organic visibility,
    landing pages and organic retailer clicks.
-8. Continue legitimate authority research through useful data resources, but
+7. Continue legitimate authority research through useful data resources, but
    keep outbound outreach paused until the owner changes the no-email decision.
 
 The first three steps are the current build sequence. Measurement is continuous
