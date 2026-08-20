@@ -855,6 +855,15 @@ export default async function ProductPage({
                   {retailerOfferGroups.length === 1 ? "" : "s"}
                 </p>
               )}
+              {retailerOfferGroups.some(
+                (group) => String(group.retailer?.id) === "12"
+              ) && (
+                <p className="mt-2 text-sm text-gray-600">
+                  <Link href="/retailers/ebay-uk" className="font-semibold underline underline-offset-4">
+                    Compare tracked eBay UK offers with other retailers
+                  </Link>
+                </p>
+              )}
 
               <div className="mt-6 space-y-3">
                 {retailerOfferGroups.length > 0 ? (

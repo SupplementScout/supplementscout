@@ -145,6 +145,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.8,
   },
   {
+    url: `${siteUrl}/retailers/ebay-uk`,
+    changeFrequency: "daily",
+    priority: 0.8,
+  },
+  {
     url: `${siteUrl}/how-we-compare`,
     changeFrequency: "monthly",
     priority: 0.7,

@@ -2478,14 +2478,20 @@ retailer for `58` products and a third-or-later retailer for `10`. Search
 demand and human click evidence remain insufficient, so the recommendation is
 based on demonstrable comparison utility rather than a traffic claim.
 
-The proposed `/retailers/ebay-uk` page requires explicit owner approval. Its
-only acceptable purpose is to compare the stored, approved eBay offers with
-current alternatives from other UK retailers. It must disclose marketplace,
-affiliate, freshness and tracked-coverage limitations; use the existing
-server-rendered comparison mechanisms and fail-closed gate; and must not browse
-arbitrary eBay listings, imply seller endorsement, create a dynamic retailer
-generator or change catalogue/production data. GYM HIGH remains deferred from
-both brand- and retailer-page publication.
+The owner subsequently approved completing the exact `/retailers/ebay-uk`
+unit. Its release candidate is code complete and compares only stored, approved
+eBay offers with current alternatives from other UK retailers. It discloses
+marketplace, affiliate, freshness and tracked-coverage limitations, uses the
+existing server-rendered comparison mechanisms and fail-closed gate, and does
+not browse arbitrary eBay listings, imply seller endorsement, create a dynamic
+retailer generator or change catalogue/production data. Current
+production-backed local rendering contains `69` products, `100` eBay offers,
+`65` products with another retailer, `348` fresh scoped offers, `5` retailers,
+`10` categories, `26` brands and `69/69` images. Focused `8/8`, quick and full
+quality gates pass with `274` sealed tests and a production build containing
+the route. True 390-pixel mobile emulation has no horizontal overflow. Merge,
+deployment and public verification remain before `LIVE VERIFIED`. GYM HIGH
+remains deferred from both brand- and retailer-page publication.
 
 ### Next task
 
