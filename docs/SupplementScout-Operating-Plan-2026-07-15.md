@@ -823,12 +823,12 @@ Nutrition. Its owner-approved page shipped in production commit `b7fae970` and
 is live verified at `/brands/applied-nutrition`: the fresh page gate exposes 44
 products, 199 recently checked offers from five retailers and 23 products with
 current multi-retailer coverage across ten category groupings. It is the first
-completed SEO-14 unit, not completion of SEO-14. GYM HIGH is the next candidate
-and requires a fresh read-only eligibility audit; its historical `29 / 20 / 6`
-selection figures are not permission for thin mass publishing. Every eligible
-page must use current canonical products and offers, visible limitations,
-internal linking, canonical metadata, suitable schema, sitemap inclusion and
-consent-aware analytics.
+completed SEO-14 unit, not completion of SEO-14. GYM HIGH was audited next but
+is now explicitly deferred from public brand-page publication to preserve the
+independent positioning of SupplementScout and avoid an unwanted brand
+association. Every other eligible page must use current canonical products and
+offers, visible limitations, internal linking, canonical metadata, suitable
+schema, sitemap inclusion and consent-aware analytics.
 
 On 20 August the owner inserted and live verified one bounded page-quality
 refinement before the GYM HIGH audit: all current comparison landing pages use
@@ -849,9 +849,10 @@ official-source audit also passed at `26` parent products and `71` variants with
 the normalized baseline fingerprint unchanged. Product `185`, `GYM HIGH
 Slimming Protein 1000g`, retains the noncanonical `GYMHiGH` spelling but is no
 longer present in the official-source catalogue and has zero fresh offers. It
-must remain outside an exact-brand page unless a separate owner-reviewed
-identity correction is approved. One `/brands/gym-high` page is supported by
-the evidence but still requires explicit owner approval before implementation.
+must remain outside any exact-brand selection unless a separate owner-reviewed
+identity correction is approved. Despite passing the numerical gate, GYM HIGH
+is owner-deferred from publication. Do not build, link, index or otherwise
+promote a `/brands/gym-high` landing page; select a different SEO-14 candidate.
 
 eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
 in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
@@ -2435,9 +2436,10 @@ gated brand and retailer pages through the existing catalogue and page-quality
 mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
 verified. The fresh read-only GYM HIGH coverage and content audit passed; the
-next executable unit is an owner decision on one bounded `/brands/gym-high`
-implementation. No page is authorised merely by passing the gate, and no
-dynamic brand-page generator is approved.
+owner then deferred that brand from public publication. The next executable
+unit is a fresh read-only opportunity and quality audit for a different brand
+or retailer candidate. No page is authorised merely by passing the gate, and
+no dynamic brand-page generator is approved.
 
 ### Next task
 

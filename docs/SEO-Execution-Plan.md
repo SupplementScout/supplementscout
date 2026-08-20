@@ -123,10 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — owner decision on the bounded GYM HIGH brand
-page after its fresh read-only coverage and content gate passed. If approved,
-reuse the Applied Nutrition mechanism for exactly one page; do not create a
-dynamic brand generator or change product identity as part of the SEO task.
+**Next executable task:** SEO-14 — run a fresh read-only opportunity and quality
+audit to select a different brand or retailer candidate. GYM HIGH is explicitly
+deferred from public brand-page publication; do not build, link or index a GYM
+HIGH landing page. Reuse the Applied Nutrition mechanism only after another
+candidate passes its own identity, content and coverage gate.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -271,7 +272,7 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 20 August 2026 — SEO-14 GYM HIGH brand gate PASSED; implementation awaits owner approval
+### 20 August 2026 — SEO-14 GYM HIGH brand gate PASSED; publication DEFERRED
 
 - A production read-only audit applied the exact canonical brand `GYM HIGH`,
   active/unmerged product boundary, shared 24-hour offer rules and the unchanged
@@ -290,10 +291,11 @@ SEO-07 manual evidence queue is now complete:
   current official-source catalogue and has zero fresh offers. The proposed
   exact-brand page must exclude it; this SEO audit does not authorise an
   identity correction.
-- The evidence supports one useful `/brands/gym-high` implementation reusing
-  the Applied Nutrition loader, fail-closed index gate, compact product cards,
-  transparency content, schema, sitemap and consent-aware analytics. The page
-  is not yet authorised or implemented.
+- Although the numerical gate passed, the owner explicitly deferred public
+  publication to preserve SupplementScout's independent positioning and avoid
+  an unwanted brand association. No `/brands/gym-high` page, link, sitemap
+  entry, metadata or implementation is authorised. SEO-14 must select a
+  different brand or retailer candidate through a fresh read-only audit.
 
 ### 20 August 2026 — SEO-14 comparison presentation and 24-hour freshness LIVE VERIFIED
 
