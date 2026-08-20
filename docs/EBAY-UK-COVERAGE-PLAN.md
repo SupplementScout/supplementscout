@@ -364,7 +364,8 @@ expected `/go/2549`-`/go/2555` routes. Batch C is live-verified 7/7.
 - [x] Controlled first 10 eBay offers are live-verified end to end.
 - [x] Batch F exact two offers owner-approved, applied, postflight-verified and publicly live-verified.
 - [x] Batch G exact nine offers owner-approved, applied, postflight-verified and added to the existing daily refresh.
-- [ ] At least 50 independent owner-safe eBay offers available.
+- [x] At least 50 independent owner-safe eBay offers available; exact 100 are
+  live and owned by the single shared refresh.
 - [x] Production pilot completed; all five exact Batch A offers owner-approved, applied and live-verified.
 
 ## Baseline — read-only production evidence
@@ -1952,11 +1953,13 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Start the next eBay discovery batch as Batch L with a target of
-20 owner-review candidates. Reuse the existing production-read-only discovery,
-exact-item review, guarded importer and single exact-80 scheduler. Do not repeat
-Batches A-K, create a second scheduler, or weaken the exact identity, seller,
-delivery, affiliate or continuity gates.`
+`NEXT ACTION: Hold new eBay discovery and batching until the owner-approved
+250-product multi-retailer coverage phase. Batch L is complete and the single
+shared scheduler is exact 100. Do not repeat Batches A-L, return to exact 80,
+create a second scheduler or weaken the exact identity, seller, delivery,
+affiliate or continuity gates. When coverage work resumes, select only exact
+offers that create a second retailer for an existing product and pass a new
+owner-reviewed scope.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1965,6 +1968,18 @@ owner-reviewed production design and approval.
 ## Last verified
 
 20 August 2026:
+
+- `BATCH L LIVE VERIFIED 20/20`: protected production run `32363658846`
+  created mapping IDs `2805`-`2824` and offer IDs `2619`-`2638`, then passed
+  the exact 20-row no-op postflight. Independent readback confirmed 20 unique,
+  in-stock, Campaign-ID offers. The 18 Simply Supplements marketplace listings
+  remained excluded because they were not independent coverage.
+- `EXACT-100 REFRESH LIVE PREFLIGHT VERIFIED`: PR `#12` merged the exact-100
+  extension as `d8bfad9`. Protected read-only run `32366067776` returned
+  `PASS`, 100 eligible rows, zero blocked rows and zero writes. Artifact
+  `9405372127` was retained. PR `#13` then recorded the evidence on `main` as
+  `0f0478045da90350c94e99aed96b7418b410ea35`. The same existing `05:43 UTC`
+  scheduler owns all 100 offers.
 
 - `EXACT-80 REFRESH LIVE PREFLIGHT VERIFIED`: PR `#9` merged to `main` as
   `1c3bce74e1cbea3352a9205f62ee456b1bed2c3f`. Protected read-only workflow

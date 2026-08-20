@@ -1,6 +1,6 @@
 # SupplementScout Retailer Data Source Registry
 
-_Last updated: 1 August 2026_
+_Last updated: 20 August 2026_
 
 ## Purpose
 
@@ -20,6 +20,18 @@ Preferred order:
 4. Retailer-specific scraper only when none of the earlier options exists
 
 Do not build a retailer-specific scraper until the earlier options have been checked and documented.
+
+### Current project-wide coverage checkpoint — 20 August 2026
+
+- Production has 1,070 active products, 2,087 public offers and 10 active
+  retailers.
+- Coverage is 200 products with no retailer, 701 with one, 169 with at least
+  two, 25 with at least three and three with four retailers.
+- The next controlled target is 250 products with at least two retailers,
+  leaving 81. Prioritise exact offers that create the second retailer for an
+  existing canonical product; raw offer count is not the target.
+- New catalogue expansion is paused until SEO-11, SEO-14 and the fresh SEO-13
+  Protein Bars recheck are complete. Routine approved refreshes continue.
 
 ### Binding catalogue exclusions
 
@@ -315,7 +327,7 @@ Primary commercial coverage metric:
 
 Products with at least 2 active retailers.
 
-## Whey Okay current record - 24 July 2026
+## Whey Okay current record - 17 August 2026
 
 - Retailer ID: `3`; domain: `wheyokay.com`; platform/source: EKM Google Product Feed at `https://wheyokay.com/ekmps/shops/2ab763/data/ekm_p_2ab763.txt`.
 - Source classification: `FULL_AUTOMATIC_SOURCE` for the immutable exact-mapping manifest only. Reader requirements are HTTP success, safe same-host HTTPS redirects, UTF-8 TSV, exactly 48 columns, exact EKM parent/variant identity, valid price and availability, Whey Okay URL identity and `Last-Modified` age no greater than 24 hours.
@@ -327,7 +339,11 @@ Products with at least 2 active retailers.
 - Source/guard baselines: 520 products, 1,678 rows, 90% minimum count ratio, 75% collapse boundary, at most 3 new OOS, total OOS at most 20%, OOS increase at most 5 percentage points, changed rows at most 20%, price changes below 10%, per-row price hard blocks at 60% or £20, and URL host restricted to `wheyokay.com`. Any missing approved row blocks; source failure produces zero writes; new rows remain discovery-only.
 - Workflow: `.github/workflows/whey-okay-offer-refresh.yml`, daily `02:17 UTC` (`03:17 Europe/London` during British Summer Time), plus dry-run-by-default manual dispatch. It uses separate scoped validator, approver and executor credentials, uploads evidence with `if: always()`, has no service-role path and keeps `SAFE_UPDATE` unset.
 - Manual production dry-runs [`30074666550`](https://github.com/SupplementScout/supplementscout/actions/runs/30074666550) and [`30074733707`](https://github.com/SupplementScout/supplementscout/actions/runs/30074733707), plus scheduled-context dry-run [`30074802757`](https://github.com/SupplementScout/supplementscout/actions/runs/30074802757), passed on commit `c5eae74bf072d1b93b206fd2853075c0485a3b7a`, including 120/120 contract tests, 586-row validation and artifacts.
-- Status: **TECHNICALLY COMPLETE — AWAITING SCHEDULED PROOF** until the real `25 July 2026 02:17 UTC` and `26 July 2026 02:17 UTC` cron runs pass.
+- The 17 August guarded refresh completed for the exact 586-row manifest after
+  the reviewed canonical-target reseal and six approved Ghost OOS transitions.
+  A final ordinary production dry-run returned `VERIFY_NO_CHANGE` x586 with
+  zero further commercial changes or writes.
+- Status: **ROUTINE AUTOMATION OPERATIONAL; EXACT 586 MANIFEST HEALTHY**.
 
 ## Jon's Supplements current record - 11 August 2026
 
@@ -384,9 +400,9 @@ Products with at least 2 active retailers.
 - The same shared automation was expanded from 22 to 43 offers across 11 product pages in manifest SHA-256 `04b889735b55c309077cd911dc0f46b020678df96bf63a47a6ef65e3c6d7491c`. Full protected run [`30281395323`](https://github.com/SupplementScout/supplementscout/actions/runs/30281395323) passed on commit `b0ab09e2c6faaa562833f06f6b1b2fbcfe47e796`: live-source preflight, exact-manifest apply, a second fresh source capture and 43/43 idempotency all succeeded. This is one retailer automation, not a separate process for the newly added products.
 - A further 35 existing canonical variants were added in one protected rollout, without creating products or variants. Run [`30283296805`](https://github.com/SupplementScout/supplementscout/actions/runs/30283296805) passed preflight, exact-scope execution, production verification and 35/35 idempotency. The single shared manifest now covers 78 offers across 27 product pages with SHA-256 `00097844976ec31f6c1cf0bfd3c9a4e8abcd9c0af3d2b28aade17688a2c1046e`; full shared-automation run [`30283890153`](https://github.com/SupplementScout/supplementscout/actions/runs/30283890153) passed live-source preflight, exact-manifest execution and a second fresh-source idempotency check for all 78 offers.
 - Seventeen missing flavour variants were then created atomically under seven existing canonical products and bound to 17 new retailer offers. Protected run [`30285647049`](https://github.com/SupplementScout/supplementscout/actions/runs/30285647049) passed the explicit-ID preflight, exact-scope apply, production verification and idempotency. The same shared manifest now covers 95 offers across 28 product pages with SHA-256 `0e52e08982f8fd53e0628c9ba8c02feaa32c9d3eb560dcfbf439fad0ec61b04f`; full shared refresh [`30285963795`](https://github.com/SupplementScout/supplementscout/actions/runs/30285963795) passed live preflight, exact-manifest execution and a second fresh-source idempotency check for all 95 offers.
-- Current shared automation scope: 440 approved offers across 231 WooCommerce
-  product pages. This is one expandable retailer automation, not a separate
-  process for each expansion batch.
+- Historical V14 checkpoint: 440 approved offers across 231 WooCommerce product
+  pages. The binding current scope at the top of this record supersedes it:
+  506 offers across 279 pages in the same expandable automation.
 - Product matching review queue: 141 rows, comprising 58 owner decisions and 83
   open reviews. Fifty decided rows were approved for controlled execution:
   25 new products, 17 new variants, four new-family seeds and four
@@ -399,8 +415,8 @@ Products with at least 2 active retailers.
   391 to 440 offers, fetched 231 product pages and classified all 440 offers as
   `VERIFY_NO_CHANGE` both before and after apply. Seven rows are excluded and
   one is deferred.
-- Status: **440 APPROVED OFFERS / ONE SHARED DAILY AUTOMATION OPERATIONAL; V14
-  CATALOGUE, OFFERS AND POST-APPLY IDEMPOTENCY VERIFIED**.
+- Status: **506 APPROVED OFFERS / ONE SHARED DAILY AUTOMATION OPERATIONAL;
+  POST-APPLY IDEMPOTENCY VERIFIED**.
 
 ## Fit House current record - 11 August 2026
 
@@ -424,8 +440,8 @@ Products with at least 2 active retailers.
 - Final production dry-run: source `240` products / `332` variants; exact scope
   `286`; `VERIFY_NO_CHANGE` x286; six validator batches; zero business/control
   writes.
-- Status: **ROUTINE AUTOMATION HEALTHY; ONE SHARED GUARDED PATH; NEXT SCHEDULED
-  RUN IS THE REMOTE GITHUB ACTIONS CONFIRMATION**. Future identity changes must
+- Status: **ROUTINE AUTOMATION HEALTHY; ONE SHARED GUARDED PATH; LATEST REMOTE
+  RUN GREEN**. Future identity changes must
   use owner review and the existing path.
 
 ## Fit House historical blocked record - 1 August 2026
@@ -476,17 +492,39 @@ Products with at least 2 active retailers.
 - Focused contracts: 20/20 PASS. Fresh production dry-run: HTTP 200, one source
   product/variant, `VERIFY_NO_CHANGE` x1, zero missing identities and zero
   writes.
-- Status: **ROUTINE AUTOMATION HEALTHY; NEXT REAL SCHEDULED RUN IS REMOTE
-  GITHUB ACTIONS CONFIRMATION**.
+- Status: **ROUTINE AUTOMATION HEALTHY; LATEST REMOTE RUN GREEN**.
 
-## GYM HIGH current record - 1 August 2026
+## GYM HIGH current record - 20 August 2026
 
 - Retailer ID: `1`; domain: `gymhigh.co.uk`; source: public WooCommerce Store API for complete discovery plus the existing bounded WooCommerce product-page reader for exact live variant price, stock and identity.
-- Full live capture contains 26 parent products and 71 sellable source rows: 50 supplement rows requiring identity review, 16 accessory rows requiring separate review, four gift-card denominations excluded from the comparison catalogue, and the previously approved Berry Bliss variation `704`.
-- Production contains 25 legacy parent-level mappings and 24 offers covering every current source parent except the excluded gift card. These records predate exact WooCommerce product/variation identity and must be upgraded or expanded through reviewed mappings before routine writes are enabled.
+- The owner-reviewed source scope contains 66 approved sellable variants across
+  26 product families. Four gift-card rows remain excluded and source identity
+  `639:644` remains an explicit reviewed exception.
+- The exact 66-row catalogue rollout and legacy identity repair are complete.
+  Production has 66 mappings and 66 offers in the reviewed scope; new unknown
+  delivery costs were not inferred.
 - `.github/workflows/gym-high-source-monitor.yml` performs a daily full-catalogue read-only capture at `03:43 UTC`. It discovers the complete source, validates every product page and variation ID, fails closed on count, host, schema, currency, product or variation drift, and retains the complete classification artifact.
-- The workflow cannot create products, variants, mappings or offers and has no production credential or write path. New and ambiguous identities remain review-only.
-- Status: **FULL 26-PRODUCT / 71-ROW SOURCE AUTOMATION IMPLEMENTED — EXACT MAPPING REVIEW AND PROTECTED OFFER-SYNC BOOTSTRAP PENDING**.
+- The daily source monitor remains read-only. The separate existing 66-offer
+  guarded refresh can update only the exact reviewed offers and fails closed on
+  stale, missing or drifted source evidence. New and ambiguous identities
+  remain review-only.
+- Status: **66-OFFER REVIEWED CATALOGUE LIVE; DAILY MONITOR AND GUARDED REFRESH
+  OPERATIONAL; LATEST REMOTE RUN GREEN**.
+
+## eBay UK current record - 20 August 2026
+
+- Retailer ID: `12`; source: eBay Browse API plus exact item-ID revalidation;
+  affiliate destinations require eBay-returned EPN Campaign-ID URLs.
+- Batches A-L are complete. Production has exactly 100 approved eBay mappings,
+  100 public offers and 100 initial price-history rows. Batch L run
+  `32363658846` created mappings `2805`-`2824` and offers `2619`-`2638`.
+- The single existing workflow refreshes the exact 100-offer manifest at
+  `05:43 UTC`. Read-only run `32366067776` passed 100/100 with zero blocked rows
+  and zero writes; artifact `9405372127` retains the evidence.
+- Current impact: 69 products covered, including 58 where eBay created the
+  second retailer and 10 where it created the third or later retailer.
+- Status: **EXACT 100 LIVE AND GUARDED; NEW DISCOVERY/BATCHING PAUSED UNTIL THE
+  250-PRODUCT COVERAGE PHASE**. Do not repeat Batch L or return to exact 80.
 
 ## Initial registry template
 

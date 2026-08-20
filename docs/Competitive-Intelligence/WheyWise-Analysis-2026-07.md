@@ -49,16 +49,17 @@ server-rendered lowest-known-delivered-price answer, and its sitemap increased
 to 1,090 URLs. That is progress, but it has not materially closed the
 acquisition gap yet.
 
-The fastest defensible response remains:
+The owner changed the binding execution order on 20 August 2026. The fastest
+defensible response is now:
 
-1. keep the current SEO-13 sequence and expose delivered-cost answers on pages
-   with real coverage and impressions;
-2. restore approved offer freshness and increase exact multi-retailer overlap,
-   because weak overlap limits both page usefulness and click opportunity;
-3. begin owner-approved retailer authority outreach using the already prepared
-   live comparison evidence;
-4. after the controlled cluster, ship eligible brand/retailer pages, deals and
-   guarded two-product comparison in the existing binding order.
+1. normalize brand identity through SEO-11, then ship individually gated,
+   useful brand and retailer pages through SEO-14;
+2. return to SEO-13 for the bounded Protein Bars classification, exact-pack and
+   coverage-gate recheck without repeating completed pages;
+3. increase exact multi-retailer overlap from 169 products to 250, because weak
+   overlap limits both page usefulness and click opportunity;
+4. then ship the planned deals, guarded two-product comparison and reviewed
+   expert-note work. Outbound outreach remains paused by owner decision.
 
 Do not respond by copying WheyWise's unsupported popularity signals, medical
 claims, inconsistent counts or broad thin-page production.
@@ -659,24 +660,22 @@ The task order below replaces the older immediate-action list in this document.
 The Operating Plan and SEO Execution Plan hold the authoritative statuses and
 completion evidence.
 
-1. Complete `SEO-13`, a reviewed cluster of ten high-intent, data-backed pages
-   through the existing shared category/decision-page system; do not create ten
-   separate implementations.
-2. Add eligible brand and retailer landing pages only after identity
-   normalization and minimum-content/coverage rules prevent thin pages.
-3. Increase canonical products with at least two active retailers from 107 to
-   250, then continue toward the long-term target of 500.
-4. Build a data-backed deals and price-drops page from existing offer and price
-   history data; do not create a second pricing store.
-5. Add a guarded two-product comparison experience using the existing canonical
-   catalogue, variants, verified metrics and delivered prices.
-6. Publish owner-reviewed expert notes where they add real formulation or buying
+1. Complete `SEO-11` brand normalization, then `SEO-14` eligible brand and
+   retailer landing pages behind identity, usefulness and coverage gates.
+2. Resume `SEO-13` for the bounded Protein Bars classification, exact-pack and
+   coverage-gate recheck; do not repeat completed pages or weaken the gate.
+3. Increase canonical products with at least two active retailers from the
+   20 August checkpoint of 169 to 250.
+4. Complete `SEO-15`, a data-backed deals and price-drops page from existing
+   offer and price-history data; do not create a second pricing store.
+5. Complete `SEO-16`, a guarded two-product comparison using the existing
+   canonical catalogue, variants, verified metrics and delivered prices.
+6. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
    value; clearly separate verified facts from expert judgement.
 7. Record Search Console and GA4 evidence weekly, including organic visibility,
    landing pages and organic retailer clicks.
-8. Earn legitimate authority through useful data resources, retailer/brand
-   outreach and relevant community references; never use bulk or paid-link
-   schemes.
+8. Continue legitimate authority research through useful data resources, but
+   keep outbound outreach paused until the owner changes the no-email decision.
 
 The first three steps are the current build sequence. Measurement is continuous
 from the first release, and catalogue safety, automation monitoring and urgent
@@ -738,3 +737,11 @@ Review monthly:
 - The binding response remains SEO-13, exact multi-retailer coverage and
   authority acquisition, followed by the already planned brand/retailer,
   deals and two-product comparison work.
+
+### 20 August 2026
+
+- The owner reordered the binding response: SEO-11, SEO-14, the bounded SEO-13
+  Protein Bars recheck, the 250-product multi-retailer checkpoint, then
+  SEO-15, SEO-16 and SEO-17.
+- The current multi-retailer checkpoint is 169 products, leaving 81 to 250.
+  Outbound outreach remains paused.

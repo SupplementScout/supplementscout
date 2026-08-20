@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 11 August 2026<br>
+**Status date:** 20 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -234,24 +234,25 @@ canonical product/variant identity, auditable retailer mappings and fail-closed
 automation. The full evidence is in
 `docs/Competitive-Intelligence/WheyWise-Analysis-2026-07.md`.
 
-This is the binding growth sequence. It supersedes older immediate-task and
-competitive-response ordering where they conflict:
+This is the binding growth sequence. The owner reordered it on 20 August 2026;
+that decision supersedes older immediate-task and competitive-response ordering
+where they conflict:
 
-1. complete `SEO-13`, one controlled cluster of ten reviewed, high-intent,
-   data-backed pages through the existing shared category/decision-page system;
-2. launch eligible brand and retailer landing pages only after identity and
-   minimum-coverage gates prevent thin pages;
-3. increase products with at least two active retailers from the 28 July
-   baseline of 107 to 250, then continue toward 500;
-4. add a data-backed deals and price-drops page using the existing offers and
-   price-history store;
-5. add a guarded two-product comparison experience using existing canonical
-   data, verified metrics and delivered prices;
-6. add clearly labelled owner-reviewed expert notes where they materially help
-   a buying decision;
+1. complete `SEO-11` brand normalization, then `SEO-14` useful brand and
+   retailer landing pages behind identity, content and coverage gates;
+2. return to `SEO-13` for a fresh Protein Bars classification, pack-identity
+   and coverage-gate review; publish only if the unchanged quality gate passes;
+3. increase products with at least two active retailers from the 20 August
+   checkpoint of 169 to 250, prioritising exact second-retailer coverage;
+4. complete `SEO-15`, a data-backed deals and price-drops page using the
+   existing offers and price-history store;
+5. complete `SEO-16`, a guarded two-product comparison using existing
+   canonical data, verified metrics and delivered prices;
+6. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
+   materially help a buying decision;
 7. record Search Console and GA4 evidence weekly throughout the sequence;
-8. earn legitimate authority through useful resources and relevant
-   retailer/brand/community outreach.
+8. continue authority research, but keep outbound outreach paused until the
+   owner changes the current no-email decision.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
 analysis, operational monitoring and a separately scoped retailer coverage task
@@ -800,6 +801,38 @@ the only activation next action; the code must not weaken this gate.
 Scheduled apply additionally requires GitHub environment variable
 `EBAY_REFRESH_ENABLED=true`, which must remain absent until the first manual
 apply and its fresh no-op postflight both pass.
+
+### 0.0.15 Owner growth-order and coverage checkpoint - 20 August 2026
+
+This checkpoint supersedes older counts and next-action text elsewhere in this
+document. Production read-only evidence records 1,070 active products, 2,087
+public offers and 10 active retailers. Coverage is 200 products with no
+retailer, 701 with one retailer, 169 with at least two retailers, 25 with at
+least three and three with four retailers. The next commercial checkpoint is
+250 products with at least two retailers, leaving 81 at this checkpoint.
+
+The owner's immediate order is documentation reconciliation, `SEO-11`,
+`SEO-14`, a fresh `SEO-13` Protein Bars recheck, the 250-product coverage
+checkpoint, then `SEO-15`, `SEO-16` and `SEO-17`. `SEO-11` is the single active
+SEO implementation. `SEO-13` retains all completed and deferred evidence but is
+paused; its gate must not be weakened and its completed pages must not be
+rebuilt.
+
+The preferred first brand-page candidate after normalization is Applied
+Nutrition: 56 products, 27 with at least two retailers and nine with at least
+three. GYM HIGH is the next strong candidate: 29 products, 20 with at least two
+retailers and six with at least three. These figures are selection evidence,
+not permission for thin mass publishing. Every eligible page must use current
+canonical products and offers, visible limitations, internal linking,
+canonical metadata, suitable schema, sitemap inclusion and consent-aware
+analytics.
+
+eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
+in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
+refresh is exact 100; read-only run `32366067776` passed 100/100 with zero
+blocked rows and zero writes, retaining artifact `9405372127`. Do not recreate
+Batch L, return to exact 80 or add another eBay batch before the 250-product
+coverage phase.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
@@ -1936,14 +1969,15 @@ retailer/data implementation at a time.
 
 Current priority order:
 
-1. `SEO-13` controlled ten-page high-intent cluster, one page and one live
-   verification at a time.
-2. Eligible brand and retailer landing pages after identity and coverage gates.
-3. Multi-retailer coverage from 107 products to 250, then toward 500.
-4. Deals and price drops from existing offer/history data.
-5. Guarded two-product comparison.
-6. Owner-reviewed expert decision notes.
-7. Continuous weekly GSC/GA4 measurement and legitimate authority building.
+1. `SEO-11` brand normalization, followed by `SEO-14` eligible brand and
+   retailer landing pages after identity, value and coverage gates.
+2. Resume `SEO-13` for the bounded Protein Bars recheck without repeating its
+   completed pages or weakening its gate.
+3. Multi-retailer coverage from the current 169 products to 250.
+4. `SEO-15` deals and price drops from existing offer/history data.
+5. `SEO-16` guarded two-product comparison.
+6. `SEO-17` owner-reviewed expert decision notes.
+7. Continuous weekly GSC/GA4 measurement; outbound outreach remains paused.
 
 The complete definitions and interruption rules are in section 0.0.7.
 
@@ -2370,78 +2404,32 @@ Target experience:
 
 ### Current active task
 
-`SEO-13` is the single active implementation. Amino Acids / BCAA / EAA, Whey
-Isolate, Vegan Protein and Mass Gainer are live verified through the existing
-shared category/decision-page system. Six candidates remain deferred with
-recorded identity, coverage or distinct-value blockers. The existing
-`/hydration` canonical was hardened instead of creating a duplicate
-Electrolytes URL, and Creatine Monohydrate remains consolidated into the
-existing `/creatine` canonical to avoid keyword cannibalisation. SEO-13 stays
-active while existing guarded catalogue and retailer mechanisms improve the
-recorded blockers. Six Pack remains complete and in operational monitoring;
-unrelated retailer-source failures remain separate fail-closed review items.
+`SEO-11` is the single active implementation. Audit and normalize brand
+identities through the existing canonical catalogue, starting with the known
+`PER4M` / `Per4m` split and `Unknown` values. Every proposed alias or correction
+requires evidence; uncertain brands and products remain unchanged for owner
+review. Do not create a second brand system or publish brand pages during the
+normalization task.
 
 ### Next task
 
-Continue SEO-13 with owner review of the bounded Protein Bars coverage
-candidates recorded on 11 August. Prepare guarded changes only for exact
-approved identities; do not count OOS rows, mix single bars with boxes or weaken
-the quality gate. The complete
-fixed-order cluster was rechecked on 11 August: Protein Bars, Electrolytes,
-Magnesium Glycinate and Ashwagandha remain below their unchanged
-coverage gates; Creatine Monohydrate remains correctly consolidated into
-`/creatine`. The owner approved the exact Strom MultiMAX and TBJP The One
-Discount identities; Applied Nutrition remains deferred. The guarded rollout
-added exactly two mappings, two offers and two history rows, corrected TBJP to
-60 capsules, recorded Strom as 180 tablets and expanded the same Discount
-refresh from 12 to 14 immutable Shopify variant identities. Fresh postflight
-returned 14/14 `VERIFY_NO_CHANGE`, zero blockers and public visibility for both
-Discount offers. Multivitamins now passes the unchanged `3 / 2 / 20` gate with
-four multi-retailer products, 20 fresh offers, five retailers and four visible
-verified-value products. Do not introduce a second importer or comparison
-framework. Mass Gainer is live verified at `/mass-gainer`: its
-public page has `index, follow`, the exact canonical, eight visible products,
-50 fresh offers, three retailers, three multi-retailer products, complete
-CollectionPage/ItemList/BreadcrumbList data, the consent-aware analytics marker
-and one sitemap entry. Five of ten controlled SEO-13 candidates are now live
-verified; the other five outcomes remain deferred or consolidated behind their
-recorded gates.
-
-The Multivitamins release is complete. It reuses the shared
-category-comparison mechanism, 24-hour freshness rule and unchanged `3 / 2 / 20`
-gate. Public verification returned HTTP `200` and rendered 16 visible products,
-20 fresh offers, five retailers and four multi-retailer products with
-`index, follow`, the exact canonical, complete CollectionPage/ItemList/
-BreadcrumbList data, consent-aware analytics, homepage discovery and one
-sitemap entry. Multivitamins is `LIVE VERIFIED`; SEO-13 remains active for its
-recorded deferred coverage blockers.
-
-A fresh read-only Protein Bars overlap audit covered Discount (341 products),
-Fit House (240), Jon's (241), Whey Okay (1,684 feed rows) and existing Six Pack
-evidence. It found one in-stock exact-pack mapping candidate: Discount's Optimum
-Nutrition Marshmallow Crunch `10 x 65g` box for canonical product `159`, variant
-`1755`, at GBP 18.99. Jon's exact CNP Protein Flapjack `12 x 75g` family matched
-Six Pack product `1081`, but every Jon's variant was OOS. Barebells requires a
-reviewed duplicate-family and explicit-variant correction between legacy
-product `151` and Fit House product `958`; it is not safe to merge by name alone.
-Whey Okay Battle Bites rows were OOS, and PER4M singles remain correctly
-separate from boxes. No writes were performed. These candidates do not yet
-prove three fresh multi-retailer families, so Protein Bars remains deferred
-behind the unchanged gate pending owner decisions.
-
-The earlier Mass Gainer gate failure remains recorded in the SEO ledger as the
-pre-correction baseline. It was resolved through the guarded two-row metadata
-change rather than by weakening the gate, adding products or creating another
-comparison system.
+Complete `SEO-11`, then make `SEO-14` the single active implementation. Launch
+only useful, individually gated brand and retailer pages through existing page
+and catalogue mechanisms. Applied Nutrition and GYM HIGH are the first evidence-
+backed brand candidates, subject to the page-quality contract and fresh counts.
+Preserve titles and H1s on pages already receiving impressions or clicks unless
+query evidence justifies a focused change.
 
 ### Then
 
-1. Apply identity and minimum-coverage gates before brand and retailer pages.
+1. Resume `SEO-13` with a fresh Protein Bars classification and pack review;
+   publish only if at least three exact fresh multi-retailer products and 20
+   fresh offers remain after cleanup.
 2. Select overlap-oriented retailer sources through the existing registry and
    guarded import path until 250 products have at least two active retailers.
-3. Build deals/price drops, two-product comparison and expert notes in that
-   order, reusing the existing data model.
-4. Record GSC/GA4 evidence weekly and complete legitimate authority work.
+3. Build `SEO-15`, `SEO-16` and `SEO-17` in that order, reusing the existing
+   data model.
+4. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
 5. Monitor scheduled retailer refreshes; keep new discovery report-only until
    reviewed and preserve all drift, replay and recovery controls.
 6. Freeze infrastructure and control-plane work unless a real batch exposes a
@@ -2513,6 +2501,11 @@ Track:
 - active offers,
 - in-stock offers,
 - stale offers.
+
+Current 20 August 2026 checkpoint: 1,070 active products, 2,087 public offers,
+10 active retailers; 200 products with no retailer, 701 with one, 169 with at
+least two, 25 with at least three and three with four. The active commercial
+target is 250 products with at least two retailers (81 remaining).
 
 ### Data freshness
 
