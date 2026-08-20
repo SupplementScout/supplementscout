@@ -143,6 +143,11 @@ The same existing refresh mechanism is extended from 80 to 100 offers; the
 fresh production read-only dry-run on 20 August returned `PASS`, 100 eligible,
 zero blocked and zero writes, artifact SHA-256
 `8b90df8cb25bd82d2ee343e2f487a128a5906215b0aa2edbf37a2a54ede5fd4e`.
+PR `#12` merged the exact-100 extension to `main` as commit `d8bfad9`.
+Protected read-only workflow `32366067776` then passed the same 100/100
+contract with zero blocked rows and zero writes; retained artifact
+`9405372127` has the same aggregate SHA-256. The one existing scheduler now
+owns all 100 offers and retains per-row isolation and automatic-OOS blocking.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
