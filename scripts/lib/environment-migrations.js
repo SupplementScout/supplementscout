@@ -58,6 +58,8 @@ const EXCLUSIONS = Object.freeze({
     "20260818120000_add_shared_isolated_confirmed_price_refresh",
     "20260820100000_add_whey_okay_isolated_confirmed_price_refresh",
     "20260820110000_add_discount_supplements_isolated_confirmed_price_refresh",
+    "20260820120000_allow_production_validator_offer_refresh_reads",
+    "20260820130000_allow_production_validator_bounded_rls_reads",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
