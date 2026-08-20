@@ -53,7 +53,7 @@ test("guardian blocks a stale conflicting WheyWise response sequence", () => {
   const baseline = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   const alternate = guardian.parseSeoLedger(docs.seo, []).find((row) => row.id !== baseline.nextTask).id;
   docs.competitor = docs.competitor.replace(
-    /(## Binding competitive-response sequence[\s\S]*?\n1\.\s+Complete\s+`)SEO-\d+[A-Z]?/,
+    /(## Binding competitive-response sequence[\s\S]*?\n1\.[^\n]*?)SEO-\d+[A-Z]?/,
     `$1${alternate}`,
   );
   const result = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
