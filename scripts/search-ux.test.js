@@ -141,7 +141,7 @@ test("search cards show a safe no-price state without a retailer breakdown", () 
   );
 
   assert.match(source, /Current price temporarily unavailable/);
-  assert.match(source, /No retailer price has been verified in the last 24 days/);
+  assert.match(source, /No retailer price has been verified in the last 24 hours/);
   assert.match(source, /cheapestOffer && deliveredPrice && retailerName && \(/);
   assert.match(source, /pricePresentation && deliveredPrice/);
 });
