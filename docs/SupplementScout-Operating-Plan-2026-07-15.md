@@ -2458,12 +2458,15 @@ selected `/brands/biotech-usa`, and the owner approved exactly that bounded
 implementation. BioTech USA is the only remaining brand passing
 the unchanged gate at `40` visible products, `109` offers, `11` multi-retailer
 products, `3` comparison retailers and `11` source categories, with `40/40`
-images. Its release candidate is code complete and uses eight bounded page-local
-display-group rules for eleven products rather than repeating misleading
-internal categories. It passes the sealed local quick/full gates and awaits
-merge, deployment and live verification. No additional page is authorised
-merely by passing the gate, and no dynamic brand-page generator or catalogue
-correction is approved.
+images. Its bounded page is live verified from production commit `18f80241` and
+uses eight page-local display-group rules for eleven products rather than
+repeating misleading internal categories. Public HTTP, canonical, robots,
+structured data, sitemap, product-link and desktop/mobile evidence passed; the
+mobile capture retained the already-recorded common-layout overflow rather than
+introducing a BioTech USA regression. No additional page is authorised merely
+by passing the gate, and no dynamic brand-page generator or catalogue correction
+is approved. The next executable unit is one bounded, read-only retailer-page
+feasibility and user-value audit through the existing contracts.
 
 ### Next task
 
