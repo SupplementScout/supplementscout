@@ -123,10 +123,10 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — continue with a fresh, read-only GYM HIGH
-coverage and content-gate audit. GYM HIGH remains a candidate rather than an
-authorised page; the historical `29 / 20 / 6` selection figures do not
-authorise thin mass pages.
+**Next executable task:** SEO-14 — owner decision on the bounded GYM HIGH brand
+page after its fresh read-only coverage and content gate passed. If approved,
+reuse the Applied Nutrition mechanism for exactly one page; do not create a
+dynamic brand generator or change product identity as part of the SEO task.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -270,6 +270,30 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 GYM HIGH brand gate PASSED; implementation awaits owner approval
+
+- A production read-only audit applied the exact canonical brand `GYM HIGH`,
+  active/unmerged product boundary, shared 24-hour offer rules and the unchanged
+  Applied Nutrition brand-page gate. It performed zero production writes.
+- Current eligible coverage is `23` visible products, `88` fresh offers, `14`
+  products with multiple fresh retailers, `4` retailers across comparisons and
+  `8` visible categories. All `23` visible rows have images, product slugs are
+  valid and the structured-data boundary passes. This exceeds every unchanged
+  gate: `20 / 10 / 3 / 50 / 5`.
+- The existing official-source catalogue audit also passed read-only with `26`
+  parent products and `71` source variants. Its identity fingerprint
+  `abd419fcd0400df086b666110b66a187c5f81747c26ea46ba80ad5cb5a301552`
+  exactly matches the normalized baseline; four gift-card rows remain excluded.
+- One active canonical product, `GYM HIGH Slimming Protein 1000g` (`id 185`),
+  still uses the noncanonical brand spelling `GYMHiGH`. It is absent from the
+  current official-source catalogue and has zero fresh offers. The proposed
+  exact-brand page must exclude it; this SEO audit does not authorise an
+  identity correction.
+- The evidence supports one useful `/brands/gym-high` implementation reusing
+  the Applied Nutrition loader, fail-closed index gate, compact product cards,
+  transparency content, schema, sitemap and consent-aware analytics. The page
+  is not yet authorised or implemented.
 
 ### 20 August 2026 — SEO-14 comparison presentation and 24-hour freshness LIVE VERIFIED
 

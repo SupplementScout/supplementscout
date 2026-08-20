@@ -841,6 +841,18 @@ nine card-based routes. Owner-approved PR #19 shipped as production commit
 confirmed the new cards and freshness language. This does not authorise a
 second SEO task or a GYM HIGH page.
 
+The subsequent fresh GYM HIGH gate audit is complete and read-only. Exact-brand
+production coverage passes the unchanged brand-page contract with `23` visible
+products, `88` fresh offers, `14` multi-retailer products, `4` comparison
+retailers and `8` categories; every visible product has an image. The current
+official-source audit also passed at `26` parent products and `71` variants with
+the normalized baseline fingerprint unchanged. Product `185`, `GYM HIGH
+Slimming Protein 1000g`, retains the noncanonical `GYMHiGH` spelling but is no
+longer present in the official-source catalogue and has zero fresh offers. It
+must remain outside an exact-brand page unless a separate owner-reviewed
+identity correction is approved. One `/brands/gym-high` page is supported by
+the evidence but still requires explicit owner approval before implementation.
+
 eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
 in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
 refresh is exact 100; read-only run `32366067776` passed 100/100 with zero
@@ -2422,9 +2434,10 @@ Target experience:
 gated brand and retailer pages through the existing catalogue and page-quality
 mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
-verified. The next executable unit is a fresh read-only GYM HIGH coverage and
-content audit. No second brand page is authorised unless the same quality
-contract passes.
+verified. The fresh read-only GYM HIGH coverage and content audit passed; the
+next executable unit is an owner decision on one bounded `/brands/gym-high`
+implementation. No page is authorised merely by passing the gate, and no
+dynamic brand-page generator is approved.
 
 ### Next task
 
