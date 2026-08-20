@@ -20,6 +20,7 @@ const popularSearches = [
   { label: "Multivitamins", href: "/multivitamins" },
   { label: "Pre Workout", href: "/pre-workout" },
   { label: "Amino Acids", href: "/amino-acids" },
+  { label: "Applied Nutrition", href: "/brands/applied-nutrition" },
   { label: "Magnesium", href: "/magnesium" },
   { label: "Vitamin D", href: "/vitamin-d" },
   { label: "Electrolytes", query: "electrolytes" },

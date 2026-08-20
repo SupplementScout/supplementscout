@@ -64,6 +64,7 @@ export type CategoryComparisonRow = {
   id: string;
   name: string;
   brand: string | null;
+  category: string | null;
   image: string | null;
   productUrl: string;
   productFormat: string | null;
@@ -257,6 +258,7 @@ export function normalizeCategoryComparison(
         id: String(product.id),
         name: product.name,
         brand: product.brand,
+        category: product.category,
         image: product.image,
         productUrl: `/product/${product.slug || product.id}`,
         productFormat,
