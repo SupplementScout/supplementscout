@@ -3,3 +3,8 @@
 /docs/rollouts/ebay-offer-canary/batch-j-artifact.json.sha256 text eol=lf
 /docs/rollouts/ebay-offer-canary/batch-j-review.json text eol=lf
 /docs/rollouts/ebay-offer-canary/batch-j-rollout.json text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k.csv text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-artifact.json text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-artifact.json.sha256 text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-review.json text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-rollout.json text eol=lf
