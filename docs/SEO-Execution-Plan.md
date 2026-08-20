@@ -123,11 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — run a fresh read-only opportunity and quality
-audit to select a different brand or retailer candidate. GYM HIGH is explicitly
-deferred from public brand-page publication; do not build, link or index a GYM
-HIGH landing page. Reuse the Applied Nutrition mechanism only after another
-candidate passes its own identity, content and coverage gate.
+**Next executable task:** SEO-14 — owner decision on exactly one bounded Per4m
+brand page after its fresh opportunity, identity, coverage and content audit
+passed. If approved, reuse the Applied Nutrition mechanism and apply only the
+two recorded official-source-backed display groupings; do not change catalogue
+identity or create a dynamic brand generator. GYM HIGH remains deferred.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -271,6 +271,35 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 alternative brand audit selects Per4m; implementation awaits owner approval
+
+- A production read-only ranking applied the exact active/unmerged brand
+  boundary, shared 24-hour freshness rule and unchanged `20 / 10 / 3 / 50 / 5`
+  brand-page gate to every canonical brand except the live Applied Nutrition
+  page and owner-deferred GYM HIGH. It performed zero production writes.
+- Only Per4m and BioTech USA passed every numerical and structured-data gate.
+  Per4m is the stronger first candidate at `33` visible products, `177` fresh
+  offers, `12` multi-retailer products, `5` comparison retailers and `7`
+  categories; all `33` visible products have images. BioTech USA passed at
+  `40 / 109 / 11 / 3 / 11` but has weaker retailer depth and more visible
+  taxonomy/content anomalies.
+- SEO-11 already normalized all `PER4M` product-brand aliases to the exact
+  canonical value `Per4m`, leaving `33` active canonical products and no source
+  alias split. Product names may retain the official uppercase styling without
+  changing their canonical brand identity.
+- The [official Per4m catalogue](https://per4mbetter.com/collections/all)
+  provides a current first-party source and supports the breadth of the range.
+  Two internal category labels must not be repeated literally on the page:
+  product `328`, `Per4m Isolate Zero 900g`, is confirmed by the
+  [official whey-isolate collection](https://per4mbetter.com/collections/isolate-zero),
+  while product `1010`, `PER4M Plant Advanced Vegan Protein 900g`, belongs to
+  the [official plant-protein range](https://per4mbetter.com/collections/plant-protein).
+- A safe `/brands/per4m` implementation may use exact page-local display groups
+  `Whey Isolate` for product `328` and `Plant Protein` for product `1010`.
+  These are content-presentation exceptions backed by first-party evidence,
+  not catalogue writes or authority to infer other product categories. The page
+  is not yet authorised or implemented.
 
 ### 20 August 2026 — SEO-14 GYM HIGH brand gate PASSED; publication DEFERRED
 

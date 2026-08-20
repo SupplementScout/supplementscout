@@ -854,6 +854,18 @@ identity correction is approved. Despite passing the numerical gate, GYM HIGH
 is owner-deferred from publication. Do not build, link, index or otherwise
 promote a `/brands/gym-high` landing page; select a different SEO-14 candidate.
 
+The next production read-only SEO-14 opportunity audit reviewed every other
+canonical brand through the same 24-hour and `20 / 10 / 3 / 50 / 5` contract.
+Only Per4m and BioTech USA passed. Per4m is the stronger first candidate at `33`
+visible products, `177` fresh offers, `12` multi-retailer products, `5`
+comparison retailers and `7` categories, with images on every visible row. Its
+identity is already normalized to exact canonical brand `Per4m`. Official
+first-party evidence supports one bounded content treatment: product `328` is
+Whey Isolate and product `1010` is Plant Protein, so those two page display
+groups must override misleading internal category labels without changing the
+catalogue. A `/brands/per4m` implementation still requires explicit owner
+approval; no dynamic brand generator or catalogue correction is authorised.
+
 eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
 in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
 refresh is exact 100; read-only run `32366067776` passed 100/100 with zero
@@ -2437,9 +2449,11 @@ mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
 verified. The fresh read-only GYM HIGH coverage and content audit passed; the
 owner then deferred that brand from public publication. The next executable
-unit is a fresh read-only opportunity and quality audit for a different brand
-or retailer candidate. No page is authorised merely by passing the gate, and
-no dynamic brand-page generator is approved.
+audit selected Per4m as the strongest alternative candidate. The next
+executable unit is an owner decision on exactly one bounded `/brands/per4m`
+implementation with the two recorded official-source-backed display groups.
+No page is authorised merely by passing the gate, and no dynamic brand-page
+generator is approved.
 
 ### Next task
 
