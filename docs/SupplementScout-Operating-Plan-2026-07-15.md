@@ -238,20 +238,20 @@ This is the binding growth sequence. The owner reordered it on 20 August 2026;
 that decision supersedes older immediate-task and competitive-response ordering
 where they conflict:
 
-1. complete `SEO-14` useful brand and retailer landing pages behind identity,
-   content and coverage gates; `SEO-11` normalization is complete;
-2. return to `SEO-13` for a fresh Protein Bars classification, pack-identity
+`SEO-11` and `SEO-14` are complete and live verified.
+
+1. `SEO-13`: return to a fresh Protein Bars classification, pack-identity
    and coverage-gate review; publish only if the unchanged quality gate passes;
-3. increase products with at least two active retailers from the 20 August
+2. increase products with at least two active retailers from the 20 August
    checkpoint of 169 to 250, prioritising exact second-retailer coverage;
-4. complete `SEO-15`, a data-backed deals and price-drops page using the
+3. complete `SEO-15`, a data-backed deals and price-drops page using the
    existing offers and price-history store;
-5. complete `SEO-16`, a guarded two-product comparison using existing
+4. complete `SEO-16`, a guarded two-product comparison using existing
    canonical data, verified metrics and delivered prices;
-6. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
+5. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
    materially help a buying decision;
-7. record Search Console and GA4 evidence weekly throughout the sequence;
-8. continue authority research, but keep outbound outreach paused until the
+6. record Search Console and GA4 evidence weekly throughout the sequence;
+7. continue authority research, but keep outbound outreach paused until the
    owner changes the current no-email decision.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
@@ -813,10 +813,10 @@ least three and three with four retailers. The next commercial checkpoint is
 
 The owner's immediate order is documentation reconciliation, `SEO-11`,
 `SEO-14`, a fresh `SEO-13` Protein Bars recheck, the 250-product coverage
-checkpoint, then `SEO-15`, `SEO-16` and `SEO-17`. `SEO-11` is `LIVE VERIFIED`
-and `SEO-14` is the single active SEO implementation. `SEO-13` retains all completed and deferred evidence but is
-paused; its gate must not be weakened and its completed pages must not be
-rebuilt.
+checkpoint, then `SEO-15`, `SEO-16` and `SEO-17`. `SEO-11` and `SEO-14` are
+`LIVE VERIFIED`; `SEO-13` is now the single active SEO implementation. It
+retains all completed and deferred evidence, its gate must not be weakened and
+its completed pages must not be rebuilt.
 
 The preferred first brand-page candidate after normalization is Applied
 Nutrition. Its owner-approved page shipped in production commit `b7fae970` and
@@ -2011,15 +2011,15 @@ retailer/data implementation at a time.
 
 Current priority order:
 
-1. `SEO-14` eligible brand and retailer landing pages after identity, value and
-   coverage gates; `SEO-11` brand normalization is complete.
-2. Resume `SEO-13` for the bounded Protein Bars recheck without repeating its
+`SEO-11` and `SEO-14` are complete and live verified.
+
+1. Resume `SEO-13` for the bounded Protein Bars recheck without repeating its
    completed pages or weakening its gate.
-3. Multi-retailer coverage from the current 169 products to 250.
-4. `SEO-15` deals and price drops from existing offer/history data.
-5. `SEO-16` guarded two-product comparison.
-6. `SEO-17` owner-reviewed expert decision notes.
-7. Continuous weekly GSC/GA4 measurement; outbound outreach remains paused.
+2. Multi-retailer coverage from the current 169 products to 250.
+3. `SEO-15` deals and price drops from existing offer/history data.
+4. `SEO-16` guarded two-product comparison.
+5. `SEO-17` owner-reviewed expert decision notes.
+6. Continuous weekly GSC/GA4 measurement; outbound outreach remains paused.
 
 The complete definitions and interruption rules are in section 0.0.7.
 
@@ -2446,9 +2446,11 @@ Target experience:
 
 ### Current active task
 
-`SEO-14` is the single active implementation. Launch only useful, individually
-gated brand and retailer pages through the existing catalogue and page-quality
-mechanisms. Applied Nutrition is live verified as the first individually gated
+`SEO-13` is the single active implementation. Resume only the bounded Protein
+Bars classification, exact-pack and unchanged coverage-gate review without
+repeating completed pages. SEO-14 is live verified after launching useful,
+individually gated brand and retailer pages through the existing catalogue and
+page-quality mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
 verified. The fresh read-only GYM HIGH coverage and content audit passed; the
 owner then deferred that brand from public publication. The next executable
@@ -2479,7 +2481,7 @@ demand and human click evidence remain insufficient, so the recommendation is
 based on demonstrable comparison utility rather than a traffic claim.
 
 The owner subsequently approved completing the exact `/retailers/ebay-uk`
-unit. Its release candidate is code complete and compares only stored, approved
+unit. Its live page compares only stored, approved
 eBay offers with current alternatives from other UK retailers. It discloses
 marketplace, affiliate, freshness and tracked-coverage limitations, uses the
 existing server-rendered comparison mechanisms and fail-closed gate, and does
@@ -2489,27 +2491,29 @@ production-backed local rendering contains `69` products, `100` eBay offers,
 `65` products with another retailer, `348` fresh scoped offers, `5` retailers,
 `10` categories, `26` brands and `69/69` images. Focused `8/8`, quick and full
 quality gates pass with `274` sealed tests and a production build containing
-the route. True 390-pixel mobile emulation has no horizontal overflow. Merge,
-deployment and public verification remain before `LIVE VERIFIED`. GYM HIGH
-remains deferred from both brand- and retailer-page publication.
+the route. True 390-pixel mobile emulation has no horizontal overflow.
+Owner-approved PR #27 passed all required checks and squash-merged as
+`05a76c87157e2cfe98d70ae58e2cafabd6e8903b`; Vercel production deployment
+`6008020815` and the post-merge full gate succeeded. Public HTTP `200`, exact
+canonical, `index, follow`, schema, current coverage, one sitemap entry,
+homepage discovery and eligible product-page linking passed. SEO-14 is `LIVE
+VERIFIED`. GYM HIGH remains deferred from both brand- and retailer-page
+publication.
 
 ### Next task
 
-Complete `SEO-14`, then resume `SEO-13` with the bounded Protein Bars
-classification, exact-pack and unchanged coverage-gate review. Do not repeat
-completed SEO-13 pages or weaken its gate.
+Complete the active `SEO-13` bounded Protein Bars classification, exact-pack
+and unchanged coverage-gate review. Do not repeat completed SEO-13 pages or
+weaken its gate.
 
 ### Then
 
-1. Resume `SEO-13` with a fresh Protein Bars classification and pack review;
-   publish only if at least three exact fresh multi-retailer products and 20
-   fresh offers remain after cleanup.
-2. Select overlap-oriented retailer sources through the existing registry and
+1. Select overlap-oriented retailer sources through the existing registry and
    guarded import path until 250 products have at least two active retailers.
-3. Build `SEO-15`, `SEO-16` and `SEO-17` in that order, reusing the existing
+2. Build `SEO-15`, `SEO-16` and `SEO-17` in that order, reusing the existing
    data model.
-4. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
-5. Monitor scheduled retailer refreshes; keep new discovery report-only until
+3. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
+4. Monitor scheduled retailer refreshes; keep new discovery report-only until
    reviewed and preserve all drift, replay and recovery controls.
 6. Freeze infrastructure and control-plane work unless a real batch exposes a
    specific unsupported requirement.

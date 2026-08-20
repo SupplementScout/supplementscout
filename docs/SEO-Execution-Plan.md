@@ -115,22 +115,19 @@ Console evidence and user value.
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `LIVE VERIFIED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
-| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `DEFERRED` | Owner-paused on 20 August 2026 until SEO-14 finishes; SEO-11 is complete. Retain all completed evidence, then recheck Protein Bars without repeating live pages or weakening the shared gate. |
-| SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `IN PROGRESS` | Identity normalization and minimum coverage/content gates are tested; only useful pages are indexable and every page uses current canonical data. |
+| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `IN PROGRESS` | SEO-14 finished on 20 August 2026. Resume with the bounded Protein Bars classification, exact-pack and unchanged coverage-gate recheck without repeating live pages. |
+| SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — merge and deploy the owner-approved,
-bounded `/retailers/ebay-uk` release candidate, then capture live HTTP,
-canonical, robots, structured-data, sitemap, internal-link and desktop/mobile
-evidence. The implementation uses only stored guarded eBay offers and current
-cross-retailer comparison data; it does not create a dynamic retailer generator
-or change catalogue/production data. Applied Nutrition, Per4m and BioTech USA
-are live verified; GYM HIGH remains deferred from both brand- and retailer-page
-publication.
+**Next executable task:** SEO-13 — run the bounded Protein Bars
+classification, exact-pack and unchanged coverage-gate recheck. Reuse the
+existing category-page contract, do not repeat completed pages and publish only
+if at least three exact fresh multi-retailer products and 20 fresh offers remain
+after cleanup.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -138,9 +135,9 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-14, the
-bounded SEO-13 Protein Bars recheck, the 250-product multi-retailer
-checkpoint, SEO-15, SEO-16 and SEO-17.
+Follow the binding sequence in Operating Plan section 0.0.7: the bounded
+SEO-13 Protein Bars recheck, the 250-product multi-retailer checkpoint, SEO-15,
+SEO-16 and SEO-17. SEO-14 is complete.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation or send outreach email
 while the owner's no-email decision remains in force.
@@ -274,6 +271,29 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 eBay UK retailer page LIVE VERIFIED
+
+- Owner-approved PR #27 passed Project Guardian, GitGuardian and the full CI
+  gate, then squash-merged as production commit
+  `05a76c87157e2cfe98d70ae58e2cafabd6e8903b`. Vercel deployment
+  `6008020815` completed successfully, and the post-merge Project Guardian and
+  full jobs also passed; the isolated integration job was intentionally
+  skipped by its normal credential-free policy.
+- The public route returned HTTP `200` with title `Compare eBay UK Supplement
+  Prices | SupplementScout`, the exact canonical
+  `https://www.supplementscout.co.uk/retailers/ebay-uk`, `index, follow`, and
+  `CollectionPage`, `ItemList` and `BreadcrumbList` JSON-LD. Live visible
+  coverage was `69` products, `100` eBay UK offers, `348` recently checked
+  offers across `5` retailers and `65` products with a current alternative.
+- The public sitemap contained the exact canonical once, the homepage linked
+  to the route and an eligible eBay-offer product page linked back to it.
+  Marketplace and 24-hour freshness disclosures were present. No catalogue or
+  production-data write occurred.
+- SEO-14 is `LIVE VERIFIED`. Applied Nutrition, Per4m, BioTech USA and eBay UK
+  are the completed individually gated pages; GYM HIGH remains owner-deferred.
+  SEO-13 resumes as the single active implementation with the bounded Protein
+  Bars recheck.
 
 ### 20 August 2026 — SEO-14 eBay UK retailer page CODE COMPLETE; live evidence pending
 
