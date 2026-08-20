@@ -44,11 +44,11 @@ Design, audit, Developers/EPN access, Production keyset compliance, the
 read-only Browse pilot and the controlled 60-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below. The exact-50 daily refresh is enabled at `05:43 UTC`; each
+postflight below. The exact-60 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
-part of the same guarded exact-50 scheduled refresh manifest; missing GTIN
+part of the same guarded exact-60 scheduled refresh manifest; missing GTIN
 remains explicit evidence and is accepted only for the exact approved item,
 business seller and reviewed metadata-gap set. No second scheduler or importer
 was introduced.
@@ -103,10 +103,12 @@ Independent readback confirmed mapping IDs `2774`-`2783`, offer IDs
 `2589`-`2598`, 60 total unique eBay mappings/offers and no duplicate variant or
 external-listing identities. All three affected public product pages returned
 HTTP 200 and visibly exposed eBay UK offers. Batch J is live verified 10/10.
-The existing refresh extension to exact 60 is locally prepared; its fresh
-read-only production run returned 59 eligible no-ops and isolated existing
-offer `2543` because eBay temporarily returned unknown UK shipping. The block
-did not fail the run and cannot remove or overwrite that offer.
+The existing single refresh is now exact 60. Protected read-only run
+`32346283399` on `main` passed its contract tests and fresh production
+preflight. It returned 59 eligible no-ops and isolated existing offer `2543`
+because eBay temporarily returned unknown UK shipping. The block did not fail
+the run and cannot remove or overwrite that offer. No second scheduler or
+importer exists.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1911,12 +1913,11 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Publish the existing single refresh extension from exact 50 to
-exact 60, run its protected read-only GitHub preflight, and retain row-level
-isolation for offer 2543 until eBay returns known UK shipping. Keep the
-remaining four discovery candidates review-only. Do not create a second
-scheduler or weaken the exact identity, seller, delivery, affiliate or
-continuity gates.`
+`NEXT ACTION: Retain the first scheduled exact-60 execution evidence after the
+next 05:43 UTC run and keep row-level isolation for offer 2543 until eBay
+returns known UK shipping. Then continue the remaining four discovery
+candidates through owner review only. Do not create a second scheduler or
+weaken the exact identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1926,6 +1927,14 @@ owner-reviewed production design and approval.
 
 20 August 2026:
 
+- `EXACT-60 REFRESH LIVE PREFLIGHT VERIFIED`: protected read-only run
+  `32346283399` on merge commit `8d1a8537771cde9e528eaa07388a85d162c950f8`
+  passed the exact refresh contract and fresh production preflight. Artifact
+  `9398171040` was retained. The run covered all 60 sealed offers, produced 59
+  eligible no-ops and safely isolated pre-existing offer `2543` because its
+  current eBay response did not prove UK shipping. It completed successfully
+  with zero writes. The same existing 05:43 UTC scheduler now owns exact 60;
+  no second scheduler or importer was added.
 - `BATCH J LIVE VERIFIED 10/10`: protected run `32343151465` passed the fresh
   exact-item preflight, consumed and executed all ten approvals and returned
   ten exact no-op plans in postflight. Artifact `9397067420` contains the
