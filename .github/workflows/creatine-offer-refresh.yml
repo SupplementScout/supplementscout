@@ -53,6 +53,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Initialize diagnostic path
+        run: mkdir -p tmp/discount-supplements-offer-refresh
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
@@ -67,39 +70,48 @@ jobs:
 
       - name: Dry-run authorised Discount offers
         env:
-          CREATINE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/creatine-offer-refresh.js --dry-run
+          DISCOUNT_SUPPLEMENTS_REFRESH_PHASE: preflight
+          DISCOUNT_SUPPLEMENTS_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Apply safe authorised Discount refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
-          CREATINE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/creatine-offer-refresh.js --apply
+          DISCOUNT_SUPPLEMENTS_REFRESH_PHASE: apply
+          DISCOUNT_SUPPLEMENTS_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/creatine-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+
+      - name: Verify idempotency with a fresh source capture
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          DISCOUNT_SUPPLEMENTS_REFRESH_PHASE: idempotency
+          DISCOUNT_SUPPLEMENTS_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Summarize Discount refresh
         if: always()
         run: |
-          if [ -f tmp/creatine-offer-refresh/creatine-offer-refresh-apply.md ]; then
-            cat tmp/creatine-offer-refresh/creatine-offer-refresh-apply.md >> "$GITHUB_STEP_SUMMARY"
-          elif [ -f tmp/creatine-offer-refresh/creatine-offer-refresh-dry-run.md ]; then
-            cat tmp/creatine-offer-refresh/creatine-offer-refresh-dry-run.md >> "$GITHUB_STEP_SUMMARY"
+          echo "## Discount Supplements approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f tmp/discount-supplements-offer-refresh/production-apply.json ]; then
+            node -e 'const r=require("./tmp/discount-supplements-offer-refresh/production-apply.json"); console.log(`- Apply: ${r.result}\n- Manifest: ${r.approved_manifest_sha256}\n- Scope: ${r.scope.offers} offers\n- Actions: ${JSON.stringify(r.classification)}\n- Review rows: ${r.review_rows.length}\n- SAFE_UPDATE: ${r.safe_update}`)' >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "## Daily Discount Supplements offer refresh" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "> Refresh report was not produced; preflight failed closed." >> "$GITHUB_STEP_SUMMARY"
+            echo "- Apply report unavailable; dry-run-only or workflow failed closed before apply." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload Discount refresh reports
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: creatine-offer-refresh-reports
+          name: discount-supplements-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: warn
-          path: |
-            tmp/creatine-offer-refresh/creatine-offer-refresh-*.json
-            tmp/creatine-offer-refresh/creatine-offer-refresh-*.md
+          path: tmp/discount-supplements-offer-refresh/*.json

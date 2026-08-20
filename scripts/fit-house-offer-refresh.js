@@ -14,7 +14,7 @@ const {migrationBinding}=require("./lib/environment-migrations");
 const {canonicalJson}=require("./lib/canonical-json");
 const {bindReviewedMixedChangeContract,buildMappedScopeEvidence,buildReviewedMixedChangeContract,buildScopedSourceEvidence}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
 const PROFILE=process.env.RETAILER_REFRESH_PROFILE||"fit-house";
-const PROFILE_CONFIGS={"fit-house":"../config/retailers/fit-house-offer-sync.json","simply-supplements":"../config/retailers/simply-supplements-offer-sync.json","dolphin-vegan-protein":"../config/retailers/dolphin-vegan-protein-offer-sync.json"};
+const PROFILE_CONFIGS={"fit-house":"../config/retailers/fit-house-offer-sync.json","simply-supplements":"../config/retailers/simply-supplements-offer-sync.json","dolphin-vegan-protein":"../config/retailers/dolphin-vegan-protein-offer-sync.json","discount-supplements":"../config/retailers/discount-supplements-offer-sync.json"};
 invariantProfile(PROFILE_CONFIGS[PROFILE],`unsupported retailer refresh profile ${PROFILE}`);
 const config=require(PROFILE_CONFIGS[PROFILE]);
 config.output_directory||="fit-house-offer-refresh";
