@@ -183,6 +183,7 @@ function loadPage(result = comparisonFixture()) {
   const page = compileModule(pagePath, {
     mocks: {
       "next/link": { __esModule: true, default: Link },
+      "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
       "../components/ComparisonTransparencyLinks": {
         __esModule: true,
         default: () => null,

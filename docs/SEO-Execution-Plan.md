@@ -123,11 +123,12 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — continue with a fresh, read-only GYM HIGH
-coverage and content-gate audit. Applied Nutrition is the first live-verified
-brand page; GYM HIGH remains the next candidate rather than an authorised page.
-Fresh page-level counts and the full quality contract remain mandatory, so the
-historical `29 / 20 / 6` selection figures do not authorise thin mass pages.
+**Next executable task:** SEO-14 — ship and live verify the owner-directed
+shared comparison-card presentation and global 24-hour current-offer window.
+After that bounded refinement, continue with a fresh, read-only GYM HIGH
+coverage and content-gate audit. GYM HIGH remains a candidate rather than an
+authorised page; the historical `29 / 20 / 6` selection figures do not
+authorise thin mass pages.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -271,6 +272,33 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 comparison presentation and 24-hour freshness IMPLEMENTED
+
+- The owner directed all current comparison landing pages to use the visual
+  language proven on Creatine: compact product imagery, concise commercial
+  information and a prominent dated offer-check status instead of text-heavy
+  cards. One shared `ComparisonProductVisuals` component now supplies safe
+  product thumbnails and the red `Offer checked` badge across Whey Protein,
+  Pre Workout, Amino Acids, Hydration, Whey Isolate, Vegan Protein, Mass Gainer,
+  Multivitamins and Applied Nutrition; Creatine reuses the same badge alongside
+  its existing product thumbnails.
+- The shared public current-offer gate changed from 24 days to exactly 24 hours.
+  Product/search fallbacks, comparison explanations and `/data-freshness` use
+  the same wording and constant; this is a real eligibility change, not a copy-
+  only claim.
+- A read-only production-data rehearsal through the local application found no
+  loss of current index eligibility on the ten comparison routes. Representative
+  24-hour coverage remained Creatine `57 / 91 / 8`, Pre Workout `78 / 316 / 6`,
+  Whey Protein `38 / 281 / 6`, Applied Nutrition `44 / 199 / 5`, and all other
+  audited comparison routes also retained `index, follow`.
+- Desktop review of Pre Workout and Applied Nutrition confirmed product images,
+  compact cards, prices and dated red badges. The nine card-based routes had an
+  image for every rendered product in the read-only rehearsal; the safe `No
+  image` fallback remains for incomplete catalogue rows.
+- Focused comparison/freshness tests and scoped TypeScript/ESLint checks pass.
+  This evidence is local only until PR merge, deployment and public HTTP/visual
+  verification; SEO-14 remains `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 Applied Nutrition brand page LIVE VERIFIED
 

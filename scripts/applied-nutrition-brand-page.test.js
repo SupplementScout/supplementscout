@@ -146,6 +146,7 @@ function loadPage(result = passingResult()) {
   const page = compileModule(pagePath, {
     mocks: {
       "next/link": { __esModule: true, default: Link },
+      "../../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
       "../../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
       "../../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
       "../../lib/pricing": pricing,
@@ -215,7 +216,7 @@ test("metadata, JSON-LD and visible page pass the brand quality contract", async
   assert.match(html, /Applied Nutrition Products &amp; Prices UK/);
   assert.match(html, /What products can you compare\?/);
   assert.match(html, /independent comparison service/);
-  assert.match(html, /checked within 24 days/);
+  assert.match(html, /checked within 24 hours/);
   assert.match(html, /https:\/\/appliednutrition\.uk\/products/);
   assert.match(html, /\/product\/applied-nutrition-product-1/);
 });

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import {
+  ComparisonProductThumbnail,
+  OfferCheckedBadge,
+} from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
   evaluateHydrationIndexability,
@@ -115,7 +119,6 @@ export function buildHydrationStructuredData(rows: HydrationComparisonRow[]) {
 
 function HydrationProductCard({ row }: { row: HydrationComparisonRow }) {
   const facts = productFacts(row);
-  const checkedAt = formatCheckedAt(row.lastCheckedAt);
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),
   ];
@@ -128,7 +131,12 @@ function HydrationProductCard({ row }: { row: HydrationComparisonRow }) {
 
   return (
     <article className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:grid-cols-[128px_minmax(0,1fr)_16rem] lg:items-center lg:gap-5">
+        <ComparisonProductThumbnail
+          image={row.image}
+          name={row.name}
+          productUrl={row.productUrl}
+        />
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
             {row.brand || "Brand not stated"}
@@ -145,12 +153,10 @@ function HydrationProductCard({ row }: { row: HydrationComparisonRow }) {
             {row.offerCount} recently checked in-stock offer
             {row.offerCount === 1 ? "" : "s"} from {retailerNames.join(", ")}.
           </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            {checkedAt ? `Latest check: ${checkedAt}` : "Check time unavailable"}
-          </p>
+          <OfferCheckedBadge checkedAt={row.lastCheckedAt} />
         </div>
 
-        <div className="w-full shrink-0 rounded-lg bg-zinc-50 p-4 sm:w-64">
+        <div className="col-span-2 w-full shrink-0 rounded-lg bg-zinc-50 p-4 lg:col-span-1 lg:w-64">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">
             {priceLabel}
           </p>
@@ -285,7 +291,7 @@ export function HydrationPageContent({
             <h2 className="text-2xl font-bold">How freshness works</h2>
             <p className="mt-3 leading-7 text-zinc-700">
               Only active, in-stock offers with a valid price, retailer mapping,
-              retailer URL and a check within the same 24-day freshness window
+              retailer URL and a check within the same 24-hour freshness window
               used by the Creatine comparison appear here. Older or incomplete
               offers do not influence current prices.
             </p>
@@ -314,7 +320,7 @@ export function HydrationPageContent({
           <div><h3 className="font-bold">What do electrolyte products commonly contain?</h3><p className="mt-2 leading-7 text-zinc-700">Formulas commonly use minerals such as sodium, potassium or magnesium. Amounts vary, so check the product label rather than assuming every formula is equivalent.</p></div>
           <div><h3 className="font-bold">Who may use hydration products?</h3><p className="mt-2 leading-7 text-zinc-700">People commonly consider them around exercise, travel or other situations involving fluid intake. Individual needs vary; follow the label and seek qualified advice when appropriate.</p></div>
           <div><h3 className="font-bold">How are hydration products different from EAA or pre-workout?</h3><p className="mt-2 leading-7 text-zinc-700">Hydration products are positioned around fluids and electrolytes. EAA products focus on essential amino acids, while pre-workouts use ingredients intended for use before training. Combination products appear here only when hydration or electrolyte positioning is explicit.</p></div>
-          <div><h3 className="font-bold">How does SupplementScout check prices and stock?</h3><p className="mt-2 leading-7 text-zinc-700">Retailer offers are mapped to reviewed canonical products. This page accepts only valid in-stock offers checked within 24 days and never fills missing prices by estimation.</p></div>
+          <div><h3 className="font-bold">How does SupplementScout check prices and stock?</h3><p className="mt-2 leading-7 text-zinc-700">Retailer offers are mapped to reviewed canonical products. This page accepts only valid in-stock offers checked within 24 hours and never fills missing prices by estimation.</p></div>
         </div>
 
         <aside className="mt-10 rounded-xl border border-zinc-200 bg-white p-6">

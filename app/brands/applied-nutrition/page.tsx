@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../../components/CategoryViewAnalytics";
+import {
+  ComparisonProductThumbnail,
+  OfferCheckedBadge,
+} from "../../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import {
   evaluateAppliedNutritionIndexability,
@@ -132,7 +136,6 @@ function ProductCard({
   row: AppliedNutritionBrandRow;
   position: number;
 }) {
-  const checkedAt = formatCheckedAt(row.lastCheckedAt);
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),
   ];
@@ -141,7 +144,12 @@ function ProductCard({
 
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:grid-cols-[128px_minmax(0,1fr)_20rem] lg:items-center lg:gap-5">
+        <ComparisonProductThumbnail
+          image={row.image}
+          name={row.name}
+          productUrl={row.productUrl}
+        />
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
             {position}. {row.category || "Other"}
@@ -155,12 +163,10 @@ function ProductCard({
             {row.offerCount} recently checked in-stock offer
             {row.offerCount === 1 ? "" : "s"} from {retailerNames.join(", ")}.
           </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            {checkedAt ? `Latest check: ${checkedAt}` : "Check time unavailable"}
-          </p>
+          <OfferCheckedBadge checkedAt={row.lastCheckedAt} />
         </div>
 
-        <div className="w-full shrink-0 rounded-xl bg-zinc-50 p-4 lg:w-80">
+        <div className="col-span-2 w-full shrink-0 rounded-xl bg-zinc-50 p-4 lg:col-span-1 lg:w-80">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">
             {row.retailerCount >= 2
               ? "Lowest current delivered price"
@@ -358,7 +364,7 @@ export function AppliedNutritionPageContent({
             <p className="mt-3 leading-7 text-zinc-700">
               Only active, unmerged products whose canonical brand is exactly
               Applied Nutrition are included. Offers must be mapped, in stock,
-              positive-priced and checked within 24 days. Unknown delivery is
+              positive-priced and checked within 24 hours. Unknown delivery is
               never treated as free.
             </p>
           </div>
@@ -402,7 +408,7 @@ export function AppliedNutritionPageContent({
           <div>
             <h3 className="font-bold">How often are offers checked?</h3>
             <p className="mt-2 leading-7 text-zinc-700">
-              Only checks from the last 24 days qualify. Prices and stock can
+              Only checks from the last 24 hours qualify. Prices and stock can
               change afterwards, so confirm the final amount with the retailer.
             </p>
           </div>

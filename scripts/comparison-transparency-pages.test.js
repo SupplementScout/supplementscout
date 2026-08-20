@@ -79,7 +79,7 @@ function loadFreshnessPage() {
       default: TransparencyLinks,
     },
     "../lib/creatineLaunch": {
-      CREATINE_LAUNCH_THRESHOLDS: { maximumOfferAgeDays: 24, maximumOfferAgeHours: 576 },
+      CREATINE_LAUNCH_THRESHOLDS: { maximumOfferAgeDays: 1, maximumOfferAgeHours: 24 },
     },
   });
 }
@@ -121,12 +121,12 @@ test("methodology page explains delivered price, ranking and verified metrics", 
   assert.match(html, /application\/ld\+json/);
 });
 
-test("freshness page scopes the 24-day rule and avoids a false sitewide promise", () => {
+test("freshness page scopes the 24-hour rule and avoids a false sitewide promise", () => {
   const html = renderToStaticMarkup(
     React.createElement(loadFreshnessPage().default)
   );
 
-  assert.match(html, /checked within the last\s*24\s*days/i);
+  assert.match(html, /checked within the last\s*24\s*hours/i);
   assert.match(html, /Not every page uses the same gate/i);
   assert.match(html, /do not claim one fixed update schedule for every retailer/i);
   assert.match(html, /stale offers cannot take a place in a current comparison-page ranking/i);
@@ -178,8 +178,8 @@ test("published explanations remain bound to the implemented pricing and freshne
     path.join(process.cwd(), "app", "lib", "offerFreshness.ts"),
     "utf8",
   );
-  assert.match(sharedFreshness, /MAXIMUM_CURRENT_OFFER_AGE_DAYS\s*=\s*24/);
-  assert.match(sharedFreshness, /MAXIMUM_CURRENT_OFFER_AGE_DAYS \* 24/);
+  assert.match(sharedFreshness, /MAXIMUM_CURRENT_OFFER_AGE_HOURS\s*=\s*24/);
+  assert.match(sharedFreshness, /MAXIMUM_CURRENT_OFFER_AGE_HOURS \/ 24/);
   assert.match(categoryComparison, /isOfferFresh:[\s\S]*?=\s*isCreatineOfferFresh/);
   assert.match(categoryComparison, /!isOfferFresh\(offer\.last_checked_at, now\)/);
   assert.match(categoryComparison, /Number\.POSITIVE_INFINITY/);

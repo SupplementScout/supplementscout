@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
+import {
+  ComparisonProductThumbnail,
+  OfferCheckedBadge,
+} from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
   evaluatePreWorkoutIndexability,
@@ -126,7 +130,6 @@ function PreWorkoutProductCard({
   position: number;
 }) {
   const facts = productFacts(row);
-  const checkedAt = formatCheckedAt(row.lastCheckedAt);
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),
   ];
@@ -136,7 +139,12 @@ function PreWorkoutProductCard({
 
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:grid-cols-[128px_minmax(0,1fr)_20rem] lg:items-center lg:gap-5">
+        <ComparisonProductThumbnail
+          image={row.image}
+          name={row.name}
+          productUrl={row.productUrl}
+        />
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
             {position}. {row.brand || "Brand not stated"}
@@ -155,14 +163,10 @@ function PreWorkoutProductCard({
             {row.offerCount} recently checked in-stock offer
             {row.offerCount === 1 ? "" : "s"} from {retailerNames.join(", ")}.
           </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            {checkedAt
-              ? `Latest check: ${checkedAt}`
-              : "Check time unavailable"}
-          </p>
+          <OfferCheckedBadge checkedAt={row.lastCheckedAt} />
         </div>
 
-        <div className="w-full shrink-0 rounded-xl bg-zinc-50 p-4 lg:w-80">
+        <div className="col-span-2 w-full shrink-0 rounded-xl bg-zinc-50 p-4 lg:col-span-1 lg:w-80">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">
             {hasComparison
               ? "Lowest current delivered price"
@@ -364,7 +368,7 @@ export function PreWorkoutPageContent({
             <h2 className="text-2xl font-bold">How prices are compared</h2>
             <p className="mt-3 leading-7 text-zinc-700">
               We use active, mapped, in-stock retailer offers checked within
-              24 days. Where both the product price and delivery charge are
+              24 hours. Where both the product price and delivery charge are
               known, the delivered total decides the lowest current offer for
               that product. An offer with unknown delivery cannot outrank one
               with a complete delivered total.
@@ -439,7 +443,7 @@ export function PreWorkoutPageContent({
           <div>
             <h3 className="font-bold">How often are prices checked?</h3>
             <p className="mt-2 leading-7 text-zinc-700">
-              Only offers checked within the last 24 days are eligible for
+              Only offers checked within the last 24 hours are eligible for
               this page. Each product shows its latest check time, and stale
               prices are removed from the current ranking.
             </p>

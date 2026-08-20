@@ -96,6 +96,7 @@ test("page metadata, SSR, structured data and discovery links use one canonical"
   const Link = ({ href, children, ...props }) => React.createElement("a", { href: typeof href === "string" ? href : "#", ...props }, children);
   const page = compileModule(path.join(process.cwd(), "app/multivitamins/page.tsx"), {
     next: {}, "next/link": { __esModule: true, default: Link },
+    "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
     "../lib/pricing": pricing,

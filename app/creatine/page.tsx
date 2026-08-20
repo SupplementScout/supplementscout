@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { OfferCheckedBadge } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
   getCreatineComparison,
@@ -310,7 +311,6 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
               <tbody className="divide-y divide-zinc-200">
                 {result.rows.map((row) => {
                   const offer = row.bestOffer;
-                  const checkedAt = formatCheckedAt(row.lastCheckedAt);
 
                   return (
                     <tr key={row.id} className="align-top">
@@ -331,8 +331,11 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
                       <td className="px-4 py-4">{row.retailerCount} retailer{row.retailerCount === 1 ? "" : "s"}<span className="mt-1 block text-xs text-zinc-600">{row.offerCount} recently verified offer{row.offerCount === 1 ? "" : "s"}</span></td>
                       <td className="px-4 py-4 font-semibold">{row.verifiedCostPer5g === null ? "Not yet verified" : formatCurrency(row.verifiedCostPer5g)}</td>
                       <td className="px-4 py-4">
-                        <span className={offer ? "font-semibold text-emerald-700" : "font-semibold text-zinc-600"}>{offer ? "Recently verified in stock" : "No recently verified offer"}</span>
-                        <span className="mt-1 block text-xs text-zinc-600">{checkedAt ? `Checked ${checkedAt}` : "Check time unavailable"}</span>
+                        {offer ? (
+                          <OfferCheckedBadge checkedAt={row.lastCheckedAt} />
+                        ) : (
+                          <span className="font-semibold text-zinc-600">No recently verified offer</span>
+                        )}
                       </td>
                       <td className="px-4 py-4"><Link href={row.productUrl} className="inline-flex min-h-11 items-center rounded-lg bg-zinc-950 px-4 font-semibold text-white hover:bg-zinc-800">Compare details</Link></td>
                     </tr>

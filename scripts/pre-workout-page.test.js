@@ -158,6 +158,7 @@ function loadPage(result = fixtureResult()) {
   const page = compileModule(pagePath, {
     mocks: {
       "next/link": { __esModule: true, default: Link },
+      "../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
       "../components/CategoryViewAnalytics": {
         __esModule: true,
         default: () => null,
