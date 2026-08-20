@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "contract": "ebay-reviewed-cross-product-parent-batch-l-v1",
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_L_EXACT_20",
+  "rows": [
+    {
+      "product_id": "66",
+      "product_variant_id": "1620",
+      "external_product_id": "167879148689",
+      "external_variant_id": "v1|167879148689|467421651923",
+      "external_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651923",
+      "external_options": {
+        "Size": "918g",
+        "Flavour": "Chocolate Bliss"
+      }
+    }
+  ]
+}

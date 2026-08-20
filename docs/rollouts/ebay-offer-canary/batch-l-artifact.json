@@ -1,0 +1,2879 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-20T11:12:37.928Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "5512f0ab6b74ce45ce120765c10741a7",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "27",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Cellucor C4 Original 195g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Orange / 195g",
+            "flavour_code": "orange",
+            "flavour_label": "Orange",
+            "id": "1589",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "27",
+            "size_unit": "g",
+            "size_value": "195",
+            "variant_key": "orange-195g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "5512f0ab6b74ce45ce120765c10741a7",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "0303feb7f51c6c0f691fc7f87c3a621f3e5fbddcf82afee6fbf684e4bb66cbda",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:24.780Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/373707858011?var=642746534509&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "27"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Orange",
+              "Size": "195g"
+            },
+            "flavour": "orange",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "195"
+          },
+          "id": "1589"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "842595109078",
+            "external_name": "Cellucor C4 Original 195g",
+            "external_options": {
+              "Flavour": "Orange",
+              "Size": "195g"
+            },
+            "external_product_id": "373707858011",
+            "external_sku": null,
+            "external_slug": "cellucor-c4-original-195g",
+            "external_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534509",
+            "external_variant_id": "v1|373707858011|642746534509",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1589"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "0303feb7f51c6c0f691fc7f87c3a621f3e5fbddcf82afee6fbf684e4bb66cbda"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "70003e6485de2c79f9f082bc4699998b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "788",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m EAA Xtra 420g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Cherry Fizz / 420g",
+            "flavour_code": "cherry fizz",
+            "flavour_label": "Cherry Fizz",
+            "id": "1075",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "788",
+            "size_unit": "g",
+            "size_value": "420",
+            "variant_key": "cherry-fizz-420g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "70003e6485de2c79f9f082bc4699998b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "539d01c2372cee41e1da3d412b4afa6ce5bf641f7b25da0d5dcd42fce8d622b7",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:25.454Z",
+            "price": "25.99",
+            "shipping_cost": "0",
+            "total_price": "25.99",
+            "url": "https://www.ebay.co.uk/itm/326796105372?var=515780120440&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "788"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Cherry Fizz",
+              "Size": "420g"
+            },
+            "flavour": "cherry fizz",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "420"
+          },
+          "id": "1075"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5061097260659",
+            "external_name": "Per4m EAA Xtra 420g",
+            "external_options": {
+              "Flavour": "Cherry Fizz",
+              "Size": "420g"
+            },
+            "external_product_id": "326796105372",
+            "external_sku": null,
+            "external_slug": "per4m-eaa-xtra-420g",
+            "external_url": "https://www.ebay.co.uk/itm/326796105372?var=515780120440",
+            "external_variant_id": "v1|326796105372|515780120440",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1075"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "539d01c2372cee41e1da3d412b4afa6ce5bf641f7b25da0d5dcd42fce8d622b7"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "8cd0b6f54ad34e407a15b4a69cadf352",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1033",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BiotechUSA MULTI MINERAL COMPLEX 100tabs",
+            "product_format": "tablet"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 100 tablets",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "2162",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "tablet",
+            "product_id": "1033",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "unflavoured-100tablet"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "8cd0b6f54ad34e407a15b4a69cadf352",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "b9c1469e4fbf0ff893b2bd980a0ba6c79dbaa0a2e4ad2fa1b369ff2f4b664e26",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:26.099Z",
+            "price": "10.49",
+            "shipping_cost": "0",
+            "total_price": "10.49",
+            "url": "https://www.ebay.co.uk/itm/325388861371?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1033"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "tablet",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "2162"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "BiotechUSA MULTI MINERAL COMPLEX 100tabs",
+            "external_options": {
+              "Flavour": "Unflavoured"
+            },
+            "external_product_id": "325388861371",
+            "external_sku": null,
+            "external_slug": "biotechusa-multi-mineral-complex-100tabs",
+            "external_url": "https://www.ebay.co.uk/itm/325388861371",
+            "external_variant_id": "v1|325388861371|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "2162"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "b9c1469e4fbf0ff893b2bd980a0ba6c79dbaa0a2e4ad2fa1b369ff2f4b664e26"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "1226e173a16b63b23f99860a0542e19d",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "294",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Black Blood CAF+ 300g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Blueberry / 300g",
+            "flavour_code": "blueberry",
+            "flavour_label": "Blueberry",
+            "id": "1774",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "294",
+            "size_unit": "g",
+            "size_value": "300",
+            "variant_key": "blueberry-300g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "1226e173a16b63b23f99860a0542e19d",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "9c6b381390a271f7d55cece0a33bb8e8017a0aa98a9521ad325024992c599308",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:27.263Z",
+            "price": "23.49",
+            "shipping_cost": "0",
+            "total_price": "23.49",
+            "url": "https://www.ebay.co.uk/itm/325909654165?var=514958463842&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "294"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Blueberry",
+              "Size": "300g"
+            },
+            "flavour": "blueberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "300"
+          },
+          "id": "1774"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076253678",
+            "external_name": "BioTech USA Black Blood CAF+ 300g",
+            "external_options": {
+              "Flavour": "Blueberry",
+              "Size": "300g"
+            },
+            "external_product_id": "325909654165",
+            "external_sku": null,
+            "external_slug": "biotech-usa-black-blood-caf-300g",
+            "external_url": "https://www.ebay.co.uk/itm/325909654165?var=514958463842",
+            "external_variant_id": "v1|325909654165|514958463842",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1774"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "9c6b381390a271f7d55cece0a33bb8e8017a0aa98a9521ad325024992c599308"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "05f08ad3fe46cc05b4783fc5111571f2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "295",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Black Blood NOX+ 330g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Tropical Fruit / 330g",
+            "flavour_code": "tropical fruit",
+            "flavour_label": "Tropical Fruit",
+            "id": "1777",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "295",
+            "size_unit": "g",
+            "size_value": "330",
+            "variant_key": "tropical-fruit-330g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "05f08ad3fe46cc05b4783fc5111571f2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "80c36287cda262567737fe9cf803f9989d966c232e9704d5e473e8b21c9e28e0",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:27.895Z",
+            "price": "26.99",
+            "shipping_cost": "0",
+            "total_price": "26.99",
+            "url": "https://www.ebay.co.uk/itm/325526875626?var=514560046967&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "295"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Tropical Fruit",
+              "Size": "330g"
+            },
+            "flavour": "tropical fruit",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "330"
+          },
+          "id": "1777"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076232369",
+            "external_name": "BioTech USA Black Blood NOX+ 330g",
+            "external_options": {
+              "Flavour": "Tropical Fruit",
+              "Size": "330g"
+            },
+            "external_product_id": "325526875626",
+            "external_sku": null,
+            "external_slug": "biotech-usa-black-blood-nox-330g",
+            "external_url": "https://www.ebay.co.uk/itm/325526875626?var=514560046967",
+            "external_variant_id": "v1|325526875626|514560046967",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1777"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "80c36287cda262567737fe9cf803f9989d966c232e9704d5e473e8b21c9e28e0"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "bf46bbd8e31176befac6e0d6e8e18c0e",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "791",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m Creatine Capsules | 30 Servings",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1138",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "791",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "bf46bbd8e31176befac6e0d6e8e18c0e",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e5f86b08fe3837a098706e985345af5bb7f7c2b86d0254b503c295a36280cb99",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:28.564Z",
+            "price": "13.99",
+            "shipping_cost": "0",
+            "total_price": "13.99",
+            "url": "https://www.ebay.co.uk/itm/327069519328?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "791"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1138"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5061097260697",
+            "external_name": "Per4m Creatine Capsules | 30 Servings",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "327069519328",
+            "external_sku": null,
+            "external_slug": "per4m-creatine-capsules-30-servings",
+            "external_url": "https://www.ebay.co.uk/itm/327069519328",
+            "external_variant_id": "v1|327069519328|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1138"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "e5f86b08fe3837a098706e985345af5bb7f7c2b86d0254b503c295a36280cb99"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "8527dfc73e2fae6a4c763760c2f6660d",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "796",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m Advanced Curcumin | 60 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1143",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "796",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "8527dfc73e2fae6a4c763760c2f6660d",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "02c8e1e9f3b0d943aacc5582864fb2eaa0335b3e9240199cf04471a011cdf4bd",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:29.231Z",
+            "price": "19.49",
+            "shipping_cost": "0",
+            "total_price": "19.49",
+            "url": "https://www.ebay.co.uk/itm/327060659620?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "796"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1143"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5061097260673",
+            "external_name": "Per4m Advanced Curcumin | 60 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "327060659620",
+            "external_sku": null,
+            "external_slug": "per4m-advanced-curcumin-60-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/327060659620",
+            "external_variant_id": "v1|327060659620|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1143"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "02c8e1e9f3b0d943aacc5582864fb2eaa0335b3e9240199cf04471a011cdf4bd"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "41b360ff3e46e491229626d3607c47b2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "799",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m Advanced Omega 3 | 90 Softgels",
+            "product_format": "softgel"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1146",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "799",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "41b360ff3e46e491229626d3607c47b2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "fecace0a23f4816735f59b11d9309e01e376e91ac4ff07b48942974cc28cd674",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:29.985Z",
+            "price": "16.99",
+            "shipping_cost": "0",
+            "total_price": "16.99",
+            "url": "https://www.ebay.co.uk/itm/327060632207?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "799"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "softgel",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1146"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060660084463",
+            "external_name": "Per4m Advanced Omega 3 | 90 Softgels",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "327060632207",
+            "external_sku": null,
+            "external_slug": "per4m-advanced-omega-3-90-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/327060632207",
+            "external_variant_id": "v1|327060632207|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1146"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "fecace0a23f4816735f59b11d9309e01e376e91ac4ff07b48942974cc28cd674"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7802e6b1d8b08182d29199f407f2b049",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "800",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m D3 & K2 120 Tablets",
+            "product_format": "tablet"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1147",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "800",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7802e6b1d8b08182d29199f407f2b049",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "3c6fef23aa0ddeb9a5bdd550bb33d5aad449206964fb022e3ef520a33d67c952",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:30.588Z",
+            "price": "14.99",
+            "shipping_cost": "0",
+            "total_price": "14.99",
+            "url": "https://www.ebay.co.uk/itm/327062344315?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "800"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "tablet",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1147"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060660084265",
+            "external_name": "Per4m D3 & K2 120 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "327062344315",
+            "external_sku": null,
+            "external_slug": "per4m-d3-and-k2-120-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/327062344315",
+            "external_variant_id": "v1|327062344315|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1147"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "10",
+      "source_row_fingerprint": "3c6fef23aa0ddeb9a5bdd550bb33d5aad449206964fb022e3ef520a33d67c952"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "47f97a981831e3be120015c0ef324336",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "882",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "PER4M Energy Pre Workout 390g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Cherry Fizz / 390g",
+            "flavour_code": "cherry fizz",
+            "flavour_label": "Cherry Fizz",
+            "id": "1396",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "882",
+            "size_unit": "g",
+            "size_value": "390",
+            "variant_key": "cherry-fizz-390g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "47f97a981831e3be120015c0ef324336",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "8fa118147c66fb4ee7ae871fa6d02d9bd65f12aab53981e40d508bea05a29936",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:31.260Z",
+            "price": "22.49",
+            "shipping_cost": "0",
+            "total_price": "22.49",
+            "url": "https://www.ebay.co.uk/itm/326584491660?var=515650737150&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "882"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Cherry Fizz",
+              "Size": "390g"
+            },
+            "flavour": "cherry fizz",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "390"
+          },
+          "id": "1396"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060660086825",
+            "external_name": "PER4M Energy Pre Workout 390g",
+            "external_options": {
+              "Flavour": "Cherry Fizz",
+              "Size": "390g"
+            },
+            "external_product_id": "326584491660",
+            "external_sku": null,
+            "external_slug": "per4m-energy-pre-workout-390g",
+            "external_url": "https://www.ebay.co.uk/itm/326584491660?var=515650737150",
+            "external_variant_id": "v1|326584491660|515650737150",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1396"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "11",
+      "source_row_fingerprint": "8fa118147c66fb4ee7ae871fa6d02d9bd65f12aab53981e40d508bea05a29936"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7396fca8f18d901f57592776a57e7e9d",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "887",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "PER4M Hydrate Electrolyte Mix 210g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Fizzy Bubblegum Bottles / 210g",
+            "flavour_code": "fizzy bubblegum bottles",
+            "flavour_label": "Fizzy Bubblegum Bottles",
+            "id": "1445",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "887",
+            "size_unit": "g",
+            "size_value": "210",
+            "variant_key": "fizzy-bubblegum-bottles-210g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7396fca8f18d901f57592776a57e7e9d",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "de0b1a50fad90eeeab17f828d59bbed5ad1fa630c70e05c3a20fee70dd127f3c",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:32.135Z",
+            "price": "21.49",
+            "shipping_cost": "0",
+            "total_price": "21.49",
+            "url": "https://www.ebay.co.uk/itm/326061693301?var=515517512434&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "887"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Fizzy Bubblegum Bottles",
+              "Size": "210g"
+            },
+            "flavour": "fizzy bubblegum bottles",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "210"
+          },
+          "id": "1445"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060660085682",
+            "external_name": "PER4M Hydrate Electrolyte Mix 210g",
+            "external_options": {
+              "Flavour": "Fizzy Bubblegum Bottles",
+              "Size": "210g"
+            },
+            "external_product_id": "326061693301",
+            "external_sku": null,
+            "external_slug": "per4m-hydrate-electrolyte-mix-210g",
+            "external_url": "https://www.ebay.co.uk/itm/326061693301?var=515517512434",
+            "external_variant_id": "v1|326061693301|515517512434",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1445"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "12",
+      "source_row_fingerprint": "de0b1a50fad90eeeab17f828d59bbed5ad1fa630c70e05c3a20fee70dd127f3c"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "397ef638bef5b5c46d9863f59171c0f2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "927",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "PER4M Relax Hot Chocolate 375g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1535",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "927",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "397ef638bef5b5c46d9863f59171c0f2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "ee3875f0a66a872f6b46e195e16052fc516d250275948d1bff55392d2f3c858b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:32.750Z",
+            "price": "29.99",
+            "shipping_cost": "0",
+            "total_price": "29.99",
+            "url": "https://www.ebay.co.uk/itm/326818790418?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "927"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1535"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060660085620",
+            "external_name": "PER4M Relax Hot Chocolate 375g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "326818790418",
+            "external_sku": null,
+            "external_slug": "per4m-relax-hot-chocolate-375g",
+            "external_url": "https://www.ebay.co.uk/itm/326818790418",
+            "external_variant_id": "v1|326818790418|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1535"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "13",
+      "source_row_fingerprint": "ee3875f0a66a872f6b46e195e16052fc516d250275948d1bff55392d2f3c858b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "a400dadbc293b3e48b4716b56ae59474",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "481",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition ABE Pump 500g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Tigers Blood / 500g",
+            "flavour_code": "tigers blood",
+            "flavour_label": "Tigers Blood",
+            "id": "763",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "481",
+            "size_unit": "g",
+            "size_value": "500",
+            "variant_key": "tigers-blood-500g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "a400dadbc293b3e48b4716b56ae59474",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e5fbbb7f2a4103d048f461e70d656c58de039d438d8ba83b678a86b22ec37811",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:33.616Z",
+            "price": "29.95",
+            "shipping_cost": "0",
+            "total_price": "29.95",
+            "url": "https://www.ebay.co.uk/itm/134686134724?var=434197535546&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "481"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Tigers Blood",
+              "Size": "500g"
+            },
+            "flavour": "tigers blood",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "500"
+          },
+          "id": "763"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555204313",
+            "external_name": "Applied Nutrition ABE Pump 500g",
+            "external_options": {
+              "Flavour": "Tigers Blood",
+              "Size": "500g"
+            },
+            "external_product_id": "134686134724",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-abe-pump-500g",
+            "external_url": "https://www.ebay.co.uk/itm/134686134724?var=434197535546",
+            "external_variant_id": "v1|134686134724|434197535546",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "763"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "14",
+      "source_row_fingerprint": "e5fbbb7f2a4103d048f461e70d656c58de039d438d8ba83b678a86b22ec37811"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "efa244e470c756328863dc434fff8a81",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "770",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Creatine + Hydration 30 servings",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Citrust Burst / 30 servings",
+            "flavour_code": "citrust burst",
+            "flavour_label": "Citrust Burst",
+            "id": "943",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "770",
+            "size_unit": "servings",
+            "size_value": "30",
+            "variant_key": "citrust-burst-30servings"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "efa244e470c756328863dc434fff8a81",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "ea216f143eedde2bde185844e1518ecb1eca4e13e7fdf37fe0aa058351a9ea22",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:34.193Z",
+            "price": "24.95",
+            "shipping_cost": "0",
+            "total_price": "24.95",
+            "url": "https://www.ebay.co.uk/itm/135911568600?var=435099858561&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "770"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Citrust Burst",
+              "Size": "30servings"
+            },
+            "flavour": "citrust burst",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "servings",
+            "size_value": "30"
+          },
+          "id": "943"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555210291",
+            "external_name": "Applied Nutrition Creatine + Hydration 30 servings",
+            "external_options": {
+              "Flavour": "Citrust Burst",
+              "Size": "30servings"
+            },
+            "external_product_id": "135911568600",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-creatine-hydration-30-servings",
+            "external_url": "https://www.ebay.co.uk/itm/135911568600?var=435099858561",
+            "external_variant_id": "v1|135911568600|435099858561",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "943"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "15",
+      "source_row_fingerprint": "ea216f143eedde2bde185844e1518ecb1eca4e13e7fdf37fe0aa058351a9ea22"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d6a390753b774fea70727686dcaaedbb",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "770",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Creatine + Hydration 30 servings",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 30 servings",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "944",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "770",
+            "size_unit": "servings",
+            "size_value": "30",
+            "variant_key": "unflavoured-30servings"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d6a390753b774fea70727686dcaaedbb",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e412e09ce36b7ce9d2086f266ae76d5647d2534566e166e9a44471f7c34ce99b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:34.837Z",
+            "price": "24.95",
+            "shipping_cost": "0",
+            "total_price": "24.95",
+            "url": "https://www.ebay.co.uk/itm/135911646988?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "770"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30servings"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "servings",
+            "size_value": "30"
+          },
+          "id": "944"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5056555210314",
+            "external_name": "Applied Nutrition Creatine + Hydration 30 servings",
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30servings"
+            },
+            "external_product_id": "135911646988",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-creatine-hydration-30-servings",
+            "external_url": "https://www.ebay.co.uk/itm/135911646988",
+            "external_variant_id": "v1|135911646988|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "944"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "16",
+      "source_row_fingerprint": "e412e09ce36b7ce9d2086f266ae76d5647d2534566e166e9a44471f7c34ce99b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "25b0eec7d8ad46039a9e30db60d3afde",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "66",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "PEScience Vegan Series Select Protein 918g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Chocolate Bliss / 918g",
+            "flavour_code": "chocolate bliss",
+            "flavour_label": "Chocolate Bliss",
+            "id": "1620",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "66",
+            "size_unit": "g",
+            "size_value": "918",
+            "variant_key": "chocolate-bliss-918g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "25b0eec7d8ad46039a9e30db60d3afde",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e3dc9908a865b786bcaef0b030a44865cd4e34461b4c9aa5f5693758c8ff23c9",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:35.397Z",
+            "price": "41.99",
+            "shipping_cost": "0",
+            "total_price": "41.99",
+            "url": "https://www.ebay.co.uk/itm/167879148689?var=467421651923&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "66"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Chocolate Bliss",
+              "Size": "918g"
+            },
+            "flavour": "chocolate bliss",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "918"
+          },
+          "id": "1620"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "PEScience Vegan Series Select Protein 918g",
+            "external_options": {
+              "Flavour": "Chocolate Bliss",
+              "Size": "918g"
+            },
+            "external_product_id": "167879148689",
+            "external_sku": null,
+            "external_slug": "pescience-vegan-series-select-protein-918g",
+            "external_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651923",
+            "external_variant_id": "v1|167879148689|467421651923",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1620"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "17",
+      "source_row_fingerprint": "e3dc9908a865b786bcaef0b030a44865cd4e34461b4c9aa5f5693758c8ff23c9"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "a0059cd8e9cb4fd1891d34fcb077b221",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "522",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Olimp L-Carnitine 1500 Extreme 120 Capsules  Fat Metabolism and Energy Support for Active People",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "497",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "522",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "a0059cd8e9cb4fd1891d34fcb077b221",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "ede77f9af796443ad2be50d251b1df4beaf517bfe4185c854ca2c58986646516",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:36.125Z",
+            "price": "32.99",
+            "shipping_cost": "3.99",
+            "total_price": "36.98",
+            "url": "https://www.ebay.co.uk/itm/406077315499?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "522"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "497"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5901330028847",
+            "external_name": "Olimp L-Carnitine 1500 Extreme 120 Capsules  Fat Metabolism and Energy Support for Active People",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "406077315499",
+            "external_sku": null,
+            "external_slug": "olimp-l-carnitine-1500-extreme-120-capsules--fat-metabolism-and-energy-support-for-active-people",
+            "external_url": "https://www.ebay.co.uk/itm/406077315499",
+            "external_variant_id": "v1|406077315499|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "497"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "18",
+      "source_row_fingerprint": "ede77f9af796443ad2be50d251b1df4beaf517bfe4185c854ca2c58986646516"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c3dfb78c8983f2b39062637bd3304644",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "794",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Time 4 Creatine Powder 600g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1141",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "794",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c3dfb78c8983f2b39062637bd3304644",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "715488984f34887ba070ff7d1a4c514a154646540b2844013eba57ac37493aba",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:36.712Z",
+            "price": "24.99",
+            "shipping_cost": "0",
+            "total_price": "24.99",
+            "url": "https://www.ebay.co.uk/itm/191651754387?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "794"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1141"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060420310221",
+            "external_name": "Time 4 Creatine Powder 600g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "191651754387",
+            "external_sku": null,
+            "external_slug": "time-4-creatine-powder-600g",
+            "external_url": "https://www.ebay.co.uk/itm/191651754387",
+            "external_variant_id": "v1|191651754387|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1141"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "19",
+      "source_row_fingerprint": "715488984f34887ba070ff7d1a4c514a154646540b2844013eba57ac37493aba"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c12dcd8caa927f3daebe95f67b044d4a",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "673",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Now Foods Chaste Berry Vitex Extract 300mg 90 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "513",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "673",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c12dcd8caa927f3daebe95f67b044d4a",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "71dc1626815e27a5e3a443db3025e6860599218bbdb077fc9b8c68118f7fdfcf",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:37.286Z",
+            "price": "21.14",
+            "shipping_cost": "0",
+            "total_price": "21.14",
+            "url": "https://www.ebay.co.uk/itm/317649341455?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "673"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "513"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "733739047731",
+            "external_name": "Now Foods Chaste Berry Vitex Extract 300mg 90 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "317649341455",
+            "external_sku": null,
+            "external_slug": "now-foods-chaste-berry-vitex-extract-300mg-90-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/317649341455",
+            "external_variant_id": "v1|317649341455|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "513"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "20",
+      "source_row_fingerprint": "71dc1626815e27a5e3a443db3025e6860599218bbdb077fc9b8c68118f7fdfcf"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "8ff72cfb8382a77b811f28fed3b547b7",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "696",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Now Foods MSM 1500mg 200 Tablets",
+            "product_format": "tablet"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "568",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "696",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "8ff72cfb8382a77b811f28fed3b547b7",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "50b90f54b8eace8ecc118323a5616f75b1c63b284168194748c4dc50ec00b2aa",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T11:12:37.926Z",
+            "price": "29.04",
+            "shipping_cost": "0",
+            "total_price": "29.04",
+            "url": "https://www.ebay.co.uk/itm/358007221826?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "696"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "tablet",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "568"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "733739021311",
+            "external_name": "Now Foods MSM 1500mg 200 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "358007221826",
+            "external_sku": null,
+            "external_slug": "now-foods-msm-1500mg-200-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/358007221826",
+            "external_variant_id": "v1|358007221826|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "568"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "21",
+      "source_row_fingerprint": "50b90f54b8eace8ecc118323a5616f75b1c63b284168194748c4dc50ec00b2aa"
+    }
+  ],
+  "row_count": "20",
+  "run_id": "6867809a-6c3a-4e1a-afd6-5b7302d2d034",
+  "source_file_name": "batch-l.csv",
+  "source_file_sha256": "606f39d4fd7942f754ed58b22d3de60c984a7eb5cb0cc741e7fc0acbdf65d102",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534509&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Cellucor",
+        "category": "Pre Workout",
+        "external_gtin": "842595109078",
+        "external_options": "{\"Size\":\"195g\",\"Flavour\":\"Orange\"}",
+        "external_product_id": "373707858011",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534509",
+        "external_variant_id": "v1|373707858011|642746534509",
+        "flavour": "Orange",
+        "image": "https://i.ebayimg.com/images/g/u9MAAOSwCoVhMmTH/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.99",
+        "product_format": "powder",
+        "product_id": "27",
+        "product_name": "Cellucor C4 Original 195g",
+        "product_variant_id": "1589",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "195",
+        "size_unit": "g",
+        "slug": "cellucor-c4-original-195g",
+        "variant_name": "Orange / 195g"
+      },
+      "plan_fingerprint": "5512f0ab6b74ce45ce120765c10741a7",
+      "row_number": "2",
+      "source_row_fingerprint": "0303feb7f51c6c0f691fc7f87c3a621f3e5fbddcf82afee6fbf684e4bb66cbda",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/326796105372?var=515780120440&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Per4m",
+        "category": "Amino Acids",
+        "external_gtin": "5061097260659",
+        "external_options": "{\"Size\":\"420g\",\"Flavour\":\"Cherry Fizz\"}",
+        "external_product_id": "326796105372",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/326796105372?var=515780120440",
+        "external_variant_id": "v1|326796105372|515780120440",
+        "flavour": "Cherry Fizz",
+        "image": "https://i.ebayimg.com/images/g/k50AAeSw3y1o29e-/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "25.99",
+        "product_format": "powder",
+        "product_id": "788",
+        "product_name": "Per4m EAA Xtra 420g",
+        "product_variant_id": "1075",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "420",
+        "size_unit": "g",
+        "slug": "per4m-eaa-xtra-420g",
+        "variant_name": "Cherry Fizz / 420g"
+      },
+      "plan_fingerprint": "70003e6485de2c79f9f082bc4699998b",
+      "row_number": "3",
+      "source_row_fingerprint": "539d01c2372cee41e1da3d412b4afa6ce5bf641f7b25da0d5dcd42fce8d622b7",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/325388861371?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "325388861371",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/325388861371",
+        "external_variant_id": "v1|325388861371|0",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/tZYAAOSwhGhjT54G/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.49",
+        "product_format": "tablet",
+        "product_id": "1033",
+        "product_name": "BiotechUSA MULTI MINERAL COMPLEX 100tabs",
+        "product_variant_id": "2162",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "biotechusa-multi-mineral-complex-100tabs",
+        "variant_name": "Unflavoured / 100 tablets"
+      },
+      "plan_fingerprint": "8cd0b6f54ad34e407a15b4a69cadf352",
+      "row_number": "4",
+      "source_row_fingerprint": "b9c1469e4fbf0ff893b2bd980a0ba6c79dbaa0a2e4ad2fa1b369ff2f4b664e26",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/325909654165?var=514958463842&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Pre Workout",
+        "external_gtin": "5999076253678",
+        "external_options": "{\"Size\":\"300g\",\"Flavour\":\"Blueberry\"}",
+        "external_product_id": "325909654165",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/325909654165?var=514958463842",
+        "external_variant_id": "v1|325909654165|514958463842",
+        "flavour": "Blueberry",
+        "image": "https://i.ebayimg.com/images/g/xk8AAOSw~jtlab21/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.49",
+        "product_format": "powder",
+        "product_id": "294",
+        "product_name": "BioTech USA Black Blood CAF+ 300g",
+        "product_variant_id": "1774",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "300",
+        "size_unit": "g",
+        "slug": "biotech-usa-black-blood-caf-300g",
+        "variant_name": "Blueberry / 300g"
+      },
+      "plan_fingerprint": "1226e173a16b63b23f99860a0542e19d",
+      "row_number": "5",
+      "source_row_fingerprint": "9c6b381390a271f7d55cece0a33bb8e8017a0aa98a9521ad325024992c599308",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/325526875626?var=514560046967&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Pre Workout",
+        "external_gtin": "5999076232369",
+        "external_options": "{\"Size\":\"330g\",\"Flavour\":\"Tropical Fruit\"}",
+        "external_product_id": "325526875626",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/325526875626?var=514560046967",
+        "external_variant_id": "v1|325526875626|514560046967",
+        "flavour": "Tropical Fruit",
+        "image": "https://i.ebayimg.com/images/g/ZxIAAOSw7R1j4mgX/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "26.99",
+        "product_format": "powder",
+        "product_id": "295",
+        "product_name": "BioTech USA Black Blood NOX+ 330g",
+        "product_variant_id": "1777",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "330",
+        "size_unit": "g",
+        "slug": "biotech-usa-black-blood-nox-330g",
+        "variant_name": "Tropical Fruit / 330g"
+      },
+      "plan_fingerprint": "05f08ad3fe46cc05b4783fc5111571f2",
+      "row_number": "6",
+      "source_row_fingerprint": "80c36287cda262567737fe9cf803f9989d966c232e9704d5e473e8b21c9e28e0",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/327069519328?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PER4M",
+        "category": "Creatine",
+        "external_gtin": "5061097260697",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "327069519328",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/327069519328",
+        "external_variant_id": "v1|327069519328|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/6x0AAeSwSVZpxSdi/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "13.99",
+        "product_format": "capsule",
+        "product_id": "791",
+        "product_name": "Per4m Creatine Capsules | 30 Servings",
+        "product_variant_id": "1138",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "per4m-creatine-capsules-30-servings",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "bf46bbd8e31176befac6e0d6e8e18c0e",
+      "row_number": "7",
+      "source_row_fingerprint": "e5f86b08fe3837a098706e985345af5bb7f7c2b86d0254b503c295a36280cb99",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/327060659620?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PER4M",
+        "category": "Health Supplements",
+        "external_gtin": "5061097260673",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "327060659620",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/327060659620",
+        "external_variant_id": "v1|327060659620|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/TXQAAeSw4oFpvpWx/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.49",
+        "product_format": "capsule",
+        "product_id": "796",
+        "product_name": "Per4m Advanced Curcumin | 60 Capsules",
+        "product_variant_id": "1143",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "per4m-advanced-curcumin-60-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "8527dfc73e2fae6a4c763760c2f6660d",
+      "row_number": "8",
+      "source_row_fingerprint": "02c8e1e9f3b0d943aacc5582864fb2eaa0335b3e9240199cf04471a011cdf4bd",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/327060632207?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PER4M",
+        "category": "Health Supplements",
+        "external_gtin": "5060660084463",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "327060632207",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/327060632207",
+        "external_variant_id": "v1|327060632207|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/IwYAAeSw4R1pvpDw/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "16.99",
+        "product_format": "softgel",
+        "product_id": "799",
+        "product_name": "Per4m Advanced Omega 3 | 90 Softgels",
+        "product_variant_id": "1146",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "per4m-advanced-omega-3-90-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "41b360ff3e46e491229626d3607c47b2",
+      "row_number": "9",
+      "source_row_fingerprint": "fecace0a23f4816735f59b11d9309e01e376e91ac4ff07b48942974cc28cd674",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/327062344315?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PER4M",
+        "category": "Health Supplements",
+        "external_gtin": "5060660084265",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "327062344315",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/327062344315",
+        "external_variant_id": "v1|327062344315|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/5MIAAeSwUoFpv9q-/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "14.99",
+        "product_format": "tablet",
+        "product_id": "800",
+        "product_name": "Per4m D3 & K2 120 Tablets",
+        "product_variant_id": "1147",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "per4m-d3-and-k2-120-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "7802e6b1d8b08182d29199f407f2b049",
+      "row_number": "10",
+      "source_row_fingerprint": "3c6fef23aa0ddeb9a5bdd550bb33d5aad449206964fb022e3ef520a33d67c952",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/326584491660?var=515650737150&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PER4M",
+        "category": "Pre Workout",
+        "external_gtin": "5060660086825",
+        "external_options": "{\"Size\":\"390g\",\"Flavour\":\"Cherry Fizz\"}",
+        "external_product_id": "326584491660",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/326584491660?var=515650737150",
+        "external_variant_id": "v1|326584491660|515650737150",
+        "flavour": "Cherry Fizz",
+        "image": "https://i.ebayimg.com/images/g/5eMAAOSwDp5oJ3v0/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "22.49",
+        "product_format": "powder",
+        "product_id": "882",
+        "product_name": "PER4M Energy Pre Workout 390g",
+        "product_variant_id": "1396",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "390",
+        "size_unit": "g",
+        "slug": "per4m-energy-pre-workout-390g",
+        "variant_name": "Cherry Fizz / 390g"
+      },
+      "plan_fingerprint": "47f97a981831e3be120015c0ef324336",
+      "row_number": "11",
+      "source_row_fingerprint": "8fa118147c66fb4ee7ae871fa6d02d9bd65f12aab53981e40d508bea05a29936",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/326061693301?var=515517512434&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PER4M",
+        "category": "Health Supplements",
+        "external_gtin": "5060660085682",
+        "external_options": "{\"Size\":\"210g\",\"Flavour\":\"Fizzy Bubblegum Bottles\"}",
+        "external_product_id": "326061693301",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/326061693301?var=515517512434",
+        "external_variant_id": "v1|326061693301|515517512434",
+        "flavour": "Fizzy Bubblegum Bottles",
+        "image": "https://i.ebayimg.com/images/g/vE4AAOSwJbxl~AFu/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "21.49",
+        "product_format": "powder",
+        "product_id": "887",
+        "product_name": "PER4M Hydrate Electrolyte Mix 210g",
+        "product_variant_id": "1445",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "210",
+        "size_unit": "g",
+        "slug": "per4m-hydrate-electrolyte-mix-210g",
+        "variant_name": "Fizzy Bubblegum Bottles / 210g"
+      },
+      "plan_fingerprint": "7396fca8f18d901f57592776a57e7e9d",
+      "row_number": "12",
+      "source_row_fingerprint": "de0b1a50fad90eeeab17f828d59bbed5ad1fa630c70e05c3a20fee70dd127f3c",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/326818790418?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PER4M",
+        "category": "Health Supplements",
+        "external_gtin": "5060660085620",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "326818790418",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/326818790418",
+        "external_variant_id": "v1|326818790418|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/gCcAAeSwqn1o71rM/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "29.99",
+        "product_format": "powder",
+        "product_id": "927",
+        "product_name": "PER4M Relax Hot Chocolate 375g",
+        "product_variant_id": "1535",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "per4m-relax-hot-chocolate-375g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "397ef638bef5b5c46d9863f59171c0f2",
+      "row_number": "13",
+      "source_row_fingerprint": "ee3875f0a66a872f6b46e195e16052fc516d250275948d1bff55392d2f3c858b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134686134724?var=434197535546&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Pre Workout",
+        "external_gtin": "5056555204313",
+        "external_options": "{\"Size\":\"500g\",\"Flavour\":\"Tigers Blood\"}",
+        "external_product_id": "134686134724",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134686134724?var=434197535546",
+        "external_variant_id": "v1|134686134724|434197535546",
+        "flavour": "Tigers Blood",
+        "image": "https://i.ebayimg.com/images/g/KvYAAOSw8SloB2Pr/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "29.95",
+        "product_format": "powder",
+        "product_id": "481",
+        "product_name": "Applied Nutrition ABE Pump 500g",
+        "product_variant_id": "763",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "500",
+        "size_unit": "g",
+        "slug": "applied-nutrition-abe-pump-500g",
+        "variant_name": "Tigers Blood / 500g"
+      },
+      "plan_fingerprint": "a400dadbc293b3e48b4716b56ae59474",
+      "row_number": "14",
+      "source_row_fingerprint": "e5fbbb7f2a4103d048f461e70d656c58de039d438d8ba83b678a86b22ec37811",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/135911568600?var=435099858561&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Creatine",
+        "external_gtin": "5056555210291",
+        "external_options": "{\"Size\":\"30servings\",\"Flavour\":\"Citrust Burst\"}",
+        "external_product_id": "135911568600",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/135911568600?var=435099858561",
+        "external_variant_id": "v1|135911568600|435099858561",
+        "flavour": "Citrust Burst",
+        "image": "https://i.ebayimg.com/images/g/whAAAOSwltNoPY8I/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "24.95",
+        "product_format": "powder",
+        "product_id": "770",
+        "product_name": "Applied Nutrition Creatine + Hydration 30 servings",
+        "product_variant_id": "943",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "30",
+        "size_unit": "servings",
+        "slug": "applied-nutrition-creatine-hydration-30-servings",
+        "variant_name": "Citrust Burst / 30 servings"
+      },
+      "plan_fingerprint": "efa244e470c756328863dc434fff8a81",
+      "row_number": "15",
+      "source_row_fingerprint": "ea216f143eedde2bde185844e1518ecb1eca4e13e7fdf37fe0aa058351a9ea22",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/135911646988?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Creatine",
+        "external_gtin": "5056555210314",
+        "external_options": "{\"Size\":\"30servings\",\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "135911646988",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/135911646988",
+        "external_variant_id": "v1|135911646988|0",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/~x4AAOSwkxFoPZfy/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "24.95",
+        "product_format": "powder",
+        "product_id": "770",
+        "product_name": "Applied Nutrition Creatine + Hydration 30 servings",
+        "product_variant_id": "944",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "30",
+        "size_unit": "servings",
+        "slug": "applied-nutrition-creatine-hydration-30-servings",
+        "variant_name": "Unflavoured / 30 servings"
+      },
+      "plan_fingerprint": "d6a390753b774fea70727686dcaaedbb",
+      "row_number": "16",
+      "source_row_fingerprint": "e412e09ce36b7ce9d2086f266ae76d5647d2534566e166e9a44471f7c34ce99b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651923&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PEScience",
+        "category": "Whey Protein",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"918g\",\"Flavour\":\"Chocolate Bliss\"}",
+        "external_product_id": "167879148689",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651923",
+        "external_variant_id": "v1|167879148689|467421651923",
+        "flavour": "Chocolate Bliss",
+        "image": "https://i.ebayimg.com/images/g/XYUAAeSwL1Ro-eVQ/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "41.99",
+        "product_format": "powder",
+        "product_id": "66",
+        "product_name": "PEScience Vegan Series Select Protein 918g",
+        "product_variant_id": "1620",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "918",
+        "size_unit": "g",
+        "slug": "pescience-vegan-series-select-protein-918g",
+        "variant_name": "Chocolate Bliss / 918g"
+      },
+      "plan_fingerprint": "25b0eec7d8ad46039a9e30db60d3afde",
+      "row_number": "17",
+      "source_row_fingerprint": "e3dc9908a865b786bcaef0b030a44865cd4e34461b4c9aa5f5693758c8ff23c9",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/406077315499?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Olimp",
+        "category": "Weight Management",
+        "external_gtin": "5901330028847",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "406077315499",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/406077315499",
+        "external_variant_id": "v1|406077315499|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/kTgAAeSwW6dqgrpW/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "32.99",
+        "product_format": "",
+        "product_id": "522",
+        "product_name": "Olimp L-Carnitine 1500 Extreme 120 Capsules  Fat Metabolism and Energy Support for Active People",
+        "product_variant_id": "497",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "olimp-l-carnitine-1500-extreme-120-capsules--fat-metabolism-and-energy-support-for-active-people",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "a0059cd8e9cb4fd1891d34fcb077b221",
+      "row_number": "18",
+      "source_row_fingerprint": "ede77f9af796443ad2be50d251b1df4beaf517bfe4185c854ca2c58986646516",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/191651754387?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Time 4",
+        "category": "Creatine",
+        "external_gtin": "5060420310221",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "191651754387",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/191651754387",
+        "external_variant_id": "v1|191651754387|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/8qsAAOSw4pJnMew4/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "24.99",
+        "product_format": "powder",
+        "product_id": "794",
+        "product_name": "Time 4 Creatine Powder 600g",
+        "product_variant_id": "1141",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "time-4-creatine-powder-600g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "c3dfb78c8983f2b39062637bd3304644",
+      "row_number": "19",
+      "source_row_fingerprint": "715488984f34887ba070ff7d1a4c514a154646540b2844013eba57ac37493aba",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/317649341455?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Now Foods",
+        "category": "Health Supplements",
+        "external_gtin": "733739047731",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "317649341455",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/317649341455",
+        "external_variant_id": "v1|317649341455|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/pAgAAeSwJ1lpOrmf/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "21.14",
+        "product_format": "capsule",
+        "product_id": "673",
+        "product_name": "Now Foods Chaste Berry Vitex Extract 300mg 90 Capsules",
+        "product_variant_id": "513",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "now-foods-chaste-berry-vitex-extract-300mg-90-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "c12dcd8caa927f3daebe95f67b044d4a",
+      "row_number": "20",
+      "source_row_fingerprint": "71dc1626815e27a5e3a443db3025e6860599218bbdb077fc9b8c68118f7fdfcf",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/358007221826?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Now Foods",
+        "category": "Health Supplements",
+        "external_gtin": "733739021311",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "358007221826",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/358007221826",
+        "external_variant_id": "v1|358007221826|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/WTAAAeSwKyFpOrjz/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "29.04",
+        "product_format": "tablet",
+        "product_id": "696",
+        "product_name": "Now Foods MSM 1500mg 200 Tablets",
+        "product_variant_id": "568",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "now-foods-msm-1500mg-200-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "8ff72cfb8382a77b811f28fed3b547b7",
+      "row_number": "21",
+      "source_row_fingerprint": "50b90f54b8eace8ecc118323a5616f75b1c63b284168194748c4dc50ec00b2aa",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "20",
+    "skipped_row_count": "0"
+  }
+}

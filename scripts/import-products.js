@@ -51,6 +51,7 @@ const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13 = require("../config/retailers/si
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14 = require("../config/retailers/six-pack-reviewed-large-family-batch-v14.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V15 = require("../config/retailers/six-pack-reviewed-large-family-batch-v15.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-k-v1.json");
+const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_L = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-l-v1.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -1946,17 +1947,31 @@ function isExactEbayCrossProductParentVariant({
   parentPeers,
 }) {
   if (String(retailer?.slug || "").trim() !== "ebay-uk") return false;
+  const reviewedConfigs = [
+    {
+      value: EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K,
+      contract: "ebay-reviewed-cross-product-parent-batch-k-v1",
+      confirmation: "OWNER_APPROVED_EBAY_BATCH_K_EXACT_20",
+      rows: 2,
+    },
+    {
+      value: EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_L,
+      contract: "ebay-reviewed-cross-product-parent-batch-l-v1",
+      confirmation: "OWNER_APPROVED_EBAY_BATCH_L_EXACT_20",
+      rows: 1,
+    },
+  ];
   if (
-    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.schema_version !== 1 ||
-    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.contract !== "ebay-reviewed-cross-product-parent-batch-k-v1" ||
-    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.owner_confirmation !== "OWNER_APPROVED_EBAY_BATCH_K_EXACT_20" ||
-    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.rows.length !== 2 ||
+    reviewedConfigs.some(({ value, contract, confirmation, rows }) =>
+      value.schema_version !== 1 || value.contract !== contract ||
+      value.owner_confirmation !== confirmation || value.rows.length !== rows
+    ) ||
     !exactSourceOptions(row) ||
     !Array.isArray(parentPeers) ||
     parentPeers.length === 0
   ) return false;
 
-  const reviewed = EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.rows.find((entry) =>
+  const reviewed = reviewedConfigs.flatMap(({ value }) => value.rows).find((entry) =>
     String(entry.product_id) === optionalIdentifier(row.product_id) &&
     String(entry.product_variant_id) === optionalIdentifier(row.product_variant_id) &&
     entry.external_product_id === externalProductId &&
