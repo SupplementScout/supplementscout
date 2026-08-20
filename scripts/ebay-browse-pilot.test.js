@@ -13,6 +13,7 @@ const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTIT
 const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: validateBatchHRecovery } = require("./ebay-offer-batch-h-recovery-executor");
 const { CONFIRMATION: BATCH_I_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_I_IDENTITIES, parseArgs: parseBatchIArgs, validateRollout: validateBatchIRollout } = require("./ebay-offer-batch-i-executor");
 const { CONFIRMATION: BATCH_J_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_J_IDENTITIES, parseArgs: parseBatchJArgs, validateLiveSources: validateBatchJLiveSources, validateRollout: validateBatchJRollout } = require("./ebay-offer-batch-j-executor");
+const { CONFIRMATION: BATCH_K_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_K_IDENTITIES, parseArgs: parseBatchKArgs, validateLiveSources: validateBatchKLiveSources, validateRollout: validateBatchKRollout } = require("./ebay-offer-batch-k-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -827,4 +828,78 @@ test("runner and library contain no production mutation or public publication pa
   assert.throws(() => parseArgs(["--refresh-items-from=docs/report.json"]), /inside repository tmp/);
   assert.throws(() => parseArgs(["--refresh-items-from=tmp/report.json", "--discover-one-retailer"]), /cannot be combined/);
   assert.throws(() => parseArgs(["--apply"]), /Unsupported argument/);
+});
+
+test("Batch K owner review seals exactly twenty approved business listings", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-k-review.json"), "utf8"));
+  const csvBuffer = fs.readFileSync(path.join(process.cwd(), review.csv));
+  const artifactBuffer = fs.readFileSync(path.join(process.cwd(), review.artifact));
+  const rows = parse(csvBuffer, { columns: true, skip_empty_lines: true });
+  assert.equal(crypto.createHash("sha256").update(csvBuffer).digest("hex"), review.csv_sha256);
+  assert.equal(crypto.createHash("sha256").update(artifactBuffer).digest("hex"), review.artifact_sha256);
+  assert.equal(review.owner_approval.approved_for_guarded_preparation, true);
+  assert.equal(review.owner_approval.approved_for_production_apply, true);
+  assert.equal(review.owner_approval.approved_count, 20);
+  assert.equal(review.dry_run.plan_count, 20);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(review.dry_run.database_writes, 0);
+  assert.equal(review.identity_summary.exact_gtin_rows, 11);
+  assert.equal(review.identity_summary.exact_item_missing_gtin_exceptions, 9);
+  assert.equal(rows.length, 20);
+  assert.equal(new Set(rows.map((row) => row.external_variant_id)).size, 20);
+  assert.equal(rows.filter((row) => row.external_gtin).length, 11);
+  assert.ok(rows.every((row) => row.shipping_known === "true" && Number.isFinite(Number(row.shipping_cost))));
+  assert.ok(review.entries.every((row) => row.seller_account_type === "BUSINESS" && row.seller && row.seller_legal_name));
+  assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
+});
+
+test("Batch K production rollout is bound to the exact twenty approved plans", () => {
+  const validated = validateBatchKRollout();
+  assert.equal(BATCH_K_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_K_EXACT_20");
+  assert.equal(validated.entries.length, 20);
+  assert.equal(BATCH_K_IDENTITIES.length, 20);
+  assert.equal(new Set(BATCH_K_IDENTITIES).size, 20);
+  assert.equal(validated.entries.filter(({ approved }) => approved.gtin).length, 11);
+  assert.equal(validated.entries.filter(({ approved }) => !approved.gtin).length, 9);
+  assert.equal(parseBatchKArgs(["--mode=preflight", "--output=tmp/batch-k-preflight.json"]).mode, "preflight");
+  assert.throws(() => parseBatchKArgs(["--mode=execute", "--output=tmp/batch-k.json"]), /preflight\|validate\|apply/);
+});
+
+test("Batch K live preflight rechecks all twenty items and fails on drift", async () => {
+  resetTokenCache();
+  const { entries } = validateBatchKRollout();
+  const fixtures = entries.map(({ approved }) => item({
+    itemId: approved.external_variant_id,
+    legacyItemId: approved.legacy_item_id,
+    title: approved.live_title,
+    gtin: approved.gtin,
+    price: { value: approved.price, currency: "GBP" },
+    shippingOptions: [{ shippingCost: { value: approved.shipping_cost, currency: "GBP" } }],
+    seller: { username: approved.seller, sellerAccountType: "BUSINESS", sellerLegalInfo: { name: approved.seller_legal_name }, feedbackPercentage: "99.9", feedbackScore: 5000 },
+    localizedAspects: [approved.flavour ? { name: "Flavour", value: approved.flavour } : null, approved.size_value ? { name: "Size", value: `${approved.size_value}${approved.size_unit}` } : null].filter(Boolean),
+    itemAffiliateWebUrl: `https://www.ebay.co.uk/itm/${approved.legacy_item_id}?campid=123`,
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK" }],
+  }));
+  const config = { EBAY_CLIENT_ID: "id", EBAY_CLIENT_SECRET: "secret", EBAY_UK_DELIVERY_POSTCODE: "SW1A 1AA", EBAY_EPN_CAMPAIGN_ID: "123" };
+  const fetchImpl = async (url) => {
+    if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    return { ok: true, status: 200, json: async () => fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId))) };
+  };
+  assert.equal((await validateBatchKLiveSources(fetchImpl, config)).length, 20);
+  await assert.rejects(() => validateBatchKLiveSources(async (url) => {
+    if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    const found = fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId)));
+    return { ok: true, status: 200, json: async () => found === fixtures[0] ? { ...found, seller: { ...found.seller, username: "different-seller" } } : found };
+  }, config), /live safety evidence drift/);
+  resetTokenCache();
+});
+
+test("Batch K workflow requires exact production confirmation and twenty-row postflight", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-batch-k.yml"), "utf8");
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_K_EXACT_20/);
+  assert.match(workflow, /--mode=preflight/);
+  assert.match(workflow, /--mode=.*apply/);
+  assert.match(workflow, /plans\.length!==20/);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
+  assert.doesNotMatch(workflow, /schedule:/);
 });
