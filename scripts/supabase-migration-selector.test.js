@@ -149,9 +149,11 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records validator bounded read scope as applied", () => {
+test("production records validator reads as applied and one reviewed brand migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map(({ filename }) => filename), [
+    "20260820140000_normalize_reviewed_brand_aliases.sql",
+  ]);
   assert.equal(contract.ledgerCount, 125);
   assert.equal(
     contract.ledgerFingerprint,
@@ -260,11 +262,11 @@ test("production binds its exact applied ledger including bounded RLS read", () 
   });
   assert.equal(result.ledger_count, 125);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 125);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending, ["20260820140000_normalize_reviewed_brand_aliases"]);
+  assert.equal(result.selected_files.length, 126);
+  assert.deepEqual(result.pending_files, ["20260820140000_normalize_reviewed_brand_aliases.sql"]);
+  assert.equal(result.pending_file, "20260820140000_normalize_reviewed_brand_aliases.sql");
+  assert.equal(result.pending_sha256, "da55e62d51a84000ac77ba1cd92780bb93a15362dad8887f343d6ab3a06c9cf1");
 });
 
 test("production exclusions are exact and exact-36 is selected rather than excluded", () => {
