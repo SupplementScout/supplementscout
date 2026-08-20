@@ -123,13 +123,14 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — owner review of the audited, bounded
-`/retailers/ebay-uk` comparison-page contract. No implementation is authorised
-until approval. If approved, build only that exact static route from the
-existing guarded eBay offers and current cross-retailer comparison data; do not
-create a dynamic retailer generator or change catalogue/production data.
-Applied Nutrition, Per4m and BioTech USA are live verified; GYM HIGH remains
-deferred from both brand- and retailer-page publication.
+**Next executable task:** SEO-14 — merge and deploy the owner-approved,
+bounded `/retailers/ebay-uk` release candidate, then capture live HTTP,
+canonical, robots, structured-data, sitemap, internal-link and desktop/mobile
+evidence. The implementation uses only stored guarded eBay offers and current
+cross-retailer comparison data; it does not create a dynamic retailer generator
+or change catalogue/production data. Applied Nutrition, Per4m and BioTech USA
+are live verified; GYM HIGH remains deferred from both brand- and retailer-page
+publication.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -273,6 +274,42 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 eBay UK retailer page CODE COMPLETE; live evidence pending
+
+- The owner approved completing the exact bounded `/retailers/ebay-uk` unit,
+  including its normal review, merge, deployment and live-verification flow.
+- The release candidate first queries qualifying offer candidates for exact
+  retailer ID `12`, fails closed on query errors or truncation, then loads only
+  those active, unmerged canonical products with their current offers. Shared
+  offer normalization enforces mapped, in-stock, positive-price, valid-URL and
+  24-hour freshness rules. There are no catalogue or production-data writes.
+- Current production-backed local rendering contains `69` products, `100`
+  tracked eBay UK offers and `348` recently checked offers across `5` retailers;
+  `65` products have a current alternative. The scope spans `10` categories,
+  `26` brands and images on all `69` products.
+- Comparable products appear first. Each visual product card places the best
+  tracked eBay offer beside the best current non-eBay alternative, labels
+  unknown delivery instead of treating it as free and links to the canonical
+  product comparison. The page prominently states that eBay is a marketplace,
+  represents only a guarded tracked subset and does not score or endorse
+  sellers or products.
+- The explicit route has fail-closed metadata, one canonical, index/follow only
+  while the translated `20 / 10 / 3 / 50 / 5` gate and structured data pass,
+  `CollectionPage`/`ItemList`/`BreadcrumbList` JSON-LD, one sitemap entry,
+  homepage discovery, eBay-offer product links and consent-aware analytics. No
+  generic retailer route or generator was added.
+- Focused contract tests pass `8/8`; TypeScript and targeted ESLint pass.
+  `npm run verify:quick` and `npm run verify:full` pass with `274` sealed tests,
+  `230` safe tests, baseline migration validation and the Next.js 16.2.9 build
+  including `/retailers/ebay-uk`. The actual production-backed build also
+  passes and renders the current counts above.
+- Desktop inspection passes. A true `390` CSS-pixel mobile emulation reports
+  document and body `clientWidth = scrollWidth = 390` with no overflowing
+  element. Earlier window-only captures were diagnosed as Chrome's 500-pixel
+  minimum headless viewport being cropped to a 390-pixel bitmap, not page
+  overflow.
+- State is `CODE COMPLETE`, not `LIVE VERIFIED`. SEO-14 remains `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 retailer-page audit selects eBay UK; owner review required
 
