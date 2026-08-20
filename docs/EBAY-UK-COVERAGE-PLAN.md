@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 80-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10 + BATCH K 20/20)
+**Status:** CONTROLLED 100-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10 + BATCH K 20/20 + BATCH L 20/20)
 **Last verified:** 20 August 2026
-**Production writes:** 80 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 80 mappings, 80 offers, 80 price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 80 live eBay offers
+**Production writes:** 100 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 100 mappings, 100 offers, 100 initial price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 100 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,10 +41,10 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 80-offer rollout are complete. The
+read-only Browse pilot and the controlled 100-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below. The exact-80 daily refresh is enabled at `05:43 UTC`; each
+postflight below. The exact-100 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
@@ -126,6 +126,23 @@ read-only run `32356085580` on `main` passed 80 eligible no-ops, zero blocked
 rows and zero writes; artifact `9401742531` was retained. Source-read failures
 are isolated per row and can never automatically mark an offer out of stock.
 No second scheduler or importer exists.
+
+Batch L is live verified 20/20. The corrected owner-approved scope excluded
+the 18 Simply Supplements marketplace listings because they were not
+independent retailer coverage. Protected production run `32363658846` passed
+the fresh direct-item preflight, created mapping IDs `2805`-`2824` and offer
+IDs `2619`-`2638`, then passed the exact 20-row no-op postflight. Its immutable
+execution artifact records 20 executed plans. Independent production readback
+confirmed 20 unique mappings, 20 unique offers, 20 in-stock rows and 20 EPN
+Campaign-ID URLs; a second importer dry-run returned 20 no-ops and zero
+blocked rows. Eighteen listings return exact GTINs. The two missing-GTIN
+identities remain sealed to the exact reviewed item, seller and metadata
+evidence, and the PEScience shared parent exception is limited to product
+`66`, variant `1620`, item `v1|167879148689|467421651923` and its exact options.
+The same existing refresh mechanism is extended from 80 to 100 offers; the
+fresh production read-only dry-run on 20 August returned `PASS`, 100 eligible,
+zero blocked and zero writes, artifact SHA-256
+`8b90df8cb25bd82d2ee343e2f487a128a5906215b0aa2edbf37a2a54ede5fd4e`.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9

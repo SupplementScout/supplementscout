@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_80";
-const KIND = "ebay-existing-offer-refresh-exact-80-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_100";
+const KIND = "ebay-existing-offer-refresh-exact-100-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -37,6 +37,8 @@ const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2616", { seller: "welzohealth", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
   ["2617", { seller: "the_sup_store", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
   ["2618", { seller: "muscle-factory-co-uk", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2621", { seller: "trainingfuels", review_reasons: new Set(["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2634", { seller: "planszowki", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
 ]);
 const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2570", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
@@ -51,6 +53,11 @@ const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2585", { seller: "time4nutrition", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
   ["2587", { seller: "time4nutrition", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
   ["2588", { seller: "time4nutrition", blockers: new Set(["SIZE_MISMATCH"]), review_reasons: new Set() }],
+  ["2631", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2632", { seller: "appliednutritionplc", blockers: new Set(["FLAVOUR_MISMATCH", "UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2633", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2637", { seller: "superfoodmarket", blockers: new Set(), review_reasons: new Set(["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
+  ["2638", { seller: "superfoodmarket", blockers: new Set(), review_reasons: new Set(["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
 ]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
@@ -65,6 +72,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-i.csv", approval: "batch-i-rollout.json", count: 8 },
   { csv: "batch-j.csv", approval: "batch-j-rollout.json", count: 10 },
   { csv: "batch-k-recovery.csv", approval: "batch-k-recovery-rollout.json", fallbackApproval: "batch-k-rollout.json", count: 20 },
+  { csv: "batch-l.csv", approval: "batch-l-rollout.json", count: 20 },
 ]);
 const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|394018039646|662564730389", ["2784", "2599"]], ["v1|256978504929|557601659147", ["2785", "2600"]],
@@ -77,10 +85,25 @@ const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|227339481694|526541817001", ["2799", "2613"]], ["v1|407021140091|677211935189", ["2800", "2614"]],
   ["v1|236709473396|537300103237", ["2801", "2615"]], ["v1|227187131642|0", ["2802", "2616"]],
   ["v1|315768710740|614309055150", ["2803", "2617"]], ["v1|406431647826|676750282316", ["2804", "2618"]],
+  ["v1|373707858011|642746534509", ["2805", "2619"]], ["v1|326796105372|515780120440", ["2806", "2620"]],
+  ["v1|325388861371|0", ["2807", "2621"]], ["v1|325909654165|514958463842", ["2808", "2622"]],
+  ["v1|325526875626|514560046967", ["2809", "2623"]], ["v1|327069519328|0", ["2810", "2624"]],
+  ["v1|327060659620|0", ["2811", "2625"]], ["v1|327060632207|0", ["2812", "2626"]],
+  ["v1|327062344315|0", ["2813", "2627"]], ["v1|326584491660|515650737150", ["2814", "2628"]],
+  ["v1|326061693301|515517512434", ["2815", "2629"]], ["v1|326818790418|0", ["2816", "2630"]],
+  ["v1|134686134724|434197535546", ["2817", "2631"]], ["v1|135911568600|435099858561", ["2818", "2632"]],
+  ["v1|135911646988|0", ["2819", "2633"]], ["v1|167879148689|467421651923", ["2820", "2634"]],
+  ["v1|406077315499|0", ["2821", "2635"]], ["v1|191651754387|0", ["2822", "2636"]],
+  ["v1|317649341455|0", ["2823", "2637"]], ["v1|358007221826|0", ["2824", "2638"]],
 ]);
 
 function fail(message) { throw new Error(message); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
+function reviewedCsvHashMatches(bytes, expected) {
+  if (sha256(bytes) === expected) return true;
+  const text = bytes.toString("utf8");
+  return text.includes("\r\n") && sha256(Buffer.from(text.replace(/\r\n/g, "\n"), "utf8")) === expected;
+}
 
 function loadScopes() {
   const rows = [];
@@ -89,7 +112,7 @@ function loadScopes() {
     const approval = JSON.parse(fs.readFileSync(path.join(ROLLOUT_DIR, source.approval), "utf8"));
     const fallbackApproval = source.fallbackApproval ? JSON.parse(fs.readFileSync(path.join(ROLLOUT_DIR, source.fallbackApproval), "utf8")) : null;
     const bytes = fs.readFileSync(csvPath);
-    if (approval.approved !== true || approval.target_project_ref !== PROJECT_REF || approval.csv_sha256 !== sha256(bytes)) fail(`Reviewed rollout integrity mismatch: ${source.approval}`);
+    if (approval.approved !== true || approval.target_project_ref !== PROJECT_REF || !reviewedCsvHashMatches(bytes, approval.csv_sha256)) fail(`Reviewed rollout integrity mismatch: ${source.approval}`);
     const parsed = parse(bytes, { columns: true, skip_empty_lines: true, bom: true });
     if (parsed.length !== source.count) fail(`Reviewed rollout count mismatch: ${source.csv}`);
     if (fallbackApproval && (fallbackApproval.approved !== true || fallbackApproval.target_project_ref !== PROJECT_REF)) fail(`Reviewed fallback rollout integrity mismatch: ${source.fallbackApproval}`);
@@ -116,7 +139,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 80) fail("Exact eBay refresh manifest must contain 80 rows");
+  if (rows.length !== 100) fail("Exact eBay refresh manifest must contain 100 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => {

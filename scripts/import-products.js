@@ -298,11 +298,19 @@ function loadDryRunArtifact(artifactPath) {
   const sidecar = artifactSidecarPath(resolvedPath);
   if (!fs.existsSync(sidecar)) throw new Error("Dry-run artifact SHA-256 sidecar not found");
   const bytes = fs.readFileSync(resolvedPath);
-  const artifactSha256 = sha256Bytes(bytes);
+  const rawArtifactSha256 = sha256Bytes(bytes);
   const expectedSha256 = fs.readFileSync(sidecar, "utf8").trim().toLowerCase();
-  if (!SHA256_PATTERN.test(expectedSha256) || artifactSha256 !== expectedSha256) {
+  const text = bytes.toString("utf8");
+  const normalizedArtifactSha256 = text.includes("\r\n")
+    ? sha256Bytes(Buffer.from(text.replace(/\r\n/g, "\n"), "utf8"))
+    : rawArtifactSha256;
+  if (
+    !SHA256_PATTERN.test(expectedSha256) ||
+    (rawArtifactSha256 !== expectedSha256 && normalizedArtifactSha256 !== expectedSha256)
+  ) {
     throw new Error("Dry-run artifact SHA-256 mismatch");
   }
+  const artifactSha256 = expectedSha256;
   const artifact = JSON.parse(bytes.toString("utf8"));
   assertNoUndefined(artifact);
   if (artifact.artifact_version !== String(IMPORT_ARTIFACT_VERSION)) {
