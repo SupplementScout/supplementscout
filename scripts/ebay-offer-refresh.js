@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_60";
-const KIND = "ebay-existing-offer-refresh-exact-60-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_80";
+const KIND = "ebay-existing-offer-refresh-exact-80-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -28,6 +28,15 @@ const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2568", { seller: "trainingfuels", review_reasons: new Set(["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
   ["2569", { seller: "healthyessentialsuk", review_reasons: new Set(["FLAVOUR_UNPROVEN", "FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
   ["2581", { seller: "time4nutrition", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2610", { seller: "trainingfuels", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2611", { seller: "mpbioscence", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2612", { seller: "planszowki", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2613", { seller: "welzohealth", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2614", { seller: "muscle-factory-co-uk", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2615", { seller: "dcelectricsltd", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2616", { seller: "welzohealth", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2617", { seller: "the_sup_store", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2618", { seller: "muscle-factory-co-uk", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
 ]);
 const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2570", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
@@ -55,6 +64,19 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-h.csv", approval: "batch-h-rollout.json", count: 11 },
   { csv: "batch-i.csv", approval: "batch-i-rollout.json", count: 8 },
   { csv: "batch-j.csv", approval: "batch-j-rollout.json", count: 10 },
+  { csv: "batch-k-recovery.csv", approval: "batch-k-recovery-rollout.json", fallbackApproval: "batch-k-rollout.json", count: 20 },
+]);
+const LIVE_IDENTITY_OVERRIDES = new Map([
+  ["v1|394018039646|662564730389", ["2784", "2599"]], ["v1|256978504929|557601659147", ["2785", "2600"]],
+  ["v1|145921318153|444963406170", ["2786", "2601"]], ["v1|143513790155|445757979940", ["2787", "2602"]],
+  ["v1|177952936229|477482944161", ["2788", "2603"]], ["v1|404774853352|674791941889", ["2789", "2604"]],
+  ["v1|326796105372|516023060149", ["2790", "2605"]], ["v1|267459060041|567236756567", ["2791", "2606"]],
+  ["v1|227482554146|526660766785", ["2792", "2607"]], ["v1|227482554146|526660766784", ["2793", "2608"]],
+  ["v1|267460401796|567238268029", ["2794", "2609"]], ["v1|323304007010|512368831135", ["2796", "2610"]],
+  ["v1|354815561341|624134728917", ["2797", "2611"]], ["v1|167879148689|467421651918", ["2798", "2612"]],
+  ["v1|227339481694|526541817001", ["2799", "2613"]], ["v1|407021140091|677211935189", ["2800", "2614"]],
+  ["v1|236709473396|537300103237", ["2801", "2615"]], ["v1|227187131642|0", ["2802", "2616"]],
+  ["v1|315768710740|614309055150", ["2803", "2617"]], ["v1|406431647826|676750282316", ["2804", "2618"]],
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -65,13 +87,17 @@ function loadScopes() {
   for (const source of ROLLOUTS) {
     const csvPath = path.join(ROLLOUT_DIR, source.csv);
     const approval = JSON.parse(fs.readFileSync(path.join(ROLLOUT_DIR, source.approval), "utf8"));
+    const fallbackApproval = source.fallbackApproval ? JSON.parse(fs.readFileSync(path.join(ROLLOUT_DIR, source.fallbackApproval), "utf8")) : null;
     const bytes = fs.readFileSync(csvPath);
     if (approval.approved !== true || approval.target_project_ref !== PROJECT_REF || approval.csv_sha256 !== sha256(bytes)) fail(`Reviewed rollout integrity mismatch: ${source.approval}`);
     const parsed = parse(bytes, { columns: true, skip_empty_lines: true, bom: true });
     if (parsed.length !== source.count) fail(`Reviewed rollout count mismatch: ${source.csv}`);
+    if (fallbackApproval && (fallbackApproval.approved !== true || fallbackApproval.target_project_ref !== PROJECT_REF)) fail(`Reviewed fallback rollout integrity mismatch: ${source.fallbackApproval}`);
     const approvedEntries = approval.entries || [approval.scope];
+    const fallbackEntries = fallbackApproval?.entries || [];
     for (let index = 0; index < parsed.length; index += 1) {
-      const row = parsed[index], approved = approvedEntries[index];
+      const row = parsed[index], approved = approvedEntries.find((entry) => entry.external_variant_id === row.external_variant_id) || fallbackEntries.find((entry) => entry.external_variant_id === row.external_variant_id);
+      if (!approved) fail(`Reviewed rollout entry missing: ${source.csv} row ${index + 2}`);
       const rowGtin = String(row.external_gtin || "").trim() || null;
       const approvedGtin = approved.gtin == null ? null : String(approved.gtin);
       const options = row.external_options ? JSON.parse(row.external_options) : {};
@@ -90,10 +116,13 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 60) fail("Exact eBay refresh manifest must contain 60 rows");
+  if (rows.length !== 80) fail("Exact eBay refresh manifest must contain 80 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
-  return Object.freeze(rows.map((row, index) => Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: String(2724 + index), offer_id: String(2539 + index) })));
+  return Object.freeze(rows.map((row, index) => {
+    const live = LIVE_IDENTITY_OVERRIDES.get(row.external_variant_id) || [String(2724 + index), String(2539 + index)];
+    return Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: live[0], offer_id: live[1] });
+  }));
 }
 
 const SCOPES = loadScopes();
@@ -240,8 +269,20 @@ async function run(options, dependencies = {}) {
   const stamp = now.toISOString().replace(/[:.]/g, "-");
   const evaluations = [];
   for (const scope of SCOPES) {
-    const evaluation = dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token);
-    evaluations.push({ ...evaluation, continuity: classifyContinuity(scope, evaluation) });
+    try {
+      const evaluation = dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token);
+      evaluations.push({ ...evaluation, continuity: classifyContinuity(scope, evaluation) });
+    } catch {
+      evaluations.push({
+        item_id: scope.external_variant_id,
+        decision: "NOT_FOUND",
+        blockers: ["SOURCE_READ_FAILED"],
+        review_reasons: [],
+        returned_gtin: null,
+        source_error: "SOURCE_READ_FAILED",
+        continuity: { eligible: false, tier: "blocked" },
+      });
+    }
   }
   const blocked = evaluations.flatMap((evaluation, index) => evaluation.continuity.eligible ? [] : [{
     offer_id: SCOPES[index].offer_id,
@@ -250,6 +291,7 @@ async function run(options, dependencies = {}) {
     blockers: evaluation.blockers,
     review_reasons: evaluation.review_reasons,
     returned_gtin: evaluation.returned_gtin,
+    source_error: evaluation.source_error || null,
   }]);
   const prepared = [];
   for (let index = 0; index < SCOPES.length; index += 1) {
