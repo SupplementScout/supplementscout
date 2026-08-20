@@ -8,3 +8,7 @@
 /docs/rollouts/ebay-offer-canary/batch-k-artifact.json.sha256 text eol=lf
 /docs/rollouts/ebay-offer-canary/batch-k-review.json text eol=lf
 /docs/rollouts/ebay-offer-canary/batch-k-rollout.json text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-recovery.csv text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-recovery-artifact.json text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-recovery-artifact.json.sha256 text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-k-recovery-rollout.json text eol=lf

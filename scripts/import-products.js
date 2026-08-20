@@ -50,6 +50,7 @@ const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V12 = require("../config/retailers/si
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V13 = require("../config/retailers/six-pack-reviewed-large-family-batch-v13.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14 = require("../config/retailers/six-pack-reviewed-large-family-batch-v14.json");
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V15 = require("../config/retailers/six-pack-reviewed-large-family-batch-v15.json");
+const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-k-v1.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -1937,6 +1938,61 @@ function exactSourceOptions(row) {
   return options && Object.keys(options).length > 0 ? options : null;
 }
 
+function isExactEbayCrossProductParentVariant({
+  row,
+  retailer,
+  externalProductId,
+  externalVariantId,
+  parentPeers,
+}) {
+  if (String(retailer?.slug || "").trim() !== "ebay-uk") return false;
+  if (
+    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.schema_version !== 1 ||
+    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.contract !== "ebay-reviewed-cross-product-parent-batch-k-v1" ||
+    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.owner_confirmation !== "OWNER_APPROVED_EBAY_BATCH_K_EXACT_20" ||
+    EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.rows.length !== 2 ||
+    !exactSourceOptions(row) ||
+    !Array.isArray(parentPeers) ||
+    parentPeers.length === 0
+  ) return false;
+
+  const reviewed = EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K.rows.find((entry) =>
+    String(entry.product_id) === optionalIdentifier(row.product_id) &&
+    String(entry.product_variant_id) === optionalIdentifier(row.product_variant_id) &&
+    entry.external_product_id === externalProductId &&
+    entry.external_variant_id === externalVariantId &&
+    entry.external_url === getRetailerProductUrl(row) &&
+    valuesEqual(entry.external_options, exactSourceOptions(row))
+  );
+  if (!reviewed) return false;
+
+  const exactIdentity = (productId, variantId, url) => {
+    const match = String(variantId || "").match(/^v1\|(\d+)\|(\d+)$/);
+    if (!match || match[1] !== String(productId || "") || match[2] === "0") return false;
+    try {
+      const parsed = new URL(String(url || ""));
+      return (
+        new Set(["ebay.co.uk", "www.ebay.co.uk"]).has(parsed.hostname.toLowerCase()) &&
+        parsed.pathname.replace(/\/+$/, "") === `/itm/${match[1]}` &&
+        parsed.searchParams.get("var") === match[2]
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  return (
+    exactIdentity(externalProductId, externalVariantId, getRetailerProductUrl(row)) &&
+    parentPeers.every((peer) =>
+      exactIdentity(
+        peer.external_product_id,
+        peer.external_variant_id,
+        peer.external_url
+      )
+    )
+  );
+}
+
 async function validateNewRetailerMappingIdentity({
   row,
   retailer,
@@ -2029,8 +2085,18 @@ async function validateNewRetailerMappingIdentity({
       "new retailer mapping canonical variant collision or external variant ID drift"
     );
   }
+  const crossProductParent = parentPeers.some(
+    (peer) => String(peer.product_id) !== String(product.id)
+  );
   if (
-    parentPeers.some((peer) => String(peer.product_id) !== String(product.id))
+    crossProductParent &&
+    !isExactEbayCrossProductParentVariant({
+      row,
+      retailer,
+      externalProductId,
+      externalVariantId,
+      parentPeers,
+    })
   ) {
     throw new Error("external parent ID canonical product drift");
   }
@@ -4403,6 +4469,7 @@ module.exports = {
   getOfferUrl,
   getRetailerProductUrl,
   isAmbiguousFeedRow,
+  isExactEbayCrossProductParentVariant,
   isProductGtinVerified,
   parseArgs,
   parseFlavour,

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "contract": "ebay-reviewed-cross-product-parent-batch-k-v1",
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_K_EXACT_20",
+  "rows": [
+    {
+      "product_id": "14",
+      "product_variant_id": "1725",
+      "external_product_id": "323304007010",
+      "external_variant_id": "v1|323304007010|512368831135",
+      "external_url": "https://www.ebay.co.uk/itm/323304007010?var=512368831135",
+      "external_options": {
+        "Size": "908g",
+        "Flavour": "Banana"
+      }
+    },
+    {
+      "product_id": "470",
+      "product_variant_id": "445",
+      "external_product_id": "406431647826",
+      "external_variant_id": "v1|406431647826|676750282316",
+      "external_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282316",
+      "external_options": {
+        "Units": "1 x 73g"
+      }
+    }
+  ]
+}
