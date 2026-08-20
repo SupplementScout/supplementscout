@@ -52,8 +52,8 @@ acquisition gap yet.
 The owner changed the binding execution order on 20 August 2026. The fastest
 defensible response is now:
 
-1. normalize brand identity through SEO-11, then ship individually gated,
-   useful brand and retailer pages through SEO-14;
+1. with SEO-11 brand normalization complete, ship individually gated, useful
+   brand and retailer pages through SEO-14;
 2. return to SEO-13 for the bounded Protein Bars classification, exact-pack and
    coverage-gate recheck without repeating completed pages;
 3. increase exact multi-retailer overlap from 169 products to 250, because weak
@@ -660,8 +660,8 @@ The task order below replaces the older immediate-action list in this document.
 The Operating Plan and SEO Execution Plan hold the authoritative statuses and
 completion evidence.
 
-1. Complete `SEO-11` brand normalization, then `SEO-14` eligible brand and
-   retailer landing pages behind identity, usefulness and coverage gates.
+1. Complete `SEO-14` eligible brand and retailer landing pages behind identity,
+   usefulness and coverage gates; `SEO-11` normalization is complete.
 2. Resume `SEO-13` for the bounded Protein Bars classification, exact-pack and
    coverage-gate recheck; do not repeat completed pages or weaken the gate.
 3. Increase canonical products with at least two active retailers from the

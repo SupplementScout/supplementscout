@@ -238,8 +238,8 @@ This is the binding growth sequence. The owner reordered it on 20 August 2026;
 that decision supersedes older immediate-task and competitive-response ordering
 where they conflict:
 
-1. complete `SEO-11` brand normalization, then `SEO-14` useful brand and
-   retailer landing pages behind identity, content and coverage gates;
+1. complete `SEO-14` useful brand and retailer landing pages behind identity,
+   content and coverage gates; `SEO-11` normalization is complete;
 2. return to `SEO-13` for a fresh Protein Bars classification, pack-identity
    and coverage-gate review; publish only if the unchanged quality gate passes;
 3. increase products with at least two active retailers from the 20 August
@@ -813,8 +813,8 @@ least three and three with four retailers. The next commercial checkpoint is
 
 The owner's immediate order is documentation reconciliation, `SEO-11`,
 `SEO-14`, a fresh `SEO-13` Protein Bars recheck, the 250-product coverage
-checkpoint, then `SEO-15`, `SEO-16` and `SEO-17`. `SEO-11` is the single active
-SEO implementation. `SEO-13` retains all completed and deferred evidence but is
+checkpoint, then `SEO-15`, `SEO-16` and `SEO-17`. `SEO-11` is `LIVE VERIFIED`
+and `SEO-14` is the single active SEO implementation. `SEO-13` retains all completed and deferred evidence but is
 paused; its gate must not be weakened and its completed pages must not be
 rebuilt.
 
@@ -1969,8 +1969,8 @@ retailer/data implementation at a time.
 
 Current priority order:
 
-1. `SEO-11` brand normalization, followed by `SEO-14` eligible brand and
-   retailer landing pages after identity, value and coverage gates.
+1. `SEO-14` eligible brand and retailer landing pages after identity, value and
+   coverage gates; `SEO-11` brand normalization is complete.
 2. Resume `SEO-13` for the bounded Protein Bars recheck without repeating its
    completed pages or weakening its gate.
 3. Multi-retailer coverage from the current 169 products to 250.
@@ -2404,21 +2404,16 @@ Target experience:
 
 ### Current active task
 
-`SEO-11` is the single active implementation. Audit and normalize brand
-identities through the existing canonical catalogue, starting with the known
-`PER4M` / `Per4m` split and `Unknown` values. Every proposed alias or correction
-requires evidence; uncertain brands and products remain unchanged for owner
-review. Do not create a second brand system or publish brand pages during the
-normalization task.
+`SEO-14` is the single active implementation. Launch only useful, individually
+gated brand and retailer pages through the existing catalogue and page-quality
+mechanisms. Applied Nutrition is the first evidence-backed brand candidate;
+fresh coverage and content evidence must pass before it becomes indexable.
 
 ### Next task
 
-Complete `SEO-11`, then make `SEO-14` the single active implementation. Launch
-only useful, individually gated brand and retailer pages through existing page
-and catalogue mechanisms. Applied Nutrition and GYM HIGH are the first evidence-
-backed brand candidates, subject to the page-quality contract and fresh counts.
-Preserve titles and H1s on pages already receiving impressions or clicks unless
-query evidence justifies a focused change.
+Complete `SEO-14`, then resume `SEO-13` with the bounded Protein Bars
+classification, exact-pack and unchanged coverage-gate review. Do not repeat
+completed SEO-13 pages or weaken its gate.
 
 ### Then
 
