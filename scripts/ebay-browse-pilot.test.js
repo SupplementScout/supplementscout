@@ -15,6 +15,7 @@ const { CONFIRMATION: BATCH_I_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_I_IDENTIT
 const { CONFIRMATION: BATCH_J_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_J_IDENTITIES, parseArgs: parseBatchJArgs, validateLiveSources: validateBatchJLiveSources, validateRollout: validateBatchJRollout } = require("./ebay-offer-batch-j-executor");
 const { CONFIRMATION: BATCH_K_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_K_IDENTITIES, parseArgs: parseBatchKArgs, validateLiveSources: validateBatchKLiveSources, validateRollout: validateBatchKRollout } = require("./ebay-offer-batch-k-executor");
 const { EXPECTED_IDENTITIES: BATCH_K_RECOVERY_IDENTITIES, parseArgs: parseBatchKRecoveryArgs, validateRollout: validateBatchKRecoveryRollout } = require("./ebay-offer-batch-k-recovery-executor");
+const { CONFIRMATION: BATCH_L_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_L_IDENTITIES, parseArgs: parseBatchLArgs, validateLiveSources: validateBatchLLiveSources, validateRollout: validateBatchLRollout } = require("./ebay-offer-batch-l-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -983,6 +984,55 @@ test("Batch K recovery workflow is manual, exact-confirmation guarded and twenty
   assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_K_EXACT_20/);
   assert.match(workflow, /--mode=preflight/);
   assert.match(workflow, /remaining nine/);
+  assert.match(workflow, /plans\.length!==20/);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
+  assert.doesNotMatch(workflow, /schedule:|\bpush:/);
+});
+
+test("Batch L owner review and rollout seal exactly the corrected twenty", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-l-review.json"), "utf8"));
+  const validated = validateBatchLRollout();
+  assert.equal(BATCH_L_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_L_EXACT_20");
+  assert.equal(review.owner_approval.confirmation, "Zatwierdzam poprawiony Batch L — dokładnie te 20, wraz z przygotowaniem i produkcyjnym apply");
+  assert.equal(review.owner_approval.approved_count, 20);
+  assert.equal(review.dry_run.plan_count, 20);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(review.dry_run.database_writes, 0);
+  assert.equal(review.identity_summary.exact_gtin_rows, 18);
+  assert.equal(review.identity_summary.exact_item_missing_gtin_exceptions, 2);
+  assert.equal(validated.entries.length, 20);
+  assert.equal(BATCH_L_IDENTITIES.length, 20);
+  assert.equal(new Set(BATCH_L_IDENTITIES).size, 20);
+  assert.equal(parseBatchLArgs(["--mode=preflight", "--output=tmp/batch-l-preflight.json"]).mode, "preflight");
+  assert.throws(() => parseBatchLArgs(["--mode=execute", "--output=tmp/batch-l.json"]), /preflight\|validate\|apply/);
+});
+
+test("Batch L live preflight rechecks all twenty and preserves the narrow seller threshold", async () => {
+  resetTokenCache();
+  const { entries } = validateBatchLRollout();
+  const fixtures = entries.map(({ approved }) => item({
+    itemId: approved.external_variant_id,
+    legacyItemId: approved.legacy_item_id,
+    title: approved.live_title,
+    gtin: approved.gtin,
+    price: { value: approved.price, currency: "GBP" },
+    shippingOptions: [{ shippingCost: { value: approved.shipping_cost, currency: "GBP" } }],
+    seller: { username: approved.seller, sellerAccountType: "BUSINESS", sellerLegalInfo: { name: approved.seller_legal_name }, feedbackPercentage: approved.minimum_feedback_percentage, feedbackScore: 5000 },
+    itemAffiliateWebUrl: `https://www.ebay.co.uk/itm/${approved.legacy_item_id}?campid=123`,
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK" }],
+  }));
+  const config = { EBAY_CLIENT_ID: "id", EBAY_CLIENT_SECRET: "secret", EBAY_UK_DELIVERY_POSTCODE: "SW1A 1AA", EBAY_EPN_CAMPAIGN_ID: "123" };
+  const fetchImpl = async (url) => String(url).includes("oauth2/token")
+    ? { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) }
+    : { ok: true, status: 200, json: async () => fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId))) };
+  assert.equal((await validateBatchLLiveSources(fetchImpl, config)).length, 20);
+  resetTokenCache();
+});
+
+test("Batch L workflow is manual, exact-confirmation guarded and verifies twenty no-ops", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-batch-l.yml"), "utf8");
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_L_EXACT_20/);
+  assert.match(workflow, /--mode=preflight/);
   assert.match(workflow, /plans\.length!==20/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
   assert.doesNotMatch(workflow, /schedule:|\bpush:/);
