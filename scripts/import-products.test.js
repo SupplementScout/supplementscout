@@ -20,6 +20,7 @@ const {
   getOfferUrl,
   getRetailerProductUrl,
   isAmbiguousFeedRow,
+  isExactEbayCrossProductParentVariant,
   isProductGtinVerified,
   loadDryRunArtifact,
   parseArgs,
@@ -92,6 +93,32 @@ test("canonical evidence accepts numeric size with a separate size unit", () => 
 
   assert.deepEqual(evidence.size, { value: "480", unit: "g", dimension: "mass" });
   assert.equal(evidence.flavour, "blueberry");
+});
+
+test("exact eBay variants may share a listing parent across canonical product pages only with closed identity evidence", () => {
+  const input = {
+    retailer: { slug: "ebay-uk" },
+    externalProductId: "323304007010",
+    externalVariantId: "v1|323304007010|512368831135",
+    row: {
+      product_id: "14",
+      product_variant_id: "1725",
+      external_url: "https://www.ebay.co.uk/itm/323304007010?var=512368831135",
+      external_options: JSON.stringify({ Size: "908g", Flavour: "Banana" }),
+    },
+    parentPeers: [{
+      external_product_id: "323304007010",
+      external_variant_id: "v1|323304007010|515705810394",
+      external_url: "https://www.ebay.co.uk/itm/323304007010?var=515705810394",
+    }],
+  };
+  assert.equal(isExactEbayCrossProductParentVariant(input), true);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...input, retailer: { slug: "other" } }), false);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...input, externalProductId: "wrong" }), false);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...input, externalVariantId: "v1|323304007010|0" }), false);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...input, row: { ...input.row, external_options: "{}" } }), false);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...input, row: { ...input.row, external_url: "https://evil.example/itm/323304007010?var=512368831135" } }), false);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...input, row: { ...input.row, product_id: "999" } }), false);
 });
 
 async function runImportRows(rows, options = {}) {

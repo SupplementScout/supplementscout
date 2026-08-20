@@ -14,6 +14,7 @@ const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: valid
 const { CONFIRMATION: BATCH_I_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_I_IDENTITIES, parseArgs: parseBatchIArgs, validateRollout: validateBatchIRollout } = require("./ebay-offer-batch-i-executor");
 const { CONFIRMATION: BATCH_J_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_J_IDENTITIES, parseArgs: parseBatchJArgs, validateLiveSources: validateBatchJLiveSources, validateRollout: validateBatchJRollout } = require("./ebay-offer-batch-j-executor");
 const { CONFIRMATION: BATCH_K_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_K_IDENTITIES, parseArgs: parseBatchKArgs, validateLiveSources: validateBatchKLiveSources, validateRollout: validateBatchKRollout } = require("./ebay-offer-batch-k-executor");
+const { EXPECTED_IDENTITIES: BATCH_K_RECOVERY_IDENTITIES, parseArgs: parseBatchKRecoveryArgs, validateRollout: validateBatchKRecoveryRollout } = require("./ebay-offer-batch-k-recovery-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -902,4 +903,25 @@ test("Batch K workflow requires exact production confirmation and twenty-row pos
   assert.match(workflow, /plans\.length!==20/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
   assert.doesNotMatch(workflow, /schedule:/);
+});
+
+test("Batch K recovery is bound to eleven existing offers and exactly nine creates", () => {
+  const validated = validateBatchKRecoveryRollout();
+  assert.equal(validated.noops.length, 11);
+  assert.equal(validated.entries.length, 9);
+  assert.equal(BATCH_K_RECOVERY_IDENTITIES.length, 9);
+  assert.deepEqual(validated.entries.map(({ approved }) => `${approved.product_id}:${approved.product_variant_id}:${approved.external_variant_id}`), BATCH_K_RECOVERY_IDENTITIES);
+  assert.ok(validated.entries.every(({ approved }) => approved.external_product_id));
+  assert.equal(parseBatchKRecoveryArgs(["--mode=apply", "--output=tmp/batch-k-recovery.json"]).mode, "apply");
+  assert.throws(() => parseBatchKRecoveryArgs(["--mode=execute", "--output=tmp/batch-k-recovery.json"]), /validate\|apply/);
+});
+
+test("Batch K recovery workflow is manual, exact-confirmation guarded and twenty-row idempotent", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-batch-k-recovery.yml"), "utf8");
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_K_EXACT_20/);
+  assert.match(workflow, /--mode=preflight/);
+  assert.match(workflow, /remaining nine/);
+  assert.match(workflow, /plans\.length!==20/);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
+  assert.doesNotMatch(workflow, /schedule:|\bpush:/);
 });

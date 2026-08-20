@@ -1,0 +1,3260 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-20T09:23:45.266Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "af38cfdc875fb3988504a60cdfae27bc",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2599",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:17.263+00:00",
+            "price": "19.99",
+            "product_id": "71",
+            "product_variant_id": "1625",
+            "retailer_id": "12",
+            "retailer_product_id": "2784",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/394018039646?var=662564730389&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "71",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Vegan Protein 500g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Banana / 500g",
+            "flavour_code": "banana",
+            "flavour_label": "Banana",
+            "id": "1625",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "71",
+            "size_unit": "g",
+            "size_value": "500",
+            "variant_key": "banana-500g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "5999076234813",
+            "external_name": "BioTech USA Vegan Protein 500g",
+            "external_options": {
+              "Flavour": "Banana",
+              "Size": "500g"
+            },
+            "external_product_id": "394018039646",
+            "external_sku": null,
+            "external_slug": "biotech-usa-vegan-protein-500g",
+            "external_url": "https://www.ebay.co.uk/itm/394018039646?var=662564730389",
+            "external_variant_id": "v1|394018039646|662564730389",
+            "id": "2784",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "71",
+            "product_variant_id": "1625",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:03:39.923225+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "af38cfdc875fb3988504a60cdfae27bc",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "3e3d58b17d26588c29c55867af8cead5e43cd593f1e317679d6034c0694ca103",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2599",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:35.767Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/394018039646?var=662564730389&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "71"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2784",
+            "external_options": {
+              "Flavour": "Banana",
+              "Size": "500g"
+            },
+            "flavour": "banana",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "500"
+          },
+          "id": "1625"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2784",
+          "values": {
+            "external_gtin": "5999076234813",
+            "external_name": "BioTech USA Vegan Protein 500g",
+            "external_options": {
+              "Flavour": "Banana",
+              "Size": "500g"
+            },
+            "external_product_id": "394018039646",
+            "external_sku": null,
+            "external_slug": "biotech-usa-vegan-protein-500g",
+            "external_url": "https://www.ebay.co.uk/itm/394018039646?var=662564730389",
+            "external_variant_id": "v1|394018039646|662564730389",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1625"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "3e3d58b17d26588c29c55867af8cead5e43cd593f1e317679d6034c0694ca103"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "0eb36c6490b78ca5d0f37180f5b606a5",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2600",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:17.787+00:00",
+            "price": "21.95",
+            "product_id": "19",
+            "product_variant_id": "769",
+            "retailer_id": "12",
+            "retailer_product_id": "2785",
+            "shipping_cost": "3.95",
+            "total_price": "25.9",
+            "url": "https://www.ebay.co.uk/itm/256978504929?var=557601659147&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "19",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Dorian Yates Blood & Guts Pre Workout 380g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Strawberry / 380g",
+            "flavour_code": "strawberry",
+            "flavour_label": "Strawberry",
+            "id": "769",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "19",
+            "size_unit": "g",
+            "size_value": "380",
+            "variant_key": "strawberry-380g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "5060763890428",
+            "external_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+            "external_options": {
+              "Flavour": "Strawberry",
+              "Size": "380g"
+            },
+            "external_product_id": "256978504929",
+            "external_sku": null,
+            "external_slug": "dorian-yates-blood--guts-pre-workout-380g",
+            "external_url": "https://www.ebay.co.uk/itm/256978504929?var=557601659147",
+            "external_variant_id": "v1|256978504929|557601659147",
+            "id": "2785",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "19",
+            "product_variant_id": "769",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:03:43.450963+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "0eb36c6490b78ca5d0f37180f5b606a5",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "1d4f3c408dbdefead6d76b04505ce1d9836d4b15d56c4498509a24af1e70e297",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2600",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:36.294Z",
+            "price": "21.95",
+            "shipping_cost": "3.95",
+            "total_price": "25.9",
+            "url": "https://www.ebay.co.uk/itm/256978504929?var=557601659147&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "19"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2785",
+            "external_options": {
+              "Flavour": "Strawberry",
+              "Size": "380g"
+            },
+            "flavour": "strawberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "380"
+          },
+          "id": "769"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2785",
+          "values": {
+            "external_gtin": "5060763890428",
+            "external_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+            "external_options": {
+              "Flavour": "Strawberry",
+              "Size": "380g"
+            },
+            "external_product_id": "256978504929",
+            "external_sku": null,
+            "external_slug": "dorian-yates-blood--guts-pre-workout-380g",
+            "external_url": "https://www.ebay.co.uk/itm/256978504929?var=557601659147",
+            "external_variant_id": "v1|256978504929|557601659147",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "769"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "1d4f3c408dbdefead6d76b04505ce1d9836d4b15d56c4498509a24af1e70e297"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "329c431d0c231e3f82e1ca28f2a79941",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2601",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:18.516+00:00",
+            "price": "18.1",
+            "product_id": "528",
+            "product_variant_id": "1848",
+            "retailer_id": "12",
+            "retailer_product_id": "2786",
+            "shipping_cost": "0",
+            "total_price": "18.1",
+            "url": "https://www.ebay.co.uk/itm/145921318153?var=444963406170&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "528",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Nutrend  Pump Pre-Workout",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Bubble Gum / 225g",
+            "flavour_code": "bubble gum",
+            "flavour_label": "Bubble Gum",
+            "id": "1848",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "528",
+            "size_unit": "g",
+            "size_value": "225",
+            "variant_key": "bubble-gum-225g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "8594073170453",
+            "external_name": "Nutrend  Pump Pre-Workout",
+            "external_options": {
+              "Flavour": "Bubble Gum",
+              "Size": "225g"
+            },
+            "external_product_id": "145921318153",
+            "external_sku": null,
+            "external_slug": "nutrend--pump-pre-workout",
+            "external_url": "https://www.ebay.co.uk/itm/145921318153?var=444963406170",
+            "external_variant_id": "v1|145921318153|444963406170",
+            "id": "2786",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "528",
+            "product_variant_id": "1848",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:03:46.823654+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "329c431d0c231e3f82e1ca28f2a79941",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "a0872fd5e1a5c5390f57524f7f68071f49713acdcd01dde479683f5c61c99a23",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2601",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:36.717Z",
+            "price": "18.1",
+            "shipping_cost": "0",
+            "total_price": "18.1",
+            "url": "https://www.ebay.co.uk/itm/145921318153?var=444963406170&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "528"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2786",
+            "external_options": {
+              "Flavour": "Bubble Gum",
+              "Size": "225g"
+            },
+            "flavour": "bubble gum",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "225"
+          },
+          "id": "1848"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2786",
+          "values": {
+            "external_gtin": "8594073170453",
+            "external_name": "Nutrend  Pump Pre-Workout",
+            "external_options": {
+              "Flavour": "Bubble Gum",
+              "Size": "225g"
+            },
+            "external_product_id": "145921318153",
+            "external_sku": null,
+            "external_slug": "nutrend--pump-pre-workout",
+            "external_url": "https://www.ebay.co.uk/itm/145921318153?var=444963406170",
+            "external_variant_id": "v1|145921318153|444963406170",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1848"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "a0872fd5e1a5c5390f57524f7f68071f49713acdcd01dde479683f5c61c99a23"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "e429597f2da43436ea481f5a719518e0",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2602",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:19.006+00:00",
+            "price": "23.95",
+            "product_id": "36",
+            "product_variant_id": "1595",
+            "retailer_id": "12",
+            "retailer_product_id": "2787",
+            "shipping_cost": "0",
+            "total_price": "23.95",
+            "url": "https://www.ebay.co.uk/itm/143513790155?var=445757979940&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "36",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Amino Fuel EAA 390g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Millions Pineapple / 390g",
+            "flavour_code": "millions pineapple",
+            "flavour_label": "Millions Pineapple",
+            "id": "1595",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "36",
+            "size_unit": "g",
+            "size_value": "390",
+            "variant_key": "millions-pineapple-390g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "5056555210772",
+            "external_name": "Applied Nutrition Amino Fuel EAA 390g",
+            "external_options": {
+              "Flavour": "Millions Pineapple",
+              "Size": "390g"
+            },
+            "external_product_id": "143513790155",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-amino-fuel-eaa-390g",
+            "external_url": "https://www.ebay.co.uk/itm/143513790155?var=445757979940",
+            "external_variant_id": "v1|143513790155|445757979940",
+            "id": "2787",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "36",
+            "product_variant_id": "1595",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:03:50.205526+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "e429597f2da43436ea481f5a719518e0",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "fe7daf3fb59697e3625a993599e2bab133b1f09ce4f34360c82a8ecd769c82a2",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2602",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:37.184Z",
+            "price": "23.95",
+            "shipping_cost": "0",
+            "total_price": "23.95",
+            "url": "https://www.ebay.co.uk/itm/143513790155?var=445757979940&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "36"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2787",
+            "external_options": {
+              "Flavour": "Millions Pineapple",
+              "Size": "390g"
+            },
+            "flavour": "millions pineapple",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "390"
+          },
+          "id": "1595"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2787",
+          "values": {
+            "external_gtin": "5056555210772",
+            "external_name": "Applied Nutrition Amino Fuel EAA 390g",
+            "external_options": {
+              "Flavour": "Millions Pineapple",
+              "Size": "390g"
+            },
+            "external_product_id": "143513790155",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-amino-fuel-eaa-390g",
+            "external_url": "https://www.ebay.co.uk/itm/143513790155?var=445757979940",
+            "external_variant_id": "v1|143513790155|445757979940",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1595"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "fe7daf3fb59697e3625a993599e2bab133b1f09ce4f34360c82a8ecd769c82a2"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "370e0592d0275ab7de76e1e43813bcbf",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2603",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:19.468+00:00",
+            "price": "26.8",
+            "product_id": "93",
+            "product_variant_id": "1642",
+            "retailer_id": "12",
+            "retailer_product_id": "2788",
+            "shipping_cost": "0",
+            "total_price": "26.8",
+            "url": "https://www.ebay.co.uk/itm/177952936229?var=477482944161&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "93",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Watermelon Candy / 150g",
+            "flavour_code": "watermelon candy",
+            "flavour_label": "Watermelon Candy",
+            "id": "1642",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "93",
+            "size_unit": "g",
+            "size_value": "150",
+            "variant_key": "watermelon-candy-150g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "799439599079",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Watermelon Candy",
+              "Size": "150g"
+            },
+            "external_product_id": "177952936229",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/177952936229?var=477482944161",
+            "external_variant_id": "v1|177952936229|477482944161",
+            "id": "2788",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "93",
+            "product_variant_id": "1642",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:03:53.585469+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "370e0592d0275ab7de76e1e43813bcbf",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "bb403dd0802dabb40191b71d277fe378245275cc67d3290a206ec4aba525f93f",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2603",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:37.637Z",
+            "price": "26.8",
+            "shipping_cost": "0",
+            "total_price": "26.8",
+            "url": "https://www.ebay.co.uk/itm/177952936229?var=477482944161&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "93"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2788",
+            "external_options": {
+              "Flavour": "Watermelon Candy",
+              "Size": "150g"
+            },
+            "flavour": "watermelon candy",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "150"
+          },
+          "id": "1642"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2788",
+          "values": {
+            "external_gtin": "799439599079",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Watermelon Candy",
+              "Size": "150g"
+            },
+            "external_product_id": "177952936229",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/177952936229?var=477482944161",
+            "external_variant_id": "v1|177952936229|477482944161",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1642"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "bb403dd0802dabb40191b71d277fe378245275cc67d3290a206ec4aba525f93f"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "8284e9f7cca2104dcfd223ed85c7ae6a",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2604",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:19.977+00:00",
+            "price": "36.99",
+            "product_id": "220",
+            "product_variant_id": "1810",
+            "retailer_id": "12",
+            "retailer_product_id": "2789",
+            "shipping_cost": "0",
+            "total_price": "36.99",
+            "url": "https://www.ebay.co.uk/itm/404774853352?var=674791941889&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "220",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "HR Labs Basic 510g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Peach Ice-T O.G. / 510g",
+            "flavour_code": "peach ice t o g",
+            "flavour_label": "Peach Ice-T O.G.",
+            "id": "1810",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "220",
+            "size_unit": "g",
+            "size_value": "510",
+            "variant_key": "peach-ice-t-o-g-510g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "5060662330155",
+            "external_name": "HR Labs Basic 510g",
+            "external_options": {
+              "Flavour": "Peach Ice-T O.G.",
+              "Size": "510g"
+            },
+            "external_product_id": "404774853352",
+            "external_sku": null,
+            "external_slug": "hr-labs-basic-510g",
+            "external_url": "https://www.ebay.co.uk/itm/404774853352?var=674791941889",
+            "external_variant_id": "v1|404774853352|674791941889",
+            "id": "2789",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "220",
+            "product_variant_id": "1810",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:03:56.973144+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "8284e9f7cca2104dcfd223ed85c7ae6a",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "1653cfd7d19e3123e581f6c9ebe1ba7dace520d76ae8dcd99891e616ca06bcf6",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2604",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:38.093Z",
+            "price": "36.99",
+            "shipping_cost": "0",
+            "total_price": "36.99",
+            "url": "https://www.ebay.co.uk/itm/404774853352?var=674791941889&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "220"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2789",
+            "external_options": {
+              "Flavour": "Peach Ice-T O.G.",
+              "Size": "510g"
+            },
+            "flavour": "peach ice t o g",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "510"
+          },
+          "id": "1810"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2789",
+          "values": {
+            "external_gtin": "5060662330155",
+            "external_name": "HR Labs Basic 510g",
+            "external_options": {
+              "Flavour": "Peach Ice-T O.G.",
+              "Size": "510g"
+            },
+            "external_product_id": "404774853352",
+            "external_sku": null,
+            "external_slug": "hr-labs-basic-510g",
+            "external_url": "https://www.ebay.co.uk/itm/404774853352?var=674791941889",
+            "external_variant_id": "v1|404774853352|674791941889",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1810"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "1653cfd7d19e3123e581f6c9ebe1ba7dace520d76ae8dcd99891e616ca06bcf6"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "0e6ed8154e4f31f4b493f0e1c6274978",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2605",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:20.454+00:00",
+            "price": "25.99",
+            "product_id": "788",
+            "product_variant_id": "1073",
+            "retailer_id": "12",
+            "retailer_product_id": "2790",
+            "shipping_cost": "0",
+            "total_price": "25.99",
+            "url": "https://www.ebay.co.uk/itm/326796105372?var=516023060149&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "788",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m EAA Xtra 420g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Blackberry / 420g",
+            "flavour_code": "blackberry",
+            "flavour_label": "Blackberry",
+            "id": "1073",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "788",
+            "size_unit": "g",
+            "size_value": "420",
+            "variant_key": "blackberry-420g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "5061097261892",
+            "external_name": "Per4m EAA Xtra 420g",
+            "external_options": {
+              "Flavour": "Blackberry",
+              "Size": "420g"
+            },
+            "external_product_id": "326796105372",
+            "external_sku": null,
+            "external_slug": "per4m-eaa-xtra-420g",
+            "external_url": "https://www.ebay.co.uk/itm/326796105372?var=516023060149",
+            "external_variant_id": "v1|326796105372|516023060149",
+            "id": "2790",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "788",
+            "product_variant_id": "1073",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:04:00.320254+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "0e6ed8154e4f31f4b493f0e1c6274978",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e6ad52c869b1cb9a0442999e29ad5debef3dca3800bcd0ecb8e99e63cff476c3",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2605",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:38.517Z",
+            "price": "25.99",
+            "shipping_cost": "0",
+            "total_price": "25.99",
+            "url": "https://www.ebay.co.uk/itm/326796105372?var=516023060149&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "788"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2790",
+            "external_options": {
+              "Flavour": "Blackberry",
+              "Size": "420g"
+            },
+            "flavour": "blackberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "420"
+          },
+          "id": "1073"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2790",
+          "values": {
+            "external_gtin": "5061097261892",
+            "external_name": "Per4m EAA Xtra 420g",
+            "external_options": {
+              "Flavour": "Blackberry",
+              "Size": "420g"
+            },
+            "external_product_id": "326796105372",
+            "external_sku": null,
+            "external_slug": "per4m-eaa-xtra-420g",
+            "external_url": "https://www.ebay.co.uk/itm/326796105372?var=516023060149",
+            "external_variant_id": "v1|326796105372|516023060149",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1073"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "e6ad52c869b1cb9a0442999e29ad5debef3dca3800bcd0ecb8e99e63cff476c3"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "269a235bc18a205304dc62d89c915768",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2606",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:20.971+00:00",
+            "price": "33.99",
+            "product_id": "112",
+            "product_variant_id": "1012",
+            "retailer_id": "12",
+            "retailer_product_id": "2791",
+            "shipping_cost": "5.49",
+            "total_price": "39.48",
+            "url": "https://www.ebay.co.uk/itm/267459060041?var=567236756567&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "112",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "5% Nutrition Rich Piana  All Day You May 465g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Blue Raspberry / 465g",
+            "flavour_code": "blue raspberry",
+            "flavour_label": "Blue Raspberry",
+            "id": "1012",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "112",
+            "size_unit": "g",
+            "size_value": "465",
+            "variant_key": "blue-raspberry-465g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "850006755561",
+            "external_name": "5% Nutrition Rich Piana  All Day You May 465g",
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "465g"
+            },
+            "external_product_id": "267459060041",
+            "external_sku": null,
+            "external_slug": "5-nutrition-rich-piana--all-day-you-may-465g",
+            "external_url": "https://www.ebay.co.uk/itm/267459060041?var=567236756567",
+            "external_variant_id": "v1|267459060041|567236756567",
+            "id": "2791",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "112",
+            "product_variant_id": "1012",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:04:04.052924+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "269a235bc18a205304dc62d89c915768",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "cd09243920c6ea26925188f79e076ef989cca59e51fb71aa575a4d676f4bcd51",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2606",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:38.930Z",
+            "price": "33.99",
+            "shipping_cost": "5.49",
+            "total_price": "39.48",
+            "url": "https://www.ebay.co.uk/itm/267459060041?var=567236756567&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "112"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2791",
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "465g"
+            },
+            "flavour": "blue raspberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "465"
+          },
+          "id": "1012"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2791",
+          "values": {
+            "external_gtin": "850006755561",
+            "external_name": "5% Nutrition Rich Piana  All Day You May 465g",
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "465g"
+            },
+            "external_product_id": "267459060041",
+            "external_sku": null,
+            "external_slug": "5-nutrition-rich-piana--all-day-you-may-465g",
+            "external_url": "https://www.ebay.co.uk/itm/267459060041?var=567236756567",
+            "external_variant_id": "v1|267459060041|567236756567",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1012"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "cd09243920c6ea26925188f79e076ef989cca59e51fb71aa575a4d676f4bcd51"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "ddb5e3b0ebb664204eba4bc5c3423d2b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2607",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:21.424+00:00",
+            "price": "26.16",
+            "product_id": "166",
+            "product_variant_id": "1759",
+            "retailer_id": "12",
+            "retailer_product_id": "2792",
+            "shipping_cost": "3.99",
+            "total_price": "30.15",
+            "url": "https://www.ebay.co.uk/itm/227482554146?var=526660766785&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "166",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Clif Bar Energy Bar 12x68g",
+            "product_format": "snack"
+          },
+          "product_variant": {
+            "display_name": "Chocolate Chip / 68g",
+            "flavour_code": "chocolate chip",
+            "flavour_label": "Chocolate Chip",
+            "id": "1759",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "12",
+            "product_format": "snack",
+            "product_id": "166",
+            "size_unit": "g",
+            "size_value": "68",
+            "variant_key": "chocolate-chip-68g-12-pack"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "722252387486",
+            "external_name": "Clif Bar Energy Bar 12x68g",
+            "external_options": {
+              "Flavour": "Chocolate Chip",
+              "Size": "68g"
+            },
+            "external_product_id": "227482554146",
+            "external_sku": null,
+            "external_slug": "clif-bar-energy-bar-12x68g",
+            "external_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766785",
+            "external_variant_id": "v1|227482554146|526660766785",
+            "id": "2792",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "166",
+            "product_variant_id": "1759",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:04:07.442748+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "ddb5e3b0ebb664204eba4bc5c3423d2b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "fc0c0bb28c87fa00b8eae9eec797afdd3ffa3c1e078ab15672813ae53da8dc12",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2607",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:39.391Z",
+            "price": "26.16",
+            "shipping_cost": "3.99",
+            "total_price": "30.15",
+            "url": "https://www.ebay.co.uk/itm/227482554146?var=526660766785&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "166"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2792",
+            "external_options": {
+              "Flavour": "Chocolate Chip",
+              "Size": "68g"
+            },
+            "flavour": "chocolate chip",
+            "pack_count": "12",
+            "product_format": "snack",
+            "size_unit": "g",
+            "size_value": "68"
+          },
+          "id": "1759"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2792",
+          "values": {
+            "external_gtin": "722252387486",
+            "external_name": "Clif Bar Energy Bar 12x68g",
+            "external_options": {
+              "Flavour": "Chocolate Chip",
+              "Size": "68g"
+            },
+            "external_product_id": "227482554146",
+            "external_sku": null,
+            "external_slug": "clif-bar-energy-bar-12x68g",
+            "external_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766785",
+            "external_variant_id": "v1|227482554146|526660766785",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1759"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "10",
+      "source_row_fingerprint": "fc0c0bb28c87fa00b8eae9eec797afdd3ffa3c1e078ab15672813ae53da8dc12"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "218bfc1a94bf27370704020ceab0b631",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2608",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:21.922+00:00",
+            "price": "26.16",
+            "product_id": "166",
+            "product_variant_id": "1761",
+            "retailer_id": "12",
+            "retailer_product_id": "2793",
+            "shipping_cost": "3.99",
+            "total_price": "30.15",
+            "url": "https://www.ebay.co.uk/itm/227482554146?var=526660766784&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "166",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Clif Bar Energy Bar 12x68g",
+            "product_format": "snack"
+          },
+          "product_variant": {
+            "display_name": "White Chocolate Macadamia / 68g",
+            "flavour_code": "white chocolate macadamia",
+            "flavour_label": "White Chocolate Macadamia",
+            "id": "1761",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "12",
+            "product_format": "snack",
+            "product_id": "166",
+            "size_unit": "g",
+            "size_value": "68",
+            "variant_key": "white-chocolate-macadamia-68g-12-pack"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "722252387585",
+            "external_name": "Clif Bar Energy Bar 12x68g",
+            "external_options": {
+              "Flavour": "White Chocolate Macadamia",
+              "Size": "68g"
+            },
+            "external_product_id": "227482554146",
+            "external_sku": null,
+            "external_slug": "clif-bar-energy-bar-12x68g",
+            "external_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766784",
+            "external_variant_id": "v1|227482554146|526660766784",
+            "id": "2793",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "166",
+            "product_variant_id": "1761",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:04:10.841629+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "218bfc1a94bf27370704020ceab0b631",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e2842476d8e00b3e10aba489045634bd2e7aa271c8e304925ffec30256014bdc",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2608",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:39.800Z",
+            "price": "26.16",
+            "shipping_cost": "3.99",
+            "total_price": "30.15",
+            "url": "https://www.ebay.co.uk/itm/227482554146?var=526660766784&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "166"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2793",
+            "external_options": {
+              "Flavour": "White Chocolate Macadamia",
+              "Size": "68g"
+            },
+            "flavour": "white chocolate macadamia",
+            "pack_count": "12",
+            "product_format": "snack",
+            "size_unit": "g",
+            "size_value": "68"
+          },
+          "id": "1761"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2793",
+          "values": {
+            "external_gtin": "722252387585",
+            "external_name": "Clif Bar Energy Bar 12x68g",
+            "external_options": {
+              "Flavour": "White Chocolate Macadamia",
+              "Size": "68g"
+            },
+            "external_product_id": "227482554146",
+            "external_sku": null,
+            "external_slug": "clif-bar-energy-bar-12x68g",
+            "external_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766784",
+            "external_variant_id": "v1|227482554146|526660766784",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1761"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "11",
+      "source_row_fingerprint": "e2842476d8e00b3e10aba489045634bd2e7aa271c8e304925ffec30256014bdc"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "bb8e003f7dd870288bfe7eb7226a49d0",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": {
+            "id": "2609",
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T08:48:22.417+00:00",
+            "price": "12.29",
+            "product_id": "324",
+            "product_variant_id": "1060",
+            "retailer_id": "12",
+            "retailer_product_id": "2794",
+            "shipping_cost": "5.49",
+            "total_price": "17.78",
+            "url": "https://www.ebay.co.uk/itm/267460401796?var=567238268029&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          },
+          "product": {
+            "id": "324",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Muscle Moose Protein Pancakes Mix 500g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Golden Syrup / 500g",
+            "flavour_code": "golden syrup",
+            "flavour_label": "Golden Syrup",
+            "id": "1060",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "324",
+            "size_unit": "g",
+            "size_value": "500",
+            "variant_key": "golden-syrup-500g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": {
+            "external_gtin": "634158641497",
+            "external_name": "Muscle Moose Protein Pancakes Mix 500g",
+            "external_options": {
+              "Flavour": "Golden Syrup",
+              "Size": "500g"
+            },
+            "external_product_id": "267460401796",
+            "external_sku": null,
+            "external_slug": "muscle-moose-protein-pancakes-mix-500g",
+            "external_url": "https://www.ebay.co.uk/itm/267460401796?var=567238268029",
+            "external_variant_id": "v1|267460401796|567238268029",
+            "id": "2794",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_id": "324",
+            "product_variant_id": "1060",
+            "retailer_id": "12",
+            "updated_at": "2026-08-20T09:04:14.23523+00:00"
+          }
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "bb8e003f7dd870288bfe7eb7226a49d0",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "7ab5cf64d4e12d70eb53b27327bd1c54f0c96bbd231334a64e1fbf6f41eb7558",
+          "version": "2"
+        },
+        "offer": {
+          "action": "noop",
+          "id": "2609",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:40.297Z",
+            "price": "12.29",
+            "shipping_cost": "5.49",
+            "total_price": "17.78",
+            "url": "https://www.ebay.co.uk/itm/267460401796?var=567238268029&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "noop"
+        },
+        "product": {
+          "action": "existing",
+          "id": "324"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": "2794",
+            "external_options": {
+              "Flavour": "Golden Syrup",
+              "Size": "500g"
+            },
+            "flavour": "golden syrup",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "500"
+          },
+          "id": "1060"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "noop",
+          "id": "2794",
+          "values": {
+            "external_gtin": "634158641497",
+            "external_name": "Muscle Moose Protein Pancakes Mix 500g",
+            "external_options": {
+              "Flavour": "Golden Syrup",
+              "Size": "500g"
+            },
+            "external_product_id": "267460401796",
+            "external_sku": null,
+            "external_slug": "muscle-moose-protein-pancakes-mix-500g",
+            "external_url": "https://www.ebay.co.uk/itm/267460401796?var=567238268029",
+            "external_variant_id": "v1|267460401796|567238268029",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1060"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "12",
+      "source_row_fingerprint": "7ab5cf64d4e12d70eb53b27327bd1c54f0c96bbd231334a64e1fbf6f41eb7558"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "e434467ec3239365f9e6df7c75c71606",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "14",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Iso Whey Zero 908g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Banana / 908g",
+            "flavour_code": "banana",
+            "flavour_label": "Banana",
+            "id": "1725",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "14",
+            "size_unit": "g",
+            "size_value": "908",
+            "variant_key": "banana-908g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "e434467ec3239365f9e6df7c75c71606",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "72cbdececd5955cf136edd0bab2eb8adc488806a3e924ece39bec616080c10d5",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:41.074Z",
+            "price": "42.49",
+            "shipping_cost": "0",
+            "total_price": "42.49",
+            "url": "https://www.ebay.co.uk/itm/323304007010?var=512368831135&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "14"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Banana",
+              "Size": "908g"
+            },
+            "flavour": "banana",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "908"
+          },
+          "id": "1725"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "BioTech USA Iso Whey Zero 908g",
+            "external_options": {
+              "Flavour": "Banana",
+              "Size": "908g"
+            },
+            "external_product_id": "323304007010",
+            "external_sku": null,
+            "external_slug": "biotech-usa-iso-whey-zero-908g",
+            "external_url": "https://www.ebay.co.uk/itm/323304007010?var=512368831135",
+            "external_variant_id": "v1|323304007010|512368831135",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1725"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "13",
+      "source_row_fingerprint": "72cbdececd5955cf136edd0bab2eb8adc488806a3e924ece39bec616080c10d5"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "accb362a24b0cca217b0fdefd62349ca",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "77",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Boditronics Diet Whey 900g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "White Chocolate and Raspberry / 900g",
+            "flavour_code": "white chocolate and raspberry",
+            "flavour_label": "White Chocolate and Raspberry",
+            "id": "1630",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "77",
+            "size_unit": "g",
+            "size_value": "900",
+            "variant_key": "white-chocolate-and-raspberry-900g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "accb362a24b0cca217b0fdefd62349ca",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "810f3bba6a97ce1b0bcdd5d352f46800fac2ec5202ea78f7f02fd957acbe9843",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:41.578Z",
+            "price": "26.29",
+            "shipping_cost": "0",
+            "total_price": "26.29",
+            "url": "https://www.ebay.co.uk/itm/354815561341?var=624134728917&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "77"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "White Chocolate and Raspberry",
+              "Size": "900g"
+            },
+            "flavour": "white chocolate and raspberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "900"
+          },
+          "id": "1630"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Boditronics Diet Whey 900g",
+            "external_options": {
+              "Flavour": "White Chocolate and Raspberry",
+              "Size": "900g"
+            },
+            "external_product_id": "354815561341",
+            "external_sku": null,
+            "external_slug": "boditronics-diet-whey-900g",
+            "external_url": "https://www.ebay.co.uk/itm/354815561341?var=624134728917",
+            "external_variant_id": "v1|354815561341|624134728917",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1630"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "14",
+      "source_row_fingerprint": "810f3bba6a97ce1b0bcdd5d352f46800fac2ec5202ea78f7f02fd957acbe9843"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "578887ebe460f73488018a8e2ba9bc72",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "24",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "PEScience Prolific 280g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Mango Splash / 280g",
+            "flavour_code": "mango splash",
+            "flavour_label": "Mango Splash",
+            "id": "1004",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "24",
+            "size_unit": "g",
+            "size_value": "280",
+            "variant_key": "mango-splash-280g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "578887ebe460f73488018a8e2ba9bc72",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "4bcffc6140e94bf9d86775725d2bbb2e1f23c9e39d733e2f40331b1966179c91",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:42.108Z",
+            "price": "34.99",
+            "shipping_cost": "0",
+            "total_price": "34.99",
+            "url": "https://www.ebay.co.uk/itm/167879148689?var=467421651918&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "24"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Mango Splash",
+              "Size": "280g"
+            },
+            "flavour": "mango splash",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "280"
+          },
+          "id": "1004"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "PEScience Prolific 280g",
+            "external_options": {
+              "Flavour": "Mango Splash",
+              "Size": "280g"
+            },
+            "external_product_id": "167879148689",
+            "external_sku": null,
+            "external_slug": "pescience-prolific-280g",
+            "external_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651918",
+            "external_variant_id": "v1|167879148689|467421651918",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1004"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "15",
+      "source_row_fingerprint": "4bcffc6140e94bf9d86775725d2bbb2e1f23c9e39d733e2f40331b1966179c91"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "6a672091094066f28c9137c66b8a771b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "27",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Cellucor C4 Original 195g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Watermelon / 195g",
+            "flavour_code": "watermelon",
+            "flavour_label": "Watermelon",
+            "id": "1588",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "27",
+            "size_unit": "g",
+            "size_value": "195",
+            "variant_key": "watermelon-195g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "6a672091094066f28c9137c66b8a771b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "9cf283aaf56fbce59d4cc9f422d10d102e8670aaac6087a3b65c33149bd9f799",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:42.610Z",
+            "price": "34.04",
+            "shipping_cost": "3.99",
+            "total_price": "38.03",
+            "url": "https://www.ebay.co.uk/itm/227339481694?var=526541817001&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "27"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Watermelon",
+              "Size": "195g"
+            },
+            "flavour": "watermelon",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "195"
+          },
+          "id": "1588"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Cellucor C4 Original 195g",
+            "external_options": {
+              "Flavour": "Watermelon",
+              "Size": "195g"
+            },
+            "external_product_id": "227339481694",
+            "external_sku": null,
+            "external_slug": "cellucor-c4-original-195g",
+            "external_url": "https://www.ebay.co.uk/itm/227339481694?var=526541817001",
+            "external_variant_id": "v1|227339481694|526541817001",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1588"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "16",
+      "source_row_fingerprint": "9cf283aaf56fbce59d4cc9f422d10d102e8670aaac6087a3b65c33149bd9f799"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "60a1469404e3b19935104110a176f6af",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "520",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Olimp Redweiler Preworkout 480g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Cola / 480g",
+            "flavour_code": "cola",
+            "flavour_label": "Cola",
+            "id": "1700",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "520",
+            "size_unit": "g",
+            "size_value": "480",
+            "variant_key": "cola-480g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "60a1469404e3b19935104110a176f6af",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "d99f085797eaf9d47b91f81fba4e1372e84574bc8158dc15fd9344e57eb8628d",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:43.290Z",
+            "price": "34.99",
+            "shipping_cost": "3.99",
+            "total_price": "38.98",
+            "url": "https://www.ebay.co.uk/itm/407021140091?var=677211935189&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "520"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Cola",
+              "Size": "480g"
+            },
+            "flavour": "cola",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "480"
+          },
+          "id": "1700"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Olimp Redweiler Preworkout 480g",
+            "external_options": {
+              "Flavour": "Cola",
+              "Size": "480g"
+            },
+            "external_product_id": "407021140091",
+            "external_sku": null,
+            "external_slug": "olimp-redweiler-preworkout-480g",
+            "external_url": "https://www.ebay.co.uk/itm/407021140091?var=677211935189",
+            "external_variant_id": "v1|407021140091|677211935189",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1700"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "17",
+      "source_row_fingerprint": "d99f085797eaf9d47b91f81fba4e1372e84574bc8158dc15fd9344e57eb8628d"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "afde47c8400dd74b4ec5ae8a8a3e6967",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "789",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m Pre-Workout Stim 570g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Rainbow Candy / 570g",
+            "flavour_code": "rainbow candy",
+            "flavour_label": "Rainbow Candy",
+            "id": "1091",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "789",
+            "size_unit": "g",
+            "size_value": "570",
+            "variant_key": "rainbow-candy-570g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "afde47c8400dd74b4ec5ae8a8a3e6967",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "7da07dfa68edf36abebb4caa2710f5d2d3c1a7a5f0fad618387dd6523784b30e",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:43.815Z",
+            "price": "29.99",
+            "shipping_cost": "0",
+            "total_price": "29.99",
+            "url": "https://www.ebay.co.uk/itm/236709473396?var=537300103237&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "789"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Rainbow Candy",
+              "Size": "570g"
+            },
+            "flavour": "rainbow candy",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "570"
+          },
+          "id": "1091"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Per4m Pre-Workout Stim 570g",
+            "external_options": {
+              "Flavour": "Rainbow Candy",
+              "Size": "570g"
+            },
+            "external_product_id": "236709473396",
+            "external_sku": null,
+            "external_slug": "per4m-pre-workout-stim-570g",
+            "external_url": "https://www.ebay.co.uk/itm/236709473396?var=537300103237",
+            "external_variant_id": "v1|236709473396|537300103237",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1091"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "18",
+      "source_row_fingerprint": "7da07dfa68edf36abebb4caa2710f5d2d3c1a7a5f0fad618387dd6523784b30e"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "5783bb4b595e7b195e207240ade81fbc",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "423",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Cream Of Rice 2kg",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Raspberry Ripple / 2kg",
+            "flavour_code": "raspberry ripple",
+            "flavour_label": "Raspberry Ripple",
+            "id": "1048",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "423",
+            "size_unit": "g",
+            "size_value": "2000",
+            "variant_key": "raspberry-ripple-2000g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "5783bb4b595e7b195e207240ade81fbc",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "8aac54a2ee76f6a424db90148ae9c0d76cdac55858424dac548817672e91546e",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:44.281Z",
+            "price": "18",
+            "shipping_cost": "3.99",
+            "total_price": "21.99",
+            "url": "https://www.ebay.co.uk/itm/227187131642?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "423"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Raspberry Ripple",
+              "Size": "2000g"
+            },
+            "flavour": "raspberry ripple",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "2000"
+          },
+          "id": "1048"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Applied Nutrition Cream Of Rice 2kg",
+            "external_options": {
+              "Flavour": "Raspberry Ripple",
+              "Size": "2000g"
+            },
+            "external_product_id": "227187131642",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-cream-of-rice-2kg",
+            "external_url": "https://www.ebay.co.uk/itm/227187131642",
+            "external_variant_id": "v1|227187131642|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1048"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "19",
+      "source_row_fingerprint": "8aac54a2ee76f6a424db90148ae9c0d76cdac55858424dac548817672e91546e"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "ffe85f79a5dfa2ad17331df1e9bfb478",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "124",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Critical Mass Gainer 6kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Cookies & Cream / 6kg",
+            "flavour_code": "cookies and cream",
+            "flavour_label": "Cookies & Cream",
+            "id": "1754",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "124",
+            "size_unit": "g",
+            "size_value": "6000",
+            "variant_key": "cookies-and-cream-6000g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "ffe85f79a5dfa2ad17331df1e9bfb478",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "da2740e06f55522e951357294605ab67e9ac0b44d7e2cabd62b9e48071a6a526",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:44.778Z",
+            "price": "43.97",
+            "shipping_cost": "0",
+            "total_price": "43.97",
+            "url": "https://www.ebay.co.uk/itm/315768710740?var=614309055150&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "124"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Cookies & Cream",
+              "Size": "6000g"
+            },
+            "flavour": "cookies and cream",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "6000"
+          },
+          "id": "1754"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Applied Nutrition Critical Mass Gainer 6kg",
+            "external_options": {
+              "Flavour": "Cookies & Cream",
+              "Size": "6000g"
+            },
+            "external_product_id": "315768710740",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-critical-mass-gainer-6kg",
+            "external_url": "https://www.ebay.co.uk/itm/315768710740?var=614309055150",
+            "external_variant_id": "v1|315768710740|614309055150",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1754"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "20",
+      "source_row_fingerprint": "da2740e06f55522e951357294605ab67e9ac0b44d7e2cabd62b9e48071a6a526"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "4e70f3f38d05e34c442104127f4afb38",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "470",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Critical Cookie Salted Caramel",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "445",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "470",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "4e70f3f38d05e34c442104127f4afb38",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "eb49aa319c429229a533a0f864822e5071803984b9bf7cc1d4aca6d8a3ad8734",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T09:23:45.264Z",
+            "price": "2.19",
+            "shipping_cost": "3.99",
+            "total_price": "6.18",
+            "url": "https://www.ebay.co.uk/itm/406431647826?var=676750282316&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "470"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Units": "1 x 73g"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "445"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Critical Cookie Salted Caramel",
+            "external_options": {
+              "Units": "1 x 73g"
+            },
+            "external_product_id": "406431647826",
+            "external_sku": null,
+            "external_slug": "critical-cookie-salted-caramel",
+            "external_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282316",
+            "external_variant_id": "v1|406431647826|676750282316",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "445"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "21",
+      "source_row_fingerprint": "eb49aa319c429229a533a0f864822e5071803984b9bf7cc1d4aca6d8a3ad8734"
+    }
+  ],
+  "row_count": "20",
+  "run_id": "be7849b7-d199-47f4-ad83-0b6d0a259cbe",
+  "source_file_name": "batch-k-recovery.csv",
+  "source_file_sha256": "407f7905db81d8b9dbfbccc8556bbe9120edd79d8e17781613cc3240ab60e6c6",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/394018039646?var=662564730389&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Whey Protein",
+        "external_gtin": "5999076234813",
+        "external_options": "{\"Size\":\"500g\",\"Flavour\":\"Banana\"}",
+        "external_product_id": "394018039646",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/394018039646?var=662564730389",
+        "external_variant_id": "v1|394018039646|662564730389",
+        "flavour": "Banana",
+        "image": "https://i.ebayimg.com/images/g/qYoAAeSw40tpauQN/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.99",
+        "product_format": "powder",
+        "product_id": "71",
+        "product_name": "BioTech USA Vegan Protein 500g",
+        "product_variant_id": "1625",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "500",
+        "size_unit": "g",
+        "slug": "biotech-usa-vegan-protein-500g",
+        "variant_name": "Banana / 500g"
+      },
+      "plan_fingerprint": "af38cfdc875fb3988504a60cdfae27bc",
+      "row_number": "2",
+      "source_row_fingerprint": "3e3d58b17d26588c29c55867af8cead5e43cd593f1e317679d6034c0694ca103",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/256978504929?var=557601659147&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Dorian Yates",
+        "category": "Pre Workout",
+        "external_gtin": "5060763890428",
+        "external_options": "{\"Size\":\"380g\",\"Flavour\":\"Strawberry\"}",
+        "external_product_id": "256978504929",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/256978504929?var=557601659147",
+        "external_variant_id": "v1|256978504929|557601659147",
+        "flavour": "Strawberry",
+        "image": "https://cdn.shopify.com/s/files/1/0737/5572/1994/files/dy-blood-guts-strawberry.jpg?v=1755874346",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "21.95",
+        "product_format": "powder",
+        "product_id": "19",
+        "product_name": "Dorian Yates Blood & Guts Pre Workout 380g",
+        "product_variant_id": "769",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.95",
+        "shipping_known": "true",
+        "size": "380",
+        "size_unit": "g",
+        "slug": "dorian-yates-blood--guts-pre-workout-380g",
+        "variant_name": "Strawberry / 380g"
+      },
+      "plan_fingerprint": "0eb36c6490b78ca5d0f37180f5b606a5",
+      "row_number": "3",
+      "source_row_fingerprint": "1d4f3c408dbdefead6d76b04505ce1d9836d4b15d56c4498509a24af1e70e297",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/145921318153?var=444963406170&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Nutrend",
+        "category": "Pre Workout",
+        "external_gtin": "8594073170453",
+        "external_options": "{\"Size\":\"225g\",\"Flavour\":\"Bubble Gum\"}",
+        "external_product_id": "145921318153",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/145921318153?var=444963406170",
+        "external_variant_id": "v1|145921318153|444963406170",
+        "flavour": "Bubble Gum",
+        "image": "https://www.powerbody.co.uk/media/catalog/product/ebay/auction_image_2024-01-31_65ba106850853.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "18.10",
+        "product_format": "powder",
+        "product_id": "528",
+        "product_name": "Nutrend  Pump Pre-Workout",
+        "product_variant_id": "1848",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "225",
+        "size_unit": "g",
+        "slug": "nutrend--pump-pre-workout",
+        "variant_name": "Bubble Gum / 225g"
+      },
+      "plan_fingerprint": "329c431d0c231e3f82e1ca28f2a79941",
+      "row_number": "4",
+      "source_row_fingerprint": "a0872fd5e1a5c5390f57524f7f68071f49713acdcd01dde479683f5c61c99a23",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/143513790155?var=445757979940&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Amino Acids",
+        "external_gtin": "5056555210772",
+        "external_options": "{\"Size\":\"390g\",\"Flavour\":\"Millions Pineapple\"}",
+        "external_product_id": "143513790155",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/143513790155?var=445757979940",
+        "external_variant_id": "v1|143513790155|445757979940",
+        "flavour": "Millions Pineapple",
+        "image": "https://i.ebayimg.com/images/g/CS4AAeSwUKBqJ0mP/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.95",
+        "product_format": "powder",
+        "product_id": "36",
+        "product_name": "Applied Nutrition Amino Fuel EAA 390g",
+        "product_variant_id": "1595",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "390",
+        "size_unit": "g",
+        "slug": "applied-nutrition-amino-fuel-eaa-390g",
+        "variant_name": "Millions Pineapple / 390g"
+      },
+      "plan_fingerprint": "e429597f2da43436ea481f5a719518e0",
+      "row_number": "5",
+      "source_row_fingerprint": "fe7daf3fb59697e3625a993599e2bab133b1f09ce4f34360c82a8ecd769c82a2",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/177952936229?var=477482944161&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Weight Management",
+        "external_gtin": "799439599079",
+        "external_options": "{\"Size\":\"150g\",\"Flavour\":\"Watermelon Candy\"}",
+        "external_product_id": "177952936229",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/177952936229?var=477482944161",
+        "external_variant_id": "v1|177952936229|477482944161",
+        "flavour": "Watermelon Candy",
+        "image": "https://i.ebayimg.com/images/g/cYEAAeSwJ9Npsvr-/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "26.80",
+        "product_format": "powder",
+        "product_id": "93",
+        "product_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+        "product_variant_id": "1642",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "150",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+        "variant_name": "Watermelon Candy / 150g"
+      },
+      "plan_fingerprint": "370e0592d0275ab7de76e1e43813bcbf",
+      "row_number": "6",
+      "source_row_fingerprint": "bb403dd0802dabb40191b71d277fe378245275cc67d3290a206ec4aba525f93f",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/404774853352?var=674791941889&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "HR Labs",
+        "category": "Health Supplements",
+        "external_gtin": "5060662330155",
+        "external_options": "{\"Size\":\"510g\",\"Flavour\":\"Peach Ice-T O.G.\"}",
+        "external_product_id": "404774853352",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/404774853352?var=674791941889",
+        "external_variant_id": "v1|404774853352|674791941889",
+        "flavour": "Peach Ice-T O.G.",
+        "image": "https://i.ebayimg.com/images/g/yTsAAeSwbHlpa12j/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "36.99",
+        "product_format": "powder",
+        "product_id": "220",
+        "product_name": "HR Labs Basic 510g",
+        "product_variant_id": "1810",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "510",
+        "size_unit": "g",
+        "slug": "hr-labs-basic-510g",
+        "variant_name": "Peach Ice-T O.G. / 510g"
+      },
+      "plan_fingerprint": "8284e9f7cca2104dcfd223ed85c7ae6a",
+      "row_number": "7",
+      "source_row_fingerprint": "1653cfd7d19e3123e581f6c9ebe1ba7dace520d76ae8dcd99891e616ca06bcf6",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/326796105372?var=516023060149&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Per4m",
+        "category": "Amino Acids",
+        "external_gtin": "5061097261892",
+        "external_options": "{\"Size\":\"420g\",\"Flavour\":\"Blackberry\"}",
+        "external_product_id": "326796105372",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/326796105372?var=516023060149",
+        "external_variant_id": "v1|326796105372|516023060149",
+        "flavour": "Blackberry",
+        "image": "https://i.ebayimg.com/images/g/k50AAeSw3y1o29e-/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "25.99",
+        "product_format": "powder",
+        "product_id": "788",
+        "product_name": "Per4m EAA Xtra 420g",
+        "product_variant_id": "1073",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "420",
+        "size_unit": "g",
+        "slug": "per4m-eaa-xtra-420g",
+        "variant_name": "Blackberry / 420g"
+      },
+      "plan_fingerprint": "0e6ed8154e4f31f4b493f0e1c6274978",
+      "row_number": "8",
+      "source_row_fingerprint": "e6ad52c869b1cb9a0442999e29ad5debef3dca3800bcd0ecb8e99e63cff476c3",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/267459060041?var=567236756567&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "5% Nutrition",
+        "category": "Amino Acids",
+        "external_gtin": "850006755561",
+        "external_options": "{\"Size\":\"465g\",\"Flavour\":\"Blue Raspberry\"}",
+        "external_product_id": "267459060041",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/267459060041?var=567236756567",
+        "external_variant_id": "v1|267459060041|567236756567",
+        "flavour": "Blue Raspberry",
+        "image": "https://i.ebayimg.com/images/g/KB4AAeSw9JlpChk1/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "33.99",
+        "product_format": "powder",
+        "product_id": "112",
+        "product_name": "5% Nutrition Rich Piana  All Day You May 465g",
+        "product_variant_id": "1012",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "5.49",
+        "shipping_known": "true",
+        "size": "465",
+        "size_unit": "g",
+        "slug": "5-nutrition-rich-piana--all-day-you-may-465g",
+        "variant_name": "Blue Raspberry / 465g"
+      },
+      "plan_fingerprint": "269a235bc18a205304dc62d89c915768",
+      "row_number": "9",
+      "source_row_fingerprint": "cd09243920c6ea26925188f79e076ef989cca59e51fb71aa575a4d676f4bcd51",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766785&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Clif",
+        "category": "Protein Bars",
+        "external_gtin": "722252387486",
+        "external_options": "{\"Size\":\"68g\",\"Flavour\":\"Chocolate Chip\"}",
+        "external_product_id": "227482554146",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766785",
+        "external_variant_id": "v1|227482554146|526660766785",
+        "flavour": "Chocolate Chip",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/CLI002_12b0654c-6a7c-4aa3-9067-28ae01b625b5.png",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "12",
+        "price": "26.16",
+        "product_format": "snack",
+        "product_id": "166",
+        "product_name": "Clif Bar Energy Bar 12x68g",
+        "product_variant_id": "1759",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "68",
+        "size_unit": "g",
+        "slug": "clif-bar-energy-bar-12x68g",
+        "variant_name": "Chocolate Chip / 68g"
+      },
+      "plan_fingerprint": "ddb5e3b0ebb664204eba4bc5c3423d2b",
+      "row_number": "10",
+      "source_row_fingerprint": "fc0c0bb28c87fa00b8eae9eec797afdd3ffa3c1e078ab15672813ae53da8dc12",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766784&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Clif",
+        "category": "Protein Bars",
+        "external_gtin": "722252387585",
+        "external_options": "{\"Size\":\"68g\",\"Flavour\":\"White Chocolate Macadamia\"}",
+        "external_product_id": "227482554146",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227482554146?var=526660766784",
+        "external_variant_id": "v1|227482554146|526660766784",
+        "flavour": "White Chocolate Macadamia",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/CLI003_d970ac70-4be5-4a9b-9748-e647328d7042.png",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "12",
+        "price": "26.16",
+        "product_format": "snack",
+        "product_id": "166",
+        "product_name": "Clif Bar Energy Bar 12x68g",
+        "product_variant_id": "1761",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "68",
+        "size_unit": "g",
+        "slug": "clif-bar-energy-bar-12x68g",
+        "variant_name": "White Chocolate Macadamia / 68g"
+      },
+      "plan_fingerprint": "218bfc1a94bf27370704020ceab0b631",
+      "row_number": "11",
+      "source_row_fingerprint": "e2842476d8e00b3e10aba489045634bd2e7aa271c8e304925ffec30256014bdc",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/267460401796?var=567238268029&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Muscle Moose",
+        "category": "Protein Bars",
+        "external_gtin": "634158641497",
+        "external_options": "{\"Size\":\"500g\",\"Flavour\":\"Golden Syrup\"}",
+        "external_product_id": "267460401796",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/267460401796?var=567238268029",
+        "external_variant_id": "v1|267460401796|567238268029",
+        "flavour": "Golden Syrup",
+        "image": "https://i.ebayimg.com/images/g/R0wAAeSwiLtpChjl/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "12.29",
+        "product_format": "powder",
+        "product_id": "324",
+        "product_name": "Muscle Moose Protein Pancakes Mix 500g",
+        "product_variant_id": "1060",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "5.49",
+        "shipping_known": "true",
+        "size": "500",
+        "size_unit": "g",
+        "slug": "muscle-moose-protein-pancakes-mix-500g",
+        "variant_name": "Golden Syrup / 500g"
+      },
+      "plan_fingerprint": "bb8e003f7dd870288bfe7eb7226a49d0",
+      "row_number": "12",
+      "source_row_fingerprint": "7ab5cf64d4e12d70eb53b27327bd1c54f0c96bbd231334a64e1fbf6f41eb7558",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/323304007010?var=512368831135&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Whey Protein",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"908g\",\"Flavour\":\"Banana\"}",
+        "external_product_id": "323304007010",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/323304007010?var=512368831135",
+        "external_variant_id": "v1|323304007010|512368831135",
+        "flavour": "Banana",
+        "image": "https://i.ebayimg.com/images/g/HIUAAOSwaRles8os/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "42.49",
+        "product_format": "powder",
+        "product_id": "14",
+        "product_name": "BioTech USA Iso Whey Zero 908g",
+        "product_variant_id": "1725",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "908",
+        "size_unit": "g",
+        "slug": "biotech-usa-iso-whey-zero-908g",
+        "variant_name": "Banana / 908g"
+      },
+      "plan_fingerprint": "e434467ec3239365f9e6df7c75c71606",
+      "row_number": "13",
+      "source_row_fingerprint": "72cbdececd5955cf136edd0bab2eb8adc488806a3e924ece39bec616080c10d5",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/354815561341?var=624134728917&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Boditronics",
+        "category": "Whey Protein",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"900g\",\"Flavour\":\"White Chocolate and Raspberry\"}",
+        "external_product_id": "354815561341",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/354815561341?var=624134728917",
+        "external_variant_id": "v1|354815561341|624134728917",
+        "flavour": "White Chocolate and Raspberry",
+        "image": "https://i.ebayimg.com/images/g/upcAAOSwL7ZkdHhP/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "26.29",
+        "product_format": "powder",
+        "product_id": "77",
+        "product_name": "Boditronics Diet Whey 900g",
+        "product_variant_id": "1630",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "900",
+        "size_unit": "g",
+        "slug": "boditronics-diet-whey-900g",
+        "variant_name": "White Chocolate and Raspberry / 900g"
+      },
+      "plan_fingerprint": "accb362a24b0cca217b0fdefd62349ca",
+      "row_number": "14",
+      "source_row_fingerprint": "810f3bba6a97ce1b0bcdd5d352f46800fac2ec5202ea78f7f02fd957acbe9843",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651918&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "PEScience",
+        "category": "Pre Workout",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"280g\",\"Flavour\":\"Mango Splash\"}",
+        "external_product_id": "167879148689",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651918",
+        "external_variant_id": "v1|167879148689|467421651918",
+        "flavour": "Mango Splash",
+        "image": "https://i.ebayimg.com/images/g/OCoAAeSwHWNo-eU2/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "34.99",
+        "product_format": "powder",
+        "product_id": "24",
+        "product_name": "PEScience Prolific 280g",
+        "product_variant_id": "1004",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "280",
+        "size_unit": "g",
+        "slug": "pescience-prolific-280g",
+        "variant_name": "Mango Splash / 280g"
+      },
+      "plan_fingerprint": "578887ebe460f73488018a8e2ba9bc72",
+      "row_number": "15",
+      "source_row_fingerprint": "4bcffc6140e94bf9d86775725d2bbb2e1f23c9e39d733e2f40331b1966179c91",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339481694?var=526541817001&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Cellucor",
+        "category": "Pre Workout",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"195g\",\"Flavour\":\"Watermelon\"}",
+        "external_product_id": "227339481694",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339481694?var=526541817001",
+        "external_variant_id": "v1|227339481694|526541817001",
+        "flavour": "Watermelon",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2024-06-06_66617bddc9220.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "34.04",
+        "product_format": "powder",
+        "product_id": "27",
+        "product_name": "Cellucor C4 Original 195g",
+        "product_variant_id": "1588",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "195",
+        "size_unit": "g",
+        "slug": "cellucor-c4-original-195g",
+        "variant_name": "Watermelon / 195g"
+      },
+      "plan_fingerprint": "6a672091094066f28c9137c66b8a771b",
+      "row_number": "16",
+      "source_row_fingerprint": "9cf283aaf56fbce59d4cc9f422d10d102e8670aaac6087a3b65c33149bd9f799",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/407021140091?var=677211935189&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Olimp",
+        "category": "Pre Workout",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"480g\",\"Flavour\":\"Cola\"}",
+        "external_product_id": "407021140091",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/407021140091?var=677211935189",
+        "external_variant_id": "v1|407021140091|677211935189",
+        "flavour": "Cola",
+        "image": "https://i.ebayimg.com/images/g/HK8AAeSwZVNqOjnG/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "34.99",
+        "product_format": "powder",
+        "product_id": "520",
+        "product_name": "Olimp Redweiler Preworkout 480g",
+        "product_variant_id": "1700",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "480",
+        "size_unit": "g",
+        "slug": "olimp-redweiler-preworkout-480g",
+        "variant_name": "Cola / 480g"
+      },
+      "plan_fingerprint": "60a1469404e3b19935104110a176f6af",
+      "row_number": "17",
+      "source_row_fingerprint": "d99f085797eaf9d47b91f81fba4e1372e84574bc8158dc15fd9344e57eb8628d",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/236709473396?var=537300103237&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Per4m",
+        "category": "Pre Workout",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"570g\",\"Flavour\":\"Rainbow Candy\"}",
+        "external_product_id": "236709473396",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/236709473396?var=537300103237",
+        "external_variant_id": "v1|236709473396|537300103237",
+        "flavour": "Rainbow Candy",
+        "image": "https://i.ebayimg.com/images/g/gwgAAeSwhe1qGD~U/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "29.99",
+        "product_format": "powder",
+        "product_id": "789",
+        "product_name": "Per4m Pre-Workout Stim 570g",
+        "product_variant_id": "1091",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "570",
+        "size_unit": "g",
+        "slug": "per4m-pre-workout-stim-570g",
+        "variant_name": "Rainbow Candy / 570g"
+      },
+      "plan_fingerprint": "afde47c8400dd74b4ec5ae8a8a3e6967",
+      "row_number": "18",
+      "source_row_fingerprint": "7da07dfa68edf36abebb4caa2710f5d2d3c1a7a5f0fad618387dd6523784b30e",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227187131642?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"2000g\",\"Flavour\":\"Raspberry Ripple\"}",
+        "external_product_id": "227187131642",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227187131642",
+        "external_variant_id": "v1|227187131642|0",
+        "flavour": "Raspberry Ripple",
+        "image": "https://i.ebayimg.com/images/g/EpAAAeSw45BpdL2O/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "18.00",
+        "product_format": "powder",
+        "product_id": "423",
+        "product_name": "Applied Nutrition Cream Of Rice 2kg",
+        "product_variant_id": "1048",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "2000",
+        "size_unit": "g",
+        "slug": "applied-nutrition-cream-of-rice-2kg",
+        "variant_name": "Raspberry Ripple / 2kg"
+      },
+      "plan_fingerprint": "5783bb4b595e7b195e207240ade81fbc",
+      "row_number": "19",
+      "source_row_fingerprint": "8aac54a2ee76f6a424db90148ae9c0d76cdac55858424dac548817672e91546e",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/315768710740?var=614309055150&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Mass Gainer",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"6000g\",\"Flavour\":\"Cookies & Cream\"}",
+        "external_product_id": "315768710740",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/315768710740?var=614309055150",
+        "external_variant_id": "v1|315768710740|614309055150",
+        "flavour": "Cookies & Cream",
+        "image": "https://i.ebayimg.com/images/g/N1MAAOSwHvNnPdeE/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "43.97",
+        "product_format": "powder",
+        "product_id": "124",
+        "product_name": "Applied Nutrition Critical Mass Gainer 6kg",
+        "product_variant_id": "1754",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "6000",
+        "size_unit": "g",
+        "slug": "applied-nutrition-critical-mass-gainer-6kg",
+        "variant_name": "Cookies & Cream / 6kg"
+      },
+      "plan_fingerprint": "ffe85f79a5dfa2ad17331df1e9bfb478",
+      "row_number": "20",
+      "source_row_fingerprint": "da2740e06f55522e951357294605ab67e9ac0b44d7e2cabd62b9e48071a6a526",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282316&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Protein Bars",
+        "external_gtin": "",
+        "external_options": "{\"Units\":\"1 x 73g\"}",
+        "external_product_id": "406431647826",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282316",
+        "external_variant_id": "v1|406431647826|676750282316",
+        "flavour": "",
+        "image": "https://cdn.shopify.com/s/files/1/0710/8932/4300/files/IMG-5417.jpg?v=1716579736",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "2.19",
+        "product_format": "",
+        "product_id": "470",
+        "product_name": "Critical Cookie Salted Caramel",
+        "product_variant_id": "445",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "critical-cookie-salted-caramel",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "4e70f3f38d05e34c442104127f4afb38",
+      "row_number": "21",
+      "source_row_fingerprint": "eb49aa319c429229a533a0f864822e5071803984b9bf7cc1d4aca6d8a3ad8734",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "20",
+    "skipped_row_count": "0"
+  }
+}
