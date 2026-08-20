@@ -1,0 +1,1459 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-20T06:38:57.560Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "99b26ca8bdf6b25c5c29e7cb2fb3851c",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "482",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Curse 250g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Blue Raspberry / 250g",
+            "flavour_code": "blue raspberry",
+            "flavour_label": "Blue Raspberry",
+            "id": "1697",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "482",
+            "size_unit": "g",
+            "size_value": "250",
+            "variant_key": "blue-raspberry-250g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "99b26ca8bdf6b25c5c29e7cb2fb3851c",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "5ffcfe9cc6f1dc366baa63306f7a8699cdd764b400519fc1175ae7bd9f00c982",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:54.869Z",
+            "price": "25.79",
+            "shipping_cost": "3.99",
+            "total_price": "29.78",
+            "url": "https://www.ebay.co.uk/itm/227339481787?var=526541736174&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "482"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "250g"
+            },
+            "flavour": "blue raspberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "250"
+          },
+          "id": "1697"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "609728302412",
+            "external_name": "JNX Sports The Curse 250g",
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "250g"
+            },
+            "external_product_id": "227339481787",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-curse-250g",
+            "external_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736174",
+            "external_variant_id": "v1|227339481787|526541736174",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1697"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "5ffcfe9cc6f1dc366baa63306f7a8699cdd764b400519fc1175ae7bd9f00c982"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d50ad93e2d3fd48a815391ea0124b1d2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "482",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Curse 250g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Fruit Punch / 250g",
+            "flavour_code": "fruit punch",
+            "flavour_label": "Fruit Punch",
+            "id": "1698",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "482",
+            "size_unit": "g",
+            "size_value": "250",
+            "variant_key": "fruit-punch-250g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d50ad93e2d3fd48a815391ea0124b1d2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "5b6ee7db8cd5a92901012e1fde944703c56012cb9b8e2160ab271eff020b7485",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:55.195Z",
+            "price": "25.79",
+            "shipping_cost": "3.99",
+            "total_price": "29.78",
+            "url": "https://www.ebay.co.uk/itm/227339481787?var=526541736170&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "482"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Fruit Punch",
+              "Size": "250g"
+            },
+            "flavour": "fruit punch",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "250"
+          },
+          "id": "1698"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "797776113477",
+            "external_name": "JNX Sports The Curse 250g",
+            "external_options": {
+              "Flavour": "Fruit Punch",
+              "Size": "250g"
+            },
+            "external_product_id": "227339481787",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-curse-250g",
+            "external_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736170",
+            "external_variant_id": "v1|227339481787|526541736170",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1698"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "5b6ee7db8cd5a92901012e1fde944703c56012cb9b8e2160ab271eff020b7485"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "24b90deb1d174f5449dc8e37916d90fb",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "93",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Fruit Punch / 150g",
+            "flavour_code": "fruit punch",
+            "flavour_label": "Fruit Punch",
+            "id": "1011",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "93",
+            "size_unit": "g",
+            "size_value": "150",
+            "variant_key": "fruit-punch-150g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "24b90deb1d174f5449dc8e37916d90fb",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "a0f523f601f2e24050391107843fd2e3c9fd85bfc4651701402daed62f0f9aa6",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:55.515Z",
+            "price": "23.34",
+            "shipping_cost": "3.99",
+            "total_price": "27.33",
+            "url": "https://www.ebay.co.uk/itm/227339480945?var=526541656197&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "93"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Fruit Punch",
+              "Size": "150g"
+            },
+            "flavour": "fruit punch",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "150"
+          },
+          "id": "1011"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "797776113620",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Fruit Punch",
+              "Size": "150g"
+            },
+            "external_product_id": "227339480945",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656197",
+            "external_variant_id": "v1|227339480945|526541656197",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1011"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "a0f523f601f2e24050391107843fd2e3c9fd85bfc4651701402daed62f0f9aa6"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "9f373fa7b45e247e066f2152628b93fe",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "93",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Blue Raspberry / 150g",
+            "flavour_code": "blue raspberry",
+            "flavour_label": "Blue Raspberry",
+            "id": "1638",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "93",
+            "size_unit": "g",
+            "size_value": "150",
+            "variant_key": "blue-raspberry-150g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "9f373fa7b45e247e066f2152628b93fe",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "36e088c59ee8f326cef2ab26dc1cc4854c23ec96fed4a2a70f5c6d465300be78",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:55.789Z",
+            "price": "23.34",
+            "shipping_cost": "3.99",
+            "total_price": "27.33",
+            "url": "https://www.ebay.co.uk/itm/227339480945?var=526541656195&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "93"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "150g"
+            },
+            "flavour": "blue raspberry",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "150"
+          },
+          "id": "1638"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "797776113583",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Blue Raspberry",
+              "Size": "150g"
+            },
+            "external_product_id": "227339480945",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656195",
+            "external_variant_id": "v1|227339480945|526541656195",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1638"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "36e088c59ee8f326cef2ab26dc1cc4854c23ec96fed4a2a70f5c6d465300be78"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "a637b81970c83acbaf543c489808afd0",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "93",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Pineapple Shred / 150g",
+            "flavour_code": "pineapple shred",
+            "flavour_label": "Pineapple Shred",
+            "id": "1639",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "93",
+            "size_unit": "g",
+            "size_value": "150",
+            "variant_key": "pineapple-shred-150g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "a637b81970c83acbaf543c489808afd0",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "fc20ba33d1e1121866715df6f028512bfd49c1ecdaa3dfe78bbe07b5345e7561",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:56.039Z",
+            "price": "23.34",
+            "shipping_cost": "3.99",
+            "total_price": "27.33",
+            "url": "https://www.ebay.co.uk/itm/227339480945?var=526541656194&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "93"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Pineapple Shred",
+              "Size": "150g"
+            },
+            "flavour": "pineapple shred",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "150"
+          },
+          "id": "1639"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "799439644854",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Pineapple Shred",
+              "Size": "150g"
+            },
+            "external_product_id": "227339480945",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656194",
+            "external_variant_id": "v1|227339480945|526541656194",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1639"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "fc20ba33d1e1121866715df6f028512bfd49c1ecdaa3dfe78bbe07b5345e7561"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "457a448f1ef9230b7004a944881ea68d",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "93",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Raspberry Lemonade / 150g",
+            "flavour_code": "raspberry lemonade",
+            "flavour_label": "Raspberry Lemonade",
+            "id": "1640",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "93",
+            "size_unit": "g",
+            "size_value": "150",
+            "variant_key": "raspberry-lemonade-150g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "457a448f1ef9230b7004a944881ea68d",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "7ef376623e112074568000759a00a724d8c385c881ae8acb48c61fe6a2c3b315",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:56.291Z",
+            "price": "23.34",
+            "shipping_cost": "3.99",
+            "total_price": "27.33",
+            "url": "https://www.ebay.co.uk/itm/227339480945?var=526541656193&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "93"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Raspberry Lemonade",
+              "Size": "150g"
+            },
+            "flavour": "raspberry lemonade",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "150"
+          },
+          "id": "1640"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "797776113408",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Raspberry Lemonade",
+              "Size": "150g"
+            },
+            "external_product_id": "227339480945",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656193",
+            "external_variant_id": "v1|227339480945|526541656193",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1640"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "7ef376623e112074568000759a00a724d8c385c881ae8acb48c61fe6a2c3b315"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "a31369c79fa9cb2292e981242fc14ed9",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "93",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Razor Lime / 150g",
+            "flavour_code": "razor lime",
+            "flavour_label": "Razor Lime",
+            "id": "1641",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "93",
+            "size_unit": "g",
+            "size_value": "150",
+            "variant_key": "razor-lime-150g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "a31369c79fa9cb2292e981242fc14ed9",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "659309a6fe13a0e77078ae497f929e22c84a1e34c39c2b0fc258f78dfdeafffe",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:56.546Z",
+            "price": "23.34",
+            "shipping_cost": "3.99",
+            "total_price": "27.33",
+            "url": "https://www.ebay.co.uk/itm/227339480945?var=526541656192&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "93"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Razor Lime",
+              "Size": "150g"
+            },
+            "flavour": "razor lime",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "150"
+          },
+          "id": "1641"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "680569883247",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Razor Lime",
+              "Size": "150g"
+            },
+            "external_product_id": "227339480945",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656192",
+            "external_variant_id": "v1|227339480945|526541656192",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1641"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "659309a6fe13a0e77078ae497f929e22c84a1e34c39c2b0fc258f78dfdeafffe"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d3a556fcf3993e69c3c1a7d60cea697c",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "93",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Blood Orange / 150g",
+            "flavour_code": "blood orange",
+            "flavour_label": "Blood Orange",
+            "id": "1643",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "93",
+            "size_unit": "g",
+            "size_value": "150",
+            "variant_key": "blood-orange-150g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d3a556fcf3993e69c3c1a7d60cea697c",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "4bff43731c1e8cfe52fe5e8cce891fdcaed2ebda46ad3de5eec692cd00096e47",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:56.794Z",
+            "price": "23.34",
+            "shipping_cost": "3.99",
+            "total_price": "27.33",
+            "url": "https://www.ebay.co.uk/itm/227339480945?var=526541656198&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "93"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Blood Orange",
+              "Size": "150g"
+            },
+            "flavour": "blood orange",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "150"
+          },
+          "id": "1643"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "799439599055",
+            "external_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+            "external_options": {
+              "Flavour": "Blood Orange",
+              "Size": "150g"
+            },
+            "external_product_id": "227339480945",
+            "external_sku": null,
+            "external_slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+            "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656198",
+            "external_variant_id": "v1|227339480945|526541656198",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1643"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "4bff43731c1e8cfe52fe5e8cce891fdcaed2ebda46ad3de5eec692cd00096e47"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "6633ddfcda0ec55e371ae9dbe4d38c12",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "222",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Mutant Mass 6.8kg",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Chocolate Fudge Brownie / 6.8kg",
+            "flavour_code": "chocolate fudge brownie",
+            "flavour_label": "Chocolate Fudge Brownie",
+            "id": "752",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "222",
+            "size_unit": "g",
+            "size_value": "6800",
+            "variant_key": "chocolate-fudge-brownie-6800g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "6633ddfcda0ec55e371ae9dbe4d38c12",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "5723a7fb8a217b77f5b2dd8817a4ddc4629dc8055c952b11dc1a9865b15e01ea",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:57.092Z",
+            "price": "83.59",
+            "shipping_cost": "3.99",
+            "total_price": "87.58",
+            "url": "https://www.ebay.co.uk/itm/227319961531?var=526525449487&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "222"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Chocolate Fudge Brownie",
+              "Size": "6800g"
+            },
+            "flavour": "chocolate fudge brownie",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "6800"
+          },
+          "id": "752"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "627933026954",
+            "external_name": "Mutant Mass 6.8kg",
+            "external_options": {
+              "Flavour": "Chocolate Fudge Brownie",
+              "Size": "6800g"
+            },
+            "external_product_id": "227319961531",
+            "external_sku": null,
+            "external_slug": "mutant-mass-6-8kg",
+            "external_url": "https://www.ebay.co.uk/itm/227319961531?var=526525449487",
+            "external_variant_id": "v1|227319961531|526525449487",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "752"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "10",
+      "source_row_fingerprint": "5723a7fb8a217b77f5b2dd8817a4ddc4629dc8055c952b11dc1a9865b15e01ea"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "1807ba97ab4c73467a5096b137b96dd6",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "222",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Mutant Mass 6.8kg",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Triple Chocolate / 6.8kg",
+            "flavour_code": "triple chocolate",
+            "flavour_label": "Triple Chocolate",
+            "id": "755",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "222",
+            "size_unit": "g",
+            "size_value": "6800",
+            "variant_key": "triple-chocolate-6800g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "1807ba97ab4c73467a5096b137b96dd6",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "ed456870eb1906f95c38435cfb034cca7a566d1972bbd3db85338d351bc3cae8",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-20T06:38:57.558Z",
+            "price": "83.59",
+            "shipping_cost": "3.99",
+            "total_price": "87.58",
+            "url": "https://www.ebay.co.uk/itm/227319961531?var=526525449491&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "222"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Triple Chocolate",
+              "Size": "6800g"
+            },
+            "flavour": "triple chocolate",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "6800"
+          },
+          "id": "755"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "627933026565",
+            "external_name": "Mutant Mass 6.8kg",
+            "external_options": {
+              "Flavour": "Triple Chocolate",
+              "Size": "6800g"
+            },
+            "external_product_id": "227319961531",
+            "external_sku": null,
+            "external_slug": "mutant-mass-6-8kg",
+            "external_url": "https://www.ebay.co.uk/itm/227319961531?var=526525449491",
+            "external_variant_id": "v1|227319961531|526525449491",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "755"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "11",
+      "source_row_fingerprint": "ed456870eb1906f95c38435cfb034cca7a566d1972bbd3db85338d351bc3cae8"
+    }
+  ],
+  "row_count": "10",
+  "run_id": "27553369-9554-43f7-a40f-d5e1b38cbff5",
+  "source_file_name": "batch-j.csv",
+  "source_file_sha256": "b5ae4a2375c6ab0c42bfe6f6ba2922977ab2d4863fc6532a6da304bc7286107d",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736174&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Pre Workout",
+        "external_gtin": "609728302412",
+        "external_options": "{\"Size\":\"250g\",\"Flavour\":\"Blue Raspberry\"}",
+        "external_product_id": "227339481787",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736174",
+        "external_variant_id": "v1|227339481787|526541736174",
+        "flavour": "Blue Raspberry",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2020-01-15_5e1f17123a665.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "25.79",
+        "product_format": "powder",
+        "product_id": "482",
+        "product_name": "JNX Sports The Curse 250g",
+        "product_variant_id": "1697",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "250",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-curse-250g",
+        "variant_name": "Blue Raspberry / 250g"
+      },
+      "plan_fingerprint": "99b26ca8bdf6b25c5c29e7cb2fb3851c",
+      "row_number": "2",
+      "source_row_fingerprint": "5ffcfe9cc6f1dc366baa63306f7a8699cdd764b400519fc1175ae7bd9f00c982",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736170&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Pre Workout",
+        "external_gtin": "797776113477",
+        "external_options": "{\"Size\":\"250g\",\"Flavour\":\"Fruit Punch\"}",
+        "external_product_id": "227339481787",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339481787?var=526541736170",
+        "external_variant_id": "v1|227339481787|526541736170",
+        "flavour": "Fruit Punch",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2024-02-01_65bb569d72e11.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "25.79",
+        "product_format": "powder",
+        "product_id": "482",
+        "product_name": "JNX Sports The Curse 250g",
+        "product_variant_id": "1698",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "250",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-curse-250g",
+        "variant_name": "Fruit Punch / 250g"
+      },
+      "plan_fingerprint": "d50ad93e2d3fd48a815391ea0124b1d2",
+      "row_number": "3",
+      "source_row_fingerprint": "5b6ee7db8cd5a92901012e1fde944703c56012cb9b8e2160ab271eff020b7485",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656197&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Weight Management",
+        "external_gtin": "797776113620",
+        "external_options": "{\"Size\":\"150g\",\"Flavour\":\"Fruit Punch\"}",
+        "external_product_id": "227339480945",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656197",
+        "external_variant_id": "v1|227339480945|526541656197",
+        "flavour": "Fruit Punch",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2024-04-11_66179481f1f23.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.34",
+        "product_format": "powder",
+        "product_id": "93",
+        "product_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+        "product_variant_id": "1011",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "150",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+        "variant_name": "Fruit Punch / 150g"
+      },
+      "plan_fingerprint": "24b90deb1d174f5449dc8e37916d90fb",
+      "row_number": "4",
+      "source_row_fingerprint": "a0f523f601f2e24050391107843fd2e3c9fd85bfc4651701402daed62f0f9aa6",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656195&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Weight Management",
+        "external_gtin": "797776113583",
+        "external_options": "{\"Size\":\"150g\",\"Flavour\":\"Blue Raspberry\"}",
+        "external_product_id": "227339480945",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656195",
+        "external_variant_id": "v1|227339480945|526541656195",
+        "flavour": "Blue Raspberry",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2024-04-11_66179481f1f23.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.34",
+        "product_format": "powder",
+        "product_id": "93",
+        "product_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+        "product_variant_id": "1638",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "150",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+        "variant_name": "Blue Raspberry / 150g"
+      },
+      "plan_fingerprint": "9f373fa7b45e247e066f2152628b93fe",
+      "row_number": "5",
+      "source_row_fingerprint": "36e088c59ee8f326cef2ab26dc1cc4854c23ec96fed4a2a70f5c6d465300be78",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656194&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Weight Management",
+        "external_gtin": "799439644854",
+        "external_options": "{\"Size\":\"150g\",\"Flavour\":\"Pineapple Shred\"}",
+        "external_product_id": "227339480945",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656194",
+        "external_variant_id": "v1|227339480945|526541656194",
+        "flavour": "Pineapple Shred",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2021-07-28_6100f7fb8571b.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.34",
+        "product_format": "powder",
+        "product_id": "93",
+        "product_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+        "product_variant_id": "1639",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "150",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+        "variant_name": "Pineapple Shred / 150g"
+      },
+      "plan_fingerprint": "a637b81970c83acbaf543c489808afd0",
+      "row_number": "6",
+      "source_row_fingerprint": "fc20ba33d1e1121866715df6f028512bfd49c1ecdaa3dfe78bbe07b5345e7561",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656193&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Weight Management",
+        "external_gtin": "797776113408",
+        "external_options": "{\"Size\":\"150g\",\"Flavour\":\"Raspberry Lemonade\"}",
+        "external_product_id": "227339480945",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656193",
+        "external_variant_id": "v1|227339480945|526541656193",
+        "flavour": "Raspberry Lemonade",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2024-04-11_66179481f1f23.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.34",
+        "product_format": "powder",
+        "product_id": "93",
+        "product_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+        "product_variant_id": "1640",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "150",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+        "variant_name": "Raspberry Lemonade / 150g"
+      },
+      "plan_fingerprint": "457a448f1ef9230b7004a944881ea68d",
+      "row_number": "7",
+      "source_row_fingerprint": "7ef376623e112074568000759a00a724d8c385c881ae8acb48c61fe6a2c3b315",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656192&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Weight Management",
+        "external_gtin": "680569883247",
+        "external_options": "{\"Size\":\"150g\",\"Flavour\":\"Razor Lime\"}",
+        "external_product_id": "227339480945",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656192",
+        "external_variant_id": "v1|227339480945|526541656192",
+        "flavour": "Razor Lime",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/17c4d173178a20d33703f2c0a88a3536.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.34",
+        "product_format": "powder",
+        "product_id": "93",
+        "product_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+        "product_variant_id": "1641",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "150",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+        "variant_name": "Razor Lime / 150g"
+      },
+      "plan_fingerprint": "a31369c79fa9cb2292e981242fc14ed9",
+      "row_number": "8",
+      "source_row_fingerprint": "659309a6fe13a0e77078ae497f929e22c84a1e34c39c2b0fc258f78dfdeafffe",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656198&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "JNX Sports",
+        "category": "Weight Management",
+        "external_gtin": "799439599055",
+        "external_options": "{\"Size\":\"150g\",\"Flavour\":\"Blood Orange\"}",
+        "external_product_id": "227339480945",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339480945?var=526541656198",
+        "external_variant_id": "v1|227339480945|526541656198",
+        "flavour": "Blood Orange",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2019-11-18_5dd274fc8d6e1.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.34",
+        "product_format": "powder",
+        "product_id": "93",
+        "product_name": "JNX Sports The Ripper Fat Burner Powder 150g",
+        "product_variant_id": "1643",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "150",
+        "size_unit": "g",
+        "slug": "jnx-sports-the-ripper-fat-burner-powder-150g",
+        "variant_name": "Blood Orange / 150g"
+      },
+      "plan_fingerprint": "d3a556fcf3993e69c3c1a7d60cea697c",
+      "row_number": "9",
+      "source_row_fingerprint": "4bff43731c1e8cfe52fe5e8cce891fdcaed2ebda46ad3de5eec692cd00096e47",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227319961531?var=526525449487&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Mutant",
+        "category": "Health Supplements",
+        "external_gtin": "627933026954",
+        "external_options": "{\"Size\":\"6800g\",\"Flavour\":\"Chocolate Fudge Brownie\"}",
+        "external_product_id": "227319961531",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227319961531?var=526525449487",
+        "external_variant_id": "v1|227319961531|526525449487",
+        "flavour": "Chocolate Fudge Brownie",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2022-08-09_62f226e4370b9.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "83.59",
+        "product_format": "powder",
+        "product_id": "222",
+        "product_name": "Mutant Mass 6.8kg",
+        "product_variant_id": "752",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "6800",
+        "size_unit": "g",
+        "slug": "mutant-mass-6-8kg",
+        "variant_name": "Chocolate Fudge Brownie / 6800g"
+      },
+      "plan_fingerprint": "6633ddfcda0ec55e371ae9dbe4d38c12",
+      "row_number": "10",
+      "source_row_fingerprint": "5723a7fb8a217b77f5b2dd8817a4ddc4629dc8055c952b11dc1a9865b15e01ea",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227319961531?var=526525449491&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Mutant",
+        "category": "Health Supplements",
+        "external_gtin": "627933026565",
+        "external_options": "{\"Size\":\"6800g\",\"Flavour\":\"Triple Chocolate\"}",
+        "external_product_id": "227319961531",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227319961531?var=526525449491",
+        "external_variant_id": "v1|227319961531|526525449491",
+        "flavour": "Triple Chocolate",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2022-08-11_62f4b861da10f.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "83.59",
+        "product_format": "powder",
+        "product_id": "222",
+        "product_name": "Mutant Mass 6.8kg",
+        "product_variant_id": "755",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "6800",
+        "size_unit": "g",
+        "slug": "mutant-mass-6-8kg",
+        "variant_name": "Triple Chocolate / 6800g"
+      },
+      "plan_fingerprint": "1807ba97ab4c73467a5096b137b96dd6",
+      "row_number": "11",
+      "source_row_fingerprint": "ed456870eb1906f95c38435cfb034cca7a566d1972bbd3db85338d351bc3cae8",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "10",
+    "skipped_row_count": "0"
+  }
+}

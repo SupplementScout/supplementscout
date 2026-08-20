@@ -579,6 +579,35 @@ test("Batch I owner review seals exactly eight Time 4 listings without productio
   assert.ok(rows.every((row) => !/193325232056/.test(row.external_variant_id)));
 });
 
+test("Batch J owner review seals exactly ten Welzo business listings without production apply authority", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-j-review.json"), "utf8"));
+  const csvBuffer = fs.readFileSync(path.join(process.cwd(), review.csv));
+  const artifactBuffer = fs.readFileSync(path.join(process.cwd(), review.artifact));
+  const rows = parse(csvBuffer, { columns: true, skip_empty_lines: true });
+  assert.equal(crypto.createHash("sha256").update(csvBuffer).digest("hex"), review.csv_sha256);
+  assert.equal(crypto.createHash("sha256").update(artifactBuffer).digest("hex"), review.artifact_sha256);
+  assert.equal(review.owner_approval.confirmation, "Zatwierdzam Batch J — dokładnie te 10");
+  assert.equal(review.owner_approval.approved_for_guarded_preparation, true);
+  assert.equal(review.owner_approval.approved_for_production_apply, false);
+  assert.equal(review.seller, "welzohealth");
+  assert.equal(review.seller_legal_name, "Welzo Ltd");
+  assert.equal(review.dry_run.plan_count, 10);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(review.dry_run.database_writes, 0);
+  assert.deepEqual(rows.map((row) => `${row.product_id}:${row.product_variant_id}:${row.external_variant_id}`), [
+    "482:1697:v1|227339481787|526541736174", "482:1698:v1|227339481787|526541736170",
+    "93:1011:v1|227339480945|526541656197", "93:1638:v1|227339480945|526541656195",
+    "93:1639:v1|227339480945|526541656194", "93:1640:v1|227339480945|526541656193",
+    "93:1641:v1|227339480945|526541656192", "93:1643:v1|227339480945|526541656198",
+    "222:752:v1|227319961531|526525449487", "222:755:v1|227319961531|526525449491",
+  ]);
+  assert.equal(review.identity_summary.exact_gtin_rows, 10);
+  assert.equal(review.identity_summary.exact_item_missing_gtin_exceptions, 0);
+  assert.ok(rows.every((row) => /^\d{8,14}$/.test(row.external_gtin) && row.shipping_known === "true" && row.shipping_cost === "3.99"));
+  assert.ok(review.entries.every((row) => row.match_method === "gtin" && row.match_confidence === "100" && row.seller === "welzohealth" && row.seller_legal_name === "Welzo Ltd"));
+  assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
+});
+
 test("Batch I production rollout is bound to the exact eight approved plans", () => {
   const validated = validateBatchIRollout();
   assert.equal(BATCH_I_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_I_EXACT_8");
