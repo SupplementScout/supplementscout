@@ -134,6 +134,10 @@ const CONTRACTS = Object.freeze({
         "142726b6db586b009bcfc889571c1567c7d2622187ae12e0a6f115ed7ce0b6ac",
       "20260820110000_add_discount_supplements_isolated_confirmed_price_refresh.sql":
         "a841a078d4cf035dab8056cab2850cdba65dfcc6ad6254c6b0c2151c02652a45",
+      "20260820120000_allow_production_validator_offer_refresh_reads.sql":
+        "58fe36cf5e711711b55c45c1631cd94fa057693526f1b5b118ab280fe8f7d571",
+      "20260820130000_allow_production_validator_bounded_rls_reads.sql":
+        "1b8b761f136845f6ee04b20ca3974ec600d090ac16f9ef1286f82e37a5dc9d86",
     }),
     pending: Object.freeze([]),
   }),
@@ -144,9 +148,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 123,
+    ledgerCount: 125,
     ledgerFingerprint:
-      "aaad7387a3d840ea17a53b4a7f3292bf17f61a03dc587a75752da4cc38dd3f3c",
+      "1bc441c17a144f86967aaed41bae36f5db91e218499e1e9b1a061599a4f4afd3",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -172,7 +176,7 @@ function invariant(value, message) {
 }
 
 function sha256File(file) {
-  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+  return crypto.createHash("sha256").update(fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n")).digest("hex");
 }
 
 function ledgerRowsFingerprint(rows) {

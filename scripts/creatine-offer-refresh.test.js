@@ -14,7 +14,7 @@ const manifest = require(MANIFEST_PATH);
 const refresh = require("./creatine-offer-refresh");
 
 function sha256(file) {
-  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+  return crypto.createHash("sha256").update(fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n")).digest("hex");
 }
 
 test("Discount refresh is frozen to the exact approved 14 mapping and offer identities", () => {
@@ -75,9 +75,14 @@ test("workflow uses isolated role-separated execution and never invokes the lega
 
 test("legacy entry point is now a thin profile wrapper with no direct database writes", () => {
   const source = fs.readFileSync(path.join(__dirname, "creatine-offer-refresh.js"), "utf8");
+  const engineSource = fs.readFileSync(path.join(__dirname, "fit-house-offer-refresh.js"), "utf8");
   assert.match(source, /RETAILER_REFRESH_PROFILE = "discount-supplements"/);
   assert.match(source, /require\("\.\/fit-house-offer-refresh"\)/);
   assert.doesNotMatch(source, /\.from\(|\.update\(|\.insert\(|SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(engineSource, /roleCredential\(target,"validator"\)/);
+  assert.match(engineSource, /default_transaction_read_only=on/);
+  assert.match(engineSource, /set role retailer_catalogue_\$\{target\}_validator/);
+  assert.doesNotMatch(engineSource, /target==="staging"&&!process\.env\.GITHUB_ACTIONS/);
 });
 
 test("production migration freezes the manifest and exposes only validator registration", () => {
