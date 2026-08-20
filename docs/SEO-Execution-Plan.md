@@ -123,11 +123,13 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-14 — run one bounded, read-only retailer-page
-feasibility and user-value audit against the existing catalogue, freshness and
-page-quality contracts. The audit does not authorise a retailer page, a dynamic
-generator or any catalogue/production-data write. Applied Nutrition, Per4m and
-BioTech USA are live verified; GYM HIGH remains deferred.
+**Next executable task:** SEO-14 — owner review of the audited, bounded
+`/retailers/ebay-uk` comparison-page contract. No implementation is authorised
+until approval. If approved, build only that exact static route from the
+existing guarded eBay offers and current cross-retailer comparison data; do not
+create a dynamic retailer generator or change catalogue/production data.
+Applied Nutrition, Per4m and BioTech USA are live verified; GYM HIGH remains
+deferred from both brand- and retailer-page publication.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -271,6 +273,56 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — SEO-14 retailer-page audit selects eBay UK; owner review required
+
+- A fresh production read-only audit captured at `2026-08-20T17:01:59.747Z`
+  performed zero production writes. It reviewed `1,070` active canonical
+  products, all `10` retailer rows and `1,802` qualifying in-stock offers under
+  the shared 24-hour freshness, positive-price, mapped-offer and valid-URL
+  boundary.
+- Because the repository had no established retailer-page gate, the audit used
+  a provisional, fail-closed translation of the existing `20 / 10 / 3 / 50 / 5`
+  contract: visible retailer products, products also available from another
+  retailer, retailers represented across those comparisons, fresh offers on
+  the visible product set and visible categories. Passing a numerical gate is
+  evidence for review, not automatic publication authority.
+- Whey Okay, eBay UK, 6 Pack Supplements, Fit House and Jon's Supplements
+  passed numerically. GYM HIGH also passed but remains excluded by the owner's
+  existing privacy/association decision. Discount Supplements, Dolphin Fitness,
+  Simply Supplements and KIOR Health failed one or more comparison or breadth
+  gates; Simply Supplements had `115` visible products but zero cross-retailer
+  comparisons.
+- eBay UK has the strongest comparison density and is the selected bounded
+  candidate: `69` visible products, `100` target-retailer offers, `65`
+  comparable products, `5` retailers across those comparisons, `348` fresh
+  offers on the visible product set, `10` categories, `26` brands and images on
+  all `69` products. The Retailer Data Source Registry independently records
+  that the exact `100` eBay offers are approved, guarded and refreshed, with
+  eBay creating the second retailer for `58` products and a third-or-later
+  retailer for `10`.
+- User value must be cross-retailer price comparison, not a thin eBay catalogue:
+  show the current eBay offer beside the best known alternative, rank genuinely
+  comparable products first, disclose that eBay is a marketplace and preserve
+  the normal affiliate/freshness limitations. The page must use only stored,
+  approved offers; it must not browse arbitrary listings, imply seller or
+  product endorsement, or make unsupported seller-quality claims.
+- Demand evidence is not overstated. The latest available seven-day Search
+  Console query export contained only one impression each for two other
+  retailer-name queries and none for eBay UK or Whey Okay. The outbound table
+  contained `33` eBay requests in the last 30 days, but `11` were classified as
+  likely automated and `22` remained unknown; zero may be represented as proven
+  human demand. External results show eBay's supplement inventory is far larger
+  than the guarded SupplementScout subset, reinforcing the need to describe
+  exact tracked offers rather than claim complete marketplace coverage.
+- Reuse is feasible through the current server-rendered comparison cards,
+  delivered-price/freshness rules, product imagery, canonical metadata,
+  `CollectionPage`/`ItemList`/`BreadcrumbList` schema, sitemap and analytics.
+  No retailer route currently exists, so any approved implementation must be
+  one explicit `/retailers/ebay-uk` page with a fail-closed gate, not a generic
+  route or retailer-page system.
+- State is `AUDIT PASSED`; `/retailers/ebay-uk` requires explicit owner approval
+  before implementation. SEO-14 remains `IN PROGRESS`.
 
 ### 20 August 2026 — SEO-14 BioTech USA brand page LIVE VERIFIED
 

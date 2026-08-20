@@ -2466,7 +2466,26 @@ mobile capture retained the already-recorded common-layout overflow rather than
 introducing a BioTech USA regression. No additional page is authorised merely
 by passing the gate, and no dynamic brand-page generator or catalogue correction
 is approved. The next executable unit is one bounded, read-only retailer-page
-feasibility and user-value audit through the existing contracts.
+feasibility and user-value audit through the existing contracts. That audit is
+complete. A provisional translation of the existing `20 / 10 / 3 / 50 / 5`
+gate found five publishable-review candidates after excluding owner-deferred
+GYM HIGH. eBay UK is the strongest bounded candidate because `65` of its `69`
+visible products have fresh offers from another retailer; its scope contains
+`100` guarded eBay offers, `348` fresh offers across the visible products, `5`
+retailers in comparisons, `10` categories, `26` brands and images on all `69`
+products. The registry independently records that eBay created a second
+retailer for `58` products and a third-or-later retailer for `10`. Search
+demand and human click evidence remain insufficient, so the recommendation is
+based on demonstrable comparison utility rather than a traffic claim.
+
+The proposed `/retailers/ebay-uk` page requires explicit owner approval. Its
+only acceptable purpose is to compare the stored, approved eBay offers with
+current alternatives from other UK retailers. It must disclose marketplace,
+affiliate, freshness and tracked-coverage limitations; use the existing
+server-rendered comparison mechanisms and fail-closed gate; and must not browse
+arbitrary eBay listings, imply seller endorsement, create a dynamic retailer
+generator or change catalogue/production data. GYM HIGH remains deferred from
+both brand- and retailer-page publication.
 
 ### Next task
 
