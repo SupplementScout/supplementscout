@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 11 August 2026<br>
+**Status date:** 20 August 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -113,9 +113,9 @@ Console evidence and user value.
 | SEO-08 | P1 | Launch the Whey Protein comparison landing page. | `LIVE VERIFIED` | Reviewed data-backed page covers current eligible products/offers, methodology, limitations, update time, internal links, analytics and a Search Console inspection record when authenticated report access is available. |
 | SEO-09 | P1 | Launch the Pre Workout comparison landing page. | `LIVE VERIFIED` | Same quality contract as SEO-08; no unsupported formulation or medical claims. |
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
-| SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `PLANNED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; only sufficiently covered brands receive indexable pages. |
+| SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `IN PROGRESS` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
-| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `IN PROGRESS` | Ten individually reviewed pages pass the shared quality contract and `LIVE VERIFIED` gate one at a time; no parallel page framework or thin mass generation is introduced. |
+| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `DEFERRED` | Owner-paused on 20 August 2026 until SEO-11 and SEO-14 finish; retain all completed evidence, then recheck Protein Bars without repeating live pages or weakening the shared gate. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `PLANNED` | Identity normalization and minimum coverage/content gates are tested; only useful pages are indexable and every page uses current canonical data. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
@@ -123,32 +123,17 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — owner review of the bounded Protein Bars
-coverage candidates recorded on 11 August. Prepare guarded work only for exact
-approved identities; do not count OOS rows, mix single bars with boxes or weaken
-the page gate.
-The owner approved the exact Strom MultiMAX and TBJP The One Discount
-identities. The guarded rollout corrected TBJP to 60 capsules, recorded Strom
-as 180 tablets and added only those two Discount mappings/offers. Fresh
-postflight returned 14/14 authorised Discount offers as `VERIFY_NO_CHANGE`, and
-both public product pages expose Discount alongside Jon's. Multivitamins now
-has four multi-retailer products, 20 fresh offers, five retailers and four
-visible verified-value products, so the unchanged `3 / 2 / 20` gate passes.
-Applied Nutrition Multi-Vitamin Complex remains deferred. The fixed-order cluster
-was rechecked on 11 August: Amino Acids / BCAA / EAA, Whey Isolate, Vegan
-Protein and Mass Gainer are live verified; Protein Bars, Electrolytes,
-Magnesium Glycinate and Ashwagandha remain below their unchanged
-coverage gates, while Creatine Monohydrate remains correctly consolidated into
-the existing `/creatine` canonical. The existing `/hydration` canonical was
-hardened instead of creating a duplicate Electrolytes URL, and the existing
-`/creatine` canonical retains Creatine Monohydrate intent instead of creating a
-competing URL. The first authenticated Search Console and GA4 measurement is
-recorded; Search Console coverage totals are now available (794 indexed, 181
-not indexed, updated 24 July 2026), while Core Web Vitals currently shows
-insufficient usage data for the last 90 days (to validate in PageSpeed Insights),
-and Links currently shows no external link activity with only internal link
-coverage. Top-page URL inspection is now collected automatically in the same
-reporting workflow.
+**Next executable task:** SEO-11 — normalize brand identities through the
+existing canonical catalogue. Start with the known `PER4M` / `Per4m` split and
+audit `Unknown` brand values. Do not merge uncertain brands or products, create
+a second brand model, or publish brand pages before the normalization evidence
+and owner-review boundary are complete.
+
+After SEO-11, SEO-14 becomes the single active implementation. Applied
+Nutrition is the first evidence-backed brand-page candidate (56 products, 27
+with at least two retailers and nine with at least three); GYM HIGH follows
+(29 / 20 / 6). Fresh page-level counts and the full quality contract remain
+mandatory, so these figures do not authorise thin mass pages.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -156,11 +141,12 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-13 one page at
-a time, SEO-11 and SEO-14, the 250-product multi-retailer checkpoint, SEO-15,
-SEO-16 and SEO-17.
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-11, SEO-14,
+the bounded SEO-13 Protein Bars recheck, the 250-product multi-retailer
+checkpoint, SEO-15, SEO-16 and SEO-17.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
-tracks, not permission to run a second implementation.
+tracks, not permission to run a second implementation or send outreach email
+while the owner's no-email decision remains in force.
 
 ## 7. Content rollout order
 
@@ -178,10 +164,10 @@ Current catalogue evidence supports this initial order:
 New pages must reuse one controlled category/decision-page system. Do not create
 one independent implementation per category.
 
-After Pre Workout and the shared SEO-10 methodology support are live, SEO-13
-evaluates and delivers this initial cluster in order. A row may be skipped or
-deferred only when the recorded evidence gate fails; the next eligible row then
-becomes active.
+The table below preserves SEO-13's reviewed cluster order and historical gate
+contract. The owner paused further SEO-13 execution on 20 August 2026 until
+SEO-11 and SEO-14 finish. When SEO-13 resumes, Protein Bars is rechecked first;
+completed pages are not rebuilt and no gate is weakened.
 
 | Order | Candidate page | Evidence gate before implementation |
 |---:|---|---|
@@ -291,6 +277,21 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 20 August 2026 — owner-approved SEO execution reorder
+
+- The owner explicitly reordered the growth sequence to SEO-11, SEO-14, a
+  fresh SEO-13 Protein Bars review, the 250-product multi-retailer checkpoint,
+  then the ordered deals, two-product comparison and expert-note features.
+- SEO-11 is now the single `IN PROGRESS` implementation. SEO-13 is deliberately
+  paused with all live and deferred evidence preserved; completed pages must
+  not be repeated and the Protein Bars `3 / 2 / 20` quality gate remains
+  unchanged.
+- The current read-only production checkpoint is 1,070 active products, 2,087
+  public offers and 10 active retailers. Of those products, 169 have at least
+  two retailers, leaving 81 to the next checkpoint of 250.
+- This status reconciliation changes plans only. It authorises no catalogue,
+  offer, retailer-mapping or production-data write.
 
 ### 17 August 2026 - exact product-to-comparison internal links live verification
 
