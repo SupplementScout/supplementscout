@@ -88,6 +88,18 @@ The single existing refresh manifest is now exact 50. Local and GitHub Actions
 dry-runs passed 50 eligible, zero blocked and zero writes; no second scheduler
 exists.
 
+The owner subsequently confirmed production apply of exactly the ten Batch J
+plans. Production authority is sealed to confirmation token
+`OWNER_APPROVED_EBAY_BATCH_J_EXACT_10`, rollout fingerprint
+`1f885a42ca003299ab5eb2389851e30a8e849799da3407ef75e6a26425a7f877`
+and the previously reviewed plans. The manual-only release reuses the Batch I
+guarded path: a fresh ten-item direct eBay preflight, separated
+approver/executor roles, exact-plan apply and ten-row no-op postflight. The
+local direct-read preflight passed 10/10 on 20 August 2026 with unchanged
+seller, legal identity, GTIN, variant, stock, affiliate URL and delivered
+prices. This records production authority and release readiness; no Batch J
+database or public-page write had occurred at this checkpoint.
+
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
 already present; 16 conflicts remain quarantined and outside the cohort. The
@@ -1891,11 +1903,12 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Obtain separate owner approval for production apply of the exact
-ten prepared Batch J rows, then build the guarded exact-ten live preflight,
-executor and postflight by reusing the Batch I release path. Keep the remaining
-four discovery candidates review-only. Do not create a second scheduler or
-weaken the exact identity, seller, delivery, affiliate or continuity gates.`
+`NEXT ACTION: Publish the sealed Batch J exact-ten release, run its protected
+apply once, verify the exact ten no-op postflight rows plus independent
+production/public evidence, and only then extend the existing single refresh
+manifest from exact 50 to the verified exact 60. Keep the remaining four
+discovery candidates review-only. Do not create a second scheduler or weaken
+the exact identity, seller, delivery, affiliate or continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1905,6 +1918,13 @@ owner-reviewed production design and approval.
 
 20 August 2026:
 
+- `BATCH J PRODUCTION AUTHORITY SEALED`: the owner approved production apply
+  of exactly the ten previously reviewed Welzo plans. The release is bound to
+  token `OWNER_APPROVED_EBAY_BATCH_J_EXACT_10` and rollout fingerprint
+  `1f885a42ca003299ab5eb2389851e30a8e849799da3407ef75e6a26425a7f877`.
+  A fresh local direct-item preflight passed 10/10 with the approved GTINs,
+  seller/legal identity, stock, shipping and delivered prices. Production
+  writes remained zero at this readiness checkpoint.
 - `FIRST SCHEDULED EXACT-50 EVIDENCE RETAINED`: scheduled run `32337925736`
   completed successfully on `main`. All contract, fresh preflight, prepare,
   apply and immediate no-op verification steps passed. The postflight had 50

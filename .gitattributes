@@ -1,0 +1,5 @@
+/docs/rollouts/ebay-offer-canary/batch-j.csv text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-j-artifact.json text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-j-artifact.json.sha256 text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-j-review.json text eol=lf
+/docs/rollouts/ebay-offer-canary/batch-j-rollout.json text eol=lf

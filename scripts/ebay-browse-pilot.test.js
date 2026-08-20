@@ -12,6 +12,7 @@ const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EX
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
 const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: validateBatchHRecovery } = require("./ebay-offer-batch-h-recovery-executor");
 const { CONFIRMATION: BATCH_I_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_I_IDENTITIES, parseArgs: parseBatchIArgs, validateRollout: validateBatchIRollout } = require("./ebay-offer-batch-i-executor");
+const { CONFIRMATION: BATCH_J_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_J_IDENTITIES, parseArgs: parseBatchJArgs, validateLiveSources: validateBatchJLiveSources, validateRollout: validateBatchJRollout } = require("./ebay-offer-batch-j-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -606,6 +607,61 @@ test("Batch J owner review seals exactly ten Welzo business listings without pro
   assert.ok(rows.every((row) => /^\d{8,14}$/.test(row.external_gtin) && row.shipping_known === "true" && row.shipping_cost === "3.99"));
   assert.ok(review.entries.every((row) => row.match_method === "gtin" && row.match_confidence === "100" && row.seller === "welzohealth" && row.seller_legal_name === "Welzo Ltd"));
   assert.ok(review.entries.every((row) => row.planned_actions.join(",") === "retailer_product:create,offer:create,price_history:create"));
+});
+
+test("Batch J production rollout is bound to the exact ten approved plans", () => {
+  const validated = validateBatchJRollout();
+  assert.equal(BATCH_J_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_J_EXACT_10");
+  assert.equal(validated.entries.length, 10);
+  assert.deepEqual(BATCH_J_IDENTITIES, [
+    "482:1697:v1|227339481787|526541736174", "482:1698:v1|227339481787|526541736170",
+    "93:1011:v1|227339480945|526541656197", "93:1638:v1|227339480945|526541656195",
+    "93:1639:v1|227339480945|526541656194", "93:1640:v1|227339480945|526541656193",
+    "93:1641:v1|227339480945|526541656192", "93:1643:v1|227339480945|526541656198",
+    "222:752:v1|227319961531|526525449487", "222:755:v1|227319961531|526525449491",
+  ]);
+  assert.equal(parseBatchJArgs(["--mode=preflight", "--output=tmp/batch-j-preflight.json"]).mode, "preflight");
+  assert.throws(() => parseBatchJArgs(["--mode=execute", "--output=tmp/batch-j.json"]), /preflight\|validate\|apply/);
+  assert.ok(validated.entries.every(({ approved }) => approved.match_method === "gtin" && approved.match_confidence === "100"));
+});
+
+test("Batch J live preflight rechecks all ten exact Welzo items and fails on drift", async () => {
+  resetTokenCache();
+  const { entries } = validateBatchJRollout();
+  const fixtures = entries.map(({ approved }, index) => item({
+    itemId: approved.external_variant_id,
+    legacyItemId: approved.external_product_id,
+    title: index < 2 ? "JNX Sports The Curse!" : index < 8 ? "JNX Sports The Ripper! 150 grams" : "Mutant Mutant Mass",
+    gtin: approved.gtin,
+    price: { value: approved.price, currency: "GBP" },
+    shippingOptions: [{ shippingCost: { value: approved.shipping_cost, currency: "GBP" } }],
+    seller: { username: "welzohealth", sellerAccountType: "BUSINESS", sellerLegalInfo: { name: "Welzo Ltd" }, feedbackPercentage: "99.7", feedbackScore: 2974 },
+    localizedAspects: [{ name: "Flavour", value: `${approved.flavour} / ${approved.size_value} grams` }, { name: "Size", value: `${approved.size_value} grams` }],
+    itemAffiliateWebUrl: `https://www.ebay.co.uk/itm/${approved.external_product_id}?campid=123`,
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK" }],
+  }));
+  const config = { EBAY_CLIENT_ID: "id", EBAY_CLIENT_SECRET: "secret", EBAY_UK_DELIVERY_POSTCODE: "SW1A 1AA", EBAY_EPN_CAMPAIGN_ID: "123" };
+  const fetchImpl = async (url) => {
+    if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    return { ok: true, status: 200, json: async () => fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId))) };
+  };
+  assert.equal((await validateBatchJLiveSources(fetchImpl, config)).length, 10);
+  await assert.rejects(() => validateBatchJLiveSources(async (url) => {
+    if (String(url).includes("oauth2/token")) return { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    const found = fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId)));
+    return { ok: true, status: 200, json: async () => found === fixtures[0] ? { ...found, price: { value: "1.00", currency: "GBP" } } : found };
+  }, config), /live safety evidence drift/);
+  resetTokenCache();
+});
+
+test("Batch J workflow requires exact production confirmation and ten-row postflight", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-batch-j.yml"), "utf8");
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_J_EXACT_10/);
+  assert.match(workflow, /--mode=preflight/);
+  assert.match(workflow, /--mode=.*apply/);
+  assert.match(workflow, /plans\.length!==10/);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
+  assert.doesNotMatch(workflow, /schedule:/);
 });
 
 test("Batch I production rollout is bound to the exact eight approved plans", () => {
