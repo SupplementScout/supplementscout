@@ -603,7 +603,16 @@ export default async function ProductPage({
             >
               {product.brand && (
                 <p className="min-w-0 max-w-full break-words text-xs font-semibold uppercase tracking-widest text-[#6B7280] [overflow-wrap:anywhere] sm:text-sm">
-                  {product.brand}
+                  {product.brand === "Applied Nutrition" ? (
+                    <Link
+                      href="/brands/applied-nutrition"
+                      className="underline underline-offset-4 hover:text-[#111827]"
+                    >
+                      {product.brand}
+                    </Link>
+                  ) : (
+                    product.brand
+                  )}
                 </p>
               )}
 
