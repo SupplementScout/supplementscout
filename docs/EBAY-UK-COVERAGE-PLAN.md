@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 50-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8)
-**Last verified:** 18 August 2026
-**Production writes:** 50 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 50 mappings, 50 offers, 50 price-history rows; latest refresh changed verification timestamps only)
-**Public changes:** 1 guarded account-deletion API route and 50 live eBay offers
+**Status:** CONTROLLED 60-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10)
+**Last verified:** 20 August 2026
+**Production writes:** 60 owner-approved create plans plus 94 exact existing-offer verification refreshes (1 retailer, 60 mappings, 60 offers, 60 price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 60 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,7 +41,7 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 50-offer rollout are complete. The
+read-only Browse pilot and the controlled 60-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
 production evidence includes the 17 August 2026 exact-offer refresh and
 postflight below. The exact-50 daily refresh is enabled at `05:43 UTC`; each
@@ -97,8 +97,16 @@ guarded path: a fresh ten-item direct eBay preflight, separated
 approver/executor roles, exact-plan apply and ten-row no-op postflight. The
 local direct-read preflight passed 10/10 on 20 August 2026 with unchanged
 seller, legal identity, GTIN, variant, stock, affiliate URL and delivered
-prices. This records production authority and release readiness; no Batch J
-database or public-page write had occurred at this checkpoint.
+prices. Protected workflow `32343151465` subsequently created all ten mappings,
+offers and history rows and passed the exact ten-row no-op postflight.
+Independent readback confirmed mapping IDs `2774`-`2783`, offer IDs
+`2589`-`2598`, 60 total unique eBay mappings/offers and no duplicate variant or
+external-listing identities. All three affected public product pages returned
+HTTP 200 and visibly exposed eBay UK offers. Batch J is live verified 10/10.
+The existing refresh extension to exact 60 is locally prepared; its fresh
+read-only production run returned 59 eligible no-ops and isolated existing
+offer `2543` because eBay temporarily returned unknown UK shipping. The block
+did not fail the run and cannot remove or overwrite that offer.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1903,12 +1911,12 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Publish the sealed Batch J exact-ten release, run its protected
-apply once, verify the exact ten no-op postflight rows plus independent
-production/public evidence, and only then extend the existing single refresh
-manifest from exact 50 to the verified exact 60. Keep the remaining four
-discovery candidates review-only. Do not create a second scheduler or weaken
-the exact identity, seller, delivery, affiliate or continuity gates.`
+`NEXT ACTION: Publish the existing single refresh extension from exact 50 to
+exact 60, run its protected read-only GitHub preflight, and retain row-level
+isolation for offer 2543 until eBay returns known UK shipping. Keep the
+remaining four discovery candidates review-only. Do not create a second
+scheduler or weaken the exact identity, seller, delivery, affiliate or
+continuity gates.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -1918,6 +1926,16 @@ owner-reviewed production design and approval.
 
 20 August 2026:
 
+- `BATCH J LIVE VERIFIED 10/10`: protected run `32343151465` passed the fresh
+  exact-item preflight, consumed and executed all ten approvals and returned
+  ten exact no-op plans in postflight. Artifact `9397067420` contains the
+  immutable preflight, execution and postflight reports. Independent production
+  readback confirmed mappings `2774`-`2783`, offers `2589`-`2598`, 60 total
+  eBay mappings/offers and no duplicate variant or external-listing identities.
+  The three affected public product pages returned HTTP 200 and visibly showed
+  eBay UK. A fresh local exact-60 refresh dry-run then produced 59 eligible
+  no-ops, zero writes and one safely isolated pre-existing row (`2543`) whose
+  current eBay response did not prove UK shipping.
 - `BATCH J PRODUCTION AUTHORITY SEALED`: the owner approved production apply
   of exactly the ten previously reviewed Welzo plans. The release is bound to
   token `OWNER_APPROVED_EBAY_BATCH_J_EXACT_10` and rollout fingerprint
