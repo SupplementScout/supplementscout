@@ -22,6 +22,7 @@ const popularSearches = [
   { label: "Amino Acids", href: "/amino-acids" },
   { label: "Applied Nutrition", href: "/brands/applied-nutrition" },
   { label: "Per4m", href: "/brands/per4m" },
+  { label: "BioTech USA", href: "/brands/biotech-usa" },
   { label: "Magnesium", href: "/magnesium" },
   { label: "Vitamin D", href: "/vitamin-d" },
   { label: "Electrolytes", query: "electrolytes" },

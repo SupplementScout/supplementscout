@@ -617,6 +617,13 @@ export default async function ProductPage({
                     >
                       {product.brand}
                     </Link>
+                  ) : product.brand === "BioTech USA" ? (
+                    <Link
+                      href="/brands/biotech-usa"
+                      className="underline underline-offset-4 hover:text-[#111827]"
+                    >
+                      {product.brand}
+                    </Link>
                   ) : (
                     product.brand
                   )}

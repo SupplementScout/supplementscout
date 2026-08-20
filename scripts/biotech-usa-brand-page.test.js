@@ -1,0 +1,287 @@
+
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const Module = require("node:module");
+const path = require("node:path");
+const test = require("node:test");
+const React = require("react");
+const { renderToStaticMarkup } = require("react-dom/server");
+const ts = require("typescript");
+
+function compileModule(filename, options = {}) {
+  const source = fs.readFileSync(filename, "utf8");
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      esModuleInterop: true,
+      jsx: ts.JsxEmit.ReactJSX,
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: filename,
+  });
+  const mod = new Module(filename, module);
+  const originalLoad = Module._load;
+  Module._load = function patchedLoad(request, parent, isMain) {
+    if (parent === mod && Object.hasOwn(options.mocks || {}, request)) {
+      return options.mocks[request];
+    }
+    return originalLoad.call(this, request, parent, isMain);
+  };
+  try {
+    mod.filename = filename;
+    mod.paths = Module._nodeModulePaths(path.dirname(filename));
+    mod._compile(outputText, filename);
+  } finally {
+    Module._load = originalLoad;
+  }
+  return mod.exports;
+}
+
+const root = process.cwd();
+const pricing = compileModule(path.join(root, "app/lib/pricing.ts"));
+const offerFreshness = compileModule(path.join(root, "app/lib/offerFreshness.ts"));
+const freshness = compileModule(path.join(root, "app/lib/creatineLaunch.ts"), {
+  mocks: { "./offerFreshness": offerFreshness },
+});
+const categoryComparison = compileModule(
+  path.join(root, "app/lib/categoryComparison.ts"),
+  { mocks: { "./creatineLaunch": freshness, "./pricing": pricing } }
+);
+const brandPath = path.join(root, "app/lib/bioTechUSABrand.ts");
+const pagePath = path.join(root, "app/brands/biotech-usa/page.tsx");
+const fixtureNow = new Date("2026-08-20T12:00:00.000Z");
+
+function rawOffer(overrides = {}) {
+  return {
+    id: 11,
+    retailer_product_id: 101,
+    price: 24,
+    shipping_cost: 4.99,
+    in_stock: true,
+    last_checked_at: "2026-08-20T11:00:00.000Z",
+    url: "https://retailer.example/products/biotech-usa",
+    retailer: { id: 1, name: "Retailer One", slug: "retailer-one" },
+    ...overrides,
+  };
+}
+
+function rawProduct(overrides = {}) {
+  return {
+    id: 1,
+    slug: "biotech-usa-example-1kg",
+    name: "BioTech USA Example 1kg",
+    brand: "BioTech USA",
+    category: "Whey Protein",
+    image: "https://example.test/biotech-usa.png",
+    product_format: "powder",
+    net_weight_g: 1000,
+    net_volume_ml: null,
+    unit_count: null,
+    unit_type: null,
+    serving_count_verified: null,
+    serving_size_g: null,
+    protein_per_serving_g: null,
+    unit_pricing_verified: false,
+    nutrition_verified: false,
+    is_active: true,
+    merged_into_product_id: null,
+    merged_at: null,
+    offers: [rawOffer()],
+    ...overrides,
+  };
+}
+
+function loadBrand(mockSupabase = {}) {
+  return compileModule(brandPath, {
+    mocks: {
+      "./categoryComparison": categoryComparison,
+      "./supabase": { supabase: mockSupabase },
+    },
+  });
+}
+
+function passingResult() {
+  const categories = [
+    "Whey Protein",
+    "Creatine",
+    "Pre Workout",
+    "Amino Acids",
+    "Vitamins",
+  ];
+  const products = Array.from({ length: 20 }, (_, index) =>
+    rawProduct({
+      id: index + 1,
+      slug: `biotech-usa-product-${index + 1}`,
+      name: `BioTech USA Product ${index + 1}`,
+      category: categories[index % categories.length],
+      offers:
+        index < 15
+          ? [
+              rawOffer({ id: index * 3 + 1, retailer: { id: 1, name: "One", slug: "one" } }),
+              rawOffer({ id: index * 3 + 2, retailer: { id: 2, name: "Two", slug: "two" } }),
+              rawOffer({ id: index * 3 + 3, retailer: { id: 3, name: "Three", slug: "three" } }),
+            ]
+          : [rawOffer({ id: index * 3 + 1 })],
+    })
+  );
+  return { ...loadBrand().normalizeBioTechUSABrand(products, { now: fixtureNow }), error: false };
+}
+
+function Link({ href, children, ...props }) {
+  return React.createElement(
+    "a",
+    { href: typeof href === "string" ? href : href.pathname, ...props },
+    children
+  );
+}
+
+function loadPage(result = passingResult()) {
+  let calls = 0;
+  const brand = loadBrand();
+  const page = compileModule(pagePath, {
+    mocks: {
+      "next/link": { __esModule: true, default: Link },
+      "../../components/ComparisonProductVisuals": require("./test-helpers/comparison-product-visuals"),
+      "../../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
+      "../../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
+      "../../lib/pricing": pricing,
+      "../../lib/bioTechUSABrand": {
+        getBioTechUSABrand: async () => { calls += 1; return result; },
+        evaluateBioTechUSAIndexability: brand.evaluateBioTechUSAIndexability,
+        bioTechUSADisplayCategory: brand.bioTechUSADisplayCategory,
+      },
+    },
+  });
+  return { page, calls: () => calls };
+}
+
+test("BioTech USA scope is exact and rejects aliases, inactive and merged products", () => {
+  const { isBioTechUSAProduct } = loadBrand();
+  assert.equal(isBioTechUSAProduct(rawProduct()), true);
+  assert.equal(isBioTechUSAProduct(rawProduct({ brand: "BioTechUSA" })), false);
+  assert.equal(isBioTechUSAProduct(rawProduct({ brand: "Unknown" })), false);
+  assert.equal(isBioTechUSAProduct(rawProduct({ is_active: false })), false);
+  assert.equal(isBioTechUSAProduct(rawProduct({ merged_into_product_id: 9 })), false);
+  assert.equal(isBioTechUSAProduct(rawProduct({ merged_at: "2026-08-20T00:00:00Z" })), false);
+});
+
+test("page-only category display groups are bounded to the eleven approved products", () => {
+  const brand = loadBrand();
+  const expected = new Map([
+    [10, "Whey Isolate"], [14, "Whey Isolate"], [1014, "Whey Isolate"],
+    [1018, "Whey Isolate"], [71, "Plant Protein"], [67, "Casein Protein"],
+    [1119, "Food & Snacks"], [1099, "Food & Baking Mixes"],
+    [1082, "Food & Snacks"], [402, "Natural Plant Extracts"],
+    [365, "Amino Acids"],
+  ]);
+  for (const [id, group] of expected) {
+    assert.equal(brand.bioTechUSADisplayCategory({ id, category: "Wrong" }), group);
+  }
+  assert.equal(brand.bioTechUSADisplayCategory({ id: 999, category: "Whey Protein" }), "Whey Protein");
+  const result = brand.normalizeBioTechUSABrand(
+    [...expected].map(([id], index) => rawProduct({
+      id,
+      slug: `biotech-usa-display-${index + 1}`,
+      category: "Wrong",
+    })),
+    { now: fixtureNow }
+  );
+  assert.deepEqual(result.categories.map((row) => row.name).sort(), [
+    "Amino Acids", "Casein Protein", "Food & Baking Mixes", "Food & Snacks",
+    "Natural Plant Extracts", "Plant Protein", "Whey Isolate",
+  ]);
+});
+
+test("brand normalization reuses current mapped offers", () => {
+  const result = loadBrand().normalizeBioTechUSABrand([
+    rawProduct({ offers: [rawOffer(), rawOffer({ id: 12, retailer: { id: 2, name: "Two", slug: "two" } })] }),
+    rawProduct({ id: 2, slug: "biotech-usa-creatine", category: "Creatine", offers: [rawOffer({ id: 21 })] }),
+    rawProduct({ id: 3, slug: "stale", offers: [rawOffer({ id: 31, last_checked_at: "2026-07-20T00:00:00Z" })] }),
+  ], { now: fixtureNow });
+  assert.equal(result.summary.visibleProducts, 2);
+  assert.equal(result.summary.productsWithMultipleFreshRetailers, 1);
+  assert.equal(result.summary.freshOffers, 3);
+});
+
+test("brand indexability fails closed across all coverage gates", () => {
+  const brand = loadBrand();
+  const result = passingResult();
+  assert.deepEqual(brand.evaluateBioTechUSAIndexability(result, true), { indexable: true, blockers: [] });
+  const failed = brand.evaluateBioTechUSAIndexability({
+    ...result,
+    categories: result.categories.slice(0, 4),
+    summary: {
+      ...result.summary,
+      visibleProducts: 19,
+      freshOffers: 49,
+      productsWithMultipleFreshRetailers: 9,
+      freshRetailersAcrossComparisons: 2,
+    },
+  }, false);
+  for (const blocker of [
+    "insufficient_visible_products",
+    "insufficient_multi_retailer_products",
+    "insufficient_comparison_retailers",
+    "insufficient_fresh_offers",
+    "insufficient_visible_categories",
+    "structured_data_invalid",
+  ]) assert.ok(failed.blockers.includes(blocker));
+});
+
+test("production query is exact and bounded", () => {
+  const source = fs.readFileSync(brandPath, "utf8");
+  assert.match(source, /const BRAND = "BioTech USA"/);
+  assert.match(source, /\.eq\("brand", BRAND\)/);
+  assert.match(source, /\.range\(0, QUERY_LIMIT - 1\)/);
+  assert.match(source, /\.is\("merged_into_product_id", null\)/);
+});
+
+test("metadata, JSON-LD and visible page pass the brand quality contract", async () => {
+  const { page } = loadPage();
+  const metadata = await page.generateMetadata();
+  assert.equal(metadata.robots.index, true);
+  assert.equal(metadata.alternates.canonical, "/brands/biotech-usa");
+  const result = passingResult();
+  assert.equal(page.isBioTechUSAStructuredDataValid(result.rows), true);
+  const json = JSON.stringify(page.buildBioTechUSAStructuredData(result.rows));
+  assert.match(json, /CollectionPage/);
+  assert.match(json, /ItemList/);
+  assert.match(json, /BreadcrumbList/);
+  assert.doesNotMatch(json, /\"@type\":\"Product\"|seller|rating|review/i);
+  const html = renderToStaticMarkup(React.createElement(page.BioTechUSAPageContent, { result }));
+  assert.match(html, /BioTech USA Products &amp; Prices UK/);
+  assert.match(html, /independent comparison service/);
+  assert.match(html, /checked within 24 hours/);
+  assert.match(html, /https:\/\/shop\.biotechusa\.com\/collections/);
+  assert.match(html, /unsupported performance, health or formulation claims/);
+  assert.match(html, /\/product\/biotech-usa-product-1/);
+});
+
+test("data failure noindexes and renders no stale structured data", async () => {
+  const failed = { ...categoryComparison.emptyCategoryComparisonResult(), categories: [] };
+  const { page } = loadPage(failed);
+  const metadata = await page.generateMetadata();
+  assert.equal(metadata.robots.index, false);
+  assert.equal(metadata.robots.follow, true);
+  const html = renderToStaticMarkup(React.createElement(page.BioTechUSAPageContent, { result: failed }));
+  assert.doesNotMatch(html, /application\/ld\+json/);
+  assert.match(html, /Current brand data is unavailable/);
+});
+
+test("BioTech USA has bounded sitemap, homepage, product and analytics links", () => {
+  const sitemap = fs.readFileSync(path.join(root, "app/sitemap.ts"), "utf8");
+  const home = fs.readFileSync(path.join(root, "app/page.tsx"), "utf8");
+  const product = fs.readFileSync(path.join(root, "app/product/[id]/page.tsx"), "utf8");
+  const page = fs.readFileSync(pagePath, "utf8");
+  assert.equal((sitemap.match(/brands\/biotech-usa/g) || []).length, 1);
+  assert.match(home, /BioTech USA.*\/brands\/biotech-usa/);
+  assert.match(product, /product\.brand === "BioTech USA"[\s\S]*"\/brands\/biotech-usa"/);
+  assert.match(page, /sourcePage="biotech_usa_brand"/);
+});
+
+test("the default Server Component loads the brand comparison once", async () => {
+  const loaded = loadPage();
+  await loaded.page.default();
+  assert.equal(loaded.calls(), 1);
+});
+
