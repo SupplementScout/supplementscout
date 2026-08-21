@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 100-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10 + BATCH K 20/20 + BATCH L 20/20)
-**Last verified:** 20 August 2026
-**Production writes:** 100 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 100 mappings, 100 offers, 100 initial price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 100 live eBay offers
+**Status:** CONTROLLED 102-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10 + BATCH K 20/20 + BATCH L 20/20 + BATCH M 2/2)
+**Last verified:** 21 August 2026
+**Production writes:** 102 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 102 mappings, 102 offers, 102 initial price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 102 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,10 +41,10 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 100-offer rollout are complete. The
+read-only Browse pilot and the controlled 102-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
-production evidence includes the 17 August 2026 exact-offer refresh and
-postflight below. The exact-100 daily refresh is enabled at `05:43 UTC`; each
+production evidence includes the Batch M apply and exact-offer refresh below.
+The exact-102 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
@@ -148,6 +148,23 @@ Protected read-only workflow `32366067776` then passed the same 100/100
 contract with zero blocked rows and zero writes; retained artifact
 `9405372127` has the same aggregate SHA-256. The one existing scheduler now
 owns all 100 offers and retains per-row isolation and automatic-OOS blocking.
+
+Batch M is live verified 2/2. The owner-approved scope contains only Reflex
+Nutrition Clear Whey Isolate 510 g Mango and Efectiv Nutrition Grass-Fed Whey
+Protein Isolate 2 kg Strawberry Milkshake, using exact returned GTINs and the
+reviewed business sellers. PR `#29` merged the guarded package to `main` as
+`3c444c9d3083512102b9168ed192b0c2ae9a0fc8`. Protected production run
+`32472639897` passed the fresh two-item preflight, executed exactly two plans
+and returned two exact no-ops in postflight. Independent readback confirmed
+mappings `2825`-`2826`, offers `2639`-`2640`, expected product/variant IDs,
+prices GBP 24.99 and GBP 64.99, zero shipping, in-stock state, exact GTINs and
+EPN Campaign-ID URLs. Both public product pages returned HTTP 200 and exposed
+the eBay UK offer. The same existing refresh mechanism now owns exactly 102
+offers. Protected read-only run `32472882697` passed 102/102
+`verify_no_change`, zero blocked rows, zero executions and automatic-OOS
+blocking; artifact `9443283850` has SHA-256
+`4b3540da62e058656b3cf39d026e91f68b69d0f0562851abd6d92142348b123b`.
+No second scheduler or importer was introduced.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1954,8 +1971,8 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Hold new eBay discovery and batching until the owner-approved
-250-product multi-retailer coverage phase. Batch L is complete and the single
-shared scheduler is exact 100. Do not repeat Batches A-L, return to exact 80,
+250-product multi-retailer coverage phase. Batch M is complete and the single
+shared scheduler is exact 102. Do not repeat Batches A-M, return to exact 100,
 create a second scheduler or weaken the exact identity, seller, delivery,
 affiliate or continuity gates. When coverage work resumes, select only exact
 offers that create a second retailer for an existing product and pass a new
@@ -1967,7 +1984,21 @@ owner-reviewed production design and approval.
 
 ## Last verified
 
-20 August 2026:
+21 August 2026:
+
+- `BATCH M LIVE VERIFIED 2/2`: PR `#29` merged as
+  `3c444c9d3083512102b9168ed192b0c2ae9a0fc8`; protected production run
+  `32472639897` executed exactly two plans and passed the exact two-row no-op
+  postflight. Independent production readback confirmed mappings `2825`-`2826`,
+  offers `2639`-`2640`, exact GTIN/product/variant bindings, GBP 24.99 and GBP
+  64.99 delivered totals, in-stock state and Campaign-ID URLs. Both public
+  product pages returned HTTP 200 with visible eBay UK offers.
+- `EXACT-102 REFRESH LIVE PREFLIGHT VERIFIED`: protected read-only run
+  `32472882697` returned `PASS`, 102 eligible `verify_no_change` rows, zero
+  blocked rows, zero executions and automatic out-of-stock blocked. Artifact
+  `9443283850` was retained with SHA-256
+  `4b3540da62e058656b3cf39d026e91f68b69d0f0562851abd6d92142348b123b`.
+  The same existing `05:43 UTC` scheduler owns all 102 offers.
 
 - `BATCH L LIVE VERIFIED 20/20`: protected production run `32363658846`
   created mapping IDs `2805`-`2824` and offer IDs `2619`-`2638`, then passed

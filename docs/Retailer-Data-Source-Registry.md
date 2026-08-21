@@ -511,20 +511,22 @@ Products with at least 2 active retailers.
 - Status: **66-OFFER REVIEWED CATALOGUE LIVE; DAILY MONITOR AND GUARDED REFRESH
   OPERATIONAL; LATEST REMOTE RUN GREEN**.
 
-## eBay UK current record - 20 August 2026
+## eBay UK current record - 21 August 2026
 
 - Retailer ID: `12`; source: eBay Browse API plus exact item-ID revalidation;
   affiliate destinations require eBay-returned EPN Campaign-ID URLs.
-- Batches A-L are complete. Production has exactly 100 approved eBay mappings,
-  100 public offers and 100 initial price-history rows. Batch L run
-  `32363658846` created mappings `2805`-`2824` and offers `2619`-`2638`.
-- The single existing workflow refreshes the exact 100-offer manifest at
-  `05:43 UTC`. Read-only run `32366067776` passed 100/100 with zero blocked rows
-  and zero writes; artifact `9405372127` retains the evidence.
-- Current impact: 69 products covered, including 58 where eBay created the
-  second retailer and 10 where it created the third or later retailer.
-- Status: **EXACT 100 LIVE AND GUARDED; NEW DISCOVERY/BATCHING PAUSED UNTIL THE
-  250-PRODUCT COVERAGE PHASE**. Do not repeat Batch L or return to exact 80.
+- Batches A-M are complete. Production has exactly 102 approved eBay mappings,
+  102 public offers and 102 initial price-history rows. Batch M production run
+  `32472639897` created mappings `2825`-`2826` and offers `2639`-`2640`, then
+  passed the exact two-row no-op postflight. PR `#29` supplied the guarded
+  release on merge SHA `3c444c9d3083512102b9168ed192b0c2ae9a0fc8`.
+- The single existing workflow refreshes the exact 102-offer manifest at
+  `05:43 UTC`. Read-only run `32472882697` passed 102/102 with zero blocked rows
+  and zero writes; artifact `9443283850` retains the evidence.
+- Current live in-stock impact: 71 products covered, including 58 with exactly
+  two comparison retailers, 12 with three or more and one eBay-only product.
+- Status: **EXACT 102 LIVE AND GUARDED; NEW DISCOVERY/BATCHING PAUSED UNTIL THE
+  250-PRODUCT COVERAGE PHASE**. Do not repeat Batch M or return to exact 100.
 
 ## Initial registry template
 
