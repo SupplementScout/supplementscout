@@ -869,12 +869,14 @@ public HTTP `200`, canonical/indexable metadata, schema, current coverage,
 sitemap and product-link evidence. No dynamic brand generator or catalogue
 correction is authorised.
 
-eBay Batches J, K and L are complete. Batch L added exactly 20 approved offers
-in run `32363658846` (mappings `2805`-`2824`, offers `2619`-`2638`). The shared
-refresh is exact 100; read-only run `32366067776` passed 100/100 with zero
-blocked rows and zero writes, retaining artifact `9405372127`. Do not recreate
-Batch L, return to exact 80 or add another eBay batch before the 250-product
-coverage phase.
+eBay Batches J, K, L and M are complete. Batch M added exactly two
+owner-approved whey-isolate offers in protected run `32472639897` (mappings
+`2825`-`2826`, offers `2639`-`2640`) after PR `#29` merged as
+`3c444c9d3083512102b9168ed192b0c2ae9a0fc8`. The shared refresh is exact 102;
+read-only run `32472882697` passed 102/102 `verify_no_change` with zero blocked
+rows and zero writes, retaining artifact `9443283850`. Independent readback and
+both public product pages passed. Do not recreate Batch M, return to exact 100
+or add another eBay batch before the 250-product coverage phase.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
