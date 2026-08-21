@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 121-OFFER ROLLOUT LIVE VERIFIED (BATCH N 19/19 COMPLETE)
+**Status:** CONTROLLED 121-OFFER ROLLOUT LIVE VERIFIED; OWNER-APPROVED BATCH O 20/20 PREPARED, NOT YET LIVE
 **Last verified:** 21 August 2026
 **Production writes:** 121 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 121 mappings, 121 offers, 121 initial price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 121 live eBay offers
@@ -165,6 +165,24 @@ offers. Protected read-only run `32472882697` passed 102/102
 blocking; artifact `9443283850` has SHA-256
 `4b3540da62e058656b3cf39d026e91f68b69d0f0562851abd6d92142348b123b`.
 No second scheduler or importer was introduced.
+
+Batch O is owner-approved and locally prepared for exactly 20 listings. The
+owner confirmed `zatwierdzam wszystkie, nie pytaj o potwierdzenia, doprowadz do
+zakonczenia etapu`, authorising guarded preparation and production apply of the
+numbered 20-row scope. Fresh direct-item reads verified all 20 exact item and
+variation IDs, business sellers, known free UK delivery, in-stock state and
+Campaign-ID affiliate URLs. Eleven rows return exact GTINs; nine missing-GTIN
+rows remain sealed to the exact reviewed canonical variant, listing and seller.
+Five rows create product-level second-retailer coverage and 15 add an exact
+previously uncovered eBay variant to a product already covered by eBay. The
+five BioTech variations sharing parent listing `323304007010` use a closed
+owner-approved cross-product parent contract and do not weaken the global
+identity rule. The existing importer returned 20 create plans, zero blocked
+rows and zero database writes. The manual-only workflow requires confirmation
+`OWNER_APPROVED_EBAY_BATCH_O_EXACT_20`, a fresh 20-item preflight, separated
+approver/executor roles and an exact 20-row no-op postflight. Production remains
+at 121 offers until that guarded workflow completes; the prepared shared
+refresh extension to 141 is not live evidence before postflight.
 
 Batch N is live verified 19/19. The
 owner reviewed the numbered 20-row comparison list and confirmed `oprocz nr 5,
@@ -1996,13 +2014,12 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Continue the owner-approved 250-product multi-retailer coverage
-phase from the live 187-product checkpoint. Batch N is complete and the single
-shared scheduler is exact 121. Do not repeat Batches A-N, return to an older
-refresh scope, create a second scheduler or weaken the exact identity, seller,
-delivery, affiliate or continuity gates. Select the next bounded candidate set
-only from exact offers that add an independent retailer to an existing product,
-then retain owner review before any new production scope.`
+`NEXT ACTION: Merge the exact owner-approved Batch O package, execute its
+manual protected 20-row production apply, verify the exact no-op postflight,
+public pages and production identities, then enable and verify the same shared
+refresh at exact 141. Production remains exact 121 until those gates pass. Do
+not repeat Batches A-N, create a second scheduler or widen the five reviewed
+BioTech shared-parent identities.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -2012,6 +2029,13 @@ owner-reviewed production design and approval.
 
 21 August 2026:
 
+- `BATCH O OWNER-APPROVED AND PREPARED 20/20`: fresh direct-item evidence and
+  the existing canonical importer produced 20 create plans, zero blockers and
+  zero writes. Eleven rows have exact returned GTINs and nine missing-GTIN rows
+  are sealed to their exact reviewed identities. Five rows create a new
+  product-level second retailer and 15 expand exact uncovered variants. The
+  existing shared refresh is prepared for exact 141 but remains live at 121
+  until the protected apply and postflight pass.
 - `BATCH N LIVE VERIFIED 19/19`: PR `#34` merged as
   `7e9ed7dab7bd7a52292db4bddb622dcaf37bff0c`; protected production run
   `32515389182` created mappings `2827`-`2845` and offers `2641`-`2659`, then
@@ -2792,6 +2816,11 @@ owner-reviewed production design and approval.
 
 ### 21 August 2026
 
+- Recorded the owner's approval of all 20 Batch O rows and prepared the exact
+  guarded production package with a 20-plan, zero-blocker, zero-write dry-run.
+- Reused the existing importer and shared refresh. The five BioTech rows that
+  share one eBay parent are allowlisted only by exact product, variant, option,
+  URL and owner-confirmation evidence.
 - Completed owner-approved Batch N for exactly 19 business-seller listings;
   original review row 5 remained excluded from the release and production.
 - Merged PR `#34`, completed protected run `32515389182`, verified the 19 new

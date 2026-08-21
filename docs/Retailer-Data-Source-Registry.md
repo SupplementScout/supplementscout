@@ -543,6 +543,13 @@ Products with at least 2 active retailers.
   exact new offer present.
 - Status: **EXACT 121 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH N COMPLETE**.
   Do not repeat Batch N or reintroduce excluded review row 5.
+- Batch O is owner-approved and prepared for exactly 20 business-seller
+  listings. Fresh direct-item checks and the existing importer returned 20
+  create plans, zero blockers and zero writes. Eleven rows return exact GTINs;
+  nine are exact owner-reviewed missing-GTIN identities. Five products gain a
+  second retailer and 15 rows add exact uncovered variants to already eBay-
+  covered products. Production remains exact 121 until the manual protected
+  apply and postflight complete; the same refresh is prepared for exact 141.
 
 ## Initial registry template
 

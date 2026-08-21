@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_121";
-const KIND = "ebay-existing-offer-refresh-exact-121-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_141";
+const KIND = "ebay-existing-offer-refresh-exact-141-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -94,6 +94,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-l.csv", approval: "batch-l-rollout.json", count: 20 },
   { csv: "batch-m.csv", approval: "batch-m-rollout.json", count: 2 },
   { csv: "batch-n.csv", approval: "batch-n-rollout.json", count: 19 },
+  { csv: "batch-o.csv", approval: "batch-o-rollout.json", count: 20 },
 ]);
 const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|394018039646|662564730389", ["2784", "2599"]], ["v1|256978504929|557601659147", ["2785", "2600"]],
@@ -127,6 +128,16 @@ const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|389883997981|0", ["2841", "2655"]], ["v1|387996845027|0", ["2842", "2656"]],
   ["v1|178337337530|477710015241", ["2843", "2657"]], ["v1|286736755888|588764980609", ["2844", "2658"]],
   ["v1|227339481966|526541813994", ["2845", "2659"]],
+  ["v1|323304007010|515705810399", ["2846", "2660"]], ["v1|323304007010|515706626595", ["2847", "2661"]],
+  ["v1|323304007010|512439794894", ["2848", "2662"]], ["v1|323304007010|512439794895", ["2849", "2663"]],
+  ["v1|323304007010|512439794893", ["2850", "2664"]], ["v1|237003103152|537411952150", ["2851", "2665"]],
+  ["v1|237003103152|537411952155", ["2852", "2666"]], ["v1|198228877102|497356872935", ["2853", "2667"]],
+  ["v1|354815561341|624134728913", ["2854", "2668"]], ["v1|165609827880|0", ["2855", "2669"]],
+  ["v1|373707858011|642746534510", ["2856", "2670"]], ["v1|373707858011|642746534516", ["2857", "2671"]],
+  ["v1|373707858011|642746534513", ["2858", "2672"]], ["v1|142287167642|444141486013", ["2859", "2673"]],
+  ["v1|353106005670|626781129585", ["2860", "2674"]], ["v1|176694625249|0", ["2861", "2675"]],
+  ["v1|133790164936|433235981819", ["2862", "2676"]], ["v1|133790164936|433235981820", ["2863", "2677"]],
+  ["v1|326796105372|515787262466", ["2864", "2678"]], ["v1|326796105372|515787262467", ["2865", "2679"]],
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -171,7 +182,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 121) fail("Exact eBay refresh manifest must contain 121 rows");
+  if (rows.length !== 141) fail("Exact eBay refresh manifest must contain 141 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => {

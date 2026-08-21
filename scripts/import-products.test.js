@@ -121,6 +121,35 @@ test("exact eBay variants may share a listing parent across canonical product pa
   assert.equal(isExactEbayCrossProductParentVariant({ ...input, row: { ...input.row, product_id: "999" } }), false);
 });
 
+test("Batch O BioTech sizes share one eBay parent only for the five owner-approved exact variations", () => {
+  const input = {
+    retailer: { slug: "ebay-uk" },
+    externalProductId: "323304007010",
+    externalVariantId: "v1|323304007010|515705810399",
+    row: {
+      product_id: "10",
+      product_variant_id: "1707",
+      external_url: "https://www.ebay.co.uk/itm/323304007010?var=515705810399",
+      external_options: JSON.stringify({ Size: "1816g", Flavour: "Salted Caramel" }),
+    },
+    parentPeers: [{
+      external_product_id: "323304007010",
+      external_variant_id: "v1|323304007010|512368831135",
+      external_url: "https://www.ebay.co.uk/itm/323304007010?var=512368831135",
+    }],
+  };
+  assert.equal(isExactEbayCrossProductParentVariant(input), true);
+  assert.equal(isExactEbayCrossProductParentVariant({
+    ...input,
+    externalVariantId: "v1|323304007010|515705810398",
+    row: {
+      ...input.row,
+      external_variant_id: "v1|323304007010|515705810398",
+      external_url: "https://www.ebay.co.uk/itm/323304007010?var=515705810398",
+    },
+  }), false);
+});
+
 async function runImportRows(rows, options = {}) {
   if (options.dryRun) {
     return runImportRowsRaw(rows, options);

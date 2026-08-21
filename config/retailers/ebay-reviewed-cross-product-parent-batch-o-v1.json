@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "contract": "ebay-reviewed-cross-product-parent-batch-o-v1",
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_O_EXACT_20",
+  "rows": [
+    {
+      "product_id": "10",
+      "product_variant_id": "1707",
+      "external_product_id": "323304007010",
+      "external_variant_id": "v1|323304007010|515705810399",
+      "external_url": "https://www.ebay.co.uk/itm/323304007010?var=515705810399",
+      "external_options": {
+        "Size": "1816g",
+        "Flavour": "Salted Caramel"
+      }
+    },
+    {
+      "product_id": "10",
+      "product_variant_id": "1712",
+      "external_product_id": "323304007010",
+      "external_variant_id": "v1|323304007010|515706626595",
+      "external_url": "https://www.ebay.co.uk/itm/323304007010?var=515706626595",
+      "external_options": {
+        "Size": "1816g",
+        "Flavour": "Dark Chocolate"
+      }
+    },
+    {
+      "product_id": "14",
+      "product_variant_id": "1726",
+      "external_product_id": "323304007010",
+      "external_variant_id": "v1|323304007010|512439794894",
+      "external_url": "https://www.ebay.co.uk/itm/323304007010?var=512439794894",
+      "external_options": {
+        "Size": "908g",
+        "Flavour": "Coconut"
+      }
+    },
+    {
+      "product_id": "14",
+      "product_variant_id": "1728",
+      "external_product_id": "323304007010",
+      "external_variant_id": "v1|323304007010|512439794895",
+      "external_url": "https://www.ebay.co.uk/itm/323304007010?var=512439794895",
+      "external_options": {
+        "Size": "908g",
+        "Flavour": "Lemon Cheesecake"
+      }
+    },
+    {
+      "product_id": "14",
+      "product_variant_id": "1729",
+      "external_product_id": "323304007010",
+      "external_variant_id": "v1|323304007010|512439794893",
+      "external_url": "https://www.ebay.co.uk/itm/323304007010?var=512439794893",
+      "external_options": {
+        "Size": "908g",
+        "Flavour": "Pineapple Mango"
+      }
+    }
+  ]
+}

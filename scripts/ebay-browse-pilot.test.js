@@ -18,6 +18,7 @@ const { EXPECTED_IDENTITIES: BATCH_K_RECOVERY_IDENTITIES, parseArgs: parseBatchK
 const { CONFIRMATION: BATCH_L_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_L_IDENTITIES, parseArgs: parseBatchLArgs, validateLiveSources: validateBatchLLiveSources, validateRollout: validateBatchLRollout } = require("./ebay-offer-batch-l-executor");
 const { CONFIRMATION: BATCH_M_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_M_IDENTITIES, parseArgs: parseBatchMArgs, validateLiveSources: validateBatchMLiveSources, validateRollout: validateBatchMRollout } = require("./ebay-offer-batch-m-executor");
 const { CONFIRMATION: BATCH_N_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_N_IDENTITIES, parseArgs: parseBatchNArgs, validateLiveSources: validateBatchNLiveSources, validateRollout: validateBatchNRollout } = require("./ebay-offer-batch-n-executor");
+const { CONFIRMATION: BATCH_O_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_O_IDENTITIES, parseArgs: parseBatchOArgs, validateLiveSources: validateBatchOLiveSources, validateRollout: validateBatchORollout } = require("./ebay-offer-batch-o-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -242,7 +243,7 @@ test("official-store search is bounded to the exact business seller username", a
   resetTokenCache();
 });
 
-test("eBay refresh is frozen to the exact 121 approved existing offers", () => {
+test("eBay refresh is frozen to the exact 141 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
@@ -251,13 +252,13 @@ test("eBay refresh is frozen to the exact 121 approved existing offers", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
-  assert.equal(REFRESH_SCOPES.length, 121);
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 121 }, (_, index) => String(2539 + index)));
+  assert.equal(REFRESH_SCOPES.length, 141);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 141 }, (_, index) => String(2539 + index)));
   assert.deepEqual(REFRESH_SCOPES.slice(0, 60).map((scope) => scope.retailer_product_id), Array.from({ length: 60 }, (_, index) => String(2724 + index)));
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 121);
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 141);
   assert.deepEqual(REFRESH_SCOPES.slice(-2).map((scope) => ({ product_id: scope.product_id, product_variant_id: scope.product_variant_id, retailer_product_id: scope.retailer_product_id, offer_id: scope.offer_id })), [
-    { product_id: "1105", product_variant_id: "2397", retailer_product_id: "2844", offer_id: "2658" },
-    { product_id: "1139", product_variant_id: "2491", retailer_product_id: "2845", offer_id: "2659" },
+    { product_id: "788", product_variant_id: "1078", retailer_product_id: "2864", offer_id: "2678" },
+    { product_id: "788", product_variant_id: "1082", retailer_product_id: "2865", offer_id: "2679" },
   ]);
   assert.equal(new Set(REFRESH_SCOPES.slice(0, 22).map((scope) => scope.gtin)).size, 22);
   assert.ok(REFRESH_SCOPES.slice(22, 31).every((scope) => scope.gtin === ""));
@@ -569,7 +570,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_121/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_141/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
@@ -1195,6 +1196,58 @@ test("Batch N workflow is manual, exact-confirmation guarded and verifies ninete
   assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_N_EXACT_19/);
   assert.match(workflow, /--mode=preflight/);
   assert.match(workflow, /plans\.length!==19/);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
+  assert.doesNotMatch(workflow, /schedule:|\bpush:/);
+});
+
+test("Batch O owner review seals exactly twenty business listings and five second-retailer products", () => {
+  const review = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/ebay-offer-canary/batch-o-review.json"), "utf8"));
+  const validated = validateBatchORollout();
+  assert.equal(BATCH_O_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_O_EXACT_20");
+  assert.equal(review.owner_approval.approved_count, 20);
+  assert.deepEqual(review.owner_approval.excluded_original_review_numbers, []);
+  assert.equal(review.cross_product_parent_contract, "ebay-reviewed-cross-product-parent-batch-o-v1");
+  assert.equal(review.dry_run.plan_count, 20);
+  assert.equal(review.dry_run.blocked_row_count, 0);
+  assert.equal(review.dry_run.database_writes, 0);
+  assert.equal(review.identity_summary.exact_returned_gtin_rows, 11);
+  assert.equal(review.identity_summary.owner_reviewed_missing_returned_gtin_rows, 9);
+  assert.equal(review.identity_summary.creates_second_retailer_products, 5);
+  assert.equal(review.identity_summary.expands_existing_ebay_products, 15);
+  assert.equal(validated.entries.length, 20);
+  assert.equal(BATCH_O_IDENTITIES.length, 20);
+  assert.equal(new Set(BATCH_O_IDENTITIES).size, 20);
+  assert.equal(parseBatchOArgs(["--mode=preflight", "--output=tmp/batch-o-preflight.json"]).mode, "preflight");
+  assert.throws(() => parseBatchOArgs(["--mode=execute", "--output=tmp/batch-o.json"]), /preflight\|validate\|apply/);
+});
+
+test("Batch O live preflight rechecks all twenty exact owner-reviewed item identities", async () => {
+  resetTokenCache();
+  const { entries } = validateBatchORollout();
+  const fixtures = entries.map(({ approved }) => item({
+    itemId: approved.external_variant_id,
+    legacyItemId: approved.legacy_item_id,
+    title: approved.live_title,
+    gtin: approved.expected_returned_gtin,
+    price: { value: approved.price, currency: "GBP" },
+    shippingOptions: [{ shippingCost: { value: approved.shipping_cost, currency: "GBP" } }],
+    seller: { username: approved.seller, sellerAccountType: "BUSINESS", sellerLegalInfo: { name: approved.seller_legal_name }, feedbackPercentage: approved.minimum_feedback_percentage, feedbackScore: 5000 },
+    itemAffiliateWebUrl: `https://www.ebay.co.uk/itm/${approved.legacy_item_id}?campid=123`,
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK" }],
+  }));
+  const config = { EBAY_CLIENT_ID: "id", EBAY_CLIENT_SECRET: "secret", EBAY_UK_DELIVERY_POSTCODE: "SW1A 1AA", EBAY_EPN_CAMPAIGN_ID: "123" };
+  const fetchImpl = async (url) => String(url).includes("oauth2/token")
+    ? { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) }
+    : { ok: true, status: 200, json: async () => fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId))) };
+  assert.equal((await validateBatchOLiveSources(fetchImpl, config)).length, 20);
+  resetTokenCache();
+});
+
+test("Batch O workflow is manual, exact-confirmation guarded and verifies twenty no-ops", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-batch-o.yml"), "utf8");
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_O_EXACT_20/);
+  assert.match(workflow, /--mode=preflight/);
+  assert.match(workflow, /plans\.length!==20/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
   assert.doesNotMatch(workflow, /schedule:|\bpush:/);
 });

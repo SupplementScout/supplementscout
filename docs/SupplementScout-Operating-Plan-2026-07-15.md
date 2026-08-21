@@ -909,6 +909,19 @@ release found 1,070 active products and 2,133 positive-price in-stock offers:
 27 have at least three and three have at least four. The 250-product checkpoint
 therefore has 63 remaining.
 
+The owner subsequently approved all 20 numbered Batch O eBay listings and
+instructed completion without repeated confirmation. Fresh exact-item reads
+verified 20 business sellers, known free UK delivery, stock and Campaign-ID
+URLs. The existing importer produced 20 create plans, zero blockers and zero
+writes: 11 exact returned-GTIN rows and nine exact owner-reviewed missing-GTIN
+rows. Five rows create product-level second-retailer coverage and 15 expand
+previously uncovered variants of products already covered by eBay. A closed
+five-row contract handles the BioTech 1816 g / 908 g variations sharing one
+eBay parent without widening the general identity rule. The manual guarded
+Batch O workflow and exact-141 extension of the same shared refresh are
+prepared; production remains exact 121 until apply, postflight and live
+verification complete.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
