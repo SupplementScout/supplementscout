@@ -1,0 +1,2721 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-21T18:33:08.151Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "b6682eb5e5dd03c89e2f209e1c927592",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "27",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Cellucor C4 Original 195g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Pink Lemonade / 195g",
+            "flavour_code": "pink lemonade",
+            "flavour_label": "Pink Lemonade",
+            "id": "1590",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "27",
+            "size_unit": "g",
+            "size_value": "195",
+            "variant_key": "pink-lemonade-195g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "b6682eb5e5dd03c89e2f209e1c927592",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "95ce98b83e279e51d97f3261cc14ce102bfce523aff242267c268fc3149de66b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:01.781Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/373707858011?var=642746534514&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "27"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Pink Lemonade",
+              "Size": "195g"
+            },
+            "flavour": "pink lemonade",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "195"
+          },
+          "id": "1590"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "842595109153",
+            "external_name": "Cellucor C4 Original 195g",
+            "external_options": {
+              "Flavour": "Pink Lemonade",
+              "Size": "195g"
+            },
+            "external_product_id": "373707858011",
+            "external_sku": null,
+            "external_slug": "cellucor-c4-original-195g",
+            "external_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534514",
+            "external_variant_id": "v1|373707858011|642746534514",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1590"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "95ce98b83e279e51d97f3261cc14ce102bfce523aff242267c268fc3149de66b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "1d9bdb0d04d2349304888626bda997f6",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "90",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Nutrex Lipo 6 Black Ultra Concentrate 60 Caps",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "24",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "90",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "1d9bdb0d04d2349304888626bda997f6",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "317940b837999dbbed1dbf1869af3652f3424eb5fff6ad130a1613ca070f442b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:02.218Z",
+            "price": "22",
+            "shipping_cost": "0",
+            "total_price": "22",
+            "url": "https://www.ebay.co.uk/itm/298602193517?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "90"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "24"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Nutrex Lipo 6 Black Ultra Concentrate 60 Caps",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "298602193517",
+            "external_sku": null,
+            "external_slug": "nutrex-lipo-6-black-ultra-concentrate-60-caps",
+            "external_url": "https://www.ebay.co.uk/itm/298602193517",
+            "external_variant_id": "v1|298602193517|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "24"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "317940b837999dbbed1dbf1869af3652f3424eb5fff6ad130a1613ca070f442b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "6687043a9d19a9ec71f845041297163f",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "139",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Himalaya Liv.52 100 Tablets",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "142",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "139",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "6687043a9d19a9ec71f845041297163f",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "fdece5efc6f2bee48e1b078250a9baf110aff1498311546b4d325bb79db942ad",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:02.553Z",
+            "price": "8.49",
+            "shipping_cost": "0",
+            "total_price": "8.49",
+            "url": "https://www.ebay.co.uk/itm/178337400684?var=477710042215&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "139"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "142"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Himalaya Liv.52 100 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "178337400684",
+            "external_sku": null,
+            "external_slug": "himalaya-liv52-100-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/178337400684?var=477710042215",
+            "external_variant_id": "v1|178337400684|477710042215",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "142"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "fdece5efc6f2bee48e1b078250a9baf110aff1498311546b4d325bb79db942ad"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "2ac4d46bc7b00c3ab4e3dd6b4a3eaa93",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "379",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Swanson Phosphatidylserine 100mg 30 Softgels",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "313",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "379",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "2ac4d46bc7b00c3ab4e3dd6b4a3eaa93",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e08a5e25fd97a6491ac381bbd1011fcafd61d6a0307f60b2bccec0fbde6fbf1a",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:02.918Z",
+            "price": "10",
+            "shipping_cost": "3.99",
+            "total_price": "13.99",
+            "url": "https://www.ebay.co.uk/itm/227339481459?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "379"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "313"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Swanson Phosphatidylserine 100mg 30 Softgels",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "227339481459",
+            "external_sku": null,
+            "external_slug": "swanson-phosphatidylserine-100mg-30-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/227339481459",
+            "external_variant_id": "v1|227339481459|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "313"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "e08a5e25fd97a6491ac381bbd1011fcafd61d6a0307f60b2bccec0fbde6fbf1a"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "f4b47e9f41a95f4c99226498def8d5f3",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "499",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Olimp Nutrition DAA Xtreme Prolact-Block - 60 tablets",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "469",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "499",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "f4b47e9f41a95f4c99226498def8d5f3",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "75fd4ecf3065925ef63cf72ac87bb6f4bee1bc28fe92aa9474012011f23d89da",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:03.268Z",
+            "price": "18.95",
+            "shipping_cost": "0",
+            "total_price": "18.95",
+            "url": "https://www.ebay.co.uk/itm/388831629571?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "499"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "469"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Olimp Nutrition DAA Xtreme Prolact-Block - 60 tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "388831629571",
+            "external_sku": null,
+            "external_slug": "olimp-nutrition-daa-xtreme-prolact-block---60-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/388831629571",
+            "external_variant_id": "v1|388831629571|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "469"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "75fd4ecf3065925ef63cf72ac87bb6f4bee1bc28fe92aa9474012011f23d89da"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c34c76cbd497965d6236017c15b868ef",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "683",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Osavi Super Strong Omega 3 500 EPA 250 DHA 60 Softgels",
+            "product_format": "softgel"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "544",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "683",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c34c76cbd497965d6236017c15b868ef",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "5fc3e9daa74c049f25c801896dc48398e1d9bdbddf7f24cb2aed89a18d716176",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:03.583Z",
+            "price": "21.15",
+            "shipping_cost": "0",
+            "total_price": "21.15",
+            "url": "https://www.ebay.co.uk/itm/387049058279?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "683"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "softgel",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "544"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Osavi Super Strong Omega 3 500 EPA 250 DHA 60 Softgels",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "387049058279",
+            "external_sku": null,
+            "external_slug": "osavi-super-strong-omega-3-500-epa-250-dha-60-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/387049058279",
+            "external_variant_id": "v1|387049058279|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "544"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "5fc3e9daa74c049f25c801896dc48398e1d9bdbddf7f24cb2aed89a18d716176"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "0e9ce06051597edf684b7733d71a584a",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "684",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Osavi Vitamin K2 MK-7 100mcg 60 Softgels",
+            "product_format": "softgel"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "545",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "684",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "0e9ce06051597edf684b7733d71a584a",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "bdb443baf00e0798c51293f57ab905e811dbb4421950a058f11e8a9bd7dcadb2",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:03.923Z",
+            "price": "12.69",
+            "shipping_cost": "0",
+            "total_price": "12.69",
+            "url": "https://www.ebay.co.uk/itm/386965889328?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "684"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "softgel",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "545"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Osavi Vitamin K2 MK-7 100mcg 60 Softgels",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "386965889328",
+            "external_sku": null,
+            "external_slug": "osavi-vitamin-k2-mk-7-100mcg-60-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/386965889328",
+            "external_variant_id": "v1|386965889328|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "545"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "bdb443baf00e0798c51293f57ab905e811dbb4421950a058f11e8a9bd7dcadb2"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "f681cdecd03e12c2b2507dd290e2610d",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "703",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Doctor's Best Vitamin D3 5000 IU 180 Softgels",
+            "product_format": "softgel"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "579",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "703",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "f681cdecd03e12c2b2507dd290e2610d",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "d9b50d2008518d9780336dc2dcf6ec008b45cf30522cd5c342a29ad824e8d93d",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:04.276Z",
+            "price": "13.55",
+            "shipping_cost": "0",
+            "total_price": "13.55",
+            "url": "https://www.ebay.co.uk/itm/385435605679?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "703"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "softgel",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "579"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Doctor's Best Vitamin D3 5000 IU 180 Softgels",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "385435605679",
+            "external_sku": null,
+            "external_slug": "doctors-best-vitamin-d3-5000-iu-180-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/385435605679",
+            "external_variant_id": "v1|385435605679|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "579"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "d9b50d2008518d9780336dc2dcf6ec008b45cf30522cd5c342a29ad824e8d93d"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "e10ebdfb3b2334ca0d4abccd86f5e0cf",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "707",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Swanson Triphala 500mg 100 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "583",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "707",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "e10ebdfb3b2334ca0d4abccd86f5e0cf",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "db27e949271a0ecdad178870db6459aa916efd30492326f0419c0ccd7e337049",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:04.617Z",
+            "price": "10.59",
+            "shipping_cost": "0",
+            "total_price": "10.59",
+            "url": "https://www.ebay.co.uk/itm/355703763092?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "707"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "583"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Swanson Triphala 500mg 100 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "355703763092",
+            "external_sku": null,
+            "external_slug": "swanson-triphala-500mg-100-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/355703763092",
+            "external_variant_id": "v1|355703763092|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "583"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "10",
+      "source_row_fingerprint": "db27e949271a0ecdad178870db6459aa916efd30492326f0419c0ccd7e337049"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "59f6c14ba10ee433c605b4c1298da977",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "720",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Now Foods Collagen Peptides Powder 227g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "599",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "720",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "59f6c14ba10ee433c605b4c1298da977",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "4e70563653790ca781eaebfd9a9b36200445d2c4355e82f90a6b610569de17a0",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:04.965Z",
+            "price": "19.15",
+            "shipping_cost": "0",
+            "total_price": "19.15",
+            "url": "https://www.ebay.co.uk/itm/388955605779?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "720"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "599"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Now Foods Collagen Peptides Powder 227g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "388955605779",
+            "external_sku": null,
+            "external_slug": "now-foods-collagen-peptides-powder-227g",
+            "external_url": "https://www.ebay.co.uk/itm/388955605779",
+            "external_variant_id": "v1|388955605779|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "599"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "11",
+      "source_row_fingerprint": "4e70563653790ca781eaebfd9a9b36200445d2c4355e82f90a6b610569de17a0"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "9606621f2009182e4e40ff7cf3764d42",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "741",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Swanson Full Spectrum Passion Flower 500mg 60 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "615",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "741",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "9606621f2009182e4e40ff7cf3764d42",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "4d5c9b98815013bac4975913ba6be7886579041fc1fabead80e8da661981120d",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:05.310Z",
+            "price": "10.89",
+            "shipping_cost": "0",
+            "total_price": "10.89",
+            "url": "https://www.ebay.co.uk/itm/134979307941?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "741"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "615"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Swanson Full Spectrum Passion Flower 500mg 60 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "134979307941",
+            "external_sku": null,
+            "external_slug": "swanson-full-spectrum-passion-flower-500mg-60-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/134979307941",
+            "external_variant_id": "v1|134979307941|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "615"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "12",
+      "source_row_fingerprint": "4d5c9b98815013bac4975913ba6be7886579041fc1fabead80e8da661981120d"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "b6e77dfc9555832cc04d91469ab87730",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "788",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m EAA Xtra 420g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Lemon Lime Splash / 420g",
+            "flavour_code": "lemon lime splash",
+            "flavour_label": "Lemon Lime Splash",
+            "id": "1076",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "788",
+            "size_unit": "g",
+            "size_value": "420",
+            "variant_key": "lemon-lime-splash-420g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "b6e77dfc9555832cc04d91469ab87730",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "ebde79ebc7dc3eb1a5a3dda434113f7c91de65baea7cf13ee5f206f1ea19a471",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:05.668Z",
+            "price": "23.56",
+            "shipping_cost": "3.99",
+            "total_price": "27.55",
+            "url": "https://www.ebay.co.uk/itm/227221196528?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "788"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Lemon Lime Splash",
+              "Size": "420g"
+            },
+            "flavour": "lemon lime splash",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "420"
+          },
+          "id": "1076"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Per4m EAA Xtra 420g",
+            "external_options": {
+              "Flavour": "Lemon Lime Splash",
+              "Size": "420g"
+            },
+            "external_product_id": "227221196528",
+            "external_sku": null,
+            "external_slug": "per4m-eaa-xtra-420g",
+            "external_url": "https://www.ebay.co.uk/itm/227221196528",
+            "external_variant_id": "v1|227221196528|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1076"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "13",
+      "source_row_fingerprint": "ebde79ebc7dc3eb1a5a3dda434113f7c91de65baea7cf13ee5f206f1ea19a471"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "f03c27ed37dc4ce625167f7dadacdb75",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "807",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trained by JP Ashwagandha 60 caps",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1154",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "807",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "f03c27ed37dc4ce625167f7dadacdb75",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "d69e4bf7394044e041e0718e8eea6869bb8d4314d94a1f4962778089dbc80dbb",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:05.996Z",
+            "price": "18.19",
+            "shipping_cost": "0",
+            "total_price": "18.19",
+            "url": "https://www.ebay.co.uk/itm/389455624589?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "807"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1154"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Trained by JP Ashwagandha 60 caps",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "389455624589",
+            "external_sku": null,
+            "external_slug": "trained-by-jp-ashwagandha-60-caps",
+            "external_url": "https://www.ebay.co.uk/itm/389455624589",
+            "external_variant_id": "v1|389455624589|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1154"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "14",
+      "source_row_fingerprint": "d69e4bf7394044e041e0718e8eea6869bb8d4314d94a1f4962778089dbc80dbb"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d70d4a4660e4a30b5ed2d15d64078ca2",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "808",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trained By JP D3 & K2 60 Caps",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1155",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "808",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d70d4a4660e4a30b5ed2d15d64078ca2",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "8fb6d791e40e51588070824238538e8d6af0284e7b35d84be53f4cf0899ffcab",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:06.335Z",
+            "price": "18.01",
+            "shipping_cost": "3.99",
+            "total_price": "22",
+            "url": "https://www.ebay.co.uk/itm/227315398173?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "808"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1155"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Trained By JP D3 & K2 60 Caps",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "227315398173",
+            "external_sku": null,
+            "external_slug": "trained-by-jp-d3-and-k2-60-caps",
+            "external_url": "https://www.ebay.co.uk/itm/227315398173",
+            "external_variant_id": "v1|227315398173|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1155"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "15",
+      "source_row_fingerprint": "8fb6d791e40e51588070824238538e8d6af0284e7b35d84be53f4cf0899ffcab"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "0045d021c1d30ffcd43fbe3669523540",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "810",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trained By JP Iron 60 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1157",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "810",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "0045d021c1d30ffcd43fbe3669523540",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "92339452689a19aa7c269c3e5186ea5cddea2a992b80e1dc601bd9c5f2a1eeb6",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:06.684Z",
+            "price": "15.23",
+            "shipping_cost": "0",
+            "total_price": "15.23",
+            "url": "https://www.ebay.co.uk/itm/389883997981?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "810"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1157"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Trained By JP Iron 60 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "389883997981",
+            "external_sku": null,
+            "external_slug": "trained-by-jp-iron-60-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/389883997981",
+            "external_variant_id": "v1|389883997981|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1157"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "16",
+      "source_row_fingerprint": "92339452689a19aa7c269c3e5186ea5cddea2a992b80e1dc601bd9c5f2a1eeb6"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "70351dab94106a5802413cc5a9e469f7",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "811",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trained By JP Love Heart 60 Caps",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1158",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "811",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "70351dab94106a5802413cc5a9e469f7",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "06744cfe5d16e35e8bbcf51ea297947e8dae79e5310b5fca328aaca949cee6b3",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:07.035Z",
+            "price": "39.19",
+            "shipping_cost": "0",
+            "total_price": "39.19",
+            "url": "https://www.ebay.co.uk/itm/387996845027?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "811"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1158"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Trained By JP Love Heart 60 Caps",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "387996845027",
+            "external_sku": null,
+            "external_slug": "trained-by-jp-love-heart-60-caps",
+            "external_url": "https://www.ebay.co.uk/itm/387996845027",
+            "external_variant_id": "v1|387996845027|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1158"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "17",
+      "source_row_fingerprint": "06744cfe5d16e35e8bbcf51ea297947e8dae79e5310b5fca328aaca949cee6b3"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "095b8306f1ae720ba614e299bf6e8315",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "925",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Himalaya Liv.52 DS 60 Tablets",
+            "product_format": "tablet"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "1531",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "925",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "095b8306f1ae720ba614e299bf6e8315",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "c4bbba0970837fd8845a8cdfe9d76f5967204a68fc439b1449c10bf283fac278",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:07.485Z",
+            "price": "22.99",
+            "shipping_cost": "0",
+            "total_price": "22.99",
+            "url": "https://www.ebay.co.uk/itm/178337337530?var=477710015241&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "925"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "tablet",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "1531"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Himalaya Liv.52 DS 60 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "178337337530",
+            "external_sku": null,
+            "external_slug": "himalaya-liv-52-ds-60-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/178337337530?var=477710015241",
+            "external_variant_id": "v1|178337337530|477710015241",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1531"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "18",
+      "source_row_fingerprint": "c4bbba0970837fd8845a8cdfe9d76f5967204a68fc439b1449c10bf283fac278"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "63ab0e0462e5a843625b2f5cc923e35f",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1105",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trec Nutrition Clenburexin 180 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 180 capsules",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "2397",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "product_id": "1105",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "unflavoured-180capsule"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "63ab0e0462e5a843625b2f5cc923e35f",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "3ac584b115c76e1c988f4f3e4e780ed17c3d424f1d8a8ea67addbcd30ce2c7ae",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:07.805Z",
+            "price": "28.38",
+            "shipping_cost": "0",
+            "total_price": "28.38",
+            "url": "https://www.ebay.co.uk/itm/286736755888?var=588764980609&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1105"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "2397"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Trec Nutrition Clenburexin 180 Capsules",
+            "external_options": {
+              "Flavour": "Unflavoured"
+            },
+            "external_product_id": "286736755888",
+            "external_sku": null,
+            "external_slug": "trec-nutrition-clenburexin-180-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/286736755888?var=588764980609",
+            "external_variant_id": "v1|286736755888|588764980609",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "2397"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "19",
+      "source_row_fingerprint": "3ac584b115c76e1c988f4f3e4e780ed17c3d424f1d8a8ea67addbcd30ce2c7ae"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "25077641e270e9a170289e7817106d84",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1139",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trec Nutrition Clenburexin 90 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 90 capsules",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "2491",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "product_id": "1139",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "unflavoured-90capsule"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "25077641e270e9a170289e7817106d84",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e0ecebd1d515617ae93a438ccf35a46130948604ce40a5b7f2ed7bf08a207467",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T18:33:08.146Z",
+            "price": "17.43",
+            "shipping_cost": "3.99",
+            "total_price": "21.42",
+            "url": "https://www.ebay.co.uk/itm/227339481966?var=526541813994&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1139"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "2491"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Trec Nutrition Clenburexin 90 Capsules",
+            "external_options": {
+              "Flavour": "Unflavoured"
+            },
+            "external_product_id": "227339481966",
+            "external_sku": null,
+            "external_slug": "trec-nutrition-clenburexin-90-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/227339481966?var=526541813994",
+            "external_variant_id": "v1|227339481966|526541813994",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "2491"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "20",
+      "source_row_fingerprint": "e0ecebd1d515617ae93a438ccf35a46130948604ce40a5b7f2ed7bf08a207467"
+    }
+  ],
+  "row_count": "19",
+  "run_id": "877b4406-416e-469f-b9be-ddeb2241c956",
+  "source_file_name": "batch-n.csv",
+  "source_file_sha256": "a945ed0d233266c54a23f47c2d41b1d81b3e14f35fbe5d00ba94012fa05bb4c9",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534514&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Cellucor",
+        "category": "Pre Workout",
+        "external_gtin": "842595109153",
+        "external_options": "{\"Size\":\"195g\",\"Flavour\":\"Pink Lemonade\"}",
+        "external_product_id": "373707858011",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/373707858011?var=642746534514",
+        "external_variant_id": "v1|373707858011|642746534514",
+        "flavour": "Pink Lemonade",
+        "image": "https://i.ebayimg.com/images/g/u9MAAOSwCoVhMmTH/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.99",
+        "product_format": "powder",
+        "product_id": "27",
+        "product_name": "Cellucor C4 Original 195g",
+        "product_variant_id": "1590",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "195",
+        "size_unit": "g",
+        "slug": "cellucor-c4-original-195g",
+        "variant_name": "Pink Lemonade / 195g"
+      },
+      "plan_fingerprint": "b6682eb5e5dd03c89e2f209e1c927592",
+      "row_number": "2",
+      "source_row_fingerprint": "95ce98b83e279e51d97f3261cc14ce102bfce523aff242267c268fc3149de66b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/298602193517?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Nutrex",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "298602193517",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/298602193517",
+        "external_variant_id": "v1|298602193517|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/vqMAAeSw69pqhgkH/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "22.00",
+        "product_format": "",
+        "product_id": "90",
+        "product_name": "Nutrex Lipo 6 Black Ultra Concentrate 60 Caps",
+        "product_variant_id": "24",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "nutrex-lipo-6-black-ultra-concentrate-60-caps",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "1d9bdb0d04d2349304888626bda997f6",
+      "row_number": "3",
+      "source_row_fingerprint": "317940b837999dbbed1dbf1869af3652f3424eb5fff6ad130a1613ca070f442b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/178337400684?var=477710042215&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Himalaya",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "178337400684",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/178337400684?var=477710042215",
+        "external_variant_id": "v1|178337400684|477710042215",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/iUgAAeSwYwRqYg0z/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "8.49",
+        "product_format": "",
+        "product_id": "139",
+        "product_name": "Himalaya Liv.52 100 Tablets",
+        "product_variant_id": "142",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "himalaya-liv52-100-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "6687043a9d19a9ec71f845041297163f",
+      "row_number": "4",
+      "source_row_fingerprint": "fdece5efc6f2bee48e1b078250a9baf110aff1498311546b4d325bb79db942ad",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339481459?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Swanson",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "227339481459",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339481459",
+        "external_variant_id": "v1|227339481459|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/C-EAAeSwN8dqAa9B/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.00",
+        "product_format": "",
+        "product_id": "379",
+        "product_name": "Swanson Phosphatidylserine 100mg 30 Softgels",
+        "product_variant_id": "313",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "swanson-phosphatidylserine-100mg-30-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "2ac4d46bc7b00c3ab4e3dd6b4a3eaa93",
+      "row_number": "5",
+      "source_row_fingerprint": "e08a5e25fd97a6491ac381bbd1011fcafd61d6a0307f60b2bccec0fbde6fbf1a",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/388831629571?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Olimp",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "388831629571",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/388831629571",
+        "external_variant_id": "v1|388831629571|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/SGoAAeSwHwxonJK9/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "18.95",
+        "product_format": "",
+        "product_id": "499",
+        "product_name": "Olimp Nutrition DAA Xtreme Prolact-Block - 60 tablets",
+        "product_variant_id": "469",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "olimp-nutrition-daa-xtreme-prolact-block---60-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "f4b47e9f41a95f4c99226498def8d5f3",
+      "row_number": "6",
+      "source_row_fingerprint": "75fd4ecf3065925ef63cf72ac87bb6f4bee1bc28fe92aa9474012011f23d89da",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/387049058279?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Osavi",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "387049058279",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/387049058279",
+        "external_variant_id": "v1|387049058279|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/4zgAAOSweepmWzdq/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "21.15",
+        "product_format": "softgel",
+        "product_id": "683",
+        "product_name": "Osavi Super Strong Omega 3 500 EPA 250 DHA 60 Softgels",
+        "product_variant_id": "544",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "osavi-super-strong-omega-3-500-epa-250-dha-60-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "c34c76cbd497965d6236017c15b868ef",
+      "row_number": "7",
+      "source_row_fingerprint": "5fc3e9daa74c049f25c801896dc48398e1d9bdbddf7f24cb2aed89a18d716176",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/386965889328?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Osavi",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "386965889328",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/386965889328",
+        "external_variant_id": "v1|386965889328|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/olYAAOSwp9ZmLkZV/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "12.69",
+        "product_format": "softgel",
+        "product_id": "684",
+        "product_name": "Osavi Vitamin K2 MK-7 100mcg 60 Softgels",
+        "product_variant_id": "545",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "osavi-vitamin-k2-mk-7-100mcg-60-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "0e9ce06051597edf684b7733d71a584a",
+      "row_number": "8",
+      "source_row_fingerprint": "bdb443baf00e0798c51293f57ab905e811dbb4421950a058f11e8a9bd7dcadb2",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/385435605679?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Doctor's Best",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "385435605679",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/385435605679",
+        "external_variant_id": "v1|385435605679|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/8LAAAOSwHJhj9ory/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "13.55",
+        "product_format": "softgel",
+        "product_id": "703",
+        "product_name": "Doctor's Best Vitamin D3 5000 IU 180 Softgels",
+        "product_variant_id": "579",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "doctors-best-vitamin-d3-5000-iu-180-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "f681cdecd03e12c2b2507dd290e2610d",
+      "row_number": "9",
+      "source_row_fingerprint": "d9b50d2008518d9780336dc2dcf6ec008b45cf30522cd5c342a29ad824e8d93d",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/355703763092?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Swanson",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "355703763092",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/355703763092",
+        "external_variant_id": "v1|355703763092|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/GeUAAOSwmwFmPjAE/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.59",
+        "product_format": "capsule",
+        "product_id": "707",
+        "product_name": "Swanson Triphala 500mg 100 Capsules",
+        "product_variant_id": "583",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "swanson-triphala-500mg-100-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "e10ebdfb3b2334ca0d4abccd86f5e0cf",
+      "row_number": "10",
+      "source_row_fingerprint": "db27e949271a0ecdad178870db6459aa916efd30492326f0419c0ccd7e337049",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/388955605779?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "NOW Foods",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "388955605779",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/388955605779",
+        "external_variant_id": "v1|388955605779|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/lwQAAeSw5T5owssV/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.15",
+        "product_format": "powder",
+        "product_id": "720",
+        "product_name": "Now Foods Collagen Peptides Powder 227g",
+        "product_variant_id": "599",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "now-foods-collagen-peptides-powder-227g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "59f6c14ba10ee433c605b4c1298da977",
+      "row_number": "11",
+      "source_row_fingerprint": "4e70563653790ca781eaebfd9a9b36200445d2c4355e82f90a6b610569de17a0",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/134979307941?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Swanson",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "134979307941",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/134979307941",
+        "external_variant_id": "v1|134979307941|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/QWYAAOSwIhtl9Eyv/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.89",
+        "product_format": "capsule",
+        "product_id": "741",
+        "product_name": "Swanson Full Spectrum Passion Flower 500mg 60 Capsules",
+        "product_variant_id": "615",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "swanson-full-spectrum-passion-flower-500mg-60-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "9606621f2009182e4e40ff7cf3764d42",
+      "row_number": "12",
+      "source_row_fingerprint": "4d5c9b98815013bac4975913ba6be7886579041fc1fabead80e8da661981120d",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227221196528?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Per4m",
+        "category": "Amino Acids",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"420g\",\"Flavour\":\"Lemon Lime Splash\"}",
+        "external_product_id": "227221196528",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227221196528",
+        "external_variant_id": "v1|227221196528|0",
+        "flavour": "Lemon Lime Splash",
+        "image": "https://i.ebayimg.com/images/g/D6YAAeSwMdhplLZf/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "23.56",
+        "product_format": "powder",
+        "product_id": "788",
+        "product_name": "Per4m EAA Xtra 420g",
+        "product_variant_id": "1076",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "420",
+        "size_unit": "g",
+        "slug": "per4m-eaa-xtra-420g",
+        "variant_name": "Lemon Lime Splash / 420g"
+      },
+      "plan_fingerprint": "b6e77dfc9555832cc04d91469ab87730",
+      "row_number": "13",
+      "source_row_fingerprint": "ebde79ebc7dc3eb1a5a3dda434113f7c91de65baea7cf13ee5f206f1ea19a471",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/389455624589?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trained By JP",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "389455624589",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/389455624589",
+        "external_variant_id": "v1|389455624589|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/a88AAeSwOA1pWyJM/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "18.19",
+        "product_format": "capsule",
+        "product_id": "807",
+        "product_name": "Trained by JP Ashwagandha 60 caps",
+        "product_variant_id": "1154",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trained-by-jp-ashwagandha-60-caps",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "f03c27ed37dc4ce625167f7dadacdb75",
+      "row_number": "14",
+      "source_row_fingerprint": "d69e4bf7394044e041e0718e8eea6869bb8d4314d94a1f4962778089dbc80dbb",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227315398173?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trained By JP",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "227315398173",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227315398173",
+        "external_variant_id": "v1|227315398173|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/~0cAAeSwaZBp66Fz/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "18.01",
+        "product_format": "capsule",
+        "product_id": "808",
+        "product_name": "Trained By JP D3 & K2 60 Caps",
+        "product_variant_id": "1155",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trained-by-jp-d3-and-k2-60-caps",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "d70d4a4660e4a30b5ed2d15d64078ca2",
+      "row_number": "15",
+      "source_row_fingerprint": "8fb6d791e40e51588070824238538e8d6af0284e7b35d84be53f4cf0899ffcab",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/389883997981?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trained By JP",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "389883997981",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/389883997981",
+        "external_variant_id": "v1|389883997981|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/tO4AAeSwYytp3JaJ/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "15.23",
+        "product_format": "capsule",
+        "product_id": "810",
+        "product_name": "Trained By JP Iron 60 Capsules",
+        "product_variant_id": "1157",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trained-by-jp-iron-60-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "0045d021c1d30ffcd43fbe3669523540",
+      "row_number": "16",
+      "source_row_fingerprint": "92339452689a19aa7c269c3e5186ea5cddea2a992b80e1dc601bd9c5f2a1eeb6",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/387996845027?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trained By JP",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "387996845027",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/387996845027",
+        "external_variant_id": "v1|387996845027|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/SsYAAeSw~mpnvand/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "39.19",
+        "product_format": "capsule",
+        "product_id": "811",
+        "product_name": "Trained By JP Love Heart 60 Caps",
+        "product_variant_id": "1158",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trained-by-jp-love-heart-60-caps",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "70351dab94106a5802413cc5a9e469f7",
+      "row_number": "17",
+      "source_row_fingerprint": "06744cfe5d16e35e8bbcf51ea297947e8dae79e5310b5fca328aaca949cee6b3",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/178337337530?var=477710015241&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Himalaya",
+        "category": "Health Supplements",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "178337337530",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/178337337530?var=477710015241",
+        "external_variant_id": "v1|178337337530|477710015241",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/Zw4AAeSwpwZqYgXl/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "22.99",
+        "product_format": "tablet",
+        "product_id": "925",
+        "product_name": "Himalaya Liv.52 DS 60 Tablets",
+        "product_variant_id": "1531",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "himalaya-liv-52-ds-60-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "095b8306f1ae720ba614e299bf6e8315",
+      "row_number": "18",
+      "source_row_fingerprint": "c4bbba0970837fd8845a8cdfe9d76f5967204a68fc439b1449c10bf283fac278",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/286736755888?var=588764980609&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trec Nutrition",
+        "category": "Fat Burners",
+        "external_gtin": "",
+        "external_options": "{\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "286736755888",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/286736755888?var=588764980609",
+        "external_variant_id": "v1|286736755888|588764980609",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/RQYAAeSw-D5oiKrS/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "28.38",
+        "product_format": "capsule",
+        "product_id": "1105",
+        "product_name": "Trec Nutrition Clenburexin 180 Capsules",
+        "product_variant_id": "2397",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trec-nutrition-clenburexin-180-capsules",
+        "variant_name": "Unflavoured / 180 capsules"
+      },
+      "plan_fingerprint": "63ab0e0462e5a843625b2f5cc923e35f",
+      "row_number": "19",
+      "source_row_fingerprint": "3ac584b115c76e1c988f4f3e4e780ed17c3d424f1d8a8ea67addbcd30ce2c7ae",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227339481966?var=526541813994&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trec Nutrition",
+        "category": "Fat Burners",
+        "external_gtin": "",
+        "external_options": "{\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "227339481966",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227339481966?var=526541813994",
+        "external_variant_id": "v1|227339481966|526541813994",
+        "flavour": "Unflavoured",
+        "image": "https://cdn.shopify.com/s/files/1/0571/9752/7133/files/image_2020-09-24_5f6c85186fbf2.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "17.43",
+        "product_format": "capsule",
+        "product_id": "1139",
+        "product_name": "Trec Nutrition Clenburexin 90 Capsules",
+        "product_variant_id": "2491",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trec-nutrition-clenburexin-90-capsules",
+        "variant_name": "Unflavoured / 90 capsules"
+      },
+      "plan_fingerprint": "25077641e270e9a170289e7817106d84",
+      "row_number": "20",
+      "source_row_fingerprint": "e0ecebd1d515617ae93a438ccf35a46130948604ce40a5b7f2ed7bf08a207467",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "19",
+    "skipped_row_count": "0"
+  }
+}

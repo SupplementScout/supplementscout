@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 102-OFFER ROLLOUT LIVE VERIFIED (BATCH A 5/5 + BATCH B 5/5 + BATCH C 7/7 + BATCH D 2/2 + BATCH E 1/1 + BATCH F 2/2 + BATCH G 9/9 + BATCH H 11/11 + BATCH I 8/8 + BATCH J 10/10 + BATCH K 20/20 + BATCH L 20/20 + BATCH M 2/2)
+**Status:** CONTROLLED 102-OFFER ROLLOUT LIVE VERIFIED; OWNER-APPROVED BATCH N 19/19 PREPARED, NOT YET LIVE
 **Last verified:** 21 August 2026
 **Production writes:** 102 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 102 mappings, 102 offers, 102 initial price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 102 live eBay offers
@@ -165,6 +165,24 @@ offers. Protected read-only run `32472882697` passed 102/102
 blocking; artifact `9443283850` has SHA-256
 `4b3540da62e058656b3cf39d026e91f68b69d0f0562851abd6d92142348b123b`.
 No second scheduler or importer was introduced.
+
+Batch N is owner-approved and locally prepared for exactly 19 listings. The
+owner reviewed the numbered 20-row comparison list and confirmed `oprocz nr 5,
+reszta jest dobra`; original row 5, Applied Nutrition Cream of Rice 2 kg Apple
+Crumble, is therefore excluded from every Batch N artifact and execution path.
+Fresh direct-item reads verified 19 exact item/variation IDs, 19 business
+sellers, known GBP delivered prices, in-stock state and Campaign-ID affiliate
+URLs. The existing importer returned 19 create plans, zero blocked rows and
+zero database writes. One listing returns an exact GTIN; the other 18 are
+sealed owner-reviewed missing-returned-GTIN identities and cannot widen into a
+general title-match rule. Seventeen rows would create a second current retailer
+for their product; Cellucor C4 Pink Lemonade and PER4M EAA Xtra Lemon Lime
+Splash extend products that already have another active eBay flavour. The
+manual-only Batch N workflow requires confirmation
+`OWNER_APPROVED_EBAY_BATCH_N_EXACT_19`, a fresh 19-item preflight, separated
+approver/executor roles and an exact 19-row no-op postflight. Production remains
+at 102 offers until that guarded workflow completes; the prepared shared
+refresh extension to 121 must not be treated as live evidence before postflight.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9

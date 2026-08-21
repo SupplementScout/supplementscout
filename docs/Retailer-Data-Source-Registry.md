@@ -536,8 +536,16 @@ Products with at least 2 active retailers.
   and zero writes; artifact `9443283850` retains the evidence.
 - Current live in-stock impact: 71 products covered, including 58 with exactly
   two comparison retailers, 12 with three or more and one eBay-only product.
-- Status: **EXACT 102 LIVE AND GUARDED; NEW DISCOVERY/BATCHING PAUSED UNTIL THE
-  250-PRODUCT COVERAGE PHASE**. Do not repeat Batch M or return to exact 100.
+- Batch N is owner-approved for exactly 19 business-seller listings. Original
+  review row 5 is explicitly excluded. Fresh direct-item checks and the
+  canonical importer returned 19 create plans, zero blockers and zero writes;
+  17 rows create second-retailer product coverage and two extend an existing
+  eBay-covered product with another exact flavour. The manual guarded workflow
+  and exact-121 shared-refresh extension are prepared but are not live evidence
+  before production postflight.
+- Status: **EXACT 102 LIVE AND GUARDED; BATCH N EXACT 19 APPROVED AND PREPARED,
+  PRODUCTION APPLY PENDING**. Do not repeat Batch M or reintroduce excluded
+  Batch N row 5.
 
 ## Initial registry template
 
