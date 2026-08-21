@@ -57,6 +57,15 @@ const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2657", { seller: "aatavi97", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
   ["2658", { seller: "anabolic_dream", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
   ["2659", { seller: "welzohealth", review_reasons: new Set(["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2661", { seller: "trainingfuels", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2662", { seller: "trainingfuels", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2663", { seller: "trainingfuels", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2664", { seller: "trainingfuels", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2665", { seller: "dcelectricsltd", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2666", { seller: "dcelectricsltd", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2667", { seller: "protein_ni", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2668", { seller: "mpbioscence", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2674", { seller: "ukesupps-2008", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
 ]);
 const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2570", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
