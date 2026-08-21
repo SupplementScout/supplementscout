@@ -889,17 +889,25 @@ rows and zero writes, retaining artifact `9443283850`. Independent readback and
 both public product pages passed. Do not recreate Batch M, return to exact 100
 or add another eBay batch before the 250-product coverage phase.
 
-The owner subsequently restarted bounded eBay coverage work and manually
-reviewed a numbered 20-listing candidate set. The exact confirmation `oprocz nr
-5, reszta jest dobra` approves 19 Batch N listings and explicitly excludes
-Applied Nutrition Cream of Rice 2 kg Apple Crumble. Fresh direct-item evidence
-and the canonical importer produced 19 create plans, zero blockers and zero
-writes. All 19 sellers are business accounts and every row has a known GBP
-delivered price and Campaign-ID URL. Seventeen products would gain a second
-current retailer; two approved rows add a new eBay flavour to products already
-covered by another active eBay flavour. The sealed manual workflow and shared
-refresh extension are prepared, but production remains exact 102 until Batch N
-passes its fresh preflight, guarded apply, no-op postflight and live readback.
+The owner subsequently restarted bounded eBay coverage work and approved 19 of
+a numbered 20-listing candidate set; original row 5, Applied Nutrition Cream of
+Rice 2 kg Apple Crumble, remains excluded. PR `#34` merged the sealed Batch N
+release as `7e9ed7dab7bd7a52292db4bddb622dcaf37bff0c`. Protected run
+`32515389182` passed 19 fresh direct-item checks, created mappings `2827`-`2845`
+and offers `2641`-`2659`, and passed the exact 19-row no-op postflight.
+Independent readback verified all identities, prices, known shipping, delivered
+totals, stock, affiliate URLs and price history; a second importer dry-run
+returned 19 no-ops and zero blockers. All 19 public product pages returned HTTP
+200 and exposed the exact new offers. eBay now covers 88 products, including 75
+with exactly two current retailers, 12 with three or more and one eBay-only
+product. The same shared refresh is exact 121; protected read-only run
+`32515999463` passed 121/121 `verify_no_change`, zero blocked rows and zero
+executions with automatic-OOS blocking retained. Batch N is live verified and
+must not be replayed. A fresh production-wide read-only measurement after the
+release found 1,070 active products and 2,133 positive-price in-stock offers:
+200 products have no current retailer, 683 have one and 187 have at least two;
+27 have at least three and three have at least four. The 250-product checkpoint
+therefore has 63 remaining.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
