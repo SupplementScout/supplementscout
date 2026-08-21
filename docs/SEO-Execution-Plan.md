@@ -115,7 +115,7 @@ Console evidence and user value.
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `LIVE VERIFIED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
-| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `IN PROGRESS` | SEO-14 finished on 20 August 2026. Resume with the bounded Protein Bars classification, exact-pack and unchanged coverage-gate recheck without repeating live pages. |
+| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `IN PROGRESS` | The 21 August Protein Bars recheck is complete and remains deferred at `1 / 2 / 26` against the unchanged `3 / 2 / 20` gate. Do not publish or repeat live pages; improve exact multi-retailer coverage through the binding 250-product phase. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
@@ -123,11 +123,12 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — run the bounded Protein Bars
-classification, exact-pack and unchanged coverage-gate recheck. Reuse the
-existing category-page contract, do not repeat completed pages and publish only
-if at least three exact fresh multi-retailer products and 20 fresh offers remain
-after cleanup.
+**Next executable task:** SEO-13 — improve the exact multi-retailer coverage
+needed by the deferred cluster through the binding commercial coverage phase,
+increasing products with at least two active retailers from the fresh 21 August
+checkpoint of `170` to `250`. Reuse the source registry and guarded import
+paths, prefer exact second offers for existing products and do not weaken
+identity or pack rules.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -271,6 +272,55 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 21 August 2026 — SEO-13 Protein Bars bounded recheck complete; page deferred
+
+- A fresh production transaction ran in read-only mode at
+  `2026-08-21T12:56:11.983Z` and inspected all `52` active, unmerged products
+  in the exact `Protein Bars` category. It performed zero product, variant,
+  mapping, offer, analytics or other database writes.
+- The unchanged safe boundary required an explicit bar, wafer or flapjack
+  identity, `bar` or `snack` format, one known product-consistent pack count
+  across concrete active variants, and an in-stock positive-price mapped offer
+  checked within 24 hours. Cookies, bites, milkshakes, liquid egg whites,
+  pancake mix and spreads remained allowed catalogue products but were excluded
+  from this bar-specific comparison.
+- Sixteen products had `58` fresh offers before classification and exact-pack
+  filtering. Four products remained eligible and visible with `26` fresh
+  offers: Optimum Nutrition Protein Crisp box of 10, Clif Energy Bar box of 12,
+  Grenade Carb Killa single bars and PER4M Protein Bars box of 12.
+- Only Clif Energy Bar had fresh exact-pack offers from multiple retailers
+  (`Whey Okay` and `eBay UK`). The gate therefore measured `1` multi-retailer
+  product, `2` comparison retailers and `26` eligible fresh offers against the
+  unchanged `3 / 2 / 20` requirement. It failed on product overlap.
+- Ambiguous or non-bar rows were not used to inflate the result. In particular,
+  Barebells High Protein Milkshake, Uncle Jack's Liquid Egg White, Muscle Moose
+  Protein Pancakes Mix and all Critical Cookie identities remained outside the
+  page boundary. The 73 g Critical Cookie box and 85 g single-cookie families
+  stayed separate; legacy default-only cookie rows were not silently merged or
+  assigned a pack.
+- No `/protein-bars` route, sitemap entry, metadata or catalogue migration was
+  created. Protein Bars remains deferred inside `SEO-13`; completed SEO-13
+  pages remain frozen. Per the binding owner order, the next executable work is
+  the 250-product exact multi-retailer coverage phase.
+- A second read-only production checkpoint at
+  `2026-08-21T12:59:48.545Z` measured `1,070` active products, `2,114` public
+  offers and `10` active retailers. Coverage is `200` products with no
+  retailer, `700` with one, `170` with at least two, `27` with at least three
+  and `3` with at least four. The target gap is now `80` products.
+- The first active-phase eBay discovery checked `100` exact one-retailer GTIN
+  identities across `59` products. It found `14` listings, but all failed or
+  remained below the safe business-offer boundary: flavour, size, format,
+  count, brand, GTIN or seller-quality evidence blocked every candidate. It
+  created zero mappings or offers and did not use weak title similarity to
+  inflate coverage.
+- A fresh Discount Supplements Shopify snapshot then covered `341` products,
+  `993` variants and `706` in-stock variants. The existing canonical matcher
+  found exactly two safe second-retailer products with exact product and exact
+  variant identity: Strom StimuMAX PRO Pre Workout 360 g (`2` variants) and
+  Trained By JP Performance Protein 2 kg (`3` variants). They remain
+  owner-review candidates and confer no production-write authority; a guarded
+  apply could move the metric only to `172`, subject to fresh evidence.
 
 ### 20 August 2026 — SEO-14 eBay UK retailer page LIVE VERIFIED
 

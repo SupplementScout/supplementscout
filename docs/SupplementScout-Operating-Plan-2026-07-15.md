@@ -889,6 +889,45 @@ rows and zero writes, retaining artifact `9443283850`. Independent readback and
 both public product pages passed. Do not recreate Batch M, return to exact 100
 or add another eBay batch before the 250-product coverage phase.
 
+### 0.0.16 Protein Bars recheck and fresh coverage checkpoint - 21 August 2026
+
+This checkpoint supersedes older Protein Bars next-action text and the
+20 August catalogue counts, while retaining the binding growth order. A fresh
+production transaction audited all `52` active, unmerged products in the exact
+`Protein Bars` category in read-only mode. The unchanged boundary required an
+explicit bar, wafer or flapjack identity, `bar` or `snack` format, one known
+consistent pack count across concrete active variants and a mapped, in-stock,
+positive-price offer checked within 24 hours.
+
+Sixteen products had `58` fresh offers before the safe boundary. Four products
+remained eligible with `26` fresh offers, but only Clif Energy Bar box of 12 had
+fresh exact-pack coverage at two retailers. The unchanged `3 / 2 / 20` gate
+therefore failed at `1 / 2 / 26`. Cookies, bites, milkshakes, liquid egg whites,
+pancake mix and spreads remain allowed catalogue types, but they were not
+misclassified as bars for this page. Single products and boxes remained
+separate; Critical Cookie legacy defaults were neither merged nor assigned an
+unsupported pack. No route, sitemap entry, metadata, catalogue or production
+write was created. Protein Bars remains deferred inside `SEO-13`.
+
+The immediately following production read-only coverage checkpoint records
+`1,070` active products, `2,114` public offers and `10` active retailers.
+Coverage is `200` products with no retailer, `700` with one retailer, `170`
+with at least two retailers, `27` with at least three and `3` with at least
+four. The next commercial checkpoint is `250` products with at least two
+retailers, leaving `80`. Select exact overlap-oriented sources through the
+existing registry and guarded paths; do not add another eBay batch merely to
+raise the count, weaken identity gates or revive stale offers.
+
+The first active-phase source audit has also completed without writes. A
+100-identity eBay GTIN pass produced zero safe business candidates after exact
+variant and seller controls. A fresh `341`-product / `993`-variant Discount
+Supplements snapshot produced two exact second-retailer product candidates:
+Strom StimuMAX PRO Pre Workout 360 g with two variants and Trained By JP
+Performance Protein 2 kg with three variants. They are owner-review candidates,
+not apply authority. If approved through the existing guarded Discount path,
+they could move the metric from `170` to at most `172` after a fresh dry-run and
+post-apply verification.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
@@ -2026,9 +2065,10 @@ Current priority order:
 
 `SEO-11` and `SEO-14` are complete and live verified.
 
-1. Resume `SEO-13` for the bounded Protein Bars recheck without repeating its
-   completed pages or weakening its gate.
-2. Multi-retailer coverage from the current 169 products to 250.
+1. The bounded `SEO-13` Protein Bars recheck is complete and deferred without
+   repeating completed pages or weakening its gate.
+2. Multi-retailer coverage from the fresh 21 August checkpoint of 170 products
+   to 250.
 3. `SEO-15` deals and price drops from existing offer/history data.
 4. `SEO-16` guarded two-product comparison.
 5. `SEO-17` owner-reviewed expert decision notes.
@@ -2459,9 +2499,11 @@ Target experience:
 
 ### Current active task
 
-`SEO-13` is the single active implementation. Resume only the bounded Protein
-Bars classification, exact-pack and unchanged coverage-gate review without
-repeating completed pages. SEO-14 is live verified after launching useful,
+`SEO-13` remains the single active SEO implementation, but its bounded Protein
+Bars classification, exact-pack and unchanged coverage-gate review is complete
+and deferred at `1 / 2 / 26`. The active supporting data workstream is now the
+exact multi-retailer coverage phase from `170` to `250`; do not repeat completed
+SEO-13 pages. SEO-14 is live verified after launching useful,
 individually gated brand and retailer pages through the existing catalogue and
 page-quality mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
@@ -2515,9 +2557,10 @@ publication.
 
 ### Next task
 
-Complete the active `SEO-13` bounded Protein Bars classification, exact-pack
-and unchanged coverage-gate review. Do not repeat completed SEO-13 pages or
-weaken its gate.
+Increase exact products with at least two active retailers from the fresh
+21 August checkpoint of `170` to `250`. Start with a current overlap-oriented
+source audit through the existing registry and guarded paths; do not weaken
+identity, variant, pack or freshness controls.
 
 ### Then
 

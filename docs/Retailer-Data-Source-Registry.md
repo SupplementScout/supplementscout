@@ -1,6 +1,6 @@
 # SupplementScout Retailer Data Source Registry
 
-_Last updated: 20 August 2026_
+_Last updated: 21 August 2026_
 
 ## Purpose
 
@@ -21,17 +21,18 @@ Preferred order:
 
 Do not build a retailer-specific scraper until the earlier options have been checked and documented.
 
-### Current project-wide coverage checkpoint — 20 August 2026
+### Current project-wide coverage checkpoint — 21 August 2026
 
-- Production has 1,070 active products, 2,087 public offers and 10 active
+- Production has 1,070 active products, 2,114 public offers and 10 active
   retailers.
-- Coverage is 200 products with no retailer, 701 with one, 169 with at least
-  two, 25 with at least three and three with four retailers.
+- Coverage is 200 products with no retailer, 700 with one, 170 with at least
+  two, 27 with at least three and three with four retailers.
 - The next controlled target is 250 products with at least two retailers,
-  leaving 81. Prioritise exact offers that create the second retailer for an
+  leaving 80. Prioritise exact offers that create the second retailer for an
   existing canonical product; raw offer count is not the target.
-- New catalogue expansion is paused until SEO-11, SEO-14 and the fresh SEO-13
-  Protein Bars recheck are complete. Routine approved refreshes continue.
+- SEO-11 and SEO-14 are live verified. The fresh SEO-13 Protein Bars recheck is
+  complete and deferred at `1 / 2 / 26`; the Commercial Coverage Sprint is now
+  the active supporting data workstream. Routine approved refreshes continue.
 
 ### Binding catalogue exclusions
 
@@ -418,6 +419,29 @@ Products with at least 2 active retailers.
 - Status: **506 APPROVED OFFERS / ONE SHARED DAILY AUTOMATION OPERATIONAL;
   POST-APPLY IDEMPOTENCY VERIFIED**.
 
+## Discount Supplements coverage discovery - 21 August 2026
+
+- Retailer ID: `4`; domain: `discount-supplements.co.uk`; source: the existing
+  guarded Shopify full-snapshot reader. The fresh read-only capture contained
+  `341` products, `993` variants and `706` in-stock variants. It performed zero
+  importer or database writes.
+- The existing canonical matcher reviewed the current in-stock source against
+  active canonical products and variants. Only exact product plus exact variant
+  outcomes were allowed to enter the safe overlap set; ambiguous, new-product,
+  high-confidence-review and variant-review rows remained outside it.
+- Two current one-retailer products have safe exact second-retailer candidates:
+  product `872`, Strom StimuMAX PRO Pre Workout 360 g, with Strawberry Kiwi and
+  Unicorn Pi55 variants; and product `877`, Trained By JP Performance Protein
+  2 kg, with Chocolate Peanut Butter, Vanilla Ice Cream and White Chocolate
+  Raspberry variants. All five source variants are currently in stock.
+- These are owner-review candidates, not production-write authority. If
+  approved, they must expand the existing Discount Supplements guarded path,
+  preserve its confirmed GBP 4.99 / GBP 80 delivery policy and pass a fresh
+  exact-source dry-run before any apply. They would move the primary metric
+  from `170` to at most `172`, subject to fresh post-apply evidence.
+- Status: **TWO EXACT SECOND-RETAILER PRODUCT CANDIDATES AWAIT OWNER REVIEW;
+  ZERO PRODUCTION WRITES**.
+
 ## Fit House current record - 11 August 2026
 
 - Retailer ID: `9`; domain: `fithouse.uk`; guarded Shopify products JSON.
@@ -536,8 +560,9 @@ Products with at least 2 active retailers.
   and zero writes; artifact `9443283850` retains the evidence.
 - Current live in-stock impact: 71 products covered, including 58 with exactly
   two comparison retailers, 12 with three or more and one eBay-only product.
-- Status: **EXACT 102 LIVE AND GUARDED; NEW DISCOVERY/BATCHING PAUSED UNTIL THE
-  250-PRODUCT COVERAGE PHASE**. Do not repeat Batch M or return to exact 100.
+- Status: **EXACT 102 LIVE AND GUARDED; NEW DISCOVERY MAY RESUME ONLY INSIDE THE
+  ACTIVE 250-PRODUCT COVERAGE PHASE**. Do not repeat Batch M, return to exact
+  100 or approve a listing that does not create safe exact overlap.
 
 ## Initial registry template
 
