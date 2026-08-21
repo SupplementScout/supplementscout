@@ -18,6 +18,7 @@ test("workflow is manual, exact, and separates production roles", () => {
   assert.match(workflow, /^  schedule:/m);
   assert.match(workflow, /cron: "13 4 \* \* \*"/);
   assert.match(workflow, /inputs\.approval_fingerprint == 'feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59'/);
+  assert.match(workflow, /OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66/);
   assert.match(workflow, /GYM_HIGH_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /GYM_HIGH_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
   assert.match(workflow, /persist-credentials: false/);
@@ -46,7 +47,7 @@ test("refresh artifact helper is tmp-confined and recognizes only exact business
 });
 
 function scheduledPlan(overrides = {}) {
-  const before = { price: "10.00", shipping_cost: null, in_stock: true, url: "https://gymhigh.co.uk/product/test/" };
+  const before = { price: "10.00", shipping_cost: "3.99", in_stock: true, url: "https://gymhigh.co.uk/product/test/" };
   return {
     row_number: "2",
     resolved_plan: {
@@ -65,4 +66,16 @@ test("scheduled guard allows existing no-change rows and blocks creates or price
   assert.throws(() => validateScheduledPlans({ plans: create }, complete), /contains a create/);
   const anomaly = structuredClone(plans); anomaly[0].resolved_plan.offer.values.price = "30.00";
   assert.throws(() => validateScheduledPlans({ plans: anomaly }, complete), /hard price anomaly/);
+  const badShipping = structuredClone(plans); badShipping[0].resolved_plan.offer.values.shipping_cost = "0";
+  assert.throws(() => validateScheduledPlans({ plans: badShipping }, complete), /shipping policy/);
+  const unknownFreeShipping = structuredClone(plans);
+  unknownFreeShipping[0].resolved_plan.offer.values.price = "50.00";
+  unknownFreeShipping[0].resolved_plan.offer.values.shipping_cost = null;
+  assert.throws(() => validateScheduledPlans({ plans: unknownFreeShipping }, complete), /shipping policy/);
+  const thresholdCrossing = structuredClone(plans);
+  thresholdCrossing[0].resolved_plan.expected_state.offer.price = "49.99";
+  thresholdCrossing[0].resolved_plan.expected_state.offer.shipping_cost = "3.99";
+  thresholdCrossing[0].resolved_plan.offer.values.price = "50.00";
+  thresholdCrossing[0].resolved_plan.offer.values.shipping_cost = "0";
+  assert.doesNotThrow(() => validateScheduledPlans({ plans: thresholdCrossing }, complete));
 });

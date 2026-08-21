@@ -1,5 +1,4 @@
 const assert = require("node:assert/strict");
-const path = require("node:path");
 const test = require("node:test");
 const { assertSource, buildFeedRow, parseArgs, reviewedOptions } = require("./gym-high-full-catalogue-feed-builder");
 const approval = require("../config/retailers/gym-high-reviewed-full-catalogue-2026-08-01.json");
@@ -26,11 +25,12 @@ test("source binding contains exactly 66 approved rows and five reviewed omissio
   assert.equal(assertSource(approval, source, new Date("2026-08-01T13:00:00.000Z")).size, 71);
 });
 
-test("new offers keep delivery unknown while existing delivery is left for importer preservation", () => {
+test("all offers use the owner-confirmed threshold shipping policy", () => {
   const binding = { family: { external_product_id: "3955" }, reviewed: { external_variant_id: "3957", canonical_label: "Orange" }, product: { id: 527, name: "GYM HIGH L-Carnitine Liquid 500 ml", slug: "gym-high-l-carnitine-liquid-500-ml", brand: "GYM HIGH", category: "Amino Acids", product_format: "liquid", image: null }, variant: { id: 2711, display_name: "Orange / 500ml", flavour_label: "Orange", size_value: 500, size_unit: "ml", pack_count: 1, product_format: "liquid" } };
   const row = buildFeedRow(binding, { canonical_url: "https://gymhigh.co.uk/product/gym-high-l-carnitine-liquid/", price_gbp: "23.99", in_stock: true, sku: null }, null, null, "2026-08-01T12:00:00.000Z");
-  assert.equal(row.shipping_known, "false");
-  assert.equal(row.shipping_cost, "");
+  assert.equal(row.shipping_known, "true");
+  assert.equal(row.shipping_cost, "3.99");
+  assert.equal(buildFeedRow(binding, { canonical_url: "https://gymhigh.co.uk/product/test/", price_gbp: "50.00", in_stock: true, sku: null }, null, null, "2026-08-01T12:00:00.000Z").shipping_cost, "0");
   assert.equal(row.product_id, "527");
   assert.equal(row.product_variant_id, "2711");
 });

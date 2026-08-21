@@ -287,13 +287,19 @@ the redundant second source fetch was blocked by GYM HIGH's Imunify360 layer.
 Independent production evidence immediately returned 66 mappings, 66 offers,
 zero missing mappings and zero missing offers. The corrected no-write postflight
 run `30713422729` subsequently passed end to end against the same immutable
-source capture. Unknown delivery cost on newly created offers remains unknown;
-it was not inferred from unrelated historical offers.
+source capture. Unknown delivery cost on newly created offers was not inferred
+from unrelated historical offers during rollout. On 21 August 2026 the owner
+independently confirmed GYM HIGH delivery as GBP 3.99 below GBP 50 and free from
+GBP 50 inclusive. A fresh full-scope production-data dry-run planned 43
+shipping-only updates and 23 no-ops across the exact 66 approved identities,
+with zero price, stock, URL or catalogue changes and zero writes. The correction
+remains pending a separately confirmed production apply.
 
 The same exact 66-row reviewed scope is scheduled daily at `04:13 UTC`. It may
 update existing approved offers only and blocks catalogue creates, mapping or
-offer creates, unverified shipping changes, per-row price anomalies, mass price
-or state changes and unsafe URLs. It first requests a fresh source capture. If
+offer creates, shipping values outside the owner-confirmed threshold formula,
+per-row price anomalies, mass price or state changes and unsafe URLs. It first
+requests a fresh source capture. If
 Imunify360 blocks that request, it may use only the latest successful source-
 monitor artefact while that artefact is less than 24 hours old and still has
 the exact approved identity fingerprint. Older, missing or drifted evidence

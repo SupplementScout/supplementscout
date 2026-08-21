@@ -82,7 +82,10 @@ function buildRefreshArtifact(options, dependencies = {}) {
       approvedRows.push({ row: built.record, rowNumber: Number(entry.row_number), importPlan: built.plan });
       verifiedNoChangeCount += 1;
     } else {
-      if (plan.offer.action !== "update" || plan.product.action !== "existing" || plan.product_variant.action !== "existing" || plan.retailer_product.action === "create" || plan.price_history.action === "create" && Number(plan.offer.values.price) === Number(plan.expected_state.offer.price)) {
+      const beforeShipping = plan.expected_state.offer.shipping_cost == null ? null : Number(plan.expected_state.offer.shipping_cost);
+      const afterShipping = plan.offer.values.shipping_cost == null ? null : Number(plan.offer.values.shipping_cost);
+      const deliveredPriceChanged = Number(plan.offer.values.price) !== Number(plan.expected_state.offer.price) || beforeShipping !== afterShipping;
+      if (plan.offer.action !== "update" || plan.product.action !== "existing" || plan.product_variant.action !== "existing" || plan.retailer_product.action === "create" || plan.price_history.action === "create" && !deliveredPriceChanged) {
         fail(`Changed row ${entry.row_number} is outside the existing-offer refresh contract`);
       }
       approvedRows.push({ row: sourceRow, rowNumber: Number(entry.row_number), importPlan: plan });

@@ -24,6 +24,13 @@
     "approved_mapping_count": 66,
     "schedule_cron_utc": "13 4 * * *"
   },
+  "shipping_policy": {
+    "currency": "GBP",
+    "standard_shipping_cost_gbp": 3.99,
+    "free_shipping_threshold_gbp": 50,
+    "threshold_inclusive": true,
+    "evidence": "OWNER_CONFIRMED_2026_08_21"
+  },
   "guardrails": {
     "approved_source_count": 1,
     "full_catalogue_discovery": true,
@@ -31,6 +38,7 @@
     "catalogue_creates": false,
     "production_writes": false,
     "refresh_production_writes": "EXISTING_APPROVED_OFFERS_ONLY",
+    "shipping_updates": "OWNER_CONFIRMED_THRESHOLD_FORMULA_ONLY",
     "source_freshness_hours": 24,
     "maximum_changed_record_ratio": 0.2,
     "mass_price_change_block_ratio": 0.1,

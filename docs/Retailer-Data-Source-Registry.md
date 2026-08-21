@@ -494,19 +494,26 @@ Products with at least 2 active retailers.
   writes.
 - Status: **ROUTINE AUTOMATION HEALTHY; LATEST REMOTE RUN GREEN**.
 
-## GYM HIGH current record - 20 August 2026
+## GYM HIGH current record - 21 August 2026
 
 - Retailer ID: `1`; domain: `gymhigh.co.uk`; source: public WooCommerce Store API for complete discovery plus the existing bounded WooCommerce product-page reader for exact live variant price, stock and identity.
 - The owner-reviewed source scope contains 66 approved sellable variants across
   26 product families. Four gift-card rows remain excluded and source identity
   `639:644` remains an explicit reviewed exception.
 - The exact 66-row catalogue rollout and legacy identity repair are complete.
-  Production has 66 mappings and 66 offers in the reviewed scope; new unknown
-  delivery costs were not inferred.
+  Production has 66 mappings and 66 offers in the reviewed scope.
+- The owner confirmed standard delivery on 21 August 2026 as GBP 3.99 below
+  GBP 50 and free from GBP 50 inclusive. The existing feed and guarded refresh
+  now encode only that formula. A fresh production-data dry-run over all 66
+  approved identities planned exactly 43 shipping-only updates and 23 no-ops:
+  37 unknown-to-GBP-3.99, five unknown-to-free and one GBP-3.99-to-free. Price,
+  stock, URL and catalogue identity changes were all zero. Production apply is
+  not yet recorded and remains behind a separate exact owner confirmation.
 - `.github/workflows/gym-high-source-monitor.yml` performs a daily full-catalogue read-only capture at `03:43 UTC`. It discovers the complete source, validates every product page and variation ID, fails closed on count, host, schema, currency, product or variation drift, and retains the complete classification artifact.
 - The daily source monitor remains read-only. The separate existing 66-offer
   guarded refresh can update only the exact reviewed offers and fails closed on
-  stale, missing or drifted source evidence. New and ambiguous identities
+  stale, missing or drifted source evidence or a shipping value outside the
+  confirmed threshold formula. New and ambiguous identities
   remain review-only.
 - Status: **66-OFFER REVIEWED CATALOGUE LIVE; DAILY MONITOR AND GUARDED REFRESH
   OPERATIONAL; LATEST REMOTE RUN GREEN**.
