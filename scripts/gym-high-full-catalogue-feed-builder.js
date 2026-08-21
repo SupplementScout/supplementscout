@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
 const { EXTRA_COLUMNS, serializeCsv } = require("./six-pack-canary-builder");
 const { assertApproval, inspectVariants } = require("./gym-high-reviewed-catalogue-bootstrap");
+const { shippingCostTextForPrice } = require("./gym-high-shipping-policy");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
@@ -96,7 +97,7 @@ function buildFeedRow(binding, source, mapping, offer, capturedAt) {
     product_name: product.name, variant_name: variant.display_name, brand: product.brand, category: product.category,
     description: "", image: product.image || "", slug: product.slug,
     external_url: source.canonical_url, affiliate_url: source.canonical_url, external_gtin: mapping?.external_gtin || "",
-    price: String(source.price_gbp), shipping_known: "false", shipping_cost: "",
+    price: String(source.price_gbp), shipping_known: "true", shipping_cost: shippingCostTextForPrice(source.price_gbp),
     in_stock: String(source.in_stock), is_for_sale: "true",
     size: variant.size_value ?? "", size_unit: variant.size_unit ?? "", flavour: variant.flavour_label || variant.flavour_code || "",
     product_format: variant.product_format || product.product_format || "", pack_count: variant.pack_count ?? 1,

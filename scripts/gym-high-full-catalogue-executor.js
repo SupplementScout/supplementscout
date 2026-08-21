@@ -3,6 +3,7 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { loadDryRunArtifact } = require("./import-products");
 const { assertApproval, inspectVariants } = require("./gym-high-reviewed-catalogue-bootstrap");
+const { shippingCostForPrice } = require("./gym-high-shipping-policy");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
@@ -114,7 +115,8 @@ function validateInputs(options, dependencies = {}) {
       !["create", "noop"].includes(plan.price_history?.action) ||
       (entry.operation_type === "standard_import" && (String(source.product_id) !== String(spec.family.product_id) || source.product_name !== spec.family.expected_name ||
       source.retailer_name !== "GYM HIGH" || source.retailer_website !== "https://gymhigh.co.uk" ||
-      source.shipping_known !== "false" || source.shipping_cost != null || source.is_for_sale !== "true")) ||
+      source.shipping_known !== "true" || Number(source.shipping_cost) !== shippingCostForPrice(source.price) || source.is_for_sale !== "true")) ||
+      plan.offer?.values?.shipping_cost == null || Number(plan.offer.values.shipping_cost) !== shippingCostForPrice(plan.offer.values.price) ||
       url.protocol !== "https:" || url.hostname !== "gymhigh.co.uk"
     ) fail(`Unsafe resolved plan for ${key}`);
     if (entry.operation_type === "verify_offer_no_change" && (
@@ -157,7 +159,7 @@ function validateScheduledPlans(validated, report) {
     const before = plan.expected_state?.offer;
     const after = plan.offer?.values;
     if (!beforeMapping || !before || !after || !["update", "noop"].includes(plan.retailer_product.action) || !["update", "verify_no_change", "noop"].includes(plan.offer.action)) fail(`Scheduled refresh contains a create for row ${entry.row_number}`);
-    if ((before.shipping_cost ?? null) !== (after.shipping_cost ?? null)) fail(`Scheduled refresh changed unverified shipping for row ${entry.row_number}`);
+    if (after.shipping_cost == null || Number(after.shipping_cost) !== shippingCostForPrice(after.price)) fail(`Scheduled refresh violated the owner-confirmed shipping policy for row ${entry.row_number}`);
     let url;
     try { url = new URL(after.url); } catch { fail(`Scheduled refresh URL is invalid for row ${entry.row_number}`); }
     if (url.protocol !== "https:" || url.hostname !== "gymhigh.co.uk") fail(`Scheduled refresh URL escaped GYM HIGH for row ${entry.row_number}`);
@@ -198,6 +200,7 @@ async function run(options) {
   if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REF !== "refs/heads/main" || process.env.GITHUB_REPOSITORY !== "SupplementScout/supplementscout" || !["workflow_dispatch", "schedule"].includes(event) || process.env.GYM_HIGH_APPROVAL_FINGERPRINT !== APPROVAL_FINGERPRINT) fail("GYM HIGH full-catalogue execution requires the protected GitHub context on main");
   const validated = validateInputs(options);
   const builderReport = JSON.parse(fs.readFileSync(options.report, "utf8"));
+  if (event === "workflow_dispatch" && options.mode === "apply" && process.env.GYM_HIGH_OWNER_CONFIRMATION !== "OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66") fail("Manual GYM HIGH apply requires the exact owner confirmation");
   if (event === "schedule") {
     if (options.mode !== "apply") fail("Scheduled GYM HIGH refresh must use guarded apply mode");
     validateScheduledPlans(validated, builderReport);
