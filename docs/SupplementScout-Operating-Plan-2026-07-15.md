@@ -292,8 +292,13 @@ from unrelated historical offers during rollout. On 21 August 2026 the owner
 independently confirmed GYM HIGH delivery as GBP 3.99 below GBP 50 and free from
 GBP 50 inclusive. A fresh full-scope production-data dry-run planned 43
 shipping-only updates and 23 no-ops across the exact 66 approved identities,
-with zero price, stock, URL or catalogue changes and zero writes. The correction
-remains pending a separately confirmed production apply.
+with zero price, stock, URL or catalogue changes and zero writes. PR `#31`
+merged the guarded implementation as
+`cb84b9720700b45d13fc978d2851cdc0c65c71df`. Protected production run
+`32481753907` passed the exact contracts, fresh source capture, role-separated
+apply, complete live postcondition and evidence upload. An independent
+production read at `2026-08-21T12:31:09.680Z` returned 66/66 policy no-ops and
+zero remaining shipping updates. The correction is complete and live verified.
 
 The same exact 66-row reviewed scope is scheduled daily at `04:13 UTC`. It may
 update existing approved offers only and blocks catalogue creates, mapping or
