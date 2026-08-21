@@ -541,6 +541,37 @@ test("Batch L refresh continuity is sealed to the six exact reviewed exceptions"
   assert.equal(classifyContinuity(scopes.get("2632"), evaluation("2632", "appliednutritionplc", ["UNIT_COUNT_MISMATCH"], [], scopes.get("2632").gtin)).eligible, false);
 });
 
+test("Batch O refresh continuity is sealed to the nine owner-reviewed missing-GTIN listings", () => {
+  const scopes = new Map(REFRESH_SCOPES.slice(-20).map((scope) => [scope.offer_id, scope]));
+  const reviewed = new Map([
+    ["2661", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
+    ["2662", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
+    ["2663", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
+    ["2664", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
+    ["2665", ["dcelectricsltd", ["RETURNED_GTIN_UNPROVEN"]]],
+    ["2666", ["dcelectricsltd", ["RETURNED_GTIN_UNPROVEN"]]],
+    ["2667", ["protein_ni", ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]]],
+    ["2668", ["mpbioscence", ["RETURNED_GTIN_UNPROVEN"]]],
+    ["2674", ["ukesupps-2008", ["RETURNED_GTIN_UNPROVEN"]]],
+  ]);
+  const evaluation = (scope, seller, reasons, accountType = "BUSINESS") => ({
+    decision: "REJECT", item_id: scope.external_variant_id, legacy_item_id: scope.external_product_id,
+    returned_gtin: null, blockers: ["CANONICAL_GTIN_INVALID"], review_reasons: reasons,
+    affiliate_ready: true, affiliate_url: scope.affiliate_url,
+    seller: { username: seller, account_type: accountType },
+  });
+  assert.equal(reviewed.size, 9);
+  for (const [offerId, [seller, reasons]] of reviewed) {
+    const scope = scopes.get(offerId);
+    assert.equal(classifyContinuity(scope, evaluation(scope, seller, reasons)).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  }
+  const scope = scopes.get("2661"), [seller, reasons] = reviewed.get("2661");
+  assert.equal(classifyContinuity(scope, evaluation(scope, "different-seller", reasons)).eligible, false);
+  assert.equal(classifyContinuity(scope, evaluation(scope, seller, reasons, "INDIVIDUAL")).eligible, false);
+  assert.equal(classifyContinuity(scope, evaluation(scope, seller, [...reasons, "SIZE_UNPROVEN"])).eligible, false);
+  assert.equal(classifyContinuity(scope, { ...evaluation(scope, seller, reasons), item_id: "v1|other|0" }).eligible, false);
+});
+
 test("eBay refresh isolates an unreadable listing without automatic OOS or stopping the remaining scope", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
   assert.match(source, /catch \{[\s\S]*blockers: \["SOURCE_READ_FAILED"\][\s\S]*continuity: \{ eligible: false, tier: "blocked" \}/);
