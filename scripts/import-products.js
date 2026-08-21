@@ -52,6 +52,7 @@ const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V14 = require("../config/retailers/si
 const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V15 = require("../config/retailers/six-pack-reviewed-large-family-batch-v15.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-k-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_L = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-l-v1.json");
+const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_O = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-o-v1.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -1967,6 +1968,12 @@ function isExactEbayCrossProductParentVariant({
       contract: "ebay-reviewed-cross-product-parent-batch-l-v1",
       confirmation: "OWNER_APPROVED_EBAY_BATCH_L_EXACT_20",
       rows: 1,
+    },
+    {
+      value: EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_O,
+      contract: "ebay-reviewed-cross-product-parent-batch-o-v1",
+      confirmation: "OWNER_APPROVED_EBAY_BATCH_O_EXACT_20",
+      rows: 5,
     },
   ];
   if (
