@@ -1,0 +1,307 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-21T09:48:11.966Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "af60aba12d22ba255943d8abac58c08e",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "457",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Reflex Nutrition Clear Whey Isolate 510g 17 Servings",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Mango / 510g",
+            "flavour_code": "mango",
+            "flavour_label": "Mango",
+            "id": "1050",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "457",
+            "size_unit": "g",
+            "size_value": "510",
+            "variant_key": "mango-510g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "af60aba12d22ba255943d8abac58c08e",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "10bbd6a87abfc9922711756200b2c491ee9f495d6d35726c363b9cd3dece0ba6",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T09:48:11.340Z",
+            "price": "24.99",
+            "shipping_cost": "0",
+            "total_price": "24.99",
+            "url": "https://www.ebay.co.uk/itm/403884115915?var=673770851190&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "457"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Mango",
+              "Size": "510g"
+            },
+            "flavour": "mango",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "510"
+          },
+          "id": "1050"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5033579002262",
+            "external_name": "Reflex Nutrition Clear Whey Isolate 510g 17 Servings",
+            "external_options": {
+              "Flavour": "Mango",
+              "Size": "510g"
+            },
+            "external_product_id": "403884115915",
+            "external_sku": null,
+            "external_slug": "reflex-nutrition-clear-whey-isolate-510g-17-servings",
+            "external_url": "https://www.ebay.co.uk/itm/403884115915?var=673770851190",
+            "external_variant_id": "v1|403884115915|673770851190",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1050"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "10bbd6a87abfc9922711756200b2c491ee9f495d6d35726c363b9cd3dece0ba6"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "f8eb967fc3c26f1e7139771c73e4eed5",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "746",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Strawberry Milkshake / 2000g",
+            "flavour_code": "strawberry milkshake",
+            "flavour_label": "Strawberry Milkshake",
+            "id": "1196",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "746",
+            "size_unit": "g",
+            "size_value": "2000",
+            "variant_key": "strawberry-milkshake-2000g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "f8eb967fc3c26f1e7139771c73e4eed5",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "c214a3cf7a44436751cbbb033bb82cf8b71abf7a01ea75367f5d04b383d87239",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-21T09:48:11.963Z",
+            "price": "64.99",
+            "shipping_cost": "0",
+            "total_price": "64.99",
+            "url": "https://www.ebay.co.uk/itm/386193771567?var=653735928444&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "746"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Strawberry Milkshake",
+              "Size": "2000g"
+            },
+            "flavour": "strawberry milkshake",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "2000"
+          },
+          "id": "1196"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060347312919",
+            "external_name": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+            "external_options": {
+              "Flavour": "Strawberry Milkshake",
+              "Size": "2000g"
+            },
+            "external_product_id": "386193771567",
+            "external_sku": null,
+            "external_slug": "efectiv-nutrition-grass-fed-whey-protein-isolate-2kg",
+            "external_url": "https://www.ebay.co.uk/itm/386193771567?var=653735928444",
+            "external_variant_id": "v1|386193771567|653735928444",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1196"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "c214a3cf7a44436751cbbb033bb82cf8b71abf7a01ea75367f5d04b383d87239"
+    }
+  ],
+  "row_count": "2",
+  "run_id": "66c7ff22-faf6-4817-a747-a49f6846b197",
+  "source_file_name": "batch-m.csv",
+  "source_file_sha256": "b5d75c2a594f926292720656f611a358523363d0733c93f1b21285c6f9b08f22",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/403884115915?var=673770851190&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Reflex Nutrition",
+        "category": "Whey Protein",
+        "external_gtin": "5033579002262",
+        "external_options": "{\"Size\":\"510g\",\"Flavour\":\"Mango\"}",
+        "external_product_id": "403884115915",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/403884115915?var=673770851190",
+        "external_variant_id": "v1|403884115915|673770851190",
+        "flavour": "Mango",
+        "image": "https://i.ebayimg.com/images/g/j3QAAeSwyw5pav0O/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "24.99",
+        "product_format": "powder",
+        "product_id": "457",
+        "product_name": "Reflex Nutrition Clear Whey Isolate 510g 17 Servings",
+        "product_variant_id": "1050",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "510",
+        "size_unit": "g",
+        "slug": "reflex-nutrition-clear-whey-isolate-510g-17-servings",
+        "variant_name": "Mango / 510g"
+      },
+      "plan_fingerprint": "af60aba12d22ba255943d8abac58c08e",
+      "row_number": "2",
+      "source_row_fingerprint": "10bbd6a87abfc9922711756200b2c491ee9f495d6d35726c363b9cd3dece0ba6",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/386193771567?var=653735928444&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Efectiv Nutrition",
+        "category": "Whey Protein",
+        "external_gtin": "5060347312919",
+        "external_options": "{\"Size\":\"2000g\",\"Flavour\":\"Strawberry Milkshake\"}",
+        "external_product_id": "386193771567",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/386193771567?var=653735928444",
+        "external_variant_id": "v1|386193771567|653735928444",
+        "flavour": "Strawberry Milkshake",
+        "image": "https://i.ebayimg.com/images/g/FAkAAOSwkqtlJ~5B/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "64.99",
+        "product_format": "powder",
+        "product_id": "746",
+        "product_name": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+        "product_variant_id": "1196",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "2000",
+        "size_unit": "g",
+        "slug": "efectiv-nutrition-grass-fed-whey-protein-isolate-2kg",
+        "variant_name": "Strawberry Milkshake / 2000g"
+      },
+      "plan_fingerprint": "f8eb967fc3c26f1e7139771c73e4eed5",
+      "row_number": "3",
+      "source_row_fingerprint": "c214a3cf7a44436751cbbb033bb82cf8b71abf7a01ea75367f5d04b383d87239",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "2",
+    "skipped_row_count": "0"
+  }
+}

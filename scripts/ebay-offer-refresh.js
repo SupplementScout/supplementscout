@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_100";
-const KIND = "ebay-existing-offer-refresh-exact-100-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_102";
+const KIND = "ebay-existing-offer-refresh-exact-102-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -58,6 +58,7 @@ const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2633", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
   ["2637", { seller: "superfoodmarket", blockers: new Set(), review_reasons: new Set(["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
   ["2638", { seller: "superfoodmarket", blockers: new Set(), review_reasons: new Set(["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
+  ["2640", { seller: "phd_ltd", blockers: new Set(["SIZE_MISMATCH", "UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
 ]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
@@ -73,6 +74,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-j.csv", approval: "batch-j-rollout.json", count: 10 },
   { csv: "batch-k-recovery.csv", approval: "batch-k-recovery-rollout.json", fallbackApproval: "batch-k-rollout.json", count: 20 },
   { csv: "batch-l.csv", approval: "batch-l-rollout.json", count: 20 },
+  { csv: "batch-m.csv", approval: "batch-m-rollout.json", count: 2 },
 ]);
 const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|394018039646|662564730389", ["2784", "2599"]], ["v1|256978504929|557601659147", ["2785", "2600"]],
@@ -95,6 +97,7 @@ const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|135911646988|0", ["2819", "2633"]], ["v1|167879148689|467421651923", ["2820", "2634"]],
   ["v1|406077315499|0", ["2821", "2635"]], ["v1|191651754387|0", ["2822", "2636"]],
   ["v1|317649341455|0", ["2823", "2637"]], ["v1|358007221826|0", ["2824", "2638"]],
+  ["v1|403884115915|673770851190", ["2825", "2639"]], ["v1|386193771567|653735928444", ["2826", "2640"]],
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -139,7 +142,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 100) fail("Exact eBay refresh manifest must contain 100 rows");
+  if (rows.length !== 102) fail("Exact eBay refresh manifest must contain 102 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => {
