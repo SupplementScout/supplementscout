@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 102-OFFER ROLLOUT LIVE VERIFIED; OWNER-APPROVED BATCH N 19/19 PREPARED, NOT YET LIVE
+**Status:** CONTROLLED 121-OFFER ROLLOUT LIVE VERIFIED (BATCH N 19/19 COMPLETE)
 **Last verified:** 21 August 2026
-**Production writes:** 102 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 102 mappings, 102 offers, 102 initial price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 102 live eBay offers
+**Production writes:** 121 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 121 mappings, 121 offers, 121 initial price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 121 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,10 +41,10 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 102-offer rollout are complete. The
+read-only Browse pilot and the controlled 121-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
-production evidence includes the Batch M apply and exact-offer refresh below.
-The exact-102 daily refresh is enabled at `05:43 UTC`; each
+production evidence includes the Batch N apply and exact-offer refresh below.
+The exact-121 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
@@ -166,23 +166,31 @@ blocking; artifact `9443283850` has SHA-256
 `4b3540da62e058656b3cf39d026e91f68b69d0f0562851abd6d92142348b123b`.
 No second scheduler or importer was introduced.
 
-Batch N is owner-approved and locally prepared for exactly 19 listings. The
+Batch N is live verified 19/19. The
 owner reviewed the numbered 20-row comparison list and confirmed `oprocz nr 5,
 reszta jest dobra`; original row 5, Applied Nutrition Cream of Rice 2 kg Apple
 Crumble, is therefore excluded from every Batch N artifact and execution path.
-Fresh direct-item reads verified 19 exact item/variation IDs, 19 business
-sellers, known GBP delivered prices, in-stock state and Campaign-ID affiliate
-URLs. The existing importer returned 19 create plans, zero blocked rows and
-zero database writes. One listing returns an exact GTIN; the other 18 are
-sealed owner-reviewed missing-returned-GTIN identities and cannot widen into a
-general title-match rule. Seventeen rows would create a second current retailer
-for their product; Cellucor C4 Pink Lemonade and PER4M EAA Xtra Lemon Lime
-Splash extend products that already have another active eBay flavour. The
-manual-only Batch N workflow requires confirmation
-`OWNER_APPROVED_EBAY_BATCH_N_EXACT_19`, a fresh 19-item preflight, separated
-approver/executor roles and an exact 19-row no-op postflight. Production remains
-at 102 offers until that guarded workflow completes; the prepared shared
-refresh extension to 121 must not be treated as live evidence before postflight.
+PR `#34` merged the guarded package to `main` as
+`7e9ed7dab7bd7a52292db4bddb622dcaf37bff0c`. Protected production run
+`32515389182` passed the fresh 19-item direct preflight, consumed exactly 19
+approvals, created mappings `2827`-`2845` and offers `2641`-`2659`, and passed
+the exact 19-row no-op postflight. Artifact `9458616940` retains the execution
+evidence with digest
+`bcc65d2353b5ed29b876e63bfa2de70e4886f27aad5ed0a315316036d5486857`.
+Independent production readback confirmed 121 unique eBay mappings and offers,
+the expected price, known shipping, delivered total, in-stock state, Campaign-ID
+URL and initial price-history row for every Batch N identity. A separate importer
+dry-run returned 19 no-ops and zero blocked rows. All 19 public product pages
+returned HTTP 200, displayed eBay UK and contained their exact new offer ID.
+Live eBay coverage is now 88 products: 75 with exactly two current retailers,
+12 with three or more and one eBay-only product. The same existing refresh
+mechanism now owns exactly 121 offers. Protected read-only run `32515999463`
+passed 121/121 `verify_no_change`, zero blocked rows, zero executions and
+automatic-OOS blocking. Artifact `9458874386` has digest
+`44d64f3831f6d2d87e0f4e915059c108b01f719b816373060a262d36fa5eb174`;
+its dry-run report SHA-256 is
+`59bad5653e769a1da2a03becaa2df5328b0ff20f988795bdd53e7634f0d7f9ad`.
+No second scheduler or importer was introduced.
 
 The guarded GTIN release is complete. The pilot cohort is exactly 54 active
 canonical variant identities with safe canonical GTINs: 45 promoted and 9
@@ -1988,13 +1996,13 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Hold new eBay discovery and batching until the owner-approved
-250-product multi-retailer coverage phase. Batch M is complete and the single
-shared scheduler is exact 102. Do not repeat Batches A-M, return to exact 100,
-create a second scheduler or weaken the exact identity, seller, delivery,
-affiliate or continuity gates. When coverage work resumes, select only exact
-offers that create a second retailer for an existing product and pass a new
-owner-reviewed scope.`
+`NEXT ACTION: Continue the owner-approved 250-product multi-retailer coverage
+phase from the live 187-product checkpoint. Batch N is complete and the single
+shared scheduler is exact 121. Do not repeat Batches A-N, return to an older
+refresh scope, create a second scheduler or weaken the exact identity, seller,
+delivery, affiliate or continuity gates. Select the next bounded candidate set
+only from exact offers that add an independent retailer to an existing product,
+then retain owner review before any new production scope.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -2004,6 +2012,20 @@ owner-reviewed production design and approval.
 
 21 August 2026:
 
+- `BATCH N LIVE VERIFIED 19/19`: PR `#34` merged as
+  `7e9ed7dab7bd7a52292db4bddb622dcaf37bff0c`; protected production run
+  `32515389182` created mappings `2827`-`2845` and offers `2641`-`2659`, then
+  passed the exact 19-row no-op postflight. Artifact `9458616940` was retained.
+  Independent production readback confirmed all 19 identities and 121 total
+  unique eBay mappings/offers; a separate importer dry-run returned 19 no-ops
+  and zero blockers. All 19 public product pages returned HTTP 200 with eBay UK
+  and their exact new offer ID. Original review row 5 remained excluded.
+- `EXACT-121 REFRESH LIVE PREFLIGHT VERIFIED`: protected read-only run
+  `32515999463` returned `PASS`, 121/121 `verify_no_change`, zero blocked rows,
+  zero executions and automatic out-of-stock blocked. Artifact `9458874386`
+  has digest
+  `44d64f3831f6d2d87e0f4e915059c108b01f719b816373060a262d36fa5eb174`.
+  The same existing `05:43 UTC` scheduler owns all 121 offers.
 - `BATCH M LIVE VERIFIED 2/2`: PR `#29` merged as
   `3c444c9d3083512102b9168ed192b0c2ae9a0fc8`; protected production run
   `32472639897` executed exactly two plans and passed the exact two-row no-op
@@ -2767,6 +2789,18 @@ owner-reviewed production design and approval.
   implementation part; it still made no live eBay call or production write.
 
 ## Decision changelog
+
+### 21 August 2026
+
+- Completed owner-approved Batch N for exactly 19 business-seller listings;
+  original review row 5 remained excluded from the release and production.
+- Merged PR `#34`, completed protected run `32515389182`, verified the 19 new
+  mappings/offers independently and confirmed all 19 public product pages.
+- Extended only the existing shared refresh to exact 121 and retained the
+  121/121 read-only evidence from run `32515999463`; no second scheduler or
+  importer was introduced.
+- Advanced the live multi-retailer checkpoint to 187 products with at least two
+  current retailers, leaving 63 to the owner-approved target of 250.
 
 ### 13 August 2026
 

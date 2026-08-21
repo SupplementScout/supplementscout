@@ -526,26 +526,23 @@ Products with at least 2 active retailers.
 
 - Retailer ID: `12`; source: eBay Browse API plus exact item-ID revalidation;
   affiliate destinations require eBay-returned EPN Campaign-ID URLs.
-- Batches A-M are complete. Production has exactly 102 approved eBay mappings,
-  102 public offers and 102 initial price-history rows. Batch M production run
-  `32472639897` created mappings `2825`-`2826` and offers `2639`-`2640`, then
-  passed the exact two-row no-op postflight. PR `#29` supplied the guarded
-  release on merge SHA `3c444c9d3083512102b9168ed192b0c2ae9a0fc8`.
-- The single existing workflow refreshes the exact 102-offer manifest at
-  `05:43 UTC`. Read-only run `32472882697` passed 102/102 with zero blocked rows
-  and zero writes; artifact `9443283850` retains the evidence.
-- Current live in-stock impact: 71 products covered, including 58 with exactly
+- Batches A-N are complete. Production has exactly 121 approved eBay mappings,
+  121 public offers and 121 initial price-history rows. Batch N production run
+  `32515389182` created mappings `2827`-`2845` and offers `2641`-`2659`, then
+  passed the exact 19-row no-op postflight. PR `#34` supplied the guarded
+  release on merge SHA `7e9ed7dab7bd7a52292db4bddb622dcaf37bff0c`.
+- The single existing workflow refreshes the exact 121-offer manifest at
+  `05:43 UTC`. Read-only run `32515999463` passed 121/121 `verify_no_change`
+  with zero blocked rows and zero executions; artifact `9458874386` retains
+  the evidence and automatic-OOS blocking remains active.
+- Current live in-stock impact: 88 products covered, including 75 with exactly
   two comparison retailers, 12 with three or more and one eBay-only product.
-- Batch N is owner-approved for exactly 19 business-seller listings. Original
-  review row 5 is explicitly excluded. Fresh direct-item checks and the
-  canonical importer returned 19 create plans, zero blockers and zero writes;
-  17 rows create second-retailer product coverage and two extend an existing
-  eBay-covered product with another exact flavour. The manual guarded workflow
-  and exact-121 shared-refresh extension are prepared but are not live evidence
-  before production postflight.
-- Status: **EXACT 102 LIVE AND GUARDED; BATCH N EXACT 19 APPROVED AND PREPARED,
-  PRODUCTION APPLY PENDING**. Do not repeat Batch M or reintroduce excluded
-  Batch N row 5.
+- Original Batch N review row 5 remains explicitly excluded. Independent
+  readback verified all 19 approved business-seller rows, a separate importer
+  dry-run returned 19 no-ops and all 19 public pages returned HTTP 200 with the
+  exact new offer present.
+- Status: **EXACT 121 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH N COMPLETE**.
+  Do not repeat Batch N or reintroduce excluded review row 5.
 
 ## Initial registry template
 
