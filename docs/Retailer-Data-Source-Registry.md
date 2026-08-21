@@ -507,16 +507,20 @@ Products with at least 2 active retailers.
   now encode only that formula. A fresh production-data dry-run over all 66
   approved identities planned exactly 43 shipping-only updates and 23 no-ops:
   37 unknown-to-GBP-3.99, five unknown-to-free and one GBP-3.99-to-free. Price,
-  stock, URL and catalogue identity changes were all zero. Production apply is
-  not yet recorded and remains behind a separate exact owner confirmation.
+  stock, URL and catalogue identity changes were all zero. PR `#31` merged the
+  guarded policy as `cb84b9720700b45d13fc978d2851cdc0c65c71df`. Protected
+  production run `32481753907` passed source capture, exact contracts, dry-run,
+  role-separated apply, complete live postcondition and evidence upload. An
+  independent production read at `2026-08-21T12:31:09.680Z` returned 66/66
+  policy no-ops and zero remaining updates.
 - `.github/workflows/gym-high-source-monitor.yml` performs a daily full-catalogue read-only capture at `03:43 UTC`. It discovers the complete source, validates every product page and variation ID, fails closed on count, host, schema, currency, product or variation drift, and retains the complete classification artifact.
 - The daily source monitor remains read-only. The separate existing 66-offer
   guarded refresh can update only the exact reviewed offers and fails closed on
   stale, missing or drifted source evidence or a shipping value outside the
   confirmed threshold formula. New and ambiguous identities
   remain review-only.
-- Status: **66-OFFER REVIEWED CATALOGUE LIVE; DAILY MONITOR AND GUARDED REFRESH
-  OPERATIONAL; LATEST REMOTE RUN GREEN**.
+- Status: **66-OFFER REVIEWED CATALOGUE AND CONFIRMED SHIPPING POLICY LIVE;
+  DAILY MONITOR AND GUARDED REFRESH OPERATIONAL; LATEST REMOTE RUN GREEN**.
 
 ## eBay UK current record - 21 August 2026
 
