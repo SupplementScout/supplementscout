@@ -889,6 +889,18 @@ rows and zero writes, retaining artifact `9443283850`. Independent readback and
 both public product pages passed. Do not recreate Batch M, return to exact 100
 or add another eBay batch before the 250-product coverage phase.
 
+The owner subsequently restarted bounded eBay coverage work and manually
+reviewed a numbered 20-listing candidate set. The exact confirmation `oprocz nr
+5, reszta jest dobra` approves 19 Batch N listings and explicitly excludes
+Applied Nutrition Cream of Rice 2 kg Apple Crumble. Fresh direct-item evidence
+and the canonical importer produced 19 create plans, zero blockers and zero
+writes. All 19 sellers are business accounts and every row has a known GBP
+delivered price and Campaign-ID URL. Seventeen products would gain a second
+current retailer; two approved rows add a new eBay flavour to products already
+covered by another active eBay flavour. The sealed manual workflow and shared
+refresh extension are prepared, but production remains exact 102 until Batch N
+passes its fresh preflight, guarded apply, no-op postflight and live readback.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
