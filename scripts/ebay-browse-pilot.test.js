@@ -244,7 +244,7 @@ test("official-store search is bounded to the exact business seller username", a
   resetTokenCache();
 });
 
-test("eBay refresh is frozen to the exact 141 approved existing offers", () => {
+test("eBay refresh is frozen to the exact 161 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
@@ -253,13 +253,13 @@ test("eBay refresh is frozen to the exact 141 approved existing offers", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
-  assert.equal(REFRESH_SCOPES.length, 141);
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 141 }, (_, index) => String(2539 + index)));
+  assert.equal(REFRESH_SCOPES.length, 161);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 161 }, (_, index) => String(2539 + index)));
   assert.deepEqual(REFRESH_SCOPES.slice(0, 60).map((scope) => scope.retailer_product_id), Array.from({ length: 60 }, (_, index) => String(2724 + index)));
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 141);
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 161);
   assert.deepEqual(REFRESH_SCOPES.slice(-2).map((scope) => ({ product_id: scope.product_id, product_variant_id: scope.product_variant_id, retailer_product_id: scope.retailer_product_id, offer_id: scope.offer_id })), [
-    { product_id: "788", product_variant_id: "1078", retailer_product_id: "2864", offer_id: "2678" },
-    { product_id: "788", product_variant_id: "1082", retailer_product_id: "2865", offer_id: "2679" },
+    { product_id: "520", product_variant_id: "1702", retailer_product_id: "2884", offer_id: "2698" },
+    { product_id: "520", product_variant_id: "1703", retailer_product_id: "2885", offer_id: "2699" },
   ]);
   assert.equal(new Set(REFRESH_SCOPES.slice(0, 22).map((scope) => scope.gtin)).size, 22);
   assert.ok(REFRESH_SCOPES.slice(22, 31).every((scope) => scope.gtin === ""));
@@ -543,7 +543,7 @@ test("Batch L refresh continuity is sealed to the six exact reviewed exceptions"
 });
 
 test("Batch O refresh continuity is sealed to the nine owner-reviewed missing-GTIN listings", () => {
-  const scopes = new Map(REFRESH_SCOPES.slice(-20).map((scope) => [scope.offer_id, scope]));
+  const scopes = new Map(REFRESH_SCOPES.slice(-40, -20).map((scope) => [scope.offer_id, scope]));
   const reviewed = new Map([
     ["2661", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
     ["2662", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
@@ -571,6 +571,50 @@ test("Batch O refresh continuity is sealed to the nine owner-reviewed missing-GT
   assert.equal(classifyContinuity(scope, evaluation(scope, seller, reasons, "INDIVIDUAL")).eligible, false);
   assert.equal(classifyContinuity(scope, evaluation(scope, seller, [...reasons, "SIZE_UNPROVEN"])).eligible, false);
   assert.equal(classifyContinuity(scope, { ...evaluation(scope, seller, reasons), item_id: "v1|other|0" }).eligible, false);
+});
+
+test("Batch P refresh continuity is sealed to its exact owner-reviewed exceptions", () => {
+  const scopes = new Map(REFRESH_SCOPES.slice(-20).map((scope) => [scope.offer_id, scope]));
+  const evaluation = (offerId, seller, blockers, reasons, returnedGtin) => {
+    const scope = scopes.get(offerId);
+    return {
+      decision: blockers.length ? "REJECT" : "REVIEW",
+      item_id: scope.external_variant_id,
+      legacy_item_id: scope.external_product_id,
+      returned_gtin: returnedGtin,
+      blockers,
+      review_reasons: reasons,
+      affiliate_ready: true,
+      affiliate_url: scope.affiliate_url,
+      seller: { username: seller, account_type: "BUSINESS" },
+    };
+  };
+  const exactGtin = [
+    ["2680", "superfoodmarket", ["SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]],
+    ["2681", "superfoodmarket", ["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]],
+    ["2682", "ihrisironworks", ["SELLER_SCORE_BELOW_PROPOSED_THRESHOLD"]],
+    ["2688", "vikingshopsuple", ["SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]],
+  ];
+  for (const [offerId, seller, reasons] of exactGtin) {
+    const scope = scopes.get(offerId);
+    assert.equal(classifyContinuity(scope, evaluation(offerId, seller, [], reasons, scope.gtin)).tier, "sealed_owner_reviewed_exact_gtin_metadata_continuity");
+  }
+  const missingGtin = [
+    ["2691", "food-grade-hydrogen-peroxide", ["RETURNED_GTIN_UNPROVEN"]],
+    ["2692", "ultimate_fitness_4u", ["RETURNED_GTIN_UNPROVEN"]],
+    ["2693", "mpbioscence", ["RETURNED_GTIN_UNPROVEN"]],
+    ["2694", "soovital", ["FLAVOUR_UNPROVEN", "FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]],
+    ["2695", "thesupplementstoreuk", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]],
+    ["2696", "soovital", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]],
+    ["2697", "muscle-factory-co-uk", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]],
+    ["2698", "muscle-factory-co-uk", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]],
+    ["2699", "muscle-factory-co-uk", ["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]],
+  ];
+  for (const [offerId, seller, reasons] of missingGtin) {
+    assert.equal(classifyContinuity(scopes.get(offerId), evaluation(offerId, seller, ["CANONICAL_GTIN_INVALID"], reasons, null)).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  }
+  assert.equal(classifyContinuity(scopes.get("2680"), evaluation("2680", "different-seller", [], exactGtin[0][2], scopes.get("2680").gtin)).eligible, false);
+  assert.equal(classifyContinuity(scopes.get("2694"), evaluation("2694", "soovital", ["CANONICAL_GTIN_INVALID"], ["RETURNED_GTIN_UNPROVEN"], null)).eligible, false);
 });
 
 test("eBay refresh isolates an unreadable listing without automatic OOS or stopping the remaining scope", () => {
@@ -602,7 +646,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_141/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_161/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);

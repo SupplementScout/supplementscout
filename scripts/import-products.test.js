@@ -4480,13 +4480,17 @@ test("manual import blocks an unknown canonical product before all writes", asyn
   assert.equal(supabase.writes.length, 0);
 });
 
-async function resolveDefaultFixture(rowOverrides, productVariants) {
+async function resolveDefaultFixture(rowOverrides, productVariants, seedOverrides = {}) {
   const row = baseFeedRow({ gtin: "", ...rowOverrides });
   const product = {
     id: "p1", name: row.product_name, slug: row.slug, brand: row.brand,
     category: row.category, product_format: row.product_format || null, gtin: null,
   };
-  const supabase = createMockSupabase({ products: [product], product_variants: productVariants });
+  const supabase = createMockSupabase({
+    ...seedOverrides,
+    products: [product],
+    product_variants: productVariants,
+  });
   setSupabaseForTests(supabase);
   return runImportRows([row], { mode: "feed", dryRun: true });
 }
@@ -4609,6 +4613,41 @@ test("an explicit canonical variant ID may use its exact flavour label when a le
   );
   assert.equal(exact.report.blockedRows.length, 0, JSON.stringify(exact.report.blockedRows));
   assert.equal(exact.report.approvedRows[0].importPlan.product_variant.id, "2710");
+
+  const exactExisting = await resolveDefaultFixture(
+    {
+      product_name: "Critical Cookie 12 x 73g",
+      slug: "critical-cookie-12-x-85g",
+      brand: "Applied Nutrition",
+      category: "Protein Bars",
+      product_id: "p1",
+      product_variant_id: "2710",
+      variant_name: "Salted Caramel Box of 12 / 73g",
+      flavour: "Salted Caramel",
+      size: "73",
+      size_unit: "g",
+      pack_count: "12",
+      product_format: "snack",
+      external_product_id: "406431647826",
+      external_variant_id: "v1|406431647826|676750282319",
+      external_options: JSON.stringify({ Flavour: "Salted Caramel", Size: "73g" }),
+    },
+    [defaultVariant(), saltedCaramel],
+    {
+      retailer_products: [{
+        id: "rp-critical-cookie",
+        retailer_id: "r1",
+        product_id: "p1",
+        product_variant_id: "2710",
+        external_product_id: "406431647826",
+        external_variant_id: "v1|406431647826|676750282319",
+        external_url: "https://retailer.test/iso-whey-zero-chocolate",
+      }],
+    }
+  );
+  assert.equal(exactExisting.report.blockedRows.length, 0, JSON.stringify(exactExisting.report.blockedRows));
+  assert.equal(exactExisting.report.approvedRows[0].importPlan.product_variant.id, "2710");
+  assert.equal(exactExisting.report.approvedRows[0].importPlan.retailer_product.action, "update");
 
   const unpinned = await resolveDefaultFixture(
     {
