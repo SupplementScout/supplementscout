@@ -556,6 +556,13 @@ Products with at least 2 active retailers.
 - Status: **EXACT 161 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH P COMPLETE**.
   Do not repeat Batches A-P, reintroduce excluded Batch N row 5 or widen any
   reviewed shared-parent, missing-GTIN or seller-threshold contract.
+- Batch Q is **OWNER APPROVED / PRODUCTION PENDING**. Original review rows 3
+  and 5 were rejected and replaced before final approval. The sealed final
+  scope is 20 distinct second-retailer products: 13 exact returned GTINs,
+  seven exact owner-reviewed missing-GTIN listings, 20 business sellers, known
+  UK shipping, 20 importer create plans, zero blockers and zero writes. Its
+  projected live scope is 181 offers and 211/250 multi-retailer products, but
+  neither projection is a live fact before guarded apply and verification.
 
 ## Initial registry template
 

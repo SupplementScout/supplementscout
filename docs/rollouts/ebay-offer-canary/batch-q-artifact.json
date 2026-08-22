@@ -1,0 +1,2867 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-22T10:46:47.140Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d665e9fdfbf6a6470848d5e3a617d876",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "81",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Tri-Creatine Malate 300g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "67",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "81",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d665e9fdfbf6a6470848d5e3a617d876",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "9fe87f06c1321b162059bea592b983fddcb37b6bf7f82f85cbd066dd4ec57da6",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:37.169Z",
+            "price": "22.99",
+            "shipping_cost": "0",
+            "total_price": "22.99",
+            "url": "https://www.ebay.co.uk/itm/398263424505?var=666530542921&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "81"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "67"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076228171",
+            "external_name": "BioTech USA Tri-Creatine Malate 300g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "398263424505",
+            "external_sku": null,
+            "external_slug": "biotech-usa-tri-creatine-malate-300g",
+            "external_url": "https://www.ebay.co.uk/itm/398263424505?var=666530542921",
+            "external_variant_id": "v1|398263424505|666530542921",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "67"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "9fe87f06c1321b162059bea592b983fddcb37b6bf7f82f85cbd066dd4ec57da6"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "4f3d4a39d4d624bd63d07236bf495146",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "790",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Per4m Creatine Sherbet 310g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Cherry Fizz / 310g",
+            "flavour_code": "cherry fizz",
+            "flavour_label": "Cherry Fizz",
+            "id": "1094",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "790",
+            "size_unit": "g",
+            "size_value": "310",
+            "variant_key": "cherry-fizz-310g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "4f3d4a39d4d624bd63d07236bf495146",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "5d3baad1f577595e7cf85508e2353e3e97f3ed11d3206edec40a674618e59deb",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:37.713Z",
+            "price": "20.49",
+            "shipping_cost": "0",
+            "total_price": "20.49",
+            "url": "https://www.ebay.co.uk/itm/327261939687?var=516049468284&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "790"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Cherry Fizz",
+              "Size": "310g"
+            },
+            "flavour": "cherry fizz",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "310"
+          },
+          "id": "1094"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5061097264619",
+            "external_name": "Per4m Creatine Sherbet 310g",
+            "external_options": {
+              "Flavour": "Cherry Fizz",
+              "Size": "310g"
+            },
+            "external_product_id": "327261939687",
+            "external_sku": null,
+            "external_slug": "per4m-creatine-sherbet-310g",
+            "external_url": "https://www.ebay.co.uk/itm/327261939687?var=516049468284",
+            "external_variant_id": "v1|327261939687|516049468284",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1094"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "5d3baad1f577595e7cf85508e2353e3e97f3ed11d3206edec40a674618e59deb"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "cdc786017320875f3c7846f7ae8cdcb7",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "131",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Applied Nutrition Critical Greens 250g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "140",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "131",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "cdc786017320875f3c7846f7ae8cdcb7",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "c3c717a36624009d0416e501b5b050f3dc6df90760f956475cc261ab535de1d8",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:38.249Z",
+            "price": "14.95",
+            "shipping_cost": "0",
+            "total_price": "14.95",
+            "url": "https://www.ebay.co.uk/itm/204492290001?var=505081430817&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "131"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "140"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "634158939037",
+            "external_name": "Applied Nutrition Critical Greens 250g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "204492290001",
+            "external_sku": null,
+            "external_slug": "applied-nutrition-critical-greens-250g",
+            "external_url": "https://www.ebay.co.uk/itm/204492290001?var=505081430817",
+            "external_variant_id": "v1|204492290001|505081430817",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "140"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "c3c717a36624009d0416e501b5b050f3dc6df90760f956475cc261ab535de1d8"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "d603268a1e90fa25c1898ad93ea5ec95",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "55",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Nitrox Therapy 340g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Blue Grape / 340g",
+            "flavour_code": "blue grape",
+            "flavour_label": "Blue Grape",
+            "id": "1029",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "55",
+            "size_unit": "g",
+            "size_value": "340",
+            "variant_key": "blue-grape-340g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "d603268a1e90fa25c1898ad93ea5ec95",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "80cf26c6a922dd51a48679a86710ce7d67a7d819c03490e1ecb80a2d1838f451",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:38.810Z",
+            "price": "18",
+            "shipping_cost": "0",
+            "total_price": "18",
+            "url": "https://www.ebay.co.uk/itm/176656268247?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "55"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Blue Grape",
+              "Size": "340g"
+            },
+            "flavour": "blue grape",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "340"
+          },
+          "id": "1029"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076253548",
+            "external_name": "BioTech USA Nitrox Therapy 340g",
+            "external_options": {
+              "Flavour": "Blue Grape",
+              "Size": "340g"
+            },
+            "external_product_id": "176656268247",
+            "external_sku": null,
+            "external_slug": "biotech-usa-nitrox-therapy-340g",
+            "external_url": "https://www.ebay.co.uk/itm/176656268247",
+            "external_variant_id": "v1|176656268247|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "1029"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "80cf26c6a922dd51a48679a86710ce7d67a7d819c03490e1ecb80a2d1838f451"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "fabc917c49279aa6b0c1db52f00388cc",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "219",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Solgar Digestive Enzymes 100 Tablets",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "202",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "219",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "fabc917c49279aa6b0c1db52f00388cc",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "3e60d409ea93368ce0bb791406ef0abc7c61040c461ce45c79a89e7b87c81922",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:39.346Z",
+            "price": "19.69",
+            "shipping_cost": "0",
+            "total_price": "19.69",
+            "url": "https://www.ebay.co.uk/itm/388240705551?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "219"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "202"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "033984010000",
+            "external_name": "Solgar Digestive Enzymes 100 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "388240705551",
+            "external_sku": null,
+            "external_slug": "solgar-digestive-enzymes-100-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/388240705551",
+            "external_variant_id": "v1|388240705551|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "202"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "3e60d409ea93368ce0bb791406ef0abc7c61040c461ce45c79a89e7b87c81922"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "48e96461d5db7ad70dd42d0762e33951",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "863",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "CNP Loaded Beef Protein 1.8kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Big Juicy Melons / 1800g",
+            "flavour_code": "big juicy melons",
+            "flavour_label": "Big Juicy Melons",
+            "id": "1300",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "863",
+            "size_unit": "g",
+            "size_value": "1800",
+            "variant_key": "big-juicy-melons-1800g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "48e96461d5db7ad70dd42d0762e33951",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "89978e855c4ce3ed1638ba7abc322d245e57a15a36c6f5034018055503772b35",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:39.827Z",
+            "price": "35.95",
+            "shipping_cost": "4.25",
+            "total_price": "40.2",
+            "url": "https://www.ebay.co.uk/itm/278003127980?var=2560859598066&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "863"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Big Juicy Melons",
+              "Size": "1800g"
+            },
+            "flavour": "big juicy melons",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "1800"
+          },
+          "id": "1300"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "CNP Loaded Beef Protein 1.8kg",
+            "external_options": {
+              "Flavour": "Big Juicy Melons",
+              "Size": "1800g"
+            },
+            "external_product_id": "278003127980",
+            "external_sku": null,
+            "external_slug": "cnp-loaded-beef-protein-1-8kg",
+            "external_url": "https://www.ebay.co.uk/itm/278003127980?var=2560859598066",
+            "external_variant_id": "v1|278003127980|2560859598066",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1300"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "89978e855c4ce3ed1638ba7abc322d245e57a15a36c6f5034018055503772b35"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c30da294a963ace256c68de772ed263a",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "34",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA 100% L-Glutamine 500g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "28",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "34",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c30da294a963ace256c68de772ed263a",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "d9b02cbb74015f1fb21f7f51f0faaf77b3a184a72fafdc3715a49defc3691e6b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:40.317Z",
+            "price": "22",
+            "shipping_cost": "0",
+            "total_price": "22",
+            "url": "https://www.ebay.co.uk/itm/177555839706?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "34"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "28"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076204311",
+            "external_name": "BioTech USA 100% L-Glutamine 500g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "177555839706",
+            "external_sku": null,
+            "external_slug": "biotech-usa-100-l-glutamine-500g",
+            "external_url": "https://www.ebay.co.uk/itm/177555839706",
+            "external_variant_id": "v1|177555839706|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "28"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "d9b02cbb74015f1fb21f7f51f0faaf77b3a184a72fafdc3715a49defc3691e6b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "6d2ed6f6f3aa48bca613a168caef5428",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "370",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA L-Arginine Powder 300g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "348",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "370",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "6d2ed6f6f3aa48bca613a168caef5428",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "de20d454b2eb61aa6c14fd6423af29a7d9d5807fb045920caf84561e9e0e668f",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:40.869Z",
+            "price": "24.99",
+            "shipping_cost": "0",
+            "total_price": "24.99",
+            "url": "https://www.ebay.co.uk/itm/187768437029?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "370"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "348"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "BioTech USA L-Arginine Powder 300g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "187768437029",
+            "external_sku": null,
+            "external_slug": "biotech-usa-l-arginine-powder-300g",
+            "external_url": "https://www.ebay.co.uk/itm/187768437029",
+            "external_variant_id": "v1|187768437029|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "348"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "de20d454b2eb61aa6c14fd6423af29a7d9d5807fb045920caf84561e9e0e668f"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c296f9a970c0bad8d663c0915c2b9504",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "360",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Olimp TCM 1100 Mega Caps 120 Capsules",
+            "product_format": "capsule"
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "364",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "360",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c296f9a970c0bad8d663c0915c2b9504",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "1aa2aa050e5614c379f7f04852ac84479791012ef49c2743204121d7fc25184b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:41.330Z",
+            "price": "19.09",
+            "shipping_cost": "0",
+            "total_price": "19.09",
+            "url": "https://www.ebay.co.uk/itm/187833104047?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "360"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": "capsule",
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "364"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5901330020520",
+            "external_name": "Olimp TCM 1100 Mega Caps 120 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "187833104047",
+            "external_sku": null,
+            "external_slug": "olimp-tcm-1100-mega-caps-120-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/187833104047",
+            "external_variant_id": "v1|187833104047|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "364"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "10",
+      "source_row_fingerprint": "1aa2aa050e5614c379f7f04852ac84479791012ef49c2743204121d7fc25184b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7e25e81a89f56a17358734065fcf6ef8",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "875",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trained By JP Performance Isolate Tri Blend 2kg",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Caramel fudge / 2kg",
+            "flavour_code": "caramel fudge",
+            "flavour_label": "Caramel fudge",
+            "id": "1339",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "875",
+            "size_unit": "g",
+            "size_value": "2000",
+            "variant_key": "caramel-fudge-2000g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7e25e81a89f56a17358734065fcf6ef8",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "d6162c5e623f99637761f9f782396dfc9e9bae28100d3598c6da3a9696a2b6c7",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:42.002Z",
+            "price": "54.99",
+            "shipping_cost": "3.99",
+            "total_price": "58.98",
+            "url": "https://www.ebay.co.uk/itm/406431648421?var=677122188671&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "875"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Caramel fudge",
+              "Size": "2000g"
+            },
+            "flavour": "caramel fudge",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "2000"
+          },
+          "id": "1339"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Trained By JP Performance Isolate Tri Blend 2kg",
+            "external_options": {
+              "Flavour": "Caramel fudge",
+              "Size": "2000g"
+            },
+            "external_product_id": "406431648421",
+            "external_sku": null,
+            "external_slug": "trained-by-jp-performance-isolate-tri-blend-2kg",
+            "external_url": "https://www.ebay.co.uk/itm/406431648421?var=677122188671",
+            "external_variant_id": "v1|406431648421|677122188671",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "1339"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "11",
+      "source_row_fingerprint": "d6162c5e623f99637761f9f782396dfc9e9bae28100d3598c6da3a9696a2b6c7"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7190c04f0f6a34ae25152fcbca22e24b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "135",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Solgar Double Strength Omega-3 30 Softgels",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "141",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "135",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7190c04f0f6a34ae25152fcbca22e24b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "452c43bb39398c6b72ae0bb8ccea2d6800a315dc9d7d95616c754fbbfe6c404c",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:42.545Z",
+            "price": "16.85",
+            "shipping_cost": "0",
+            "total_price": "16.85",
+            "url": "https://www.ebay.co.uk/itm/114229917998?var=414483567665&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "135"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "141"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "033984020504",
+            "external_name": "Solgar Double Strength Omega-3 30 Softgels",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "114229917998",
+            "external_sku": null,
+            "external_slug": "solgar-double-strength-omega-3-30-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/114229917998?var=414483567665",
+            "external_variant_id": "v1|114229917998|414483567665",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "141"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "12",
+      "source_row_fingerprint": "452c43bb39398c6b72ae0bb8ccea2d6800a315dc9d7d95616c754fbbfe6c404c"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "c188b61f94f642cc6deda21266bceb24",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "138",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Solgar Skin, Nail And Hair Formula 60 Tablets",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "90",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "138",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "c188b61f94f642cc6deda21266bceb24",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e245cc589f60864d6922978fb93d10dc393fea3357832eacea4cbf09930aa09c",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:43.111Z",
+            "price": "16.99",
+            "shipping_cost": "0",
+            "total_price": "16.99",
+            "url": "https://www.ebay.co.uk/itm/114025559750?var=414309386736&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "138"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "90"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "033984017351",
+            "external_name": "Solgar Skin, Nail And Hair Formula 60 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "114025559750",
+            "external_sku": null,
+            "external_slug": "solgar-skin-nail-and-hair-formula-60-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/114025559750?var=414309386736",
+            "external_variant_id": "v1|114025559750|414309386736",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "90"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "13",
+      "source_row_fingerprint": "e245cc589f60864d6922978fb93d10dc393fea3357832eacea4cbf09930aa09c"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "1313185cd6f38b43526af2af8c9bcf2b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "140",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Mega Omega 3 90 Softgel Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "111",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "140",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "1313185cd6f38b43526af2af8c9bcf2b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "da500546bfd18df5abd788b278e61be29f40b29138aef45e15a9c04ff525a9f0",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:43.580Z",
+            "price": "14.96",
+            "shipping_cost": "14.39",
+            "total_price": "29.35",
+            "url": "https://www.ebay.co.uk/itm/318096238181?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "140"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "111"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076225958",
+            "external_name": "BioTech USA Mega Omega 3 90 Softgel Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "318096238181",
+            "external_sku": null,
+            "external_slug": "biotech-usa-mega-omega-3-90-softgel-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/318096238181",
+            "external_variant_id": "v1|318096238181|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "111"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "14",
+      "source_row_fingerprint": "da500546bfd18df5abd788b278e61be29f40b29138aef45e15a9c04ff525a9f0"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "f45e8cfcb88d134c53eb316817ec0d04",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "227",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "5% Nutrition Rich Piana Joint Defender 200 Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "204",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "227",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "f45e8cfcb88d134c53eb316817ec0d04",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "fd8467a3d34f1b9dc74401ecf8dbb3e4c9c0883a5241d866b2842079cb738a72",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:44.142Z",
+            "price": "28.99",
+            "shipping_cost": "0",
+            "total_price": "28.99",
+            "url": "https://www.ebay.co.uk/itm/377244586186?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "227"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "204"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "850029555209",
+            "external_name": "5% Nutrition Rich Piana Joint Defender 200 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "377244586186",
+            "external_sku": null,
+            "external_slug": "5-nutrition-rich-piana-joint-defender-200-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/377244586186",
+            "external_variant_id": "v1|377244586186|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "204"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "15",
+      "source_row_fingerprint": "fd8467a3d34f1b9dc74401ecf8dbb3e4c9c0883a5241d866b2842079cb738a72"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "29fb96baf76ec50c737b083d9c83c5c3",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "258",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Swanson Potassium Citrate 99 mg 120 Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "248",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "258",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "29fb96baf76ec50c737b083d9c83c5c3",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e8d9e49ecf7cbd77617258f0fc405afd8682ea3e396dfbd96713d59d2e345abc",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:44.582Z",
+            "price": "10.09",
+            "shipping_cost": "0",
+            "total_price": "10.09",
+            "url": "https://www.ebay.co.uk/itm/276358420222?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "258"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "248"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "087614023953",
+            "external_name": "Swanson Potassium Citrate 99 mg 120 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "276358420222",
+            "external_sku": null,
+            "external_slug": "swanson-potassium-citrate-99-mg-120-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/276358420222",
+            "external_variant_id": "v1|276358420222|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "248"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "16",
+      "source_row_fingerprint": "e8d9e49ecf7cbd77617258f0fc405afd8682ea3e396dfbd96713d59d2e345abc"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "ef54721d9324361f9cfb437f7e5adccb",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "518",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Osavi Potassium 300mg",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "455",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "518",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "ef54721d9324361f9cfb437f7e5adccb",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "65b281d49d658c5a15076f869e88b9eda079e648ea1f42c284bc52bdd9d2b34a",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:45.006Z",
+            "price": "9.14",
+            "shipping_cost": "0",
+            "total_price": "9.14",
+            "url": "https://www.ebay.co.uk/itm/398059958397?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "518"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "455"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5904139920954",
+            "external_name": "Osavi Potassium 300mg",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "398059958397",
+            "external_sku": null,
+            "external_slug": "osavi-potassium-300mg",
+            "external_url": "https://www.ebay.co.uk/itm/398059958397",
+            "external_variant_id": "v1|398059958397|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "455"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "17",
+      "source_row_fingerprint": "65b281d49d658c5a15076f869e88b9eda079e648ea1f42c284bc52bdd9d2b34a"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "8f600b0415bb7ae9881d68f296cbad89",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "249",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Solgar Vitamin D3 2200 IU 50 Vegetable Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "245",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "249",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "8f600b0415bb7ae9881d68f296cbad89",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "0417403f9454da53d1ab142b5bfd4d3867ab77da438b48a795a89b60e77a5707",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:45.526Z",
+            "price": "12.99",
+            "shipping_cost": "0",
+            "total_price": "12.99",
+            "url": "https://www.ebay.co.uk/itm/397974125581?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "249"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "245"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Solgar Vitamin D3 2200 IU 50 Vegetable Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "397974125581",
+            "external_sku": null,
+            "external_slug": "solgar-vitamin-d3-2200-iu-50-vegetable-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/397974125581",
+            "external_variant_id": "v1|397974125581|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "245"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "18",
+      "source_row_fingerprint": "0417403f9454da53d1ab142b5bfd4d3867ab77da438b48a795a89b60e77a5707"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "9f4dbe3ac4a4b292171590ff3b594b2c",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "373",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Solgar Vitamin B-Complex \"50\" Vegi Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "329",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "373",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "9f4dbe3ac4a4b292171590ff3b594b2c",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "f523dc0742ba4493b62d40e4c650b7a71d7341e0a9d31c16be968d65f7ac70c2",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:46.003Z",
+            "price": "22",
+            "shipping_cost": "0",
+            "total_price": "22",
+            "url": "https://www.ebay.co.uk/itm/297974730806?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "373"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "329"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Solgar Vitamin B-Complex \"50\" Vegi Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "297974730806",
+            "external_sku": null,
+            "external_slug": "solgar-vitamin-b-complex-50-vegi-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/297974730806",
+            "external_variant_id": "v1|297974730806|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "329"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "19",
+      "source_row_fingerprint": "f523dc0742ba4493b62d40e4c650b7a71d7341e0a9d31c16be968d65f7ac70c2"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "6367471ea03aa1883a2354020f8ec072",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "456",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Swanson  Vitamin E  60 Softgels",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "440",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "456",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "6367471ea03aa1883a2354020f8ec072",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "84cc1f803a56d43ea4b35415cfa2e8b6b4f43824cbc375aa99d1d8f96d7c48ae",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:46.624Z",
+            "price": "10.39",
+            "shipping_cost": "0",
+            "total_price": "10.39",
+            "url": "https://www.ebay.co.uk/itm/387640181610?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "456"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "440"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Swanson  Vitamin E  60 Softgels",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "387640181610",
+            "external_sku": null,
+            "external_slug": "swanson--vitamin-e--60-softgels",
+            "external_url": "https://www.ebay.co.uk/itm/387640181610",
+            "external_variant_id": "v1|387640181610|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "440"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "20",
+      "source_row_fingerprint": "84cc1f803a56d43ea4b35415cfa2e8b6b4f43824cbc375aa99d1d8f96d7c48ae"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "e3767efd328546a5a5bcea7e6043db51",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "217",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Mutant Test 90 Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "166",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "217",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "e3767efd328546a5a5bcea7e6043db51",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "bcaf04b802df40f902426217cd5406f3259a7af0e4d6160ef71f2376eccee7ec",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-22T10:46:47.139Z",
+            "price": "26.99",
+            "shipping_cost": "0",
+            "total_price": "26.99",
+            "url": "https://www.ebay.co.uk/itm/155926124418?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "217"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "166"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Mutant Test 90 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "155926124418",
+            "external_sku": null,
+            "external_slug": "mutant-test-90-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/155926124418",
+            "external_variant_id": "v1|155926124418|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "166"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "21",
+      "source_row_fingerprint": "bcaf04b802df40f902426217cd5406f3259a7af0e4d6160ef71f2376eccee7ec"
+    }
+  ],
+  "row_count": "20",
+  "run_id": "9d54e50d-5318-465d-9244-7da7aed8481f",
+  "source_file_name": "batch-q.csv",
+  "source_file_sha256": "81c6a5eaf0d1f482aa6bfdd89dddb366be11972e0d032ed1de59374b10e2492b",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/398263424505?var=666530542921&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Creatine",
+        "external_gtin": "5999076228171",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "398263424505",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/398263424505?var=666530542921",
+        "external_variant_id": "v1|398263424505|666530542921",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/X9YAAeSw4qpqdzWZ/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "22.99",
+        "product_format": "powder",
+        "product_id": "81",
+        "product_name": "BioTech USA Tri-Creatine Malate 300g",
+        "product_variant_id": "67",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "biotech-usa-tri-creatine-malate-300g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "d665e9fdfbf6a6470848d5e3a617d876",
+      "row_number": "2",
+      "source_row_fingerprint": "9fe87f06c1321b162059bea592b983fddcb37b6bf7f82f85cbd066dd4ec57da6",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/327261939687?var=516049468284&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Per4m",
+        "category": "Creatine",
+        "external_gtin": "5061097264619",
+        "external_options": "{\"Size\":\"310g\",\"Flavour\":\"Cherry Fizz\"}",
+        "external_product_id": "327261939687",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/327261939687?var=516049468284",
+        "external_variant_id": "v1|327261939687|516049468284",
+        "flavour": "Cherry Fizz",
+        "image": "https://i.ebayimg.com/images/g/-7MAAeSwAY9qVzzi/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "20.49",
+        "product_format": "powder",
+        "product_id": "790",
+        "product_name": "Per4m Creatine Sherbet 310g",
+        "product_variant_id": "1094",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "310",
+        "size_unit": "g",
+        "slug": "per4m-creatine-sherbet-310g",
+        "variant_name": "Cherry Fizz / 310g"
+      },
+      "plan_fingerprint": "4f3d4a39d4d624bd63d07236bf495146",
+      "row_number": "3",
+      "source_row_fingerprint": "5d3baad1f577595e7cf85508e2353e3e97f3ed11d3206edec40a674618e59deb",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/204492290001?var=505081430817&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Applied Nutrition",
+        "category": "Health Supplements",
+        "external_gtin": "634158939037",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "204492290001",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/204492290001?var=505081430817",
+        "external_variant_id": "v1|204492290001|505081430817",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/YJEAAOSwsf5lI8-3/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "14.95",
+        "product_format": "",
+        "product_id": "131",
+        "product_name": "Applied Nutrition Critical Greens 250g",
+        "product_variant_id": "140",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "applied-nutrition-critical-greens-250g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "cdc786017320875f3c7846f7ae8cdcb7",
+      "row_number": "4",
+      "source_row_fingerprint": "c3c717a36624009d0416e501b5b050f3dc6df90760f956475cc261ab535de1d8",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/176656268247?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Pre Workout",
+        "external_gtin": "5999076253548",
+        "external_options": "{\"Size\":\"340g\",\"Flavour\":\"Blue Grape\"}",
+        "external_product_id": "176656268247",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/176656268247",
+        "external_variant_id": "v1|176656268247|0",
+        "flavour": "Blue Grape",
+        "image": "https://i.ebayimg.com/images/g/xpUAAOSw9B1nI4dc/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "18.00",
+        "product_format": "powder",
+        "product_id": "55",
+        "product_name": "BioTech USA Nitrox Therapy 340g",
+        "product_variant_id": "1029",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "340",
+        "size_unit": "g",
+        "slug": "biotech-usa-nitrox-therapy-340g",
+        "variant_name": "Blue Grape / 340g"
+      },
+      "plan_fingerprint": "d603268a1e90fa25c1898ad93ea5ec95",
+      "row_number": "5",
+      "source_row_fingerprint": "80cf26c6a922dd51a48679a86710ce7d67a7d819c03490e1ecb80a2d1838f451",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/388240705551?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Solgar",
+        "category": "Health Supplements",
+        "external_gtin": "033984010000",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "388240705551",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/388240705551",
+        "external_variant_id": "v1|388240705551|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/7qEAAOSwfUhoCRIK/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.69",
+        "product_format": "",
+        "product_id": "219",
+        "product_name": "Solgar Digestive Enzymes 100 Tablets",
+        "product_variant_id": "202",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "solgar-digestive-enzymes-100-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "fabc917c49279aa6b0c1db52f00388cc",
+      "row_number": "6",
+      "source_row_fingerprint": "3e60d409ea93368ce0bb791406ef0abc7c61040c461ce45c79a89e7b87c81922",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/278003127980?var=2560859598066&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "CNP",
+        "category": "Whey Protein",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"1800g\",\"Flavour\":\"Big Juicy Melons\"}",
+        "external_product_id": "278003127980",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/278003127980?var=2560859598066",
+        "external_variant_id": "v1|278003127980|2560859598066",
+        "flavour": "Big Juicy Melons",
+        "image": "https://i.ebayimg.com/images/g/VVkAAeSwHNFqDN8Z/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "35.95",
+        "product_format": "powder",
+        "product_id": "863",
+        "product_name": "CNP Loaded Beef Protein 1.8kg",
+        "product_variant_id": "1300",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "4.25",
+        "shipping_known": "true",
+        "size": "1800",
+        "size_unit": "g",
+        "slug": "cnp-loaded-beef-protein-1-8kg",
+        "variant_name": "Big Juicy Melons / 1800g"
+      },
+      "plan_fingerprint": "48e96461d5db7ad70dd42d0762e33951",
+      "row_number": "7",
+      "source_row_fingerprint": "89978e855c4ce3ed1638ba7abc322d245e57a15a36c6f5034018055503772b35",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/177555839706?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Amino Acids",
+        "external_gtin": "5999076204311",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "177555839706",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/177555839706",
+        "external_variant_id": "v1|177555839706|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/8m0AAeSwX3xpDhHi/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "22.00",
+        "product_format": "",
+        "product_id": "34",
+        "product_name": "BioTech USA 100% L-Glutamine 500g",
+        "product_variant_id": "28",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "biotech-usa-100-l-glutamine-500g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "c30da294a963ace256c68de772ed263a",
+      "row_number": "8",
+      "source_row_fingerprint": "d9b02cbb74015f1fb21f7f51f0faaf77b3a184a72fafdc3715a49defc3691e6b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/187768437029?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Amino Acids",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "187768437029",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/187768437029",
+        "external_variant_id": "v1|187768437029|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/T7IAAeSwv8xqgIeX/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "24.99",
+        "product_format": "",
+        "product_id": "370",
+        "product_name": "BioTech USA L-Arginine Powder 300g",
+        "product_variant_id": "348",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "biotech-usa-l-arginine-powder-300g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "6d2ed6f6f3aa48bca613a168caef5428",
+      "row_number": "9",
+      "source_row_fingerprint": "de20d454b2eb61aa6c14fd6423af29a7d9d5807fb045920caf84561e9e0e668f",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/187833104047?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Olimp",
+        "category": "Creatine",
+        "external_gtin": "5901330020520",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "187833104047",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/187833104047",
+        "external_variant_id": "v1|187833104047|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/1kIAAeSwnflqAzEE/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.09",
+        "product_format": "capsule",
+        "product_id": "360",
+        "product_name": "Olimp TCM 1100 Mega Caps 120 Capsules",
+        "product_variant_id": "364",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "olimp-tcm-1100-mega-caps-120-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "c296f9a970c0bad8d663c0915c2b9504",
+      "row_number": "10",
+      "source_row_fingerprint": "1aa2aa050e5614c379f7f04852ac84479791012ef49c2743204121d7fc25184b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/406431648421?var=677122188671&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trained By JP",
+        "category": "Whey Protein",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"2000g\",\"Flavour\":\"Caramel fudge\"}",
+        "external_product_id": "406431648421",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/406431648421?var=677122188671",
+        "external_variant_id": "v1|406431648421|677122188671",
+        "flavour": "Caramel fudge",
+        "image": "https://i.ebayimg.com/images/g/nlcAAeSwDbNpKkXJ/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "54.99",
+        "product_format": "powder",
+        "product_id": "875",
+        "product_name": "Trained By JP Performance Isolate Tri Blend 2kg",
+        "product_variant_id": "1339",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "2000",
+        "size_unit": "g",
+        "slug": "trained-by-jp-performance-isolate-tri-blend-2kg",
+        "variant_name": "Caramel fudge / 2kg"
+      },
+      "plan_fingerprint": "7e25e81a89f56a17358734065fcf6ef8",
+      "row_number": "11",
+      "source_row_fingerprint": "d6162c5e623f99637761f9f782396dfc9e9bae28100d3598c6da3a9696a2b6c7",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/114229917998?var=414483567665&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Solgar",
+        "category": "Vitamins",
+        "external_gtin": "033984020504",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "114229917998",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/114229917998?var=414483567665",
+        "external_variant_id": "v1|114229917998|414483567665",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/xewAAOSwHxFnXANt/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "16.85",
+        "product_format": "",
+        "product_id": "135",
+        "product_name": "Solgar Double Strength Omega-3 30 Softgels",
+        "product_variant_id": "141",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "solgar-double-strength-omega-3-30-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "7190c04f0f6a34ae25152fcbca22e24b",
+      "row_number": "12",
+      "source_row_fingerprint": "452c43bb39398c6b72ae0bb8ccea2d6800a315dc9d7d95616c754fbbfe6c404c",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/114025559750?var=414309386736&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Solgar",
+        "category": "Vitamins",
+        "external_gtin": "033984017351",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "114025559750",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/114025559750?var=414309386736",
+        "external_variant_id": "v1|114025559750|414309386736",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/QBQAAOSwugtZ10ly/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "16.99",
+        "product_format": "",
+        "product_id": "138",
+        "product_name": "Solgar Skin, Nail And Hair Formula 60 Tablets",
+        "product_variant_id": "90",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "solgar-skin-nail-and-hair-formula-60-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "c188b61f94f642cc6deda21266bceb24",
+      "row_number": "13",
+      "source_row_fingerprint": "e245cc589f60864d6922978fb93d10dc393fea3357832eacea4cbf09930aa09c",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/318096238181?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Vitamins",
+        "external_gtin": "5999076225958",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "318096238181",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/318096238181",
+        "external_variant_id": "v1|318096238181|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/rssAAeSwTR5pzrPh/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "14.96",
+        "product_format": "",
+        "product_id": "140",
+        "product_name": "BioTech USA Mega Omega 3 90 Softgel Capsules",
+        "product_variant_id": "111",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "14.39",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "biotech-usa-mega-omega-3-90-softgel-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "1313185cd6f38b43526af2af8c9bcf2b",
+      "row_number": "14",
+      "source_row_fingerprint": "da500546bfd18df5abd788b278e61be29f40b29138aef45e15a9c04ff525a9f0",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/377244586186?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "5% Nutrition",
+        "category": "Vitamins",
+        "external_gtin": "850029555209",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "377244586186",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/377244586186",
+        "external_variant_id": "v1|377244586186|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/iOgAAeSw6gRqJrv8/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "28.99",
+        "product_format": "",
+        "product_id": "227",
+        "product_name": "5% Nutrition Rich Piana Joint Defender 200 Capsules",
+        "product_variant_id": "204",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "5-nutrition-rich-piana-joint-defender-200-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "f45e8cfcb88d134c53eb316817ec0d04",
+      "row_number": "15",
+      "source_row_fingerprint": "fd8467a3d34f1b9dc74401ecf8dbb3e4c9c0883a5241d866b2842079cb738a72",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/276358420222?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Swanson",
+        "category": "Vitamins",
+        "external_gtin": "087614023953",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "276358420222",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/276358420222",
+        "external_variant_id": "v1|276358420222|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/tMYAAOSwiU1l4Efu/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.09",
+        "product_format": "",
+        "product_id": "258",
+        "product_name": "Swanson Potassium Citrate 99 mg 120 Capsules",
+        "product_variant_id": "248",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "swanson-potassium-citrate-99-mg-120-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "29fb96baf76ec50c737b083d9c83c5c3",
+      "row_number": "16",
+      "source_row_fingerprint": "e8d9e49ecf7cbd77617258f0fc405afd8682ea3e396dfbd96713d59d2e345abc",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/398059958397?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Osavi",
+        "category": "Vitamins",
+        "external_gtin": "5904139920954",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "398059958397",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/398059958397",
+        "external_variant_id": "v1|398059958397|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/-78AAeSwXMpqLTGu/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "9.14",
+        "product_format": "",
+        "product_id": "518",
+        "product_name": "Osavi Potassium 300mg",
+        "product_variant_id": "455",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "osavi-potassium-300mg",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "ef54721d9324361f9cfb437f7e5adccb",
+      "row_number": "17",
+      "source_row_fingerprint": "65b281d49d658c5a15076f869e88b9eda079e648ea1f42c284bc52bdd9d2b34a",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/397974125581?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Solgar",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "397974125581",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/397974125581",
+        "external_variant_id": "v1|397974125581|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/~0EAAeSw0UlqDymZ/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "12.99",
+        "product_format": "",
+        "product_id": "249",
+        "product_name": "Solgar Vitamin D3 2200 IU 50 Vegetable Capsules",
+        "product_variant_id": "245",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "solgar-vitamin-d3-2200-iu-50-vegetable-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "8f600b0415bb7ae9881d68f296cbad89",
+      "row_number": "18",
+      "source_row_fingerprint": "0417403f9454da53d1ab142b5bfd4d3867ab77da438b48a795a89b60e77a5707",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/297974730806?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Solgar",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "297974730806",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/297974730806",
+        "external_variant_id": "v1|297974730806|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/OJ8AAeSwtI9peNvI/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "22.00",
+        "product_format": "",
+        "product_id": "373",
+        "product_name": "Solgar Vitamin B-Complex \"50\" Vegi Capsules",
+        "product_variant_id": "329",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "solgar-vitamin-b-complex-50-vegi-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "9f4dbe3ac4a4b292171590ff3b594b2c",
+      "row_number": "19",
+      "source_row_fingerprint": "f523dc0742ba4493b62d40e4c650b7a71d7341e0a9d31c16be968d65f7ac70c2",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/387640181610?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Swanson",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "387640181610",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/387640181610",
+        "external_variant_id": "v1|387640181610|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/fykAAOSwiNdn~0~8/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.39",
+        "product_format": "",
+        "product_id": "456",
+        "product_name": "Swanson  Vitamin E  60 Softgels",
+        "product_variant_id": "440",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "swanson--vitamin-e--60-softgels",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "6367471ea03aa1883a2354020f8ec072",
+      "row_number": "20",
+      "source_row_fingerprint": "84cc1f803a56d43ea4b35415cfa2e8b6b4f43824cbc375aa99d1d8f96d7c48ae",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/155926124418?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Mutant",
+        "category": "Vitamins",
+        "external_gtin": "",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "155926124418",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/155926124418",
+        "external_variant_id": "v1|155926124418|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/p58AAOSwyFllbLZO/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "26.99",
+        "product_format": "",
+        "product_id": "217",
+        "product_name": "Mutant Test 90 Capsules",
+        "product_variant_id": "166",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "mutant-test-90-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "e3767efd328546a5a5bcea7e6043db51",
+      "row_number": "21",
+      "source_row_fingerprint": "bcaf04b802df40f902426217cd5406f3259a7af0e4d6160ef71f2376eccee7ec",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "20",
+    "skipped_row_count": "0"
+  }
+}
