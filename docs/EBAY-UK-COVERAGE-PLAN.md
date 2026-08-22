@@ -194,6 +194,19 @@ was variant-level; deduplication by canonical product gives a three-product KPI
 uplift because several rows share product `273` or products already had another
 eBay variant.
 
+Batch Q is owner approved and production pending. The owner rejected original
+candidate rows 3 and 5 (`3, 5 nie.`), accepted Applied Nutrition Critical Greens
+250 g and Solgar Digestive Enzymes 100 Tablets as their replacements, and then
+confirmed `akcepuje`. The final exact-20 scope contains 20 distinct canonical
+products with exactly one current retailer and no active eBay offer. Fresh
+direct reads verify business sellers, known UK shipping and in-stock fixed-price
+GB listings; 13 return exact GTINs and seven missing-GTIN rows are sealed to the
+exact reviewed item, seller and canonical variant. Two disclosed future dates,
+09/2028 and 06/2027, pass the binding no-expired-product rule. Importer dry-run
+evidence contains 20 creates, zero blockers and zero writes. Do not treat the
+projected 211/250 checkpoint as live until guarded apply, postflight and
+independent readback pass.
+
 Batch O is live verified 20/20. The
 owner confirmed `zatwierdzam wszystkie, nie pytaj o potwierdzenia, doprowadz do
 zakonczenia etapu`, authorising guarded preparation and production apply of the

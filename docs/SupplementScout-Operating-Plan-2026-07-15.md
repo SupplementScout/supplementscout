@@ -952,6 +952,18 @@ positive-price in-stock retailers, leaving 59. Batch P's earlier nine-row
 projection was variant-level; canonical-product deduplication shows a net
 three-product KPI increase.
 
+The owner reviewed the proposed Batch Q list, rejected original rows 3 and 5
+with `3, 5 nie.`, and then approved their exact replacements with `akcepuje`.
+The final sealed scope contains 20 different products that each currently have
+exactly one positive-price in-stock retailer and no active eBay offer. Fresh
+direct-item reads verify 20 business sellers, known UK shipping, 13 exact
+returned GTINs and seven owner-reviewed missing-GTIN identities. The two
+future-date disclosures are BBE 09/2028 and expiry 06/2027; neither was expired
+at capture. The existing importer produced 20 create plans, zero blockers and
+zero database writes. Batch Q is **OWNER APPROVED / PRODUCTION PENDING**; the
+projected checkpoint after a fully verified apply is 211/250, leaving 39, but
+that projection must not be recorded as live before production evidence.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
