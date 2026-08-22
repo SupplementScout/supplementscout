@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 141-OFFER ROLLOUT LIVE VERIFIED; BATCH O COMPLETE 20/20
-**Last verified:** 21 August 2026
-**Production writes:** 141 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 141 mappings, 141 offers, 141 initial price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 141 live eBay offers
+**Status:** CONTROLLED 161-OFFER ROLLOUT LIVE VERIFIED; BATCH P COMPLETE 20/20
+**Last verified:** 22 August 2026
+**Production writes:** 161 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 161 mappings, 161 offers, 161 initial price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 161 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,10 +41,10 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 141-offer rollout are complete. The
+read-only Browse pilot and the controlled 161-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
-production evidence includes the Batch O apply and exact-offer refresh below.
-The exact-141 daily refresh is enabled at `05:43 UTC`; each
+production evidence includes the Batch P apply and exact-offer refresh below.
+The exact-161 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
@@ -165,6 +165,34 @@ offers. Protected read-only run `32472882697` passed 102/102
 blocking; artifact `9443283850` has SHA-256
 `4b3540da62e058656b3cf39d026e91f68b69d0f0562851abd6d92142348b123b`.
 No second scheduler or importer was introduced.
+
+Batch P is live verified 20/20. The owner approved all numbered listings and
+the four disclosed seller-threshold exceptions. PR `#39` merged the sealed
+package as `eddd2c156235e3409c4693a7322370c344978909`. Protected production run
+`32561910587` passed the fresh 20-item preflight and executed all 20 exact
+plans, creating mappings `2866`-`2885`, offers `2680`-`2699` and 20 initial
+price-history rows. Its postflight exposed one false conflict caused by the
+pre-existing stale Critical Cookie flavour code after all writes had completed;
+the run therefore reported failure and was not replayed. Artifact `9473044920`
+has digest `890efa2fff695fc0960556da0aef6aeae96160348299c43414e3ec607e079c7c`.
+Independent production readback verified every canonical/external identity,
+price, known shipping, delivered total, stock state, Campaign-ID URL and
+history row. The corrected independent importer postflight returned 20 no-ops,
+zero blockers and SHA-256
+`37b25c7c13057259a00132f50b85afe4a77b76f1cb2213a30e68aa7286985867`.
+All 13 distinct public product pages returned HTTP 200 and displayed eBay UK;
+the retailer card intentionally selects one offer when a product has multiple
+eBay variants. PR `#40` merged the exact pinned-variant postflight correction
+and extension of the one shared refresh as
+`e6817538ebf8cc8d1ee9479cf3ae981843b9a84c`. Protected read-only run
+`32563234233` passed 161/161 `verify_no_change`, zero blocked rows, zero
+executions and retained automatic-OOS blocking. Artifact `9473405068` has
+digest `30ae68b07607d18e24d12a00371731f7d98d13b734376e6a98bb6176630d6fcf`.
+The current production-wide measurement is 191/250 products with at least two
+in-stock positive-price retailers, leaving 59. The earlier nine-row projection
+was variant-level; deduplication by canonical product gives a three-product KPI
+uplift because several rows share product `273` or products already had another
+eBay variant.
 
 Batch O is live verified 20/20. The
 owner confirmed `zatwierdzam wszystkie, nie pytaj o potwierdzenia, doprowadz do
@@ -2028,9 +2056,9 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Continue the owner-approved 250-product multi-retailer coverage
-phase from the live 188-product checkpoint, leaving 62. Do not repeat Batches
-A-O, return to an older refresh scope, create a second scheduler or widen the
-five reviewed BioTech shared-parent identities. Select the next bounded exact
+phase from the live 191-product checkpoint, leaving 59. Do not repeat Batches
+A-P, return to an older refresh scope, create a second scheduler or widen any
+reviewed shared-parent identity. Select the next bounded exact
 candidate set that adds independent retailer coverage to existing products and
 retain owner review before a new production scope.`
 
@@ -2040,7 +2068,16 @@ owner-reviewed production design and approval.
 
 ## Last verified
 
-21 August 2026:
+22 August 2026:
+
+- `BATCH P LIVE VERIFIED 20/20`: PR `#39` merged as `eddd2c156235e3409c4693a7322370c344978909`;
+  run `32561910587` executed all 20 plans and created mappings `2866`-`2885`
+  plus offers `2680`-`2699`. Its single postflight false conflict was corrected
+  without replay. Independent readback, the 20-no-op importer postflight and 13
+  HTTP-200 public product pages passed. PR `#40` merged as
+  `e6817538ebf8cc8d1ee9479cf3ae981843b9a84c`; protected read-only run
+  `32563234233` passed exact 161/161, zero blocked and zero executions. Live
+  product-level multi-retailer coverage is 191/250, leaving 59.
 
 - `BATCH O LIVE VERIFIED 20/20`: PR `#36` merged as `abfab8d278c4ad0d5947f910d6cf6ceb162a8730`;
   protected production run `32522579829` created mappings `2846`-`2865` and
@@ -2048,7 +2085,8 @@ owner-reviewed production design and approval.
   importer and public-page checks passed 20/20. PR `#37` merged the nine exact
   missing-GTIN refresh contracts as `8fd752ccaa3944bf14b8d97e4ec1e9360b9cd33f`;
   final protected run `32524454146` passed 141 eligible, zero blocked, zero
-  executions. Live multi-retailer coverage is 188 products, leaving 62 to 250.
+  executions. At the Batch O checkpoint, multi-retailer coverage was 188
+  products, leaving 62 to 250.
 - `BATCH N LIVE VERIFIED 19/19`: PR `#34` merged as
   `7e9ed7dab7bd7a52292db4bddb622dcaf37bff0c`; protected production run
   `32515389182` created mappings `2827`-`2845` and offers `2641`-`2659`, then
@@ -2829,19 +2867,14 @@ owner-reviewed production design and approval.
 
 ### 22 August 2026
 
-- Recorded the owner's approval of all 20 numbered Batch P listings and sealed
-  the exact guarded package: 20 dry-run plans, zero blockers and zero writes.
-- The package contains 11 exact returned-GTIN rows and nine exact
-  owner-reviewed missing-GTIN rows. All 20 sellers are business accounts; the
-  owner explicitly accepted three feedback-percentage exceptions and one
-  feedback-score exception after they were disclosed in the numbered review.
-- Nine rows would create a second retailer and 11 extend eBay coverage on
-  products already carrying another eBay variant. Production remains unchanged
-  until the exact protected Batch P workflow succeeds on `main`.
-- Reused the existing importer, exact item revalidation and guarded executor.
-  The Critical Cookie shared parent is allowlisted only for product `468`,
-  variant `2710`, item `v1|406431647826|676750282319`, its exact URL and exact
-  options; unpinned use of the stale legacy flavour code remains blocked.
+- Completed Batch P production for all 20 owner-approved listings: mappings
+  `2866`-`2885`, offers `2680`-`2699`, 20 history rows and a 20-no-op independent
+  postflight. The failed workflow conclusion reflected only the fixed
+  Critical Cookie postflight check after all writes, so apply was not replayed.
+- Extended the single shared refresh to exact 161 through PR `#40`; protected
+  run `32563234233` passed 161/161 with zero blocked rows and zero executions.
+- Publicly verified 13 distinct product pages at HTTP 200 with eBay UK visible.
+  Advanced the deduplicated product KPI to 191/250, leaving 59.
 
 ### 21 August 2026
 

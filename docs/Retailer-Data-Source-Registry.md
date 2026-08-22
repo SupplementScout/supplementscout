@@ -522,51 +522,40 @@ Products with at least 2 active retailers.
 - Status: **66-OFFER REVIEWED CATALOGUE AND CONFIRMED SHIPPING POLICY LIVE;
   DAILY MONITOR AND GUARDED REFRESH OPERATIONAL; LATEST REMOTE RUN GREEN**.
 
-## eBay UK current record - 21 August 2026
+## eBay UK current record - 22 August 2026
 
 - Retailer ID: `12`; source: eBay Browse API plus exact item-ID revalidation;
   affiliate destinations require eBay-returned EPN Campaign-ID URLs.
-- Batches A-O are complete. Production has exactly 141 approved eBay mappings,
-  141 public offers and 141 initial price-history rows. PR `#36` merged Batch O
-  as `abfab8d278c4ad0d5947f910d6cf6ceb162a8730`; protected run `32522579829`
-  created mappings `2846`-`2865` and offers `2660`-`2679`, then passed the exact
-  20-row no-op postflight. Artifact `9461124786` has SHA-256
-  `ce05971cf1316483b521ec999c271d546047ddb396796e658e42d2f9e3db02be`.
-- Independent readback verified all 20 identities, prices, shipping, delivered
-  totals, stock, affiliate URLs and price history. A separate importer dry-run
-  returned 20 no-ops and zero blockers; all 20 offers appeared on 12 public
-  product pages returning HTTP 200.
-- The single existing workflow refreshes the exact 141-offer manifest at
-  `05:43 UTC`. PR `#37`, merge SHA
-  `8fd752ccaa3944bf14b8d97e4ec1e9360b9cd33f`, sealed the nine missing-GTIN
-  rows to exact offers, business sellers and evidence sets. Final read-only run
-  `32524454146` passed 141/141 with zero blocked rows and zero executions;
-  artifact `9461779021` has SHA-256
-  `ed8da616cffa1bc9b67d4b2e094d1be967f80057a994b8c6d7a0fc34abc4a335`.
+- Batches A-P are complete. Production has exactly 161 approved eBay mappings,
+  161 public offers and 161 initial price-history rows. PR `#39` merged Batch P
+  as `eddd2c156235e3409c4693a7322370c344978909`; protected run `32561910587`
+  passed 20 fresh business-seller reads and executed all 20 plans, creating
+  mappings `2866`-`2885` and offers `2680`-`2699`. Its failure conclusion came
+  only from a false Critical Cookie postflight conflict after all writes; apply
+  was not replayed. Artifact `9473044920` has SHA-256
+  `890efa2fff695fc0960556da0aef6aeae96160348299c43414e3ec607e079c7c`.
+- Independent readback verified all 20 identities, prices, known shipping,
+  delivered totals, stock, affiliate URLs and history rows. The corrected
+  importer dry-run returned 20 no-ops, zero blockers and SHA-256
+  `37b25c7c13057259a00132f50b85afe4a77b76f1cb2213a30e68aa7286985867`.
+  All 13 distinct public product pages returned HTTP 200 and displayed eBay UK.
+- The single existing workflow refreshes the exact 161-offer manifest at
+  `05:43 UTC`. PR `#40`, merge SHA
+  `e6817538ebf8cc8d1ee9479cf3ae981843b9a84c`, sealed Batch P continuity to
+  exact offer IDs, business sellers and reviewed evidence sets. Protected
+  read-only run `32563234233` passed 161/161 `verify_no_change`, zero blocked
+  rows and zero executions. Artifact `9473405068` has SHA-256
+  `30ae68b07607d18e24d12a00371731f7d98d13b734376e6a98bb6176630d6fcf`.
   Automatic-OOS blocking remains active.
-- Current live in-stock eBay impact: 92 products covered, including 76 with
-  exactly two comparison retailers, 15 with three or more and one eBay-only
-  product. Across all retailers, 188 products have at least two current
-  retailers, leaving 62 to the 250-product target.
-- Status: **EXACT 141 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH O COMPLETE**.
-  Do not repeat Batches A-O, reintroduce excluded Batch N row 5 or widen the
-  reviewed Batch O shared-parent and missing-GTIN contracts.
-
-## eBay UK Batch P prepared record - 22 August 2026
-
-- The owner approved all 20 numbered Batch P business-seller listings after
-  reviewing direct eBay links, delivered prices and the four disclosed seller
-  threshold exceptions.
-- The immutable dry-run contains exactly 20 create plans, zero blockers and
-  zero writes: 11 exact returned-GTIN identities and nine exact
-  owner-reviewed missing-GTIN identities.
-- Nine offers are projected to create a second current retailer and 11 to add a
-  new eBay variant on an already eBay-covered product. This is preparation
-  evidence only; the live 141-offer and 188/250 checkpoints remain authoritative
-  until the protected apply, independent readback and public verification pass.
-- Batch P reuses the existing importer, executor and refresh path. The single
-  shared-parent exception is exact to Critical Cookie product `468`, variant
-  `2710` and eBay variation `676750282319`.
+- Current production-wide readback has 1,070 active products and 2,170
+  positive-price in-stock offers: 191 products have at least two current
+  retailers, 31 have at least three and five have at least four. The 250-product
+  checkpoint therefore has 59 remaining. The earlier nine-row projection was
+  variant-level; after canonical-product deduplication Batch P advances the KPI
+  by three products.
+- Status: **EXACT 161 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH P COMPLETE**.
+  Do not repeat Batches A-P, reintroduce excluded Batch N row 5 or widen any
+  reviewed shared-parent, missing-GTIN or seller-threshold contract.
 
 ## Initial registry template
 
