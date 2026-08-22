@@ -2575,9 +2575,15 @@ async function resolveCanonicalProductVariant(
       return mappedVariant;
     }
 
-    const mappedFlavour =
-      normalizeFlavour(mappedVariant.flavour_code) ||
-      normalizeFlavour(mappedVariant.flavour_label);
+    const mappedFlavourCode = normalizeFlavour(mappedVariant.flavour_code);
+    const mappedFlavourLabel = normalizeFlavour(mappedVariant.flavour_label);
+    const explicitMappedVariant =
+      rowHasColumn(row, "product_variant_id") &&
+      String(mappedVariant.id) === optionalIdentifier(row.product_variant_id);
+    const mappedFlavourMatches =
+      !evidence.flavour ||
+      evidence.flavour === mappedFlavourCode ||
+      (explicitMappedVariant && evidence.flavour === mappedFlavourLabel);
     const mappedSize = parseSize(
       mappedVariant.size_value && mappedVariant.size_unit
         ? `${mappedVariant.size_value}${mappedVariant.size_unit}`
@@ -2585,7 +2591,7 @@ async function resolveCanonicalProductVariant(
     );
     const mappedFormat = parseProductFormat(mappedVariant.product_format);
     const mappingConflicts =
-      (evidence.flavour && evidence.flavour !== mappedFlavour) ||
+      !mappedFlavourMatches ||
       (evidence.size && sizeKey(evidence.size) !== sizeKey(mappedSize)) ||
       (Number(evidence.packCount) > 1 &&
         Number(evidence.packCount) !== Number(mappedVariant.pack_count)) ||
