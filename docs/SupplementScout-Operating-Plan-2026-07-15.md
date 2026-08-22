@@ -929,6 +929,29 @@ live verified and must not be replayed. Current production-wide readback has
 188 products with at least two current retailers, leaving 62 to the approved
 250-product checkpoint.
 
+The owner then approved all 20 numbered Batch P listings, including the four
+disclosed seller-threshold exceptions. PR `#39` merged the exact package as
+`eddd2c156235e3409c4693a7322370c344978909`. Protected run `32561910587`
+passed its fresh preflight and executed all 20 plans, creating mappings
+`2866`-`2885`, offers `2680`-`2699` and 20 initial price-history rows. Its
+failure conclusion was confined to a false Critical Cookie postflight conflict
+after all writes; no replay occurred. Artifact `9473044920` has digest
+`890efa2fff695fc0960556da0aef6aeae96160348299c43414e3ec607e079c7c`.
+Independent readback verified all 20 rows, and the corrected importer
+postflight returned 20 no-ops, zero blockers and SHA-256
+`37b25c7c13057259a00132f50b85afe4a77b76f1cb2213a30e68aa7286985867`.
+All 13 distinct public product pages returned HTTP 200 and displayed eBay UK.
+PR `#40` merged the exact postflight correction and extension of the same
+shared refresh as `e6817538ebf8cc8d1ee9479cf3ae981843b9a84c`. Protected
+read-only run `32563234233` passed 161/161 `verify_no_change`, zero blocked
+rows, zero executions and retained automatic-OOS blocking; artifact
+`9473405068` has digest
+`30ae68b07607d18e24d12a00371731f7d98d13b734376e6a98bb6176630d6fcf`.
+The current production-wide checkpoint is 191/250 products with at least two
+positive-price in-stock retailers, leaving 59. Batch P's earlier nine-row
+projection was variant-level; canonical-product deduplication shows a net
+three-product KPI increase.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
@@ -2958,20 +2981,21 @@ progress through its normal page roadmap.
   idempotency check. The workflow no longer runs on ordinary pushes; only its
   daily schedule and explicit manual operations remain.
 
-### 22 August 2026 - eBay Batch P prepared checkpoint
+### 22 August 2026 - eBay Batch P live closeout
 
 - The owner approved all 20 numbered Batch P listings, including the four
   seller-threshold exceptions disclosed in the review list.
-- Exact guarded evidence now contains 20 create plans, zero blockers and zero
-  writes: 11 returned-GTIN matches and nine exact owner-reviewed missing-GTIN
-  rows, all from business sellers.
-- Nine rows are projected to advance the multi-retailer checkpoint and 11 add
-  another eBay variant to products already covered by eBay. The authoritative
-  live checkpoint remains 188/250 until protected apply and live evidence pass.
-- The work reuses the existing importer, exact-item preflight, split-role
-  executor and shared refresh. Production apply is limited to the sealed Batch P
-  identities on `main`; no new scheduler or autonomous catalogue authority was
+- The exact 20 plans executed in production and created mappings `2866`-`2885`,
+  offers `2680`-`2699` and 20 history rows. Independent readback and the
+  corrected 20-no-op postflight passed with zero blockers; all 13 distinct
+  public product pages returned HTTP 200 with eBay UK visible.
+- The single shared refresh is now exact 161. Protected run `32563234233`
+  passed 161/161, zero blocked rows and zero executions with automatic-OOS
+  blocking retained. No second scheduler or autonomous catalogue authority was
   introduced.
+- The authoritative live multi-retailer checkpoint is 191/250, leaving 59.
+  The prepared nine-row projection was not a product-level count; the exact
+  deduplicated KPI uplift is three products.
 
 ---
 
