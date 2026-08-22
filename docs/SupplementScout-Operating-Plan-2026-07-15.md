@@ -910,17 +910,24 @@ release found 1,070 active products and 2,133 positive-price in-stock offers:
 therefore has 63 remaining.
 
 The owner subsequently approved all 20 numbered Batch O eBay listings and
-instructed completion without repeated confirmation. Fresh exact-item reads
-verified 20 business sellers, known free UK delivery, stock and Campaign-ID
-URLs. The existing importer produced 20 create plans, zero blockers and zero
-writes: 11 exact returned-GTIN rows and nine exact owner-reviewed missing-GTIN
-rows. Five rows create product-level second-retailer coverage and 15 expand
-previously uncovered variants of products already covered by eBay. A closed
-five-row contract handles the BioTech 1816 g / 908 g variations sharing one
-eBay parent without widening the general identity rule. The manual guarded
-Batch O workflow and exact-141 extension of the same shared refresh are
-prepared; production remains exact 121 until apply, postflight and live
-verification complete.
+instructed completion without repeated confirmation. PR `#36` merged the exact
+guarded package as `abfab8d278c4ad0d5947f910d6cf6ceb162a8730`. Protected run
+`32522579829` passed 20 fresh business-seller reads, created mappings
+`2846`-`2865` and offers `2660`-`2679`, and passed the 20-row no-op postflight.
+Independent production readback verified 141 unique eBay mappings/offers and
+all new identities, prices, known shipping, delivered totals, stock,
+Campaign-ID URLs and price-history rows. A second importer dry-run returned 20
+no-ops and zero blockers; 20 exact offers were visible on 12 HTTP-200 product
+pages. Eleven rows have returned GTINs and nine missing-GTIN rows are sealed to
+their exact reviewed identity, business seller and evidence set. The five-row
+BioTech shared-parent contract remains exact and does not widen the general
+identity rule. PR `#37`, merge SHA
+`8fd752ccaa3944bf14b8d97e4ec1e9360b9cd33f`, completed the nine refresh
+continuity bindings. Final protected read-only run `32524454146` passed 141/141,
+zero blocked, zero executions and retained automatic-OOS blocking. Batch O is
+live verified and must not be replayed. Current production-wide readback has
+188 products with at least two current retailers, leaving 62 to the approved
+250-product checkpoint.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 

@@ -526,30 +526,31 @@ Products with at least 2 active retailers.
 
 - Retailer ID: `12`; source: eBay Browse API plus exact item-ID revalidation;
   affiliate destinations require eBay-returned EPN Campaign-ID URLs.
-- Batches A-N are complete. Production has exactly 121 approved eBay mappings,
-  121 public offers and 121 initial price-history rows. Batch N production run
-  `32515389182` created mappings `2827`-`2845` and offers `2641`-`2659`, then
-  passed the exact 19-row no-op postflight. PR `#34` supplied the guarded
-  release on merge SHA `7e9ed7dab7bd7a52292db4bddb622dcaf37bff0c`.
-- The single existing workflow refreshes the exact 121-offer manifest at
-  `05:43 UTC`. Read-only run `32515999463` passed 121/121 `verify_no_change`
-  with zero blocked rows and zero executions; artifact `9458874386` retains
-  the evidence and automatic-OOS blocking remains active.
-- Current live in-stock impact: 88 products covered, including 75 with exactly
-  two comparison retailers, 12 with three or more and one eBay-only product.
-- Original Batch N review row 5 remains explicitly excluded. Independent
-  readback verified all 19 approved business-seller rows, a separate importer
-  dry-run returned 19 no-ops and all 19 public pages returned HTTP 200 with the
-  exact new offer present.
-- Status: **EXACT 121 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH N COMPLETE**.
-  Do not repeat Batch N or reintroduce excluded review row 5.
-- Batch O is owner-approved and prepared for exactly 20 business-seller
-  listings. Fresh direct-item checks and the existing importer returned 20
-  create plans, zero blockers and zero writes. Eleven rows return exact GTINs;
-  nine are exact owner-reviewed missing-GTIN identities. Five products gain a
-  second retailer and 15 rows add exact uncovered variants to already eBay-
-  covered products. Production remains exact 121 until the manual protected
-  apply and postflight complete; the same refresh is prepared for exact 141.
+- Batches A-O are complete. Production has exactly 141 approved eBay mappings,
+  141 public offers and 141 initial price-history rows. PR `#36` merged Batch O
+  as `abfab8d278c4ad0d5947f910d6cf6ceb162a8730`; protected run `32522579829`
+  created mappings `2846`-`2865` and offers `2660`-`2679`, then passed the exact
+  20-row no-op postflight. Artifact `9461124786` has SHA-256
+  `ce05971cf1316483b521ec999c271d546047ddb396796e658e42d2f9e3db02be`.
+- Independent readback verified all 20 identities, prices, shipping, delivered
+  totals, stock, affiliate URLs and price history. A separate importer dry-run
+  returned 20 no-ops and zero blockers; all 20 offers appeared on 12 public
+  product pages returning HTTP 200.
+- The single existing workflow refreshes the exact 141-offer manifest at
+  `05:43 UTC`. PR `#37`, merge SHA
+  `8fd752ccaa3944bf14b8d97e4ec1e9360b9cd33f`, sealed the nine missing-GTIN
+  rows to exact offers, business sellers and evidence sets. Final read-only run
+  `32524454146` passed 141/141 with zero blocked rows and zero executions;
+  artifact `9461779021` has SHA-256
+  `ed8da616cffa1bc9b67d4b2e094d1be967f80057a994b8c6d7a0fc34abc4a335`.
+  Automatic-OOS blocking remains active.
+- Current live in-stock eBay impact: 92 products covered, including 76 with
+  exactly two comparison retailers, 15 with three or more and one eBay-only
+  product. Across all retailers, 188 products have at least two current
+  retailers, leaving 62 to the 250-product target.
+- Status: **EXACT 141 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH O COMPLETE**.
+  Do not repeat Batches A-O, reintroduce excluded Batch N row 5 or widen the
+  reviewed Batch O shared-parent and missing-GTIN contracts.
 
 ## Initial registry template
 
