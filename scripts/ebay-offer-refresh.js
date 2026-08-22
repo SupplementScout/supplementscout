@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_161";
-const KIND = "ebay-existing-offer-refresh-exact-161-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_181";
+const KIND = "ebay-existing-offer-refresh-exact-181-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -75,6 +75,13 @@ const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2697", { seller: "muscle-factory-co-uk", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
   ["2698", { seller: "muscle-factory-co-uk", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
   ["2699", { seller: "muscle-factory-co-uk", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2705", { seller: "gymstop", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2707", { seller: "soovital", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2709", { seller: "muscle-factory-co-uk", review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2716", { seller: "1thetreehouse", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2717", { seller: "z.m.s.limited", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2718", { seller: "ccolta", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2719", { seller: "premium_supps", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
 ]);
 const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2570", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
@@ -99,6 +106,7 @@ const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2681", { seller: "superfoodmarket", blockers: new Set(), review_reasons: new Set(["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
   ["2682", { seller: "ihrisironworks", blockers: new Set(), review_reasons: new Set(["SELLER_SCORE_BELOW_PROPOSED_THRESHOLD"]) }],
   ["2688", { seller: "vikingshopsuple", blockers: new Set(), review_reasons: new Set(["SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
+  ["2708", { seller: "superfoodmarket", blockers: new Set(), review_reasons: new Set(["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
 ]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
@@ -118,6 +126,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-n.csv", approval: "batch-n-rollout.json", count: 19 },
   { csv: "batch-o.csv", approval: "batch-o-rollout.json", count: 20 },
   { csv: "batch-p.csv", approval: "batch-p-rollout.json", count: 20 },
+  { csv: "batch-q.csv", approval: "batch-q-rollout.json", count: 20 },
 ]);
 const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|394018039646|662564730389", ["2784", "2599"]], ["v1|256978504929|557601659147", ["2785", "2600"]],
@@ -171,6 +180,16 @@ const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|185926599465|694997267454", ["2880", "2694"]], ["v1|256983420098|557970957862", ["2881", "2695"]],
   ["v1|185926599465|694997267455", ["2882", "2696"]], ["v1|407021140091|677211935190", ["2883", "2697"]],
   ["v1|407021140091|677211935191", ["2884", "2698"]], ["v1|407021140091|677211935192", ["2885", "2699"]],
+  ["v1|398263424505|666530542921", ["2886", "2700"]], ["v1|327261939687|516049468284", ["2887", "2701"]],
+  ["v1|204492290001|505081430817", ["2888", "2702"]], ["v1|176656268247|0", ["2889", "2703"]],
+  ["v1|388240705551|0", ["2890", "2704"]], ["v1|278003127980|2560859598066", ["2891", "2705"]],
+  ["v1|177555839706|0", ["2892", "2706"]], ["v1|187768437029|0", ["2893", "2707"]],
+  ["v1|187833104047|0", ["2894", "2708"]], ["v1|406431648421|677122188671", ["2895", "2709"]],
+  ["v1|114229917998|414483567665", ["2896", "2710"]], ["v1|114025559750|414309386736", ["2897", "2711"]],
+  ["v1|318096238181|0", ["2898", "2712"]], ["v1|377244586186|0", ["2899", "2713"]],
+  ["v1|276358420222|0", ["2900", "2714"]], ["v1|398059958397|0", ["2901", "2715"]],
+  ["v1|397974125581|0", ["2902", "2716"]], ["v1|297974730806|0", ["2903", "2717"]],
+  ["v1|387640181610|0", ["2904", "2718"]], ["v1|155926124418|0", ["2905", "2719"]],
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -215,7 +234,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 161) fail("Exact eBay refresh manifest must contain 161 rows");
+  if (rows.length !== 181) fail("Exact eBay refresh manifest must contain 181 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => {
