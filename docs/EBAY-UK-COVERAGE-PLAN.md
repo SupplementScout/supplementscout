@@ -188,24 +188,28 @@ and extension of the one shared refresh as
 `32563234233` passed 161/161 `verify_no_change`, zero blocked rows, zero
 executions and retained automatic-OOS blocking. Artifact `9473405068` has
 digest `30ae68b07607d18e24d12a00371731f7d98d13b734376e6a98bb6176630d6fcf`.
-The current production-wide measurement is 191/250 products with at least two
+At the Batch P closeout, the production-wide measurement was 191/250 products with at least two
 in-stock positive-price retailers, leaving 59. The earlier nine-row projection
 was variant-level; deduplication by canonical product gives a three-product KPI
 uplift because several rows share product `273` or products already had another
 eBay variant.
 
-Batch Q is owner approved and production pending. The owner rejected original
-candidate rows 3 and 5 (`3, 5 nie.`), accepted Applied Nutrition Critical Greens
-250 g and Solgar Digestive Enzymes 100 Tablets as their replacements, and then
-confirmed `akcepuje`. The final exact-20 scope contains 20 distinct canonical
-products with exactly one current retailer and no active eBay offer. Fresh
-direct reads verify business sellers, known UK shipping and in-stock fixed-price
-GB listings; 13 return exact GTINs and seven missing-GTIN rows are sealed to the
-exact reviewed item, seller and canonical variant. Two disclosed future dates,
-09/2028 and 06/2027, pass the binding no-expired-product rule. Importer dry-run
-evidence contains 20 creates, zero blockers and zero writes. Do not treat the
-projected 211/250 checkpoint as live until guarded apply, postflight and
-independent readback pass.
+Batch Q is live verified 20/20. The owner rejected original candidates 3 and 5
+(`3, 5 nie.`), accepted Applied Nutrition Critical Greens 250 g and Solgar
+Digestive Enzymes 100 Tablets as their replacements, and confirmed `akcepuje`.
+PR `#42` merged as `1f7860b5a68010c0d0577082cd7d8dcbd21bf34d`.
+Protected run `32569395781` re-read all 20 exact business listings, executed
+20/20 and created mappings `2886`-`2905`, offers `2700`-`2719` and 20 initial
+history rows. Artifact `9474935669` has digest
+`b963935069aec2fc01838c57bfd37690c8b1573168816965fee66da52adf5e60`;
+postflight was 20 no-ops and zero blockers. Independent production readback
+verified all identities, prices, known shipping, delivered totals, stock,
+Campaign-ID URLs and history. All 20 distinct product pages returned HTTP 200
+and exposed eBay UK plus the expected `/go/{offer_id}` link. PR `#43` merged the
+same shared refresh at exact 181 as
+`cdf25c1902bec7ed7f83264c6a448e7f414fa7b8`; protected dry-run
+`32571366605` passed 181 eligible, zero blocked and zero writes. Live
+product-level multi-retailer coverage is 211/250, leaving 39.
 
 Batch O is live verified 20/20. The
 owner confirmed `zatwierdzam wszystkie, nie pytaj o potwierdzenia, doprowadz do
@@ -2083,6 +2087,16 @@ owner-reviewed production design and approval.
 
 22 August 2026:
 
+- `BATCH Q LIVE VERIFIED 20/20`: PR `#42` merged as
+  `1f7860b5a68010c0d0577082cd7d8dcbd21bf34d`; protected production run
+  `32569395781` created mappings `2886`-`2905`, offers `2700`-`2719` and 20
+  history rows, then passed the exact 20-no-op postflight. Independent database
+  and 20-page public readbacks passed. PR `#43` merged the shared exact-181
+  refresh as `cdf25c1902bec7ed7f83264c6a448e7f414fa7b8`; protected dry-run
+  `32571366605` passed 181/181, zero blocked and zero writes. Live product-level
+  multi-retailer coverage is 211/250, leaving 39. Rejected original rows 3 and
+  5 remain excluded.
+
 - `BATCH P LIVE VERIFIED 20/20`: PR `#39` merged as `eddd2c156235e3409c4693a7322370c344978909`;
   run `32561910587` executed all 20 plans and created mappings `2866`-`2885`
   plus offers `2680`-`2699`. Its single postflight false conflict was corrected
@@ -2879,6 +2893,13 @@ owner-reviewed production design and approval.
 ## Decision changelog
 
 ### 22 August 2026
+
+- Completed Batch Q for the exact final 20 owner-approved replacements scope:
+  mappings `2886`-`2905`, offers `2700`-`2719`, 20 history rows, 20 exact
+  postflight no-ops and 20 public pages verified.
+- Extended the single shared refresh to exact 181 through PR `#43`; protected
+  run `32571366605` passed 181/181 with zero blocked rows and zero writes.
+- Advanced the deduplicated product KPI to 211/250, leaving 39.
 
 - Completed Batch P production for all 20 owner-approved listings: mappings
   `2866`-`2885`, offers `2680`-`2699`, 20 history rows and a 20-no-op independent

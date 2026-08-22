@@ -526,8 +526,8 @@ Products with at least 2 active retailers.
 
 - Retailer ID: `12`; source: eBay Browse API plus exact item-ID revalidation;
   affiliate destinations require eBay-returned EPN Campaign-ID URLs.
-- Batches A-P are complete. Production has exactly 161 approved eBay mappings,
-  161 public offers and 161 initial price-history rows. PR `#39` merged Batch P
+- Batches A-Q are complete. Production has exactly 181 approved eBay mappings,
+  181 public offers and 181 initial price-history rows. PR `#39` merged Batch P
   as `eddd2c156235e3409c4693a7322370c344978909`; protected run `32561910587`
   passed 20 fresh business-seller reads and executed all 20 plans, creating
   mappings `2866`-`2885` and offers `2680`-`2699`. Its failure conclusion came
@@ -539,30 +539,31 @@ Products with at least 2 active retailers.
   importer dry-run returned 20 no-ops, zero blockers and SHA-256
   `37b25c7c13057259a00132f50b85afe4a77b76f1cb2213a30e68aa7286985867`.
   All 13 distinct public product pages returned HTTP 200 and displayed eBay UK.
-- The single existing workflow refreshes the exact 161-offer manifest at
+- The single existing workflow refreshes the exact 181-offer manifest at
   `05:43 UTC`. PR `#40`, merge SHA
   `e6817538ebf8cc8d1ee9479cf3ae981843b9a84c`, sealed Batch P continuity to
   exact offer IDs, business sellers and reviewed evidence sets. Protected
   read-only run `32563234233` passed 161/161 `verify_no_change`, zero blocked
   rows and zero executions. Artifact `9473405068` has SHA-256
   `30ae68b07607d18e24d12a00371731f7d98d13b734376e6a98bb6176630d6fcf`.
-  Automatic-OOS blocking remains active.
-- Current production-wide readback has 1,070 active products and 2,170
-  positive-price in-stock offers: 191 products have at least two current
-  retailers, 31 have at least three and five have at least four. The 250-product
-  checkpoint therefore has 59 remaining. The earlier nine-row projection was
-  variant-level; after canonical-product deduplication Batch P advances the KPI
-  by three products.
-- Status: **EXACT 161 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH P COMPLETE**.
-  Do not repeat Batches A-P, reintroduce excluded Batch N row 5 or widen any
+- PR `#43`, merge SHA `cdf25c1902bec7ed7f83264c6a448e7f414fa7b8`,
+  extended that same workflow to Batch Q without creating another scheduler.
+  Protected read-only run `32571366605` passed 181/181 eligible, zero blocked
+  and zero writes. Automatic-OOS blocking remains active.
+- Current production-wide readback has 211 products with at least two current
+  positive-price in-stock retailers. The 250-product checkpoint therefore has
+  39 remaining.
+- Status: **EXACT 181 LIVE, PUBLICLY VERIFIED AND GUARDED; BATCH Q COMPLETE**.
+  Do not repeat Batches A-Q, reintroduce excluded Batch N row 5 or widen any
   reviewed shared-parent, missing-GTIN or seller-threshold contract.
-- Batch Q is **OWNER APPROVED / PRODUCTION PENDING**. Original review rows 3
-  and 5 were rejected and replaced before final approval. The sealed final
-  scope is 20 distinct second-retailer products: 13 exact returned GTINs,
-  seven exact owner-reviewed missing-GTIN listings, 20 business sellers, known
-  UK shipping, 20 importer create plans, zero blockers and zero writes. Its
-  projected live scope is 181 offers and 211/250 multi-retailer products, but
-  neither projection is a live fact before guarded apply and verification.
+- Batch Q exact production evidence: PR `#42`, merge SHA
+  `1f7860b5a68010c0d0577082cd7d8dcbd21bf34d`, run `32569395781`, artifact
+  `9474935669` digest
+  `b963935069aec2fc01838c57bfd37690c8b1573168816965fee66da52adf5e60`.
+  It created mappings `2886`-`2905`, offers `2700`-`2719` and 20 history rows;
+  postflight returned 20 no-ops and zero blockers. Independent database
+  readback and all 20 public product pages passed. Original rows 3 and 5 remain
+  excluded.
 
 ## Initial registry template
 

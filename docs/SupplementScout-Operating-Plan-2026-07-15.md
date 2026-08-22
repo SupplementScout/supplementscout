@@ -947,22 +947,29 @@ read-only run `32563234233` passed 161/161 `verify_no_change`, zero blocked
 rows, zero executions and retained automatic-OOS blocking; artifact
 `9473405068` has digest
 `30ae68b07607d18e24d12a00371731f7d98d13b734376e6a98bb6176630d6fcf`.
-The current production-wide checkpoint is 191/250 products with at least two
+At the Batch P closeout, the production-wide checkpoint was 191/250 products with at least two
 positive-price in-stock retailers, leaving 59. Batch P's earlier nine-row
 projection was variant-level; canonical-product deduplication shows a net
 three-product KPI increase.
 
-The owner reviewed the proposed Batch Q list, rejected original rows 3 and 5
-with `3, 5 nie.`, and then approved their exact replacements with `akcepuje`.
-The final sealed scope contains 20 different products that each currently have
-exactly one positive-price in-stock retailer and no active eBay offer. Fresh
-direct-item reads verify 20 business sellers, known UK shipping, 13 exact
-returned GTINs and seven owner-reviewed missing-GTIN identities. The two
-future-date disclosures are BBE 09/2028 and expiry 06/2027; neither was expired
-at capture. The existing importer produced 20 create plans, zero blockers and
-zero database writes. Batch Q is **OWNER APPROVED / PRODUCTION PENDING**; the
-projected checkpoint after a fully verified apply is 211/250, leaving 39, but
-that projection must not be recorded as live before production evidence.
+The owner reviewed Batch Q, rejected original rows 3 and 5 with `3, 5 nie.`,
+approved their exact replacements with `akcepuje`, and the rejected identities
+remained excluded. PR `#42` merged the exact final 20-product package as
+`1f7860b5a68010c0d0577082cd7d8dcbd21bf34d`. Protected production run
+`32569395781` passed 20 fresh business-seller reads, executed 20/20 and created
+mappings `2886`-`2905`, offers `2700`-`2719` and 20 initial price-history rows.
+Artifact `9474935669` has digest
+`b963935069aec2fc01838c57bfd37690c8b1573168816965fee66da52adf5e60`;
+its immediate postflight returned 20 exact no-ops and zero blockers.
+Independent production readback verified every identity, price, known shipping,
+delivered total, stock state, Campaign-ID URL and history row. All 20 public
+product pages returned HTTP 200 and displayed both eBay UK and the exact new
+offer link. PR `#43` extended the same shared refresh to exact 181 as
+`cdf25c1902bec7ed7f83264c6a448e7f414fa7b8`; protected read-only run
+`32571366605` passed 181/181 eligible, zero blocked and zero writes. The live
+production-wide checkpoint is now 211/250 products with at least two
+positive-price in-stock retailers, leaving 39. Batch Q is **LIVE VERIFIED
+20/20** and must not be replayed.
 
 ### Binding catalogue exclusion policy - 27 July 2026
 
@@ -2993,6 +3000,18 @@ progress through its normal page roadmap.
   idempotency check. The workflow no longer runs on ordinary pushes; only its
   daily schedule and explicit manual operations remain.
 
+### 22 August 2026 - eBay Batch Q live closeout
+
+- The final owner-approved scope excluded rejected original rows 3 and 5 and
+  contained exactly 20 distinct second-retailer products.
+- PR `#42` and production run `32569395781` created mappings `2886`-`2905`,
+  offers `2700`-`2719` and 20 initial history rows. The immediate 20-no-op
+  postflight, independent database readback and 20 public-page checks passed.
+- PR `#43` expanded the one shared guarded refresh to exact 181. Protected
+  dry-run `32571366605` passed 181 eligible, zero blocked and zero writes;
+  automatic-OOS remains blocked.
+- The authoritative live multi-retailer checkpoint is 211/250, leaving 39.
+
 ### 22 August 2026 - eBay Batch P live closeout
 
 - The owner approved all 20 numbered Batch P listings, including the four
@@ -3005,7 +3024,7 @@ progress through its normal page roadmap.
   passed 161/161, zero blocked rows and zero executions with automatic-OOS
   blocking retained. No second scheduler or autonomous catalogue authority was
   introduced.
-- The authoritative live multi-retailer checkpoint is 191/250, leaving 59.
+- At the Batch P closeout, the live multi-retailer checkpoint was 191/250, leaving 59.
   The prepared nine-row projection was not a product-level count; the exact
   deduplicated KPI uplift is three products.
 
