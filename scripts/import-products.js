@@ -53,6 +53,7 @@ const SIX_PACK_REVIEWED_LARGE_FAMILY_BATCH_V15 = require("../config/retailers/si
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-k-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_L = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-l-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_O = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-o-v1.json");
+const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_P = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-p-v1.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -1975,6 +1976,12 @@ function isExactEbayCrossProductParentVariant({
       confirmation: "OWNER_APPROVED_EBAY_BATCH_O_EXACT_20",
       rows: 5,
     },
+    {
+      value: EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_P,
+      contract: "ebay-reviewed-cross-product-parent-batch-p-v1",
+      confirmation: "OWNER_APPROVED_EBAY_BATCH_P_EXACT_20",
+      rows: 1,
+    },
   ];
   if (
     reviewedConfigs.some(({ value, contract, confirmation, rows }) =>
@@ -2610,8 +2617,15 @@ async function resolveCanonicalProductVariant(
   }
 
   let candidates = nonDefaultVariants.filter((variant) => {
-      const variantFlavour =
-        normalizeFlavour(variant.flavour_code) || normalizeFlavour(variant.flavour_label);
+      const variantFlavourCode = normalizeFlavour(variant.flavour_code);
+      const variantFlavourLabel = normalizeFlavour(variant.flavour_label);
+      const explicitRequestedVariant =
+        rowHasColumn(row, "product_variant_id") &&
+        String(variant.id) === optionalIdentifier(row.product_variant_id);
+      const flavourMatches =
+        !evidence.flavour ||
+        evidence.flavour === variantFlavourCode ||
+        (explicitRequestedVariant && evidence.flavour === variantFlavourLabel);
       const variantSize = parseSize(
         variant.size_value && variant.size_unit
           ? `${variant.size_value}${variant.size_unit}`
@@ -2628,7 +2642,7 @@ async function resolveCanonicalProductVariant(
         evidence.productFormat === "powder";
 
       const evidenceMatches =
-        (!evidence.flavour || evidence.flavour === variantFlavour) &&
+        flavourMatches &&
         (!evidence.size || sizeKey(evidence.size) === sizeKey(variantSize)) &&
         (evidence.packCount === null ||
           Number(evidence.packCount) === Number(variant.pack_count)) &&
@@ -2636,7 +2650,7 @@ async function resolveCanonicalProductVariant(
           evidence.productFormat === variantFormat ||
           reviewedMissingVariantFormat);
       const distinguishingFeaturesConfirmed =
-        (!variantFlavour || evidence.flavour === variantFlavour) &&
+        ((!variantFlavourCode && !variantFlavourLabel) || flavourMatches) &&
         (!variantSize || sizeKey(evidence.size) === sizeKey(variantSize)) &&
         (variant.pack_count === null ||
           Number(variant.pack_count) === 1 ||

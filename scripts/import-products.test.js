@@ -4549,6 +4549,87 @@ test("Fit House Barebells milkshake resolves ready_to_drink canonical variant", 
   assert.equal(result.report.approvedRows[0].importPlan.product_variant.id, "pv-barebells-chocolate");
 });
 
+test("Batch P Critical Cookie box shares its eBay parent only for the owner-approved exact variation", () => {
+  const input = {
+    retailer: { slug: "ebay-uk" },
+    externalProductId: "406431647826",
+    externalVariantId: "v1|406431647826|676750282319",
+    row: {
+      product_id: "468",
+      product_variant_id: "2710",
+      external_url: "https://www.ebay.co.uk/itm/406431647826?var=676750282319",
+      external_options: JSON.stringify({ Size: "73g", Flavour: "Salted Caramel" }),
+    },
+    parentPeers: [{
+      external_product_id: "406431647826",
+      external_variant_id: "v1|406431647826|676750282312",
+      external_url: "https://www.ebay.co.uk/itm/406431647826?var=676750282312",
+    }],
+  };
+  assert.equal(isExactEbayCrossProductParentVariant(input), true);
+  assert.equal(isExactEbayCrossProductParentVariant({
+    ...input,
+    externalVariantId: "v1|406431647826|676750282318",
+    row: {
+      ...input.row,
+      external_variant_id: "v1|406431647826|676750282318",
+      external_url: "https://www.ebay.co.uk/itm/406431647826?var=676750282318",
+    },
+  }), false);
+});
+
+test("an explicit canonical variant ID may use its exact flavour label when a legacy flavour code is stale", async () => {
+  const saltedCaramel = {
+    ...defaultVariant({ id: "2710", is_default: false }),
+    variant_key: "salted-caramel-73g-12-pack",
+    display_name: "Salted Caramel Box of 12 / 73g",
+    flavour_code: "salted-caramel-85g-12-pack",
+    flavour_label: "Salted Caramel",
+    size_value: 73,
+    size_unit: "g",
+    pack_count: 12,
+    product_format: "snack",
+  };
+  const exact = await resolveDefaultFixture(
+    {
+      product_name: "Critical Cookie 12 x 73g",
+      slug: "critical-cookie-12-x-85g",
+      brand: "Applied Nutrition",
+      category: "Protein Bars",
+      product_variant_id: "2710",
+      variant_name: "Salted Caramel Box of 12 / 73g",
+      flavour: "Salted Caramel",
+      size: "73",
+      size_unit: "g",
+      pack_count: "12",
+      product_format: "snack",
+      external_options: JSON.stringify({ Flavour: "Salted Caramel", Size: "73g" }),
+    },
+    [defaultVariant(), saltedCaramel]
+  );
+  assert.equal(exact.report.blockedRows.length, 0, JSON.stringify(exact.report.blockedRows));
+  assert.equal(exact.report.approvedRows[0].importPlan.product_variant.id, "2710");
+
+  const unpinned = await resolveDefaultFixture(
+    {
+      product_name: "Critical Cookie 12 x 73g",
+      slug: "critical-cookie-12-x-85g",
+      brand: "Applied Nutrition",
+      category: "Protein Bars",
+      variant_name: "Salted Caramel Box of 12 / 73g",
+      flavour: "Salted Caramel",
+      size: "73",
+      size_unit: "g",
+      pack_count: "12",
+      product_format: "snack",
+      external_options: JSON.stringify({ Flavour: "Salted Caramel", Size: "73g" }),
+    },
+    [defaultVariant(), saltedCaramel]
+  );
+  assert.equal(unpinned.report.approvedRows.length, 0);
+  assert.match(unpinned.report.blockedRows[0].reason, /missing canonical product_variant/i);
+});
+
 test("exact reviewed PER4M 12 x 62g bar family passes the final safe-create guard", () => {
   assert.deepEqual(getSafeCreateExclusionReasons({
     product_name: "PER4M Protein Bars Box of 12 x 62g",

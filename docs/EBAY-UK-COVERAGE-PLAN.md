@@ -2827,6 +2827,22 @@ owner-reviewed production design and approval.
 
 ## Decision changelog
 
+### 22 August 2026
+
+- Recorded the owner's approval of all 20 numbered Batch P listings and sealed
+  the exact guarded package: 20 dry-run plans, zero blockers and zero writes.
+- The package contains 11 exact returned-GTIN rows and nine exact
+  owner-reviewed missing-GTIN rows. All 20 sellers are business accounts; the
+  owner explicitly accepted three feedback-percentage exceptions and one
+  feedback-score exception after they were disclosed in the numbered review.
+- Nine rows would create a second retailer and 11 extend eBay coverage on
+  products already carrying another eBay variant. Production remains unchanged
+  until the exact protected Batch P workflow succeeds on `main`.
+- Reused the existing importer, exact item revalidation and guarded executor.
+  The Critical Cookie shared parent is allowlisted only for product `468`,
+  variant `2710`, item `v1|406431647826|676750282319`, its exact URL and exact
+  options; unpinned use of the stale legacy flavour code remains blocked.
+
 ### 21 August 2026
 
 - Recorded the owner's approval of all 20 Batch O rows and prepared the exact
