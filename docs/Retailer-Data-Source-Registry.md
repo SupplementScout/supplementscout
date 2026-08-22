@@ -552,6 +552,22 @@ Products with at least 2 active retailers.
   Do not repeat Batches A-O, reintroduce excluded Batch N row 5 or widen the
   reviewed Batch O shared-parent and missing-GTIN contracts.
 
+## eBay UK Batch P prepared record - 22 August 2026
+
+- The owner approved all 20 numbered Batch P business-seller listings after
+  reviewing direct eBay links, delivered prices and the four disclosed seller
+  threshold exceptions.
+- The immutable dry-run contains exactly 20 create plans, zero blockers and
+  zero writes: 11 exact returned-GTIN identities and nine exact
+  owner-reviewed missing-GTIN identities.
+- Nine offers are projected to create a second current retailer and 11 to add a
+  new eBay variant on an already eBay-covered product. This is preparation
+  evidence only; the live 141-offer and 188/250 checkpoints remain authoritative
+  until the protected apply, independent readback and public verification pass.
+- Batch P reuses the existing importer, executor and refresh path. The single
+  shared-parent exception is exact to Critical Cookie product `468`, variant
+  `2710` and eBay variation `676750282319`.
+
 ## Initial registry template
 
 | Retailer | Platform | Source | Affiliate network | Feed | Overlap | Commercial score | Integration score | Status | Next action |

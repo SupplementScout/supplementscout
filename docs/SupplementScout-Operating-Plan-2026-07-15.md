@@ -2958,6 +2958,21 @@ progress through its normal page roadmap.
   idempotency check. The workflow no longer runs on ordinary pushes; only its
   daily schedule and explicit manual operations remain.
 
+### 22 August 2026 - eBay Batch P prepared checkpoint
+
+- The owner approved all 20 numbered Batch P listings, including the four
+  seller-threshold exceptions disclosed in the review list.
+- Exact guarded evidence now contains 20 create plans, zero blockers and zero
+  writes: 11 returned-GTIN matches and nine exact owner-reviewed missing-GTIN
+  rows, all from business sellers.
+- Nine rows are projected to advance the multi-retailer checkpoint and 11 add
+  another eBay variant to products already covered by eBay. The authoritative
+  live checkpoint remains 188/250 until protected apply and live evidence pass.
+- The work reuses the existing importer, exact-item preflight, split-role
+  executor and shared refresh. Production apply is limited to the sealed Batch P
+  identities on `main`; no new scheduler or autonomous catalogue authority was
+  introduced.
+
 ---
 
 ## 19. How to use this document
