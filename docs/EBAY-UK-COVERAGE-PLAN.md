@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 161-OFFER ROLLOUT LIVE VERIFIED; BATCH P COMPLETE 20/20
-**Last verified:** 22 August 2026
-**Production writes:** 161 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 161 mappings, 161 offers, 161 initial price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 161 live eBay offers
+**Status:** CONTROLLED 219-OFFER ROLLOUT LIVE VERIFIED; BATCH R COMPLETE 39/39 (38 CREATES + 1 VERIFIED EXISTING NO-OP)
+**Last verified:** 23 August 2026
+**Production writes:** 219 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 219 mappings, 219 offers, 219 initial price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 219 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,10 +41,10 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 161-offer rollout are complete. The
+read-only Browse pilot and the controlled 219-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
-production evidence includes the Batch P apply and exact-offer refresh below.
-The exact-161 daily refresh is enabled at `05:43 UTC`; each
+production evidence includes the Batch R apply and exact-offer refresh below.
+The exact-219 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
 evidence changes. Batch G added exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
@@ -210,6 +210,26 @@ same shared refresh at exact 181 as
 `cdf25c1902bec7ed7f83264c6a448e7f414fa7b8`; protected dry-run
 `32571366605` passed 181 eligible, zero blocked and zero writes. Live
 product-level multi-retailer coverage is 211/250, leaving 39.
+
+Batch R is live verified 39/39. The owner approved 11 replacements and the
+production apply with `zatwierdzam 11 zamian i produkcyjny apply Batch R`.
+Fresh production discovery proved 38 actionable exact listings; Applied
+Nutrition Critical Greens was already represented by mapping `2888` and offer
+`2702`, so it remained a verified existing no-op instead of creating a
+duplicate. PR `#45` merged the guarded package as
+`d60737c4d0e62aaa1e8bb20382bbbf18f2b5812d`. Protected production run
+`32627418960` executed 38/38 and created mappings `2906`-`2943`, offers
+`2720`-`2757` and 38 initial price-history rows. Artifact `9490098852` has
+digest `f70a31824296ac9e6d4883ec9b65a02badb0483a5667116160172c299226e332`.
+The immediate postflight, independent database readback and 38 public-page
+checks passed. PR `#46` extended the same shared refresh from 181 to exact 219
+as `8392fd9a0b085d01a452687f686bef32df5b46f9`. Protected production-readonly
+run `32628541876` passed 219/219 eligible, 219 `verify_no_change`, zero blockers
+and zero writes; apply steps were skipped and automatic-OOS blocking remains
+active. Evidence artifact `9490436417` has digest
+`ff9313904a73fe6d387e1e086deea73a352ff6b84939fc0d88c367bfba3f611e`.
+The production-wide checkpoint is 232/250, leaving 18. Batch R must not be
+replayed.
 
 Batch O is live verified 20/20. The
 owner confirmed `zatwierdzam wszystkie, nie pytaj o potwierdzenia, doprowadz do
@@ -2073,8 +2093,8 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Continue the owner-approved 250-product multi-retailer coverage
-phase from the live 191-product checkpoint, leaving 59. Do not repeat Batches
-A-P, return to an older refresh scope, create a second scheduler or widen any
+phase from the live 232-product checkpoint, leaving 18. Do not repeat Batches
+A-R, return to an older refresh scope, create a second scheduler or widen any
 reviewed shared-parent identity. Select the next bounded exact
 candidate set that adds independent retailer coverage to existing products and
 retain owner review before a new production scope.`
@@ -2085,7 +2105,14 @@ owner-reviewed production design and approval.
 
 ## Last verified
 
-22 August 2026:
+23 August 2026:
+
+- `BATCH R LIVE VERIFIED 39/39`: PR `#45` and run `32627418960` created 38
+  mappings/offers/history rows while one Critical Greens identity remained an
+  exact existing no-op. Independent database and 38-page public readbacks
+  passed. PR `#46` extended the shared refresh to exact 219; protected
+  production-readonly run `32628541876` passed 219/219, zero blocked and zero
+  writes. Live product-level multi-retailer coverage is 232/250, leaving 18.
 
 - `BATCH Q LIVE VERIFIED 20/20`: PR `#42` merged as
   `1f7860b5a68010c0d0577082cd7d8dcbd21bf34d`; protected production run
@@ -2891,6 +2918,17 @@ owner-reviewed production design and approval.
   implementation part; it still made no live eBay call or production write.
 
 ## Decision changelog
+
+### 23 August 2026
+
+- Completed Batch R for all 39 final owner-approved identities as 38 guarded
+  creates and one verified existing Critical Greens no-op. Production run
+  `32627418960` created mappings `2906`-`2943`, offers `2720`-`2757` and 38
+  history rows; independent readback and public-page verification passed.
+- Extended the one shared refresh to exact 219 through PR `#46`; protected
+  run `32628541876` passed 219/219, zero blocked and zero writes, with all apply
+  steps skipped and automatic-OOS blocking retained.
+- Advanced the deduplicated multi-retailer KPI to 232/250, leaving 18.
 
 ### 22 August 2026
 
