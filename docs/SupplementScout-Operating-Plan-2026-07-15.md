@@ -986,6 +986,24 @@ and automatic-OOS blocking remains active. The authoritative multi-retailer
 checkpoint is now 232/250, leaving 18. Batch R is **LIVE VERIFIED 39/39** and
 must not be replayed.
 
+The owner then approved all 18 final Batch S listings with `wszystkie sa
+dobre`. PR `#48` merged the exact guarded package as
+`e76289a2b1fc20dd8b2ecdb14a2e872ae89c125e`. Protected production run
+`32632336319` freshly re-read all 18 listings, created mappings `2944`-`2961`,
+offers `2758`-`2775` and 18 history rows, then passed its exact 18-row no-op
+postflight. An independent production-owner read verified all 18 active
+positive-price offers and the deduplicated KPI at **250/250**. PR `#49` merged
+the same 18 identities into the one shared guarded refresh, expanding its
+sealed scope from 219 to 237. Its first production-readonly run `32632937687`
+verified offers `2539`-`2669` (131 rows), then eBay source reads were
+rate-blocked for the contiguous remainder `2670`-`2775`; all 106 affected rows
+failed closed as `SOURCE_READ_FAILED`, automatic OOS remained blocked and the
+run made zero writes. Batch S is **LIVE VERIFIED 18/18**, the 250-product
+multi-retailer coverage milestone is complete, and Batch S must not be
+replayed. The combined 237-row refresh still requires a later complete
+production-readonly pass after the eBay read limit resets; this operational
+evidence gap does not change the independently verified 250/250 KPI.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
@@ -3038,6 +3056,23 @@ progress through its normal page roadmap.
   production-readonly run `32628541876` passed 219/219, zero blocked and zero
   writes; apply steps were skipped and automatic-OOS remains blocked.
 - The authoritative live multi-retailer checkpoint is 232/250, leaving 18.
+
+### 23 August 2026 - eBay Batch S and 250/250 milestone closeout
+
+- The owner approved the exact final 18 Batch S listings with `wszystkie sa
+  dobre`.
+- PR `#48` and protected production run `32632336319` created mappings
+  `2944`-`2961`, offers `2758`-`2775` and 18 history rows; the fresh listing
+  preflight and exact postflight both passed 18/18.
+- An independent production read verified 18 active positive-price offers and
+  advanced the deduplicated multi-retailer KPI from 232 to **250/250**.
+- PR `#49` registered the exact production IDs in the one shared refresh,
+  expanding it from 219 to 237. Read-only run `32632937687` verified 131 rows
+  before the eBay read limit blocked the final contiguous 106 as
+  `SOURCE_READ_FAILED`; it made zero writes and automatic OOS remained blocked.
+- Batch S is live verified and must not be replayed. The commercial coverage
+  milestone is complete; only a later complete 237-row read-only refresh pass
+  remains as operational evidence after the eBay limit resets.
 
 ### 22 August 2026 - eBay Batch P live closeout
 
