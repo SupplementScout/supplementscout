@@ -900,6 +900,42 @@ the production build passed. This is local `CODE COMPLETE` evidence only. No
 push, deployment, refresh workflow or production write occurred. GYM HIGH
 remains owner-deferred from brand and retailer publication.
 
+### 0.0.17 SEO-13 Protein Bars local checkpoint - 23 August 2026
+
+The owner accepted Protein P0 as completed and production verified, without
+authorising any further P0 change. `SEO-13` remains the single active SEO
+implementation and has resumed with only the bounded Protein Bars unit.
+
+A fresh production read-only audit at `2026-08-23T13:28:18.905Z` found `52`
+active, unmerged canonical products in exact category `Protein Bars`, `183`
+active variants and `187` embedded offers. Reviewed product-format,
+active-variant and consistent known-pack controls leave `10` eligible products.
+Within 24 hours, `4` products have `27` fresh exact-pack offers from `3`
+retailers; `3` products have at least two current retailers and there are `2`
+comparison retailers. The unchanged `3 / 2 / 20` gate therefore passes at
+`3 / 2 / 27`. Every included offer has a known delivered price.
+
+The visible packs are Grenade Carb Killa Protein Bar `1 x 60g`, Optimum
+Nutrition Protein Crisp Bar `10 x 65g`, Clif Bar Energy Bar `12 x 68g` and
+PER4M Protein Bars Box `12 x 62g`. Mixed or unresolved packs fail closed.
+Verified product-level unit-count coverage is `0/4`, so exact pack and delivered
+price are visible while price per bar and nutrition-dependent value metrics are
+not inferred or rendered.
+
+The local `/protein-bars` implementation reuses the existing comparison,
+variant-resolution, delivered-price, freshness, analytics, readiness-sitemap,
+metadata and schema mechanisms. It adds one reviewed route and no dynamic page
+generator, catalogue variant or data importer. Focused regressions, TypeScript,
+Project Guardian, the quick/full quality gates, the production build and a
+local production-server check pass. The route is `CODE COMPLETE`, not `LIVE
+VERIFIED`; the next action is owner review followed by a separate commit,
+release and read-only public verification. No push, refresh workflow or
+production-data write occurred. GYM HIGH remains owner-deferred.
+
+One unrelated technical SEO follow-up is recorded but explicitly excluded from
+SEO-13: the homepage lacks an explicit self-canonical and emits no JSON-LD.
+Either change requires separate owner approval.
+
 The next production read-only SEO-14 opportunity audit reviewed every other
 canonical brand through the same 24-hour and `20 / 10 / 3 / 50 / 5` contract.
 Only Per4m and BioTech USA passed. Per4m is the stronger first candidate at `33`
@@ -2609,10 +2645,10 @@ Target experience:
 
 ### Current active task
 
-`SEO-13` is the single active implementation. First release and live-verify the
-owner-approved Protein P0 exact-variant, sitemap and subtype-linking safety fix;
-then resume only the bounded Protein Bars classification, exact-pack and
-unchanged coverage-gate review without repeating completed pages. SEO-14 is live verified after launching useful,
+`SEO-13` is the single active implementation. The owner accepted Protein P0 as
+production verified. The bounded `/protein-bars` unit now passes the unchanged
+exact-pack gate at `3 / 2 / 27` and is locally `CODE COMPLETE`; owner review,
+commit, release and read-only public verification are next. SEO-14 is live verified after launching useful,
 individually gated brand and retailer pages through the existing catalogue and
 page-quality mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
@@ -2666,10 +2702,9 @@ publication.
 
 ### Next task
 
-Release and live-verify the locally complete Protein P0 without any refresh or
-nutrition data write. Then complete the active `SEO-13` bounded Protein Bars
-classification, exact-pack and unchanged coverage-gate review. Do not repeat
-completed SEO-13 pages or weaken its gate.
+Review, commit, release and live-verify the locally complete `/protein-bars`
+unit without any refresh or production-data write. Do not repeat completed
+SEO-13 pages or weaken its readiness gate.
 
 ### Then
 

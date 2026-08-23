@@ -241,7 +241,7 @@ test("unapproved category paths cannot enter product structured data", () => {
 });
 
 test("comparison category routing is shared, exact and safely falls back", () => {
-  assert.equal(COMPARISON_CATEGORY_LINKS.length, 14);
+  assert.equal(COMPARISON_CATEGORY_LINKS.length, 15);
   assert.equal(
     new Set(COMPARISON_CATEGORY_LINKS.map(({ href }) => href)).size,
     COMPARISON_CATEGORY_LINKS.length
@@ -252,6 +252,7 @@ test("comparison category routing is shared, exact and safely falls back", () =>
   });
   assert.equal(comparisonLinkForCategory("Creatine blends"), null);
   assert.equal(categoryBrowseHref("Creatine"), "/creatine");
+  assert.equal(categoryBrowseHref("Protein Bars"), "/protein-bars");
   assert.equal(
     categoryBrowseHref("Joint support & mobility"),
     "/search?q=Joint%20support%20%26%20mobility"

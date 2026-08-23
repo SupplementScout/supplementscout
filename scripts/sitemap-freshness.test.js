@@ -79,11 +79,13 @@ test("readiness-gated noindex paths are excluded while ungated paths remain", ()
     ["/whey-protein", true],
     ["/whey-isolate", false],
     ["/mass-gainer", false],
+    ["/protein-bars", true],
   ]);
 
   assert.equal(isSitemapPathIndexable("/whey-protein", readiness), true);
   assert.equal(isSitemapPathIndexable("/whey-isolate", readiness), false);
   assert.equal(isSitemapPathIndexable("/mass-gainer", readiness), false);
+  assert.equal(isSitemapPathIndexable("/protein-bars", readiness), true);
   assert.equal(isSitemapPathIndexable("/about", readiness), true);
   assert.match(sitemapSource, /getSitemapIndexability\(\)/);
   assert.match(sitemapSource, /isSitemapPathIndexable\(path, indexability\)/);

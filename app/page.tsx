@@ -17,6 +17,7 @@ const popularSearches = [
   { label: "Whey isolate", href: "/whey-isolate" },
   { label: "Vegan protein", href: "/vegan-protein" },
   { label: "Mass gainer", href: "/mass-gainer" },
+  { label: "Protein bars", href: "/protein-bars" },
   { label: "Multivitamins", href: "/multivitamins" },
   { label: "Pre Workout", href: "/pre-workout" },
   { label: "Amino Acids", href: "/amino-acids" },

@@ -117,6 +117,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/protein-bars`,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/multivitamins`,
     changeFrequency: "daily",
     priority: 0.9,

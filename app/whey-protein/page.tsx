@@ -543,6 +543,9 @@ export function WheyProteinPageContent({
             <Link href="/mass-gainer" className="font-semibold underline">
               Mass Gainer comparison
             </Link>
+            <Link href="/protein-bars" className="font-semibold underline">
+              Protein Bars comparison
+            </Link>
             <Link
               href="/search?q=whey%20protein"
               className="font-semibold underline"

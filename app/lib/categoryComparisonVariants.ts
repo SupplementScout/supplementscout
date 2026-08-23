@@ -33,10 +33,12 @@ export async function resolveCategoryComparisonVariants<
     .select(`
       id,
       product_variant:product_variants!retailer_products_variant_product_fkey (
+        pack_count,
         size_value,
         size_unit,
         product_format,
-        nutrition_override
+        nutrition_override,
+        is_active
       )
     `)
     .in("id", retailerProductIds);

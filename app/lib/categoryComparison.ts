@@ -19,11 +19,13 @@ type EffectiveComparisonNutrition = {
   unit_pricing_verified: boolean | null;
   nutrition_verified: boolean | null;
 };
-type ComparisonNutritionVariant = {
+export type ComparisonNutritionVariant = {
+  pack_count?: NutritionScalar;
   size_value?: NutritionScalar;
   size_unit?: string | null;
   product_format?: string | null;
   nutrition_override?: Record<string, unknown> | null;
+  is_active?: boolean | null;
 } | null;
 
 export type RawComparisonRetailer = {
@@ -240,6 +242,10 @@ export function normalizeCategoryComparison(
   products: RawCategoryComparisonProduct[],
   options: {
     isProductInScope: (product: RawCategoryComparisonProduct) => boolean;
+    isOfferInScope?: (
+      product: RawCategoryComparisonProduct,
+      offer: RawComparisonOffer
+    ) => boolean;
     isOfferFresh?: (checkedAt: string | null, now: Date) => boolean;
     resolveNutritionMetrics?: (
       product: EffectiveComparisonNutrition,
@@ -255,7 +261,10 @@ export function normalizeCategoryComparison(
   const rows = scopedProducts
     .map((product): CategoryComparisonRow | null => {
       const rawOffers = product.offers || [];
-      const offers = rawOffers
+      const scopedOffers = rawOffers.filter(
+        (offer) => !options.isOfferInScope || options.isOfferInScope(product, offer)
+      );
+      const offers = scopedOffers
         .map((offer) => normalizeOffer(offer, now, options.isOfferFresh))
         .filter((offer): offer is CategoryComparisonOffer => offer !== null)
         .sort(offerSort);
@@ -264,7 +273,10 @@ export function normalizeCategoryComparison(
         (offer) =>
           offer.in_stock === true &&
           getKnownProductPrice(offer.price) !== null &&
-          normalizeOffer(offer, now, options.isOfferFresh) === null
+          (
+            (options.isOfferInScope && !options.isOfferInScope(product, offer)) ||
+            normalizeOffer(offer, now, options.isOfferFresh) === null
+          )
       ).length;
 
       if (offers.length === 0) return null;

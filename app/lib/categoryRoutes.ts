@@ -10,6 +10,7 @@ export const COMPARISON_CATEGORY_LINKS = Object.freeze([
   { label: "Whey Isolate", href: "/whey-isolate" },
   { label: "Vegan Protein", href: "/vegan-protein" },
   { label: "Mass Gainer", href: "/mass-gainer" },
+  { label: "Protein Bars", href: "/protein-bars" },
   { label: "Multivitamins", href: "/multivitamins" },
   { label: "Pre Workout", href: "/pre-workout" },
   { label: "Amino Acids", href: "/amino-acids" },

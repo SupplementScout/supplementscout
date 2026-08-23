@@ -32,6 +32,10 @@ import {
   getPreWorkoutComparison,
 } from "./preWorkoutComparison";
 import {
+  evaluateProteinBarsIndexability,
+  getProteinBarsComparison,
+} from "./proteinBarsComparison";
+import {
   evaluateVeganProteinIndexability,
   getVeganProteinComparison,
 } from "./veganProteinComparison";
@@ -79,6 +83,13 @@ const checks: ReadinessCheck[] = [
   {
     path: "/mass-gainer",
     check: categoryCheck(getMassGainerComparison, evaluateMassGainerIndexability),
+  },
+  {
+    path: "/protein-bars",
+    check: categoryCheck(
+      getProteinBarsComparison,
+      evaluateProteinBarsIndexability
+    ),
   },
   {
     path: "/multivitamins",
