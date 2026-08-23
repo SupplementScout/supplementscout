@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_181";
-const KIND = "ebay-existing-offer-refresh-exact-181-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_219";
+const KIND = "ebay-existing-offer-refresh-exact-219-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -82,6 +82,27 @@ const REVIEWED_MISSING_GTIN_CONTINUITY = new Map([
   ["2717", { seller: "z.m.s.limited", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
   ["2718", { seller: "ccolta", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
   ["2719", { seller: "premium_supps", review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2720", { seller: "themadtitansupplements", blockers: new Set(["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2721", { seller: "protein_ni", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2724", { seller: "planszowki", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2731", { seller: "fitgamerltd", returned_gtin: "5060245603423", blockers: new Set(["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH", "GTIN_MISMATCH"]), review_reasons: new Set() }],
+  ["2732", { seller: "jersupplementsales", blockers: new Set(["CANONICAL_GTIN_INVALID", "FORMAT_MISMATCH"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2733", { seller: "welzohealth", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2734", { seller: "ultimate_fitness_4u", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2736", { seller: "protein_ni", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2737", { seller: "protein_ni", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2738", { seller: "occastore_limited", blockers: new Set(["CANONICAL_GTIN_INVALID", "FORMAT_MISMATCH"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2739", { seller: "startfitness-outlet", blockers: new Set(["CANONICAL_GTIN_INVALID", "FORMAT_MISMATCH"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]) }],
+  ["2741", { seller: "the_sup_store", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"]) }],
+  ["2742", { seller: "beastbody", returned_gtin: "810028291942", blockers: new Set(["CANONICAL_GTIN_INVALID", "GTIN_MISMATCH", "SIZE_MISMATCH"]), review_reasons: new Set() }],
+  ["2743", { seller: "zambargain.house", blockers: new Set(["CANONICAL_GTIN_INVALID", "FORMAT_MISMATCH"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2747", { seller: "6packsupplementsuk", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN", "SELLER_SCORE_BELOW_PROPOSED_THRESHOLD"]) }],
+  ["2749", { seller: "nutrafituk", returned_gtin: "5902114010133", blockers: new Set(["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH", "GTIN_MISMATCH"]), review_reasons: new Set() }],
+  ["2750", { seller: "muscle-factory-co-uk", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["FORMAT_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2752", { seller: "ultimate_fitness_4u", returned_gtin: "5056555205402", blockers: new Set(["CANONICAL_GTIN_INVALID", "GTIN_MISMATCH", "UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2753", { seller: "ultimate_fitness_4u", blockers: new Set(["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH", "FORMAT_MISMATCH"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
+  ["2754", { seller: "thesupplementstoreuk", blockers: new Set(["CANONICAL_GTIN_INVALID"]), review_reasons: new Set(["FLAVOUR_UNPROVEN", "RETURNED_GTIN_UNPROVEN"]) }],
+  ["2756", { seller: "fitnesshealthltd", blockers: new Set(["CANONICAL_GTIN_INVALID", "FORMAT_MISMATCH"]), review_reasons: new Set(["RETURNED_GTIN_UNPROVEN"]) }],
 ]);
 const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2570", { seller: "appliednutritionplc", blockers: new Set(["UNIT_COUNT_MISMATCH"]), review_reasons: new Set(["SIZE_UNPROVEN"]) }],
@@ -107,6 +128,17 @@ const REVIEWED_EXACT_GTIN_CONTINUITY = new Map([
   ["2682", { seller: "ihrisironworks", blockers: new Set(), review_reasons: new Set(["SELLER_SCORE_BELOW_PROPOSED_THRESHOLD"]) }],
   ["2688", { seller: "vikingshopsuple", blockers: new Set(), review_reasons: new Set(["SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
   ["2708", { seller: "superfoodmarket", blockers: new Set(), review_reasons: new Set(["FORMAT_UNPROVEN", "SELLER_FEEDBACK_BELOW_PROPOSED_THRESHOLD"]) }],
+  ["2722", { seller: "powerbodyltd", blockers: new Set(["BRAND_MISMATCH"]), review_reasons: new Set() }],
+  ["2723", { seller: "trainingfuels", blockers: new Set(["BRAND_MISMATCH"]), review_reasons: new Set() }],
+  ["2725", { seller: "ultimate_fitness_4u", blockers: new Set(["SIZE_MISMATCH"]), review_reasons: new Set() }],
+  ["2726", { seller: "powerbodyltd", blockers: new Set(["SIZE_MISMATCH"]), review_reasons: new Set() }],
+  ["2730", { seller: "powerbodyltd", blockers: new Set(["BRAND_MISMATCH"]), review_reasons: new Set() }],
+  ["2735", { seller: "myfit24ecom", blockers: new Set(["FORMAT_MISMATCH"]), review_reasons: new Set() }],
+  ["2744", { seller: "powerbodyltd", blockers: new Set(["BRAND_MISMATCH"]), review_reasons: new Set() }],
+  ["2745", { seller: "powerbodyltd", blockers: new Set(["BRAND_MISMATCH"]), review_reasons: new Set() }],
+  ["2748", { seller: "ukesupps-2008", blockers: new Set(["BRAND_MISMATCH", "UNIT_COUNT_MISMATCH"]), review_reasons: new Set() }],
+  ["2755", { seller: "icebergsupplements", blockers: new Set(["BRAND_MISMATCH", "FORMAT_MISMATCH"]), review_reasons: new Set(["FLAVOUR_UNPROVEN"]) }],
+  ["2757", { seller: "powerbodyltd", blockers: new Set(["SIZE_MISMATCH"]), review_reasons: new Set() }],
 ]);
 const ROLLOUTS = Object.freeze([
   { csv: "bootstrap.csv", approval: "rollout.json", count: 1 },
@@ -127,6 +159,7 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-o.csv", approval: "batch-o-rollout.json", count: 20 },
   { csv: "batch-p.csv", approval: "batch-p-rollout.json", count: 20 },
   { csv: "batch-q.csv", approval: "batch-q-rollout.json", count: 20 },
+  { csv: "batch-r.csv", approval: "batch-r-rollout.json", count: 38 },
 ]);
 const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|394018039646|662564730389", ["2784", "2599"]], ["v1|256978504929|557601659147", ["2785", "2600"]],
@@ -190,6 +223,25 @@ const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|276358420222|0", ["2900", "2714"]], ["v1|398059958397|0", ["2901", "2715"]],
   ["v1|397974125581|0", ["2902", "2716"]], ["v1|297974730806|0", ["2903", "2717"]],
   ["v1|387640181610|0", ["2904", "2718"]], ["v1|155926124418|0", ["2905", "2719"]],
+  ["v1|406396487824|676718471799", ["2906", "2720"]], ["v1|198228877102|497356872937", ["2907", "2721"]],
+  ["v1|147306765663|445732030633", ["2908", "2722"]], ["v1|325991814548|515421410637", ["2909", "2723"]],
+  ["v1|167879148689|467421651920", ["2910", "2724"]], ["v1|134591032739|434103081092", ["2911", "2725"]],
+  ["v1|135253043475|434696910530", ["2912", "2726"]], ["v1|327060618170|0", ["2913", "2727"]],
+  ["v1|227132642275|0", ["2914", "2728"]], ["v1|176728986438|0", ["2915", "2729"]],
+  ["v1|145912801501|444959160336", ["2916", "2730"]], ["v1|800319414198|657404220498", ["2917", "2731"]],
+  ["v1|336035176429|545582222745", ["2918", "2732"]], ["v1|227482522680|526660650424", ["2919", "2733"]],
+  ["v1|132815030478|432119091530", ["2920", "2734"]], ["v1|297783388039|595073149727", ["2921", "2735"]],
+  ["v1|198315032211|497400846557", ["2922", "2736"]], ["v1|198315034246|497400845270", ["2923", "2737"]],
+  ["v1|157949041527|459285588036", ["2924", "2738"]], ["v1|376399851938|645034081397", ["2925", "2739"]],
+  ["v1|394019431788|662565823099", ["2926", "2740"]], ["v1|316166161203|614844035757", ["2927", "2741"]],
+  ["v1|234899416364|534748630032", ["2928", "2742"]], ["v1|286812035548|589268195266", ["2929", "2743"]],
+  ["v1|135164731160|434814771499", ["2930", "2744"]], ["v1|145913175539|444959128709", ["2931", "2745"]],
+  ["v1|163375678688|462680657033", ["2932", "2746"]], ["v1|404858427882|0", ["2933", "2747"]],
+  ["v1|354343324643|623744168324", ["2934", "2748"]], ["v1|137239727747|435555053157", ["2935", "2749"]],
+  ["v1|406431647826|676750282318", ["2936", "2750"]], ["v1|326796105372|515780120438", ["2937", "2751"]],
+  ["v1|146722603644|0", ["2938", "2752"]], ["v1|133391840181|0", ["2939", "2753"]],
+  ["v1|256904088070|557459693860", ["2940", "2754"]], ["v1|235526727416|0", ["2941", "2755"]],
+  ["v1|267647291151|0", ["2942", "2756"]], ["v1|147032518200|445550089805", ["2943", "2757"]],
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -234,7 +286,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 181) fail("Exact eBay refresh manifest must contain 181 rows");
+  if (rows.length !== 219) fail("Exact eBay refresh manifest must contain 219 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => {
@@ -290,9 +342,10 @@ function classifyContinuity(scope, evaluation) {
   const reasons = new Set(evaluation.review_reasons);
   const reviewed = REVIEWED_MISSING_GTIN_CONTINUITY.get(scope.offer_id);
   const reviewedExactGtin = REVIEWED_EXACT_GTIN_CONTINUITY.get(scope.offer_id);
-  const expectedBlockers = scope.gtin ? new Set() : new Set(["CANONICAL_GTIN_INVALID"]);
+  const expectedBlockers = reviewed?.blockers || (scope.gtin ? new Set() : new Set(["CANONICAL_GTIN_INVALID"]));
+  const expectedReturnedGtin = reviewed && Object.hasOwn(reviewed, "returned_gtin") ? reviewed.returned_gtin : null;
   if (
-    evaluation.returned_gtin === null && reviewed && evaluation.seller?.username === reviewed.seller && evaluation.seller?.account_type === "BUSINESS" &&
+    evaluation.returned_gtin === expectedReturnedGtin && reviewed && evaluation.seller?.username === reviewed.seller && evaluation.seller?.account_type === "BUSINESS" &&
     blockers.size === expectedBlockers.size && [...blockers].every((blocker) => expectedBlockers.has(blocker)) &&
     reasons.size === reviewed.review_reasons.size && [...reasons].every((reason) => reviewed.review_reasons.has(reason))
   ) return { eligible: true, tier: "sealed_owner_reviewed_missing_gtin_continuity" };
