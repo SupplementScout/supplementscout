@@ -246,7 +246,7 @@ test("official-store search is bounded to the exact business seller username", a
   resetTokenCache();
 });
 
-test("eBay refresh is frozen to the exact 181 approved existing offers", () => {
+test("eBay refresh is frozen to the exact 219 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
@@ -255,13 +255,13 @@ test("eBay refresh is frozen to the exact 181 approved existing offers", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
-  assert.equal(REFRESH_SCOPES.length, 181);
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 181 }, (_, index) => String(2539 + index)));
+  assert.equal(REFRESH_SCOPES.length, 219);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 219 }, (_, index) => String(2539 + index)));
   assert.deepEqual(REFRESH_SCOPES.slice(0, 60).map((scope) => scope.retailer_product_id), Array.from({ length: 60 }, (_, index) => String(2724 + index)));
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 181);
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 219);
   assert.deepEqual(REFRESH_SCOPES.slice(-2).map((scope) => ({ product_id: scope.product_id, product_variant_id: scope.product_variant_id, retailer_product_id: scope.retailer_product_id, offer_id: scope.offer_id })), [
-    { product_id: "456", product_variant_id: "440", retailer_product_id: "2904", offer_id: "2718" },
-    { product_id: "217", product_variant_id: "166", retailer_product_id: "2905", offer_id: "2719" },
+    { product_id: "1120", product_variant_id: "2435", retailer_product_id: "2942", offer_id: "2756" },
+    { product_id: "169", product_variant_id: "1015", retailer_product_id: "2943", offer_id: "2757" },
   ]);
   assert.equal(new Set(REFRESH_SCOPES.slice(0, 22).map((scope) => scope.gtin)).size, 22);
   assert.ok(REFRESH_SCOPES.slice(22, 31).every((scope) => scope.gtin === ""));
@@ -545,7 +545,7 @@ test("Batch L refresh continuity is sealed to the six exact reviewed exceptions"
 });
 
 test("Batch O refresh continuity is sealed to the nine owner-reviewed missing-GTIN listings", () => {
-  const scopes = new Map(REFRESH_SCOPES.slice(-60, -40).map((scope) => [scope.offer_id, scope]));
+  const scopes = new Map(REFRESH_SCOPES.filter((scope) => Number(scope.offer_id) >= 2660 && Number(scope.offer_id) <= 2679).map((scope) => [scope.offer_id, scope]));
   const reviewed = new Map([
     ["2661", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
     ["2662", ["trainingfuels", ["RETURNED_GTIN_UNPROVEN"]]],
@@ -576,7 +576,7 @@ test("Batch O refresh continuity is sealed to the nine owner-reviewed missing-GT
 });
 
 test("Batch P refresh continuity is sealed to its exact owner-reviewed exceptions", () => {
-  const scopes = new Map(REFRESH_SCOPES.slice(-40, -20).map((scope) => [scope.offer_id, scope]));
+  const scopes = new Map(REFRESH_SCOPES.filter((scope) => Number(scope.offer_id) >= 2680 && Number(scope.offer_id) <= 2699).map((scope) => [scope.offer_id, scope]));
   const evaluation = (offerId, seller, blockers, reasons, returnedGtin) => {
     const scope = scopes.get(offerId);
     return {
@@ -620,7 +620,7 @@ test("Batch P refresh continuity is sealed to its exact owner-reviewed exception
 });
 
 test("Batch Q refresh continuity is sealed to its eight exact owner-reviewed exceptions", () => {
-  const scopes = new Map(REFRESH_SCOPES.slice(-20).map((scope) => [scope.offer_id, scope]));
+  const scopes = new Map(REFRESH_SCOPES.filter((scope) => Number(scope.offer_id) >= 2700 && Number(scope.offer_id) <= 2719).map((scope) => [scope.offer_id, scope]));
   const evaluation = (offerId, seller, blockers, reasons, returnedGtin) => {
     const scope = scopes.get(offerId);
     return {
@@ -654,6 +654,33 @@ test("Batch Q refresh continuity is sealed to its eight exact owner-reviewed exc
   assert.equal(classifyContinuity(scopes.get("2705"), evaluation("2705", "gymstop", ["CANONICAL_GTIN_INVALID"], ["RETURNED_GTIN_UNPROVEN"], null)).eligible, false);
 });
 
+test("Batch R refresh continuity remains sealed to the exact approved item, seller and anomalies", () => {
+  const scopes = new Map(REFRESH_SCOPES.slice(-38).map((scope) => [scope.offer_id, scope]));
+  const evaluation = (offerId, seller, blockers, reasons, returnedGtin) => {
+    const scope = scopes.get(offerId);
+    return {
+      decision: blockers.length ? "REJECT" : "REVIEW",
+      item_id: scope.external_variant_id,
+      legacy_item_id: scope.external_product_id,
+      returned_gtin: returnedGtin,
+      blockers,
+      review_reasons: reasons,
+      affiliate_ready: true,
+      affiliate_url: scope.affiliate_url,
+      seller: { username: seller, account_type: "BUSINESS" },
+    };
+  };
+  const missing = scopes.get("2720");
+  assert.equal(classifyContinuity(missing, evaluation("2720", "themadtitansupplements", ["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH"], ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"], null)).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  const returned = scopes.get("2731");
+  assert.equal(classifyContinuity(returned, evaluation("2731", "fitgamerltd", ["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH", "GTIN_MISMATCH"], [], "5060245603423")).tier, "sealed_owner_reviewed_missing_gtin_continuity");
+  const exact = scopes.get("2722");
+  assert.equal(classifyContinuity(exact, evaluation("2722", "powerbodyltd", ["BRAND_MISMATCH"], [], exact.gtin)).tier, "sealed_owner_reviewed_exact_gtin_metadata_continuity");
+  assert.equal(classifyContinuity(missing, evaluation("2720", "different-seller", ["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH"], ["RETURNED_GTIN_UNPROVEN", "SIZE_UNPROVEN"], null)).eligible, false);
+  assert.equal(classifyContinuity(returned, evaluation("2731", "fitgamerltd", ["CANONICAL_GTIN_INVALID", "FLAVOUR_MISMATCH", "GTIN_MISMATCH"], [], "different-gtin")).eligible, false);
+  assert.equal(classifyContinuity(exact, evaluation("2722", "powerbodyltd", [], [], exact.gtin)).eligible, false);
+});
+
 test("eBay refresh isolates an unreadable listing without automatic OOS or stopping the remaining scope", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
   assert.match(source, /catch \{[\s\S]*blockers: \["SOURCE_READ_FAILED"\][\s\S]*continuity: \{ eligible: false, tier: "blocked" \}/);
@@ -683,7 +710,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_181/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_219/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
