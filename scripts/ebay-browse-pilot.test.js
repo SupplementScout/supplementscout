@@ -22,6 +22,7 @@ const { CONFIRMATION: BATCH_O_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_O_IDENTIT
 const { CONFIRMATION: BATCH_P_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_P_IDENTITIES, parseArgs: parseBatchPArgs, validateLiveSources: validateBatchPLiveSources, validateRollout: validateBatchPRollout } = require("./ebay-offer-batch-p-executor");
 const { CONFIRMATION: BATCH_Q_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_Q_IDENTITIES, parseArgs: parseBatchQArgs, validateLiveSources: validateBatchQLiveSources, validateRollout: validateBatchQRollout } = require("./ebay-offer-batch-q-executor");
 const { CONFIRMATION: BATCH_R_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_R_IDENTITIES, parseArgs: parseBatchRArgs, validateLiveSources: validateBatchRLiveSources, validateRollout: validateBatchRRollout } = require("./ebay-offer-batch-r-executor");
+const { CONFIRMATION: BATCH_S_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_S_IDENTITIES, parseArgs: parseBatchSArgs, validateLiveSources: validateBatchSLiveSources, validateRollout: validateBatchSRollout } = require("./ebay-offer-batch-s-executor");
 
 const identity = {
   product_id: "11", variant_id: "1002", brand: "USN", product_name: "USN Blue Lab Whey 2kg",
@@ -1552,6 +1553,49 @@ test("Batch R workflow is manual, exact-confirmation guarded and verifies 38 no-
   assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_R_EXACT_39/);
   assert.match(workflow, /--mode=preflight/);
   assert.match(workflow, /plans\.length!==38/);
+  assert.match(workflow, /retailer_product\.action!=="noop"/);
+  assert.doesNotMatch(workflow, /schedule:|\bpush:/);
+});
+
+test("Batch S owner approval seals exactly 18 second-retailer plans", () => {
+  const validated = validateBatchSRollout();
+  assert.equal(BATCH_S_CONFIRMATION, "OWNER_APPROVED_EBAY_BATCH_S_EXACT_18");
+  assert.equal(validated.rollout.owner_words, "wszystkie sa dobre");
+  assert.equal(validated.rollout.production_kpi_before, 232);
+  assert.equal(validated.entries.length, 18);
+  assert.equal(BATCH_S_IDENTITIES.length, 18);
+  assert.equal(new Set(BATCH_S_IDENTITIES).size, 18);
+  assert.equal(parseBatchSArgs(["--mode=preflight", "--output=tmp/batch-s-preflight.json"]).mode, "preflight");
+  assert.throws(() => parseBatchSArgs(["--mode=execute", "--output=tmp/batch-s.json"]), /preflight\|validate\|apply/);
+});
+
+test("Batch S live preflight rechecks all 18 approved item identities", async () => {
+  resetTokenCache();
+  const { entries } = validateBatchSRollout();
+  const fixtures = entries.map(({ approved }) => item({
+    itemId: approved.external_variant_id,
+    legacyItemId: approved.legacy_item_id,
+    title: approved.live_title,
+    gtin: approved.expected_returned_gtin,
+    price: { value: approved.price, currency: "GBP" },
+    shippingOptions: [{ shippingCost: { value: approved.shipping_cost, currency: "GBP" } }],
+    seller: { username: approved.seller, sellerAccountType: "BUSINESS", sellerLegalInfo: { name: approved.seller_legal_name }, feedbackPercentage: approved.minimum_feedback_percentage, feedbackScore: approved.minimum_feedback_score },
+    itemAffiliateWebUrl: `https://www.ebay.co.uk/itm/${approved.legacy_item_id}?campid=123`,
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK" }],
+  }));
+  const config = { EBAY_CLIENT_ID: "id", EBAY_CLIENT_SECRET: "secret", EBAY_UK_DELIVERY_POSTCODE: "SW1A 1AA", EBAY_EPN_CAMPAIGN_ID: "123" };
+  const fetchImpl = async (url) => String(url).includes("oauth2/token")
+    ? { ok: true, json: async () => ({ access_token: "token", expires_in: 7200 }) }
+    : { ok: true, status: 200, json: async () => fixtures.find((entry) => String(url).includes(encodeURIComponent(entry.itemId))) };
+  assert.equal((await validateBatchSLiveSources(fetchImpl, config)).length, 18);
+  resetTokenCache();
+});
+
+test("Batch S workflow is manual, exact-confirmation guarded and verifies 18 no-ops", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-batch-s.yml"), "utf8");
+  assert.match(workflow, /OWNER_APPROVED_EBAY_BATCH_S_EXACT_18/);
+  assert.match(workflow, /--mode=preflight/);
+  assert.match(workflow, /plans\.length!==18/);
   assert.match(workflow, /retailer_product\.action!=="noop"/);
   assert.doesNotMatch(workflow, /schedule:|\bpush:/);
 });

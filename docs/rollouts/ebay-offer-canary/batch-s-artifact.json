@@ -1,0 +1,2583 @@
+{
+  "artifact_version": "1",
+  "blocked_rows": [],
+  "created_at": "2026-08-23T09:40:09.723Z",
+  "environment_marker": "local",
+  "plans": [
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "e742ddc2c114227106653b51f61f02a9",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "755",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Optimum Nutrition Platinum Creatine Plus 350g",
+            "product_format": "powder"
+          },
+          "product_variant": {
+            "display_name": "Orange / 350g",
+            "flavour_code": "orange",
+            "flavour_label": "Orange",
+            "id": "883",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "powder",
+            "product_id": "755",
+            "size_unit": "g",
+            "size_value": "350",
+            "variant_key": "orange-350g"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "e742ddc2c114227106653b51f61f02a9",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "3e9c7ebe272adaaa486cc64c7f54c310d22d9e5b2c2de30036f01b064fe4b015",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:03.571Z",
+            "price": "21.99",
+            "shipping_cost": "0",
+            "total_price": "21.99",
+            "url": "https://www.ebay.co.uk/itm/287487748050?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "755"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Orange",
+              "Size": "350g"
+            },
+            "flavour": "orange",
+            "pack_count": "1",
+            "product_format": "powder",
+            "size_unit": "g",
+            "size_value": "350"
+          },
+          "id": "883"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": null,
+            "external_name": "Optimum Nutrition Platinum Creatine Plus 350g",
+            "external_options": {
+              "Flavour": "Orange",
+              "Size": "350g"
+            },
+            "external_product_id": "287487748050",
+            "external_sku": null,
+            "external_slug": "optimum-nutrition-platinum-creatine-plus-350g",
+            "external_url": "https://www.ebay.co.uk/itm/287487748050",
+            "external_variant_id": "v1|287487748050|0",
+            "match_confidence": "90",
+            "match_method": "slug",
+            "product_variant_id": "883"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "2",
+      "source_row_fingerprint": "3e9c7ebe272adaaa486cc64c7f54c310d22d9e5b2c2de30036f01b064fe4b015"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "2c49667dadc8ba44de6b858c04ba2b97",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1116",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "ALLNUTRITION Vitamin D3 4000 + K2 Drops 30ml",
+            "product_format": "liquid"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 30ml",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "2419",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "liquid",
+            "product_id": "1116",
+            "size_unit": "ml",
+            "size_value": "30",
+            "variant_key": "unflavoured-30ml"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "2c49667dadc8ba44de6b858c04ba2b97",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "88cd81f6addeee79adf7e49fb1f894cfbec5665e8cb9c6061b1f3d381c35de0b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:04.058Z",
+            "price": "11.91",
+            "shipping_cost": "0",
+            "total_price": "11.91",
+            "url": "https://www.ebay.co.uk/itm/147450939094?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1116"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30ml"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "liquid",
+            "size_unit": "ml",
+            "size_value": "30"
+          },
+          "id": "2419"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5902837742649",
+            "external_name": "ALLNUTRITION Vitamin D3 4000 + K2 Drops 30ml",
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30ml"
+            },
+            "external_product_id": "147450939094",
+            "external_sku": null,
+            "external_slug": "allnutrition-vitamin-d3-4000-k2-drops-30ml",
+            "external_url": "https://www.ebay.co.uk/itm/147450939094",
+            "external_variant_id": "v1|147450939094|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2419"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "3",
+      "source_row_fingerprint": "88cd81f6addeee79adf7e49fb1f894cfbec5665e8cb9c6061b1f3d381c35de0b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "ad897ada067946d6390f9c5b0fdb25e1",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1117",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "ALLNUTRITION Vitamin C Drops 30ml",
+            "product_format": "liquid"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 30ml",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "2421",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "liquid",
+            "product_id": "1117",
+            "size_unit": "ml",
+            "size_value": "30",
+            "variant_key": "unflavoured-30ml"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "ad897ada067946d6390f9c5b0fdb25e1",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "027ec9925c599a90232b0112b668e6ed3d297da0d6d9b2750dd36c3d9ac4ed6b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:04.413Z",
+            "price": "3.7",
+            "shipping_cost": "3.99",
+            "total_price": "7.69",
+            "url": "https://www.ebay.co.uk/itm/227315409315?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8aNzUeTlhkDErld1s2pzi5O4KSjWQSqFOjLGk1bXI3FFyVsFOGygAW3rzQnAA8fDR%2F9EtE8MipIyYtwNGaRxkll8t3K9BgXxH6Tgc8HNdKGi40BvE25d0%2FMtyKRm4kmbyAhyRiHyv2Gl2UN4CEd8WwJo2mAguTbHvfn%2F92YuNBpE4ys5yiseX5HF3cK0eqVeA%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1117"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30ml"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "liquid",
+            "size_unit": "ml",
+            "size_value": "30"
+          },
+          "id": "2421"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5902837750415",
+            "external_name": "ALLNUTRITION Vitamin C Drops 30ml",
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30ml"
+            },
+            "external_product_id": "227315409315",
+            "external_sku": null,
+            "external_slug": "allnutrition-vitamin-c-drops-30ml",
+            "external_url": "https://www.ebay.co.uk/itm/227315409315?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8aNzUeTlhkDErld1s2pzi5O4KSjWQSqFOjLGk1bXI3FFyVsFOGygAW3rzQnAA8fDR%2F9EtE8MipIyYtwNGaRxkll8t3K9BgXxH6Tgc8HNdKGi40BvE25d0%2FMtyKRm4kmbyAhyRiHyv2Gl2UN4CEd8WwJo2mAguTbHvfn%2F92YuNBpE4ys5yiseX5HF3cK0eqVeA%3D",
+            "external_variant_id": "v1|227315409315|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2421"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "4",
+      "source_row_fingerprint": "027ec9925c599a90232b0112b668e6ed3d297da0d6d9b2750dd36c3d9ac4ed6b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "e2a149d4e38eceadbbfbe89ef0921b4b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "1128",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "ALLNUTRITION Vitamin B12 Methyl Drops 30ml",
+            "product_format": "liquid"
+          },
+          "product_variant": {
+            "display_name": "Unflavoured / 30ml",
+            "flavour_code": "unflavoured",
+            "flavour_label": "Unflavoured",
+            "id": "2469",
+            "is_active": true,
+            "is_default": false,
+            "pack_count": "1",
+            "product_format": "liquid",
+            "product_id": "1128",
+            "size_unit": "ml",
+            "size_value": "30",
+            "variant_key": "unflavoured-30ml"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "e2a149d4e38eceadbbfbe89ef0921b4b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "d89ffa3bf9e7d7d357622abbacdb7b44a933b87931838f59ca0de909b5ce9a0a",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:04.760Z",
+            "price": "10.39",
+            "shipping_cost": "0",
+            "total_price": "10.39",
+            "url": "https://www.ebay.co.uk/itm/147458020827?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "1128"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30ml"
+            },
+            "flavour": "unflavoured",
+            "pack_count": "1",
+            "product_format": "liquid",
+            "size_unit": "ml",
+            "size_value": "30"
+          },
+          "id": "2469"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5902837742663",
+            "external_name": "ALLNUTRITION Vitamin B12 Methyl Drops 30ml",
+            "external_options": {
+              "Flavour": "Unflavoured",
+              "Size": "30ml"
+            },
+            "external_product_id": "147458020827",
+            "external_sku": null,
+            "external_slug": "allnutrition-vitamin-b12-methyl-drops-30ml",
+            "external_url": "https://www.ebay.co.uk/itm/147458020827",
+            "external_variant_id": "v1|147458020827|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "2469"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "5",
+      "source_row_fingerprint": "d89ffa3bf9e7d7d357622abbacdb7b44a933b87931838f59ca0de909b5ce9a0a"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "997b441433cbee7e2d52a1473c826e1e",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "163",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Dorian Yates Black Bombs 60 Tablets",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "518",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "163",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "997b441433cbee7e2d52a1473c826e1e",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "260da478d8f585540bab7bc0fcb71b593f6145f12d4ad30de0d98839f10aa34b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:05.082Z",
+            "price": "19.95",
+            "shipping_cost": "3.95",
+            "total_price": "23.9",
+            "url": "https://www.ebay.co.uk/itm/256978504893?var=557601584732&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FG2NElw78oOeIyuNBNiNuLaWK4uEjlNvw8RTALexMrWN6ydlcGRI13YuqJI%2Bf5kaJeZTj4x%2F1uurK83qEygmCew1w%2B%2BpIHHeiNGMwxpJImeqVsm99PgVvkE%2FHDJ2LX7wkNqGY%2B%2Fohdv%2FnZncM0RxQotWtJt4TF2hPf3rOrEUZW%2FjjA5cZGkiCwCRdEtM%2BxPaA%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "163"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "518"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060763897694",
+            "external_name": "Dorian Yates Black Bombs 60 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "256978504893",
+            "external_sku": null,
+            "external_slug": "dorian-yates-black-bombs-60-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/256978504893?var=557601584732&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FG2NElw78oOeIyuNBNiNuLaWK4uEjlNvw8RTALexMrWN6ydlcGRI13YuqJI%2Bf5kaJeZTj4x%2F1uurK83qEygmCew1w%2B%2BpIHHeiNGMwxpJImeqVsm99PgVvkE%2FHDJ2LX7wkNqGY%2B%2Fohdv%2FnZncM0RxQotWtJt4TF2hPf3rOrEUZW%2FjjA5cZGkiCwCRdEtM%2BxPaA%3D",
+            "external_variant_id": "v1|256978504893|557601584732",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "518"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "6",
+      "source_row_fingerprint": "260da478d8f585540bab7bc0fcb71b593f6145f12d4ad30de0d98839f10aa34b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "fdac1b1a5748a7c773f1175a14117c47",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "257",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Solgar 5-HTP Complex 30 Vegi Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "230",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "257",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "fdac1b1a5748a7c773f1175a14117c47",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "89ea353738898f3a66349273bfa9a7b2e8b60afb18b3a930096aff4b611f2471",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:05.402Z",
+            "price": "39.66",
+            "shipping_cost": "0",
+            "total_price": "39.66",
+            "url": "https://www.ebay.co.uk/itm/198346682799?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "257"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "230"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "033984014480",
+            "external_name": "Solgar 5-HTP Complex 30 Vegi Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "198346682799",
+            "external_sku": null,
+            "external_slug": "solgar-5-htp-complex-30-vegi-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/198346682799",
+            "external_variant_id": "v1|198346682799|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "230"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "7",
+      "source_row_fingerprint": "89ea353738898f3a66349273bfa9a7b2e8b60afb18b3a930096aff4b611f2471"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "2848adc11a501bf97c60434d1c4af9a0",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "285",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "USN 19-Anabol Testo 90 Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "237",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "285",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "2848adc11a501bf97c60434d1c4af9a0",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "35fb2c793f20319f82e0ca26f80b1cebe92c2bb7903e08483e00d714a17a8795",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:05.731Z",
+            "price": "25.95",
+            "shipping_cost": "3.95",
+            "total_price": "29.9",
+            "url": "https://www.ebay.co.uk/itm/257053651805?var=557696446300&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8hu2LoISoGSVCjs5QNJDQfIvBvzcGPTXySLdKmIoYQkVNu%2BhEqNdETpg%2FkC209olTXTTq9BjMLbrMDKHnEQ36XzXNmuNfwQFlIwwCtFs8SA12CmVJKzL8v22UGPXWvE2wqx9Rj%2Be5N2v3WEJWJH%2BrKtUhnk7HuAAASfO%2FWy2MF9g%2FNGXVep26OD8nnL7YBtlo%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "285"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "237"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "6009694862301",
+            "external_name": "USN 19-Anabol Testo 90 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "257053651805",
+            "external_sku": null,
+            "external_slug": "usn-19-anabol-testo-90-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/257053651805?var=557696446300&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8hu2LoISoGSVCjs5QNJDQfIvBvzcGPTXySLdKmIoYQkVNu%2BhEqNdETpg%2FkC209olTXTTq9BjMLbrMDKHnEQ36XzXNmuNfwQFlIwwCtFs8SA12CmVJKzL8v22UGPXWvE2wqx9Rj%2Be5N2v3WEJWJH%2BrKtUhnk7HuAAASfO%2FWy2MF9g%2FNGXVep26OD8nnL7YBtlo%3D",
+            "external_variant_id": "v1|257053651805|557696446300",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "237"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "8",
+      "source_row_fingerprint": "35fb2c793f20319f82e0ca26f80b1cebe92c2bb7903e08483e00d714a17a8795"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "0441e3d61d8bfc2563e426ffdd71777d",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "342",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Optimum Nutrition Opti-Men 90 Tablets",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "341",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "342",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "0441e3d61d8bfc2563e426ffdd71777d",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "71b4d34da9ecba8ff92234f619d06158ce9759934f58116fce21bde1fadd7e0b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:06.075Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/286049984782?var=588148986109&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "342"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "341"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5060469986890",
+            "external_name": "Optimum Nutrition Opti-Men 90 Tablets",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "286049984782",
+            "external_sku": null,
+            "external_slug": "optimum-nutrition-opti-men-90-tablets",
+            "external_url": "https://www.ebay.co.uk/itm/286049984782?var=588148986109",
+            "external_variant_id": "v1|286049984782|588148986109",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "341"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "9",
+      "source_row_fingerprint": "71b4d34da9ecba8ff92234f619d06158ce9759934f58116fce21bde1fadd7e0b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "bf26475634fa7f35ed25b27ffd4ffcb6",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "350",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Swanson Full Spectrum Lion's Mane Mushroom 60 Caps",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "343",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "350",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "bf26475634fa7f35ed25b27ffd4ffcb6",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "2cb95354953c2a87aa06c36136ead0385c3c6674f095b914411d98873171d51f",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:06.640Z",
+            "price": "9.09",
+            "shipping_cost": "0",
+            "total_price": "9.09",
+            "url": "https://www.ebay.co.uk/itm/353439521141?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2BZCD7nAnrDNyyawdaJnpt7lvtHYfmEwHrNEXhImeP79ohYF9cLuGlcdbLgcqQgr%2B6Zk3VLOy4NlIPEkH5M0lCPi2QgKgemP8SlIlr39k00YhOsmnXqakJF%2BShgrYxK1YB9gaHhMZ2ZHUOQ6DtEvuuDlCCZuB2L2BE3VdeTV0vOQCyf%2BbEYi5VJuqZjRsnVS%2BY%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "350"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "343"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "087614110967",
+            "external_name": "Swanson Full Spectrum Lion's Mane Mushroom 60 Caps",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "353439521141",
+            "external_sku": null,
+            "external_slug": "swanson-full-spectrum-lions-mane-mushroom-60-caps",
+            "external_url": "https://www.ebay.co.uk/itm/353439521141?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2BZCD7nAnrDNyyawdaJnpt7lvtHYfmEwHrNEXhImeP79ohYF9cLuGlcdbLgcqQgr%2B6Zk3VLOy4NlIPEkH5M0lCPi2QgKgemP8SlIlr39k00YhOsmnXqakJF%2BShgrYxK1YB9gaHhMZ2ZHUOQ6DtEvuuDlCCZuB2L2BE3VdeTV0vOQCyf%2BbEYi5VJuqZjRsnVS%2BY%3D",
+            "external_variant_id": "v1|353439521141|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "343"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "10",
+      "source_row_fingerprint": "2cb95354953c2a87aa06c36136ead0385c3c6674f095b914411d98873171d51f"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "98d1a29b2a48ebec9254d3cce504c8a4",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "366",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Swanson Iron Citrate 60 Veggie Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "347",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "366",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "98d1a29b2a48ebec9254d3cce504c8a4",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "b8801083173d2aabfc074c6cc4e898a4b5611a040981702dd7134241976b6294",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:06.977Z",
+            "price": "9",
+            "shipping_cost": "0",
+            "total_price": "9",
+            "url": "https://www.ebay.co.uk/itm/178052718291?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2B7thoRNAyCQeR1Qr83djYFpZZJ131FmWiwwVDtMFyp1HBFysHybLutaSrI3kqsKk7pT3zZ9T2%2B%2B4UHGycsFjNMqHvV%2B5RLlBK7D80dB48yd%2FCMe2Vmq8C8TNn7gX4qcZetAIGm2Wn9r388wFYl3wmvqP0rYQIfVSLbTZbr5OOmJ9X0OogELkl4xcyCA7e2GjI%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "366"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "347"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "087614113777",
+            "external_name": "Swanson Iron Citrate 60 Veggie Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "178052718291",
+            "external_sku": null,
+            "external_slug": "swanson-iron-citrate-60-veggie-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/178052718291?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2B7thoRNAyCQeR1Qr83djYFpZZJ131FmWiwwVDtMFyp1HBFysHybLutaSrI3kqsKk7pT3zZ9T2%2B%2B4UHGycsFjNMqHvV%2B5RLlBK7D80dB48yd%2FCMe2Vmq8C8TNn7gX4qcZetAIGm2Wn9r388wFYl3wmvqP0rYQIfVSLbTZbr5OOmJ9X0OogELkl4xcyCA7e2GjI%3D",
+            "external_variant_id": "v1|178052718291|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "347"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "11",
+      "source_row_fingerprint": "b8801083173d2aabfc074c6cc4e898a4b5611a040981702dd7134241976b6294"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "cd4070b4e87b2fc82d1dd66770589fac",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "372",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "BioTech USA Ca D3 K2 90 Capsules",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "366",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "372",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "cd4070b4e87b2fc82d1dd66770589fac",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "e349b63103306b7278eb00c4985c43e1f0324c7182d286bd0c61143d9158e28d",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:07.303Z",
+            "price": "10.72",
+            "shipping_cost": "14.39",
+            "total_price": "25.11",
+            "url": "https://www.ebay.co.uk/itm/318546057510?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "372"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "366"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5999076234202",
+            "external_name": "BioTech USA Ca D3 K2 90 Capsules",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "318546057510",
+            "external_sku": null,
+            "external_slug": "biotech-usa-ca-d3-k2-90-capsules",
+            "external_url": "https://www.ebay.co.uk/itm/318546057510",
+            "external_variant_id": "v1|318546057510|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "366"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "12",
+      "source_row_fingerprint": "e349b63103306b7278eb00c4985c43e1f0324c7182d286bd0c61143d9158e28d"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "50a098c4f4711691c9dcef575de9004a",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "385",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "SmartShake DC Comics SuperGirl 800ml",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "332",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "385",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "50a098c4f4711691c9dcef575de9004a",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "112c263afcd3878ba5c8a69a6a23412fb40baa38b5e7f45d64dde66e1d8c052c",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:07.633Z",
+            "price": "9.75",
+            "shipping_cost": "0",
+            "total_price": "9.75",
+            "url": "https://www.ebay.co.uk/itm/146086688061?var=445043246478&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "385"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "332"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "7350057186459",
+            "external_name": "SmartShake DC Comics SuperGirl 800ml",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "146086688061",
+            "external_sku": null,
+            "external_slug": "smartshake-dc-comics-supergirl-800ml",
+            "external_url": "https://www.ebay.co.uk/itm/146086688061?var=445043246478",
+            "external_variant_id": "v1|146086688061|445043246478",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "332"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "13",
+      "source_row_fingerprint": "112c263afcd3878ba5c8a69a6a23412fb40baa38b5e7f45d64dde66e1d8c052c"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "7f21c8c12c2152161d4e755460f38cab",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "386",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "SmartShake DC Comics Batman 800ml",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "352",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "386",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "7f21c8c12c2152161d4e755460f38cab",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "4ed0899657a8f571b04126a28246cb4d49b2538824200662f126d7968cbf19ab",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:07.943Z",
+            "price": "12.36",
+            "shipping_cost": "0",
+            "total_price": "12.36",
+            "url": "https://www.ebay.co.uk/itm/187837047801?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FECQXLG4OiVqiYhivZgFa1C0JtJXSNDYyPYh1y8K4zTWjO6ae0Pe8jflyN8POKqMoa%2BOrdkf1enm05F8UMMyf%2FUqEnojovsqcQEcv0LZ8DWB56uojXyEHCbZ5LQZvPitYlMBdhOrDZvTDvycOyy%2BMwU2iyGHJ3aPHH3YN4DCaNMDIYoIGrkvucNyutPnhHR4c%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "386"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "352"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "7350057186435",
+            "external_name": "SmartShake DC Comics Batman 800ml",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "187837047801",
+            "external_sku": null,
+            "external_slug": "smartshake-dc-comics-batman-800ml",
+            "external_url": "https://www.ebay.co.uk/itm/187837047801?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FECQXLG4OiVqiYhivZgFa1C0JtJXSNDYyPYh1y8K4zTWjO6ae0Pe8jflyN8POKqMoa%2BOrdkf1enm05F8UMMyf%2FUqEnojovsqcQEcv0LZ8DWB56uojXyEHCbZ5LQZvPitYlMBdhOrDZvTDvycOyy%2BMwU2iyGHJ3aPHH3YN4DCaNMDIYoIGrkvucNyutPnhHR4c%3D",
+            "external_variant_id": "v1|187837047801|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "352"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "14",
+      "source_row_fingerprint": "4ed0899657a8f571b04126a28246cb4d49b2538824200662f126d7968cbf19ab"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "bb1988890b39f5cf6580ebbdd801b209",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "428",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trec L-Carnitine 3000 Liquid Apricot 500 ml",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "407",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "428",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "bb1988890b39f5cf6580ebbdd801b209",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "168f8fb4e2645f029b85f2b01a052b92cc298ecddf095346bb3e6b6cf8deb864",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:08.279Z",
+            "price": "17.69",
+            "shipping_cost": "0",
+            "total_price": "17.69",
+            "url": "https://www.ebay.co.uk/itm/166550190737?var=466197712102&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "428"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "407"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5901828340383",
+            "external_name": "Trec L-Carnitine 3000 Liquid Apricot 500 ml",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "166550190737",
+            "external_sku": null,
+            "external_slug": "trec-l-carnitine-3000-liquid-apricot-500-ml",
+            "external_url": "https://www.ebay.co.uk/itm/166550190737?var=466197712102",
+            "external_variant_id": "v1|166550190737|466197712102",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "407"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "15",
+      "source_row_fingerprint": "168f8fb4e2645f029b85f2b01a052b92cc298ecddf095346bb3e6b6cf8deb864"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "4736965c28eae56e8691746ee01b1d71",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "488",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Massage Gun",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "433",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "488",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "4736965c28eae56e8691746ee01b1d71",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "183c0536f0808948aff73e61e76a59c20af1238f31e383f47083147b44b99473",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:08.649Z",
+            "price": "99.95",
+            "shipping_cost": "0",
+            "total_price": "99.95",
+            "url": "https://www.ebay.co.uk/itm/286709971349?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8AFdPccrlYe2IJDdjVAbWX84%2B8pTg2sWWCIDMxOMq49N5H5pq4RsYTwIPy%2FFGYnIPNDnBTvE%2B3vi5GQMyXQ30%2BD23spzhPpZMjB8WXbd6lGNogTvla6mT2mBq433HCi%2FPop%2BJhGt8e5lDZe0Exk%2F7Fci5Dfe%2BubBpVrc%2FwGZZT7AZ4Ao9ti8CPAH3--bsPnsg%3D"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "488"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "433"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5027535007774",
+            "external_name": "Massage Gun",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "286709971349",
+            "external_sku": null,
+            "external_slug": "massage-gun",
+            "external_url": "https://www.ebay.co.uk/itm/286709971349?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8AFdPccrlYe2IJDdjVAbWX84%2B8pTg2sWWCIDMxOMq49N5H5pq4RsYTwIPy%2FFGYnIPNDnBTvE%2B3vi5GQMyXQ30%2BD23spzhPpZMjB8WXbd6lGNogTvla6mT2mBq433HCi%2FPop%2BJhGt8e5lDZe0Exk%2F7Fci5Dfe%2BubBpVrc%2FwGZZT7AZ4Ao9ti8CPAH3--bsPnsg%3D",
+            "external_variant_id": "v1|286709971349|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "433"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "16",
+      "source_row_fingerprint": "183c0536f0808948aff73e61e76a59c20af1238f31e383f47083147b44b99473"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "841b7720480b0f0583776bd1b6b75de5",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "500",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trec Nutrition ENDURANCE Chalk Powder Block 57g",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "436",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "500",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "841b7720480b0f0583776bd1b6b75de5",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "9f0681e7866b68a2db542a6e1c742ba82b5842377e21ca55d8cc8659155a52b8",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:09.020Z",
+            "price": "7.39",
+            "shipping_cost": "0",
+            "total_price": "7.39",
+            "url": "https://www.ebay.co.uk/itm/377141158759?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "500"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "436"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5902114039806",
+            "external_name": "Trec Nutrition ENDURANCE Chalk Powder Block 57g",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "377141158759",
+            "external_sku": null,
+            "external_slug": "trec-nutrition-endurance-chalk-powder-block-57g",
+            "external_url": "https://www.ebay.co.uk/itm/377141158759",
+            "external_variant_id": "v1|377141158759|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "436"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "17",
+      "source_row_fingerprint": "9f0681e7866b68a2db542a6e1c742ba82b5842377e21ca55d8cc8659155a52b8"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "8331decaf1fefc4fbd85305f33e5011b",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "513",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Trec Nutrition  Caffeine 200 Plus - 60 caps",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "486",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "513",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "8331decaf1fefc4fbd85305f33e5011b",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "46f7aafb6bf7b77c89ead6074f14d3c4fca3b783975a1c12899480aa4481197b",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:09.348Z",
+            "price": "9.49",
+            "shipping_cost": "0",
+            "total_price": "9.49",
+            "url": "https://www.ebay.co.uk/itm/354869780698?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "513"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "486"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5902114017569",
+            "external_name": "Trec Nutrition  Caffeine 200 Plus - 60 caps",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "354869780698",
+            "external_sku": null,
+            "external_slug": "trec-nutrition--caffeine-200-plus---60-caps",
+            "external_url": "https://www.ebay.co.uk/itm/354869780698",
+            "external_variant_id": "v1|354869780698|0",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "486"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "18",
+      "source_row_fingerprint": "46f7aafb6bf7b77c89ead6074f14d3c4fca3b783975a1c12899480aa4481197b"
+    },
+    {
+      "operation_type": "standard_import",
+      "plan_fingerprint": "b8c9f11391dae560ae37173beb7537fc",
+      "plan_kind": "manual",
+      "resolved_plan": {
+        "approval": {
+          "approval_type": "none",
+          "approved": false
+        },
+        "expected_state": {
+          "offer": null,
+          "product": {
+            "id": "519",
+            "is_active": true,
+            "merged_into_product_id": null,
+            "name": "Olimp Nutrition  MCT Oil - 400 ml",
+            "product_format": null
+          },
+          "product_variant": {
+            "display_name": "Default",
+            "flavour_code": null,
+            "flavour_label": null,
+            "id": "473",
+            "is_active": true,
+            "is_default": true,
+            "pack_count": null,
+            "product_format": null,
+            "product_id": "519",
+            "size_unit": null,
+            "size_value": null,
+            "variant_key": "default"
+          },
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk",
+            "website": "https://www.ebay.co.uk"
+          },
+          "retailer_product": null
+        },
+        "meta": {
+          "operation_type": "standard_import",
+          "plan_fingerprint": "b8c9f11391dae560ae37173beb7537fc",
+          "plan_kind": "manual",
+          "source_row_fingerprint": "78cbe7847d48a2e5b85ad8eb833491270161729d5c10ceca03cc4d33c3cd93cc",
+          "version": "2"
+        },
+        "offer": {
+          "action": "create",
+          "values": {
+            "in_stock": true,
+            "last_checked_at": "2026-08-23T09:40:09.721Z",
+            "price": "19.99",
+            "shipping_cost": "0",
+            "total_price": "19.99",
+            "url": "https://www.ebay.co.uk/itm/373243202481?var=642139796536&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+          }
+        },
+        "price_history": {
+          "action": "create"
+        },
+        "product": {
+          "action": "existing",
+          "id": "519"
+        },
+        "product_variant": {
+          "action": "existing",
+          "evidence": {
+            "approved_mapping_id": null,
+            "external_options": {
+              "Variant": "Default"
+            },
+            "flavour": null,
+            "pack_count": "1",
+            "product_format": null,
+            "size_unit": null,
+            "size_value": null
+          },
+          "id": "473"
+        },
+        "retailer": {
+          "action": "existing",
+          "id": "12"
+        },
+        "retailer_product": {
+          "action": "create",
+          "values": {
+            "external_gtin": "5901330001642",
+            "external_name": "Olimp Nutrition  MCT Oil - 400 ml",
+            "external_options": {
+              "Variant": "Default"
+            },
+            "external_product_id": "373243202481",
+            "external_sku": null,
+            "external_slug": "olimp-nutrition--mct-oil---400-ml",
+            "external_url": "https://www.ebay.co.uk/itm/373243202481?var=642139796536",
+            "external_variant_id": "v1|373243202481|642139796536",
+            "match_confidence": "100",
+            "match_method": "gtin",
+            "product_variant_id": "473"
+          }
+        }
+      },
+      "retailer_id": "12",
+      "row_number": "19",
+      "source_row_fingerprint": "78cbe7847d48a2e5b85ad8eb833491270161729d5c10ceca03cc4d33c3cd93cc"
+    }
+  ],
+  "row_count": "18",
+  "run_id": "9ff8c953-ccd3-4b81-ab07-3bebc46fad10",
+  "source_file_name": "batch-s.csv",
+  "source_file_sha256": "b68de9ae0bee7adf742ac4ef75ffb67c27e8e4820ff7dbbd0257aadae5cf80c7",
+  "source_rows": [
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/287487748050?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Optimum Nutrition",
+        "category": "Creatine",
+        "external_gtin": "",
+        "external_options": "{\"Size\":\"350g\",\"Flavour\":\"Orange\"}",
+        "external_product_id": "287487748050",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/287487748050",
+        "external_variant_id": "v1|287487748050|0",
+        "flavour": "Orange",
+        "image": "https://i.ebayimg.com/images/g/wSgAAeSwEMdqXRV5/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "21.99",
+        "product_format": "powder",
+        "product_id": "755",
+        "product_name": "Optimum Nutrition Platinum Creatine Plus 350g",
+        "product_variant_id": "883",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "350",
+        "size_unit": "g",
+        "slug": "optimum-nutrition-platinum-creatine-plus-350g",
+        "variant_name": "Orange / 350g"
+      },
+      "plan_fingerprint": "e742ddc2c114227106653b51f61f02a9",
+      "row_number": "2",
+      "source_row_fingerprint": "3e9c7ebe272adaaa486cc64c7f54c310d22d9e5b2c2de30036f01b064fe4b015",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/147450939094?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "ALLNUTRITION",
+        "category": "Vitamins",
+        "external_gtin": "5902837742649",
+        "external_options": "{\"Size\":\"30ml\",\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "147450939094",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/147450939094",
+        "external_variant_id": "v1|147450939094|0",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/vRIAAeSw76lqdkLx/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "11.91",
+        "product_format": "liquid",
+        "product_id": "1116",
+        "product_name": "ALLNUTRITION Vitamin D3 4000 + K2 Drops 30ml",
+        "product_variant_id": "2419",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "30",
+        "size_unit": "ml",
+        "slug": "allnutrition-vitamin-d3-4000-k2-drops-30ml",
+        "variant_name": "Unflavoured / 30ml"
+      },
+      "plan_fingerprint": "2c49667dadc8ba44de6b858c04ba2b97",
+      "row_number": "3",
+      "source_row_fingerprint": "88cd81f6addeee79adf7e49fb1f894cfbec5665e8cb9c6061b1f3d381c35de0b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/227315409315?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8aNzUeTlhkDErld1s2pzi5O4KSjWQSqFOjLGk1bXI3FFyVsFOGygAW3rzQnAA8fDR%2F9EtE8MipIyYtwNGaRxkll8t3K9BgXxH6Tgc8HNdKGi40BvE25d0%2FMtyKRm4kmbyAhyRiHyv2Gl2UN4CEd8WwJo2mAguTbHvfn%2F92YuNBpE4ys5yiseX5HF3cK0eqVeA%3D",
+        "brand": "ALLNUTRITION",
+        "category": "Vitamins",
+        "external_gtin": "5902837750415",
+        "external_options": "{\"Size\":\"30ml\",\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "227315409315",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/227315409315?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8aNzUeTlhkDErld1s2pzi5O4KSjWQSqFOjLGk1bXI3FFyVsFOGygAW3rzQnAA8fDR%2F9EtE8MipIyYtwNGaRxkll8t3K9BgXxH6Tgc8HNdKGi40BvE25d0%2FMtyKRm4kmbyAhyRiHyv2Gl2UN4CEd8WwJo2mAguTbHvfn%2F92YuNBpE4ys5yiseX5HF3cK0eqVeA%3D",
+        "external_variant_id": "v1|227315409315|0",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/fk0AAeSwr9dp66OP/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "3.70",
+        "product_format": "liquid",
+        "product_id": "1117",
+        "product_name": "ALLNUTRITION Vitamin C Drops 30ml",
+        "product_variant_id": "2421",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.99",
+        "shipping_known": "true",
+        "size": "30",
+        "size_unit": "ml",
+        "slug": "allnutrition-vitamin-c-drops-30ml",
+        "variant_name": "Unflavoured / 30ml"
+      },
+      "plan_fingerprint": "ad897ada067946d6390f9c5b0fdb25e1",
+      "row_number": "4",
+      "source_row_fingerprint": "027ec9925c599a90232b0112b668e6ed3d297da0d6d9b2750dd36c3d9ac4ed6b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/147458020827?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "ALLNUTRITION",
+        "category": "Vitamins",
+        "external_gtin": "5902837742663",
+        "external_options": "{\"Size\":\"30ml\",\"Flavour\":\"Unflavoured\"}",
+        "external_product_id": "147458020827",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/147458020827",
+        "external_variant_id": "v1|147458020827|0",
+        "flavour": "Unflavoured",
+        "image": "https://i.ebayimg.com/images/g/27EAAeSww5NqdXzl/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.39",
+        "product_format": "liquid",
+        "product_id": "1128",
+        "product_name": "ALLNUTRITION Vitamin B12 Methyl Drops 30ml",
+        "product_variant_id": "2469",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "30",
+        "size_unit": "ml",
+        "slug": "allnutrition-vitamin-b12-methyl-drops-30ml",
+        "variant_name": "Unflavoured / 30ml"
+      },
+      "plan_fingerprint": "e2a149d4e38eceadbbfbe89ef0921b4b",
+      "row_number": "5",
+      "source_row_fingerprint": "d89ffa3bf9e7d7d357622abbacdb7b44a933b87931838f59ca0de909b5ce9a0a",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/256978504893?var=557601584732&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FG2NElw78oOeIyuNBNiNuLaWK4uEjlNvw8RTALexMrWN6ydlcGRI13YuqJI%2Bf5kaJeZTj4x%2F1uurK83qEygmCew1w%2B%2BpIHHeiNGMwxpJImeqVsm99PgVvkE%2FHDJ2LX7wkNqGY%2B%2Fohdv%2FnZncM0RxQotWtJt4TF2hPf3rOrEUZW%2FjjA5cZGkiCwCRdEtM%2BxPaA%3D",
+        "brand": "Dorian Yates",
+        "category": "Health Supplements",
+        "external_gtin": "5060763897694",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "256978504893",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/256978504893?var=557601584732&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FG2NElw78oOeIyuNBNiNuLaWK4uEjlNvw8RTALexMrWN6ydlcGRI13YuqJI%2Bf5kaJeZTj4x%2F1uurK83qEygmCew1w%2B%2BpIHHeiNGMwxpJImeqVsm99PgVvkE%2FHDJ2LX7wkNqGY%2B%2Fohdv%2FnZncM0RxQotWtJt4TF2hPf3rOrEUZW%2FjjA5cZGkiCwCRdEtM%2BxPaA%3D",
+        "external_variant_id": "v1|256978504893|557601584732",
+        "flavour": "",
+        "image": "https://cdn.shopify.com/s/files/1/0737/5572/1994/files/dy-black-bombs_2126c694-165e-4d3d-b047-3e938fb5af03.jpg?v=1764060938",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.95",
+        "product_format": "",
+        "product_id": "163",
+        "product_name": "Dorian Yates Black Bombs 60 Tablets",
+        "product_variant_id": "518",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.95",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "dorian-yates-black-bombs-60-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "997b441433cbee7e2d52a1473c826e1e",
+      "row_number": "6",
+      "source_row_fingerprint": "260da478d8f585540bab7bc0fcb71b593f6145f12d4ad30de0d98839f10aa34b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/198346682799?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Solgar",
+        "category": "Health Supplements",
+        "external_gtin": "033984014480",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "198346682799",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/198346682799",
+        "external_variant_id": "v1|198346682799|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/DwIAAeSwLxhpnLD6/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "39.66",
+        "product_format": "",
+        "product_id": "257",
+        "product_name": "Solgar 5-HTP Complex 30 Vegi Capsules",
+        "product_variant_id": "230",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "solgar-5-htp-complex-30-vegi-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "fdac1b1a5748a7c773f1175a14117c47",
+      "row_number": "7",
+      "source_row_fingerprint": "89ea353738898f3a66349273bfa9a7b2e8b60afb18b3a930096aff4b611f2471",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/257053651805?var=557696446300&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8hu2LoISoGSVCjs5QNJDQfIvBvzcGPTXySLdKmIoYQkVNu%2BhEqNdETpg%2FkC209olTXTTq9BjMLbrMDKHnEQ36XzXNmuNfwQFlIwwCtFs8SA12CmVJKzL8v22UGPXWvE2wqx9Rj%2Be5N2v3WEJWJH%2BrKtUhnk7HuAAASfO%2FWy2MF9g%2FNGXVep26OD8nnL7YBtlo%3D",
+        "brand": "USN",
+        "category": "Health Supplements",
+        "external_gtin": "6009694862301",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "257053651805",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/257053651805?var=557696446300&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8hu2LoISoGSVCjs5QNJDQfIvBvzcGPTXySLdKmIoYQkVNu%2BhEqNdETpg%2FkC209olTXTTq9BjMLbrMDKHnEQ36XzXNmuNfwQFlIwwCtFs8SA12CmVJKzL8v22UGPXWvE2wqx9Rj%2Be5N2v3WEJWJH%2BrKtUhnk7HuAAASfO%2FWy2MF9g%2FNGXVep26OD8nnL7YBtlo%3D",
+        "external_variant_id": "v1|257053651805|557696446300",
+        "flavour": "",
+        "image": "https://cdn.shopify.com/s/files/1/0737/5572/1994/files/usn-19-anabol-testo.jpg?v=1754937218",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "25.95",
+        "product_format": "",
+        "product_id": "285",
+        "product_name": "USN 19-Anabol Testo 90 Capsules",
+        "product_variant_id": "237",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "3.95",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "usn-19-anabol-testo-90-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "2848adc11a501bf97c60434d1c4af9a0",
+      "row_number": "8",
+      "source_row_fingerprint": "35fb2c793f20319f82e0ca26f80b1cebe92c2bb7903e08483e00d714a17a8795",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/286049984782?var=588148986109&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Optimum Nutrition",
+        "category": "Health Supplements",
+        "external_gtin": "5060469986890",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "286049984782",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/286049984782?var=588148986109",
+        "external_variant_id": "v1|286049984782|588148986109",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/PCMAAOSwWl1iBSpf/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.99",
+        "product_format": "",
+        "product_id": "342",
+        "product_name": "Optimum Nutrition Opti-Men 90 Tablets",
+        "product_variant_id": "341",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "optimum-nutrition-opti-men-90-tablets",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "0441e3d61d8bfc2563e426ffdd71777d",
+      "row_number": "9",
+      "source_row_fingerprint": "71b4d34da9ecba8ff92234f619d06158ce9759934f58116fce21bde1fadd7e0b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/353439521141?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2BZCD7nAnrDNyyawdaJnpt7lvtHYfmEwHrNEXhImeP79ohYF9cLuGlcdbLgcqQgr%2B6Zk3VLOy4NlIPEkH5M0lCPi2QgKgemP8SlIlr39k00YhOsmnXqakJF%2BShgrYxK1YB9gaHhMZ2ZHUOQ6DtEvuuDlCCZuB2L2BE3VdeTV0vOQCyf%2BbEYi5VJuqZjRsnVS%2BY%3D",
+        "brand": "Swanson",
+        "category": "Health Supplements",
+        "external_gtin": "087614110967",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "353439521141",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/353439521141?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2BZCD7nAnrDNyyawdaJnpt7lvtHYfmEwHrNEXhImeP79ohYF9cLuGlcdbLgcqQgr%2B6Zk3VLOy4NlIPEkH5M0lCPi2QgKgemP8SlIlr39k00YhOsmnXqakJF%2BShgrYxK1YB9gaHhMZ2ZHUOQ6DtEvuuDlCCZuB2L2BE3VdeTV0vOQCyf%2BbEYi5VJuqZjRsnVS%2BY%3D",
+        "external_variant_id": "v1|353439521141|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/l6MAAOSw4kZkAeDI/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "9.09",
+        "product_format": "",
+        "product_id": "350",
+        "product_name": "Swanson Full Spectrum Lion's Mane Mushroom 60 Caps",
+        "product_variant_id": "343",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "swanson-full-spectrum-lions-mane-mushroom-60-caps",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "bf26475634fa7f35ed25b27ffd4ffcb6",
+      "row_number": "10",
+      "source_row_fingerprint": "2cb95354953c2a87aa06c36136ead0385c3c6674f095b914411d98873171d51f",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/178052718291?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2B7thoRNAyCQeR1Qr83djYFpZZJ131FmWiwwVDtMFyp1HBFysHybLutaSrI3kqsKk7pT3zZ9T2%2B%2B4UHGycsFjNMqHvV%2B5RLlBK7D80dB48yd%2FCMe2Vmq8C8TNn7gX4qcZetAIGm2Wn9r388wFYl3wmvqP0rYQIfVSLbTZbr5OOmJ9X0OogELkl4xcyCA7e2GjI%3D",
+        "brand": "Swanson",
+        "category": "Health Supplements",
+        "external_gtin": "087614113777",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "178052718291",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/178052718291?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2B7thoRNAyCQeR1Qr83djYFpZZJ131FmWiwwVDtMFyp1HBFysHybLutaSrI3kqsKk7pT3zZ9T2%2B%2B4UHGycsFjNMqHvV%2B5RLlBK7D80dB48yd%2FCMe2Vmq8C8TNn7gX4qcZetAIGm2Wn9r388wFYl3wmvqP0rYQIfVSLbTZbr5OOmJ9X0OogELkl4xcyCA7e2GjI%3D",
+        "external_variant_id": "v1|178052718291|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/C-oAAeSwmqJpWAFE/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "9.00",
+        "product_format": "",
+        "product_id": "366",
+        "product_name": "Swanson Iron Citrate 60 Veggie Capsules",
+        "product_variant_id": "347",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "swanson-iron-citrate-60-veggie-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "98d1a29b2a48ebec9254d3cce504c8a4",
+      "row_number": "11",
+      "source_row_fingerprint": "b8801083173d2aabfc074c6cc4e898a4b5611a040981702dd7134241976b6294",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/318546057510?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "BioTech USA",
+        "category": "Health Supplements",
+        "external_gtin": "5999076234202",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "318546057510",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/318546057510",
+        "external_variant_id": "v1|318546057510|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/tWYAAeSwSGtqSnXE/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "10.72",
+        "product_format": "",
+        "product_id": "372",
+        "product_name": "BioTech USA Ca D3 K2 90 Capsules",
+        "product_variant_id": "366",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "14.39",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "biotech-usa-ca-d3-k2-90-capsules",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "cd4070b4e87b2fc82d1dd66770589fac",
+      "row_number": "12",
+      "source_row_fingerprint": "e349b63103306b7278eb00c4985c43e1f0324c7182d286bd0c61143d9158e28d",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/146086688061?var=445043246478&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "SmartShake",
+        "category": "Accessories",
+        "external_gtin": "7350057186459",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "146086688061",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/146086688061?var=445043246478",
+        "external_variant_id": "v1|146086688061|445043246478",
+        "flavour": "",
+        "image": "https://www.powerbody.co.uk/media/catalog/product/ebay/auction_image_2020-12-10_5fd1fd650df46.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "9.75",
+        "product_format": "",
+        "product_id": "385",
+        "product_name": "SmartShake DC Comics SuperGirl 800ml",
+        "product_variant_id": "332",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "smartshake-dc-comics-supergirl-800ml",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "50a098c4f4711691c9dcef575de9004a",
+      "row_number": "13",
+      "source_row_fingerprint": "112c263afcd3878ba5c8a69a6a23412fb40baa38b5e7f45d64dde66e1d8c052c",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/187837047801?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FECQXLG4OiVqiYhivZgFa1C0JtJXSNDYyPYh1y8K4zTWjO6ae0Pe8jflyN8POKqMoa%2BOrdkf1enm05F8UMMyf%2FUqEnojovsqcQEcv0LZ8DWB56uojXyEHCbZ5LQZvPitYlMBdhOrDZvTDvycOyy%2BMwU2iyGHJ3aPHH3YN4DCaNMDIYoIGrkvucNyutPnhHR4c%3D",
+        "brand": "SmartShake",
+        "category": "Accessories",
+        "external_gtin": "7350057186435",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "187837047801",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/187837047801?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde%2FECQXLG4OiVqiYhivZgFa1C0JtJXSNDYyPYh1y8K4zTWjO6ae0Pe8jflyN8POKqMoa%2BOrdkf1enm05F8UMMyf%2FUqEnojovsqcQEcv0LZ8DWB56uojXyEHCbZ5LQZvPitYlMBdhOrDZvTDvycOyy%2BMwU2iyGHJ3aPHH3YN4DCaNMDIYoIGrkvucNyutPnhHR4c%3D",
+        "external_variant_id": "v1|187837047801|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/ly4AAeSw4lZpPC5e/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "12.36",
+        "product_format": "",
+        "product_id": "386",
+        "product_name": "SmartShake DC Comics Batman 800ml",
+        "product_variant_id": "352",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "smartshake-dc-comics-batman-800ml",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "7f21c8c12c2152161d4e755460f38cab",
+      "row_number": "14",
+      "source_row_fingerprint": "4ed0899657a8f571b04126a28246cb4d49b2538824200662f126d7968cbf19ab",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/166550190737?var=466197712102&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trec Nutrition",
+        "category": "Weight Management",
+        "external_gtin": "5901828340383",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "166550190737",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/166550190737?var=466197712102",
+        "external_variant_id": "v1|166550190737|466197712102",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/d~oAAeSwjkZqJ-4U/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "17.69",
+        "product_format": "",
+        "product_id": "428",
+        "product_name": "Trec L-Carnitine 3000 Liquid Apricot 500 ml",
+        "product_variant_id": "407",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trec-l-carnitine-3000-liquid-apricot-500-ml",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "bb1988890b39f5cf6580ebbdd801b209",
+      "row_number": "15",
+      "source_row_fingerprint": "168f8fb4e2645f029b85f2b01a052b92cc298ecddf095346bb3e6b6cf8deb864",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/286709971349?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8AFdPccrlYe2IJDdjVAbWX84%2B8pTg2sWWCIDMxOMq49N5H5pq4RsYTwIPy%2FFGYnIPNDnBTvE%2B3vi5GQMyXQ30%2BD23spzhPpZMjB8WXbd6lGNogTvla6mT2mBq433HCi%2FPop%2BJhGt8e5lDZe0Exk%2F7Fci5Dfe%2BubBpVrc%2FwGZZT7AZ4Ao9ti8CPAH3--bsPnsg%3D",
+        "brand": "Urban Fitness",
+        "category": "Accessories",
+        "external_gtin": "5027535007774",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "286709971349",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/286709971349?amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde8AFdPccrlYe2IJDdjVAbWX84%2B8pTg2sWWCIDMxOMq49N5H5pq4RsYTwIPy%2FFGYnIPNDnBTvE%2B3vi5GQMyXQ30%2BD23spzhPpZMjB8WXbd6lGNogTvla6mT2mBq433HCi%2FPop%2BJhGt8e5lDZe0Exk%2F7Fci5Dfe%2BubBpVrc%2FwGZZT7AZ4Ao9ti8CPAH3--bsPnsg%3D",
+        "external_variant_id": "v1|286709971349|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/pC4AAOSwjwpl~B0N/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "99.95",
+        "product_format": "",
+        "product_id": "488",
+        "product_name": "Massage Gun",
+        "product_variant_id": "433",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "massage-gun",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "4736965c28eae56e8691746ee01b1d71",
+      "row_number": "16",
+      "source_row_fingerprint": "183c0536f0808948aff73e61e76a59c20af1238f31e383f47083147b44b99473",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/377141158759?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trec Nutrition",
+        "category": "Health Supplements",
+        "external_gtin": "5902114039806",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "377141158759",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/377141158759",
+        "external_variant_id": "v1|377141158759|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/AvkAAeSwDeVp7MqI/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "7.39",
+        "product_format": "",
+        "product_id": "500",
+        "product_name": "Trec Nutrition ENDURANCE Chalk Powder Block 57g",
+        "product_variant_id": "436",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trec-nutrition-endurance-chalk-powder-block-57g",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "841b7720480b0f0583776bd1b6b75de5",
+      "row_number": "17",
+      "source_row_fingerprint": "9f0681e7866b68a2db542a6e1c742ba82b5842377e21ca55d8cc8659155a52b8",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/354869780698?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Trec Nutrition",
+        "category": "Health Supplements",
+        "external_gtin": "5902114017569",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "354869780698",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/354869780698",
+        "external_variant_id": "v1|354869780698|0",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/EF4AAOSwZRVklgTg/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "9.49",
+        "product_format": "",
+        "product_id": "513",
+        "product_name": "Trec Nutrition  Caffeine 200 Plus - 60 caps",
+        "product_variant_id": "486",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "trec-nutrition--caffeine-200-plus---60-caps",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "8331decaf1fefc4fbd85305f33e5011b",
+      "row_number": "18",
+      "source_row_fingerprint": "46f7aafb6bf7b77c89ead6074f14d3c4fca3b783975a1c12899480aa4481197b",
+      "status": "planned"
+    },
+    {
+      "normalized_source_row": {
+        "affiliate_url": "https://www.ebay.co.uk/itm/373243202481?var=642139796536&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+        "brand": "Olimp",
+        "category": "Health Supplements",
+        "external_gtin": "5901330001642",
+        "external_options": "{\"Variant\":\"Default\"}",
+        "external_product_id": "373243202481",
+        "external_sku": "",
+        "external_url": "https://www.ebay.co.uk/itm/373243202481?var=642139796536",
+        "external_variant_id": "v1|373243202481|642139796536",
+        "flavour": "",
+        "image": "https://i.ebayimg.com/images/g/UCEAAOSwomJay~Am/s-l1600.jpg",
+        "in_stock": "true",
+        "is_for_sale": "true",
+        "pack_count": "1",
+        "price": "19.99",
+        "product_format": "",
+        "product_id": "519",
+        "product_name": "Olimp Nutrition  MCT Oil - 400 ml",
+        "product_variant_id": "473",
+        "retailer_name": "eBay UK",
+        "retailer_website": "https://www.ebay.co.uk",
+        "shipping_cost": "0.00",
+        "shipping_known": "true",
+        "size": "",
+        "size_unit": "",
+        "slug": "olimp-nutrition--mct-oil---400-ml",
+        "variant_name": "Default"
+      },
+      "plan_fingerprint": "b8c9f11391dae560ae37173beb7537fc",
+      "row_number": "19",
+      "source_row_fingerprint": "78cbe7847d48a2e5b85ad8eb833491270161729d5c10ceca03cc4d33c3cd93cc",
+      "status": "planned"
+    }
+  ],
+  "summary": {
+    "blocked_row_count": "0",
+    "plan_count": "18",
+    "skipped_row_count": "0"
+  }
+}
