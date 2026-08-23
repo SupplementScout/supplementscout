@@ -247,7 +247,7 @@ test("official-store search is bounded to the exact business seller username", a
   resetTokenCache();
 });
 
-test("eBay refresh is frozen to the exact 219 approved existing offers", () => {
+test("eBay refresh is frozen to the exact 237 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
@@ -256,13 +256,13 @@ test("eBay refresh is frozen to the exact 219 approved existing offers", () => {
   assert.equal(REFRESH_SCOPE.offer_id, "2558");
   assert.equal(REFRESH_SCOPE.retailer_product_id, "2743");
   assert.equal(REFRESH_SCOPE.external_variant_id, "v1|204137434720|0");
-  assert.equal(REFRESH_SCOPES.length, 219);
-  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 219 }, (_, index) => String(2539 + index)));
+  assert.equal(REFRESH_SCOPES.length, 237);
+  assert.deepEqual(REFRESH_SCOPES.map((scope) => scope.offer_id), Array.from({ length: 237 }, (_, index) => String(2539 + index)));
   assert.deepEqual(REFRESH_SCOPES.slice(0, 60).map((scope) => scope.retailer_product_id), Array.from({ length: 60 }, (_, index) => String(2724 + index)));
-  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 219);
+  assert.equal(new Set(REFRESH_SCOPES.map((scope) => scope.external_variant_id)).size, 237);
   assert.deepEqual(REFRESH_SCOPES.slice(-2).map((scope) => ({ product_id: scope.product_id, product_variant_id: scope.product_variant_id, retailer_product_id: scope.retailer_product_id, offer_id: scope.offer_id })), [
-    { product_id: "1120", product_variant_id: "2435", retailer_product_id: "2942", offer_id: "2756" },
-    { product_id: "169", product_variant_id: "1015", retailer_product_id: "2943", offer_id: "2757" },
+    { product_id: "513", product_variant_id: "486", retailer_product_id: "2960", offer_id: "2774" },
+    { product_id: "519", product_variant_id: "473", retailer_product_id: "2961", offer_id: "2775" },
   ]);
   assert.equal(new Set(REFRESH_SCOPES.slice(0, 22).map((scope) => scope.gtin)).size, 22);
   assert.ok(REFRESH_SCOPES.slice(22, 31).every((scope) => scope.gtin === ""));
@@ -656,7 +656,7 @@ test("Batch Q refresh continuity is sealed to its eight exact owner-reviewed exc
 });
 
 test("Batch R refresh continuity remains sealed to the exact approved item, seller and anomalies", () => {
-  const scopes = new Map(REFRESH_SCOPES.slice(-38).map((scope) => [scope.offer_id, scope]));
+  const scopes = new Map(REFRESH_SCOPES.filter((scope) => Number(scope.offer_id) >= 2720 && Number(scope.offer_id) <= 2757).map((scope) => [scope.offer_id, scope]));
   const evaluation = (offerId, seller, blockers, reasons, returnedGtin) => {
     const scope = scopes.get(offerId);
     return {
@@ -711,7 +711,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_219/);
+  assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_237/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_1(?:\D|$)/);
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
