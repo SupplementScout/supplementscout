@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "contract": "ebay-reviewed-cross-product-parent-batch-r-v1",
+  "owner_confirmation": "OWNER_APPROVED_EBAY_BATCH_R_EXACT_39",
+  "rows": [
+    {
+      "product_id": "24",
+      "product_variant_id": "1583",
+      "external_product_id": "167879148689",
+      "external_variant_id": "v1|167879148689|467421651920",
+      "external_url": "https://www.ebay.co.uk/itm/167879148689?var=467421651920",
+      "external_options": {
+        "Size": "280g",
+        "Flavour": "Raspberry Lemonade"
+      }
+    },
+    {
+      "product_id": "468",
+      "product_variant_id": "2697",
+      "external_product_id": "406431647826",
+      "external_variant_id": "v1|406431647826|676750282318",
+      "external_url": "https://www.ebay.co.uk/itm/406431647826?var=676750282318",
+      "external_options": {
+        "Size": "73g",
+        "Flavour": "Chocolate Chip"
+      }
+    }
+  ]
+}

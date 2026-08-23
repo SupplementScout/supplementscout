@@ -54,6 +54,7 @@ const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_K = require("../config/retailers/
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_L = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-l-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_O = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-o-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_P = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-p-v1.json");
+const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_R = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-r-v1.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -1949,6 +1950,18 @@ function exactSourceOptions(row) {
   return options && Object.keys(options).length > 0 ? options : null;
 }
 
+function isExactEbayBatchRAnimalPakUnitCount(row) {
+  return (
+    optionalIdentifier(row.product_id) === "1104" &&
+    optionalIdentifier(row.product_variant_id) === "2395" &&
+    optionalIdentifier(row.external_product_id) === "235526727416" &&
+    optionalIdentifier(row.external_variant_id) === "v1|235526727416|0" &&
+    getRetailerProductUrl(row) === "https://www.ebay.co.uk/itm/235526727416" &&
+    String(row.variant_name || "").trim() === "Unflavoured / 44 packs" &&
+    String(row.pack_count || "").trim() === "1"
+  );
+}
+
 function isExactEbayCrossProductParentVariant({
   row,
   retailer,
@@ -1981,6 +1994,12 @@ function isExactEbayCrossProductParentVariant({
       contract: "ebay-reviewed-cross-product-parent-batch-p-v1",
       confirmation: "OWNER_APPROVED_EBAY_BATCH_P_EXACT_20",
       rows: 1,
+    },
+    {
+      value: EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_R,
+      contract: "ebay-reviewed-cross-product-parent-batch-r-v1",
+      confirmation: "OWNER_APPROVED_EBAY_BATCH_R_EXACT_39",
+      rows: 2,
     },
   ];
   if (
@@ -2409,11 +2428,13 @@ function collectCanonicalVariantEvidence(row) {
     sizeKey
   );
   const packCounts = normalizedEvidenceValues(
-    [
-      row.pack_count ? `pack of ${row.pack_count}` : null,
-      ...variantText,
-      ...externalOptionValues(options, ["pack", "pack_count", "count"]),
-    ],
+    isExactEbayBatchRAnimalPakUnitCount(row)
+      ? [row.pack_count ? `pack of ${row.pack_count}` : null]
+      : [
+          row.pack_count ? `pack of ${row.pack_count}` : null,
+          ...variantText,
+          ...externalOptionValues(options, ["pack", "pack_count", "count"]),
+        ],
     parsePackCount
   );
   const reviewedFormat = row.__reviewed_whey_okay_format_identity;
@@ -4520,6 +4541,7 @@ module.exports = {
   getRetailerProductUrl,
   isAmbiguousFeedRow,
   isExactEbayCrossProductParentVariant,
+  isExactEbayBatchRAnimalPakUnitCount,
   isProductGtinVerified,
   parseArgs,
   parseFlavour,

@@ -21,6 +21,7 @@ const {
   getRetailerProductUrl,
   isAmbiguousFeedRow,
   isExactEbayCrossProductParentVariant,
+  isExactEbayBatchRAnimalPakUnitCount,
   isProductGtinVerified,
   loadDryRunArtifact,
   parseArgs,
@@ -4580,6 +4581,53 @@ test("Batch P Critical Cookie box shares its eBay parent only for the owner-appr
       external_url: "https://www.ebay.co.uk/itm/406431647826?var=676750282318",
     },
   }), false);
+});
+
+test("Batch R cross-product parent exceptions are exact to Prolific and Chocolate Chip variations", () => {
+  const parentPeers = [{
+    external_product_id: "406431647826",
+    external_variant_id: "v1|406431647826|676750282312",
+    external_url: "https://www.ebay.co.uk/itm/406431647826?var=676750282312",
+  }];
+  const critical = {
+    retailer: { slug: "ebay-uk" },
+    externalProductId: "406431647826",
+    externalVariantId: "v1|406431647826|676750282318",
+    row: {
+      product_id: "468", product_variant_id: "2697",
+      external_url: "https://www.ebay.co.uk/itm/406431647826?var=676750282318",
+      external_options: JSON.stringify({ Size: "73g", Flavour: "Chocolate Chip" }),
+    },
+    parentPeers,
+  };
+  assert.equal(isExactEbayCrossProductParentVariant(critical), true);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...critical, row: { ...critical.row, product_variant_id: "2710" } }), false);
+
+  const prolific = {
+    retailer: { slug: "ebay-uk" },
+    externalProductId: "167879148689",
+    externalVariantId: "v1|167879148689|467421651920",
+    row: {
+      product_id: "24", product_variant_id: "1583",
+      external_url: "https://www.ebay.co.uk/itm/167879148689?var=467421651920",
+      external_options: JSON.stringify({ Size: "280g", Flavour: "Raspberry Lemonade" }),
+    },
+    parentPeers: [{ external_product_id: "167879148689", external_variant_id: "v1|167879148689|467421651919", external_url: "https://www.ebay.co.uk/itm/167879148689?var=467421651919" }],
+  };
+  assert.equal(isExactEbayCrossProductParentVariant(prolific), true);
+  assert.equal(isExactEbayCrossProductParentVariant({ ...prolific, externalVariantId: "v1|167879148689|467421651921" }), false);
+});
+
+test("Batch R Animal Pak treats 44 packs as units inside one retail pack only for the exact approved item", () => {
+  const row = {
+    product_id: "1104", product_variant_id: "2395", external_product_id: "235526727416",
+    external_variant_id: "v1|235526727416|0", external_url: "https://www.ebay.co.uk/itm/235526727416",
+    variant_name: "Unflavoured / 44 packs", pack_count: "1", flavour: "Unflavoured", product_format: "pack",
+  };
+  assert.equal(isExactEbayBatchRAnimalPakUnitCount(row), true);
+  assert.equal(collectCanonicalVariantEvidence(row).packCount, 1);
+  assert.equal(isExactEbayBatchRAnimalPakUnitCount({ ...row, external_variant_id: "v1|235526727417|0" }), false);
+  assert.throws(() => collectCanonicalVariantEvidence({ ...row, product_id: "999" }), /conflicting variant evidence: pack count/);
 });
 
 test("an explicit canonical variant ID may use its exact flavour label when a legacy flavour code is stale", async () => {
