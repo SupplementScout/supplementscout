@@ -10,8 +10,8 @@ const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refr
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_219";
-const KIND = "ebay-existing-offer-refresh-exact-219-v1";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_237";
+const KIND = "ebay-existing-offer-refresh-exact-237-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
 const EXACT_GTIN_METADATA_GAPS = new Set(["FORMAT_UNPROVEN", "SIZE_UNPROVEN", "UNIT_COUNT_UNPROVEN"]);
@@ -160,8 +160,18 @@ const ROLLOUTS = Object.freeze([
   { csv: "batch-p.csv", approval: "batch-p-rollout.json", count: 20 },
   { csv: "batch-q.csv", approval: "batch-q-rollout.json", count: 20 },
   { csv: "batch-r.csv", approval: "batch-r-rollout.json", count: 38 },
+  { csv: "batch-s.csv", approval: "batch-s-rollout.json", count: 18 },
 ]);
 const LIVE_IDENTITY_OVERRIDES = new Map([
+  ["v1|256978504893|557601584732", ["2948", "2762"]], ["v1|198346682799|0", ["2949", "2763"]],
+  ["v1|257053651805|557696446300", ["2950", "2764"]], ["v1|286049984782|588148986109", ["2951", "2765"]],
+  ["v1|353439521141|0", ["2952", "2766"]], ["v1|178052718291|0", ["2953", "2767"]],
+  ["v1|318546057510|0", ["2954", "2768"]], ["v1|146086688061|445043246478", ["2955", "2769"]],
+  ["v1|187837047801|0", ["2956", "2770"]], ["v1|166550190737|466197712102", ["2957", "2771"]],
+  ["v1|286709971349|0", ["2958", "2772"]], ["v1|377141158759|0", ["2959", "2773"]],
+  ["v1|354869780698|0", ["2960", "2774"]], ["v1|373243202481|642139796536", ["2961", "2775"]],
+  ["v1|287487748050|0", ["2944", "2758"]], ["v1|147450939094|0", ["2945", "2759"]],
+  ["v1|227315409315|0", ["2946", "2760"]], ["v1|147458020827|0", ["2947", "2761"]],
   ["v1|394018039646|662564730389", ["2784", "2599"]], ["v1|256978504929|557601659147", ["2785", "2600"]],
   ["v1|145921318153|444963406170", ["2786", "2601"]], ["v1|143513790155|445757979940", ["2787", "2602"]],
   ["v1|177952936229|477482944161", ["2788", "2603"]], ["v1|404774853352|674791941889", ["2789", "2604"]],
@@ -269,10 +279,12 @@ function loadScopes() {
       const row = parsed[index], approved = approvedEntries.find((entry) => entry.external_variant_id === row.external_variant_id) || fallbackEntries.find((entry) => entry.external_variant_id === row.external_variant_id);
       if (!approved) fail(`Reviewed rollout entry missing: ${source.csv} row ${index + 2}`);
       const rowGtin = String(row.external_gtin || "").trim() || null;
-      const approvedGtin = approved.gtin == null ? null : String(approved.gtin);
+      const approvedGtinValue = Object.prototype.hasOwnProperty.call(approved, "gtin") ? approved.gtin : approved.expected_returned_gtin;
+      const approvedGtin = approvedGtinValue == null ? null : String(approvedGtinValue);
       const options = row.external_options ? JSON.parse(row.external_options) : {};
       const unitMatch = String(options["Unit count"] || "").match(/(\d+)\s*(capsules?|caps?|tablets?|softgels?|servings?)/i);
-      if (String(row.product_id) !== String(approved.product_id) || String(row.product_variant_id) !== String(approved.product_variant_id) || rowGtin !== approvedGtin || row.external_product_id !== approved.external_product_id || row.external_variant_id !== approved.external_variant_id) fail(`Reviewed rollout row identity mismatch: ${source.csv} row ${index + 2}`);
+      const approvedExternalProductId = Object.prototype.hasOwnProperty.call(approved, "external_product_id") ? approved.external_product_id : approved.legacy_item_id;
+      if (String(row.product_id) !== String(approved.product_id) || String(row.product_variant_id) !== String(approved.product_variant_id) || rowGtin !== approvedGtin || row.external_product_id !== approvedExternalProductId || row.external_variant_id !== approved.external_variant_id) fail(`Reviewed rollout row identity mismatch: ${source.csv} row ${index + 2}`);
       rows.push({
         ...row,
         flavour_label: row.flavour || null,
@@ -286,7 +298,7 @@ function loadScopes() {
       });
     }
   }
-  if (rows.length !== 219) fail("Exact eBay refresh manifest must contain 219 rows");
+  if (rows.length !== 237) fail("Exact eBay refresh manifest must contain 237 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => {
