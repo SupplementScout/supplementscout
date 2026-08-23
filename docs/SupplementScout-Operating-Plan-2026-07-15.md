@@ -971,6 +971,21 @@ production-wide checkpoint is now 211/250 products with at least two
 positive-price in-stock retailers, leaving 39. Batch Q is **LIVE VERIFIED
 20/20** and must not be replayed.
 
+The owner then approved the 11 final replacements and production apply for
+Batch R. The exact 39 approved identities resolved to 38 guarded creates plus
+one verified existing no-op for Applied Nutrition Critical Greens (mapping
+`2888`, offer `2702`), preventing a duplicate. PR `#45` merged the release as
+`d60737c4d0e62aaa1e8bb20382bbbf18f2b5812d`; protected production run
+`32627418960` created mappings `2906`-`2943`, offers `2720`-`2757` and 38
+history rows, then passed its 38-row postflight. Independent production
+readback and all 38 public product-page checks passed. PR `#46` extended the
+same shared refresh to exact 219 as `8392fd9a0b085d01a452687f686bef32df5b46f9`.
+Protected production-readonly run `32628541876` passed 219/219
+`verify_no_change`, zero blockers and zero writes; all apply steps were skipped
+and automatic-OOS blocking remains active. The authoritative multi-retailer
+checkpoint is now 232/250, leaving 18. Batch R is **LIVE VERIFIED 39/39** and
+must not be replayed.
+
 ### Binding catalogue exclusion policy - 27 July 2026
 
 This is a global SupplementScout catalogue rule. It applies to every retailer, source, importer, discovery report, approval artifact and automated refresh, regardless of retailer consent or commercial value.
@@ -3011,6 +3026,18 @@ progress through its normal page roadmap.
   dry-run `32571366605` passed 181 eligible, zero blocked and zero writes;
   automatic-OOS remains blocked.
 - The authoritative live multi-retailer checkpoint is 211/250, leaving 39.
+
+### 23 August 2026 - eBay Batch R live closeout
+
+- The exact owner-approved 39 identities were represented without duplication
+  by 38 production creates and one verified existing Critical Greens no-op.
+- PR `#45` and production run `32627418960` created mappings `2906`-`2943`,
+  offers `2720`-`2757` and 38 history rows. The exact postflight, independent
+  database readback and 38 public-page checks passed.
+- PR `#46` expanded the one shared guarded refresh to exact 219. Protected
+  production-readonly run `32628541876` passed 219/219, zero blocked and zero
+  writes; apply steps were skipped and automatic-OOS remains blocked.
+- The authoritative live multi-retailer checkpoint is 232/250, leaving 18.
 
 ### 22 August 2026 - eBay Batch P live closeout
 
