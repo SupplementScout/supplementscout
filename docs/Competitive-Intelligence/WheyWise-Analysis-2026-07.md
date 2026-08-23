@@ -49,17 +49,16 @@ server-rendered lowest-known-delivered-price answer, and its sitemap increased
 to 1,090 URLs. That is progress, but it has not materially closed the
 acquisition gap yet.
 
-The owner changed the binding execution order on 20 August 2026. The fastest
+The owner changed the binding execution order on 20 August 2026. SEO-11,
+SEO-13 and SEO-14 are now complete and live verified, and the exact
+multi-retailer milestone is independently verified at `250/250`. The fastest
 defensible response is now:
 
-1. with SEO-11 brand normalization complete, ship individually gated, useful
-   brand and retailer pages through SEO-14;
-2. return to SEO-13 for the bounded Protein Bars classification, exact-pack and
-   coverage-gate recheck without repeating completed pages;
-3. increase exact multi-retailer overlap from 169 products to 250, because weak
-   overlap limits both page usefulness and click opportunity;
-4. then ship the planned deals, guarded two-product comparison and reviewed
-   expert-note work. Outbound outreach remains paused by owner decision.
+1. complete SEO-15, a data-backed Deals and Price Drops page using the existing
+   offer and price-history store;
+2. complete SEO-16, the guarded two-product comparison;
+3. complete SEO-17, reviewed expert notes where they add decision value.
+   Outbound outreach remains paused by owner decision.
 
 Do not respond by copying WheyWise's unsupported popularity signals, medical
 claims, inconsistent counts or broad thin-page production.
@@ -660,21 +659,18 @@ The task order below replaces the older immediate-action list in this document.
 The Operating Plan and SEO Execution Plan hold the authoritative statuses and
 completion evidence.
 
-`SEO-11` and `SEO-14` are complete and live verified.
+`SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
+multi-retailer coverage milestone is independently verified at `250/250`.
 
-1. `SEO-13`: resume the bounded Protein Bars classification, exact-pack and
-   coverage-gate recheck; do not repeat completed pages or weaken the gate.
-2. Increase canonical products with at least two active retailers from the
-   20 August checkpoint of 169 to 250.
-3. Complete `SEO-15`, a data-backed deals and price-drops page from existing
+1. Complete `SEO-15`, a data-backed deals and price-drops page from existing
    offer and price-history data; do not create a second pricing store.
-4. Complete `SEO-16`, a guarded two-product comparison using the existing
+2. Complete `SEO-16`, a guarded two-product comparison using the existing
    canonical catalogue, variants, verified metrics and delivered prices.
-5. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
+3. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
    value; clearly separate verified facts from expert judgement.
-6. Record Search Console and GA4 evidence weekly, including organic visibility,
+4. Record Search Console and GA4 evidence weekly, including organic visibility,
    landing pages and organic retailer clicks.
-7. Continue legitimate authority research through useful data resources, but
+5. Continue legitimate authority research through useful data resources, but
    keep outbound outreach paused until the owner changes the no-email decision.
 
 The first three steps are the current build sequence. Measurement is continuous

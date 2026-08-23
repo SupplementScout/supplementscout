@@ -115,7 +115,7 @@ Console evidence and user value.
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `LIVE VERIFIED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
-| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `IN PROGRESS` | The owner accepted the bounded Protein P0 as live verified. Protein Bars now passes the unchanged `3 / 2 / 20` gate and is locally `CODE COMPLETE`; release and public verification remain required without repeating live pages. |
+| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
@@ -123,11 +123,11 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — review, commit, release and live-verify the
-locally complete `/protein-bars` unit. Its fresh exact-pack evidence passes the
-unchanged gate at `3` multi-retailer products, `2` comparison retailers and
-`27` fresh offers. Reuse the existing category-page contract, do not repeat
-completed pages and let the same readiness gate fail closed if coverage falls.
+**Next executable task:** SEO-15 — begin with a read-only Deals and Price Drops
+readiness audit of the existing offer and price-history data. Do not create a
+second pricing store, infer discounts from unsupported reference prices or
+start page implementation until the evidence boundary and fail-closed gate are
+reviewed. SEO-15 remains `PLANNED`; no implementation has started.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -135,9 +135,9 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-Follow the binding sequence in Operating Plan section 0.0.7: the bounded
-SEO-13 Protein Bars recheck, the 250-product multi-retailer checkpoint, SEO-15,
-SEO-16 and SEO-17. SEO-14 is complete.
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-15, SEO-16
+and SEO-17. SEO-13 and SEO-14 are complete, and the 250-product multi-retailer
+checkpoint is independently verified complete.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation or send outreach email
 while the owner's no-email decision remains in force.
@@ -152,16 +152,15 @@ Current catalogue evidence supports this initial order:
 | Whey Protein | 65 | 409 | 12 | First new high-intent landing page. |
 | Pre Workout | 88 | 339 | 11 | Second new high-intent landing page. |
 | Amino Acids / BCAA / EAA | 51 | 173 | 12 | Research taxonomy before page implementation. |
-| Protein Bars | 4 | 27 | 3 | Exact-pack boundary passes `3 / 2 / 20`; locally `CODE COMPLETE`, awaiting release and public verification. |
+| Protein Bars | 4 | 27 | 3 | Exact-pack boundary passes `3 / 2 / 20`; `LIVE VERIFIED` in production. |
 | Mass Gainer | 8 | 44 | 3 | Lower-volume page; publish only if query evidence supports it. |
 
 New pages must reuse one controlled category/decision-page system. Do not create
 one independent implementation per category.
 
 The table below preserves SEO-13's reviewed cluster order and historical gate
-contract. The owner paused further SEO-13 execution on 20 August 2026 until
-SEO-14 finishes; SEO-11 is complete. When SEO-13 resumes, Protein Bars is rechecked first;
-completed pages are not rebuilt and no gate is weakened.
+contract. SEO-13 is complete and `LIVE VERIFIED`; completed pages must not be
+rebuilt and no readiness gate may be weakened.
 
 | Order | Candidate page | Evidence gate before implementation |
 |---:|---|---|
@@ -272,7 +271,7 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 23 August 2026 — SEO-13 Protein Bars CODE COMPLETE; live evidence pending
+### 23 August 2026 — SEO-13 Protein Bars LIVE VERIFIED
 
 - The owner accepted the preceding Protein P0 as completed and production
   verified. No further P0 implementation, refresh workflow or production-data
@@ -301,10 +300,18 @@ SEO-07 manual evidence queue is now complete:
   catalogue variant.
 - Focused Protein Bars and shared regression tests, TypeScript,
   `npm run verify:project`, `npm run verify:quick`, `npm run verify:full` and a
-  production-backed build pass locally. A local production server returns
-  `200`, `index, follow`, the exact canonical, CollectionPage/ItemList/
-  BreadcrumbList JSON-LD and one sitemap entry. Public deployment verification
-  is still required before `LIVE VERIFIED`.
+  production-backed build passed locally. Commit
+  `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` was pushed to `main`; Vercel
+  production deployment `6048852742` completed successfully and the post-push
+  Quality Gate passed.
+- Public `/protein-bars` returned HTTP `200`, `index, follow`, the exact
+  canonical, CollectionPage/ItemList/BreadcrumbList JSON-LD and exactly one
+  sitemap entry. It rendered only the four approved exact-pack products, four
+  known delivered prices and the current retailer-check date. Mixed and
+  unresolved packs remained excluded; price per bar, cost per serving and
+  nutrition-dependent value metrics remained hidden. Homepage,
+  `/whey-protein` and `/vegan-protein` discovery links passed, no checked URL
+  returned `5xx`, and existing readiness behavior was unchanged.
 - GYM HIGH remains owner-deferred. Separately record, but do not repair inside
   SEO-13, that the homepage lacks an explicit self-canonical and emits no
   JSON-LD; that requires its own owner-approved follow-up.

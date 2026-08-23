@@ -238,20 +238,17 @@ This is the binding growth sequence. The owner reordered it on 20 August 2026;
 that decision supersedes older immediate-task and competitive-response ordering
 where they conflict:
 
-`SEO-11` and `SEO-14` are complete and live verified.
+`SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
+multi-retailer coverage milestone is also independently verified at `250/250`.
 
-1. `SEO-13`: return to a fresh Protein Bars classification, pack-identity
-   and coverage-gate review; publish only if the unchanged quality gate passes;
-2. increase products with at least two active retailers from the 20 August
-   checkpoint of 169 to 250, prioritising exact second-retailer coverage;
-3. complete `SEO-15`, a data-backed deals and price-drops page using the
+1. complete `SEO-15`, a data-backed deals and price-drops page using the
    existing offers and price-history store;
-4. complete `SEO-16`, a guarded two-product comparison using existing
+2. complete `SEO-16`, a guarded two-product comparison using existing
    canonical data, verified metrics and delivered prices;
-5. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
+3. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
    materially help a buying decision;
-6. record Search Console and GA4 evidence weekly throughout the sequence;
-7. continue authority research, but keep outbound outreach paused until the
+4. record Search Console and GA4 evidence weekly throughout the sequence;
+5. continue authority research, but keep outbound outreach paused until the
    owner changes the current no-email decision.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
@@ -900,11 +897,11 @@ the production build passed. This is local `CODE COMPLETE` evidence only. No
 push, deployment, refresh workflow or production write occurred. GYM HIGH
 remains owner-deferred from brand and retailer publication.
 
-### 0.0.17 SEO-13 Protein Bars local checkpoint - 23 August 2026
+### 0.0.17 SEO-13 Protein Bars LIVE VERIFIED checkpoint - 23 August 2026
 
 The owner accepted Protein P0 as completed and production verified, without
-authorising any further P0 change. `SEO-13` remains the single active SEO
-implementation and has resumed with only the bounded Protein Bars unit.
+authorising any further P0 change. The bounded Protein Bars unit is now
+production verified and `SEO-13` is complete.
 
 A fresh production read-only audit at `2026-08-23T13:28:18.905Z` found `52`
 active, unmerged canonical products in exact category `Protein Bars`, `183`
@@ -922,15 +919,19 @@ Verified product-level unit-count coverage is `0/4`, so exact pack and delivered
 price are visible while price per bar and nutrition-dependent value metrics are
 not inferred or rendered.
 
-The local `/protein-bars` implementation reuses the existing comparison,
+The `/protein-bars` implementation reuses the existing comparison,
 variant-resolution, delivered-price, freshness, analytics, readiness-sitemap,
 metadata and schema mechanisms. It adds one reviewed route and no dynamic page
 generator, catalogue variant or data importer. Focused regressions, TypeScript,
 Project Guardian, the quick/full quality gates, the production build and a
-local production-server check pass. The route is `CODE COMPLETE`, not `LIVE
-VERIFIED`; the next action is owner review followed by a separate commit,
-release and read-only public verification. No push, refresh workflow or
-production-data write occurred. GYM HIGH remains owner-deferred.
+local production-server check passed. Commit
+`c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` was pushed to `main`; production
+deployment `6048852742` and the post-push Quality Gate succeeded. Public HTTP,
+canonical, `index, follow`, schema, single sitemap entry, exact-pack product
+set, known delivered prices, current check date and internal links passed.
+Mixed and unresolved packs remained excluded, unverified per-bar and nutrition
+metrics remained hidden, and no checked URL returned `5xx`. No refresh workflow
+or production-data write occurred. GYM HIGH remains owner-deferred.
 
 One unrelated technical SEO follow-up is recorded but explicitly excluded from
 SEO-13: the homepage lacks an explicit self-canonical and emits no JSON-LD.
@@ -2645,10 +2646,11 @@ Target experience:
 
 ### Current active task
 
-`SEO-13` is the single active implementation. The owner accepted Protein P0 as
-production verified. The bounded `/protein-bars` unit now passes the unchanged
-exact-pack gate at `3 / 2 / 27` and is locally `CODE COMPLETE`; owner review,
-commit, release and read-only public verification are next. SEO-14 is live verified after launching useful,
+`SEO-15` Deals and Price Drops is the next planned task. Begin with a read-only
+readiness audit of the existing offers and price-history store; no implementation
+has started. `SEO-13` is complete and live verified from commit
+`c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
+`6048852742`. SEO-14 is live verified after launching useful,
 individually gated brand and retailer pages through the existing catalogue and
 page-quality mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
@@ -2702,20 +2704,20 @@ publication.
 
 ### Next task
 
-Review, commit, release and live-verify the locally complete `/protein-bars`
-unit without any refresh or production-data write. Do not repeat completed
-SEO-13 pages or weaken its readiness gate.
+Run the bounded read-only SEO-15 Deals and Price Drops readiness audit against
+the existing offer and price-history data. Define truthful historical-price,
+delivered-price, freshness and fail-closed publication requirements before any
+implementation; do not create a second pricing store.
 
 ### Then
 
-1. Select overlap-oriented retailer sources through the existing registry and
-   guarded import path until 250 products have at least two active retailers.
-2. Build `SEO-15`, `SEO-16` and `SEO-17` in that order, reusing the existing
-   data model.
-3. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
-4. Monitor scheduled retailer refreshes; keep new discovery report-only until
+1. After the SEO-15 readiness decision, implement it only if its reviewed data
+   and quality gates pass; then build `SEO-16` and `SEO-17` in that order,
+   reusing the existing data model.
+2. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
+3. Monitor scheduled retailer refreshes; keep new discovery report-only until
    reviewed and preserve all drift, replay and recovery controls.
-6. Freeze infrastructure and control-plane work unless a real batch exposes a
+4. Freeze infrastructure and control-plane work unless a real batch exposes a
    specific unsupported requirement.
 
 ### Deferred near-term
