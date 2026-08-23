@@ -2,10 +2,10 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 219-OFFER ROLLOUT LIVE VERIFIED; BATCH R COMPLETE 39/39 (38 CREATES + 1 VERIFIED EXISTING NO-OP)
+**Status:** CONTROLLED 237-OFFER ROLLOUT LIVE; BATCH S COMPLETE 18/18; MULTI-RETAILER MILESTONE 250/250
 **Last verified:** 23 August 2026
-**Production writes:** 219 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 219 mappings, 219 offers, 219 initial price-history rows)
-**Public changes:** 1 guarded account-deletion API route and 219 live eBay offers
+**Production writes:** 237 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 237 mappings, 237 offers, 237 initial price-history rows)
+**Public changes:** 1 guarded account-deletion API route and 237 live eBay offers
 
 Every future eBay task must read this document first and continue from
 `Current status` and `Next action`. Update the dated evidence and changelog
@@ -41,12 +41,14 @@ and is eligible for compliant tracking.
 ## Current status
 
 Design, audit, Developers/EPN access, Production keyset compliance, the
-read-only Browse pilot and the controlled 219-offer rollout are complete. The
+read-only Browse pilot and the controlled 237-offer rollout are complete. The
 existing adapter and guarded importer remain the only approved paths. Current
-production evidence includes the Batch R apply and exact-offer refresh below.
-The exact-219 daily refresh is enabled at `05:43 UTC`; each
+production evidence includes the Batch S apply and exact-offer refresh below.
+The exact-237 daily refresh is enabled at `05:43 UTC`; each
 row continues to fail closed independently if its approved identity or safety
-evidence changes. Batch G added exactly nine owner-reviewed listings across
+evidence changes. Its first 237-row read-only pass was source-rate-limited after
+131 rows; the remaining 106 failed closed with zero writes. Batch G added
+exactly nine owner-reviewed listings across
 nine variants and eight products after direct item-ID preflight. All nine are
 part of the same guarded exact-80 scheduled refresh manifest; missing GTIN
 remains explicit evidence and is accepted only for the exact approved item,
@@ -230,6 +232,21 @@ active. Evidence artifact `9490436417` has digest
 `ff9313904a73fe6d387e1e086deea73a352ff6b84939fc0d88c367bfba3f611e`.
 The production-wide checkpoint is 232/250, leaving 18. Batch R must not be
 replayed.
+
+Batch S is live verified 18/18. The owner approved all final listings with
+`wszystkie sa dobre`. PR `#48` merged the guarded exact package as
+`e76289a2b1fc20dd8b2ecdb14a2e872ae89c125e`; protected production run
+`32632336319` freshly verified and created mappings `2944`-`2961`, offers
+`2758`-`2775` and 18 price-history rows, then passed the exact 18-row no-op
+postflight. Independent production readback verified the 18 rows and the
+deduplicated multi-retailer checkpoint at **250/250**. PR `#49` expanded the
+same shared refresh from 219 to 237 as
+`e44595989b4b6f7d179093b6fe1e2df6916b8fe4`. Production-readonly run
+`32632937687` verified the first 131 rows; eBay then rate-blocked reads for
+offers `2670`-`2775`, which failed closed as 106 `SOURCE_READ_FAILED` rows.
+That run made zero writes and retained automatic-OOS blocking. Batch S must not
+be replayed. The 250-product milestone is complete; the shared 237-row refresh
+still needs one complete read-only pass after the source limit resets.
 
 Batch O is live verified 20/20. The
 owner confirmed `zatwierdzam wszystkie, nie pytaj o potwierdzenia, doprowadz do
@@ -2092,12 +2109,12 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: Continue the owner-approved 250-product multi-retailer coverage
-phase from the live 232-product checkpoint, leaving 18. Do not repeat Batches
-A-R, return to an older refresh scope, create a second scheduler or widen any
-reviewed shared-parent identity. Select the next bounded exact
-candidate set that adds independent retailer coverage to existing products and
-retain owner review before a new production scope.`
+`NEXT ACTION: The owner-approved 250-product multi-retailer coverage phase is
+complete at the independently verified 250/250 checkpoint. Do not repeat
+Batches A-S, return to an older refresh scope, create a second scheduler or
+widen any reviewed shared-parent identity. Retain the exact-237 shared refresh;
+after the eBay read limit resets, obtain one complete production-readonly
+237-row pass, then follow the binding master-plan sequence.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -2920,6 +2937,17 @@ owner-reviewed production design and approval.
 ## Decision changelog
 
 ### 23 August 2026
+
+- Completed the exact final 18 owner-approved Batch S products through PR
+  `#48` and production run `32632336319`: mappings `2944`-`2961`, offers
+  `2758`-`2775`, 18 history rows and an exact 18-row postflight.
+- Independently verified the production KPI at **250/250** products with at
+  least two active positive-price retailers. The commercial coverage milestone
+  is complete.
+- Extended the one shared refresh to exact 237 through PR `#49`. Read-only run
+  `32632937687` verified 131 rows before a contiguous 106-row eBay source-rate
+  block; zero writes occurred and automatic OOS stayed blocked. A later full
+  237-row read-only pass remains required after the source limit resets.
 
 - Completed Batch R for all 39 final owner-approved identities as 38 guarded
   creates and one verified existing Critical Greens no-op. Production run
