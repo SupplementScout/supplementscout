@@ -40,10 +40,34 @@ function loadCategoryRoutesModule() {
     fileName: filename,
   });
   const mod = new Module(filename, module);
+  const subtypeFilename = path.join(
+    process.cwd(),
+    "app",
+    "lib",
+    "proteinSubtypes.ts"
+  );
+  const subtypeSource = fs.readFileSync(subtypeFilename, "utf8");
+  const subtypeOutput = ts.transpileModule(subtypeSource, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName: subtypeFilename,
+  }).outputText;
+  const subtypeModule = new Module(subtypeFilename, module);
+  subtypeModule.filename = subtypeFilename;
+  subtypeModule.paths = Module._nodeModulePaths(path.dirname(subtypeFilename));
+  subtypeModule._compile(subtypeOutput, subtypeFilename);
+  const originalLoad = Module._load;
+  Module._load = function patchedLoad(request, parent, isMain) {
+    if (parent === mod && request === "./proteinSubtypes") return subtypeModule.exports;
+    return originalLoad.call(this, request, parent, isMain);
+  };
 
-  mod.filename = filename;
-  mod.paths = Module._nodeModulePaths(path.dirname(filename));
-  mod._compile(outputText, filename);
+  try {
+    mod.filename = filename;
+    mod.paths = Module._nodeModulePaths(path.dirname(filename));
+    mod._compile(outputText, filename);
+  } finally {
+    Module._load = originalLoad;
+  }
 
   return mod.exports;
 }
@@ -57,6 +81,7 @@ const {
   categoryBrowseHref,
   COMPARISON_CATEGORY_LINKS,
   comparisonLinkForCategory,
+  comparisonLinkForProduct,
 } = loadCategoryRoutesModule();
 
 function product(overrides = {}) {
@@ -233,6 +258,33 @@ test("comparison category routing is shared, exact and safely falls back", () =>
   );
 });
 
+test("reviewed protein subtype links prefer isolate and vegan hubs", () => {
+  assert.equal(
+    comparisonLinkForProduct({
+      name: "Dymatize ISO 100 2.27kg",
+      category: "Whey Protein",
+      product_format: "powder",
+    }).href,
+    "/whey-isolate"
+  );
+  assert.equal(
+    comparisonLinkForProduct({
+      name: "Ghost Vegan Protein 989g",
+      category: "Protein",
+      product_format: "powder",
+    }).href,
+    "/vegan-protein"
+  );
+  assert.equal(
+    comparisonLinkForProduct({
+      name: "Per4m Whey Protein 2kg",
+      category: "Whey Protein",
+      product_format: "powder",
+    }).href,
+    "/whey-protein"
+  );
+});
+
 test("unknown brands and unsafe image URLs are omitted", () => {
   const data = buildProductStructuredData({
     description: "Visible product summary.",
@@ -266,7 +318,7 @@ test("product page renders native JSON-LD and visible breadcrumbs", () => {
   assert.match(source, /serializeJsonLd\(structuredData\)/);
   assert.match(source, /<nav aria-label="Breadcrumb">/);
   assert.match(source, /aria-current="page"/);
-  assert.match(source, /comparisonLinkForCategory\(product\.category\)/);
+  assert.match(source, /comparisonLinkForProduct\(product\)/);
   assert.match(source, /href=\{comparisonLink\.href\}/);
   assert.match(source, /categoryComparison: comparisonLink/);
   assert.doesNotMatch(source, /from "next\/script"/);

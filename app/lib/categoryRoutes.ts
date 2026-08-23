@@ -1,3 +1,8 @@
+import {
+  hasReviewedVeganProteinIdentity,
+  hasReviewedWheyIsolateIdentity,
+} from "./proteinSubtypes";
+
 export const COMPARISON_CATEGORY_LINKS = Object.freeze([
   { label: "Vitamins", href: "/vitamins" },
   { label: "Creatine", href: "/creatine" },
@@ -24,6 +29,20 @@ export function comparisonLinkForCategory(
 ) {
   const normalized = category?.trim().toLowerCase();
   return normalized ? comparisonLinkByCategory.get(normalized) || null : null;
+}
+
+export function comparisonLinkForProduct(product: {
+  name: string;
+  category?: string | null;
+  product_format?: string | null;
+}) {
+  if (hasReviewedVeganProteinIdentity(product)) {
+    return comparisonLinkForCategory("Vegan Protein");
+  }
+  if (hasReviewedWheyIsolateIdentity(product)) {
+    return comparisonLinkForCategory("Whey Isolate");
+  }
+  return comparisonLinkForCategory(product.category);
 }
 
 export function categoryBrowseHref(category: string) {

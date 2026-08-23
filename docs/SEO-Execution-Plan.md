@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 20 August 2026<br>
+**Status date:** 23 August 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -115,7 +115,7 @@ Console evidence and user value.
 | SEO-10 | P1 | Publish comparison methodology and data-freshness pages. | `LIVE VERIFIED` | Delivered-price, price-history, unit-value, source and limitation rules are publicly explained and linked from priority pages. |
 | SEO-11 | P2 | Normalize brand identities before brand SEO pages. | `LIVE VERIFIED` | Case/alias splits such as `PER4M` and `Per4m`, plus `Unknown`, are reviewed; uncertain identities stay unchanged for owner review and only sufficiently covered brands may proceed to indexable pages. |
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
-| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `IN PROGRESS` | SEO-14 finished on 20 August 2026. Resume with the bounded Protein Bars classification, exact-pack and unchanged coverage-gate recheck without repeating live pages. |
+| SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `IN PROGRESS` | The owner inserted a bounded P0 exact-variant, sitemap-indexability and reviewed-subtype safety fix before Protein Bars. It is locally verified and awaits release/live verification; Protein Bars follows without repeating live pages. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
@@ -123,7 +123,8 @@ Console evidence and user value.
 
 ## 6. Current active task
 
-**Next executable task:** SEO-13 — run the bounded Protein Bars
+**Next executable task:** SEO-13 — release and live-verify the owner-approved
+P0 exact-variant/sitemap/subtype safety fix, then run the bounded Protein Bars
 classification, exact-pack and unchanged coverage-gate recheck. Reuse the
 existing category-page contract, do not repeat completed pages and publish only
 if at least three exact fresh multi-retailer products and 20 fresh offers remain
@@ -271,6 +272,37 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 23 August 2026 — owner-approved P0 before SEO-13 Protein Bars; CODE COMPLETE
+
+- The owner explicitly inserted this smallest safe P0 before the Protein Bars
+  classification while keeping `SEO-13` as the single active implementation.
+- The existing central nutrition resolver now fails closed when the selected
+  offer's gram pack differs from the base product and the exact variant lacks a
+  complete manufacturer-evidenced, approved override. Exact weight can still
+  support price per kg; cost per serving, cost per 25g protein and other
+  serving/nutrition-dependent metrics remain hidden.
+- The four protein comparison loaders reuse that resolver and read existing
+  retailer-product variant bindings. No price, offer, mapping, canonical
+  identity, retailer or nutrition data was changed.
+- Five mismatches remain `AWAITING_MANUFACTURER_EVIDENCE` in
+  `docs/Protein-Exact-Variant-Nutrition-Review-2026-08-23.md`. No values were
+  guessed or applied. The named nutrition-approved pathway is currently
+  product-level only, so exact-variant writes remain blocked pending a separate
+  approved extension of that guarded path.
+- Sitemap output now reuses the current page readiness gates and fails closed.
+  The pre-change production sitemap contained seven, not eight, gated noindex
+  URLs: `/hydration`, `/whey-isolate`, `/mass-gainer`, `/multivitamins`,
+  `/brands/applied-nutrition`, `/brands/per4m` and `/brands/biotech-usa`.
+- Product comparison breadcrumbs now prefer reviewed subtype identity:
+  isolate to `/whey-isolate`, vegan protein to `/vegan-protein`, and broad whey
+  only when neither reviewed subtype applies.
+- Focused tests passed `55/55`; TypeScript, `npm run verify:quick` and
+  `npm run verify:full` passed, including all sealed safe tests and the Next.js
+  production build. The P0 is `CODE COMPLETE`, not `LIVE VERIFIED`: no push,
+  deployment, refresh workflow or production data write occurred.
+- GYM HIGH remains owner-deferred. No GYM HIGH page, new URL, Finder, brand
+  generator, head-to-head comparison or programmatic content was authorised.
 
 ### 20 August 2026 — SEO-14 eBay UK retailer page LIVE VERIFIED
 

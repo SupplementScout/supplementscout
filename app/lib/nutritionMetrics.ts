@@ -60,6 +60,63 @@ function overridesAny(
   return Array.from(keys).some((key) => hasOwn(override, key));
 }
 
+function positiveInteger(value: unknown) {
+  const number = positiveNumber(value);
+  return number !== null && Number.isInteger(number) ? number : null;
+}
+
+function hasCompleteApprovedVariantNutrition(
+  product: ProductNutritionMetrics,
+  override: Record<string, unknown>,
+  structuralVariantWeight: number
+) {
+  if (
+    positiveNumber(override.net_weight_g) !== structuralVariantWeight ||
+    positiveInteger(override.serving_count_verified) === null ||
+    positiveNumber(override.serving_size_g) === null ||
+    typeof override.product_format !== "string" ||
+    override.product_format.trim().length === 0 ||
+    override.unit_pricing_verified !== true ||
+    override.nutrition_verified !== true
+  ) {
+    return false;
+  }
+
+  if (
+    override.source_type !== "manufacturer_product_page" ||
+    typeof override.source_url !== "string" ||
+    !/^https:\/\//.test(override.source_url) ||
+    typeof override.evidence !== "string" ||
+    override.evidence.trim().length < 20
+  ) {
+    return false;
+  }
+
+  const servingCount = positiveInteger(override.serving_count_verified) as number;
+  const servingSize = positiveNumber(override.serving_size_g) as number;
+  if (
+    Math.abs(structuralVariantWeight - servingCount * servingSize) > servingSize
+  ) {
+    return false;
+  }
+
+  if (
+    positiveNumber(product.protein_per_serving_g) !== null &&
+    positiveNumber(override.protein_per_serving_g) === null
+  ) {
+    return false;
+  }
+
+  if (
+    positiveNumber(product.creatine_per_serving_g) !== null &&
+    positiveNumber(override.creatine_per_serving_g) === null
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function getEffectiveNutritionMetrics(
   product: ProductNutritionMetrics,
   variant: VariantNutritionMetrics
@@ -71,6 +128,18 @@ export function getEffectiveNutritionMetrics(
       ? variant.nutrition_override
       : {};
   const structuralVariantWeight = variantWeightG(variant);
+  const productWeight = positiveNumber(product.net_weight_g);
+  const packMismatch =
+    structuralVariantWeight !== null &&
+    productWeight !== null &&
+    structuralVariantWeight !== productWeight;
+  const failClosedForPackMismatch =
+    packMismatch &&
+    !hasCompleteApprovedVariantNutrition(
+      product,
+      override,
+      structuralVariantWeight
+    );
   const nutritionVerified = overridesAny(override, NUTRITION_VALUE_KEYS)
     ? override.nutrition_verified === true
     : overrideValue(
@@ -86,7 +155,7 @@ export function getEffectiveNutritionMetrics(
       product.unit_pricing_verified
     ) === true;
 
-  return {
+  const effective = {
     net_weight_g: overrideValue(
       override,
       "net_weight_g",
@@ -119,5 +188,16 @@ export function getEffectiveNutritionMetrics(
     ) as string | null,
     unit_pricing_verified: unitPricingVerified,
     nutrition_verified: nutritionVerified,
+  };
+
+  if (!failClosedForPackMismatch) return effective;
+
+  return {
+    ...effective,
+    serving_count_verified: null,
+    serving_size_g: null,
+    protein_per_serving_g: null,
+    creatine_per_serving_g: null,
+    nutrition_verified: false,
   };
 }

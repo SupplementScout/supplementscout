@@ -69,6 +69,7 @@ const offerFreshness = compileModule(path.join(process.cwd(), "app", "lib", "off
 const freshness = compileModule(freshnessPath, {
   mocks: { "./offerFreshness": offerFreshness },
 });
+const nutritionMetrics = compileModule(path.join(process.cwd(), "app", "lib", "nutritionMetrics.ts"));
 const categoryComparison = compileModule(categoryComparisonPath, {
   mocks: {
     "./creatineLaunch": freshness,
@@ -121,6 +122,8 @@ function loadWheyComparison(mockSupabase = {}) {
   return compileModule(wheyComparisonPath, {
     mocks: {
       "./categoryComparison": categoryComparison,
+      "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
+      "./nutritionMetrics": nutritionMetrics,
       "./supabase": { supabase: mockSupabase },
     },
   });
@@ -299,6 +302,48 @@ test("verified value metrics use delivered price and disappear without verificat
   );
   assert.equal(unverified.pricePerKg, null);
   assert.equal(unverified.costPer25gProtein, null);
+});
+
+test("comparison metrics fail closed for an unresolved or unapproved pack mismatch", () => {
+  const { normalizeWheyComparison } = loadWheyComparison();
+  const [row] = normalizeWheyComparison(
+    [
+      rawProduct({
+        net_weight_g: 2270,
+        offers: [
+          rawOffer({
+            product_variant: {
+              size_value: 2000,
+              size_unit: "g",
+              product_format: "powder",
+              nutrition_override: {},
+            },
+            variant_resolution: "resolved",
+          }),
+        ],
+      }),
+    ],
+    { now: FIXTURE_NOW }
+  ).rows;
+
+  assert.equal(row.netWeightG, 2000);
+  assert.ok(row.pricePerKg > 0);
+  assert.equal(row.verifiedServingCount, null);
+  assert.equal(row.pricePerServing, null);
+  assert.equal(row.costPer25gProtein, null);
+  assert.equal(row.nutritionVerified, false);
+
+  const [unresolved] = normalizeWheyComparison(
+    [
+      rawProduct({
+        offers: [rawOffer({ variant_resolution: "unresolved" })],
+      }),
+    ],
+    { now: FIXTURE_NOW }
+  ).rows;
+  assert.equal(unresolved.pricePerServing, null);
+  assert.equal(unresolved.costPer25gProtein, null);
+  assert.equal(unresolved.nutritionVerified, false);
 });
 
 test("coverage-first ranking prefers products with more distinct retailers", () => {

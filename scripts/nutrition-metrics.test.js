@@ -52,7 +52,7 @@ test("empty variant override preserves verified product metrics", () => {
   );
 });
 
-test("canonical gram variant size overrides a misleading product package size", () => {
+test("pack mismatch keeps exact weight but fails closed for serving nutrition", () => {
   const result = getEffectiveNutritionMetrics(
     product({ net_weight_g: 2270 }),
     {
@@ -65,6 +65,10 @@ test("canonical gram variant size overrides a misleading product package size", 
 
   assert.equal(result.net_weight_g, 2000);
   assert.equal(result.unit_pricing_verified, true);
+  assert.equal(result.serving_count_verified, null);
+  assert.equal(result.serving_size_g, null);
+  assert.equal(result.protein_per_serving_g, null);
+  assert.equal(result.nutrition_verified, false);
 });
 
 test("verified variant nutrition overrides product-level values", () => {
@@ -73,11 +77,16 @@ test("verified variant nutrition overrides product-level values", () => {
     size_unit: "g",
     product_format: "powder",
     nutrition_override: {
+      net_weight_g: 1800,
       serving_count_verified: 72,
       serving_size_g: 25,
       protein_per_serving_g: 22,
+      product_format: "powder",
       unit_pricing_verified: true,
       nutrition_verified: true,
+      source_type: "manufacturer_product_page",
+      source_url: "https://manufacturer.example/product",
+      evidence: "Manufacturer states 72 servings at 25 g per serving.",
     },
   });
 
@@ -87,6 +96,27 @@ test("verified variant nutrition overrides product-level values", () => {
   assert.equal(result.protein_per_serving_g, 22);
   assert.equal(result.unit_pricing_verified, true);
   assert.equal(result.nutrition_verified, true);
+});
+
+test("incomplete approved override cannot reopen mismatched pack metrics", () => {
+  const result = getEffectiveNutritionMetrics(product(), {
+    size_value: 1800,
+    size_unit: "g",
+    product_format: "powder",
+    nutrition_override: {
+      net_weight_g: 1800,
+      serving_count_verified: 72,
+      serving_size_g: 25,
+      protein_per_serving_g: 22,
+      unit_pricing_verified: true,
+      nutrition_verified: true,
+    },
+  });
+
+  assert.equal(result.net_weight_g, 1800);
+  assert.equal(result.serving_count_verified, null);
+  assert.equal(result.protein_per_serving_g, null);
+  assert.equal(result.nutrition_verified, false);
 });
 
 test("numeric variant override fails closed without matching verification flags", () => {

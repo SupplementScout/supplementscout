@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 20 August 2026<br>
+**Status date:** 23 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -864,6 +864,41 @@ must remain outside any exact-brand selection unless a separate owner-reviewed
 identity correction is approved. Despite passing the numerical gate, GYM HIGH
 is owner-deferred from publication. Do not build, link, index or otherwise
 promote a `/brands/gym-high` landing page; select a different SEO-14 candidate.
+
+### 0.0.16 Owner-approved Protein P0 checkpoint - 23 August 2026
+
+This checkpoint supersedes the immediate next-action wording below without
+changing the roadmap order. The owner explicitly approved one bounded P0 safety
+stage before the active `SEO-13` Protein Bars recheck. `SEO-13` remains the
+single active SEO implementation; Protein Bars resumes only after this P0 is
+released and live verified.
+
+The P0 reuses the existing exact-variant model and central nutrition/value
+resolver. A selected gram variant whose pack differs from the product base now
+fails closed unless its override is complete, verified and bound to manufacturer
+evidence. Price per kg may use the exact structural variant weight, while cost
+per serving, cost per 25g protein and other serving/nutrition-dependent metrics
+remain hidden. The same resolution is used by Whey Protein, Whey Isolate, Vegan
+Protein and Mass Gainer comparisons. No production nutrition, price, offer,
+mapping, canonical identity or retailer data was changed.
+
+The five known mismatches remain evidence-only and blocked in
+`docs/Protein-Exact-Variant-Nutrition-Review-2026-08-23.md`. The existing named
+nutrition-approved plan/apply path is product-level today, so no exact-variant
+data can be written until a separate owner-approved guarded extension exists.
+
+The sitemap now omits readiness-gated routes that currently declare noindex.
+The pre-change production count was seven, not eight: `/hydration`,
+`/whey-isolate`, `/mass-gainer`, `/multivitamins`,
+`/brands/applied-nutrition`, `/brands/per4m` and `/brands/biotech-usa`.
+Reviewed product links prefer `/whey-isolate` or `/vegan-protein` where their
+existing subtype boundary applies, using `/whey-protein` only as the broad
+fallback. No hub copy or URL inventory changed.
+
+Focused tests passed `55/55`; TypeScript, the quick gate and the full gate with
+the production build passed. This is local `CODE COMPLETE` evidence only. No
+push, deployment, refresh workflow or production write occurred. GYM HIGH
+remains owner-deferred from brand and retailer publication.
 
 The next production read-only SEO-14 opportunity audit reviewed every other
 canonical brand through the same 24-hour and `20 / 10 / 3 / 50 / 5` contract.
@@ -2574,9 +2609,10 @@ Target experience:
 
 ### Current active task
 
-`SEO-13` is the single active implementation. Resume only the bounded Protein
-Bars classification, exact-pack and unchanged coverage-gate review without
-repeating completed pages. SEO-14 is live verified after launching useful,
+`SEO-13` is the single active implementation. First release and live-verify the
+owner-approved Protein P0 exact-variant, sitemap and subtype-linking safety fix;
+then resume only the bounded Protein Bars classification, exact-pack and
+unchanged coverage-gate review without repeating completed pages. SEO-14 is live verified after launching useful,
 individually gated brand and retailer pages through the existing catalogue and
 page-quality mechanisms. Applied Nutrition is live verified as the first individually gated
 page. The shared comparison-card and 24-hour freshness refinement is also live
@@ -2630,9 +2666,10 @@ publication.
 
 ### Next task
 
-Complete the active `SEO-13` bounded Protein Bars classification, exact-pack
-and unchanged coverage-gate review. Do not repeat completed SEO-13 pages or
-weaken its gate.
+Release and live-verify the locally complete Protein P0 without any refresh or
+nutrition data write. Then complete the active `SEO-13` bounded Protein Bars
+classification, exact-pack and unchanged coverage-gate review. Do not repeat
+completed SEO-13 pages or weaken its gate.
 
 ### Then
 

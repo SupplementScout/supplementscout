@@ -8,6 +8,8 @@ import {
   type CategoryComparisonSummary,
   type RawCategoryComparisonProduct,
 } from "./categoryComparison";
+import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
+import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
 import { supabase } from "./supabase";
 
 const QUERY_LIMIT = 1000;
@@ -51,6 +53,7 @@ export function normalizeMassGainerComparison(
   return normalizeCategoryComparison(products, {
     isProductInScope: isMassGainerProduct,
     isOfferFresh: isMassGainerOfferFresh,
+    resolveNutritionMetrics: getEffectiveNutritionMetrics,
     now: options.now,
   });
 }
@@ -98,8 +101,12 @@ async function loadMassGainerComparison(): Promise<MassGainerComparisonResult> {
     return emptyCategoryComparisonResult();
   }
 
+  const products = await resolveCategoryComparisonVariants(
+    (data || []) as RawMassGainerProduct[]
+  );
+
   return {
-    ...normalizeMassGainerComparison((data || []) as RawMassGainerProduct[]),
+    ...normalizeMassGainerComparison(products),
     error: false,
   };
 }

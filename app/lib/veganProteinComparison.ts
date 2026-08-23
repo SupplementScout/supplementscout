@@ -9,7 +9,13 @@ import {
   type RawComparisonOffer,
   type RawCategoryComparisonProduct,
 } from "./categoryComparison";
+import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
 import { supabase } from "./supabase";
+import {
+  ANIMAL_PROTEIN_IDENTITY,
+  hasReviewedVeganProteinIdentity,
+} from "./proteinSubtypes";
+import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
 
 const QUERY_LIMIT = 1000;
 export const VEGAN_PROTEIN_MAXIMUM_OFFER_AGE_HOURS = 24;
@@ -19,12 +25,6 @@ export const VEGAN_PROTEIN_INDEX_GATE = {
   minimumFreshRetailersAcrossComparisons: 2,
   minimumFreshOffers: 20,
 } as const;
-
-const PLANT_IDENTITY = /\b(vegan|plant(?:[ -]based)?|pea|rice|hemp)\b/i;
-const PROTEIN_IDENTITY = /\bprotein\b/i;
-const NON_POWDER_FOOD =
-  /\b(bar|bars|bite|bites|cookie|cookies|wafer|flapjack|spread|snack|brownie|drink|gel|meal)\b/i;
-const ANIMAL_PROTEIN = /\b(whey|casein|collagen|beef|egg|milk protein)\b/i;
 
 type RawRetailerProductLabel =
   | { external_name: string | null }
@@ -68,17 +68,13 @@ export function isVeganProteinProduct(product: RawVeganProteinProduct) {
     product.is_active !== true ||
     product.merged_into_product_id !== null ||
     product.merged_at !== null ||
-    !PLANT_IDENTITY.test(product.name) ||
-    !PROTEIN_IDENTITY.test(product.name) ||
-    NON_POWDER_FOOD.test(product.name) ||
-    ANIMAL_PROTEIN.test(product.name) ||
-    (product.product_format !== null && product.product_format !== "powder")
+    !hasReviewedVeganProteinIdentity(product)
   ) {
     return false;
   }
 
   return !(product.offers || []).some((offer) =>
-    ANIMAL_PROTEIN.test(retailerLabel(offer))
+    ANIMAL_PROTEIN_IDENTITY.test(retailerLabel(offer))
   );
 }
 
@@ -90,6 +86,7 @@ export function normalizeVeganProteinComparison(
     isProductInScope: (product) =>
       isVeganProteinProduct(product as RawVeganProteinProduct),
     isOfferFresh: isVeganProteinOfferFresh,
+    resolveNutritionMetrics: getEffectiveNutritionMetrics,
     now: options.now,
   });
 }
@@ -137,8 +134,12 @@ async function loadVeganProteinComparison(): Promise<VeganProteinComparisonResul
     return emptyCategoryComparisonResult();
   }
 
+  const products = await resolveCategoryComparisonVariants(
+    (data || []) as RawVeganProteinProduct[]
+  );
+
   return {
-    ...normalizeVeganProteinComparison((data || []) as RawVeganProteinProduct[]),
+    ...normalizeVeganProteinComparison(products),
     error: false,
   };
 }

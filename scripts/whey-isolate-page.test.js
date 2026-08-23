@@ -32,6 +32,8 @@ function compileModule(filename, mocks = {}) {
 const pricing = compileModule(path.join(process.cwd(), "app/lib/pricing.ts"));
 const offerFreshness = compileModule(path.join(process.cwd(), "app/lib/offerFreshness.ts"));
 const creatineLaunch = compileModule(path.join(process.cwd(), "app/lib/creatineLaunch.ts"), { "./offerFreshness": offerFreshness });
+const nutritionMetrics = compileModule(path.join(process.cwd(), "app/lib/nutritionMetrics.ts"));
+const proteinSubtypes = compileModule(path.join(process.cwd(), "app/lib/proteinSubtypes.ts"));
 const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), {
   "./creatineLaunch": creatineLaunch,
   "./pricing": pricing,
@@ -47,6 +49,9 @@ function loadComparison(rows = []) {
   return compileModule(comparisonPath, {
     react: { cache: (fn) => fn },
     "./categoryComparison": categoryComparison,
+    "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
+    "./nutritionMetrics": nutritionMetrics,
+    "./proteinSubtypes": proteinSubtypes,
     "./supabase": { supabase: { from: () => builder } },
   });
 }
@@ -111,6 +116,9 @@ test("production query stays bounded to active Whey Protein products", async () 
   const comparison = compileModule(comparisonPath, {
     react: { cache: (fn) => fn },
     "./categoryComparison": categoryComparison,
+    "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
+    "./nutritionMetrics": nutritionMetrics,
+    "./proteinSubtypes": proteinSubtypes,
     "./supabase": { supabase: { from: (table) => { calls.push(["from", table]); return builder; } } },
   });
   await comparison.getWheyIsolateComparison();

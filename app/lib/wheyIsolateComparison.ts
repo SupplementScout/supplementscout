@@ -8,7 +8,10 @@ import {
   type CategoryComparisonSummary,
   type RawCategoryComparisonProduct,
 } from "./categoryComparison";
+import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
 import { supabase } from "./supabase";
+import { hasReviewedWheyIsolateIdentity } from "./proteinSubtypes";
+import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
 
 const QUERY_LIMIT = 1000;
 
@@ -17,10 +20,6 @@ export const WHEY_ISOLATE_INDEX_GATE = {
   minimumFreshRetailersAcrossComparisons: 2,
   minimumFreshOffers: 20,
 } as const;
-
-const EXPLICIT_ISOLATE_IDENTITY =
-  /(?:\bisolate\b|\bwpi\b|\biso(?:[-\s]?(?:xp|hd|100))?\b)/i;
-const EXCLUDED_IDENTITY = /(?:\bblend\b|\btri[-\s]?blend\b|\bbeef\b|\bcollagen\b)/i;
 
 export type RawWheyIsolateProduct = RawCategoryComparisonProduct;
 export type WheyIsolateComparisonRow = CategoryComparisonRow;
@@ -37,10 +36,7 @@ export function isWheyIsolateProduct(product: RawWheyIsolateProduct) {
     return false;
   }
 
-  return (
-    EXPLICIT_ISOLATE_IDENTITY.test(product.name) &&
-    !EXCLUDED_IDENTITY.test(product.name)
-  );
+  return hasReviewedWheyIsolateIdentity(product);
 }
 
 export function normalizeWheyIsolateComparison(
@@ -49,6 +45,7 @@ export function normalizeWheyIsolateComparison(
 ): Omit<WheyIsolateComparisonResult, "error"> {
   return normalizeCategoryComparison(products, {
     isProductInScope: isWheyIsolateProduct,
+    resolveNutritionMetrics: getEffectiveNutritionMetrics,
     now: options.now,
   });
 }
@@ -114,8 +111,12 @@ async function loadWheyIsolateComparison(): Promise<WheyIsolateComparisonResult>
     return emptyCategoryComparisonResult();
   }
 
+  const products = await resolveCategoryComparisonVariants(
+    (data || []) as RawWheyIsolateProduct[]
+  );
+
   return {
-    ...normalizeWheyIsolateComparison((data || []) as RawWheyIsolateProduct[]),
+    ...normalizeWheyIsolateComparison(products),
     error: false,
   };
 }

@@ -8,6 +8,24 @@ import {
   type DeliveredPrice,
 } from "./pricing";
 
+type NutritionScalar = number | string | null;
+type EffectiveComparisonNutrition = {
+  net_weight_g: NutritionScalar;
+  serving_count_verified: NutritionScalar;
+  serving_size_g: NutritionScalar;
+  protein_per_serving_g: NutritionScalar;
+  creatine_per_serving_g: NutritionScalar;
+  product_format: string | null;
+  unit_pricing_verified: boolean | null;
+  nutrition_verified: boolean | null;
+};
+type ComparisonNutritionVariant = {
+  size_value?: NutritionScalar;
+  size_unit?: string | null;
+  product_format?: string | null;
+  nutrition_override?: Record<string, unknown> | null;
+} | null;
+
 export type RawComparisonRetailer = {
   id: number | string;
   name: string | null;
@@ -26,6 +44,8 @@ export type RawComparisonOffer = {
     | RawComparisonRetailer
     | RawComparisonRetailer[]
     | null;
+  product_variant?: ComparisonNutritionVariant | ComparisonNutritionVariant[];
+  variant_resolution?: "resolved" | "unresolved";
 };
 
 export type RawCategoryComparisonProduct = {
@@ -58,6 +78,8 @@ export type CategoryComparisonOffer = {
   shippingCost: number | null;
   deliveredPrice: DeliveredPrice | null;
   lastCheckedAt: string;
+  nutritionVariant: ComparisonNutritionVariant;
+  variantResolution: "legacy" | "resolved" | "unresolved";
 };
 
 export type CategoryComparisonRow = {
@@ -171,6 +193,8 @@ function normalizeOffer(
     shippingCost: deliveredPrice?.shippingCost ?? null,
     deliveredPrice,
     lastCheckedAt: offer.last_checked_at as string,
+    nutritionVariant: relationOne(offer.product_variant),
+    variantResolution: offer.variant_resolution || "legacy",
   };
 }
 
@@ -217,6 +241,10 @@ export function normalizeCategoryComparison(
   options: {
     isProductInScope: (product: RawCategoryComparisonProduct) => boolean;
     isOfferFresh?: (checkedAt: string | null, now: Date) => boolean;
+    resolveNutritionMetrics?: (
+      product: EffectiveComparisonNutrition,
+      variant: ComparisonNutritionVariant
+    ) => EffectiveComparisonNutrition;
     now?: Date;
   }
 ): Omit<CategoryComparisonResult, "error"> {
@@ -242,17 +270,43 @@ export function normalizeCategoryComparison(
       if (offers.length === 0) return null;
 
       const bestOffer = offers[0];
-      const netWeightG = positiveNumber(product.net_weight_g);
+      const baseNutritionMetrics = {
+        net_weight_g: product.net_weight_g,
+        serving_count_verified: product.serving_count_verified,
+        serving_size_g: product.serving_size_g ?? null,
+        protein_per_serving_g: product.protein_per_serving_g ?? null,
+        creatine_per_serving_g: null,
+        product_format: product.product_format ?? null,
+        unit_pricing_verified: product.unit_pricing_verified ?? null,
+        nutrition_verified: product.nutrition_verified ?? null,
+      };
+      const resolvedMetrics = options.resolveNutritionMetrics
+        ? options.resolveNutritionMetrics(
+            baseNutritionMetrics,
+            bestOffer.nutritionVariant
+          )
+        : baseNutritionMetrics;
+      const effectiveMetrics = bestOffer.variantResolution === "unresolved"
+        ? {
+            ...resolvedMetrics,
+            serving_count_verified: null,
+            serving_size_g: null,
+            protein_per_serving_g: null,
+            creatine_per_serving_g: null,
+            nutrition_verified: false,
+          }
+        : resolvedMetrics;
+      const netWeightG = positiveNumber(effectiveMetrics.net_weight_g);
       const verifiedServingCount = positiveInteger(
-        product.serving_count_verified
+        effectiveMetrics.serving_count_verified
       );
-      const servingSizeG = positiveNumber(product.serving_size_g);
+      const servingSizeG = positiveNumber(effectiveMetrics.serving_size_g);
       const proteinPerServingG = positiveNumber(
-        product.protein_per_serving_g
+        effectiveMetrics.protein_per_serving_g
       );
-      const productFormat = product.product_format || null;
-      const unitPricingVerified = product.unit_pricing_verified === true;
-      const nutritionVerified = product.nutrition_verified === true;
+      const productFormat = effectiveMetrics.product_format || null;
+      const unitPricingVerified = effectiveMetrics.unit_pricing_verified === true;
+      const nutritionVerified = effectiveMetrics.nutrition_verified === true;
 
       return {
         id: String(product.id),

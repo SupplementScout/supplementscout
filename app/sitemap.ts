@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { CREATINE_LAUNCH_STATUS } from "./lib/creatineLaunch";
 import { supabase } from "./lib/supabase";
+import { getSitemapIndexability } from "./lib/sitemapReadiness";
+import { isSitemapPathIndexable } from "./lib/sitemapIndexability";
 
 const siteUrl = "https://www.supplementscout.co.uk";
 const SITEMAP_PAGE_SIZE = 1000;
@@ -187,7 +189,10 @@ const creatinePages: MetadataRoute.Sitemap = CREATINE_LAUNCH_STATUS.includeInSit
   : [];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { products, error } = await loadActiveProducts();
+  const [{ products, error }, indexability] = await Promise.all([
+    loadActiveProducts(),
+    getSitemapIndexability(),
+  ]);
 
   if (error) {
     console.error("Unable to load product pages for sitemap.", error);
@@ -203,5 +208,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       }));
 
-  return [...staticPages, ...creatinePages, ...productPages];
+  const readyStaticPages = staticPages.filter((page) => {
+    const path = new URL(page.url).pathname;
+    return isSitemapPathIndexable(path, indexability);
+  });
+
+  return [...readyStaticPages, ...creatinePages, ...productPages];
 }

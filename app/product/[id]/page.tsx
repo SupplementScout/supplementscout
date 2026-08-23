@@ -35,7 +35,7 @@ import {
   formatOfferCheckedDate,
 } from "../../lib/productOfferPresentation";
 import { getEffectiveNutritionMetrics } from "../../lib/nutritionMetrics";
-import { comparisonLinkForCategory } from "../../lib/categoryRoutes";
+import { comparisonLinkForProduct } from "../../lib/categoryRoutes";
 import {
   getBestProductOffer,
   getOfferVariantLabel,
@@ -501,7 +501,7 @@ export default async function ProductPage({
     effectiveMetrics.product_format
   );
   const productSummary = buildProductSummary(product);
-  const comparisonLink = comparisonLinkForCategory(product.category);
+  const comparisonLink = comparisonLinkForProduct(product);
   const structuredData = buildProductStructuredData({
     categoryComparison: comparisonLink
       ? { name: comparisonLink.label, url: comparisonLink.href }

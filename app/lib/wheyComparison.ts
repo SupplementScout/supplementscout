@@ -8,6 +8,8 @@ import {
   type CategoryComparisonSummary,
   type RawCategoryComparisonProduct,
 } from "./categoryComparison";
+import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
+import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
 import { supabase } from "./supabase";
 
 const WHEY_QUERY_LIMIT = 1000;
@@ -67,6 +69,7 @@ export function normalizeWheyComparison(
 ): Omit<WheyComparisonResult, "error"> {
   return normalizeCategoryComparison(products, {
     isProductInScope: isWheyProteinProduct,
+    resolveNutritionMetrics: getEffectiveNutritionMetrics,
     now: options.now,
   });
 }
@@ -136,8 +139,12 @@ async function loadWheyComparison(): Promise<WheyComparisonResult> {
     return emptyCategoryComparisonResult();
   }
 
+  const products = await resolveCategoryComparisonVariants(
+    (data || []) as RawWheyProduct[]
+  );
+
   return {
-    ...normalizeWheyComparison((data || []) as RawWheyProduct[]),
+    ...normalizeWheyComparison(products),
     error: false,
   };
 }

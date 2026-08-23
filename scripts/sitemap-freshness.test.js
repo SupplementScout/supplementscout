@@ -2,11 +2,32 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
+const Module = require("node:module");
+const ts = require("typescript");
 
 const sitemapSource = fs.readFileSync(
   path.join(process.cwd(), "app", "sitemap.ts"),
   "utf8"
 );
+
+function loadIndexabilityModule() {
+  const filename = path.join(
+    process.cwd(),
+    "app",
+    "lib",
+    "sitemapIndexability.ts"
+  );
+  const source = fs.readFileSync(filename, "utf8");
+  const outputText = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName: filename,
+  }).outputText;
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  mod._compile(outputText, filename);
+  return mod.exports;
+}
 
 test("catalogue sitemap is generated from current production data", () => {
   assert.match(sitemapSource, /export const dynamic = "force-dynamic";/);
@@ -50,4 +71,20 @@ test("product lastModified uses real product and offer evidence", () => {
 
 test("static pages omit lastModified until a truthful modification source exists", () => {
   assert.doesNotMatch(sitemapSource, /staticLastModified/);
+});
+
+test("readiness-gated noindex paths are excluded while ungated paths remain", () => {
+  const { isSitemapPathIndexable } = loadIndexabilityModule();
+  const readiness = new Map([
+    ["/whey-protein", true],
+    ["/whey-isolate", false],
+    ["/mass-gainer", false],
+  ]);
+
+  assert.equal(isSitemapPathIndexable("/whey-protein", readiness), true);
+  assert.equal(isSitemapPathIndexable("/whey-isolate", readiness), false);
+  assert.equal(isSitemapPathIndexable("/mass-gainer", readiness), false);
+  assert.equal(isSitemapPathIndexable("/about", readiness), true);
+  assert.match(sitemapSource, /getSitemapIndexability\(\)/);
+  assert.match(sitemapSource, /isSitemapPathIndexable\(path, indexability\)/);
 });
