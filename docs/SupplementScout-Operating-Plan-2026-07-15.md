@@ -2724,8 +2724,11 @@ Target experience:
 
 `SEO-15` Deals and Price Intelligence remains the active implementation. Stage
 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and live
-verified. Stage 2A identity foundation is `CODE COMPLETE` locally, but its
-production migration is `NOT RUN`, all producers remain disabled and
+verified. Stage 2A identity foundation is `STAGING VERIFIED`: the staging
+migration passed rehearsal, apply and read-only postflight at ledger `81` and
+fingerprint `65b43bf028656f3c85c8b769964c227c1f7769a74462b33210eb9fd354e67739`,
+with five disabled producers and zero proven observations. Its production
+migration is `NOT RUN`, production producers remain absent/disabled and
 production identity-proven observations remain `0`. Public Stage 2 is blocked
 pending approved accrual, and Stage 3 has not started. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
@@ -2783,10 +2786,10 @@ publication.
 
 ### Next task
 
-Review the bounded, locally `CODE COMPLETE` SEO-15 Stage 2A identity-proven
+Review the bounded, `STAGING VERIFIED` SEO-15 Stage 2A identity-proven
 observation foundation under the existing technical plan. Do not perform its
-production/staging migration or enable any producer until separate approvals
-and readback gates are satisfied. Production proven observations remain `0`.
+production migration or enable any producer until separate approvals and
+readback gates are satisfied. Production proven observations remain `0`.
 The earliest accrual audit is after 14 days and the recommended publication
 decision is after 30 days. Stage 3 historical claims remain not started; do not
 create a second pricing store.

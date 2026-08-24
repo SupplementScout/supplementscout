@@ -72,20 +72,20 @@ test.after(() => {
   }
 });
 
-test("staging records the applied traffic-classification migration", () => {
+test("staging records the applied identity observation migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 80);
+  assert.equal(result.ledger_count, 81);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 80);
+  assert.equal(result.selected_files.length, 81);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
   const result = validateSelection(validInput());
   assert.ok(result.excluded_files.includes("20260717130000_add_local_retailer_catalogue_child_executor.sql"));
   assert.ok(!result.selected_files.includes("20260717130000_add_local_retailer_catalogue_child_executor.sql"));
-  assert.ok(result.excluded_files.includes("20260824160000_add_identity_proven_price_observations.sql"));
-  assert.ok(!result.selected_files.includes("20260824160000_add_identity_proven_price_observations.sql"));
+  assert.ok(!result.excluded_files.includes("20260824160000_add_identity_proven_price_observations.sql"));
+  assert.ok(result.selected_files.includes("20260824160000_add_identity_proven_price_observations.sql"));
 });
 
 test("the production-only migration is the exact shared-policy exclusion", () => {
@@ -218,7 +218,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 80);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 81);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -306,7 +306,7 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migration after classification apply", () => {
+test("staging output reports no pending migration after the identity observation apply", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
