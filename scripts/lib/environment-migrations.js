@@ -70,7 +70,6 @@ const EXCLUSIONS = Object.freeze({
     "20260718160000_add_retailer_offer_mixed_batch_executor",
     "20260718170000_add_read_only_mixed_batch_validator",
     "20260719090000_add_expired_retailer_offer_sync_approval_close",
-    "20260824160000_add_identity_proven_price_observations",
   ]),
 });
 

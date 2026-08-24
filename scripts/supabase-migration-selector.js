@@ -168,10 +168,14 @@ const CONTRACTS = Object.freeze({
         "09ece7d68328ee7e383375f6d13f55933e7c18be88137fa0108046d69f121510",
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
-      "20260824160000_add_identity_proven_price_observations.sql":
-        "8207b6d18da197ac8f23ede7b8120963055dec0674f3cec293a9b92a111d3fa3",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260824160000_add_identity_proven_price_observations.sql",
+        sha256: "8207b6d18da197ac8f23ede7b8120963055dec0674f3cec293a9b92a111d3fa3",
+        expectedCatalogueDeltas: Object.freeze({}),
+      }),
+    ]),
   }),
 });
 

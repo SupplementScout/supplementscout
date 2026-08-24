@@ -151,9 +151,12 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed brand normalization as applied", () => {
+test("production records brand normalization and stages only the identity foundation", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(
+    contract.pending.map(({ filename }) => filename),
+    ["20260824160000_add_identity_proven_price_observations.sql"],
+  );
   assert.equal(contract.ledgerCount, 126);
   assert.equal(
     contract.ledgerFingerprint,
@@ -262,17 +265,17 @@ test("production binds its exact applied ledger including bounded RLS read", () 
   });
   assert.equal(result.ledger_count, 126);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 126);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending, ["20260824160000_add_identity_proven_price_observations"]);
+  assert.equal(result.selected_files.length, 127);
+  assert.deepEqual(result.pending_files, ["20260824160000_add_identity_proven_price_observations.sql"]);
+  assert.equal(result.pending_file, "20260824160000_add_identity_proven_price_observations.sql");
+  assert.equal(result.pending_sha256, "8207b6d18da197ac8f23ede7b8120963055dec0674f3cec293a9b92a111d3fa3");
 });
 
-test("production exclusions are exact and exact-36 is selected rather than excluded", () => {
+test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 8);
-  assert.ok(Object.hasOwn(
+  assert.equal(Object.keys(contract.excluded).length, 7);
+  assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260824160000_add_identity_proven_price_observations.sql",
   ));
