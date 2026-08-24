@@ -50,19 +50,23 @@ test("catalogue sitemap paginates beyond the Supabase 1000-row response limit", 
   );
   assert.match(sitemapSource, /\.order\("id", \{ ascending: true \}\)/);
   assert.match(sitemapSource, /if \(page\.length < SITEMAP_PAGE_SIZE\)/);
+  assert.match(sitemapSource, /count: "exact"/);
+  assert.match(sitemapSource, /products\.length !== expectedProductCount/);
+  assert.match(sitemapSource, /Product sitemap data is incomplete/);
 });
 
 test("catalogue sitemap fails closed instead of publishing a partial product list", () => {
   assert.match(
     sitemapSource,
-    /return \{ products: \[\] as SitemapProduct\[\], error \};/
+    /throw new Error\("Unable to load complete product sitemap data\."\);/
   );
+  assert.doesNotMatch(sitemapSource, /console\.error\("Unable to load product pages for sitemap/);
 });
 
 test("product lastModified uses real product and offer evidence", () => {
   assert.match(
     sitemapSource,
-    /\.select\("id, slug, created_at, offers\(last_checked_at\)"\)/
+    /\.select\("id, slug, created_at, offers\(last_checked_at\)", \{/
   );
   assert.match(sitemapSource, /Date\.parse\(value\)/);
   assert.match(sitemapSource, /new Date\(Math\.max\(\.\.\.timestamps\)\)\.toISOString\(\)/);

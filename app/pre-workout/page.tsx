@@ -7,7 +7,12 @@ import {
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  evaluatePreWorkoutIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
   getPreWorkoutComparison,
   type PreWorkoutComparisonResult,
   type PreWorkoutComparisonRow,
@@ -19,18 +24,24 @@ const pagePath = "/pre-workout";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Pre Workout prices from UK supplement retailers, with recently checked offers, known delivery costs, retailer coverage and verified value metrics.";
+const getCachedPreWorkoutComparison = createLifecycleDataLoader(
+  pagePath,
+  "pre-workout-comparison-v1",
+  getPreWorkoutComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getPreWorkoutComparison();
-  const readiness = evaluatePreWorkoutIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Compare Pre Workout Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare Pre Workout Prices UK | SupplementScout",
@@ -492,6 +503,7 @@ export function PreWorkoutPageContent({
 }
 
 export default async function PreWorkoutPage() {
-  const result = await getPreWorkoutComparison();
+  const result = await getCachedPreWorkoutComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <PreWorkoutPageContent result={result} />;
 }

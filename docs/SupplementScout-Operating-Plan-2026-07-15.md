@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 23 August 2026<br>
+**Status date:** 24 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -1374,6 +1374,47 @@ Operating rules:
 
 Production and staging access during the audit was read-only. The production market-coverage audit and the guarded production supplemental query read counts and usage state only. Direct staging and production supplemental sessions explicitly reported transaction read-only mode; the staging audit reported zero writes. Live-site checks were HTTP GET requests. Local generated audit artefacts are ignored files and are not part of this plan change. No migration was applied, no approval was created, no offer/product row was changed and no production or staging deployment occurred.
 
+### 0.0.18 SEO Indexability Lifecycle corrective P0 - 24 August 2026
+
+The owner approved a corrective P0 inside active `SEO-15` after the sitewide
+indexability audit found launch state coupled to hourly coverage. The already
+live-verified `/protein-bars` and `/vegan-protein` routes had changed to
+`noindex` and disappeared from the sitemap when fresh coverage fell; the other
+live dynamic comparison, brand and retailer hubs using the same pattern were
+exposed to the same flapping risk.
+
+The corrective implementation has one central lifecycle map covering 15
+approved public `live_verified` routes and separate non-public
+`owner_deferred` decisions for GYM HIGH. Base robots and sitemap eligibility
+use the same state. Existing readiness thresholds remain launch evidence and
+monitoring; they no longer automatically deindex a live-verified route. Current
+freshness, stock, exact-variant, exact-pack, delivered-price and retailer rules
+still determine the rows visible to users.
+
+Successful hub data uses one shared Next.js `unstable_cache` loader with a
+3,600-second maximum, route-specific and query-versioned keys and a hard hourly
+bucket. Valid empty results remain honest successful states. Loader errors and
+proven partial results throw and cannot become false empty pages. Fifteen thin
+route-level boundaries reuse one neutral component whose retry calls Next.js 16
+`unstable_retry()`; no global error behavior was added.
+
+The sitemap reads lifecycle without coverage queries and throws on product
+query failure, missing exact count, count drift or incomplete pagination. The
+durable implementation contract is `docs/SEO-Indexability-Lifecycle.md`, with
+mandatory registration in `AGENTS.md` and focused tests for public registry
+routes, fail-closed unknown routes/statuses, robots, sitemap, cache, errors,
+parameters and the SEO-04 exception.
+
+Focused lifecycle/cache/error/hub/sitemap/robots/canonical tests passed
+`166/166`. TypeScript, Project Guardian, `git diff --check`, quick/full quality
+gates, ESLint with zero errors and the production build passed; seven existing
+GYM HIGH/Six Pack lint warnings remain unchanged. This checkpoint is `CODE
+COMPLETE, live evidence pending`. No commit, push, deployment, refresh workflow
+or production-data write has occurred. SEO-15 Stage 1 current deals was already
+deployed and live verified before this corrective P0. Stage 2 identity-proven
+observations and Stage 3 historical claims have not started. The binding
+roadmap remains SEO-15, SEO-16, SEO-17.
+
 ## 1. Product identity
 
 **Name:** SupplementScout  
@@ -2646,9 +2687,10 @@ Target experience:
 
 ### Current active task
 
-`SEO-15` Deals and Price Drops is the next planned task. Begin with a read-only
-readiness audit of the existing offers and price-history store; no implementation
-has started. `SEO-13` is complete and live verified from commit
+`SEO-15` Deals and Price Intelligence remains the active implementation. Stage
+1 `/deals` is deployed and live verified. The corrective Indexability Lifecycle
+P0 is `CODE COMPLETE` with live evidence pending; complete that release before
+starting Stage 2 or Stage 3. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
 `6048852742`. SEO-14 is live verified after launching useful,
 individually gated brand and retailer pages through the existing catalogue and
@@ -2704,10 +2746,10 @@ publication.
 
 ### Next task
 
-Run the bounded read-only SEO-15 Deals and Price Drops readiness audit against
-the existing offer and price-history data. Define truthful historical-price,
-delivered-price, freshness and fail-closed publication requirements before any
-implementation; do not create a second pricing store.
+Complete and live-verify the bounded SEO Indexability Lifecycle P0. Do not
+start SEO-15 Stage 2 identity-proven writes or Stage 3 historical claims until
+their separate approvals and evidence gates are satisfied; do not create a
+second pricing store.
 
 Use `docs/SEO-15-Deals-Price-Intelligence-Plan.md` for the bounded technical
 design, evidence gates and decision log. It does not replace this Operating Plan

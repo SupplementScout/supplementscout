@@ -7,38 +7,50 @@ import {
   type CreatineComparisonResult,
   type CreatineComparisonRow,
 } from "../lib/creatineComparison";
-import { CREATINE_LAUNCH_STATUS } from "../lib/creatineLaunch";
+import {
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
 import { formatCurrency } from "../lib/pricing";
 
 const siteUrl = "https://www.supplementscout.co.uk";
-const pageUrl = `${siteUrl}/creatine`;
+const pagePath = "/creatine";
+const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.";
+const getCachedCreatineComparison = createLifecycleDataLoader(
+  pagePath,
+  "creatine-comparison-v1",
+  getCreatineComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Compare Creatine Supplements & Prices UK",
-  description,
-  robots: {
-    index: CREATINE_LAUNCH_STATUS.allowIndexing,
-    follow: true,
-  },
-  alternates: {
-    canonical: "/creatine",
-  },
-  openGraph: {
-    title: "Compare Creatine Supplements & Prices UK | SupplementScout",
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
+  return {
+    title: "Compare Creatine Supplements & Prices UK",
     description,
-    url: "/creatine",
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-    title: "Compare Creatine Supplements & Prices UK | SupplementScout",
-    description,
-  },
-};
+    robots: getLifecycleRobots(pagePath, params),
+    alternates: { canonical: pagePath },
+    openGraph: {
+      title: "Compare Creatine Supplements & Prices UK | SupplementScout",
+      description,
+      url: pagePath,
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: "Compare Creatine Supplements & Prices UK | SupplementScout",
+      description,
+    },
+  };
+}
 
 function safeBackgroundImage(value: string) {
   return `url("${value.replace(/["\\\n\r]/g, "")}")`;
@@ -393,6 +405,7 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
 }
 
 export default async function CreatinePage() {
-  const result = await getCreatineComparison();
+  const result = await getCachedCreatineComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <CreatinePageContent result={result} />;
 }

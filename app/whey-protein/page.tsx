@@ -7,7 +7,12 @@ import {
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  evaluateWheyIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
   getWheyComparison,
   type WheyComparisonResult,
   type WheyComparisonRow,
@@ -22,18 +27,24 @@ const pagePath = "/whey-protein";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Whey Protein prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.";
+const getCachedWheyComparison = createLifecycleDataLoader(
+  pagePath,
+  "whey-comparison-v1",
+  getWheyComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getWheyComparison();
-  const readiness = evaluateWheyIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Compare Whey Protein Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare Whey Protein Prices UK | SupplementScout",
@@ -574,6 +585,7 @@ export function WheyProteinPageContent({
 }
 
 export default async function WheyProteinPage() {
-  const result = await getWheyComparison();
+  const result = await getCachedWheyComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <WheyProteinPageContent result={result} />;
 }

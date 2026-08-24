@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 23 August 2026<br>
+**Status date:** 24 August 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -117,17 +117,17 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `PLANNED` | Existing offers and price history power truthful current deals; discount, delivery, freshness and historical-comparison limitations are visible. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 current deals is live verified; corrective Indexability Lifecycle P0 is `CODE COMPLETE` with live evidence pending; Stages 2 and 3 have not started. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 — begin with a read-only Deals and Price Drops
-readiness audit of the existing offer and price-history data. Do not create a
-second pricing store, infer discounts from unsupported reference prices or
-start page implementation until the evidence boundary and fail-closed gate are
-reviewed. SEO-15 remains `PLANNED`; no implementation has started.
+**Next executable task:** SEO-15 — complete and live-verify the corrective
+Indexability Lifecycle P0 before any Stage 2 or Stage 3 work. Stage 1 current
+deals is already deployed and live verified. Do not create a second pricing
+store, infer discounts from unsupported reference prices or start historical
+claims before identity-proven evidence accrues.
 
 The bounded technical design, evidence gates and decision log are maintained in
 `docs/SEO-15-Deals-Price-Intelligence-Plan.md`; this execution ledger remains
@@ -274,6 +274,47 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 24 August 2026 — corrective SEO Indexability Lifecycle P0; CODE COMPLETE, live evidence pending
+
+- A sitewide read-only audit found that launch approval and hourly live
+  coverage were coupled. `/protein-bars` and `/vegan-protein` had already been
+  live verified but later changed to `noindex` and disappeared from the sitemap
+  when fresh coverage fell. The other live dynamic comparison, brand and
+  retailer hubs using the same gate could flap for the same reason.
+- The owner approved one central lifecycle map for 15 public
+  `live_verified` routes. GYM HIGH remains a separate `owner_deferred`
+  non-public decision. Robots and sitemap eligibility now use that lifecycle;
+  existing readiness thresholds remain launch evidence and monitoring only.
+- `live_verified` base URLs remain indexable and in the sitemap at 12, 5 or 0
+  valid rows. Freshness, stock, exact variant, exact pack, known delivery and
+  all existing selectors still control visible data. Parameters remain
+  `noindex, follow` with the clean base canonical; SEO-04 pagination and
+  `/search` retain their separate contracts.
+- Successful hub data uses the shared Next.js `unstable_cache` loader with a
+  maximum 3,600-second lifetime, route plus unique query-version keys and an
+  hour-bucket hard boundary. Valid empty results may be cached; loader errors
+  and proven partial results throw and cannot become false empty pages.
+- Fifteen thin route-level boundaries reuse one scoped safe error component.
+  Its retry invokes Next.js 16 `unstable_retry()`; no global application error
+  behavior was added.
+- The sitemap no longer runs hourly coverage queries for lifecycle hubs and
+  throws on query failure, missing exact count, count drift or incomplete
+  pagination instead of returning a successful truncated product sitemap.
+- The durable contract is documented in
+  `docs/SEO-Indexability-Lifecycle.md` and enforced by the public registry,
+  fail-closed unknown-route behavior and focused contract tests. The repository
+  does not use a brittle scan that guesses which arbitrary page files are hubs;
+  registration is mandatory in `AGENTS.md`.
+- Local focused lifecycle/cache/error/hub/sitemap/robots/canonical tests passed
+  `166/166`. TypeScript, Project Guardian, `git diff --check`, quick/full
+  quality gates, ESLint with zero errors and the production build also passed;
+  the seven pre-existing GYM HIGH/Six Pack lint warnings are unchanged. This P0
+  is `CODE COMPLETE`, not `LIVE VERIFIED`: no commit, push, deployment, refresh
+  workflow or production-data write has occurred in this checkpoint.
+- SEO-15 Stage 1 current deals was already deployed and live verified before
+  this corrective P0. SEO-15 Stage 2 and Stage 3 have not started, and the
+  binding sequence remains SEO-15, SEO-16, SEO-17.
 
 ### 23 August 2026 — SEO-13 Protein Bars LIVE VERIFIED
 

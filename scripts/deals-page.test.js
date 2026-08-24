@@ -17,6 +17,8 @@ function compileModule(filename, mocks = {}) {
   const originalLoad = Module._load;
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -235,9 +237,9 @@ test("query errors abort page rendering instead of returning a false 200/noindex
     "../lib/dealsPriceIntelligence": { ...deals, getDeals: async () => result },
   });
   assert.deepEqual((await page.generateMetadata()).robots, { index: true, follow: true });
-  await assert.rejects(page.default(), /Deals data is temporarily unavailable/);
-  assert.throws(() => page.DealsPageContent({ result }), /Deals data is temporarily unavailable/);
+  await assert.rejects(page.default(), /Current comparison data is temporarily unavailable for \/deals/);
+  assert.throws(() => page.DealsPageContent({ result }), /Current comparison data is temporarily unavailable for \/deals/);
   const errorSource = fs.readFileSync(path.join(process.cwd(), "app/deals/error.tsx"), "utf8");
-  assert.match(errorSource, /Current prices are temporarily unavailable/);
+  assert.match(errorSource, /LifecycleHubError/);
   assert.match(errorSource, /unstable_retry/);
 });

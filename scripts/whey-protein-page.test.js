@@ -24,6 +24,8 @@ function compileModule(filename, options = {}) {
     if (parent === mod && Object.hasOwn(options.mocks || {}, request)) {
       return options.mocks[request];
     }
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -403,7 +405,7 @@ test("the production query is bounded and requires the exact Whey category", asy
   );
 });
 
-test("metadata is canonical and indexability follows live coverage", async () => {
+test("live-verified metadata is canonical and stable across live coverage", async () => {
   const readyResult = fixtureResult();
   readyResult.summary = {
     ...readyResult.summary,
@@ -423,7 +425,7 @@ test("metadata is canonical and indexability follows live coverage", async () =>
 
   const failedPage = loadPage({ ...readyResult, error: true });
   const failedMetadata = await failedPage.page.generateMetadata();
-  assert.deepEqual(failedMetadata.robots, { index: false, follow: true });
+  assert.deepEqual(failedMetadata.robots, { index: true, follow: true });
 });
 
 test("structured data describes the collection and breadcrumbs without fake Product entities", () => {

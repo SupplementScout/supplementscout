@@ -1,7 +1,8 @@
 # SEO-15 Deals and Price Intelligence — Technical Execution Plan
 
 **Prepared:** 24 August 2026  
-**State:** local design and evidence plan; implementation not started  
+**State:** Stage 1 live verified; corrective Indexability Lifecycle P0 is
+`CODE COMPLETE`, live evidence pending; Stages 2 and 3 not started
 **Authority:** `docs/SEO-Execution-Plan.md` remains the SEO status and ordering
 authority. `docs/SupplementScout-Operating-Plan-2026-07-15.md` remains the
 project authority. This document records only SEO-15 technical scope, gates,
@@ -157,9 +158,11 @@ current result:
   variant/pack;
 - valid structured data and no selector/query error.
 
-The current strict baseline (`18 / 144 / 7`) passes, but normal freshness drift
-may make the page fail later. A failing gate yields `noindex, follow` and removes
-`/deals` from the sitemap without changing the route or data.
+The current strict baseline (`18 / 144 / 7`) passed the launch gate. After the
+owner-approved launch, this gate remains quality monitoring and does not switch
+the `live_verified` base URL between index/noindex or remove it from the
+sitemap. Freshness drift still hides unsafe rows and can produce an honest
+limited or empty state.
 
 ### Public contract
 
@@ -176,8 +179,8 @@ may make the page fail later. A failing gate yields `noindex, follow` and remove
   lowest-ever wording in Stage 1;
 - stale, out-of-stock, unknown-shipping, unresolved and pack-uncertain rows are
   excluded;
-- a query failure returns an honest unavailable state and `noindex` rather than
-  cached or partial claims.
+- a full or proven-partial query failure aborts rendering as HTTP 5xx rather
+  than returning cached or partial claims as a successful empty page.
 
 ### Stage 1 implementation boundary
 
@@ -476,7 +479,7 @@ credentials.
 | Decision | State | Required owner action |
 |---|---|---|
 | Use one existing offers/history system and one central recorder | Proposed | Approve technical plan. |
-| Stage 1 gate `12 products / 30 offers / 4 retailers`, with 2+ retailers per exact variant | Proposed | Approve before implementation. |
+| Stage 1 gate `12 products / 30 offers / 4 retailers`, with 2+ retailers per exact variant | Approved launch evidence; monitoring remains active | Do not reuse as an hourly robots/sitemap switch. |
 | Classify the 14 Six Pack rows as 1 stock, 8 price and 5 price+stock approvals | Evidence ready; not applied | Approve/reject as a separate production-data action. |
 | Add identity-proven nullable history fields with no backfill | Proposed | Separate migration approval after schema diff and rehearsal plan. |
 | Record at most one unchanged confirmation/day/offer/fingerprint | Proposed | Approve row volume and retention impact. |
@@ -503,7 +506,8 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Stage | Commit | Deployment/migration ID | Local evidence | Live evidence | State |
 |---|---|---|---|---|---|
 | Plan | pending owner-approved docs commit | n/a | Project Guardian and diff checks pending | n/a | local review |
-| Stage 1 | pending | pending | pending | pending | not started |
+| Stage 1 | `3492e48b70817ea52535a21c2a5499151968010d` | production release verified; deployment ID not recorded in this plan | focused tests, TypeScript, Guardian, quality gates, ESLint and build passed | owner-confirmed HTTP, canonical, robots, sitemap, schema, current data, delivered-price and internal-link checks passed | live verified |
+| Corrective Indexability Lifecycle P0 | pending | pending | focused contract/hub tests `166/166`; TypeScript, Guardian, diff check, quick/full gates, ESLint and production build passed | pending | `CODE COMPLETE`, live evidence pending |
 | Stage 2 schema/recorder | pending separate approval | pending | pending isolated rehearsal | pending readback | not started |
 | 7-day audit | n/a | n/a | pending | pending | not due |
 | 14-day audit | n/a | n/a | pending | pending | not due |
@@ -515,8 +519,9 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 
 SEO-15 can be marked `LIVE VERIFIED` only when:
 
-1. Stage 1 is deployed, publicly verified and dynamically fail-closed under the
-   approved gate;
+1. Stage 1 is deployed and publicly verified; its approved readiness gate
+   remains launch evidence and monitoring while the live-verified base route
+   follows the central lifecycle contract;
 2. exact variant/pack, delivered price, freshness, canonical, robots, sitemap,
    schema, internal links and analytics checks pass without regression;
 3. no public historical claim is powered by legacy or incomplete evidence;

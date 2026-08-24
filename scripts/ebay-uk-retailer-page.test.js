@@ -24,6 +24,8 @@ function compileModule(filename, options = {}) {
     if (parent === mod && Object.hasOwn(options.mocks || {}, request)) {
       return options.mocks[request];
     }
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -226,7 +228,7 @@ test("metadata, JSON-LD and visible copy satisfy the retailer-page contract", as
   assert.match(html, /never browses arbitrary eBay listings/);
 });
 
-test("data failure noindexes and does not emit stale structured data", async () => {
+test("data failure preserves lifecycle metadata and aborts without stale data", async () => {
   const base = passingResult();
   const failed = {
     ...base,
@@ -243,11 +245,12 @@ test("data failure noindexes and does not emit stale structured data", async () 
   };
   const { page } = loadPage(failed);
   const metadata = await page.generateMetadata();
-  assert.equal(metadata.robots.index, false);
+  assert.equal(metadata.robots.index, true);
   assert.equal(metadata.robots.follow, true);
   const html = renderToStaticMarkup(React.createElement(page.EbayUKPageContent, { result: failed }));
   assert.doesNotMatch(html, /application\/ld\+json/);
   assert.match(html, /Current retailer data is unavailable/);
+  await assert.rejects(page.default(), /Current comparison data is temporarily unavailable/);
 });
 
 test("eBay UK route has bounded sitemap, homepage, product and analytics discovery", () => {

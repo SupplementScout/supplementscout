@@ -7,7 +7,12 @@ import {
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  evaluateHydrationIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
   getHydrationComparison,
   type HydrationComparisonResult,
   type HydrationComparisonRow,
@@ -15,26 +20,33 @@ import {
 import { formatCurrency } from "../lib/pricing";
 
 const siteUrl = "https://www.supplementscout.co.uk";
-const pageUrl = `${siteUrl}/hydration`;
+const pagePath = "/hydration";
+const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Browse recently checked hydration and electrolyte products, current prices and stock from UK supplement retailers.";
+const getCachedHydrationComparison = createLifecycleDataLoader(
+  pagePath,
+  "hydration-comparison-v1",
+  getHydrationComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getHydrationComparison();
-  const readiness = evaluateHydrationIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Hydration & Electrolyte Supplements UK",
     description,
-    robots: { index: indexable, follow: true },
-    alternates: { canonical: "/hydration" },
+    robots: getLifecycleRobots(pagePath, params),
+    alternates: { canonical: pagePath },
     openGraph: {
       title: "Hydration & Electrolyte Supplements UK | SupplementScout",
       description,
-      url: "/hydration",
+      url: pagePath,
       type: "website",
     },
     twitter: {
@@ -342,6 +354,7 @@ export function HydrationPageContent({
 }
 
 export default async function HydrationPage() {
-  const result = await getHydrationComparison();
+  const result = await getCachedHydrationComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <HydrationPageContent result={result} />;
 }

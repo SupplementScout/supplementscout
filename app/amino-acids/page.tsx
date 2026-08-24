@@ -7,7 +7,12 @@ import {
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  evaluateAminoAcidsIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
   getAminoAcidsComparison,
   type AminoAcidsComparisonResult,
   type AminoAcidsComparisonRow,
@@ -19,18 +24,24 @@ const pagePath = "/amino-acids";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current amino acid, BCAA and EAA prices from UK supplement retailers using recently checked offers and known delivery costs.";
+const getCachedAminoAcidsComparison = createLifecycleDataLoader(
+  pagePath,
+  "amino-acids-comparison-v1",
+  getAminoAcidsComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getAminoAcidsComparison();
-  const readiness = evaluateAminoAcidsIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Compare Amino Acid, BCAA & EAA Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare Amino Acid, BCAA & EAA Prices UK | SupplementScout",
@@ -349,6 +360,7 @@ export function AminoAcidsPageContent({
 }
 
 export default async function AminoAcidsPage() {
-  const result = await getAminoAcidsComparison();
+  const result = await getCachedAminoAcidsComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <AminoAcidsPageContent result={result} />;
 }

@@ -17,6 +17,8 @@ function compileModule(filename, mocks = {}) {
   const originalLoad = Module._load;
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {

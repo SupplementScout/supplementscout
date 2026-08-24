@@ -26,6 +26,8 @@ function compileModule(filename, options = {}) {
       return options.mocks[request];
     }
 
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
 
@@ -216,20 +218,23 @@ test("the /creatine route exists and is a Server Component", () => {
   const source = fs.readFileSync(pagePath, "utf8");
   assert.equal(fs.existsSync(pagePath), true);
   assert.equal(source.includes('"use client"'), false);
-  assert.match(source, /await getCreatineComparison\(\)/);
+  assert.match(source, /await getCachedCreatineComparison\(\)/);
 });
 
-test("Creatine metadata is unique, canonical and index follow after fresh-offer launch", () => {
+test("Creatine metadata is unique, canonical and stable after live verification", async () => {
   const { page } = loadPage();
-  assert.equal(page.metadata.title, "Compare Creatine Supplements & Prices UK");
+  const metadata = await page.generateMetadata();
+  assert.equal(metadata.title, "Compare Creatine Supplements & Prices UK");
   assert.equal(
-    page.metadata.description,
+    metadata.description,
     "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.",
   );
-  assert.equal(page.metadata.alternates.canonical, "/creatine");
-  assert.deepEqual(page.metadata.robots, { index: true, follow: true });
-  assert.equal(page.metadata.openGraph.url, "/creatine");
-  assert.equal(page.metadata.twitter.card, "summary");
+  assert.equal(metadata.alternates.canonical, "/creatine");
+  assert.deepEqual(metadata.robots, { index: true, follow: true });
+  assert.equal(metadata.openGraph.url, "/creatine");
+  assert.equal(metadata.twitter.card, "summary");
+  const parameterized = await page.generateMetadata({ searchParams: Promise.resolve({ sort: "price" }) });
+  assert.deepEqual(parameterized.robots, { index: false, follow: true });
 });
 
 test("fresh-offer launch status includes Creatine in the sitemap", () => {

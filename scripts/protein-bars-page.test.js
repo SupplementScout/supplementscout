@@ -17,6 +17,8 @@ function compileModule(filename, mocks = {}) {
   const originalLoad = Module._load;
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -152,7 +154,7 @@ test("page metadata, SSR, schema and discovery use one Protein Bars canonical", 
   assert.match(vegan, /href="\/protein-bars"/);
 });
 
-test("metadata fails closed when exact-pack coverage falls", async () => {
+test("live-verified metadata remains indexable when exact-pack coverage falls", async () => {
   const comparison = loadComparison();
   const empty = { ...categoryComparison.emptyCategoryComparisonResult(), error: false };
   const page = compileModule(path.join(process.cwd(), "app/protein-bars/page.tsx"), {
@@ -163,5 +165,5 @@ test("metadata fails closed when exact-pack coverage falls", async () => {
     "../lib/pricing": pricing,
     "../lib/proteinBarsComparison": { ...comparison, getProteinBarsComparison: async () => empty },
   });
-  assert.deepEqual((await page.generateMetadata()).robots, { index: false, follow: true });
+  assert.deepEqual((await page.generateMetadata()).robots, { index: true, follow: true });
 });

@@ -1,7 +1,5 @@
 "use client";
-
 import LifecycleHubError from "../components/LifecycleHubError";
-
-export default function DealsError({ unstable_retry }: { unstable_retry: () => void }) {
+export default function Error({ unstable_retry }: { unstable_retry: () => void }) {
   return <LifecycleHubError unstable_retry={unstable_retry} />;
 }

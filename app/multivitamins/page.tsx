@@ -7,7 +7,12 @@ import {
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  evaluateMultivitaminsIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
   getMultivitaminsComparison,
   type MultivitaminsComparisonResult,
   type MultivitaminsComparisonRow,
@@ -19,17 +24,23 @@ const pagePath = "/multivitamins";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Multivitamin prices from UK supplement retailers using recently checked offers, known delivery and verified pack information.";
+const getCachedMultivitaminsComparison = createLifecycleDataLoader(
+  pagePath,
+  "multivitamins-comparison-v1",
+  getMultivitaminsComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getMultivitaminsComparison();
-  const readiness = evaluateMultivitaminsIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
   return {
     title: "Compare Multivitamin Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare Multivitamin Prices UK | SupplementScout",
@@ -190,6 +201,7 @@ export function MultivitaminsPageContent({ result }: { result: MultivitaminsComp
 }
 
 export default async function MultivitaminsPage() {
-  const result = await getMultivitaminsComparison();
+  const result = await getCachedMultivitaminsComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <MultivitaminsPageContent result={result} />;
 }

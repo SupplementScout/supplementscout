@@ -17,6 +17,8 @@ function compileModule(filename, mocks = {}) {
   const originalLoad = Module._load;
   Module._load = function patchedLoad(request, parent, isMain) {
     if (parent === mod && Object.hasOwn(mocks, request)) return mocks[request];
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -172,13 +174,13 @@ test("production query is bounded to explicit plant identity candidates", async 
   assert.ok(calls.some((call) => call[0] === "range" && call[1] === 0 && call[2] === 999));
 });
 
-test("metadata fails closed and uses one canonical", async () => {
+test("live-verified metadata is stable and uses one canonical", async () => {
   const ready = fixtureResult();
   ready.summary = { ...ready.summary, freshOffers: 20, productsWithMultipleFreshRetailers: 3, freshRetailersAcrossComparisons: 2 };
   const metadata = await loadPage(ready).generateMetadata();
   assert.equal(metadata.alternates.canonical, "/vegan-protein");
   assert.deepEqual(metadata.robots, { index: true, follow: true });
-  assert.deepEqual((await loadPage({ ...ready, error: true }).generateMetadata()).robots, { index: false, follow: true });
+  assert.deepEqual((await loadPage({ ...ready, error: true }).generateMetadata()).robots, { index: true, follow: true });
 });
 
 test("server HTML and structured data explain the reviewed boundary", () => {

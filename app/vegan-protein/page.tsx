@@ -6,9 +6,14 @@ import {
   OfferCheckedBadge,
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
+import {
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
 import { formatCurrency, formatUnitPrice } from "../lib/pricing";
 import {
-  evaluateVeganProteinIndexability,
   getVeganProteinComparison,
   type VeganProteinComparisonResult,
   type VeganProteinComparisonRow,
@@ -19,18 +24,24 @@ const pagePath = "/vegan-protein";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Vegan Protein prices from UK supplement retailers using recently checked offers, known delivery and verified value metrics.";
+const getCachedVeganProteinComparison = createLifecycleDataLoader(
+  pagePath,
+  "vegan-protein-comparison-v1",
+  getVeganProteinComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getVeganProteinComparison();
-  const readiness = evaluateVeganProteinIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Compare Vegan Protein Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare Vegan Protein Prices UK | SupplementScout",
@@ -217,6 +228,7 @@ export function VeganProteinPageContent({
 }
 
 export default async function VeganProteinPage() {
-  const result = await getVeganProteinComparison();
+  const result = await getCachedVeganProteinComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <VeganProteinPageContent result={result} />;
 }

@@ -7,7 +7,12 @@ import {
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  evaluateProteinBarsIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
   getProteinBarsComparison,
   type ProteinBarsComparisonResult,
   type ProteinBarsComparisonRow,
@@ -19,17 +24,23 @@ const pagePath = "/protein-bars";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Protein Bar prices from UK supplement retailers using exact pack counts, recently checked offers and known delivery costs.";
+const getCachedProteinBarsComparison = createLifecycleDataLoader(
+  pagePath,
+  "protein-bars-comparison-v1",
+  getProteinBarsComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getProteinBarsComparison();
-  const readiness = evaluateProteinBarsIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
   return {
     title: "Compare Protein Bar Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare Protein Bar Prices UK | SupplementScout",
@@ -167,6 +178,7 @@ export function ProteinBarsPageContent({ result }: { result: ProteinBarsComparis
 }
 
 export default async function ProteinBarsPage() {
-  const result = await getProteinBarsComparison();
+  const result = await getCachedProteinBarsComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <ProteinBarsPageContent result={result} />;
 }

@@ -6,9 +6,14 @@ import {
   OfferCheckedBadge,
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
+import {
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
 import { formatCurrency, formatUnitPrice } from "../lib/pricing";
 import {
-  evaluateWheyIsolateIndexability,
   getWheyIsolateComparison,
   type WheyIsolateComparisonResult,
   type WheyIsolateComparisonRow,
@@ -19,18 +24,24 @@ const pagePath = "/whey-isolate";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare Whey Isolate prices across UK supplement retailers. See the lowest known delivered cost, fresh offers and verified protein value when available.";
+const getCachedWheyIsolateComparison = createLifecycleDataLoader(
+  pagePath,
+  "whey-isolate-comparison-v1",
+  getWheyIsolateComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getWheyIsolateComparison();
-  const readiness = evaluateWheyIsolateIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Whey Isolate Prices UK – Delivered Cost",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Whey Isolate Prices UK – Compare Delivered Cost | SupplementScout",
@@ -237,6 +248,7 @@ export function WheyIsolatePageContent({ result }: { result: WheyIsolateComparis
 }
 
 export default async function WheyIsolatePage() {
-  const result = await getWheyIsolateComparison();
+  const result = await getCachedWheyIsolateComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <WheyIsolatePageContent result={result} />;
 }

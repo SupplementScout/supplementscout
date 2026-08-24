@@ -8,7 +8,12 @@ import {
 } from "../../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import {
-  evaluateBioTechUSAIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../../lib/lifecycleDataCache";
+import {
   getBioTechUSABrand,
   bioTechUSADisplayCategory,
   type BioTechUSABrandResult,
@@ -21,8 +26,14 @@ const pagePath = "/brands/biotech-usa";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current BioTech USA product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers.";
+const getCachedBioTechUSABrand = createLifecycleDataLoader(
+  pagePath,
+  "biotech-usa-brand-v1",
+  getBioTechUSABrand
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export function isBioTechUSAStructuredDataValid(rows: BioTechUSABrandRow[]) {
   return (
@@ -37,18 +48,15 @@ export function isBioTechUSAStructuredDataValid(rows: BioTechUSABrandRow[]) {
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getBioTechUSABrand();
-  const readiness = evaluateBioTechUSAIndexability(
-    result,
-    isBioTechUSAStructuredDataValid(result.rows)
-  );
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "BioTech USA Products & Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "BioTech USA Products & Prices UK | SupplementScout",
@@ -387,7 +395,8 @@ export function BioTechUSAPageContent({ result }: { result: BioTechUSABrandResul
 }
 
 export default async function BioTechUSABrandPage() {
-  const result = await getBioTechUSABrand();
+  const result = await getCachedBioTechUSABrand();
+  assertLifecycleDataAvailable(result, pagePath);
   return <BioTechUSAPageContent result={result} />;
 }
 

@@ -7,7 +7,12 @@ import {
 } from "../../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import {
-  evaluatePer4mIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../../lib/lifecycleDataCache";
+import {
   getPer4mBrand,
   per4mDisplayCategory,
   type Per4mBrandResult,
@@ -20,8 +25,14 @@ const pagePath = "/brands/per4m";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers.";
+const getCachedPer4mBrand = createLifecycleDataLoader(
+  pagePath,
+  "per4m-brand-v1",
+  getPer4mBrand
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export function isPer4mStructuredDataValid(rows: Per4mBrandRow[]) {
   return (
@@ -36,18 +47,15 @@ export function isPer4mStructuredDataValid(rows: Per4mBrandRow[]) {
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getPer4mBrand();
-  const readiness = evaluatePer4mIndexability(
-    result,
-    isPer4mStructuredDataValid(result.rows)
-  );
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Per4m Products & Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Per4m Products & Prices UK | SupplementScout",
@@ -386,6 +394,7 @@ export function Per4mPageContent({ result }: { result: Per4mBrandResult }) {
 }
 
 export default async function Per4mBrandPage() {
-  const result = await getPer4mBrand();
+  const result = await getCachedPer4mBrand();
+  assertLifecycleDataAvailable(result, pagePath);
   return <Per4mPageContent result={result} />;
 }

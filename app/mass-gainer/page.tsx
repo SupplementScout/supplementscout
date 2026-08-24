@@ -7,7 +7,12 @@ import {
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
-  evaluateMassGainerIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
+import {
   getMassGainerComparison,
   type MassGainerComparisonResult,
   type MassGainerComparisonRow,
@@ -19,18 +24,24 @@ const pagePath = "/mass-gainer";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Mass Gainer prices from UK supplement retailers using recently checked offers, known delivery and verified value metrics.";
+const getCachedMassGainerComparison = createLifecycleDataLoader(
+  pagePath,
+  "mass-gainer-comparison-v1",
+  getMassGainerComparison
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getMassGainerComparison();
-  const readiness = evaluateMassGainerIndexability(result.summary, true);
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Compare Mass Gainer Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare Mass Gainer Prices UK | SupplementScout",
@@ -174,6 +185,7 @@ export function MassGainerPageContent({ result }: { result: MassGainerComparison
 }
 
 export default async function MassGainerPage() {
-  const result = await getMassGainerComparison();
+  const result = await getCachedMassGainerComparison();
+  assertLifecycleDataAvailable(result, pagePath);
   return <MassGainerPageContent result={result} />;
 }

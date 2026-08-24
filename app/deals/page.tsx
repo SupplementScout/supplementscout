@@ -8,6 +8,12 @@ import {
   type DealsResult,
   type DealsRow,
 } from "../lib/dealsPriceIntelligence";
+import {
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
 import { formatCurrency } from "../lib/pricing";
 
 const siteUrl = "https://www.supplementscout.co.uk";
@@ -15,19 +21,23 @@ const pagePath = "/deals";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare today's recently checked delivered prices for exact supplement variants available from multiple UK retailers.";
+const getCachedDeals = createLifecycleDataLoader(
+  pagePath,
+  "deals-price-intelligence-v1",
+  getDeals
+);
 
 export const revalidate = 3600;
 export const dynamic = "force-dynamic";
 
-type PageProps = { searchParams?: Promise<Record<string, string | string[] | undefined>> };
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
 
 export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
   const params = await (searchParams || Promise.resolve({}));
-  const indexable = Object.keys(params).length === 0;
   return {
     title: "Best Supplement Prices Today UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Best Supplement Prices Today UK | SupplementScout",
@@ -39,9 +49,7 @@ export async function generateMetadata({ searchParams }: PageProps = {}): Promis
 }
 
 export function assertDealsDataAvailable(result: DealsResult) {
-  if (result.error) {
-    throw new Error("Deals data is temporarily unavailable.");
-  }
+  assertLifecycleDataAvailable(result, pagePath);
 }
 
 function formatCheckedAt(value: string | null) {
@@ -229,7 +237,7 @@ export function DealsPageContent({ result }: { result: DealsResult }) {
 }
 
 export default async function DealsPage() {
-  const result = await getDeals();
+  const result = await getCachedDeals();
   assertDealsDataAvailable(result);
   return <DealsPageContent result={result} />;
 }

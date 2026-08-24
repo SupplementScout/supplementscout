@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { CREATINE_LAUNCH_STATUS } from "./lib/creatineLaunch";
 import { supabase } from "./lib/supabase";
 import { getSitemapIndexability } from "./lib/sitemapReadiness";
 import { isSitemapPathIndexable } from "./lib/sitemapIndexability";
@@ -36,11 +35,14 @@ function productLastModified(product: SitemapProduct) {
 
 async function loadActiveProducts() {
   const products: SitemapProduct[] = [];
+  let expectedProductCount: number | null = null;
 
   for (let from = 0; ; from += SITEMAP_PAGE_SIZE) {
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from("products")
-      .select("id, slug, created_at, offers(last_checked_at)")
+      .select("id, slug, created_at, offers(last_checked_at)", {
+        count: "exact",
+      })
       .eq("is_active", true)
       .is("merged_into_product_id", null)
       .not("slug", "is", null)
@@ -48,14 +50,27 @@ async function loadActiveProducts() {
       .range(from, from + SITEMAP_PAGE_SIZE - 1);
 
     if (error) {
-      return { products: [] as SitemapProduct[], error };
+      throw new Error("Unable to load complete product sitemap data.");
+    }
+
+    if (count === null) {
+      throw new Error("Unable to verify complete product sitemap data.");
+    }
+
+    if (expectedProductCount === null) {
+      expectedProductCount = count;
+    } else if (count !== expectedProductCount) {
+      throw new Error("Product sitemap data changed during pagination.");
     }
 
     const page = (data || []) as SitemapProduct[];
     products.push(...page);
 
     if (page.length < SITEMAP_PAGE_SIZE) {
-      return { products, error: null };
+      if (products.length !== expectedProductCount) {
+        throw new Error("Product sitemap data is incomplete.");
+      }
+      return products;
     }
   }
 }
@@ -162,6 +177,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.8,
   },
   {
+    url: `${siteUrl}/creatine`,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/how-we-compare`,
     changeFrequency: "monthly",
     priority: 0.7,
@@ -188,25 +208,11 @@ const staticPages: MetadataRoute.Sitemap = [
   },
 ];
 
-const creatinePages: MetadataRoute.Sitemap = CREATINE_LAUNCH_STATUS.includeInSitemap
-  ? [
-      {
-        url: `${siteUrl}/creatine`,
-        changeFrequency: "daily",
-        priority: 0.9,
-      },
-    ]
-  : [];
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ products, error }, indexability] = await Promise.all([
+  const [products, indexability] = await Promise.all([
     loadActiveProducts(),
     getSitemapIndexability(),
   ]);
-
-  if (error) {
-    console.error("Unable to load product pages for sitemap.", error);
-  }
 
   const productPages =
     products
@@ -223,5 +229,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return isSitemapPathIndexable(path, indexability);
   });
 
-  return [...readyStaticPages, ...creatinePages, ...productPages];
+  return [...readyStaticPages, ...productPages];
 }

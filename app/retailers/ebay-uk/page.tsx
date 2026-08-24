@@ -7,7 +7,12 @@ import {
 } from "../../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import {
-  evaluateEbayUKIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../../lib/lifecycleDataCache";
+import {
   getEbayUKRetailer,
   type EbayUKRetailerResult,
   type EbayUKRetailerRow,
@@ -19,8 +24,14 @@ const pagePath = "/retailers/ebay-uk";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare tracked eBay UK supplement offers with current prices from other UK retailers, including known delivery and 24-hour freshness checks.";
+const getCachedEbayUKRetailer = createLifecycleDataLoader(
+  pagePath,
+  "ebay-uk-retailer-v1",
+  getEbayUKRetailer
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export function isEbayUKStructuredDataValid(rows: EbayUKRetailerRow[]) {
   return (
@@ -36,18 +47,15 @@ export function isEbayUKStructuredDataValid(rows: EbayUKRetailerRow[]) {
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getEbayUKRetailer();
-  const readiness = evaluateEbayUKIndexability(
-    result,
-    isEbayUKStructuredDataValid(result.rows)
-  );
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Compare eBay UK Supplement Prices",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Compare eBay UK Supplement Prices | SupplementScout",
@@ -382,6 +390,7 @@ export function EbayUKPageContent({ result }: { result: EbayUKRetailerResult }) 
 }
 
 export default async function EbayUKRetailerPage() {
-  const result = await getEbayUKRetailer();
+  const result = await getCachedEbayUKRetailer();
+  assertLifecycleDataAvailable(result, pagePath);
   return <EbayUKPageContent result={result} />;
 }

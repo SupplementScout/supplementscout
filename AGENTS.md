@@ -20,6 +20,13 @@ For SEO, catalogue, retailer, automation or roadmap work:
 6. Never give an agent autonomous product-identity or production-write
    authority; retain existing owner approvals and guarded data paths.
 
+Before creating or changing a public comparison, category, brand or retailer
+hub, follow `docs/SEO-Indexability-Lifecycle.md`: confirm the feature does not
+already exist; register the route; reuse the shared cache, robots, canonical,
+sitemap and error contracts; and add their contract tests. Never add local
+index/noindex logic or deindex a `live_verified` route because coverage dipped.
+GYM HIGH remains `owner_deferred` until a separate owner decision.
+
 ## Quality gate
 
 For code or workflow changes, run `npm run verify:quick` after implementation.

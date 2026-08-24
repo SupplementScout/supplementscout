@@ -24,6 +24,8 @@ function compileModule(filename, options = {}) {
     if (parent === mod && Object.hasOwn(options.mocks || {}, request)) {
       return options.mocks[request];
     }
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -153,15 +155,15 @@ function loadPage(result = fixtureResult()) {
   return { page, calls: () => calls };
 }
 
-test("the /hydration route is canonical and indexing follows current coverage", async () => {
+test("the live-verified /hydration route is canonical and stable across coverage", async () => {
   const result = fixtureResult();
   const { page } = loadPage(result);
   const source = fs.readFileSync(pagePath, "utf8");
   assert.equal(source.includes('"use client"'), false);
-  const blocked = await page.generateMetadata();
-  assert.equal(blocked.alternates.canonical, "/hydration");
-  assert.deepEqual(blocked.robots, { index: false, follow: true });
-  assert.match(blocked.title, /Hydration & Electrolyte/);
+  const lowCoverage = await page.generateMetadata();
+  assert.equal(lowCoverage.alternates.canonical, "/hydration");
+  assert.deepEqual(lowCoverage.robots, { index: true, follow: true });
+  assert.match(lowCoverage.title, /Hydration & Electrolyte/);
 
   const ready = {
     ...result,

@@ -7,7 +7,12 @@ import {
 } from "../../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import {
-  evaluateAppliedNutritionIndexability,
+  assertLifecycleDataAvailable,
+  getLifecycleRobots,
+  type RouteSearchParams,
+} from "../../lib/indexabilityLifecycle";
+import { createLifecycleDataLoader } from "../../lib/lifecycleDataCache";
+import {
   getAppliedNutritionBrand,
   type AppliedNutritionBrandResult,
   type AppliedNutritionBrandRow,
@@ -19,8 +24,14 @@ const pagePath = "/brands/applied-nutrition";
 const pageUrl = `${siteUrl}${pagePath}`;
 const description =
   "Compare current Applied Nutrition product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers.";
+const getCachedAppliedNutritionBrand = createLifecycleDataLoader(
+  pagePath,
+  "applied-nutrition-brand-v1",
+  getAppliedNutritionBrand
+);
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export function isAppliedNutritionStructuredDataValid(
   rows: AppliedNutritionBrandRow[]
@@ -37,21 +48,15 @@ export function isAppliedNutritionStructuredDataValid(
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  const result = await getAppliedNutritionBrand();
-  const structuredDataValid = isAppliedNutritionStructuredDataValid(
-    result.rows
-  );
-  const readiness = evaluateAppliedNutritionIndexability(
-    result,
-    structuredDataValid
-  );
-  const indexable = !result.error && readiness.indexable;
+type PageProps = { searchParams?: Promise<RouteSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
+  const params = await (searchParams || Promise.resolve({}));
 
   return {
     title: "Applied Nutrition Products & Prices UK",
     description,
-    robots: { index: indexable, follow: true },
+    robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
       title: "Applied Nutrition Products & Prices UK | SupplementScout",
@@ -454,6 +459,7 @@ export function AppliedNutritionPageContent({
 }
 
 export default async function AppliedNutritionBrandPage() {
-  const result = await getAppliedNutritionBrand();
+  const result = await getCachedAppliedNutritionBrand();
+  assertLifecycleDataAvailable(result, pagePath);
   return <AppliedNutritionPageContent result={result} />;
 }

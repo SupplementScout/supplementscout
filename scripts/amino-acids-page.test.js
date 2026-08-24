@@ -24,6 +24,8 @@ function compileModule(filename, options = {}) {
     if (parent === mod && Object.hasOwn(options.mocks || {}, request)) {
       return options.mocks[request];
     }
+    if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
+    if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     return originalLoad.call(this, request, parent, isMain);
   };
   try {
@@ -196,14 +198,14 @@ test("production query is bounded to the reviewed category", async () => {
   assert.ok(calls.some((call) => call[0] === "range" && call[1] === 0 && call[2] === 999));
 });
 
-test("metadata follows current coverage and uses one canonical", async () => {
+test("live-verified metadata is stable across coverage and uses one canonical", async () => {
   const ready = fixtureResult();
   ready.summary = { ...ready.summary, freshOffers: 20, productsWithMultipleFreshRetailers: 3, freshRetailersAcrossComparisons: 2 };
   const metadata = await loadPage(ready).generateMetadata();
   assert.equal(metadata.alternates.canonical, "/amino-acids");
   assert.deepEqual(metadata.robots, { index: true, follow: true });
   const failed = await loadPage({ ...ready, error: true }).generateMetadata();
-  assert.deepEqual(failed.robots, { index: false, follow: true });
+  assert.deepEqual(failed.robots, { index: true, follow: true });
 });
 
 test("structured data is a collection without invented Product entities", () => {
