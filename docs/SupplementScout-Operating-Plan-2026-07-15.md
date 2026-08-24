@@ -2709,6 +2709,10 @@ the existing offer and price-history data. Define truthful historical-price,
 delivered-price, freshness and fail-closed publication requirements before any
 implementation; do not create a second pricing store.
 
+Use `docs/SEO-15-Deals-Price-Intelligence-Plan.md` for the bounded technical
+design, evidence gates and decision log. It does not replace this Operating Plan
+or the SEO Execution Plan and does not change the binding roadmap order.
+
 ### Then
 
 1. After the SEO-15 readiness decision, implement it only if its reviewed data

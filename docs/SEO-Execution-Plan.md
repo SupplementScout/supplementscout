@@ -129,6 +129,10 @@ second pricing store, infer discounts from unsupported reference prices or
 start page implementation until the evidence boundary and fail-closed gate are
 reviewed. SEO-15 remains `PLANNED`; no implementation has started.
 
+The bounded technical design, evidence gates and decision log are maintained in
+`docs/SEO-15-Deals-Price-Intelligence-Plan.md`; this execution ledger remains
+the sole authority for SEO-15 status and roadmap order.
+
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
 
