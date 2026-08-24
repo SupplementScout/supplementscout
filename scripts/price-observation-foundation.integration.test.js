@@ -106,6 +106,31 @@ test("identity-proven recorder is immutable, fail-closed, idempotent and fully r
     requireSuccess(psqlFile(container, database, prerequisites[0]), "apply baseline");
     requireSuccess(psqlFile(container, database, stage2Setup, ["stage2_test_database_confirmed=1", "stage2_test_host=127.0.0.1", `stage2_expected_database=${database}`, "stage2_scenario=success"]), "seed Product Variants fixture");
     for (const prerequisite of prerequisites.slice(1)) requireSuccess(psqlFile(container, database, prerequisite), `apply ${path.basename(prerequisite)}`);
+    requireSuccess(psql(container, database, `
+      create or replace function public.retailer_catalogue_actual_database_target()
+      returns jsonb language sql stable security definer set search_path=pg_catalog,public,pg_temp
+      as $target$ select jsonb_build_object('target_environment','STAGING') $target$;`), "prepare local staging target fixture");
+
+    const productionGuardDatabase = "supplementscout_stage2_test_production_guard";
+    requireSuccess(exec(container, ["createdb", "-U", "postgres", productionGuardDatabase]), "create production-guard database");
+    requireSuccess(psqlFile(container, productionGuardDatabase, prerequisites[0]), "apply production-guard baseline");
+    requireSuccess(psqlFile(container, productionGuardDatabase, stage2Setup, ["stage2_test_database_confirmed=1", "stage2_test_host=127.0.0.1", `stage2_expected_database=${productionGuardDatabase}`, "stage2_scenario=success"]), "seed production-guard Product Variants fixture");
+    for (const prerequisite of prerequisites.slice(1)) requireSuccess(psqlFile(container, productionGuardDatabase, prerequisite), `apply production-guard ${path.basename(prerequisite)}`);
+    requireSuccess(psql(container, productionGuardDatabase, `
+      insert into public.retailers(id,name,slug,website) values
+        (1,'GYM HIGH','gym-high','https://gymhigh.co.uk'),(3,'Whey Okay','whey-okay','https://wheyokay.com'),
+        (7,'Simply Supplements','simply-supplements','https://www.simplysupplements.co.uk'),(9,'Fit House','fit-house','https://fithouse.uk'),
+        (10,'Jon''s Supplements','jon-s-supplements','https://jonssupplements.co.uk')
+      on conflict(id) do update set name=excluded.name,slug=excluded.slug,website=excluded.website;
+      create or replace function public.retailer_catalogue_actual_database_target()
+      returns jsonb language sql stable security definer set search_path=pg_catalog,public,pg_temp
+      as $target$ select jsonb_build_object('target_environment','PRODUCTION') $target$;`), "prepare production retailer guard fixture");
+    requireFailure(psqlFile(container, productionGuardDatabase, migration), "production migration without exact blocked retailers", /producer retailer scope does not match/);
+    assert.deepEqual(json(container, productionGuardDatabase, `select jsonb_build_object(
+      'series',to_regclass('public.price_identity_series') is null,
+      'producers',to_regclass('public.price_observation_producers') is null,
+      'identity_column',not exists(select 1 from information_schema.columns where table_schema='public' and table_name='price_history' and column_name='identity_series_id')
+    )::text`), { series: true, producers: true, identity_column: true });
 
     const offerId = "9007199254740993";
     const mappingId = "9007199254740995";
@@ -115,8 +140,8 @@ test("identity-proven recorder is immutable, fail-closed, idempotent and fully r
       insert into public.retailers(id,name,slug,website) values
         (1,'GYM HIGH','gym-high','https://gymhigh.co.uk'),(3,'Whey Okay','whey-okay','https://wheyokay.com'),
         (7,'Simply Supplements','simply-supplements','https://www.simplysupplements.co.uk'),(9,'Fit House','fit-house','https://fithouse.uk'),
-        (10,'Jon''s Supplements','jon-s-supplements','https://jonssupplements.co.uk'),(11,'6 Pack Supplements','6-pack-supplements','https://6pack-supplements.co.uk'),
-        (12,'eBay UK','ebay-uk','https://www.ebay.co.uk') on conflict(id) do nothing;
+        (10,'Jon''s Supplements','jon-s-supplements','https://jonssupplements.co.uk')
+      on conflict(id) do update set name=excluded.name,slug=excluded.slug,website=excluded.website;
       insert into public.products(id,name,slug,brand,category,unit_count,unit_type,product_format,unit_pricing_verified,is_active)
         values(${productId},'Identity Safe Whey','identity-safe-whey','Test','Whey Protein',40,'serving','powder',true,true);
       insert into public.product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,gtin,is_active,is_default)
@@ -139,7 +164,7 @@ test("identity-proven recorder is immutable, fail-closed, idempotent and fully r
       'wrapper',(select position('record_identity_proven_price_observation' in pg_get_functiondef('public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)'::regprocedure))>0)
     )::text`);
     assert.equal(installed.legacy_unproven >= 1, true);
-    assert.deepEqual({ ...installed, legacy_unproven: 1 }, { legacy_unproven: 1, series: 0, enabled: 0, capable: 5, blocked: 2, wrapper: true });
+    assert.deepEqual({ ...installed, legacy_unproven: 1 }, { legacy_unproven: 1, series: 0, enabled: 0, capable: 5, blocked: 0, wrapper: true });
 
     const disabled = json(container, database, `select public.record_identity_proven_price_observation(${offerId},'daily_confirmation','run-disabled','retailer_offer_mixed_batch')::text`);
     assert.equal(disabled.status, "IDENTITY_OBSERVATION_SKIPPED");
@@ -245,6 +270,10 @@ test("migration and rollback are additive, legacy-safe and contain no public cla
   assert.match(sql, /identity_series_id is null/i, "legacy rows remain explicitly unproven");
   assert.match(sql, /identity_observation_result/);
   assert.match(sql, /PRODUCER_DISABLED/);
+  assert.match(sql, /retailer_catalogue_actual_database_target/);
+  assert.match(sql, /required_on_staging/);
+  assert.match(sql, /v_environment='PRODUCTION' then 7 else 5/);
+  assert.match(sql, /join public\.retailers retailer/i);
   assert.match(sql, /IDENTITY_OBSERVATION_SKIPPED/);
   assert.match(sql, /daily_confirmation/);
   assert.match(sql, /delivered_price_changed/);

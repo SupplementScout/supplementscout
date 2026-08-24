@@ -4,6 +4,9 @@ set local lock_timeout = '5s';
 set local statement_timeout = '60s';
 
 do $preflight$
+declare
+  v_target jsonb;
+  v_environment text;
 begin
   if to_regclass('public.price_identity_series') is not null
      or to_regclass('public.price_observation_producers') is not null
@@ -12,8 +15,34 @@ begin
   end if;
   if to_regprocedure('public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)') is null
      or to_regprocedure('public.retailer_catalogue_sha256_json(jsonb)') is null
-     or to_regprocedure('public.retailer_catalogue_business_counts()') is null then
+     or to_regprocedure('public.retailer_catalogue_business_counts()') is null
+     or to_regprocedure('public.retailer_catalogue_actual_database_target()') is null then
     raise exception 'identity-proven observations require the current atomic offer and catalogue control paths';
+  end if;
+
+  v_target:=public.retailer_catalogue_actual_database_target();
+  v_environment:=v_target->>'target_environment';
+  if v_environment not in ('STAGING','PRODUCTION') then
+    raise exception 'identity-proven observations require an exact staging or production target';
+  end if;
+
+  if exists(
+    select 1
+    from (values
+      (1::bigint,'gym-high'::text,true),
+      (3::bigint,'whey-okay'::text,true),
+      (7::bigint,'simply-supplements'::text,true),
+      (9::bigint,'fit-house'::text,true),
+      (10::bigint,'jon-s-supplements'::text,true),
+      (11::bigint,'6-pack-supplements'::text,false),
+      (12::bigint,'ebay-uk'::text,false)
+    ) expected(retailer_id,retailer_slug,required_on_staging)
+    left join public.retailers retailer on retailer.id=expected.retailer_id
+    where
+      (retailer.id is null and (v_environment='PRODUCTION' or expected.required_on_staging))
+      or (retailer.id is not null and retailer.slug is distinct from expected.retailer_slug)
+  ) then
+    raise exception 'identity-proven producer retailer scope does not match the target catalogue';
   end if;
 end
 $preflight$;
@@ -79,14 +108,31 @@ create table public.price_observation_producers (
 
 insert into public.price_observation_producers
   (retailer_id,retailer_slug,source_importer,approved_scope,technically_capable,enabled,public_use,terms_mode)
-values
+select seed.retailer_id,seed.retailer_slug,seed.source_importer,seed.approved_scope,
+  seed.technically_capable,false,seed.public_use,seed.terms_mode
+from (values
   (7,'simply-supplements','retailer_offer_mixed_batch','approved-120',true,false,'eligible-after-separate-approval','standard-single-purchase-only'),
   (9,'fit-house','retailer_offer_mixed_batch','approved-286',true,false,'eligible-after-separate-approval','standard-single-purchase-only'),
   (10,'jon-s-supplements','retailer_offer_mixed_batch','reviewed-current-sync',true,false,'eligible-after-separate-approval','standard-single-purchase-only'),
   (3,'whey-okay','retailer_offer_mixed_batch','approved-586-only',true,false,'eligible-after-separate-approval','standard-single-purchase-only'),
   (1,'gym-high','gym-high-reviewed-full-catalogue-v1','reviewed-66',true,false,'owner-deferred','standard-single-purchase-only'),
   (11,'6-pack-supplements','retailer_offer_mixed_batch','blocked-pending-mass-oos-review',false,false,'blocked','standard-single-purchase-only'),
-  (12,'ebay-uk','ebay-existing-offer-refresh-exact-237-v1','blocked-pending-237-continuity',false,false,'blocked','standard-single-purchase-only');
+  (12,'ebay-uk','ebay-existing-offer-refresh-exact-237-v1','blocked-pending-237-continuity',false,false,'blocked','standard-single-purchase-only')
+) seed(retailer_id,retailer_slug,source_importer,approved_scope,technically_capable,enabled,public_use,terms_mode)
+join public.retailers retailer
+  on retailer.id=seed.retailer_id and retailer.slug=seed.retailer_slug;
+
+do $producer_seed_check$
+declare
+  v_environment text:=public.retailer_catalogue_actual_database_target()->>'target_environment';
+  v_expected_count integer:=case when v_environment='PRODUCTION' then 7 else 5 end;
+begin
+  if (select count(*) from public.price_observation_producers)<>v_expected_count
+     or exists(select 1 from public.price_observation_producers where enabled) then
+    raise exception 'identity-proven producer seed is incomplete or unexpectedly enabled';
+  end if;
+end
+$producer_seed_check$;
 
 alter table public.price_history
   add column identity_series_id bigint,
