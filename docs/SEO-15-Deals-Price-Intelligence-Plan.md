@@ -1,8 +1,8 @@
 # SEO-15 Deals and Price Intelligence — Technical Execution Plan
 
 **Prepared:** 24 August 2026  
-**State:** Stage 1 live verified; corrective Indexability Lifecycle P0 is
-`CODE COMPLETE`, live evidence pending; Stages 2 and 3 not started
+**State:** Stage 1 and corrective Indexability Lifecycle P0 live verified;
+Stages 2 and 3 not started
 **Authority:** `docs/SEO-Execution-Plan.md` remains the SEO status and ordering
 authority. `docs/SupplementScout-Operating-Plan-2026-07-15.md` remains the
 project authority. This document records only SEO-15 technical scope, gates,
@@ -507,7 +507,7 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 |---|---|---|---|---|---|
 | Plan | pending owner-approved docs commit | n/a | Project Guardian and diff checks pending | n/a | local review |
 | Stage 1 | `3492e48b70817ea52535a21c2a5499151968010d` | production release verified; deployment ID not recorded in this plan | focused tests, TypeScript, Guardian, quality gates, ESLint and build passed | owner-confirmed HTTP, canonical, robots, sitemap, schema, current data, delivered-price and internal-link checks passed | live verified |
-| Corrective Indexability Lifecycle P0 | pending | pending | focused contract/hub tests `166/166`; TypeScript, Guardian, diff check, quick/full gates, ESLint and production build passed | pending | `CODE COMPLETE`, live evidence pending |
+| Corrective Indexability Lifecycle P0 | `1f7bfc08075899849f22f5bf80b978fe7cb60de3` (`Stabilize and document SEO indexability lifecycle`, 58 files); Guardian fixture correction `c8a48c484a7fe6c1b32b91e77535ec6a13b916d7` | Vercel `2bmj7eiPXnL3pNmCcy8av3TyCg6f`; correction deployment `ZVxadQiAwXhgL4xfC36cw7JKcrF4` | focused contract/hub tests `166/166`; TypeScript, Guardian, diff check, quick/full gates, ESLint and production build passed; Project Guardian run `32737495813`, Quality Gate run `32737495783`, Full job `97463732331` succeeded; Integration job `97463733544` correctly skipped | all 15 routes HTTP `200`, `index, follow`, correct self-canonical and exactly once in the sitemap; parameters `noindex, follow`; SEO-04 unchanged; sitemap `1,096` unique URLs including `1,070` products and `0` duplicates; no GYM HIGH URL, false empty list, normal-read 5xx or checked-route regression; shared cache shortened subsequent reads; zero refresh workflows and zero production-data writes | `LIVE VERIFIED` |
 | Stage 2 schema/recorder | pending separate approval | pending | pending isolated rehearsal | pending readback | not started |
 | 7-day audit | n/a | n/a | pending | pending | not due |
 | 14-day audit | n/a | n/a | pending | pending | not due |

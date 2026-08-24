@@ -117,17 +117,19 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 current deals is live verified; corrective Indexability Lifecycle P0 is `CODE COMPLETE` with live evidence pending; Stages 2 and 3 have not started. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 current deals and the corrective Indexability Lifecycle P0 are live verified; Stages 2 and 3 have not started. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 — complete and live-verify the corrective
-Indexability Lifecycle P0 before any Stage 2 or Stage 3 work. Stage 1 current
-deals is already deployed and live verified. Do not create a second pricing
-store, infer discounts from unsupported reference prices or start historical
-claims before identity-proven evidence accrues.
+**Next executable task:** SEO-15 — prepare the Stage 2 identity-proven
+observation foundation for the separate approval required by the existing
+technical plan and its migration, test, volume and rollback gates. Stage 1 current deals
+and the corrective Indexability Lifecycle P0 are live verified. Stage 2 and
+Stage 3 have not started. Do not create a second pricing store, infer discounts
+from unsupported reference prices or start historical claims before
+identity-proven evidence accrues.
 
 The bounded technical design, evidence gates and decision log are maintained in
 `docs/SEO-15-Deals-Price-Intelligence-Plan.md`; this execution ledger remains
@@ -274,6 +276,38 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 24 August 2026 — SEO Indexability Lifecycle P0 LIVE VERIFIED
+
+- The corrective lifecycle implementation shipped in commit
+  `1f7bfc08075899849f22f5bf80b978fe7cb60de3`, `Stabilize and document SEO
+  indexability lifecycle`, across `58` files. Vercel production deployment
+  `2bmj7eiPXnL3pNmCcy8av3TyCg6f` succeeded and the public live verification
+  passed.
+- All 15 approved routes returned HTTP `200`, emitted `index, follow`, used the
+  correct self-canonical and occurred exactly once in the sitemap:
+  `/deals`, `/whey-protein`, `/vegan-protein`, `/protein-bars`,
+  `/whey-isolate`, `/mass-gainer`, `/pre-workout`, `/amino-acids`,
+  `/multivitamins`, `/creatine`, `/hydration`,
+  `/brands/applied-nutrition`, `/brands/per4m`, `/brands/biotech-usa` and
+  `/retailers/ebay-uk`.
+- Parameter URLs remained `noindex, follow` with the base-route canonical.
+  SEO-04 remained unchanged. The sitemap contained `1,096` unique URLs,
+  including `1,070` product URLs, with `0` duplicates and no GYM HIGH URL.
+- Normal reads produced no false empty lists and no HTTP 5xx responses. The
+  shared cache shortened subsequent reads. Homepage, a representative product,
+  About, How we compare, empty search and `robots.txt` had no regression.
+- The deterministic Guardian fixture correction shipped in commit
+  `c8a48c484a7fe6c1b32b91e77535ec6a13b916d7`, `Fix Project Guardian negative
+  evidence fixture`. Project Guardian run `32737495813` and Quality Gate run
+  `32737495783` succeeded; Full job `97463732331` succeeded and Integration job
+  `97463733544` was correctly skipped. Vercel deployment
+  `ZVxadQiAwXhgL4xfC36cw7JKcrF4` succeeded.
+- The release and verification ran zero refresh workflows and performed zero
+  production-data writes. GYM HIGH remains `owner_deferred`. SEO-15 remains
+  `IN PROGRESS`: Stage 1 and this corrective P0 are live verified, while Stage
+  2 and Stage 3 are not started. The binding sequence remains SEO-15, SEO-16,
+  SEO-17.
 
 ### 24 August 2026 — corrective SEO Indexability Lifecycle P0; CODE COMPLETE, live evidence pending
 
