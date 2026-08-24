@@ -117,21 +117,21 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 and Indexability Lifecycle P0 are live verified. Stage 2A identity foundation is `STAGING VERIFIED`; production migration is `NOT RUN`, all producers remain disabled, production proven observations remain `0`, public Stage 2 is blocked pending accrual, and Stage 3 has not started. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 and Indexability Lifecycle P0 are live verified. Stage 2A schema is production verified at ledger `127`; all seven production producers remain disabled, production proven observations remain `0`, public Stage 2 is blocked pending approved accrual, and Stage 3 has not started. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 — review and separately approve the Stage 2A
-production migration. The foundation is `STAGING VERIFIED`: staging ledger
-`81`, fingerprint
-`65b43bf028656f3c85c8b769964c227c1f7769a74462b33210eb9fd354e67739`,
-five disabled staging producers and zero staging proven observations. The
-production migration is `NOT RUN`, every production producer remains
-absent/disabled and production identity-proven observations remain `0`.
-Producer enablement requires a later separate approval after production
-readback. Public Stage 2 stays blocked until approved evidence accrues; the
+**Next executable task:** SEO-15 — review and separately approve one bounded
+production observation producer. Stage 2A migration
+`20260824160000_add_identity_proven_price_observations` is production verified
+at ledger `127`, fingerprint
+`896de918b58e068ba917340138563a99060d4d1a6cfacdc029ba575622c33f9b`.
+All seven production producers remain disabled, all `3,006` existing history
+rows remain legacy, and production identity-proven observations remain `0`.
+Each producer requires a separate approval. Public Stage 2 stays blocked until
+approved evidence accrues; the
 earliest audit is after 14 days and the recommended publication decision is
 after 30 days. Stage 3 has not started. Do not infer historical claims.
 

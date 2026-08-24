@@ -151,16 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records brand normalization and stages only the identity foundation", () => {
+test("production records the identity foundation as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(
-    contract.pending.map(({ filename }) => filename),
-    ["20260824160000_add_identity_proven_price_observations.sql"],
-  );
-  assert.equal(contract.ledgerCount, 126);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 127);
   assert.equal(
     contract.ledgerFingerprint,
-    "cd6ce83450ee7030e0bae5eb4eda62349feaca1973b8017e56d077f54f4ebbf5",
+    "896de918b58e068ba917340138563a99060d4d1a6cfacdc029ba575622c33f9b",
   );
 });
 
@@ -263,13 +260,13 @@ test("production binds its exact applied ledger including bounded RLS read", () 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 126);
+  assert.equal(result.ledger_count, 127);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260824160000_add_identity_proven_price_observations"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 127);
-  assert.deepEqual(result.pending_files, ["20260824160000_add_identity_proven_price_observations.sql"]);
-  assert.equal(result.pending_file, "20260824160000_add_identity_proven_price_observations.sql");
-  assert.equal(result.pending_sha256, "8207b6d18da197ac8f23ede7b8120963055dec0674f3cec293a9b92a111d3fa3");
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
 });
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
