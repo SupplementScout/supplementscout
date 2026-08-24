@@ -522,6 +522,9 @@ export function WheyProteinPageContent({
             Related comparisons and information
           </h2>
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
+            <Link href="/deals" className="font-semibold underline">
+              Best supplement prices today
+            </Link>
             <Link href="/creatine" className="font-semibold underline">
               Creatine comparison
             </Link>

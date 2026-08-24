@@ -114,7 +114,7 @@ export default function HomeHeader() {
 
         <div className="hidden md:block">
           <Link
-            href="/creatine"
+            href="/deals"
             className="inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2"
           >
             Find Deals
