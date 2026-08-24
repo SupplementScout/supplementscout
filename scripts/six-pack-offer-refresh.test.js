@@ -1,9 +1,11 @@
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
+const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
 const { loadDryRunArtifact } = require("./import-products");
+const { WooCommerceSourceError } = require("./lib/woocommerce-product-page-reader");
 const {
   loadReviewedMassOosManifest,
   parseArgs,
@@ -105,6 +107,41 @@ test("refresh creates one exact verified-no-change plan per approved mapping", a
   const artifact = loadDryRunArtifact(output.artifact).artifact;
   assert.equal(artifact.plans.length, manifest.rows.length);
   assert.equal(artifact.plans.every((entry) => entry.resolved_plan.offer.action === "verify_no_change"), true);
+});
+
+test("failed source preflight writes a safe zero-write report and no executable artifact", async () => {
+  const source = fixture();
+  const output = paths();
+  const failure = new WooCommerceSourceError(
+    "SOURCE_UNAVAILABLE",
+    "safe source failure",
+    {
+      error_type: "TypeError",
+      network_code: "ENOTFOUND",
+      timeout: false,
+      last_attempt: 5,
+      request_url: "https://6pack-supplements.co.uk/?p=4110",
+      product_id: "4110",
+      http_status: null,
+    }
+  );
+  await assert.rejects(
+    run(
+      { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false },
+      { state: source.state, readLive: async () => { throw failure; } }
+    ),
+    (error) => error === failure
+  );
+  const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+  assert.equal(report.result, "BLOCK");
+  assert.equal(report.classification_state, "SOURCE_READ_FAILED");
+  assert.equal(report.block_reason, "SOURCE_UNAVAILABLE");
+  assert.equal(report.approved_mapping_count, manifest.rows.length);
+  assert.equal(report.fetched_product_page_count, 0);
+  assert.equal(report.database_writes, 0);
+  assert.deepEqual(report.action_counts, {});
+  assert.deepEqual(report.source_error, failure.detail);
+  assert.equal(fs.existsSync(output.artifact), false);
 });
 
 test("refresh compares live identity with the retailer name before the shorter canonical name", async () => {

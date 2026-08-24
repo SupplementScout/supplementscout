@@ -110,6 +110,92 @@ test("live reader enforces same-host product redirects and bounded HTML", async 
   );
 });
 
+function networkFailure(name, code, secret = "hidden-input-must-not-leak") {
+  const underlying = new Error(secret);
+  underlying.name = name;
+  underlying.code = code;
+  return name === "TypeError"
+    ? new TypeError("fetch failed", { cause: underlying })
+    : underlying;
+}
+
+for (const scenario of [
+  { label: "timeout", name: "AbortError", code: "ABORT_ERR", timeout: true },
+  { label: "DNS", name: "TypeError", code: "ENOTFOUND", timeout: false },
+  { label: "TLS", name: "TypeError", code: "CERT_HAS_EXPIRED", timeout: false },
+  { label: "connection reset", name: "Error", code: "ECONNRESET", timeout: false },
+]) {
+  test(`live reader reports safe ${scenario.label} diagnostics after the last retry`, async () => {
+    const failures = [
+      networkFailure(scenario.name, scenario.code, "first-secret"),
+      networkFailure(scenario.name, scenario.code, "last-secret"),
+    ];
+    let calls = 0;
+    await assert.rejects(
+      readWooCommerceProductPage({
+        storeUrl: "https://shop.example.test",
+        productId: "4110",
+        fetchImpl: async () => {
+          const failure = failures[calls];
+          calls += 1;
+          throw failure;
+        },
+        maximumAttempts: 2,
+        sleepImpl: async () => {},
+      }),
+      (error) => {
+        assert.equal(error.code, "SOURCE_UNAVAILABLE");
+        assert.equal(error.cause, failures[1]);
+        assert.equal(error.detail.error_type, scenario.name);
+        assert.equal(error.detail.network_code, scenario.code);
+        assert.equal(error.detail.timeout, scenario.timeout);
+        assert.equal(error.detail.last_attempt, 2);
+        assert.equal(error.detail.product_id, "4110");
+        assert.equal(error.detail.request_url, "https://shop.example.test/?p=4110");
+        assert.equal(error.detail.http_status, null);
+        assert.doesNotMatch(error.message, /first-secret|last-secret/);
+        return true;
+      }
+    );
+    assert.equal(calls, 2);
+  });
+}
+
+for (const status of [404, 429, 503]) {
+  test(`live reader preserves HTTP ${status} after bounded retries`, async () => {
+    let calls = 0;
+    await assert.rejects(
+      readWooCommerceProductPage({
+        storeUrl: "https://shop.example.test",
+        productId: "4110",
+        fetchImpl: async () => {
+          calls += 1;
+          return {
+            status,
+            url: "https://shop.example.test/?p=4110",
+            headers: { get: () => null },
+          };
+        },
+        maximumAttempts: 2,
+        sleepImpl: async () => {},
+      }),
+      (error) => {
+        assert.equal(error.code, "SOURCE_HTTP_ERROR");
+        assert.equal(error.cause.code, "SOURCE_HTTP_ERROR");
+        assert.equal(error.detail.error_type, "WooCommerceSourceError");
+        assert.equal(error.detail.network_code, null);
+        assert.equal(error.detail.timeout, false);
+        assert.equal(error.detail.last_attempt, 2);
+        assert.equal(error.detail.product_id, "4110");
+        assert.equal(error.detail.http_status, status);
+        assert.match(error.message, new RegExp(`http_status=${status}`));
+        return true;
+      }
+    );
+    assert.equal(calls, 2);
+  });
+}
+
 test("fails closed on duplicate variation IDs and malformed offer currency", () => {
   const row = {
     variation_id: 21,

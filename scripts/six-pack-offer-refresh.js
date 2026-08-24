@@ -395,6 +395,50 @@ function targetFor(record) {
   };
 }
 
+function writeSourceFailureReport({
+  approved,
+  capturedAt,
+  error,
+  fetchedProductPageCount,
+  options,
+  productId,
+}) {
+  const detail = error?.detail && typeof error.detail === "object" ? error.detail : {};
+  const safeToken = (value, fallback = null) => (
+    typeof value === "string" && /^[A-Za-z0-9_.-]{1,64}$/.test(value) ? value : fallback
+  );
+  const requestUrl = new URL("/", config.retailer.website);
+  requestUrl.searchParams.set("p", String(productId));
+  const lastAttempt = Number(detail.last_attempt);
+  const httpStatus = Number(detail.http_status);
+  const report = {
+    schema_version: 1,
+    kind: "six-pack-approved-offer-refresh-dry-run",
+    result: "BLOCK",
+    target_project_ref: PROJECT_REF,
+    manifest_sha256: approved.sha256,
+    source_captured_at: capturedAt,
+    approved_mapping_count: approved.manifest.rows.length,
+    fetched_product_page_count: fetchedProductPageCount,
+    classification_state: "SOURCE_READ_FAILED",
+    block_reason: safeToken(error?.code, "SOURCE_UNAVAILABLE"),
+    source_error: {
+      error_type: safeToken(detail.error_type, "Error"),
+      network_code: safeToken(detail.network_code),
+      timeout: detail.timeout === true,
+      last_attempt: Number.isInteger(lastAttempt) && lastAttempt >= 1 && lastAttempt <= 5 ? lastAttempt : null,
+      request_url: requestUrl.href,
+      product_id: String(productId),
+      http_status: Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null,
+    },
+    action_counts: {},
+    database_writes: 0,
+  };
+  fs.mkdirSync(path.dirname(options.report), { recursive: true });
+  fs.writeFileSync(options.report, `${JSON.stringify(report, null, 2)}\n`);
+  return report;
+}
+
 function verificationRecord(record, source, snapshotFingerprint, capturedAt) {
   const mapping = { ...record.mapping };
   delete mapping.updated_at;
@@ -480,7 +524,19 @@ async function run(options, dependencies = {}) {
       if (!dependencies.readLive && liveByProduct.size > 0) {
         await new Promise((resolve) => setTimeout(resolve, 150));
       }
-      liveByProduct.set(productId, await readLive(productId));
+      try {
+        liveByProduct.set(productId, await readLive(productId));
+      } catch (error) {
+        writeSourceFailureReport({
+          approved,
+          capturedAt,
+          error,
+          fetchedProductPageCount: liveByProduct.size,
+          options,
+          productId,
+        });
+        throw error;
+      }
     }
   }
   const sourceRows = state.records.map((record) =>
@@ -625,4 +681,5 @@ module.exports = {
   shippingForPrice,
   targetFor,
   verificationRecord,
+  writeSourceFailureReport,
 };

@@ -13,6 +13,64 @@ function fail(code, message, detail, cause) {
   throw new WooCommerceSourceError(code, message, detail, cause);
 }
 
+function errorChain(error) {
+  const chain = [];
+  const seen = new Set();
+  let current = error;
+  while (current && typeof current === "object" && !seen.has(current) && chain.length < 6) {
+    chain.push(current);
+    seen.add(current);
+    current = current.cause;
+  }
+  return chain;
+}
+
+function safeToken(value) {
+  const token = typeof value === "string" ? value : "";
+  return /^[A-Za-z0-9_.-]{1,64}$/.test(token) ? token : null;
+}
+
+function exhaustedRetryDiagnostic(error, { productId, requestUrl, attempt }) {
+  const chain = errorChain(error);
+  const errorType = chain.map((entry) => safeToken(entry.name)).find(Boolean) || "Error";
+  const networkCode = chain.map((entry) => safeToken(entry.code)).find((code) => (
+    code && !code.startsWith("SOURCE_") && !code.startsWith("DUPLICATE_")
+  )) || null;
+  const httpStatus = chain
+    .map((entry) => Number(entry?.detail?.status ?? entry?.status))
+    .find((status) => Number.isInteger(status) && status >= 100 && status <= 599) || null;
+  const timeout = chain.some((entry) => {
+    const name = safeToken(entry.name);
+    const code = safeToken(entry.code);
+    return name === "AbortError" || ["ABORT_ERR", "ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "UND_ERR_BODY_TIMEOUT"].includes(code);
+  });
+  return {
+    error_type: errorType,
+    network_code: networkCode,
+    timeout,
+    last_attempt: attempt,
+    request_url: requestUrl.href,
+    product_id: String(productId),
+    http_status: httpStatus,
+  };
+}
+
+function exhaustedRetryMessage(diagnostic, lastError) {
+  const controlledLastError = lastError instanceof WooCommerceSourceError
+    ? lastError.message.replace(/[\r\n\t]+/g, " ").slice(0, 240)
+    : null;
+  return [
+    `WooCommerce product ${diagnostic.product_id} failed after bounded retries`,
+    `error_type=${diagnostic.error_type}`,
+    `network_code=${diagnostic.network_code || "none"}`,
+    `timeout=${diagnostic.timeout}`,
+    `last_attempt=${diagnostic.last_attempt}`,
+    `request_url=${diagnostic.request_url}`,
+    `http_status=${diagnostic.http_status || "none"}`,
+    controlledLastError ? `last_error=${controlledLastError}` : null,
+  ].filter(Boolean).join("; ");
+}
+
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
@@ -291,13 +349,21 @@ async function readWooCommerceProductPage({
       clearTimeout(timer);
     }
   }
-  if (lastError instanceof WooCommerceSourceError) throw lastError;
-  fail("SOURCE_UNAVAILABLE", `WooCommerce product ${id} failed after bounded retries`, {}, lastError);
+  const diagnostic = exhaustedRetryDiagnostic(lastError, {
+    productId: id,
+    requestUrl,
+    attempt: maximumAttempts,
+  });
+  const code = lastError instanceof WooCommerceSourceError
+    ? lastError.code
+    : "SOURCE_UNAVAILABLE";
+  fail(code, exhaustedRetryMessage(diagnostic, lastError), diagnostic, lastError);
 }
 
 module.exports = {
   WooCommerceSourceError,
   decodeHtmlEntities,
+  exhaustedRetryDiagnostic,
   extractProductOffer,
   extractProductName,
   extractVariationPayload,
