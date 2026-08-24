@@ -63,14 +63,22 @@ test("guardian blocks a stale conflicting WheyWise response sequence", () => {
 
 test("guardian blocks unsupported completion without live evidence", () => {
   const docs = currentDocs();
-  const evidence = docs.seo.split("## 11. Execution evidence")[1] || "";
-  const candidate = guardian.parseSeoLedger(docs.seo, [])
-    .find((row) => row.status === "PLANNED" && !evidence.includes(row.id));
-  assert.ok(candidate, "missing planned task without execution evidence");
-  docs.seo = setLedgerStatus(docs.seo, candidate.id, "LIVE VERIFIED");
+  const fixtureId = "SEO-99";
+  const fixtureRow = `| ${fixtureId} | P0 | Synthetic negative evidence fixture. | \`PLANNED\` | Test fixture only. |`;
+  docs.seo = docs.seo.replace(
+    "\n## 6. Current active task",
+    `\n${fixtureRow}\n\n## 6. Current active task`,
+  );
+  assert.equal(
+    guardian.parseSeoLedger(docs.seo, []).find((row) => row.id === fixtureId)?.status,
+    "PLANNED",
+  );
+  docs.seo = setLedgerStatus(docs.seo, fixtureId, "LIVE VERIFIED");
   const result = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   assert.equal(result.ok, false);
-  assert.match(result.errors.join("\n"), new RegExp(`${candidate.id} is LIVE VERIFIED but has no matching live evidence entry`));
+  assert.deepEqual(result.errors, [
+    `${fixtureId} is LIVE VERIFIED but has no matching live evidence entry.`,
+  ]);
 });
 
 test("guardian blocks a stale SEO-07 authentication blocker after measurement exists", () => {
