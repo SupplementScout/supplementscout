@@ -196,47 +196,68 @@ quality and analytics contracts. Expected application files after approval are:
 
 ## 7. Stage 2 — Identity-proven price observations
 
+### Stage 2A local implementation checkpoint — 24 August 2026
+
+Stage 2A is `CODE COMPLETE` locally. The production and staging migration is
+`NOT RUN`, every producer remains `DISABLED`, and production still contains
+zero identity-proven observations. Public Stage 2 claims remain `BLOCKED` while
+evidence accrues; Stage 3 has not started. The migration is explicitly excluded
+from both environment selectors until a separate owner approval removes that
+exclusion.
+
+The implementation selected normalized model B rather than repeating a full
+JSONB snapshot in every history row. A local PostgreSQL sample measured an
+immutable series row at about `288` bytes and an observation row at about `172`
+bytes; serializing the same series as repeated JSONB was about `754` bytes per
+observation before row/index overhead. The normalized model therefore preserves
+one `price_history` system while materially reducing repeated evidence.
+
 ### Legacy versus proven evidence
 
-- A legacy row has `identity_version IS NULL`. It remains available to current
+- A legacy row has `identity_series_id IS NULL`. It remains available to current
   product charts but cannot qualify a verified drop or exceptional-value claim.
-- An identity-proven row has a supported identity version, complete immutable
-  snapshot, valid stable fingerprint and accepted observation kind. Only these
-  rows may feed future historical claims.
+- An identity-proven row points to a complete immutable
+  `price_identity_series`, has a valid versioned fingerprint and an accepted
+  observation kind. Only `evidence_status = 'proven'` rows may feed future
+  historical claims; quarantined rows remain review evidence only.
 - No old row is inferred, rewritten or backfilled.
 
 ### Recommended minimal schema
 
-Add nullable columns to the existing `price_history` table:
+Create one immutable normalized `price_identity_series` row per versioned exact
+identity and add nullable evidence columns to the existing `price_history`
+table:
 
 | Column | Type | Purpose |
 |---|---|---|
-| `identity_version` | `smallint` | `NULL` means legacy; initial proven contract is `1`. |
-| `identity_snapshot` | `jsonb` | Immutable IDs, external identities, pack measure and source/importer evidence at observation time. |
-| `pack_fingerprint` | `text` | SHA-256 of canonical versioned identity/pack JSON, excluding price and time. |
-| `observation_kind` | `text` | `offer_created`, `price_change` or `daily_confirmation`. |
-| `source_run_id` | `text` nullable | Add only if the existing approved-plan/run ledgers cannot provide an unambiguous join. |
+| `price_history.identity_series_id` | `bigint` nullable FK | `NULL` means legacy; otherwise references immutable exact identity. |
+| `price_history.currency` / `in_stock` | `text` / `boolean` | Required GBP and stock snapshot for proven evidence. |
+| `price_history.observation_kind` | `text` | `offer_created`, `delivered_price_changed` or `daily_confirmation`. |
+| `price_history.source_run_id` / `source_importer` | `text` | Stable operation provenance. |
+| `price_history.recorder_version` / `observation_date` | `smallint` / `date` | Recorder contract and UTC daily-deduplication key. |
+| `price_history.evidence_status` / `anomaly_flags` | `text` / `text[]` | `proven` or `quarantined`, plus review reasons. |
+| `approved_import_plans.identity_observation_result` | `jsonb` nullable | Existing ledger stores recorded/replayed/skipped outcome and fail-closed reason. |
 
 Keep existing `offer_id`, `price`, `shipping_cost`, `total_price` and
-`checked_at` as the delivered-price components and measurement timestamp. Do
-not duplicate them inside the identity JSON.
+`checked_at` as the delivered-price components and measurement timestamp.
 
-`identity_snapshot` version 1 must contain:
+`price_identity_series` version 1 contains:
 
 - canonical `product_id`, `product_variant_id`, `retailer_product_id`,
   `offer_id` and `retailer_id`;
 - external product and variant IDs used by the importer;
 - exact `pack_count`;
-- one appropriate pack measure: `net_weight_g`, `net_volume_ml`, or
-  `unit_count` plus `unit_type`;
+- exact size value/unit and pack count, plus verified unit count/type when
+  applicable;
 - canonical variant `size_value`, `size_unit` and product format where present;
-- source/importer name and the protected run/plan reference when available;
+- retailer/source and importer identity, currency and series creation time;
 - no secret, credential, authorization header or raw source payload.
 
 The fingerprint is the SHA-256 of canonical JSON containing identity version,
 all canonical/external identity keys and pack fields. A rebind, merge target,
 variant change, pack-size change or unit change creates a new fingerprint. Old
-snapshots are never updated.
+series are never updated. Historical IDs intentionally do not cascade with
+mutable catalogue rows, so merge or rebind creates a new series.
 
 ### Central recorder
 
@@ -246,28 +267,42 @@ variant and plan identity; builds the immutable snapshot and fingerprint; and
 inserts one proven observation when all evidence is complete.
 
 - Offer creation records `offer_created`.
-- A delivered-price component change records `price_change`.
+- A delivered-price component change records `delivered_price_changed`.
 - A successful unchanged check may record at most one `daily_confirmation` per
   offer/fingerprint/UTC day.
-- A second real price change on the same day may still record a distinct
-  `price_change`.
+- A second real delivered-price change on the same day remains a distinct row.
 - Incomplete identity either writes a legacy-compatible price row where the
   existing business contract requires it or writes no confirmation; it never
   marks the row identity-proven.
-- Offer update and observation insert succeed or roll back together.
+- Offer update and recorder execution share the existing approved-plan
+  transaction. Missing evidence does not block an otherwise valid offer update:
+  it returns `IDENTITY_OBSERVATION_SKIPPED` and stores the reason in the existing
+  approval ledger without creating false proof.
 
 All active importer/refresh paths must reach this recorder through the existing
 approved plan/RPC path. Historical one-time batch executors are not eligible to
 create proven observations. No new scheduler is introduced.
 
+The recorder quarantines identity-series resets, delivered-price moves of at
+least 50% or GBP 100, rapid reversals and returns from out of stock. Unknown or
+inconsistent delivery fails closed before evidence is created. Membership,
+subscription, coupon, multi-buy and unconfirmed-redirect prices are outside the
+`standard-single-purchase-only` producer contract and must be rejected by the
+existing source/preflight path; they cannot become proven observations.
+
 ### Observation volume and accrual
 
 At one daily confirmation per offer, the absolute current ceiling is
-`2,761 x 30 = 82,830` rows/month. Using the 24 August automation-audit fresh
-scope of 1,636 offers gives an indicative `49,080` rows/month; limiting proven
-recording to today's 870 strict exact-pack offers would be `26,100` rows/month.
-Before migration approval, rerun the exact active-scope count and estimate JSONB
-storage/index growth from a sample snapshot.
+`2,761 x 30 = 82,830` rows/month (`165,660` / `248,490` / `1,007,765` at
+60 / 90 / 365 days). The prepared healthy reviewed scopes total at most `1,564`
+offers including owner-deferred GYM HIGH: `46,920` / `93,840` / `140,760` /
+`570,860` rows. Excluding GYM HIGH gives at most `1,498` offers and `44,940` /
+`89,880` / `134,820` / `546,770` rows. These are ceilings, not enabled scope:
+all producers remain disabled.
+
+Retain at least twelve months of evidence and do not add automatic deletion
+without a separate decision. One daily confirmation per series/date controls
+growth while real same-day delivered-price changes remain intact.
 
 Three different observation days can accrue in three days, but the minimum
 14-day history and seven-day prior-price proof mean a verified drop cannot
@@ -329,20 +364,22 @@ delay is not itself a failure.
 
 | Retailer/source | Current state | Existing schedule/path | SEO-15 action |
 |---|---|---|---|
-| GYM HIGH | HEALTHY; publication remains owner-deferred | source monitor `03:43` and `15:43` UTC; reviewed refresh `04:13` UTC | Reuse only; do not change publication status. |
-| Simply Supplements | HEALTHY | `05:07` UTC daily | Route proven observations through the central recorder. |
-| Fit House | HEALTHY | `02:47` UTC daily | Reuse the current guarded refresh. |
-| Jon's Supplements | HEALTHY | `04:47` UTC daily | Reuse the current guarded refresh. |
-| Whey Okay | PARTIAL | `02:17` UTC daily | Keep unresolved/no-source rows excluded. |
-| Discount Supplements | PARTIAL | `06:47` UTC daily | Current good checks may accrue; source gaps remain excluded. |
-| Dolphin Fitness | PARTIAL | `05:27` UTC daily | Keep bounded vegan scope; no manifest expansion. |
-| eBay UK | PARTIAL | central refresh `05:43` UTC daily | Full read-only pass remains pending; do not run historical batch workflows. |
-| KIOR Health | MANUAL | no confirmed dedicated scheduled refresh | Does not block Stage 1 if the page gate passes without it. |
-| 6 Pack Supplements | PARTIAL; recovery closeout in progress | `03:17` UTC daily | Resolve the reviewed 14-row evidence separately before normal write recovery. |
+| GYM HIGH | HEALTHY; publication remains owner-deferred | source monitor `03:43` and `15:43` UTC; reviewed refresh `04:13` UTC | Contract technically prepared but disabled; `reviewed-66`; owner-deferred. |
+| Simply Supplements | HEALTHY | `05:07` UTC daily | Contract prepared but disabled; exact approved `120` scope only. |
+| Fit House | HEALTHY | `02:47` UTC daily | Contract prepared but disabled; exact approved `286` scope only. |
+| Jon's Supplements | HEALTHY | `04:47` UTC daily | Contract prepared but disabled; reviewed current-sync scope only. |
+| Whey Okay | PARTIAL | `02:17` UTC daily | Contract prepared but disabled for approved `586` only; legacy scope excluded. |
+| Discount Supplements | PARTIAL | `06:47` UTC daily | Not a Stage 2A producer; approved and legacy boundaries require separate review. |
+| Dolphin Fitness | PARTIAL | `05:27` UTC daily | Not a Stage 2A producer; no manifest expansion. |
+| eBay UK | PARTIAL | central refresh `05:43` UTC daily | Explicitly blocked/disabled pending `237/237` continuity resolution. |
+| KIOR Health | MANUAL | no confirmed dedicated scheduled refresh | Not a producer without a dedicated healthy workflow. |
+| 6 Pack Supplements | PARTIAL; recovery closeout in progress | `03:17` UTC daily | Explicitly blocked/disabled pending MASS_OOS resolution. |
 
 Automation gaps block broad historical claims for affected offers but do not
 block a fail-closed Stage 1 page if its exact fresh gate passes from healthy
 current rows. Do not expand any manifest merely to increase `/deals` coverage.
+All producer rows are installed disabled. Enabling the migration and enabling
+each exact producer scope are separate future owner decisions.
 
 ## 10. Six Pack 14-row evidence review
 
@@ -444,7 +481,7 @@ authoritative throughout.
 
 ### Stage 2
 
-- identity snapshot contract and secret rejection;
+- normalized immutable identity-series contract and secret rejection;
 - stable fingerprint for identical identity and a changed fingerprint for every
   product, variant, retailer-product, external identity, pack or unit change;
 - legacy rows remain unproven without backfill;
@@ -452,7 +489,7 @@ authoritative throughout.
 - one daily confirmation per offer/fingerprint/day, with a real same-day price
   change still recorded;
 - no-change checks update `last_checked_at` and can prove continuity;
-- merge/rebind never mutates an old snapshot;
+- merge/rebind never mutates an old identity series;
 - incomplete identity fails closed;
 - every active importer reaches the same recorder; historical batch executors
   cannot create identity-proven rows;
@@ -478,11 +515,11 @@ credentials.
 
 | Decision | State | Required owner action |
 |---|---|---|
-| Use one existing offers/history system and one central recorder | Proposed | Approve technical plan. |
+| Use one existing offers/history system and one central recorder | Implemented locally in Stage 2A | Approve migration separately before any environment write. |
 | Stage 1 gate `12 products / 30 offers / 4 retailers`, with 2+ retailers per exact variant | Approved launch evidence; monitoring remains active | Do not reuse as an hourly robots/sitemap switch. |
 | Classify the 14 Six Pack rows as 1 stock, 8 price and 5 price+stock approvals | Evidence ready; not applied | Approve/reject as a separate production-data action. |
-| Add identity-proven nullable history fields with no backfill | Proposed | Separate migration approval after schema diff and rehearsal plan. |
-| Record at most one unchanged confirmation/day/offer/fingerprint | Proposed | Approve row volume and retention impact. |
+| Add normalized immutable identity series plus nullable history evidence with no backfill | `CODE COMPLETE`; migration `NOT RUN` | Separate migration approval after reviewed diff and isolated rehearsal. |
+| Record at most one unchanged confirmation/day/series | Implemented locally; all producers disabled | Approve exact producer enablement separately after migration readback. |
 | Enable Stage 3 only after 7/14/30/60-day audits | Proposed | Separate enablement decision after evidence. |
 | Roadmap handling during accrual | Undecided | Keep SEO-15 `IN PROGRESS`, or mark it `BLOCKED` with the exact accrual blocker and temporarily advance to SEO-16. Do not introduce a `DATA ACCRUAL` status. |
 
@@ -494,11 +531,11 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Blocker | Affects | Safe response |
 |---|---|---|
 | Legacy history has no exact identity snapshot | Verified drops/value | Never qualify legacy rows; accrue new proven evidence. |
-| Current refresh records changes but not daily unchanged confirmation | 7-day continuity | Stage 2 central recorder; no inferred continuity. |
+| Production has no identity-proven observations and producers are disabled | 7-day continuity | Separately approve migration and bounded producers; never infer continuity. |
 | Partial/manual retailer automation | Historical breadth | Exclude affected rows; Stage 1 may proceed only if its gate independently passes. |
 | Six Pack 14-row recovery is not owner-applied | Six Pack freshness | Keep current DB state and handle through a separate approval. |
 | Full eBay read-only pass remains pending | eBay confidence | Do not run it here; exclude stale/unproven rows. |
-| Stage 2 schema and write volume are not approved | Proven accrual | Present exact migration, tests, volume and rollback before approval. |
+| Stage 2A production migration and producer enablement are not approved | Proven accrual | Review the local migration/rollback and approve environment write and each producer separately. |
 | No elapsed proven history exists yet | Stage 3 | Hide historical sections until audits pass. |
 
 ## 15. Evidence and release log
@@ -508,10 +545,10 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Plan | pending owner-approved docs commit | n/a | Project Guardian and diff checks pending | n/a | local review |
 | Stage 1 | `3492e48b70817ea52535a21c2a5499151968010d` | production release verified; deployment ID not recorded in this plan | focused tests, TypeScript, Guardian, quality gates, ESLint and build passed | owner-confirmed HTTP, canonical, robots, sitemap, schema, current data, delivered-price and internal-link checks passed | live verified |
 | Corrective Indexability Lifecycle P0 | `1f7bfc08075899849f22f5bf80b978fe7cb60de3` (`Stabilize and document SEO indexability lifecycle`, 58 files); Guardian fixture correction `c8a48c484a7fe6c1b32b91e77535ec6a13b916d7` | Vercel `2bmj7eiPXnL3pNmCcy8av3TyCg6f`; correction deployment `ZVxadQiAwXhgL4xfC36cw7JKcrF4` | focused contract/hub tests `166/166`; TypeScript, Guardian, diff check, quick/full gates, ESLint and production build passed; Project Guardian run `32737495813`, Quality Gate run `32737495783`, Full job `97463732331` succeeded; Integration job `97463733544` correctly skipped | all 15 routes HTTP `200`, `index, follow`, correct self-canonical and exactly once in the sitemap; parameters `noindex, follow`; SEO-04 unchanged; sitemap `1,096` unique URLs including `1,070` products and `0` duplicates; no GYM HIGH URL, false empty list, normal-read 5xx or checked-route regression; shared cache shortened subsequent reads; zero refresh workflows and zero production-data writes | `LIVE VERIFIED` |
-| Stage 2 schema/recorder | pending separate approval | pending | pending isolated rehearsal | pending readback | not started |
+| Stage 2A schema/recorder | local commit pending | production/staging migration `NOT RUN` | isolated migration, recorder, replay, atomic and rollback tests passed; all producers disabled | production proven observations `0`; readback pending separate approval | `CODE COMPLETE` locally |
 | 7-day audit | n/a | n/a | pending | pending | not due |
-| 14-day audit | n/a | n/a | pending | pending | not due |
-| 30-day audit | n/a | n/a | pending | pending | not due |
+| 14-day audit | n/a | n/a | earliest 14 days after an approved producer starts | pending | not due |
+| 30-day audit | n/a | n/a | recommended first publication decision after 30 days of approved accrual | pending | not due |
 | 60-day audit | n/a | n/a | pending | pending | not due |
 | Stage 3 | pending separate approval | pending | pending | pending | not started |
 

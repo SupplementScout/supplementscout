@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 278,
-    "sha256": "eef0794c5a5af1e56b9d91f2539c507e0fe8178584a8284aca34c28478635966"
+    "count": 280,
+    "sha256": "f8a2d47f8cde7deefd3c34642a11c2de4cb0110c58c7dc9932173834df8a7de1"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -21,6 +21,7 @@
     "scripts/jons-final-closeout-policy-migration.integration.test.js",
     "scripts/jons-per4m-product-families-data-migration.test.js",
     "scripts/jons-sync-metadata-contract.integration.test.js",
+    "scripts/price-observation-foundation.integration.test.js",
     "scripts/product-7-variants-data-migration.test.js",
     "scripts/production-retailer-sync-enablement.integration.test.js",
     "scripts/product-variants-stage2-migration.test.js",

@@ -84,6 +84,8 @@ test("the local-only migration is the exact shared-policy exclusion", () => {
   const result = validateSelection(validInput());
   assert.ok(result.excluded_files.includes("20260717130000_add_local_retailer_catalogue_child_executor.sql"));
   assert.ok(!result.selected_files.includes("20260717130000_add_local_retailer_catalogue_child_executor.sql"));
+  assert.ok(result.excluded_files.includes("20260824160000_add_identity_proven_price_observations.sql"));
+  assert.ok(!result.selected_files.includes("20260824160000_add_identity_proven_price_observations.sql"));
 });
 
 test("the production-only migration is the exact shared-policy exclusion", () => {
@@ -269,7 +271,11 @@ test("production binds its exact applied ledger including bounded RLS read", () 
 
 test("production exclusions are exact and exact-36 is selected rather than excluded", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 7);
+  assert.equal(Object.keys(contract.excluded).length, 8);
+  assert.ok(Object.hasOwn(
+    contract.excluded,
+    "20260824160000_add_identity_proven_price_observations.sql",
+  ));
   assert.ok(!Object.hasOwn(
     contract.excluded,
     "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
