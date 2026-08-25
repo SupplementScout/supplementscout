@@ -158,9 +158,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 129,
+    ledgerCount: 131,
     ledgerFingerprint:
-      "5554a3849061b9420528b17ff240bb64d05c9ce8c4a0b7ba9c3aa8b0765be903",
+      "7bc218564d6fe631fa3bfbcf3baaffae123d708f7a8cbfd527d110ad2dc1b781",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -177,18 +177,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260825200000_create_jons_exact_pack_ready_servings_2.sql",
-        sha256: "f337e34bb0475b01466e983d08c56b2555bdcfffc286a6fb9a1492c73df70af5",
-        expectedCatalogueDeltas: Object.freeze({ product_variants: 2 }),
-      }),
-      Object.freeze({
-        filename: "20260825201000_create_jons_exact_pack_ready_grams_4.sql",
-        sha256: "e6b2b2c77b2ff97dc8a76bc9817e34ab0ebb2111ed3aa066e125b3de5fa02ed4",
-        expectedCatalogueDeltas: Object.freeze({ product_variants: 4 }),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
