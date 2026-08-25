@@ -65,6 +65,13 @@ const EXCLUSIONS = Object.freeze({
     "20260825170000_create_jons_exact_pack_ready_servings_10",
     "20260825200000_create_jons_exact_pack_ready_servings_2",
     "20260825201000_create_jons_exact_pack_ready_grams_4",
+    "20260825210000_create_jons_exact_pack_ordinary_servings_a_10",
+    "20260825211000_create_jons_exact_pack_ordinary_servings_b_10",
+    "20260825212000_create_jons_exact_pack_ordinary_servings_c_10",
+    "20260825213000_create_jons_exact_pack_ordinary_servings_d_9",
+    "20260825214000_create_jons_exact_pack_ordinary_grams_a_10",
+    "20260825215000_create_jons_exact_pack_ordinary_grams_b_1",
+    "20260825220000_rebind_jons_existing_exact_pack_1",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

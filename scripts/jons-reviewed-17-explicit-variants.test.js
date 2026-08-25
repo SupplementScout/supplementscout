@@ -51,6 +51,38 @@ const canaryEvidencePath = path.join(
 );
 const canaryEvidenceText = fs.readFileSync(canaryEvidencePath, "utf8");
 const canaryEvidence = JSON.parse(canaryEvidenceText);
+const ordinaryManifestText = fs.readFileSync(
+  path.join(ROOT, "docs/rollouts/jons-exact-pack-review/approved-ordinary-51-manifest.json"),
+  "utf8",
+);
+const ordinaryManifest = JSON.parse(ordinaryManifestText);
+const all88Decisions = JSON.parse(fs.readFileSync(
+  path.join(ROOT, "docs/rollouts/jons-exact-pack-review/all-88-decisions.json"),
+  "utf8",
+));
+const ordinaryMigrationSpecs = [
+  ["20260825210000_create_jons_exact_pack_ordinary_servings_a_10", 10, 439],
+  ["20260825211000_create_jons_exact_pack_ordinary_servings_b_10", 10, 449],
+  ["20260825212000_create_jons_exact_pack_ordinary_servings_c_10", 10, 459],
+  ["20260825213000_create_jons_exact_pack_ordinary_servings_d_9", 9, 469],
+  ["20260825214000_create_jons_exact_pack_ordinary_grams_a_10", 10, 478],
+  ["20260825215000_create_jons_exact_pack_ordinary_grams_b_1", 1, 488],
+].map(([identifier, count, baseline]) => ({
+  identifier,
+  count,
+  baseline,
+  migration: fs.readFileSync(path.join(ROOT, `supabase/migrations/${identifier}.sql`), "utf8"),
+  rollback: fs.readFileSync(path.join(ROOT, `supabase/rollbacks/${identifier}.sql`), "utf8"),
+}));
+const ordinaryRebindIdentifier = "20260825220000_rebind_jons_existing_exact_pack_1";
+const ordinaryRebindMigration = fs.readFileSync(
+  path.join(ROOT, `supabase/migrations/${ordinaryRebindIdentifier}.sql`),
+  "utf8",
+);
+const ordinaryRebindRollback = fs.readFileSync(
+  path.join(ROOT, `supabase/rollbacks/${ordinaryRebindIdentifier}.sql`),
+  "utf8",
+);
 
 const expected = [
   [835, 1182, 1296, 1110, "53818329792850", "APX14001", "vanilla-2000g", "Vanilla / 2000g", 2000, "g"],
@@ -282,4 +314,58 @@ test("remaining evidence-ready batches preserve catalogue and commercial state",
     assert.match(rollbackSql, new RegExp(`product_variants\\)<>v_variants_before-${delta}`));
     assert.doesNotMatch(rollbackSql, /delete from public\.(products|retailer_products|offers|price_history|price_identity_series)/);
   }
+});
+
+test("ordinary 51 manifest is exactly the remaining owner-approved scope without special gates", () => {
+  assert.equal(
+    crypto.createHash("sha256").update(ordinaryManifestText.replaceAll("\r\n", "\n")).digest("hex"),
+    "1ed188258ed4face02c7f9771d05fa732ab18abe7971a161ba8778fa284861f4",
+  );
+  assert.equal(ordinaryManifest.status, "OWNER_AUTHORIZED_FOR_BOUNDED_REHEARSAL_AND_APPLY");
+  assert.equal(ordinaryManifest.row_count, 51);
+  assert.equal(ordinaryManifest.create_variant_count, 50);
+  assert.equal(ordinaryManifest.rebind_existing_count, 1);
+  assert.equal(ordinaryManifest.safety.special_gate_rows_excluded, 15);
+  assert.equal(ordinaryManifest.safety.deferred_rows_excluded, 1);
+  const decisions = new Map(all88Decisions.rows.map((row) => [row.offer_id, row]));
+  for (const row of ordinaryManifest.rows) {
+    const decision = decisions.get(String(row.offer_id));
+    assert.equal(decision.decision, "APPROVE_CANDIDATE");
+    assert.equal(decision.evidence_gate, undefined);
+    assert.deepEqual(
+      { pack_count: row.pack_count, size_value: row.size_value, size_unit: row.size_unit },
+      decision.candidate,
+    );
+    assert.equal(row.source_variant_id, row.external_variant_id);
+  }
+  assert.equal(new Set(ordinaryManifest.rows.map(({ offer_id }) => offer_id)).size, 51);
+});
+
+test("ordinary create batches remain bounded, sequential and variant-only", () => {
+  for (const { identifier, count, baseline, migration: sql, rollback: undo } of ordinaryMigrationSpecs) {
+    assert.match(sql, new RegExp(`jsonb_array_length\\(v_scope\\) <> ${count}`));
+    assert.match(sql, new RegExp(`exact-pack baseline is %, expected ${baseline}`));
+    assert.match(sql, new RegExp(`product_variants\\)<>v_variants_before\\+${count}`));
+    assert.match(sql, /price_identity_series where retailer_id=10\) <> 439/);
+    assert.match(sql, /e\.pack_count,null,null,null,'\{\}'::jsonb,false,true/);
+    assert.match(sql, /to_jsonb\(rp\)-'product_variant_id'/);
+    assert.match(sql, /to_jsonb\(o\)-'product_variant_id'/);
+    assert.doesNotMatch(sql, /update public\.product_variants/);
+    assert.doesNotMatch(sql, /insert into public\.(products|retailer_products|offers|price_history|price_identity_series)/);
+    assert.match(undo, new RegExp(`version='${identifier.slice(0,14)}'.*?name='${identifier.slice(15)}'`, "s"));
+    assert.match(undo, /exists\(select 1 from public\.price_identity_series where offer_id=e\.offer_id\)/);
+    assert.match(undo, new RegExp(`product_variants\\)<>v_variants_before-${count}`));
+  }
+});
+
+test("ordinary existing exact-pack rebind changes only Jon's bindings", () => {
+  assert.match(ordinaryRebindMigration, /target_variant_id bigint/);
+  assert.match(ordinaryRebindMigration, /v_exact_before<>489/);
+  assert.match(ordinaryRebindMigration, /product_variants\)<>v_variants_before/);
+  assert.match(ordinaryRebindMigration, /set product_variant_id=e\.target_variant_id/);
+  assert.doesNotMatch(ordinaryRebindMigration, /insert into public\./);
+  assert.doesNotMatch(ordinaryRebindMigration, /update public\.product_variants/);
+  assert.match(ordinaryRebindRollback, /exists\(select 1 from public\.price_identity_series where offer_id=e\.offer_id\)/);
+  assert.match(ordinaryRebindRollback, /set product_variant_id=e\.default_variant_id/);
+  assert.doesNotMatch(ordinaryRebindRollback, /delete from public\./);
 });

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-approved-ordinary-51-rehearsal-v1",
+  "status": "PASS_REHEARSED_OWNER_AUTHORIZED_FOR_PRODUCTION_APPLY",
+  "rehearsed_at": "2026-08-25T20:47:26.3392225+01:00",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "manifest": "docs/rollouts/jons-exact-pack-review/approved-ordinary-51-manifest.json",
+  "manifest_sha256": "1ed188258ed4face02c7f9771d05fa732ab18abe7971a161ba8778fa284861f4",
+  "semantic_sha256": "d07c604eb778e0504816423ebdfbd285c25aeb34618dadb128780d6fd4e34de4",
+  "owner_authorization": "owner-chat-2026-08-25-complete-approved-jons-exact-pack-scope",
+  "selector_confirmation": "3b23fc2f4299a493",
+  "scope": {
+    "row_count": 51,
+    "create_variant_count": 50,
+    "rebind_existing_count": 1,
+    "bounded_migration_count": 7,
+    "maximum_rows_per_create_migration": 10
+  },
+  "catalogue_counts_before": {
+    "products": 1112,
+    "product_variants": 2662,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3447
+  },
+  "catalogue_counts_rehearsed": {
+    "products": 1112,
+    "product_variants": 2712,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3447
+  },
+  "coverage_before": "439/506",
+  "coverage_rehearsed": "490/506",
+  "special_gate_rows_excluded": 15,
+  "deferred_rows_excluded": 1,
+  "committed": false,
+  "database_writes_committed": 0
+}
