@@ -151,17 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the exact-pack canary as applied and the next batch as pending", () => {
+test("production records the exact-pack canary and servings batch as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(
-    contract.pending.map(({ filename }) => filename),
-    ["20260825170000_create_jons_exact_pack_ready_servings_10.sql"],
-  );
-  assert.deepEqual(contract.pending[0].expectedCatalogueDeltas, { product_variants: 10 });
-  assert.equal(contract.ledgerCount, 128);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 129);
   assert.equal(
     contract.ledgerFingerprint,
-    "67ad0f35749d7b1ad0c88827d368ff2eacadc431a73688d3888a193a5db04694",
+    "5554a3849061b9420528b17ff240bb64d05c9ce8c4a0b7ba9c3aa8b0765be903",
   );
 });
 
@@ -264,17 +260,18 @@ test("production binds its exact applied ledger including bounded RLS read", () 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 128);
+  assert.equal(result.ledger_count, 129);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 1);
+  assert.equal(result.pending.length, 0);
   assert.equal(result.selected_files.length, 129);
-  assert.deepEqual(result.pending_files, [
-    "20260825170000_create_jons_exact_pack_ready_servings_10.sql",
-  ]);
-  assert.equal(result.pending_file, "20260825170000_create_jons_exact_pack_ready_servings_10.sql");
-  assert.equal(result.pending_sha256, "894cc7b929ed69a26a7ffe31a16f9da9eaa2e15da13447b197794ee8869d476e");
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
+  ));
+  assert.ok(result.selected_files.includes(
+    "20260825170000_create_jons_exact_pack_ready_servings_10.sql",
   ));
 });
 

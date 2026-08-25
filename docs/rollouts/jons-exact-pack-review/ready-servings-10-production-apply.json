@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-ready-servings-production-apply-v1",
+  "status": "PASS_APPLIED_AWAITING_PRODUCER_CONFIRMATION",
+  "applied_at": "2026-08-25T18:50:00Z",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "migration": "20260825170000_create_jons_exact_pack_ready_servings_10",
+  "migration_sha256": "894cc7b929ed69a26a7ffe31a16f9da9eaa2e15da13447b197794ee8869d476e",
+  "rollback_sha256": "831d68ebc0c7b6d2e6a7768c22977f965181233adb30405c2159b923a13fac9f",
+  "owner_authorization": "owner-chat-2026-08-25-source-of-truth-and-ready-servings-10-apply",
+  "selector_confirmation": "d247bcc65078c735",
+  "committed": true,
+  "ledger_count": 129,
+  "ledger_fingerprint": "5554a3849061b9420528b17ff240bb64d05c9ce8c4a0b7ba9c3aa8b0765be903",
+  "catalogue_counts_before": {
+    "products": 1112,
+    "product_variants": 2646,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3431
+  },
+  "catalogue_counts_after": {
+    "products": 1112,
+    "product_variants": 2656,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3431
+  },
+  "postflight": {
+    "result": "PASS",
+    "jons_exact_pack_mappings": 433,
+    "jons_total_mappings": 506,
+    "identity_series": 423,
+    "daily_confirmations": 423,
+    "new_batch_identity_series": 0,
+    "interpretation": "The ten catalogue identities are applied without commercial or history changes. Producer confirmation remains a separate guarded run."
+  },
+  "workflow": "NOT_RUN",
+  "backfill": "NOT_RUN",
+  "public_price_drop_claims": "DISABLED"
+}
