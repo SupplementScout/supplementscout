@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-special-evidence-production-rehearsal-v1",
+  "captured_at": "2026-08-25T20:11:00Z",
+  "result": "PASS",
+  "mode": "rehearse",
+  "target": {
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu"
+  },
+  "manifest_sha256": "39519dd966e1947f89c8872b0d1d360d5cde8b5b9c8f238cb6181180c8eb6f11",
+  "pending": [
+    "20260825230000_create_jons_exact_pack_special_evidence_a_10",
+    "20260825231000_create_jons_exact_pack_special_evidence_b_3"
+  ],
+  "confirmation": "ecb2bde9dfde79d7",
+  "catalogue_counts_before": {"products":1112,"product_variants":2712,"retailer_products":2761,"offers":2761,"price_history":3498},
+  "catalogue_counts_rehearsed": {"products":1112,"product_variants":2725,"retailer_products":2761,"offers":2761,"price_history":3498},
+  "expected_exact_pack_coverage": {"before":490,"after":503,"scope":506},
+  "database_writes_committed": 0,
+  "committed": false
+}

@@ -162,6 +162,10 @@ const CONTRACTS = Object.freeze({
         "4bda67b81f215a42b8fcc842d58502aff5b89c19d8ecd27923c74f146d8cd65f",
       "20260825220000_rebind_jons_existing_exact_pack_1.sql":
         "72327d6e8c36b722d7dd05bef1b8a4d046df1c80b7f1fa30157d8285ee58c4ca",
+      "20260825230000_create_jons_exact_pack_special_evidence_a_10.sql":
+        "f45ee11aeecbf78b7e1de8b988dc8904c8c09e2bf4ea3accf3913872a617ddac",
+      "20260825231000_create_jons_exact_pack_special_evidence_b_3.sql":
+        "a9b3de7d9db2e671ed954231b3401fcf96d0f2c9d24af3c35c91755f38664e17",
     }),
     pending: Object.freeze([]),
   }),
@@ -191,7 +195,18 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260825230000_create_jons_exact_pack_special_evidence_a_10.sql",
+        sha256: "f45ee11aeecbf78b7e1de8b988dc8904c8c09e2bf4ea3accf3913872a617ddac",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 10 }),
+      }),
+      Object.freeze({
+        filename: "20260825231000_create_jons_exact_pack_special_evidence_b_3.sql",
+        sha256: "a9b3de7d9db2e671ed954231b3401fcf96d0f2c9d24af3c35c91755f38664e17",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 3 }),
+      }),
+    ]),
   }),
 });
 

@@ -72,6 +72,8 @@ const EXCLUSIONS = Object.freeze({
     "20260825214000_create_jons_exact_pack_ordinary_grams_a_10",
     "20260825215000_create_jons_exact_pack_ordinary_grams_b_1",
     "20260825220000_rebind_jons_existing_exact_pack_1",
+    "20260825230000_create_jons_exact_pack_special_evidence_a_10",
+    "20260825231000_create_jons_exact_pack_special_evidence_b_3",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
