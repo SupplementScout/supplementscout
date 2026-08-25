@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-remaining-six-production-apply-v1",
+  "status": "PASS_APPLIED_PRODUCER_CONFIRMED",
+  "recorded_at": "2026-08-25T20:22:04.1134120+01:00",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "migrations": [
+    "20260825200000_create_jons_exact_pack_ready_servings_2",
+    "20260825201000_create_jons_exact_pack_ready_grams_4"
+  ],
+  "selector_confirmation": "50d2fc4cd53d2bec",
+  "committed": true,
+  "ledger_count": 131,
+  "ledger_fingerprint": "7bc218564d6fe631fa3bfbcf3baaffae123d708f7a8cbfd527d110ad2dc1b781",
+  "catalogue_counts_before": {
+    "products": 1112,
+    "product_variants": 2656,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3441
+  },
+  "catalogue_counts_after_apply": {
+    "products": 1112,
+    "product_variants": 2662,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3441
+  },
+  "workflow": {
+    "run_id": 32888613481,
+    "run_number": 52,
+    "commit": "c15b87b40d1bf634f99c9f28e94586fe4173bd00",
+    "result": "SUCCESS",
+    "scope": "506/506",
+    "classification": {
+      "VERIFY_NO_CHANGE": 506
+    },
+    "price_history_delta": 6,
+    "idempotency_writes": 0,
+    "artifact_id": 9578635208,
+    "artifact_digest": "sha256:ca3f4876b0c5a2ce2f453204948d90996eae75c3a244b4bcb41ffe122d8c7c8f"
+  },
+  "postflight": {
+    "result": "PASS",
+    "jons_exact_pack_mappings": 439,
+    "jons_total_mappings": 506,
+    "identity_series": 439,
+    "identity_proven_observations": 439,
+    "daily_confirmations": 439,
+    "new_six_identity_series": 6,
+    "new_six_daily_confirmations": 6,
+    "enabled_producers": 1,
+    "total_producers": 7
+  },
+  "remaining_fail_closed": 67,
+  "backfill": "NOT_RUN",
+  "public_stage_2": "BLOCKED_PENDING_ELAPSED_ACCRUAL",
+  "stage_3": "DISABLED",
+  "public_price_drop_claims": "DISABLED",
+  "gym_high": "OWNER_DEFERRED"
+}

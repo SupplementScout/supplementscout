@@ -122,3 +122,22 @@ updates:
 `npm run verify:project` passed before and after the ledger edits. SEO-15 stays
 `IN PROGRESS`; public Stage 2, Stage 3 and public price-drop claims remain
 disabled.
+
+## Execution checkpoint — 25 August 2026
+
+The audit remains `PARTIAL`: 21 of the 88 originally skipped offers now have
+explicit exact-pack variants and identity-proven daily confirmations, while 67
+remain fail-closed. The existing approved path was reused; no importer, admin
+form, recorder contract or parallel pricing store was added.
+
+- canary run `32883838868`: `418/506` to `423/506`;
+- reviewed servings run `32886482475`: `423/506` to `433/506`;
+- final evidence-ready run `32888613481`: `433/506` to `439/506`.
+
+The final run covered `506/506`, classified all rows as `VERIFY_NO_CHANGE`,
+created exactly six identity series and daily confirmations, and its fresh
+idempotency pass wrote zero rows. Independent readback confirmed `439` series,
+`439` identity-proven observations and `439` daily confirmations. Only Jon's
+producer is enabled; the other six remain disabled. The remaining 67 require
+new exact manufacturer or retailer evidence and conflict resolution through
+the same bounded review path; they are not authorised by this checkpoint.

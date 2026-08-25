@@ -2740,8 +2740,16 @@ ten-row servings migration then applied at ledger `129`, fingerprint
 with exactly ten new variants and zero product, mapping, offer or history
 changes. Producer run `32886482475` on commit `5a2f07f` subsequently added
 exactly ten identity series and daily confirmations and passed idempotency.
-Production readback is now `433/506`; the remaining `73` offers continue to
-fail closed. Public Stage 2 remains blocked pending
+That production readback was `433/506`, with `73` offers still fail-closed. The
+final six evidence-ready rows then applied atomically as two
+bounded migrations at ledger `131`, fingerprint
+`7bc218564d6fe631fa3bfbcf3baaffae123d708f7a8cbfd527d110ad2dc1b781`,
+creating six variants without changing product, mapping, offer or history row
+counts. Producer run `32888613481` on commit `c15b87b` succeeded across
+`506/506`, classified all 506 rows as `VERIFY_NO_CHANGE`, created exactly six
+identity series and daily confirmations, and passed a zero-write idempotency
+run. Independent production readback is `439/506`; the remaining `67` offers
+continue to fail closed. Public Stage 2 remains blocked pending
 elapsed accrual, Stage 3 and public price-drop claims remain disabled, and GYM
 HIGH remains owner-deferred. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
@@ -2801,7 +2809,7 @@ publication.
 
 Continue bounded exact-pack remediation for the already-approved Jon's
 producer through the existing reviewed migration and recorder paths. Current
-coverage is `433/506`; incomplete or conflicting identities remain fail-closed.
+coverage is `439/506`; incomplete or conflicting identities remain fail-closed.
 Do not enable any of the other six producers without separate approval and a
 readback gate.
 The earliest accrual audit is after 14 days and the recommended publication

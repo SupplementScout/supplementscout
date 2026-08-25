@@ -117,7 +117,7 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's run `32812270590` created `418/506` proven series/confirmations; canary run `32883838868` raised this to `423/506`; reviewed servings run `32886482475` raised it to `433/506`. Both follow-ups passed idempotency. The other six producers remain disabled; public Stage 2 is blocked pending elapsed accrual, and Stage 3/public price-drop claims remain disabled. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's run `32812270590` created `418/506` proven series/confirmations; canary run `32883838868` raised this to `423/506`; reviewed servings run `32886482475` raised it to `433/506`; final evidence-ready run `32888613481` raised it to `439/506`. All follow-ups passed idempotency. The other six producers remain disabled; public Stage 2 is blocked pending elapsed accrual, and Stage 3/public price-drop claims remain disabled. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
@@ -127,8 +127,9 @@ Console evidence and user value.
 the enabled Jon's producer using the existing
 reviewed migration and recorder paths. Scheduled run `32812270590` established
 `418/506`; post-canary run `32883838868` established `423/506`, and reviewed
-servings run `32886482475` established `433/506`; both passed idempotency. The
-remaining `73` offers stay fail-closed, and each of the other
+servings run `32886482475` established `433/506`; final evidence-ready run
+`32888613481` established `439/506`; all passed idempotency. The remaining `67`
+offers stay fail-closed, and each of the other
 six producers still requires separate approval. Public Stage 2 stays blocked
 until approved evidence accrues; the
 earliest audit is after 14 days and the recommended publication decision is
