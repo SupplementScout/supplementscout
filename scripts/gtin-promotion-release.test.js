@@ -41,8 +41,7 @@ test("post-write fingerprint changes only the exact approved variant destination
 
 test("deployed GTIN, Whey Okay rebind and traffic classification migrations remain frozen", () => {
   const pending = CONTRACTS.PRODUCTION.pending;
-  assert.equal(pending.length, 7);
-  assert.equal(pending.reduce((sum, row) => sum + (row.expectedCatalogueDeltas.product_variants || 0), 0), 50);
+  assert.deepEqual(pending, []);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
