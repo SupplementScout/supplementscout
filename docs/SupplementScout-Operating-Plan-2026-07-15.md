@@ -2734,8 +2734,14 @@ canary then applied at production ledger `128`, fingerprint
 `67ad0f35749d7b1ad0c88827d368ff2eacadc431a73688d3888a193a5db04694`.
 Manual producer run `32883838868` succeeded on commit `04c9f58`, retained the
 `506/506` scope, added exactly five daily confirmations and passed idempotency,
-bringing exact-pack coverage and proven accrual to `423/506`. The remaining
-`83` offers continue to fail closed. Public Stage 2 remains blocked pending
+bringing exact-pack coverage and proven accrual to `423/506`. The reviewed
+ten-row servings migration then applied at ledger `129`, fingerprint
+`5554a3849061b9420528b17ff240bb64d05c9ce8c4a0b7ba9c3aa8b0765be903`,
+with exactly ten new variants and zero product, mapping, offer or history
+changes. Producer run `32886482475` on commit `5a2f07f` subsequently added
+exactly ten identity series and daily confirmations and passed idempotency.
+Production readback is now `433/506`; the remaining `73` offers continue to
+fail closed. Public Stage 2 remains blocked pending
 elapsed accrual, Stage 3 and public price-drop claims remain disabled, and GYM
 HIGH remains owner-deferred. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
@@ -2795,7 +2801,7 @@ publication.
 
 Continue bounded exact-pack remediation for the already-approved Jon's
 producer through the existing reviewed migration and recorder paths. Current
-coverage is `423/506`; incomplete or conflicting identities remain fail-closed.
+coverage is `433/506`; incomplete or conflicting identities remain fail-closed.
 Do not enable any of the other six producers without separate approval and a
 readback gate.
 The earliest accrual audit is after 14 days and the recommended publication
