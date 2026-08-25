@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 24 August 2026<br>
+**Status date:** 25 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -2724,14 +2724,20 @@ Target experience:
 
 `SEO-15` Deals and Price Intelligence remains the active implementation. Stage
 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and live
-verified. Stage 2A identity foundation is production schema verified: migration
-`20260824160000_add_identity_proven_price_observations` applied once at ledger
-`127`, fingerprint
-`896de918b58e068ba917340138563a99060d4d1a6cfacdc029ba575622c33f9b`.
-All seven production producers remain disabled, all `3,006` existing history
-rows remain legacy and production identity-proven observations remain `0`.
-Public Stage 2 is blocked
-pending approved accrual, and Stage 3 has not started. `SEO-13` is complete and live verified from commit
+verified. Stage 2A identity foundation and the first bounded producer are
+production verified. Jon's Supplements is the only enabled producer; the other
+six remain disabled. Scheduled run `32812270590` succeeded across `506/506`
+mappings and offers, creating `418` immutable identity series and `418`
+identity-proven daily confirmations while `88` offers failed closed with
+`MISSING_OR_CONFLICTING_EXACT_IDENTITY`. The owner-approved five-row exact-pack
+canary then applied at production ledger `128`, fingerprint
+`67ad0f35749d7b1ad0c88827d368ff2eacadc431a73688d3888a193a5db04694`.
+Manual producer run `32883838868` succeeded on commit `04c9f58`, retained the
+`506/506` scope, added exactly five daily confirmations and passed idempotency,
+bringing exact-pack coverage and proven accrual to `423/506`. The remaining
+`83` offers continue to fail closed. Public Stage 2 remains blocked pending
+elapsed accrual, Stage 3 and public price-drop claims remain disabled, and GYM
+HIGH remains owner-deferred. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
 `6048852742`. SEO-14 is live verified after launching useful,
 individually gated brand and retailer pages through the existing catalogue and
@@ -2787,10 +2793,11 @@ publication.
 
 ### Next task
 
-Review and separately approve one bounded SEO-15 Stage 2A production
-observation producer under the existing technical plan. The schema migration is
-production verified; do not enable any producer without its own approval and
-readback gate. Production proven observations remain `0`.
+Continue bounded exact-pack remediation for the already-approved Jon's
+producer through the existing reviewed migration and recorder paths. Current
+coverage is `423/506`; incomplete or conflicting identities remain fail-closed.
+Do not enable any of the other six producers without separate approval and a
+readback gate.
 The earliest accrual audit is after 14 days and the recommended publication
 decision is after 30 days. Stage 3 historical claims remain not started; do not
 create a second pricing store.

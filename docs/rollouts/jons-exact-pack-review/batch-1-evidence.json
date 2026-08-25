@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-evidence-candidates-v1",
+  "status": "EVIDENCE_ONLY_PENDING_OWNER_REVIEW",
+  "generated_at": "2026-08-25T14:21:10.740Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": "10",
+  "retailer_slug": "jon-s-supplements",
+  "source_country": "GB",
+  "source_semantic_fingerprint": "a1a05e85acf2af80e5eacb9bd446134b1f54320a0bab2cd8dcd47556eb55bc6c",
+  "source_raw_fingerprint": "7b55ffc4a76c9ef49ef653342b80f650b81d8943ec00c00d8637e7e352c4bd59",
+  "source_product_count": 242,
+  "row_count": 10,
+  "policy": {
+    "candidate_only": true,
+    "database_writes": 0,
+    "owner_approval_granted": false,
+    "eligible_for_apply": false,
+    "pack_count_is_never_assumed": true,
+    "base_product_values_are_corroboration_only": true,
+    "product_name_is_not_sufficient_evidence": true,
+    "decision_artifact_must_be_separate": true
+  },
+  "rows": [
+    {
+      "review_order": 1,
+      "offer_id": "992",
+      "mapping_id": "1178",
+      "product_id": "786",
+      "canonical_product": "Per4m Mult Vita+Min 30 Capsules",
+      "variant_id": "1070",
+      "canonical_variant": "Default",
+      "external_product_id": "10913416249682",
+      "external_variant_id": "53896427798866",
+      "external_sku": "PFMMULT010",
+      "mapping_gtin": "5060660089758",
+      "retailer_url": "https://jonssupplements.co.uk/products/per4m-mult-vita-min-multivitamins-30-capsules?variant=53896427798866",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 30, "size_unit": "servings" },
+      "evidence": [
+        "Fresh exact Shopify variant has SKU PFMMULT010 and retailer body explicitly declares 30 servings and a single-capsule daily dose.",
+        "The approved Jon's adapter record binds external variant 53896427798866 to 30 servings.",
+        "The reviewed eBay Batch R mapping for canonical variant 1070 is GTIN-exact 5060660089758 and records pack_count 1."
+      ],
+      "evidence_refs": [
+        "scripts/adapters/jons-supplements.js",
+        "docs/rollouts/ebay-offer-canary/batch-r.csv",
+        "docs/rollouts/ebay-offer-canary/batch-r-review.json"
+      ],
+      "warnings": ["OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 2,
+      "offer_id": "1066",
+      "mapping_id": "1252",
+      "product_id": "791",
+      "canonical_product": "Per4m Creatine Capsules | 30 Servings",
+      "variant_id": "1138",
+      "canonical_variant": "Default",
+      "external_product_id": "10913998405970",
+      "external_variant_id": "53899052319058",
+      "external_sku": "PFCREACAP0",
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/per4m-creatine-capsules-30-servings?variant=53899052319058",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 30, "size_unit": "servings" },
+      "evidence": [
+        "Fresh exact Shopify variant has SKU PFCREACAP0 and retailer body explicitly declares 90 capsules / 30 servings.",
+        "Approved manufacturer candidates 643 and 644 confirm 30 servings and 3g creatine per serving for product 791.",
+        "Reviewed eBay Batch L binds canonical variant 1138 by GTIN 5061097260697 and records pack_count 1."
+      ],
+      "evidence_refs": [
+        "db:nutrition_candidates/643",
+        "db:nutrition_candidates/644",
+        "docs/rollouts/ebay-offer-canary/batch-l.csv",
+        "docs/rollouts/ebay-offer-canary/batch-l-review.json"
+      ],
+      "warnings": ["OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 3,
+      "offer_id": "1071",
+      "mapping_id": "1257",
+      "product_id": "796",
+      "canonical_product": "Per4m Advanced Curcumin | 60 Capsules",
+      "variant_id": "1143",
+      "canonical_variant": "Default",
+      "external_product_id": "10913951220050",
+      "external_variant_id": "53898992058706",
+      "external_sku": "PFCURCAP00",
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/per4m-advanced-curcumin-60-capsules?variant=53898992058706",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" },
+      "evidence": [
+        "Fresh exact Shopify variant has SKU PFCURCAP00 and retailer body explicitly declares 60 servings.",
+        "Reviewed eBay Batch L binds canonical variant 1143 by GTIN 5061097260673 and records pack_count 1."
+      ],
+      "evidence_refs": [
+        "docs/rollouts/ebay-offer-canary/batch-l.csv",
+        "docs/rollouts/ebay-offer-canary/batch-l-review.json"
+      ],
+      "warnings": ["OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 4,
+      "offer_id": "1074",
+      "mapping_id": "1260",
+      "product_id": "799",
+      "canonical_product": "Per4m Advanced Omega 3 | 90 Softgels",
+      "variant_id": "1146",
+      "canonical_variant": "Default",
+      "external_product_id": "10913474249042",
+      "external_variant_id": "53896520597842",
+      "external_sku": "PFOMEGA002",
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/per4m-advanced-omega-3-90-softgels?variant=53896520597842",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 90, "size_unit": "servings" },
+      "evidence": [
+        "Fresh exact Shopify variant has SKU PFOMEGA002 and retailer body explicitly declares 90 softgels / 90 servings and one softgel per day.",
+        "Reviewed eBay Batch L binds canonical variant 1146 by GTIN 5060660084463 and records pack_count 1."
+      ],
+      "evidence_refs": [
+        "docs/rollouts/ebay-offer-canary/batch-l.csv",
+        "docs/rollouts/ebay-offer-canary/batch-l-review.json"
+      ],
+      "warnings": ["OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 5,
+      "offer_id": "1463",
+      "mapping_id": "1649",
+      "product_id": "927",
+      "canonical_product": "PER4M Relax Hot Chocolate 375g",
+      "variant_id": "1535",
+      "canonical_variant": "Default",
+      "external_product_id": "10571983323474",
+      "external_variant_id": "52637027303762",
+      "external_sku": "PFM20001",
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/per4m-relax-hot-chocolate-stress-support-375g?variant=52637027303762",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 375, "size_unit": "g" },
+      "evidence": [
+        "Fresh exact Shopify variant has SKU PFM20001, structured grams 375, and retailer body explicitly declares 25 servings per tub at 15g per serving.",
+        "Reviewed eBay Batch L binds canonical variant 1535 by GTIN 5060660085620 and records pack_count 1."
+      ],
+      "evidence_refs": [
+        "docs/rollouts/ebay-offer-canary/batch-l.csv",
+        "docs/rollouts/ebay-offer-canary/batch-l-review.json"
+      ],
+      "warnings": ["OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 6,
+      "offer_id": "1024",
+      "mapping_id": "1210",
+      "product_id": "86",
+      "canonical_product": "Time 4 Creatine Blend 240 caps",
+      "variant_id": "23",
+      "canonical_variant": "Default",
+      "external_product_id": "10035461456210",
+      "external_variant_id": "50613569028434",
+      "external_sku": "T4CB",
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/time-4-creatine-blend-240-capsules?variant=50613569028434",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" },
+      "evidence": [
+        "Approved manufacturer candidates 592 and 593 confirm 60 servings and 3g creatine per serving for product 86.",
+        "Fresh exact Shopify variant has SKU T4CB and identifies 240 capsules, but retailer body says take 8 capsules per day and does not explicitly declare a serving count."
+      ],
+      "evidence_refs": [
+        "db:nutrition_candidates/592",
+        "db:nutrition_candidates/593"
+      ],
+      "warnings": [
+        "PRODUCT_LEVEL_MANUFACTURER_FACT_REQUIRES_EXACT_VARIANT_BINDING",
+        "RETAILER_SERVING_COUNT_NOT_EXPLICIT",
+        "OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"
+      ],
+      "recommendation": "DEFER_RECOMMENDED",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 7,
+      "offer_id": "1067",
+      "mapping_id": "1253",
+      "product_id": "792",
+      "canonical_product": "Strom Sports Creatine HCL - 80 Servings",
+      "variant_id": "1139",
+      "canonical_variant": "Default",
+      "external_product_id": "10135809720658",
+      "external_variant_id": "51000436326738",
+      "external_sku": "STM45001",
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/strom-sports-creatine-hcl-80-servings?variant=51000436326738",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 80, "size_unit": "servings" },
+      "evidence": [
+        "Fresh exact Shopify variant has SKU STM45001 and retailer body explicitly declares one tub containing 80 servings and two capsules per serving.",
+        "Approved manufacturer candidates 579 and 645 independently confirm 80 servings and 1.5g creatine per serving for product 792."
+      ],
+      "evidence_refs": [
+        "db:nutrition_candidates/579",
+        "db:nutrition_candidates/645"
+      ],
+      "warnings": ["OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 8,
+      "offer_id": "1068",
+      "mapping_id": "1254",
+      "product_id": "793",
+      "canonical_product": "Conteh Sports Creatine Monohydrate 1kg",
+      "variant_id": "1140",
+      "canonical_variant": "Default",
+      "external_product_id": "10930888442194",
+      "external_variant_id": "53951719768402",
+      "external_sku": "CYH091002",
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/conteh-sports-creatine-monohydrate-1kg?variant=53951719768402",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 1000, "size_unit": "g" },
+      "evidence": [
+        "Fresh exact Shopify variant has SKU CYH091002, structured grams 1000, and retailer body explicitly declares a 1kg supply with 200 servings at 5g.",
+        "Approved manufacturer candidates 528, 530, 533 and 549 independently confirm 1000g, 200 servings, 5g serving size and 5g creatine per serving for product 793."
+      ],
+      "evidence_refs": [
+        "db:nutrition_candidates/528",
+        "db:nutrition_candidates/530",
+        "db:nutrition_candidates/533",
+        "db:nutrition_candidates/549"
+      ],
+      "warnings": ["OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 9,
+      "offer_id": "1185",
+      "mapping_id": "1371",
+      "product_id": "852",
+      "canonical_product": "Trained by JP Creatine Monohydrate 500g",
+      "variant_id": "1257",
+      "canonical_variant": "Default",
+      "external_product_id": "10832847372626",
+      "external_variant_id": "53633148485970",
+      "external_sku": null,
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/trained-by-jp-creatine-monohydrate-500g?variant=53633148485970",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 500, "size_unit": "g" },
+      "evidence": [
+        "Fresh exact Shopify variant has structured grams 500 and retailer body explicitly declares 100 servings per 500g tub at 5g.",
+        "Approved owner-transcribed official manufacturer candidates 648 through 651 independently confirm 500g, 100 servings, 5g serving size and 5g creatine per serving for product 852."
+      ],
+      "evidence_refs": [
+        "db:nutrition_candidates/648",
+        "db:nutrition_candidates/649",
+        "db:nutrition_candidates/650",
+        "db:nutrition_candidates/651"
+      ],
+      "warnings": ["NO_RETAILER_SKU_OR_GTIN", "OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    },
+    {
+      "review_order": 10,
+      "offer_id": "1190",
+      "mapping_id": "1376",
+      "product_id": "857",
+      "canonical_product": "EHP Labs CREA-8 Creatine Monohydrate 50 Servings",
+      "variant_id": "1262",
+      "canonical_variant": "Default",
+      "external_product_id": "10593822277970",
+      "external_variant_id": "52718590263634",
+      "external_sku": null,
+      "mapping_gtin": null,
+      "retailer_url": "https://jonssupplements.co.uk/products/ehp-labs-crea-8-creatine-monohydrate-50-servings?variant=52718590263634",
+      "current_exact_pack": { "pack_count": null, "size_value": null, "size_unit": null },
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 250, "size_unit": "g" },
+      "evidence": [
+        "Fresh exact Shopify variant has structured grams 250 and retailer body explicitly declares 50 servings at 5g.",
+        "Approved manufacturer candidates 652 through 655 independently confirm 250g, 50 servings, 5g serving size and 5g creatine per serving for product 857."
+      ],
+      "evidence_refs": [
+        "db:nutrition_candidates/652",
+        "db:nutrition_candidates/653",
+        "db:nutrition_candidates/654",
+        "db:nutrition_candidates/655"
+      ],
+      "warnings": ["NO_RETAILER_SKU_OR_GTIN", "OWNER_MUST_CONFIRM_JONS_SINGLE_PACK_FROM_EXACT_RETAILER_EVIDENCE"],
+      "recommendation": "REVIEW_FOR_APPROVAL",
+      "owner_decision": "PENDING"
+    }
+  ]
+}

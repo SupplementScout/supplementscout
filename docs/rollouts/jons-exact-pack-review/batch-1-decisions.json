@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-owner-decisions-v1",
+  "status": "REVIEWED_NOT_AUTHORIZED_FOR_APPLY",
+  "decided_at": "2026-08-25T14:35:23.663Z",
+  "decided_by": "owner-chat-confirmation",
+  "authority": "owner-chat-2026-08-25-jons-exact-pack-batch-1-all-ten-yes",
+  "evidence_file": "docs/rollouts/jons-exact-pack-review/batch-1-evidence.json",
+  "evidence_file_sha256": "7e6fff71972a922dfe3471d952d9634f0f2afba6129fe24f0f56521f86d10934",
+  "question_contract": "For each exact Jon's offer: does this offer sell one commercial pack whose total size equals the candidate exact-pack size?",
+  "decision_meaning": {
+    "APPROVE_CANDIDATE": "Owner manually confirms one commercial pack and the stated total size for the exact retailer offer.",
+    "production_write_authorized": false,
+    "migration_authorized": false,
+    "backfill_authorized": false
+  },
+  "row_count": 10,
+  "approved_count": 10,
+  "deferred_count": 0,
+  "rejected_count": 0,
+  "rows": [
+    {
+      "offer_id": "992",
+      "mapping_id": "1178",
+      "product_id": "786",
+      "variant_id": "1070",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 30, "size_unit": "servings" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1066",
+      "mapping_id": "1252",
+      "product_id": "791",
+      "variant_id": "1138",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 30, "size_unit": "servings" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1071",
+      "mapping_id": "1257",
+      "product_id": "796",
+      "variant_id": "1143",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1074",
+      "mapping_id": "1260",
+      "product_id": "799",
+      "variant_id": "1146",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 90, "size_unit": "servings" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1463",
+      "mapping_id": "1649",
+      "product_id": "927",
+      "variant_id": "1535",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 375, "size_unit": "g" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1024",
+      "mapping_id": "1210",
+      "product_id": "86",
+      "variant_id": "23",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "tak",
+      "review_note": "Owner explicitly approved after the review sheet recommended defer because the retailer body did not state serving count directly. The prior warning is acknowledged and retained in the bound evidence file."
+    },
+    {
+      "offer_id": "1067",
+      "mapping_id": "1253",
+      "product_id": "792",
+      "variant_id": "1139",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 80, "size_unit": "servings" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1068",
+      "mapping_id": "1254",
+      "product_id": "793",
+      "variant_id": "1140",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 1000, "size_unit": "g" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1185",
+      "mapping_id": "1371",
+      "product_id": "852",
+      "variant_id": "1257",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 500, "size_unit": "g" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    },
+    {
+      "offer_id": "1190",
+      "mapping_id": "1376",
+      "product_id": "857",
+      "variant_id": "1262",
+      "candidate_exact_pack": { "pack_count": 1, "size_value": 250, "size_unit": "g" },
+      "decision": "APPROVE_CANDIDATE",
+      "owner_response": "TAK",
+      "review_note": null
+    }
+  ]
+}

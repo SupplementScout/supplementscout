@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-ready-servings-authorized-rehearsal-v1",
+  "status": "PASS_REHEARSED_OWNER_AUTHORIZED_FOR_PRODUCTION_APPLY",
+  "rehearsed_at": "2026-08-25T19:44:06.2784432+01:00",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "migration": "20260825170000_create_jons_exact_pack_ready_servings_10",
+  "migration_sha256": "894cc7b929ed69a26a7ffe31a16f9da9eaa2e15da13447b197794ee8869d476e",
+  "rollback_sha256": "831d68ebc0c7b6d2e6a7768c22977f965181233adb30405c2159b923a13fac9f",
+  "manifest": "docs/rollouts/jons-exact-pack-review/remaining-ready-jons-only-manifest.json",
+  "manifest_sha256": "55db2b2cd77e919821cb1f224f5d793035385b2db7e1c9f98727e9f65e4b53e3",
+  "semantic_sha256": "631febae59f3d2516066d3be627ddc176c6de62d5e9245c05904e80f5819fab6",
+  "owner_authorization": "owner-chat-2026-08-25-source-of-truth-and-ready-servings-10-apply",
+  "selector_confirmation": "d247bcc65078c735",
+  "scope": {
+    "offer_ids": [1067, 1078, 1079, 1080, 1081, 1089, 1105, 1397, 1435, 1455],
+    "row_count": 10,
+    "evidence_type": "servings",
+    "retailer_scope": "JONS_ONLY"
+  },
+  "catalogue_counts_before": {
+    "products": 1112,
+    "product_variants": 2646,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3431
+  },
+  "catalogue_counts_rehearsed": {
+    "products": 1112,
+    "product_variants": 2656,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3431
+  },
+  "canary_gate": {
+    "exact_pack_coverage": "423/506",
+    "identity_series": 423,
+    "daily_confirmations": 423,
+    "result": "PASS"
+  },
+  "commercial_refresh_alignment": {
+    "offer_id": 1079,
+    "field": "in_stock",
+    "previous_frozen_value": true,
+    "current_production_value": false,
+    "identity_evidence_changed": false
+  },
+  "committed": false,
+  "database_writes_committed": 0,
+  "production_apply": "AUTHORIZED_NOT_RUN",
+  "workflow": "AUTHORIZED_AFTER_SUCCESSFUL_APPLY"
+}

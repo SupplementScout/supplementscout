@@ -527,7 +527,7 @@ credentials.
 | Stage 1 gate `12 products / 30 offers / 4 retailers`, with 2+ retailers per exact variant | Approved launch evidence; monitoring remains active | Do not reuse as an hourly robots/sitemap switch. |
 | Classify the 14 Six Pack rows as 1 stock, 8 price and 5 price+stock approvals | Evidence ready; not applied | Approve/reject as a separate production-data action. |
 | Add normalized immutable identity series plus nullable history evidence with no backfill | Production migration verified; no backfill | Preserve legacy rows and approve producers separately. |
-| Record at most one unchanged confirmation/day/series | Implemented locally; all producers disabled | Approve exact producer enablement separately after migration readback. |
+| Record at most one unchanged confirmation/day/series | Production verified for Jon's only; six producers disabled | Preserve daily idempotency and approve every additional producer separately. |
 | Enable Stage 3 only after 7/14/30/60-day audits | Proposed | Separate enablement decision after evidence. |
 | Roadmap handling during accrual | Undecided | Keep SEO-15 `IN PROGRESS`, or mark it `BLOCKED` with the exact accrual blocker and temporarily advance to SEO-16. Do not introduce a `DATA ACCRUAL` status. |
 
@@ -539,11 +539,11 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Blocker | Affects | Safe response |
 |---|---|---|
 | Legacy history has no exact identity snapshot | Verified drops/value | Never qualify legacy rows; accrue new proven evidence. |
-| Production has no identity-proven observations and producers are disabled | 7-day continuity | Separately approve bounded producers; never infer continuity. |
+| Jon's has `423/506` identity-proven series/confirmations; 83 identities remain incomplete or conflicting | Complete producer coverage | Remediate only evidence-proven exact packs in bounded batches; keep all other rows fail-closed. |
 | Partial/manual retailer automation | Historical breadth | Exclude affected rows; Stage 1 may proceed only if its gate independently passes. |
 | Six Pack 14-row recovery is not owner-applied | Six Pack freshness | Keep current DB state and handle through a separate approval. |
 | Full eBay read-only pass remains pending | eBay confidence | Do not run it here; exclude stale/unproven rows. |
-| Stage 2A producer enablement is not approved | Proven accrual | Approve each bounded producer separately after the verified schema readback. |
+| Six additional Stage 2A producers are not approved | Proven accrual beyond Jon's | Approve each bounded producer separately after a verified readback. |
 | No elapsed proven history exists yet | Stage 3 | Hide historical sections until audits pass. |
 
 ## 15. Evidence and release log
@@ -554,6 +554,7 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Stage 1 | `3492e48b70817ea52535a21c2a5499151968010d` | production release verified; deployment ID not recorded in this plan | focused tests, TypeScript, Guardian, quality gates, ESLint and build passed | owner-confirmed HTTP, canonical, robots, sitemap, schema, current data, delivered-price and internal-link checks passed | live verified |
 | Corrective Indexability Lifecycle P0 | `1f7bfc08075899849f22f5bf80b978fe7cb60de3` (`Stabilize and document SEO indexability lifecycle`, 58 files); Guardian fixture correction `c8a48c484a7fe6c1b32b91e77535ec6a13b916d7` | Vercel `2bmj7eiPXnL3pNmCcy8av3TyCg6f`; correction deployment `ZVxadQiAwXhgL4xfC36cw7JKcrF4` | focused contract/hub tests `166/166`; TypeScript, Guardian, diff check, quick/full gates, ESLint and production build passed; Project Guardian run `32737495813`, Quality Gate run `32737495783`, Full job `97463732331` succeeded; Integration job `97463733544` correctly skipped | all 15 routes HTTP `200`, `index, follow`, correct self-canonical and exactly once in the sitemap; parameters `noindex, follow`; SEO-04 unchanged; sitemap `1,096` unique URLs including `1,070` products and `0` duplicates; no GYM HIGH URL, false empty list, normal-read 5xx or checked-route regression; shared cache shortened subsequent reads; zero refresh workflows and zero production-data writes | `LIVE VERIFIED` |
 | Stage 2A schema/recorder | `1163b1870df28ffe696b23b7152695f4a47431eb`; staging hardening `741270b8d89f298e7f6337d69339bb89a4676225`; production selector `becf76014f059101f8da34105a9b2b2140c48880` | staging ledger `81`, fingerprint `65b43bf028656f3c85c8b769964c227c1f7769a74462b33210eb9fd354e67739`; production ledger `127`, fingerprint `896de918b58e068ba917340138563a99060d4d1a6cfacdc029ba575622c33f9b` | isolated migration, recorder, replay, atomic, rollback, production rehearsal and selector tests passed | production readback: seven disabled producers, zero series/proven observations, `3,006` legacy rows and zero catalogue/history row-count deltas | `PRODUCTION SCHEMA VERIFIED`; producer approval pending |
+| Jon's Stage 2A producer and exact-pack canary | producer run `32812270590`; canary alignment `04c9f58` | production ledger `128`, fingerprint `67ad0f35749d7b1ad0c88827d368ff2eacadc431a73688d3888a193a5db04694`; run `32883838868` | `506/506` scope, bounded five-row canary, apply and idempotency passed | `418` initial series/confirmations plus exactly five post-canary confirmations = `423/506`; 83 fail closed; six other producers disabled | `PRODUCTION VERIFIED`; accrual continues, public claims disabled |
 | 7-day audit | n/a | n/a | pending | pending | not due |
 | 14-day audit | n/a | n/a | earliest 14 days after an approved producer starts | pending | not due |
 | 30-day audit | n/a | n/a | recommended first publication decision after 30 days of approved accrual | pending | not due |

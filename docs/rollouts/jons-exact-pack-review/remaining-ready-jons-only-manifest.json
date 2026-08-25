@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-ready-jons-only-manifest-v1",
+  "status": "READY_FOR_REHEARSAL_AWAITING_CANARY_CONFIRMATION_AND_APPLY_AUTHORITY",
+  "captured_at": "2026-08-25T16:53:49.374Z",
+  "generated_at": "2026-08-25T16:53:49.374Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": 10,
+  "retailer_slug": "jon-s-supplements",
+  "source_raw_sha256": "d9c90c2621d979c9d65e6d30992b21be282462a39b4be1428775108bcdd36db1",
+  "source_product_count": 242,
+  "decision_manifest_sha256": "b3e47e02ecfd3de6bc02f0681e237bd5bed0396c5187e49ebbdd0f50d2c32a0e",
+  "semantic_sha256": "631febae59f3d2516066d3be627ddc176c6de62d5e9245c05904e80f5819fab6",
+  "production_write_authorized": false,
+  "workflow_run_authorized": false,
+  "row_count": 16,
+  "batches": [
+    {
+      "batch": 1,
+      "evidence_type": "servings",
+      "offer_ids": [
+        "1067",
+        "1078",
+        "1079",
+        "1080",
+        "1081",
+        "1089",
+        "1105",
+        "1397",
+        "1435",
+        "1455"
+      ]
+    },
+    {
+      "batch": 2,
+      "evidence_type": "servings",
+      "offer_ids": [
+        "1470",
+        "1484"
+      ]
+    },
+    {
+      "batch": 3,
+      "evidence_type": "grams",
+      "offer_ids": [
+        "1185",
+        "1439",
+        "1450",
+        "1483"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "offer_id": "1067",
+      "mapping_id": "1253",
+      "product_id": "792",
+      "default_variant_id": "1139",
+      "product_name": "Strom Sports Creatine HCL - 80 Servings",
+      "external_product_id": "10135809720658",
+      "external_variant_id": "51000436326738",
+      "external_sku": "STM45001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/strom-sports-creatine-hcl-80-servings?variant=51000436326738",
+      "offer_url": "https://jonssupplements.co.uk/products/strom-sports-creatine-hcl-80-servings?variant=51000436326738",
+      "price": "19.99",
+      "shipping_cost": "3.99",
+      "total_price": "23.98",
+      "in_stock": true,
+      "source_product_title": "Strom Sports Creatine HCL - 80 Servings",
+      "source_variant_title": "Default Title",
+      "source_sku": "STM45001",
+      "source_available": true,
+      "source_price": "19.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 80,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "Strom Sports Creatine HCL - 80 Servings Introducing our powerful Creatine HCL capsules, meticulously formulated to take your perf",
+        "fect amount of Creatine HCL to supercharge your workouts. Each tub contains an impressive 80 servings, ensuring long-lasting support for your training. Whether you're a regular gym goer or an"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1078",
+      "mapping_id": "1264",
+      "product_id": "803",
+      "default_variant_id": "1150",
+      "product_name": "Per4m Krill Oil Softgels 120 Capsules",
+      "external_product_id": "10692814438738",
+      "external_variant_id": "53092453548370",
+      "external_sku": "PFM49001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/per4m-krill-oil-softgels-120-capsules?variant=53092453548370",
+      "offer_url": "https://jonssupplements.co.uk/products/per4m-krill-oil-softgels-120-capsules?variant=53092453548370",
+      "price": "17.99",
+      "shipping_cost": "3.99",
+      "total_price": "21.98",
+      "in_stock": true,
+      "source_product_title": "Per4m Krill Oil Softgels 120 Capsules",
+      "source_variant_title": "Default Title",
+      "source_sku": "PFM49001",
+      "source_available": true,
+      "source_price": "17.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 60,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "l 1000mg — High-Absorption Phospholipid Omega-3 | EPA, DHA & Astaxanthin | 120 Softgels / 60 Servings PER4M Krill Oil is a high-strength, premium omega-3 supplement delivering 1000mg of susta"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1079",
+      "mapping_id": "1265",
+      "product_id": "804",
+      "default_variant_id": "1151",
+      "product_name": "Per4m NMN 60 Capsules 1000mg",
+      "external_product_id": "10913227964754",
+      "external_variant_id": "53896125317458",
+      "external_sku": "PFNNMN001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/per4m-nmn-60-capsules-1000mg?variant=53896125317458",
+      "offer_url": "https://jonssupplements.co.uk/products/per4m-nmn-60-capsules-1000mg?variant=53896125317458",
+      "price": "29.49",
+      "shipping_cost": "3.99",
+      "total_price": "33.48",
+      "in_stock": false,
+      "source_product_title": "Per4m NMN 60 Capsules 1000mg",
+      "source_variant_title": "Default Title",
+      "source_sku": "PFNNMN001",
+      "source_available": false,
+      "source_price": "29.49",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 30,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "R4M NMN 1000mg — High-Strength NAD+ Booster | Nicotinamide Mononucleotide | 60 Capsules / 30 Servings PER4M NMN is a high-strength daily supplement delivering 1000mg of Nicotinamide Mononucle"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1080",
+      "mapping_id": "1266",
+      "product_id": "805",
+      "default_variant_id": "1152",
+      "product_name": "Per4m Vitamin C 60 Capsules",
+      "external_product_id": "10913496858962",
+      "external_variant_id": "53896547369298",
+      "external_sku": "PFVITC002",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/per4m-vitamin-c-60-capsules?variant=53896547369298",
+      "offer_url": "https://jonssupplements.co.uk/products/per4m-vitamin-c-60-capsules?variant=53896547369298",
+      "price": "9.49",
+      "shipping_cost": "3.99",
+      "total_price": "13.48",
+      "in_stock": true,
+      "source_product_title": "Per4m Vitamin C 60 Capsules",
+      "source_variant_title": "Default Title",
+      "source_sku": "PFVITC002",
+      "source_available": true,
+      "source_price": "9.49",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 60,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        " VIT-C — High-Strength 1000mg Vitamin C Capsules | Immune Support & Antioxidant Defence | 60 Servings PER4M VIT-C delivers a full 1000mg of Vitamin C per capsule — a high-strength daily dose ",
+        "s added. A straightforward, no-nonsense capsule you can take daily with total confidence. 60 Servings Per Tub — A full two-month supply at the recommended one-capsule daily dose. Nutrition In"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1081",
+      "mapping_id": "1267",
+      "product_id": "806",
+      "default_variant_id": "1153",
+      "product_name": "Per4m Zinc & Magnesium 120 Capsules",
+      "external_product_id": "10913242218834",
+      "external_variant_id": "53896170176850",
+      "external_sku": "PFNZMA001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/per4m-zinc-magnesium-120-capsules?variant=53896170176850",
+      "offer_url": "https://jonssupplements.co.uk/products/per4m-zinc-magnesium-120-capsules?variant=53896170176850",
+      "price": "13.49",
+      "shipping_cost": "3.99",
+      "total_price": "17.48",
+      "in_stock": true,
+      "source_product_title": "Per4m Zinc & Magnesium 120 Capsules",
+      "source_variant_title": "Default Title",
+      "source_sku": "PFNZMA001",
+      "source_available": true,
+      "source_price": "13.49",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 60,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "4M Zinc & Magnesium — Triple-Source Magnesium Blend | 300mg Elemental Magnesium | Vegan | 60 Servings PER4M Zinc & Magnesium is a comprehensive three-ingredient daily supplement combining a t"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1089",
+      "mapping_id": "1275",
+      "product_id": "814",
+      "default_variant_id": "1161",
+      "product_name": "Trained By JP Oh Mega V Omega 180 Capsules 60 servings",
+      "external_product_id": "10114488336722",
+      "external_variant_id": "50926983577938",
+      "external_sku": "TBJ23001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/trained-by-jp-oh-mega-v-omega-3-6-9-180-capsules?variant=50926983577938",
+      "offer_url": "https://jonssupplements.co.uk/products/trained-by-jp-oh-mega-v-omega-3-6-9-180-capsules?variant=50926983577938",
+      "price": "15.99",
+      "shipping_cost": "3.99",
+      "total_price": "19.98",
+      "in_stock": true,
+      "source_product_title": "Trained By JP Oh Mega V Omega 180 Capsules 60 servings",
+      "source_variant_title": "Default Title",
+      "source_sku": "TBJ23001",
+      "source_available": true,
+      "source_price": "15.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 60,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "Trained By JP Oh Mega V 3-6-9 180 Capsules 60 servings OH-MEGA V offers an alternative omega source for those wanting to diversify their diet. P"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1105",
+      "mapping_id": "1291",
+      "product_id": "830",
+      "default_variant_id": "1177",
+      "product_name": "Strom SupportMax OCS 120 Caps",
+      "external_product_id": "10121076703570",
+      "external_variant_id": "50944967508306",
+      "external_sku": "STM18001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/strom-support-max-ocs-120-caps?variant=50944967508306",
+      "offer_url": "https://jonssupplements.co.uk/products/strom-support-max-ocs-120-caps?variant=50944967508306",
+      "price": "38.49",
+      "shipping_cost": "3.99",
+      "total_price": "42.48",
+      "in_stock": true,
+      "source_product_title": "Strom SupportMax OCS 120 Caps",
+      "source_variant_title": "Default Title",
+      "source_sku": "STM18001",
+      "source_available": true,
+      "source_price": "38.49",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 30,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "SupportMAX OCS — 10-Ingredient On-Cycle & General Health Support Formula | 120 Capsules / 30 Servings Strom Sports SupportMAX OCS is the original and market-leading on-cycle support supplemen"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1397",
+      "mapping_id": "1583",
+      "product_id": "891",
+      "default_variant_id": "1469",
+      "product_name": "Conteh Sports Pre Shred 90 Caps",
+      "external_product_id": "10716174745938",
+      "external_variant_id": "53185879605586",
+      "external_sku": "CTH05001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/conteh-sports-pre-shred-90-caps?variant=53185879605586",
+      "offer_url": "https://jonssupplements.co.uk/products/conteh-sports-pre-shred-90-caps?variant=53185879605586",
+      "price": "24.99",
+      "shipping_cost": "3.99",
+      "total_price": "28.98",
+      "in_stock": true,
+      "source_product_title": "Conteh Sports Pre Shred 90 Caps",
+      "source_variant_title": "Default Title",
+      "source_sku": "CTH05001",
+      "source_available": true,
+      "source_price": "24.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 30,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "red — 8-Ingredient High-Strength Thermogenic Pre-Workout | 350mg Caffeine | 90 Capsules / 30 Servings Conteh Sports Pre Shred is a cutting-focused thermogenic pre-workout fat burner combining"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1435",
+      "mapping_id": "1621",
+      "product_id": "906",
+      "default_variant_id": "1507",
+      "product_name": "Strom Sports Tri-Mag 90 Capsules",
+      "external_product_id": "10581132607826",
+      "external_variant_id": "52669571334482",
+      "external_sku": "STM53001",
+      "external_options": {
+        "Title": "Default Title"
+      },
+      "mapping_url": "https://jonssupplements.co.uk/products/strom-sports-tri-mag-90-servings?variant=52669571334482",
+      "offer_url": "https://jonssupplements.co.uk/products/strom-sports-tri-mag-90-servings?variant=52669571334482",
+      "price": "20.99",
+      "shipping_cost": "3.99",
+      "total_price": "24.98",
+      "in_stock": true,
+      "source_product_title": "Strom Sports Tri-Mag 90 Servings",
+      "source_variant_title": "Default Title",
+      "source_sku": "STM53001",
+      "source_available": true,
+      "source_price": "20.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 90,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        ") capsule shell Flexible dosing – take 1 to 3 capsules depending on your individual needs 90 servings per tub – up to a three-month supply at 1 capsule per day No unnecessary additives – mini"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1455",
+      "mapping_id": "1641",
+      "product_id": "923",
+      "default_variant_id": "1527",
+      "product_name": "Conteh Sports Flax Seed Oil 60 Servings",
+      "external_product_id": "10593816707410",
+      "external_variant_id": "52718578401618",
+      "external_sku": null,
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/conteh-sports-flax-seed-oil-60-servings?variant=52718578401618",
+      "offer_url": "https://jonssupplements.co.uk/products/conteh-sports-flax-seed-oil-60-servings?variant=52718578401618",
+      "price": "9.99",
+      "shipping_cost": "3.99",
+      "total_price": "13.98",
+      "in_stock": true,
+      "source_product_title": "Conteh Sports Flax Seed Oil 60 Servings",
+      "source_variant_title": "Default Title",
+      "source_sku": null,
+      "source_available": true,
+      "source_price": "9.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 60,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        " Flax Seed Oil — 1000mg Cold-Pressed Flaxseed Oil | Omega 3-6-9 + Vitamin E | Fish-Free | 60 Servings Conteh Sports Flax Seed Oil is a high-strength, 100% plant-based omega supplement deliver"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1470",
+      "mapping_id": "1656",
+      "product_id": "933",
+      "default_variant_id": "1542",
+      "product_name": "Time 4 Joint Pro 120 Capsules",
+      "external_product_id": "10143400755538",
+      "external_variant_id": "51038128111954",
+      "external_sku": "T4JP",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/time-4-joint-pro-joint-care-120-capsules?variant=51038128111954",
+      "offer_url": "https://jonssupplements.co.uk/products/time-4-joint-pro-joint-care-120-capsules?variant=51038128111954",
+      "price": "17.99",
+      "shipping_cost": "3.99",
+      "total_price": "21.98",
+      "in_stock": true,
+      "source_product_title": "Time 4 Joint Pro Joint Care - 120 Capsules",
+      "source_variant_title": "Default Title",
+      "source_sku": "T4JP",
+      "source_available": true,
+      "source_price": "17.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 30,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "trition Joint Pro — 16-Ingredient High-Strength Joint Protection Formula | 120 Capsules / 30 Servings Time 4 Joint Pro is a comprehensive, evidence-based joint protection supplement containin"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1484",
+      "mapping_id": "1670",
+      "product_id": "941",
+      "default_variant_id": "1556",
+      "product_name": "Trained By JP Heart Care 30 Servings",
+      "external_product_id": "10090854613330",
+      "external_variant_id": "50844992602450",
+      "external_sku": "TBJ20001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/trained-by-jp-heart-care-30-servings?variant=50844992602450",
+      "offer_url": "https://jonssupplements.co.uk/products/trained-by-jp-heart-care-30-servings?variant=50844992602450",
+      "price": "29.79",
+      "shipping_cost": "3.99",
+      "total_price": "33.78",
+      "in_stock": true,
+      "source_product_title": "Trained By JP Heart Care (30 Servings)",
+      "source_variant_title": "Default Title",
+      "source_sku": "TBJ20001",
+      "source_available": true,
+      "source_price": "29.79",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 30,
+        "size_unit": "servings"
+      },
+      "exact_evidence": [
+        "Trained By JP Heart Care (30 Servings) HEART CARE is our premium heart health supplement, containing five science-backed ingred"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1185",
+      "mapping_id": "1371",
+      "product_id": "852",
+      "default_variant_id": "1257",
+      "product_name": "Trained by JP Creatine Monohydrate 500g",
+      "external_product_id": "10832847372626",
+      "external_variant_id": "53633148485970",
+      "external_sku": null,
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/trained-by-jp-creatine-monohydrate-500g?variant=53633148485970",
+      "offer_url": "https://jonssupplements.co.uk/products/trained-by-jp-creatine-monohydrate-500g?variant=53633148485970",
+      "price": "19.99",
+      "shipping_cost": "3.99",
+      "total_price": "23.98",
+      "in_stock": false,
+      "source_product_title": "Trained by JP Creatine Monohydrate 500g",
+      "source_variant_title": "Default Title",
+      "source_sku": null,
+      "source_available": false,
+      "source_price": "19.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 500,
+        "size_unit": "g"
+      },
+      "exact_evidence": [
+        "Trained by JP Creatine Monohydrate 500g – 100 Servings of the Most Proven Supplement on the Planet No fluff. No filler. No propri",
+        "rving — the clinically validated daily maintenance dose used in research 100 servings per 500g tub — over three months supply at 5g per day Flexible dosing — 1 to 4 servings (5–20g) pe"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1439",
+      "mapping_id": "1625",
+      "product_id": "909",
+      "default_variant_id": "1511",
+      "product_name": "Strom Sports L-Glutamine 500g",
+      "external_product_id": "10090820665682",
+      "external_variant_id": "50844919955794",
+      "external_sku": "STM41001",
+      "external_options": {
+        "Title": "Default Title"
+      },
+      "mapping_url": "https://jonssupplements.co.uk/products/strom-sports-l-glutamine-500g?variant=50844919955794",
+      "offer_url": "https://jonssupplements.co.uk/products/strom-sports-l-glutamine-500g?variant=50844919955794",
+      "price": "15.49",
+      "shipping_cost": "3.99",
+      "total_price": "19.48",
+      "in_stock": true,
+      "source_product_title": "Strom Sports L-Glutamine 500g",
+      "source_variant_title": "Default Title",
+      "source_sku": "STM41001",
+      "source_available": true,
+      "source_price": "15.49",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 500,
+        "size_unit": "g"
+      },
+      "exact_evidence": [
+        "Strom Sports L-Glutamine 500g Glutamine is a conditionally essential amino acid, which means that while the body can us"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1450",
+      "mapping_id": "1636",
+      "product_id": "918",
+      "default_variant_id": "1522",
+      "product_name": "CNP L-Glutamine 250g",
+      "external_product_id": "10025828024658",
+      "external_variant_id": "50579649921362",
+      "external_sku": "CNP31001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/cnp-creatine-250g-copy?variant=50579649921362",
+      "offer_url": "https://jonssupplements.co.uk/products/cnp-creatine-250g-copy?variant=50579649921362",
+      "price": "13.99",
+      "shipping_cost": "3.99",
+      "total_price": "17.98",
+      "in_stock": true,
+      "source_product_title": "CNP L-Glutamine 250G",
+      "source_variant_title": "250g",
+      "source_sku": "CNP31001",
+      "source_available": true,
+      "source_price": "13.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 250,
+        "size_unit": "g"
+      },
+      "exact_evidence": [
+        "250g | 250g"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    },
+    {
+      "offer_id": "1483",
+      "mapping_id": "1669",
+      "product_id": "940",
+      "default_variant_id": "1555",
+      "product_name": "Trained By JP Glutamine 500g",
+      "external_product_id": "10527942607186",
+      "external_variant_id": "52458456252754",
+      "external_sku": "TBJ62001",
+      "external_options": {},
+      "mapping_url": "https://jonssupplements.co.uk/products/trained-by-jp-glutamine-500g?variant=52458456252754",
+      "offer_url": "https://jonssupplements.co.uk/products/trained-by-jp-glutamine-500g?variant=52458456252754",
+      "price": "16.99",
+      "shipping_cost": "3.99",
+      "total_price": "20.98",
+      "in_stock": true,
+      "source_product_title": "Trained by JP Glutamine 500g",
+      "source_variant_title": "Default Title",
+      "source_sku": "TBJ62001",
+      "source_available": true,
+      "source_price": "16.99",
+      "candidate": {
+        "pack_count": 1,
+        "size_value": 500,
+        "size_unit": "g"
+      },
+      "exact_evidence": [
+        "Trained By JP Glutamine — 100% Pure L-Glutamine Powder | 500g / 100 Servings Trained By JP Glutamine is a pure, unflavoured L-Glutamine powder deliveri",
+        "Suitable for both vegan and vegetarian diets. 100 Servings Per Pouch — At 5g per scoop, a 500g pouch delivers 100 servings at a single-scoop dose — outstanding value for a daily recove"
+      ],
+      "action": "CREATE_EXPLICIT_VARIANT_AND_REBIND_JONS_ONLY"
+    }
+  ],
+  "safety": {
+    "current_variant_is_jons_only": true,
+    "source_identity_exact": true,
+    "exact_pack_evidence_outside_product_name": true,
+    "create_explicit_variant_and_rebind_jons_only": true,
+    "maximum_transaction_rows": 10,
+    "products_changed": 0,
+    "offers_created_or_deleted": 0,
+    "commercial_fields_changed": 0,
+    "observation_rows_changed_by_migration": 0
+  }
+}

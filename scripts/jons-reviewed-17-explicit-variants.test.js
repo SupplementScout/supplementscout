@@ -21,6 +21,14 @@ const canaryRollback = fs.readFileSync(
   path.join(ROOT, "supabase/rollbacks/20260825163000_create_jons_exact_pack_canary_5.sql"),
   "utf8",
 );
+const readyServingsMigration = fs.readFileSync(
+  path.join(ROOT, "supabase/migrations/20260825170000_create_jons_exact_pack_ready_servings_10.sql"),
+  "utf8",
+);
+const readyServingsRollback = fs.readFileSync(
+  path.join(ROOT, "supabase/rollbacks/20260825170000_create_jons_exact_pack_ready_servings_10.sql"),
+  "utf8",
+);
 const canaryEvidencePath = path.join(
   ROOT,
   "docs/rollouts/jons-exact-pack-review/canary-5-evidence.json",
@@ -54,6 +62,19 @@ const expectedCanary = [
   [798, 1145, 1259, 1073, "53896643969362", "PFMAGCAP00", "60-servings", "60 Servings", 60],
   [801, 1148, 1262, 1076, "53896878227794", "PFLIVERS001", "30-servings", "30 Servings", 30],
   [802, 1149, 1263, 1077, "53897083978066", "PFJOINT001", "30-servings", "30 Servings", 30],
+];
+
+const expectedReadyServings = [
+  [792, 1139, 1253, 1067, "51000436326738", "STM45001", 80],
+  [803, 1150, 1264, 1078, "53092453548370", "PFM49001", 60],
+  [804, 1151, 1265, 1079, "53896125317458", "PFNNMN001", 30],
+  [805, 1152, 1266, 1080, "53896547369298", "PFVITC002", 60],
+  [806, 1153, 1267, 1081, "53896170176850", "PFNZMA001", 60],
+  [814, 1161, 1275, 1089, "50926983577938", "TBJ23001", 60],
+  [830, 1177, 1291, 1105, "50944967508306", "STM18001", 30],
+  [891, 1469, 1583, 1397, "53185879605586", "CTH05001", 30],
+  [906, 1507, 1621, 1435, "52669571334482", "STM53001", 90],
+  [923, 1527, 1641, 1455, "52718578401618", null, 60],
 ];
 
 
@@ -155,4 +176,38 @@ test("exact-pack canary rollback fails closed after producer use and restores on
   assert.match(canaryRollback, /product_variants\)<>v_variants_before-5/);
   assert.doesNotMatch(canaryRollback, /delete from public\.(products|retailer_products|offers|price_history|price_identity_series)/);
   assert.doesNotMatch(canaryRollback, /set\s+(price|shipping_cost|total_price|in_stock|url|last_checked_at|updated_at)\s*=/);
+});
+
+test("ready servings batch is bound to ten reviewed identities and the post-canary gate", () => {
+  assert.match(readyServingsMigration, /55db2b2cd77e919821cb1f224f5d793035385b2db7e1c9f98727e9f65e4b53e3/);
+  assert.match(readyServingsMigration, /631febae59f3d2516066d3be627ddc176c6de62d5e9245c05904e80f5819fab6/);
+  assert.match(readyServingsMigration, /jsonb_array_length\(v_scope\) <> 10/);
+  assert.match(readyServingsMigration, /offer_id in \(1070,1072,1073,1076,1077\)/);
+  assert.match(readyServingsMigration, /exact-pack baseline is %, expected 423/);
+  for (const [product, defaultVariant, mapping, offer, externalVariant, sku, size] of expectedReadyServings) {
+    assert.match(readyServingsMigration, new RegExp(
+      `"product_id":${product}.*?"default_variant_id":${defaultVariant}.*?"mapping_id":${mapping}.*?"offer_id":${offer}.*?"external_variant_id":"${externalVariant}"`,
+      "s",
+    ));
+    assert.match(readyServingsMigration, new RegExp(
+      `"external_sku":${sku === null ? "null" : `"${sku}"`}.*?"size_value":${size},"size_unit":"servings"`,
+      "s",
+    ));
+  }
+});
+
+test("ready servings batch creates variants only and preserves commercial state", () => {
+  assert.match(readyServingsMigration, /insert into public\.product_variants/);
+  assert.match(readyServingsMigration, /product_variants\)<>v_variants_before\+10/);
+  assert.match(readyServingsMigration, /price_history\)<>v_history_before/);
+  assert.match(readyServingsMigration, /price_identity_series\)<>v_series_before/);
+  assert.doesNotMatch(readyServingsMigration, /insert into public\.(products|retailer_products|offers|price_history|price_identity_series)/);
+  assert.doesNotMatch(readyServingsMigration, /update public\.product_variants/);
+});
+
+test("ready servings rollback is ledger-bound and fails closed after producer use", () => {
+  assert.match(readyServingsRollback, /20260825170000.*create_jons_exact_pack_ready_servings_10/s);
+  assert.match(readyServingsRollback, /price_identity_series where product_variant_id=v_new_id/);
+  assert.match(readyServingsRollback, /product_variants\)<>v_variants_before-10/);
+  assert.doesNotMatch(readyServingsRollback, /delete from public\.(products|retailer_products|offers|price_history|price_identity_series)/);
 });

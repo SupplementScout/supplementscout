@@ -151,9 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the exact-pack canary as applied", () => {
+test("production records the exact-pack canary as applied and the next batch as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(
+    contract.pending.map(({ filename }) => filename),
+    ["20260825170000_create_jons_exact_pack_ready_servings_10.sql"],
+  );
+  assert.deepEqual(contract.pending[0].expectedCatalogueDeltas, { product_variants: 10 });
   assert.equal(contract.ledgerCount, 128);
   assert.equal(
     contract.ledgerFingerprint,
@@ -262,11 +266,13 @@ test("production binds its exact applied ledger including bounded RLS read", () 
   });
   assert.equal(result.ledger_count, 128);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 0);
-  assert.equal(result.selected_files.length, 128);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending.length, 1);
+  assert.equal(result.selected_files.length, 129);
+  assert.deepEqual(result.pending_files, [
+    "20260825170000_create_jons_exact_pack_ready_servings_10.sql",
+  ]);
+  assert.equal(result.pending_file, "20260825170000_create_jons_exact_pack_ready_servings_10.sql");
+  assert.equal(result.pending_sha256, "894cc7b929ed69a26a7ffe31a16f9da9eaa2e15da13447b197794ee8869d476e");
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -317,9 +323,13 @@ test("staging output reports no pending migration after the identity observation
   assert.deepEqual(result.pending_sha256s, {});
 });
 
-test("staging excludes the production-only exact-pack canary byte-for-byte", () => {
+test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {
   const result = validateSelection(validInput());
-  const filename = "20260825163000_create_jons_exact_pack_canary_5.sql";
-  assert.ok(result.excluded_files.includes(filename));
-  assert.ok(!result.selected_files.includes(filename));
+  for (const filename of [
+    "20260825163000_create_jons_exact_pack_canary_5.sql",
+    "20260825170000_create_jons_exact_pack_ready_servings_10.sql",
+  ]) {
+    assert.ok(result.excluded_files.includes(filename));
+    assert.ok(!result.selected_files.includes(filename));
+  }
 });

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-read-only-dry-run-v1",
+  "status": "PASS_READ_ONLY_SIMULATION_WITH_APPLY_GATES",
+  "captured_at": "2026-08-25T16:01:43.8620387Z",
+  "target_environment": "PRODUCTION",
+  "target_project_ref": "aftboxmrdgyhizicfsfu",
+  "retailer_id": "10",
+  "decision_manifest": "docs/rollouts/jons-exact-pack-review/all-88-decisions.json",
+  "decision_manifest_sha256": "b3e47e02ecfd3de6bc02f0681e237bd5bed0396c5187e49ebbdd0f50d2c32a0e",
+  "source_semantic_fingerprint": "a1a05e85acf2af80e5eacb9bd446134b1f54320a0bab2cd8dcd47556eb55bc6c",
+  "scope": {
+    "rows": 88,
+    "unique_offers": 88,
+    "unique_mappings": 88,
+    "unique_products": 88,
+    "unique_variants": 88,
+    "exact_production_bindings": 88
+  },
+  "current_state": {
+    "rows_missing_pack_count": 88,
+    "rows_missing_size_value": 88,
+    "rows_missing_size_unit": 88,
+    "rows_missing_all_three": 88
+  },
+  "review": {
+    "approved_candidates": 87,
+    "deferred": 1,
+    "deferred_offer_ids": ["1459"],
+    "approved_with_special_evidence_gate": 15,
+    "approved_without_special_evidence_gate": 72
+  },
+  "canonical_sharing": {
+    "jons_only_variants": 63,
+    "shared_variants": 25,
+    "approved_shared_variants": 24,
+    "deferred_shared_variants": 1,
+    "approved_shared_offer_ids": [
+      "1024", "1065", "1018", "1023", "992", "1066", "1069", "1071",
+      "1074", "1075", "1082", "1083", "1085", "1086", "1091", "1099",
+      "1106", "1107", "1108", "1109", "1195", "1463", "1469", "1471"
+    ],
+    "deferred_shared_offer_ids": ["1459"],
+    "rule": "A shared canonical variant may be updated only after every mapped retailer identity is proven to sell the same commercial pack. Otherwise create or reuse an exact variant and atomically rebind only the Jon's mapping and offer."
+  },
+  "simulated_business_delta_if_every_approved_candidate_later_passes_all_gates": {
+    "products_created": 0,
+    "products_updated": 0,
+    "product_variants_identity_completions_or_exact_rebind_targets": 87,
+    "retailer_products_created": 0,
+    "offers_created": 0,
+    "price_history_rows": 0,
+    "price_observations_written_by_this_dry_run": 0,
+    "projected_identity_proven_coverage_before": 418,
+    "projected_identity_proven_coverage_after_next_successful_producer_run": 505,
+    "scope_count": 506
+  },
+  "safety": {
+    "database_connections": 3,
+    "transactions": "READ ONLY",
+    "database_writes": 0,
+    "workflow_runs": 0,
+    "backfills": 0,
+    "migrations": 0,
+    "commits": 0,
+    "pushes": 0,
+    "deployments": 0
+  }
+}

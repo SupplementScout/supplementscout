@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "jons-exact-pack-canary-production-apply-v1",
-  "status": "PASS_APPLIED_AWAITING_PRODUCER_CONFIRMATION",
+  "status": "PASS_APPLIED_PRODUCER_CONFIRMED",
   "applied_at": "2026-08-25T16:28:37.4272918Z",
   "environment": "PRODUCTION",
   "project_ref": "aftboxmrdgyhizicfsfu",
@@ -30,10 +30,10 @@
     "result": "PASS",
     "jons_exact_pack_mappings": 423,
     "jons_total_mappings": 506,
-    "identity_series": 418,
-    "daily_confirmations": 418,
-    "canary_identity_series": 0,
-    "interpretation": "The catalogue canary is applied. Identity series and daily confirmations remain unchanged until a later authorized or scheduled successful producer run."
+    "identity_series": 423,
+    "daily_confirmations": 423,
+    "canary_identity_series": 5,
+    "interpretation": "Manual producer run 32883838868 recorded exactly five new identity-proven daily confirmations and its idempotency pass recorded zero further writes."
   },
   "rows": [
     {"mapping_id":1256,"offer_id":1070,"product_id":795,"product_variant_id":2791,"variant_key":"30-servings","size_value":30,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true},
@@ -42,7 +42,14 @@
     {"mapping_id":1262,"offer_id":1076,"product_id":801,"product_variant_id":2794,"variant_key":"30-servings","size_value":30,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true},
     {"mapping_id":1263,"offer_id":1077,"product_id":802,"product_variant_id":2795,"variant_key":"30-servings","size_value":30,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true}
   ],
-  "workflow": "NOT_RUN",
+  "workflow": {
+    "run_id": 32883838868,
+    "commit": "04c9f58f49c2e83a9c2da8119b7ba4cbdd0d9935",
+    "result": "SUCCESS",
+    "scope": "506/506",
+    "price_history_delta": 5,
+    "idempotency_writes": 0
+  },
   "backfill": "NOT_RUN",
   "commit": "NOT_RUN",
   "push": "NOT_RUN",

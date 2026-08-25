@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-ready-servings-blocked-rehearsal-v1",
+  "status": "PASS_FAIL_CLOSED_AWAITING_CANARY_PRODUCER_CONFIRMATION",
+  "rehearsed_at": "2026-08-25T16:53:49.374Z",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "mode": "rehearse",
+  "committed": false,
+  "migration": "20260825170000_create_jons_exact_pack_ready_servings_10",
+  "migration_sha256": "5712c88ad53ed533fd044b04bd9bffecde30a71d048d752da8404632d7fa272d",
+  "rollback_sha256": "25eca71ef91c055fec2ad0d0664148b5bb4fb62098710049b3ab0527f651c90c",
+  "manifest": "docs/rollouts/jons-exact-pack-review/remaining-ready-jons-only-manifest.json",
+  "manifest_sha256": "33510ff078194ae537100c8e05b7a6fddedad8db22f312da76f249395bca91d8",
+  "semantic_sha256": "aa4b915664ca33e7cd5ca9efe3814034d19ae1e1d3c76659ba616e267146b8ac",
+  "scope": {
+    "offer_ids": [1067, 1078, 1079, 1080, 1081, 1089, 1105, 1397, 1435, 1455],
+    "row_count": 10,
+    "evidence_type": "servings",
+    "retailer_scope": "JONS_ONLY"
+  },
+  "expected_delta_if_later_authorized_and_applied": {
+    "products": 0,
+    "product_variants": 10,
+    "retailer_products": 0,
+    "offers": 0,
+    "price_history": 0,
+    "exact_pack_coverage": "423/506 -> 433/506"
+  },
+  "observed_guard": "Jon's exact-pack canary producer confirmation is incomplete",
+  "post_rehearsal_read_only_audit": {
+    "captured_at": "2026-08-25T16:53:49.374Z",
+    "remaining_exact_pack_null": 82,
+    "database_writes": 0,
+    "production_ledger_count": 128,
+    "pending_migration_count": 1
+  },
+  "production_apply": "NOT_RUN",
+  "workflow": "NOT_RUN",
+  "backfill": "NOT_RUN",
+  "commit": "NOT_RUN",
+  "push": "NOT_RUN",
+  "deployment": "NOT_RUN"
+}

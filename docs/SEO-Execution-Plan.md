@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 24 August 2026<br>
+**Status date:** 25 August 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -117,21 +117,19 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 and Indexability Lifecycle P0 are live verified. Stage 2A schema is production verified at ledger `127`; all seven production producers remain disabled, production proven observations remain `0`, public Stage 2 is blocked pending approved accrual, and Stage 3 has not started. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's run `32812270590` created `418/506` proven series/confirmations; canary-follow-up run `32883838868` raised exact-pack/proven coverage to `423/506` and passed idempotency. The other six producers remain disabled; public Stage 2 is blocked pending elapsed accrual, and Stage 3/public price-drop claims remain disabled. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 — review and separately approve one bounded
-production observation producer. Stage 2A migration
-`20260824160000_add_identity_proven_price_observations` is production verified
-at ledger `127`, fingerprint
-`896de918b58e068ba917340138563a99060d4d1a6cfacdc029ba575622c33f9b`.
-All seven production producers remain disabled, all `3,006` existing history
-rows remain legacy, and production identity-proven observations remain `0`.
-Each producer requires a separate approval. Public Stage 2 stays blocked until
-approved evidence accrues; the
+**Next executable task:** SEO-15 — continue bounded exact-pack remediation for
+the enabled Jon's producer using the existing
+reviewed migration and recorder paths. Scheduled run `32812270590` established
+`418/506`; post-canary run `32883838868` established `423/506` and
+idempotency. The remaining `83` offers stay fail-closed, and each of the other
+six producers still requires separate approval. Public Stage 2 stays blocked
+until approved evidence accrues; the
 earliest audit is after 14 days and the recommended publication decision is
 after 30 days. Stage 3 has not started. Do not infer historical claims.
 
