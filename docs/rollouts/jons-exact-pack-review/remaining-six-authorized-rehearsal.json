@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-remaining-six-authorized-rehearsal-v1",
+  "status": "PASS_REHEARSED_OWNER_AUTHORIZED_FOR_PRODUCTION_APPLY",
+  "rehearsed_at": "2026-08-25T20:09:27.0743399+01:00",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "migrations": [
+    {
+      "migration": "20260825200000_create_jons_exact_pack_ready_servings_2",
+      "migration_sha256": "f337e34bb0475b01466e983d08c56b2555bdcfffc286a6fb9a1492c73df70af5",
+      "rollback_sha256": "a3bbf4c5a9768c852bd811d9d704c3043267ee84ac429f8052ee55a5d830abf8",
+      "offer_ids": [1470, 1484],
+      "row_count": 2,
+      "evidence_type": "servings"
+    },
+    {
+      "migration": "20260825201000_create_jons_exact_pack_ready_grams_4",
+      "migration_sha256": "e6b2b2c77b2ff97dc8a76bc9817e34ab0ebb2111ed3aa066e125b3de5fa02ed4",
+      "rollback_sha256": "faedbb990cca6a040509d58af6b740757b7e5fd02f27450c36db3f51af2b1cf6",
+      "offer_ids": [1185, 1439, 1450, 1483],
+      "row_count": 4,
+      "evidence_type": "grams"
+    }
+  ],
+  "manifest": "docs/rollouts/jons-exact-pack-review/remaining-ready-jons-only-manifest.json",
+  "manifest_sha256": "55db2b2cd77e919821cb1f224f5d793035385b2db7e1c9f98727e9f65e4b53e3",
+  "semantic_sha256": "631febae59f3d2516066d3be627ddc176c6de62d5e9245c05904e80f5819fab6",
+  "owner_authorization": "owner-chat-2026-08-25-do-as-much-as-possible-and-accelerate",
+  "selector_confirmation": "50d2fc4cd53d2bec",
+  "scope": {
+    "offer_ids": [1470, 1484, 1185, 1439, 1450, 1483],
+    "row_count": 6,
+    "retailer_scope": "JONS_ONLY"
+  },
+  "catalogue_counts_before": {
+    "products": 1112,
+    "product_variants": 2656,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3441
+  },
+  "catalogue_counts_rehearsed": {
+    "products": 1112,
+    "product_variants": 2662,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3441
+  },
+  "prerequisite_gate": {
+    "exact_pack_coverage": "433/506",
+    "new_batch_identity_series": 10,
+    "new_batch_daily_confirmations": 10,
+    "result": "PASS"
+  },
+  "committed": false,
+  "database_writes_committed": 0,
+  "production_apply": "AUTHORIZED_NOT_RUN",
+  "workflow": "AUTHORIZED_AFTER_SUCCESSFUL_APPLY",
+  "remaining_without_sufficient_evidence": 67
+}

@@ -63,6 +63,8 @@ const EXCLUSIONS = Object.freeze({
     "20260820140000_normalize_reviewed_brand_aliases",
     "20260825163000_create_jons_exact_pack_canary_5",
     "20260825170000_create_jons_exact_pack_ready_servings_10",
+    "20260825200000_create_jons_exact_pack_ready_servings_2",
+    "20260825201000_create_jons_exact_pack_ready_grams_4",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

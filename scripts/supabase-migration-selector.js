@@ -144,6 +144,10 @@ const CONTRACTS = Object.freeze({
         "dd6719b852818969d6440dfeabdd46d7e4ab6efd3570f56d2110e3b992c9342d",
       "20260825170000_create_jons_exact_pack_ready_servings_10.sql":
         "894cc7b929ed69a26a7ffe31a16f9da9eaa2e15da13447b197794ee8869d476e",
+      "20260825200000_create_jons_exact_pack_ready_servings_2.sql":
+        "f337e34bb0475b01466e983d08c56b2555bdcfffc286a6fb9a1492c73df70af5",
+      "20260825201000_create_jons_exact_pack_ready_grams_4.sql":
+        "e6b2b2c77b2ff97dc8a76bc9817e34ab0ebb2111ed3aa066e125b3de5fa02ed4",
     }),
     pending: Object.freeze([]),
   }),
@@ -173,7 +177,18 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260825200000_create_jons_exact_pack_ready_servings_2.sql",
+        sha256: "f337e34bb0475b01466e983d08c56b2555bdcfffc286a6fb9a1492c73df70af5",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 2 }),
+      }),
+      Object.freeze({
+        filename: "20260825201000_create_jons_exact_pack_ready_grams_4.sql",
+        sha256: "e6b2b2c77b2ff97dc8a76bc9817e34ab0ebb2111ed3aa066e125b3de5fa02ed4",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 4 }),
+      }),
+    ]),
   }),
 });
 
