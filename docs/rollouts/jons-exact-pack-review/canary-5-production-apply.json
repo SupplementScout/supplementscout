@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-canary-production-apply-v1",
+  "status": "PASS_APPLIED_AWAITING_PRODUCER_CONFIRMATION",
+  "applied_at": "2026-08-25T16:28:37.4272918Z",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "migration": "20260825163000_create_jons_exact_pack_canary_5",
+  "migration_sha256": "dd6719b852818969d6440dfeabdd46d7e4ab6efd3570f56d2110e3b992c9342d",
+  "owner_authorization": "owner-chat-2026-08-25-production-apply-canary-5",
+  "selector_confirmation": "4a67983aa2dc2e60",
+  "committed": true,
+  "ledger_count": 128,
+  "ledger_fingerprint": "67ad0f35749d7b1ad0c88827d368ff2eacadc431a73688d3888a193a5db04694",
+  "catalogue_counts_before": {
+    "products": 1112,
+    "product_variants": 2641,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3426
+  },
+  "catalogue_counts_after": {
+    "products": 1112,
+    "product_variants": 2646,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3426
+  },
+  "postflight": {
+    "result": "PASS",
+    "jons_exact_pack_mappings": 423,
+    "jons_total_mappings": 506,
+    "identity_series": 418,
+    "daily_confirmations": 418,
+    "canary_identity_series": 0,
+    "interpretation": "The catalogue canary is applied. Identity series and daily confirmations remain unchanged until a later authorized or scheduled successful producer run."
+  },
+  "rows": [
+    {"mapping_id":1256,"offer_id":1070,"product_id":795,"product_variant_id":2791,"variant_key":"30-servings","size_value":30,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true},
+    {"mapping_id":1258,"offer_id":1072,"product_id":797,"product_variant_id":2792,"variant_key":"30-servings","size_value":30,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true},
+    {"mapping_id":1259,"offer_id":1073,"product_id":798,"product_variant_id":2793,"variant_key":"60-servings","size_value":60,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true},
+    {"mapping_id":1262,"offer_id":1076,"product_id":801,"product_variant_id":2794,"variant_key":"30-servings","size_value":30,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true},
+    {"mapping_id":1263,"offer_id":1077,"product_id":802,"product_variant_id":2795,"variant_key":"30-servings","size_value":30,"size_unit":"servings","pack_count":1,"product_format":"capsule","bindings_agree":true}
+  ],
+  "workflow": "NOT_RUN",
+  "backfill": "NOT_RUN",
+  "commit": "NOT_RUN",
+  "push": "NOT_RUN",
+  "deployment": "NOT_RUN"
+}

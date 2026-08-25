@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-canary-rehearsal-v1",
+  "status": "PASS_ROLLED_BACK_NOT_AUTHORIZED_FOR_PRODUCTION_APPLY",
+  "rehearsed_at": "2026-08-25T16:22:35.4546311Z",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "mode": "rehearse",
+  "committed": false,
+  "staging_limitation": "The exact five production rows are absent from staging, so staging cannot provide a representative data rehearsal.",
+  "migration": "20260825163000_create_jons_exact_pack_canary_5",
+  "migration_sha256": "dd6719b852818969d6440dfeabdd46d7e4ab6efd3570f56d2110e3b992c9342d",
+  "evidence": "docs/rollouts/jons-exact-pack-review/canary-5-evidence.json",
+  "evidence_sha256": "e50a96fca517b8297594799ac74bbf9fffe18a37797a60a90f560b992394dbe1",
+  "selector_confirmation_for_later_separately_authorized_apply": "4a67983aa2dc2e60",
+  "pending": [
+    "20260825163000_create_jons_exact_pack_canary_5"
+  ],
+  "catalogue_counts_before": {
+    "products": 1112,
+    "product_variants": 2641,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3426
+  },
+  "catalogue_counts_inside_rehearsal": {
+    "products": 1112,
+    "product_variants": 2646,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 3426
+  },
+  "expected_deltas": {
+    "products": 0,
+    "product_variants": 5,
+    "retailer_products": 0,
+    "offers": 0,
+    "price_history": 0
+  },
+  "scope": {
+    "offer_ids": [1070, 1072, 1073, 1076, 1077],
+    "mapping_ids": [1256, 1258, 1259, 1262, 1263],
+    "default_variant_ids": [1142, 1144, 1145, 1148, 1149],
+    "new_explicit_variants_rehearsed": 5
+  },
+  "project_gates": {
+    "verify_project": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS"
+  },
+  "production_apply": "NOT_RUN",
+  "workflow": "NOT_RUN",
+  "backfill": "NOT_RUN",
+  "commit": "NOT_RUN",
+  "push": "NOT_RUN",
+  "deployment": "NOT_RUN"
+}

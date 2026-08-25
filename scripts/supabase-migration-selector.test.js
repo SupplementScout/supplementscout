@@ -151,13 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the identity foundation as applied", () => {
+test("production records the exact-pack canary as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 127);
+  assert.equal(contract.ledgerCount, 128);
   assert.equal(
     contract.ledgerFingerprint,
-    "896de918b58e068ba917340138563a99060d4d1a6cfacdc029ba575622c33f9b",
+    "67ad0f35749d7b1ad0c88827d368ff2eacadc431a73688d3888a193a5db04694",
   );
 });
 
@@ -260,13 +260,16 @@ test("production binds its exact applied ledger including bounded RLS read", () 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 127);
+  assert.equal(result.ledger_count, 128);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 127);
+  assert.equal(result.pending.length, 0);
+  assert.equal(result.selected_files.length, 128);
   assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
+  assert.ok(result.selected_files.includes(
+    "20260825163000_create_jons_exact_pack_canary_5.sql",
+  ));
 });
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
@@ -312,4 +315,11 @@ test("staging output reports no pending migration after the identity observation
   assert.equal(result.pending_sha256, null);
   assert.deepEqual(result.pending_files, []);
   assert.deepEqual(result.pending_sha256s, {});
+});
+
+test("staging excludes the production-only exact-pack canary byte-for-byte", () => {
+  const result = validateSelection(validInput());
+  const filename = "20260825163000_create_jons_exact_pack_canary_5.sql";
+  assert.ok(result.excluded_files.includes(filename));
+  assert.ok(!result.selected_files.includes(filename));
 });

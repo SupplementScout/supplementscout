@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
@@ -12,6 +13,20 @@ const rollback = fs.readFileSync(
   path.join(ROOT, "supabase/rollbacks/20260810240000_create_reviewed_jons_17_explicit_variants.sql"),
   "utf8",
 );
+const canaryMigration = fs.readFileSync(
+  path.join(ROOT, "supabase/migrations/20260825163000_create_jons_exact_pack_canary_5.sql"),
+  "utf8",
+);
+const canaryRollback = fs.readFileSync(
+  path.join(ROOT, "supabase/rollbacks/20260825163000_create_jons_exact_pack_canary_5.sql"),
+  "utf8",
+);
+const canaryEvidencePath = path.join(
+  ROOT,
+  "docs/rollouts/jons-exact-pack-review/canary-5-evidence.json",
+);
+const canaryEvidenceText = fs.readFileSync(canaryEvidencePath, "utf8");
+const canaryEvidence = JSON.parse(canaryEvidenceText);
 
 const expected = [
   [835, 1182, 1296, 1110, "53818329792850", "APX14001", "vanilla-2000g", "Vanilla / 2000g", 2000, "g"],
@@ -32,6 +47,15 @@ const expected = [
   [858, 1263, 1377, 1191, "51000857723218", "CNP60002", "biscoff-spread-2000g", "Biscoff Spread / 2000g", 2000, "g"],
   [861, 1266, 1380, 1194, "50825886171474", "TBJ02018", "apple-pie-2000g", "Apple Pie / 2000g", 2000, "g"],
 ];
+
+const expectedCanary = [
+  [795, 1142, 1256, 1070, "51056074981714", "CNP37001", "30-servings", "30 Servings", 30],
+  [797, 1144, 1258, 1072, "53897141911890", "PFGUTH001", "30-servings", "30 Servings", 30],
+  [798, 1145, 1259, 1073, "53896643969362", "PFMAGCAP00", "60-servings", "60 Servings", 60],
+  [801, 1148, 1262, 1076, "53896878227794", "PFLIVERS001", "30-servings", "30 Servings", 30],
+  [802, 1149, 1263, 1077, "53897083978066", "PFJOINT001", "30-servings", "30 Servings", 30],
+];
+
 
 test("migration is bound to the exact reviewed 17-row identity scope", () => {
   assert.match(migration, /owner-approved-chat-2026-08-10-jons-17-explicit-variants/);
@@ -78,4 +102,57 @@ test("rollback restores the defaults only before any later refresh", () => {
   assert.match(rollback, /retailer_id=10\)<>506/);
   assert.doesNotMatch(rollback, /delete from public\.(products|retailer_products|offers|price_history)/);
   assert.doesNotMatch(rollback, /update public\.offers set[\s\S]{0,180}\b(price|shipping_cost|total_price|in_stock|url|last_checked_at)\s*=/);
+});
+
+test("exact-pack canary is bound to the five owner-reviewed retailer identities and evidence", () => {
+  const evidenceHash = crypto
+    .createHash("sha256")
+    .update(canaryEvidenceText.replaceAll("\r\n", "\n"))
+    .digest("hex");
+  assert.equal(evidenceHash, "e50a96fca517b8297594799ac74bbf9fffe18a37797a60a90f560b992394dbe1");
+  assert.equal(canaryEvidence.status, "OWNER_REVIEWED_NOT_AUTHORIZED_FOR_PRODUCTION_APPLY");
+  assert.equal(canaryEvidence.row_count, 5);
+  assert.match(canaryMigration, /owner-chat-2026-08-25-jons-exact-pack-canary-5/);
+  assert.match(canaryMigration, new RegExp(evidenceHash));
+  assert.match(canaryMigration, new RegExp(canaryEvidence.selected_semantic_sha256));
+  assert.match(canaryMigration, /jsonb_array_length\(v_scope\) <> 5/);
+  for (const [product, defaultVariant, mapping, offer, externalVariant, sku, key, display, size] of expectedCanary) {
+    assert.match(canaryMigration, new RegExp(
+      `"product_id":${product}.*?"default_variant_id":${defaultVariant}.*?"mapping_id":${mapping}.*?"offer_id":${offer}.*?"external_variant_id":"${externalVariant}"`,
+      "s",
+    ));
+    assert.match(canaryMigration, new RegExp(
+      `"external_sku":"${sku}".*?"variant_key":"${key}".*?"display_name":"${display}".*?"size_value":${size},"size_unit":"servings"`,
+      "s",
+    ));
+  }
+});
+
+test("exact-pack canary creates explicit non-default variants and preserves commercial rows", () => {
+  assert.match(canaryMigration, /insert into public\.product_variants/);
+  assert.match(canaryMigration, /e\.size_value, e\.size_unit, 1, 'capsule'/);
+  assert.match(canaryMigration, /'\{\}'::jsonb, false, true/);
+  assert.match(canaryMigration, /update public\.retailer_products\s+set product_variant_id=v_new_id/);
+  assert.match(canaryMigration, /update public\.offers\s+set product_variant_id=v_new_id/);
+  assert.match(canaryMigration, /to_jsonb\(rp\)-'product_variant_id'/);
+  assert.match(canaryMigration, /to_jsonb\(o\)-'product_variant_id'/);
+  assert.match(canaryMigration, /product_variants\)<>v_variants_before\+5/);
+  assert.match(canaryMigration, /price_identity_series\)<>v_series_before/);
+  assert.doesNotMatch(canaryMigration, /update public\.product_variants/);
+  assert.doesNotMatch(canaryMigration, /insert into public\.(products|retailer_products|offers|price_history|price_identity_series)/);
+  assert.doesNotMatch(canaryMigration, /delete from public\./);
+  assert.doesNotMatch(canaryMigration, /set\s+(price|shipping_cost|total_price|in_stock|url|last_checked_at|updated_at)\s*=/);
+});
+
+test("exact-pack canary rollback fails closed after producer use and restores only its bindings", () => {
+  assert.match(canaryRollback, /20260825163000.*create_jons_exact_pack_canary_5/s);
+  assert.match(canaryRollback, /updated_at<=v_new_created_at/);
+  assert.match(canaryRollback, /last_checked_at<=v_new_created_at/);
+  assert.match(canaryRollback, /price_identity_series where product_variant_id=v_new_id/);
+  assert.match(canaryRollback, /update public\.retailer_products\s+set product_variant_id=e\.default_variant_id/);
+  assert.match(canaryRollback, /update public\.offers\s+set product_variant_id=e\.default_variant_id/);
+  assert.match(canaryRollback, /delete from public\.product_variants where id=v_new_id/);
+  assert.match(canaryRollback, /product_variants\)<>v_variants_before-5/);
+  assert.doesNotMatch(canaryRollback, /delete from public\.(products|retailer_products|offers|price_history|price_identity_series)/);
+  assert.doesNotMatch(canaryRollback, /set\s+(price|shipping_cost|total_price|in_stock|url|last_checked_at|updated_at)\s*=/);
 });
