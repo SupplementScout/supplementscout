@@ -280,7 +280,12 @@ test("Fit House owner-reviewed exact-pack 10 reuses the existing GYM HIGH varian
   const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql"), "utf8");
   const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-owner-reviewed-exact-pack-10-2026-08-26.json"), "utf8"));
   const approvedMappings = [686,739,743,790,870,874,2084,2105,2106,2145];
-  assert.equal(evidence.status, "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED");
+  assert.equal(evidence.status, "PRODUCTION_APPLIED_VERIFIED");
+  assert.equal(evidence.production_apply.result, "PASS");
+  assert.equal(evidence.production_apply.production_ledger_count, 148);
+  assert.equal(evidence.production_read_only_postflight.result, "PASS");
+  assert.equal(evidence.production_read_only_postflight.exact_ready, 253);
+  assert.equal(evidence.production_read_only_postflight.target_identity_series_refs, 0);
   assert.equal(evidence.owner_review.approved, true);
   assert.equal(evidence.owner_review.pack_count_1_confirmed, true);
   assert.equal(evidence.expected.target_rows, 10);

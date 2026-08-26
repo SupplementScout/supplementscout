@@ -94,6 +94,23 @@ confirmed all 24 target rows exact-ready with no identity-series references,
 and kept both flavour conflicts blocked. Evidence is sealed in
 `docs/rollouts/fit-house-owner-reviewed-exact-pack-24-2026-08-26.json`.
 
+The owner then approved ten more safe Fit House exact-pack identities.
+Migration `20260826160000_create_fit_house_owner_reviewed_exact_pack_10`
+created nine explicit serving variants and rebound GYM HIGH Testo Pro to its
+existing exact 60-serving variant, increasing readiness from `243/286` to
+`253/286`. Products, mappings, offers and price history remained unchanged;
+product variants increased from `2,807` to `2,816`. Production ledger `148`
+has fingerprint
+`09fa96604603b9d202dbac2f504fffd136e5797ad3eb08233448e388c235542a`.
+The fresh read-only postflight confirmed all ten target rows exact-ready with
+no identity-series references. Of the remaining 33 rows, 26 are absent from
+the current source and seven remain fail-closed. The owner separately decided
+that mapping `869` Sodium Butyrate should represent one sold pack and 100
+one-capsule servings; that decision was not included in this sealed migration
+and awaits a separate guarded review/apply because the retailer body currently
+describes a two-capsule daily serving. Evidence is sealed in
+`docs/rollouts/fit-house-owner-reviewed-exact-pack-10-2026-08-26.json`.
+
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
 House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
 was manually run, so GYM HIGH's first identity series and confirmations still
