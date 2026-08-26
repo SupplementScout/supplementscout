@@ -248,6 +248,12 @@ test("Fit House owner-reviewed exact-pack 24 is guarded, reversible and keeps fl
   const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql"), "utf8");
   const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-owner-reviewed-exact-pack-24-2026-08-26.json"), "utf8"));
   const approvedMappings = [797,802,1124,2058,2062,2069,2075,2076,2083,2100,2101,2104,2114,2115,2118,2120,2121,2122,2125,2126,2131,2132,2152,2161];
+  assert.equal(evidence.status, "PRODUCTION_APPLIED_VERIFIED");
+  assert.equal(evidence.production_apply.result, "PASS");
+  assert.equal(evidence.production_apply.production_ledger_count, 147);
+  assert.equal(evidence.production_read_only_postflight.result, "PASS");
+  assert.equal(evidence.production_read_only_postflight.exact_ready, 243);
+  assert.equal(evidence.production_read_only_postflight.target_identity_series_refs, 0);
   assert.equal(evidence.owner_review.approved, true);
   assert.equal(evidence.owner_review.pack_count_1_confirmed, true);
   assert.equal(evidence.expected.target_rows, 24);

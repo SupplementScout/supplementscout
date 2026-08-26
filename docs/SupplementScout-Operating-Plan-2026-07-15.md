@@ -79,6 +79,21 @@ The seven known conflicts and three unavailable products remain incomplete and
 fail-closed. Evidence is sealed in
 `docs/rollouts/fit-house-retailer-evidence-batch-27-2026-08-26.json`.
 
+The owner then completed review for 26 further Fit House offers and confirmed
+one sold pack for each of the 24 safe identities. Mappings `2095` and `2096`
+were excluded because their current Shopify variant titles conflict with the
+bound canonical flavours. Migration
+`20260826150000_create_fit_house_owner_reviewed_exact_pack_24` created 22
+serving variants and enriched two existing exact-flavour variants, increasing
+readiness from `219/286` to `243/286`. Products, mappings, offers and price
+history remained unchanged; product variants increased from `2,785` to
+`2,807`. Production ledger `147` has fingerprint
+`41388cd2b50bdaf9cb6f27d082d4d08c44ed14d0a24dd17723655ae5c414f945`.
+The fresh read-only postflight reproduced the sealed source fingerprint,
+confirmed all 24 target rows exact-ready with no identity-series references,
+and kept both flavour conflicts blocked. Evidence is sealed in
+`docs/rollouts/fit-house-owner-reviewed-exact-pack-24-2026-08-26.json`.
+
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
 House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
 was manually run, so GYM HIGH's first identity series and confirmations still

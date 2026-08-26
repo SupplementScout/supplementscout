@@ -151,16 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records batch 27 as applied and exact-pack 24 as the sole pending migration", () => {
+test("production records owner-reviewed exact-pack 24 as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending.map(({ filename }) => filename), [
-    "20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql",
-  ]);
-  assert.deepEqual(contract.pending[0].expectedCatalogueDeltas, { product_variants: 22 });
-  assert.equal(contract.ledgerCount, 146);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 147);
   assert.equal(
     contract.ledgerFingerprint,
-    "c45d819365befea9ec9b43b99238d8d94cf719d5d714ace05b62c9fed2b6c82f",
+    "41388cd2b50bdaf9cb6f27d082d4d08c44ed14d0a24dd17723655ae5c414f945",
   );
 });
 
@@ -237,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with owner-reviewed exact-pack 24 pending", () => {
+test("production binds its exact ledger with owner-reviewed exact-pack 24 applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -263,18 +260,14 @@ test("production binds its exact ledger with owner-reviewed exact-pack 24 pendin
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 146);
+  assert.equal(result.ledger_count, 147);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 1);
+  assert.equal(result.pending.length, 0);
   assert.equal(result.selected_files.length, 147);
-  assert.deepEqual(result.pending_files, [
-    "20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql",
-  ]);
-  assert.equal(result.pending_file, "20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql");
-  assert.equal(result.pending_sha256, "b2b300c4628b94ecda8dc50968a8bf25d4706011ce9c9d044ef26613518eec17");
-  assert.deepEqual(result.pending_sha256s, {
-    "20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql": "b2b300c4628b94ecda8dc50968a8bf25d4706011ce9c9d044ef26613518eec17",
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));

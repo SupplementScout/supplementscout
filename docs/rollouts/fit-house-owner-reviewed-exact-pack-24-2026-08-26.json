@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED",
+  "status": "PRODUCTION_APPLIED_VERIFIED",
   "authority": "owner-chat-2026-08-26-approved-fit-house-exact-pack-24-pack-count-1",
   "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
   "production_read_only_audit": {
@@ -65,7 +65,35 @@
     "committed": false,
     "database_writes_committed": 0
   },
-  "production_apply": { "result": "NOT_AUTHORIZED" },
+  "production_apply": {
+    "result": "PASS",
+    "migration": "20260826150000_create_fit_house_owner_reviewed_exact_pack_24",
+    "confirmation": "f8f80c13db0d010d",
+    "production_ledger_count": 147,
+    "production_ledger_fingerprint": "41388cd2b50bdaf9cb6f27d082d4d08c44ed14d0a24dd17723655ae5c414f945",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2785, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_after": { "products": 1112, "product_variants": 2807, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "fit_house_exact_ready": "219 -> 243"
+  },
+  "production_read_only_postflight": {
+    "result": "PASS",
+    "captured_at": "2026-08-26T12:26:08.637Z",
+    "database_writes": 0,
+    "source_semantic_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "source_products": 251,
+    "source_variants": 346,
+    "source_pagination_completed": true,
+    "approved_scope": 286,
+    "exact_ready": 243,
+    "incomplete": 43,
+    "source_present_incomplete": 17,
+    "source_missing_incomplete": 26,
+    "target_rows_exact_ready": 24,
+    "target_identity_series_refs": 0,
+    "conflicts_still_blocked": [2095, 2096],
+    "production_ledger_count": 147,
+    "production_ledger_fingerprint": "41388cd2b50bdaf9cb6f27d082d4d08c44ed14d0a24dd17723655ae5c414f945"
+  },
   "rows": [
     [797,735,716,595,60],[802,740,721,600,30],[1124,938,765,925,100],[2058,1872,952,1854,120],[2062,1876,962,1881,60],[2069,1883,956,1863,44],[2075,1889,982,1922,60],[2076,1890,981,1921,60],[2083,1897,521,488,30],[2100,1914,980,1919,25],[2101,1915,980,1920,25],[2104,1918,983,1923,60],[2114,1928,963,1882,120],[2115,1929,184,211,30],[2118,1932,371,311,30],[2120,1934,1001,1962,120],[2121,1935,975,1904,60],[2122,1936,974,1903,30],[2125,1939,985,1935,90],[2126,1940,992,1945,180],[2131,1945,523,503,60],[2132,1946,970,1894,60],[2152,1966,996,1957,30],[2161,1975,987,1939,250]
   ],
