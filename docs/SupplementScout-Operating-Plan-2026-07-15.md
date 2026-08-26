@@ -64,6 +64,21 @@ fingerprint
 Seven conflicts remain fail-closed. Evidence is sealed in
 `docs/rollouts/fit-house-retailer-evidence-batch-11-2026-08-26.json`.
 
+The owner then reviewed a larger set of 30 Fit House source pages. Twenty-seven
+available exact products were approved; three unavailable products were kept
+out of scope. Migration
+`20260826140000_create_fit_house_retailer_evidence_exact_pack_27` created
+exactly 27 serving variants and increased readiness from `192/286` to
+`219/286`. The reviewed NOW Turmeric identity is one softgel per serving,
+taken twice daily, while EFX Kre-Alkalyn is two capsules per serving before
+training and another two-capsule serving after training. Products, mappings,
+offers and price history remained unchanged; product variants increased from
+`2,758` to `2,785`. Production ledger `146` has fingerprint
+`c45d819365befea9ec9b43b99238d8d94cf719d5d714ace05b62c9fed2b6c82f`.
+The seven known conflicts and three unavailable products remain incomplete and
+fail-closed. Evidence is sealed in
+`docs/rollouts/fit-house-retailer-evidence-batch-27-2026-08-26.json`.
+
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
 House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
 was manually run, so GYM HIGH's first identity series and confirmations still
