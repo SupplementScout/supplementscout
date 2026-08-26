@@ -151,17 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Sodium Butyrate as applied and only the reviewed six-conflict correction pending", () => {
+test("production records the reviewed Fit House six-conflict correction as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
-    sha256: "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45",
-    expectedCatalogueDeltas: { product_variants: 4 },
-  }]);
-  assert.equal(contract.ledgerCount, 149);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 150);
   assert.equal(
     contract.ledgerFingerprint,
-    "b9a28b720bdceecd2a0d8ca0913e34b5d1e3a21100f63f66cb4b233304e199ea",
+    "cfa0fb2f545be226a1b72ebcda8c9adb0296b862402f5a12e4bb11addb9e235f",
   );
 });
 
@@ -238,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the six-conflict correction pending", () => {
+test("production binds its exact ledger with the six-conflict correction applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -264,16 +260,14 @@ test("production binds its exact ledger with the six-conflict correction pending
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 149);
+  assert.equal(result.ledger_count, 150);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 1);
+  assert.equal(result.pending.length, 0);
   assert.equal(result.selected_files.length, 150);
-  assert.deepEqual(result.pending_files, ["20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql"]);
-  assert.equal(result.pending_file, "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql");
-  assert.equal(result.pending_sha256, "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45");
-  assert.deepEqual(result.pending_sha256s, {
-    "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql": "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45",
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));

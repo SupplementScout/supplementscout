@@ -340,9 +340,13 @@ test("Fit House six source-present conflicts use one guarded exact-pack correcti
   const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql"), "utf8");
   const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql"), "utf8");
   const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-six-exact-pack-conflicts-2026-08-26.json"), "utf8"));
-  assert.equal(evidence.status, "READY_FOR_EXPLICIT_PRODUCTION_APPLY");
+  assert.equal(evidence.status, "PRODUCTION_APPLIED_VERIFIED");
   assert.equal(evidence.production_transaction_rollback_rehearsal.result, "PASS");
   assert.equal(evidence.selected_migration_rehearsal.result, "PASS");
+  assert.equal(evidence.production_apply.result, "PASS");
+  assert.equal(evidence.production_apply.production_ledger_count, 150);
+  assert.equal(evidence.production_read_only_postflight.exact_ready, 260);
+  assert.equal(evidence.production_read_only_postflight.source_present_incomplete, 0);
   assert.equal(evidence.owner_review.approved, true);
   assert.deepEqual(evidence.rows.map((row) => row.mapping_id), [687, 2095, 2096, 2099, 2112, 2123]);
   assert.equal(evidence.expected.created_variants, 4);

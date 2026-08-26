@@ -122,6 +122,24 @@ references. Evidence is sealed in
 ten-row evidence remains sealed in
 `docs/rollouts/fit-house-owner-reviewed-exact-pack-10-2026-08-26.json`.
 
+The owner then resolved all six remaining source-present Fit House identity
+conflicts. Migration
+`20260826180000_resolve_fit_house_six_exact_pack_conflicts` created four exact
+variants and reused the existing HR Labs DEFIB Lemon Fizz Bombs and Fizzy
+Bubblegum Bottles 420g V3 variants. The OstroVit mapping is explicitly Orange;
+the retailer's Shopify `Mango` variant label is recorded as erroneous and was
+not allowed to override the retailer body plus owner decision. Thiquid is
+verified as one 1000ml liquid pack with 25 servings, Osavi D3 + K2 as 60
+one-softgel servings, and Osavi Liposomal Vitamin C as 1000mg per two-capsule
+serving, 60 capsules and 30 servings. Readiness increased from `254/286` to
+`260/286`; the remaining 26 rows are all absent from the fresh complete source
+and remain fail-closed. Products, mappings, offers, price history, identity
+series and outbound-click counts were preserved; product variants increased
+from `2,817` to `2,821`. Production ledger `150` has fingerprint
+`cfa0fb2f545be226a1b72ebcda8c9adb0296b862402f5a12e4bb11addb9e235f`.
+Fit House remains disabled and no workflow was run. Evidence is sealed in
+`docs/rollouts/fit-house-six-exact-pack-conflicts-2026-08-26.json`.
+
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
 House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
 was manually run, so GYM HIGH's first identity series and confirmations still
