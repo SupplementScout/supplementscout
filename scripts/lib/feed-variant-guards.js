@@ -803,16 +803,24 @@ function reviewedSafeCreateFamily(row) {
   };
 }
 
-function getSafeCreateExclusionReasons(row) {
+function getSafeCreateExclusionReasons(row, options = {}) {
   const prohibitedReason = getProhibitedCatalogueTypeReason(row);
   if (prohibitedReason) {
     return [prohibitedReason];
   }
 
   const category = String(row.category || "").trim();
+  const exactExistingCanonicalCategory =
+    options.exactExistingProductVariant === true &&
+    category.length > 0 &&
+    category === String(options.canonicalCategory || "").trim();
   const reviewedFamily = reviewedSafeCreateFamily(row);
 
-  if (!SAFE_CREATE_ALLOWED_CATEGORIES.has(category) && !reviewedFamily) {
+  if (
+    !SAFE_CREATE_ALLOWED_CATEGORIES.has(category) &&
+    !reviewedFamily &&
+    !exactExistingCanonicalCategory
+  ) {
     return ["category is not allowed for safe-create"];
   }
 
@@ -984,7 +992,37 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       !row.__reviewed_whey_okay_q1_q2_package_identity &&
       !row.__reviewed_six_pack_family_identity
     ) {
-      const exclusionReasons = getSafeCreateExclusionReasons(row);
+      const exactExistingProductVariant = Boolean(
+        product?.id &&
+        product.is_active === true &&
+        product.merged_into_product_id == null &&
+        item.productVariant?.id &&
+        item.productVariant.is_active === true &&
+        !item.productVariant.planned_create &&
+        String(item.productVariant.product_id) === String(product.id) &&
+        String(row.product_id || "").trim() === String(product.id) &&
+        String(row.product_variant_id || "").trim() ===
+          String(item.productVariant.id)
+      );
+      const canonicalCategory = String(product?.category || "").trim();
+      const rowCategory = String(row.category || "").trim();
+
+      if (
+        exactExistingProductVariant &&
+        (!canonicalCategory || rowCategory !== canonicalCategory)
+      ) {
+        report.exclusions.push(block({
+          rowNumber,
+          productName,
+          reasons: ["category conflicts with existing canonical product"],
+        }));
+        continue;
+      }
+
+      const exclusionReasons = getSafeCreateExclusionReasons(row, {
+        exactExistingProductVariant,
+        canonicalCategory,
+      });
 
       if (exclusionReasons.length > 0) {
         report.exclusions.push(block({ rowNumber, productName, reasons: exclusionReasons }));

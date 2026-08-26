@@ -3451,6 +3451,201 @@ test("safe-create only allows approved supplement categories", async () => {
   }
 });
 
+test("safe-create permits an exact existing product and variant outside the new-product category allowlist", async () => {
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Predators Gear",
+    retailer_website: "https://predatorsgear.co.uk/",
+    product_id: "510",
+    product_variant_id: "1068",
+    external_product_id: "8594181608254",
+    external_variant_id: "8594181608257",
+    external_options: "",
+    product_name: "GYM HIGH Whey Pro Synergy Dynamic 600g",
+    variant_name: "Belgian Chocolate / 600g",
+    brand: "GYM HIGH",
+    category: "Whey Protein",
+    description: "",
+    image: "https://predatorsgear.co.uk/wp-content/uploads/whey.webp",
+    slug: "gym-high-whey-pro-synergy-dynamic-600g",
+    external_url: "https://predatorsgear.co.uk/?p=8594181608254",
+    affiliate_url: "https://predatorsgear.co.uk/?p=8594181608254",
+    external_gtin: "00640516587918",
+    shipping_known: "true",
+    shipping_cost: "0",
+    size: "600",
+    size_unit: "g",
+    flavour: "Belgian Chocolate",
+  });
+  const product = {
+    id: "510",
+    name: row.product_name,
+    slug: row.slug,
+    brand: row.brand,
+    category: "Whey Protein",
+    gtin: null,
+    product_format: "powder",
+    is_active: true,
+    merged_into_product_id: null,
+  };
+  const variant = {
+    id: "1068",
+    product_id: "510",
+    variant_key: "belgian-chocolate-600g",
+    display_name: "Belgian Chocolate / 600g",
+    flavour_code: "belgian chocolate",
+    flavour_label: "Belgian Chocolate",
+    size_value: 600,
+    size_unit: "g",
+    pack_count: 1,
+    product_format: "powder",
+    is_active: true,
+    is_default: false,
+  };
+  const supabase = createMockSupabase({
+    retailers: [],
+    products: [product],
+    product_variants: [variant],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+  });
+
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newRetailersToCreate.length, 1);
+  assert.equal(result.report.newProductsToCreate.length, 0);
+  assert.equal(result.report.productVariantsToCreate.length, 0);
+  assert.equal(result.report.approvedRows[0].importPlan.product.action, "existing");
+  assert.equal(result.report.approvedRows[0].importPlan.product.id, "510");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.action, "existing");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.id, "1068");
+  assert.equal(supabase.writes.length, 0);
+
+  const mismatchedSupabase = createMockSupabase({
+    retailers: [],
+    products: [product],
+    product_variants: [variant],
+    retailer_products: [],
+    offers: [],
+    price_history: [],
+  });
+  setSupabaseForTests(mismatchedSupabase);
+  const mismatched = await runImportRows(
+    [{ ...row, category: "Health Supplements" }],
+    { mode: "feed", safeCreate: true, dryRun: true }
+  );
+  assert.equal(mismatched.report.approvedRows.length, 0);
+  assert.equal(mismatched.report.blockedRows.length, 1);
+  assert.match(
+    mismatched.report.blockedRows[0].block_reason,
+    /category conflicts with existing canonical product/
+  );
+  assert.equal(mismatchedSupabase.writes.length, 0);
+
+  const unsafeBindingCases = [
+    {
+      name: "missing explicit product id",
+      candidateRow: { ...row, product_id: "" },
+      candidateProduct: product,
+      candidateVariant: variant,
+    },
+    {
+      name: "missing explicit variant id",
+      candidateRow: { ...row, product_variant_id: "" },
+      candidateProduct: product,
+      candidateVariant: variant,
+    },
+    {
+      name: "inactive product",
+      candidateRow: row,
+      candidateProduct: { ...product, is_active: false },
+      candidateVariant: variant,
+    },
+    {
+      name: "inactive variant",
+      candidateRow: row,
+      candidateProduct: product,
+      candidateVariant: { ...variant, is_active: false },
+    },
+    {
+      name: "variant belongs to another product",
+      candidateRow: row,
+      candidateProduct: product,
+      candidateVariant: { ...variant, product_id: "999" },
+    },
+  ];
+
+  for (const unsafeCase of unsafeBindingCases) {
+    const unsafeSupabase = createMockSupabase({
+      retailers: [],
+      products: [unsafeCase.candidateProduct],
+      product_variants: [unsafeCase.candidateVariant],
+      retailer_products: [],
+      offers: [],
+      price_history: [],
+    });
+    setSupabaseForTests(unsafeSupabase);
+    const unsafeResult = await runImportRows([unsafeCase.candidateRow], {
+      mode: "feed",
+      safeCreate: true,
+      dryRun: true,
+    });
+    assert.equal(
+      unsafeResult.report.approvedRows.length,
+      0,
+      unsafeCase.name
+    );
+    assert.equal(unsafeSupabase.writes.length, 0, unsafeCase.name);
+  }
+});
+
+test("exact existing safe-create category bypass remains category-exact and keeps exclusions", () => {
+  const row = {
+    product_name: "GYM HIGH Whey Pro Synergy Dynamic 600g",
+    category: "Whey Protein",
+    product_format: "powder",
+    size: "600g",
+  };
+  const exact = {
+    exactExistingProductVariant: true,
+    canonicalCategory: "Whey Protein",
+  };
+
+  assert.deepEqual(getSafeCreateExclusionReasons(row, exact), []);
+  assert.deepEqual(
+    getSafeCreateExclusionReasons(
+      { ...row, category: "whey protein" },
+      exact
+    ),
+    ["category is not allowed for safe-create"]
+  );
+  assert.deepEqual(
+    getSafeCreateExclusionReasons({ ...row, category: "" }, exact),
+    ["category is not allowed for safe-create"]
+  );
+  assert.deepEqual(
+    getSafeCreateExclusionReasons(
+      { ...row, category: "Arbitrary New Category" },
+      exact
+    ),
+    ["category is not allowed for safe-create"]
+  );
+  assert.deepEqual(
+    getSafeCreateExclusionReasons(
+      { ...row, description: "Bundle with free shaker" },
+      exact
+    ),
+    ["excluded product type"]
+  );
+});
+
 test("safe-create allows only Marek-reviewed Jon's supplement families beyond the base allowlist", async () => {
   const cases = [
     {
