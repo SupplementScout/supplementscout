@@ -676,8 +676,15 @@ multi-retailer coverage milestone is independently verified at `250/250`.
 Current checkpoint, 26 August 2026: SEO-16 is code complete with `304` products
 eligible in a read-only production-data SSR check. `/compare` remains centrally
 registered as `planned`, `noindex` and sitemap-ineligible pending an explicit
-launch decision, deployment and public live verification. The mandatory return
+launch decision and launch-approved public verification. The mandatory return
 to blocked SEO-15 accrual audits is unchanged.
+
+Commit `5d9f48525e2a947fee067a2cf473063eb9bd227e` is deployed in the
+connected production site. A post-deployment public smoke check found `301`
+currently eligible products, HTTP `200` for the base and real pair `756/757`,
+the homepage link, exact variant/pack and delivered total, while planned
+canonical/noindex and zero sitemap entries remained intact. This is deployment
+evidence, not lifecycle launch approval.
 
 The first three steps are the current build sequence. Measurement is continuous
 from the first release, and catalogue safety, automation monitoring and urgent

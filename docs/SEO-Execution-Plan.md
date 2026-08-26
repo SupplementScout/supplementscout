@@ -312,9 +312,15 @@ SEO-07 manual evidence queue is now complete:
   TypeScript, ESLint with zero errors, `git diff --check`, all `236` safe tests,
   baseline migration validation and the Next.js 16.2.9 production build passed.
   The seven pre-existing GYM HIGH/Six Pack lint warnings are unchanged.
-- No workflow, backfill, migration, production-data write, deployment, commit
-  or push occurred in this checkpoint. SEO-16 stays `IN PROGRESS`; explicit
-  lifecycle launch approval and public live verification remain required.
+- Implementation commit `5d9f48525e2a947fee067a2cf473063eb9bd227e` was
+  pushed to `main` and reached the connected production site. Public smoke
+  evidence returned HTTP `200` for the base and pair `756/757`, `301` currently
+  eligible products, exact variant/pack and known delivered total, the homepage
+  link, canonical/noindex on both states and zero `/compare` sitemap entries.
+  The change from the local `304` count reflects the moving 24-hour freshness
+  window and does not affect lifecycle state. No workflow, backfill, migration
+  or production-data write ran. SEO-16 stays `IN PROGRESS`; explicit lifecycle
+  launch approval and launch-approved public verification remain required.
 
 ### 24 August 2026 — SEO Indexability Lifecycle P0 LIVE VERIFIED
 

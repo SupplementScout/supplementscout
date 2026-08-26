@@ -1479,11 +1479,16 @@ the correct canonical, planned `noindex`, exact pack and known delivered total.
 Focused tests passed `22/22`. Project Guardian, `verify:quick`, `verify:full`,
 TypeScript, ESLint with zero errors, `git diff --check`, all `236` safe tests,
 baseline migration validation and the Next.js 16.2.9 production build passed;
-seven pre-existing GYM HIGH/Six Pack warnings remain. No workflow, backfill,
-migration, production-data write or deployment ran. SEO-16 remains `IN
-PROGRESS` until explicit launch approval, deployment and public live evidence.
-After SEO-16 completion, the binding sequence returns mandatorily to blocked
-SEO-15 accrual audits before SEO-17. GYM HIGH remains owner-deferred.
+seven pre-existing GYM HIGH/Six Pack warnings remain. Commit
+`5d9f48525e2a947fee067a2cf473063eb9bd227e` was pushed to `main` and reached
+the connected production site. Public smoke evidence passed for the base route
+and pair `756/757`: HTTP `200`, `301` current eligible products, exact
+variant/pack, known delivered total, canonical/noindex, homepage discovery and
+zero sitemap entries. No workflow, backfill, migration or production-data
+write ran. SEO-16 remains `IN PROGRESS` until explicit lifecycle launch
+approval and launch-approved public verification. After SEO-16 completion, the
+binding sequence returns mandatorily to blocked SEO-15 accrual audits before
+SEO-17. GYM HIGH remains owner-deferred.
 
 ## 1. Product identity
 
