@@ -182,6 +182,8 @@ const CONTRACTS = Object.freeze({
         "b2b300c4628b94ecda8dc50968a8bf25d4706011ce9c9d044ef26613518eec17",
       "20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql":
         "38d6a6f5572e0fb896bb38b8af3eb70a2949adcc83ea832362cb293416e70d5a",
+      "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql":
+        "ded7913518d35b2893135da8ddd87f0d0b6015426f23b44646065c0142f25231",
     }),
     pending: Object.freeze([]),
   }),
@@ -211,7 +213,13 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
+        sha256: "ded7913518d35b2893135da8ddd87f0d0b6015426f23b44646065c0142f25231",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 1 }),
+      }),
+    ]),
   }),
 });
 

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "status": "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED",
+  "authority": "owner-chat-2026-08-26-fit-house-sodium-butyrate-one-pack-100-one-capsule-servings",
+  "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
+  "production_read_only_audit": {
+    "result": "PASS",
+    "captured_at": "2026-08-26T14:11:38.0374869Z",
+    "source_semantic_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "database_writes": 0,
+    "mapping_id": 869,
+    "offer_id": 755,
+    "product_id": 736,
+    "default_variant_id": 620,
+    "identity_series_refs": 0,
+    "exact_ready_before": 253,
+    "products": 1112,
+    "product_variants": 2816,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 4001,
+    "identity_series": 503
+  },
+  "owner_review": {
+    "approved": true,
+    "pack_count": 1,
+    "serving_count": 100,
+    "serving_definition": "one capsule per serving",
+    "retailer_daily_use_text": "two capsules daily",
+    "decision_type": "explicit owner-selected serving identity"
+  },
+  "expected": {
+    "target_rows": 1,
+    "created_variants": 1,
+    "products_delta": 0,
+    "product_variants_delta": 1,
+    "mappings_delta": 0,
+    "offers_delta": 0,
+    "price_history_delta": 0,
+    "identity_series_delta": 0,
+    "fit_house_exact_ready_after": 254,
+    "incomplete_after": 32
+  },
+  "production_transaction_rollback_rehearsal": {
+    "result": "PASS",
+    "confirmation_for_separately_approved_rollback": "6aa985a311a7d6af",
+    "products": "1112 -> 1112 -> 1112",
+    "product_variants": "2816 -> 2817 -> 2816",
+    "retailer_products": "2761 -> 2761 -> 2761",
+    "offers": "2761 -> 2761 -> 2761",
+    "price_history": "4001 -> 4001 -> 4001",
+    "identity_series": "503 -> 503 -> 503",
+    "fit_house_exact_ready": "253 -> 254 -> 253",
+    "target_rows": 1,
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "selected_migration_rehearsal": {
+    "result": "PASS",
+    "confirmation_for_apply": "7830923fa4b8127a",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2816, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_expected": { "products": 1112, "product_variants": 2817, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "production_apply": { "result": "NOT_AUTHORIZED" },
+  "remaining_source_present_blocked": [687, 2095, 2096, 2099, 2112, 2123]
+}

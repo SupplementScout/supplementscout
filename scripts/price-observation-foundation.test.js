@@ -307,6 +307,30 @@ test("Fit House owner-reviewed exact-pack 10 reuses the existing GYM HIGH varian
   }
 });
 
+test("Fit House Sodium Butyrate owner decision is one guarded exact-pack identity", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql"), "utf8");
+  const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-sodium-butyrate-exact-pack-2026-08-26.json"), "utf8"));
+  assert.equal(evidence.status, "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED");
+  assert.equal(evidence.production_transaction_rollback_rehearsal.result, "PASS");
+  assert.equal(evidence.selected_migration_rehearsal.result, "PASS");
+  assert.equal(evidence.owner_review.approved, true);
+  assert.equal(evidence.owner_review.pack_count, 1);
+  assert.equal(evidence.owner_review.serving_count, 100);
+  assert.equal(evidence.owner_review.serving_definition, "one capsule per serving");
+  assert.equal(evidence.expected.target_rows, 1);
+  assert.equal(evidence.expected.created_variants, 1);
+  assert.equal(evidence.expected.fit_house_exact_ready_after, 254);
+  assert.match(migration, /id=869/);
+  assert.match(migration, /offer_id=755/);
+  assert.match(migration, /'100-servings','100 Servings'/);
+  assert.match(migration, /100,'servings',1,'capsule'/);
+  assert.match(migration, /\)<>254/);
+  assert.match(rollback, /version='20260826170000'/);
+  assert.match(rollback, /v_variants_before-1/);
+  assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
+});
+
 test("daily volume estimates are bounded by one confirmation per offer", () => {
   assert.equal(estimateObservationVolume(2761, 30), 82_830);
   assert.equal(estimateObservationVolume(1564, 30), 46_920);
