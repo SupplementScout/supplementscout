@@ -1485,8 +1485,10 @@ the connected production site. Public smoke evidence passed for the base route
 and pair `756/757`: HTTP `200`, `301` current eligible products, exact
 variant/pack, known delivered total, canonical/noindex, homepage discovery and
 zero sitemap entries. No workflow, backfill, migration or production-data
-write ran. SEO-16 remains `IN PROGRESS` until explicit lifecycle launch
-approval and launch-approved public verification. After SEO-16 completion, the
+write ran. The owner explicitly approved launch on 26 August 2026; the bounded
+`planned -> launch_approved` lifecycle change is now authorized, while query
+parameters remain `noindex` with the base canonical. SEO-16 remains `IN
+PROGRESS` until launch-approved public verification. After SEO-16 completion, the
 binding sequence returns mandatorily to blocked SEO-15 accrual audits before
 SEO-17. GYM HIGH remains owner-deferred.
 

@@ -686,6 +686,11 @@ the homepage link, exact variant/pack and delivered total, while planned
 canonical/noindex and zero sitemap entries remained intact. This is deployment
 evidence, not lifecycle launch approval.
 
+The owner explicitly approved lifecycle launch on 26 August 2026. The only
+authorized release change is `/compare: planned -> launch_approved`; parameter
+states remain noindex with the base canonical. Public verification is still
+required before SEO-16 can become `LIVE VERIFIED`.
+
 The first three steps are the current build sequence. Measurement is continuous
 from the first release, and catalogue safety, automation monitoring and urgent
 production incidents remain permanent operating controls rather than competing

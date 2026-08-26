@@ -214,7 +214,7 @@ test("complete catalogue query is paginated and exact variant resolution is stri
   assert.ok(calls.some((call) => call[0] === "select" && call[2]?.count === "exact"));
 });
 
-test("page is canonical, fail-closed while planned and renders no winner claim", async () => {
+test("launch-approved base is indexable while parameters stay noindex and no winner is claimed", async () => {
   const comparison = loadComparison();
   const normalized = comparison.normalizeTwoProductComparison([product(1), product(2)], { now: NOW });
   const result = { ...normalized, error: false };
@@ -229,7 +229,7 @@ test("page is canonical, fail-closed while planned and renders no winner claim",
     "../lib/twoProductComparison": { ...comparison, getTwoProductComparison: async () => result },
   });
   const baseMetadata = await page.generateMetadata();
-  assert.deepEqual(baseMetadata.robots, { index: false, follow: true });
+  assert.deepEqual(baseMetadata.robots, { index: true, follow: true });
   assert.equal(baseMetadata.alternates.canonical, "/compare");
   const parameterMetadata = await page.generateMetadata({ searchParams: Promise.resolve({ left: "1", right: "2" }) });
   assert.deepEqual(parameterMetadata.robots, { index: false, follow: true });

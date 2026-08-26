@@ -46,6 +46,9 @@ const liveVerifiedPaths = publicPaths.filter(
 const plannedPaths = publicPaths.filter(
   (route) => lifecycle.getLifecycleStatus(route) === "planned"
 );
+const launchApprovedPaths = publicPaths.filter(
+  (route) => lifecycle.getLifecycleStatus(route) === "launch_approved"
+);
 
 const pageFiles = new Map(
   publicPaths.map((route) => [
@@ -67,7 +70,8 @@ test("approved public routes have one explicit live-verified lifecycle", () => {
 
 test("the public lifecycle registry is complete, routable and separate from owner-deferred decisions", () => {
   assert.equal(liveVerifiedPaths.length, 15);
-  assert.deepEqual(plannedPaths, ["/compare"]);
+  assert.deepEqual(plannedPaths, []);
+  assert.deepEqual(launchApprovedPaths, ["/compare"]);
   assert.equal(publicPaths.length, 16);
   for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);
@@ -136,10 +140,10 @@ test("non-live lifecycle states fail closed even with hypothetical high coverage
   assert.equal(lifecycle.getLifecycleStatus("/brands/gym-high"), "owner_deferred");
   assert.equal(lifecycle.isLifecycleSitemapEligible("/brands/gym-high"), false);
   assert.deepEqual(lifecycle.getLifecycleRobots("/compare"), {
-    index: false,
+    index: true,
     follow: true,
   });
-  assert.equal(lifecycle.isLifecycleSitemapEligible("/compare"), false);
+  assert.equal(lifecycle.isLifecycleSitemapEligible("/compare"), true);
 });
 
 test("launch-approved routes can enter robots and sitemap before live verification", () => {

@@ -118,14 +118,14 @@ Console evidence and user value.
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) through `423`, `433`, `439`, and `490` (`32892293918`) to `503/506` (`32915426696`). Blocker: the minimum 14-day identity-proven history cannot exist before 8 September 2026; the recommended first publication decision is after 24 September. Three exact-pack identities remain fail-closed, the other six producers remain disabled, and Stage 3/public price-drop claims remain disabled. Mandatory return to SEO-15 is preserved. |
-| SEO-16 | P1 | Launch guarded two-product comparison. | `IN PROGRESS` | Code complete and launch approval pending. Local production-data SSR verified 304 eligible canonical products through the shared exact-variant, current-offer, delivered-price and verified-metric mechanisms; `/compare` remains lifecycle `planned`, `noindex` and sitemap-ineligible until separately approved. |
+| SEO-16 | P1 | Launch guarded two-product comparison. | `IN PROGRESS` | Owner launch approval recorded on 26 August 2026. The exact lifecycle change from `planned` to `launch_approved` is being deployed; public index, canonical, sitemap and pair-parameter verification remain required before `LIVE VERIFIED`. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-16 — obtain the explicit lifecycle launch decision
-for the code-complete guarded `/compare` route, then deploy and live verify it
-before changing its status. The implementation reuses the existing canonical
+**Next executable task:** SEO-16 — deploy the owner-approved lifecycle change
+for the code-complete guarded `/compare` route and live verify it before
+changing task status. The implementation reuses the existing canonical
 product, variant, current-offer, delivered-price and verified-metric mechanisms;
 it does not create pair routes, a second comparison engine or missing values.
 
@@ -321,6 +321,10 @@ SEO-07 manual evidence queue is now complete:
   window and does not affect lifecycle state. No workflow, backfill, migration
   or production-data write ran. SEO-16 stays `IN PROGRESS`; explicit lifecycle
   launch approval and launch-approved public verification remain required.
+- The owner explicitly approved launch on 26 August 2026. The next bounded
+  change is solely `/compare: planned -> launch_approved`; query-parameter
+  states remain `noindex, follow` with base canonical. This decision does not
+  authorize workflow, catalogue, retailer, offer or price writes.
 
 ### 24 August 2026 — SEO Indexability Lifecycle P0 LIVE VERIFIED
 
