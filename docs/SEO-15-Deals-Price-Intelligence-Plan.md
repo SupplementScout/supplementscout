@@ -372,10 +372,10 @@ delay is not itself a failure.
 
 | Retailer/source | Current state | Existing schedule/path | SEO-15 action |
 |---|---|---|---|
-| GYM HIGH | HEALTHY; publication remains owner-deferred | source monitor `03:43` and `15:43` UTC; reviewed refresh `04:13` UTC | Contract technically prepared but disabled; `reviewed-66`; owner-deferred. |
+| GYM HIGH | HEALTHY; public publication remains owner-deferred | source monitor `03:43` and `15:43` UTC; reviewed refresh `04:13` UTC | Observation producer enabled 26 August for exact `reviewed-66`; `40` ready and `26` fail closed; first scheduled producer postflight pending. |
 | Simply Supplements | HEALTHY | `05:07` UTC daily | Contract prepared but disabled; exact approved `120` scope only. |
 | Fit House | HEALTHY | `02:47` UTC daily | Contract prepared but disabled; exact approved `286` scope only. |
-| Jon's Supplements | HEALTHY | `04:47` UTC daily | Contract prepared but disabled; reviewed current-sync scope only. |
+| Jon's Supplements | HEALTHY | `04:47` UTC daily | Producer enabled; reviewed current-sync scope only. |
 | Whey Okay | PARTIAL | `02:17` UTC daily | Contract prepared but disabled for approved `586` only; legacy scope excluded. |
 | Discount Supplements | PARTIAL | `06:47` UTC daily | Not a Stage 2A producer; approved and legacy boundaries require separate review. |
 | Dolphin Fitness | PARTIAL | `05:27` UTC daily | Not a Stage 2A producer; no manifest expansion. |
@@ -386,8 +386,9 @@ delay is not itself a failure.
 Automation gaps block broad historical claims for affected offers but do not
 block a fail-closed Stage 1 page if its exact fresh gate passes from healthy
 current rows. Do not expand any manifest merely to increase `/deals` coverage.
-All producer rows are installed disabled. Enabling the migration and enabling
-each exact producer scope are separate future owner decisions.
+Jon's and GYM HIGH are enabled producers. The other five installed Stage 2A
+producers remain disabled; enabling each exact scope remains a separate future
+owner decision.
 
 ## 10. Six Pack 14-row evidence review
 
@@ -527,7 +528,7 @@ credentials.
 | Stage 1 gate `12 products / 30 offers / 4 retailers`, with 2+ retailers per exact variant | Approved launch evidence; monitoring remains active | Do not reuse as an hourly robots/sitemap switch. |
 | Classify the 14 Six Pack rows as 1 stock, 8 price and 5 price+stock approvals | Evidence ready; not applied | Approve/reject as a separate production-data action. |
 | Add normalized immutable identity series plus nullable history evidence with no backfill | Production migration verified; no backfill | Preserve legacy rows and approve producers separately. |
-| Record at most one unchanged confirmation/day/series | Production verified for Jon's only; six producers disabled | Preserve daily idempotency and approve every additional producer separately. |
+| Record at most one unchanged confirmation/day/series | Production verified for Jon's; GYM HIGH enabled and awaiting its first scheduled postflight; five producers disabled | Preserve daily idempotency and approve every additional producer separately. |
 | Enable Stage 3 only after 7/14/30/60-day audits | Proposed | Separate enablement decision after evidence. |
 | Roadmap handling during accrual | Undecided | Keep SEO-15 `IN PROGRESS`, or mark it `BLOCKED` with the exact accrual blocker and temporarily advance to SEO-16. Do not introduce a `DATA ACCRUAL` status. |
 
@@ -539,11 +540,11 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Blocker | Affects | Safe response |
 |---|---|---|
 | Legacy history has no exact identity snapshot | Verified drops/value | Never qualify legacy rows; accrue new proven evidence. |
-| Jon's has `433/506` identity-proven series/confirmations; 73 identities remain incomplete or conflicting | Complete producer coverage | Remediate only evidence-proven exact packs in bounded batches; keep all other rows fail-closed. |
+| Jon's has `503/506` identity-proven series/confirmations; three identities remain incomplete or conflicting | Complete producer coverage | Remediate only evidence-proven exact packs in bounded batches; keep all other rows fail-closed. |
 | Partial/manual retailer automation | Historical breadth | Exclude affected rows; Stage 1 may proceed only if its gate independently passes. |
 | Six Pack 14-row recovery is not owner-applied | Six Pack freshness | Keep current DB state and handle through a separate approval. |
 | Full eBay read-only pass remains pending | eBay confidence | Do not run it here; exclude stale/unproven rows. |
-| Six additional Stage 2A producers are not approved | Proven accrual beyond Jon's | Approve each bounded producer separately after a verified readback. |
+| Five additional Stage 2A producers are not approved; GYM HIGH first scheduled producer postflight is pending | Proven accrual beyond Jon's | Verify GYM HIGH after its ordinary schedule; approve every further bounded producer separately after a verified readback. |
 | No elapsed proven history exists yet | Stage 3 | Hide historical sections until audits pass. |
 
 ## 15. Evidence and release log
@@ -556,6 +557,7 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Stage 2A schema/recorder | `1163b1870df28ffe696b23b7152695f4a47431eb`; staging hardening `741270b8d89f298e7f6337d69339bb89a4676225`; production selector `becf76014f059101f8da34105a9b2b2140c48880` | staging ledger `81`, fingerprint `65b43bf028656f3c85c8b769964c227c1f7769a74462b33210eb9fd354e67739`; production ledger `127`, fingerprint `896de918b58e068ba917340138563a99060d4d1a6cfacdc029ba575622c33f9b` | isolated migration, recorder, replay, atomic, rollback, production rehearsal and selector tests passed | production readback: seven disabled producers, zero series/proven observations, `3,006` legacy rows and zero catalogue/history row-count deltas | `PRODUCTION SCHEMA VERIFIED`; producer approval pending |
 | Jon's Stage 2A producer and exact-pack canary | producer run `32812270590`; canary alignment `04c9f58` | production ledger `128`, fingerprint `67ad0f35749d7b1ad0c88827d368ff2eacadc431a73688d3888a193a5db04694`; run `32883838868` | `506/506` scope, bounded five-row canary, apply and idempotency passed | `418` initial series/confirmations plus exactly five post-canary confirmations = `423/506`; 83 fail closed; six other producers disabled | `PRODUCTION VERIFIED`; accrual continues, public claims disabled |
 | Jon's reviewed servings batch 10 | preparation `2998da8`; ledger alignment `5a2f07f` | production ledger `129`, fingerprint `5554a3849061b9420528b17ff240bb64d05c9ce8c4a0b7ba9c3aa8b0765be903`; run `32886482475` | exact ten-row migration, `506/506` producer scope, apply and idempotency passed | exactly ten new variants and then ten new series/daily confirmations; independent readback `433/506`; 73 fail closed | `PRODUCTION VERIFIED`; accrual continues, public claims disabled |
+| Remaining-producer readiness audit and GYM HIGH enablement | `eb810ab` plus this evidence alignment | production ledger `141`, fingerprint `aaf93e1e0dd1e18d05a2ff887afba208079f601d1fae7f5c8df326b3b37274e6` | six scopes audited read-only: `1,801` mappings/offers, `1,120` exact-ready, `681` fail-closed; migration rehearsal and selector/contract tests passed | GYM HIGH enabled for exact `66`; `40` ready, `26` fail closed; Jon's also enabled; five others disabled; zero catalogue/history deltas and no manual workflow run | `PRODUCER ENABLED`; first scheduled postflight pending; public GYM HIGH pages remain owner-deferred |
 | 7-day audit | n/a | n/a | pending | pending | not due |
 | 14-day audit | n/a | n/a | earliest 14 days after an approved producer starts | pending | not due |
 | 30-day audit | n/a | n/a | recommended first publication decision after 30 days of approved accrual | pending | not due |

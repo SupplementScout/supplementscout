@@ -11,6 +11,31 @@
 
 This section records the full-project audit requested before further implementation. It is the binding execution reset. Where an older status, priority or proposed implementation elsewhere in this document conflicts with this section, this section wins. Historical sections remain as evidence, not as authority to restart completed work.
 
+### 0.0.22 SEO-15 remaining-producer audit and GYM HIGH enablement - 26 August 2026
+
+The production read-only readiness audit covered the exact approved scopes of
+all six Stage 2A producers other than Jon's: `1,801` mappings and `1,801`
+offers. `1,120` rows have complete exact-pack identity, `681` remain
+fail-closed, and `558` exact-ready rows had a check within 24 hours. The sealed
+evidence is
+`docs/rollouts/seo15-retailer-producer-readiness-audit-2026-08-26.json`.
+
+The owner separately approved unlocking GYM HIGH's observation producer. The
+existing guarded producer row is now enabled for exactly `66` reviewed
+mappings/offers. `40` are exact-ready and fresh; the recorder must continue to
+reject the other `26` without inference or base-product copying. Migration
+`20260826090000_enable_gym_high_price_observation_producer` applied with zero
+catalogue/history count deltas at production ledger `141`, fingerprint
+`aaf93e1e0dd1e18d05a2ff887afba208079f601d1fae7f5c8df326b3b37274e6`.
+Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
+House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
+was manually run, so GYM HIGH's first identity series and confirmations still
+require the next ordinary scheduled run and postflight verification.
+
+This approval changes only private Stage 2A observation accrual. GYM HIGH brand
+and retailer publication remains `owner_deferred`; Stage 3 and public
+price-drop claims remain disabled.
+
 ### 0.0.4 Current project checkpoint - 28 July 2026
 
 This checkpoint supersedes older counts, retailer states, active tasks and
@@ -2786,8 +2811,9 @@ currently `IN PROGRESS`; the mandatory return must occur before SEO-17 or any
 Stage 3 decision. `SEO-16` is complete and `LIVE VERIFIED`.
 Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
 live verified. Stage 2A identity foundation and the first bounded producer are
-production verified. Jon's Supplements is the only enabled producer; the other
-six remain disabled. Scheduled run `32812270590` succeeded across `506/506`
+production verified. Jon's Supplements and the separately owner-approved GYM
+HIGH scope are enabled producers; the other five remain disabled. Scheduled
+run `32812270590` succeeded across `506/506`
 mappings and offers, creating `418` immutable identity series and `418`
 identity-proven daily confirmations while `88` offers failed closed with
 `MISSING_OR_CONFLICTING_EXACT_IDENTITY`. The owner-approved five-row exact-pack
@@ -2844,8 +2870,10 @@ two 250g pouches. Offer `1459` has variable directions of one to two tablets
 twice daily and no exact servings-per-container evidence. These three require
 corrected owner/evidence review and must not be inferred. Public Stage 2
 remains blocked pending elapsed accrual, Stage 3 and public price-drop claims
-remain disabled, and GYM
-HIGH remains owner-deferred. `SEO-13` is complete and live verified from commit
+remain disabled. GYM HIGH's exact `66`-offer observation scope is enabled, with
+`40` exact-ready rows and `26` rows retained fail-closed; its first ordinary
+scheduled producer postflight is pending. GYM HIGH public brand and retailer
+publication remains owner-deferred. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
 `6048852742`. SEO-14 is live verified after launching useful,
 individually gated brand and retailer pages through the existing catalogue and
@@ -2906,10 +2934,12 @@ elapsed-time gate opens. The task remains `BLOCKED`: the earliest 14-day audit
 is 8 September 2026 and the recommended publication decision is after 24
 September. Do not start SEO-17 early or enable Stage 3/public price-drop claims.
 
-In parallel, the existing Jon's schedule may continue deterministic accrual.
-Current verified SEO-15 coverage is `503/506`; its earliest audit is 8
-September 2026 and the recommended publication decision is after 24 September.
-The three named conflict/deferred identities remain fail-closed, no other
+In parallel, the existing Jon's and GYM HIGH schedules may continue
+deterministic accrual. Jon's current verified SEO-15 coverage is `503/506`;
+its earliest audit is 8 September 2026 and the recommended publication decision
+is after 24 September. The three named Jon's conflict/deferred identities and
+26 incomplete GYM HIGH identities remain fail-closed. GYM HIGH's first
+scheduled producer result requires postflight verification, no further
 producer may be enabled without separate approval, and Stage 3 historical
 claims remain disabled.
 

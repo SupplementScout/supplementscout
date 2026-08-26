@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "seo15-remaining-retailer-producer-readiness-audit-v1",
+  "captured_at": "2026-08-26T08:09:34.729Z",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "production_writes": 0,
+  "totals": {
+    "retailers": 6,
+    "approved_scope_mappings": 1801,
+    "approved_scope_offers": 1801,
+    "exact_ready": 1120,
+    "not_ready": 681,
+    "exact_ready_fresh_24h": 558
+  },
+  "retailers": [
+    {"retailer_id":1,"slug":"gym-high","scope":66,"exact_ready":40,"not_ready":26,"exact_ready_fresh_24h":40,"latest_offer_check":"2026-08-26T04:52:57.29Z","missing":{"pack_count":12,"size_value":26,"size_unit":26},"technical_state":"CAPABLE_OWNER_DEFERRED_AT_AUDIT"},
+    {"retailer_id":7,"slug":"simply-supplements","scope":120,"exact_ready":0,"not_ready":120,"exact_ready_fresh_24h":0,"latest_offer_check":"2026-08-24T05:50:16.642Z","missing":{"pack_count":120,"size_value":120,"size_unit":120},"technical_state":"CAPABLE_DISABLED"},
+    {"retailer_id":9,"slug":"fit-house","scope":286,"exact_ready":166,"not_ready":120,"exact_ready_fresh_24h":166,"latest_offer_check":"2026-08-26T03:39:40.827Z","missing":{"pack_count":115,"size_value":120,"size_unit":120},"technical_state":"CAPABLE_DISABLED"},
+    {"retailer_id":3,"slug":"whey-okay","scope":586,"exact_ready":352,"not_ready":234,"exact_ready_fresh_24h":352,"latest_offer_check":"2026-08-26T03:27:29.823Z","missing":{"complete_delivered_price_stock":232,"pack_count":163,"size_value":164,"size_unit":164},"technical_state":"CAPABLE_DISABLED_APPROVED_586_ONLY"},
+    {"retailer_id":11,"slug":"6-pack-supplements","scope":506,"exact_ready":401,"not_ready":105,"exact_ready_fresh_24h":0,"latest_offer_check":"2026-08-20T03:56:59.298Z","missing":{"pack_count":25,"size_value":105,"size_unit":105},"technical_state":"BLOCKED_MASS_OOS"},
+    {"retailer_id":12,"slug":"ebay-uk","scope":237,"exact_ready":161,"not_ready":76,"exact_ready_fresh_24h":0,"latest_offer_check":"2026-08-25T06:12:10.43Z","missing":{"pack_count":66,"size_value":76,"size_unit":76},"technical_state":"BLOCKED_CONTINUITY"}
+  ],
+  "gym_high_detail": {
+    "unique_products": 25,
+    "unique_variants": 66,
+    "accessory_or_apparel_not_ready": 16,
+    "supplement_rows_with_base_product_candidate_fields": 10,
+    "policy": "Do not copy base-product fields or infer pack_count. The recorder must fail closed for all 26 incomplete rows."
+  },
+  "enablement": {
+    "owner_authority": "owner-chat-2026-08-26-unlock-gym-high-producer",
+    "migration": "20260826090000_enable_gym_high_price_observation_producer",
+    "commit": "eb810ab",
+    "rehearsal_confirmation": "b1e51ab00582d3a0",
+    "result": "PASS_COMMITTED",
+    "ledger_count": 141,
+    "ledger_fingerprint": "aaf93e1e0dd1e18d05a2ff887afba208079f601d1fae7f5c8df326b3b37274e6",
+    "enabled_producers": ["jon-s-supplements", "gym-high"],
+    "catalogue_count_deltas": {"products":0,"product_variants":0,"retailer_products":0,"offers":0,"price_history":0},
+    "workflow_run": "NOT_RUN",
+    "public_gym_high_pages": "OWNER_DEFERRED"
+  }
+}
