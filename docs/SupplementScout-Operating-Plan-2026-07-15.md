@@ -40,6 +40,18 @@ Migration `20260826110000_create_gym_high_shred_mode_exact_pack` then added the
 single owner-resolved Shred Mode variant at ledger `143`, fingerprint
 `27176e91f21f7e7a62d202e6924d4ad97290b453e90c296656704f1b7b84085b`,
 again without changing product, mapping, offer or history row counts.
+
+Fit House remains disabled, but its first guarded exact-pack alignment is now
+production verified. Migration
+`20260826120000_create_fit_house_exact_pack_batch_15` created exactly 12
+explicit variants and rebound three rows to existing exact variants, increasing
+Fit House readiness from `166/286` to `181/286`. Products, mappings, offers and
+price history remained at `1,112`, `2,761`, `2,761` and `4,001`; production
+ledger `144` has fingerprint
+`698323b6ebe6b201eb3bb7eb719c5290398089a667314ce923a4c5cf1da3bbb6`.
+Six conflicting identities remain fail-closed. Evidence is sealed in
+`docs/rollouts/fit-house-exact-pack-batch-15-2026-08-26.json`.
+
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
 House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
 was manually run, so GYM HIGH's first identity series and confirmations still

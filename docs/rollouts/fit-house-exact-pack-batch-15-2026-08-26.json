@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "REHEARSED_NOT_APPLIED",
+  "status": "PRODUCTION_APPLIED_VERIFIED",
   "authority": "owner-chat-2026-08-26-complete-fit-house-safe-batch-15",
   "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
   "production_read_only_audit": {
@@ -41,6 +41,25 @@
     "fit_house_exact_ready": "166 -> 181 -> 166",
     "target_rows": 15,
     "database_writes_committed": 0
+  },
+  "production_apply": {
+    "result": "PASS",
+    "migration": "20260826120000_create_fit_house_exact_pack_batch_15",
+    "ledger_count": 144,
+    "ledger_fingerprint": "698323b6ebe6b201eb3bb7eb719c5290398089a667314ce923a4c5cf1da3bbb6",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2735, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_after": { "products": 1112, "product_variants": 2747, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "fit_house_exact_ready": "166 -> 181"
+  },
+  "production_read_only_postflight": {
+    "result": "PASS",
+    "database_writes": 0,
+    "ledger_count": 144,
+    "ledger_fingerprint": "698323b6ebe6b201eb3bb7eb719c5290398089a667314ce923a4c5cf1da3bbb6",
+    "fit_house_scope": 286,
+    "fit_house_exact_ready": 181,
+    "target_rows_exact_ready": 15,
+    "excluded_conflicts_still_blocked": 6
   },
   "rows": [
     { "mapping_id": 689, "offer_id": 697, "product_id": 679, "from_variant_id": 532, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 1000, "size_unit": "g" } },

@@ -156,7 +156,10 @@ test("Fit House exact-pack batch 15 creates 12 variants, reuses 3 and excludes c
   const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826120000_create_fit_house_exact_pack_batch_15.sql"), "utf8");
   const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-exact-pack-batch-15-2026-08-26.json"), "utf8"));
   const approvedMappings = [689,690,701,708,736,748,749,800,801,858,860,865,866,947,2098];
-  assert.equal(evidence.status, "REHEARSED_NOT_APPLIED");
+  assert.equal(evidence.status, "PRODUCTION_APPLIED_VERIFIED");
+  assert.equal(evidence.production_apply.result, "PASS");
+  assert.equal(evidence.production_apply.ledger_count, 144);
+  assert.equal(evidence.production_read_only_postflight.database_writes, 0);
   assert.equal(evidence.production_transaction_rollback_rehearsal.result, "PASS");
   assert.equal(evidence.expected.created_variants, 12);
   assert.equal(evidence.expected.existing_variant_rebinds, 3);
