@@ -117,7 +117,7 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) to `503/506` (`32915426696`). The 26 August readiness audit covered all `1,801` approved mappings/offers of the other six producers: `1,120` were exact-ready and `681` failed closed at capture. Owner-approved GYM HIGH producer enablement is live for its exact `66`-offer scope; guarded alignments increased it to `50` ready, with only 16 apparel/accessory identities intentionally blocked. Fit House remains disabled; seven guarded alignments increased readiness from `166/286` to `260/286`. All six former source-present conflicts are production resolved, including the two DEFIB rebinds and explicit owner-approved Orange override for retailer mapping `687`. Its remaining 26 rows are all absent from the fresh complete source and remain fail-closed. The other four producers remain disabled. No GYM HIGH or Fit House workflow was manually run. Blocker: the minimum 14-day identity-proven history cannot exist before 8 September 2026; the recommended first publication decision is after 24 September. Stage 3/public price-drop claims remain disabled. Mandatory return to SEO-15 is preserved. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) to `503/506` (`32915426696`). Owner-approved GYM HIGH producer enablement is live for its exact `66`-offer scope; guarded alignments increased it to `50` ready, with 16 apparel/accessory identities intentionally blocked and its first scheduled postflight pending. Fit House is now production verified: migration `20260826190000` enabled only its exact `286` scope, and controlled run `32986975109` created `260` identity series/daily confirmations while 26 incomplete source-absent identities failed closed, with zero anomalies or duplicates. Jon's, GYM HIGH and Fit House are enabled; the other four producers remain disabled. Blocker: the minimum 14-day identity-proven history cannot exist before 8 September 2026 for Jon's or 9 September for Fit House; the recommended first publication decisions are after 24 and 25 September respectively. Stage 3/public price-drop claims remain disabled. Mandatory return to SEO-15 is preserved. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
@@ -282,6 +282,33 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 26 August 2026 - SEO-15 Fit House Stage 2A producer PRODUCTION VERIFIED
+
+- Owner-approved commit `6e5a3a214b9064050d20f6d54e9ed51c292c20ab`
+  reused the existing Fit House guarded refresh and central recorder. Four
+  historical missing-source manifest rows accept only their already approved
+  exact canonical successors; the recorder contract and runtime policy
+  fingerprint were not changed.
+- Production migration `20260826190000_enable_fit_house_price_observation_producer`
+  applied at ledger `151`, fingerprint
+  `12ece4c71ab77f1488afaeac6dc94049ff65b07c30309fd01bf7e8b0f30db28a`.
+  It enabled only retailer `9`; products `1,112`, variants `2,821`, mappings
+  `2,761`, offers `2,761` and price history `4,001` were unchanged.
+- Controlled workflow run `32986975109`, artifact `9613320669`, passed tests,
+  preflight, apply, fresh-source idempotency and artifact upload. Its exact
+  scope was `286/286`, classification `VERIFY_NO_CHANGE: 286`, with six
+  validator batches and zero catalogue creates.
+- Independent read-only production postflight at `2026-08-26T16:15:08.165Z`
+  confirmed `260` Fit House identity series and `260` daily confirmations.
+  Exactly `26` consumed plans were skipped with
+  `MISSING_OR_CONFLICTING_EXACT_IDENTITY`; anomalies, duplicate series,
+  duplicate daily confirmations and other-retailer series changes were all
+  zero. Enabled producers are exactly GYM HIGH, Fit House and Jon's.
+- Fit House coverage is `260/286`; the 26 incomplete source-absent identities
+  remain fail-closed. Stage 3 and public price-drop claims remain disabled.
+  GYM HIGH public publication remains owner-deferred. Sealed evidence is in
+  `docs/rollouts/fit-house-price-observation-producer-preflight-2026-08-26.json`.
 
 ### 26 August 2026 - SEO-16 guarded two-product comparison LIVE VERIFIED
 

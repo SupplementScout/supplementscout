@@ -41,7 +41,7 @@ single owner-resolved Shred Mode variant at ledger `143`, fingerprint
 `27176e91f21f7e7a62d202e6924d4ad97290b453e90c296656704f1b7b84085b`,
 again without changing product, mapping, offer or history row counts.
 
-Fit House remains disabled, but its first guarded exact-pack alignment is now
+At that checkpoint Fit House remained disabled, but its first guarded exact-pack alignment was
 production verified. Migration
 `20260826120000_create_fit_house_exact_pack_batch_15` created exactly 12
 explicit variants and rebound three rows to existing exact variants, increasing
@@ -137,13 +137,30 @@ and remain fail-closed. Products, mappings, offers, price history, identity
 series and outbound-click counts were preserved; product variants increased
 from `2,817` to `2,821`. Production ledger `150` has fingerprint
 `cfa0fb2f545be226a1b72ebcda8c9adb0296b862402f5a12e4bb11addb9e235f`.
-Fit House remains disabled and no workflow was run. Evidence is sealed in
+The exact-pack correction evidence is sealed in
 `docs/rollouts/fit-house-six-exact-pack-conflicts-2026-08-26.json`.
 
-Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
-House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
-was manually run, so GYM HIGH's first identity series and confirmations still
-require the next ordinary scheduled run and postflight verification.
+The owner subsequently approved the Fit House producer enablement and one
+controlled run. Commit `6e5a3a2` aligned four historical missing-source
+manifests only to their already owner-approved exact canonical successors and
+prepared the production-only enablement. Migration
+`20260826190000_enable_fit_house_price_observation_producer` changed only the
+Fit House producer flag at production ledger `151`, fingerprint
+`12ece4c71ab77f1488afaeac6dc94049ff65b07c30309fd01bf7e8b0f30db28a`;
+products, variants, mappings, offers and legacy price history were unchanged.
+Controlled workflow run `32986975109` then passed preflight, apply,
+idempotency and artifact upload across `286/286` mappings/offers. It created
+exactly `260` immutable identity series and `260` daily confirmations. The
+remaining `26` source-absent incomplete identities were skipped fail-closed
+with `MISSING_OR_CONFLICTING_EXACT_IDENTITY`. Independent production readback
+confirmed zero anomalies, duplicate series, duplicate daily confirmations or
+other-retailer series changes. Evidence is sealed in
+`docs/rollouts/fit-house-price-observation-producer-preflight-2026-08-26.json`.
+
+Jon's, GYM HIGH and Fit House are the enabled producers; Simply Supplements,
+Whey Okay, 6 Pack Supplements and eBay UK remain disabled. GYM HIGH's first
+identity series and confirmations still require its next ordinary scheduled
+run and postflight verification.
 
 This approval changes only private Stage 2A observation accrual. GYM HIGH brand
 and retailer publication remains `owner_deferred`; Stage 3 and public
@@ -2923,9 +2940,9 @@ temporarily `BLOCKED` solely by elapsed accrual. No SEO implementation is
 currently `IN PROGRESS`; the mandatory return must occur before SEO-17 or any
 Stage 3 decision. `SEO-16` is complete and `LIVE VERIFIED`.
 Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
-live verified. Stage 2A identity foundation and the first bounded producer are
-production verified. Jon's Supplements and the separately owner-approved GYM
-HIGH scope are enabled producers; the other five remain disabled. Scheduled
+live verified. Stage 2A identity foundation is production verified. Jon's
+Supplements, the separately owner-approved GYM HIGH scope and Fit House are
+enabled producers; the other four remain disabled. Scheduled
 run `32812270590` succeeded across `506/506`
 mappings and offers, creating `418` immutable identity series and `418`
 identity-proven daily confirmations while `88` offers failed closed with
@@ -2974,6 +2991,16 @@ pass made zero writes. Independent production readback confirms `503/506`
 current exact mappings, 503 matching identity series, 503 daily confirmations
 dated 26 August, zero duplicate current series and zero series for other
 retailers.
+
+Fit House producer migration `20260826190000` applied at production ledger
+`151`, fingerprint
+`12ece4c71ab77f1488afaeac6dc94049ff65b07c30309fd01bf7e8b0f30db28a`.
+Controlled run `32986975109` on commit `6e5a3a2` passed its `286/286` preflight,
+apply and idempotency gates, creating exactly `260` identity series and `260`
+daily confirmations. The other `26` plans were recorded as fail-closed skips
+with `MISSING_OR_CONFLICTING_EXACT_IDENTITY`. Independent readback confirmed
+zero anomalies, duplicate series, duplicate daily confirmations and
+other-retailer series changes. Fit House coverage is therefore `260/286`.
 
 Only offers `1024`, `1451` and `1459` remain fail-closed. Offer `1024` has an
 owner-entered 60-serving value that conflicts with manufacturer evidence for a
@@ -3047,11 +3074,15 @@ elapsed-time gate opens. The task remains `BLOCKED`: the earliest 14-day audit
 is 8 September 2026 and the recommended publication decision is after 24
 September. Do not start SEO-17 early or enable Stage 3/public price-drop claims.
 
-In parallel, the existing Jon's and GYM HIGH schedules may continue
-deterministic accrual. Jon's current verified SEO-15 coverage is `503/506`;
+In parallel, the existing Jon's, GYM HIGH and Fit House schedules may continue
+deterministic accrual. Jon's current verified SEO-15 coverage is `503/506` and
+Fit House is `260/286`;
 its earliest audit is 8 September 2026 and the recommended publication decision
-is after 24 September. The three named Jon's conflict/deferred identities and
-16 intentionally blocked GYM HIGH accessory/apparel identities remain fail-closed. GYM HIGH's first
+is after 24 September. Fit House's earliest 14-day audit is 9 September and its
+recommended publication decision is after 25 September. The three named Jon's
+conflict/deferred identities, 26 Fit House incomplete source-absent identities
+and 16 intentionally blocked GYM HIGH accessory/apparel identities remain
+fail-closed. GYM HIGH's first
 scheduled producer result requires postflight verification, no further
 producer may be enabled without separate approval, and Stage 3 historical
 claims remain disabled.

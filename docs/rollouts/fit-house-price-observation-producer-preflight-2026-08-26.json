@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "OWNER_APPROVED_PENDING_PRODUCTION_APPLY",
+  "status": "PRODUCTION_VERIFIED",
   "authority": "owner-chat-2026-08-26-proceed-quickly-safely-complete-fit-house",
   "owner_approval": {
     "captured_on": "2026-08-26",
@@ -11,7 +11,7 @@
     "id": 9,
     "slug": "fit-house",
     "approved_scope": 286,
-    "producer_enabled": false
+    "producer_enabled": true
   },
   "canonical_alignment": {
     "result": "PASS",
@@ -68,11 +68,58 @@
     "fit_house_exact_ready": "260 -> 260 -> 260",
     "database_writes_committed": 0
   },
-  "remaining_gates": [
-    "PRODUCTION_APPLY_OF_20260826190000",
-    "ONE_CONTROLLED_MANUAL_FIT_HOUSE_WORKFLOW_RUN",
-    "INDEPENDENT_READ_ONLY_POSTFLIGHT"
-  ],
+  "production_apply": {
+    "result": "PASS",
+    "commit": "6e5a3a214b9064050d20f6d54e9ed51c292c20ab",
+    "migration": "20260826190000_enable_fit_house_price_observation_producer",
+    "ledger_count": 151,
+    "ledger_fingerprint": "12ece4c71ab77f1488afaeac6dc94049ff65b07c30309fd01bf7e8b0f30db28a",
+    "enabled_producers": [1, 9, 10],
+    "catalogue_count_deltas": 0
+  },
+  "first_controlled_run": {
+    "result": "PASS",
+    "github_run_id": "32986975109",
+    "github_run_attempt": 1,
+    "artifact_id": "9613320669",
+    "scope": "286/286",
+    "classification": { "VERIFY_NO_CHANGE": 286 },
+    "validator_batches": 6,
+    "identity_series_created": 260,
+    "daily_confirmations_created": 260,
+    "skipped": 26,
+    "skip_reason": "MISSING_OR_CONFLICTING_EXACT_IDENTITY",
+    "anomalies": 0,
+    "duplicate_series": 0,
+    "duplicate_daily_confirmations": 0,
+    "idempotency": "PASS",
+    "source_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb"
+  },
+  "independent_read_only_postflight": {
+    "result": "PASS",
+    "captured_at": "2026-08-26T16:15:08.165Z",
+    "database_writes": 0,
+    "fit_house_series": 260,
+    "fit_house_observations": 260,
+    "fit_house_daily_confirmations": 260,
+    "fit_house_anomalies": 0,
+    "fit_house_duplicate_series": 0,
+    "fit_house_duplicate_daily_confirmations": 0,
+    "consumed_plans": 286,
+    "recorded_plans": 260,
+    "fail_closed_plans": 26,
+    "fail_closed_reason": "MISSING_OR_CONFLICTING_EXACT_IDENTITY",
+    "other_retailer_series_delta": 0,
+    "catalogue": {
+      "products": 1112,
+      "product_variants": 2821,
+      "retailer_products": 2761,
+      "offers": 2761,
+      "price_history": 4261,
+      "price_identity_series": 763
+    }
+  },
+  "remaining_gates": [],
   "owner_authorized_actions": [
     "ENABLE_PRODUCER",
     "RUN_WORKFLOW",

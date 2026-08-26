@@ -125,7 +125,17 @@ test("Fit House producer enablement is exact, production-only and rollback-safe"
   assert.equal(evidence.identity_readiness.exact_pack_ready, 260);
   assert.equal(evidence.identity_readiness.fail_closed_incomplete, 26);
   assert.equal(evidence.production_transaction_rollback_rehearsal.database_writes_committed, 0);
-  assert.equal(evidence.retailer.producer_enabled, false);
+  assert.equal(evidence.status, "PRODUCTION_VERIFIED");
+  assert.equal(evidence.retailer.producer_enabled, true);
+  assert.equal(evidence.production_apply.ledger_count, 151);
+  assert.equal(evidence.first_controlled_run.github_run_id, "32986975109");
+  assert.equal(evidence.first_controlled_run.identity_series_created, 260);
+  assert.equal(evidence.first_controlled_run.daily_confirmations_created, 260);
+  assert.equal(evidence.first_controlled_run.skipped, 26);
+  assert.equal(evidence.first_controlled_run.skip_reason, "MISSING_OR_CONFLICTING_EXACT_IDENTITY");
+  assert.equal(evidence.independent_read_only_postflight.result, "PASS");
+  assert.equal(evidence.independent_read_only_postflight.fit_house_anomalies, 0);
+  assert.deepEqual(evidence.remaining_gates, []);
 });
 
 test("GYM HIGH exact-pack 9 reuses the guarded migration path and leaves 17 rows blocked", () => {
