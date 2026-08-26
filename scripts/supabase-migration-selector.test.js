@@ -151,9 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the GYM HIGH exact-pack 9 migration as applied", () => {
+test("production records Shred Mode as one reviewed pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260826110000_create_gym_high_shred_mode_exact_pack.sql",
+    sha256: "69167f6bb56d00e8b926e677b9bdd84135beed2556e454c5860800076afca75d",
+    expectedCatalogueDeltas: { product_variants: 1 },
+  }]);
   assert.equal(contract.ledgerCount, 142);
   assert.equal(
     contract.ledgerFingerprint,
@@ -234,7 +238,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with no pending migration", () => {
+test("production binds its exact ledger and one reviewed pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -262,12 +266,15 @@ test("production binds its exact ledger with no pending migration", () => {
   });
   assert.equal(result.ledger_count, 142);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 0);
-  assert.equal(result.selected_files.length, 142);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending.length, 1);
+  assert.equal(result.selected_files.length, 143);
+  assert.deepEqual(result.pending_files, ["20260826110000_create_gym_high_shred_mode_exact_pack.sql"]);
+  assert.equal(result.pending_file, "20260826110000_create_gym_high_shred_mode_exact_pack.sql");
+  assert.equal(result.pending_sha256, "69167f6bb56d00e8b926e677b9bdd84135beed2556e454c5860800076afca75d");
+  assert.deepEqual(result.pending_sha256s, {
+    "20260826110000_create_gym_high_shred_mode_exact_pack.sql":
+      "69167f6bb56d00e8b926e677b9bdd84135beed2556e454c5860800076afca75d",
+  });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -279,6 +286,9 @@ test("production binds its exact ledger with no pending migration", () => {
   ));
   assert.ok(result.selected_files.includes(
     "20260826100000_create_gym_high_exact_pack_9.sql",
+  ));
+  assert.ok(result.selected_files.includes(
+    "20260826110000_create_gym_high_shred_mode_exact_pack.sql",
   ));
 });
 

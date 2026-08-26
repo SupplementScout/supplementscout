@@ -132,6 +132,25 @@ test("GYM HIGH exact-pack 9 reuses the guarded migration path and leaves 17 rows
   }
 });
 
+test("GYM HIGH Shred Mode owner decision creates one exact 60-serving identity", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826110000_create_gym_high_shred_mode_exact_pack.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826110000_create_gym_high_shred_mode_exact_pack.sql"), "utf8");
+  const decision = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/gym-high-shred-mode-owner-decision-2026-08-26.json"), "utf8"));
+  assert.deepEqual(decision.decision, { pack_count: 1, size_value: 60, size_unit: "servings", capsules_per_serving: 1 });
+  assert.match(migration, /owner-chat-2026-08-26-gym-high-shred-mode-60-servings/);
+  assert.match(migration, /id=550/);
+  assert.match(migration, /id=136/);
+  assert.match(migration, /product_id=508/);
+  assert.match(migration, /'60-servings','60 Servings',null,null,60,'servings',1/);
+  assert.match(migration, /exact-pack baseline is not 49/);
+  assert.match(migration, /is not null\)<>50/);
+  assert.match(migration, /to_jsonb\(rp\)-'product_variant_id'/);
+  assert.match(migration, /to_jsonb\(o\)-'product_variant_id'/);
+  assert.match(rollback, /version='20260826110000'/);
+  assert.match(rollback, /price_identity_series where offer_id=550/);
+  assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
+});
+
 test("daily volume estimates are bounded by one confirmation per offer", () => {
   assert.equal(estimateObservationVolume(2761, 30), 82_830);
   assert.equal(estimateObservationVolume(1564, 30), 46_920);

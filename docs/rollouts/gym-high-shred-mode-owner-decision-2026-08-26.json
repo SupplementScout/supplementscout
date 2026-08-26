@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "kind": "gym-high-shred-mode-owner-exact-pack-decision-v1",
+  "authority": "owner-chat-2026-08-26-gym-high-shred-mode-60-servings",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "target": {"offer_id":550,"mapping_id":136,"product_id":508,"default_variant_id":435,"external_product_id":"2796","external_variant_id":"2796"},
+  "decision": {"pack_count":1,"size_value":60,"size_unit":"servings","capsules_per_serving":1},
+  "approved_label_evidence": {"path":"data/verified/gym-high-verified-products-batch-2.csv","sha256":"cb7b1e71ed449f89e1a2bb1d96a9e7fb3e21ab6403d6723bc05ea31c4367c6bf","fact":"60 capsules, 60 servings, 1 capsule per serving"},
+  "conflict_resolution": "The owner explicitly selected the one-capsule commercial serving identity despite the retailer page also presenting variable one-to-two-capsule directions.",
+  "boundary": "This decision establishes exact pack identity for the stored offer. It is not a public dosage, safety or health recommendation and does not change the recorder contract.",
+  "expected_coverage": {"before":"49/66","after":"50/66","remaining_blocked":16},
+  "migration": "supabase/migrations/20260826110000_create_gym_high_shred_mode_exact_pack.sql",
+  "rollback": "supabase/rollbacks/20260826110000_create_gym_high_shred_mode_exact_pack.sql",
+  "status": "APPROVED_FOR_GUARDED_REHEARSAL_AND_APPLY"
+}
