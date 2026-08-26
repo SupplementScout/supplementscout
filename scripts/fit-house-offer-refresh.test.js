@@ -6,6 +6,7 @@ const test = require("node:test");
 
 const config = require("../config/retailers/fit-house-offer-sync.json");
 const {
+  APPROVED_CANONICAL_REBINDINGS,
   approvedStableOosBaseline,
   applyOwnerApprovedMissingVariantGuardBaseline,
   applyReviewedOffer697GuardProof,
@@ -169,6 +170,24 @@ test("owner-approved Fit House absence becomes exact OOS once and is replay-safe
   const replay = reconcileOwnerApprovedMissingVariant([record], [], reviewed);
   assert.equal(replay.newUnavailableCount, 0);
   assert.equal(replay.sourceVariants[0].in_stock, false);
+});
+
+test("owner-approved Fit House absence accepts only the later exact-pack canonical successor", () => {
+  const reviewed = loadOwnerApprovedMissingVariantManifest();
+  const row = reviewed.manifest.rows[0];
+  const record = {
+    product: { id: row.canonical_product_id },
+    variant: { id: "2988", variant_key: "1000g", display_name: "1kg", size_value: 1000, size_unit: "g", pack_count: 1, product_format: "powder" },
+    mapping: { id: row.mapping_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: null, external_url: row.url },
+    offer: { id: row.offer_id, price: row.old_price, shipping_cost: "3.99", total_price: "30.98", in_stock: false, url: row.url },
+  };
+  assert.doesNotThrow(() => reconcileOwnerApprovedMissingVariant([record], [], reviewed));
+  assert.throws(() => reconcileOwnerApprovedMissingVariant([{ ...record, variant: { ...record.variant, size_value: 300 } }], [], reviewed), /no longer matches live canonical state/);
+});
+
+test("audited missing evidence accepts only four owner-approved exact-pack rebindings", () => {
+  assert.deepEqual(APPROVED_CANONICAL_REBINDINGS.map((row) => row.mapping_id), ["689", "736", "864", "865"]);
+  assert.equal(new Set(APPROVED_CANONICAL_REBINDINGS.map((row) => row.from_variant_id)).size, 4);
 });
 
 test("reviewed offer 697 presents one exact OOS as a blocked guard proof without weakening routine limits", () => {

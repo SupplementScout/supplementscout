@@ -105,6 +105,29 @@ test("GYM HIGH producer enablement is exact, production-only and rollback-safe",
   assert.doesNotMatch(rollback, /delete from public\.(price_history|price_identity_series)/i);
 });
 
+test("Fit House producer enablement is exact, production-only and rollback-safe", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826190000_enable_fit_house_price_observation_producer.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826190000_enable_fit_house_price_observation_producer.sql"), "utf8");
+  const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-price-observation-producer-preflight-2026-08-26.json"), "utf8"));
+  assert.match(migration, /owner-chat-2026-08-26-enable-fit-house-after-286-no-change-preflight/);
+  assert.match(migration, /target_environment' <> 'PRODUCTION'/);
+  assert.match(migration, /source_importer='retailer_offer_mixed_batch'/);
+  assert.match(migration, /approved_scope='approved-286'/);
+  assert.match(migration, /\) <> 260 then/);
+  assert.match(migration, /price_identity_series where retailer_id=9\)<>0/);
+  assert.match(migration, /set enabled=true,updated_at=clock_timestamp\(\)/);
+  assert.match(migration, /public_use='eligible-after-separate-approval'/);
+  assert.doesNotMatch(migration, /update public\.(products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(rollback, /set enabled=false,updated_at=clock_timestamp\(\)/);
+  assert.doesNotMatch(rollback, /delete from public\.(price_history|price_identity_series)/i);
+  assert.equal(evidence.production_read_only_preflight.result, "PASS");
+  assert.equal(evidence.production_read_only_preflight.changed_rows, 0);
+  assert.equal(evidence.identity_readiness.exact_pack_ready, 260);
+  assert.equal(evidence.identity_readiness.fail_closed_incomplete, 26);
+  assert.equal(evidence.production_transaction_rollback_rehearsal.database_writes_committed, 0);
+  assert.equal(evidence.retailer.producer_enabled, false);
+});
+
 test("GYM HIGH exact-pack 9 reuses the guarded migration path and leaves 17 rows blocked", () => {
   const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826100000_create_gym_high_exact_pack_9.sql"), "utf8");
   const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826100000_create_gym_high_exact_pack_9.sql"), "utf8");

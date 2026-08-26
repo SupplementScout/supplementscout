@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "status": "OWNER_APPROVED_PENDING_PRODUCTION_APPLY",
+  "authority": "owner-chat-2026-08-26-proceed-quickly-safely-complete-fit-house",
+  "owner_approval": {
+    "captured_on": "2026-08-26",
+    "decision": "APPROVED",
+    "scope": "COMMIT_PUSH_PRODUCTION_ENABLEMENT_ONE_CONTROLLED_MANUAL_RUN_AND_READ_ONLY_POSTFLIGHT"
+  },
+  "retailer": {
+    "id": 9,
+    "slug": "fit-house",
+    "approved_scope": 286,
+    "producer_enabled": false
+  },
+  "canonical_alignment": {
+    "result": "PASS",
+    "purpose": "Keep historical missing-source evidence valid after later owner-approved exact-pack rebindings without changing the runtime policy fingerprint.",
+    "mapping_ids": [689, 736, 864, 865],
+    "runtime_policy_fingerprint": "d72ab8f4b44cdc799d7743544b346eb73ae4e335d3b40b596d597a1165d21abf",
+    "adapter_sha256": "0b1ab84933f8b2abb792b009a7ace2c3901f95b13926989428a41072e0ff908f"
+  },
+  "production_read_only_preflight": {
+    "result": "PASS",
+    "captured_at": "2026-08-26T15:42:02.478Z",
+    "completed_at": "2026-08-26T15:42:14.893Z",
+    "source_products": 251,
+    "source_variants": 346,
+    "source_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "approved_mappings": 286,
+    "approved_offers": 286,
+    "classification": { "VERIFY_NO_CHANGE": 286 },
+    "validator_batches": 6,
+    "changed_rows": 0,
+    "current_oos": 103,
+    "new_oos": 0,
+    "source_absent_variants": 78,
+    "source_absent_policy": "EXISTING_AUDITED_FAIL_CLOSED_SYNTHETIC_OOS_NO_NEW_OOS",
+    "catalogue_creates": 0,
+    "database_writes": 0
+  },
+  "identity_readiness": {
+    "exact_pack_ready": 260,
+    "fail_closed_incomplete": 26,
+    "expected_first_run_identity_series": 260,
+    "expected_first_run_daily_confirmations": 260,
+    "expected_skips": 26,
+    "expected_skip_reason": "MISSING_OR_CONFLICTING_EXACT_IDENTITY",
+    "existing_fit_house_identity_series": 0
+  },
+  "enablement_package": {
+    "migration": "20260826190000_enable_fit_house_price_observation_producer",
+    "migration_sha256": "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651",
+    "rollback_sha256": "eba9cdb7d47c6fdebf8b8d8cb255c43abb9a4b3529b8853d8b1a1aff525c1e6f",
+    "scope": "ONE_PRICE_OBSERVATION_PRODUCER_ENABLED_FLAG_ONLY",
+    "catalogue_writes": 0,
+    "price_history_writes": 0
+  },
+  "production_transaction_rollback_rehearsal": {
+    "result": "PASS",
+    "enabled_producers": "[1,10] -> [1,9,10] -> [1,10]",
+    "products": "1112 -> 1112 -> 1112",
+    "product_variants": "2821 -> 2821 -> 2821",
+    "retailer_products": "2761 -> 2761 -> 2761",
+    "offers": "2761 -> 2761 -> 2761",
+    "price_history": "4001 -> 4001 -> 4001",
+    "price_identity_series": "503 -> 503 -> 503",
+    "fit_house_exact_ready": "260 -> 260 -> 260",
+    "database_writes_committed": 0
+  },
+  "remaining_gates": [
+    "PRODUCTION_APPLY_OF_20260826190000",
+    "ONE_CONTROLLED_MANUAL_FIT_HOUSE_WORKFLOW_RUN",
+    "INDEPENDENT_READ_ONLY_POSTFLIGHT"
+  ],
+  "owner_authorized_actions": [
+    "ENABLE_PRODUCER",
+    "RUN_WORKFLOW",
+    "CREATE_PRICE_OBSERVATIONS"
+  ]
+}

@@ -153,7 +153,8 @@ test("a changed excluded migration SHA fails closed", () => {
 
 test("production records the reviewed Fit House six-conflict correction as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.pending.length, 1);
+  assert.equal(contract.pending[0].filename, "20260826190000_enable_fit_house_price_observation_producer.sql");
   assert.equal(contract.ledgerCount, 150);
   assert.equal(
     contract.ledgerFingerprint,
@@ -234,7 +235,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the six-conflict correction applied", () => {
+test("production binds its exact ledger and one pending Fit House producer enablement", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -262,12 +263,12 @@ test("production binds its exact ledger with the six-conflict correction applied
   });
   assert.equal(result.ledger_count, 150);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 0);
-  assert.equal(result.selected_files.length, 150);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending, ["20260826190000_enable_fit_house_price_observation_producer"]);
+  assert.equal(result.selected_files.length, 151);
+  assert.deepEqual(result.pending_files, ["20260826190000_enable_fit_house_price_observation_producer.sql"]);
+  assert.equal(result.pending_file, "20260826190000_enable_fit_house_price_observation_producer.sql");
+  assert.equal(result.pending_sha256, "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651");
+  assert.deepEqual(result.pending_sha256s, { "20260826190000_enable_fit_house_price_observation_producer.sql": "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651" });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -301,6 +302,9 @@ test("production binds its exact ledger with the six-conflict correction applied
   ));
   assert.ok(result.selected_files.includes(
     "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
+  ));
+  assert.ok(result.selected_files.includes(
+    "20260826190000_enable_fit_house_price_observation_producer.sql",
   ));
 });
 
@@ -373,6 +377,7 @@ test("staging excludes the production-only exact-pack migrations byte-for-byte",
     "20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql",
     "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
     "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
+    "20260826190000_enable_fit_house_price_observation_producer.sql",
   ]) {
     assert.ok(result.excluded_files.includes(filename));
     assert.ok(!result.selected_files.includes(filename));

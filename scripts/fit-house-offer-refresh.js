@@ -29,6 +29,12 @@ const OUT=path.join(ROOT,"tmp",config.output_directory);
 const TARGETS={staging:{environment:"STAGING",ref:"hxnrsyyqffztlvcrtgbf",identity:"supplementscout-staging:hxnrsyyqffztlvcrtgbf"},production:{environment:"PRODUCTION",ref:"aftboxmrdgyhizicfsfu",identity:"supplementscout-production:aftboxmrdgyhizicfsfu"}};
 const ZERO_ROWS={products:0,product_variants:0,retailer_products:0,offers:0,price_history:0};
 const ZERO_LOGICAL={offer_price_updates:0,offer_shipping_updates:0,offer_total_updates:0,offer_stock_updates:0,offer_url_updates:0,mapping_url_updates:0,mapping_updated_at_updates:0,last_checked_at_updates:0};
+const APPROVED_CANONICAL_REBINDINGS=Object.freeze([
+  {mapping_id:"689",from_variant_id:"532",variant_key:"1000g",display_name:"1kg",size_value:1000,size_unit:"g",pack_count:1,product_format:"powder"},
+  {mapping_id:"736",from_variant_id:"565",variant_key:"natural-200g",display_name:"200g / Natural",size_value:200,size_unit:"g",pack_count:1,product_format:"powder"},
+  {mapping_id:"864",from_variant_id:"624",variant_key:"60-servings",display_name:"60 Servings",size_value:60,size_unit:"servings",pack_count:1,product_format:"capsule"},
+  {mapping_id:"865",from_variant_id:"630",variant_key:"unflavoured-250g",display_name:"250g / Unflavoured",size_value:250,size_unit:"g",pack_count:1,product_format:"powder"},
+]);
 
 class RefreshError extends Error{
   constructor(code,message,stage,detail={}){super(message);this.name="RefreshError";this.code=code;this.stage=stage;this.detail=detail}
@@ -179,9 +185,21 @@ function loadOwnerApprovedMissingVariantManifest(){
   return{manifest,sha256:digest};
 }
 
+function isApprovedCanonicalSuccessor(record,row){
+  if(String(record.variant.id)===row.canonical_variant_id)return true;
+  const alignment=APPROVED_CANONICAL_REBINDINGS.find(item=>item.mapping_id===String(row.mapping_id)&&item.from_variant_id===String(row.canonical_variant_id));
+  return Boolean(alignment)
+    &&record.variant.variant_key===alignment.variant_key
+    &&record.variant.display_name===alignment.display_name
+    &&Number(record.variant.size_value)===alignment.size_value
+    &&record.variant.size_unit===alignment.size_unit
+    &&Number(record.variant.pack_count)===alignment.pack_count
+    &&record.variant.product_format===alignment.product_format;
+}
+
 function reconcileOwnerApprovedMissingVariant(records,sourceVariants,reviewed=loadOwnerApprovedMissingVariantManifest()){
   const row=reviewed.manifest.rows[0],record=records.find(item=>String(item.mapping.id)===row.mapping_id),sourceIds=new Set(sourceVariants.map(item=>String(item.external_variant_id)));
-  invariant(record&&String(record.offer.id)===row.offer_id&&String(record.product.id)===row.canonical_product_id&&String(record.variant.id)===row.canonical_variant_id&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&(record.mapping.external_sku||null)===row.external_sku&&money(record.offer.price)===row.old_price&&[row.old_stock,row.new_stock].includes(Boolean(record.offer.in_stock))&&record.offer.url===row.url&&record.mapping.external_url===row.url,"Fit House owner-approved missing variant no longer matches live canonical state");
+  invariant(record&&String(record.offer.id)===row.offer_id&&String(record.product.id)===row.canonical_product_id&&isApprovedCanonicalSuccessor(record,row)&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&(record.mapping.external_sku||null)===row.external_sku&&money(record.offer.price)===row.old_price&&[row.old_stock,row.new_stock].includes(Boolean(record.offer.in_stock))&&record.offer.url===row.url&&record.mapping.external_url===row.url,"Fit House owner-approved missing variant no longer matches live canonical state");
   if(sourceIds.has(row.external_variant_id))return{sourceVariants,missingVariantIds:[],newUnavailableCount:0,manifest_sha256:reviewed.sha256,approved_rows:reviewed.manifest.rows};
   const direct=new URL(row.url),parts=direct.pathname.split("/").filter(Boolean),productHandle=parts[0]==="products"?parts[1]:null;
   invariant(direct.hostname==="fithouse.uk"&&productHandle,"Fit House owner-approved missing variant URL is invalid");
@@ -191,7 +209,7 @@ function reconcileOwnerApprovedMissingVariant(records,sourceVariants,reviewed=lo
 
 function reconcileAuditedMissingVariants(records,sourceVariants,audited=loadAuditedMissingVariantManifest()){
   const byMapping=new Map(records.map(record=>[String(record.mapping.id),record])),sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),allowlisted=new Set(audited.manifest.rows.map(row=>row.external_variant_id)),synthetic=[],returnedLive=[];
-  for(const row of audited.manifest.rows){const record=byMapping.get(row.mapping_id);invariant(record&&String(record.offer.id)===row.offer_id&&String(record.product.id)===row.canonical_product_id&&String(record.variant.id)===row.canonical_variant_id&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&(record.mapping.external_sku||null)===(row.external_sku||null),"Fit House audited missing variant no longer matches its canonical mapping");if(sourceIds.has(row.external_variant_id))returnedLive.push(row.external_variant_id)}
+  for(const row of audited.manifest.rows){const record=byMapping.get(row.mapping_id);invariant(record&&String(record.offer.id)===row.offer_id&&String(record.product.id)===row.canonical_product_id&&isApprovedCanonicalSuccessor(record,row)&&String(record.mapping.external_product_id)===row.external_product_id&&String(record.mapping.external_variant_id)===row.external_variant_id&&(record.mapping.external_sku||null)===(row.external_sku||null),"Fit House audited missing variant no longer matches its canonical mapping");if(sourceIds.has(row.external_variant_id))returnedLive.push(row.external_variant_id)}
   const unallowlisted=[];
   for(const record of records){const variantId=String(record.mapping.external_variant_id);if(sourceIds.has(variantId))continue;if(!allowlisted.has(variantId)){unallowlisted.push({mapping_id:String(record.mapping.id),offer_id:String(record.offer.id),external_product_id:String(record.mapping.external_product_id),external_variant_id:variantId});continue}const direct=new URL(record.mapping.external_url),expectedHost=new URL(config.store_url).hostname.toLowerCase().replace(/^www\./,""),parts=direct.pathname.split("/").filter(Boolean),productHandle=parts[0]==="products"?parts[1]:null;invariant(direct.hostname.toLowerCase().replace(/^www\./,"")===expectedHost&&productHandle,"Fit House audited missing variant URL is invalid");synthetic.push({external_product_id:String(record.mapping.external_product_id),external_variant_id:variantId,product_handle:productHandle,external_sku:record.mapping.external_sku||null,price:money(record.offer.price),shipping_cost:money(record.offer.shipping_cost),total_price:money(record.offer.total_price),in_stock:false,source_updated_at:null,audited_source_absent:true})}
   if(unallowlisted.length)throw new RefreshError("IDENTITY_DRIFT","an unallowlisted Fit House mapped variant is absent from source","CLASSIFIER",{unallowlisted_missing_variants:unallowlisted});
@@ -528,4 +546,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,guardrailsFor,isExactOwnerBoundAuditedMissingReview,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,sourceHealth,sumDeltas,verificationRecord};
+module.exports={APPROVED_CANONICAL_REBINDINGS,RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadReviewedMassOosManifest,migrationBinding,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,sourceHealth,sumDeltas,verificationRecord};

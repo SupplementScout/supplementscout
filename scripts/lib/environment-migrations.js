@@ -84,6 +84,7 @@ const EXCLUSIONS = Object.freeze({
     "20260826160000_create_fit_house_owner_reviewed_exact_pack_10",
     "20260826170000_create_fit_house_sodium_butyrate_exact_pack",
     "20260826180000_resolve_fit_house_six_exact_pack_conflicts",
+    "20260826190000_enable_fit_house_price_observation_producer",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
