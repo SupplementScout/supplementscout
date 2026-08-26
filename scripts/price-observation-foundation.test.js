@@ -275,6 +275,33 @@ test("Fit House owner-reviewed exact-pack 24 is guarded, reversible and keeps fl
   }
 });
 
+test("Fit House owner-reviewed exact-pack 10 reuses the existing GYM HIGH variant and excludes identity corrections", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql"), "utf8");
+  const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-owner-reviewed-exact-pack-10-2026-08-26.json"), "utf8"));
+  const approvedMappings = [686,739,743,790,870,874,2084,2105,2106,2145];
+  assert.equal(evidence.status, "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED");
+  assert.equal(evidence.owner_review.approved, true);
+  assert.equal(evidence.owner_review.pack_count_1_confirmed, true);
+  assert.equal(evidence.expected.target_rows, 10);
+  assert.equal(evidence.expected.created_variants, 9);
+  assert.equal(evidence.expected.reused_variants, 1);
+  assert.equal(evidence.expected.fit_house_exact_ready_after, 253);
+  assert.deepEqual(evidence.rows.map((row) => row[0]), approvedMappings);
+  assert.deepEqual(evidence.excluded_for_separate_identity_correction, [687,2099,2112,2123]);
+  assert.deepEqual(evidence.excluded_ambiguous_serving, [869]);
+  assert.match(migration, /jsonb_array_length\(v_scope\)<>10/);
+  assert.match(migration, /v_variants_before\+9/);
+  assert.match(migration, /target_variant_id\":2967/);
+  assert.match(migration, /\)<>253/);
+  assert.match(rollback, /version='20260826160000'/);
+  assert.match(rollback, /v_variants_before-9/);
+  assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
+  for (const mappingId of [...evidence.excluded_for_separate_identity_correction, ...evidence.excluded_ambiguous_serving, ...evidence.existing_flavour_conflicts]) {
+    assert.doesNotMatch(migration, new RegExp(`\\"mapping_id\\":${mappingId}(?:,|})`));
+  }
+});
+
 test("daily volume estimates are bounded by one confirmation per offer", () => {
   assert.equal(estimateObservationVolume(2761, 30), 82_830);
   assert.equal(estimateObservationVolume(1564, 30), 46_920);

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "status": "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED",
+  "authority": "owner-chat-2026-08-26-approved-fit-house-exact-pack-10-pack-count-1",
+  "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
+  "production_read_only_audit": {
+    "captured_at": "2026-08-26T12:40:08.426Z",
+    "source_semantic_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "source_products": 251,
+    "source_variants": 346,
+    "source_pagination_completed": true,
+    "exact_ready_before": 243,
+    "incomplete_before": 43,
+    "source_present_incomplete": 17,
+    "source_missing_incomplete": 26,
+    "database_writes": 0
+  },
+  "owner_review": {
+    "approved": true,
+    "pack_count_1_confirmed": true,
+    "bacopa": "90 capsules, one capsule per serving, 90 servings",
+    "msm": "200 tablets, one tablet per serving, 200 servings",
+    "evening_primrose": "100 softgels, three per serving, 33 complete servings",
+    "cm3_pro": "200 capsules, three per serving, 66 complete servings",
+    "probiotic_comfort": "30 capsules, one per serving, 30 servings",
+    "passion_flower": "60 capsules, one per serving, 60 servings",
+    "testo_pro": "180 capsules, three per serving, 60 servings; two servings daily",
+    "colostrum": "60 capsules, two per serving, 30 servings",
+    "zinc_copper": "60 capsules, one per serving, 60 servings",
+    "supreme": "20 servings at 19.8 g"
+  },
+  "expected": {
+    "target_rows": 10,
+    "created_variants": 9,
+    "reused_variants": 1,
+    "products_delta": 0,
+    "mappings_delta": 0,
+    "offers_delta": 0,
+    "price_history_delta": 0,
+    "identity_series_delta": 0,
+    "fit_house_exact_ready_after": 253,
+    "incomplete_after": 33
+  },
+  "production_transaction_rollback_rehearsal": {
+    "result": "PASS",
+    "confirmation_for_separately_approved_apply": "e2f7949904709fb0",
+    "products": "1112 -> 1112",
+    "product_variants": "2807 -> 2816",
+    "retailer_products": "2761 -> 2761",
+    "offers": "2761 -> 2761",
+    "price_history": "4001 -> 4001",
+    "identity_series": "503 -> 503",
+    "fit_house_exact_ready": "243 -> 253 -> 243",
+    "target_rows": 10,
+    "blocked_still_fail_closed": [687, 869, 2095, 2096, 2099, 2112, 2123],
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "selected_migration_rehearsal": {
+    "result": "PASS",
+    "confirmation_for_apply": "a9f4d4270999077e",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2807, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_expected": { "products": 1112, "product_variants": 2816, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "production_apply": { "result": "NOT_AUTHORIZED" },
+  "rows": [
+    [686,694,676,500,90,"create"],
+    [739,715,696,568,200,"create"],
+    [743,719,700,576,33,"create"],
+    [790,728,709,586,66,"create"],
+    [870,756,737,625,30,"create"],
+    [874,760,741,615,60,"create"],
+    [2084,1898,429,391,60,"rebind:2967"],
+    [2105,1919,990,1943,30,"create"],
+    [2106,1920,994,1947,60,"create"],
+    [2145,1959,972,1901,20,"create"]
+  ],
+  "excluded_for_separate_identity_correction": [687, 2099, 2112, 2123],
+  "excluded_ambiguous_serving": [869],
+  "existing_flavour_conflicts": [2095, 2096]
+}
