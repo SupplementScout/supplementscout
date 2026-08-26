@@ -16,7 +16,7 @@
     "user_agent": "SupplementScout-Jons-Refresh/1.0"
   },
   "reviewed_missing_variant_manifest_path": "config/retailers/jons-reviewed-missing-variants-2026-08-10.json",
-  "reviewed_missing_variant_manifest_sha256": "af05cd67dbeff3781cf55137910847544234c7fa7a0a352bb8af6d0022a00fa6",
+  "reviewed_missing_variant_manifest_sha256": "68c3fd5eb3e6e96c0f7e6edc1564708a710355c970be68ef1b984c6fe62437d0",
   "expected_offer_count": 26,
   "target_inventory_fingerprint": "c27db401555db7747c97e68eab1c9cb114bb85d8132aa7f42f78b92703598372",
   "guardrails": {
