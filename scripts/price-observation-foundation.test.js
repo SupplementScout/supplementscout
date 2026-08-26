@@ -105,6 +105,33 @@ test("GYM HIGH producer enablement is exact, production-only and rollback-safe",
   assert.doesNotMatch(rollback, /delete from public\.(price_history|price_identity_series)/i);
 });
 
+test("GYM HIGH exact-pack 9 reuses the guarded migration path and leaves 17 rows blocked", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826100000_create_gym_high_exact_pack_9.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826100000_create_gym_high_exact_pack_9.sql"), "utf8");
+  const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/gym-high-exact-pack-26-audit-2026-08-26.json"), "utf8"));
+  const approved = [1, 535, 536, 540, 541, 542, 544, 551, 554];
+  const blocked = [545, 546, 547, 548, 550, 552, 2500, 2501, 2502, 2503, 2504, 2505, 2506, 2507, 2508, 2509, 2510];
+  assert.equal(evidence.summary.incomplete_offers, 26);
+  assert.equal(evidence.summary.unique_canonical_variants, 26);
+  assert.equal(evidence.summary.unique_products, 15);
+  assert.deepEqual(evidence.approved_exact_pack.map((row) => row.offer_id), approved);
+  assert.deepEqual(evidence.blocked.map((row) => row.offer_id), blocked);
+  assert.match(migration, /owner-chat-2026-08-26-gym-high-exact-pack-9/);
+  assert.match(migration, /v_exact_before <> 40/);
+  assert.match(migration, /product_variants\)<>v_variants_before\+9/);
+  assert.match(migration, /where rp\.retailer_id=1/);
+  assert.match(migration, /where retailer_id=1\)<>66/);
+  assert.match(migration, /price_identity_series where offer_id=e\.offer_id/);
+  assert.match(migration, /to_jsonb\(rp\)-'product_variant_id'/);
+  assert.match(migration, /to_jsonb\(o\)-'product_variant_id'/);
+  assert.match(rollback, /version='20260826100000'/);
+  assert.match(rollback, /price_identity_series where offer_id=e\.offer_id/);
+  assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
+  for (const offerId of blocked) {
+    assert.doesNotMatch(migration, new RegExp(`\\"offer_id\\":${offerId}(?:,|})`));
+  }
+});
+
 test("daily volume estimates are bounded by one confirmation per offer", () => {
   assert.equal(estimateObservationVolume(2761, 30), 82_830);
   assert.equal(estimateObservationVolume(1564, 30), 46_920);

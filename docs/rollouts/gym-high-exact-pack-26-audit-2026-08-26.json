@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "kind": "gym-high-exact-pack-evidence-audit-v1",
+  "captured_at": "2026-08-26T09:38:00.000Z",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "authority": "owner-chat-2026-08-26-gym-high-exact-pack-9",
+  "production_writes_during_audit": 0,
+  "source_identity_fingerprint": "abd419fcd0400df086b666110b66a187c5f81747c26ea46ba80ad5cb5a301552",
+  "evidence_files": [
+    {"path":"data/verified/gym-high-verified-products.csv","sha256":"724484e5f44e8dfaf1617d2aec75d0d636fcec3765984358365538f2a0988372"},
+    {"path":"data/verified/gym-high-verified-products-batch-2.csv","sha256":"cb7b1e71ed449f89e1a2bb1d96a9e7fb3e21ab6403d6723bc05ea31c4367c6bf"},
+    {"path":"config/retailers/gym-high-reviewed-full-catalogue-2026-08-01.json","sha256":"aa0d024e538f37f94ca75f643a3eaafb33beb0cd664d8dc9b9cf7e4a60fdbf40"}
+  ],
+  "policy": {
+    "pack_count_default_prohibited": true,
+    "base_product_copy_prohibited": true,
+    "product_name_as_sufficient_evidence": false,
+    "recorder_contract_changed": false,
+    "accessory_size_forced_into_supplement_units": false
+  },
+  "summary": {
+    "incomplete_offers": 26,
+    "unique_canonical_variants": 26,
+    "unique_products": 15,
+    "approved_exact_pack": 9,
+    "blocked": 17,
+    "coverage_before": "40/66",
+    "coverage_after_approved_apply": "49/66"
+  },
+  "approved_exact_pack": [
+    {"offer_id":1,"mapping_id":1,"product_id":1,"variant_id":559,"product":"GYM HIGH CREA-4 Elite Capsules","external_identity":"632:632","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":60,"size_unit":"servings"},"evidence":"approved product label: 240 capsules, 60 servings, 4 capsules per serving"},
+    {"offer_id":535,"mapping_id":106,"product_id":429,"variant_id":391,"product":"GYM HIGH Testo Pro 180 Capsules","external_identity":"635:635","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":60,"size_unit":"servings"},"evidence":"approved product label: 180 capsules, 60 servings, 3 capsules per serving"},
+    {"offer_id":536,"mapping_id":139,"product_id":427,"variant_id":379,"product":"GYM HIGH BCAA 120 Capsules","external_identity":"638:638","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":30,"size_unit":"servings"},"evidence":"approved product label: 120 capsules, 30 servings, 4 capsules per serving"},
+    {"offer_id":540,"mapping_id":141,"product_id":412,"variant_id":400,"product":"GYM HIGH L-Glutamine  Powder 500g","external_identity":"700:700","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":500,"size_unit":"g"},"evidence":"approved product label: 500g tub, 100 servings, 5g serving"},
+    {"offer_id":541,"mapping_id":384,"product_id":389,"variant_id":555,"product":"GYM HIGH Creatine Monohydrate Powder 250g","external_identity":"701:701","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":250,"size_unit":"g"},"evidence":"approved product label: 250g, 50 servings, 5g serving"},
+    {"offer_id":542,"mapping_id":77,"product_id":444,"variant_id":533,"product":"GYM HIGH Beta-Alanine 250g","external_identity":"702:702","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":250,"size_unit":"g"},"evidence":"approved product label: 250g, 125 servings, 2g serving"},
+    {"offer_id":544,"mapping_id":142,"product_id":413,"variant_id":390,"product":"GYM HIGH ZMB 60 Capsules","external_identity":"707:707","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":60,"size_unit":"servings"},"evidence":"approved product label: 60 capsules, 60 servings, 1 capsule per serving"},
+    {"offer_id":551,"mapping_id":385,"product_id":516,"variant_id":572,"product":"GYM HIGH Pure L-Arginine powder 500g","external_identity":"3333:3333","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":500,"size_unit":"g"},"evidence":"approved product label: 500g, 100 servings, 5g serving"},
+    {"offer_id":554,"mapping_id":387,"product_id":529,"variant_id":507,"product":"GYM HIGH Creatine Monohydrate 400g","external_identity":"4623:4623","missing_before":["pack_count","size_value","size_unit"],"exact_pack":{"pack_count":1,"size_value":400,"size_unit":"g"},"evidence":"approved product label: 400g, 80 servings, 5g serving"}
+  ],
+  "blocked": [
+    {"offer_id":545,"mapping_id":143,"product_id":432,"variant_id":2725,"variant":"Black","product":"GYM HIGH Shaker Bottle","missing":["size_value","size_unit"],"reason":"ACCESSORY_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":546,"mapping_id":144,"product_id":445,"variant_id":574,"variant":"Default","product":"GYM HIGH Hardcore Wrist Wraps","missing":["pack_count","size_value","size_unit"],"reason":"ACCESSORY_REQUIRES_RETAILER_PACKAGE_QUANTITY_EVIDENCE_AND_SEPARATE_UNIT_POLICY"},
+    {"offer_id":547,"mapping_id":121,"product_id":496,"variant_id":2720,"variant":"L","product":"GYM HIGH 7mm Leather Weight Lifting Belt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":548,"mapping_id":122,"product_id":476,"variant_id":2714,"variant":"L","product":"GYM HIGH Performance T-Shirt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":550,"mapping_id":136,"product_id":508,"variant_id":435,"variant":"Default","product":"GYM HIGH Shred Mode 60 Capsules","missing":["pack_count","size_value","size_unit"],"reason":"CONFLICTING_RETAILER_EVIDENCE_1_TO_2_CAPSULES_AND_30_TO_60_USES"},
+    {"offer_id":552,"mapping_id":386,"product_id":525,"variant_id":510,"variant":"Default","product":"GYM HIGH Liquid Chalk","missing":["pack_count","size_value","size_unit"],"reason":"ACCESSORY_250ML_EXISTS_BUT_PUBLIC_DEALS_UNIT_POLICY_IS_SUPPLEMENT_ONLY"},
+    {"offer_id":2500,"mapping_id":2686,"product_id":476,"variant_id":2715,"variant":"M","product":"GYM HIGH Performance T-Shirt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2501,"mapping_id":2687,"product_id":476,"variant_id":2716,"variant":"S","product":"GYM HIGH Performance T-Shirt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2502,"mapping_id":2688,"product_id":476,"variant_id":2717,"variant":"XL","product":"GYM HIGH Performance T-Shirt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2503,"mapping_id":2689,"product_id":476,"variant_id":2718,"variant":"XS","product":"GYM HIGH Performance T-Shirt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2504,"mapping_id":2690,"product_id":476,"variant_id":2719,"variant":"XXL","product":"GYM HIGH Performance T-Shirt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2505,"mapping_id":2691,"product_id":496,"variant_id":2721,"variant":"M","product":"GYM HIGH 7mm Leather Weight Lifting Belt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2506,"mapping_id":2692,"product_id":496,"variant_id":2722,"variant":"S","product":"GYM HIGH 7mm Leather Weight Lifting Belt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2507,"mapping_id":2693,"product_id":496,"variant_id":2723,"variant":"XL","product":"GYM HIGH 7mm Leather Weight Lifting Belt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2508,"mapping_id":2694,"product_id":496,"variant_id":2724,"variant":"XXL","product":"GYM HIGH 7mm Leather Weight Lifting Belt","missing":["size_value","size_unit"],"reason":"APPAREL_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2509,"mapping_id":2695,"product_id":432,"variant_id":2726,"variant":"Green","product":"GYM HIGH Shaker Bottle","missing":["size_value","size_unit"],"reason":"ACCESSORY_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"},
+    {"offer_id":2510,"mapping_id":2696,"product_id":432,"variant_id":2727,"variant":"Blue","product":"GYM HIGH Shaker Bottle","missing":["size_value","size_unit"],"reason":"ACCESSORY_OUTSIDE_SUPPLEMENT_EXACT_PACK_CONTRACT"}
+  ],
+  "approved_pipeline": {
+    "forward_migration": "supabase/migrations/20260826100000_create_gym_high_exact_pack_9.sql",
+    "rollback": "supabase/rollbacks/20260826100000_create_gym_high_exact_pack_9.sql",
+    "rehearsal_and_apply": "scripts/apply-selected-migrations.js",
+    "postflight": "scripts/verify-selected-migrations.js",
+    "scheduled_observation_recorder": "scripts/record-price-observations.js",
+    "observation_workflow": ".github/workflows/record-price-observations.yml"
+  },
+  "result": "PARTIAL",
+  "evidence_plan": "Apply the guarded exact 9 migration through the existing selected-migration rehearsal/apply/postflight path. Allow the ordinary enabled producer schedule to create observations later. Keep Shred Mode and all 16 accessories fail-closed; do not widen the supplement unit contract in this batch."
+}

@@ -168,6 +168,8 @@ const CONTRACTS = Object.freeze({
         "a9b3de7d9db2e671ed954231b3401fcf96d0f2c9d24af3c35c91755f38664e17",
       "20260826090000_enable_gym_high_price_observation_producer.sql":
         "47e8c2e3befb2ada21d6ebecf0a731271f4526266f842041914ba6c579f67024",
+      "20260826100000_create_gym_high_exact_pack_9.sql":
+        "8be03edd0a1a479dad535dd1a21554cdd2d031f0583bbc08b4d4fafd53e562ab",
     }),
     pending: Object.freeze([]),
   }),
@@ -197,7 +199,13 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260826100000_create_gym_high_exact_pack_9.sql",
+        sha256: "8be03edd0a1a479dad535dd1a21554cdd2d031f0583bbc08b4d4fafd53e562ab",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 9 }),
+      }),
+    ]),
   }),
 });
 
