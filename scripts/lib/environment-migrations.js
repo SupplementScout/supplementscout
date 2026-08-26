@@ -77,6 +77,7 @@ const EXCLUSIONS = Object.freeze({
     "20260826090000_enable_gym_high_price_observation_producer",
     "20260826100000_create_gym_high_exact_pack_9",
     "20260826110000_create_gym_high_shred_mode_exact_pack",
+    "20260826120000_create_fit_house_exact_pack_batch_15",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "REHEARSED_NOT_APPLIED",
+  "authority": "owner-chat-2026-08-26-complete-fit-house-safe-batch-15",
+  "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
+  "production_read_only_audit": {
+    "captured_at": "2026-08-26T09:40:14.624Z",
+    "exact_ready_before": 166,
+    "incomplete_before": 120,
+    "unique_incomplete_variants": 120,
+    "unique_incomplete_products": 117,
+    "source_products": 251,
+    "source_variants": 346,
+    "source_pagination_completed": true
+  },
+  "evidence": {
+    "fit_house_config_sha256": "69316475e96e470840874a2eeeffa7f4a19319a437e6d947da101c4668267fb7",
+    "fit_house_approved_offer_manifest_sha256": "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292",
+    "jons_approved_ordinary_manifest_sha256": "1ed188258ed4face02c7f9771d05fa732ab18abe7971a161ba8778fa284861f4",
+    "gym_high_exact_pack_audit_sha256": "da57d5ff4b16f3cd8fb5b8cfd41245b12dfed668367bfd77a6f3b03df8e1e5a6",
+    "gym_high_shred_mode_decision_sha256": "31bab9c08ba80455407afc911207016dec64417b0b5d11cebf9b2a2f91d7999f"
+  },
+  "expected": {
+    "created_variants": 12,
+    "existing_variant_rebinds": 3,
+    "products_delta": 0,
+    "mappings_delta": 0,
+    "offers_delta": 0,
+    "price_history_delta": 0,
+    "identity_series_delta": 0,
+    "fit_house_exact_ready_after": 181
+  },
+  "production_transaction_rollback_rehearsal": {
+    "result": "PASS",
+    "products": "1112 -> 1112 -> 1112",
+    "product_variants": "2735 -> 2747 -> 2735",
+    "retailer_products": "2761 -> 2761 -> 2761",
+    "offers": "2761 -> 2761 -> 2761",
+    "price_history": "4001 -> 4001 -> 4001",
+    "price_identity_series": "503 -> 503 -> 503",
+    "fit_house_exact_ready": "166 -> 181 -> 166",
+    "target_rows": 15,
+    "database_writes_committed": 0
+  },
+  "rows": [
+    { "mapping_id": 689, "offer_id": 697, "product_id": 679, "from_variant_id": 532, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 1000, "size_unit": "g" } },
+    { "mapping_id": 690, "offer_id": 698, "product_id": 680, "from_variant_id": 535, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 150, "size_unit": "g" } },
+    { "mapping_id": 701, "offer_id": 699, "product_id": 681, "from_variant_id": 539, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 417, "size_unit": "g" } },
+    { "mapping_id": 708, "offer_id": 706, "product_id": 688, "from_variant_id": 549, "action": "REBIND_EXISTING", "target_variant_id": 2891, "exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" } },
+    { "mapping_id": 736, "offer_id": 712, "product_id": 694, "from_variant_id": 565, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 200, "size_unit": "g" } },
+    { "mapping_id": 748, "offer_id": 724, "product_id": 705, "from_variant_id": 581, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 227, "size_unit": "g" } },
+    { "mapping_id": 749, "offer_id": 725, "product_id": 706, "from_variant_id": 582, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 227, "size_unit": "g" } },
+    { "mapping_id": 800, "offer_id": 738, "product_id": 719, "from_variant_id": 598, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 100, "size_unit": "g" } },
+    { "mapping_id": 801, "offer_id": 739, "product_id": 720, "from_variant_id": 599, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 227, "size_unit": "g" } },
+    { "mapping_id": 858, "offer_id": 744, "product_id": 725, "from_variant_id": 621, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 227, "size_unit": "g" } },
+    { "mapping_id": 860, "offer_id": 746, "product_id": 727, "from_variant_id": 633, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 250, "size_unit": "g" } },
+    { "mapping_id": 865, "offer_id": 751, "product_id": 732, "from_variant_id": 630, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 250, "size_unit": "g" } },
+    { "mapping_id": 866, "offer_id": 752, "product_id": 733, "from_variant_id": 634, "action": "CREATE_AND_REBIND", "exact_pack": { "pack_count": 1, "size_value": 369, "size_unit": "g" } },
+    { "mapping_id": 947, "offer_id": 761, "product_id": 508, "from_variant_id": 435, "action": "REBIND_EXISTING", "target_variant_id": 2975, "exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" } },
+    { "mapping_id": 2098, "offer_id": 1912, "product_id": 1, "from_variant_id": 559, "action": "REBIND_EXISTING", "target_variant_id": 2965, "exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" } }
+  ],
+  "excluded_conflicts": [687, 2063, 2084, 2099, 2107, 2123]
+}

@@ -151,6 +151,34 @@ test("GYM HIGH Shred Mode owner decision creates one exact 60-serving identity",
   assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
 });
 
+test("Fit House exact-pack batch 15 creates 12 variants, reuses 3 and excludes conflicts", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826120000_create_fit_house_exact_pack_batch_15.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826120000_create_fit_house_exact_pack_batch_15.sql"), "utf8");
+  const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-exact-pack-batch-15-2026-08-26.json"), "utf8"));
+  const approvedMappings = [689,690,701,708,736,748,749,800,801,858,860,865,866,947,2098];
+  assert.equal(evidence.status, "REHEARSED_NOT_APPLIED");
+  assert.equal(evidence.production_transaction_rollback_rehearsal.result, "PASS");
+  assert.equal(evidence.expected.created_variants, 12);
+  assert.equal(evidence.expected.existing_variant_rebinds, 3);
+  assert.equal(evidence.expected.fit_house_exact_ready_after, 181);
+  assert.deepEqual(evidence.rows.map(row => row.mapping_id), approvedMappings);
+  assert.deepEqual(evidence.excluded_conflicts, [687,2063,2084,2099,2107,2123]);
+  assert.match(migration, /owner-chat-2026-08-26-complete-fit-house-safe-batch-15/);
+  assert.match(migration, /jsonb_array_length\(v_scope\)<>15/);
+  assert.match(migration, /x->>'mode'='create'\)<>12/);
+  assert.match(migration, /x->>'mode'='rebind'\)<>3/);
+  assert.match(migration, /v_variants_before\+12/);
+  assert.match(migration, /\)<>181/);
+  assert.match(migration, /to_jsonb\(rp\)-'product_variant_id'/);
+  assert.match(migration, /to_jsonb\(o\)-'product_variant_id'/);
+  assert.match(rollback, /version='20260826120000'/);
+  assert.match(rollback, /v_variants_before-12/);
+  assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
+  for (const mappingId of evidence.excluded_conflicts) {
+    assert.doesNotMatch(migration, new RegExp(`\\"mapping_id\\":${mappingId}(?:,|})`));
+  }
+});
+
 test("daily volume estimates are bounded by one confirmation per offer", () => {
   assert.equal(estimateObservationVolume(2761, 30), 82_830);
   assert.equal(estimateObservationVolume(1564, 30), 46_920);
