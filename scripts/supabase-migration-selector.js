@@ -176,6 +176,8 @@ const CONTRACTS = Object.freeze({
         "aa35b1b693debeeec548b14258d22f3a1f4733121aae6cb695ef3e4d2591efa4",
       "20260826130000_create_fit_house_retailer_evidence_exact_pack_11.sql":
         "7046e2b54f5ce4f871a87785b78761b879bdd40efd75cf53a072daa652c3f1f5",
+      "20260826140000_create_fit_house_retailer_evidence_exact_pack_27.sql":
+        "9cb85d297104f1cc1daf306e0ffb6a6346d9807caef80c3bdcdfa0abf73ddc08",
     }),
     pending: Object.freeze([]),
   }),
@@ -205,7 +207,13 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260826140000_create_fit_house_retailer_evidence_exact_pack_27.sql",
+        sha256: "9cb85d297104f1cc1daf306e0ffb6a6346d9807caef80c3bdcdfa0abf73ddc08",
+        expectedCatalogueDeltas: Object.freeze({ product_variants: 27 }),
+      }),
+    ]),
   }),
 });
 
