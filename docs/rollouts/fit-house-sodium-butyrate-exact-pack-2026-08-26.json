@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED",
+  "status": "PRODUCTION_APPLIED_VERIFIED",
   "authority": "owner-chat-2026-08-26-fit-house-sodium-butyrate-one-pack-100-one-capsule-servings",
   "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
   "production_read_only_audit": {
@@ -63,6 +63,35 @@
     "committed": false,
     "database_writes_committed": 0
   },
-  "production_apply": { "result": "NOT_AUTHORIZED" },
+  "production_apply": {
+    "result": "PASS",
+    "migration": "20260826170000_create_fit_house_sodium_butyrate_exact_pack",
+    "confirmation": "7830923fa4b8127a",
+    "production_ledger_count": 149,
+    "production_ledger_fingerprint": "b9a28b720bdceecd2a0d8ca0913e34b5d1e3a21100f63f66cb4b233304e199ea",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2816, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_after": { "products": 1112, "product_variants": 2817, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "fit_house_exact_ready": "253 -> 254"
+  },
+  "production_read_only_postflight": {
+    "result": "PASS",
+    "captured_at": "2026-08-26T14:24:21.516Z",
+    "database_writes": 0,
+    "source_semantic_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "source_products": 251,
+    "source_variants": 346,
+    "source_pagination_completed": true,
+    "approved_scope": 286,
+    "exact_ready": 254,
+    "incomplete": 32,
+    "source_present_incomplete": 6,
+    "source_missing_incomplete": 26,
+    "target_rows_exact_ready": 1,
+    "target_variant_id": 3171,
+    "target_identity_series_refs": 0,
+    "remaining_source_present_blocked": [687, 2095, 2096, 2099, 2112, 2123],
+    "production_ledger_count": 149,
+    "production_ledger_fingerprint": "b9a28b720bdceecd2a0d8ca0913e34b5d1e3a21100f63f66cb4b233304e199ea"
+  },
   "remaining_source_present_blocked": [687, 2095, 2096, 2099, 2112, 2123]
 }

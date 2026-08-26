@@ -106,9 +106,20 @@ The fresh read-only postflight confirmed all ten target rows exact-ready with
 no identity-series references. Of the remaining 33 rows, 26 are absent from
 the current source and seven remain fail-closed. The owner separately decided
 that mapping `869` Sodium Butyrate should represent one sold pack and 100
-one-capsule servings; that decision was not included in this sealed migration
-and awaits a separate guarded review/apply because the retailer body currently
-describes a two-capsule daily serving. Evidence is sealed in
+one-capsule servings; that decision was not included in this sealed migration.
+Migration `20260826170000_create_fit_house_sodium_butyrate_exact_pack` then
+created exactly that single owner-selected serving identity, increasing Fit
+House readiness from `253/286` to `254/286`. The retailer body continues to
+describe two capsules daily, which is recorded as use guidance rather than
+silently changing the approved per-capsule serving identity. Products,
+mappings, offers, price history and identity series remained unchanged;
+product variants increased from `2,816` to `2,817`. Production ledger `149`
+has fingerprint
+`b9a28b720bdceecd2a0d8ca0913e34b5d1e3a21100f63f66cb4b233304e199ea`.
+The postflight confirmed the target exact-ready with zero identity-series
+references. Evidence is sealed in
+`docs/rollouts/fit-house-sodium-butyrate-exact-pack-2026-08-26.json`; the prior
+ten-row evidence remains sealed in
 `docs/rollouts/fit-house-owner-reviewed-exact-pack-10-2026-08-26.json`.
 
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit

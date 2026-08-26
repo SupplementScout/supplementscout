@@ -194,9 +194,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 148,
+    ledgerCount: 149,
     ledgerFingerprint:
-      "09fa96604603b9d202dbac2f504fffd136e5797ad3eb08233448e388c235542a",
+      "b9a28b720bdceecd2a0d8ca0913e34b5d1e3a21100f63f66cb4b233304e199ea",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -213,13 +213,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
-        sha256: "ded7913518d35b2893135da8ddd87f0d0b6015426f23b44646065c0142f25231",
-        expectedCatalogueDeltas: Object.freeze({ product_variants: 1 }),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
