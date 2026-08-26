@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "status": "REHEARSAL_PASS_APPLY_NOT_AUTHORIZED",
+  "authority": "owner-chat-2026-08-26-approved-fit-house-exact-pack-24-pack-count-1",
+  "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
+  "production_read_only_audit": {
+    "captured_at": "2026-08-26T12:08:12.696Z",
+    "source_semantic_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "source_products": 251,
+    "source_variants": 346,
+    "source_pagination_completed": true,
+    "exact_ready_before": 219,
+    "incomplete_before": 67,
+    "database_writes": 0
+  },
+  "evidence_contract": {
+    "pack_count": "owner confirmed pack_count=1 for each of the safe 24 offers",
+    "size": "owner-reviewed current retailer/manufacturer evidence and explicit beginner-serving decisions",
+    "product_name_used_as_sufficient_evidence": false,
+    "base_product_values_copied": false,
+    "recorder_contract_changed": false,
+    "fit_house_config_sha256": "69316475e96e470840874a2eeeffa7f4a19319a437e6d947da101c4668267fb7",
+    "fit_house_approved_offer_manifest_sha256": "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292"
+  },
+  "owner_review": {
+    "approved": true,
+    "pack_count_1_confirmed": true,
+    "shilajit_resin": "250 mg is one serving; 25 g equals 100 servings",
+    "arsynist": "one capsule is the owner-selected beginner serving; 60 servings",
+    "presidential_pre": "one full 13 g scoop is one serving; 25 servings for both exact flavour variants",
+    "ashwagandha": "one capsule is one serving, taken twice daily; 60 servings"
+  },
+  "expected": {
+    "target_rows": 24,
+    "created_variants": 22,
+    "enriched_variants": 2,
+    "products_delta": 0,
+    "mappings_delta": 0,
+    "offers_delta": 0,
+    "price_history_delta": 0,
+    "identity_series_delta": 0,
+    "fit_house_exact_ready_after": 243,
+    "incomplete_after": 43
+  },
+  "production_transaction_rollback_rehearsal": {
+    "result": "PASS",
+    "confirmation_for_separately_approved_apply": "a69053ff924f4768",
+    "products": "1112 -> 1112",
+    "product_variants": "2785 -> 2807",
+    "retailer_products": "2761 -> 2761",
+    "offers": "2761 -> 2761",
+    "price_history": "4001 -> 4001",
+    "identity_series": "503 -> 503",
+    "fit_house_exact_ready": "219 -> 243 -> 219",
+    "target_rows": 24,
+    "conflicts_still_blocked": [2095, 2096],
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "selected_migration_rehearsal": {
+    "result": "PASS",
+    "confirmation_for_apply": "f8f80c13db0d010d",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2785, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_expected": { "products": 1112, "product_variants": 2807, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "production_apply": { "result": "NOT_AUTHORIZED" },
+  "rows": [
+    [797,735,716,595,60],[802,740,721,600,30],[1124,938,765,925,100],[2058,1872,952,1854,120],[2062,1876,962,1881,60],[2069,1883,956,1863,44],[2075,1889,982,1922,60],[2076,1890,981,1921,60],[2083,1897,521,488,30],[2100,1914,980,1919,25],[2101,1915,980,1920,25],[2104,1918,983,1923,60],[2114,1928,963,1882,120],[2115,1929,184,211,30],[2118,1932,371,311,30],[2120,1934,1001,1962,120],[2121,1935,975,1904,60],[2122,1936,974,1903,30],[2125,1939,985,1935,90],[2126,1940,992,1945,180],[2131,1945,523,503,60],[2132,1946,970,1894,60],[2152,1966,996,1957,30],[2161,1975,987,1939,250]
+  ],
+  "excluded_identity_conflicts": [2095, 2096]
+}

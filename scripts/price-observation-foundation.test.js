@@ -243,6 +243,32 @@ test("Fit House owner-reviewed retailer-evidence batch 27 is explicit, guarded a
   }
 });
 
+test("Fit House owner-reviewed exact-pack 24 is guarded, reversible and keeps flavour conflicts blocked", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql"), "utf8");
+  const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-owner-reviewed-exact-pack-24-2026-08-26.json"), "utf8"));
+  const approvedMappings = [797,802,1124,2058,2062,2069,2075,2076,2083,2100,2101,2104,2114,2115,2118,2120,2121,2122,2125,2126,2131,2132,2152,2161];
+  assert.equal(evidence.owner_review.approved, true);
+  assert.equal(evidence.owner_review.pack_count_1_confirmed, true);
+  assert.equal(evidence.expected.target_rows, 24);
+  assert.equal(evidence.expected.created_variants, 22);
+  assert.equal(evidence.expected.enriched_variants, 2);
+  assert.equal(evidence.expected.fit_house_exact_ready_after, 243);
+  assert.deepEqual(evidence.rows.map((row) => row[0]), approvedMappings);
+  assert.deepEqual(evidence.excluded_identity_conflicts, [2095, 2096]);
+  assert.match(migration, /jsonb_array_length\(v_scope\)<>24/);
+  assert.match(migration, /v_variants_before\+22/);
+  assert.match(migration, /\)<>243/);
+  assert.match(migration, /e\.mode='enrich'/);
+  assert.match(migration, /to_jsonb\(rp\)=v_mapping_before/);
+  assert.match(rollback, /version='20260826150000'/);
+  assert.match(rollback, /v_variants_before-22/);
+  assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
+  for (const mappingId of evidence.excluded_identity_conflicts) {
+    assert.doesNotMatch(migration, new RegExp(`\\"mapping_id\\":${mappingId}(?:,|})`));
+  }
+});
+
 test("daily volume estimates are bounded by one confirmation per offer", () => {
   assert.equal(estimateObservationVolume(2761, 30), 82_830);
   assert.equal(estimateObservationVolume(1564, 30), 46_920);

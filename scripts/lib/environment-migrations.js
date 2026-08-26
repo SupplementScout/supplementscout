@@ -80,6 +80,7 @@ const EXCLUSIONS = Object.freeze({
     "20260826120000_create_fit_house_exact_pack_batch_15",
     "20260826130000_create_fit_house_retailer_evidence_exact_pack_11",
     "20260826140000_create_fit_house_retailer_evidence_exact_pack_27",
+    "20260826150000_create_fit_house_owner_reviewed_exact_pack_24",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
