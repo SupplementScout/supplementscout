@@ -214,7 +214,7 @@ test("complete catalogue query is paginated and exact variant resolution is stri
   assert.ok(calls.some((call) => call[0] === "select" && call[2]?.count === "exact"));
 });
 
-test("launch-approved base is indexable while parameters stay noindex and no winner is claimed", async () => {
+test("live-verified base is indexable while parameters stay noindex and no winner is claimed", async () => {
   const comparison = loadComparison();
   const normalized = comparison.normalizeTwoProductComparison([product(1), product(2)], { now: NOW });
   const result = { ...normalized, error: false };

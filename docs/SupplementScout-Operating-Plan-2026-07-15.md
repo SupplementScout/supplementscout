@@ -242,14 +242,12 @@ where they conflict:
 `SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
 multi-retailer coverage milestone is also independently verified at `250/250`.
 
-1. complete `SEO-16`, a guarded two-product comparison using existing
-   canonical data, verified metrics and delivered prices;
-2. return to `SEO-15` for its mandatory 14/30-day evidence audits and any
+1. return to `SEO-15` for its mandatory 14/30-day evidence audits and any
    separately approved Stage 3 decision; do not infer historical claims;
-3. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
+2. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
    materially help a buying decision;
-4. record Search Console and GA4 evidence weekly throughout the sequence;
-5. continue authority research, but keep outbound outreach paused until the
+3. record Search Console and GA4 evidence weekly throughout the sequence;
+4. continue authority research, but keep outbound outreach paused until the
    owner changes the current no-email decision.
 
 Only one SEO implementation may be `IN PROGRESS`. Measurement, read-only
@@ -1491,6 +1489,24 @@ parameters remain `noindex` with the base canonical. SEO-16 remains `IN
 PROGRESS` until launch-approved public verification. After SEO-16 completion, the
 binding sequence returns mandatorily to blocked SEO-15 accrual audits before
 SEO-17. GYM HIGH remains owner-deferred.
+
+### 0.0.21 SEO-16 guarded two-product comparison LIVE VERIFIED - 26 August 2026
+
+The owner-approved lifecycle launch shipped in commit `7eec604`. Public
+verification passed for base `/compare`: HTTP `200`, `index, follow`, correct
+canonical, `301` currently eligible exact-pack products, homepage discovery
+and exactly one sitemap entry. Pair `?left=756&right=757` returned HTTP `200`,
+`noindex, follow`, the base canonical, exact variant/pack evidence and a known
+delivered total. No pair URL was added to the sitemap. Production trace
+`lhr1::iad1::s9bc7-1787719525430-eb1430eecfc9` records the verified response.
+
+The central lifecycle state is now `live_verified`. No workflow, backfill,
+migration or production-data write ran. SEO-16 is complete and no SEO
+implementation is currently `IN PROGRESS`. The binding next task is SEO-15,
+which remains truthfully `BLOCKED` until the earliest 14-day audit on 8
+September 2026; the recommended first publication decision remains after 24
+September. SEO-17 must not start before that mandatory return. GYM HIGH remains
+owner-deferred and public Stage 3 price-drop claims remain disabled.
 
 ## 1. Product identity
 
@@ -2764,12 +2780,10 @@ Target experience:
 
 ### Current active task
 
-`SEO-16` guarded two-product comparison is the single active implementation.
-It must reuse the existing canonical product, variant, current-offer,
-delivered-price and verified-metric mechanisms; it must not create a second
-comparison engine, invent missing values or publish an unbounded programmatic
-SEO surface. `SEO-15` Deals and Price Intelligence is temporarily `BLOCKED`
-solely by elapsed accrual, with a mandatory return before any Stage 3 decision.
+`SEO-15` Deals and Price Intelligence is the binding next task but remains
+temporarily `BLOCKED` solely by elapsed accrual. No SEO implementation is
+currently `IN PROGRESS`; the mandatory return must occur before SEO-17 or any
+Stage 3 decision. `SEO-16` is complete and `LIVE VERIFIED`.
 Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
 live verified. Stage 2A identity foundation and the first bounded producer are
 production verified. Jon's Supplements is the only enabled producer; the other
@@ -2887,11 +2901,10 @@ publication.
 
 ### Next task
 
-Implement `SEO-16` as one guarded two-product comparison using existing
-canonical catalogue and current-offer mechanisms. Preserve truthful unknown
-states, exact variant boundaries, current delivered prices, verified metrics
-and stable product links. Do not create a second comparison loader or an
-indexable parameter explosion.
+Return to `SEO-15` for its mandatory identity-proven accrual audit when the
+elapsed-time gate opens. The task remains `BLOCKED`: the earliest 14-day audit
+is 8 September 2026 and the recommended publication decision is after 24
+September. Do not start SEO-17 early or enable Stage 3/public price-drop claims.
 
 In parallel, the existing Jon's schedule may continue deterministic accrual.
 Current verified SEO-15 coverage is `503/506`; its earliest audit is 8
@@ -2907,8 +2920,8 @@ or the SEO Execution Plan and does not change the binding roadmap order.
 ### Then
 
 1. After the SEO-15 readiness decision, implement it only if its reviewed data
-   and quality gates pass; then build `SEO-16` and `SEO-17` in that order,
-   reusing the existing data model.
+   and quality gates pass; then proceed to `SEO-17`, reusing the existing data
+   model. SEO-16 is already live verified.
 2. Record GSC/GA4 evidence weekly; keep outbound outreach paused.
 3. Monitor scheduled retailer refreshes; keep new discovery report-only until
    reviewed and preserve all drift, replay and recovery controls.

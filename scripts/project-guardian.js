@@ -150,7 +150,7 @@ function validateDocuments(docs, now = new Date()) {
   if (!nextId) errors.push("SEO plan does not declare a Next executable task.");
   const nextRow = nextId ? byId.get(nextId) : null;
   if (nextId && !nextRow) errors.push(`Next executable task ${nextId} is missing from the SEO ledger.`);
-  if (nextRow && !["PLANNED", "IN PROGRESS", "CODE COMPLETE"].includes(nextRow.status)) {
+  if (nextRow && !["PLANNED", "IN PROGRESS", "CODE COMPLETE", "BLOCKED"].includes(nextRow.status)) {
     errors.push(`Next executable task ${nextId} cannot have status ${nextRow.status}.`);
   }
   if (inProgress.length === 1 && nextId !== inProgress[0].id) {
@@ -174,7 +174,7 @@ function validateDocuments(docs, now = new Date()) {
     "### 0.0.7 Competitive growth sequence - 31 July 2026",
     /\n###\s+/,
   );
-  const growthMatch = growth.match(/\n1\.\s+(?:complete\s+)?`?(SEO-\d+[A-Z]?)/i);
+  const growthMatch = growth.match(/\n1\.\s+(?:(?:complete|return to)\s+)?`?(SEO-\d+[A-Z]?)/i);
   const growthId = growthMatch ? growthMatch[1].toUpperCase() : null;
   if (!growthId) errors.push("Binding competitive growth sequence has no first SEO task.");
   if (nextId && growthId && nextId !== growthId) {
@@ -186,7 +186,7 @@ function validateDocuments(docs, now = new Date()) {
     "## Binding competitive-response sequence",
     /\n##\s+/,
   );
-  const competitiveMatch = competitive.match(/\n1\.\s+(?:complete\s+)?`?(SEO-\d+[A-Z]?)/i);
+  const competitiveMatch = competitive.match(/\n1\.\s+(?:(?:complete|return to)\s+)?`?(SEO-\d+[A-Z]?)/i);
   const competitiveId = competitiveMatch ? competitiveMatch[1].toUpperCase() : null;
   if (!competitiveId) errors.push("WheyWise competitive-response sequence has no first SEO task.");
   if (nextId && competitiveId && nextId !== competitiveId) {

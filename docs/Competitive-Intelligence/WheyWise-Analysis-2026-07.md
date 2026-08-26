@@ -662,22 +662,22 @@ completion evidence.
 `SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
 multi-retailer coverage milestone is independently verified at `250/250`.
 
-1. Complete `SEO-16`, a guarded two-product comparison using the existing
-   canonical catalogue, variants, verified metrics and delivered prices.
-2. Return to `SEO-15` for the mandatory identity-proven accrual audits and any
+1. Return to `SEO-15` for the mandatory identity-proven accrual audits and any
    separately approved Stage 3 decision; do not create a second pricing store.
-3. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
+2. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
    value; clearly separate verified facts from expert judgement.
-4. Record Search Console and GA4 evidence weekly, including organic visibility,
+3. Record Search Console and GA4 evidence weekly, including organic visibility,
    landing pages and organic retailer clicks.
-5. Continue legitimate authority research through useful data resources, but
+4. Continue legitimate authority research through useful data resources, but
    keep outbound outreach paused until the owner changes the no-email decision.
 
-Current checkpoint, 26 August 2026: SEO-16 is code complete with `304` products
-eligible in a read-only production-data SSR check. `/compare` remains centrally
-registered as `planned`, `noindex` and sitemap-ineligible pending an explicit
-launch decision and launch-approved public verification. The mandatory return
-to blocked SEO-15 accrual audits is unchanged.
+Current checkpoint, 26 August 2026: SEO-16 is `LIVE VERIFIED`. Owner-approved
+commit `7eec604` launched `/compare`; the public base passed HTTP `200`,
+`index, follow`, canonical, exact-pack content, homepage discovery and exactly
+one sitemap entry with `301` currently eligible products. Pair
+`?left=756&right=757` remained `noindex`, canonicalized to `/compare` and showed
+exact variant/pack plus known delivered-price evidence. The mandatory return to
+blocked SEO-15 accrual audits is unchanged.
 
 Commit `5d9f48525e2a947fee067a2cf473063eb9bd227e` is deployed in the
 connected production site. A post-deployment public smoke check found `301`
@@ -686,10 +686,13 @@ the homepage link, exact variant/pack and delivered total, while planned
 canonical/noindex and zero sitemap entries remained intact. This is deployment
 evidence, not lifecycle launch approval.
 
-The owner explicitly approved lifecycle launch on 26 August 2026. The only
-authorized release change is `/compare: planned -> launch_approved`; parameter
-states remain noindex with the base canonical. Public verification is still
-required before SEO-16 can become `LIVE VERIFIED`.
+The owner explicitly approved lifecycle launch on 26 August 2026. Public
+verification completed with production trace
+`lhr1::iad1::s9bc7-1787719525430-eb1430eecfc9`; `/compare` is now centrally
+`live_verified`, while parameter states remain noindex with the base canonical.
+No workflow or production-data write ran. SEO-15 remains the next binding task
+and is blocked by elapsed time until its earliest audit on 8 September 2026;
+SEO-17 must not start before that return.
 
 The first three steps are the current build sequence. Measurement is continuous
 from the first release, and catalogue safety, automation monitoring and urgent

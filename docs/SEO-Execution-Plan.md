@@ -118,16 +118,16 @@ Console evidence and user value.
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) through `423`, `433`, `439`, and `490` (`32892293918`) to `503/506` (`32915426696`). Blocker: the minimum 14-day identity-proven history cannot exist before 8 September 2026; the recommended first publication decision is after 24 September. Three exact-pack identities remain fail-closed, the other six producers remain disabled, and Stage 3/public price-drop claims remain disabled. Mandatory return to SEO-15 is preserved. |
-| SEO-16 | P1 | Launch guarded two-product comparison. | `IN PROGRESS` | Owner launch approval recorded on 26 August 2026. The exact lifecycle change from `planned` to `launch_approved` is being deployed; public index, canonical, sitemap and pair-parameter verification remain required before `LIVE VERIFIED`. |
+| SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-16 — deploy the owner-approved lifecycle change
-for the code-complete guarded `/compare` route and live verify it before
-changing task status. The implementation reuses the existing canonical
-product, variant, current-offer, delivered-price and verified-metric mechanisms;
-it does not create pair routes, a second comparison engine or missing values.
+**Next executable task:** SEO-15 — return to the mandatory identity-proven
+accrual audit when its elapsed-time gate opens. It is presently `BLOCKED`, not
+active: the earliest 14-day audit is 8 September 2026 and the recommended first
+publication decision is after 24 September 2026. No SEO implementation is
+`IN PROGRESS`, and SEO-17 must not start before this return.
 
 SEO-15 is temporarily `BLOCKED` solely by elapsed accrual. Its earliest 14-day
 audit is 8 September 2026 and its recommended first publication decision is
@@ -281,6 +281,26 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 26 August 2026 - SEO-16 guarded two-product comparison LIVE VERIFIED
+
+- Owner-approved launch commit `7eec604` changed only `/compare` from
+  `planned` to `launch_approved` and was pushed to `main` for the connected
+  production deployment. The formal closeout records the route as
+  `live_verified`; parameter states remain `noindex, follow` with the base
+  `/compare` canonical.
+- Post-deployment public evidence passed: the base returned HTTP `200`,
+  `index, follow`, the correct canonical and `301` currently eligible exact-pack
+  products. Pair `?left=756&right=757` returned HTTP `200`, `noindex`, the base
+  canonical, exact variant/pack content and a known delivered total. The Vercel
+  response trace was `lhr1::iad1::s9bc7-1787719525430-eb1430eecfc9`.
+- Homepage discovery passed and the public sitemap returned HTTP `200` with
+  exactly one `/compare` entry. No pair URL entered the sitemap. No workflow,
+  backfill, migration or production-data write ran; GYM HIGH remains
+  owner-deferred and SEO-15 Stage 3/public price-drop claims remain disabled.
+- Focused lifecycle/comparison tests and the required project, quick and full
+  quality gates passed for the release. SEO-16 is complete; the binding roadmap
+  now returns to blocked SEO-15 for its due accrual audits before SEO-17.
 
 ### 26 August 2026 - SEO-16 guarded two-product comparison CODE COMPLETE; launch approval pending
 
