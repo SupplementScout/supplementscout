@@ -151,9 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the 13 special-evidence exact-pack rows as applied", () => {
+test("production records the exact-pack rows as applied and binds only the GYM HIGH enablement pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260826090000_enable_gym_high_price_observation_producer.sql",
+    sha256: "47e8c2e3befb2ada21d6ebecf0a731271f4526266f842041914ba6c579f67024",
+    expectedCatalogueDeltas: {},
+  }]);
   assert.equal(contract.ledgerCount, 140);
   assert.equal(
     contract.ledgerFingerprint,
@@ -234,7 +238,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with no pending migration", () => {
+test("production binds its exact ledger and one reviewed pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -262,12 +266,14 @@ test("production binds its exact ledger with no pending migration", () => {
   });
   assert.equal(result.ledger_count, 140);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 0);
-  assert.equal(result.selected_files.length, 140);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending.length, 1);
+  assert.equal(result.selected_files.length, 141);
+  assert.deepEqual(result.pending_files, ["20260826090000_enable_gym_high_price_observation_producer.sql"]);
+  assert.equal(result.pending_file, "20260826090000_enable_gym_high_price_observation_producer.sql");
+  assert.equal(result.pending_sha256, "47e8c2e3befb2ada21d6ebecf0a731271f4526266f842041914ba6c579f67024");
+  assert.deepEqual(result.pending_sha256s, {
+    "20260826090000_enable_gym_high_price_observation_producer.sql": "47e8c2e3befb2ada21d6ebecf0a731271f4526266f842041914ba6c579f67024",
+  });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -337,6 +343,7 @@ test("staging excludes the production-only exact-pack migrations byte-for-byte",
     "20260825220000_rebind_jons_existing_exact_pack_1.sql",
     "20260825230000_create_jons_exact_pack_special_evidence_a_10.sql",
     "20260825231000_create_jons_exact_pack_special_evidence_b_3.sql",
+    "20260826090000_enable_gym_high_price_observation_producer.sql",
   ]) {
     assert.ok(result.excluded_files.includes(filename));
     assert.ok(!result.selected_files.includes(filename));

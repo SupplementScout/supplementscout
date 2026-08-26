@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 const {
   OBSERVATION_KINDS,
@@ -86,6 +88,21 @@ test("producer contracts are disabled by default and retain reviewed boundaries"
   assert.equal(PRODUCER_CONTRACTS.find((contract) => contract.slug === "6-pack-supplements").technicallyCapable, false);
   assert.equal(PRODUCER_CONTRACTS.find((contract) => contract.slug === "ebay-uk").technicallyCapable, false);
   assert.equal(PRODUCER_CONTRACTS.find((contract) => contract.slug === "whey-okay").approvedScope, "approved-586-only");
+});
+
+test("GYM HIGH producer enablement is exact, production-only and rollback-safe", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826090000_enable_gym_high_price_observation_producer.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826090000_enable_gym_high_price_observation_producer.sql"), "utf8");
+  assert.match(migration, /owner-chat-2026-08-26-unlock-gym-high-producer/);
+  assert.match(migration, /target_environment' <> 'PRODUCTION'/);
+  assert.match(migration, /source_importer='gym-high-reviewed-full-catalogue-v1'/);
+  assert.match(migration, /approved_scope='reviewed-66'/);
+  assert.match(migration, /\) <> 40 then/);
+  assert.match(migration, /set enabled=true,updated_at=clock_timestamp\(\)/);
+  assert.match(migration, /public_use='owner-deferred'/);
+  assert.doesNotMatch(migration, /update public\.(products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(rollback, /set enabled=false,updated_at=clock_timestamp\(\)/);
+  assert.doesNotMatch(rollback, /delete from public\.(price_history|price_identity_series)/i);
 });
 
 test("daily volume estimates are bounded by one confirmation per offer", () => {
