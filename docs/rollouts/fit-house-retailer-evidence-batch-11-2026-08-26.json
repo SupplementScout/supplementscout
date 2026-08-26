@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "status": "REHEARSED_OWNER_APPROVAL_REQUIRED",
+  "authority": "owner-chat-2026-08-26-do-dziela-prepare-fit-house-retailer-evidence-batch-11",
+  "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
+  "production_read_only_audit": {
+    "captured_at": "2026-08-26T10:36:08.601Z",
+    "source_semantic_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "source_products": 251,
+    "source_variants": 346,
+    "source_pagination_completed": true,
+    "exact_ready_before": 181,
+    "incomplete_before": 105,
+    "unique_incomplete_products": 102,
+    "missing": { "pack_count": 100, "size_value": 105, "size_unit": 105 },
+    "database_writes": 0
+  },
+  "evidence_contract": {
+    "pack_count": "existing approved Fit House config field bound to the exact Shopify variant",
+    "size": "current Fit House body_html explicitly states servings per container or equivalent capsule/serving totals",
+    "product_name_used_as_evidence": false,
+    "base_product_values_copied": false,
+    "recorder_contract_changed": false,
+    "fit_house_config_sha256": "69316475e96e470840874a2eeeffa7f4a19319a437e6d947da101c4668267fb7",
+    "fit_house_approved_offer_manifest_sha256": "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292"
+  },
+  "expected": {
+    "target_rows": 11,
+    "created_variants": 11,
+    "products_delta": 0,
+    "mappings_delta": 0,
+    "offers_delta": 0,
+    "price_history_delta": 0,
+    "identity_series_delta": 0,
+    "fit_house_exact_ready_after": 192,
+    "incomplete_after": 94
+  },
+  "production_transaction_rollback_rehearsal": {
+    "result": "PASS",
+    "confirmation_for_separately_approved_apply": "a3fcbdd38bc2d8e0",
+    "products": "1112 -> 1112",
+    "product_variants": "2747 -> 2758",
+    "retailer_products": "2761 -> 2761",
+    "offers": "2761 -> 2761",
+    "price_history": "4001 -> 4001",
+    "target_rows": 11,
+    "fit_house_exact_ready": "181 -> 192 -> 181",
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "rows": [
+    { "mapping_id": 683, "offer_id": 691, "product_id": 673, "from_variant_id": 513, "external_product_id": "9680391831792", "external_variant_id": "48142863401200", "exact_pack": { "pack_count": 1, "size_value": 90, "size_unit": "servings" }, "retailer_evidence": "90 vegetarian capsules - 90 servings" },
+    { "mapping_id": 684, "offer_id": 692, "product_id": 674, "from_variant_id": 531, "external_product_id": "9706776264944", "external_variant_id": "48219037106416", "exact_pack": { "pack_count": 1, "size_value": 100, "size_unit": "servings" }, "retailer_evidence": "Each bottle provides 100 capsules and 100 servings; Servings Per Container: 100" },
+    { "mapping_id": 688, "offer_id": 696, "product_id": 678, "from_variant_id": 514, "external_product_id": "10024895742192", "external_variant_id": "49735378960624", "exact_pack": { "pack_count": 1, "size_value": 133, "size_unit": "servings" }, "retailer_evidence": "400 capsules providing 133 servings; Servings Per Container: 133" },
+    { "mapping_id": 703, "offer_id": 701, "product_id": 683, "from_variant_id": 544, "external_product_id": "10079982944496", "external_variant_id": "49957958156528", "exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" }, "retailer_evidence": "Serving Size: 1 Softgel; Servings Per Container: 60" },
+    { "mapping_id": 709, "offer_id": 707, "product_id": 689, "from_variant_id": 552, "external_product_id": "10028561989872", "external_variant_id": "49745363337456", "exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" }, "retailer_evidence": "60 servings per container" },
+    { "mapping_id": 710, "offer_id": 708, "product_id": 690, "from_variant_id": 554, "external_product_id": "10028475810032", "external_variant_id": "49745019797744", "exact_pack": { "pack_count": 1, "size_value": 40, "size_unit": "servings" }, "retailer_evidence": "120 capsules per bottle, 40 servings; Serving Size: 3 Capsules" },
+    { "mapping_id": 796, "offer_id": 734, "product_id": 715, "from_variant_id": 594, "external_product_id": "8776311636208", "external_variant_id": "45938991890672", "exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" }, "retailer_evidence": "60 servings per bottle" },
+    { "mapping_id": 859, "offer_id": 745, "product_id": 726, "from_variant_id": 627, "external_product_id": "8685938376944", "external_variant_id": "45768791982320", "exact_pack": { "pack_count": 1, "size_value": 30, "size_unit": "servings" }, "retailer_evidence": "Each bottle provides 90 capsules (30 servings); Servings Per Container: 30" },
+    { "mapping_id": 864, "offer_id": 750, "product_id": 731, "from_variant_id": 624, "external_product_id": "9176724177136", "external_variant_id": "46992608657648", "exact_pack": { "pack_count": 1, "size_value": 60, "size_unit": "servings" }, "retailer_evidence": "Serving Size: 1 Capsule; Servings Per Container: 60" },
+    { "mapping_id": 867, "offer_id": 753, "product_id": 734, "from_variant_id": 605, "external_product_id": "9168643719408", "external_variant_id": "46969317228784", "exact_pack": { "pack_count": 1, "size_value": 120, "size_unit": "servings" }, "retailer_evidence": "120 servings per bottle" },
+    { "mapping_id": 873, "offer_id": 759, "product_id": 740, "from_variant_id": 606, "external_product_id": "9168824172784", "external_variant_id": "46969725714672", "exact_pack": { "pack_count": 1, "size_value": 90, "size_unit": "servings" }, "retailer_evidence": "One capsule daily; 90 servings per bottle" }
+  ],
+  "excluded_conflicts": [686, 687, 2063, 2084, 2099, 2107, 2123]
+}
