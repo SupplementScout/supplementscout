@@ -151,9 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Sodium Butyrate as applied", () => {
+test("production records Sodium Butyrate as applied and only the reviewed six-conflict correction pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
+    sha256: "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45",
+    expectedCatalogueDeltas: { product_variants: 4 },
+  }]);
   assert.equal(contract.ledgerCount, 149);
   assert.equal(
     contract.ledgerFingerprint,
@@ -234,7 +238,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with Sodium Butyrate applied", () => {
+test("production binds its exact ledger with the six-conflict correction pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -262,12 +266,14 @@ test("production binds its exact ledger with Sodium Butyrate applied", () => {
   });
   assert.equal(result.ledger_count, 149);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.pending.length, 0);
-  assert.equal(result.selected_files.length, 149);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending.length, 1);
+  assert.equal(result.selected_files.length, 150);
+  assert.deepEqual(result.pending_files, ["20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql"]);
+  assert.equal(result.pending_file, "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql");
+  assert.equal(result.pending_sha256, "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45");
+  assert.deepEqual(result.pending_sha256s, {
+    "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql": "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45",
+  });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -298,6 +304,9 @@ test("production binds its exact ledger with Sodium Butyrate applied", () => {
   ));
   assert.ok(result.selected_files.includes(
     "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
+  ));
+  assert.ok(result.selected_files.includes(
+    "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
   ));
 });
 
@@ -369,6 +378,7 @@ test("staging excludes the production-only exact-pack migrations byte-for-byte",
     "20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql",
     "20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql",
     "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
+    "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
   ]) {
     assert.ok(result.excluded_files.includes(filename));
     assert.ok(!result.selected_files.includes(filename));

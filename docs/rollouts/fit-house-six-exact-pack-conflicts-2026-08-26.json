@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "status": "READY_FOR_EXPLICIT_PRODUCTION_APPLY",
+  "authority": "owner-chat-2026-08-26-approved-fit-house-six-source-present-conflicts",
+  "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286, "producer_enabled": false },
+  "production_read_only_audit": {
+    "result": "PASS",
+    "captured_at": "2026-08-26T14:49:12.502Z",
+    "source_semantic_fingerprint": "ef14011b0634d3f20053a569323eb8170defb458d28d22b1bbf700ef2416f1bb",
+    "source_products": 251,
+    "source_variants": 346,
+    "source_pagination_completed": true,
+    "database_writes": 0,
+    "products": 1112,
+    "product_variants": 2817,
+    "retailer_products": 2761,
+    "offers": 2761,
+    "price_history": 4001,
+    "identity_series": 503,
+    "fit_house_exact_ready_before": 254,
+    "fit_house_incomplete_before": 32,
+    "source_present_incomplete": 6,
+    "source_missing_incomplete": 26,
+    "target_identity_series_refs": 0
+  },
+  "owner_review": {
+    "approved": true,
+    "decisions": [
+      { "mapping_id": 687, "decision": "Orange; retailer Shopify Mango variant label is erroneous", "pack_count": 1, "size_value": 20, "size_unit": "servings" },
+      { "mapping_id": 2095, "decision": "rebind to existing Lemon Fizz Bombs / 420g (V3)", "target_product_id": 62, "target_variant_id": 2649 },
+      { "mapping_id": 2096, "decision": "rebind to existing Fizzy Bubblegum Bottles / 420g (V3)", "target_product_id": 62, "target_variant_id": 2646 },
+      { "mapping_id": 2099, "decision": "liquid 1000ml, one sold pack, 25 servings", "serving_size_ml": 40 },
+      { "mapping_id": 2112, "decision": "60 softgels, one sold pack, 60 servings" },
+      { "mapping_id": 2123, "decision": "1000mg, 60 capsules, one sold pack, 30 servings" }
+    ]
+  },
+  "evidence_contract": {
+    "product_name_used_as_sufficient_evidence": false,
+    "base_product_values_copied": false,
+    "pack_count_assumed": false,
+    "retailer_source_and_owner_decision_bound": true,
+    "recorder_contract_changed": false,
+    "workflow_run_authorized": false
+  },
+  "rows": [
+    { "mapping_id": 687, "offer_id": 695, "product_id_before": 677, "product_id_after": 677, "variant_id_before": 506, "variant_after": "new orange-20-servings", "source_variant_title": "Mango", "approved_identity": "Orange / 20 Servings", "mode": "create" },
+    { "mapping_id": 2095, "offer_id": 1909, "product_id_before": 969, "product_id_after": 62, "variant_id_before": 1893, "variant_id_after": 2649, "source_variant_title": "Lemon Fizz Bombs", "mode": "reuse" },
+    { "mapping_id": 2096, "offer_id": 1910, "product_id_before": 969, "product_id_after": 62, "variant_id_before": 1892, "variant_id_after": 2646, "source_variant_title": "Fizzy Bubblegum Bottle", "mode": "reuse" },
+    { "mapping_id": 2099, "offer_id": 1913, "product_id_before": 973, "product_id_after": 973, "variant_id_before": 1902, "variant_after": "new 1000ml", "mode": "create" },
+    { "mapping_id": 2112, "offer_id": 1926, "product_id_before": 993, "product_id_after": 993, "variant_id_before": 1946, "variant_after": "new 60-servings", "mode": "create" },
+    { "mapping_id": 2123, "offer_id": 1937, "product_id_before": 991, "product_id_after": 991, "variant_id_before": 1944, "variant_after": "new 30-servings", "mode": "create" }
+  ],
+  "expected": {
+    "target_rows": 6,
+    "created_variants": 4,
+    "reused_variants": 2,
+    "products_delta": 0,
+    "product_variants_delta": 4,
+    "mappings_delta": 0,
+    "offers_delta": 0,
+    "price_history_delta": 0,
+    "identity_series_delta": 0,
+    "fit_house_exact_ready_after": 260,
+    "incomplete_after": 26,
+    "remaining_incomplete_all_source_missing": true
+  },
+  "production_transaction_rollback_rehearsal": {
+    "result": "PASS",
+    "products": "1112 -> 1112 -> 1112",
+    "product_variants": "2817 -> 2821 -> 2817",
+    "retailer_products": "2761 -> 2761 -> 2761",
+    "offers": "2761 -> 2761 -> 2761",
+    "price_history": "4001 -> 4001 -> 4001",
+    "identity_series": "503 -> 503 -> 503",
+    "outbound_clicks": "2649 -> 2649 -> 2649",
+    "fit_house_exact_ready": "254 -> 260 -> 254",
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "selected_migration_rehearsal": {
+    "result": "PASS",
+    "migration": "20260826180000_resolve_fit_house_six_exact_pack_conflicts",
+    "sha256": "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45",
+    "confirmation_for_apply": "f9910b309bb3aff9",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2817, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_expected": { "products": 1112, "product_variants": 2821, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "expected_production_ledger_count_after_apply": 150,
+    "expected_production_ledger_fingerprint_after_apply": "cfa0fb2f545be226a1b72ebcda8c9adb0296b862402f5a12e4bb11addb9e235f",
+    "committed": false,
+    "database_writes_committed": 0
+  },
+  "production_apply": { "result": "NOT_AUTHORIZED" }
+}

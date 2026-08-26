@@ -336,6 +336,35 @@ test("Fit House Sodium Butyrate owner decision is one guarded exact-pack identit
   assert.doesNotMatch(migration, /record_price_observation|insert into public\.price_history/i);
 });
 
+test("Fit House six source-present conflicts use one guarded exact-pack correction", () => {
+  const migration = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql"), "utf8");
+  const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql"), "utf8");
+  const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-six-exact-pack-conflicts-2026-08-26.json"), "utf8"));
+  assert.equal(evidence.status, "READY_FOR_EXPLICIT_PRODUCTION_APPLY");
+  assert.equal(evidence.production_transaction_rollback_rehearsal.result, "PASS");
+  assert.equal(evidence.selected_migration_rehearsal.result, "PASS");
+  assert.equal(evidence.owner_review.approved, true);
+  assert.deepEqual(evidence.rows.map((row) => row.mapping_id), [687, 2095, 2096, 2099, 2112, 2123]);
+  assert.equal(evidence.expected.created_variants, 4);
+  assert.equal(evidence.expected.reused_variants, 2);
+  assert.equal(evidence.expected.fit_house_exact_ready_after, 260);
+  assert.equal(evidence.expected.remaining_incomplete_all_source_missing, true);
+  assert.equal(evidence.evidence_contract.pack_count_assumed, false);
+  assert.equal(evidence.evidence_contract.recorder_contract_changed, false);
+  assert.match(migration, /Fit House six-conflict alignment requires the observation producer to remain disabled/);
+  assert.match(migration, /v_variants_before\+4/);
+  assert.match(migration, /\)<>260/);
+  assert.match(migration, /product_id=62,product_variant_id=2649/);
+  assert.match(migration, /product_id=62,product_variant_id=2646/);
+  assert.match(migration, /'orange-20-servings'/);
+  assert.match(migration, /'1000ml'/);
+  assert.match(migration, /'60-servings'/);
+  assert.match(migration, /'30-servings'/);
+  assert.match(rollback, /version='20260826180000'/);
+  assert.match(rollback, /forbidden after identity-proven accrual/);
+  assert.doesNotMatch(migration, /record_identity_proven_price_observation|insert into public\.price_history/i);
+});
+
 test("daily volume estimates are bounded by one confirmation per offer", () => {
   assert.equal(estimateObservationVolume(2761, 30), 82_830);
   assert.equal(estimateObservationVolume(1564, 30), 46_920);
