@@ -662,10 +662,10 @@ completion evidence.
 `SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
 multi-retailer coverage milestone is independently verified at `250/250`.
 
-1. Complete `SEO-15`, a data-backed deals and price-drops page from existing
-   offer and price-history data; do not create a second pricing store.
-2. Complete `SEO-16`, a guarded two-product comparison using the existing
+1. Complete `SEO-16`, a guarded two-product comparison using the existing
    canonical catalogue, variants, verified metrics and delivered prices.
+2. Return to `SEO-15` for the mandatory identity-proven accrual audits and any
+   separately approved Stage 3 decision; do not create a second pricing store.
 3. Complete `SEO-17`, owner-reviewed expert notes where they add real decision
    value; clearly separate verified facts from expert judgement.
 4. Record Search Console and GA4 evidence weekly, including organic visibility,

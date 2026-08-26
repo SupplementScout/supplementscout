@@ -234,17 +234,18 @@ canonical product/variant identity, auditable retailer mappings and fail-closed
 automation. The full evidence is in
 `docs/Competitive-Intelligence/WheyWise-Analysis-2026-07.md`.
 
-This is the binding growth sequence. The owner reordered it on 20 August 2026;
+This is the binding growth sequence. The owner advanced the accrual-safe order
+on 26 August 2026;
 that decision supersedes older immediate-task and competitive-response ordering
 where they conflict:
 
 `SEO-11`, `SEO-13` and `SEO-14` are complete and live verified. The
 multi-retailer coverage milestone is also independently verified at `250/250`.
 
-1. complete `SEO-15`, a data-backed deals and price-drops page using the
-   existing offers and price-history store;
-2. complete `SEO-16`, a guarded two-product comparison using existing
+1. complete `SEO-16`, a guarded two-product comparison using existing
    canonical data, verified metrics and delivered prices;
+2. return to `SEO-15` for its mandatory 14/30-day evidence audits and any
+   separately approved Stage 3 decision; do not infer historical claims;
 3. complete `SEO-17`, clearly labelled owner-reviewed expert notes where they
    materially help a buying decision;
 4. record Search Console and GA4 evidence weekly throughout the sequence;
@@ -2722,9 +2723,14 @@ Target experience:
 
 ### Current active task
 
-`SEO-15` Deals and Price Intelligence remains the active implementation. Stage
-1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and live
-verified. Stage 2A identity foundation and the first bounded producer are
+`SEO-16` guarded two-product comparison is the single active implementation.
+It must reuse the existing canonical product, variant, current-offer,
+delivered-price and verified-metric mechanisms; it must not create a second
+comparison engine, invent missing values or publish an unbounded programmatic
+SEO surface. `SEO-15` Deals and Price Intelligence is temporarily `BLOCKED`
+solely by elapsed accrual, with a mandatory return before any Stage 3 decision.
+Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
+live verified. Stage 2A identity foundation and the first bounded producer are
 production verified. Jon's Supplements is the only enabled producer; the other
 six remain disabled. Scheduled run `32812270590` succeeded across `506/506`
 mappings and offers, creating `418` immutable identity series and `418`
@@ -2840,16 +2846,18 @@ publication.
 
 ### Next task
 
-Accrue and audit identity-proven Jon's observations through the existing
-scheduled producer. Current verified coverage is `503/506`; the three named
-conflict/deferred identities remain fail-closed until corrected evidence and
-owner review are available. Reuse the same manifest, bounded migration,
-selected apply, producer and independent-readback path for any later closure.
-Do not enable any of the other six producers without separate approval and a
-readback gate.
-The earliest accrual audit is after 14 days and the recommended publication
-decision is after 30 days. Stage 3 historical claims remain not started; do not
-create a second pricing store.
+Implement `SEO-16` as one guarded two-product comparison using existing
+canonical catalogue and current-offer mechanisms. Preserve truthful unknown
+states, exact variant boundaries, current delivered prices, verified metrics
+and stable product links. Do not create a second comparison loader or an
+indexable parameter explosion.
+
+In parallel, the existing Jon's schedule may continue deterministic accrual.
+Current verified SEO-15 coverage is `503/506`; its earliest audit is 8
+September 2026 and the recommended publication decision is after 24 September.
+The three named conflict/deferred identities remain fail-closed, no other
+producer may be enabled without separate approval, and Stage 3 historical
+claims remain disabled.
 
 Use `docs/SEO-15-Deals-Price-Intelligence-Plan.md` for the bounded technical
 design, evidence gates and decision log. It does not replace this Operating Plan

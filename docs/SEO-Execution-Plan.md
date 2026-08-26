@@ -117,22 +117,22 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `IN PROGRESS` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) through `423`, `433`, `439`, and `490` (`32892293918`) to `503/506` (`32915426696`). The final run covered all 506 offers, recorded 503 daily confirmations, applied two source-proven stock transitions and passed zero-write idempotency. Three exact-pack identities remain fail-closed. The other six producers remain disabled; public Stage 2 is blocked pending elapsed accrual, and Stage 3/public price-drop claims remain disabled. |
-| SEO-16 | P1 | Launch guarded two-product comparison. | `PLANNED` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) through `423`, `433`, `439`, and `490` (`32892293918`) to `503/506` (`32915426696`). Blocker: the minimum 14-day identity-proven history cannot exist before 8 September 2026; the recommended first publication decision is after 24 September. Three exact-pack identities remain fail-closed, the other six producers remain disabled, and Stage 3/public price-drop claims remain disabled. Mandatory return to SEO-15 is preserved. |
+| SEO-16 | P1 | Launch guarded two-product comparison. | `IN PROGRESS` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 — accrue and audit identity-proven observations
-from the enabled Jon's producer using the existing recorder path. Runs
-`32812270590`, `32883838868`, `32886482475`, `32888613481`, `32892293918` and
-`32915426696` progressed verified coverage from `418/506` to `503/506`; the
-latest successful run passed idempotency. Offers `1024`, `1451` and `1459`
-stay fail-closed for the exact conflicts recorded in the evidence audit, and
-each of the other six producers still requires separate approval. Public Stage 2 stays blocked
-until approved evidence accrues; the
-earliest audit is after 14 days and the recommended publication decision is
-after 30 days. Stage 3 has not started. Do not infer historical claims.
+**Next executable task:** SEO-16 — build one guarded two-product comparison
+through the existing canonical product, variant, current-offer, delivered-price
+and verified-metric mechanisms. Do not create a second comparison engine,
+invent missing values or publish unbounded programmatic comparison pages.
+
+SEO-15 is temporarily `BLOCKED` solely by elapsed accrual. Its earliest 14-day
+audit is 8 September 2026 and its recommended first publication decision is
+after 24 September 2026. The ledger must return to SEO-15 before any Stage 3
+claim or enablement decision; Jon's remains the only enabled producer and
+offers `1024`, `1451` and `1459` remain fail-closed.
 
 The bounded technical design, evidence gates and decision log are maintained in
 `docs/SEO-15-Deals-Price-Intelligence-Plan.md`; this execution ledger remains
