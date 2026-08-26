@@ -22,11 +22,18 @@ evidence is
 
 The owner separately approved unlocking GYM HIGH's observation producer. The
 existing guarded producer row is now enabled for exactly `66` reviewed
-mappings/offers. `40` are exact-ready and fresh; the recorder must continue to
-reject the other `26` without inference or base-product copying. Migration
+mappings/offers. A subsequent exact-pack evidence audit aligned nine
+label-proven supplement identities through the existing guarded migration
+path, increasing readiness from `40/66` to `49/66`. The recorder must continue
+to reject the remaining `17`: conflicting Shred Mode and 16 apparel/accessory
+rows outside the supplement exact-pack contract. Migration
 `20260826090000_enable_gym_high_price_observation_producer` applied with zero
 catalogue/history count deltas at production ledger `141`, fingerprint
 `aaf93e1e0dd1e18d05a2ff887afba208079f601d1fae7f5c8df326b3b37274e6`.
+Migration `20260826100000_create_gym_high_exact_pack_9` then added exactly nine
+variants with no product, mapping, offer or history row-count change at ledger
+`142`, fingerprint
+`1bf9969771b17a4154baef268b6f9816766ec62540fed20e7dad46a871b04ee5`.
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
 House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
 was manually run, so GYM HIGH's first identity series and confirmations still
@@ -2871,7 +2878,7 @@ twice daily and no exact servings-per-container evidence. These three require
 corrected owner/evidence review and must not be inferred. Public Stage 2
 remains blocked pending elapsed accrual, Stage 3 and public price-drop claims
 remain disabled. GYM HIGH's exact `66`-offer observation scope is enabled, with
-`40` exact-ready rows and `26` rows retained fail-closed; its first ordinary
+`49` exact-ready rows and `17` rows retained fail-closed; its first ordinary
 scheduled producer postflight is pending. GYM HIGH public brand and retailer
 publication remains owner-deferred. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
@@ -2938,7 +2945,7 @@ In parallel, the existing Jon's and GYM HIGH schedules may continue
 deterministic accrual. Jon's current verified SEO-15 coverage is `503/506`;
 its earliest audit is 8 September 2026 and the recommended publication decision
 is after 24 September. The three named Jon's conflict/deferred identities and
-26 incomplete GYM HIGH identities remain fail-closed. GYM HIGH's first
+17 intentionally blocked GYM HIGH identities remain fail-closed. GYM HIGH's first
 scheduled producer result requires postflight verification, no further
 producer may be enabled without separate approval, and Stage 3 historical
 claims remain disabled.

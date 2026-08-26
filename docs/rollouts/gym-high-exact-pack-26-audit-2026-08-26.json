@@ -66,6 +66,17 @@
     "scheduled_observation_recorder": "scripts/record-price-observations.js",
     "observation_workflow": ".github/workflows/record-price-observations.yml"
   },
+  "production_apply": {
+    "preparation_commit": "8bfac2a",
+    "migration": "20260826100000_create_gym_high_exact_pack_9",
+    "rehearsal_confirmation": "be31d1789c4d83b9",
+    "result": "PASS_COMMITTED",
+    "ledger_count": 142,
+    "ledger_fingerprint": "1bf9969771b17a4154baef268b6f9816766ec62540fed20e7dad46a871b04ee5",
+    "catalogue_count_deltas": {"products":0,"product_variants":9,"retailer_products":0,"offers":0,"price_history":0},
+    "workflow_run": "NOT_RUN",
+    "postflight": {"scope":66,"exact_ready":49,"not_ready":17,"target_exact":9,"blocked_still_not_ready":17,"target_series":0,"enabled_producers":["gym-high","jon-s-supplements"],"database_writes":0}
+  },
   "result": "PARTIAL",
   "evidence_plan": "Apply the guarded exact 9 migration through the existing selected-migration rehearsal/apply/postflight path. Allow the ordinary enabled producer schedule to create observations later. Keep Shred Mode and all 16 accessories fail-closed; do not widen the supplement unit contract in this batch."
 }
