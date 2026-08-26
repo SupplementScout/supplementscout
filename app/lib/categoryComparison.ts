@@ -20,6 +20,9 @@ type EffectiveComparisonNutrition = {
   nutrition_verified: boolean | null;
 };
 export type ComparisonNutritionVariant = {
+  id?: number | string;
+  display_name?: string | null;
+  flavour_label?: string | null;
   pack_count?: NutritionScalar;
   size_value?: NutritionScalar;
   size_unit?: string | null;

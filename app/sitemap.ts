@@ -82,6 +82,11 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 1,
   },
   {
+    url: `${siteUrl}/compare`,
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/vitamins`,
     changeFrequency: "weekly",
     priority: 0.9,

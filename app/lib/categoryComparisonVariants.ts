@@ -14,7 +14,7 @@ type RetailerProductVariantRow = {
 
 export async function resolveCategoryComparisonVariants<
   T extends RawCategoryComparisonProduct,
->(products: T[]): Promise<T[]> {
+>(products: T[], options: { failOnError?: boolean } = {}): Promise<T[]> {
   const retailerProductIds = [
     ...new Set(
       products.flatMap((product) =>
@@ -33,6 +33,9 @@ export async function resolveCategoryComparisonVariants<
     .select(`
       id,
       product_variant:product_variants!retailer_products_variant_product_fkey (
+        id,
+        display_name,
+        flavour_label,
         pack_count,
         size_value,
         size_unit,
@@ -42,6 +45,10 @@ export async function resolveCategoryComparisonVariants<
       )
     `)
     .in("id", retailerProductIds);
+
+  if (error && options.failOnError) {
+    throw new Error("Unable to resolve exact product variants for comparison.");
+  }
 
   const variantByRetailerProductId = new Map(
     ((data || []) as unknown as RetailerProductVariantRow[]).map((row) => [

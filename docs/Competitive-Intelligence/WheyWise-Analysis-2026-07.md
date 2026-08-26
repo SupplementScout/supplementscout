@@ -673,6 +673,12 @@ multi-retailer coverage milestone is independently verified at `250/250`.
 5. Continue legitimate authority research through useful data resources, but
    keep outbound outreach paused until the owner changes the no-email decision.
 
+Current checkpoint, 26 August 2026: SEO-16 is code complete with `304` products
+eligible in a read-only production-data SSR check. `/compare` remains centrally
+registered as `planned`, `noindex` and sitemap-ineligible pending an explicit
+launch decision, deployment and public live verification. The mandatory return
+to blocked SEO-15 accrual audits is unchanged.
+
 The first three steps are the current build sequence. Measurement is continuous
 from the first release, and catalogue safety, automation monitoring and urgent
 production incidents remain permanent operating controls rather than competing

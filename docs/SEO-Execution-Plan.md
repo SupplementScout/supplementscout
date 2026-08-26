@@ -118,15 +118,16 @@ Console evidence and user value.
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
 | SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) through `423`, `433`, `439`, and `490` (`32892293918`) to `503/506` (`32915426696`). Blocker: the minimum 14-day identity-proven history cannot exist before 8 September 2026; the recommended first publication decision is after 24 September. Three exact-pack identities remain fail-closed, the other six producers remain disabled, and Stage 3/public price-drop claims remain disabled. Mandatory return to SEO-15 is preserved. |
-| SEO-16 | P1 | Launch guarded two-product comparison. | `IN PROGRESS` | Users can compare two canonical products using current variants, offers, delivered prices and verified metrics without fabricated missing values. |
+| SEO-16 | P1 | Launch guarded two-product comparison. | `IN PROGRESS` | Code complete and launch approval pending. Local production-data SSR verified 304 eligible canonical products through the shared exact-variant, current-offer, delivered-price and verified-metric mechanisms; `/compare` remains lifecycle `planned`, `noindex` and sitemap-ineligible until separately approved. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-16 — build one guarded two-product comparison
-through the existing canonical product, variant, current-offer, delivered-price
-and verified-metric mechanisms. Do not create a second comparison engine,
-invent missing values or publish unbounded programmatic comparison pages.
+**Next executable task:** SEO-16 — obtain the explicit lifecycle launch decision
+for the code-complete guarded `/compare` route, then deploy and live verify it
+before changing its status. The implementation reuses the existing canonical
+product, variant, current-offer, delivered-price and verified-metric mechanisms;
+it does not create pair routes, a second comparison engine or missing values.
 
 SEO-15 is temporarily `BLOCKED` solely by elapsed accrual. Its earliest 14-day
 audit is 8 September 2026 and its recommended first publication decision is
@@ -144,9 +145,10 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-Follow the binding sequence in Operating Plan section 0.0.7: SEO-15, SEO-16
-and SEO-17. SEO-13 and SEO-14 are complete, and the 250-product multi-retailer
-checkpoint is independently verified complete.
+Follow the binding sequence in Operating Plan section 0.0.7: complete SEO-16,
+return mandatorily to SEO-15 for due accrual audits and any separately approved
+Stage 3 decision, then SEO-17. SEO-13 and SEO-14 are complete, and the
+250-product multi-retailer checkpoint is independently verified complete.
 SEO-07 measurement and SEO-12 legitimate authority work are continuous evidence
 tracks, not permission to run a second implementation or send outreach email
 while the owner's no-email decision remains in force.
@@ -279,6 +281,40 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 26 August 2026 - SEO-16 guarded two-product comparison CODE COMPLETE; launch approval pending
+
+- Added one canonical `/compare` Server Component. Users choose two products
+  with bounded `left` and `right` IDs; parameter states canonicalize to
+  `/compare` and never create indexable pair-page inventory.
+- The selector reuses `categoryComparison`, the canonical retailer-product to
+  product-variant resolver, shared nutrition metrics, delivered-price logic,
+  24-hour freshness and lifecycle cache/error contracts. It accepts only
+  active unmerged products with a fresh in-stock offer, known delivery and an
+  active resolved canonical variant containing explicit positive `pack_count`,
+  `size_value` and `size_unit`. It never assumes one pack, copies base-product
+  identity or fabricates missing nutrition.
+- Side-by-side SSR shows exact pack, lowest known delivered total, retailer and
+  offer coverage, check time and only available verified metrics. It declares
+  no winner, effectiveness, quality or suitability claim. Structured data is
+  limited to `WebPage` and `BreadcrumbList`.
+- `/compare` is registered centrally as lifecycle `planned`, has the shared
+  route error boundary and cache, occurs exactly once in sitemap source but is
+  filtered from the served sitemap, and is linked from the homepage. Base and
+  parameter states remain `noindex, follow` with one `/compare` canonical.
+- Read-only local SSR against current production data returned HTTP `200` and
+  found `304` eligible products. A real pair (`756` and `757`) returned HTTP
+  `200` with exact-pack and known-delivered-total evidence, the same canonical
+  and `noindex`; the scoped error screen was absent. The first attempt without
+  the Windows system CA failed closed with HTTP `500`, and the verified retry
+  changed only local TLS handling.
+- Focused tests passed `22/22`; `verify:quick`, `verify:full`, Project Guardian,
+  TypeScript, ESLint with zero errors, `git diff --check`, all `236` safe tests,
+  baseline migration validation and the Next.js 16.2.9 production build passed.
+  The seven pre-existing GYM HIGH/Six Pack lint warnings are unchanged.
+- No workflow, backfill, migration, production-data write, deployment, commit
+  or push occurred in this checkpoint. SEO-16 stays `IN PROGRESS`; explicit
+  lifecycle launch approval and public live verification remain required.
 
 ### 24 August 2026 — SEO Indexability Lifecycle P0 LIVE VERIFIED
 

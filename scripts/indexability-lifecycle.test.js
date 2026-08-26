@@ -37,12 +37,18 @@ const lifecycle = require(path.join(
   "app/lib/indexabilityLifecycle.ts"
 ));
 
-const liveVerifiedPaths = Object.keys(
+const publicPaths = Object.keys(
   lifecycle.PUBLIC_INDEXABILITY_LIFECYCLE
+);
+const liveVerifiedPaths = publicPaths.filter(
+  (route) => lifecycle.getLifecycleStatus(route) === "live_verified"
+);
+const plannedPaths = publicPaths.filter(
+  (route) => lifecycle.getLifecycleStatus(route) === "planned"
 );
 
 const pageFiles = new Map(
-  liveVerifiedPaths.map((route) => [
+  publicPaths.map((route) => [
     route,
     path.join(process.cwd(), "app", ...route.slice(1).split("/"), "page.tsx"),
   ])
@@ -61,7 +67,9 @@ test("approved public routes have one explicit live-verified lifecycle", () => {
 
 test("the public lifecycle registry is complete, routable and separate from owner-deferred decisions", () => {
   assert.equal(liveVerifiedPaths.length, 15);
-  for (const route of liveVerifiedPaths) {
+  assert.deepEqual(plannedPaths, ["/compare"]);
+  assert.equal(publicPaths.length, 16);
+  for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);
     assert.equal(
       lifecycle.PUBLIC_INDEXABILITY_LIFECYCLE[route],
@@ -127,6 +135,11 @@ test("non-live lifecycle states fail closed even with hypothetical high coverage
   }
   assert.equal(lifecycle.getLifecycleStatus("/brands/gym-high"), "owner_deferred");
   assert.equal(lifecycle.isLifecycleSitemapEligible("/brands/gym-high"), false);
+  assert.deepEqual(lifecycle.getLifecycleRobots("/compare"), {
+    index: false,
+    follow: true,
+  });
+  assert.equal(lifecycle.isLifecycleSitemapEligible("/compare"), false);
 });
 
 test("launch-approved routes can enter robots and sitemap before live verification", () => {
@@ -134,7 +147,7 @@ test("launch-approved routes can enter robots and sitemap before live verificati
 });
 
 test("arbitrary parameters are noindex follow with the base route as canonical", () => {
-  for (const route of liveVerifiedPaths) {
+  for (const route of publicPaths) {
     assert.deepEqual(lifecycle.getLifecycleRobots(route, { sort: "price" }), {
       index: false,
       follow: true,
@@ -180,7 +193,7 @@ test("robots and sitemap use the same lifecycle map without runtime coverage que
     /throw new Error\("Unable to load complete product sitemap data\."\)/
   );
   assert.doesNotMatch(sitemap, /gym-high/i);
-  for (const route of liveVerifiedPaths) {
+  for (const route of publicPaths) {
     const escaped = route.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     assert.equal(
       (sitemap.match(new RegExp(`\\$\\{siteUrl\\}${escaped}`, "g")) || [])
@@ -201,7 +214,7 @@ test("lifecycle hubs use a scoped safe retry screen", () => {
   assert.match(source, /unstable_retry/);
   assert.doesNotMatch(source, /\breset\b|old prices|token|supabase|database url/i);
 
-  const boundaries = liveVerifiedPaths.map((route) =>
+  const boundaries = publicPaths.map((route) =>
     path.join(process.cwd(), "app", ...route.slice(1).split("/"), "error.tsx")
   );
   for (const boundary of boundaries) {

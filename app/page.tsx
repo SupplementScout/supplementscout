@@ -12,6 +12,7 @@ import { getHomepageData } from "./lib/homepageData";
 export const revalidate = 3600;
 
 const popularSearches = [
+  { label: "Compare two products", href: "/compare" },
   { label: "Best prices today", href: "/deals" },
   { label: "Creatine", href: "/creatine" },
   { label: "Whey protein", href: "/whey-protein" },

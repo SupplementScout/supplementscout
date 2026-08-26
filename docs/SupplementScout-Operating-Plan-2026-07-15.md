@@ -1451,6 +1451,40 @@ remain not started. Stage 2 is the next bounded SEO-15 unit under its existing
 separate migration, test, volume and rollback approval gates. The binding order
 remains SEO-15, SEO-16, SEO-17. GYM HIGH remains owner-deferred.
 
+### 0.0.20 SEO-16 guarded two-product comparison CODE COMPLETE - 26 August 2026
+
+The bounded SEO-16 implementation is code complete and awaiting an explicit
+lifecycle launch decision. `/compare` is one Server Component with `left` and
+`right` query selections; it does not create indexable pair routes or a second
+comparison engine. It reuses the shared canonical product comparison,
+retailer-product variant resolution, current-offer freshness, delivered-price,
+verified nutrition, cache, canonical, robots and error contracts.
+
+Eligibility is fail-closed to active unmerged products with a fresh in-stock
+offer, known delivery and an active exact canonical variant with explicit
+positive `pack_count`, `size_value` and `size_unit`. Base-product fields and
+names are not used as exact-pack fallback, pack count is never assumed to be
+one and missing metrics remain omitted. The UI shows exact pack, known
+delivered total, offer/retailer coverage, check time and only verified metrics;
+it makes no winner, effectiveness, quality or suitability claim.
+
+The route is centrally registered as `planned`, so base and parameter states
+remain `noindex, follow`; all states canonicalize to `/compare` and the sitemap
+adapter filters the planned route from the served sitemap. A homepage link,
+scoped lifecycle error boundary and WebPage/BreadcrumbList schema are present.
+Read-only local SSR against current production data found `304` eligible
+products. The base route and a real pair (`756`, `757`) returned HTTP `200`,
+the correct canonical, planned `noindex`, exact pack and known delivered total.
+
+Focused tests passed `22/22`. Project Guardian, `verify:quick`, `verify:full`,
+TypeScript, ESLint with zero errors, `git diff --check`, all `236` safe tests,
+baseline migration validation and the Next.js 16.2.9 production build passed;
+seven pre-existing GYM HIGH/Six Pack warnings remain. No workflow, backfill,
+migration, production-data write or deployment ran. SEO-16 remains `IN
+PROGRESS` until explicit launch approval, deployment and public live evidence.
+After SEO-16 completion, the binding sequence returns mandatorily to blocked
+SEO-15 accrual audits before SEO-17. GYM HIGH remains owner-deferred.
+
 ## 1. Product identity
 
 **Name:** SupplementScout  

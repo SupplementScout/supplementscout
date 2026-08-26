@@ -17,6 +17,7 @@ export type RouteSearchParams = Record<
  * sitemap adapter.
  */
 export const PUBLIC_INDEXABILITY_LIFECYCLE = Object.freeze({
+  "/compare": "planned",
   "/deals": "live_verified",
   "/whey-protein": "live_verified",
   "/vegan-protein": "live_verified",
