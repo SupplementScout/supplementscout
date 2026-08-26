@@ -52,6 +52,18 @@ ledger `144` has fingerprint
 Six conflicting identities remain fail-closed. Evidence is sealed in
 `docs/rollouts/fit-house-exact-pack-batch-15-2026-08-26.json`.
 
+The owner then approved 11 additional Fit House identities backed by current
+retailer body evidence and the existing approved pack-count config. Migration
+`20260826130000_create_fit_house_retailer_evidence_exact_pack_11` created 11
+explicit serving variants and increased readiness from `181/286` to `192/286`.
+The exact owner clarification for Trec ALA is one capsule per serving, taken
+twice daily: 60 capsules are 60 servings and 30 days of use. Products, mappings,
+offers and price history remained unchanged; production ledger `145` has
+fingerprint
+`b3e7624b1ff7ff7ee854f365f47f7fdb3c482e9dab889b7cd83ab515764fd801`.
+Seven conflicts remain fail-closed. Evidence is sealed in
+`docs/rollouts/fit-house-retailer-evidence-batch-11-2026-08-26.json`.
+
 Jon's and GYM HIGH are the only enabled producers; Simply Supplements, Fit
 House, Whey Okay, 6 Pack Supplements and eBay UK remain disabled. No workflow
 was manually run, so GYM HIGH's first identity series and confirmations still

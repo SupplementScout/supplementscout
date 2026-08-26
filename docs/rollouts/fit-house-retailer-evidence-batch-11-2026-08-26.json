@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "REHEARSED_OWNER_APPROVAL_REQUIRED",
+  "status": "PRODUCTION_APPLIED_VERIFIED",
   "authority": "owner-chat-2026-08-26-do-dziela-prepare-fit-house-retailer-evidence-batch-11",
   "retailer": { "id": 9, "slug": "fit-house", "approved_scope": 286 },
   "production_read_only_audit": {
@@ -47,6 +47,30 @@
     "fit_house_exact_ready": "181 -> 192 -> 181",
     "committed": false,
     "database_writes_committed": 0
+  },
+  "owner_review": {
+    "approved": true,
+    "authority": "owner-chat-2026-08-26-approved-all-11",
+    "mapping_709_usage_confirmation": "1 capsule per serving, taken twice daily; 60 capsules equals 60 servings and 30 days of use"
+  },
+  "production_apply": {
+    "result": "PASS",
+    "migration": "20260826130000_create_fit_house_retailer_evidence_exact_pack_11",
+    "ledger_count": 145,
+    "ledger_fingerprint": "b3e7624b1ff7ff7ee854f365f47f7fdb3c482e9dab889b7cd83ab515764fd801",
+    "catalogue_counts_before": { "products": 1112, "product_variants": 2747, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "catalogue_counts_after": { "products": 1112, "product_variants": 2758, "retailer_products": 2761, "offers": 2761, "price_history": 4001 },
+    "fit_house_exact_ready": "181 -> 192"
+  },
+  "production_read_only_postflight": {
+    "result": "PASS",
+    "database_writes": 0,
+    "fit_house_scope": 286,
+    "fit_house_exact_ready": 192,
+    "target_rows_exact_ready": 11,
+    "excluded_conflicts_still_blocked": 7,
+    "ledger_count": 145,
+    "ledger_fingerprint": "b3e7624b1ff7ff7ee854f365f47f7fdb3c482e9dab889b7cd83ab515764fd801"
   },
   "rows": [
     { "mapping_id": 683, "offer_id": 691, "product_id": 673, "from_variant_id": 513, "external_product_id": "9680391831792", "external_variant_id": "48142863401200", "exact_pack": { "pack_count": 1, "size_value": 90, "size_unit": "servings" }, "retailer_evidence": "90 vegetarian capsules - 90 servings" },

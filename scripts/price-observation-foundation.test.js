@@ -187,9 +187,12 @@ test("Fit House retailer-evidence batch 11 is explicit, guarded and keeps confli
   const rollback = fs.readFileSync(path.join(process.cwd(), "supabase/rollbacks/20260826130000_create_fit_house_retailer_evidence_exact_pack_11.sql"), "utf8");
   const evidence = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/rollouts/fit-house-retailer-evidence-batch-11-2026-08-26.json"), "utf8"));
   const approvedMappings = [683,684,688,703,709,710,796,859,864,867,873];
-  assert.equal(evidence.status, "REHEARSED_OWNER_APPROVAL_REQUIRED");
+  assert.equal(evidence.status, "PRODUCTION_APPLIED_VERIFIED");
   assert.equal(evidence.production_transaction_rollback_rehearsal.result, "PASS");
   assert.equal(evidence.production_transaction_rollback_rehearsal.database_writes_committed, 0);
+  assert.equal(evidence.owner_review.approved, true);
+  assert.equal(evidence.production_apply.ledger_count, 145);
+  assert.equal(evidence.production_read_only_postflight.fit_house_exact_ready, 192);
   assert.equal(evidence.production_read_only_audit.database_writes, 0);
   assert.equal(evidence.evidence_contract.product_name_used_as_evidence, false);
   assert.equal(evidence.evidence_contract.base_product_values_copied, false);
