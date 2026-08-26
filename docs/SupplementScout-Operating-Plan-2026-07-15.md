@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 25 August 2026<br>
+**Status date:** 26 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -2748,9 +2748,42 @@ creating six variants without changing product, mapping, offer or history row
 counts. Producer run `32888613481` on commit `c15b87b` succeeded across
 `506/506`, classified all 506 rows as `VERIFY_NO_CHANGE`, created exactly six
 identity series and daily confirmations, and passed a zero-write idempotency
-run. Independent production readback is `439/506`; the remaining `67` offers
-continue to fail closed. Public Stage 2 remains blocked pending
-elapsed accrual, Stage 3 and public price-drop claims remain disabled, and GYM
+run. Independent production readback was `439/506`.
+
+The next owner-reviewed ordinary package reused the same path for 51 rows: it
+created 50 exact variants and rebound one existing exact variant without
+changing product, mapping, offer or history counts. Producer run `32892293918`
+on commit `d5e7b79` succeeded over `506/506`, created 51 identity series and
+daily confirmations, and passed zero-write idempotency, raising verified
+coverage to `490/506`.
+
+The final evidence audit proved 13 of the 16 remaining rows from exact retailer
+images, exact Shopify variant data, preserved retailer evidence or manufacturer
+directions. Two bounded migrations applied at production ledger `140`,
+fingerprint
+`1364e9db9cb2d55711ceb4407cad4d0d31e2708c4a6051ff253c0b97f632d458`,
+creating exactly 13 variants and changing no product, mapping, offer or history
+row count. Initial canary run `32895119983` failed safely before validation or
+writes because the preserved OOS manifest still named offer `1468`'s previous
+default variant. Commit `05a53c1` aligned that existing manifest to exact
+variant `2950`; the recorder contract was not changed. Producer run
+`32915426696` then succeeded over `506/506`: 504 rows were
+`VERIFY_NO_CHANGE`, two current stock transitions were applied, 503
+identity-proven daily confirmations were recorded, and the fresh idempotency
+pass made zero writes. Independent production readback confirms `503/506`
+current exact mappings, 503 matching identity series, 503 daily confirmations
+dated 26 August, zero duplicate current series and zero series for other
+retailers.
+
+Only offers `1024`, `1451` and `1459` remain fail-closed. Offer `1024` has an
+owner-entered 60-serving value that conflicts with manufacturer evidence for a
+240-capsule, eight-capsule, 30-day pack. Offer `1451` has an owner-entered
+`1 x 500g` value that conflicts with the exact Shopify variant image showing
+two 250g pouches. Offer `1459` has variable directions of one to two tablets
+twice daily and no exact servings-per-container evidence. These three require
+corrected owner/evidence review and must not be inferred. Public Stage 2
+remains blocked pending elapsed accrual, Stage 3 and public price-drop claims
+remain disabled, and GYM
 HIGH remains owner-deferred. `SEO-13` is complete and live verified from commit
 `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f` and production deployment
 `6048852742`. SEO-14 is live verified after launching useful,
@@ -2807,9 +2840,11 @@ publication.
 
 ### Next task
 
-Continue bounded exact-pack remediation for the already-approved Jon's
-producer through the existing reviewed migration and recorder paths. Current
-coverage is `439/506`; incomplete or conflicting identities remain fail-closed.
+Accrue and audit identity-proven Jon's observations through the existing
+scheduled producer. Current verified coverage is `503/506`; the three named
+conflict/deferred identities remain fail-closed until corrected evidence and
+owner review are available. Reuse the same manifest, bounded migration,
+selected apply, producer and independent-readback path for any later closure.
 Do not enable any of the other six producers without separate approval and a
 readback gate.
 The earliest accrual audit is after 14 days and the recommended publication

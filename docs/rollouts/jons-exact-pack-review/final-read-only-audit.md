@@ -8,18 +8,18 @@ authorise a migration, backfill, workflow run or production write.
 
 ## Result
 
-- Production binding: 88 offers, 88 mappings, 88 canonical products and 88
+- Audit-start production binding: 88 offers, 88 mappings, 88 canonical products and 88
   canonical variants; there are no duplicates in the audited scope.
-- Every audited canonical variant still has `pack_count`, `size_value` and
-  `size_unit` equal to `NULL` in production.
-- Owner review: 87 candidate exact packs approved for evidence processing; one
-  row deferred.
+- At audit start every audited canonical variant had `pack_count`, `size_value`
+  and `size_unit` equal to `NULL` in production.
+- Owner input proposed 87 candidate exact packs for evidence processing and
+  deferred one row; exact evidence later cleared 85 and exposed two conflicts.
 - Deferred row: offer `1459`, mapping `1645`, product `925`, variant `1531`,
   Himalaya Liv.52 DS 60 Tablets. The available instruction is variable (one to
   two tablets twice daily) and does not establish one exact serving count.
-- If every approved candidate later passes its evidence and canonical-sharing
-  gates, the next successful Jon's producer run is projected to move coverage
-  from `418/506` to `505/506`.
+- The evidence-backed execution moved coverage from `418/506` to `503/506`.
+  The theoretical `505/506` ceiling still requires corrected owner decisions
+  for the two conflicting rows; it was not treated as achieved.
 - The complete ordered list and candidate fields are in
   `all-88-decisions.json`; the production-bound simulation is in
   `read-only-dry-run.json`.
@@ -123,21 +123,37 @@ updates:
 `IN PROGRESS`; public Stage 2, Stage 3 and public price-drop claims remain
 disabled.
 
-## Execution checkpoint — 25 August 2026
+## Execution checkpoint — 26 August 2026
 
-The audit remains `PARTIAL`: 21 of the 88 originally skipped offers now have
-explicit exact-pack variants and identity-proven daily confirmations, while 67
-remain fail-closed. The existing approved path was reused; no importer, admin
-form, recorder contract or parallel pricing store was added.
+The audit remains `PARTIAL`: 85 of the 88 originally skipped offers now have
+explicit or exactly rebound exact-pack variants and identity-proven daily
+confirmations, while three remain fail-closed. The existing approved path was
+reused; no importer, admin form, recorder contract or parallel pricing store
+was added.
 
 - canary run `32883838868`: `418/506` to `423/506`;
 - reviewed servings run `32886482475`: `423/506` to `433/506`;
 - final evidence-ready run `32888613481`: `433/506` to `439/506`.
+- ordinary reviewed run `32892293918`: `439/506` to `490/506`;
+- special-evidence run `32915426696`: `490/506` to `503/506`.
 
-The final run covered `506/506`, classified all rows as `VERIFY_NO_CHANGE`,
-created exactly six identity series and daily confirmations, and its fresh
-idempotency pass wrote zero rows. Independent readback confirmed `439` series,
-`439` identity-proven observations and `439` daily confirmations. Only Jon's
-producer is enabled; the other six remain disabled. The remaining 67 require
-new exact manufacturer or retailer evidence and conflict resolution through
-the same bounded review path; they are not authorised by this checkpoint.
+The latest successful run covered `506/506`, classified 504 rows as
+`VERIFY_NO_CHANGE`, applied two source-proven stock transitions, recorded 503
+daily confirmations and passed a fresh zero-write idempotency check.
+Independent readback confirmed 503 current exact mappings, 503 matching
+identity series, 503 daily confirmations, no duplicate current series and no
+series for other retailers. Only Jon's producer is enabled; the other six
+remain disabled.
+
+The three remaining blockers are exact and must not be inferred:
+
+- offer `1024`: owner-entered 60 servings conflicts with manufacturer evidence
+  for 240 capsules, eight capsules per serving and 30 days;
+- offer `1451`: owner-entered `1 x 500g` conflicts with the exact variant image
+  showing two 250g pouches;
+- offer `1459`: variable one-to-two-tablet directions do not prove one exact
+  servings-per-container value.
+
+Any later closure must reuse the same evidence manifest → bounded exact-variant
+migration/Jon's-only rebind → selected rehearsal/apply → Jon's workflow →
+independent readback path.

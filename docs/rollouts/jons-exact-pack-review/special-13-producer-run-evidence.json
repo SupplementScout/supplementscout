@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "jons-exact-pack-special-13-producer-run-evidence-v1",
+  "captured_at": "2026-08-26T00:36:00Z",
+  "workflow": {
+    "run_id": "32915426696",
+    "head_sha": "05a53c1dbe70a5f4fd13c74f671b7f713b1e9674",
+    "conclusion": "success",
+    "artifact_id": "9588070461"
+  },
+  "source": {"products":242,"variants":891,"country":"GB"},
+  "scope": {"mappings":506,"offers":506},
+  "classification": {"VERIFY_NO_CHANGE":504,"UPDATE_STOCK":2},
+  "business": {
+    "products_delta": 0,
+    "variants_delta": 0,
+    "mappings_delta": 0,
+    "offers_delta": 0,
+    "price_history_delta": 503,
+    "offers_refreshed": 506
+  },
+  "idempotency": {
+    "result": "PASS",
+    "database_writes_attempted": 0,
+    "database_writes_completed": 0,
+    "business_writes_completed": 0,
+    "control_writes_completed": 0
+  },
+  "independent_readback": {
+    "jons_mappings": 506,
+    "jons_offers": 506,
+    "exact_current_mappings": 503,
+    "current_identity_series": 503,
+    "daily_confirmations_on_2026_08_26": 503,
+    "duplicate_current_series": 0,
+    "other_retailer_series": 0,
+    "jons_only_enabled_producer": true
+  },
+  "blocked_offer_ids": ["1024", "1451", "1459"],
+  "failed_safe_precursor": {
+    "run_id": "32895119983",
+    "result": "FAIL_BEFORE_VALIDATION_OR_WRITES",
+    "reason": "preserved missing-variant manifest still named offer 1468's previous default variant",
+    "database_writes_completed": 0
+  }
+}
