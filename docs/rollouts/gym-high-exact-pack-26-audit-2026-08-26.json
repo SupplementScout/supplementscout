@@ -77,6 +77,7 @@
     "workflow_run": "NOT_RUN",
     "postflight": {"scope":66,"exact_ready":49,"not_ready":17,"target_exact":9,"blocked_still_not_ready":17,"target_series":0,"enabled_producers":["gym-high","jon-s-supplements"],"database_writes":0}
   },
+  "subsequent_owner_resolution": {"offer_id":550,"authority":"owner-chat-2026-08-26-gym-high-shred-mode-60-servings","decision":{"pack_count":1,"size_value":60,"size_unit":"servings"},"evidence":"docs/rollouts/gym-high-shred-mode-owner-decision-2026-08-26.json","production_result":"PASS","current_coverage":"50/66","remaining_blocked":16},
   "result": "PARTIAL",
-  "evidence_plan": "Apply the guarded exact 9 migration through the existing selected-migration rehearsal/apply/postflight path. Allow the ordinary enabled producer schedule to create observations later. Keep Shred Mode and all 16 accessories fail-closed; do not widen the supplement unit contract in this batch."
+  "evidence_plan": "The guarded exact 9 migration and the subsequent owner-resolved Shred Mode migration are production verified. Allow the ordinary enabled producer schedule to create observations later. Keep all 16 apparel/accessory rows fail-closed; do not widen the supplement unit contract in this batch."
 }

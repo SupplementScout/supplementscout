@@ -12,5 +12,6 @@
   "expected_coverage": {"before":"49/66","after":"50/66","remaining_blocked":16},
   "migration": "supabase/migrations/20260826110000_create_gym_high_shred_mode_exact_pack.sql",
   "rollback": "supabase/rollbacks/20260826110000_create_gym_high_shred_mode_exact_pack.sql",
-  "status": "APPROVED_FOR_GUARDED_REHEARSAL_AND_APPLY"
+  "production_apply": {"preparation_commit":"6f8ee75","result":"PASS_COMMITTED","rehearsal_confirmation":"e1764983411d418c","ledger_count":143,"ledger_fingerprint":"27176e91f21f7e7a62d202e6924d4ad97290b453e90c296656704f1b7b84085b","catalogue_count_deltas":{"products":0,"product_variants":1,"retailer_products":0,"offers":0,"price_history":0},"postflight":{"scope":66,"exact_ready":50,"not_ready":16,"offer_id":550,"mapping_id":136,"product_id":508,"variant_id":2975,"pack_count":1,"size_value":60,"size_unit":"servings","has_series":false,"database_writes":0}},
+  "status": "PRODUCTION_VERIFIED"
 }
