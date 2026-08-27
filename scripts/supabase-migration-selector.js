@@ -192,7 +192,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
-        sha256: "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+        sha256: "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
         expectedCatalogueDeltas: Object.freeze({}),
       }),
     ]),
@@ -226,7 +226,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
-        sha256: "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+        sha256: "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
         expectedCatalogueDeltas: Object.freeze({}),
       }),
     ]),

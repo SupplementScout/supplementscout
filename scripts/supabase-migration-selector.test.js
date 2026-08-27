@@ -155,7 +155,7 @@ test("production records Fit House applied and selects only the reviewed Predato
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
     filename: "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
-    sha256: "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+    sha256: "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
     expectedCatalogueDeltas: {},
   }]);
   assert.equal(contract.ledgerCount, 151);
@@ -270,9 +270,9 @@ test("production binds its exact ledger with Fit House producer enablement appli
   assert.equal(result.selected_files.length, 152);
   assert.deepEqual(result.pending_files, ["20260827200000_allow_predators_gear_reviewed_creatine_316g.sql"]);
   assert.equal(result.pending_file, "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql");
-  assert.equal(result.pending_sha256, "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed");
+  assert.equal(result.pending_sha256, "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115");
   assert.deepEqual(result.pending_sha256s, {
-    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
   });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
@@ -353,10 +353,10 @@ test("production owner guard rejects service role and accepts postgres only", ()
 test("staging output reports the exact pending Predators Gear migration", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql");
-  assert.equal(result.pending_sha256, "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed");
+  assert.equal(result.pending_sha256, "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115");
   assert.deepEqual(result.pending_files, ["20260827200000_allow_predators_gear_reviewed_creatine_316g.sql"]);
   assert.deepEqual(result.pending_sha256s, {
-    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
   });
 });
 

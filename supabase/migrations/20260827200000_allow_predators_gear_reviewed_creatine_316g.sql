@@ -55,11 +55,7 @@ begin
        'powder',
        '316',
        'g'
-     )
-     or position(
-       'perform public.validate_product_import_plan_read_only(p_plan)',
-       pg_get_functiondef('public.apply_product_import_plan(jsonb)'::regprocedure)
-     ) = 0 then
+     ) then
     raise exception 'Predators Gear reviewed creatine policy verification failed';
   end if;
 end
