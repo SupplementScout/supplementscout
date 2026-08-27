@@ -189,7 +189,13 @@ const CONTRACTS = Object.freeze({
       "20260826190000_enable_fit_house_price_observation_producer.sql":
         "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
+        sha256: "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+        expectedCatalogueDeltas: Object.freeze({}),
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -217,7 +223,13 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
+        sha256: "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+        expectedCatalogueDeltas: Object.freeze({}),
+      }),
+    ]),
   }),
 });
 

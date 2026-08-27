@@ -72,12 +72,12 @@ test.after(() => {
   }
 });
 
-test("staging records the applied identity observation migration", () => {
+test("staging selects only the reviewed Predators Gear policy migration", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 81);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 81);
+  assert.deepEqual(result.pending, ["20260827200000_allow_predators_gear_reviewed_creatine_316g"]);
+  assert.equal(result.selected_files.length, 82);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -151,9 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the Fit House producer enablement as applied", () => {
+test("production records Fit House applied and selects only the reviewed Predators Gear policy migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
+    sha256: "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+    expectedCatalogueDeltas: {},
+  }]);
   assert.equal(contract.ledgerCount, 151);
   assert.equal(
     contract.ledgerFingerprint,
@@ -218,7 +222,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 81);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 82);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -262,12 +266,14 @@ test("production binds its exact ledger with Fit House producer enablement appli
   });
   assert.equal(result.ledger_count, 151);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 151);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending, ["20260827200000_allow_predators_gear_reviewed_creatine_316g"]);
+  assert.equal(result.selected_files.length, 152);
+  assert.deepEqual(result.pending_files, ["20260827200000_allow_predators_gear_reviewed_creatine_316g.sql"]);
+  assert.equal(result.pending_file, "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql");
+  assert.equal(result.pending_sha256, "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed");
+  assert.deepEqual(result.pending_sha256s, {
+    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+  });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -344,12 +350,14 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migration after the identity observation apply", () => {
+test("staging output reports the exact pending Predators Gear migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql");
+  assert.equal(result.pending_sha256, "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed");
+  assert.deepEqual(result.pending_files, ["20260827200000_allow_predators_gear_reviewed_creatine_316g.sql"]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "0d0e7b35aadcc99cdd52f131b8dfd17b3c0373a328fe0c0b1c52b73816c38bed",
+  });
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {

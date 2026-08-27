@@ -6,6 +6,7 @@ const reviewedManifest = require("../config/retailers/predators-gear-reviewed-bi
 const reviewedBatch2Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v2.json");
 const reviewedHeld4Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v3-held-4.json");
 const reviewedShadowhey3Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v4-shadowhey-3.json");
+const reviewedNewProductsV1Manifest = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
 const {
   BATCH2_ARTIFACT_PATH,
   BATCH2_CSV_PATH,
@@ -45,6 +46,8 @@ function fixture(profileName = "original-v2") {
         ? reviewedHeld4Manifest
         : profileName === "shadowhey-3"
           ? reviewedShadowhey3Manifest
+        : profileName === "reviewed-new-products-v1"
+          ? reviewedNewProductsV1Manifest
         : reviewedManifest
   );
   if (manifest.canonical_csv) manifest.canonical_csv.sha256 = sha256(csvBytes);
@@ -60,17 +63,23 @@ function fixture(profileName = "original-v2") {
       retailer_website: "https://predatorsgear.co.uk/",
       external_product_id: String(reviewed.external_product_id),
       external_variant_id: String(reviewed.external_variant_id),
-      external_gtin: reviewed.external_gtin14 || "",
+      external_gtin: reviewed.external_gtin14 || reviewed.external_gtin || "",
       external_options: reviewed.external_options ? JSON.stringify(reviewed.external_options) : "",
-      product_id: String(reviewed.product_id),
-      product_variant_id: String(reviewed.product_variant_id),
+      product_id: reviewed.product_id == null ? "" : String(reviewed.product_id),
+      product_variant_id: reviewed.product_variant_id == null ? "" : String(reviewed.product_variant_id),
+      product_name: reviewed.product_name,
+      slug: reviewed.slug,
+      brand: reviewed.brand,
+      category: reviewed.category,
+      product_format: reviewed.product_format,
+      external_sku: reviewed.external_sku || "",
       shipping_known: "true",
       shipping_cost: "0",
       price: String(reviewed.price),
       total_price: String(reviewed.price),
       external_url: reviewed.source_url,
       affiliate_url: reviewed.source_url,
-      image: reviewed.image_url,
+      image: reviewed.image_url || reviewed.image,
     };
     const sourceFingerprint = sourceRowFingerprint(source);
     const plan = {
@@ -147,6 +156,53 @@ function fixture(profileName = "original-v2") {
         },
       },
     };
+    if (productionProfile.allowsReviewedCreation) {
+      const reviewedVariant = reviewed.action === "create_reviewed_product_variant";
+      plan.approval = {
+        approval_type: reviewedVariant ? "reviewed_parent_variant_safe_create" : "safe_create",
+        approved: true,
+        approved_category: reviewed.category,
+        canonical_name: reviewed.product_name,
+        has_variant_evidence: reviewedVariant,
+      };
+      plan.expected_state.product = null;
+      plan.expected_state.product_variant = null;
+      plan.product = {
+        action: reviewedVariant ? "create_or_reuse_reviewed" : "create",
+        values: {
+          name: reviewed.product_name,
+          slug: reviewed.slug,
+          brand: reviewed.brand,
+          category: reviewed.category,
+          product_format: reviewed.product_format,
+          image: reviewed.image,
+          gtin: null,
+        },
+      };
+      plan.product_variant = reviewedVariant
+        ? {
+            action: "create_reviewed_variant",
+            evidence: {},
+            values: {
+              display_name: reviewed.variant_name,
+              flavour_code: reviewed.flavour.toLowerCase(),
+              flavour_label: reviewed.flavour,
+              size_value: reviewed.size,
+              size_unit: reviewed.size_unit,
+              product_format: reviewed.product_format,
+              pack_count: "1",
+            },
+          }
+        : { action: "create_default", evidence: {} };
+      plan.retailer_product.values = {
+        external_gtin: reviewed.external_gtin,
+        external_options: reviewed.external_options || null,
+        external_product_id: String(reviewed.external_product_id),
+        external_variant_id: String(reviewed.external_variant_id),
+        external_sku: reviewed.external_sku,
+        product_variant_id: null,
+      };
+    }
     let fingerprint = planFingerprint(plan);
     if (index === 0 && profileName === "original-v2") fingerprint = FIRST_FINGERPRINT;
     plan.meta.plan_fingerprint = fingerprint;
@@ -221,6 +277,15 @@ function fixture(profileName = "original-v2") {
     execution.review_rows = [...profile.reviewRows];
     execution.plan_fingerprints = [...profile.planFingerprints];
   } else if (profileName === "shadowhey-3") {
+    manifest.canonical_csv.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    manifest.canonical_csv.sha256 = profile.csvSha256;
+    manifest.canonical_csv.row_count = profile.planCount;
+    manifest.execution_profile.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    manifest.execution_profile.artifact_sha256 = profile.artifactSha256;
+    manifest.execution_profile.plan_count = profile.planCount;
+    manifest.execution_profile.blocked_row_count = 0;
+    manifest.execution_profile.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName === "reviewed-new-products-v1") {
     manifest.canonical_csv.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
     manifest.canonical_csv.sha256 = profile.csvSha256;
     manifest.canonical_csv.row_count = profile.planCount;
@@ -366,6 +431,53 @@ test("reviewed Shadowhey three-plan profile is exact and validates", () => {
   assert.equal(value.artifact.plans.length, 3);
   assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.id === "753"));
   assert.deepEqual(value.artifact.plans.map((entry) => entry.resolved_plan.product_variant.id), ["873", "876", "877"]);
+});
+
+test("reviewed new-products profile permits only the exact three-product five-plan creation scope", () => {
+  const profile = REVIEWED_PROFILES.find((candidate) => candidate.name === "reviewed-new-products-v1");
+  assert.equal(profile.artifactSha256, "309de9d46985e85816701198b4b72301bfe9857838e57e315ef34b1c9d99de12");
+  assert.equal(profile.csvSha256, "790803511e8219737f0b4a637f9b83cd5ae7208f1ed5f33304a7f19f18e337a9");
+  assert.deepEqual(profile.planFingerprints, [
+    "ca0abf6244760b196aab29cfbda76510",
+    "7c844da2320487376923ab979edddab6",
+    "ca504fc16da99d401b9b820b3110a596",
+    "8a085ee3c866423b0a53a8ec61d41d4c",
+    "99c22d5737ab8f544000129b8055a947",
+  ]);
+  const value = fixture("reviewed-new-products-v1");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 5);
+  assert.deepEqual(
+    value.artifact.plans.map((entry) => entry.resolved_plan.product.action),
+    ["create_or_reuse_reviewed", "create_or_reuse_reviewed", "create_or_reuse_reviewed", "create", "create"]
+  );
+  assert.deepEqual(
+    value.artifact.plans.map((entry) => entry.resolved_plan.product_variant.action),
+    ["create_reviewed_variant", "create_reviewed_variant", "create_reviewed_variant", "create_default", "create_default"]
+  );
+});
+
+test("reviewed new-products profile rejects unreviewed creation, 400g reuse, shipping, and retailer drift", () => {
+  const product = fixture("reviewed-new-products-v1");
+  product.artifact.plans[0].resolved_plan.product.values.name = "DY Nutrition The Creatine Complex 400g";
+  assert.throws(() => validate(product), /Unsafe Predators Gear reviewed creation plan/);
+
+  const reuse = fixture("reviewed-new-products-v1");
+  reuse.artifact.plans[0].resolved_plan.product = { action: "existing", id: "754" };
+  assert.throws(() => validate(reuse), /Unsafe Predators Gear reviewed creation plan/);
+
+  const shipping = fixture("reviewed-new-products-v1");
+  shipping.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "4.99";
+  assert.throws(() => validate(shipping), /Unsafe Predators Gear reviewed creation plan/);
+
+  const retailer = fixture("reviewed-new-products-v1");
+  retailer.artifact.plans[0].retailer_id = "14";
+  assert.throws(() => validate(retailer), /Unsafe Predators Gear reviewed creation plan/);
+
+  const held = fixture("reviewed-new-products-v1");
+  held.manifest.rows[4].product_name = "DY Nutrition Joint Support";
+  assert.throws(() => validate(held), /Unsafe reviewed manifest row/);
 });
 
 test("Shadowhey profile rejects hash, retailer, target, and fingerprint drift", () => {

@@ -54,6 +54,49 @@ const {
   canonicalJson,
   normalizeDecimalString,
 } = require("./lib/canonical-json");
+const predatorsReviewedNewProducts = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
+
+const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
+  predatorsReviewedNewProducts.canonical_csv.sha256;
+
+function predatorsReviewedNewProductRows() {
+  return predatorsReviewedNewProducts.rows.map((reviewed) =>
+    baseCanonicalFeedRow({
+      retailer_name: predatorsReviewedNewProducts.retailer.name,
+      retailer_website: predatorsReviewedNewProducts.retailer.website,
+      product_id: "",
+      product_variant_id: "",
+      external_product_id: reviewed.external_product_id,
+      external_variant_id: reviewed.external_variant_id,
+      external_sku: reviewed.external_sku,
+      external_options: reviewed.external_options
+        ? JSON.stringify(reviewed.external_options)
+        : "",
+      product_name: reviewed.product_name,
+      variant_name: reviewed.variant_name || "",
+      brand: reviewed.brand,
+      category: reviewed.category,
+      description: "",
+      image: reviewed.image,
+      slug: reviewed.slug,
+      external_url: reviewed.source_url,
+      affiliate_url: reviewed.source_url,
+      external_gtin: reviewed.external_gtin,
+      price: String(reviewed.price),
+      shipping_known: "true",
+      shipping_cost: "0",
+      total_price: String(reviewed.price),
+      in_stock: "true",
+      is_for_sale: "true",
+      size: reviewed.size || "",
+      size_unit: reviewed.size_unit || "",
+      flavour: reviewed.flavour || "",
+      product_format: reviewed.product_format,
+      pack_count: "1",
+      source_updated_at: "2026-08-27T13:35:38.747Z",
+    })
+  );
+}
 
 test("mixed planning accepts one exact source capture while legacy planning still uses current UTC time", () => {
   const capture = "2026-07-18T16:09:19.507Z";
@@ -2670,6 +2713,159 @@ test("canonical variant fields map to evidence understood by variant guards", ()
   assert.equal(identity.size.unit, "g");
   assert.equal(identity.flavour, "unflavoured");
   assert.equal(identity.packCount, 2);
+});
+
+test("Predators Gear reviewed new-product package plans exactly three products and five offer rows", async () => {
+  const rows = predatorsReviewedNewProductRows();
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{
+      id: "13",
+      name: "Predators Gear",
+      slug: "predators-gear",
+      website: "https://predatorsgear.co.uk/",
+      is_active: true,
+    }],
+  }));
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SHA,
+  });
+
+  assert.equal(result.report.approvedRows.length, 5);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 3);
+  assert.equal(result.report.productVariantsToCreate.length, 3);
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product.action),
+    [
+      "create_or_reuse_reviewed",
+      "create_or_reuse_reviewed",
+      "create_or_reuse_reviewed",
+      "create",
+      "create",
+    ]
+  );
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product_variant.action),
+    [
+      "create_reviewed_variant",
+      "create_reviewed_variant",
+      "create_reviewed_variant",
+      "create_default",
+      "create_default",
+    ]
+  );
+  assert.ok(
+    result.report.approvedRows.every(
+      (item) => Number(item.importPlan.offer.values.shipping_cost) === 0
+    )
+  );
+  assert.ok(
+    result.report.approvedRows.every(
+      (item) => item.importPlan.retailer.action === "existing" &&
+        String(item.importPlan.retailer.id) === "13"
+    )
+  );
+  assert.ok(
+    result.report.approvedRows.slice(0, 3).every(
+      (item) => item.row.product_name === "DY Nutrition The Creatine Complex 316g" &&
+        !item.row.product_id &&
+        !item.row.product_variant_id
+    )
+  );
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("Predators Gear reviewed new-product contract rejects SHA, row-count, identity, and 400g-family drift", () => {
+  const rows = predatorsReviewedNewProductRows();
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(rows, {
+      safeCreate: true,
+      sourceFileSha256: "0".repeat(64),
+    }),
+    /source SHA mismatch/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(rows.slice(0, 4), {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SHA,
+    }),
+    /requires exactly 5 rows/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(
+      [rows[0], rows[0], rows[2], rows[3], rows[4]],
+      {
+        safeCreate: true,
+        sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SHA,
+      }
+    ),
+    /row set mismatch/
+  );
+
+  const driftCases = [
+    ["retailer", { retailer_name: "Other Retailer" }, /outside the approved manifest/],
+    ["parent", { external_product_id: "8594181604893" }, /external_product_id mismatch/],
+    ["variant", { external_variant_id: "8594181604999" }, /row set mismatch|outside the approved manifest/],
+    ["URL", { external_url: "https://predatorsgear.co.uk/?p=8594181604892" }, /external_url mismatch/],
+    ["GTIN", { external_gtin: "05060763890504" }, /external_gtin mismatch/],
+    ["name", { product_name: "DY Nutrition The Creatine Complex 400g" }, /product_name mismatch/],
+    ["size", { size: "400" }, /size mismatch/],
+    ["flavour", { flavour: "Blue Raspberry" }, /flavour mismatch/],
+    ["options", { external_options: JSON.stringify({ Flavour: "Blue Raspberry" }) }, /external_options mismatch/],
+    ["category", { category: "Health Supplements" }, /category mismatch/],
+    ["existing 400g product", { product_id: "754" }, /cannot supply canonical IDs/],
+  ];
+  for (const [name, overrides, pattern] of driftCases) {
+    const drifted = rows.map((row, index) =>
+      index === 0 ? { ...row, ...overrides } : row
+    );
+    assert.throws(
+      () => normalizeCanonicalRetailerFeedRows(drifted, {
+        safeCreate: true,
+        sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SHA,
+      }),
+      pattern,
+      name
+    );
+  }
+
+  const held = rows.map((row, index) => index === 4
+    ? {
+        ...row,
+        external_product_id: "8594181606997",
+        external_variant_id: "8594181606997",
+        product_name: "DY Nutrition Joint Support",
+      }
+    : row);
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(held, {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SHA,
+    }),
+    /row set mismatch|outside the approved manifest/
+  );
+});
+
+test("Predators Gear reviewed 316g SQL policy adds one exact tuple and preserves fail-closed apply validation", () => {
+  const migration = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "supabase/migrations/20260827200000_allow_predators_gear_reviewed_creatine_316g.sql"
+    ),
+    "utf8"
+  );
+  assert.match(migration, /DY Nutrition The Creatine Complex 316g/);
+  assert.match(migration, /''DY Nutrition'',''Creatine'',''powder'',''316'',''g''/);
+  assert.match(migration, /DY Nutrition The Creatine Complex 400g/);
+  assert.match(migration, /Health Supplements/);
+  assert.match(migration, /validate_product_import_plan_read_only/);
+  assert.doesNotMatch(migration, /apply_approved_product_import_plan/);
+  assert.doesNotMatch(migration, /insert\s+into\s+(products|product_variants|offers|retailer_products)/i);
 });
 
 test("reviewed Six Pack WooCommerce identity is exact and fail-closed", () => {

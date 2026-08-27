@@ -56,6 +56,16 @@ const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_O = require("../config/retailers/
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_P = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-p-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_R = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-r-v1.json");
 const PREDATORS_GEAR_REVIEWED_CROSS_PRODUCT_PARENT_CM3 = require("../config/retailers/predators-gear-reviewed-cross-product-parent-cm3-v1.json");
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1 = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
+
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256 =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.canonical_csv.sha256;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS = new Map(
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.rows.map((row) => [
+    String(row.external_variant_id),
+    row,
+  ])
+);
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -822,6 +832,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   delete sourceRow.__reviewed_whey_okay_existing_variant_identity;
   delete sourceRow.__reviewed_whey_okay_q1_q2_package_identity;
   delete sourceRow.__reviewed_six_pack_family_identity;
+  delete sourceRow.__reviewed_predators_new_product_identity;
   row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -831,6 +842,110 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const sizeUnit = String(row.size_unit || "").trim().toLowerCase();
   const description = String(row.description || "");
   const sourceKey = `${externalProductId}:${externalVariantId}`;
+  const predatorsReviewedRow =
+    PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS.get(externalVariantId);
+  const predatorsSourceSha = String(options.sourceFileSha256 || "").toLowerCase();
+  const isPredatorsReviewedSourceIdentity = Boolean(
+    predatorsReviewedRow &&
+      slugifyRetailerName(String(row.retailer_name || "")) === "predators-gear"
+  );
+  if (
+    isPredatorsReviewedSourceIdentity &&
+    predatorsSourceSha !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256
+  ) {
+    throw new Error("Predators Gear reviewed new-product source SHA mismatch");
+  }
+  if (predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256) {
+    if (!isPredatorsReviewedSourceIdentity) {
+      throw new Error("Predators Gear reviewed new-product row is outside the approved manifest");
+    }
+    const exactTextFields = [
+      ["retailer_name", PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.retailer.name],
+      ["retailer_website", PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.retailer.website],
+      ["external_product_id", predatorsReviewedRow.external_product_id],
+      ["external_variant_id", predatorsReviewedRow.external_variant_id],
+      ["external_sku", predatorsReviewedRow.external_sku],
+      ["external_gtin", predatorsReviewedRow.external_gtin],
+      ["product_name", predatorsReviewedRow.product_name],
+      ["slug", predatorsReviewedRow.slug],
+      ["brand", predatorsReviewedRow.brand],
+      ["category", predatorsReviewedRow.category],
+      ["description", ""],
+      ["product_format", predatorsReviewedRow.product_format],
+      ["image", predatorsReviewedRow.image],
+      ["external_url", predatorsReviewedRow.source_url],
+      ["affiliate_url", predatorsReviewedRow.source_url],
+      ["pack_count", "1"],
+    ];
+    for (const [field, expected] of exactTextFields) {
+      if (String(row[field] ?? "").trim() !== String(expected ?? "")) {
+        throw new Error(`Predators Gear reviewed new-product ${field} mismatch`);
+      }
+    }
+    const reviewedVariant =
+      predatorsReviewedRow.action === "create_reviewed_product_variant";
+    const expectedOptions = reviewedVariant
+      ? canonicalJson(predatorsReviewedRow.external_options)
+      : null;
+    const actualOptions = parseExternalOptions(row.external_options);
+    if (
+      (reviewedVariant && canonicalJson(actualOptions) !== expectedOptions) ||
+      (!reviewedVariant && actualOptions !== null)
+    ) {
+      throw new Error("Predators Gear reviewed new-product external_options mismatch");
+    }
+    const conditionalFields = reviewedVariant
+      ? [
+          ["variant_name", predatorsReviewedRow.variant_name],
+          ["flavour", predatorsReviewedRow.flavour],
+          ["size", `${predatorsReviewedRow.size} ${predatorsReviewedRow.size_unit}`],
+          ["size_unit", predatorsReviewedRow.size_unit],
+        ]
+      : [
+          ["variant_name", ""],
+          ["flavour", ""],
+          ["size", ""],
+          ["size_unit", ""],
+        ];
+    for (const [field, expected] of conditionalFields) {
+      if (String(row[field] ?? "").trim() !== String(expected ?? "")) {
+        throw new Error(`Predators Gear reviewed new-product ${field} mismatch`);
+      }
+    }
+    if (
+      optionalIdentifier(row.product_id) ||
+      optionalIdentifier(row.product_variant_id)
+    ) {
+      throw new Error("Predators Gear reviewed new-product rows cannot supply canonical IDs");
+    }
+    if (
+      normalizeDecimalString(row.price, "price") !==
+        normalizeDecimalString(predatorsReviewedRow.price, "price") ||
+      normalizeDecimalString(row.shipping_cost, "shipping_cost") !== "0" ||
+      normalizeDecimalString(row.total_price, "total_price") !==
+        normalizeDecimalString(predatorsReviewedRow.price, "price") ||
+      !parseRequiredBoolean(row.shipping_known, "shipping_known") ||
+      !parseRequiredBoolean(row.in_stock, "in_stock") ||
+      !parseRequiredBoolean(row.is_for_sale, "is_for_sale")
+    ) {
+      throw new Error("Predators Gear reviewed new-product commercial fields mismatch");
+    }
+    row = {
+      ...row,
+      __reviewed_predators_new_product_identity: {
+        contract: PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.kind,
+        review_row: predatorsReviewedRow.review_row,
+        action: predatorsReviewedRow.action,
+        external_product_id: predatorsReviewedRow.external_product_id,
+        external_variant_id: predatorsReviewedRow.external_variant_id,
+        flavour: predatorsReviewedRow.flavour || null,
+        size_value: predatorsReviewedRow.size || null,
+        size_unit: predatorsReviewedRow.size_unit || null,
+        product_format: predatorsReviewedRow.product_format,
+        source_url: predatorsReviewedRow.source_url,
+      },
+    };
+  }
   const sixPackReviewedEntry = SIX_PACK_REVIEWED_FAMILY_ROWS.get(externalVariantId);
   const sixPackReviewed = sixPackReviewedEntry?.row;
   const sixPackReviewedBatch = sixPackReviewedEntry?.batch;
@@ -1020,6 +1135,26 @@ function isCanonicalRetailerFeedRow(row) {
 function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
     return rows;
+  }
+  if (
+    String(options.sourceFileSha256 || "").toLowerCase() ===
+    PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256
+  ) {
+    if (rows.length !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.canonical_csv.row_count) {
+      throw new Error("Predators Gear reviewed new-product contract requires exactly 5 rows");
+    }
+    const actualVariantIds = rows
+      .map((row) => optionalIdentifier(row.external_variant_id))
+      .sort();
+    const reviewedVariantIds = [
+      ...PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS.keys(),
+    ].sort();
+    if (
+      new Set(actualVariantIds).size !== reviewedVariantIds.length ||
+      canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
+    ) {
+      throw new Error("Predators Gear reviewed new-product row set mismatch");
+    }
   }
   if (
     String(options.sourceFileSha256 || "").toLowerCase() ===
@@ -2419,6 +2554,25 @@ function externalOptionValues(options, names) {
 
 function collectCanonicalVariantEvidence(row) {
   const options = parseExternalOptions(row.external_options);
+  const reviewedPredators = row.__reviewed_predators_new_product_identity;
+  if (
+    reviewedPredators?.action === "create_reviewed_product_variant"
+  ) {
+    const reviewedSize = parseSize(
+      `${reviewedPredators.size_value} ${reviewedPredators.size_unit}`
+    );
+    const reviewedFlavour = normalizeFlavour(reviewedPredators.flavour);
+    return {
+      flavour: reviewedFlavour,
+      size: reviewedSize,
+      packCount: parsePackCount(
+        row.pack_count ? `pack of ${row.pack_count}` : ""
+      ),
+      productFormat: parseProductFormat(reviewedPredators.product_format),
+      discriminatingSupplied: true,
+      supplied: true,
+    };
+  }
   const reviewedSixPack = row.__reviewed_six_pack_family_identity;
   if (reviewedSixPack) {
     const reviewedSize =
@@ -3107,6 +3261,7 @@ function isLikelyWooCommerceProductUrl(row, externalProductId) {
 }
 
 const REVIEWED_PARENT_VARIANT_POLICY = new Map([
+  ["DY Nutrition The Creatine Complex 316g", { brand: "DY Nutrition", category: "Creatine", format: "powder", size: "316:g" }],
   ["CNP Loaded Beef Protein 1.8kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "1800:g" }],
   ["CNP Loaded ISO Collagen Protein 2kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "2000:g" }],
   ["CNP Peptide Whey Protein Blend 2.27kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "2270:g" }],
@@ -3182,15 +3337,39 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
   const externalOptions = parseExternalOptions(row.external_options);
-
-  if (slugifyRetailerName(required(row.retailer_name, "retailer_name", rowNumber)) !== "jon-s-supplements") {
-    throw new Error("reviewed parent explicit-variant policy is Jon's-only");
-  }
-  if (!SHOPIFY_NUMERIC_ID_PATTERN.test(externalProductId || "") || !SHOPIFY_NUMERIC_ID_PATTERN.test(externalVariantId || "")) {
-    throw new Error("reviewed parent explicit-variant requires Shopify product and variant IDs");
-  }
-  if (externalProductId === externalVariantId || !isLikelyShopifyVariantUrl(row, externalVariantId)) {
-    throw new Error("reviewed parent explicit-variant requires strict Shopify variant URL identity");
+  const retailerSlug = slugifyRetailerName(
+    required(row.retailer_name, "retailer_name", rowNumber)
+  );
+  const reviewedPredators = row.__reviewed_predators_new_product_identity;
+  if (reviewedPredators) {
+    if (
+      retailerSlug !== "predators-gear" ||
+      reviewedPredators.contract !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.kind ||
+      reviewedPredators.action !== "create_reviewed_product_variant"
+    ) {
+      throw new Error("reviewed Predators Gear parent identity contract mismatch");
+    }
+    if (
+      !SHOPIFY_NUMERIC_ID_PATTERN.test(externalProductId || "") ||
+      !SHOPIFY_NUMERIC_ID_PATTERN.test(externalVariantId || "") ||
+      externalProductId === externalVariantId
+    ) {
+      throw new Error("reviewed Predators Gear parent requires distinct numeric product and variant IDs");
+    }
+    const directUrl = getDirectRetailerProductUrl(row) || getRetailerProductUrl(row);
+    if (directUrl !== reviewedPredators.source_url) {
+      throw new Error("reviewed Predators Gear parent URL mismatch");
+    }
+  } else {
+    if (retailerSlug !== "jon-s-supplements") {
+      throw new Error("reviewed parent explicit-variant policy is retailer restricted");
+    }
+    if (!SHOPIFY_NUMERIC_ID_PATTERN.test(externalProductId || "") || !SHOPIFY_NUMERIC_ID_PATTERN.test(externalVariantId || "")) {
+      throw new Error("reviewed parent explicit-variant requires Shopify product and variant IDs");
+    }
+    if (externalProductId === externalVariantId || !isLikelyShopifyVariantUrl(row, externalVariantId)) {
+      throw new Error("reviewed parent explicit-variant requires strict Shopify variant URL identity");
+    }
   }
   if (optionalIdentifier(row.product_id) || optionalIdentifier(row.product_variant_id)) {
     throw new Error("reviewed parent explicit-variant cannot supply canonical IDs");
@@ -3219,14 +3398,22 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
 
   const optionFlavours = externalOptionValues(externalOptions, ["flavour", "flavor"]);
   if (optionFlavours.length !== 1 || normalizeFlavour(optionFlavours[0]) !== evidence.flavour) {
-    throw new Error("reviewed parent explicit-variant requires exact Shopify flavour option");
+    throw new Error(
+      reviewedPredators
+        ? "reviewed parent explicit-variant requires exact WooCommerce flavour option"
+        : "reviewed parent explicit-variant requires exact Shopify flavour option"
+    );
   }
   const optionSizes = externalOptionValues(externalOptions, ["size"]);
   if (optionSizes.length > 0 && (
     optionSizes.length !== 1 ||
     sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size)
   )) {
-    throw new Error("reviewed parent explicit-variant Shopify size option mismatch");
+    throw new Error(
+      reviewedPredators
+        ? "reviewed parent explicit-variant WooCommerce size option mismatch"
+        : "reviewed parent explicit-variant Shopify size option mismatch"
+    );
   }
 
   if (NO_SKU_SOURCE_EXCLUSION_PATTERN.test([

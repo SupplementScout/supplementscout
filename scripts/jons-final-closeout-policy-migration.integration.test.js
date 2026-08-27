@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, '..');
 const image = 'postgres:17-alpine';
 const password = 'final-closeout-policy-local-only';
 const migration = 'supabase/migrations/20260722113000_allow_final_reviewed_jons_closeout.sql';
+const predatorsMigration = 'supabase/migrations/20260827200000_allow_predators_gear_reviewed_creatine_316g.sql';
 function run(command,args,timeout=120000){return spawnSync(command,args,{cwd:root,encoding:'utf8',timeout});}
 function ok(result,label){assert.equal(result.status,0,`${label}\n${result.stdout}\n${result.stderr}`);return result.stdout.trim();}
 function exec(container,args){return run('docker',['exec',container,...args]);}
@@ -35,15 +36,18 @@ test('final closeout DB policy accepts exact families and permits only strict no
       create function public.apply_product_import_plan(p_plan jsonb) returns jsonb language plpgsql as $fn$ begin perform public.validate_product_import_plan_read_only(p_plan); return '{"applied":true}'::jsonb; end $fn$;
     `]),'create policy stubs');
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${migration}`]),'apply migration');
+    ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${predatorsMigration}`]),'apply Predators Gear reviewed creatine migration');
     const exact=JSON.parse(ok(exec(container,['psql','-X','--no-psqlrc','-A','-t','-U','postgres','-c',`
       select jsonb_build_object(
         'cellucor',public.atomic_import_safe_create_category_allowed('Pre Workout','Cellucor C4 Ripped 180g','powder'),
         'other_pre',public.atomic_import_safe_create_category_allowed('Pre Workout','Other Pre 180g','powder'),
         'whey',public.atomic_import_reviewed_parent_variant_allowed('Efectiv Whey Protein 2kg','Efectiv','Whey Protein','powder','2000','g'),
         'wrong_size',public.atomic_import_reviewed_parent_variant_allowed('Efectiv Whey Protein 2kg','Efectiv','Whey Protein','powder','1800','g'),
-        'unreviewed',public.atomic_import_reviewed_parent_variant_allowed('Unreviewed Product 2kg','Efectiv','Whey Protein','powder','2000','g'));
+        'unreviewed',public.atomic_import_reviewed_parent_variant_allowed('Unreviewed Product 2kg','Efectiv','Whey Protein','powder','2000','g'),
+        'predators_316',public.atomic_import_reviewed_parent_variant_allowed('DY Nutrition The Creatine Complex 316g','DY Nutrition','Creatine','powder','316','g'),
+        'predators_400',public.atomic_import_reviewed_parent_variant_allowed('DY Nutrition The Creatine Complex 400g','DY Nutrition','Creatine','powder','400','g'));
     `]),'query exact policy'));
-    assert.deepEqual(exact,{cellucor:true,other_pre:false,whey:true,wrong_size:false,unreviewed:false});
+    assert.deepEqual(exact,{cellucor:true,other_pre:false,whey:true,wrong_size:false,unreviewed:false,predators_316:true,predators_400:false});
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-c',`insert into public.product_variants values(1,true,false); select public.validate_product_import_plan_read_only('{"product_id":1,"external_sku":null}'::jsonb);`]),'strict no-SKU without default passes');
     const sku=exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-c',`select public.validate_product_import_plan_read_only('{"product_id":1,"external_sku":"SKU"}'::jsonb);`]);
     assert.notEqual(sku.status,0);assert.match(sku.stderr,/exactly one active default/);

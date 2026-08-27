@@ -72,6 +72,9 @@ const HELD_CM3_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-ge
 const SHADOWHEY3_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-bindings-v4-shadowhey-3.json");
 const SHADOWHEY3_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-existing-bindings-v4-shadowhey-3-dry-run.json");
 const SHADOWHEY3_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-existing-bindings-v4-shadowhey-3.csv");
+const NEW_PRODUCTS_V1_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-new-products-v1.json");
+const NEW_PRODUCTS_V1_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-dry-run-v2.json");
+const NEW_PRODUCTS_V1_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1.csv");
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -85,6 +88,13 @@ const EXPECTED_REVIEW_ROWS = [1, 2, 6, 7, 8, 9, 10];
 const EXPECTED_EXCLUDED_ROWS = [3, 4, 5];
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 const MD5_PATTERN = /^[0-9a-f]{32}$/;
+const NEW_PRODUCTS_V1_REVIEWED_IDENTITIES = new Map([
+  [1, ["8594181604892", "8594181604895", "DY Nutrition The Creatine Complex 316g", "create_reviewed_product_variant", "Cherry"]],
+  [2, ["8594181604892", "8594181604896", "DY Nutrition The Creatine Complex 316g", "create_reviewed_product_variant", "Peach"]],
+  [3, ["8594181604892", "8594181604897", "DY Nutrition The Creatine Complex 316g", "create_reviewed_product_variant", "Strawberry"]],
+  [4, ["8594181608172", "8594181608172", "DY Nutrition Creatine Monohydrate 300g", "create_product_with_default_variant", null]],
+  [5, ["8594181606995", "8594181606995", "DY Nutrition Magnesium Citrate 90 Tablets", "create_product_with_default_variant", null]],
+]);
 const REVIEWED_PROFILES = Object.freeze([
   Object.freeze({
     name: "original-v2",
@@ -226,6 +236,35 @@ const REVIEWED_PROFILES = Object.freeze([
       "65a26305967a0f1b8d47993a94820cb2",
     ]),
   }),
+  Object.freeze({
+    name: "reviewed-new-products-v1",
+    manifestPath: NEW_PRODUCTS_V1_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-new-products-v1",
+    approvalReason: "predators-gear-reviewed-new-products-v1",
+    artifactPath: NEW_PRODUCTS_V1_ARTIFACT_PATH,
+    artifactSha256: "309de9d46985e85816701198b4b72301bfe9857838e57e315ef34b1c9d99de12",
+    csvPath: NEW_PRODUCTS_V1_CSV_PATH,
+    csvSha256: "790803511e8219737f0b4a637f9b83cd5ae7208f1ed5f33304a7f19f18e337a9",
+    planCount: 5,
+    reviewRows: Object.freeze([1, 2, 3, 4, 5]),
+    retailerAction: "existing",
+    retailerId: "13",
+    allowsReviewedCreation: true,
+    planFingerprints: Object.freeze([
+      "ca0abf6244760b196aab29cfbda76510",
+      "7c844da2320487376923ab979edddab6",
+      "ca504fc16da99d401b9b820b3110a596",
+      "8a085ee3c866423b0a53a8ec61d41d4c",
+      "99c22d5737ab8f544000129b8055a947",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "ca0abf6244760b196aab29cfbda76510",
+      "7c844da2320487376923ab979edddab6",
+      "ca504fc16da99d401b9b820b3110a596",
+      "8a085ee3c866423b0a53a8ec61d41d4c",
+      "99c22d5737ab8f544000129b8055a947",
+    ]),
+  }),
 ]);
 
 function fail(message) {
@@ -361,6 +400,7 @@ function validateManifest(manifest, profile) {
   const isBatch2 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v2-batch-2";
   const isHeld4 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v3-held-4";
   const isShadowhey3 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v4-shadowhey-3";
+  const isNewProductsV1 = profile.manifestKind === "predators-gear-reviewed-new-products-v1";
   const commonContract =
     manifest.schema_version === 1 &&
     manifest.kind === profile.manifestKind &&
@@ -370,12 +410,18 @@ function validateManifest(manifest, profile) {
     manifest.retailer?.website === "https://predatorsgear.co.uk/" &&
     manifest.retailer?.shipping_known === true &&
     manifest.retailer?.shipping_cost === 0 &&
-    manifest.policy?.existing_products_only === true &&
-    manifest.policy?.existing_variants_only === true &&
-    manifest.policy?.allow_product_creation === false &&
-    manifest.policy?.allow_variant_creation === false &&
     manifest.policy?.allow_live_import === false &&
     manifest.policy?.sku_is_not_gtin === true &&
+    (isNewProductsV1
+      ? manifest.policy?.existing_products_only === false &&
+        manifest.policy?.existing_variants_only === false &&
+        manifest.policy?.allow_product_creation === true &&
+        manifest.policy?.allow_variant_creation === true &&
+        manifest.policy?.reviewed_rows_only === true
+      : manifest.policy?.existing_products_only === true &&
+        manifest.policy?.existing_variants_only === true &&
+        manifest.policy?.allow_product_creation === false &&
+        manifest.policy?.allow_variant_creation === false) &&
     Array.isArray(manifest.rows);
   const v1Contract =
     isV1 &&
@@ -436,12 +482,65 @@ function validateManifest(manifest, profile) {
     manifest.execution_profile?.blocked_row_count === 0 &&
     canonicalJson([...(manifest.execution_profile?.plan_fingerprints || [])].sort()) ===
       canonicalJson([...profile.planFingerprints].sort());
-  if (!commonContract || (!v1Contract && !batch2Contract && !held4Contract && !shadowhey3Contract)) {
+  const newProductsV1Contract =
+    isNewProductsV1 &&
+    manifest.retailer?.id === 13 &&
+    manifest.canonical_csv?.path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
+    manifest.canonical_csv?.sha256 === profile.csvSha256 &&
+    manifest.canonical_csv?.row_count === profile.planCount &&
+    manifest.rows.length === profile.planCount &&
+    sameNumbers(manifest.rows.map((row) => row.review_row), profile.reviewRows) &&
+    manifest.execution_profile?.status === "DRY_RUN_PASS" &&
+    manifest.execution_profile?.artifact_path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
+    manifest.execution_profile?.artifact_sha256 === profile.artifactSha256 &&
+    manifest.execution_profile?.plan_count === profile.planCount &&
+    manifest.execution_profile?.blocked_row_count === 0 &&
+    canonicalJson([...(manifest.execution_profile?.plan_fingerprints || [])].sort()) ===
+      canonicalJson([...profile.planFingerprints].sort()) &&
+    Array.isArray(manifest.excluded) &&
+    manifest.excluded.some((value) => String(value).includes("Joint Support")) &&
+    manifest.excluded.some((value) => String(value).includes("Collagen")) &&
+    manifest.excluded.some((value) => String(value).includes("754"));
+  if (
+    !commonContract ||
+    (!v1Contract && !batch2Contract && !held4Contract && !shadowhey3Contract && !newProductsV1Contract)
+  ) {
     fail("Predators Gear reviewed manifest contract mismatch");
   }
   const identities = new Set();
   for (const row of manifest.rows) {
     const key = identityKey(row);
+    if (isNewProductsV1) {
+      const reviewedVariant = row.action === "create_reviewed_product_variant";
+      const simpleDefault = row.action === "create_product_with_default_variant";
+      const expectedIdentity = NEW_PRODUCTS_V1_REVIEWED_IDENTITIES.get(row.review_row);
+      if (
+        identities.has(key) ||
+        !expectedIdentity ||
+        canonicalJson([
+          String(row.external_product_id),
+          String(row.external_variant_id),
+          row.product_name,
+          row.action,
+          row.flavour || null,
+        ]) !== canonicalJson(expectedIdentity) ||
+        (!reviewedVariant && !simpleDefault) ||
+        row.product_id != null ||
+        row.product_variant_id != null ||
+        row.shipping_cost !== 0 ||
+        row.delivered_price !== row.price ||
+        row.disposition !== "OWNER_APPROVED" ||
+        row.gtin_source !== "WooCommerce CSV EAN field" ||
+        !/^\d{14}$/.test(String(row.external_gtin || "")) ||
+        !String(row.image || "").startsWith("https://predatorsgear.co.uk/wp-content/uploads/") ||
+        !String(row.image_provenance || "").startsWith("WooCommerce CSV ") ||
+        !String(row.source_url || "").startsWith("https://predatorsgear.co.uk/supplements-vitamins-shop/") ||
+        (reviewedVariant && (row.product_name !== "DY Nutrition The Creatine Complex 316g" || row.size !== "316" || row.size_unit !== "g")) ||
+        (simpleDefault && (row.variant_name || row.flavour || row.size || row.size_unit))
+      ) fail(`Unsafe reviewed manifest row ${row.review_row}`);
+      identities.add(key);
+      continue;
+    }
     if (
       identities.has(key) ||
       !row.product_id ||
@@ -483,6 +582,95 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
       : null;
   } catch {
     fail(`Invalid reviewed URL for row ${reviewed.review_row}`);
+  }
+  if (profile.allowsReviewedCreation) {
+    const reviewedVariant = reviewed.action === "create_reviewed_product_variant";
+    const expectedProductAction = reviewedVariant
+      ? "create_or_reuse_reviewed"
+      : "create";
+    const expectedVariantAction = reviewedVariant
+      ? "create_reviewed_variant"
+      : "create_default";
+    if (
+      entry.plan_kind !== "feed" ||
+      entry.operation_type !== "standard_import" ||
+      sourceRecord.status !== "planned" ||
+      sourceRecord.plan_fingerprint !== entry.plan_fingerprint ||
+      identityKey(source) !== identityKey(reviewed) ||
+      String(source.product_id || "") !== "" ||
+      String(source.product_variant_id || "") !== "" ||
+      source.retailer_name !== "Predators Gear" ||
+      source.retailer_website !== "https://predatorsgear.co.uk/" ||
+      source.product_name !== reviewed.product_name ||
+      source.slug !== reviewed.slug ||
+      source.brand !== reviewed.brand ||
+      source.category !== reviewed.category ||
+      source.product_format !== reviewed.product_format ||
+      String(source.external_sku || "") !== String(reviewed.external_sku) ||
+      String(source.external_gtin || "") !== String(reviewed.external_gtin) ||
+      canonicalJson(sourceOptions) !== canonicalJson(reviewed.external_options ?? null) ||
+      String(source.shipping_known).toLowerCase() !== "true" ||
+      !exactDecimal(source.shipping_cost, 0) ||
+      !exactDecimal(source.price, reviewed.price) ||
+      !exactDecimal(source.total_price, reviewed.price) ||
+      source.external_url !== reviewed.source_url ||
+      source.affiliate_url !== reviewed.source_url ||
+      source.image !== reviewed.image ||
+      plan.product?.action !== expectedProductAction ||
+      plan.product?.values?.name !== reviewed.product_name ||
+      plan.product?.values?.slug !== reviewed.slug ||
+      plan.product?.values?.brand !== reviewed.brand ||
+      plan.product?.values?.category !== reviewed.category ||
+      plan.product?.values?.product_format !== reviewed.product_format ||
+      plan.product?.values?.image !== reviewed.image ||
+      plan.product?.values?.gtin != null ||
+      plan.product_variant?.action !== expectedVariantAction ||
+      plan.expected_state?.product != null ||
+      plan.expected_state?.product_variant != null ||
+      plan.retailer?.action !== "existing" ||
+      String(entry.retailer_id) !== "13" ||
+      String(plan.retailer.id) !== "13" ||
+      String(plan.expected_state?.retailer?.id) !== "13" ||
+      plan.expected_state?.retailer?.name !== "Predators Gear" ||
+      plan.expected_state?.retailer?.slug !== "predators-gear" ||
+      plan.retailer_product?.action !== "create" ||
+      plan.retailer_product?.values?.product_variant_id != null ||
+      identityKey(plan.retailer_product?.values || {}) !== identityKey(reviewed) ||
+      String(plan.retailer_product?.values?.external_sku || "") !== String(reviewed.external_sku) ||
+      String(plan.retailer_product?.values?.external_gtin || "") !== String(reviewed.external_gtin) ||
+      canonicalJson(plan.retailer_product?.values?.external_options ?? null) !== canonicalJson(reviewed.external_options ?? null) ||
+      plan.expected_state?.retailer_product != null ||
+      plan.offer?.action !== "create" ||
+      !exactDecimal(plan.offer?.values?.price, reviewed.price) ||
+      !exactDecimal(plan.offer?.values?.shipping_cost, 0) ||
+      !exactDecimal(plan.offer?.values?.total_price, reviewed.price) ||
+      plan.offer?.values?.url !== reviewed.source_url ||
+      plan.expected_state?.offer != null ||
+      plan.price_history?.action !== "create" ||
+      plan.approval?.approved !== true ||
+      plan.approval?.approval_type !== (reviewedVariant ? "reviewed_parent_variant_safe_create" : "safe_create") ||
+      plan.approval?.canonical_name !== reviewed.product_name ||
+      plan.approval?.approved_category !== reviewed.category ||
+      plan.approval?.has_variant_evidence !== reviewedVariant ||
+      offerUrl.protocol !== "https:" ||
+      offerUrl.hostname !== "predatorsgear.co.uk" ||
+      imageUrl.protocol !== "https:" ||
+      imageUrl.hostname !== "predatorsgear.co.uk"
+    ) fail(`Unsafe Predators Gear reviewed creation plan for row ${reviewed.review_row}`);
+    if (reviewedVariant) {
+      if (
+        plan.product_variant.values?.display_name !== reviewed.variant_name ||
+        plan.product_variant.values?.flavour_label !== reviewed.flavour ||
+        plan.product_variant.values?.flavour_code !== String(reviewed.flavour).toLowerCase() ||
+        !exactDecimal(plan.product_variant.values?.size_value, 316) ||
+        plan.product_variant.values?.size_unit !== "g" ||
+        plan.product_variant.values?.product_format !== "powder" ||
+        !exactDecimal(plan.product_variant.values?.pack_count, 1)
+      ) fail(`Unsafe Predators Gear reviewed variant plan for row ${reviewed.review_row}`);
+    } else if (plan.product_variant.values != null) {
+      fail(`Unsafe Predators Gear default variant plan for row ${reviewed.review_row}`);
+    }
+    return;
   }
   if (
     entry.plan_kind !== "feed" ||
@@ -703,8 +891,10 @@ async function runApproval(options, dependencies = {}) {
       expires_at: approval.expires_at,
       plan_fingerprint: approval.plan_fingerprint,
       retailer: prepared.source.retailer_name,
-      product_id: plan.product.id,
-      product_variant_id: plan.product_variant.id,
+      product_id: plan.product.id || null,
+      product_variant_id: plan.product_variant.id || null,
+      product_name: plan.product.values?.name || null,
+      variant_name: plan.product_variant.values?.display_name || "Default",
       price: plan.offer.values.price,
       shipping_cost: plan.offer.values.shipping_cost,
       source_url: plan.offer.values.url,
@@ -743,6 +933,9 @@ module.exports = {
   EXPECTED_ARTIFACT_PATH,
   EXPECTED_CSV_PATH,
   MANIFEST_PATH,
+  NEW_PRODUCTS_V1_ARTIFACT_PATH,
+  NEW_PRODUCTS_V1_CSV_PATH,
+  NEW_PRODUCTS_V1_MANIFEST_PATH,
   REMAINING_ARTIFACT_PATH,
   REMAINING_CSV_PATH,
   SHADOWHEY3_ARTIFACT_PATH,
