@@ -151,17 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Fit House applied and selects only the reviewed Predators Gear policy migration", () => {
+test("production records the reviewed Predators Gear policy migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
-    sha256: "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
-    expectedCatalogueDeltas: {},
-  }]);
-  assert.equal(contract.ledgerCount, 151);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 152);
   assert.equal(
     contract.ledgerFingerprint,
-    "12ece4c71ab77f1488afaeac6dc94049ff65b07c30309fd01bf7e8b0f30db28a",
+    "f14ff21526b1f68c74639bf4ff40a0cd98b796b34374d369884419dbd16ebe74",
   );
 });
 
@@ -238,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with Fit House producer enablement applied", () => {
+test("production binds its exact ledger with the Predators Gear policy migration applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -264,16 +260,14 @@ test("production binds its exact ledger with Fit House producer enablement appli
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 151);
+  assert.equal(result.ledger_count, 152);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260827200000_allow_predators_gear_reviewed_creatine_316g"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 152);
-  assert.deepEqual(result.pending_files, ["20260827200000_allow_predators_gear_reviewed_creatine_316g.sql"]);
-  assert.equal(result.pending_file, "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql");
-  assert.equal(result.pending_sha256, "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115");
-  assert.deepEqual(result.pending_sha256s, {
-    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
