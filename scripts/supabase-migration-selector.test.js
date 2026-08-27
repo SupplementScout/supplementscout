@@ -72,11 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging selects only the reviewed Predators Gear policy migration", () => {
+test("staging records the reviewed Predators Gear policy migration as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 81);
+  assert.equal(result.ledger_count, 82);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260827200000_allow_predators_gear_reviewed_creatine_316g"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 82);
 });
 
@@ -350,14 +350,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports the exact pending Predators Gear migration", () => {
+test("staging output reports no pending migration after the Predators Gear policy apply", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql");
-  assert.equal(result.pending_sha256, "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115");
-  assert.deepEqual(result.pending_files, ["20260827200000_allow_predators_gear_reviewed_creatine_316g.sql"]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql": "9baf2eb2e2ae027388de98ac23a63718698ea9559d35c93e85c9992ab5a9a115",
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {
