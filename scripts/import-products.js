@@ -55,6 +55,7 @@ const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_L = require("../config/retailers/
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_O = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-o-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_P = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-p-v1.json");
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_R = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-r-v1.json");
+const PREDATORS_GEAR_REVIEWED_CROSS_PRODUCT_PARENT_CM3 = require("../config/retailers/predators-gear-reviewed-cross-product-parent-cm3-v1.json");
 
 const SIX_PACK_REVIEWED_BATCH_ROW_COUNTS = new Map([
   ["six-pack-reviewed-family-batch-v1", 21],
@@ -2049,6 +2050,56 @@ function isExactEbayCrossProductParentVariant({
   );
 }
 
+function isExactPredatorsGearCrossProductParentVariant({
+  row,
+  retailer,
+  externalProductId,
+  externalVariantId,
+  parentPeers,
+}) {
+  const reviewed = PREDATORS_GEAR_REVIEWED_CROSS_PRODUCT_PARENT_CM3;
+  if (
+    String(retailer?.slug || "").trim() !== "predators-gear" ||
+    reviewed.schema_version !== 1 ||
+    reviewed.contract !== "predators-gear-reviewed-cross-product-parent-cm3-v1" ||
+    reviewed.owner_confirmation !== "OWNER_APPROVED_PREDATORS_GEAR_BATCH_2_ROWS_4_5" ||
+    reviewed.parent_external_product_id !== "8594181607503" ||
+    reviewed.rows.length !== 2 ||
+    !exactSourceOptions(row) ||
+    !Array.isArray(parentPeers) ||
+    parentPeers.length === 0
+  ) return false;
+
+  const incoming = reviewed.rows.find((entry) =>
+    String(entry.product_id) === optionalIdentifier(row.product_id) &&
+    String(entry.product_variant_id) === optionalIdentifier(row.product_variant_id) &&
+    entry.external_product_id === externalProductId &&
+    entry.external_variant_id === externalVariantId &&
+    entry.external_url === getRetailerProductUrl(row) &&
+    valuesEqual(entry.external_options, exactSourceOptions(row))
+  );
+  if (!incoming) return false;
+
+  const allowedPeers = [reviewed.required_anchor, ...reviewed.rows];
+  const matchesAllowedPeer = (peer) => allowedPeers.some((entry) =>
+    String(entry.product_id) === String(peer.product_id) &&
+    String(entry.product_variant_id) === String(peer.product_variant_id) &&
+    entry.external_product_id === String(peer.external_product_id) &&
+    entry.external_variant_id === String(peer.external_variant_id) &&
+    entry.external_url === peer.external_url &&
+    valuesEqual(entry.external_options, peer.external_options)
+  );
+  const hasRequiredAnchor = parentPeers.some((peer) =>
+    String(reviewed.required_anchor.product_id) === String(peer.product_id) &&
+    String(reviewed.required_anchor.product_variant_id) === String(peer.product_variant_id) &&
+    reviewed.required_anchor.external_product_id === String(peer.external_product_id) &&
+    reviewed.required_anchor.external_variant_id === String(peer.external_variant_id) &&
+    reviewed.required_anchor.external_url === peer.external_url &&
+    valuesEqual(reviewed.required_anchor.external_options, peer.external_options)
+  );
+  return hasRequiredAnchor && parentPeers.every(matchesAllowedPeer);
+}
+
 async function validateNewRetailerMappingIdentity({
   row,
   retailer,
@@ -2146,13 +2197,16 @@ async function validateNewRetailerMappingIdentity({
   );
   if (
     crossProductParent &&
-    !isExactEbayCrossProductParentVariant({
+    ![
+      isExactEbayCrossProductParentVariant,
+      isExactPredatorsGearCrossProductParentVariant,
+    ].some((allows) => allows({
       row,
       retailer,
       externalProductId,
       externalVariantId,
       parentPeers,
-    })
+    }))
   ) {
     throw new Error("external parent ID canonical product drift");
   }
@@ -4541,6 +4595,7 @@ module.exports = {
   getRetailerProductUrl,
   isAmbiguousFeedRow,
   isExactEbayCrossProductParentVariant,
+  isExactPredatorsGearCrossProductParentVariant,
   isExactEbayBatchRAnimalPakUnitCount,
   isProductGtinVerified,
   parseArgs,

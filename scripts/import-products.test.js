@@ -21,6 +21,7 @@ const {
   getRetailerProductUrl,
   isAmbiguousFeedRow,
   isExactEbayCrossProductParentVariant,
+  isExactPredatorsGearCrossProductParentVariant,
   isExactEbayBatchRAnimalPakUnitCount,
   isProductGtinVerified,
   loadDryRunArtifact,
@@ -4811,6 +4812,86 @@ test("Batch R cross-product parent exceptions are exact to Prolific and Chocolat
   };
   assert.equal(isExactEbayCrossProductParentVariant(prolific), true);
   assert.equal(isExactEbayCrossProductParentVariant({ ...prolific, externalVariantId: "v1|167879148689|467421651921" }), false);
+});
+
+test("Predators Gear CM3 cross-product parent exception is exact and requires the live 500g anchor", () => {
+  const anchor = {
+    product_id: "1067",
+    product_variant_id: "2250",
+    external_product_id: "8594181607503",
+    external_variant_id: "8594181607509",
+    external_url: "https://predatorsgear.co.uk/?p=8594181607503",
+    external_options: { Size: "500g", Flavour: "White Cola" },
+  };
+  const input = {
+    retailer: { slug: "predators-gear" },
+    externalProductId: "8594181607503",
+    externalVariantId: "8594181607979",
+    row: {
+      product_id: "361",
+      product_variant_id: "1694",
+      external_url: "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/",
+      external_options: JSON.stringify({ Size: "250g", Flavour: "Pink Grapefruit" }),
+    },
+    parentPeers: [anchor],
+  };
+  assert.equal(isExactPredatorsGearCrossProductParentVariant(input), true);
+  assert.equal(isExactPredatorsGearCrossProductParentVariant({
+    ...input,
+    row: { ...input.row, product_variant_id: "1043" },
+  }), false);
+  assert.equal(isExactPredatorsGearCrossProductParentVariant({
+    ...input,
+    row: { ...input.row, external_options: JSON.stringify({ Size: "500g", Flavour: "Pink Grapefruit" }) },
+  }), false);
+  assert.equal(isExactPredatorsGearCrossProductParentVariant({
+    ...input,
+    parentPeers: [{ ...anchor, product_variant_id: "999" }],
+  }), false);
+  assert.equal(isExactPredatorsGearCrossProductParentVariant({
+    ...input,
+    retailer: { slug: "another-retailer" },
+  }), false);
+
+  const pineapple = {
+    ...input,
+    externalVariantId: "8594181607980",
+    row: {
+      ...input.row,
+      product_variant_id: "1043",
+      external_options: JSON.stringify({ Size: "250g", Flavour: "Fresh Pineapple" }),
+    },
+  };
+  assert.equal(isExactPredatorsGearCrossProductParentVariant(pineapple), true);
+  assert.equal(isExactPredatorsGearCrossProductParentVariant({
+    ...pineapple,
+    row: {
+      ...pineapple.row,
+      external_options: JSON.stringify({ Size: "250g", Flavour: "Pineapple" }),
+    },
+  }), false);
+  assert.equal(isExactPredatorsGearCrossProductParentVariant({
+    ...pineapple,
+    parentPeers: [anchor, {
+      product_id: "361",
+      product_variant_id: "1694",
+      external_product_id: "8594181607503",
+      external_variant_id: "8594181607979",
+      external_url: "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/",
+      external_options: { Size: "250g", Flavour: "Pink Grapefruit" },
+    }],
+  }), true);
+  assert.equal(isExactPredatorsGearCrossProductParentVariant({
+    ...input,
+    parentPeers: [{
+      product_id: "999",
+      product_variant_id: "999",
+      external_product_id: "8594181607503",
+      external_variant_id: "unknown",
+      external_url: input.row.external_url,
+      external_options: { Size: "250g", Flavour: "Unknown" },
+    }],
+  }), false);
 });
 
 test("Batch R Animal Pak treats 44 packs as units inside one retail pack only for the exact approved item", () => {

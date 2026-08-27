@@ -64,6 +64,11 @@ const BATCH2_CSV_PATH = path.join(
   "predators-gear",
   "predators-gear-reviewed-existing-bindings-v2-batch-2-safe-5.csv"
 );
+const HELD4_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-bindings-v3-held-4.json");
+const HELD_OLIMP_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-held-olimp-exact-variants-v1-dry-run.json");
+const HELD_OLIMP_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-held-olimp-exact-variants-v1.csv");
+const HELD_CM3_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-held-cm3-cross-product-parent-v1-dry-run.json");
+const HELD_CM3_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-held-cm3-cross-product-parent-v1.csv");
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -159,6 +164,40 @@ const REVIEWED_PROFILES = Object.freeze([
       "f6bbb3ad3a982ce6c8abc4a243503be4",
       "4380e5ad881ca58639905b9817ec8c55",
     ]),
+  }),
+  Object.freeze({
+    name: "held-olimp-exact-2",
+    manifestPath: HELD4_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-existing-bindings-v3-held-4",
+    executionKey: "olimp_exact_variants",
+    approvalReason: "predators-gear-reviewed-bindings-v3-held-olimp-exact-2",
+    artifactPath: HELD_OLIMP_ARTIFACT_PATH,
+    artifactSha256: "b6928e1f5eaaae38538ca9e247586acd4e7c76b5199e851d4a285b79666c657d",
+    csvPath: HELD_OLIMP_CSV_PATH,
+    csvSha256: "869684ebfe5c69d2877acb1f3b8f19f1a07b9686dd9b1c9a1a77fcdc03f6a232",
+    planCount: 2,
+    reviewRows: Object.freeze([1, 2]),
+    retailerAction: "existing",
+    retailerId: "13",
+    planFingerprints: Object.freeze(["a341b5262bbb5f4c03a64f5635e04724", "38a11fce7e37ef6923dcca3fd2798593"]),
+    selectableFingerprints: Object.freeze(["a341b5262bbb5f4c03a64f5635e04724", "38a11fce7e37ef6923dcca3fd2798593"]),
+  }),
+  Object.freeze({
+    name: "held-cm3-exact-2",
+    manifestPath: HELD4_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-existing-bindings-v3-held-4",
+    executionKey: "cm3_cross_product_parent",
+    approvalReason: "predators-gear-reviewed-bindings-v3-held-cm3-exact-2",
+    artifactPath: HELD_CM3_ARTIFACT_PATH,
+    artifactSha256: "70885388f287729cfaaee00727ae49e88b5d171e21a3975199e840523255192d",
+    csvPath: HELD_CM3_CSV_PATH,
+    csvSha256: "46ac92ccd8a7374b0b745f8335f9cb23073aa2970261cdd051b84193bbe16468",
+    planCount: 2,
+    reviewRows: Object.freeze([4, 5]),
+    retailerAction: "existing",
+    retailerId: "13",
+    planFingerprints: Object.freeze(["fde718160b0a4219ae02cbc6b7f6c173", "432fbd7af2b0a847484e12d8724d1e85"]),
+    selectableFingerprints: Object.freeze(["fde718160b0a4219ae02cbc6b7f6c173", "432fbd7af2b0a847484e12d8724d1e85"]),
   }),
 ]);
 
@@ -293,6 +332,7 @@ function resolveReviewedProfile(options, configuredProfile) {
 function validateManifest(manifest, profile) {
   const isV1 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v1";
   const isBatch2 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v2-batch-2";
+  const isHeld4 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v3-held-4";
   const commonContract =
     manifest.schema_version === 1 &&
     manifest.kind === profile.manifestKind &&
@@ -332,7 +372,26 @@ function validateManifest(manifest, profile) {
       canonicalJson([...profile.planFingerprints].sort()) &&
     Array.isArray(manifest.held_after_dry_run) &&
     sameNumbers(manifest.held_after_dry_run.flatMap((entry) => entry.review_rows || []), [1, 2, 4, 5]);
-  if (!commonContract || (!v1Contract && !batch2Contract)) {
+  const heldExecution = manifest.execution_profiles?.[profile.executionKey];
+  const held4Contract =
+    isHeld4 &&
+    manifest.retailer?.id === 13 &&
+    manifest.rows.length === 4 &&
+    sameNumbers(manifest.rows.map((row) => row.review_row), [1, 2, 4, 5]) &&
+    canonicalJson(manifest.rows.map((row) => [row.review_row, row.product_id, row.product_variant_id])) ===
+      canonicalJson([[1, 521, 3128], [2, 523, 3138], [4, 361, 1694], [5, 361, 1043]]) &&
+    manifest.guard_contract?.path === "config/retailers/predators-gear-reviewed-cross-product-parent-cm3-v1.json" &&
+    manifest.guard_contract?.contract === "predators-gear-reviewed-cross-product-parent-cm3-v1" &&
+    heldExecution?.status === "DRY_RUN_PASS" &&
+    heldExecution?.csv_path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
+    heldExecution?.csv_sha256 === profile.csvSha256 &&
+    heldExecution?.artifact_path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
+    heldExecution?.artifact_sha256 === profile.artifactSha256 &&
+    heldExecution?.plan_count === profile.planCount &&
+    heldExecution?.blocked_row_count === 0 &&
+    sameNumbers(heldExecution?.review_rows || [], profile.reviewRows) &&
+    canonicalJson([...(heldExecution?.plan_fingerprints || [])].sort()) === canonicalJson([...profile.planFingerprints].sort());
+  if (!commonContract || (!v1Contract && !batch2Contract && !held4Contract)) {
     fail("Predators Gear reviewed manifest contract mismatch");
   }
   const identities = new Set();
@@ -366,9 +425,13 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
   const variantId = String(reviewed.product_variant_id);
   let offerUrl;
   let imageUrl;
+  let sourceOptions = null;
   try {
     offerUrl = new URL(plan.offer?.values?.url);
     imageUrl = new URL(source.image);
+    sourceOptions = String(source.external_options || "").trim()
+      ? JSON.parse(source.external_options)
+      : null;
   } catch {
     fail(`Invalid reviewed URL for row ${reviewed.review_row}`);
   }
@@ -390,6 +453,7 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
     source.affiliate_url !== reviewed.source_url ||
     source.image !== reviewed.image_url ||
     String(source.external_gtin || "") !== String(reviewed.external_gtin14 || "") ||
+    canonicalJson(sourceOptions) !== canonicalJson(reviewed.external_options ?? null) ||
     plan.product?.action !== "existing" ||
     String(plan.product.id) !== productId ||
     plan.product_variant?.action !== "existing" ||
@@ -400,11 +464,17 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
     plan.expected_state?.product_variant?.is_active !== true ||
     String(plan.expected_state?.product_variant?.id) !== variantId ||
     String(plan.expected_state?.product_variant?.product_id) !== productId ||
+    (reviewed.canonical_variant && plan.expected_state?.product_variant?.display_name !== reviewed.canonical_variant) ||
+    (reviewed.canonical_size_value != null && !exactDecimal(plan.expected_state?.product_variant?.size_value, reviewed.canonical_size_value)) ||
+    (reviewed.canonical_size_unit && plan.expected_state?.product_variant?.size_unit !== reviewed.canonical_size_unit) ||
+    (reviewed.canonical_pack_count != null && !exactDecimal(plan.expected_state?.product_variant?.pack_count, reviewed.canonical_pack_count)) ||
+    (reviewed.canonical_product_format && plan.expected_state?.product_variant?.product_format !== reviewed.canonical_product_format) ||
     plan.retailer_product?.action !== "create" ||
     String(plan.retailer_product?.values?.product_variant_id) !== variantId ||
     String(plan.retailer_product?.values?.external_product_id) !== String(reviewed.external_product_id) ||
     String(plan.retailer_product?.values?.external_variant_id) !== String(reviewed.external_variant_id) ||
     String(plan.retailer_product?.values?.external_gtin || "") !== String(reviewed.external_gtin14 || "") ||
+    canonicalJson(plan.retailer_product?.values?.external_options ?? null) !== canonicalJson(reviewed.external_options ?? null) ||
     plan.expected_state?.retailer_product != null ||
     plan.offer?.action !== "create" ||
     !exactDecimal(plan.offer?.values?.price, reviewed.price) ||
@@ -616,6 +686,11 @@ module.exports = {
   BATCH2_ARTIFACT_PATH,
   BATCH2_CSV_PATH,
   BATCH2_MANIFEST_PATH,
+  HELD4_MANIFEST_PATH,
+  HELD_OLIMP_ARTIFACT_PATH,
+  HELD_OLIMP_CSV_PATH,
+  HELD_CM3_ARTIFACT_PATH,
+  HELD_CM3_CSV_PATH,
   EXPECTED_ARTIFACT_PATH,
   EXPECTED_CSV_PATH,
   MANIFEST_PATH,

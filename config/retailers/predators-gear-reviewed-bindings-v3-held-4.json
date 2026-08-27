@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "kind": "predators-gear-reviewed-existing-bindings-v3-held-4",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-08-27",
+  "retailer": {
+    "id": 13,
+    "name": "Predators Gear",
+    "slug": "predators-gear",
+    "website": "https://predatorsgear.co.uk/",
+    "shipping_known": true,
+    "shipping_cost": 0
+  },
+  "source": {
+    "csv_path": "tmp/retailer-feeds/predators-gear/produktyPredatorGear.csv",
+    "csv_sha256": "a21429dddf28c67ec81275b9760c0881efbc3b1b35af030a8b053c3cc2cc187a",
+    "browser_verified_at": "2026-08-27T10:27:46.337Z"
+  },
+  "guard_contract": {
+    "path": "config/retailers/predators-gear-reviewed-cross-product-parent-cm3-v1.json",
+    "contract": "predators-gear-reviewed-cross-product-parent-cm3-v1",
+    "scope": "review rows 4 and 5 only"
+  },
+  "execution_profiles": {
+    "olimp_exact_variants": {
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/predators-gear/predators-gear-held-olimp-exact-variants-v1.csv",
+      "csv_sha256": "869684ebfe5c69d2877acb1f3b8f19f1a07b9686dd9b1c9a1a77fcdc03f6a232",
+      "artifact_path": "tmp/retailer-feeds/predators-gear/predators-gear-held-olimp-exact-variants-v1-dry-run.json",
+      "artifact_sha256": "b6928e1f5eaaae38538ca9e247586acd4e7c76b5199e851d4a285b79666c657d",
+      "plan_count": 2,
+      "blocked_row_count": 0,
+      "review_rows": [1, 2],
+      "plan_fingerprints": [
+        "a341b5262bbb5f4c03a64f5635e04724",
+        "38a11fce7e37ef6923dcca3fd2798593"
+      ]
+    },
+    "cm3_cross_product_parent": {
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/predators-gear/predators-gear-held-cm3-cross-product-parent-v1.csv",
+      "csv_sha256": "46ac92ccd8a7374b0b745f8335f9cb23073aa2970261cdd051b84193bbe16468",
+      "artifact_path": "tmp/retailer-feeds/predators-gear/predators-gear-held-cm3-cross-product-parent-v1-dry-run.json",
+      "artifact_sha256": "70885388f287729cfaaee00727ae49e88b5d171e21a3975199e840523255192d",
+      "plan_count": 2,
+      "blocked_row_count": 0,
+      "review_rows": [4, 5],
+      "plan_fingerprints": [
+        "fde718160b0a4219ae02cbc6b7f6c173",
+        "432fbd7af2b0a847484e12d8724d1e85"
+      ]
+    }
+  },
+  "policy": {
+    "existing_products_only": true,
+    "existing_variants_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": false,
+    "allow_live_import": false,
+    "sku_is_not_gtin": true,
+    "delivered_price_equals_price": true,
+    "browser_verified_urls_only": true
+  },
+  "rows": [
+    {
+      "review_row": 1,
+      "external_product_id": "8594181605044",
+      "external_variant_id": "8594181605044",
+      "external_gtin14": "05901330043628",
+      "external_options": null,
+      "price": 14.99,
+      "shipping_cost": 0,
+      "delivered_price": 14.99,
+      "image_url": "https://predatorsgear.co.uk/wp-content/uploads/2022/02/olimp-vita-min-60-capsules.jpg",
+      "image_provenance": "source_simple_primary_image",
+      "source_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-vita-min-multivitamin-60-capsules/",
+      "product_id": 521,
+      "product_variant_id": 3128,
+      "canonical_variant": "30 Servings",
+      "canonical_size_value": 30,
+      "canonical_size_unit": "servings",
+      "canonical_pack_count": 1,
+      "canonical_product_format": "capsule",
+      "disposition": "OWNER_APPROVED"
+    },
+    {
+      "review_row": 2,
+      "external_product_id": "8594181608241",
+      "external_variant_id": "8594181608241",
+      "external_gtin14": "05901330058370",
+      "external_options": null,
+      "price": 16.99,
+      "shipping_cost": 0,
+      "delivered_price": 16.99,
+      "image_url": "https://predatorsgear.co.uk/wp-content/uploads/2026/03/s-l1600-7.webp",
+      "image_provenance": "source_simple_primary_image",
+      "source_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/ashwagandha-600-sport-60-capsules-olimp-nutrition/",
+      "product_id": 523,
+      "product_variant_id": 3138,
+      "canonical_variant": "60 Servings",
+      "canonical_size_value": 60,
+      "canonical_size_unit": "servings",
+      "canonical_pack_count": 1,
+      "canonical_product_format": "capsule",
+      "disposition": "OWNER_APPROVED"
+    },
+    {
+      "review_row": 4,
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607979",
+      "external_gtin14": "05902114017743",
+      "external_options": { "Size": "250g", "Flavour": "Pink Grapefruit" },
+      "price": 21.99,
+      "shipping_cost": 0,
+      "delivered_price": 21.99,
+      "image_url": "https://predatorsgear.co.uk/wp-content/uploads/2023/04/CM3-powder-Trec-Nutrition-500g.webp",
+      "image_provenance": "browser_verified_source_parent_variation_payload",
+      "source_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/",
+      "product_id": 361,
+      "product_variant_id": 1694,
+      "canonical_variant": "Pink Grapefruit / 250g",
+      "canonical_size_value": 250,
+      "canonical_size_unit": "g",
+      "canonical_pack_count": 1,
+      "canonical_product_format": "powder",
+      "disposition": "OWNER_APPROVED"
+    },
+    {
+      "review_row": 5,
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607980",
+      "external_gtin14": "05902114017736",
+      "external_options": { "Size": "250g", "Flavour": "Fresh Pineapple" },
+      "source_flavour": "Pineapple",
+      "reviewed_flavour_alias": "Pineapple -> Fresh Pineapple",
+      "price": 21.99,
+      "shipping_cost": 0,
+      "delivered_price": 21.99,
+      "image_url": "https://predatorsgear.co.uk/wp-content/uploads/2023/04/CM3-powder-Trec-Nutrition-500g.webp",
+      "image_provenance": "browser_verified_source_parent_variation_payload",
+      "source_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/",
+      "product_id": 361,
+      "product_variant_id": 1043,
+      "canonical_variant": "Fresh Pineapple / 250g",
+      "canonical_size_value": 250,
+      "canonical_size_unit": "g",
+      "canonical_pack_count": 1,
+      "canonical_product_format": "powder",
+      "disposition": "OWNER_APPROVED"
+    }
+  ]
+}

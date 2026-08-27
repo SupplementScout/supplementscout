@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "contract": "predators-gear-reviewed-cross-product-parent-cm3-v1",
+  "owner_confirmation": "OWNER_APPROVED_PREDATORS_GEAR_BATCH_2_ROWS_4_5",
+  "parent_external_product_id": "8594181607503",
+  "required_anchor": {
+    "product_id": "1067",
+    "product_variant_id": "2250",
+    "external_product_id": "8594181607503",
+    "external_variant_id": "8594181607509",
+    "external_url": "https://predatorsgear.co.uk/?p=8594181607503",
+    "external_options": {
+      "Size": "500g",
+      "Flavour": "White Cola"
+    }
+  },
+  "rows": [
+    {
+      "review_row": 4,
+      "product_id": "361",
+      "product_variant_id": "1694",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607979",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/",
+      "external_options": {
+        "Size": "250g",
+        "Flavour": "Pink Grapefruit"
+      }
+    },
+    {
+      "review_row": 5,
+      "product_id": "361",
+      "product_variant_id": "1043",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607980",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/",
+      "external_options": {
+        "Size": "250g",
+        "Flavour": "Fresh Pineapple"
+      },
+      "source_flavour": "Pineapple",
+      "reviewed_flavour_alias": "Pineapple -> Fresh Pineapple"
+    }
+  ]
+}

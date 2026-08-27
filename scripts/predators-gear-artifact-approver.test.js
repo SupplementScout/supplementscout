@@ -4,10 +4,15 @@ const path = require("node:path");
 const test = require("node:test");
 const reviewedManifest = require("../config/retailers/predators-gear-reviewed-bindings-v1.json");
 const reviewedBatch2Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v2.json");
+const reviewedHeld4Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v3-held-4.json");
 const {
   BATCH2_ARTIFACT_PATH,
   BATCH2_CSV_PATH,
   EXPECTED_ARTIFACT_PATH,
+  HELD_CM3_ARTIFACT_PATH,
+  HELD_CM3_CSV_PATH,
+  HELD_OLIMP_ARTIFACT_PATH,
+  HELD_OLIMP_CSV_PATH,
   REMAINING_ARTIFACT_PATH,
   REVIEWED_PROFILES,
   loadCredential,
@@ -30,8 +35,14 @@ function clone(value) {
 function fixture(profileName = "original-v2") {
   const csvBytes = Buffer.from("predators-gear-reviewed-canonical-fixture\n", "utf8");
   const productionProfile = REVIEWED_PROFILES.find((profile) => profile.name === profileName);
-  const manifest = clone(profileName === "batch-2-safe-5" ? reviewedBatch2Manifest : reviewedManifest);
-  manifest.canonical_csv.sha256 = sha256(csvBytes);
+  const manifest = clone(
+    profileName === "batch-2-safe-5"
+      ? reviewedBatch2Manifest
+      : profileName.startsWith("held-")
+        ? reviewedHeld4Manifest
+        : reviewedManifest
+  );
+  if (manifest.canonical_csv) manifest.canonical_csv.sha256 = sha256(csvBytes);
   const existingRetailer = productionProfile.retailerAction === "existing";
   const selectedRows = manifest.rows.filter((row) => productionProfile.reviewRows.includes(row.review_row));
   const sourceRows = [];
@@ -45,6 +56,7 @@ function fixture(profileName = "original-v2") {
       external_product_id: String(reviewed.external_product_id),
       external_variant_id: String(reviewed.external_variant_id),
       external_gtin: reviewed.external_gtin14 || "",
+      external_options: reviewed.external_options ? JSON.stringify(reviewed.external_options) : "",
       product_id: String(reviewed.product_id),
       product_variant_id: String(reviewed.product_variant_id),
       shipping_known: "true",
@@ -69,6 +81,11 @@ function fixture(profileName = "original-v2") {
           id: String(reviewed.product_variant_id),
           product_id: String(reviewed.product_id),
           is_active: true,
+          ...(reviewed.canonical_variant ? { display_name: reviewed.canonical_variant } : {}),
+          ...(reviewed.canonical_size_value != null ? { size_value: String(reviewed.canonical_size_value) } : {}),
+          ...(reviewed.canonical_size_unit ? { size_unit: reviewed.canonical_size_unit } : {}),
+          ...(reviewed.canonical_pack_count != null ? { pack_count: reviewed.canonical_pack_count } : {}),
+          ...(reviewed.canonical_product_format ? { product_format: reviewed.canonical_product_format } : {}),
         },
         retailer: existingRetailer ? {
           id: "13",
@@ -118,6 +135,7 @@ function fixture(profileName = "original-v2") {
         action: "create",
         values: {
           external_gtin: reviewed.external_gtin14 || null,
+          external_options: reviewed.external_options || null,
           external_product_id: String(reviewed.external_product_id),
           external_variant_id: String(reviewed.external_variant_id),
           product_variant_id: String(reviewed.product_variant_id),
@@ -187,6 +205,16 @@ function fixture(profileName = "original-v2") {
     manifest.execution_subset.blocked_row_count = 0;
     manifest.execution_subset.review_rows = [...profile.reviewRows];
     manifest.execution_subset.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName.startsWith("held-")) {
+    const execution = manifest.execution_profiles[profile.executionKey];
+    execution.csv_path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    execution.csv_sha256 = profile.csvSha256;
+    execution.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    execution.artifact_sha256 = profile.artifactSha256;
+    execution.plan_count = profile.planCount;
+    execution.blocked_row_count = 0;
+    execution.review_rows = [...profile.reviewRows];
+    execution.plan_fingerprints = [...profile.planFingerprints];
   }
   return { artifact, csvBytes, loaded, manifest, options, configuration: { profile } };
 }
@@ -285,6 +313,42 @@ test("reviewed batch-two safe-five profile is exact and its fixture validates", 
   assert.equal(value.artifact.plans.length, 5);
   assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "existing"));
   assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "existing"));
+});
+
+test("reviewed held Olimp and CM3 profiles are exact and validate independently", () => {
+  const olimp = REVIEWED_PROFILES.find((profile) => profile.name === "held-olimp-exact-2");
+  assert.equal(olimp.artifactPath, HELD_OLIMP_ARTIFACT_PATH);
+  assert.equal(olimp.csvPath, HELD_OLIMP_CSV_PATH);
+  assert.equal(olimp.artifactSha256, "b6928e1f5eaaae38538ca9e247586acd4e7c76b5199e851d4a285b79666c657d");
+  assert.equal(olimp.csvSha256, "869684ebfe5c69d2877acb1f3b8f19f1a07b9686dd9b1c9a1a77fcdc03f6a232");
+  assert.deepEqual(olimp.reviewRows, [1, 2]);
+  assert.doesNotThrow(() => validate(fixture("held-olimp-exact-2")));
+
+  const cm3 = REVIEWED_PROFILES.find((profile) => profile.name === "held-cm3-exact-2");
+  assert.equal(cm3.artifactPath, HELD_CM3_ARTIFACT_PATH);
+  assert.equal(cm3.csvPath, HELD_CM3_CSV_PATH);
+  assert.equal(cm3.artifactSha256, "70885388f287729cfaaee00727ae49e88b5d171e21a3975199e840523255192d");
+  assert.equal(cm3.csvSha256, "46ac92ccd8a7374b0b745f8335f9cb23073aa2970261cdd051b84193bbe16468");
+  assert.deepEqual(cm3.reviewRows, [4, 5]);
+  assert.doesNotThrow(() => validate(fixture("held-cm3-exact-2")));
+});
+
+test("held profiles reject variant, exact options, profile scope and fingerprint drift", () => {
+  const variant = fixture("held-olimp-exact-2");
+  variant.manifest.rows.find((row) => row.review_row === 1).product_variant_id = 488;
+  assert.throws(() => validate(variant), /manifest contract mismatch/);
+
+  const options = fixture("held-cm3-exact-2");
+  options.artifact.source_rows[1].normalized_source_row.external_options = JSON.stringify({ Size: "250g", Flavour: "Pineapple" });
+  assert.throws(() => validate(options), /Unsafe Predators Gear plan/);
+
+  const scope = fixture("held-cm3-exact-2");
+  scope.manifest.execution_profiles.cm3_cross_product_parent.review_rows = [3, 5];
+  assert.throws(() => validate(scope), /manifest contract mismatch/);
+
+  const fingerprint = fixture("held-cm3-exact-2");
+  fingerprint.manifest.execution_profiles.cm3_cross_product_parent.plan_fingerprints[0] = "f".repeat(32);
+  assert.throws(() => validate(fingerprint), /manifest contract mismatch/);
 });
 
 test("batch-two profile rejects held rows and reviewed fingerprint drift", () => {
