@@ -72,12 +72,12 @@ test.after(() => {
   }
 });
 
-test("staging records the reviewed Predators Gear policy migration as applied", () => {
+test("staging records the reviewed Predators Gear transport policy migration as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 82);
+  assert.equal(result.ledger_count, 83);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 82);
+  assert.equal(result.selected_files.length, 83);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -151,9 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed Predators Gear policy migration as applied", () => {
+test("production selects only the reviewed Predators Gear transport policy migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql",
+    sha256: "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b",
+    expectedCatalogueDeltas: {},
+  }]);
   assert.equal(contract.ledgerCount, 152);
   assert.equal(
     contract.ledgerFingerprint,
@@ -218,7 +222,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 82);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 83);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -262,12 +266,15 @@ test("production binds its exact ledger with the Predators Gear policy migration
   });
   assert.equal(result.ledger_count, 152);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 152);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending, ["20260827201000_allow_predators_gear_reviewed_parent_variant_transport"]);
+  assert.equal(result.selected_files.length, 153);
+  assert.deepEqual(result.pending_files, ["20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql"]);
+  assert.equal(result.pending_file, "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql");
+  assert.equal(result.pending_sha256, "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b");
+  assert.deepEqual(result.pending_sha256s, {
+    "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql":
+      "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b",
+  });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -344,7 +351,7 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migration after the Predators Gear policy apply", () => {
+test("staging output reports no pending migration after the Predators Gear transport apply", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);

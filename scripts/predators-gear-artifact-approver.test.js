@@ -31,6 +31,12 @@ const {
 const ROOT = path.resolve(__dirname, "..");
 const CSV_PATH = path.resolve(ROOT, reviewedManifest.canonical_csv.path);
 const FIRST_FINGERPRINT = "8d9c2ce4e4d88a8ddb5c7feec9ed825a";
+const PREDATORS_PARENT_TRANSPORT_MIGRATION = path.resolve(
+  ROOT,
+  "supabase/migrations/20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql",
+);
+const PREDATORS_PARENT_TRANSPORT_MIGRATION_SHA256 =
+  "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b";
 
 function clone(value) {
   return structuredClone(value);
@@ -702,4 +708,36 @@ test("successful execution calls one approval RPC and never an apply path", asyn
   assert.equal(queries.filter((query) => /apply_/.test(query)).length, 0);
   assert.ok(queries.includes("commit"));
   assert.ok(!queries.includes("rollback"));
+});
+
+test("Predators Gear reviewed-parent transport migration is exact and hash-bound", () => {
+  const bytes = fs.readFileSync(PREDATORS_PARENT_TRANSPORT_MIGRATION);
+  const sql = bytes.toString("utf8");
+  assert.equal(sha256(bytes), PREDATORS_PARENT_TRANSPORT_MIGRATION_SHA256);
+  assert.match(sql, /^begin;/i);
+  assert.match(sql, /commit;\s*$/i);
+  assert.match(sql, /v_retailer_id = 13/);
+  assert.match(sql, /'name','Predators Gear'/);
+  assert.match(sql, /'slug','predators-gear'/);
+  assert.match(sql, /'website','https:\/\/predatorsgear\.co\.uk\/'/);
+  assert.match(sql, /DY Nutrition The Creatine Complex 316g/);
+  assert.match(sql, /8594181604892/);
+  for (const variantId of ["8594181604895", "8594181604896", "8594181604897"]) {
+    assert.match(sql, new RegExp(variantId));
+  }
+  assert.doesNotMatch(sql, /DY Nutrition The Creatine Complex 400g/);
+});
+
+test("Predators Gear reviewed-parent transport migration preserves global catalogue guards", () => {
+  const sql = fs.readFileSync(PREDATORS_PARENT_TRANSPORT_MIGRATION, "utf8");
+  assert.match(sql, /v_retailer_actual->>'slug' = 'jon-s-supplements'/);
+  assert.match(sql, /strict Shopify variant URL identity/);
+  assert.match(sql, /retailer and transport policy does not allow this plan/);
+  assert.match(sql, /pg_get_functiondef\('public\.atomic_import_validate_pre_source_metadata_plan_core\(jsonb\)'/);
+  assert.doesNotMatch(sql, /create or replace function public\.atomic_import_reviewed_parent_variant_allowed/);
+  assert.doesNotMatch(
+    sql,
+    /\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i,
+  );
+  assert.doesNotMatch(sql, /apply_product_import_plan\s*\(/i);
 });
