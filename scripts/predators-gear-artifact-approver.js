@@ -69,6 +69,9 @@ const HELD_OLIMP_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "preda
 const HELD_OLIMP_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-held-olimp-exact-variants-v1.csv");
 const HELD_CM3_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-held-cm3-cross-product-parent-v1-dry-run.json");
 const HELD_CM3_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-held-cm3-cross-product-parent-v1.csv");
+const SHADOWHEY3_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-bindings-v4-shadowhey-3.json");
+const SHADOWHEY3_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-existing-bindings-v4-shadowhey-3-dry-run.json");
+const SHADOWHEY3_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-existing-bindings-v4-shadowhey-3.csv");
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -198,6 +201,30 @@ const REVIEWED_PROFILES = Object.freeze([
     retailerId: "13",
     planFingerprints: Object.freeze(["fde718160b0a4219ae02cbc6b7f6c173", "432fbd7af2b0a847484e12d8724d1e85"]),
     selectableFingerprints: Object.freeze(["fde718160b0a4219ae02cbc6b7f6c173", "432fbd7af2b0a847484e12d8724d1e85"]),
+  }),
+  Object.freeze({
+    name: "shadowhey-3",
+    manifestPath: SHADOWHEY3_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-existing-bindings-v4-shadowhey-3",
+    approvalReason: "predators-gear-reviewed-bindings-v4-shadowhey-3",
+    artifactPath: SHADOWHEY3_ARTIFACT_PATH,
+    artifactSha256: "751800690204a1353ea66497c1bd50dd88b697b7c03a7c6afc08c3c04f8f904a",
+    csvPath: SHADOWHEY3_CSV_PATH,
+    csvSha256: "79fab41b82b334e7e275a820c2d0860b11c799cf96e3e72c47362d9420fdc717",
+    planCount: 3,
+    reviewRows: Object.freeze([1, 2, 3]),
+    retailerAction: "existing",
+    retailerId: "13",
+    planFingerprints: Object.freeze([
+      "00ba9b685f3b81a2b8676f0ffe1a85dc",
+      "db8d13fb0c59310089bff574369ec457",
+      "65a26305967a0f1b8d47993a94820cb2",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "00ba9b685f3b81a2b8676f0ffe1a85dc",
+      "db8d13fb0c59310089bff574369ec457",
+      "65a26305967a0f1b8d47993a94820cb2",
+    ]),
   }),
 ]);
 
@@ -333,6 +360,7 @@ function validateManifest(manifest, profile) {
   const isV1 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v1";
   const isBatch2 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v2-batch-2";
   const isHeld4 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v3-held-4";
+  const isShadowhey3 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v4-shadowhey-3";
   const commonContract =
     manifest.schema_version === 1 &&
     manifest.kind === profile.manifestKind &&
@@ -391,7 +419,24 @@ function validateManifest(manifest, profile) {
     heldExecution?.blocked_row_count === 0 &&
     sameNumbers(heldExecution?.review_rows || [], profile.reviewRows) &&
     canonicalJson([...(heldExecution?.plan_fingerprints || [])].sort()) === canonicalJson([...profile.planFingerprints].sort());
-  if (!commonContract || (!v1Contract && !batch2Contract && !held4Contract)) {
+  const shadowhey3Contract =
+    isShadowhey3 &&
+    manifest.retailer?.id === 13 &&
+    manifest.canonical_csv?.path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
+    manifest.canonical_csv?.sha256 === profile.csvSha256 &&
+    manifest.canonical_csv?.row_count === profile.planCount &&
+    manifest.rows.length === 3 &&
+    sameNumbers(manifest.rows.map((row) => row.review_row), profile.reviewRows) &&
+    canonicalJson(manifest.rows.map((row) => [row.review_row, row.product_id, row.product_variant_id])) ===
+      canonicalJson([[1, 753, 873], [2, 753, 876], [3, 753, 877]]) &&
+    manifest.execution_profile?.status === "DRY_RUN_PASS" &&
+    manifest.execution_profile?.artifact_path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
+    manifest.execution_profile?.artifact_sha256 === profile.artifactSha256 &&
+    manifest.execution_profile?.plan_count === profile.planCount &&
+    manifest.execution_profile?.blocked_row_count === 0 &&
+    canonicalJson([...(manifest.execution_profile?.plan_fingerprints || [])].sort()) ===
+      canonicalJson([...profile.planFingerprints].sort());
+  if (!commonContract || (!v1Contract && !batch2Contract && !held4Contract && !shadowhey3Contract)) {
     fail("Predators Gear reviewed manifest contract mismatch");
   }
   const identities = new Set();
@@ -413,6 +458,10 @@ function validateManifest(manifest, profile) {
     if (isV1 && [6, 7].includes(row.review_row) && Number(row.product_id) !== 510) {
       fail(`Whey review row ${row.review_row} must target product 510`);
     }
+    if (
+      isShadowhey3 &&
+      (Number(row.product_id) !== 753 || ![873, 876, 877].includes(Number(row.product_variant_id)))
+    ) fail(`Shadowhey review row ${row.review_row} has an unreviewed target`);
     identities.add(key);
   }
   return new Map(manifest.rows.map((row) => [identityKey(row), row]));
@@ -696,6 +745,9 @@ module.exports = {
   MANIFEST_PATH,
   REMAINING_ARTIFACT_PATH,
   REMAINING_CSV_PATH,
+  SHADOWHEY3_ARTIFACT_PATH,
+  SHADOWHEY3_CSV_PATH,
+  SHADOWHEY3_MANIFEST_PATH,
   REVIEWED_PROFILES,
   loadCredential,
   loadDryRunArtifactEquivalent,

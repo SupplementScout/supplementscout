@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "kind": "predators-gear-reviewed-existing-bindings-v4-shadowhey-3",
+  "approved": true,
+  "approval_source": "USER_EXPLICIT_CHAT_CONFIRMATION",
+  "approved_at": "2026-08-27",
+  "retailer": {
+    "id": 13,
+    "name": "Predators Gear",
+    "slug": "predators-gear",
+    "website": "https://predatorsgear.co.uk/",
+    "shipping_known": true,
+    "shipping_cost": 0
+  },
+  "source": {
+    "csv_path": "tmp/retailer-feeds/predators-gear/produktyPredatorGear.csv",
+    "csv_sha256": "a21429dddf28c67ec81275b9760c0881efbc3b1b35af030a8b053c3cc2cc187a"
+  },
+  "review_evidence": {
+    "production_audit_path": "tmp/retailer-feeds/predators-gear/predators-gear-next-batch-readonly-audit.json",
+    "production_audit_sha256": "23732edeb2183056f5fd6340b43832182065cd5d3ddf714dfdea008c0def1507",
+    "browser_review_path": "tmp/retailer-feeds/predators-gear/predators-gear-next-batch-browser-review.json",
+    "browser_review_sha256": "a0ab448ddd55ab132715c0ca6d8c82c461e720453a3d66e83be57e91319013f6",
+    "browser_verified_at": "2026-08-27T13:35:38.747Z",
+    "browser_verified_parent_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-shadow-line-shadowhey-whey-protein-2000g/"
+  },
+  "canonical_csv": {
+    "path": "tmp/retailer-feeds/predators-gear/predators-gear-reviewed-existing-bindings-v4-shadowhey-3.csv",
+    "sha256": "79fab41b82b334e7e275a820c2d0860b11c799cf96e3e72c47362d9420fdc717",
+    "row_count": 3
+  },
+  "execution_profile": {
+    "status": "DRY_RUN_PASS",
+    "artifact_path": "tmp/retailer-feeds/predators-gear/predators-gear-reviewed-existing-bindings-v4-shadowhey-3-dry-run.json",
+    "artifact_sha256": "751800690204a1353ea66497c1bd50dd88b697b7c03a7c6afc08c3c04f8f904a",
+    "plan_count": 3,
+    "blocked_row_count": 0,
+    "plan_fingerprints": [
+      "00ba9b685f3b81a2b8676f0ffe1a85dc",
+      "db8d13fb0c59310089bff574369ec457",
+      "65a26305967a0f1b8d47993a94820cb2"
+    ]
+  },
+  "policy": {
+    "existing_products_only": true,
+    "existing_variants_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": false,
+    "allow_live_import": false,
+    "sku_is_not_gtin": true,
+    "external_gtin_source_field": "EAN",
+    "delivered_price_equals_price": true,
+    "browser_verified_urls_only": true
+  },
+  "excluded_siblings": [
+    {
+      "external_variant_id": "8594181604889",
+      "flavour": "Cookies With Cream",
+      "reason": "OUT_OF_STOCK"
+    },
+    {
+      "external_variant_id": "8594181606713",
+      "flavour": "Strawberry Banana",
+      "reason": "OUT_OF_STOCK_AND_NO_REVIEWED_EXISTING_VARIANT"
+    },
+    {
+      "external_variant_id": "8594181607804",
+      "flavour": "Banana Peach",
+      "reason": "NO_REVIEWED_EXISTING_VARIANT"
+    },
+    {
+      "external_variant_id": "8594181607805",
+      "flavour": "Chocolate Hazelnut",
+      "reason": "NO_REVIEWED_EXISTING_VARIANT"
+    },
+    {
+      "external_variant_id": "8594181607806",
+      "flavour": "Pistachio",
+      "reason": "NO_REVIEWED_EXISTING_VARIANT"
+    }
+  ],
+  "rows": [
+    {
+      "review_row": 1,
+      "external_product_id": "8594181604885",
+      "external_variant_id": "8594181604888",
+      "external_sku": "5060763890886",
+      "external_gtin_raw": "5060763890886",
+      "external_gtin14": "05060763890886",
+      "gtin_source_field": "EAN",
+      "gtin_evidence_scope": "retailer_external_gtin_not_independent_canonical_match",
+      "external_flavour": "Chocolate",
+      "price": 59.99,
+      "shipping_cost": 0,
+      "delivered_price": 59.99,
+      "in_stock": true,
+      "image_url": "https://predatorsgear.co.uk/wp-content/uploads/2021/11/dorian-yates-whey-protein-2000g-predatorsgear.co_.uk_.jpg",
+      "image_provenance": "source_variation_primary_image",
+      "source_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-shadow-line-shadowhey-whey-protein-2000g/",
+      "product_id": 753,
+      "product_variant_id": 873,
+      "canonical_product": "DY Nutrition Shadowhey Concentrate 2kg",
+      "canonical_variant": "Chocolate / 2kg",
+      "confidence": "HIGH",
+      "disposition": "OWNER_APPROVED"
+    },
+    {
+      "review_row": 2,
+      "external_product_id": "8594181604885",
+      "external_variant_id": "8594181604890",
+      "external_sku": "5949106123181",
+      "external_gtin_raw": "5949106123181",
+      "external_gtin14": "05949106123181",
+      "gtin_source_field": "EAN",
+      "gtin_evidence_scope": "retailer_external_gtin_not_independent_canonical_match",
+      "external_flavour": "Strawberry",
+      "price": 59.99,
+      "shipping_cost": 0,
+      "delivered_price": 59.99,
+      "in_stock": true,
+      "image_url": "https://predatorsgear.co.uk/wp-content/uploads/2021/11/dorian-yates-whey-protein-2000g-predatorsgear.co_.uk_.jpg",
+      "image_provenance": "source_variation_primary_image",
+      "source_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-shadow-line-shadowhey-whey-protein-2000g/",
+      "product_id": 753,
+      "product_variant_id": 876,
+      "canonical_product": "DY Nutrition Shadowhey Concentrate 2kg",
+      "canonical_variant": "Strawberry / 2kg",
+      "confidence": "HIGH",
+      "disposition": "OWNER_APPROVED"
+    },
+    {
+      "review_row": 3,
+      "external_product_id": "8594181604885",
+      "external_variant_id": "8594181604891",
+      "external_sku": "5949106123228",
+      "external_gtin_raw": "5949106123228",
+      "external_gtin14": "05949106123228",
+      "gtin_source_field": "EAN",
+      "gtin_evidence_scope": "retailer_external_gtin_not_independent_canonical_match",
+      "external_flavour": "Vanila",
+      "canonical_flavour": "Vanilla",
+      "reviewed_flavour_alias": "Vanila -> Vanilla",
+      "price": 59.99,
+      "shipping_cost": 0,
+      "delivered_price": 59.99,
+      "in_stock": true,
+      "image_url": "https://predatorsgear.co.uk/wp-content/uploads/2021/11/dorian-yates-whey-protein-2000g-predatorsgear.co_.uk_.jpg",
+      "image_provenance": "source_variation_primary_image",
+      "source_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-shadow-line-shadowhey-whey-protein-2000g/",
+      "product_id": 753,
+      "product_variant_id": 877,
+      "canonical_product": "DY Nutrition Shadowhey Concentrate 2kg",
+      "canonical_variant": "Vanilla / 2kg",
+      "confidence": "HIGH",
+      "disposition": "OWNER_APPROVED"
+    }
+  ]
+}

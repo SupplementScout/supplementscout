@@ -5,6 +5,7 @@ const test = require("node:test");
 const reviewedManifest = require("../config/retailers/predators-gear-reviewed-bindings-v1.json");
 const reviewedBatch2Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v2.json");
 const reviewedHeld4Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v3-held-4.json");
+const reviewedShadowhey3Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v4-shadowhey-3.json");
 const {
   BATCH2_ARTIFACT_PATH,
   BATCH2_CSV_PATH,
@@ -14,6 +15,8 @@ const {
   HELD_OLIMP_ARTIFACT_PATH,
   HELD_OLIMP_CSV_PATH,
   REMAINING_ARTIFACT_PATH,
+  SHADOWHEY3_ARTIFACT_PATH,
+  SHADOWHEY3_CSV_PATH,
   REVIEWED_PROFILES,
   loadCredential,
   parseArgs,
@@ -40,6 +43,8 @@ function fixture(profileName = "original-v2") {
       ? reviewedBatch2Manifest
       : profileName.startsWith("held-")
         ? reviewedHeld4Manifest
+        : profileName === "shadowhey-3"
+          ? reviewedShadowhey3Manifest
         : reviewedManifest
   );
   if (manifest.canonical_csv) manifest.canonical_csv.sha256 = sha256(csvBytes);
@@ -215,6 +220,15 @@ function fixture(profileName = "original-v2") {
     execution.blocked_row_count = 0;
     execution.review_rows = [...profile.reviewRows];
     execution.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName === "shadowhey-3") {
+    manifest.canonical_csv.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    manifest.canonical_csv.sha256 = profile.csvSha256;
+    manifest.canonical_csv.row_count = profile.planCount;
+    manifest.execution_profile.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    manifest.execution_profile.artifact_sha256 = profile.artifactSha256;
+    manifest.execution_profile.plan_count = profile.planCount;
+    manifest.execution_profile.blocked_row_count = 0;
+    manifest.execution_profile.plan_fingerprints = [...profile.planFingerprints];
   }
   return { artifact, csvBytes, loaded, manifest, options, configuration: { profile } };
 }
@@ -331,6 +345,50 @@ test("reviewed held Olimp and CM3 profiles are exact and validate independently"
   assert.equal(cm3.csvSha256, "46ac92ccd8a7374b0b745f8335f9cb23073aa2970261cdd051b84193bbe16468");
   assert.deepEqual(cm3.reviewRows, [4, 5]);
   assert.doesNotThrow(() => validate(fixture("held-cm3-exact-2")));
+});
+
+test("reviewed Shadowhey three-plan profile is exact and validates", () => {
+  const profile = REVIEWED_PROFILES.find((candidate) => candidate.name === "shadowhey-3");
+  assert.equal(profile.artifactPath, SHADOWHEY3_ARTIFACT_PATH);
+  assert.equal(profile.csvPath, SHADOWHEY3_CSV_PATH);
+  assert.equal(profile.artifactSha256, "751800690204a1353ea66497c1bd50dd88b697b7c03a7c6afc08c3c04f8f904a");
+  assert.equal(profile.csvSha256, "79fab41b82b334e7e275a820c2d0860b11c799cf96e3e72c47362d9420fdc717");
+  assert.deepEqual(profile.reviewRows, [1, 2, 3]);
+  assert.deepEqual(profile.planFingerprints, [
+    "00ba9b685f3b81a2b8676f0ffe1a85dc",
+    "db8d13fb0c59310089bff574369ec457",
+    "65a26305967a0f1b8d47993a94820cb2",
+  ]);
+  const value = fixture("shadowhey-3");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerAction, "existing");
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 3);
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.id === "753"));
+  assert.deepEqual(value.artifact.plans.map((entry) => entry.resolved_plan.product_variant.id), ["873", "876", "877"]);
+});
+
+test("Shadowhey profile rejects hash, retailer, target, and fingerprint drift", () => {
+  const artifactSha = fixture("shadowhey-3");
+  artifactSha.loaded.artifactSha256 = "b".repeat(64);
+  assert.throws(() => validate(artifactSha), /clean-run contract mismatch/);
+
+  const csvSha = fixture("shadowhey-3");
+  csvSha.csvBytes = Buffer.from("different reviewed CSV\n", "utf8");
+  assert.throws(() => validate(csvSha), /clean-run contract mismatch/);
+
+  const retailer = fixture("shadowhey-3");
+  retailer.artifact.plans[0].resolved_plan.retailer = { action: "create", values: {} };
+  retailer.artifact.plans[0].resolved_plan.expected_state.retailer = null;
+  assert.throws(() => validate(retailer), /Unsafe existing retailer plan/);
+
+  const target = fixture("shadowhey-3");
+  target.manifest.rows[0].product_variant_id = 875;
+  assert.throws(() => validate(target), /manifest contract mismatch/);
+
+  const fingerprint = fixture("shadowhey-3");
+  fingerprint.manifest.execution_profile.plan_fingerprints[0] = "f".repeat(32);
+  assert.throws(() => validate(fingerprint), /manifest contract mismatch/);
 });
 
 test("held profiles reject variant, exact options, profile scope and fingerprint drift", () => {
