@@ -44,6 +44,26 @@ const REMAINING_CSV_PATH = path.join(
   "predators-gear",
   "predators-gear-reviewed-existing-bindings-v1-remaining-6.csv"
 );
+const BATCH2_MANIFEST_PATH = path.join(
+  ROOT,
+  "config",
+  "retailers",
+  "predators-gear-reviewed-bindings-v2.json"
+);
+const BATCH2_ARTIFACT_PATH = path.join(
+  ROOT,
+  "tmp",
+  "retailer-feeds",
+  "predators-gear",
+  "predators-gear-reviewed-existing-bindings-v2-batch-2-safe-5-dry-run.json"
+);
+const BATCH2_CSV_PATH = path.join(
+  ROOT,
+  "tmp",
+  "retailer-feeds",
+  "predators-gear",
+  "predators-gear-reviewed-existing-bindings-v2-batch-2-safe-5.csv"
+);
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -60,6 +80,9 @@ const MD5_PATTERN = /^[0-9a-f]{32}$/;
 const REVIEWED_PROFILES = Object.freeze([
   Object.freeze({
     name: "original-v2",
+    manifestPath: MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-existing-bindings-v1",
+    approvalReason: "predators-gear-reviewed-bindings-v1",
     artifactPath: EXPECTED_ARTIFACT_PATH,
     artifactSha256: "ef843b77fbd0aa75f83908dadf33f4f92bda06b25f86115f8c5ffb3780ecc8c1",
     csvPath: EXPECTED_CSV_PATH,
@@ -81,6 +104,9 @@ const REVIEWED_PROFILES = Object.freeze([
   }),
   Object.freeze({
     name: "remaining-6",
+    manifestPath: MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-existing-bindings-v1",
+    approvalReason: "predators-gear-reviewed-bindings-v1",
     artifactPath: REMAINING_ARTIFACT_PATH,
     artifactSha256: "6353e4285db10fe160d0b8f2ffbdea61489606c86528dc2fa31aa79f57b0428c",
     csvPath: REMAINING_CSV_PATH,
@@ -104,6 +130,34 @@ const REVIEWED_PROFILES = Object.freeze([
       "5c44cb1aa6dd494547a4fb28f99fc149",
       "36ad963f00982a936877dd2ffa2d67d4",
       "9885fc60773e83b34385dcd71908571b",
+    ]),
+  }),
+  Object.freeze({
+    name: "batch-2-safe-5",
+    manifestPath: BATCH2_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-existing-bindings-v2-batch-2",
+    approvalReason: "predators-gear-reviewed-bindings-v2-batch-2-safe-5",
+    artifactPath: BATCH2_ARTIFACT_PATH,
+    artifactSha256: "0b9c9350dfc53c10d4769415c899ab88bff372cf784b273daaaa0cc92297440a",
+    csvPath: BATCH2_CSV_PATH,
+    csvSha256: "0ad4ccbdce0fa1cbdbebca24100e48f9c818d81e5527e438c4334c425269bf46",
+    planCount: 5,
+    reviewRows: Object.freeze([3, 6, 7, 8, 9]),
+    retailerAction: "existing",
+    retailerId: "13",
+    planFingerprints: Object.freeze([
+      "a1344d6236e5396fc6dc9f80ce684a90",
+      "713d3e09c0e20c8a5ba8edeb807c7f7f",
+      "a0e5ec0f9cd1b3b426246cfce955fb03",
+      "f6bbb3ad3a982ce6c8abc4a243503be4",
+      "4380e5ad881ca58639905b9817ec8c55",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "a1344d6236e5396fc6dc9f80ce684a90",
+      "713d3e09c0e20c8a5ba8edeb807c7f7f",
+      "a0e5ec0f9cd1b3b426246cfce955fb03",
+      "f6bbb3ad3a982ce6c8abc4a243503be4",
+      "4380e5ad881ca58639905b9817ec8c55",
     ]),
   }),
 ]);
@@ -236,28 +290,51 @@ function resolveReviewedProfile(options, configuredProfile) {
   return matches[0];
 }
 
-function validateManifest(manifest) {
-  if (
-    manifest.schema_version !== 1 ||
-    manifest.kind !== "predators-gear-reviewed-existing-bindings-v1" ||
-    manifest.approved !== true ||
-    manifest.retailer?.name !== "Predators Gear" ||
-    manifest.retailer?.slug !== "predators-gear" ||
-    manifest.retailer?.website !== "https://predatorsgear.co.uk/" ||
-    manifest.retailer?.shipping_known !== true ||
-    manifest.retailer?.shipping_cost !== 0 ||
-    manifest.canonical_csv?.row_count !== 7 ||
-    manifest.policy?.existing_products_only !== true ||
-    manifest.policy?.existing_variants_only !== true ||
-    manifest.policy?.allow_product_creation !== false ||
-    manifest.policy?.allow_variant_creation !== false ||
-    manifest.policy?.allow_live_import !== false ||
-    manifest.policy?.sku_is_not_gtin !== true ||
-    !Array.isArray(manifest.rows) ||
-    manifest.rows.length !== 7 ||
-    !sameNumbers(manifest.rows.map((row) => row.review_row), EXPECTED_REVIEW_ROWS) ||
-    !sameNumbers(manifest.excluded_review_rows || [], EXPECTED_EXCLUDED_ROWS)
-  ) fail("Predators Gear reviewed manifest contract mismatch");
+function validateManifest(manifest, profile) {
+  const isV1 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v1";
+  const isBatch2 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v2-batch-2";
+  const commonContract =
+    manifest.schema_version === 1 &&
+    manifest.kind === profile.manifestKind &&
+    manifest.approved === true &&
+    manifest.retailer?.name === "Predators Gear" &&
+    manifest.retailer?.slug === "predators-gear" &&
+    manifest.retailer?.website === "https://predatorsgear.co.uk/" &&
+    manifest.retailer?.shipping_known === true &&
+    manifest.retailer?.shipping_cost === 0 &&
+    manifest.policy?.existing_products_only === true &&
+    manifest.policy?.existing_variants_only === true &&
+    manifest.policy?.allow_product_creation === false &&
+    manifest.policy?.allow_variant_creation === false &&
+    manifest.policy?.allow_live_import === false &&
+    manifest.policy?.sku_is_not_gtin === true &&
+    Array.isArray(manifest.rows);
+  const v1Contract =
+    isV1 &&
+    manifest.canonical_csv?.row_count === 7 &&
+    manifest.rows.length === 7 &&
+    sameNumbers(manifest.rows.map((row) => row.review_row), EXPECTED_REVIEW_ROWS) &&
+    sameNumbers(manifest.excluded_review_rows || [], EXPECTED_EXCLUDED_ROWS);
+  const batch2Contract =
+    isBatch2 &&
+    manifest.retailer?.id === 13 &&
+    manifest.canonical_csv?.row_count === 9 &&
+    manifest.rows.length === 9 &&
+    manifest.execution_subset?.status === "DRY_RUN_PASS" &&
+    manifest.execution_subset?.csv_path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
+    manifest.execution_subset?.csv_sha256 === profile.csvSha256 &&
+    manifest.execution_subset?.artifact_path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
+    manifest.execution_subset?.artifact_sha256 === profile.artifactSha256 &&
+    manifest.execution_subset?.plan_count === profile.planCount &&
+    manifest.execution_subset?.blocked_row_count === 0 &&
+    sameNumbers(manifest.execution_subset?.review_rows || [], profile.reviewRows) &&
+    canonicalJson([...(manifest.execution_subset?.plan_fingerprints || [])].sort()) ===
+      canonicalJson([...profile.planFingerprints].sort()) &&
+    Array.isArray(manifest.held_after_dry_run) &&
+    sameNumbers(manifest.held_after_dry_run.flatMap((entry) => entry.review_rows || []), [1, 2, 4, 5]);
+  if (!commonContract || (!v1Contract && !batch2Contract)) {
+    fail("Predators Gear reviewed manifest contract mismatch");
+  }
   const identities = new Set();
   for (const row of manifest.rows) {
     const key = identityKey(row);
@@ -270,10 +347,11 @@ function validateManifest(manifest) {
       row.delivered_price !== row.price ||
       row.disposition !== "OWNER_APPROVED" ||
       !String(row.image_url || "").startsWith("https://predatorsgear.co.uk/wp-content/uploads/") ||
-      !String(row.image_provenance || "").startsWith("source_") ||
-      !String(row.source_url || "").startsWith("https://predatorsgear.co.uk/?p=")
+      (!String(row.image_provenance || "").startsWith("source_") &&
+        !String(row.image_provenance || "").startsWith("browser_verified_source_")) ||
+      !String(row.source_url || "").startsWith("https://predatorsgear.co.uk/")
     ) fail(`Unsafe reviewed manifest row ${row.review_row}`);
-    if ([6, 7].includes(row.review_row) && Number(row.product_id) !== 510) {
+    if (isV1 && [6, 7].includes(row.review_row) && Number(row.product_id) !== 510) {
       fail(`Whey review row ${row.review_row} must target product 510`);
     }
     identities.add(key);
@@ -343,7 +421,11 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
     imageUrl.hostname !== "predatorsgear.co.uk" ||
     Number(productId) === 337
   ) fail(`Unsafe Predators Gear plan for review row ${reviewed.review_row}`);
-  if ([6, 7].includes(reviewed.review_row) && Number(productId) !== 510) {
+  if (
+    profile.manifestKind === "predators-gear-reviewed-existing-bindings-v1" &&
+    [6, 7].includes(reviewed.review_row) &&
+    Number(productId) !== 510
+  ) {
     fail(`Whey review row ${reviewed.review_row} must target product 510`);
   }
   if (profile.retailerAction === "create") {
@@ -388,7 +470,7 @@ function validateApprovalScope(options, loaded, manifest, csvBytes, configuratio
     artifact.summary?.blocked_row_count !== "0" ||
     artifact.summary?.skipped_row_count !== "0"
   ) fail("Predators Gear artifact, source hash, or clean-run contract mismatch");
-  const allReviewed = validateManifest(manifest);
+  const allReviewed = validateManifest(manifest, profile);
   const reviewedRows = manifest.rows.filter((row) => profile.reviewRows.includes(row.review_row));
   if (reviewedRows.length !== profile.planCount) fail("Reviewed profile row scope is invalid");
   const reviewedByIdentity = new Map(reviewedRows.map((row) => [identityKey(row), allReviewed.get(identityKey(row))]));
@@ -435,10 +517,14 @@ function loadCredential(file = APPROVER_CREDENTIAL_PATH) {
 }
 
 function prepareApproval(options, dependencies = {}) {
-  const manifest = dependencies.manifest || JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8"));
+  const profile = resolveReviewedProfile(options, dependencies.configuration?.profile);
+  const manifest = dependencies.manifest || JSON.parse(fs.readFileSync(profile.manifestPath, "utf8"));
   const loaded = dependencies.loaded || loadDryRunArtifactEquivalent(options.artifact);
   const csvBytes = dependencies.csvBytes || fs.readFileSync(options.csv);
-  return validateApprovalScope(options, loaded, manifest, csvBytes, dependencies.configuration);
+  return validateApprovalScope(options, loaded, manifest, csvBytes, {
+    ...dependencies.configuration,
+    profile,
+  });
 }
 
 function verifyApprovalResult(result, prepared) {
@@ -485,7 +571,7 @@ async function runApproval(options, dependencies = {}) {
         prepared.entry.resolved_plan,
         prepared.loaded.artifactSha256,
         prepared.loaded.artifact.run_id,
-        "predators-gear-reviewed-bindings-v1",
+        prepared.profile.approvalReason,
       ]
     );
     const approval = response.rows[0]?.result;
@@ -527,6 +613,9 @@ if (require.main === module) {
 module.exports = {
   APPROVER_CREDENTIAL_PATH,
   APPROVER_ROLE,
+  BATCH2_ARTIFACT_PATH,
+  BATCH2_CSV_PATH,
+  BATCH2_MANIFEST_PATH,
   EXPECTED_ARTIFACT_PATH,
   EXPECTED_CSV_PATH,
   MANIFEST_PATH,

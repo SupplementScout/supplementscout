@@ -3,7 +3,10 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const reviewedManifest = require("../config/retailers/predators-gear-reviewed-bindings-v1.json");
+const reviewedBatch2Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v2.json");
 const {
+  BATCH2_ARTIFACT_PATH,
+  BATCH2_CSV_PATH,
   EXPECTED_ARTIFACT_PATH,
   REMAINING_ARTIFACT_PATH,
   REVIEWED_PROFILES,
@@ -26,9 +29,10 @@ function clone(value) {
 
 function fixture(profileName = "original-v2") {
   const csvBytes = Buffer.from("predators-gear-reviewed-canonical-fixture\n", "utf8");
-  const manifest = clone(reviewedManifest);
-  manifest.canonical_csv.sha256 = sha256(csvBytes);
   const productionProfile = REVIEWED_PROFILES.find((profile) => profile.name === profileName);
+  const manifest = clone(profileName === "batch-2-safe-5" ? reviewedBatch2Manifest : reviewedManifest);
+  manifest.canonical_csv.sha256 = sha256(csvBytes);
+  const existingRetailer = productionProfile.retailerAction === "existing";
   const selectedRows = manifest.rows.filter((row) => productionProfile.reviewRows.includes(row.review_row));
   const sourceRows = [];
   const plans = [];
@@ -66,7 +70,7 @@ function fixture(profileName = "original-v2") {
           product_id: String(reviewed.product_id),
           is_active: true,
         },
-        retailer: profileName === "remaining-6" ? {
+        retailer: existingRetailer ? {
           id: "13",
           name: "Predators Gear",
           slug: "predators-gear",
@@ -99,7 +103,7 @@ function fixture(profileName = "original-v2") {
         evidence: {},
         id: String(reviewed.product_variant_id),
       },
-      retailer: profileName === "remaining-6" ? {
+      retailer: existingRetailer ? {
         action: "existing",
         id: "13",
       } : {
@@ -134,7 +138,7 @@ function fixture(profileName = "original-v2") {
       row_number: rowNumber,
       source_row_fingerprint: sourceFingerprint,
       plan_fingerprint: fingerprint,
-      retailer_id: profileName === "remaining-6" ? "13" : null,
+      retailer_id: existingRetailer ? "13" : null,
       plan_kind: "feed",
       operation_type: "standard_import",
       resolved_plan: plan,
@@ -174,6 +178,16 @@ function fixture(profileName = "original-v2") {
     planFingerprints: plans.map((entry) => entry.plan_fingerprint),
     selectableFingerprints: plans.map((entry) => entry.plan_fingerprint),
   };
+  if (profileName === "batch-2-safe-5") {
+    manifest.execution_subset.csv_path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    manifest.execution_subset.csv_sha256 = profile.csvSha256;
+    manifest.execution_subset.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    manifest.execution_subset.artifact_sha256 = profile.artifactSha256;
+    manifest.execution_subset.plan_count = profile.planCount;
+    manifest.execution_subset.blocked_row_count = 0;
+    manifest.execution_subset.review_rows = [...profile.reviewRows];
+    manifest.execution_subset.plan_fingerprints = [...profile.planFingerprints];
+  }
   return { artifact, csvBytes, loaded, manifest, options, configuration: { profile } };
 }
 
@@ -247,6 +261,56 @@ test("reviewed remaining-six profile is exact and its fixture validates", () => 
   assert.equal(prepared.profile.retailerAction, "existing");
   assert.equal(prepared.profile.retailerId, "13");
   assert.equal(value.artifact.plans.length, 6);
+});
+
+test("reviewed batch-two safe-five profile is exact and its fixture validates", () => {
+  const profile = REVIEWED_PROFILES.find((candidate) => candidate.name === "batch-2-safe-5");
+  assert.equal(profile.artifactPath, BATCH2_ARTIFACT_PATH);
+  assert.equal(profile.artifactSha256, "0b9c9350dfc53c10d4769415c899ab88bff372cf784b273daaaa0cc92297440a");
+  assert.equal(profile.csvPath, BATCH2_CSV_PATH);
+  assert.equal(profile.csvSha256, "0ad4ccbdce0fa1cbdbebca24100e48f9c818d81e5527e438c4334c425269bf46");
+  assert.deepEqual(profile.reviewRows, [3, 6, 7, 8, 9]);
+  assert.deepEqual(profile.planFingerprints, [
+    "a1344d6236e5396fc6dc9f80ce684a90",
+    "713d3e09c0e20c8a5ba8edeb807c7f7f",
+    "a0e5ec0f9cd1b3b426246cfce955fb03",
+    "f6bbb3ad3a982ce6c8abc4a243503be4",
+    "4380e5ad881ca58639905b9817ec8c55",
+  ]);
+  assert.deepEqual(profile.selectableFingerprints, profile.planFingerprints);
+  const value = fixture("batch-2-safe-5");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerAction, "existing");
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 5);
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "existing"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "existing"));
+});
+
+test("batch-two profile rejects held rows and reviewed fingerprint drift", () => {
+  const held = fixture("batch-2-safe-5");
+  held.manifest.execution_subset.review_rows = [1, 3, 6, 7, 8];
+  assert.throws(() => validate(held), /manifest contract mismatch/);
+
+  const fingerprintDrift = fixture("batch-2-safe-5");
+  fingerprintDrift.manifest.execution_subset.plan_fingerprints[0] = "f".repeat(32);
+  assert.throws(() => validate(fingerprintDrift), /manifest contract mismatch/);
+});
+
+test("batch-two profile rejects wrong artifact SHA, CSV SHA, and retailer drift", () => {
+  const artifactSha = fixture("batch-2-safe-5");
+  artifactSha.loaded.artifactSha256 = "b".repeat(64);
+  assert.throws(() => validate(artifactSha), /clean-run contract mismatch/);
+
+  const csvSha = fixture("batch-2-safe-5");
+  csvSha.csvBytes = Buffer.from("different reviewed CSV\n", "utf8");
+  assert.throws(() => validate(csvSha), /clean-run contract mismatch/);
+
+  const retailer = fixture("batch-2-safe-5");
+  retailer.artifact.plans[0].retailer_id = "14";
+  retailer.artifact.plans[0].resolved_plan.retailer.id = "14";
+  retailer.artifact.plans[0].resolved_plan.expected_state.retailer.id = "14";
+  assert.throws(() => validate(retailer), /Unsafe existing retailer plan/);
 });
 
 test("remaining-six profile rejects wrong artifact SHA", () => {
