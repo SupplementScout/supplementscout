@@ -23,6 +23,27 @@ const EXPECTED_ARTIFACT_PATH = path.join(
   "predators-gear",
   "predators-gear-reviewed-existing-bindings-v1-with-images-safe-create-dry-run-v2.json"
 );
+const EXPECTED_CSV_PATH = path.join(
+  ROOT,
+  "tmp",
+  "retailer-feeds",
+  "predators-gear",
+  "predators-gear-reviewed-existing-bindings-v1-with-images.csv"
+);
+const REMAINING_ARTIFACT_PATH = path.join(
+  ROOT,
+  "tmp",
+  "retailer-feeds",
+  "predators-gear",
+  "predators-gear-reviewed-existing-bindings-v1-remaining-6-dry-run.json"
+);
+const REMAINING_CSV_PATH = path.join(
+  ROOT,
+  "tmp",
+  "retailer-feeds",
+  "predators-gear",
+  "predators-gear-reviewed-existing-bindings-v1-remaining-6.csv"
+);
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -36,6 +57,56 @@ const EXPECTED_REVIEW_ROWS = [1, 2, 6, 7, 8, 9, 10];
 const EXPECTED_EXCLUDED_ROWS = [3, 4, 5];
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 const MD5_PATTERN = /^[0-9a-f]{32}$/;
+const REVIEWED_PROFILES = Object.freeze([
+  Object.freeze({
+    name: "original-v2",
+    artifactPath: EXPECTED_ARTIFACT_PATH,
+    artifactSha256: "ef843b77fbd0aa75f83908dadf33f4f92bda06b25f86115f8c5ffb3780ecc8c1",
+    csvPath: EXPECTED_CSV_PATH,
+    csvSha256: "841cbdb71a1de7e4216716bddd2dd582fd1f73901fe64929979e09768ecd7dd2",
+    planCount: 7,
+    reviewRows: Object.freeze([1, 2, 6, 7, 8, 9, 10]),
+    retailerAction: "create",
+    retailerId: null,
+    planFingerprints: Object.freeze([
+      "8d9c2ce4e4d88a8ddb5c7feec9ed825a",
+      "5f5c0f82602db01fc7b5397b27bae4d1",
+      "b3c0936ccd4005b81a49e0f2d6ab7bf2",
+      "d428e32c5da245dabe86fa001e591ded",
+      "0bd87626c252582d9c98ce449d529fd3",
+      "d5f171f4b445a37bdf690441009da5e6",
+      "69d107a53f318ced2d88ebdffc004fe8",
+    ]),
+    selectableFingerprints: Object.freeze(["8d9c2ce4e4d88a8ddb5c7feec9ed825a"]),
+  }),
+  Object.freeze({
+    name: "remaining-6",
+    artifactPath: REMAINING_ARTIFACT_PATH,
+    artifactSha256: "6353e4285db10fe160d0b8f2ffbdea61489606c86528dc2fa31aa79f57b0428c",
+    csvPath: REMAINING_CSV_PATH,
+    csvSha256: "c09ce429f62098bc341e0027d05556005718e5813b3fee13e4e6a2e3ce31adfb",
+    planCount: 6,
+    reviewRows: Object.freeze([2, 6, 7, 8, 9, 10]),
+    retailerAction: "existing",
+    retailerId: "13",
+    planFingerprints: Object.freeze([
+      "d8e536e8361752e01a64672086af50dc",
+      "78bd93523f61d5aef20b82cb4d74ecaa",
+      "afaa55b519f266ed4eeb70a8db01a27f",
+      "5c44cb1aa6dd494547a4fb28f99fc149",
+      "36ad963f00982a936877dd2ffa2d67d4",
+      "9885fc60773e83b34385dcd71908571b",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "d8e536e8361752e01a64672086af50dc",
+      "78bd93523f61d5aef20b82cb4d74ecaa",
+      "afaa55b519f266ed4eeb70a8db01a27f",
+      "5c44cb1aa6dd494547a4fb28f99fc149",
+      "36ad963f00982a936877dd2ffa2d67d4",
+      "9885fc60773e83b34385dcd71908571b",
+    ]),
+  }),
+]);
 
 function fail(message) {
   throw new Error(message);
@@ -153,6 +224,18 @@ function exactDecimal(value, expected) {
   return Number.isFinite(Number(value)) && Number(value) === Number(expected);
 }
 
+function resolveReviewedProfile(options, configuredProfile) {
+  if (configuredProfile) return configuredProfile;
+  const matches = REVIEWED_PROFILES.filter((profile) =>
+    path.resolve(options.artifact) === path.resolve(profile.artifactPath) &&
+    path.resolve(options.csv) === path.resolve(profile.csvPath)
+  );
+  if (matches.length !== 1) {
+    fail("Artifact and CSV paths do not match exactly one reviewed Predators Gear profile");
+  }
+  return matches[0];
+}
+
 function validateManifest(manifest) {
   if (
     manifest.schema_version !== 1 ||
@@ -198,7 +281,7 @@ function validateManifest(manifest) {
   return new Map(manifest.rows.map((row) => [identityKey(row), row]));
 }
 
-function validatePlan(entry, sourceRecord, reviewed) {
+function validatePlan(entry, sourceRecord, reviewed, profile) {
   const source = sourceRecord?.normalized_source_row || {};
   const plan = entry.resolved_plan || {};
   const productId = String(reviewed.product_id);
@@ -239,11 +322,6 @@ function validatePlan(entry, sourceRecord, reviewed) {
     plan.expected_state?.product_variant?.is_active !== true ||
     String(plan.expected_state?.product_variant?.id) !== variantId ||
     String(plan.expected_state?.product_variant?.product_id) !== productId ||
-    plan.retailer?.action !== "create" ||
-    plan.retailer?.values?.name !== "Predators Gear" ||
-    plan.retailer?.values?.slug !== "predators-gear" ||
-    plan.retailer?.values?.website !== "https://predatorsgear.co.uk/" ||
-    plan.expected_state?.retailer != null ||
     plan.retailer_product?.action !== "create" ||
     String(plan.retailer_product?.values?.product_variant_id) !== variantId ||
     String(plan.retailer_product?.values?.external_product_id) !== String(reviewed.external_product_id) ||
@@ -268,33 +346,52 @@ function validatePlan(entry, sourceRecord, reviewed) {
   if ([6, 7].includes(reviewed.review_row) && Number(productId) !== 510) {
     fail(`Whey review row ${reviewed.review_row} must target product 510`);
   }
+  if (profile.retailerAction === "create") {
+    if (
+      entry.retailer_id != null ||
+      plan.retailer?.action !== "create" ||
+      plan.retailer?.values?.name !== "Predators Gear" ||
+      plan.retailer?.values?.slug !== "predators-gear" ||
+      plan.retailer?.values?.website !== "https://predatorsgear.co.uk/" ||
+      plan.expected_state?.retailer != null
+    ) fail(`Unsafe retailer create plan for review row ${reviewed.review_row}`);
+  } else if (
+    profile.retailerAction !== "existing" ||
+    String(entry.retailer_id) !== String(profile.retailerId) ||
+    plan.retailer?.action !== "existing" ||
+    String(plan.retailer?.id) !== String(profile.retailerId) ||
+    String(plan.expected_state?.retailer?.id) !== String(profile.retailerId) ||
+    plan.expected_state?.retailer?.name !== "Predators Gear" ||
+    plan.expected_state?.retailer?.slug !== "predators-gear" ||
+    plan.expected_state?.retailer?.website !== "https://predatorsgear.co.uk/"
+  ) fail(`Unsafe existing retailer plan for review row ${reviewed.review_row}`);
 }
 
 function validateApprovalScope(options, loaded, manifest, csvBytes, configuration = {}) {
-  const root = configuration.root || ROOT;
-  const expectedArtifact = configuration.expectedArtifact || EXPECTED_ARTIFACT_PATH;
-  const expectedCsv = path.resolve(root, manifest.canonical_csv?.path || "");
-  if (path.resolve(options.artifact) !== path.resolve(expectedArtifact)) {
-    fail("Artifact path is not the reviewed Predators Gear v2 artifact");
-  }
-  if (path.resolve(options.csv) !== expectedCsv) {
-    fail("Canonical CSV path does not match the reviewed manifest");
-  }
+  const profile = resolveReviewedProfile(options, configuration.profile);
   const csvSha = sha256(csvBytes);
   const artifact = loaded.artifact;
   if (
-    csvSha !== manifest.canonical_csv.sha256 ||
+    path.resolve(options.artifact) !== path.resolve(profile.artifactPath) ||
+    path.resolve(loaded.artifactPath) !== path.resolve(profile.artifactPath) ||
+    loaded.artifactSha256 !== profile.artifactSha256 ||
+    path.resolve(options.csv) !== path.resolve(profile.csvPath) ||
+    csvSha !== profile.csvSha256 ||
     csvSha !== artifact.source_file_sha256 ||
+    artifact.source_file_name !== path.basename(profile.csvPath) ||
     artifact.environment_marker !== "local" ||
-    artifact.row_count !== "7" ||
-    artifact.source_rows?.length !== 7 ||
-    artifact.plans?.length !== 7 ||
+    artifact.row_count !== String(profile.planCount) ||
+    artifact.source_rows?.length !== profile.planCount ||
+    artifact.plans?.length !== profile.planCount ||
     artifact.blocked_rows?.length !== 0 ||
-    artifact.summary?.plan_count !== "7" ||
+    artifact.summary?.plan_count !== String(profile.planCount) ||
     artifact.summary?.blocked_row_count !== "0" ||
     artifact.summary?.skipped_row_count !== "0"
   ) fail("Predators Gear artifact, source hash, or clean-run contract mismatch");
-  const reviewedByIdentity = validateManifest(manifest);
+  const allReviewed = validateManifest(manifest);
+  const reviewedRows = manifest.rows.filter((row) => profile.reviewRows.includes(row.review_row));
+  if (reviewedRows.length !== profile.planCount) fail("Reviewed profile row scope is invalid");
+  const reviewedByIdentity = new Map(reviewedRows.map((row) => [identityKey(row), allReviewed.get(identityKey(row))]));
   const fingerprints = new Set();
   const seenIdentities = new Set();
   for (const entry of artifact.plans) {
@@ -304,15 +401,22 @@ function validateApprovalScope(options, loaded, manifest, csvBytes, configuratio
     const key = identityKey(source?.normalized_source_row || {});
     const reviewed = reviewedByIdentity.get(key);
     if (!reviewed || seenIdentities.has(key)) fail(`Unreviewed or duplicate artifact identity ${key}`);
-    validatePlan(entry, source, reviewed);
+    validatePlan(entry, source, reviewed, profile);
     seenIdentities.add(key);
   }
-  if (seenIdentities.size !== 7) fail("Predators Gear artifact scope is incomplete");
+  if (
+    seenIdentities.size !== profile.planCount ||
+    !sameNumbers([...seenIdentities].map((key) => reviewedByIdentity.get(key)?.review_row), profile.reviewRows) ||
+    canonicalJson([...fingerprints].sort()) !== canonicalJson([...profile.planFingerprints].sort())
+  ) fail("Predators Gear artifact scope or reviewed fingerprint set is incomplete");
+  if (!profile.selectableFingerprints.includes(options.planFingerprint)) {
+    fail("Plan fingerprint is not selectable in this reviewed profile");
+  }
   const selected = artifact.plans.filter((entry) => entry.plan_fingerprint === options.planFingerprint);
   if (selected.length !== 1) fail("Artifact must contain exactly one matching plan");
   const source = artifact.source_rows.find((row) => row.row_number === selected[0].row_number);
   const reviewed = reviewedByIdentity.get(identityKey(source.normalized_source_row));
-  return { loaded, entry: selected[0], source: source.normalized_source_row, reviewed };
+  return { loaded, entry: selected[0], source: source.normalized_source_row, reviewed, profile };
 }
 
 function loadCredential(file = APPROVER_CREDENTIAL_PATH) {
@@ -393,7 +497,7 @@ async function runApproval(options, dependencies = {}) {
       approval_id: approval.approval_id,
       expires_at: approval.expires_at,
       plan_fingerprint: approval.plan_fingerprint,
-      retailer: plan.retailer.values.name,
+      retailer: prepared.source.retailer_name,
       product_id: plan.product.id,
       product_variant_id: plan.product_variant.id,
       price: plan.offer.values.price,
@@ -424,7 +528,11 @@ module.exports = {
   APPROVER_CREDENTIAL_PATH,
   APPROVER_ROLE,
   EXPECTED_ARTIFACT_PATH,
+  EXPECTED_CSV_PATH,
   MANIFEST_PATH,
+  REMAINING_ARTIFACT_PATH,
+  REMAINING_CSV_PATH,
+  REVIEWED_PROFILES,
   loadCredential,
   loadDryRunArtifactEquivalent,
   parseArgs,

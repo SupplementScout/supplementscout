@@ -5,6 +5,8 @@ const test = require("node:test");
 const reviewedManifest = require("../config/retailers/predators-gear-reviewed-bindings-v1.json");
 const {
   EXPECTED_ARTIFACT_PATH,
+  REMAINING_ARTIFACT_PATH,
+  REVIEWED_PROFILES,
   loadCredential,
   parseArgs,
   planFingerprint,
@@ -22,14 +24,16 @@ function clone(value) {
   return structuredClone(value);
 }
 
-function fixture() {
+function fixture(profileName = "original-v2") {
   const csvBytes = Buffer.from("predators-gear-reviewed-canonical-fixture\n", "utf8");
   const manifest = clone(reviewedManifest);
   manifest.canonical_csv.sha256 = sha256(csvBytes);
+  const productionProfile = REVIEWED_PROFILES.find((profile) => profile.name === profileName);
+  const selectedRows = manifest.rows.filter((row) => productionProfile.reviewRows.includes(row.review_row));
   const sourceRows = [];
   const plans = [];
-  for (let index = 0; index < manifest.rows.length; index += 1) {
-    const reviewed = manifest.rows[index];
+  for (let index = 0; index < selectedRows.length; index += 1) {
+    const reviewed = selectedRows[index];
     const rowNumber = String(index + 2);
     const source = {
       retailer_name: "Predators Gear",
@@ -62,7 +66,12 @@ function fixture() {
           product_id: String(reviewed.product_id),
           is_active: true,
         },
-        retailer: null,
+        retailer: profileName === "remaining-6" ? {
+          id: "13",
+          name: "Predators Gear",
+          slug: "predators-gear",
+          website: "https://predatorsgear.co.uk/",
+        } : null,
         retailer_product: null,
       },
       meta: {
@@ -90,7 +99,10 @@ function fixture() {
         evidence: {},
         id: String(reviewed.product_variant_id),
       },
-      retailer: {
+      retailer: profileName === "remaining-6" ? {
+        action: "existing",
+        id: "13",
+      } : {
         action: "create",
         values: {
           name: "Predators Gear",
@@ -109,7 +121,7 @@ function fixture() {
       },
     };
     let fingerprint = planFingerprint(plan);
-    if (index === 0) fingerprint = FIRST_FINGERPRINT;
+    if (index === 0 && profileName === "original-v2") fingerprint = FIRST_FINGERPRINT;
     plan.meta.plan_fingerprint = fingerprint;
     sourceRows.push({
       row_number: rowNumber,
@@ -122,7 +134,7 @@ function fixture() {
       row_number: rowNumber,
       source_row_fingerprint: sourceFingerprint,
       plan_fingerprint: fingerprint,
-      retailer_id: null,
+      retailer_id: profileName === "remaining-6" ? "13" : null,
       plan_kind: "feed",
       operation_type: "standard_import",
       resolved_plan: plan,
@@ -132,14 +144,14 @@ function fixture() {
     artifact_version: "1",
     run_id: "predators-gear-fixture",
     created_at: "2026-08-26T20:33:05.758Z",
-    source_file_name: path.basename(CSV_PATH),
+    source_file_name: path.basename(productionProfile.csvPath),
     source_file_sha256: sha256(csvBytes),
-    row_count: "7",
+    row_count: String(selectedRows.length),
     source_rows: sourceRows,
     plans,
     blocked_rows: [],
     summary: {
-      plan_count: "7",
+      plan_count: String(selectedRows.length),
       blocked_row_count: "0",
       skipped_row_count: "0",
     },
@@ -147,15 +159,22 @@ function fixture() {
   };
   const loaded = {
     artifact,
-    artifactPath: EXPECTED_ARTIFACT_PATH,
+    artifactPath: productionProfile.artifactPath,
     artifactSha256: "a".repeat(64),
   };
   const options = {
-    artifact: EXPECTED_ARTIFACT_PATH,
-    csv: CSV_PATH,
-    planFingerprint: FIRST_FINGERPRINT,
+    artifact: productionProfile.artifactPath,
+    csv: productionProfile.csvPath,
+    planFingerprint: plans[0].plan_fingerprint,
   };
-  return { artifact, csvBytes, loaded, manifest, options };
+  const profile = {
+    ...productionProfile,
+    artifactSha256: loaded.artifactSha256,
+    csvSha256: sha256(csvBytes),
+    planFingerprints: plans.map((entry) => entry.plan_fingerprint),
+    selectableFingerprints: plans.map((entry) => entry.plan_fingerprint),
+  };
+  return { artifact, csvBytes, loaded, manifest, options, configuration: { profile } };
 }
 
 function validate(value) {
@@ -163,7 +182,8 @@ function validate(value) {
     value.options,
     value.loaded,
     value.manifest,
-    value.csvBytes
+    value.csvBytes,
+    value.configuration
   );
 }
 
@@ -207,6 +227,79 @@ test("reviewed seven-plan fixture validates and preserves the approved Whey bind
   assert.ok(whey.every((entry) => String(entry.resolved_plan.product.id) === "510"));
 });
 
+test("reviewed remaining-six profile is exact and its fixture validates", () => {
+  const profile = REVIEWED_PROFILES.find((candidate) => candidate.name === "remaining-6");
+  assert.equal(profile.artifactPath, REMAINING_ARTIFACT_PATH);
+  assert.equal(profile.artifactSha256, "6353e4285db10fe160d0b8f2ffbdea61489606c86528dc2fa31aa79f57b0428c");
+  assert.equal(profile.csvSha256, "c09ce429f62098bc341e0027d05556005718e5813b3fee13e4e6a2e3ce31adfb");
+  assert.deepEqual(profile.reviewRows, [2, 6, 7, 8, 9, 10]);
+  assert.deepEqual(profile.planFingerprints, [
+    "d8e536e8361752e01a64672086af50dc",
+    "78bd93523f61d5aef20b82cb4d74ecaa",
+    "afaa55b519f266ed4eeb70a8db01a27f",
+    "5c44cb1aa6dd494547a4fb28f99fc149",
+    "36ad963f00982a936877dd2ffa2d67d4",
+    "9885fc60773e83b34385dcd71908571b",
+  ]);
+  assert.deepEqual(profile.selectableFingerprints, profile.planFingerprints);
+  const value = fixture("remaining-6");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerAction, "existing");
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 6);
+});
+
+test("remaining-six profile rejects wrong artifact SHA", () => {
+  const value = fixture("remaining-6");
+  value.loaded.artifactSha256 = "b".repeat(64);
+  assert.throws(() => validate(value), /clean-run contract mismatch/);
+});
+
+test("remaining-six profile rejects wrong CSV SHA", () => {
+  const value = fixture("remaining-6");
+  value.csvBytes = Buffer.from("different reviewed CSV\n", "utf8");
+  assert.throws(() => validate(value), /clean-run contract mismatch/);
+});
+
+test("remaining-six profile rejects retailer creation and retailer ID drift", () => {
+  const createValue = fixture("remaining-6");
+  createValue.artifact.plans[0].resolved_plan.retailer = {
+    action: "create",
+    values: { name: "Predators Gear", slug: "predators-gear", website: "https://predatorsgear.co.uk/" },
+  };
+  createValue.artifact.plans[0].resolved_plan.expected_state.retailer = null;
+  assert.throws(() => validate(createValue), /Unsafe existing retailer plan/);
+
+  const wrongIdValue = fixture("remaining-6");
+  wrongIdValue.artifact.plans[0].retailer_id = "14";
+  wrongIdValue.artifact.plans[0].resolved_plan.retailer.id = "14";
+  wrongIdValue.artifact.plans[0].resolved_plan.expected_state.retailer.id = "14";
+  assert.throws(() => validate(wrongIdValue), /Unsafe existing retailer plan/);
+});
+
+test("remaining-six profile rejects plans outside its fingerprints", () => {
+  const value = fixture("remaining-6");
+  const unknown = "f".repeat(32);
+  value.artifact.plans[0].plan_fingerprint = unknown;
+  value.artifact.plans[0].resolved_plan.meta.plan_fingerprint = unknown;
+  value.artifact.source_rows[0].plan_fingerprint = unknown;
+  assert.throws(() => validate(value), /reviewed fingerprint set/);
+});
+
+test("remaining-six profile rejects a Mass Gainer identity", () => {
+  const value = fixture("remaining-6");
+  const source = value.artifact.source_rows[0].normalized_source_row;
+  source.external_product_id = "8594181609003";
+  source.external_variant_id = "8594181609004";
+  assert.throws(() => validate(value), /Unreviewed or duplicate artifact identity/);
+});
+
+test("remaining-six profile rejects Whey rows not targeting product 510", () => {
+  const value = fixture("remaining-6");
+  value.manifest.rows.find((row) => row.review_row === 6).product_id = 511;
+  assert.throws(() => validate(value), /Whey review row 6 must target product 510/);
+});
+
 test("runner rejects an artifact with blockers", () => {
   const value = fixture();
   value.artifact.blocked_rows.push({ row_number: "2", reason: "blocked" });
@@ -217,7 +310,7 @@ test("runner rejects an artifact with blockers", () => {
 test("runner rejects an unknown plan fingerprint", () => {
   const value = fixture();
   value.options.planFingerprint = "f".repeat(32);
-  assert.throws(() => validate(value), /exactly one matching plan/);
+  assert.throws(() => validate(value), /not selectable|exactly one matching plan/);
 });
 
 test("runner rejects a product creation plan", () => {
@@ -301,6 +394,7 @@ test("successful execution calls one approval RPC and never an apply path", asyn
     loaded: value.loaded,
     manifest: value.manifest,
     csvBytes: value.csvBytes,
+    configuration: value.configuration,
   });
   assert.equal(result.approval_id, "11111111-1111-4111-8111-111111111111");
   assert.equal(result.product_action, "existing");
