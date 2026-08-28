@@ -72,13 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging records the transport policy as applied and selects only the reviewed URL sibling follow-up", () => {
+test("staging records the reviewed URL sibling follow-up as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 83);
+  assert.equal(result.ledger_count, 84);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260828080000_allow_predators_gear_reviewed_parent_url_siblings",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 84);
 });
 
@@ -356,17 +354,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports only the reviewed Predators Gear URL sibling follow-up", () => {
+test("staging output reports no pending migration after the reviewed URL sibling apply", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql");
-  assert.equal(result.pending_sha256, "487c080201a3090e3b200dd03d8f9b960945dacebe10dd25b1a536acb2176591");
-  assert.deepEqual(result.pending_files, [
-    "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql",
-  ]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql":
-      "487c080201a3090e3b200dd03d8f9b960945dacebe10dd25b1a536acb2176591",
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {
