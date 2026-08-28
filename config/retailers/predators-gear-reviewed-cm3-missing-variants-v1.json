@@ -13,6 +13,20 @@
     "sha256": "edfedf3d426e7b4502cc73a1c26e5a120c9c81c5f5282db3484205dffe50d7a7",
     "row_count": 5
   },
+  "execution_profile": {
+    "status": "DRY_RUN_PASS",
+    "artifact_path": "tmp/retailer-feeds/predators-gear/predators-gear-reviewed-cm3-missing-variants-v1-dry-run-v6.json",
+    "artifact_sha256": "d9c2d98eb5b039847e9bfe0042ef43b1847c0774a480008d322f851b934be042",
+    "plan_count": 5,
+    "blocked_row_count": 0,
+    "plan_fingerprints": [
+      "7c79072fae1e974ceb2d830d818c9377",
+      "a5c34864f761d25b6c3816fa0e4c1131",
+      "6837b1331e457dac3c21f387c3748642",
+      "cf7ba8cd7f9a50e2b0ca0b8373ada303",
+      "fd335deebadba36164c571d4e831443d"
+    ]
+  },
   "parent_external_product_id": "8594181607503",
   "parent_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/",
   "image": "https://predatorsgear.co.uk/wp-content/uploads/2023/04/CM3-powder-Trec-Nutrition-500g.webp",

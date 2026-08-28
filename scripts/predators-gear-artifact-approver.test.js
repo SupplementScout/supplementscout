@@ -7,9 +7,12 @@ const reviewedBatch2Manifest = require("../config/retailers/predators-gear-revie
 const reviewedHeld4Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v3-held-4.json");
 const reviewedShadowhey3Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v4-shadowhey-3.json");
 const reviewedNewProductsV1Manifest = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
+const reviewedCm3MissingVariantsManifest = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 const {
   BATCH2_ARTIFACT_PATH,
   BATCH2_CSV_PATH,
+  CM3_MISSING_VARIANTS_ARTIFACT_PATH,
+  CM3_MISSING_VARIANTS_CSV_PATH,
   EXPECTED_ARTIFACT_PATH,
   HELD_CM3_ARTIFACT_PATH,
   HELD_CM3_CSV_PATH,
@@ -58,6 +61,8 @@ function fixture(profileName = "original-v2") {
           ? reviewedShadowhey3Manifest
         : profileName.startsWith("reviewed-new-products-v1")
           ? reviewedNewProductsV1Manifest
+        : profileName === "cm3-missing-variants-5"
+          ? reviewedCm3MissingVariantsManifest
         : reviewedManifest
   );
   if (manifest.canonical_csv) manifest.canonical_csv.sha256 = sha256(csvBytes);
@@ -67,6 +72,7 @@ function fixture(profileName = "original-v2") {
   const plans = [];
   for (let index = 0; index < selectedRows.length; index += 1) {
     const reviewed = selectedRows[index];
+    const cm3MissingVariant = productionProfile.allowsReviewedVariantCreation === true;
     const rowNumber = String(index + 2);
     const source = {
       retailer_name: "Predators Gear",
@@ -91,6 +97,27 @@ function fixture(profileName = "original-v2") {
       affiliate_url: reviewed.source_url,
       image: reviewed.image_url || reviewed.image,
     };
+    if (cm3MissingVariant) {
+      source.__reviewed_predators_new_product_identity = {
+        action: "create_reviewed_product_variant",
+        cm3_missing_variant: true,
+        contract: "predators-gear-reviewed-cm3-missing-variants-v1",
+        external_product_id: String(reviewed.external_product_id),
+        external_variant_id: String(reviewed.external_variant_id),
+        flavour: reviewed.flavour,
+        product_format: "powder",
+        review_row: String(reviewed.review_row),
+        size_unit: "g",
+        size_value: String(reviewed.size),
+        source_url: reviewedCm3MissingVariantsManifest.parent_url,
+        target_product_id: String(reviewed.target_product_id),
+      };
+      source.product_id = "";
+      source.product_variant_id = "";
+      source.external_url = reviewedCm3MissingVariantsManifest.parent_url;
+      source.affiliate_url = reviewedCm3MissingVariantsManifest.parent_url;
+      source.image = reviewedCm3MissingVariantsManifest.image;
+    }
     const sourceFingerprint = sourceRowFingerprint(source);
     const plan = {
       approval: { approval_type: "none", approved: false },
@@ -213,6 +240,81 @@ function fixture(profileName = "original-v2") {
         product_variant_id: null,
       };
     }
+    if (cm3MissingVariant) {
+      const product = reviewedCm3MissingVariantsManifest.existing_products.find(
+        (candidate) => candidate.product_id === reviewed.target_product_id
+      );
+      const variantKey = `${reviewed.flavour.toLowerCase().replaceAll(" ", "-")}-${reviewed.size}g`;
+      const canonicalVariant = {
+        display_name: reviewed.variant_name,
+        flavour_code: reviewed.flavour.toLowerCase(),
+        flavour_label: reviewed.flavour,
+        pack_count: "1",
+        product_format: "powder",
+        size_unit: "g",
+        size_value: String(reviewed.size),
+        variant_key: variantKey,
+      };
+      plan.expected_state.product = {
+        id: String(reviewed.target_product_id),
+        is_active: true,
+        merged_into_product_id: null,
+        name: reviewed.product_name,
+        product_format: "powder",
+      };
+      plan.expected_state.product_variant = null;
+      plan.product = { action: "existing", id: String(reviewed.target_product_id) };
+      plan.product_variant = {
+        action: "create_variant",
+        evidence: { external_options: reviewed.external_options },
+        values: canonicalVariant,
+      };
+      plan.retailer_product.values = {
+        external_gtin: reviewed.external_gtin,
+        external_name: reviewed.product_name,
+        external_options: reviewed.external_options,
+        external_product_id: String(reviewed.external_product_id),
+        external_sku: reviewed.external_sku,
+        external_slug: reviewed.slug,
+        external_url: reviewedCm3MissingVariantsManifest.parent_url,
+        external_variant_id: String(reviewed.external_variant_id),
+        match_confidence: "100",
+        match_method: "gtin",
+        product_variant_id: null,
+      };
+      plan.retailer_product.identity_contract = {
+        approved_url_peers: [{
+          canonical_variant: canonicalVariant,
+          external_gtin: reviewed.external_gtin,
+          external_options: reviewed.external_options,
+          external_product_id: String(reviewed.external_product_id),
+          external_sku: reviewed.external_sku,
+          external_url: reviewedCm3MissingVariantsManifest.parent_url,
+          external_variant_id: String(reviewed.external_variant_id),
+          legacy: false,
+          product_id: String(reviewed.target_product_id),
+          product_variant_id: null,
+          retailer_id: "13",
+        }],
+        incoming: {
+          canonical_variant: canonicalVariant,
+          external_gtin: reviewed.external_gtin,
+          external_options: reviewed.external_options,
+          external_product_id: String(reviewed.external_product_id),
+          external_sku: reviewed.external_sku,
+          external_url: reviewedCm3MissingVariantsManifest.parent_url,
+          external_variant_id: String(reviewed.external_variant_id),
+          legacy: false,
+          product_id: String(reviewed.target_product_id),
+          product_variant_id: null,
+          retailer_id: "13",
+        },
+        peer_set_fingerprint: "a".repeat(64),
+        version: "1",
+      };
+      plan.offer.values.url = reviewedCm3MissingVariantsManifest.parent_url;
+      assert.ok(product);
+    }
     let fingerprint = planFingerprint(plan);
     if (index === 0 && profileName === "original-v2") fingerprint = FIRST_FINGERPRINT;
     plan.meta.plan_fingerprint = fingerprint;
@@ -324,6 +426,15 @@ function fixture(profileName = "original-v2") {
     execution.plan_count = profile.planCount;
     execution.blocked_row_count = 0;
     execution.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName === "cm3-missing-variants-5") {
+    manifest.canonical_csv.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    manifest.canonical_csv.sha256 = profile.csvSha256;
+    manifest.canonical_csv.row_count = profile.planCount;
+    manifest.execution_profile.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    manifest.execution_profile.artifact_sha256 = profile.artifactSha256;
+    manifest.execution_profile.plan_count = profile.planCount;
+    manifest.execution_profile.blocked_row_count = 0;
+    manifest.execution_profile.plan_fingerprints = [...profile.planFingerprints];
   }
   return { artifact, csvBytes, loaded, manifest, options, configuration: { profile } };
 }
@@ -524,6 +635,68 @@ test("reviewed new-products remaining sibling profile permits only Peach and Str
   assert.equal(value.artifact.plans.length, 2);
   assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "create_or_reuse_reviewed"));
   assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "create_reviewed_variant"));
+});
+
+test("reviewed CM3 missing-variants profile is exact and permits only five existing-product variant creates", () => {
+  const profile = REVIEWED_PROFILES.find((candidate) => candidate.name === "cm3-missing-variants-5");
+  assert.equal(profile.artifactPath, CM3_MISSING_VARIANTS_ARTIFACT_PATH);
+  assert.equal(profile.csvPath, CM3_MISSING_VARIANTS_CSV_PATH);
+  assert.equal(profile.artifactSha256, "d9c2d98eb5b039847e9bfe0042ef43b1847c0774a480008d322f851b934be042");
+  assert.equal(profile.csvSha256, "edfedf3d426e7b4502cc73a1c26e5a120c9c81c5f5282db3484205dffe50d7a7");
+  assert.deepEqual(profile.planFingerprints, [
+    "7c79072fae1e974ceb2d830d818c9377",
+    "a5c34864f761d25b6c3816fa0e4c1131",
+    "6837b1331e457dac3c21f387c3748642",
+    "cf7ba8cd7f9a50e2b0ca0b8373ada303",
+    "fd335deebadba36164c571d4e831443d",
+  ]);
+  const value = fixture("cm3-missing-variants-5");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.deepEqual(value.artifact.plans.map((entry) => entry.resolved_plan.product.id), ["361", "361", "1067", "1067", "1067"]);
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "existing"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "create_variant"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.offer.values.shipping_cost === "0"));
+});
+
+test("reviewed CM3 profile rejects artifact, CSV, fingerprint, retailer and commercial drift", () => {
+  const artifact = fixture("cm3-missing-variants-5");
+  artifact.loaded.artifactSha256 = "b".repeat(64);
+  assert.throws(() => validate(artifact), /clean-run contract mismatch/);
+
+  const csv = fixture("cm3-missing-variants-5");
+  csv.csvBytes = Buffer.from("different reviewed CSV\n", "utf8");
+  assert.throws(() => validate(csv), /clean-run contract mismatch/);
+
+  const fingerprint = fixture("cm3-missing-variants-5");
+  fingerprint.manifest.execution_profile.plan_fingerprints[0] = "f".repeat(32);
+  assert.throws(() => validate(fingerprint), /manifest contract mismatch/);
+
+  const retailer = fixture("cm3-missing-variants-5");
+  retailer.artifact.plans[0].resolved_plan.retailer.id = "14";
+  assert.throws(() => validate(retailer), /Unsafe Predators Gear CM3 variant plan/);
+
+  const shipping = fixture("cm3-missing-variants-5");
+  shipping.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "4.99";
+  assert.throws(() => validate(shipping), /Unsafe Predators Gear CM3 variant plan/);
+});
+
+test("reviewed CM3 profile rejects product creation, existing variant, product 337 and alias drift", () => {
+  const product = fixture("cm3-missing-variants-5");
+  product.artifact.plans[0].resolved_plan.product = { action: "create", values: {} };
+  assert.throws(() => validate(product), /Unsafe Predators Gear CM3 variant plan/);
+
+  const variant = fixture("cm3-missing-variants-5");
+  variant.artifact.plans[0].resolved_plan.product_variant = { action: "existing", id: "1043" };
+  assert.throws(() => validate(variant), /Unsafe Predators Gear CM3 variant plan/);
+
+  const oldProduct = fixture("cm3-missing-variants-5");
+  oldProduct.manifest.rows[0].target_product_id = 337;
+  assert.throws(() => validate(oldProduct), /Unsafe CM3 reviewed manifest row/);
+
+  const alias = fixture("cm3-missing-variants-5");
+  alias.manifest.rows[3].flavour = "Pineapple";
+  assert.throws(() => validate(alias), /Unsafe CM3 reviewed manifest row/);
 });
 
 test("reviewed new-products profile rejects unreviewed creation, 400g reuse, shipping, and retailer drift", () => {

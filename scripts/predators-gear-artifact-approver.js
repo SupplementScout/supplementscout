@@ -79,6 +79,9 @@ const NEW_PRODUCTS_V1_SIMPLE2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-f
 const NEW_PRODUCTS_V1_SIMPLE2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-simple-2.csv");
 const NEW_PRODUCTS_V1_SIBLING2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-sibling-2-dry-run-v2.json");
 const NEW_PRODUCTS_V1_SIBLING2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-sibling-2.csv");
+const CM3_MISSING_VARIANTS_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-cm3-missing-variants-v1.json");
+const CM3_MISSING_VARIANTS_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-cm3-missing-variants-v1-dry-run-v6.json");
+const CM3_MISSING_VARIANTS_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-cm3-missing-variants-v1.csv");
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -98,6 +101,13 @@ const NEW_PRODUCTS_V1_REVIEWED_IDENTITIES = new Map([
   [3, ["8594181604892", "8594181604897", "DY Nutrition The Creatine Complex 316g", "create_reviewed_product_variant", "Strawberry"]],
   [4, ["8594181608172", "8594181608172", "DY Nutrition Creatine Monohydrate 300g", "create_product_with_default_variant", null]],
   [5, ["8594181606995", "8594181606995", "DY Nutrition Magnesium Citrate 90 Tablets", "create_product_with_default_variant", null]],
+]);
+const CM3_MISSING_VARIANT_IDENTITIES = new Map([
+  [1, ["361", "8594181607503", "8594181607507", "5902114018818", "05902114018818", "Orange", "250", "21.99"]],
+  [2, ["361", "8594181607503", "8594181607563", "5902114018825", "05902114018825", "White Cola", "250", "21.99"]],
+  [3, ["1067", "8594181607503", "8594181607506", "5902114018832", "05902114018832", "Orange", "500", "34.99"]],
+  [4, ["1067", "8594181607503", "8594181607977", "5902114017750", "05902114017750", "Fresh Pineapple", "500", "34.99"]],
+  [5, ["1067", "8594181607503", "8594181607978", "5902114017767", "05902114017767", "Pink Grapefruit", "500", "34.99"]],
 ]);
 const REVIEWED_PROFILES = Object.freeze([
   Object.freeze({
@@ -317,6 +327,35 @@ const REVIEWED_PROFILES = Object.freeze([
       "16f3a70ad405c500bb099742b48fac93",
     ]),
   }),
+  Object.freeze({
+    name: "cm3-missing-variants-5",
+    manifestPath: CM3_MISSING_VARIANTS_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-cm3-missing-variants-v1",
+    approvalReason: "predators-gear-reviewed-cm3-missing-variants-v1",
+    artifactPath: CM3_MISSING_VARIANTS_ARTIFACT_PATH,
+    artifactSha256: "d9c2d98eb5b039847e9bfe0042ef43b1847c0774a480008d322f851b934be042",
+    csvPath: CM3_MISSING_VARIANTS_CSV_PATH,
+    csvSha256: "edfedf3d426e7b4502cc73a1c26e5a120c9c81c5f5282db3484205dffe50d7a7",
+    planCount: 5,
+    reviewRows: Object.freeze([1, 2, 3, 4, 5]),
+    retailerAction: "existing",
+    retailerId: "13",
+    allowsReviewedVariantCreation: true,
+    planFingerprints: Object.freeze([
+      "7c79072fae1e974ceb2d830d818c9377",
+      "a5c34864f761d25b6c3816fa0e4c1131",
+      "6837b1331e457dac3c21f387c3748642",
+      "cf7ba8cd7f9a50e2b0ca0b8373ada303",
+      "fd335deebadba36164c571d4e831443d",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "7c79072fae1e974ceb2d830d818c9377",
+      "a5c34864f761d25b6c3816fa0e4c1131",
+      "6837b1331e457dac3c21f387c3748642",
+      "cf7ba8cd7f9a50e2b0ca0b8373ada303",
+      "fd335deebadba36164c571d4e831443d",
+    ]),
+  }),
 ]);
 
 function fail(message) {
@@ -453,27 +492,34 @@ function validateManifest(manifest, profile) {
   const isHeld4 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v3-held-4";
   const isShadowhey3 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v4-shadowhey-3";
   const isNewProductsV1 = profile.manifestKind === "predators-gear-reviewed-new-products-v1";
+  const isCm3MissingVariants = profile.manifestKind === "predators-gear-reviewed-cm3-missing-variants-v1";
   const commonContract =
     manifest.schema_version === 1 &&
     manifest.kind === profile.manifestKind &&
-    manifest.approved === true &&
     manifest.retailer?.name === "Predators Gear" &&
     manifest.retailer?.slug === "predators-gear" &&
     manifest.retailer?.website === "https://predatorsgear.co.uk/" &&
-    manifest.retailer?.shipping_known === true &&
-    manifest.retailer?.shipping_cost === 0 &&
-    manifest.policy?.allow_live_import === false &&
-    manifest.policy?.sku_is_not_gtin === true &&
-    (isNewProductsV1
-      ? manifest.policy?.existing_products_only === false &&
-        manifest.policy?.existing_variants_only === false &&
-        manifest.policy?.allow_product_creation === true &&
-        manifest.policy?.allow_variant_creation === true &&
-        manifest.policy?.reviewed_rows_only === true
-      : manifest.policy?.existing_products_only === true &&
-        manifest.policy?.existing_variants_only === true &&
-        manifest.policy?.allow_product_creation === false &&
-        manifest.policy?.allow_variant_creation === false) &&
+    (isCm3MissingVariants
+      ? manifest.owner_confirmation === "OWNER_APPROVED_PREDATORS_GEAR_CM3_MISSING_VARIANTS_5" &&
+        manifest.retailer?.id === 13 &&
+        manifest.allow_product_creation === false &&
+        manifest.allow_variant_creation === true &&
+        exactDecimal(manifest.shipping_cost, 0)
+      : manifest.approved === true &&
+        manifest.retailer?.shipping_known === true &&
+        manifest.retailer?.shipping_cost === 0 &&
+        manifest.policy?.allow_live_import === false &&
+        manifest.policy?.sku_is_not_gtin === true &&
+        (isNewProductsV1
+          ? manifest.policy?.existing_products_only === false &&
+            manifest.policy?.existing_variants_only === false &&
+            manifest.policy?.allow_product_creation === true &&
+            manifest.policy?.allow_variant_creation === true &&
+            manifest.policy?.reviewed_rows_only === true
+          : manifest.policy?.existing_products_only === true &&
+            manifest.policy?.existing_variants_only === true &&
+            manifest.policy?.allow_product_creation === false &&
+            manifest.policy?.allow_variant_creation === false)) &&
     Array.isArray(manifest.rows);
   const v1Contract =
     isV1 &&
@@ -554,15 +600,75 @@ function validateManifest(manifest, profile) {
     manifest.excluded.some((value) => String(value).includes("Joint Support")) &&
     manifest.excluded.some((value) => String(value).includes("Collagen")) &&
     manifest.excluded.some((value) => String(value).includes("754"));
+  const cm3MissingVariantsContract =
+    isCm3MissingVariants &&
+    manifest.canonical_csv?.path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
+    manifest.canonical_csv?.sha256 === profile.csvSha256 &&
+    manifest.canonical_csv?.row_count === profile.planCount &&
+    manifest.parent_external_product_id === "8594181607503" &&
+    manifest.parent_url === "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/" &&
+    manifest.image === "https://predatorsgear.co.uk/wp-content/uploads/2023/04/CM3-powder-Trec-Nutrition-500g.webp" &&
+    manifest.rows.length === profile.planCount &&
+    sameNumbers(manifest.rows.map((row) => row.review_row), profile.reviewRows) &&
+    Array.isArray(manifest.existing_products) &&
+    canonicalJson(manifest.existing_products.map((product) => [
+      product.product_id,
+      product.name,
+      product.slug,
+      product.size,
+      product.required_anchor_variant_ids,
+    ])) === canonicalJson([
+      [361, "Trec CM3 Creatine Powder 250g", "trec-cm3-creatine-powder-250g", "250", [1043, 1694]],
+      [1067, "Trec Nutrition CM3 Tri-Creatine Malate 500g White Cola", "trec-nutrition-cm3-tri-creatine-malate-500g-white-cola", "500", [2250]],
+    ]) &&
+    manifest.execution_profile?.status === "DRY_RUN_PASS" &&
+    manifest.execution_profile?.artifact_path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
+    manifest.execution_profile?.artifact_sha256 === profile.artifactSha256 &&
+    manifest.execution_profile?.plan_count === profile.planCount &&
+    manifest.execution_profile?.blocked_row_count === 0 &&
+    canonicalJson([...(manifest.execution_profile?.plan_fingerprints || [])].sort()) ===
+      canonicalJson([...profile.planFingerprints].sort());
   if (
     !commonContract ||
-    (!v1Contract && !batch2Contract && !held4Contract && !shadowhey3Contract && !newProductsV1Contract)
+    (!v1Contract && !batch2Contract && !held4Contract && !shadowhey3Contract && !newProductsV1Contract && !cm3MissingVariantsContract)
   ) {
     fail("Predators Gear reviewed manifest contract mismatch");
   }
   const identities = new Set();
   for (const row of manifest.rows) {
     const key = identityKey(row);
+    if (isCm3MissingVariants) {
+      const expectedIdentity = CM3_MISSING_VARIANT_IDENTITIES.get(row.review_row);
+      if (
+        identities.has(key) ||
+        !expectedIdentity ||
+        canonicalJson([
+          String(row.target_product_id),
+          String(row.external_product_id),
+          String(row.external_variant_id),
+          String(row.external_sku),
+          String(row.external_gtin),
+          row.flavour,
+          String(row.size),
+          String(row.price),
+        ]) !== canonicalJson(expectedIdentity) ||
+        row.action !== "create_reviewed_product_variant" ||
+        ![361, 1067].includes(Number(row.target_product_id)) ||
+        row.product_id != null ||
+        row.product_variant_id != null ||
+        row.brand !== "Trec Nutrition" ||
+        row.category !== "Creatine" ||
+        row.product_format !== "powder" ||
+        row.size_unit !== "g" ||
+        row.variant_name !== `${row.flavour} / ${row.size}g` ||
+        canonicalJson(row.external_options) !== canonicalJson({ Size: `${row.size}g`, Flavour: row.flavour }) ||
+        (row.review_row === 4
+          ? row.source_flavour !== "Pineapple" || row.reviewed_flavour_alias !== "Pineapple -> Fresh Pineapple"
+          : row.source_flavour != null || row.reviewed_flavour_alias != null)
+      ) fail(`Unsafe CM3 reviewed manifest row ${row.review_row}`);
+      identities.add(key);
+      continue;
+    }
     if (isNewProductsV1) {
       const reviewedVariant = row.action === "create_reviewed_product_variant";
       const simpleDefault = row.action === "create_product_with_default_variant";
@@ -622,7 +728,7 @@ function validateManifest(manifest, profile) {
 function validatePlan(entry, sourceRecord, reviewed, profile) {
   const source = sourceRecord?.normalized_source_row || {};
   const plan = entry.resolved_plan || {};
-  const productId = String(reviewed.product_id);
+  const productId = String(profile.allowsReviewedVariantCreation ? reviewed.target_product_id : reviewed.product_id);
   const variantId = String(reviewed.product_variant_id);
   let offerUrl;
   let imageUrl;
@@ -635,6 +741,116 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
       : null;
   } catch {
     fail(`Invalid reviewed URL for row ${reviewed.review_row}`);
+  }
+  if (profile.allowsReviewedVariantCreation) {
+    const marker = source.__reviewed_predators_new_product_identity;
+    const expectedOptions = { Size: `${reviewed.size}g`, Flavour: reviewed.flavour };
+    const expectedVariant = {
+      display_name: reviewed.variant_name,
+      flavour_code: reviewed.flavour.toLowerCase(),
+      flavour_label: reviewed.flavour,
+      pack_count: "1",
+      product_format: "powder",
+      size_unit: "g",
+      size_value: String(reviewed.size),
+      variant_key: `${reviewed.flavour.toLowerCase().replaceAll(" ", "-")}-${reviewed.size}g`,
+    };
+    const incoming = plan.retailer_product?.identity_contract?.incoming;
+    if (
+      entry.plan_kind !== "feed" ||
+      entry.operation_type !== "standard_import" ||
+      sourceRecord.status !== "planned" ||
+      sourceRecord.plan_fingerprint !== entry.plan_fingerprint ||
+      identityKey(source) !== identityKey(reviewed) ||
+      String(source.product_id || "") !== "" ||
+      String(source.product_variant_id || "") !== "" ||
+      source.retailer_name !== "Predators Gear" ||
+      source.retailer_website !== "https://predatorsgear.co.uk/" ||
+      source.product_name !== reviewed.product_name ||
+      source.slug !== reviewed.slug ||
+      source.brand !== "Trec Nutrition" ||
+      source.category !== "Creatine" ||
+      source.product_format !== "powder" ||
+      String(source.external_sku) !== String(reviewed.external_sku) ||
+      String(source.external_gtin) !== String(reviewed.external_gtin) ||
+      canonicalJson(sourceOptions) !== canonicalJson(expectedOptions) ||
+      String(source.shipping_known).toLowerCase() !== "true" ||
+      !exactDecimal(source.shipping_cost, 0) ||
+      !exactDecimal(source.price, reviewed.price) ||
+      !exactDecimal(source.total_price, reviewed.price) ||
+      source.external_url !== "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/" ||
+      source.affiliate_url !== source.external_url ||
+      source.image !== "https://predatorsgear.co.uk/wp-content/uploads/2023/04/CM3-powder-Trec-Nutrition-500g.webp" ||
+      canonicalJson(marker) !== canonicalJson({
+        action: "create_reviewed_product_variant",
+        cm3_missing_variant: true,
+        contract: "predators-gear-reviewed-cm3-missing-variants-v1",
+        external_product_id: "8594181607503",
+        external_variant_id: String(reviewed.external_variant_id),
+        flavour: reviewed.flavour,
+        product_format: "powder",
+        review_row: String(reviewed.review_row),
+        size_unit: "g",
+        size_value: String(reviewed.size),
+        source_url: source.external_url,
+        target_product_id: productId,
+      }) ||
+      plan.product?.action !== "existing" ||
+      String(plan.product.id) !== productId ||
+      plan.expected_state?.product?.is_active !== true ||
+      plan.expected_state?.product?.merged_into_product_id != null ||
+      String(plan.expected_state?.product?.id) !== productId ||
+      plan.expected_state?.product?.name !== reviewed.product_name ||
+      plan.expected_state?.product?.product_format !== "powder" ||
+      plan.product_variant?.action !== "create_variant" ||
+      canonicalJson(plan.product_variant?.values) !== canonicalJson(expectedVariant) ||
+      canonicalJson(plan.product_variant?.evidence?.external_options) !== canonicalJson(expectedOptions) ||
+      plan.expected_state?.product_variant != null ||
+      plan.retailer?.action !== "existing" ||
+      String(entry.retailer_id) !== "13" ||
+      String(plan.retailer.id) !== "13" ||
+      String(plan.expected_state?.retailer?.id) !== "13" ||
+      plan.expected_state?.retailer?.name !== "Predators Gear" ||
+      plan.expected_state?.retailer?.slug !== "predators-gear" ||
+      plan.expected_state?.retailer?.website !== "https://predatorsgear.co.uk/" ||
+      plan.retailer_product?.action !== "create" ||
+      plan.retailer_product?.values?.product_variant_id != null ||
+      identityKey(plan.retailer_product?.values || {}) !== identityKey(reviewed) ||
+      String(plan.retailer_product?.values?.external_sku) !== String(reviewed.external_sku) ||
+      String(plan.retailer_product?.values?.external_gtin) !== String(reviewed.external_gtin) ||
+      canonicalJson(plan.retailer_product?.values?.external_options) !== canonicalJson(expectedOptions) ||
+      plan.retailer_product?.values?.external_url !== source.external_url ||
+      plan.retailer_product?.values?.external_name !== reviewed.product_name ||
+      plan.expected_state?.retailer_product != null ||
+      canonicalJson(incoming?.canonical_variant) !== canonicalJson(expectedVariant) ||
+      String(incoming?.product_id) !== productId ||
+      incoming?.product_variant_id != null ||
+      String(incoming?.retailer_id) !== "13" ||
+      identityKey(incoming || {}) !== identityKey(reviewed) ||
+      String(incoming?.external_sku) !== String(reviewed.external_sku) ||
+      String(incoming?.external_gtin) !== String(reviewed.external_gtin) ||
+      canonicalJson(incoming?.external_options) !== canonicalJson(expectedOptions) ||
+      incoming?.external_url !== source.external_url ||
+      !Array.isArray(plan.retailer_product?.identity_contract?.approved_url_peers) ||
+      !plan.retailer_product.identity_contract.approved_url_peers.some((peer) =>
+        identityKey(peer) === identityKey(reviewed) && String(peer.product_id) === productId
+      ) ||
+      plan.offer?.action !== "create" ||
+      !exactDecimal(plan.offer?.values?.price, reviewed.price) ||
+      !exactDecimal(plan.offer?.values?.shipping_cost, 0) ||
+      !exactDecimal(plan.offer?.values?.total_price, reviewed.price) ||
+      plan.offer?.values?.url !== source.external_url ||
+      plan.expected_state?.offer != null ||
+      plan.price_history?.action !== "create" ||
+      plan.approval?.approved !== false ||
+      plan.approval?.approval_type !== "none" ||
+      offerUrl.protocol !== "https:" ||
+      offerUrl.hostname !== "predatorsgear.co.uk" ||
+      imageUrl.protocol !== "https:" ||
+      imageUrl.hostname !== "predatorsgear.co.uk" ||
+      Number(productId) === 337
+    ) fail(`Unsafe Predators Gear CM3 variant plan for row ${reviewed.review_row}`);
+    return;
   }
   if (profile.allowsReviewedCreation) {
     const reviewedVariant = reviewed.action === "create_reviewed_product_variant";
@@ -978,6 +1194,9 @@ module.exports = {
   BATCH2_ARTIFACT_PATH,
   BATCH2_CSV_PATH,
   BATCH2_MANIFEST_PATH,
+  CM3_MISSING_VARIANTS_ARTIFACT_PATH,
+  CM3_MISSING_VARIANTS_CSV_PATH,
+  CM3_MISSING_VARIANTS_MANIFEST_PATH,
   HELD4_MANIFEST_PATH,
   HELD_OLIMP_ARTIFACT_PATH,
   HELD_OLIMP_CSV_PATH,
