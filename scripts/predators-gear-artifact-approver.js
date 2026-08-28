@@ -75,6 +75,8 @@ const SHADOWHEY3_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-
 const NEW_PRODUCTS_V1_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-new-products-v1.json");
 const NEW_PRODUCTS_V1_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-dry-run-v2.json");
 const NEW_PRODUCTS_V1_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1.csv");
+const NEW_PRODUCTS_V1_SIMPLE2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-simple-2-dry-run.json");
+const NEW_PRODUCTS_V1_SIMPLE2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-simple-2.csv");
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -263,6 +265,30 @@ const REVIEWED_PROFILES = Object.freeze([
       "ca504fc16da99d401b9b820b3110a596",
       "8a085ee3c866423b0a53a8ec61d41d4c",
       "99c22d5737ab8f544000129b8055a947",
+    ]),
+  }),
+  Object.freeze({
+    name: "reviewed-new-products-v1-remaining-simple-2",
+    manifestPath: NEW_PRODUCTS_V1_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-new-products-v1",
+    executionKey: "post_create_remaining_simple_profile",
+    approvalReason: "predators-gear-reviewed-new-products-v1-remaining-simple-2",
+    artifactPath: NEW_PRODUCTS_V1_SIMPLE2_ARTIFACT_PATH,
+    artifactSha256: "1f58c031488f519ba8370ee6bdf2090b67ed724a8ff0e734ea78df837c9d4d50",
+    csvPath: NEW_PRODUCTS_V1_SIMPLE2_CSV_PATH,
+    csvSha256: "57f6010fe0420b71be218f76f0d57006521c4d553857a8108c62c2148833c3bd",
+    planCount: 2,
+    reviewRows: Object.freeze([4, 5]),
+    retailerAction: "existing",
+    retailerId: "13",
+    allowsReviewedCreation: true,
+    planFingerprints: Object.freeze([
+      "f358370614b927defcd384b076d370d0",
+      "60c61440407f5b244c0e3fe6bfc21064",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "f358370614b927defcd384b076d370d0",
+      "60c61440407f5b244c0e3fe6bfc21064",
     ]),
   }),
 ]);
@@ -485,17 +511,18 @@ function validateManifest(manifest, profile) {
   const newProductsV1Contract =
     isNewProductsV1 &&
     manifest.retailer?.id === 13 &&
-    manifest.canonical_csv?.path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
-    manifest.canonical_csv?.sha256 === profile.csvSha256 &&
-    manifest.canonical_csv?.row_count === profile.planCount &&
-    manifest.rows.length === profile.planCount &&
-    sameNumbers(manifest.rows.map((row) => row.review_row), profile.reviewRows) &&
-    manifest.execution_profile?.status === "DRY_RUN_PASS" &&
-    manifest.execution_profile?.artifact_path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
-    manifest.execution_profile?.artifact_sha256 === profile.artifactSha256 &&
-    manifest.execution_profile?.plan_count === profile.planCount &&
-    manifest.execution_profile?.blocked_row_count === 0 &&
-    canonicalJson([...(manifest.execution_profile?.plan_fingerprints || [])].sort()) ===
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.canonical_csv)?.path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.canonical_csv)?.sha256 === profile.csvSha256 &&
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.canonical_csv)?.row_count === profile.planCount &&
+    manifest.rows.length === 5 &&
+    sameNumbers(manifest.rows.map((row) => row.review_row), [1, 2, 3, 4, 5]) &&
+    profile.reviewRows.every((reviewRow) => manifest.rows.some((row) => row.review_row === reviewRow)) &&
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.execution_profile)?.status === "DRY_RUN_PASS" &&
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.execution_profile)?.artifact_path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.execution_profile)?.artifact_sha256 === profile.artifactSha256 &&
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.execution_profile)?.plan_count === profile.planCount &&
+    (profile.executionKey ? manifest[profile.executionKey] : manifest.execution_profile)?.blocked_row_count === 0 &&
+    canonicalJson([...((profile.executionKey ? manifest[profile.executionKey] : manifest.execution_profile)?.plan_fingerprints || [])].sort()) ===
       canonicalJson([...profile.planFingerprints].sort()) &&
     Array.isArray(manifest.excluded) &&
     manifest.excluded.some((value) => String(value).includes("Joint Support")) &&

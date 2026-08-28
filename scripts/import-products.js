@@ -60,6 +60,10 @@ const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1 = require("../config/retailers/pre
 
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256 =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.canonical_csv.sha256;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.post_create_remaining_simple_profile;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SHA256 =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE.sha256;
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS = new Map(
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.rows.map((row) => [
     String(row.external_variant_id),
@@ -845,19 +849,32 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const predatorsReviewedRow =
     PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS.get(externalVariantId);
   const predatorsSourceSha = String(options.sourceFileSha256 || "").toLowerCase();
+  const isPredatorsInitialReviewedSource =
+    predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256;
+  const isPredatorsPostCreateReviewedSource =
+    predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SHA256;
   const isPredatorsReviewedSourceIdentity = Boolean(
     predatorsReviewedRow &&
       slugifyRetailerName(String(row.retailer_name || "")) === "predators-gear"
   );
   if (
     isPredatorsReviewedSourceIdentity &&
-    predatorsSourceSha !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256
+    !isPredatorsInitialReviewedSource &&
+    !isPredatorsPostCreateReviewedSource
   ) {
     throw new Error("Predators Gear reviewed new-product source SHA mismatch");
   }
-  if (predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256) {
+  if (isPredatorsInitialReviewedSource || isPredatorsPostCreateReviewedSource) {
     if (!isPredatorsReviewedSourceIdentity) {
       throw new Error("Predators Gear reviewed new-product row is outside the approved manifest");
+    }
+    if (
+      isPredatorsPostCreateReviewedSource &&
+      !PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE.included_review_rows.includes(
+        predatorsReviewedRow.review_row
+      )
+    ) {
+      throw new Error("Predators Gear post-create row is outside the approved remaining scope");
     }
     const exactTextFields = [
       ["retailer_name", PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.retailer.name],
@@ -912,11 +929,15 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         throw new Error(`Predators Gear reviewed new-product ${field} mismatch`);
       }
     }
-    if (
-      optionalIdentifier(row.product_id) ||
-      optionalIdentifier(row.product_variant_id)
-    ) {
+    const suppliedProductId = optionalIdentifier(row.product_id);
+    const suppliedVariantId = optionalIdentifier(row.product_variant_id);
+    if (isPredatorsInitialReviewedSource && (suppliedProductId || suppliedVariantId)) {
       throw new Error("Predators Gear reviewed new-product rows cannot supply canonical IDs");
+    }
+    if (isPredatorsPostCreateReviewedSource) {
+      if (suppliedProductId || suppliedVariantId) {
+        throw new Error("Predators Gear post-create canonical ID mismatch");
+      }
     }
     if (
       normalizeDecimalString(row.price, "price") !==
@@ -1154,6 +1175,28 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
     ) {
       throw new Error("Predators Gear reviewed new-product row set mismatch");
+    }
+  }
+  if (
+    String(options.sourceFileSha256 || "").toLowerCase() ===
+    PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SHA256
+  ) {
+    if (rows.length !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE.row_count) {
+      throw new Error("Predators Gear post-create contract requires exactly 2 rows");
+    }
+    const actualVariantIds = rows
+      .map((row) => optionalIdentifier(row.external_variant_id))
+      .sort();
+    const reviewedVariantIds = PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE
+      .included_review_rows
+      .map((reviewRow) => PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.rows
+        .find((row) => row.review_row === reviewRow).external_variant_id)
+      .sort();
+    if (
+      new Set(actualVariantIds).size !== reviewedVariantIds.length ||
+      canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
+    ) {
+      throw new Error("Predators Gear post-create row set mismatch");
     }
   }
   if (

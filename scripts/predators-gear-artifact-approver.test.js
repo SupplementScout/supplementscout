@@ -52,7 +52,7 @@ function fixture(profileName = "original-v2") {
         ? reviewedHeld4Manifest
         : profileName === "shadowhey-3"
           ? reviewedShadowhey3Manifest
-        : profileName === "reviewed-new-products-v1"
+        : profileName.startsWith("reviewed-new-products-v1")
           ? reviewedNewProductsV1Manifest
         : reviewedManifest
   );
@@ -300,6 +300,16 @@ function fixture(profileName = "original-v2") {
     manifest.execution_profile.plan_count = profile.planCount;
     manifest.execution_profile.blocked_row_count = 0;
     manifest.execution_profile.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName === "reviewed-new-products-v1-remaining-simple-2") {
+    const execution = manifest[profile.executionKey];
+    execution.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    execution.sha256 = profile.csvSha256;
+    execution.row_count = profile.planCount;
+    execution.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    execution.artifact_sha256 = profile.artifactSha256;
+    execution.plan_count = profile.planCount;
+    execution.blocked_row_count = 0;
+    execution.plan_fingerprints = [...profile.planFingerprints];
   }
   return { artifact, csvBytes, loaded, manifest, options, configuration: { profile } };
 }
@@ -462,6 +472,25 @@ test("reviewed new-products profile permits only the exact three-product five-pl
     value.artifact.plans.map((entry) => entry.resolved_plan.product_variant.action),
     ["create_reviewed_variant", "create_reviewed_variant", "create_reviewed_variant", "create_default", "create_default"]
   );
+});
+
+test("reviewed new-products remaining simple profile permits only rows four and five", () => {
+  const profile = REVIEWED_PROFILES.find(
+    (candidate) => candidate.name === "reviewed-new-products-v1-remaining-simple-2"
+  );
+  assert.equal(profile.artifactSha256, "1f58c031488f519ba8370ee6bdf2090b67ed724a8ff0e734ea78df837c9d4d50");
+  assert.equal(profile.csvSha256, "57f6010fe0420b71be218f76f0d57006521c4d553857a8108c62c2148833c3bd");
+  assert.deepEqual(profile.reviewRows, [4, 5]);
+  assert.deepEqual(profile.planFingerprints, [
+    "f358370614b927defcd384b076d370d0",
+    "60c61440407f5b244c0e3fe6bfc21064",
+  ]);
+  const value = fixture("reviewed-new-products-v1-remaining-simple-2");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 2);
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "create"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "create_default"));
 });
 
 test("reviewed new-products profile rejects unreviewed creation, 400g reuse, shipping, and retailer drift", () => {

@@ -58,6 +58,8 @@ const predatorsReviewedNewProducts = require("../config/retailers/predators-gear
 
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
   predatorsReviewedNewProducts.canonical_csv.sha256;
+const PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA =
+  predatorsReviewedNewProducts.post_create_remaining_simple_profile.sha256;
 
 function predatorsReviewedNewProductRows() {
   return predatorsReviewedNewProducts.rows.map((reviewed) =>
@@ -2848,6 +2850,34 @@ test("Predators Gear reviewed new-product contract rejects SHA, row-count, ident
       sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SHA,
     }),
     /row set mismatch|outside the approved manifest/
+  );
+});
+
+test("Predators Gear post-create simple profile is exact to the two remaining simple products", () => {
+  const rows = predatorsReviewedNewProductRows().slice(3);
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA,
+  });
+  assert.equal(normalized.length, 2);
+  assert.deepEqual(normalized.map((row) => row.external_variant_id), [
+    "8594181608172",
+    "8594181606995",
+  ]);
+  assert.ok(normalized.every((row) => !row.product_id && !row.product_variant_id));
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows([predatorsReviewedNewProductRows()[1], rows[1]], {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA,
+    }),
+    /outside the approved remaining scope|row set mismatch/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows([{ ...rows[0], product_id: "1143" }, rows[1]], {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA,
+    }),
+    /post-create canonical ID mismatch/
   );
 });
 
