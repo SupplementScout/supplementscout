@@ -60,6 +60,8 @@ const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
   predatorsReviewedNewProducts.canonical_csv.sha256;
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA =
   predatorsReviewedNewProducts.post_create_remaining_simple_profile.sha256;
+const PREDATORS_REVIEWED_NEW_PRODUCTS_SIBLING2_SHA =
+  predatorsReviewedNewProducts.post_create_remaining_sibling_profile.sha256;
 
 function predatorsReviewedNewProductRows() {
   return predatorsReviewedNewProducts.rows.map((reviewed) =>
@@ -2878,6 +2880,83 @@ test("Predators Gear post-create simple profile is exact to the two remaining si
       sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA,
     }),
     /post-create canonical ID mismatch/
+  );
+});
+
+test("Predators Gear post-create sibling profile reuses only exact product 1143 and creates Peach and Strawberry", async () => {
+  const rows = predatorsReviewedNewProductRows().slice(1, 3);
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SIBLING2_SHA,
+  });
+  assert.deepEqual(normalized.map((row) => row.external_variant_id), [
+    "8594181604896",
+    "8594181604897",
+  ]);
+  assert.ok(normalized.every((row) => row.__reviewed_predators_new_product_identity.post_create_sibling));
+
+  const product = {
+    id: "1143",
+    name: "DY Nutrition The Creatine Complex 316g",
+    slug: "dy-nutrition-the-creatine-complex-316g",
+    brand: "DY Nutrition",
+    category: "Creatine",
+    product_format: "powder",
+    gtin: null,
+    is_active: true,
+    merged_into_product_id: null,
+  };
+  const cherry = {
+    id: "3188",
+    product_id: "1143",
+    variant_key: "cherry-316g",
+    display_name: "Cherry / 316g",
+    flavour_code: "cherry",
+    flavour_label: "Cherry",
+    size_value: "316",
+    size_unit: "g",
+    pack_count: "1",
+    product_format: "powder",
+    is_active: true,
+    is_default: false,
+  };
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "13", name: "Predators Gear", slug: "predators-gear", website: "https://predatorsgear.co.uk/" }],
+    products: [product],
+    product_variants: [cherry],
+    retailer_products: [{
+      id: "2981", retailer_id: "13", product_id: "1143", product_variant_id: "3188",
+      external_product_id: "8594181604892", external_variant_id: "8594181604895",
+      external_sku: "5060763890503", external_gtin: "05060763890503",
+      external_options: { Flavour: "Cherry" }, external_url: rows[0].external_url,
+    }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SIBLING2_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product.action),
+    ["create_or_reuse_reviewed", "create_or_reuse_reviewed"]
+  );
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product_variant.action),
+    ["create_reviewed_variant", "create_reviewed_variant"]
+  );
+  assert.ok(result.report.approvedRows.every((item) => item.importPlan.offer.values.shipping_cost === "0"));
+  assert.equal(supabase.writes.length, 0);
+
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows([predatorsReviewedNewProductRows()[0], rows[1]], {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_SIBLING2_SHA,
+    }),
+    /outside the approved remaining scope|row set mismatch/
   );
 });
 

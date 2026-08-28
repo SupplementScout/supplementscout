@@ -77,6 +77,8 @@ const NEW_PRODUCTS_V1_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "
 const NEW_PRODUCTS_V1_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1.csv");
 const NEW_PRODUCTS_V1_SIMPLE2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-simple-2-dry-run.json");
 const NEW_PRODUCTS_V1_SIMPLE2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-simple-2.csv");
+const NEW_PRODUCTS_V1_SIBLING2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-sibling-2-dry-run-v2.json");
+const NEW_PRODUCTS_V1_SIBLING2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-sibling-2.csv");
 const APPROVER_CREDENTIAL_PATH = path.join(
   process.env.USERPROFILE || "",
   ".supplementscout",
@@ -289,6 +291,30 @@ const REVIEWED_PROFILES = Object.freeze([
     selectableFingerprints: Object.freeze([
       "f358370614b927defcd384b076d370d0",
       "60c61440407f5b244c0e3fe6bfc21064",
+    ]),
+  }),
+  Object.freeze({
+    name: "reviewed-new-products-v1-remaining-sibling-2",
+    manifestPath: NEW_PRODUCTS_V1_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-new-products-v1",
+    executionKey: "post_create_remaining_sibling_profile",
+    approvalReason: "predators-gear-reviewed-new-products-v1-remaining-sibling-2",
+    artifactPath: NEW_PRODUCTS_V1_SIBLING2_ARTIFACT_PATH,
+    artifactSha256: "5d752ca88b3509bee43ca042bea912faa26e10ece74e72dcd0fbcdc3a65aa260",
+    csvPath: NEW_PRODUCTS_V1_SIBLING2_CSV_PATH,
+    csvSha256: "d0bb592fa9b8a5bc5d4d670600739cbfb8529821f5f7ee637e0b83b144fdb05e",
+    planCount: 2,
+    reviewRows: Object.freeze([2, 3]),
+    retailerAction: "existing",
+    retailerId: "13",
+    allowsReviewedCreation: true,
+    planFingerprints: Object.freeze([
+      "3cfee93984a7d8749f991de30dccfae4",
+      "16f3a70ad405c500bb099742b48fac93",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "3cfee93984a7d8749f991de30dccfae4",
+      "16f3a70ad405c500bb099742b48fac93",
     ]),
   }),
 ]);

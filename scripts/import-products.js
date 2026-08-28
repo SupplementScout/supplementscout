@@ -64,6 +64,10 @@ const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.post_create_remaining_simple_profile;
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SHA256 =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE.sha256;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.post_create_remaining_sibling_profile;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING_SHA256 =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING.sha256;
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS = new Map(
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.rows.map((row) => [
     String(row.external_variant_id),
@@ -853,6 +857,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256;
   const isPredatorsPostCreateReviewedSource =
     predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SHA256;
+  const isPredatorsPostCreateSiblingSource =
+    predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING_SHA256;
   const isPredatorsReviewedSourceIdentity = Boolean(
     predatorsReviewedRow &&
       slugifyRetailerName(String(row.retailer_name || "")) === "predators-gear"
@@ -860,11 +866,16 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   if (
     isPredatorsReviewedSourceIdentity &&
     !isPredatorsInitialReviewedSource &&
-    !isPredatorsPostCreateReviewedSource
+    !isPredatorsPostCreateReviewedSource &&
+    !isPredatorsPostCreateSiblingSource
   ) {
     throw new Error("Predators Gear reviewed new-product source SHA mismatch");
   }
-  if (isPredatorsInitialReviewedSource || isPredatorsPostCreateReviewedSource) {
+  if (
+    isPredatorsInitialReviewedSource ||
+    isPredatorsPostCreateReviewedSource ||
+    isPredatorsPostCreateSiblingSource
+  ) {
     if (!isPredatorsReviewedSourceIdentity) {
       throw new Error("Predators Gear reviewed new-product row is outside the approved manifest");
     }
@@ -875,6 +886,14 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
       )
     ) {
       throw new Error("Predators Gear post-create row is outside the approved remaining scope");
+    }
+    if (
+      isPredatorsPostCreateSiblingSource &&
+      !PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING.included_review_rows.includes(
+        predatorsReviewedRow.review_row
+      )
+    ) {
+      throw new Error("Predators Gear sibling row is outside the approved remaining scope");
     }
     const exactTextFields = [
       ["retailer_name", PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.retailer.name],
@@ -934,7 +953,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     if (isPredatorsInitialReviewedSource && (suppliedProductId || suppliedVariantId)) {
       throw new Error("Predators Gear reviewed new-product rows cannot supply canonical IDs");
     }
-    if (isPredatorsPostCreateReviewedSource) {
+    if (isPredatorsPostCreateReviewedSource || isPredatorsPostCreateSiblingSource) {
       if (suppliedProductId || suppliedVariantId) {
         throw new Error("Predators Gear post-create canonical ID mismatch");
       }
@@ -964,6 +983,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         size_unit: predatorsReviewedRow.size_unit || null,
         product_format: predatorsReviewedRow.product_format,
         source_url: predatorsReviewedRow.source_url,
+        post_create_sibling: isPredatorsPostCreateSiblingSource,
       },
     };
   }
@@ -1197,6 +1217,28 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
     ) {
       throw new Error("Predators Gear post-create row set mismatch");
+    }
+  }
+  if (
+    String(options.sourceFileSha256 || "").toLowerCase() ===
+    PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING_SHA256
+  ) {
+    if (rows.length !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING.row_count) {
+      throw new Error("Predators Gear sibling contract requires exactly 2 rows");
+    }
+    const actualVariantIds = rows
+      .map((row) => optionalIdentifier(row.external_variant_id))
+      .sort();
+    const reviewedVariantIds = PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING
+      .included_review_rows
+      .map((reviewRow) => PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.rows
+        .find((row) => row.review_row === reviewRow).external_variant_id)
+      .sort();
+    if (
+      new Set(actualVariantIds).size !== reviewedVariantIds.length ||
+      canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
+    ) {
+      throw new Error("Predators Gear sibling row set mismatch");
     }
   }
   if (
@@ -2071,10 +2113,13 @@ async function resolveRetailerMappingIdentity(retailerId, row) {
       };
     }
     const externalProductId = optionalIdentifier(row.external_product_id);
+    const reviewedPredatorsSibling = Boolean(
+      row.__reviewed_predators_new_product_identity?.post_create_sibling
+    );
     const sharedParentIdentityRequired = Boolean(
       externalProductId &&
       externalProductId !== externalVariantId &&
-      optionalIdentifier(row.product_id)
+      (optionalIdentifier(row.product_id) || reviewedPredatorsSibling)
     );
     if (!sharedParentIdentityRequired) {
       if (urlPeers.length > 1) {
@@ -4094,6 +4139,69 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     }
   }
 
+  if (
+    safeCreate &&
+    validationErrors.length === 0 &&
+    product?.id &&
+    !mapping &&
+    mappingResolution.sharedParentIdentityRequired &&
+    shippingNormalizedRow.__reviewed_predators_new_product_identity?.post_create_sibling
+  ) {
+    try {
+      const reviewed = shippingNormalizedRow.__reviewed_predators_new_product_identity;
+      const siblingProfile = PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING;
+      const evidence = collectCanonicalVariantEvidence(shippingNormalizedRow);
+      assertReviewedParentVariantPolicy(shippingNormalizedRow, rowNumber, evidence);
+      if (
+        Number(product.id) !== Number(siblingProfile.existing_product_id) ||
+        product.name !== shippingNormalizedRow.product_name ||
+        product.slug !== shippingNormalizedRow.slug ||
+        product.brand !== shippingNormalizedRow.brand ||
+        product.category !== shippingNormalizedRow.category ||
+        product.product_format !== shippingNormalizedRow.product_format
+      ) {
+        throw new Error("reviewed Predators Gear sibling canonical parent mismatch");
+      }
+      const anchor = await fetchProductVariantById(siblingProfile.existing_anchor_variant_id);
+      if (
+        !anchor ||
+        Number(anchor.product_id) !== Number(product.id) ||
+        anchor.is_active !== true ||
+        anchor.is_default !== false ||
+        normalizeFlavour(anchor.flavour_code || anchor.flavour_label) !== "cherry" ||
+        normalizeDecimalString(anchor.size_value, "size_value") !== "316" ||
+        anchor.size_unit !== "g"
+      ) {
+        throw new Error("reviewed Predators Gear sibling anchor variant mismatch");
+      }
+      if (![2, 3].includes(Number(reviewed.review_row))) {
+        throw new Error("reviewed Predators Gear sibling review row mismatch");
+      }
+      const skuPeer = await findRetailerMappingBySku(
+        retailer.id,
+        shippingNormalizedRow.external_sku
+      );
+      if (skuPeer) {
+        throw new Error("reviewed parent explicit-variant SKU conflict");
+      }
+      const gtinPeer = await findExternalGtinPeer(
+        retailer.id,
+        getExternalGtin(shippingNormalizedRow),
+        optionalIdentifier(shippingNormalizedRow.external_variant_id)
+      );
+      if (gtinPeer) {
+        throw new Error("reviewed parent explicit-variant GTIN conflict");
+      }
+      const planned = planReviewedParentVariant(shippingNormalizedRow, rowNumber, evidence);
+      plannedProduct = planned.product;
+      productVariant = planned.variant;
+      reviewedParentVariantCreate = true;
+      product = null;
+    } catch (error) {
+      variantResolutionError = error?.message || String(error);
+    }
+  }
+
   if (validationErrors.length === 0 && product?.id) {
     try {
       productVariant = await resolveCanonicalProductVariant(
@@ -4180,7 +4288,10 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     if (!product) {
       plannedProduct = plannedProduct || planProduct(shippingNormalizedRow);
 
-      if (!isSafeCreateRowAmbiguous(shippingNormalizedRow)) {
+      if (
+        !reviewedParentVariantCreate &&
+        !isSafeCreateRowAmbiguous(shippingNormalizedRow)
+      ) {
         const conflict = await findSimilarProductConflict(shippingNormalizedRow);
 
         if (conflict) {

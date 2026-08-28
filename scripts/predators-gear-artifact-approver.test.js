@@ -310,6 +310,16 @@ function fixture(profileName = "original-v2") {
     execution.plan_count = profile.planCount;
     execution.blocked_row_count = 0;
     execution.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName === "reviewed-new-products-v1-remaining-sibling-2") {
+    const execution = manifest[profile.executionKey];
+    execution.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    execution.sha256 = profile.csvSha256;
+    execution.row_count = profile.planCount;
+    execution.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    execution.artifact_sha256 = profile.artifactSha256;
+    execution.plan_count = profile.planCount;
+    execution.blocked_row_count = 0;
+    execution.plan_fingerprints = [...profile.planFingerprints];
   }
   return { artifact, csvBytes, loaded, manifest, options, configuration: { profile } };
 }
@@ -491,6 +501,25 @@ test("reviewed new-products remaining simple profile permits only rows four and 
   assert.equal(value.artifact.plans.length, 2);
   assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "create"));
   assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "create_default"));
+});
+
+test("reviewed new-products remaining sibling profile permits only Peach and Strawberry parent reuse", () => {
+  const profile = REVIEWED_PROFILES.find(
+    (candidate) => candidate.name === "reviewed-new-products-v1-remaining-sibling-2"
+  );
+  assert.equal(profile.artifactSha256, "5d752ca88b3509bee43ca042bea912faa26e10ece74e72dcd0fbcdc3a65aa260");
+  assert.equal(profile.csvSha256, "d0bb592fa9b8a5bc5d4d670600739cbfb8529821f5f7ee637e0b83b144fdb05e");
+  assert.deepEqual(profile.reviewRows, [2, 3]);
+  assert.deepEqual(profile.planFingerprints, [
+    "3cfee93984a7d8749f991de30dccfae4",
+    "16f3a70ad405c500bb099742b48fac93",
+  ]);
+  const value = fixture("reviewed-new-products-v1-remaining-sibling-2");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 2);
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "create_or_reuse_reviewed"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "create_reviewed_variant"));
 });
 
 test("reviewed new-products profile rejects unreviewed creation, 400g reuse, shipping, and retailer drift", () => {

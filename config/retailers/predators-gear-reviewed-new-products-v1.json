@@ -32,6 +32,23 @@
       "60c61440407f5b244c0e3fe6bfc21064"
     ]
   },
+  "post_create_remaining_sibling_profile": {
+    "path": "tmp/retailer-feeds/predators-gear/predators-gear-reviewed-new-products-v1-remaining-sibling-2.csv",
+    "sha256": "d0bb592fa9b8a5bc5d4d670600739cbfb8529821f5f7ee637e0b83b144fdb05e",
+    "row_count": 2,
+    "included_review_rows": [2, 3],
+    "existing_product_id": 1143,
+    "existing_anchor_variant_id": 3188,
+    "status": "DRY_RUN_PASS",
+    "artifact_path": "tmp/retailer-feeds/predators-gear/predators-gear-reviewed-new-products-v1-remaining-sibling-2-dry-run-v2.json",
+    "artifact_sha256": "5d752ca88b3509bee43ca042bea912faa26e10ece74e72dcd0fbcdc3a65aa260",
+    "plan_count": 2,
+    "blocked_row_count": 0,
+    "plan_fingerprints": [
+      "3cfee93984a7d8749f991de30dccfae4",
+      "16f3a70ad405c500bb099742b48fac93"
+    ]
+  },
   "policy": {
     "existing_products_only": false,
     "existing_variants_only": false,
