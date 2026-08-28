@@ -151,17 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production selects only the reviewed Predators Gear transport policy migration", () => {
+test("production records the reviewed Predators Gear transport policy migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql",
-    sha256: "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b",
-    expectedCatalogueDeltas: {},
-  }]);
-  assert.equal(contract.ledgerCount, 152);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 153);
   assert.equal(
     contract.ledgerFingerprint,
-    "f14ff21526b1f68c74639bf4ff40a0cd98b796b34374d369884419dbd16ebe74",
+    "43adcba7f90e09c1c88051726d9f21fd50fb6b57892406c680da8427990d3f9c",
   );
 });
 
@@ -264,17 +260,14 @@ test("production binds its exact ledger with the Predators Gear policy migration
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 152);
+  assert.equal(result.ledger_count, 153);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260827201000_allow_predators_gear_reviewed_parent_variant_transport"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 153);
-  assert.deepEqual(result.pending_files, ["20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql"]);
-  assert.equal(result.pending_file, "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql");
-  assert.equal(result.pending_sha256, "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b");
-  assert.deepEqual(result.pending_sha256s, {
-    "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql":
-      "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b",
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
