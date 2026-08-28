@@ -37,6 +37,10 @@ const PREDATORS_PARENT_TRANSPORT_MIGRATION = path.resolve(
 );
 const PREDATORS_PARENT_TRANSPORT_MIGRATION_SHA256 =
   "9b42121d7445b2c308cea89c80c27194f3e16f41eae6edca34e0c81a64bb664b";
+const PREDATORS_PARENT_URL_SIBLINGS_MIGRATION = path.resolve(
+  ROOT,
+  "supabase/migrations/20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql",
+);
 
 function clone(value) {
   return structuredClone(value);
@@ -798,4 +802,34 @@ test("Predators Gear reviewed-parent transport migration preserves global catalo
     /\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i,
   );
   assert.doesNotMatch(sql, /apply_product_import_plan\s*\(/i);
+});
+
+test("Predators Gear reviewed-parent URL sibling migration is exact to product 1143 and three approved tuples", () => {
+  const sql = fs.readFileSync(PREDATORS_PARENT_URL_SIBLINGS_MIGRATION, "utf8");
+  assert.match(sql, /^begin;/i);
+  assert.match(sql, /commit;\s*$/i);
+  assert.match(sql, /v_retailer_id=13/);
+  assert.match(sql, /rp\.product_id=1143/);
+  assert.match(sql, /rp\.product_variant_id=3188/);
+  assert.match(sql, /v_external_product_id='8594181604892'/);
+  assert.match(sql, /v_external_variant_id in \('8594181604896','8594181604897'\)/);
+  for (const value of [
+    "8594181604895", "5060763890503", "05060763890503", "Cherry",
+    "8594181604896", "5060763890510", "05060763890510", "Peach",
+    "8594181604897", "5060763890527", "05060763890527", "Strawberry",
+  ]) assert.match(sql, new RegExp(value));
+  assert.match(sql, /pv\.product_id=1143/);
+  assert.match(sql, /pv\.is_active/);
+  assert.match(sql, /not pv\.is_default/);
+  assert.doesNotMatch(sql, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("Predators Gear reviewed-parent URL sibling migration keeps external variant and SKU collisions fail-closed", () => {
+  const sql = fs.readFileSync(PREDATORS_PARENT_URL_SIBLINGS_MIGRATION, "utf8");
+  assert.match(sql, /rp\.external_variant_id=v_external_variant_id/);
+  assert.match(sql, /rp\.external_sku=v_external_sku and rp\.external_variant_id is distinct from v_external_variant_id/);
+  assert.match(sql, /rp\.external_url=v_external_url\s+and not \(/s);
+  assert.match(sql, /raise exception 'stale product import plan: retailer product identity'/);
+  assert.match(sql, /length\(v_definition\).*<> 1/s);
+  assert.doesNotMatch(sql, /grant\s+execute|service_role/i);
 });
