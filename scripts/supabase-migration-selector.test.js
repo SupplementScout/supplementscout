@@ -151,16 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the transport policy as applied and one exact follow-up pending", () => {
+test("production records the reviewed parent URL sibling policy as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql",
-    sha256: "487c080201a3090e3b200dd03d8f9b960945dacebe10dd25b1a536acb2176591",
-  }]);
-  assert.equal(contract.ledgerCount, 153);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 154);
   assert.equal(
     contract.ledgerFingerprint,
-    "43adcba7f90e09c1c88051726d9f21fd50fb6b57892406c680da8427990d3f9c",
+    "ea77332381665b75d53bd94f76b408c1f28e0598763d9803b5b8931394508c9e",
   );
 });
 
@@ -237,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects only the reviewed URL sibling follow-up", () => {
+test("production binds its exact ledger with no pending migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -263,21 +260,14 @@ test("production binds its exact ledger and selects only the reviewed URL siblin
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 153);
+  assert.equal(result.ledger_count, 154);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260828080000_allow_predators_gear_reviewed_parent_url_siblings",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 154);
-  assert.deepEqual(result.pending_files, [
-    "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql",
-  ]);
-  assert.equal(result.pending_file, "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql");
-  assert.equal(result.pending_sha256, "487c080201a3090e3b200dd03d8f9b960945dacebe10dd25b1a536acb2176591");
-  assert.deepEqual(result.pending_sha256s, {
-    "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql":
-      "487c080201a3090e3b200dd03d8f9b960945dacebe10dd25b1a536acb2176591",
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
