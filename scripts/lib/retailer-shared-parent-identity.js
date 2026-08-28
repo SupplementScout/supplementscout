@@ -196,7 +196,9 @@ function attachSharedParentIdentityContracts(items) {
       continue;
     }
     const incoming = peerFromResolvedItem(item);
-    const key = `${incoming.retailer_id}|${incoming.external_url}`;
+    const key = item.sharedParentCanonicalProductScoped
+      ? `${incoming.retailer_id}|${incoming.external_url}|${incoming.product_id}`
+      : `${incoming.retailer_id}|${incoming.external_url}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push({ item, incoming });
   }
@@ -205,6 +207,12 @@ function attachSharedParentIdentityContracts(items) {
     const existingById = new Map();
     for (const { item } of members) {
       for (const peer of item.sharedParentUrlPeers || []) {
+        if (
+          item.sharedParentCanonicalProductScoped &&
+          String(peer.product_id) !== String(item.product?.id)
+        ) {
+          continue;
+        }
         existingById.set(String(peer.id), peerFromMapping(peer));
       }
     }

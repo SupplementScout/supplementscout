@@ -16,9 +16,9 @@ test("migration is hash-bound and transactional", () => {
   const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
   assert.equal(crypto.createHash("sha256").update(repositoryBytes).digest("hex"), expectedSha);
   assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
-  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 84);
+  assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 85);
   assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, []);
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 154);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 155);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });

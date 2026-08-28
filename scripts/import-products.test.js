@@ -55,6 +55,7 @@ const {
   normalizeDecimalString,
 } = require("./lib/canonical-json");
 const predatorsReviewedNewProducts = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
+const predatorsReviewedCm3MissingVariants = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
   predatorsReviewedNewProducts.canonical_csv.sha256;
@@ -62,6 +63,8 @@ const PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA =
   predatorsReviewedNewProducts.post_create_remaining_simple_profile.sha256;
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SIBLING2_SHA =
   predatorsReviewedNewProducts.post_create_remaining_sibling_profile.sha256;
+const PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA =
+  predatorsReviewedCm3MissingVariants.canonical_csv.sha256;
 
 function predatorsReviewedNewProductRows() {
   return predatorsReviewedNewProducts.rows.map((reviewed) =>
@@ -98,6 +101,43 @@ function predatorsReviewedNewProductRows() {
       product_format: reviewed.product_format,
       pack_count: "1",
       source_updated_at: "2026-08-27T13:35:38.747Z",
+    })
+  );
+}
+
+function predatorsReviewedCm3MissingVariantRows() {
+  return predatorsReviewedCm3MissingVariants.rows.map((reviewed) =>
+    baseCanonicalFeedRow({
+      retailer_name: predatorsReviewedCm3MissingVariants.retailer.name,
+      retailer_website: predatorsReviewedCm3MissingVariants.retailer.website,
+      product_id: "",
+      product_variant_id: "",
+      external_product_id: reviewed.external_product_id,
+      external_variant_id: reviewed.external_variant_id,
+      external_sku: reviewed.external_sku,
+      external_gtin: reviewed.external_gtin,
+      external_options: JSON.stringify(reviewed.external_options),
+      product_name: reviewed.product_name,
+      variant_name: reviewed.variant_name,
+      brand: reviewed.brand,
+      category: reviewed.category,
+      description: "",
+      image: predatorsReviewedCm3MissingVariants.image,
+      slug: reviewed.slug,
+      external_url: predatorsReviewedCm3MissingVariants.parent_url,
+      affiliate_url: predatorsReviewedCm3MissingVariants.parent_url,
+      price: reviewed.price,
+      shipping_known: "true",
+      shipping_cost: "0",
+      total_price: reviewed.price,
+      in_stock: "true",
+      is_for_sale: "true",
+      size: reviewed.size,
+      size_unit: reviewed.size_unit,
+      flavour: reviewed.flavour,
+      product_format: reviewed.product_format,
+      pack_count: "1",
+      source_updated_at: "2026-08-28T12:00:00.000Z",
     })
   );
 }
@@ -2958,6 +2998,151 @@ test("Predators Gear post-create sibling profile reuses only exact product 1143 
     }),
     /outside the approved remaining scope|row set mismatch/
   );
+});
+
+test("Predators Gear reviewed CM3 profile creates only five variants under products 361 and 1067", async () => {
+  const rows = predatorsReviewedCm3MissingVariantRows();
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA,
+  });
+  assert.equal(normalized.length, 5);
+  assert.ok(normalized.every((row) =>
+    row.__reviewed_predators_new_product_identity.cm3_missing_variant === true &&
+    !row.product_id &&
+    !row.product_variant_id
+  ));
+
+  const products = predatorsReviewedCm3MissingVariants.existing_products.map((product) => ({
+    id: String(product.product_id),
+    name: product.name,
+    slug: product.slug,
+    brand: product.brand,
+    category: product.category,
+    product_format: product.product_format,
+    gtin: null,
+    is_active: true,
+    merged_into_product_id: null,
+  }));
+  const variant = (id, productId, flavour, size) => ({
+    id: String(id),
+    product_id: String(productId),
+    variant_key: `${normalizeFlavour(flavour).replaceAll(" ", "-")}-${size}g`,
+    display_name: `${flavour} / ${size}g`,
+    flavour_code: normalizeFlavour(flavour),
+    flavour_label: flavour,
+    size_value: String(size),
+    size_unit: "g",
+    pack_count: "1",
+    product_format: "powder",
+    is_active: true,
+    is_default: false,
+  });
+  const existingMappings = [
+    {
+      id: "cm3-500-anchor", retailer_id: "13", product_id: "1067",
+      product_variant_id: "2250", external_product_id: "8594181607503",
+      external_variant_id: "8594181607509", external_sku: "5902114017742",
+      external_gtin: "05902114017742",
+      external_options: { Size: "500g", Flavour: "White Cola" },
+      external_url: "https://predatorsgear.co.uk/?p=8594181607503",
+    },
+    {
+      id: "cm3-250-grapefruit", retailer_id: "13", product_id: "361",
+      product_variant_id: "1694", external_product_id: "8594181607503",
+      external_variant_id: "8594181607979", external_sku: "5902114017743",
+      external_gtin: "05902114017743",
+      external_options: { Size: "250g", Flavour: "Pink Grapefruit" },
+      external_url: predatorsReviewedCm3MissingVariants.parent_url,
+    },
+    {
+      id: "cm3-250-pineapple", retailer_id: "13", product_id: "361",
+      product_variant_id: "1043", external_product_id: "8594181607503",
+      external_variant_id: "8594181607980", external_sku: "5902114017736",
+      external_gtin: "05902114017736",
+      external_options: { Size: "250g", Flavour: "Fresh Pineapple" },
+      external_url: predatorsReviewedCm3MissingVariants.parent_url,
+    },
+  ];
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{
+      id: "13", name: "Predators Gear", slug: "predators-gear",
+      website: "https://predatorsgear.co.uk/",
+    }],
+    products,
+    product_variants: [
+      variant(1043, 361, "Fresh Pineapple", 250),
+      variant(1694, 361, "Pink Grapefruit", 250),
+      variant(2250, 1067, "White Cola", 500),
+    ],
+    retailer_products: existingMappings,
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 5);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product.action),
+    Array(5).fill("existing")
+  );
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product_variant.action),
+    Array(5).fill("create_variant")
+  );
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => String(item.importPlan.product.id)),
+    ["361", "361", "1067", "1067", "1067"]
+  );
+  assert.ok(result.report.approvedRows.every((item) =>
+    item.importPlan.offer.values.shipping_cost === "0" &&
+    item.importPlan.offer.values.total_price === item.importPlan.offer.values.price &&
+    item.importPlan.retailer_product.identity_contract.approved_url_peers.every(
+      (peer) => peer.product_id === String(item.importPlan.product.id)
+    )
+  ));
+  assert.equal(supabase.writes.length, 0);
+
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(rows.slice(0, 4), {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA,
+    }),
+    /requires exactly 5 rows/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows([
+      { ...rows[0], flavour: "Lemon" }, ...rows.slice(1),
+    ], {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA,
+    }),
+    /flavour mismatch/
+  );
+});
+
+test("Predators Gear reviewed CM3 SQL guard is exact and validator-only", () => {
+  const migration = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "supabase/migrations/20260828100000_allow_predators_gear_reviewed_cm3_missing_variants.sql"
+    ),
+    "utf8"
+  );
+  assert.match(migration, /atomic_import_predators_cm3_missing_variant_allowed/);
+  assert.match(migration, /atomic_import_predators_cm3_parent_cohort_exact/);
+  assert.match(migration, /'361','8594181607507','5902114018818','05902114018818'/);
+  assert.match(migration, /'1067','8594181607977','5902114017750','05902114017750'/);
+  assert.match(migration, /shipping_cost}' = '0'/);
+  assert.match(migration, /product,action}' = 'existing'/);
+  assert.match(migration, /product_variant,action}' = 'create_variant'/);
+  assert.match(migration, /revoke all on function/);
+  assert.doesNotMatch(migration, /insert\s+into\s+public\.(products|product_variants|retailer_products|offers|price_history)/i);
+  assert.doesNotMatch(migration, /apply_approved_product_import_plan/);
 });
 
 test("Predators Gear reviewed 316g SQL policy adds one exact tuple and preserves fail-closed apply validation", () => {
