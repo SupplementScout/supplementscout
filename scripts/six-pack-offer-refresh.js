@@ -4,7 +4,7 @@ const path = require("node:path");
 const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
 const { canonicalJson } = require("./lib/canonical-json");
-const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
+const { buildGuardEvidence, classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
 const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const { readWooCommerceProductPage } = require("./lib/woocommerce-product-page-reader");
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
@@ -79,7 +79,7 @@ function parseArgs(argv) {
   return out;
 }
 
-function isolateAggregateChanges(classification) {
+function isolateAggregateChanges(classification, policy, guardScope) {
   if (!["MASS_OOS", "MASS_CHANGE", "MASS_PRICE"].includes(classification.reason)) return classification;
   const safeRows = [];
   const quarantinedRows = [...(classification.quarantined_rows || [])];
@@ -96,6 +96,10 @@ function isolateAggregateChanges(classification) {
       changed_fields: { ...row.changed_fields, blocked: true },
     });
   }
+  const guardEvidence = buildGuardEvidence(safeRows, policy, guardScope);
+  if (guardEvidence.guards.some((guard) => guard.result !== "PASS")) {
+    fail("Isolated executable plans still violate aggregate guardrails", "ISOLATION_GUARD_FAILED");
+  }
   return {
     ...classification,
     state: "DRY_RUN_READY_WITH_REVIEW",
@@ -103,6 +107,8 @@ function isolateAggregateChanges(classification) {
     reason: null,
     rows: safeRows,
     quarantined_rows: quarantinedRows,
+    full_scope_guard_evidence: classification.guard_evidence,
+    guard_evidence: guardEvidence,
   };
 }
 
@@ -419,6 +425,10 @@ function writeSourceFailureReport({
     manifest_sha256: approved.sha256,
     source_captured_at: capturedAt,
     approved_mapping_count: approved.manifest.rows.length,
+    executable_plan_count: 0,
+    executed_plan_count: 0,
+    review_row_count: 0,
+    blocked_row_count: approved.manifest.rows.length,
     fetched_product_page_count: fetchedProductPageCount,
     classification_state: "SOURCE_READ_FAILED",
     block_reason: safeToken(error?.code, "SOURCE_UNAVAILABLE"),
@@ -554,6 +564,7 @@ async function run(options, dependencies = {}) {
     })).sort((left, right) => Number(left.external_product_id) - Number(right.external_product_id)),
     rows: sourceRows,
   });
+  const guardScope = { name: "SIX_PACK_APPROVED_MANIFEST", retailer: config.retailer.name };
   const policy = {
     ...config.guardrails,
     required_matched_offers: approved.manifest.rows.length,
@@ -566,7 +577,7 @@ async function run(options, dependencies = {}) {
     targets: state.records.map(targetFor),
     sourceVariants: sourceRows,
     policy,
-    guardScope: { name: "SIX_PACK_APPROVED_MANIFEST", retailer: config.retailer.name },
+    guardScope,
     sourceCapturedAt: capturedAt,
     now: new Date(capturedAt),
     sourceProductCount: liveByProduct.size,
@@ -580,16 +591,40 @@ async function run(options, dependencies = {}) {
     reviewed
   );
   const classification = options.isolateUnsafe
-    ? isolateAggregateChanges(massOosAuthorization.classification)
+    ? isolateAggregateChanges(massOosAuthorization.classification, policy, guardScope)
     : massOosAuthorization.classification;
-  const reviewRows = (classification.quarantined_rows || []).map((row) => ({
-    offer_id: String(row.offer_id),
-    mapping_id: String(row.retailer_product_id),
-    external_product_id: String(row.external_product_id),
-    external_variant_id: String(row.external_variant_id),
-    reason: row.reason,
-    original_action: row.original_action || null,
-  }));
+  const sourceByVariant = new Map(sourceRows.map((row) => [String(row.external_variant_id), row]));
+  const targetByOffer = new Map(state.records.map((record) => [String(record.offer.id), targetFor(record)]));
+  const reviewRows = (classification.quarantined_rows || []).map((row) => {
+    const source = sourceByVariant.get(String(row.external_variant_id));
+    const target = targetByOffer.get(String(row.offer_id));
+    if (!source || !target) fail("Review row escaped the approved source/target scope", "REVIEW_SCOPE_DRIFT");
+    return {
+      offer_id: String(row.offer_id),
+      mapping_id: String(row.retailer_product_id),
+      external_product_id: String(row.external_product_id),
+      external_variant_id: String(row.external_variant_id),
+      reason: row.reason,
+      original_action: row.original_action || null,
+      changed_fields: row.changed_fields,
+      current_offer: {
+        price: money(target.price),
+        shipping_cost: money(target.shipping_cost),
+        total_price: money(target.total_price),
+        in_stock: Boolean(target.in_stock),
+        url: target.url,
+        last_checked_at: target.last_checked_at,
+      },
+      proposed_offer: {
+        price: money(source.price),
+        shipping_cost: money(source.shipping_cost),
+        total_price: money(source.total_price),
+        in_stock: Boolean(source.in_stock),
+        url: source.url,
+        source_captured_at: row.source_captured_at,
+      },
+    };
+  });
   const accepted = ["DRY_RUN_READY", "DRY_RUN_READY_WITH_REVIEW"].includes(classification.state);
   const reconciledCount = (classification.rows || []).length + reviewRows.length;
   const report = {
@@ -601,10 +636,15 @@ async function run(options, dependencies = {}) {
     source_snapshot_fingerprint: snapshotFingerprint,
     source_captured_at: capturedAt,
     approved_mapping_count: approved.manifest.rows.length,
+    executable_plan_count: accepted ? (classification.rows || []).length : 0,
+    executed_plan_count: 0,
+    review_row_count: reviewRows.length,
+    blocked_row_count: accepted ? 0 : approved.manifest.rows.length - reviewRows.length,
     fetched_product_page_count: liveByProduct.size,
     classification_state: classification.state,
     block_reason: classification.reason || null,
     guard_evidence: classification.guard_evidence || null,
+    full_scope_guard_evidence: classification.full_scope_guard_evidence || classification.guard_evidence || null,
     reviewed_mass_oos: massOosAuthorization.review,
     review_rows: reviewRows,
     action_counts: (classification.rows || []).reduce((counts, row) => {

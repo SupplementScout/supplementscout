@@ -33,6 +33,7 @@ function artifact() {
         retailer_product: { action: "noop", id: row.mapping_id },
         offer: { action: "verify_no_change", id: row.offer_id, values: { price: "10.00", shipping_cost: "4.99", total_price: "14.99", in_stock: true, url: "https://6pack-supplements.co.uk/product/test/", last_checked_at: createdAt } },
         price_history: { action: "noop" },
+        approval: { approved: false, approval_type: "none" },
         expected_state: { offer: { price: "10.00", shipping_cost: "4.99", total_price: "14.99", in_stock: true, url: "https://6pack-supplements.co.uk/product/test/", last_checked_at: previousCheckedAt } },
       },
     })),
@@ -87,10 +88,37 @@ test("full approved freshness plan executes every one of the 506 verified rows",
     operation_type: entry.operation_type,
   }));
 
-  assert.deepEqual(executionCounts(plans, executed), {
+  assert.deepEqual(executionCounts(plans, executed, manifest.approved_mapping_count), {
+    approved_mapping_count: manifest.approved_mapping_count,
+    executable_plan_count: manifest.approved_mapping_count,
     verified_plan_count: manifest.approved_mapping_count,
     executed_plan_count: manifest.approved_mapping_count,
+    review_row_count: 0,
+    blocked_row_count: 0,
   });
+});
+
+test("executor counts and executes only the 492 approved plans in a reviewed mixed scope", async () => {
+  const mixed = artifact();
+  mixed.plans = mixed.plans.slice(0, 492);
+  mixed.source_rows = mixed.source_rows.slice(0, 492);
+  const plans = validateArtifactScope(mixed, manifest);
+  const executedOfferIds = [];
+  const rows = await executeApprovedPlans(plans, async (entry) => {
+    executedOfferIds.push(String(entry.resolved_plan.offer.id));
+    return { row_number: entry.row_number, operation_type: entry.operation_type };
+  });
+
+  assert.deepEqual(executionCounts(plans, rows, manifest.approved_mapping_count), {
+    approved_mapping_count: 506,
+    executable_plan_count: 492,
+    verified_plan_count: 492,
+    executed_plan_count: 492,
+    review_row_count: 14,
+    blocked_row_count: 0,
+  });
+  assert.equal(executedOfferIds.length, 492);
+  assert.deepEqual(executedOfferIds, mixed.plans.map((entry) => String(entry.resolved_plan.offer.id)));
 });
 
 test("6 Pack verified no-change contract permits only a newer last_checked_at", () => {
@@ -134,6 +162,24 @@ test("6 Pack verified no-change contract permits only a newer last_checked_at", 
     () => validateArtifactScope(unchangedTimestamp, manifest),
     /may update only last_checked_at/
   );
+});
+
+test("standard price update requires atomic history and preserves the mapping", () => {
+  const value = artifact();
+  const plan = value.plans[0].resolved_plan;
+  plan.meta.operation_type = "standard_import";
+  plan.offer.action = "update";
+  plan.offer.values.price = "11.00";
+  plan.offer.values.total_price = "15.99";
+  plan.price_history.action = "create";
+  assert.equal(validateArtifactScope(value, manifest).length, 506);
+
+  const missingHistory = artifact();
+  missingHistory.plans[0].resolved_plan.meta.operation_type = "standard_import";
+  missingHistory.plans[0].resolved_plan.offer.action = "update";
+  missingHistory.plans[0].resolved_plan.offer.values.price = "11.00";
+  missingHistory.plans[0].resolved_plan.offer.values.total_price = "15.99";
+  assert.throws(() => validateArtifactScope(missingHistory, manifest), /update contract mismatch/);
 });
 
 test("executor independently accepts only the exact selected two-row MASS_OOS artifact", () => {

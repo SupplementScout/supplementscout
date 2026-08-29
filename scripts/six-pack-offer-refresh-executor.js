@@ -78,19 +78,37 @@ function validateOperationContract(plan) {
   const before = plan.expected_state?.offer;
   const after = plan.offer?.values;
   const verifiedNoChange = plan.meta?.operation_type === "verify_offer_no_change";
+  const standardUpdate = plan.meta?.operation_type === "standard_import";
 
   if (verifiedNoChange !== (plan.offer?.action === "verify_no_change")) {
     fail("Refresh operation type and offer action mismatch");
   }
-  if (!verifiedNoChange) return;
+  if (verifiedNoChange) {
+    if (
+      plan.retailer_product?.action !== "noop" ||
+      plan.price_history?.action !== "noop" ||
+      !sameCommercialOfferState(before, after) ||
+      after?.last_checked_at !== plan.meta.source_captured_at ||
+      !Number.isFinite(Date.parse(before?.last_checked_at || "")) ||
+      Date.parse(after.last_checked_at) <= Date.parse(before.last_checked_at)
+    ) fail("Verified no-change plan may update only last_checked_at");
+    return;
+  }
+  if (!standardUpdate) fail("Unsupported refresh operation type");
+  const priceChanged = Number(before?.price) !== Number(after?.price);
+  const stockChanged = before?.in_stock !== after?.in_stock;
+  const urlChanged = before?.url !== after?.url;
   if (
-    plan.retailer_product?.action !== "noop" ||
-    plan.price_history?.action !== "noop" ||
-    !sameCommercialOfferState(before, after) ||
+    plan.offer?.action !== "update" ||
+    (!priceChanged && !stockChanged && !urlChanged) ||
+    plan.price_history?.action !== (priceChanged ? "create" : "noop") ||
+    plan.retailer_product?.action !== (urlChanged ? "update" : "noop") ||
+    (urlChanged && plan.retailer_product?.values?.external_url !== after.url) ||
     after?.last_checked_at !== plan.meta.source_captured_at ||
     !Number.isFinite(Date.parse(before?.last_checked_at || "")) ||
-    Date.parse(after.last_checked_at) <= Date.parse(before.last_checked_at)
-  ) fail("Verified no-change plan may update only last_checked_at");
+    Date.parse(after.last_checked_at) <= Date.parse(before.last_checked_at) ||
+    plan.approval?.approved !== false
+  ) fail("Standard refresh update contract mismatch");
 }
 
 function reviewedPlanRows(artifact) {
@@ -328,11 +346,18 @@ async function executeApprovedPlans(plans, execute) {
   return rows;
 }
 
-function executionCounts(plans, rows) {
+function executionCounts(plans, rows, approvedMappingCount) {
   if (rows.length !== plans.length) fail("Verified and executed plan counts differ");
+  if (!Number.isInteger(approvedMappingCount) || approvedMappingCount < plans.length) {
+    fail("Approved and executable plan counts differ from the manifest scope");
+  }
   return {
+    approved_mapping_count: approvedMappingCount,
+    executable_plan_count: plans.length,
     verified_plan_count: plans.length,
     executed_plan_count: rows.length,
+    review_row_count: approvedMappingCount - plans.length,
+    blocked_row_count: 0,
   };
 }
 
@@ -359,7 +384,7 @@ async function run(options) {
     const rows = await executeApprovedPlans(plans, (entry) =>
       executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason)
     );
-    const counts = executionCounts(plans, rows);
+    const counts = executionCounts(plans, rows, approved.manifest.approved_mapping_count);
     const report = {
       schema_version: 1,
       kind: "six-pack-approved-offer-refresh-execution",

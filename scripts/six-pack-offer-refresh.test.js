@@ -137,6 +137,10 @@ test("failed source preflight writes a safe zero-write report and no executable 
   assert.equal(report.classification_state, "SOURCE_READ_FAILED");
   assert.equal(report.block_reason, "SOURCE_UNAVAILABLE");
   assert.equal(report.approved_mapping_count, manifest.rows.length);
+  assert.equal(report.executable_plan_count, 0);
+  assert.equal(report.executed_plan_count, 0);
+  assert.equal(report.review_row_count, 0);
+  assert.equal(report.blocked_row_count, manifest.rows.length);
   assert.equal(report.fetched_product_page_count, 0);
   assert.equal(report.database_writes, 0);
   assert.deepEqual(report.action_counts, {});
@@ -178,6 +182,11 @@ test("one price change is planned atomically while a mass price change blocks", 
   );
   assert.equal(planned.report.action_counts.UPDATE_PRICE, 1);
   assert.equal(planned.report.action_counts.VERIFY_NO_CHANGE, manifest.rows.length - 1);
+  const priceArtifact = loadDryRunArtifact(oneOutput.artifact).artifact;
+  const pricePlan = priceArtifact.plans.find((entry) => entry.operation_type === "standard_import");
+  assert.equal(pricePlan.resolved_plan.offer.action, "update");
+  assert.equal(pricePlan.resolved_plan.price_history.action, "create");
+  assert.equal(pricePlan.resolved_plan.retailer_product.action, "noop");
 
   const massChanges = new Map(
     manifest.rows.slice(0, Math.floor(manifest.rows.length * 0.2) + 1)
@@ -229,6 +238,94 @@ test("one hard price anomaly is isolated without blocking ordinary rows", async 
   assert.equal(result.report.result, "PASS_WITH_REVIEW");
   assert.deepEqual(result.report.review_rows.map((row) => row.reason), ["HARD_PRICE_ANOMALY"]);
   assert.equal(loadDryRunArtifact(output.artifact).artifact.plans.length, manifest.rows.length - 1);
+});
+
+test("safe price, stock, and combined updates use the existing protected plans", async () => {
+  const source = fixture();
+  const [priceBinding, stockBinding, combinedBinding] = manifest.rows.slice(0, 3);
+  const liveOffer = (binding) => {
+    const live = source.byProduct.get(binding.external_product_id);
+    return binding.external_product_id === binding.external_variant_id
+      ? live.product_offer
+      : live.variations.find((row) => row.external_variant_id === binding.external_variant_id);
+  };
+  liveOffer(priceBinding).price = "11.25";
+  source.state.records.find((record) => String(record.offer.id) === stockBinding.offer_id).offer.in_stock = false;
+  source.state.records.find((record) => String(record.offer.id) === combinedBinding.offer_id).offer.in_stock = false;
+  liveOffer(combinedBinding).price = "13.25";
+
+  const output = paths();
+  const result = await run(
+    { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false },
+    { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+  );
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+  const updates = artifact.plans.filter((entry) => entry.operation_type === "standard_import");
+
+  assert.equal(result.report.result, "PASS");
+  assert.equal(result.report.executable_plan_count, 506);
+  assert.equal(result.report.review_row_count, 0);
+  assert.equal(result.report.action_counts.UPDATE_PRICE, 1);
+  assert.equal(result.report.action_counts.UPDATE_STOCK, 1);
+  assert.equal(result.report.action_counts.UPDATE_PRICE_AND_STOCK, 1);
+  assert.equal(updates.length, 3);
+  assert.deepEqual(
+    updates.map((entry) => entry.resolved_plan.price_history.action).sort(),
+    ["create", "create", "noop"]
+  );
+  assert.equal(updates.every((entry) => entry.resolved_plan.offer.action === "update"), true);
+});
+
+test("mixed 492/8/1/5 review partition preserves every safe freshness confirmation", async () => {
+  const source = fixture();
+  const priceOnly = manifest.rows.slice(0, 8);
+  const stockOnly = manifest.rows.slice(8, 9);
+  const priceAndStock = manifest.rows.slice(9, 14);
+  const setLive = (binding, change) => {
+    const live = source.byProduct.get(binding.external_product_id);
+    const offer = binding.external_product_id === binding.external_variant_id
+      ? live.product_offer
+      : live.variations.find((row) => row.external_variant_id === binding.external_variant_id);
+    Object.assign(offer, change);
+  };
+  for (const binding of priceOnly) setLive(binding, { price: "11.25" });
+  for (const binding of stockOnly) setLive(binding, { in_stock: false });
+  for (const binding of priceAndStock) setLive(binding, { price: "12.50", in_stock: false });
+
+  const output = paths();
+  const result = await run(
+    {
+      target: "production",
+      artifact: output.artifact,
+      report: output.report,
+      requireNoChange: false,
+      isolateUnsafe: true,
+    },
+    { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+  );
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+
+  assert.equal(result.report.result, "PASS_WITH_REVIEW");
+  assert.equal(result.report.approved_mapping_count, 506);
+  assert.equal(result.report.executable_plan_count, 492);
+  assert.equal(result.report.executed_plan_count, 0);
+  assert.equal(result.report.review_row_count, 14);
+  assert.equal(result.report.blocked_row_count, 0);
+  assert.deepEqual(result.report.action_counts, { VERIFY_NO_CHANGE: 492 });
+  assert.deepEqual(result.report.full_scope_guard_evidence.action_counts, {
+    VERIFY_NO_CHANGE: 492,
+    UPDATE_PRICE: 8,
+    UPDATE_STOCK: 1,
+    UPDATE_PRICE_AND_STOCK: 5,
+    UPDATE_URL: 0,
+    UPDATE_PRICE_STOCK_URL: 0,
+  });
+  assert.equal(result.report.guard_evidence.guards.every((guard) => guard.result === "PASS"), true);
+  assert.equal(artifact.plans.length, 492);
+  assert.equal(artifact.plans.every((entry) => entry.operation_type === "verify_offer_no_change"), true);
+  const reviewOfferIds = new Set(result.report.review_rows.map((row) => row.offer_id));
+  assert.equal(reviewOfferIds.size, 14);
+  assert.equal(artifact.plans.some((entry) => reviewOfferIds.has(String(entry.resolved_plan.offer.id))), false);
 });
 
 test("exact reviewed MASS_OOS selector permits only the two sealed stock transitions", async () => {

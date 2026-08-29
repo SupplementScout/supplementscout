@@ -126,12 +126,15 @@ jobs:
         run: |
           echo "## 6 Pack Supplements approved offer refresh" >> "$GITHUB_STEP_SUMMARY"
           if [ -f tmp/six-pack-offer-refresh/production-preflight-report.json ]; then
-            node -e 'const r=require("./tmp/six-pack-offer-refresh/production-preflight-report.json"); console.log(`- Preflight: ${r.result}\n- Approved offers: ${r.approved_mapping_count}\n- Product pages: ${r.fetched_product_page_count}\n- Actions: ${JSON.stringify(r.action_counts)}\n- Block: ${r.block_reason}\n- Reviewed MASS_OOS: ${JSON.stringify(r.reviewed_mass_oos)}`)' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const r=require("./tmp/six-pack-offer-refresh/production-preflight-report.json"); console.log(`- Preflight: ${r.result}\n- Approved mappings: ${r.approved_mapping_count}\n- Executable plans: ${r.executable_plan_count}\n- Executed plans: ${r.executed_plan_count}\n- Review rows: ${r.review_row_count}\n- Blocked rows: ${r.blocked_row_count}\n- Product pages: ${r.fetched_product_page_count}\n- Actions: ${JSON.stringify(r.action_counts)}\n- Block: ${r.block_reason}\n- Reviewed MASS_OOS: ${JSON.stringify(r.reviewed_mass_oos)}`)' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Preflight report unavailable; workflow failed closed." >> "$GITHUB_STEP_SUMMARY"
           fi
           if [ -f tmp/six-pack-offer-refresh/production-idempotency-report.json ]; then
             node -e 'const r=require("./tmp/six-pack-offer-refresh/production-idempotency-report.json"); console.log(`- Post-apply idempotency: ${r.result}\n- Post-apply actions: ${JSON.stringify(r.action_counts)}`)' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f tmp/six-pack-offer-refresh/production-execution.json ]; then
+            node -e 'const r=require("./tmp/six-pack-offer-refresh/production-execution.json"); console.log(`- Approved mappings: ${r.approved_mapping_count}\n- Executable plans: ${r.executable_plan_count}\n- Executed plans: ${r.executed_plan_count}\n- Review rows: ${r.review_row_count}\n- Blocked rows: ${r.blocked_row_count}`)' >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload refresh evidence
