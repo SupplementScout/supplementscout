@@ -158,7 +158,7 @@ test("production records the reviewed CM3 trigger follow-up as applied and only 
   assert.deepEqual(contract.pending, [
     {
       filename: "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
-      sha256: "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+      sha256: "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
     },
   ]);
   assert.equal(contract.ledgerCount, 156);
@@ -282,11 +282,11 @@ test("production binds its exact ledger with only the reviewed Predators v3 migr
   );
   assert.equal(
     result.pending_sha256,
-    "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+    "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
   );
   assert.deepEqual(result.pending_sha256s, {
     "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql":
-      "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+      "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
   });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
@@ -372,14 +372,14 @@ test("staging output reports only the reviewed Predators v3 policy migration pen
   );
   assert.equal(
     result.pending_sha256,
-    "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+    "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
   );
   assert.deepEqual(result.pending_files, [
     "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
   ]);
   assert.deepEqual(result.pending_sha256s, {
     "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql":
-      "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+      "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
   });
 });
 

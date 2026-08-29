@@ -43,7 +43,7 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
   const pending = CONTRACTS.PRODUCTION.pending;
   assert.deepEqual(pending, [{
     filename: "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
-    sha256: "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+    sha256: "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
   }]);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);

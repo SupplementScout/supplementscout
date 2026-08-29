@@ -200,7 +200,7 @@ begin
        'Olimp BCAA Xplode 1000g','Olimp','Amino Acids','powder','1000','g'
      )
      or position(
-       'atomic_import_predators_v3_parent_variant_transport_allowed',
+       'atomic_import_predators_v3_parent_variant_transport_allowed' in
        pg_get_functiondef('public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure)
      ) = 0
      or has_function_privilege(
