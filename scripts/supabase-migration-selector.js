@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 87,
+    ledgerCount: 88,
     ledgerFingerprint:
-      "4b23e72f75036500a4bc81d75e700bea15ea03aff4eceb279a00affeb84d7a3e",
+      "f0f53d09a1f7a979d734124a83337267b6b0e924966a952e9c4d86c772bf6e5a",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -189,12 +189,7 @@ const CONTRACTS = Object.freeze({
       "20260826190000_enable_fit_house_price_observation_producer.sql":
         "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260829110000_allow_predators_gear_reviewed_olimp_parent_url_siblings.sql",
-        sha256: "6b534074cdc3e89a7f94c17156df73eba05a620b90eaf75c59299aae4bd0395b",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -203,9 +198,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 157,
+    ledgerCount: 158,
     ledgerFingerprint:
-      "4335630b48a670360d777e838e40e8247bfece2056be8e65c75c02114074ab8b",
+      "46af496a757362e287161c8bb80d7390b73f653125bb49d60cb7af19e1af845f",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -222,12 +217,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260829110000_allow_predators_gear_reviewed_olimp_parent_url_siblings.sql",
-        sha256: "6b534074cdc3e89a7f94c17156df73eba05a620b90eaf75c59299aae4bd0395b",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

@@ -17,8 +17,6 @@ const ROOT = path.resolve(__dirname, "..");
 const SOURCE = path.join(ROOT, "supabase", "migrations");
 const CONFIG = path.join(ROOT, "supabase", "config.toml");
 const CONTRACT = CONTRACTS.STAGING;
-const PENDING_OLIMP_SIBLINGS =
-  "20260829110000_allow_predators_gear_reviewed_olimp_parent_url_siblings.sql";
 const TARGET = Object.freeze({
   target_environment: "STAGING",
   project_ref: CONTRACT.projectRef,
@@ -76,9 +74,9 @@ test.after(() => {
 
 test("staging records the reviewed Predators v3 policy as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 87);
+  assert.equal(result.ledger_count, 88);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [PENDING_OLIMP_SIBLINGS.slice(0, -4)]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 88);
 });
 
@@ -153,16 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Predators v3 applied with only the Olimp sibling policy pending", () => {
+test("production records the reviewed Predators Olimp sibling policy as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: PENDING_OLIMP_SIBLINGS,
-    sha256: "6b534074cdc3e89a7f94c17156df73eba05a620b90eaf75c59299aae4bd0395b",
-  }]);
-  assert.equal(contract.ledgerCount, 157);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 158);
   assert.equal(
     contract.ledgerFingerprint,
-    "4335630b48a670360d777e838e40e8247bfece2056be8e65c75c02114074ab8b",
+    "46af496a757362e287161c8bb80d7390b73f653125bb49d60cb7af19e1af845f",
   );
 });
 
@@ -265,16 +260,14 @@ test("production binds its exact ledger after the reviewed Predators v3 policy a
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 157);
+  assert.equal(result.ledger_count, 158);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [PENDING_OLIMP_SIBLINGS.slice(0, -4)]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 158);
-  assert.deepEqual(result.pending_files, [PENDING_OLIMP_SIBLINGS]);
-  assert.equal(result.pending_file, PENDING_OLIMP_SIBLINGS);
-  assert.equal(result.pending_sha256, contract.pending[0].sha256);
-  assert.deepEqual(result.pending_sha256s, {
-    [PENDING_OLIMP_SIBLINGS]: contract.pending[0].sha256,
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -351,14 +344,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports only the reviewed Olimp sibling migration pending", () => {
+test("staging output reports no pending migration after the reviewed Olimp sibling apply", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, PENDING_OLIMP_SIBLINGS);
-  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
-  assert.deepEqual(result.pending_files, [PENDING_OLIMP_SIBLINGS]);
-  assert.deepEqual(result.pending_sha256s, {
-    [PENDING_OLIMP_SIBLINGS]: CONTRACT.pending[0].sha256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {
