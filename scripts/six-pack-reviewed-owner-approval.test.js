@@ -256,3 +256,31 @@ test("ordinary cron remains isolated and cannot select or approve a reviewed bat
   const dryRunStep = dryRunJob.match(/- name: Fresh live-source dry-run[\s\S]*?(?=\n\s{6}- name:)/)?.[0] || "";
   assert.doesNotMatch(dryRunStep, /SIX_PACK_SYNC_APPROVER_DATABASE_URL|SIX_PACK_SYNC_EXECUTOR_DATABASE_URL/);
 });
+
+test("reviewed baseline and postflight use the readable validator while approval and apply keep separate roles", async () => {
+  const workflow = fs.readFileSync(path.join(__dirname, "..", ".github", "workflows", "six-pack-offer-refresh.yml"), "utf8");
+  const source = fs.readFileSync(path.join(__dirname, "six-pack-reviewed-postflight.js"), "utf8");
+  const executor = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh-executor.js"), "utf8");
+  const step = (name) => workflow.match(new RegExp(`- name: ${name}[\\s\\S]*?(?=\\n\\s{6}- name:)`))?.[0] || "";
+  const baseline = step("Capture read-only reviewed DB baseline");
+  const postflight = step("Verify reviewed DB postflight read-only");
+  const apply = step("Apply exact owner-reviewed batch");
+  for (const readStep of [baseline, postflight]) {
+    assert.match(readStep, /SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: \$\{\{ secrets\.JONS_SYNC_VALIDATOR_DATABASE_URL \}\}/);
+    assert.doesNotMatch(readStep, /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
+  }
+  assert.match(source, /process\.env\.SIX_PACK_SYNC_VALIDATOR_DATABASE_URL/);
+  assert.doesNotMatch(source, /SIX_PACK_SYNC_APPROVER_DATABASE_URL|SIX_PACK_SYNC_EXECUTOR_DATABASE_URL/);
+  assert.match(apply, /SIX_PACK_SYNC_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
+  assert.match(apply, /SIX_PACK_SYNC_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
+  assert.match(executor, /clients\.approver[\s\S]*approve_product_import_plan/);
+  assert.match(executor, /clients\.executor[\s\S]*apply_approved_product_import_plan/);
+  assert.ok(workflow.indexOf("Capture read-only reviewed DB baseline") < workflow.indexOf("Apply exact owner-reviewed batch"));
+  assert.doesNotMatch(baseline, /continue-on-error/);
+
+  const { capture } = require("./six-pack-reviewed-postflight");
+  await assert.rejects(capture({ query: async (sql) => {
+    if (sql.includes("from public.offers")) throw new Error("permission denied for table offers");
+    return { rows: [] };
+  } }, fixture()), /permission denied for table offers/);
+});

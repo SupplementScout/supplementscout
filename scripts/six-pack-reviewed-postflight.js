@@ -97,8 +97,8 @@ function verifyPostflight(batch, baseline, after, execution) {
 }
 
 async function openReadOnlyClient() {
-  const value = process.env.SIX_PACK_SYNC_APPROVER_DATABASE_URL;
-  if (!value) fail("Missing protected database credential");
+  const value = process.env.SIX_PACK_SYNC_VALIDATOR_DATABASE_URL;
+  if (!value) fail("Missing protected validator database credential");
   const parsed = new URL(value); parsed.searchParams.delete("sslmode");
   const client = new Client({ connectionString: parsed.href, ssl: { rejectUnauthorized: false }, application_name: "six-pack-reviewed-postflight-read-only", options: "-c default_transaction_read_only=on -c statement_timeout=120000" });
   await client.connect(); await client.query("begin read only");
