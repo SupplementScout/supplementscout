@@ -74,10 +74,10 @@ test.after(() => {
 
 test("staging records the reviewed CM3 guard as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 85);
+  assert.equal(result.ledger_count, 86);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 85);
+  assert.equal(result.selected_files.length, 86);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -151,13 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed CM3 guard as applied", () => {
+test("production records the reviewed CM3 trigger follow-up as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 155);
+  assert.equal(contract.ledgerCount, 156);
   assert.equal(
     contract.ledgerFingerprint,
-    "e08a0c1f949b79819f11ad7d0eaf493317638bdc819936fc4e785d1ae3ceac87",
+    "ac26506535da00896f300feaf30f4b195686d64400a9ccba4d76354ede8f7e6e",
   );
 });
 
@@ -218,7 +218,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 85);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 86);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -260,10 +260,10 @@ test("production binds its exact ledger with no pending migrations", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 155);
+  assert.equal(result.ledger_count, 156);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 155);
+  assert.equal(result.selected_files.length, 156);
   assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
@@ -344,7 +344,7 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migration after the reviewed CM3 apply", () => {
+test("staging output reports no pending migration after the reviewed CM3 trigger apply", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);

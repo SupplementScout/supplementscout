@@ -44,6 +44,10 @@ const PREDATORS_PARENT_URL_SIBLINGS_MIGRATION = path.resolve(
   ROOT,
   "supabase/migrations/20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql",
 );
+const PREDATORS_CM3_CROSS_PRODUCT_URL_MIGRATION = path.resolve(
+  ROOT,
+  "supabase/migrations/20260828102000_allow_predators_gear_cm3_cross_product_parent_url.sql",
+);
 
 function clone(value) {
   return structuredClone(value);
@@ -1005,4 +1009,42 @@ test("Predators Gear reviewed-parent URL sibling migration keeps external varian
   assert.match(sql, /raise exception 'stale product import plan: retailer product identity'/);
   assert.match(sql, /length\(v_definition\).*<> 1/s);
   assert.doesNotMatch(sql, /grant\s+execute|service_role/i);
+});
+
+test("Predators Gear CM3 cross-product URL migration is exact, trigger-only and fail-closed", () => {
+  const sql = fs.readFileSync(PREDATORS_CM3_CROSS_PRODUCT_URL_MIGRATION, "utf8");
+  assert.match(sql, /^begin;/i);
+  assert.match(sql, /commit;\s*$/i);
+  assert.match(sql, /ad3a6ddbde8470ef6e991471289b246a27d9620e6e081be09baa3a4dbc717d82/);
+  assert.match(sql, /p_row\.retailer_id = 13/);
+  assert.match(sql, /p_row\.external_product_id = '8594181607503'/);
+  assert.match(sql, /p_row\.product_id = a\.product_id/);
+  assert.match(sql, /pv\.product_id = a\.product_id/);
+  assert.match(sql, /pv\.is_active/);
+  assert.match(sql, /not pv\.is_default/);
+  assert.match(sql, /not exists \(\s*select 1\s*from public\.retailer_products rp/s);
+  for (const externalVariantId of [
+    "8594181607979", "8594181607980", "8594181607507", "8594181607563",
+    "8594181607506", "8594181607977", "8594181607978",
+  ]) assert.match(sql, new RegExp(externalVariantId));
+  assert.equal((sql.match(/\(361::bigint,/g) || []).length, 4);
+  assert.equal((sql.match(/\(1067::bigint,/g) || []).length, 3);
+  assert.doesNotMatch(
+    sql,
+    /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i,
+  );
+  assert.doesNotMatch(sql, /apply_(?:approved_)?product_import_plan\s*\(/i);
+  assert.doesNotMatch(sql, /grant\s+execute/i);
+});
+
+test("Predators Gear CM3 cross-product URL migration preserves the global conflict guard", () => {
+  const sql = fs.readFileSync(PREDATORS_CM3_CROSS_PRODUCT_URL_MIGRATION, "utf8");
+  assert.match(sql, /and product_id is distinct from new\.product_id/);
+  assert.match(sql, /and not public\.retailer_products_predators_cm3_cross_product_allowed\(new\)/);
+  assert.match(sql, /v_old text := \$old\$and product_id is distinct from new\.product_id/);
+  assert.match(sql, /external_product_id = '8594181607503'/);
+  assert.match(sql, /external_url = 'https:\/\/predatorsgear\.co\.uk\/supplements-vitamins-shop\/creatine-cm3\/'/);
+  assert.match(sql, /external_options = jsonb_build_object/);
+  assert.match(sql, /has_function_privilege/);
+  assert.match(sql, /revoke all on function/);
 });
