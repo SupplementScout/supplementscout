@@ -50,6 +50,10 @@ const PREDATORS_CM3_CROSS_PRODUCT_URL_MIGRATION = path.resolve(
   ROOT,
   "supabase/migrations/20260828102000_allow_predators_gear_cm3_cross_product_parent_url.sql",
 );
+const PREDATORS_OLIMP_PARENT_URL_SIBLINGS_MIGRATION = path.resolve(
+  ROOT,
+  "supabase/migrations/20260829110000_allow_predators_gear_reviewed_olimp_parent_url_siblings.sql",
+);
 
 function clone(value) {
   return structuredClone(value);
@@ -1354,6 +1358,33 @@ test("Predators Gear reviewed-parent URL sibling migration keeps external varian
   assert.match(sql, /rp\.external_url=v_external_url\s+and not \(/s);
   assert.match(sql, /raise exception 'stale product import plan: retailer product identity'/);
   assert.match(sql, /length\(v_definition\).*<> 1/s);
+  assert.doesNotMatch(sql, /grant\s+execute|service_role/i);
+});
+
+test("Predators Gear reviewed Olimp parent URL sibling migration is exact and policy-only", () => {
+  const sql = fs.readFileSync(PREDATORS_OLIMP_PARENT_URL_SIBLINGS_MIGRATION, "utf8");
+  assert.match(sql, /^begin;/i);
+  assert.match(sql, /commit;\s*$/i);
+  assert.match(sql, /atomic_import_predators_v3_parent_variant_transport_allowed\(p_plan,v_retailer_actual\)/);
+  for (const value of [
+    "1158", "3211", "8594181603360", "8594181603369", "8594181607205",
+    "5901330039614", "05901330039614", "Fruit Punch",
+    "1159", "3212", "8594181603396", "8594181603399", "8594181603400", "8594181607759",
+    "5901330024139", "05901330024139", "Lemon",
+  ]) assert.match(sql, new RegExp(value));
+  assert.match(sql, /rp\.external_variant_id=v_external_variant_id/);
+  assert.match(sql, /rp\.external_sku=v_external_sku and rp\.external_variant_id is distinct from v_external_variant_id/);
+  assert.match(sql, /p\.is_active/);
+  assert.match(sql, /p\.merged_into_product_id is null/);
+  assert.match(sql, /p\.merged_at is null/);
+  assert.match(sql, /pv\.is_active and not pv\.is_default/);
+  assert.match(sql, /raise exception 'stale product import plan: retailer product identity'/);
+  assert.match(sql, /length\(v_definition\).*<> 1/s);
+  assert.doesNotMatch(
+    sql,
+    /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i,
+  );
+  assert.doesNotMatch(sql, /apply_(?:approved_)?product_import_plan\s*\(/i);
   assert.doesNotMatch(sql, /grant\s+execute|service_role/i);
 });
 

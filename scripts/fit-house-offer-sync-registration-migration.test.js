@@ -15,9 +15,10 @@ const expectedSha = "94894a4ec1a083fa167ec87d487aa409cc9f48e9482ee441733c34858d2
 test("migration is hash-bound and transactional", () => {
   const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
   assert.equal(crypto.createHash("sha256").update(repositoryBytes).digest("hex"), expectedSha);
-  assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
+  assert.equal(selector.CONTRACTS.STAGING.pending.length, 1);
+  assert.equal(selector.CONTRACTS.STAGING.pending[0].filename, "20260829110000_allow_predators_gear_reviewed_olimp_parent_url_siblings.sql");
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 87);
-  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, []);
+  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, selector.CONTRACTS.STAGING.pending);
   assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 157);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
