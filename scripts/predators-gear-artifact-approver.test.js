@@ -420,8 +420,7 @@ function fixture(profileName = "original-v2") {
         product_variant_id: null,
         retailer_id: "13",
       };
-      plan.retailer_product.identity_contract = {
-        approved_url_peers: [{
+      const anchorPeer = {
           canonical_variant: null,
           external_gtin: anchor.external_gtin,
           external_options: anchor.external_options,
@@ -433,7 +432,39 @@ function fixture(profileName = "original-v2") {
           product_id: productId,
           product_variant_id: "9999",
           retailer_id: "13",
-        }, incoming],
+        };
+      const siblingPeers = manifest.rows
+        .filter((candidate) =>
+          productionProfile.reviewRows.includes(candidate.review_row) &&
+          candidate.external_product_id === reviewed.external_product_id
+        )
+        .map((candidate) => {
+          const variant = {
+            display_name: candidate.variant_name,
+            flavour_code: candidate.flavour.toLowerCase(),
+            flavour_label: candidate.flavour,
+            pack_count: "1",
+            product_format: "powder",
+            size_unit: "g",
+            size_value: String(candidate.size),
+            variant_key: `${candidate.flavour.toLowerCase().replaceAll(" ", "-")}-${candidate.size}g`,
+          };
+          return {
+            canonical_variant: variant,
+            external_gtin: candidate.external_gtin,
+            external_options: candidate.external_options,
+            external_product_id: String(candidate.external_product_id),
+            external_sku: candidate.external_sku,
+            external_url: candidate.source_url,
+            external_variant_id: String(candidate.external_variant_id),
+            legacy: false,
+            product_id: productId,
+            product_variant_id: null,
+            retailer_id: "13",
+          };
+        });
+      plan.retailer_product.identity_contract = {
+        approved_url_peers: [anchorPeer, ...siblingPeers],
         incoming,
         peer_set_fingerprint: "a".repeat(64),
         version: "1",

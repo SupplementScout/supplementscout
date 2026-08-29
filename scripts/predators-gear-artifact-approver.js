@@ -1028,6 +1028,12 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
     const anchorReviewRow = profile.anchorReviewRows[reviewed.review_row];
     const anchorIdentity = NEW_PRODUCTS_V3_REVIEWED_IDENTITIES.get(anchorReviewRow);
     const approvedPeers = plan.retailer_product?.identity_contract?.approved_url_peers;
+    const allowedPeerIdentities = [anchorReviewRow, ...profile.reviewRows]
+      .map((reviewRow) => NEW_PRODUCTS_V3_REVIEWED_IDENTITIES.get(reviewRow))
+      .filter((identity) => identity?.[0] === String(reviewed.external_product_id));
+    const allowedPeerKeys = new Set(
+      allowedPeerIdentities.map((identity) => `${identity[0]}:${identity[1]}`)
+    );
     if (
       entry.plan_kind !== "feed" ||
       entry.operation_type !== "standard_import" ||
@@ -1095,13 +1101,20 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
       incoming?.product_variant_id != null ||
       identityKey(incoming || {}) !== identityKey(reviewed) ||
       !Array.isArray(approvedPeers) ||
-      approvedPeers.length !== 2 ||
+      approvedPeers.length !== allowedPeerKeys.size ||
       !anchorIdentity ||
       !approvedPeers.some((peer) =>
         String(peer.external_product_id) === String(anchorIdentity[0]) &&
         String(peer.external_variant_id) === String(anchorIdentity[1]) &&
         String(peer.product_id) === productId &&
         peer.product_variant_id != null
+      ) ||
+      !approvedPeers.every((peer) =>
+        allowedPeerKeys.has(`${peer.external_product_id}:${peer.external_variant_id}`) &&
+        String(peer.product_id) === productId &&
+        (String(peer.external_variant_id) === String(anchorIdentity[1])
+          ? peer.product_variant_id != null && peer.canonical_variant == null
+          : peer.product_variant_id == null && peer.canonical_variant != null)
       ) ||
       plan.offer?.action !== "create" ||
       !exactDecimal(plan.offer?.values?.price, reviewed.price) ||
