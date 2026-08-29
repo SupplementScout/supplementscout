@@ -17,8 +17,6 @@ const ROOT = path.resolve(__dirname, "..");
 const SOURCE = path.join(ROOT, "supabase", "migrations");
 const CONFIG = path.join(ROOT, "supabase", "config.toml");
 const CONTRACT = CONTRACTS.STAGING;
-const PENDING_GLUTAMINE_COHORT =
-  "20260829111000_allow_predators_gear_reviewed_glutamine_peer_cohort.sql";
 const TARGET = Object.freeze({
   target_environment: "STAGING",
   project_ref: CONTRACT.projectRef,
@@ -76,9 +74,9 @@ test.after(() => {
 
 test("staging records the reviewed Predators v3 policy as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 88);
+  assert.equal(result.ledger_count, 89);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [PENDING_GLUTAMINE_COHORT.slice(0, -4)]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 89);
 });
 
@@ -153,16 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Olimp siblings applied with only Glutamine cohort pending", () => {
+test("production records the reviewed Glutamine peer cohort as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: PENDING_GLUTAMINE_COHORT,
-    sha256: "b90043cd42f19b604735f2d41cf4a1c99a18b4dc327a8beb2350efcecc1ef790",
-  }]);
-  assert.equal(contract.ledgerCount, 158);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 159);
   assert.equal(
     contract.ledgerFingerprint,
-    "46af496a757362e287161c8bb80d7390b73f653125bb49d60cb7af19e1af845f",
+    "c3aa80bb5deb5dacbe0c261d71d57916175f5e0f6c287f0400944c71d4e2e80e",
   );
 });
 
@@ -265,16 +260,14 @@ test("production binds its exact ledger after the reviewed Predators v3 policy a
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 158);
+  assert.equal(result.ledger_count, 159);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [PENDING_GLUTAMINE_COHORT.slice(0, -4)]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 159);
-  assert.deepEqual(result.pending_files, [PENDING_GLUTAMINE_COHORT]);
-  assert.equal(result.pending_file, PENDING_GLUTAMINE_COHORT);
-  assert.equal(result.pending_sha256, contract.pending[0].sha256);
-  assert.deepEqual(result.pending_sha256s, {
-    [PENDING_GLUTAMINE_COHORT]: contract.pending[0].sha256,
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -351,14 +344,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports only the reviewed Glutamine cohort migration pending", () => {
+test("staging output reports no pending migration after the Glutamine cohort apply", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, PENDING_GLUTAMINE_COHORT);
-  assert.equal(result.pending_sha256, CONTRACT.pending[0].sha256);
-  assert.deepEqual(result.pending_files, [PENDING_GLUTAMINE_COHORT]);
-  assert.deepEqual(result.pending_sha256s, {
-    [PENDING_GLUTAMINE_COHORT]: CONTRACT.pending[0].sha256,
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {

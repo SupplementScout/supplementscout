@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 88,
+    ledgerCount: 89,
     ledgerFingerprint:
-      "f0f53d09a1f7a979d734124a83337267b6b0e924966a952e9c4d86c772bf6e5a",
+      "cb252160f447c9e64c1f7d62b591cc212b8ac714b002b7f6f2c618aa9f831381",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -189,12 +189,7 @@ const CONTRACTS = Object.freeze({
       "20260826190000_enable_fit_house_price_observation_producer.sql":
         "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260829111000_allow_predators_gear_reviewed_glutamine_peer_cohort.sql",
-        sha256: "b90043cd42f19b604735f2d41cf4a1c99a18b4dc327a8beb2350efcecc1ef790",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -203,9 +198,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 158,
+    ledgerCount: 159,
     ledgerFingerprint:
-      "46af496a757362e287161c8bb80d7390b73f653125bb49d60cb7af19e1af845f",
+      "c3aa80bb5deb5dacbe0c261d71d57916175f5e0f6c287f0400944c71d4e2e80e",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -222,12 +217,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260829111000_allow_predators_gear_reviewed_glutamine_peer_cohort.sql",
-        sha256: "b90043cd42f19b604735f2d41cf4a1c99a18b4dc327a8beb2350efcecc1ef790",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
