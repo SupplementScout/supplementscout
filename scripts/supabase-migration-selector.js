@@ -189,7 +189,12 @@ const CONTRACTS = Object.freeze({
       "20260826190000_enable_fit_house_price_observation_producer.sql":
         "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260829111000_allow_predators_gear_reviewed_glutamine_peer_cohort.sql",
+        sha256: "b90043cd42f19b604735f2d41cf4a1c99a18b4dc327a8beb2350efcecc1ef790",
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -217,7 +222,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260829111000_allow_predators_gear_reviewed_glutamine_peer_cohort.sql",
+        sha256: "b90043cd42f19b604735f2d41cf4a1c99a18b4dc327a8beb2350efcecc1ef790",
+      }),
+    ]),
   }),
 });
 
