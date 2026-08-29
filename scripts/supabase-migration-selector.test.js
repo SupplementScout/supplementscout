@@ -72,13 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging records the reviewed CM3 guard as applied and only Predators v3 as pending", () => {
+test("staging records the reviewed Predators v3 policy as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 86);
+  assert.equal(result.ledger_count, 87);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260829100000_allow_predators_gear_reviewed_new_products_v3",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 87);
 });
 
@@ -364,23 +362,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports only the reviewed Predators v3 policy migration pending", () => {
+test("staging output reports no pending migration after the reviewed Predators v3 policy apply", () => {
   const result = validateSelection(validInput());
-  assert.equal(
-    result.pending_file,
-    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
-  );
-  assert.equal(
-    result.pending_sha256,
-    "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
-  );
-  assert.deepEqual(result.pending_files, [
-    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
-  ]);
-  assert.deepEqual(result.pending_sha256s, {
-    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql":
-      "50433e868203dfd1d411d03dfcaeb10288bd38999d0cfa2c194682e307f19129",
-  });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {
