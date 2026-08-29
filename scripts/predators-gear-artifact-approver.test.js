@@ -8,6 +8,7 @@ const reviewedHeld4Manifest = require("../config/retailers/predators-gear-review
 const reviewedShadowhey3Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v4-shadowhey-3.json");
 const reviewedNewProductsV1Manifest = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
 const reviewedNewProductsV2Manifest = require("../config/retailers/predators-gear-reviewed-new-products-v2.json");
+const reviewedNewProductsV3Manifest = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const reviewedCm3MissingVariantsManifest = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 const {
   BATCH2_ARTIFACT_PATH,
@@ -68,6 +69,8 @@ function fixture(profileName = "original-v2") {
           ? reviewedNewProductsV1Manifest
         : profileName === "reviewed-new-products-v2-approved-8"
           ? reviewedNewProductsV2Manifest
+        : profileName === "reviewed-new-products-v3-initial-7"
+          ? reviewedNewProductsV3Manifest
         : profileName === "cm3-missing-variants-5"
           ? reviewedCm3MissingVariantsManifest
         : reviewedManifest
@@ -124,6 +127,31 @@ function fixture(profileName = "original-v2") {
       source.external_url = reviewedCm3MissingVariantsManifest.parent_url;
       source.affiliate_url = reviewedCm3MissingVariantsManifest.parent_url;
       source.image = reviewedCm3MissingVariantsManifest.image;
+    }
+    if (
+      productionProfile.allowsReviewedCreation &&
+      productionProfile.manifestKind !== "predators-gear-reviewed-new-products-v2"
+    ) {
+      source.__reviewed_predators_new_product_identity = {
+        action: reviewed.action,
+        contract: productionProfile.manifestKind,
+        external_product_id: String(reviewed.external_product_id),
+        external_variant_id: String(reviewed.external_variant_id),
+        flavour: reviewed.flavour || null,
+        product_format: reviewed.product_format,
+        review_row: String(reviewed.review_row),
+        ...(productionProfile.manifestKind === "predators-gear-reviewed-new-products-v3"
+          ? { safe_create_category_reviewed: reviewed.category === "Pre Workout" }
+          : {}),
+        size_unit: reviewed.size_unit || null,
+        size_value: reviewed.size || null,
+        source_url: reviewed.source_url,
+        ...(productionProfile.name === "reviewed-new-products-v1-remaining-sibling-2"
+          ? { post_create_sibling: true }
+          : productionProfile.manifestKind === "predators-gear-reviewed-new-products-v1"
+            ? { post_create_sibling: false }
+            : {}),
+      };
     }
     const sourceFingerprint = sourceRowFingerprint(source);
     const plan = {
@@ -442,6 +470,23 @@ function fixture(profileName = "original-v2") {
     manifest.dry_run.plan_count = profile.planCount;
     manifest.dry_run.blocked_row_count = 0;
     manifest.dry_run.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName === "reviewed-new-products-v3-initial-7") {
+    const execution = manifest[profile.executionKey];
+    execution.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    execution.sha256 = profile.csvSha256;
+    execution.row_count = profile.planCount;
+    execution.artifact_path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    execution.artifact_sha256 = profile.artifactSha256;
+    execution.plan_count = profile.planCount;
+    execution.blocked_row_count = 0;
+    execution.conflict_count = 0;
+    execution.would_create_products = 7;
+    execution.would_create_explicit_variants = 3;
+    execution.implicit_default_variants_with_products = 4;
+    execution.would_create_retailer_products = 7;
+    execution.would_create_offers = 7;
+    execution.would_create_price_history = 7;
+    execution.plan_fingerprints = [...profile.planFingerprints];
   } else if (profileName === "cm3-missing-variants-5") {
     manifest.canonical_csv.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
     manifest.canonical_csv.sha256 = profile.csvSha256;
@@ -686,6 +731,59 @@ test("reviewed new-products v2 profile rejects unreviewed identities and action 
   const fingerprint = fixture("reviewed-new-products-v2-approved-8");
   fingerprint.manifest.dry_run.plan_fingerprints[0] = "f".repeat(32);
   assert.throws(() => validate(fingerprint), /manifest contract mismatch/);
+});
+
+test("reviewed new-products v3 initial profile permits exactly seven owner-approved anchors", () => {
+  const profile = REVIEWED_PROFILES.find(
+    (candidate) => candidate.name === "reviewed-new-products-v3-initial-7"
+  );
+  assert.equal(profile.artifactSha256, "08de65b758b4f243faf228b2dfaff8de7c2150e0654c59bec61f4c0605e961f4");
+  assert.equal(profile.csvSha256, "776ddcbfd8ba3836923d54678becbd9499cbef4148fd30df125dcdf407a76349");
+  assert.deepEqual(profile.reviewRows, [1, 2, 3, 4, 5, 7, 10]);
+  assert.deepEqual(profile.planFingerprints, [
+    "6604ff4af2e6f312d04aa8f0e143f6a7",
+    "ab33ee6bcb143b9f1d6da93695857728",
+    "f4b6afddacfca43eabc9e8bd6f085d7e",
+    "91bb0ce2abf4c5b89248f4e276b1aaf8",
+    "a989ce56c66942e534314d391fe285fa",
+    "713f5625eb4ba1f7276912f34200507a",
+    "1b41f37443e6fae2a785a9dac9811fc3",
+  ]);
+  const value = fixture("reviewed-new-products-v3-initial-7");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerAction, "existing");
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 7);
+  assert.deepEqual(
+    value.artifact.plans.map((entry) => entry.resolved_plan.product.action),
+    ["create", "create", "create", "create", "create_or_reuse_reviewed", "create_or_reuse_reviewed", "create_or_reuse_reviewed"]
+  );
+  assert.ok(value.artifact.plans.every((entry) =>
+    entry.resolved_plan.product.values.gtin === null &&
+      entry.resolved_plan.offer.values.shipping_cost === "0"
+  ));
+});
+
+test("reviewed new-products v3 initial profile rejects hash, row, category, variant, and shipping drift", () => {
+  const artifactSha = fixture("reviewed-new-products-v3-initial-7");
+  artifactSha.loaded.artifactSha256 = "b".repeat(64);
+  assert.throws(() => validate(artifactSha), /clean-run contract mismatch/);
+
+  const heldSibling = fixture("reviewed-new-products-v3-initial-7");
+  heldSibling.manifest.initial_anchor_profile.included_review_rows = [1, 2, 3, 4, 5, 6, 10];
+  assert.throws(() => validate(heldSibling), /manifest contract mismatch/);
+
+  const category = fixture("reviewed-new-products-v3-initial-7");
+  category.artifact.plans[0].resolved_plan.product.values.category = "Amino Acids";
+  assert.throws(() => validate(category), /Unsafe Predators Gear reviewed creation plan/);
+
+  const variant = fixture("reviewed-new-products-v3-initial-7");
+  variant.artifact.plans[4].resolved_plan.product_variant.values.size_value = "316";
+  assert.throws(() => validate(variant), /Unsafe Predators Gear reviewed variant plan/);
+
+  const shipping = fixture("reviewed-new-products-v3-initial-7");
+  shipping.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "4.99";
+  assert.throws(() => validate(shipping), /Unsafe Predators Gear reviewed creation plan/);
 });
 
 test("reviewed new-products remaining simple profile permits only rows four and five", () => {

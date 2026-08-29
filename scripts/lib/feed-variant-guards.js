@@ -990,7 +990,8 @@ function analyzeFeedRows(resolvedRows, options = {}) {
       safeCreate &&
       !item.productVariant?.planned_create &&
       !row.__reviewed_whey_okay_q1_q2_package_identity &&
-      !row.__reviewed_six_pack_family_identity
+      !row.__reviewed_six_pack_family_identity &&
+      !row.__reviewed_predators_new_product_identity?.safe_create_category_reviewed
     ) {
       const exactExistingProductVariant = Boolean(
         product?.id &&

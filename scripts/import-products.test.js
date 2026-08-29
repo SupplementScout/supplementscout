@@ -55,6 +55,7 @@ const {
   normalizeDecimalString,
 } = require("./lib/canonical-json");
 const predatorsReviewedNewProducts = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
+const predatorsReviewedNewProductsV3 = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const predatorsReviewedCm3MissingVariants = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
@@ -63,6 +64,8 @@ const PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA =
   predatorsReviewedNewProducts.post_create_remaining_simple_profile.sha256;
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SIBLING2_SHA =
   predatorsReviewedNewProducts.post_create_remaining_sibling_profile.sha256;
+const PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA =
+  predatorsReviewedNewProductsV3.initial_anchor_profile.sha256;
 const PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA =
   predatorsReviewedCm3MissingVariants.canonical_csv.sha256;
 
@@ -103,6 +106,49 @@ function predatorsReviewedNewProductRows() {
       source_updated_at: "2026-08-27T13:35:38.747Z",
     })
   );
+}
+
+function predatorsReviewedNewProductV3Rows(initialOnly = true) {
+  const included = new Set(
+    initialOnly
+      ? predatorsReviewedNewProductsV3.initial_anchor_profile.included_review_rows
+      : predatorsReviewedNewProductsV3.rows.map((row) => row.review_row)
+  );
+  return predatorsReviewedNewProductsV3.rows
+    .filter((reviewed) => included.has(reviewed.review_row))
+    .map((reviewed) => baseCanonicalFeedRow({
+      retailer_name: predatorsReviewedNewProductsV3.retailer.name,
+      retailer_website: predatorsReviewedNewProductsV3.retailer.website,
+      product_id: "",
+      product_variant_id: "",
+      external_product_id: reviewed.external_product_id,
+      external_variant_id: reviewed.external_variant_id,
+      external_sku: reviewed.external_sku,
+      external_options: reviewed.external_options
+        ? JSON.stringify(reviewed.external_options)
+        : "",
+      product_name: reviewed.product_name,
+      variant_name: reviewed.variant_name || "",
+      brand: reviewed.brand,
+      category: reviewed.category,
+      description: "",
+      image: reviewed.image,
+      slug: reviewed.slug,
+      external_url: reviewed.source_url,
+      affiliate_url: reviewed.source_url,
+      external_gtin: reviewed.external_gtin,
+      price: String(reviewed.price),
+      shipping_known: "true",
+      shipping_cost: "0",
+      total_price: String(reviewed.price),
+      in_stock: "true",
+      is_for_sale: "true",
+      size: reviewed.size || "",
+      size_unit: reviewed.size_unit || "",
+      flavour: reviewed.flavour || "",
+      product_format: reviewed.product_format,
+      pack_count: "1",
+    }));
 }
 
 function predatorsReviewedCm3MissingVariantRows() {
@@ -2822,6 +2868,147 @@ test("Predators Gear reviewed new-product package plans exactly three products a
     )
   );
   assert.equal(supabase.writes.length, 0);
+});
+
+test("Predators Gear reviewed new-product v3 initial profile plans only seven exact owner-approved anchors", async () => {
+  const rows = predatorsReviewedNewProductV3Rows();
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA,
+  });
+  assert.equal(normalized.length, 7);
+  assert.deepEqual(
+    normalized.map((row) => row.external_variant_id),
+    [
+      "8594181605941",
+      "8594181607617",
+      "8594181608219",
+      "8594181608222",
+      "8594181603369",
+      "8594181603399",
+      "8594181605030",
+    ]
+  );
+  assert.ok(normalized.every((row) =>
+    row.__reviewed_predators_new_product_identity.contract ===
+      predatorsReviewedNewProductsV3.kind
+  ));
+  assert.equal(
+    normalized.filter((row) =>
+      row.__reviewed_predators_new_product_identity.safe_create_category_reviewed
+    ).length,
+    1
+  );
+
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{
+      id: "13",
+      name: "Predators Gear",
+      slug: "predators-gear",
+      website: "https://predatorsgear.co.uk/",
+      is_active: true,
+    }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 7);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 7);
+  assert.equal(result.report.productVariantsToCreate.length, 3);
+  assert.ok(result.report.approvedRows.every((item) =>
+    item.importPlan.retailer.action === "existing" &&
+      String(item.importPlan.retailer.id) === "13" &&
+      Number(item.importPlan.offer.values.shipping_cost) === 0
+  ));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("Predators Gear reviewed new-product v3 profile rejects SHA, row-set, identity, category, and shipping drift", () => {
+  const rows = predatorsReviewedNewProductV3Rows();
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(rows, {
+      safeCreate: true,
+      sourceFileSha256: "0".repeat(64),
+    }),
+    /source SHA mismatch/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(rows.slice(0, 6), {
+      safeCreate: true,
+      sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA,
+    }),
+    /requires exactly 7 rows/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(
+      rows.map((row, index) => index === 0 ? { ...row, category: "Amino Acids" } : row),
+      {
+        safeCreate: true,
+        sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA,
+      }
+    ),
+    /category mismatch/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(
+      rows.map((row, index) => index === 0 ? { ...row, shipping_cost: "1" } : row),
+      {
+        safeCreate: true,
+        sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA,
+      }
+    ),
+    /commercial fields mismatch|total_price must equal/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(
+      [rows[0], rows[0], ...rows.slice(2)],
+      {
+        safeCreate: true,
+        sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA,
+      }
+    ),
+    /row set mismatch/
+  );
+  assert.deepEqual(
+    getSafeCreateExclusionReasons({
+      product_name: "Unreviewed AAKG Nitric Oxide 120 Capsules",
+      category: "Pre Workout",
+      product_format: "capsule",
+      size: "120 capsules",
+    }),
+    ["category is not allowed for safe-create"]
+  );
+});
+
+test("Predators Gear reviewed new-product v3 SQL policy is exact and does not mutate business rows", () => {
+  const migration = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "supabase/migrations/20260829100000_allow_predators_gear_reviewed_new_products_v3.sql"
+    ),
+    "utf8"
+  );
+
+  assert.match(migration, /Olimp AAKG 1250 Extreme Mega Caps 120 Capsules/);
+  assert.match(migration, /Olimp BCAA Xplode 500g/);
+  assert.match(migration, /Olimp Glutamine Xplode 500g/);
+  assert.match(migration, /Olimp EAA Xplode 520g/);
+  assert.match(migration, /atomic_import_predators_v3_parent_variant_transport_allowed/);
+  assert.match(migration, /p_plan#>>'\{offer,values,shipping_cost\}' = '0'/);
+  assert.match(migration, /p_plan#>>'\{retailer,id\}' = '13'/);
+  assert.match(
+    migration,
+    /revoke all on function[\s\S]*from public, anon, authenticated, service_role/i
+  );
+  assert.doesNotMatch(
+    migration,
+    /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i
+  );
 });
 
 test("Predators Gear reviewed new-product contract rejects SHA, row-count, identity, and 400g-family drift", () => {

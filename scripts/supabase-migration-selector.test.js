@@ -72,12 +72,14 @@ test.after(() => {
   }
 });
 
-test("staging records the reviewed CM3 guard as applied", () => {
+test("staging records the reviewed CM3 guard as applied and only Predators v3 as pending", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 86);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 86);
+  assert.deepEqual(result.pending, [
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3",
+  ]);
+  assert.equal(result.selected_files.length, 87);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -151,9 +153,14 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed CM3 trigger follow-up as applied", () => {
+test("production records the reviewed CM3 trigger follow-up as applied and only Predators v3 as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [
+    {
+      filename: "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
+      sha256: "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+    },
+  ]);
   assert.equal(contract.ledgerCount, 156);
   assert.equal(
     contract.ledgerFingerprint,
@@ -218,7 +225,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 86);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 87);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -234,7 +241,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with no pending migrations", () => {
+test("production binds its exact ledger with only the reviewed Predators v3 migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -262,12 +269,25 @@ test("production binds its exact ledger with no pending migrations", () => {
   });
   assert.equal(result.ledger_count, 156);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 156);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.deepEqual(result.pending, [
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3",
+  ]);
+  assert.equal(result.selected_files.length, 157);
+  assert.deepEqual(result.pending_files, [
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
+  ]);
+  assert.equal(
+    result.pending_file,
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
+  );
+  assert.equal(
+    result.pending_sha256,
+    "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+  );
+  assert.deepEqual(result.pending_sha256s, {
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql":
+      "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+  });
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -344,12 +364,23 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migration after the reviewed CM3 trigger apply", () => {
+test("staging output reports only the reviewed Predators v3 policy migration pending", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(
+    result.pending_file,
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
+  );
+  assert.equal(
+    result.pending_sha256,
+    "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+  );
+  assert.deepEqual(result.pending_files, [
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
+  ]);
+  assert.deepEqual(result.pending_sha256s, {
+    "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql":
+      "3f1f815c299890fc590233aec6684256e21a1d0981a4fc348317cb729fd28bef",
+  });
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {

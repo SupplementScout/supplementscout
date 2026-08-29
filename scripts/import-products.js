@@ -57,6 +57,7 @@ const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_P = require("../config/retailers/
 const EBAY_REVIEWED_CROSS_PRODUCT_PARENT_BATCH_R = require("../config/retailers/ebay-reviewed-cross-product-parent-batch-r-v1.json");
 const PREDATORS_GEAR_REVIEWED_CROSS_PRODUCT_PARENT_CM3 = require("../config/retailers/predators-gear-reviewed-cross-product-parent-cm3-v1.json");
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1 = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3 = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_V1 = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256 =
@@ -71,6 +72,18 @@ const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING_SHA256 =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING.sha256;
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS = new Map(
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.rows.map((row) => [
+    String(row.external_variant_id),
+    row,
+  ])
+);
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_SHA256 =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.canonical_csv.sha256;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.initial_anchor_profile;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256 =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL.sha256;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_V3_ROWS = new Map(
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.rows.map((row) => [
     String(row.external_variant_id),
     row,
   ])
@@ -996,6 +1009,119 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
       },
     };
   }
+  const predatorsV3ReviewedRow =
+    PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_V3_ROWS.get(externalVariantId);
+  const isPredatorsV3FullSource =
+    predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_SHA256;
+  const isPredatorsV3InitialSource =
+    predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256;
+  const isPredatorsV3Identity = Boolean(
+    predatorsV3ReviewedRow &&
+      slugifyRetailerName(String(row.retailer_name || "")) === "predators-gear"
+  );
+  if (
+    isPredatorsV3Identity &&
+    !isPredatorsV3FullSource &&
+    !isPredatorsV3InitialSource
+  ) {
+    throw new Error("Predators Gear reviewed new-product v3 source SHA mismatch");
+  }
+  if (isPredatorsV3FullSource || isPredatorsV3InitialSource) {
+    if (!isPredatorsV3Identity) {
+      throw new Error("Predators Gear reviewed new-product v3 row is outside the approved manifest");
+    }
+    if (
+      isPredatorsV3InitialSource &&
+      !PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL.included_review_rows.includes(
+        predatorsV3ReviewedRow.review_row
+      )
+    ) {
+      throw new Error("Predators Gear reviewed new-product v3 row is outside the initial anchor scope");
+    }
+    const exactTextFields = [
+      ["retailer_name", PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.retailer.name],
+      ["retailer_website", PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.retailer.website],
+      ["external_product_id", predatorsV3ReviewedRow.external_product_id],
+      ["external_variant_id", predatorsV3ReviewedRow.external_variant_id],
+      ["external_sku", predatorsV3ReviewedRow.external_sku],
+      ["external_gtin", predatorsV3ReviewedRow.external_gtin],
+      ["product_name", predatorsV3ReviewedRow.product_name],
+      ["slug", predatorsV3ReviewedRow.slug],
+      ["brand", predatorsV3ReviewedRow.brand],
+      ["category", predatorsV3ReviewedRow.category],
+      ["description", ""],
+      ["product_format", predatorsV3ReviewedRow.product_format],
+      ["image", predatorsV3ReviewedRow.image],
+      ["external_url", predatorsV3ReviewedRow.source_url],
+      ["affiliate_url", predatorsV3ReviewedRow.source_url],
+      ["pack_count", "1"],
+    ];
+    for (const [field, expected] of exactTextFields) {
+      if (String(row[field] ?? "").trim() !== String(expected ?? "")) {
+        throw new Error(`Predators Gear reviewed new-product v3 ${field} mismatch`);
+      }
+    }
+    const reviewedVariant =
+      predatorsV3ReviewedRow.action === "create_reviewed_product_variant";
+    const actualOptions = parseExternalOptions(row.external_options);
+    if (
+      (reviewedVariant &&
+        canonicalJson(actualOptions) !== canonicalJson(predatorsV3ReviewedRow.external_options)) ||
+      (!reviewedVariant && actualOptions !== null)
+    ) {
+      throw new Error("Predators Gear reviewed new-product v3 external_options mismatch");
+    }
+    const conditionalFields = reviewedVariant
+      ? [
+          ["variant_name", predatorsV3ReviewedRow.variant_name],
+          ["flavour", predatorsV3ReviewedRow.flavour],
+          ["size", `${predatorsV3ReviewedRow.size} ${predatorsV3ReviewedRow.size_unit}`],
+          ["size_unit", predatorsV3ReviewedRow.size_unit],
+        ]
+      : [
+          ["variant_name", ""],
+          ["flavour", ""],
+          ["size", ""],
+          ["size_unit", ""],
+        ];
+    for (const [field, expected] of conditionalFields) {
+      if (String(row[field] ?? "").trim() !== String(expected ?? "")) {
+        throw new Error(`Predators Gear reviewed new-product v3 ${field} mismatch`);
+      }
+    }
+    if (optionalIdentifier(row.product_id) || optionalIdentifier(row.product_variant_id)) {
+      throw new Error("Predators Gear reviewed new-product v3 rows cannot supply canonical IDs");
+    }
+    if (
+      normalizeDecimalString(row.price, "price") !==
+        normalizeDecimalString(predatorsV3ReviewedRow.price, "price") ||
+      normalizeDecimalString(row.shipping_cost, "shipping_cost") !== "0" ||
+      normalizeDecimalString(row.total_price, "total_price") !==
+        normalizeDecimalString(predatorsV3ReviewedRow.price, "price") ||
+      !parseRequiredBoolean(row.shipping_known, "shipping_known") ||
+      !parseRequiredBoolean(row.in_stock, "in_stock") ||
+      !parseRequiredBoolean(row.is_for_sale, "is_for_sale")
+    ) {
+      throw new Error("Predators Gear reviewed new-product v3 commercial fields mismatch");
+    }
+    row = {
+      ...row,
+      __reviewed_predators_new_product_identity: {
+        contract: PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.kind,
+        review_row: predatorsV3ReviewedRow.review_row,
+        action: predatorsV3ReviewedRow.action,
+        external_product_id: predatorsV3ReviewedRow.external_product_id,
+        external_variant_id: predatorsV3ReviewedRow.external_variant_id,
+        flavour: predatorsV3ReviewedRow.flavour || null,
+        size_value: predatorsV3ReviewedRow.size || null,
+        size_unit: predatorsV3ReviewedRow.size_unit || null,
+        product_format: predatorsV3ReviewedRow.product_format,
+        source_url: predatorsV3ReviewedRow.source_url,
+        safe_create_category_reviewed:
+          predatorsV3ReviewedRow.category === "Pre Workout",
+      },
+    };
+  }
   const predatorsCm3ReviewedRow =
     PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANT_ROWS.get(externalVariantId);
   const isPredatorsCm3ReviewedSource =
@@ -1335,6 +1461,36 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
     ) {
       throw new Error("Predators Gear sibling row set mismatch");
+    }
+  }
+  const predatorsV3SourceSha = String(options.sourceFileSha256 || "").toLowerCase();
+  if (
+    predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_SHA256 ||
+    predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256
+  ) {
+    const profile = predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_SHA256
+      ? {
+          row_count: PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.canonical_csv.row_count,
+          included_review_rows: PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.rows.map(
+            (row) => row.review_row
+          ),
+        }
+      : PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL;
+    if (rows.length !== profile.row_count) {
+      throw new Error(`Predators Gear reviewed new-product v3 contract requires exactly ${profile.row_count} rows`);
+    }
+    const actualVariantIds = rows
+      .map((row) => optionalIdentifier(row.external_variant_id))
+      .sort();
+    const reviewedVariantIds = profile.included_review_rows
+      .map((reviewRow) => PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.rows
+        .find((row) => row.review_row === reviewRow).external_variant_id)
+      .sort();
+    if (
+      new Set(actualVariantIds).size !== reviewedVariantIds.length ||
+      canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
+    ) {
+      throw new Error("Predators Gear reviewed new-product v3 row set mismatch");
     }
   }
   if (
@@ -3522,6 +3678,9 @@ function isLikelyWooCommerceProductUrl(row, externalProductId) {
 
 const REVIEWED_PARENT_VARIANT_POLICY = new Map([
   ["DY Nutrition The Creatine Complex 316g", { brand: "DY Nutrition", category: "Creatine", format: "powder", size: "316:g" }],
+  ["Olimp BCAA Xplode 500g", { brand: "Olimp", category: "Amino Acids", format: "powder", size: "500:g" }],
+  ["Olimp Glutamine Xplode 500g", { brand: "Olimp", category: "Amino Acids", format: "powder", size: "500:g" }],
+  ["Olimp EAA Xplode 520g", { brand: "Olimp", category: "Amino Acids", format: "powder", size: "520:g" }],
   ["Trec CM3 Creatine Powder 250g", { brand: "Trec Nutrition", category: "Creatine", format: "powder", size: "250:g", predatorsCm3Only: true }],
   ["Trec Nutrition CM3 Tri-Creatine Malate 500g White Cola", { brand: "Trec Nutrition", category: "Creatine", format: "powder", size: "500:g", predatorsCm3Only: true }],
   ["CNP Loaded Beef Protein 1.8kg", { brand: "CNP", category: "Whey Protein", format: "powder", size: "1800:g" }],
@@ -3611,6 +3770,7 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
       retailerSlug !== "predators-gear" ||
       (
         reviewedPredators.contract !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.kind &&
+        reviewedPredators.contract !== PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.kind &&
         !reviewedPredatorsCm3
       ) ||
       reviewedPredators.action !== "create_reviewed_product_variant"
