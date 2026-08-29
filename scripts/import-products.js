@@ -4617,18 +4617,10 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
         throw new Error("reviewed parent explicit-variant GTIN conflict");
       }
       const planned = planReviewedParentVariant(shippingNormalizedRow, rowNumber, evidence);
-      if (isV3Remaining) {
-        productVariant = {
-          ...planned.variant,
-          product_id: product.id,
-          reviewed_parent_variant_create: false,
-        };
-      } else {
-        plannedProduct = planned.product;
-        productVariant = planned.variant;
-        reviewedParentVariantCreate = true;
-        product = null;
-      }
+      plannedProduct = planned.product;
+      productVariant = planned.variant;
+      reviewedParentVariantCreate = true;
+      product = null;
     } catch (error) {
       variantResolutionError = error?.message || String(error);
     }

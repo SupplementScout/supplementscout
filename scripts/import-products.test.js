@@ -2966,10 +2966,9 @@ test("Predators Gear reviewed new-product v3 remaining profile reuses exact live
   });
   assert.equal(result.report.approvedRows.length, 3);
   assert.equal(result.report.blockedRows.length, 0);
-  assert.equal(result.report.newProductsToCreate.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 2);
   assert.equal(result.report.productVariantsToCreate.length, 3);
-  assert.deepEqual(result.report.approvedRows.map((item) => item.importPlan.product.id), ["1158", "1159", "1159"]);
-  assert.ok(result.report.approvedRows.every((item) => item.importPlan.product.action === "existing" && item.importPlan.product_variant.action === "create_variant" && Number(item.importPlan.offer.values.shipping_cost) === 0));
+  assert.ok(result.report.approvedRows.every((item) => item.importPlan.product.action === "create_or_reuse_reviewed" && item.importPlan.product_variant.action === "create_reviewed_variant" && Number(item.importPlan.offer.values.shipping_cost) === 0));
   assert.equal(supabase.writes.length, 0);
 });
 

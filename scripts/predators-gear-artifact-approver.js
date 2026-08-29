@@ -85,7 +85,7 @@ const NEW_PRODUCTS_V2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "preda
 const NEW_PRODUCTS_V3_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-new-products-v3.json");
 const NEW_PRODUCTS_V3_INITIAL_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-initial-7-dry-run.json");
 const NEW_PRODUCTS_V3_INITIAL_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-initial-7.csv");
-const NEW_PRODUCTS_V3_REMAINING_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-remaining-3-dry-run-v3.json");
+const NEW_PRODUCTS_V3_REMAINING_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-remaining-3-dry-run-v4.json");
 const NEW_PRODUCTS_V3_REMAINING_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-remaining-3.csv");
 const CM3_MISSING_VARIANTS_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-cm3-missing-variants-v1.json");
 const CM3_MISSING_VARIANTS_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-cm3-missing-variants-v1-dry-run-v6.json");
@@ -316,26 +316,26 @@ const REVIEWED_PROFILES = Object.freeze([
     executionKey: "remaining_sibling_profile",
     approvalReason: "predators-gear-reviewed-new-products-v3-remaining-3",
     artifactPath: NEW_PRODUCTS_V3_REMAINING_ARTIFACT_PATH,
-    artifactSha256: "cbd161963251beaaa59d9fd5eda40103bd47f02bc19b277edc4ac220708a230c",
+    artifactSha256: "dfb00aee68917a9b62646929dd70b08e5c7a8b84729f99aec5d7c56877157dd9",
     csvPath: NEW_PRODUCTS_V3_REMAINING_CSV_PATH,
     csvSha256: "e59a78bdafcdbb2c5895c70ada2b21d01d2f553849697319079a188280b04133",
     planCount: 3,
     reviewRows: Object.freeze([6, 8, 9]),
     retailerAction: "existing",
     retailerId: "13",
-    allowsReviewedSiblingVariantCreation: true,
+    allowsReviewedCreation: true,
     targetProductIds: Object.freeze({ 6: "1158", 8: "1159", 9: "1159" }),
     anchorReviewRows: Object.freeze({ 6: 5, 8: 7, 9: 7 }),
-    expectedCreates: Object.freeze({ products: 0, explicitVariants: 3, implicitDefaults: 0, mappings: 3, offers: 3, history: 3 }),
+    expectedCreates: Object.freeze({ products: 2, explicitVariants: 3, implicitDefaults: 0, mappings: 3, offers: 3, history: 3 }),
     planFingerprints: Object.freeze([
-      "a7399c5a511976103aff24264bccd387",
-      "184c41881cce71c6df7b1a47e8b128f3",
-      "638b182d7fb7e4a62915c78aa6171aab",
+      "e7656362c02113d9b50da68cb837ed17",
+      "82a3091f2995451d3a875b9b44d46171",
+      "c1cbe783e2ccbb5fe6e08b7dbff9051e",
     ]),
     selectableFingerprints: Object.freeze([
-      "a7399c5a511976103aff24264bccd387",
-      "184c41881cce71c6df7b1a47e8b128f3",
-      "638b182d7fb7e4a62915c78aa6171aab",
+      "e7656362c02113d9b50da68cb837ed17",
+      "82a3091f2995451d3a875b9b44d46171",
+      "c1cbe783e2ccbb5fe6e08b7dbff9051e",
     ]),
   }),
   Object.freeze({
@@ -1288,7 +1288,12 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
         product_format: reviewed.product_format,
         review_row: String(reviewed.review_row),
         ...(profile.manifestKind === "predators-gear-reviewed-new-products-v3"
-          ? { safe_create_category_reviewed: reviewed.category === "Pre Workout" }
+          ? {
+              ...(profile.name === "reviewed-new-products-v3-remaining-3"
+                ? { post_create_sibling: true }
+                : {}),
+              safe_create_category_reviewed: reviewed.category === "Pre Workout",
+            }
           : {}),
         size_unit: reviewed.size_unit || null,
         size_value: reviewed.size || null,

@@ -141,7 +141,12 @@ function fixture(profileName = "original-v2") {
         product_format: reviewed.product_format,
         review_row: String(reviewed.review_row),
         ...(productionProfile.manifestKind === "predators-gear-reviewed-new-products-v3"
-          ? { safe_create_category_reviewed: reviewed.category === "Pre Workout" }
+          ? {
+              ...(productionProfile.name === "reviewed-new-products-v3-remaining-3"
+                ? { post_create_sibling: true }
+                : {}),
+              safe_create_category_reviewed: reviewed.category === "Pre Workout",
+            }
           : {}),
         size_unit: reviewed.size_unit || null,
         size_value: reviewed.size || null,
@@ -910,27 +915,26 @@ test("reviewed new-products v3 remaining profile permits only three exact existi
   const profile = REVIEWED_PROFILES.find(
     (candidate) => candidate.name === "reviewed-new-products-v3-remaining-3"
   );
-  assert.equal(profile.artifactSha256, "cbd161963251beaaa59d9fd5eda40103bd47f02bc19b277edc4ac220708a230c");
+  assert.equal(profile.artifactSha256, "dfb00aee68917a9b62646929dd70b08e5c7a8b84729f99aec5d7c56877157dd9");
   assert.equal(profile.csvSha256, "e59a78bdafcdbb2c5895c70ada2b21d01d2f553849697319079a188280b04133");
   assert.deepEqual(profile.reviewRows, [6, 8, 9]);
   assert.deepEqual(profile.targetProductIds, { 6: "1158", 8: "1159", 9: "1159" });
   assert.deepEqual(profile.planFingerprints, [
-    "a7399c5a511976103aff24264bccd387",
-    "184c41881cce71c6df7b1a47e8b128f3",
-    "638b182d7fb7e4a62915c78aa6171aab",
+    "e7656362c02113d9b50da68cb837ed17",
+    "82a3091f2995451d3a875b9b44d46171",
+    "c1cbe783e2ccbb5fe6e08b7dbff9051e",
   ]);
   const value = fixture("reviewed-new-products-v3-remaining-3");
   const prepared = validate(value);
   assert.equal(prepared.profile.retailerId, "13");
   assert.equal(value.artifact.plans.length, 3);
-  assert.deepEqual(value.artifact.plans.map((entry) => entry.resolved_plan.product.id), ["1158", "1159", "1159"]);
-  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "existing" && entry.resolved_plan.product_variant.action === "create_variant" && entry.resolved_plan.offer.values.shipping_cost === "0"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "create_or_reuse_reviewed" && entry.resolved_plan.product_variant.action === "create_reviewed_variant" && entry.resolved_plan.offer.values.shipping_cost === "0"));
 });
 
 test("reviewed new-products v3 remaining profile rejects parent, row, hash, and shipping drift", () => {
   const product = fixture("reviewed-new-products-v3-remaining-3");
-  product.artifact.plans[0].resolved_plan.product.id = "1159";
-  assert.throws(() => validate(product), /Unsafe Predators Gear v3 sibling plan/);
+  product.artifact.plans[0].resolved_plan.product.values.name = "Wrong parent";
+  assert.throws(() => validate(product), /Unsafe Predators Gear reviewed creation plan/);
 
   const row = fixture("reviewed-new-products-v3-remaining-3");
   row.manifest.remaining_sibling_profile.included_review_rows = [5, 8, 9];
@@ -942,7 +946,7 @@ test("reviewed new-products v3 remaining profile rejects parent, row, hash, and 
 
   const shipping = fixture("reviewed-new-products-v3-remaining-3");
   shipping.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "1";
-  assert.throws(() => validate(shipping), /Unsafe Predators Gear v3 sibling plan/);
+  assert.throws(() => validate(shipping), /Unsafe Predators Gear reviewed creation plan/);
 });
 
 test("reviewed new-products remaining simple profile permits only rows four and five", () => {
