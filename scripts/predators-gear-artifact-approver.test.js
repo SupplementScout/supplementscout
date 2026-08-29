@@ -7,6 +7,7 @@ const reviewedBatch2Manifest = require("../config/retailers/predators-gear-revie
 const reviewedHeld4Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v3-held-4.json");
 const reviewedShadowhey3Manifest = require("../config/retailers/predators-gear-reviewed-bindings-v4-shadowhey-3.json");
 const reviewedNewProductsV1Manifest = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
+const reviewedNewProductsV2Manifest = require("../config/retailers/predators-gear-reviewed-new-products-v2.json");
 const reviewedCm3MissingVariantsManifest = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 const {
   BATCH2_ARTIFACT_PATH,
@@ -65,6 +66,8 @@ function fixture(profileName = "original-v2") {
           ? reviewedShadowhey3Manifest
         : profileName.startsWith("reviewed-new-products-v1")
           ? reviewedNewProductsV1Manifest
+        : profileName === "reviewed-new-products-v2-approved-8"
+          ? reviewedNewProductsV2Manifest
         : profileName === "cm3-missing-variants-5"
           ? reviewedCm3MissingVariantsManifest
         : reviewedManifest
@@ -430,6 +433,15 @@ function fixture(profileName = "original-v2") {
     execution.plan_count = profile.planCount;
     execution.blocked_row_count = 0;
     execution.plan_fingerprints = [...profile.planFingerprints];
+  } else if (profileName === "reviewed-new-products-v2-approved-8") {
+    manifest.canonical_csv.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
+    manifest.canonical_csv.sha256 = profile.csvSha256;
+    manifest.canonical_csv.row_count = profile.planCount;
+    manifest.dry_run.path = path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/");
+    manifest.dry_run.sha256 = profile.artifactSha256;
+    manifest.dry_run.plan_count = profile.planCount;
+    manifest.dry_run.blocked_row_count = 0;
+    manifest.dry_run.plan_fingerprints = [...profile.planFingerprints];
   } else if (profileName === "cm3-missing-variants-5") {
     manifest.canonical_csv.path = path.relative(ROOT, profile.csvPath).replaceAll("\\", "/");
     manifest.canonical_csv.sha256 = profile.csvSha256;
@@ -601,6 +613,79 @@ test("reviewed new-products profile permits only the exact three-product five-pl
     value.artifact.plans.map((entry) => entry.resolved_plan.product_variant.action),
     ["create_reviewed_variant", "create_reviewed_variant", "create_reviewed_variant", "create_default", "create_default"]
   );
+});
+
+test("reviewed new-products v2 profile permits exactly eight owner-approved default-variant creates", () => {
+  const profile = REVIEWED_PROFILES.find(
+    (candidate) => candidate.name === "reviewed-new-products-v2-approved-8"
+  );
+  assert.equal(profile.artifactSha256, "c8ca2fcdc04c2f6c3f1fd148e531cbaf6dc09e74fe9e2f93c83d0812b440920f");
+  assert.equal(profile.csvSha256, "0ce339b42aecfe4fd71e213d9fc84546935eb8b4dc1367b330c20741e3d23f67");
+  assert.deepEqual(profile.reviewRows, [1, 2, 3, 4, 5, 7, 8, 10]);
+  assert.deepEqual(profile.planFingerprints, [
+    "0ad9094abd5198c15cca030b3e8927e1",
+    "81ff81228efe105ab0b4963218d2ad1b",
+    "21817f39a7ea2e265ce7f74d7f7525fc",
+    "8c821db8fa0a443219fbcb20d6f2b5c4",
+    "6137a92cf8db349712b9667f00f2505d",
+    "d868785e77875293ff878c3950d87f8d",
+    "640492ed875ded87ccf98eada63bd016",
+    "9c5bbef6f5064edfab8c7f1e01fafaaa",
+  ]);
+  const value = fixture("reviewed-new-products-v2-approved-8");
+  const prepared = validate(value);
+  assert.equal(prepared.profile.retailerAction, "existing");
+  assert.equal(prepared.profile.retailerId, "13");
+  assert.equal(value.artifact.plans.length, 8);
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.action === "create"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product_variant.action === "create_default"));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.product.values.gtin === null));
+  assert.ok(value.artifact.plans.every((entry) => entry.resolved_plan.offer.values.shipping_cost === "0"));
+});
+
+test("reviewed new-products v2 profile rejects hash, retailer and commercial drift", () => {
+  const artifactSha = fixture("reviewed-new-products-v2-approved-8");
+  artifactSha.loaded.artifactSha256 = "b".repeat(64);
+  assert.throws(() => validate(artifactSha), /clean-run contract mismatch/);
+
+  const csvSha = fixture("reviewed-new-products-v2-approved-8");
+  csvSha.csvBytes = Buffer.from("different reviewed CSV\n", "utf8");
+  assert.throws(() => validate(csvSha), /clean-run contract mismatch/);
+
+  const retailer = fixture("reviewed-new-products-v2-approved-8");
+  retailer.artifact.plans[0].resolved_plan.retailer.id = "14";
+  assert.throws(() => validate(retailer), /Unsafe Predators Gear reviewed creation plan/);
+
+  const shipping = fixture("reviewed-new-products-v2-approved-8");
+  shipping.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "4.99";
+  assert.throws(() => validate(shipping), /Unsafe Predators Gear reviewed creation plan/);
+
+  const total = fixture("reviewed-new-products-v2-approved-8");
+  total.artifact.plans[0].resolved_plan.offer.values.total_price = "29.98";
+  assert.throws(() => validate(total), /Unsafe Predators Gear reviewed creation plan/);
+});
+
+test("reviewed new-products v2 profile rejects unreviewed identities and action drift", () => {
+  const held = fixture("reviewed-new-products-v2-approved-8");
+  held.manifest.rows[0].external_product_id = "8594181607643";
+  held.manifest.rows[0].external_variant_id = "8594181607643";
+  assert.throws(() => validate(held), /Unsafe reviewed v2 manifest row/);
+
+  const product = fixture("reviewed-new-products-v2-approved-8");
+  product.artifact.plans[0].resolved_plan.product = { action: "existing", id: "337" };
+  assert.throws(() => validate(product), /Unsafe Predators Gear reviewed creation plan/);
+
+  const variant = fixture("reviewed-new-products-v2-approved-8");
+  variant.artifact.plans[0].resolved_plan.product_variant = { action: "existing", id: "1068" };
+  assert.throws(() => validate(variant), /Unsafe Predators Gear reviewed creation plan/);
+
+  const canonicalGtin = fixture("reviewed-new-products-v2-approved-8");
+  canonicalGtin.artifact.plans[0].resolved_plan.product.values.gtin = "05949106122382";
+  assert.throws(() => validate(canonicalGtin), /Unsafe Predators Gear reviewed creation plan/);
+
+  const fingerprint = fixture("reviewed-new-products-v2-approved-8");
+  fingerprint.manifest.dry_run.plan_fingerprints[0] = "f".repeat(32);
+  assert.throws(() => validate(fingerprint), /manifest contract mismatch/);
 });
 
 test("reviewed new-products remaining simple profile permits only rows four and five", () => {

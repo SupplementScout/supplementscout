@@ -79,6 +79,9 @@ const NEW_PRODUCTS_V1_SIMPLE2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-f
 const NEW_PRODUCTS_V1_SIMPLE2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-simple-2.csv");
 const NEW_PRODUCTS_V1_SIBLING2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-sibling-2-dry-run-v2.json");
 const NEW_PRODUCTS_V1_SIBLING2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v1-remaining-sibling-2.csv");
+const NEW_PRODUCTS_V2_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-new-products-v2.json");
+const NEW_PRODUCTS_V2_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v2-approved-8-dry-run-v2.json");
+const NEW_PRODUCTS_V2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v2-approved-8.csv");
 const CM3_MISSING_VARIANTS_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-cm3-missing-variants-v1.json");
 const CM3_MISSING_VARIANTS_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-cm3-missing-variants-v1-dry-run-v6.json");
 const CM3_MISSING_VARIANTS_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-cm3-missing-variants-v1.csv");
@@ -101,6 +104,16 @@ const NEW_PRODUCTS_V1_REVIEWED_IDENTITIES = new Map([
   [3, ["8594181604892", "8594181604897", "DY Nutrition The Creatine Complex 316g", "create_reviewed_product_variant", "Strawberry"]],
   [4, ["8594181608172", "8594181608172", "DY Nutrition Creatine Monohydrate 300g", "create_product_with_default_variant", null]],
   [5, ["8594181606995", "8594181606995", "DY Nutrition Magnesium Citrate 90 Tablets", "create_product_with_default_variant", null]],
+]);
+const NEW_PRODUCTS_V2_REVIEWED_IDENTITIES = new Map([
+  [1, ["8594181605272", "8594181605272", "DY Nutrition The Glutamine Unflavoured 300g"]],
+  [2, ["8594181606997", "8594181606997", "DY Nutrition Joint Support 90 Tablets"]],
+  [3, ["8594181607301", "8594181607301", "Olimp Gold-Vit D3 + K2 Sport Edition 60 Capsules"]],
+  [4, ["8594181607610", "8594181607610", "Trec Nutrition Vitamin D3 + K2 MK-7 60 Capsules"]],
+  [5, ["8594181607614", "8594181607614", "Trec Nutrition Coenzyme Q10 100mg 90 Capsules"]],
+  [7, ["8594181608175", "8594181608175", "Super Nutrition Turbo Daily Liposomal Multivitamins 90 Capsules"]],
+  [8, ["8594181608181", "8594181608181", "Super Nutrition Vitamin D3 10000 IU + K2 MK-7 200mcg 60 Vegan Softgels"]],
+  [10, ["8594181608202", "8594181608202", "DY Nutrition Magnesium Bisglycinate 125mg 90 Capsules"]],
 ]);
 const CM3_MISSING_VARIANT_IDENTITIES = new Map([
   [1, ["361", "8594181607503", "8594181607507", "5902114018818", "05902114018818", "Orange", "250", "21.99"]],
@@ -328,6 +341,41 @@ const REVIEWED_PROFILES = Object.freeze([
     ]),
   }),
   Object.freeze({
+    name: "reviewed-new-products-v2-approved-8",
+    manifestPath: NEW_PRODUCTS_V2_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-new-products-v2",
+    approvalReason: "predators-gear-reviewed-new-products-v2-approved-8",
+    artifactPath: NEW_PRODUCTS_V2_ARTIFACT_PATH,
+    artifactSha256: "c8ca2fcdc04c2f6c3f1fd148e531cbaf6dc09e74fe9e2f93c83d0812b440920f",
+    csvPath: NEW_PRODUCTS_V2_CSV_PATH,
+    csvSha256: "0ce339b42aecfe4fd71e213d9fc84546935eb8b4dc1367b330c20741e3d23f67",
+    planCount: 8,
+    reviewRows: Object.freeze([1, 2, 3, 4, 5, 7, 8, 10]),
+    retailerAction: "existing",
+    retailerId: "13",
+    allowsReviewedCreation: true,
+    planFingerprints: Object.freeze([
+      "0ad9094abd5198c15cca030b3e8927e1",
+      "81ff81228efe105ab0b4963218d2ad1b",
+      "21817f39a7ea2e265ce7f74d7f7525fc",
+      "8c821db8fa0a443219fbcb20d6f2b5c4",
+      "6137a92cf8db349712b9667f00f2505d",
+      "d868785e77875293ff878c3950d87f8d",
+      "640492ed875ded87ccf98eada63bd016",
+      "9c5bbef6f5064edfab8c7f1e01fafaaa",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "0ad9094abd5198c15cca030b3e8927e1",
+      "81ff81228efe105ab0b4963218d2ad1b",
+      "21817f39a7ea2e265ce7f74d7f7525fc",
+      "8c821db8fa0a443219fbcb20d6f2b5c4",
+      "6137a92cf8db349712b9667f00f2505d",
+      "d868785e77875293ff878c3950d87f8d",
+      "640492ed875ded87ccf98eada63bd016",
+      "9c5bbef6f5064edfab8c7f1e01fafaaa",
+    ]),
+  }),
+  Object.freeze({
     name: "cm3-missing-variants-5",
     manifestPath: CM3_MISSING_VARIANTS_MANIFEST_PATH,
     manifestKind: "predators-gear-reviewed-cm3-missing-variants-v1",
@@ -492,6 +540,8 @@ function validateManifest(manifest, profile) {
   const isHeld4 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v3-held-4";
   const isShadowhey3 = profile.manifestKind === "predators-gear-reviewed-existing-bindings-v4-shadowhey-3";
   const isNewProductsV1 = profile.manifestKind === "predators-gear-reviewed-new-products-v1";
+  const isNewProductsV2 = profile.manifestKind === "predators-gear-reviewed-new-products-v2";
+  const isReviewedNewProducts = isNewProductsV1 || isNewProductsV2;
   const isCm3MissingVariants = profile.manifestKind === "predators-gear-reviewed-cm3-missing-variants-v1";
   const commonContract =
     manifest.schema_version === 1 &&
@@ -510,7 +560,7 @@ function validateManifest(manifest, profile) {
         manifest.retailer?.shipping_cost === 0 &&
         manifest.policy?.allow_live_import === false &&
         manifest.policy?.sku_is_not_gtin === true &&
-        (isNewProductsV1
+        (isReviewedNewProducts
           ? manifest.policy?.existing_products_only === false &&
             manifest.policy?.existing_variants_only === false &&
             manifest.policy?.allow_product_creation === true &&
@@ -600,6 +650,37 @@ function validateManifest(manifest, profile) {
     manifest.excluded.some((value) => String(value).includes("Joint Support")) &&
     manifest.excluded.some((value) => String(value).includes("Collagen")) &&
     manifest.excluded.some((value) => String(value).includes("754"));
+  const newProductsV2Contract =
+    isNewProductsV2 &&
+    manifest.approval_source === "OWNER_APPROVAL_2026_08_29" &&
+    manifest.retailer?.id === 13 &&
+    manifest.canonical_csv?.path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
+    manifest.canonical_csv?.sha256 === profile.csvSha256 &&
+    manifest.canonical_csv?.row_count === profile.planCount &&
+    manifest.dry_run?.path === path.relative(ROOT, profile.artifactPath).replaceAll("\\", "/") &&
+    manifest.dry_run?.sha256 === profile.artifactSha256 &&
+    manifest.dry_run?.plan_count === profile.planCount &&
+    manifest.dry_run?.blocked_row_count === 0 &&
+    manifest.dry_run?.conflict_count === 0 &&
+    manifest.dry_run?.would_create_products === 8 &&
+    manifest.dry_run?.would_create_variants_separately === 0 &&
+    manifest.dry_run?.implicit_default_variants_with_products === 8 &&
+    manifest.dry_run?.would_create_retailer_products === 8 &&
+    manifest.dry_run?.would_create_offers === 8 &&
+    manifest.dry_run?.would_create_price_history === 8 &&
+    canonicalJson([...(manifest.dry_run?.plan_fingerprints || [])].sort()) ===
+      canonicalJson([...profile.planFingerprints].sort()) &&
+    manifest.rows.length === profile.planCount &&
+    sameNumbers(manifest.rows.map((row) => row.review_row), profile.reviewRows) &&
+    Array.isArray(manifest.excluded) &&
+    sameNumbers(manifest.excluded.map((row) => row.review_row), [6, 9]) &&
+    manifest.policy?.owner_approved_new_products_only === true &&
+    manifest.policy?.existing_retailer_only === true &&
+    manifest.policy?.allow_default_variant_creation === true &&
+    manifest.policy?.external_gtin_from_ean_field_only === true &&
+    manifest.policy?.product_gtin_promotion === false &&
+    exactDecimal(manifest.policy?.shipping_cost, 0) &&
+    manifest.policy?.delivered_price_equals_price === true;
   const cm3MissingVariantsContract =
     isCm3MissingVariants &&
     manifest.canonical_csv?.path === path.relative(ROOT, profile.csvPath).replaceAll("\\", "/") &&
@@ -630,7 +711,7 @@ function validateManifest(manifest, profile) {
       canonicalJson([...profile.planFingerprints].sort());
   if (
     !commonContract ||
-    (!v1Contract && !batch2Contract && !held4Contract && !shadowhey3Contract && !newProductsV1Contract && !cm3MissingVariantsContract)
+    (!v1Contract && !batch2Contract && !held4Contract && !shadowhey3Contract && !newProductsV1Contract && !newProductsV2Contract && !cm3MissingVariantsContract)
   ) {
     fail("Predators Gear reviewed manifest contract mismatch");
   }
@@ -666,6 +747,36 @@ function validateManifest(manifest, profile) {
           ? row.source_flavour !== "Pineapple" || row.reviewed_flavour_alias !== "Pineapple -> Fresh Pineapple"
           : row.source_flavour != null || row.reviewed_flavour_alias != null)
       ) fail(`Unsafe CM3 reviewed manifest row ${row.review_row}`);
+      identities.add(key);
+      continue;
+    }
+    if (isNewProductsV2) {
+      const expectedIdentity = NEW_PRODUCTS_V2_REVIEWED_IDENTITIES.get(row.review_row);
+      if (
+        identities.has(key) ||
+        !expectedIdentity ||
+        canonicalJson([
+          String(row.external_product_id),
+          String(row.external_variant_id),
+          row.product_name,
+        ]) !== canonicalJson(expectedIdentity) ||
+        row.action !== "create_product_with_default_variant" ||
+        row.product_id != null ||
+        row.product_variant_id != null ||
+        row.shipping_cost !== 0 ||
+        row.delivered_price !== row.price ||
+        row.disposition !== "OWNER_APPROVED" ||
+        row.gtin_source !== "WooCommerce CSV EAN field" ||
+        !/^\d{14}$/.test(String(row.external_gtin || "")) ||
+        !String(row.image || "").startsWith("https://predatorsgear.co.uk/wp-content/uploads/") ||
+        row.image_provenance !== "WooCommerce CSV parent primary image" ||
+        !String(row.source_url || "").startsWith("https://predatorsgear.co.uk/supplements-vitamins-shop/") ||
+        row.external_options != null ||
+        row.variant_name ||
+        row.flavour ||
+        row.size ||
+        row.size_unit
+      ) fail(`Unsafe reviewed v2 manifest row ${row.review_row}`);
       identities.add(key);
       continue;
     }
