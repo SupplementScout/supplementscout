@@ -11,7 +11,9 @@ const {
 } = require("./lib/six-pack-reviewed-owner-approval");
 const { executeApprovedPlansWithCheckpoint, validateReviewedOwnerArtifact } = require("./six-pack-offer-refresh-executor");
 const { authorizeReviewedOwnerBatch } = require("./six-pack-offer-refresh");
-const { verifyPostflight, hash } = require("./six-pack-reviewed-postflight");
+const {
+  hash, VALIDATOR_LOGIN, VALIDATOR_ROLE, verifyPostflight, withReadOnlyValidatorClient,
+} = require("./six-pack-reviewed-postflight");
 const { finalizeOutcome } = require("./six-pack-reviewed-outcome");
 
 const CHANGES = [
@@ -283,4 +285,68 @@ test("reviewed baseline and postflight use the readable validator while approval
     if (sql.includes("from public.offers")) throw new Error("permission denied for table offers");
     return { rows: [] };
   } }, fixture()), /permission denied for table offers/);
+});
+
+test("reviewed checks activate the exact validator role on one read-only client and commit successful reads", async () => {
+  const calls = [];
+  let callbackClient;
+  class FakeClient {
+    async connect() { calls.push(["connect", this]); }
+    async end() { calls.push(["end", this]); }
+    async query(sql) {
+      calls.push([sql, this]);
+      if (sql.startsWith("select session_user")) return { rows: [{ session_user: VALIDATOR_LOGIN, current_user: VALIDATOR_ROLE, transaction_read_only: "on" }] };
+      return { rows: [] };
+    }
+  }
+  const result = await withReadOnlyValidatorClient(async (client) => {
+    callbackClient = client;
+    await client.query("select * from public.offers");
+    return "captured";
+  }, { Client: FakeClient, env: { SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: "postgres://validator.invalid/database" } });
+  assert.equal(result, "captured");
+  assert.deepEqual(calls.map(([sql]) => sql), [
+    "connect", "begin read only", `set local role ${VALIDATOR_ROLE}`,
+    "select session_user, current_user, current_setting('transaction_read_only') transaction_read_only",
+    "select * from public.offers", "commit", "end",
+  ]);
+  assert.deepEqual(new Set(calls.map(([, client]) => client)), new Set([callbackClient]));
+});
+
+test("validator activation and read failures roll back before any reviewed apply can run", async () => {
+  const exercise = async ({ identity, readError }) => {
+    const calls = [];
+    let callbackEntered = false;
+    class FakeClient {
+      async connect() { calls.push("connect"); }
+      async end() { calls.push("end"); }
+      async query(sql) {
+        calls.push(sql);
+        if (sql.startsWith("select session_user")) return { rows: [identity] };
+        if (sql === "select * from public.offers" && readError) throw readError;
+        return { rows: [] };
+      }
+    }
+    const promise = withReadOnlyValidatorClient(async (client) => {
+      callbackEntered = true;
+      await client.query("select * from public.offers");
+    }, { Client: FakeClient, env: { SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: "postgres://validator.invalid/database" } });
+    await assert.rejects(promise);
+    assert.ok(calls.includes("rollback"));
+    assert.ok(!calls.includes("commit"));
+    return { calls, callbackEntered };
+  };
+
+  const wrongRole = await exercise({ identity: { session_user: VALIDATOR_LOGIN, current_user: "supplementscout_production_validator_login", transaction_read_only: "on" } });
+  assert.equal(wrongRole.callbackEntered, false);
+  const wrongLogin = await exercise({ identity: { session_user: "unexpected_login", current_user: VALIDATOR_ROLE, transaction_read_only: "on" } });
+  assert.equal(wrongLogin.callbackEntered, false);
+  const writable = await exercise({ identity: { session_user: VALIDATOR_LOGIN, current_user: VALIDATOR_ROLE, transaction_read_only: "off" } });
+  assert.equal(writable.callbackEntered, false);
+  const denied = await exercise({ identity: { session_user: VALIDATOR_LOGIN, current_user: VALIDATOR_ROLE, transaction_read_only: "on" }, readError: new Error("permission denied for table offers") });
+  assert.equal(denied.callbackEntered, true);
+
+  const source = fs.readFileSync(path.join(__dirname, "six-pack-reviewed-postflight.js"), "utf8");
+  assert.doesNotMatch(source, /approve_product_import_plan|apply_approved_product_import_plan/);
+  assert.doesNotMatch(source, /client\.query\(["'`](?:insert|update|delete)\b/i);
 });

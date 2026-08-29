@@ -7,6 +7,8 @@ const { loadReviewedBatch } = require("./lib/six-pack-reviewed-owner-approval");
 
 const ROOT = path.resolve(__dirname, "..");
 const TABLES = ["products", "product_variants", "retailer_products", "offers", "price_history"];
+const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
+const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 
 function fail(message) { throw new Error(message); }
 function hash(value) { return crypto.createHash("sha256").update(canonicalJson(value)).digest("hex"); }
@@ -96,21 +98,40 @@ function verifyPostflight(batch, baseline, after, execution) {
   };
 }
 
-async function openReadOnlyClient() {
-  const value = process.env.SIX_PACK_SYNC_VALIDATOR_DATABASE_URL;
+async function withReadOnlyValidatorClient(callback, dependencies = {}) {
+  const ClientClass = dependencies.Client || Client;
+  const value = dependencies.env
+    ? dependencies.env.SIX_PACK_SYNC_VALIDATOR_DATABASE_URL
+    : process.env.SIX_PACK_SYNC_VALIDATOR_DATABASE_URL;
   if (!value) fail("Missing protected validator database credential");
   const parsed = new URL(value); parsed.searchParams.delete("sslmode");
-  const client = new Client({ connectionString: parsed.href, ssl: { rejectUnauthorized: false }, application_name: "six-pack-reviewed-postflight-read-only", options: "-c default_transaction_read_only=on -c statement_timeout=120000" });
-  await client.connect(); await client.query("begin read only");
-  const state = (await client.query("select current_setting('transaction_read_only') value")).rows[0].value;
-  if (state !== "on") fail("Postflight connection is not read-only");
-  return client;
+  const client = new ClientClass({ connectionString: parsed.href, ssl: { rejectUnauthorized: false }, application_name: "six-pack-reviewed-postflight-read-only", options: "-c default_transaction_read_only=on -c statement_timeout=120000" });
+  let transactionStarted = false;
+  await client.connect();
+  try {
+    await client.query("begin read only");
+    transactionStarted = true;
+    await client.query(`set local role ${VALIDATOR_ROLE}`);
+    const identity = (await client.query("select session_user, current_user, current_setting('transaction_read_only') transaction_read_only")).rows[0];
+    if (identity.session_user !== VALIDATOR_LOGIN || identity.current_user !== VALIDATOR_ROLE) fail("Validator database identity is not the protected validator login and role");
+    if (identity.transaction_read_only !== "on") fail("Postflight connection is not read-only");
+    const result = await callback(client);
+    await client.query("commit");
+    transactionStarted = false;
+    return result;
+  } catch (error) {
+    if (transactionStarted) {
+      try { await client.query("rollback"); } catch (rollbackError) { error.rollbackError = rollbackError; }
+    }
+    throw error;
+  } finally {
+    await client.end();
+  }
 }
 
 async function run(options) {
   const batch = loadReviewedBatch(options.reviewedBatchFingerprint).batch;
-  const client = await openReadOnlyClient();
-  try {
+  return withReadOnlyValidatorClient(async (client) => {
     const snapshot = await capture(client, batch);
     if (options.mode === "baseline") {
       const evidence = { schema_version: 1, kind: "six-pack-reviewed-owner-db-baseline", result: "PASS", reviewed_batch_fingerprint: batch.reviewed_batch_fingerprint, ...snapshot };
@@ -119,9 +140,9 @@ async function run(options) {
     }
     const report = verifyPostflight(batch, JSON.parse(fs.readFileSync(options.baseline, "utf8")), snapshot, JSON.parse(fs.readFileSync(options.execution, "utf8")));
     fs.mkdirSync(path.dirname(options.output), { recursive: true }); fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`); return report;
-  } finally { try { await client.query("rollback"); } finally { await client.end(); } }
+  });
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { capture, hash, parseArgs, verifyPostflight };
+module.exports = { capture, hash, parseArgs, verifyPostflight, withReadOnlyValidatorClient, VALIDATOR_LOGIN, VALIDATOR_ROLE };
