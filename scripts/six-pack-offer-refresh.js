@@ -10,6 +10,11 @@ const { readWooCommerceProductPage } = require("./lib/woocommerce-product-page-r
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
 const { liveIdentityDrift } = require("./six-pack-canary-builder");
+const {
+  assertFreshBatchMatch,
+  buildReviewedBatch,
+  loadReviewedBatch,
+} = require("./lib/six-pack-reviewed-owner-approval");
 const config = require("../config/retailers/six-pack-supplements-woocommerce.json");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -50,7 +55,7 @@ function shippingForPrice(price) {
 
 function parseArgs(argv) {
   const out = {};
-  const allowed = new Set(["target", "artifact", "report", "require-no-change", "reviewed-mass-oos", "isolate-unsafe"]);
+  const allowed = new Set(["target", "artifact", "report", "require-no-change", "reviewed-mass-oos", "reviewed-batch", "isolate-unsafe"]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
     if (!match || !allowed.has(match[1]) || out[match[1]] !== undefined) fail(`Invalid argument ${argument}`, "INVALID_ARGUMENT");
@@ -68,6 +73,8 @@ function parseArgs(argv) {
     fail("--require-no-change must be true|false", "INVALID_ARGUMENT");
   }
   out.reviewedMassOosSelector = out["reviewed-mass-oos"] || null;
+  out.reviewedBatchFingerprint = out["reviewed-batch"] || null;
+  if (out.reviewedMassOosSelector && out.reviewedBatchFingerprint) fail("Reviewed selectors are mutually exclusive", "INVALID_ARGUMENT");
   out.isolateUnsafe = out["isolate-unsafe"] === "true";
   if (out["isolate-unsafe"] !== undefined && !["true", "false"].includes(out["isolate-unsafe"])) {
     fail("--isolate-unsafe must be true|false", "INVALID_ARGUMENT");
@@ -109,6 +116,53 @@ function isolateAggregateChanges(classification, policy, guardScope) {
     quarantined_rows: quarantinedRows,
     full_scope_guard_evidence: classification.guard_evidence,
     guard_evidence: guardEvidence,
+  };
+}
+
+function authorizeReviewedOwnerBatch(classification, records, sourceRows, approvedManifest, reviewedBatch, capturedAt) {
+  if (!reviewedBatch) return { classification, review: null };
+  const batch = reviewedBatch.batch;
+  if (batch.manifest_sha256 !== approvedManifest.sha256) fail("Reviewed batch approved-manifest SHA mismatch", "MANIFEST_DRIFT");
+  if (classification.state !== "BLOCKED" || classification.reason !== "MASS_OOS") fail("Reviewed batch can override only MASS_OOS", "REVIEWED_BATCH_GUARD_INVALID");
+  const recordByOffer = new Map(records.map((record) => [String(record.offer.id), record]));
+  const sourceByVariant = new Map(sourceRows.map((row) => [String(row.external_variant_id), row]));
+  const changed = classification.rows.filter((row) => row.action !== "VERIFY_NO_CHANGE").sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+  if (changed.length !== batch.rows.length || canonicalJson(changed.map((row) => String(row.offer_id))) !== canonicalJson(batch.offer_ids)) fail("Reviewed batch changed-row scope drift", "REVIEWED_BATCH_LIVE_DRIFT");
+  const freshRows = batch.rows.map((approvedRow) => {
+    const record = recordByOffer.get(String(approvedRow.offer_id));
+    const source = sourceByVariant.get(String(approvedRow.external_variant_id));
+    const classified = changed.find((row) => String(row.offer_id) === String(approvedRow.offer_id));
+    if (!record || !source || !classified) fail("Reviewed batch identity is missing from fresh capture", "REVIEWED_BATCH_LIVE_DRIFT");
+    if (
+      String(record.product.id) !== String(approvedRow.product_id) ||
+      String(record.variant.id) !== String(approvedRow.product_variant_id) ||
+      String(record.mapping.id) !== String(approvedRow.retailer_product_id) ||
+      String(record.mapping.external_product_id) !== String(approvedRow.external_product_id) ||
+      String(record.mapping.external_variant_id) !== String(approvedRow.external_variant_id) ||
+      record.mapping.external_url !== approvedRow.after.url ||
+      classified.action !== approvedRow.operation_type
+    ) fail("Reviewed batch product, variant, mapping, URL or action drift", "REVIEWED_BATCH_LIVE_DRIFT");
+    return {
+      ...approvedRow,
+      before: {
+        price: money(record.offer.price), shipping_cost: money(record.offer.shipping_cost), total_price: money(record.offer.total_price),
+        in_stock: Boolean(record.offer.in_stock), url: record.offer.url, last_checked_at: record.offer.last_checked_at,
+      },
+      after: {
+        price: money(source.price), shipping_cost: money(source.shipping_cost), total_price: money(source.total_price),
+        in_stock: Boolean(source.in_stock), url: source.url, last_checked_at: capturedAt,
+      },
+      source_captured_at: capturedAt,
+    };
+  });
+  const fresh = buildReviewedBatch({
+    rows: freshRows, implementationCommitSha: batch.implementation_commit_sha, manifestSha256: batch.manifest_sha256,
+    sourceCapturedAt: capturedAt, expiresAt: new Date(Date.parse(capturedAt) + 24 * 60 * 60 * 1000).toISOString(),
+  });
+  assertFreshBatchMatch(batch, fresh);
+  return {
+    classification: { ...classification, state: "DRY_RUN_READY", action: "REVIEWED_OWNER_APPROVAL", reason: null, rows: changed, quarantined_rows: [] },
+    review: { reviewed_batch_fingerprint: batch.reviewed_batch_fingerprint, row_count: batch.rows.length, source_semantic_fingerprint: batch.source_semantic_fingerprint, approved_guard: batch.approved_guard },
   };
 }
 
@@ -518,6 +572,9 @@ function buildArtifactRows(records, sourceRows, classification, snapshotFingerpr
 async function run(options, dependencies = {}) {
   const approved = loadApprovedManifest();
   const reviewed = loadReviewedMassOosManifest(options.reviewedMassOosSelector, approved.manifest);
+  const reviewedOwner = options.reviewedBatchFingerprint
+    ? loadReviewedBatch(options.reviewedBatchFingerprint, dependencies.reviewedBatchOptions || {})
+    : null;
   const state = await readState(approved.manifest, dependencies);
   const capturedAt = new Date().toISOString();
   const readLive = dependencies.readLive || ((productId) => readWooCommerceProductPage({
@@ -590,9 +647,12 @@ async function run(options, dependencies = {}) {
     liveByProduct,
     reviewed
   );
-  const classification = options.isolateUnsafe
-    ? isolateAggregateChanges(massOosAuthorization.classification, policy, guardScope)
-    : massOosAuthorization.classification;
+  const ownerAuthorization = authorizeReviewedOwnerBatch(
+    massOosAuthorization.classification, state.records, sourceRows, approved, reviewedOwner, capturedAt
+  );
+  const classification = options.isolateUnsafe && !reviewedOwner
+    ? isolateAggregateChanges(ownerAuthorization.classification, policy, guardScope)
+    : ownerAuthorization.classification;
   const sourceByVariant = new Map(sourceRows.map((row) => [String(row.external_variant_id), row]));
   const targetByOffer = new Map(state.records.map((record) => [String(record.offer.id), targetFor(record)]));
   const reviewRows = (classification.quarantined_rows || []).map((row) => {
@@ -646,6 +706,7 @@ async function run(options, dependencies = {}) {
     guard_evidence: classification.guard_evidence || null,
     full_scope_guard_evidence: classification.full_scope_guard_evidence || classification.guard_evidence || null,
     reviewed_mass_oos: massOosAuthorization.review,
+    reviewed_owner_approval: ownerAuthorization.review,
     review_rows: reviewRows,
     action_counts: (classification.rows || []).reduce((counts, row) => {
       counts[row.action] = (counts[row.action] || 0) + 1;
@@ -657,8 +718,9 @@ async function run(options, dependencies = {}) {
   fs.writeFileSync(options.report, `${JSON.stringify(report, null, 2)}\n`);
   if (
     !accepted ||
-    (!options.isolateUnsafe && classification.rows.length !== approved.manifest.rows.length) ||
-    (options.isolateUnsafe && reconciledCount !== approved.manifest.rows.length)
+    (!options.isolateUnsafe && !reviewedOwner && classification.rows.length !== approved.manifest.rows.length) ||
+    (reviewedOwner && classification.rows.length !== reviewedOwner.batch.rows.length) ||
+    (options.isolateUnsafe && !reviewedOwner && reconciledCount !== approved.manifest.rows.length)
   ) {
     fail(`Classifier blocked: ${classification.reason || classification.state}`, classification.reason || "CLASSIFIER_BLOCKED");
   }
@@ -683,7 +745,9 @@ async function run(options, dependencies = {}) {
   };
   const artifact = writeDryRunArtifact(sourceRecords, result, {
     artifactPath: options.artifact,
-    runId: reviewed
+    runId: reviewedOwner
+      ? `six-pack-reviewed-owner-${reviewedOwner.batch.reviewed_batch_fingerprint}-${Date.now()}`
+      : reviewed
       ? `six-pack-reviewed-mass-oos-${reviewed.sha256}-${Date.now()}`
       : `six-pack-refresh-${Date.now()}`,
     createdAt: capturedAt,
@@ -707,6 +771,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  authorizeReviewedOwnerBatch,
   authorizeReviewedMassOos,
   buildArtifactRows,
   canonicalHash,

@@ -13,6 +13,15 @@ on:
           - apply
           - reviewed-mass-oos-dry-run
           - reviewed-mass-oos-apply
+          - apply-reviewed
+      reviewed_batch_fingerprint:
+        description: "Exact 64-character owner-reviewed batch fingerprint (apply-reviewed only)"
+        required: false
+        type: string
+      owner_confirmation:
+        description: "Exact APPLY_REVIEWED:<fingerprint> confirmation (apply-reviewed only)"
+        required: false
+        type: string
   schedule:
     - cron: "17 3 * * *"
 
@@ -25,7 +34,7 @@ concurrency:
 
 jobs:
   six-pack-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.operation != 'apply-reviewed')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly
@@ -47,6 +56,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -62,6 +73,7 @@ jobs:
           node --test \
             scripts/six-pack-offer-refresh.test.js \
             scripts/six-pack-offer-refresh-executor.test.js \
+            scripts/six-pack-reviewed-owner-approval.test.js \
             scripts/lib/woocommerce-product-page-reader.test.js \
             scripts/retailer-offer-sync.test.js
 
@@ -121,6 +133,7 @@ jobs:
             sleep $((attempt * 5))
           done
 
+
       - name: Publish workflow summary
         if: always()
         run: |
@@ -144,4 +157,144 @@ jobs:
           name: six-pack-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: warn
+          path: tmp/six-pack-offer-refresh/*.json
+
+  six-pack-reviewed-apply:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.operation == 'apply-reviewed' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: production-readonly
+
+    env:
+      NODE_OPTIONS: --use-system-ca
+      REVIEWED_BATCH_FINGERPRINT: ${{ inputs.reviewed_batch_fingerprint }}
+      REVIEWED_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+
+    steps:
+      - name: Checkout exact runtime main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test reviewed apply contracts without production credentials
+        run: |
+          node --test \
+            scripts/six-pack-offer-refresh.test.js \
+            scripts/six-pack-offer-refresh-executor.test.js \
+            scripts/six-pack-reviewed-owner-approval.test.js \
+            scripts/lib/woocommerce-product-page-reader.test.js \
+            scripts/retailer-offer-sync.test.js
+
+      - name: Validate owner and immutable commits
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REVIEWED_CONTEXT_OUTPUT: tmp/six-pack-offer-refresh/production-reviewed-context.json
+        run: node scripts/six-pack-reviewed-context.js
+
+      - name: Fresh reviewed live-source preflight
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            node scripts/six-pack-offer-refresh.js \
+              --target=production \
+              --isolate-unsafe=true \
+              --reviewed-batch="${{ inputs.reviewed_batch_fingerprint }}" \
+              --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
+              --report=tmp/six-pack-offer-refresh/production-preflight-report.json && break
+            test "$attempt" -eq 5 && exit 1
+            sleep $((attempt * 5))
+          done
+
+      - name: Capture read-only reviewed DB baseline
+        env:
+          SIX_PACK_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-reviewed-postflight.js \
+            --mode=baseline \
+            --reviewed-batch="${{ inputs.reviewed_batch_fingerprint }}" \
+            --output=tmp/six-pack-offer-refresh/production-reviewed-baseline.json
+
+      - name: Apply exact owner-reviewed batch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SIX_PACK_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          SIX_PACK_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-offer-refresh-executor.js \
+            --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
+            --output=tmp/six-pack-offer-refresh/production-execution.json \
+            --checkpoint=tmp/six-pack-offer-refresh/production-reviewed-checkpoint.json \
+            --reviewed-batch="${{ inputs.reviewed_batch_fingerprint }}"
+
+      - name: Verify reviewed DB postflight read-only
+        env:
+          SIX_PACK_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+        run: |
+          node scripts/six-pack-reviewed-postflight.js \
+            --mode=postflight \
+            --reviewed-batch="${{ inputs.reviewed_batch_fingerprint }}" \
+            --baseline=tmp/six-pack-offer-refresh/production-reviewed-baseline.json \
+            --execution=tmp/six-pack-offer-refresh/production-execution.json \
+            --output=tmp/six-pack-offer-refresh/production-reviewed-db-postflight.json
+
+      - name: Verify reviewed live-source idempotency
+        id: reviewed-idempotency
+        continue-on-error: true
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            node scripts/six-pack-offer-refresh.js \
+              --target=production \
+              --isolate-unsafe=true \
+              --require-no-change=true \
+              --artifact=tmp/six-pack-offer-refresh/production-idempotency-artifact.json \
+              --report=tmp/six-pack-offer-refresh/production-idempotency-report.json && break
+            test "$attempt" -eq 5 && exit 1
+            sleep $((attempt * 5))
+          done
+
+      - name: Finalize reviewed outcome
+        if: always()
+        env:
+          IDEMPOTENCY_OUTCOME: ${{ steps.reviewed-idempotency.outcome }}
+        run: |
+          node scripts/six-pack-reviewed-outcome.js \
+            --execution=tmp/six-pack-offer-refresh/production-execution.json \
+            --postflight=tmp/six-pack-offer-refresh/production-reviewed-db-postflight.json \
+            --idempotency=tmp/six-pack-offer-refresh/production-idempotency-report.json \
+            --output=tmp/six-pack-offer-refresh/production-reviewed-outcome.json
+          if node -e 'process.exit(require("./tmp/six-pack-offer-refresh/production-reviewed-outcome.json").requires_read_only_idempotency_follow_up ? 0 : 1)'; then
+            echo "::warning::Reviewed apply and DB postflight passed, but live-source idempotency is deferred. Run a new read-only idempotency capture; do not reapply."
+          fi
+
+      - name: Publish reviewed workflow summary
+        if: always()
+        run: |
+          echo "## 6 Pack owner-reviewed apply" >> "$GITHUB_STEP_SUMMARY"
+          for file in production-preflight-report production-execution production-reviewed-db-postflight production-reviewed-outcome production-reviewed-checkpoint; do
+            if [ -f "tmp/six-pack-offer-refresh/$file.json" ]; then
+              node -e 'const r=require(`./tmp/six-pack-offer-refresh/${process.argv[1]}.json`); console.log(`- ${process.argv[1]}: ${r.result || "AVAILABLE"}`)' "$file" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+      - name: Upload reviewed apply evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: six-pack-reviewed-apply-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
           path: tmp/six-pack-offer-refresh/*.json

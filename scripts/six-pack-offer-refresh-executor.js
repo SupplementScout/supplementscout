@@ -3,6 +3,10 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { loadDryRunArtifact } = require("./import-products");
 const { loadReviewedMassOosManifest } = require("./six-pack-offer-refresh");
+const {
+  assertOwnerExecutionContext,
+  loadReviewedBatch,
+} = require("./lib/six-pack-reviewed-owner-approval");
 const config = require("../config/retailers/six-pack-supplements-woocommerce.json");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -15,14 +19,19 @@ function fail(message) {
 function parseArgs(argv) {
   const out = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(artifact|output|reviewed-mass-oos)=(.*)$/);
+    const match = argument.match(/^--(artifact|output|checkpoint|reviewed-mass-oos|reviewed-batch)=(.*)$/);
     if (!match || out[match[1]]) fail(`Invalid argument ${argument}`);
-    out[match[1]] = match[1] === "reviewed-mass-oos" ? match[2] : path.resolve(match[2]);
+    out[match[1]] = ["reviewed-mass-oos", "reviewed-batch"].includes(match[1]) ? match[2] : path.resolve(match[2]);
   }
   for (const key of ["artifact", "output"]) if (!out[key]) fail(`Required --${key}=<path>`);
   const relative = path.relative(path.join(ROOT, "tmp"), out.output);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) fail("Output must be inside repository tmp");
   out.reviewedMassOosSelector = out["reviewed-mass-oos"] || null;
+  out.reviewedBatchFingerprint = out["reviewed-batch"] || null;
+  out.checkpoint = out.checkpoint || `${out.output}.checkpoint.json`;
+  const checkpointRelative = path.relative(path.join(ROOT, "tmp"), out.checkpoint);
+  if (!checkpointRelative || checkpointRelative.startsWith("..") || path.isAbsolute(checkpointRelative)) fail("Checkpoint must be inside repository tmp");
+  if (out.reviewedMassOosSelector && out.reviewedBatchFingerprint) fail("Reviewed selectors are mutually exclusive");
   if (
     out["reviewed-mass-oos"] !== undefined &&
     out["reviewed-mass-oos"] !== config.automation.reviewed_mass_oos_selector
@@ -56,6 +65,32 @@ function hasExpectedShipping(offer) {
     shipping.toFixed(2) === expectedShipping.toFixed(2) &&
     total.toFixed(2) === (price + expectedShipping).toFixed(2)
   );
+}
+
+function validateReviewedOwnerArtifact(artifact, reviewed) {
+  if (!reviewed) return false;
+  const batch = reviewed.batch;
+  if (!String(artifact.run_id || "").startsWith(`six-pack-reviewed-owner-${batch.reviewed_batch_fingerprint}-`)) fail("Reviewed owner artifact fingerprint binding mismatch");
+  const actual = artifact.plans.map((entry) => {
+    const plan = entry.resolved_plan;
+    const source = artifact.source_rows.find((row) => row.row_number === entry.row_number)?.normalized_source_row?.source;
+    const before = plan.expected_state.offer;
+    const after = plan.offer.values;
+    return {
+      offer_id: String(plan.offer.id), product_id: String(plan.product.id), product_variant_id: String(plan.product_variant.id),
+      retailer_product_id: String(plan.retailer_product.id), external_product_id: String(source.external_product_id), external_variant_id: String(source.external_variant_id),
+      operation_type: Number(before.price) !== Number(after.price) && before.in_stock !== after.in_stock ? "UPDATE_PRICE_AND_STOCK" : Number(before.price) !== Number(after.price) ? "UPDATE_PRICE" : "UPDATE_STOCK",
+      before: { price: Number(before.price).toFixed(2), shipping_cost: Number(before.shipping_cost).toFixed(2), total_price: Number(before.total_price).toFixed(2), in_stock: before.in_stock, url: before.url, last_checked_at: before.last_checked_at },
+      after: { price: Number(after.price).toFixed(2), shipping_cost: Number(after.shipping_cost).toFixed(2), total_price: Number(after.total_price).toFixed(2), in_stock: after.in_stock, url: after.url, last_checked_at: after.last_checked_at },
+    };
+  }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+  const expected = batch.rows.map((row) => ({
+    offer_id: String(row.offer_id), product_id: String(row.product_id), product_variant_id: String(row.product_variant_id), retailer_product_id: String(row.retailer_product_id),
+    external_product_id: String(row.external_product_id), external_variant_id: String(row.external_variant_id), operation_type: row.operation_type,
+    before: row.before, after: { ...row.after, last_checked_at: artifact.created_at },
+  }));
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) fail("Reviewed owner artifact differs from the exact approved rows and values");
+  return true;
 }
 
 function sameCommercialOfferState(before, after) {
@@ -177,7 +212,7 @@ function validateReviewedMassOosArtifact(artifact, reviewed) {
   return true;
 }
 
-function validateArtifactScope(artifact, manifest, reviewed = null) {
+function validateArtifactScope(artifact, manifest, reviewed = null, reviewedOwner = null) {
   if (
     artifact.environment_marker !== "production" ||
     artifact.plans.length !== artifact.source_rows.length ||
@@ -252,14 +287,16 @@ function validateArtifactScope(artifact, manifest, reviewed = null) {
   }
   const total = artifact.plans.length;
   const reviewedMassOos = validateReviewedMassOosArtifact(artifact, reviewed);
+  const reviewedOwnerApproved = validateReviewedOwnerArtifact(artifact, reviewedOwner);
+  const aggregateTotal = reviewedOwnerApproved ? manifest.rows.length : total;
   if (
     seen.size !== total ||
     snapshots.size !== (total === 0 ? 0 : 1) ||
-    (total > 0 && changedRows / total > config.guardrails.maximum_changed_record_ratio) ||
-    (total > 0 && priceChangedRows / total >= config.guardrails.mass_price_change_block_ratio) ||
-    (newOosRows >= config.guardrails.mass_oos_block_count && !reviewedMassOos) ||
-    (total > 0 && currentOosRows / total > config.guardrails.maximum_total_oos_ratio) ||
-    (total > 0 && (currentOosRows - previousOosRows) / total > config.guardrails.maximum_oos_increase_percentage_points)
+    (aggregateTotal > 0 && changedRows / aggregateTotal > config.guardrails.maximum_changed_record_ratio) ||
+    (aggregateTotal > 0 && priceChangedRows / aggregateTotal >= config.guardrails.mass_price_change_block_ratio) ||
+    (newOosRows >= config.guardrails.mass_oos_block_count && !reviewedMassOos && !reviewedOwnerApproved) ||
+    (!reviewedOwnerApproved && total > 0 && currentOosRows / total > config.guardrails.maximum_total_oos_ratio) ||
+    (!reviewedOwnerApproved && total > 0 && (currentOosRows - previousOosRows) / total > config.guardrails.maximum_oos_increase_percentage_points)
   ) fail("Refresh artifact violates independent execution guardrails");
   return [...artifact.plans].sort((left, right) => Number(left.row_number) - Number(right.row_number));
 }
@@ -346,6 +383,34 @@ async function executeApprovedPlans(plans, execute) {
   return rows;
 }
 
+async function executeApprovedPlansWithCheckpoint(plans, execute, writeCheckpoint) {
+  const rows = [];
+  const write = (result, blocked = []) => writeCheckpoint({
+    schema_version: 1,
+    kind: "six-pack-reviewed-owner-apply-checkpoint",
+    result,
+    approved_reviewed_plan_count: plans.length,
+    executed_plan_count: rows.length,
+    executed_offer_ids: rows.map((row) => String(row.offer_id)),
+    remaining_offer_ids: plans.slice(rows.length).map((entry) => String(entry.resolved_plan.offer.id)),
+    blocked_rows: blocked,
+    updated_at: new Date().toISOString(),
+  });
+  write("IN_PROGRESS");
+  for (const entry of plans) {
+    try {
+      rows.push(await execute(entry));
+      write("IN_PROGRESS");
+    } catch (error) {
+      write("BLOCK", [{ offer_id: String(entry.resolved_plan.offer.id), error: error.message }]);
+      throw error;
+    }
+  }
+  write("PASS");
+  if (rows.length !== plans.length) fail("Not every reviewed plan was executed");
+  return rows;
+}
+
 function executionCounts(plans, rows, approvedMappingCount) {
   if (rows.length !== plans.length) fail("Verified and executed plan counts differ");
   if (!Number.isInteger(approvedMappingCount) || approvedMappingCount < plans.length) {
@@ -374,16 +439,22 @@ async function run(options) {
     approved.manifest.approved_mapping_count !== config.automation.approved_mapping_count
   ) fail("Approved manifest is invalid");
   const reviewed = loadReviewedMassOosManifest(options.reviewedMassOosSelector, approved.manifest);
+  const reviewedOwner = options.reviewedBatchFingerprint ? loadReviewedBatch(options.reviewedBatchFingerprint) : null;
+  const ownerContext = reviewedOwner ? await assertOwnerExecutionContext(reviewedOwner.batch) : null;
   const loaded = loadDryRunArtifact(options.artifact);
-  const plans = validateArtifactScope(loaded.artifact, approved.manifest, reviewed);
+  const plans = validateArtifactScope(loaded.artifact, approved.manifest, reviewed, reviewedOwner);
   const clients = {};
   try {
     clients.approver = await openRoleClient("approver");
     clients.executor = await openRoleClient("executor");
-    const approvalReason = reviewed ? "six-pack-reviewed-mass-oos" : "six-pack-scheduled-offer-refresh";
-    const rows = await executeApprovedPlans(plans, (entry) =>
-      executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason)
-    );
+    const approvalReason = reviewedOwner ? `six-pack-reviewed-owner:${reviewedOwner.batch.reviewed_batch_fingerprint}` : reviewed ? "six-pack-reviewed-mass-oos" : "six-pack-scheduled-offer-refresh";
+    const execute = (entry) => executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason);
+    const rows = reviewedOwner
+      ? await executeApprovedPlansWithCheckpoint(plans, execute, (checkpoint) => {
+        fs.mkdirSync(path.dirname(options.checkpoint), { recursive: true });
+        fs.writeFileSync(options.checkpoint, `${JSON.stringify(checkpoint, null, 2)}\n`);
+      })
+      : await executeApprovedPlans(plans, execute);
     const counts = executionCounts(plans, rows, approved.manifest.approved_mapping_count);
     const report = {
       schema_version: 1,
@@ -397,6 +468,14 @@ async function run(options) {
         selector: reviewed.manifest.selector,
         manifest_sha256: reviewed.sha256,
         row_count: reviewed.manifest.row_count,
+      } : null,
+      reviewed_owner_approval: reviewedOwner ? {
+        reviewed_batch_fingerprint: reviewedOwner.batch.reviewed_batch_fingerprint,
+        approved_reviewed_plan_count: reviewedOwner.batch.rows.length,
+        actor: ownerContext.actor,
+        actor_permission: ownerContext.permission,
+        implementation_commit_sha: ownerContext.implementation_commit_sha,
+        runtime_commit_sha: ownerContext.runtime_commit_sha,
       } : null,
       rows,
       completed_at: new Date().toISOString(),
@@ -420,6 +499,7 @@ if (require.main === module) {
 
 module.exports = {
   executeApprovedPlans,
+  executeApprovedPlansWithCheckpoint,
   executionCounts,
   hasExpectedShipping,
   parseArgs,
@@ -428,4 +508,5 @@ module.exports = {
   validateArtifactScope,
   validateOperationContract,
   validateReviewedMassOosArtifact,
+  validateReviewedOwnerArtifact,
 };

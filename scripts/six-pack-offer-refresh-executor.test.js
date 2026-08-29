@@ -231,12 +231,13 @@ test("scheduled workflow always preflights, applies through split roles and veri
   assert.doesNotMatch(workflow, /github\.event_name == 'push'|\bpush\|schedule\b/);
   const applyStep = workflow.match(/- name: Apply exact approved manifest[\s\S]*?(?=\n\s{6}- name:)/)?.[0] || "";
   assert.match(applyStep, /if: \$\{\{ github\.event_name == 'schedule' \|\| inputs\.operation == 'apply' \|\| inputs\.operation == 'reviewed-mass-oos-apply' \}\}/);
+  assert.doesNotMatch(applyStep, /apply-reviewed/);
   assert.doesNotMatch(applyStep, /inputs\.operation == 'dry-run'|github\.event_name == 'workflow_dispatch'/);
   assert.match(workflow, /Fresh live-source dry-run/);
   assert.match(workflow, /SIX_PACK_SYNC_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /SIX_PACK_SYNC_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
   assert.match(workflow, /--require-no-change=true/);
-  assert.equal((workflow.match(/--isolate-unsafe=true/g) || []).length, 2);
+  assert.equal((workflow.match(/--isolate-unsafe=true/g) || []).length, 4);
   assert.match(workflow, /name: Upload refresh evidence[\s\S]*?if: always\(\)[\s\S]*?tmp\/six-pack-offer-refresh\/\*\.json/);
   const testsStep = workflow.match(/- name: Test 6 Pack refresh contracts[\s\S]*?(?=\n\s{6}- name:)/)?.[0] || "";
   assert.doesNotMatch(testsStep, /SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL/);
@@ -256,8 +257,10 @@ test("executor reuses role connections and executes all approved plans", () => {
   assert.match(source, /clients\.approver = await openRoleClient\("approver"\)/);
   assert.match(source, /clients\.executor = await openRoleClient\("executor"\)/);
   assert.doesNotMatch(source, /skipped_verified_no_change_count|executablePlans/);
-  assert.match(source, /const rows = await executeApprovedPlans\(plans/);
+  assert.match(source, /const rows = reviewedOwner[\s\S]*executeApprovedPlansWithCheckpoint\(plans[\s\S]*executeApprovedPlans\(plans/);
   assert.match(source, /if \(rows\.length !== plans\.length\) fail\("Verified and executed plan counts differ"\)/);
   assert.match(source, /Promise\.allSettled\(Object\.values\(clients\)\.map\(\(client\) => client\.end\(\)\)\)/);
   assert.doesNotMatch(source, /async function roleCall/);
+  const runSource = source.slice(source.indexOf("async function run(options)"));
+  assert.ok(runSource.indexOf("await assertOwnerExecutionContext(reviewedOwner.batch)") < runSource.indexOf('openRoleClient("approver")'));
 });
