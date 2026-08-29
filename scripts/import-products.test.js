@@ -66,6 +66,8 @@ const PREDATORS_REVIEWED_NEW_PRODUCTS_SIBLING2_SHA =
   predatorsReviewedNewProducts.post_create_remaining_sibling_profile.sha256;
 const PREDATORS_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA =
   predatorsReviewedNewProductsV3.initial_anchor_profile.sha256;
+const PREDATORS_REVIEWED_NEW_PRODUCTS_V3_REMAINING_SHA =
+  predatorsReviewedNewProductsV3.remaining_sibling_profile.sha256;
 const PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA =
   predatorsReviewedCm3MissingVariants.canonical_csv.sha256;
 
@@ -2925,6 +2927,49 @@ test("Predators Gear reviewed new-product v3 initial profile plans only seven ex
       String(item.importPlan.retailer.id) === "13" &&
       Number(item.importPlan.offer.values.shipping_cost) === 0
   ));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("Predators Gear reviewed new-product v3 remaining profile reuses exact live parents for only three sibling variants", async () => {
+  const included = new Set(predatorsReviewedNewProductsV3.remaining_sibling_profile.included_review_rows);
+  const rows = predatorsReviewedNewProductV3Rows(false).filter((_, index) =>
+    included.has(predatorsReviewedNewProductsV3.rows[index].review_row)
+  );
+  const anchors = [
+    { product: 1158, variant: 3211, review: 5, flavour: "fruit-punch" },
+    { product: 1159, variant: 3212, review: 7, flavour: "lemon" },
+  ];
+  const products = anchors.map(({ product, review }) => {
+    const row = predatorsReviewedNewProductsV3.rows.find((entry) => entry.review_row === review);
+    return { id: String(product), name: row.product_name, slug: row.slug, brand: row.brand, category: row.category, product_format: row.product_format, is_active: true, merged_into_product_id: null };
+  });
+  const productVariants = anchors.map(({ product, variant, review, flavour }) => {
+    const row = predatorsReviewedNewProductsV3.rows.find((entry) => entry.review_row === review);
+    return { id: String(variant), product_id: String(product), display_name: row.variant_name, variant_key: `${flavour}-500g`, flavour_code: flavour, flavour_label: row.flavour, size_value: "500", size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false };
+  });
+  const retailerProducts = anchors.map(({ product, variant, review }) => {
+    const row = predatorsReviewedNewProductsV3.rows.find((entry) => entry.review_row === review);
+    return { id: `rp-${review}`, retailer_id: "13", product_id: String(product), product_variant_id: String(variant), external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: row.external_sku, external_gtin: row.external_gtin, external_options: row.external_options, external_url: row.source_url };
+  });
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "13", name: "Predators Gear", slug: "predators-gear", website: "https://predatorsgear.co.uk/", is_active: true }],
+    products,
+    product_variants: productVariants,
+    retailer_products: retailerProducts,
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: PREDATORS_REVIEWED_NEW_PRODUCTS_V3_REMAINING_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 3);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 0);
+  assert.equal(result.report.productVariantsToCreate.length, 3);
+  assert.deepEqual(result.report.approvedRows.map((item) => item.importPlan.product.id), ["1158", "1159", "1159"]);
+  assert.ok(result.report.approvedRows.every((item) => item.importPlan.product.action === "existing" && item.importPlan.product_variant.action === "create_variant" && Number(item.importPlan.offer.values.shipping_cost) === 0));
   assert.equal(supabase.writes.length, 0);
 });
 

@@ -85,6 +85,8 @@ const NEW_PRODUCTS_V2_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "preda
 const NEW_PRODUCTS_V3_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-new-products-v3.json");
 const NEW_PRODUCTS_V3_INITIAL_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-initial-7-dry-run.json");
 const NEW_PRODUCTS_V3_INITIAL_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-initial-7.csv");
+const NEW_PRODUCTS_V3_REMAINING_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-remaining-3-dry-run-v3.json");
+const NEW_PRODUCTS_V3_REMAINING_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-new-products-v3-remaining-3.csv");
 const CM3_MISSING_VARIANTS_MANIFEST_PATH = path.join(ROOT, "config", "retailers", "predators-gear-reviewed-cm3-missing-variants-v1.json");
 const CM3_MISSING_VARIANTS_ARTIFACT_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-cm3-missing-variants-v1-dry-run-v6.json");
 const CM3_MISSING_VARIANTS_CSV_PATH = path.join(ROOT, "tmp", "retailer-feeds", "predators-gear", "predators-gear-reviewed-cm3-missing-variants-v1.csv");
@@ -308,6 +310,35 @@ const REVIEWED_PROFILES = Object.freeze([
     ]),
   }),
   Object.freeze({
+    name: "reviewed-new-products-v3-remaining-3",
+    manifestPath: NEW_PRODUCTS_V3_MANIFEST_PATH,
+    manifestKind: "predators-gear-reviewed-new-products-v3",
+    executionKey: "remaining_sibling_profile",
+    approvalReason: "predators-gear-reviewed-new-products-v3-remaining-3",
+    artifactPath: NEW_PRODUCTS_V3_REMAINING_ARTIFACT_PATH,
+    artifactSha256: "cbd161963251beaaa59d9fd5eda40103bd47f02bc19b277edc4ac220708a230c",
+    csvPath: NEW_PRODUCTS_V3_REMAINING_CSV_PATH,
+    csvSha256: "e59a78bdafcdbb2c5895c70ada2b21d01d2f553849697319079a188280b04133",
+    planCount: 3,
+    reviewRows: Object.freeze([6, 8, 9]),
+    retailerAction: "existing",
+    retailerId: "13",
+    allowsReviewedSiblingVariantCreation: true,
+    targetProductIds: Object.freeze({ 6: "1158", 8: "1159", 9: "1159" }),
+    anchorReviewRows: Object.freeze({ 6: 5, 8: 7, 9: 7 }),
+    expectedCreates: Object.freeze({ products: 0, explicitVariants: 3, implicitDefaults: 0, mappings: 3, offers: 3, history: 3 }),
+    planFingerprints: Object.freeze([
+      "a7399c5a511976103aff24264bccd387",
+      "184c41881cce71c6df7b1a47e8b128f3",
+      "638b182d7fb7e4a62915c78aa6171aab",
+    ]),
+    selectableFingerprints: Object.freeze([
+      "a7399c5a511976103aff24264bccd387",
+      "184c41881cce71c6df7b1a47e8b128f3",
+      "638b182d7fb7e4a62915c78aa6171aab",
+    ]),
+  }),
+  Object.freeze({
     name: "reviewed-new-products-v1-remaining-simple-2",
     manifestPath: NEW_PRODUCTS_V1_MANIFEST_PATH,
     manifestKind: "predators-gear-reviewed-new-products-v1",
@@ -405,6 +436,7 @@ const REVIEWED_PROFILES = Object.freeze([
     retailerAction: "existing",
     retailerId: "13",
     allowsReviewedCreation: true,
+    expectedCreates: Object.freeze({ products: 7, explicitVariants: 3, implicitDefaults: 4, mappings: 7, offers: 7, history: 7 }),
     planFingerprints: Object.freeze([
       "6604ff4af2e6f312d04aa8f0e143f6a7",
       "ab33ee6bcb143b9f1d6da93695857728",
@@ -749,12 +781,12 @@ function validateManifest(manifest, profile) {
     newProductsV3Execution?.plan_count === profile.planCount &&
     newProductsV3Execution?.blocked_row_count === 0 &&
     newProductsV3Execution?.conflict_count === 0 &&
-    newProductsV3Execution?.would_create_products === 7 &&
-    newProductsV3Execution?.would_create_explicit_variants === 3 &&
-    newProductsV3Execution?.implicit_default_variants_with_products === 4 &&
-    newProductsV3Execution?.would_create_retailer_products === 7 &&
-    newProductsV3Execution?.would_create_offers === 7 &&
-    newProductsV3Execution?.would_create_price_history === 7 &&
+    newProductsV3Execution?.would_create_products === profile.expectedCreates?.products &&
+    newProductsV3Execution?.would_create_explicit_variants === profile.expectedCreates?.explicitVariants &&
+    newProductsV3Execution?.implicit_default_variants_with_products === profile.expectedCreates?.implicitDefaults &&
+    newProductsV3Execution?.would_create_retailer_products === profile.expectedCreates?.mappings &&
+    newProductsV3Execution?.would_create_offers === profile.expectedCreates?.offers &&
+    newProductsV3Execution?.would_create_price_history === profile.expectedCreates?.history &&
     canonicalJson([...(newProductsV3Execution?.plan_fingerprints || [])].sort()) ===
       canonicalJson([...profile.planFingerprints].sort()) &&
     manifest.policy?.owner_approved_new_products_only === true &&
@@ -960,7 +992,13 @@ function validateManifest(manifest, profile) {
 function validatePlan(entry, sourceRecord, reviewed, profile) {
   const source = sourceRecord?.normalized_source_row || {};
   const plan = entry.resolved_plan || {};
-  const productId = String(profile.allowsReviewedVariantCreation ? reviewed.target_product_id : reviewed.product_id);
+  const productId = String(
+    profile.allowsReviewedSiblingVariantCreation
+      ? profile.targetProductIds[reviewed.review_row]
+      : profile.allowsReviewedVariantCreation
+        ? reviewed.target_product_id
+        : reviewed.product_id
+  );
   const variantId = String(reviewed.product_variant_id);
   let offerUrl;
   let imageUrl;
@@ -973,6 +1011,114 @@ function validatePlan(entry, sourceRecord, reviewed, profile) {
       : null;
   } catch {
     fail(`Invalid reviewed URL for row ${reviewed.review_row}`);
+  }
+  if (profile.allowsReviewedSiblingVariantCreation) {
+    const marker = source.__reviewed_predators_new_product_identity;
+    const expectedVariant = {
+      display_name: reviewed.variant_name,
+      flavour_code: reviewed.flavour.toLowerCase(),
+      flavour_label: reviewed.flavour,
+      pack_count: "1",
+      product_format: "powder",
+      size_unit: "g",
+      size_value: String(reviewed.size),
+      variant_key: `${reviewed.flavour.toLowerCase().replaceAll(" ", "-")}-${reviewed.size}g`,
+    };
+    const incoming = plan.retailer_product?.identity_contract?.incoming;
+    const anchorReviewRow = profile.anchorReviewRows[reviewed.review_row];
+    const anchorIdentity = NEW_PRODUCTS_V3_REVIEWED_IDENTITIES.get(anchorReviewRow);
+    const approvedPeers = plan.retailer_product?.identity_contract?.approved_url_peers;
+    if (
+      entry.plan_kind !== "feed" ||
+      entry.operation_type !== "standard_import" ||
+      sourceRecord.status !== "planned" ||
+      sourceRecord.plan_fingerprint !== entry.plan_fingerprint ||
+      identityKey(source) !== identityKey(reviewed) ||
+      String(source.product_id || "") !== "" ||
+      String(source.product_variant_id || "") !== "" ||
+      source.retailer_name !== "Predators Gear" ||
+      source.retailer_website !== "https://predatorsgear.co.uk/" ||
+      source.product_name !== reviewed.product_name ||
+      source.slug !== reviewed.slug ||
+      source.brand !== reviewed.brand ||
+      source.category !== reviewed.category ||
+      source.product_format !== reviewed.product_format ||
+      String(source.external_sku) !== String(reviewed.external_sku) ||
+      String(source.external_gtin) !== String(reviewed.external_gtin) ||
+      canonicalJson(sourceOptions) !== canonicalJson(reviewed.external_options) ||
+      String(source.shipping_known).toLowerCase() !== "true" ||
+      !exactDecimal(source.shipping_cost, 0) ||
+      !exactDecimal(source.price, reviewed.price) ||
+      !exactDecimal(source.total_price, reviewed.price) ||
+      source.external_url !== reviewed.source_url ||
+      source.affiliate_url !== reviewed.source_url ||
+      source.image !== reviewed.image ||
+      canonicalJson(marker) !== canonicalJson({
+        action: "create_reviewed_product_variant",
+        contract: "predators-gear-reviewed-new-products-v3",
+        external_product_id: String(reviewed.external_product_id),
+        external_variant_id: String(reviewed.external_variant_id),
+        flavour: reviewed.flavour,
+        post_create_sibling: true,
+        product_format: "powder",
+        review_row: String(reviewed.review_row),
+        safe_create_category_reviewed: false,
+        size_unit: "g",
+        size_value: String(reviewed.size),
+        source_url: reviewed.source_url,
+      }) ||
+      plan.product?.action !== "existing" ||
+      String(plan.product.id) !== productId ||
+      String(plan.expected_state?.product?.id) !== productId ||
+      plan.expected_state?.product?.is_active !== true ||
+      plan.expected_state?.product?.merged_into_product_id != null ||
+      plan.expected_state?.product?.name !== reviewed.product_name ||
+      plan.expected_state?.product?.product_format !== "powder" ||
+      plan.product_variant?.action !== "create_variant" ||
+      canonicalJson(plan.product_variant?.values) !== canonicalJson(expectedVariant) ||
+      canonicalJson(plan.product_variant?.evidence?.external_options) !== canonicalJson(reviewed.external_options) ||
+      plan.expected_state?.product_variant != null ||
+      plan.retailer?.action !== "existing" ||
+      String(entry.retailer_id) !== "13" ||
+      String(plan.retailer.id) !== "13" ||
+      String(plan.expected_state?.retailer?.id) !== "13" ||
+      plan.retailer_product?.action !== "create" ||
+      plan.retailer_product?.values?.product_variant_id != null ||
+      identityKey(plan.retailer_product?.values || {}) !== identityKey(reviewed) ||
+      String(plan.retailer_product?.values?.external_sku) !== String(reviewed.external_sku) ||
+      String(plan.retailer_product?.values?.external_gtin) !== String(reviewed.external_gtin) ||
+      canonicalJson(plan.retailer_product?.values?.external_options) !== canonicalJson(reviewed.external_options) ||
+      plan.retailer_product?.values?.external_url !== reviewed.source_url ||
+      plan.expected_state?.retailer_product != null ||
+      canonicalJson(incoming?.canonical_variant) !== canonicalJson(expectedVariant) ||
+      String(incoming?.product_id) !== productId ||
+      incoming?.product_variant_id != null ||
+      identityKey(incoming || {}) !== identityKey(reviewed) ||
+      !Array.isArray(approvedPeers) ||
+      approvedPeers.length !== 2 ||
+      !anchorIdentity ||
+      !approvedPeers.some((peer) =>
+        String(peer.external_product_id) === String(anchorIdentity[0]) &&
+        String(peer.external_variant_id) === String(anchorIdentity[1]) &&
+        String(peer.product_id) === productId &&
+        peer.product_variant_id != null
+      ) ||
+      plan.offer?.action !== "create" ||
+      !exactDecimal(plan.offer?.values?.price, reviewed.price) ||
+      !exactDecimal(plan.offer?.values?.shipping_cost, 0) ||
+      !exactDecimal(plan.offer?.values?.total_price, reviewed.price) ||
+      plan.offer?.values?.url !== reviewed.source_url ||
+      plan.expected_state?.offer != null ||
+      plan.price_history?.action !== "create" ||
+      plan.approval?.approved !== false ||
+      plan.approval?.approval_type !== "none" ||
+      offerUrl.protocol !== "https:" ||
+      offerUrl.hostname !== "predatorsgear.co.uk" ||
+      imageUrl.protocol !== "https:" ||
+      imageUrl.hostname !== "predatorsgear.co.uk" ||
+      Number(productId) === 337
+    ) fail(`Unsafe Predators Gear v3 sibling plan for row ${reviewed.review_row}`);
+    return;
   }
   if (profile.allowsReviewedVariantCreation) {
     const marker = source.__reviewed_predators_new_product_identity;

@@ -82,6 +82,10 @@ const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.initial_anchor_profile;
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256 =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL.sha256;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.remaining_sibling_profile;
+const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING_SHA256 =
+  PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING.sha256;
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_V3_ROWS = new Map(
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.rows.map((row) => [
     String(row.external_variant_id),
@@ -1015,6 +1019,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_SHA256;
   const isPredatorsV3InitialSource =
     predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256;
+  const isPredatorsV3RemainingSource =
+    predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING_SHA256;
   const isPredatorsV3Identity = Boolean(
     predatorsV3ReviewedRow &&
       slugifyRetailerName(String(row.retailer_name || "")) === "predators-gear"
@@ -1022,11 +1028,12 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   if (
     isPredatorsV3Identity &&
     !isPredatorsV3FullSource &&
-    !isPredatorsV3InitialSource
+    !isPredatorsV3InitialSource &&
+    !isPredatorsV3RemainingSource
   ) {
     throw new Error("Predators Gear reviewed new-product v3 source SHA mismatch");
   }
-  if (isPredatorsV3FullSource || isPredatorsV3InitialSource) {
+  if (isPredatorsV3FullSource || isPredatorsV3InitialSource || isPredatorsV3RemainingSource) {
     if (!isPredatorsV3Identity) {
       throw new Error("Predators Gear reviewed new-product v3 row is outside the approved manifest");
     }
@@ -1037,6 +1044,14 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
       )
     ) {
       throw new Error("Predators Gear reviewed new-product v3 row is outside the initial anchor scope");
+    }
+    if (
+      isPredatorsV3RemainingSource &&
+      !PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING.included_review_rows.includes(
+        predatorsV3ReviewedRow.review_row
+      )
+    ) {
+      throw new Error("Predators Gear reviewed new-product v3 row is outside the remaining sibling scope");
     }
     const exactTextFields = [
       ["retailer_name", PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.retailer.name],
@@ -1117,6 +1132,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         size_unit: predatorsV3ReviewedRow.size_unit || null,
         product_format: predatorsV3ReviewedRow.product_format,
         source_url: predatorsV3ReviewedRow.source_url,
+        ...(isPredatorsV3RemainingSource ? { post_create_sibling: true } : {}),
         safe_create_category_reviewed:
           predatorsV3ReviewedRow.category === "Pre Workout",
       },
@@ -1466,7 +1482,8 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   const predatorsV3SourceSha = String(options.sourceFileSha256 || "").toLowerCase();
   if (
     predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_SHA256 ||
-    predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256
+    predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256 ||
+    predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING_SHA256
   ) {
     const profile = predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_SHA256
       ? {
@@ -1475,7 +1492,9 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
             (row) => row.review_row
           ),
         }
-      : PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL;
+      : predatorsV3SourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL_SHA256
+        ? PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_INITIAL
+        : PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING;
     if (rows.length !== profile.row_count) {
       throw new Error(`Predators Gear reviewed new-product v3 contract requires exactly ${profile.row_count} rows`);
     }
@@ -2659,6 +2678,21 @@ async function validateNewRetailerMappingIdentity({
     productVariant?.planned_create === true &&
     String(productVariant.product_id) === String(product?.id)
   );
+  const reviewedV3Sibling =
+    PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_V3_ROWS.get(externalVariantId);
+  const exactPredatorsV3PlannedVariant = Boolean(
+    row.__reviewed_predators_new_product_identity?.post_create_sibling === true &&
+    row.__reviewed_predators_new_product_identity?.contract ===
+      PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.kind &&
+    reviewedV3Sibling &&
+    PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3_REMAINING.included_review_rows.includes(
+      reviewedV3Sibling.review_row
+    ) &&
+    String(reviewedV3Sibling.external_product_id) === externalProductId &&
+    String(reviewedV3Sibling.external_variant_id) === externalVariantId &&
+    productVariant?.planned_create === true &&
+    String(productVariant.product_id) === String(product?.id)
+  );
   if (
     (
       urlPeers.length > 0 ||
@@ -2678,7 +2712,8 @@ async function validateNewRetailerMappingIdentity({
         optionalIdentifier(row.product_variant_id) !== String(productVariant.id)
       )
     ) &&
-    !exactPredatorsCm3PlannedVariant
+    !exactPredatorsCm3PlannedVariant &&
+    !exactPredatorsV3PlannedVariant
   ) {
     throw new Error(
       "shared parent URL requires explicit exact canonical product and variant IDs"
@@ -2708,7 +2743,7 @@ async function validateNewRetailerMappingIdentity({
     external_url: getRetailerProductUrl(row),
     legacy: false,
   });
-  const canonicalUrlPeers = exactPredatorsCm3PlannedVariant
+  const canonicalUrlPeers = exactPredatorsCm3PlannedVariant || exactPredatorsV3PlannedVariant
     ? urlPeers.filter((peer) => String(peer.product_id) === String(product.id))
     : urlPeers;
   validateSharedParentPeerCohort([
@@ -4492,33 +4527,79 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   ) {
     try {
       const reviewed = shippingNormalizedRow.__reviewed_predators_new_product_identity;
-      const siblingProfile = PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING;
       const evidence = collectCanonicalVariantEvidence(shippingNormalizedRow);
       assertReviewedParentVariantPolicy(shippingNormalizedRow, rowNumber, evidence);
-      if (
-        Number(product.id) !== Number(siblingProfile.existing_product_id) ||
-        product.name !== shippingNormalizedRow.product_name ||
-        product.slug !== shippingNormalizedRow.slug ||
-        product.brand !== shippingNormalizedRow.brand ||
-        product.category !== shippingNormalizedRow.category ||
-        product.product_format !== shippingNormalizedRow.product_format
-      ) {
-        throw new Error("reviewed Predators Gear sibling canonical parent mismatch");
-      }
-      const anchor = await fetchProductVariantById(siblingProfile.existing_anchor_variant_id);
-      if (
-        !anchor ||
-        Number(anchor.product_id) !== Number(product.id) ||
-        anchor.is_active !== true ||
-        anchor.is_default !== false ||
-        normalizeFlavour(anchor.flavour_code || anchor.flavour_label) !== "cherry" ||
-        normalizeDecimalString(anchor.size_value, "size_value") !== "316" ||
-        anchor.size_unit !== "g"
-      ) {
-        throw new Error("reviewed Predators Gear sibling anchor variant mismatch");
-      }
-      if (![2, 3].includes(Number(reviewed.review_row))) {
-        throw new Error("reviewed Predators Gear sibling review row mismatch");
+      const isV3Remaining =
+        reviewed.contract === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.kind;
+      if (isV3Remaining) {
+        const anchorReviewRow = new Map([[6, 5], [8, 7], [9, 7]]).get(Number(reviewed.review_row));
+        const anchorReviewed = PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3.rows.find(
+          (entry) => entry.review_row === anchorReviewRow
+        );
+        if (
+          !anchorReviewed ||
+          product.name !== shippingNormalizedRow.product_name ||
+          product.slug !== shippingNormalizedRow.slug ||
+          product.brand !== shippingNormalizedRow.brand ||
+          product.category !== shippingNormalizedRow.category ||
+          product.product_format !== shippingNormalizedRow.product_format ||
+          product.is_active !== true ||
+          product.merged_into_product_id != null ||
+          mappingResolution.urlPeers.length !== 1
+        ) {
+          throw new Error("reviewed Predators Gear v3 sibling canonical parent mismatch");
+        }
+        const anchorPeer = mappingResolution.urlPeers[0];
+        if (
+          Number(anchorPeer.product_id) !== Number(product.id) ||
+          String(anchorPeer.external_product_id) !== String(anchorReviewed.external_product_id) ||
+          String(anchorPeer.external_variant_id) !== String(anchorReviewed.external_variant_id) ||
+          String(anchorPeer.external_gtin) !== String(anchorReviewed.external_gtin) ||
+          anchorPeer.external_url !== anchorReviewed.source_url
+        ) {
+          throw new Error("reviewed Predators Gear v3 sibling anchor mapping mismatch");
+        }
+        const anchor = await fetchProductVariantById(anchorPeer.product_variant_id);
+        if (
+          !anchor ||
+          Number(anchor.product_id) !== Number(product.id) ||
+          anchor.is_active !== true ||
+          anchor.is_default !== false ||
+          normalizeFlavour(anchor.flavour_code || anchor.flavour_label) !==
+            normalizeFlavour(anchorReviewed.flavour) ||
+          normalizeDecimalString(anchor.size_value, "size_value") !==
+            normalizeDecimalString(anchorReviewed.size, "size_value") ||
+          anchor.size_unit !== anchorReviewed.size_unit
+        ) {
+          throw new Error("reviewed Predators Gear v3 sibling anchor variant mismatch");
+        }
+      } else {
+        const siblingProfile = PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_POST_CREATE_SIBLING;
+        if (
+          Number(product.id) !== Number(siblingProfile.existing_product_id) ||
+          product.name !== shippingNormalizedRow.product_name ||
+          product.slug !== shippingNormalizedRow.slug ||
+          product.brand !== shippingNormalizedRow.brand ||
+          product.category !== shippingNormalizedRow.category ||
+          product.product_format !== shippingNormalizedRow.product_format
+        ) {
+          throw new Error("reviewed Predators Gear sibling canonical parent mismatch");
+        }
+        const anchor = await fetchProductVariantById(siblingProfile.existing_anchor_variant_id);
+        if (
+          !anchor ||
+          Number(anchor.product_id) !== Number(product.id) ||
+          anchor.is_active !== true ||
+          anchor.is_default !== false ||
+          normalizeFlavour(anchor.flavour_code || anchor.flavour_label) !== "cherry" ||
+          normalizeDecimalString(anchor.size_value, "size_value") !== "316" ||
+          anchor.size_unit !== "g"
+        ) {
+          throw new Error("reviewed Predators Gear sibling anchor variant mismatch");
+        }
+        if (![2, 3].includes(Number(reviewed.review_row))) {
+          throw new Error("reviewed Predators Gear sibling review row mismatch");
+        }
       }
       const skuPeer = await findRetailerMappingBySku(
         retailer.id,
@@ -4536,10 +4617,18 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
         throw new Error("reviewed parent explicit-variant GTIN conflict");
       }
       const planned = planReviewedParentVariant(shippingNormalizedRow, rowNumber, evidence);
-      plannedProduct = planned.product;
-      productVariant = planned.variant;
-      reviewedParentVariantCreate = true;
-      product = null;
+      if (isV3Remaining) {
+        productVariant = {
+          ...planned.variant,
+          product_id: product.id,
+          reviewed_parent_variant_create: false,
+        };
+      } else {
+        plannedProduct = planned.product;
+        productVariant = planned.variant;
+        reviewedParentVariantCreate = true;
+        product = null;
+      }
     } catch (error) {
       variantResolutionError = error?.message || String(error);
     }
