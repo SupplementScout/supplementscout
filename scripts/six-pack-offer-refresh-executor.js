@@ -58,6 +58,41 @@ function hasExpectedShipping(offer) {
   );
 }
 
+function sameCommercialOfferState(before, after) {
+  const sameDecimal = (left, right) => {
+    if (left === null || left === undefined || right === null || right === undefined) {
+      return left === right;
+    }
+    return Number.isFinite(Number(left)) && Number.isFinite(Number(right)) && Number(left) === Number(right);
+  };
+  return (
+    sameDecimal(before?.price, after?.price) &&
+    sameDecimal(before?.shipping_cost, after?.shipping_cost) &&
+    sameDecimal(before?.total_price, after?.total_price) &&
+    before?.in_stock === after?.in_stock &&
+    before?.url === after?.url
+  );
+}
+
+function validateOperationContract(plan) {
+  const before = plan.expected_state?.offer;
+  const after = plan.offer?.values;
+  const verifiedNoChange = plan.meta?.operation_type === "verify_offer_no_change";
+
+  if (verifiedNoChange !== (plan.offer?.action === "verify_no_change")) {
+    fail("Refresh operation type and offer action mismatch");
+  }
+  if (!verifiedNoChange) return;
+  if (
+    plan.retailer_product?.action !== "noop" ||
+    plan.price_history?.action !== "noop" ||
+    !sameCommercialOfferState(before, after) ||
+    after?.last_checked_at !== plan.meta.source_captured_at ||
+    !Number.isFinite(Date.parse(before?.last_checked_at || "")) ||
+    Date.parse(after.last_checked_at) <= Date.parse(before.last_checked_at)
+  ) fail("Verified no-change plan may update only last_checked_at");
+}
+
 function reviewedPlanRows(artifact) {
   return artifact.plans
     .filter((entry) => {
@@ -194,6 +229,7 @@ function validateArtifactScope(artifact, manifest, reviewed = null) {
     }
     if (plan.offer.action === "verify_no_change" && changed) fail("No-change plan contains a business-field change");
     if (plan.offer.action === "update" && !changed) fail("Update plan does not contain a business-field change");
+    validateOperationContract(plan);
     seen.add(binding.external_variant_id);
   }
   const total = artifact.plans.length;
@@ -285,6 +321,21 @@ async function executeEntry(entry, artifactSha256, runId, clients, approvalReaso
   };
 }
 
+async function executeApprovedPlans(plans, execute) {
+  const rows = [];
+  for (const entry of plans) rows.push(await execute(entry));
+  if (rows.length !== plans.length) fail("Not every verified refresh plan was executed");
+  return rows;
+}
+
+function executionCounts(plans, rows) {
+  if (rows.length !== plans.length) fail("Verified and executed plan counts differ");
+  return {
+    verified_plan_count: plans.length,
+    executed_plan_count: rows.length,
+  };
+}
+
 async function run(options) {
   if (
     process.env.GITHUB_ACTIONS !== "true" ||
@@ -300,14 +351,15 @@ async function run(options) {
   const reviewed = loadReviewedMassOosManifest(options.reviewedMassOosSelector, approved.manifest);
   const loaded = loadDryRunArtifact(options.artifact);
   const plans = validateArtifactScope(loaded.artifact, approved.manifest, reviewed);
-  const executablePlans = plans.filter((entry) => entry.operation_type !== "verify_offer_no_change");
   const clients = {};
   try {
     clients.approver = await openRoleClient("approver");
     clients.executor = await openRoleClient("executor");
-    const rows = [];
     const approvalReason = reviewed ? "six-pack-reviewed-mass-oos" : "six-pack-scheduled-offer-refresh";
-    for (const entry of executablePlans) rows.push(await executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason));
+    const rows = await executeApprovedPlans(plans, (entry) =>
+      executeEntry(entry, loaded.artifactSha256, loaded.artifact.run_id, clients, approvalReason)
+    );
+    const counts = executionCounts(plans, rows);
     const report = {
       schema_version: 1,
       kind: "six-pack-approved-offer-refresh-execution",
@@ -315,9 +367,7 @@ async function run(options) {
       target_project_ref: PROJECT_REF,
       manifest_sha256: approved.sha256,
       artifact_sha256: loaded.artifactSha256,
-      verified_plan_count: plans.length,
-      skipped_verified_no_change_count: plans.length - executablePlans.length,
-      executed_plan_count: rows.length,
+      ...counts,
       reviewed_mass_oos: reviewed ? {
         selector: reviewed.manifest.selector,
         manifest_sha256: reviewed.sha256,
@@ -344,9 +394,13 @@ if (require.main === module) {
 }
 
 module.exports = {
+  executeApprovedPlans,
+  executionCounts,
   hasExpectedShipping,
   parseArgs,
   reviewedPlanRows,
+  sameCommercialOfferState,
   validateArtifactScope,
+  validateOperationContract,
   validateReviewedMassOosArtifact,
 };

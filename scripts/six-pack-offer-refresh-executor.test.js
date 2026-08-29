@@ -4,10 +4,16 @@ const path = require("node:path");
 const test = require("node:test");
 const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
 const { loadReviewedMassOosManifest } = require("./six-pack-offer-refresh");
-const { parseArgs, validateArtifactScope } = require("./six-pack-offer-refresh-executor");
+const {
+  executeApprovedPlans,
+  executionCounts,
+  parseArgs,
+  validateArtifactScope,
+} = require("./six-pack-offer-refresh-executor");
 
 function artifact() {
   const createdAt = new Date().toISOString();
+  const previousCheckedAt = new Date(Date.parse(createdAt) - 86400000).toISOString();
   const sourceHash = "a".repeat(64);
   return {
     environment_marker: "production",
@@ -27,7 +33,7 @@ function artifact() {
         retailer_product: { action: "noop", id: row.mapping_id },
         offer: { action: "verify_no_change", id: row.offer_id, values: { price: "10.00", shipping_cost: "4.99", total_price: "14.99", in_stock: true, url: "https://6pack-supplements.co.uk/product/test/", last_checked_at: createdAt } },
         price_history: { action: "noop" },
-        expected_state: { offer: { price: "10.00", shipping_cost: "4.99", total_price: "14.99", in_stock: true, url: "https://6pack-supplements.co.uk/product/test/" } },
+        expected_state: { offer: { price: "10.00", shipping_cost: "4.99", total_price: "14.99", in_stock: true, url: "https://6pack-supplements.co.uk/product/test/", last_checked_at: previousCheckedAt } },
       },
     })),
   };
@@ -72,6 +78,62 @@ test("executor accepts a unique safe subset from the immutable manifest", () => 
 
   subset.plans[0].resolved_plan.product.id = "999";
   assert.throws(() => validateArtifactScope(subset, manifest), /Unsafe or mismatched/);
+});
+
+test("full approved freshness plan executes every one of the 506 verified rows", async () => {
+  const plans = validateArtifactScope(artifact(), manifest);
+  const executed = await executeApprovedPlans(plans, async (entry) => ({
+    row_number: entry.row_number,
+    operation_type: entry.operation_type,
+  }));
+
+  assert.deepEqual(executionCounts(plans, executed), {
+    verified_plan_count: manifest.approved_mapping_count,
+    executed_plan_count: manifest.approved_mapping_count,
+  });
+});
+
+test("6 Pack verified no-change contract permits only a newer last_checked_at", () => {
+  const valid = artifact();
+  assert.equal(validateArtifactScope(valid, manifest).length, 506);
+  const before = valid.plans[0].resolved_plan.expected_state.offer;
+  const after = valid.plans[0].resolved_plan.offer.values;
+  assert.deepEqual(
+    { ...after, last_checked_at: undefined },
+    { ...before, last_checked_at: undefined }
+  );
+  assert.notEqual(after.last_checked_at, before.last_checked_at);
+
+  for (const [field, value] of [
+    ["price", "11.00"],
+    ["shipping_cost", "0.00"],
+    ["total_price", "15.99"],
+    ["in_stock", false],
+    ["url", "https://6pack-supplements.co.uk/product/changed/"],
+  ]) {
+    const changed = artifact();
+    changed.plans[0].resolved_plan.offer.values[field] = value;
+    assert.throws(() => validateArtifactScope(changed, manifest));
+  }
+
+  const mappingChange = artifact();
+  mappingChange.plans[0].resolved_plan.retailer_product.action = "update";
+  assert.throws(
+    () => validateArtifactScope(mappingChange, manifest),
+    /may update only last_checked_at/
+  );
+
+  const historyChange = artifact();
+  historyChange.plans[0].resolved_plan.price_history.action = "create";
+  assert.throws(() => validateArtifactScope(historyChange, manifest));
+
+  const unchangedTimestamp = artifact();
+  unchangedTimestamp.plans[0].resolved_plan.offer.values.last_checked_at =
+    unchangedTimestamp.plans[0].resolved_plan.expected_state.offer.last_checked_at;
+  assert.throws(
+    () => validateArtifactScope(unchangedTimestamp, manifest),
+    /may update only last_checked_at/
+  );
 });
 
 test("executor independently accepts only the exact selected two-row MASS_OOS artifact", () => {
@@ -143,12 +205,13 @@ test("reviewed MASS_OOS selector is manual-only and apply needs the exact apply 
   assert.doesNotMatch(workflow, /github\.event_name == 'schedule'[^\n]*reviewed-mass-oos-dry-run/);
 });
 
-test("executor reuses role connections and executes only real changes", () => {
+test("executor reuses role connections and executes all approved plans", () => {
   const source = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh-executor.js"), "utf8");
   assert.match(source, /clients\.approver = await openRoleClient\("approver"\)/);
   assert.match(source, /clients\.executor = await openRoleClient\("executor"\)/);
-  assert.match(source, /const executablePlans = plans\.filter\(\(entry\) => entry\.operation_type !== "verify_offer_no_change"\)/);
-  assert.match(source, /for \(const entry of executablePlans\) rows\.push\(await executeEntry\(entry, loaded\.artifactSha256, loaded\.artifact\.run_id, clients, approvalReason\)\)/);
+  assert.doesNotMatch(source, /skipped_verified_no_change_count|executablePlans/);
+  assert.match(source, /const rows = await executeApprovedPlans\(plans/);
+  assert.match(source, /if \(rows\.length !== plans\.length\) fail\("Verified and executed plan counts differ"\)/);
   assert.match(source, /Promise\.allSettled\(Object\.values\(clients\)\.map\(\(client\) => client\.end\(\)\)\)/);
   assert.doesNotMatch(source, /async function roleCall/);
 });
