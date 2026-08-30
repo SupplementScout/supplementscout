@@ -314,7 +314,17 @@ function loadScopes() {
 
 const SCOPES = loadScopes();
 const SCOPE = SCOPES.find((scope) => scope.offer_id === "2558");
+const ISOLATED_SOURCE_FAILURE_OFFER_IDS = new Set(["2686"]);
 function pendingArtifact(scope) { return path.join(OUT, `pending-${scope.offer_id}.json`); }
+
+function partitionSourceFailures(unsafeRows) {
+  const sourceFailures = unsafeRows.filter((row) => row.source_error === "SOURCE_READ_FAILED");
+  const isolated = sourceFailures.length === 1 && ISOLATED_SOURCE_FAILURE_OFFER_IDS.has(String(sourceFailures[0].offer_id));
+  return {
+    globalBlocked: isolated ? [] : sourceFailures,
+    sourceFailureReview: isolated ? sourceFailures.map((row) => ({ ...row, review_type: "SOURCE_FAILURE" })) : [],
+  };
+}
 
 function writePendingBatch(report, now) {
   if (report.blocked_row_count !== 0) fail("Global eBay refresh blockers prevent apply preparation");
@@ -540,7 +550,7 @@ async function run(options, dependencies = {}) {
     if (!evaluations[index].continuity.eligible) continue;
     prepared.push(await prepareScope(SCOPES[index], evaluations[index], options.mode, dependencies, stamp));
   }
-  const globalBlocked = unsafeRows.filter((row) => row.source_error === "SOURCE_READ_FAILED");
+  const { globalBlocked, sourceFailureReview } = partitionSourceFailures(unsafeRows);
   const identityReview = unsafeRows.filter((row) => row.source_error !== "SOURCE_READ_FAILED").map((row) => ({ ...row, review_type: "IDENTITY_CONFLICT" }));
   const importerIdentityReview = prepared.flatMap(({ review }) => review ? [review] : []);
   const preparedRows = prepared.filter(({ approved }) => approved).map(({ approved }) => {
@@ -549,7 +559,7 @@ async function run(options, dependencies = {}) {
   });
   const executableRows = globalBlocked.length ? [] : preparedRows.filter((row) => row.action === "VERIFY_NO_CHANGE");
   const commercialReview = preparedRows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => ({ offer_id: row.offer_id, action: row.action, review_type: "COMMERCIAL_CHANGE" }));
-  const reviewRows = [...identityReview, ...importerIdentityReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+  const reviewRows = [...sourceFailureReview, ...identityReview, ...importerIdentityReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
   const classification = preparedRows.reduce((counts, row) => ({ ...counts, [row.action]: (counts[row.action] || 0) + 1 }), {});
   const report = {
     result: globalBlocked.length ? "BLOCK" : reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
@@ -568,6 +578,7 @@ async function run(options, dependencies = {}) {
     blocked_rows: globalBlocked,
     commercial_change_count: commercialReview.length,
     identity_conflict_count: identityReview.length + importerIdentityReview.length,
+    source_failure_review_count: sourceFailureReview.length,
     expected_deltas: {
       logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: executableRows.length },
       row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 },
@@ -582,4 +593,4 @@ async function run(options, dependencies = {}) {
 async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); if (!report.result.startsWith("PASS")) process.exitCode = 2; }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
+module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, partitionSourceFailures, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };

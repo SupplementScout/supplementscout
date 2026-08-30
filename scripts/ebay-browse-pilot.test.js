@@ -7,7 +7,7 @@ const { parse } = require("csv-parse/sync");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
 const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
-const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
+const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, partitionSourceFailures, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
 const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: validateBatchHRecovery } = require("./ebay-offer-batch-h-recovery-executor");
@@ -721,10 +721,15 @@ test("Batch R refresh continuity remains sealed to the exact approved item, sell
   assert.equal(classifyContinuity(exact, evaluation("2722", "powerbodyltd", [], [], exact.gtin)).eligible, false);
 });
 
-test("eBay refresh treats an unreadable listing as a global blocker without automatic OOS", () => {
+test("eBay refresh isolates only the reviewed source failure and keeps all other source failures global", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
   assert.match(source, /catch \{[\s\S]*blockers: \["SOURCE_READ_FAILED"\][\s\S]*continuity: \{ eligible: false, tier: "blocked" \}/);
-  assert.match(source, /globalBlocked = unsafeRows\.filter/);
+  assert.deepEqual(partitionSourceFailures([{ offer_id: "2686", source_error: "SOURCE_READ_FAILED" }]), {
+    globalBlocked: [],
+    sourceFailureReview: [{ offer_id: "2686", source_error: "SOURCE_READ_FAILED", review_type: "SOURCE_FAILURE" }],
+  });
+  assert.equal(partitionSourceFailures([{ offer_id: "2685", source_error: "SOURCE_READ_FAILED" }]).globalBlocked.length, 1);
+  assert.equal(partitionSourceFailures([{ offer_id: "2686", source_error: "SOURCE_READ_FAILED" }, { offer_id: "2685", source_error: "SOURCE_READ_FAILED" }]).globalBlocked.length, 2);
   assert.match(source, /executableRows = globalBlocked\.length \? \[\]/);
   assert.match(source, /automatic_oos: "blocked"/);
   assert.doesNotMatch(source, /SOURCE_READ_FAILED[\s\S]{0,300}in_stock:\s*false/);
