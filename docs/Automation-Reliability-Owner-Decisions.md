@@ -1,5 +1,13 @@
 # Automation Reliability — Owner Decision Pack
 
+## eBay artifact-bound approval reset — 30 August 2026
+
+The owner approval tied to dry-run `33327218721` was intentionally not executed. Audit proved that the previous manual workflow accepted only a static broad confirmation and could not verify the approved run ID, artifact ID, commit, semantic source/plan fingerprints, manifest hash or report hash before the approval/executor boundary. That run and every older eBay dry-run are therefore non-reusable for apply.
+
+The replacement contract is fail-closed and requires one fresh artifact produced by the corrected workflow. A future manual apply must supply the exact dry-run ID, artifact ID, commit SHA, semantic source fingerprint, semantic plan fingerprint, contract-manifest SHA-256, report SHA-256 and an owner confirmation derived from the plan fingerprint plus manifest SHA-256. The workflow verifies GitHub repository/workflow/run metadata, artifact ownership and expiry, canonical file inventory, fresh semantic source/plan equality and exact DB before-state before the first approval/apply RPC. Capture timestamp alone is excluded from semantic equality.
+
+No current line in this document authorizes eBay apply. A new exact line will be generated only from the first successful corrected dry-run. Commercial changes, identity changes, rebinds, offer `2686`, cron enablement and `EBAY_REFRESH_ENABLED` remain unapproved in this phase.
+
 ## Final eBay freshness apply approval boundary — 30 August 2026, 18:05 UTC
 
 The fresh, read-only run `33326501229` on commit `88ec0a3311ac2197fd43c36a976e14ca81403482` produced the exact permitted partition: 237 approved mappings, 197 executable `VERIFY_NO_CHANGE`, 40 isolated review rows and zero blocked rows. Artifact `9736439158`; source fingerprint `f2710f56b68bf24e6156629d2d8c4bbea9685e993a2c4f09da2033a612ea9f81`; plan fingerprint `5d3f77c92bfd8c1d89ef5b15d1878f7c4aaf2a14341875caf1f965b8e9f59238`. The 40 review rows contain 7 price changes, 32 identity conflicts and source-failure offer `2686`; none is executable.
