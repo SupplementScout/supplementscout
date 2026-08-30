@@ -6,7 +6,18 @@
 
 **Zasada wykonania:** ten dokument nie jest artefaktem apply. Zatwierdzenie pozycji nadal wymaga fresh capture, niezmienionego fingerprintu, approval per row, stale-state guardu, chronionego RPC i read-only postflightu.
 
-## Jedna tabela pozostałych decyzji
+## Status wykonania Grupy A
+
+**GROUP A: COMPLETED for the exact approved identity operations; rollout outcome: PARTIAL.** Owner approval was verified against commit `2b3b466fe95e5e90f0480a94b8ab49d5fecb3f7f`. The exact production migrations were applied under fingerprint `fd915307bf148bd4` and sealed at commit `02be396`.
+
+- **6 Pack — COMPLETED:** mapping `2192` and offer `2006` now use exact variant `3126`. Fresh run `33300176675` reproduced the exact fourteen approved commercial rows. Reviewed run `33300883997` executed `14/14`, produced exactly thirteen price-history rows and six stock changes, and changed no mapping or entity count. Independent read-only verification passed; `ab8c319` corrected the post-write timestamp-representation false positive without replay. Ordinary run `33301481783` executed `506/506` freshness confirmations; row-level readback passed, the final optional-count false positive was fixed in `802c910`, and read-only idempotency run `33302525576` returned 506 no-change rows, zero review and zero writes.
+- **eBay UK — COMPLETED for approved rebind:** mapping `2766` and offer `2581` now use exact variant `2920`; commercial fields and history were unchanged. Fresh run `33300177322` confirmed that exact row, then stopped without apply on new unrelated offer `2582` variant drift. Any remediation or ordinary apply now needs separate authority.
+- **GYM HIGH — COMPLETED for approved control promotion:** immutable tuple `4623:4623` now expects exact variant `2973`; live mapping/offer and commercial fields were untouched. Fresh run `33300178041` confirmed this control and the 26-parent/71-row source, then stopped without apply on new unrelated mapping `3333` canonical drift.
+- **KIOR — COMPLETED for exact eleven identity promotions:** all eleven mappings now contain the approved Shopify product/variant IDs. Products, variants, mappings, offers, prices, stock and price history counts were preserved. Read-only capture `98f311e9-61ac-4633-bbbe-3e1b44971508` reproduced all eleven with zero drift and zero writes. The existing identity migration does not update `last_checked_at`; because there is no registered protected KIOR freshness workflow, the eleven offers remain stale and autonomous KIOR apply remains an unapproved Group B decision.
+
+Implementation commits: `b78f4ec` (6 Pack binding), `2d84d36` (eBay binding), `3daa649` (GYM HIGH control), `7d80824` (Group A identity migrations), `02be396` (production ledger seal), `6a2fca3` (exact reviewed 6 Pack manifest), `ab8c319` and `802c910` (evidence-only postflight fixes). No Group B or C operation was executed.
+
+## Zatwierdzony zakres historyczny i pozostałe decyzje
 
 | Grupa | Decyzja | Pełny kontekst i dowód | Pewność | Rekomendacja | Dokładny wpływ zatwierdzenia |
 | --- | --- | --- | --- | --- | --- |
