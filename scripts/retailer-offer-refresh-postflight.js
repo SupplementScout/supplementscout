@@ -59,7 +59,8 @@ const PROFILES = Object.freeze({
 });
 
 function invariant(condition, message) { if (!condition) throw new Error(message); }
-function hash(value) { return crypto.createHash("sha256").update(canonicalJson(value)).digest("hex"); }
+function jsonSerializable(value) { return JSON.parse(JSON.stringify(value)); }
+function hash(value) { return crypto.createHash("sha256").update(canonicalJson(jsonSerializable(value))).digest("hex"); }
 function baselineHash(value) { const payload = { ...value }; delete payload.evidence_hash; return hash(payload); }
 function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 function approvedOfferIds(profile) {

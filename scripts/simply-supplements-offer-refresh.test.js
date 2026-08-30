@@ -107,6 +107,25 @@ test("Simply DB postflight proves executable freshness, review isolation and pla
   assert.throws(() => verifyPostflight(baseline, { ...after, rows: [after.rows[0], { ...after.rows[1], last_checked_at: "2026-08-30T00:00:00Z" }] }, execution), /Review offer 2 changed/);
 });
 
+test("DB baseline evidence hash is stable across PostgreSQL Date serialization", () => {
+  const baseline = {
+    schema_version: 1,
+    kind: "retailer-offer-refresh-db-baseline",
+    result: "PASS",
+    profile: "simply-supplements",
+    snapshot: {
+      captured_at: new Date("2026-08-30T05:55:33.210Z"),
+      rows: [{ last_checked_at: new Date("2026-08-24T05:50:16.642Z") }],
+    },
+  };
+  const beforeSerialization = baselineHash(baseline);
+  const persisted = JSON.parse(JSON.stringify({
+    ...baseline,
+    evidence_hash: beforeSerialization,
+  }));
+  assert.equal(persisted.evidence_hash, baselineHash(persisted));
+});
+
 test("authority file bytes remain frozen", () => {
   const bytes = fs.readFileSync(path.join(ROOT, config.manifest_path));
   assert.equal(crypto.createHash("sha256").update(bytes).digest("hex"), config.manifest_sha256);
