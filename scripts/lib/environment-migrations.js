@@ -85,6 +85,9 @@ const EXCLUSIONS = Object.freeze({
     "20260826170000_create_fit_house_sodium_butyrate_exact_pack",
     "20260826180000_resolve_fit_house_six_exact_pack_conflicts",
     "20260826190000_enable_fit_house_price_observation_producer",
+    "20260830090000_rebind_owner_approved_six_pack_offer_2006",
+    "20260830091000_rebind_owner_approved_ebay_offer_2581",
+    "20260830092000_promote_owner_approved_kior_11_identities",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

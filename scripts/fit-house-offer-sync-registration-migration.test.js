@@ -17,7 +17,11 @@ test("migration is hash-bound and transactional", () => {
   assert.equal(crypto.createHash("sha256").update(repositoryBytes).digest("hex"), expectedSha);
   assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 89);
-  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending, []);
+  assert.deepEqual(selector.CONTRACTS.PRODUCTION.pending.map((row) => row.filename), [
+    "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql",
+    "20260830091000_rebind_owner_approved_ebay_offer_2581.sql",
+    "20260830092000_promote_owner_approved_kior_11_identities.sql",
+  ]);
   assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 159);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);

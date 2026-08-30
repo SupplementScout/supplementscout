@@ -151,9 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed Glutamine peer cohort as applied", () => {
+test("production records the reviewed Glutamine peer cohort and exact Group A pending set", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map((row) => row.filename), [
+    "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql",
+    "20260830091000_rebind_owner_approved_ebay_offer_2581.sql",
+    "20260830092000_promote_owner_approved_kior_11_identities.sql",
+  ]);
   assert.equal(contract.ledgerCount, 159);
   assert.equal(
     contract.ledgerFingerprint,
@@ -262,12 +266,16 @@ test("production binds its exact ledger after the reviewed Predators v3 policy a
   });
   assert.equal(result.ledger_count, 159);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 159);
-  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending, [
+    "20260830090000_rebind_owner_approved_six_pack_offer_2006",
+    "20260830091000_rebind_owner_approved_ebay_offer_2581",
+    "20260830092000_promote_owner_approved_kior_11_identities",
+  ]);
+  assert.equal(result.selected_files.length, 162);
+  assert.equal(result.pending_files.length, 3);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(Object.keys(result.pending_sha256s).length, 3);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -350,6 +358,23 @@ test("staging output reports no pending migration after the Glutamine cohort app
   assert.equal(result.pending_sha256, null);
   assert.deepEqual(result.pending_files, []);
   assert.deepEqual(result.pending_sha256s, {});
+});
+
+test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
+  const files = CONTRACTS.PRODUCTION.pending.map((row) => path.join(SOURCE, row.filename));
+  const sql = files.map((file) => fs.readFileSync(file, "utf8"));
+  for (const body of sql) {
+    assert.match(body, /current_user <> 'postgres'/);
+    assert.match(body, /supplementscout-production:aftboxmrdgyhizicfsfu/);
+    assert.doesNotMatch(body, /(?:insert into|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+    assert.doesNotMatch(body, /update\s+public\.(?:products|product_variants|price_history)/i);
+    assert.doesNotMatch(body, /set\s+(?:price|shipping_cost|total_price|in_stock|last_checked_at)\s*=/i);
+  }
+  assert.match(sql[0], /id=2192[\s\S]*product_variant_id=3126/);
+  assert.match(sql[0], /id=2006[\s\S]*product_variant_id=3126/);
+  assert.match(sql[1], /id=2766[\s\S]*product_variant_id=2920/);
+  assert.match(sql[1], /id=2581[\s\S]*product_variant_id=2920/);
+  assert.match(sql[2], /v_rows<>11/);
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {

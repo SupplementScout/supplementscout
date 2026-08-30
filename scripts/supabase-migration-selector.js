@@ -188,6 +188,12 @@ const CONTRACTS = Object.freeze({
         "186c45496a911870257cf592b1aacbf0416a6b2511ceab363425653dbf72fe45",
       "20260826190000_enable_fit_house_price_observation_producer.sql":
         "18966da9345c7ded7b620b2b84a5a78daf66e62e5e4b9aabb42463cbb43ce651",
+      "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql":
+        "608c7158a9bd6373ed69f62094d6434d84e02ffc272bf8df22f9a92bdc4acdb8",
+      "20260830091000_rebind_owner_approved_ebay_offer_2581.sql":
+        "890a67cf2cc4f5e708e4a0293b8ee2861f36602e9f6f2faf57860b1e1d9f5b8d",
+      "20260830092000_promote_owner_approved_kior_11_identities.sql":
+        "2df9d9b9ae9f326d327cd732499bede6c6a9f25eb97c79860361ed7927b36a0d",
     }),
     pending: Object.freeze([]),
   }),
@@ -217,7 +223,11 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({ filename: "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql", sha256: "608c7158a9bd6373ed69f62094d6434d84e02ffc272bf8df22f9a92bdc4acdb8" }),
+      Object.freeze({ filename: "20260830091000_rebind_owner_approved_ebay_offer_2581.sql", sha256: "890a67cf2cc4f5e708e4a0293b8ee2861f36602e9f6f2faf57860b1e1d9f5b8d" }),
+      Object.freeze({ filename: "20260830092000_promote_owner_approved_kior_11_identities.sql", sha256: "2df9d9b9ae9f326d327cd732499bede6c6a9f25eb97c79860361ed7927b36a0d" }),
+    ]),
   }),
 });
 
