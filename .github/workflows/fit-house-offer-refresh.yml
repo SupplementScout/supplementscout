@@ -77,6 +77,12 @@ jobs:
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
+      - name: Capture Fit House DB baseline read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=fit-house --mode=baseline --output=tmp/fit-house-offer-refresh/production-db-baseline.json
+
       - name: Apply all approved Fit House offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
@@ -88,6 +94,12 @@ jobs:
           FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/fit-house-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+
+      - name: Verify Fit House DB postflight read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=fit-house --mode=postflight --baseline=tmp/fit-house-offer-refresh/production-db-baseline.json --execution=tmp/fit-house-offer-refresh/production-apply.json --output=tmp/fit-house-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency with a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}

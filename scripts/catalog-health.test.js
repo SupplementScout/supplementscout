@@ -61,6 +61,10 @@ const {
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
 } = require("./automation-reliability-watchdog");
+const {
+  PROFILES: postflightProfiles,
+  approvedOfferIds,
+} = require("./retailer-offer-refresh-postflight");
 
 const now = new Date("2026-07-06T12:00:00.000Z");
 
@@ -569,4 +573,51 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
     findContractEvidence({ executable_plan_count: 4, executed_plan_count: 4, blocked_row_count: 0, review_row_count: 0 }),
     null
   );
+});
+
+test("shared DB postflight covers seven exact retailer scopes", () => {
+  const expected = {
+    "discount-supplements": [14, 14],
+    "dolphin-fitness": [1, 1],
+    "fit-house": [286, null],
+    "jons-supplements": [506, null],
+    "simply-supplements": [120, null],
+    "six-pack-supplements": [506, 506],
+    "whey-okay": [586, 586],
+  };
+
+  assert.deepEqual(Object.keys(postflightProfiles).sort(), Object.keys(expected));
+  for (const [name, [approvedCount, scopedCount]] of Object.entries(expected)) {
+    const profile = postflightProfiles[name];
+    assert.equal(profile.approvedMappingCount, approvedCount);
+    assert.equal(approvedOfferIds(profile)?.length ?? null, scopedCount);
+  }
+});
+
+test("adopted retailer workflows place read-only DB evidence around apply", () => {
+  const workflows = [
+    ["creatine-offer-refresh.yml", "Capture Discount Supplements DB baseline read-only", "Apply safe authorised Discount refresh", "Verify Discount Supplements DB postflight read-only"],
+    ["dolphin-vegan-protein-offer-refresh.yml", "Capture Dolphin Fitness DB baseline read-only", "Apply the one approved existing Dolphin offer refresh", "Verify Dolphin Fitness DB postflight read-only"],
+    ["fit-house-offer-refresh.yml", "Capture Fit House DB baseline read-only", "Apply all approved Fit House offer refresh", "Verify Fit House DB postflight read-only"],
+    ["jons-offer-refresh.yml", "Capture Jon's Supplements DB baseline read-only", "Apply all approved Jon's offer refresh", "Verify Jon's Supplements DB postflight read-only"],
+    ["six-pack-offer-refresh.yml", "Capture 6 Pack DB baseline read-only", "Apply exact approved manifest", "Verify 6 Pack DB postflight read-only"],
+  ];
+
+  for (const [file, baseline, apply, postflight] of workflows) {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), ".github", "workflows", file),
+      "utf8"
+    );
+    assert(source.indexOf(baseline) < source.indexOf(apply));
+    assert(source.indexOf(apply) < source.indexOf(postflight));
+    assert.match(source, /retailer-offer-refresh-postflight\.js/);
+  }
+
+  const jonsSource = fs.readFileSync(
+    path.join(process.cwd(), "scripts", "jons-offer-refresh.js"),
+    "utf8"
+  );
+  assert.match(jonsSource, /approvedMappingCount=reviewed\?executablePlanCount\+reviewRows\.length:506/);
+  assert.match(jonsSource, /approved_mapping_count:approvedMappingCount,executable_plan_count:executablePlanCount,executed_plan_count:0,review_row_count:reviewRows\.length,blocked_row_count:0/);
+  assert.match(jonsSource, /executed_plan_count:appliedRows/);
 });

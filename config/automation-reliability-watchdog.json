@@ -24,7 +24,7 @@
       "workflow": "creatine-offer-refresh.yml",
       "capture_step": "Dry-run authorised Discount offers",
       "apply_step": "Apply safe authorised Discount refresh",
-      "db_postflight_step": null
+      "db_postflight_step": "Verify Discount Supplements DB postflight read-only"
     },
     {
       "id": 5,
@@ -32,7 +32,7 @@
       "workflow": "dolphin-vegan-protein-offer-refresh.yml",
       "capture_step": "Dry-run the one approved existing Dolphin offer",
       "apply_step": "Apply the one approved existing Dolphin offer refresh",
-      "db_postflight_step": null
+      "db_postflight_step": "Verify Dolphin Fitness DB postflight read-only"
     },
     {
       "id": 7,
@@ -56,7 +56,7 @@
       "workflow": "fit-house-offer-refresh.yml",
       "capture_step": "Dry-run all approved Fit House offers",
       "apply_step": "Apply all approved Fit House offer refresh",
-      "db_postflight_step": null
+      "db_postflight_step": "Verify Fit House DB postflight read-only"
     },
     {
       "id": 10,
@@ -64,7 +64,7 @@
       "workflow": "jons-offer-refresh.yml",
       "capture_step": "Dry-run all approved Jon's offers",
       "apply_step": "Apply all approved Jon's offer refresh",
-      "db_postflight_step": null
+      "db_postflight_step": "Verify Jon's Supplements DB postflight read-only"
     },
     {
       "id": 11,
@@ -72,7 +72,7 @@
       "workflow": "six-pack-offer-refresh.yml",
       "capture_step": "Fresh live-source dry-run",
       "apply_step": "Apply exact approved manifest",
-      "db_postflight_step": null
+      "db_postflight_step": "Verify 6 Pack DB postflight read-only"
     },
     {
       "id": 12,

@@ -55,6 +55,12 @@ jobs:
           DOLPHIN_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/dolphin-vegan-protein-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
+      - name: Capture Dolphin Fitness DB baseline read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=dolphin-fitness --mode=baseline --output=tmp/dolphin-vegan-protein-offer-refresh/production-db-baseline.json
+
       - name: Apply the one approved existing Dolphin offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
@@ -65,6 +71,12 @@ jobs:
           DOLPHIN_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           DOLPHIN_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/dolphin-vegan-protein-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+
+      - name: Verify Dolphin Fitness DB postflight read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=dolphin-fitness --mode=postflight --baseline=tmp/dolphin-vegan-protein-offer-refresh/production-db-baseline.json --execution=tmp/dolphin-vegan-protein-offer-refresh/production-apply.json --output=tmp/dolphin-vegan-protein-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency with a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}

@@ -77,6 +77,12 @@ jobs:
           DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
+      - name: Capture Discount Supplements DB baseline read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=discount-supplements --mode=baseline --output=tmp/discount-supplements-offer-refresh/production-db-baseline.json
+
       - name: Apply safe authorised Discount refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
@@ -86,6 +92,12 @@ jobs:
           DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/creatine-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+
+      - name: Verify Discount Supplements DB postflight read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=discount-supplements --mode=postflight --baseline=tmp/discount-supplements-offer-refresh/production-db-baseline.json --execution=tmp/discount-supplements-offer-refresh/production-apply.json --output=tmp/discount-supplements-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency with a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}

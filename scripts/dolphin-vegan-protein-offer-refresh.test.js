@@ -53,7 +53,7 @@ test("Dolphin uses product-page source and the protected common executor", () =>
   assert.match(workflow, /--target=production --mode=apply/);
   assert.doesNotMatch(workflow, /^\s*<<:/m);
   assert.doesNotMatch(workflow, /^\s*env:\s*[&*]/m);
-  assert.equal((workflow.match(/DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL:/g) || []).length, 3);
+  assert.equal((workflow.match(/DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL:/g) || []).length, 5);
   assert.equal((workflow.match(/DOLPHIN_REFRESH_APPROVER_DATABASE_URL:/g) || []).length, 3);
   assert.equal((workflow.match(/DOLPHIN_REFRESH_EXECUTOR_DATABASE_URL:/g) || []).length, 3);
   assert.doesNotMatch(workflow, /SAFE_UPDATE/);

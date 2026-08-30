@@ -100,6 +100,12 @@ jobs:
             sleep $((attempt * 5))
           done
 
+      - name: Capture 6 Pack DB baseline read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=six-pack-supplements --mode=baseline --output=tmp/six-pack-offer-refresh/production-db-baseline.json
+
       - name: Apply exact approved manifest
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}
         env:
@@ -115,6 +121,12 @@ jobs:
             --artifact=tmp/six-pack-offer-refresh/production-preflight-artifact.json \
             --output=tmp/six-pack-offer-refresh/production-execution.json \
             "${reviewed_args[@]}"
+
+      - name: Verify 6 Pack DB postflight read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          SIX_PACK_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=six-pack-supplements --mode=postflight --baseline=tmp/six-pack-offer-refresh/production-db-baseline.json --execution=tmp/six-pack-offer-refresh/production-execution.json --output=tmp/six-pack-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency against a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'reviewed-mass-oos-apply' }}

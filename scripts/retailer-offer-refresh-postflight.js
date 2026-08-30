@@ -9,10 +9,44 @@ const ROOT = path.resolve(__dirname, "..");
 const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const PROFILES = Object.freeze({
+  "discount-supplements": {
+    retailerId: "4",
+    retailerName: "Discount Supplements",
+    credential: "DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL",
+    manifestPath: "config/retailers/discount-supplements-approved-offer-manifest.json",
+    approvedMappingCount: 14,
+  },
+  "dolphin-fitness": {
+    retailerId: "5",
+    retailerName: "Dolphin Fitness",
+    credential: "DOLPHIN_REFRESH_VALIDATOR_DATABASE_URL",
+    manifestPath: "config/retailers/dolphin-vegan-protein-approved-offer-manifest.json",
+    approvedMappingCount: 1,
+  },
+  "fit-house": {
+    retailerId: "9",
+    retailerName: "Fit House",
+    credential: "FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL",
+    approvedMappingCount: 286,
+  },
+  "jons-supplements": {
+    retailerId: "10",
+    retailerName: "Jon's Supplements",
+    credential: "JONS_SYNC_VALIDATOR_DATABASE_URL",
+    approvedMappingCount: 506,
+  },
   "simply-supplements": {
     retailerId: "7",
     retailerName: "Simply Supplements",
     credential: "SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL",
+    approvedMappingCount: 120,
+  },
+  "six-pack-supplements": {
+    retailerId: "11",
+    retailerName: "6 Pack Supplements",
+    credential: "SIX_PACK_SYNC_VALIDATOR_DATABASE_URL",
+    manifestPath: "config/retailers/six-pack-approved-offer-manifest.json",
+    approvedMappingCount: 506,
   },
   "whey-okay": {
     retailerId: "3",
@@ -31,8 +65,12 @@ function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 function approvedOfferIds(profile) {
   if (!profile.manifestPath) return null;
   const manifest = read(path.join(ROOT, profile.manifestPath));
-  const offerIds = manifest.rows.map((row) =>
-    String(row.environment_bindings[profile.manifestEnvironment].offer_id));
+  const offerIds = manifest.rows.map((row) => {
+    const offerId = row.offer_id ??
+      row.environment_bindings?.[profile.manifestEnvironment]?.offer_id;
+    invariant(offerId !== undefined && offerId !== null, "Approved postflight manifest row lacks offer ID");
+    return String(offerId);
+  });
   invariant(offerIds.length === profile.approvedMappingCount, "Approved postflight scope count drift");
   invariant(new Set(offerIds).size === offerIds.length, "Approved postflight scope contains duplicate offers");
   return offerIds;
@@ -79,7 +117,9 @@ async function capture(client, profile) {
        and ($2::bigint[] is null or o.id=any($2::bigint[]))
      order by o.id`, [profile.retailerId, scopedOfferIds]);
   const rows = result.rows;
-  if (scopedOfferIds) invariant(rows.length === scopedOfferIds.length, "Approved postflight DB scope drift");
+  if (profile.approvedMappingCount !== undefined) {
+    invariant(rows.length === profile.approvedMappingCount, "Approved postflight DB scope drift");
+  }
   const offerIds = rows.map((row) => row.offer_id);
   const history = await client.query("select count(*)::integer count from public.price_history where offer_id=any($1::bigint[])", [offerIds]);
   return { captured_at: new Date().toISOString(), retailer_id: profile.retailerId, retailer_name: profile.retailerName, row_count: rows.length, price_history_count: history.rows[0].count, rows };
