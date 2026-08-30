@@ -11,6 +11,7 @@ const {
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
   RefreshError,
+  approvedManifestCoverage,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
   changeSummary,
@@ -22,7 +23,47 @@ const {
   runWithDiagnostic,
   sourceHealth,
 } = require("./whey-okay-offer-refresh");
+const {
+  PROFILES,
+  approvedOfferIds,
+} = require("./retailer-offer-refresh-postflight");
 const config = require("../config/retailers/whey-okay-offer-sync.json");
+
+const ROOT = path.resolve(__dirname, "..");
+const workflow = fs.readFileSync(
+  path.join(ROOT, ".github/workflows/whey-okay-offer-refresh.yml"),
+  "utf8",
+);
+
+test("Whey Okay DB postflight is manifest-scoped and surrounds apply", () => {
+  const profile = PROFILES["whey-okay"];
+  const offerIds = approvedOfferIds(profile);
+  assert.equal(offerIds.length, 586);
+  assert.equal(new Set(offerIds).size, 586);
+  const baselineIndex = workflow.indexOf("Capture Whey Okay DB baseline read-only");
+  const applyIndex = workflow.indexOf("Apply all approved Whey Okay offer refreshes");
+  const postflightIndex = workflow.indexOf("Verify Whey Okay DB postflight read-only");
+  assert.ok(
+    baselineIndex > -1 &&
+      applyIndex > baselineIndex &&
+      postflightIndex > applyIndex,
+  );
+  for (const name of [
+    "Capture Whey Okay DB baseline read-only",
+    "Verify Whey Okay DB postflight read-only",
+  ]) {
+    const start = workflow.indexOf(name);
+    const step = workflow.slice(
+      start,
+      workflow.indexOf("\n      - name:", start + 1),
+    );
+    assert.match(step, /WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL/);
+    assert.doesNotMatch(
+      step,
+      /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/,
+    );
+  }
+});
 
 function target(index, overrides = {}) {
   return {
@@ -252,6 +293,35 @@ test("missing approved identity blocks while a new row remains discovery-only", 
   ]);
   assert.equal(discovery.state, "DRY_RUN_READY");
   assert.equal(discovery.rows.length, 2);
+});
+
+test("isolated missing source identities remain review-only while safe rows execute", () => {
+  const targets = [target(1), target(2), target(3)];
+  const result = classifyExistingOffers({
+    targets,
+    sourceVariants: [source(targets[0]), source(targets[2])],
+    policy: policy(targets.length),
+    sourceCapturedAt: "2026-07-24T02:00:00.000Z",
+    now: new Date("2026-07-24T02:00:00.000Z"),
+    sourceProductCount: 520,
+    previousSourceProductCount: 520,
+    quarantineUnsafeRows: true,
+  });
+
+  assert.equal(result.state, "DRY_RUN_READY_WITH_REVIEW");
+  assert.deepEqual(result.rows.map((row) => row.offer_id), ["1", "3"]);
+  assert.deepEqual(
+    result.quarantined_rows.map((row) => ({
+      offer_id: row.offer_id,
+      reason: row.reason,
+    })),
+    [{ offer_id: "2", reason: "SOURCE_VARIANT_MISSING" }],
+  );
+  assert.equal(
+    approvedManifestCoverage(result.quarantined_rows, true),
+    "PASS_WITH_REVIEW",
+  );
+  assert.equal(approvedManifestCoverage(result.quarantined_rows, false), "BLOCK");
 });
 
 test("price, stock, return-to-stock and URL changes classify exactly", () => {

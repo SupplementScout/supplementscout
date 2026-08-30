@@ -84,6 +84,12 @@ jobs:
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
+      - name: Capture Whey Okay DB baseline read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=whey-okay --mode=baseline --output=tmp/whey-okay-offer-refresh/production-db-baseline.json
+
       - name: Apply all approved Whey Okay offer refreshes
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
@@ -93,6 +99,12 @@ jobs:
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+
+      - name: Verify Whey Okay DB postflight read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=whey-okay --mode=postflight --baseline=tmp/whey-okay-offer-refresh/production-db-baseline.json --execution=tmp/whey-okay-offer-refresh/production-apply-apply.json --output=tmp/whey-okay-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency with a fresh source capture
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}

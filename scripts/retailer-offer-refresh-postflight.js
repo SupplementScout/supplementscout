@@ -14,12 +14,29 @@ const PROFILES = Object.freeze({
     retailerName: "Simply Supplements",
     credential: "SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL",
   },
+  "whey-okay": {
+    retailerId: "3",
+    retailerName: "Whey Okay",
+    credential: "WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL",
+    manifestPath: "config/retailers/whey-okay-approved-offer-manifest.json",
+    manifestEnvironment: "production",
+    approvedMappingCount: 586,
+  },
 });
 
 function invariant(condition, message) { if (!condition) throw new Error(message); }
 function hash(value) { return crypto.createHash("sha256").update(canonicalJson(value)).digest("hex"); }
 function baselineHash(value) { const payload = { ...value }; delete payload.evidence_hash; return hash(payload); }
 function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
+function approvedOfferIds(profile) {
+  if (!profile.manifestPath) return null;
+  const manifest = read(path.join(ROOT, profile.manifestPath));
+  const offerIds = manifest.rows.map((row) =>
+    String(row.environment_bindings[profile.manifestEnvironment].offer_id));
+  invariant(offerIds.length === profile.approvedMappingCount, "Approved postflight scope count drift");
+  invariant(new Set(offerIds).size === offerIds.length, "Approved postflight scope contains duplicate offers");
+  return offerIds;
+}
 function insideTmp(value) {
   const resolved = path.resolve(value);
   const relative = path.relative(path.join(ROOT, "tmp"), resolved);
@@ -47,6 +64,7 @@ function parseArgs(argv) {
 }
 
 async function capture(client, profile) {
+  const scopedOfferIds = approvedOfferIds(profile);
   const result = await client.query(`
     select rp.id::text mapping_id, rp.retailer_id::text retailer_id,
            rp.product_id::text mapping_product_id, rp.product_variant_id::text mapping_variant_id,
@@ -58,8 +76,10 @@ async function capture(client, profile) {
       from public.retailer_products rp
       join public.offers o on o.retailer_product_id=rp.id and o.retailer_id=rp.retailer_id
      where rp.retailer_id=$1::bigint
-     order by o.id`, [profile.retailerId]);
+       and ($2::bigint[] is null or o.id=any($2::bigint[]))
+     order by o.id`, [profile.retailerId, scopedOfferIds]);
   const rows = result.rows;
+  if (scopedOfferIds) invariant(rows.length === scopedOfferIds.length, "Approved postflight DB scope drift");
   const offerIds = rows.map((row) => row.offer_id);
   const history = await client.query("select count(*)::integer count from public.price_history where offer_id=any($1::bigint[])", [offerIds]);
   return { captured_at: new Date().toISOString(), retailer_id: profile.retailerId, retailer_name: profile.retailerName, row_count: rows.length, price_history_count: history.rows[0].count, rows };
@@ -135,4 +155,4 @@ async function run(options, dependencies = {}) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { PROFILES, baselineHash, capture, hash, parseArgs, run, verifyPostflight, VALIDATOR_LOGIN, VALIDATOR_ROLE };
+module.exports = { PROFILES, approvedOfferIds, baselineHash, capture, hash, parseArgs, run, verifyPostflight, VALIDATOR_LOGIN, VALIDATOR_ROLE };

@@ -962,7 +962,10 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     diagnostic.mappings_missing = discovery.missing_rows.length;
     diagnostic.guard_results.push({
       guard: "APPROVED_MANIFEST_COVERAGE",
-      result: discovery.missing_rows.length === 0 ? "PASS" : "BLOCK",
+      result: approvedManifestCoverage(
+        discovery.missing_rows,
+        options.isolateUnsafe,
+      ),
       expected: config.approved_mapping_count,
       matched: diagnostic.mappings_matched,
       missing: discovery.missing_rows.length,
@@ -1217,6 +1220,10 @@ function classificationCounts(rows) {
   for (const row of rows) result[row.action] = (result[row.action] || 0) + 1;
   return result;
 }
+function approvedManifestCoverage(missingRows, isolateUnsafe) {
+  if (missingRows.length === 0) return "PASS";
+  return isolateUnsafe ? "PASS_WITH_REVIEW" : "BLOCK";
+}
 function changeSummary(rows) {
   return rows
     .filter((row) => row.action !== "VERIFY_NO_CHANGE")
@@ -1238,7 +1245,10 @@ function writeRunReports(args, run, base) {
     new_feed_rows: run.discovery.new_rows,
   });
   write(`${prefix}-missing-row-report.json`, {
-    result: run.discovery.missing_rows.length === 0 ? "PASS" : "BLOCK",
+    result: approvedManifestCoverage(
+      run.discovery.missing_rows,
+      run.isolateUnsafe,
+    ),
     missing_approved_rows: run.discovery.missing_rows,
   });
   write(`${prefix}-shipping-differences.json`, {
@@ -1272,7 +1282,12 @@ async function executeRefresh(args, diagnostic) {
     reviewedMassOosSelector: args["reviewed-mass-oos"] || null,
     isolateUnsafe: args.isolateUnsafe,
   });
-  if (run.discovery.missing_rows.length !== 0) {
+  if (
+    approvedManifestCoverage(
+      run.discovery.missing_rows,
+      run.isolateUnsafe,
+    ) === "BLOCK"
+  ) {
     throw new RefreshError(
       "SOURCE_INCOMPLETE",
       "missing approved source identity",
@@ -1281,8 +1296,9 @@ async function executeRefresh(args, diagnostic) {
     );
   }
   const reviewRows = (run.classification.quarantined_rows || []).map((row) => ({ offer_id: String(row.offer_id), reason: row.reason, external_product_id: String(row.external_product_id), external_variant_id: String(row.external_variant_id) }));
+  const executablePlanCount = run.classification.rows.length;
   if (run.artifacts.length === 0) {
-    const output = { result: "PASS_WITH_REVIEW", mode: args.mode, target: args.target, scope: { mappings: config.approved_mapping_count, offers: config.approved_mapping_count, children: 0, rows: 0 }, review_rows: reviewRows, validator_batches: 0, safe_update: "unset" };
+    const output = { result: "PASS_WITH_REVIEW", mode: args.mode, target: args.target, approved_mapping_count: config.approved_mapping_count, executable_plan_count: 0, executed_plan_count: 0, review_row_count: reviewRows.length, blocked_row_count: 0, scope: { mappings: config.approved_mapping_count, offers: config.approved_mapping_count, children: 0, rows: 0 }, review_rows: reviewRows, validator_batches: 0, safe_update: "unset" };
     write(`${artifactPrefix(args.target, args.mode)}-${args.mode}.json`, output);
     return output;
   }
@@ -1295,9 +1311,14 @@ async function executeRefresh(args, diagnostic) {
   });
   const classification = classificationCounts(run.classification.rows);
   const base = {
-    result: "PASS",
+    result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
     mode: args.mode,
     target: args.target,
+    approved_mapping_count: config.approved_mapping_count,
+    executable_plan_count: executablePlanCount,
+    executed_plan_count: 0,
+    review_row_count: reviewRows.length,
+    blocked_row_count: 0,
     project_ref: run.spec.ref,
     source: run.feed.diagnostic,
     manifest: {
@@ -1315,7 +1336,7 @@ async function executeRefresh(args, diagnostic) {
     expected_deltas: run.classification.expected_deltas,
     discovery: {
       new_rows: run.discovery.new_rows.length,
-      missing_rows: 0,
+      missing_rows: run.discovery.missing_rows.length,
     },
     shipping_differences: {
       expected_previous: config.shipping_policy.previously_expected_difference_count,
@@ -1367,9 +1388,10 @@ async function executeRefresh(args, diagnostic) {
   invariant(historyDelta === expectedHistory, "price-history delta mismatch");
   diagnostic.database_after = after.counts;
   diagnostic.database_writes_completed = executions.length;
-  diagnostic.business_writes_completed = config.approved_mapping_count;
+  diagnostic.business_writes_completed = executablePlanCount;
   const output = {
     ...base,
+    executed_plan_count: executablePlanCount,
     registration: registered.result,
     executions: executions.map((row) => row.result),
     business: {
@@ -1380,7 +1402,7 @@ async function executeRefresh(args, diagnostic) {
       offers_delta: 0,
       retailers_delta: 0,
       price_history_delta: historyDelta,
-      offers_refreshed: config.approved_mapping_count,
+      offers_refreshed: executablePlanCount,
       shipping_mutations: 0,
       reviewed_exception_mutations: 0,
     },
@@ -1446,6 +1468,7 @@ if (require.main === module) {
 module.exports = {
   RefreshError,
   authorizeReviewedMassOos,
+  approvedManifestCoverage,
   artifactPrefix,
   balancedExecutionBatches,
   buildRun,
