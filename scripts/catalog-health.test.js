@@ -211,9 +211,74 @@ test("catalog health summary counts products and offers", async () => {
   assert.equal(report.summary.staleOffersNeverChecked, 1);
   assert.equal(report.status, "Critical");
   assert.equal(report.categoryQuality.rows.some((row) => row.flagged), true);
+  assert.deepEqual(report.retailerReliability, [
+    {
+      id: "12",
+      name: "No Stock Retailer",
+      totalOffers: 0,
+      staleOffersOlderThan48Hours: 0,
+      staleOffersOlderThan7Days: 0,
+      staleOffersOlderThan30Days: 0,
+      neverCheckedOffers: 0,
+      oldestCheck: null,
+      newestCheck: null,
+      productsWithoutInStockOffer: 0,
+    },
+    {
+      id: "10",
+      name: "Retailer One",
+      totalOffers: 3,
+      staleOffersOlderThan48Hours: 0,
+      staleOffersOlderThan7Days: 0,
+      staleOffersOlderThan30Days: 0,
+      neverCheckedOffers: 1,
+      oldestCheck: "2026-07-05T12:00:00.000Z",
+      newestCheck: "2026-07-05T12:00:00.000Z",
+      productsWithoutInStockOffer: 1,
+    },
+    {
+      id: "11",
+      name: "Retailer Two",
+      totalOffers: 1,
+      staleOffersOlderThan48Hours: 1,
+      staleOffersOlderThan7Days: 1,
+      staleOffersOlderThan30Days: 1,
+      neverCheckedOffers: 0,
+      oldestCheck: "2026-06-01T12:00:00.000Z",
+      newestCheck: "2026-06-01T12:00:00.000Z",
+      productsWithoutInStockOffer: 0,
+    },
+  ]);
   assert.deepEqual(fixture.calls.productPages, [{ from: 0, to: 999 }]);
   assert.deepEqual(fixture.calls.offerPages, [{ from: 0, to: 999 }]);
   assert.equal(fixture.calls.retailerFetches, 1);
+});
+
+test("catalog health retailer reliability uses an exact 48-hour boundary", async () => {
+  const fixture = dataSource({
+    products: [product({ id: "1" }), product({ id: "2" })],
+    offers: [
+      offer({
+        id: "101",
+        product_id: "1",
+        last_checked_at: "2026-07-04T12:00:00.000Z",
+      }),
+      offer({
+        id: "102",
+        product_id: "2",
+        last_checked_at: "2026-07-04T12:00:01.000Z",
+      }),
+    ],
+    retailers: [{ id: "10", name: "Retailer One", slug: "retailer-one" }],
+  });
+  const report = await getCatalogHealthReport({
+    filters: normalizeCatalogHealthFilters({}),
+    now,
+    dataSource: fixture.dataSource,
+  });
+
+  assert.equal(report.retailerReliability[0].totalOffers, 2);
+  assert.equal(report.retailerReliability[0].staleOffersOlderThan48Hours, 1);
 });
 
 test("catalog health in-stock counts require positive prices", async () => {
@@ -414,6 +479,19 @@ test("catalog health page authenticates before loading report", () => {
   assert(loadIndex > authIndex);
   assert.equal(pageSource.includes("SUPABASE_SERVICE_ROLE_KEY"), false);
   assert.equal(pageSource.includes("supabaseAdmin"), false);
+});
+
+test("catalog health renders per-retailer DB freshness without inventing workflow state", () => {
+  const componentsSource = fs.readFileSync(
+    path.join(process.cwd(), "app", "admin", "catalog-health", "components.tsx"),
+    "utf8"
+  );
+
+  assert.match(componentsSource, /Retailer database freshness/);
+  assert.match(componentsSource, /Older than 48h/);
+  assert.match(componentsSource, /Products without this retailer in stock/);
+  assert.match(componentsSource, /monitored separately by the/);
+  assert.match(componentsSource, /Automation Reliability Watchdog/);
 });
 
 test("automation watchdog covers all retailers on a read-only six-hour schedule", () => {

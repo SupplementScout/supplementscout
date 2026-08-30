@@ -543,6 +543,63 @@ function IssueSection({ report }: { report: CatalogHealthReport }) {
   );
 }
 
+function RetailerReliabilityTable({ report }: { report: CatalogHealthReport }) {
+  return (
+    <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
+      <div className="border-b border-zinc-200 p-5">
+        <h2 className="text-xl font-bold">Retailer database freshness</h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Read-only database evidence for active catalogue offers. Workflow runs,
+          pending review rows and cron state are monitored separately by the
+          six-hour Automation Reliability Watchdog and are not inferred here.
+        </p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-zinc-200 text-sm">
+          <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <tr>
+              <th className="px-4 py-3">Retailer</th>
+              <th className="px-4 py-3">All offers</th>
+              <th className="px-4 py-3">Older than 48h</th>
+              <th className="px-4 py-3">Older than 7d</th>
+              <th className="px-4 py-3">Older than 30d</th>
+              <th className="px-4 py-3">Never checked</th>
+              <th className="px-4 py-3">Oldest check</th>
+              <th className="px-4 py-3">Newest DB check</th>
+              <th className="px-4 py-3">Products without this retailer in stock</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {report.retailerReliability.map((row) => (
+              <tr key={row.id}>
+                <td className="px-4 py-3 font-medium">{row.name}</td>
+                <td className="px-4 py-3">{formatCount(row.totalOffers)}</td>
+                <td className="px-4 py-3">
+                  {formatCount(row.staleOffersOlderThan48Hours)}
+                </td>
+                <td className="px-4 py-3">
+                  {formatCount(row.staleOffersOlderThan7Days)}
+                </td>
+                <td className="px-4 py-3">
+                  {formatCount(row.staleOffersOlderThan30Days)}
+                </td>
+                <td className="px-4 py-3">
+                  {formatCount(row.neverCheckedOffers)}
+                </td>
+                <td className="px-4 py-3">{formatDate(row.oldestCheck)}</td>
+                <td className="px-4 py-3">{formatDate(row.newestCheck)}</td>
+                <td className="px-4 py-3">
+                  {formatCount(row.productsWithoutInStockOffer)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 export function CatalogHealthDashboard({
   report,
   loadError,
@@ -662,6 +719,8 @@ export function CatalogHealthDashboard({
                 tone="critical"
               />
             </section>
+
+            <RetailerReliabilityTable report={report} />
 
             <FilterBar report={report} />
             <IssueTabs filters={report.filters} />

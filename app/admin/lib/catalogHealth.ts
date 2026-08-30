@@ -124,6 +124,17 @@ export type RetailerOption = {
   name: string;
 };
 
+export type RetailerReliability = RetailerOption & {
+  totalOffers: number;
+  staleOffersOlderThan48Hours: number;
+  staleOffersOlderThan7Days: number;
+  staleOffersOlderThan30Days: number;
+  neverCheckedOffers: number;
+  oldestCheck: string | null;
+  newestCheck: string | null;
+  productsWithoutInStockOffer: number;
+};
+
 export type IssuePage<T> = {
   rows: T[];
   totalRows: number;
@@ -150,6 +161,7 @@ export type CatalogHealthReport = {
   };
   status: "Critical" | "Needs attention" | "Healthy";
   retailers: RetailerOption[];
+  retailerReliability: RetailerReliability[];
   categories: string[];
   zeroOfferProducts: IssuePage<ZeroOfferProduct>;
   oneOfferProducts: IssuePage<OneOfferProduct>;
@@ -210,6 +222,18 @@ function latestIso(values: Array<string | null>) {
 
   return valid.sort(
     (left, right) => new Date(right).getTime() - new Date(left).getTime()
+  )[0];
+}
+
+function earliestIso(values: Array<string | null>) {
+  const valid = values.filter((value): value is string => Boolean(value));
+
+  if (valid.length === 0) {
+    return null;
+  }
+
+  return valid.sort(
+    (left, right) => new Date(left).getTime() - new Date(right).getTime()
   )[0];
 }
 
@@ -560,6 +584,69 @@ export async function getCatalogHealthReport(input: {
           summary.productsMissingImage > 0
         ? "Needs attention"
         : "Healthy";
+  const retailerReliability = retailers
+    .map((retailer) => {
+      const retailerId = idString(retailer.id);
+      const retailerOffers = offers.filter(
+        (offer) =>
+          idString(offer.retailer_id) === retailerId &&
+          productMap.has(idString(offer.product_id))
+      );
+      const offeredProductIds = new Set(
+        retailerOffers.map((offer) => idString(offer.product_id)).filter(Boolean)
+      );
+      const inStockProductIds = new Set(
+        retailerOffers
+          .filter(isAvailableOffer)
+          .map((offer) => idString(offer.product_id))
+          .filter(Boolean)
+      );
+      const ageCounts = retailerOffers.reduce(
+        (counts, offer) => {
+          const age = getOfferAgeInDays(offer, now);
+
+          if (age === null) counts.never += 1;
+          else {
+            if (
+              new Date(offer.last_checked_at as string).getTime() <=
+              now.getTime() - 48 * 60 * 60 * 1000
+            ) {
+              counts.olderThan48Hours += 1;
+            }
+            if (age > 7) counts.olderThan7Days += 1;
+            if (age > 30) counts.olderThan30Days += 1;
+          }
+
+          return counts;
+        },
+        {
+          olderThan48Hours: 0,
+          olderThan7Days: 0,
+          olderThan30Days: 0,
+          never: 0,
+        }
+      );
+
+      return {
+        id: retailerId,
+        name: retailer.name || `Retailer ${retailer.id}`,
+        totalOffers: retailerOffers.length,
+        staleOffersOlderThan48Hours: ageCounts.olderThan48Hours,
+        staleOffersOlderThan7Days: ageCounts.olderThan7Days,
+        staleOffersOlderThan30Days: ageCounts.olderThan30Days,
+        neverCheckedOffers: ageCounts.never,
+        oldestCheck: earliestIso(
+          retailerOffers.map((offer) => offer.last_checked_at)
+        ),
+        newestCheck: latestIso(
+          retailerOffers.map((offer) => offer.last_checked_at)
+        ),
+        productsWithoutInStockOffer: Array.from(offeredProductIds).filter(
+          (productId) => !inStockProductIds.has(productId)
+        ).length,
+      };
+    })
+    .sort((left, right) => left.name.localeCompare(right.name));
 
   return {
     filters,
@@ -571,6 +658,7 @@ export async function getCatalogHealthReport(input: {
         name: retailer.name || `Retailer ${retailer.id}`,
       }))
       .sort((left, right) => left.name.localeCompare(right.name)),
+    retailerReliability,
     categories: Array.from(categoryCounts.keys()).sort(),
     zeroOfferProducts: pageRows(zeroOfferRows, filters.page),
     oneOfferProducts: pageRows(oneOfferRows, filters.page),
