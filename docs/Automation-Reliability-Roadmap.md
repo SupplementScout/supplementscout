@@ -55,10 +55,10 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 ## 4. Known problems
 
 - 6 Pack: reviewed offer `2006` violates the existing default-variant integrity guard; one row currently stops the reviewed executor checkpoint before the other 13 rows.
-- GYM HIGH: latest known feed build failure.
-- Whey Okay: latest known dry-run failure and 284 stale offers.
-- Simply Supplements: repeated failed runs.
-- eBay UK: preflight failures and a cancelled run.
+- GYM HIGH: the source is healthy, but the immutable control binding still expects product `529` default variant `507` while live mapping `387` and offer `554` already point to exact `400g` variant `2973`.
+- Whey Okay: ten approved identities from source product `24` are absent from the healthy feed and are now isolated to review; a fresh dry-run has 576 executable plans, including one unapproved stock transition.
+- Simply Supplements: the missing source variant is now isolated to review and DB postflight is installed; production apply of 119 executable plans still needs owner approval because two are stock transitions.
+- eBay UK: offer `2581` and mapping `2766` point to default variant `1178`, while the existing exact `405g` variant is `2920`.
 - Source reads: an individual product page can time out without bounded retry.
 - Workflow contracts are inconsistent in whether unchanged offers update freshness, whether review rows are isolated and whether every apply has an authoritative DB postflight.
 - No single six-hour watchdog currently proves capture/apply/postflight success within 48 hours for every active retailer.
@@ -82,8 +82,8 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | --- | --- | --- | --- |
 | P0 | Close 6 Pack safely | OWNER BLOCKED | Offer `2006` needs an owner-approved mapping/offer rebind from default variant `1922` to existing exact variant `3126`; do not weaken the guard or apply the remaining batch first. |
 | P1 | One cross-retailer inventory and priority | COMPLETE | Snapshot and workflow evidence below; Simply Supplements is the first retailer repair after the shared postflight/session contract. |
-| P2 | Shared reliability core | IN PROGRESS | Extract only proven common session/contract behavior, starting from the working 6 Pack validator session. |
-| P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | NOT STARTED | Diagnose and fix in that order, one bounded retailer change at a time. |
+| P2 | Shared reliability core | COMPLETE | Shared validator/approver/executor role sessions and reusable manifest-scoped DB postflight are proven by 6 Pack, Simply and Whey Okay contracts. Adoption continues retailer by retailer. |
+| P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | IN PROGRESS / OWNER BLOCKED | Simply and Whey code paths are repaired and dry-run cleanly with isolated review. eBay and GYM HIGH require owner identity decisions; production applies for Simply and Whey require commercial approval. |
 | P4 | Classify or refresh genuinely old offers | NOT STARTED | Whey Okay, Discount, Dolphin and KIOR; one grouped review batch per retailer when needed. |
 | P5 | Six-hour watchdog, retry and recovery | NOT STARTED | Add bounded source retry, 48-hour failure signal and cross-retailer checkpoint evidence. |
 | P6 | Catalog Health reliability view | NOT STARTED | Add per-retailer success, stale, review, failure and cron state without changing Overall Critical. |
@@ -111,6 +111,14 @@ Inventory also found zero `never_checked` offers. Products without an in-stock o
 
 **Single repair priority:** establish the shared role-bound DB postflight/session wrapper, then repair Simply Supplements first. Its source and coverage guards pass, while one global missing-variant threshold currently prevents every safe row from confirming freshness.
 
+### Progress after the P1 snapshot
+
+- Shared protected-role session commit `0caa0af78d83584d8741105ac5f9352f956392d1` completed P2's connection foundation. Shared DB postflight commit `8a0d9033df08dba7f7b67b05a9dfadec9939ad56` added authoritative baseline/postflight verification for Simply.
+- Simply dry-runs `33291309650` and `33291579003` are `PASS_WITH_REVIEW`: 120 approved, 119 executable, one `SOURCE_VARIANT_MISSING` review row (offer `670`), zero blocked and zero writes. The executable scope is 117 `VERIFY_NO_CHANGE` plus two `UPDATE_STOCK` rows (offers `578` and `649`, `true` to `false`). No apply was dispatched.
+- eBay run `33250919353` is a real mapping/variant drift blocker for offer `2581`; no guard was weakened and no write was attempted.
+- GYM HIGH run `33249118555` passed the 71-row live source audit and then exposed stale immutable control binding `4623:4623`; no write was attempted.
+- Whey commit `dfe4a2c3a7742800975aa4da2c073c6ece09c882` reuses the shared per-row classifier and DB postflight. Dry-run `33292109660` is `PASS_WITH_REVIEW`: 586 approved, 576 executable, 575 `VERIFY_NO_CHANGE`, one `UPDATE_STOCK` (offer `221`, `true` to `false`), ten `SOURCE_VARIANT_MISSING` review rows, zero blocked and zero writes. Apply, baseline, postflight and idempotency steps were correctly skipped for the dry-run dispatch.
+
 ## 7. Exit criteria
 
 - 6 Pack has zero stale offers.
@@ -137,12 +145,23 @@ Inventory also found zero `never_checked` offers. Products without an in-stock o
 | 2026-08-29 | P0 | Run `33274526268` (#73) | SAFE BLOCK | Preflight and validator baseline passed. Offer `2006` hit default-variant guard; `executed_plan_count = 0`; no commercial writes. |
 | 2026-08-30 | Sprint setup | `789b6d834a63439999b8ec8e72e1bb73d57845c3` | PASS | Roadmap created and linked; no production writes. |
 | 2026-08-30 | P1 | DB snapshot plus GitHub run/artifact inventory | PASS | All 11 retailers inventoried once. Exact current blockers and cron behaviour recorded; P2 selected as active implementation. |
+| 2026-08-30 | P2 | `0caa0af78d83584d8741105ac5f9352f956392d1` | PASS | Shared one-client protected role sessions preserve read-only validator, approver and executor separation. |
+| 2026-08-30 | P3 / Simply | `df269849b68b6b472ac6a81c576805db25a4d9d1`, `29bb4ed5fa6a929a3e9eef055d713ae832f1c4e5`, `8a0d9033df08dba7f7b67b05a9dfadec9939ad56`; runs `33291309650`, `33291579003` | PASS_WITH_REVIEW | One missing source row isolated; 119 plans executable; shared DB postflight installed; zero production writes. Apply awaits owner approval for two stock changes. |
+| 2026-08-30 | P3 / eBay | Run `33250919353` plus DB identity check | OWNER BLOCKED | Offer `2581` has real default-versus-exact variant drift (`1178` versus `2920`); zero writes. |
+| 2026-08-30 | P3 / GYM HIGH | Run `33249118555` plus DB/control check | OWNER BLOCKED | Live mapping is exact variant `2973`, immutable approval still binds variant `507`; zero writes. |
+| 2026-08-30 | P3 / Whey Okay | `dfe4a2c3a7742800975aa4da2c073c6ece09c882`; run `33292109660` | PASS_WITH_REVIEW | Healthy 523-product/1,705-row source; 586 approved, 576 executable, ten isolated review rows, zero blocked and zero writes. One stock transition awaits approval. |
 
 ## 9. Owner-required blockers
 
-Offer `2006` now has a confirmed product-identity decision. Mapping `2192` and offer `2006` point to default variant `1922`, while the existing active exact `60-servings` variant `3126` was created later by the owner-reviewed Fit House exact-pack rollout for product `982`. Rebinding those two references is a production mapping/identity write and therefore requires explicit owner approval. Until then, the reviewed 6 Pack batch remains safely blocked and no guard will be weakened.
+The current consolidated owner decisions are:
 
-All later ambiguous retailer rows must be collected into one bounded review report per retailer rather than individual interruptions.
+1. **6 Pack:** approve or reject rebinding mapping `2192` and offer `2006` from default variant `1922` to existing exact `60-servings` variant `3126`. Until then, the reviewed 14-row batch remains safely blocked.
+2. **Simply Supplements:** approve or reject the protected 119-plan apply: 117 freshness confirmations and stock `true` to `false` for offers `578` and `649`; offer `670` remains unchanged in review.
+3. **eBay UK:** approve or reject rebinding mapping `2766` and offer `2581` from default variant `1178` to existing exact `405g` variant `2920`.
+4. **GYM HIGH:** approve or reject refreshing the immutable control binding for source tuple `4623:4623` from old variant `507` to the already-live exact `400g` variant `2973`; this is approval/control evidence, not a request to rewrite the live mapping.
+5. **Whey Okay:** approve or reject the protected 576-plan apply: 575 freshness confirmations and stock `true` to `false` for offer `221`; the ten absent source-product-`24` rows remain unchanged in review.
+
+No production apply is implied by these entries. Each approved operation must still use its existing protected workflow, fresh source capture, stale-state guards and DB postflight. Later ambiguous rows remain grouped into one bounded review report per retailer rather than individual interruptions.
 
 ## 10. Task after the sprint
 
