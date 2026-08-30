@@ -198,8 +198,6 @@ const CONTRACTS = Object.freeze({
         "a9d75c9be585fbd52cd85c9f9e2fec223046e96f408623c927f624c836b2a84b",
       "20260830102000_repair_kior_registration_scope_hash.sql":
         "a97a48cfc2ace92ccec342c7da3acc598db87787e46d5cd5313335c60f73a7c6",
-      "20260830103000_rebind_owner_approved_ebay_offer_2582.sql":
-        "18382d9aa14a5ba7e8f39497b9364bd2a850e2126b5607c33e20bc8894cf5397",
     }),
     pending: Object.freeze([]),
   }),
@@ -229,19 +227,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260830103000_rebind_owner_approved_ebay_offer_2582.sql",
-        sha256: "18382d9aa14a5ba7e8f39497b9364bd2a850e2126b5607c33e20bc8894cf5397",
-        expectedCatalogueDeltas: Object.freeze({
-          products: 0,
-          product_variants: 0,
-          retailer_products: 0,
-          offers: 0,
-          price_history: 0,
-        }),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
