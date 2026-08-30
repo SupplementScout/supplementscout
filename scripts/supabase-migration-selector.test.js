@@ -151,9 +151,12 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the applied KIOR registration", () => {
+test("production records KIOR registration and selects only its hash repair", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: "20260830102000_repair_kior_registration_scope_hash.sql",
+    sha256: "a97a48cfc2ace92ccec342c7da3acc598db87787e46d5cd5313335c60f73a7c6",
+  }]);
   assert.equal(contract.ledgerCount, 163);
   assert.equal(
     contract.ledgerFingerprint,
@@ -234,7 +237,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the KIOR registration", () => {
+test("production binds its exact ledger and one pending KIOR hash repair", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -262,12 +265,12 @@ test("production binds its exact ledger after the KIOR registration", () => {
   });
   assert.equal(result.ledger_count, 163);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 163);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.deepEqual(result.pending, ["20260830102000_repair_kior_registration_scope_hash"]);
+  assert.equal(result.selected_files.length, 164);
+  assert.deepEqual(result.pending_files, ["20260830102000_repair_kior_registration_scope_hash.sql"]);
+  assert.equal(result.pending_file, "20260830102000_repair_kior_registration_scope_hash.sql");
+  assert.equal(result.pending_sha256, "a97a48cfc2ace92ccec342c7da3acc598db87787e46d5cd5313335c60f73a7c6");
+  assert.equal(result.pending_sha256s["20260830102000_repair_kior_registration_scope_hash.sql"], result.pending_sha256);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));

@@ -13,6 +13,7 @@ const { canonicalHash, normalizeExactScopeRows } = require("./fit-house-offer-re
 const ROOT = path.resolve(__dirname, "..");
 const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/kior-offer-refresh.yml"), "utf8");
 const migration = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260830100000_add_kior_offer_sync_registration.sql"), "utf8");
+const repairMigration = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260830102000_repair_kior_registration_scope_hash.sql"), "utf8");
 
 function scenario() {
   const targets = manifest.rows.map((row) => ({
@@ -117,6 +118,16 @@ test("KIOR registration RPC is production-only and contains no catalogue DML", (
   assert.match(migration, /v_target <> 'PRODUCTION'/);
   assert.match(migration, /30e1dbc1147484a790384dd10f9fc79433ca6edd4728aab7ffbd7b4045fbef3c/);
   assert.doesNotMatch(migration, /\b(update|insert into|delete from)\s+public\.(products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("KIOR registration hash repair is exact and control-plane only", () => {
+  assert.match(repairMigration, /register_kior_offer_sync_control_plan/);
+  assert.match(repairMigration, /30e1dbc1147484a790384dd10f9fc79433ca6edd4728aab7ffbd7b4045fbef3c/);
+  assert.match(repairMigration, /53332a61b4826f53dbeeeda66bceab580bcc20e4383ab9477ca29e2fb1a9addb/);
+  assert.match(repairMigration, /^begin;/i);
+  assert.match(repairMigration, /commit;\s*$/i);
+  assert.doesNotMatch(repairMigration, /\b(update|insert into|delete from)\s+public\.(products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.doesNotMatch(repairMigration, /\bgrant\b|\brevoke\b/i);
 });
 
 test("KIOR postflight requires timestamp-only no-change and zero history delta", () => {

@@ -196,6 +196,8 @@ const CONTRACTS = Object.freeze({
         "2df9d9b9ae9f326d327cd732499bede6c6a9f25eb97c79860361ed7927b36a0d",
       "20260830100000_add_kior_offer_sync_registration.sql":
         "a9d75c9be585fbd52cd85c9f9e2fec223046e96f408623c927f624c836b2a84b",
+      "20260830102000_repair_kior_registration_scope_hash.sql":
+        "a97a48cfc2ace92ccec342c7da3acc598db87787e46d5cd5313335c60f73a7c6",
     }),
     pending: Object.freeze([]),
   }),
@@ -225,7 +227,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260830102000_repair_kior_registration_scope_hash.sql",
+        sha256: "a97a48cfc2ace92ccec342c7da3acc598db87787e46d5cd5313335c60f73a7c6",
+      }),
+    ]),
   }),
 });
 
