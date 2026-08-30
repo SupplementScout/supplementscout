@@ -204,9 +204,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 159,
+    ledgerCount: 162,
     ledgerFingerprint:
-      "c3aa80bb5deb5dacbe0c261d71d57916175f5e0f6c287f0400944c71d4e2e80e",
+      "1054c31ccb272b801c968afdcac03a8242ad7748dbe245440502ef326fcc7707",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -223,11 +223,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({ filename: "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql", sha256: "608c7158a9bd6373ed69f62094d6434d84e02ffc272bf8df22f9a92bdc4acdb8" }),
-      Object.freeze({ filename: "20260830091000_rebind_owner_approved_ebay_offer_2581.sql", sha256: "890a67cf2cc4f5e708e4a0293b8ee2861f36602e9f6f2faf57860b1e1d9f5b8d" }),
-      Object.freeze({ filename: "20260830092000_promote_owner_approved_kior_11_identities.sql", sha256: "2df9d9b9ae9f326d327cd732499bede6c6a9f25eb97c79860361ed7927b36a0d" }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

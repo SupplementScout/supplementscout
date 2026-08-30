@@ -41,22 +41,9 @@ test("post-write fingerprint changes only the exact approved variant destination
 
 test("deployed GTIN, Whey Okay rebind and traffic classification migrations remain frozen", () => {
   const pending = CONTRACTS.PRODUCTION.pending;
-  assert.deepEqual(pending, [
-    {
-      filename: "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql",
-      sha256: "608c7158a9bd6373ed69f62094d6434d84e02ffc272bf8df22f9a92bdc4acdb8",
-    },
-    {
-      filename: "20260830091000_rebind_owner_approved_ebay_offer_2581.sql",
-      sha256: "890a67cf2cc4f5e708e4a0293b8ee2861f36602e9f6f2faf57860b1e1d9f5b8d",
-    },
-    {
-      filename: "20260830092000_promote_owner_approved_kior_11_identities.sql",
-      sha256: "2df9d9b9ae9f326d327cd732499bede6c6a9f25eb97c79860361ed7927b36a0d",
-    },
-  ]);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 159);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "c3aa80bb5deb5dacbe0c261d71d57916175f5e0f6c287f0400944c71d4e2e80e");
+  assert.deepEqual(pending, []);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 162);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "1054c31ccb272b801c968afdcac03a8242ad7748dbe245440502ef326fcc7707");
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);

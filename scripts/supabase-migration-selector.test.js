@@ -151,17 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed Glutamine peer cohort and exact Group A pending set", () => {
+test("production records the applied Group A identity release", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending.map((row) => row.filename), [
-    "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql",
-    "20260830091000_rebind_owner_approved_ebay_offer_2581.sql",
-    "20260830092000_promote_owner_approved_kior_11_identities.sql",
-  ]);
-  assert.equal(contract.ledgerCount, 159);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 162);
   assert.equal(
     contract.ledgerFingerprint,
-    "c3aa80bb5deb5dacbe0c261d71d57916175f5e0f6c287f0400944c71d4e2e80e",
+    "1054c31ccb272b801c968afdcac03a8242ad7748dbe245440502ef326fcc7707",
   );
 });
 
@@ -238,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the reviewed Predators v3 policy apply", () => {
+test("production binds its exact ledger after the Group A identity release", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -264,18 +260,14 @@ test("production binds its exact ledger after the reviewed Predators v3 policy a
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 159);
+  assert.equal(result.ledger_count, 162);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, [
-    "20260830090000_rebind_owner_approved_six_pack_offer_2006",
-    "20260830091000_rebind_owner_approved_ebay_offer_2581",
-    "20260830092000_promote_owner_approved_kior_11_identities",
-  ]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 162);
-  assert.equal(result.pending_files.length, 3);
+  assert.equal(result.pending_files.length, 0);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.equal(Object.keys(result.pending_sha256s).length, 3);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -361,7 +353,11 @@ test("staging output reports no pending migration after the Glutamine cohort app
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
-  const files = CONTRACTS.PRODUCTION.pending.map((row) => path.join(SOURCE, row.filename));
+  const files = [
+    "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql",
+    "20260830091000_rebind_owner_approved_ebay_offer_2581.sql",
+    "20260830092000_promote_owner_approved_kior_11_identities.sql",
+  ].map((filename) => path.join(SOURCE, filename));
   const sql = files.map((file) => fs.readFileSync(file, "utf8"));
   for (const body of sql) {
     assert.match(body, /current_user <> 'postgres'/);
