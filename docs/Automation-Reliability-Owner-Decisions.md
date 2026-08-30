@@ -6,6 +6,44 @@
 
 **Zasada wykonania:** ten dokument nie jest artefaktem apply. Zatwierdzenie pozycji nadal wymaga fresh capture, niezmienionego fingerprintu, approval per row, stale-state guardu, chronionego RPC i read-only postflightu.
 
+## Końcowy Owner Decision Pack — 30 sierpnia 2026, 11:34 UTC
+
+Ten checkpoint zastępuje wcześniejsze liczby robocze dla Whey Okay legacy, Discount Supplements i Dolphin Fitness. Pełny rekord każdego z `284 + 142 + 2 + 10` wierszy — nazwa, brand, flavour/size, URL, current product/variant, proposed identity, external IDs, GTIN, source evidence, confidence, current offer i klasyfikacja — znajduje się w [automation-reliability-owner-pack-2026-08-30.json](./rollouts/automation-reliability-owner-pack-2026-08-30.json). Plik ma SHA-256 `419c758d55affd2e2bd2a0730a953a25a750c4f62fb53c14a6da3089ee8f1737` (wewnętrzny canonical payload fingerprint `8b8e00b4106eac3de7fc6060d74db90100d47d2cf258b071f9452c9de5808c2`); produkcyjny snapshot wejściowy ma SHA-256 `d3810acd583cd3dd5e67a3a4ffd46b7c49fc3637d6ffd81aca995db35ab0c351`. Oba odczyty miały `database_writes = 0`.
+
+Świeży Whey Okay feed (`2026-08-30T11:34:15.781Z`) przeszedł: 523 produkty, 1,705 wariantów, 1,009 in-stock, 696 OOS, semantic fingerprint `50b6757ea4b891bbc5be7cbd189e2a80d73c6391e24b425052ce71aa566f5da6`. Świeży Discount capture (`2026-08-30T11:28:29.507Z`) objął 341 produktów i 994 warianty. Obie legacy strony Dolphin zwróciły HTTP 200 i poprawny tytuł produktu.
+
+### Dokładna klasyfikacja zakresów
+
+| Zakres | Dokładny wynik świeżej klasyfikacji | Wniosek |
+| --- | --- | --- |
+| Whey Okay legacy `284` | 50 exact identity matches; 7 ambiguous; 2 source missing; 98 source unavailable/OOS; 123 variant conflicts; 2 mapping conflicts; 2 insufficient data; 0 URL conflicts; 0 GTIN conflicts | 47 z 50 exact rows to identity promotion bez zmiany canonical variant, 3 to rebind do istniejącego wariantu. Pozostałe 234 nie są freshness-only. |
+| Discount stale `142` | 95 `NO_CHANGE`; 29 `SAFE_UPDATE`; 13 `OUT_OF_STOCK`; 3 `MISSING_FROM_SOURCE`; 2 identity conflicts | 42 wiersze handlowe zawierają 40 realnych mutacji: 22 zmiany ceny i 20 zmiany stocku; dwa OOS rows nie mają już field delta. Pełne before/after, GBP i procent ceny oraz guard result są w artefakcie. |
+| Dolphin stale `2` | offer `8`/mapping `7`, **Ghost Legend V4 Pre-Workout 660g**, Ghost, Default variant `8`, URL `/440574`, brak external IDs/GTIN; strona HTTP 200, title **Ghost Legend V4 30 Servings**. Offer `9`/mapping `9`, **Optimum Nutrition Gold Standard 100% Whey 2.27kg**, Optimum Nutrition, Default variant `7`, URL `/16825/`, brak external IDs/GTIN; strona HTTP 200, title **Optimum Nutrition Gold Standard 100% Whey 2.2 kg**. | Stabilne page IDs są kandydatami external product identity, ale brak exact variant ID/GTIN; confidence MEDIUM, oba pozostają manual review. |
+| Whey Okay `10 SOURCE_VARIANT_MISSING` | Wszystkie dziesięć exact source keys nadal nie istnieje. Parent `24` i URL nadal istnieją, parent nie jest cały OOS, brak alternatywnego wariantu z identycznym GTIN. Offer `1568` jest już OOS; pozostałe dziewięć jest zapisane jako in-stock. | Nie ma dowodu na mapping error ani bezpieczny rebind. Dziesięć pozostaje review; jawne unavailable wymaga osobnej polityki/zgody per row. |
+
+Whey legacy dwa świeże `SOURCE_MISSING` to offer `119`/mapping `111` **Absolute Nutrition Thyroid T3 60 Caps** (`669:669`) oraz offer `428`/mapping `426` **NXT Nutrition Cream Of Rice 2kg** (`3327:3328`). Wszystkie pozostałe pełne listy, w tym 50 exact matches, 123 variant conflicts, 42 Discount commercial classifications i dziesięć brakujących wariantów, są w wersjonowanym artefakcie JSON, a nie w lokalnym `tmp`.
+
+### Nowy, odizolowany drift GYM HIGH
+
+Korekta immutable control dla `3333:3333` z wariantu `572` na `2972` jest poprawna i została wdrożona wyłącznie w konfiguracji w commitach `7c8b683` i `410453b`. Read-only DB potwierdza mapping `385`, offer `551`, product `516` **GYM HIGH Pure L-Arginine powder 500g**, variant `2972` **500g**, external `3333:3333`, GTIN `0691057494654`, URL `https://gymhigh.co.uk/product/gym-high-pure-l-arginine-powder/`, £26.99, in-stock; bez product/variant driftu i bez zapisu produkcyjnego.
+
+Validation run `33308889173` potwierdził source PASS (26 parents/71 rows) i bootstrap PASS, po czym fail-closed zatrzymał się na jednym nowym driftcie `2796:2796`. Mapping `136` i offer `550` dla **GYM HIGH Shred Mode 60 Capsules**, product `508`, URL `https://gymhigh.co.uk/product/gym-high-shred-mode-thermogenic-fat-burner-capsules/`, £39.99, in-stock, są live na existing variant `2975` **60 Servings**; immutable control nadal oczekuje variant `435`. External GTIN brak. Ten wiersz ma confidence HIGH dla obecnego 60-serving bindingu, ale pozostaje w Grupie D; nie wykonano rebindu, zmiany controlu ani freshness apply.
+
+### Grupy decyzyjne A–D
+
+| Grupa | Oferty | Dokładny wpływ po osobnym zatwierdzeniu | Identity promotions | Rebindy | Cena | Stock | `price_history` delta | Nowe encje | Ryzyko / rekomendacja |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| A — HIGH identity/freshness | 145 | Whey: 50 reviewed identity rows; Discount: 95 freshness-only confirmations. Zero commercial, shipping i URL delta. | 47 | 3 | 0 | 0 | 0 | 0 | LOW/MEDIUM. Rekomendowane wyłącznie przez istniejący protected per-row path po fresh capture i exact fingerprint. |
+| B — verified commercial | 42 | Discount: 22 price changes, 20 stock changes, 40 rows z realnym field delta i 2 już-OOS confirmations. | 0 | 0 | 22 | 20 | 22 | 0 | MEDIUM. Wymaga osobnego reviewed commercial approval; obecne guardy ceny/stocku pozostają bez zmian. |
+| C — source missing/unavailable | 113 | Whey legacy 100, Whey active missing 10, Discount missing 3. Bez owner policy zero zmian. | 0 | 0 | 0 | 0 | 0 | 0 | HIGH. Nie oznaczać automatycznie unavailable i nie odświeżać timestampu. |
+| D — identity/variant/manual conflicts | 139 | Whey 134, Discount 2, Dolphin 2, nowy GYM control drift 1. Brak zatwierdzonego wpływu. | 0 zatwierdzonych | 0 zatwierdzonych | 0 | 0 | 0 | 0 | HIGH. Manual decision per row; żadnego apply w tym przebiegu. |
+
+### Jedyny nowy blok zgody — cała Grupa A
+
+```text
+Zatwierdzam Grupę A dokładnie z dokumentu docs/Automation-Reliability-Owner-Decisions.md i artefaktu docs/rollouts/automation-reliability-owner-pack-2026-08-30.json o plikowym SHA-256 419c758d55affd2e2bd2a0730a953a25a750c4f62fb53c14a6da3089ee8f1737: dokładnie 145 ofert, w tym 50 Whey Okay exact identity rows (47 identity promotions bez zmiany canonical variant i 3 rebindy do istniejących wariantów) oraz 95 Discount Supplements freshness-only confirmations. Zezwalam wyłącznie na istniejący chroniony per-row workflow po fresh capture, exact fingerprint, approval per row i stale-state guard, z zerową zmianą ceny, stocku, shippingu i URL, zerowym price_history i zerem nowych encji, obowiązkowym read-only postflightem oraz idempotency. Nie zatwierdzam Grup B, C ani D, eBay 2582 ani żadnego innego zakresu.
+```
+
 ## Status wykonania Grupy A
 
 **GROUP A: COMPLETED for the exact approved identity operations; rollout outcome: PARTIAL.** Owner approval was verified against commit `2b3b466fe95e5e90f0480a94b8ab49d5fecb3f7f`. The exact production migrations were applied under fingerprint `fd915307bf148bd4` and sealed at commit `02be396`.
