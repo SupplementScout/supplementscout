@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 90,
+    ledgerCount: 91,
     ledgerFingerprint:
-      "f3ede0abe75c64dd1e041693edbc9869f3d96e4e663468a1f894a1d601e55966",
+      "9a012da210abd083f69cc6c443594afc8bb3fb605da07a7a4b54b65270c8ef0a",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -201,13 +201,7 @@ const CONTRACTS = Object.freeze({
       "20260830120000_expand_discount_supplements_freshness_scope_109.sql":
         "8ded2b941bd3637f0e1d5aeedcecbaaf235c35e4681aaf30a26877faf84d5e28",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260830151000_extend_automation_review_execution_evidence.sql",
-        sha256: "4ba2baf107879baf0e12c2420c2b366da057fe5c414c168714284513603b991a",
-        expectedCatalogueDeltas: Object.freeze({}),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -216,9 +210,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 166,
+    ledgerCount: 167,
     ledgerFingerprint:
-      "a1bb516852272eb64a97bdf299cfd46d51cd110d709cbffbc18ea631d9e23316",
+      "8a2b800387b0088751a4e9a731809a1eada0906e10e47d4cbd8369a955c8b347",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -235,13 +229,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260830151000_extend_automation_review_execution_evidence.sql",
-        sha256: "4ba2baf107879baf0e12c2420c2b366da057fe5c414c168714284513603b991a",
-        expectedCatalogueDeltas: Object.freeze({}),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
