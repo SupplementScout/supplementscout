@@ -28,18 +28,18 @@ It does not authorize new retailer scope, new catalogue identities, destructive 
 - Run #73 stopped on the first reviewed row before any execution. Checkpoint evidence records `executed_plan_count = 0`; all 14 rows remain. The current blocker is the existing atomic importer invariant `variant evidence does not match default product variant` for offer `2006`, whose mapping points to default variant `1922` while product `982` has an active non-default variant.
 - Dry-run `33274294913` (#72) was `PASS_WITH_REVIEW`: 506 mappings, 492 executable confirmations, the exact 14 reviewed commercial changes and zero blocked rows or database writes.
 
-### Catalog Health checkpoint after the 492 confirmations
+### Catalog Health checkpoint after the Simply and Whey applies
 
 | Metric | Confirmed value |
 | --- | ---: |
-| Global stale offers >7 days | 453 |
+| Global stale offers >7 days | 454 |
 | Products with stale offers | 291 |
 | Global stale offers >30 days | 427 |
 | 6 Pack stale offers >7 days | 14 |
 | 6 Pack products with stale offers | 3 |
-| Products without an in-stock offer | 206 |
+| Products without an in-stock offer | 208 |
 
-The Overall Critical status is currently driven by the 206 products without an in-stock offer. That is a separate post-sprint product/data decision and must not be hidden by reliability reporting.
+The Overall Critical status is currently driven by the 208 products without an in-stock offer. Brand and category missing counts are both zero. That is a separate post-sprint product/data decision and must not be hidden by reliability reporting.
 
 ### Confirmed remaining old-offer starting point
 
@@ -56,8 +56,8 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 
 - 6 Pack: reviewed offer `2006` violates the existing default-variant integrity guard; one row currently stops the reviewed executor checkpoint before the other 13 rows.
 - GYM HIGH: the source is healthy, but the immutable control binding still expects product `529` default variant `507` while live mapping `387` and offer `554` already point to exact `400g` variant `2973`.
-- Whey Okay: ten approved identities from source product `24` are absent from the healthy feed and are now isolated to review; a fresh dry-run has 576 executable plans, including one unapproved stock transition.
-- Simply Supplements: the missing source variant is now isolated to review and DB postflight is installed; production apply of 119 executable plans still needs owner approval because two are stock transitions.
+- Whey Okay: ten approved identities from source product `24` are absent from the healthy feed and remain isolated to review. Owner-approved run `33296119370` executed all 576 safe plans, including offer `221` stock `true` to `false`; its DB postflight hit a timestamp-representation false positive after apply.
+- Simply Supplements: offer `670` remains isolated to review. Owner-approved run `33295723920` executed all 119 safe plans, including offers `578` and `649` stock `true` to `false`; its DB postflight hit an evidence-hash serialization false positive after apply.
 - eBay UK: offer `2581` and mapping `2766` point to default variant `1178`, while the existing exact `405g` variant is `2920`.
 - Source reads: the previously missing KIOR, GYM HIGH Store API and eBay retry paths now use bounded retry; production retry evidence is still incomplete.
 - Workflow contracts are inconsistent in whether unchanged offers update freshness, whether review rows are isolated and whether every apply has an authoritative DB postflight.
@@ -83,7 +83,7 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | P0 | Close 6 Pack safely | OWNER BLOCKED | Offer `2006` needs an owner-approved mapping/offer rebind from default variant `1922` to existing exact variant `3126`; do not weaken the guard or apply the remaining batch first. |
 | P1 | One cross-retailer inventory and priority | COMPLETE | Snapshot and workflow evidence below; Simply Supplements is the first retailer repair after the shared postflight/session contract. |
 | P2 | Shared reliability core | COMPLETE | Shared validator/approver/executor role sessions and reusable manifest-scoped DB postflight are proven by 6 Pack, Simply and Whey Okay contracts. Adoption continues retailer by retailer. |
-| P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | IN PROGRESS / OWNER BLOCKED | Simply and Whey code paths are repaired and dry-run cleanly with isolated review. eBay and GYM HIGH require owner identity decisions; production applies for Simply and Whey require commercial approval. |
+| P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | PARTIAL COMPLETE / OWNER BLOCKED | Simply 119 and Whey 576 safe plans executed exactly. Two postflight representation defects are fixed in `0e8da89` and `5f32934`; eBay and GYM HIGH still require owner identity decisions. |
 | P4 | Classify or refresh genuinely old offers | COMPLETE / OWNER BLOCKED | All four legacy scopes are classified below. Execution requires grouped owner approval because the scopes include identity promotion or commercial changes. |
 | P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Shared DB postflight is installed for seven retailers; five new adoptions await scheduled production evidence. All known active HTTP source readers now have bounded retry except the unregistered Predators path; GYM HIGH, eBay, KIOR and Predators still need compatible end-to-end evidence paths. |
 | P6 | Catalog Health reliability view | IN PROGRESS | Per-retailer DB freshness and no-in-stock metrics are live without changing Overall Critical. Workflow/review/cron state remains in the watchdog artifact until an approved shared read source exists. |
@@ -118,6 +118,8 @@ Inventory also found zero `never_checked` offers. Products without an in-stock o
 - eBay run `33250919353` is a real mapping/variant drift blocker for offer `2581`; no guard was weakened and no write was attempted.
 - GYM HIGH run `33249118555` passed the 71-row live source audit and then exposed stale immutable control binding `4623:4623`; no write was attempted.
 - Whey commit `dfe4a2c3a7742800975aa4da2c073c6ece09c882` reuses the shared per-row classifier and DB postflight. Dry-run `33292109660` is `PASS_WITH_REVIEW`: 586 approved, 576 executable, 575 `VERIFY_NO_CHANGE`, one `UPDATE_STOCK` (offer `221`, `true` to `false`), ten `SOURCE_VARIANT_MISSING` review rows, zero blocked and zero writes. Apply, baseline, postflight and idempotency steps were correctly skipped for the dry-run dispatch.
+- Simply run `33295723920` executed `119/119` approved executable plans: 117 freshness confirmations and two exact stock changes. Three child executions are `APPLIED`, `price_history_delta = 0`, all entity/mapping deltas are zero and offer `670` stayed outside the executable scope. The read-only postflight stopped on a baseline hash computed before PostgreSQL `Date` serialization; this false positive is fixed by `0e8da89d288c6271c0051d7465b88184beb28c1c` and the apply must not be replayed.
+- Whey run `33296119370` executed `576/576` approved executable plans: 575 freshness confirmations and offer `221` stock `true` to `false`. Twelve child executions are `APPLIED`, `price_history_delta = 0`, all entity/mapping deltas are zero and the ten review rows remained outside execution. Postflight stopped at offer `16` because it compared a PostgreSQL `Date` with its equivalent persisted ISO string; `5f32934a4e016fb5cc9f6fc59cc45e8610b0ee66` fixes that false positive. Do not replay this apply.
 
 ### P4 legacy-scope classification
 
@@ -142,6 +144,8 @@ Initial run `33292889053` intentionally failed closed and still uploaded artifac
 - 6 Pack has a valid `506 = 492 executable + 14 review` contract with `492` executed and zero blocked; exactly the 14 owner-blocked reviewed offers are older than 48 hours.
 - GYM HIGH has 66 old offers; Whey Okay 284; Discount 142; Dolphin 2; Simply 120; KIOR 11; eBay 237; Predators 20.
 - KIOR and Predators have no registered autonomous refresh workflow. All retailers currently fail at least one required reliability signal, so the watchdog's aggregate `FAIL` is accurate rather than a false positive.
+
+Post-apply watchdog run `33296506999` (artifact `9727579813`) also completed read-only with `database_writes = 0` and accurately returned aggregate `FAIL`. It sees Simply `119/119` and Whey `576/576` execution contracts and their successful apply stages, but no authoritative DB-postflight artifacts because both original runs ended on the representation defects above. Database freshness now leaves only one Simply review row older than 48 hours and 284 Whey legacy rows older than 48 hours. No apply was replayed to manufacture a passing postflight.
 
 ### P6 Catalog Health evidence
 
@@ -201,20 +205,22 @@ The post-commit GYM HIGH full-catalogue read-only audit captured at `2026-08-30T
 | 2026-08-30 | P6 | `2fbe908` | PARTIAL PASS | Catalog Health now exposes truthful per-retailer DB freshness and coverage metrics. Live workflow/review/cron fields remain blocked on a shared read source rather than being inferred. |
 | 2026-08-30 | P5 | `0957dd0` | IMPLEMENTED / EVIDENCE PENDING | Shared read-only DB baseline/postflight adopted by Discount, Dolphin, Fit House, Jon's and ordinary 6 Pack; seven retailer profiles total. No apply was dispatched. |
 | 2026-08-30 | P5 | `9a67b33080b41b6d504e0d06ec5d11fdaebc9092`; KIOR capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5`; GYM HIGH audit `2026-08-30T05:14:46.230Z` | PASS / PARTIAL LIVE EVIDENCE | Missing KIOR, GYM HIGH Store API and eBay HTTP transports now use bounded retry. KIOR proved 11/11 and GYM HIGH 26 parents/71 rows read-only with zero writes; eBay scheduled evidence remains pending. |
+| 2026-08-30 | P3 / Simply | Run `33295723920`; `0e8da89d288c6271c0051d7465b88184beb28c1c` | APPLY COMPLETE / PF EVIDENCE INCOMPLETE | Exact 119 executable plans applied, zero history/entity/mapping delta; postflight false-positive hash serialization fixed afterward. No replay. |
+| 2026-08-30 | P3 / Whey | Run `33296119370`; `5f32934a4e016fb5cc9f6fc59cc45e8610b0ee66` | APPLY COMPLETE / PF EVIDENCE INCOMPLETE | Exact 576 executable plans applied, zero history/entity/mapping delta; equivalent review timestamp representation fixed afterward. No replay. |
+| 2026-08-30 | P5 / P6 | Watchdog `33296506999`, artifact `9727579813`; Catalog Health read `2026-08-30T06:19:38.438Z` | READ-ONLY FAIL / CRITICAL | Zero writes. Watchdog truthfully reports missing PF evidence; dashboard is Critical because 208 active products lack a valid in-stock offer. |
 
 ## 9. Owner-required blockers
 
-The current consolidated owner decisions are:
+The detailed consolidated owner decisions, exact identities, commercial deltas and one copyable approval block are in [Automation-Reliability-Owner-Decisions.md](./Automation-Reliability-Owner-Decisions.md). The remaining grouped decisions are:
 
 1. **6 Pack:** approve or reject rebinding mapping `2192` and offer `2006` from default variant `1922` to existing exact `60-servings` variant `3126`. Until then, the reviewed 14-row batch remains safely blocked.
-2. **Simply Supplements:** approve or reject the protected 119-plan apply: 117 freshness confirmations and stock `true` to `false` for offers `578` and `649`; offer `670` remains unchanged in review.
-3. **eBay UK:** approve or reject rebinding mapping `2766` and offer `2581` from default variant `1178` to existing exact `405g` variant `2920`.
-4. **GYM HIGH:** approve or reject refreshing the immutable control binding for source tuple `4623:4623` from old variant `507` to the already-live exact `400g` variant `2973`; this is approval/control evidence, not a request to rewrite the live mapping.
-5. **Whey Okay:** approve or reject the protected 576-plan apply: 575 freshness confirmations and stock `true` to `false` for offer `221`; the ten absent source-product-`24` rows remain unchanged in review.
-6. **Legacy old scopes:** approve or reject bounded grouped remediation separately for Whey Okay 284 identity promotions, Discount 137 executable rows including 42 commercial changes, Dolphin two identity promotions and KIOR 11 identity promotions. Discount's remaining five rows stay in review.
+2. **eBay UK:** approve or reject rebinding mapping `2766` and offer `2581` from default variant `1178` to existing exact `405g` variant `2920`.
+3. **GYM HIGH:** approve or reject refreshing the immutable control binding for source tuple `4623:4623` from old variant `507` to the already-live exact `400g` variant `2973`; this is approval/control evidence, not a request to rewrite the live mapping.
+4. **Legacy/review scopes:** decide grouped remediation for Whey ten source-missing rows and 284 identity gaps, Discount 137 executable plus five review rows, Dolphin two identity gaps and KIOR 11 identity promotions.
+5. **Future automation authority:** decide the exact autonomous KIOR and Predators scopes and the read-only control-ledger projection for Catalog Health.
 
 No production apply is implied by these entries. Each approved operation must still use its existing protected workflow, fresh source capture, stale-state guards and DB postflight. Later ambiguous rows remain grouped into one bounded review report per retailer rather than individual interruptions.
 
 ## 10. Task after the sprint
 
-Return to the existing Operating Plan sequence. The currently recorded next task is SEO-15's mandatory identity-proven accrual audit and readiness decision. The separate policy decision for the 206 products without an in-stock offer follows the reliability sprint and must not be silently folded into it.
+Return to the existing Operating Plan sequence. The currently recorded next task is SEO-15's mandatory identity-proven accrual audit and readiness decision. The separate policy decision for the 208 products without an in-stock offer follows the reliability sprint and must not be silently folded into it.
