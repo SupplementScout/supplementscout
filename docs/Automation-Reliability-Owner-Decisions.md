@@ -1,5 +1,16 @@
 # Automation Reliability — Owner Decision Pack
 
+## Unified Review Queue decision checkpoint — 30 August 2026, 14:51 UTC
+
+The shared authenticated Review Queue is live at `/admin/automation-review`. It contains `375` pending records and zero blocked records: Whey Okay `284`, Discount Supplements `47`, Dolphin Fitness `2`, eBay UK `40`, and GYM HIGH `2`. Every row is fingerprinted, expires, records before/proposed/source evidence and has one immutable `CREATED` audit event. Queue presence is not approval and does not authorize catalogue writes.
+
+Fresh evidence changes two operational conclusions:
+
+- eBay run `33317674156` confirms the same safe partition: `197 VERIFY_NO_CHANGE`, `32` identity reviews, `7` price reviews, offer `2686` as source-failure review, and zero blocked rows. The 197 freshness confirmations were already executed by run `33315914106`; commercial and identity review rows remain unchanged.
+- Discount run `33317675902` now classifies all 109 approved mappings as `VERIFY_NO_CHANGE`, including exact `95/95` for the Group A segment, with zero review, zero blocked and zero writes. Therefore the 47 older Discount queue rows must not be approved from their historical commercial snapshot. They require refreshed evidence or expiry; no Discount commercial operation is currently approved.
+
+The UI may record approve/reject/ignore/rebind/unavailable decisions only after auth, exact fingerprint and expiry checks. It does not directly modify catalogue data. Approved rows still require a fresh source recheck and the retailer's existing protected approval/apply workflow; the generic queue-to-executor handoff remains pending implementation. Existing owner restrictions on commercial changes, rebinds, creates and unavailable decisions remain unchanged.
+
 ## Końcowy pakiet pozostałych decyzji — 30 sierpnia 2026, 13:35 UTC
 
 **Status: `RELIABILITY_NO_SAFE_PROGRESS`.** W tej fazie nie uruchomiono żadnego produkcyjnego apply. Pełne dane każdego niewykonanego wiersza znajdują się w `docs/rollouts/automation-reliability-owner-pack-2026-08-30-final.json`; plikowy SHA-256 to `db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a`, a wewnętrzny payload SHA-256 to `c3891eacd2427f45bf8866ac4eeaf997a8286ae7351578f3dcb0643083ff5e01`.
