@@ -7,6 +7,14 @@ const { parseArgs: parseRefreshArgs, sameBusinessOffer } = require("./gym-high-r
 
 const workflow = fs.readFileSync(path.resolve(__dirname, "../.github/workflows/gym-high-full-catalogue-apply.yml"), "utf8");
 
+test("owner-approved GYM HIGH control binding points to the live exact 400g variant", () => {
+  const approval = require("../config/retailers/gym-high-reviewed-full-catalogue-2026-08-01.json");
+  const family = approval.families.find((row) => String(row.external_product_id) === "4623");
+  assert.equal(family.product_id, "529");
+  assert.equal(family.variants[0].external_variant_id, "4623");
+  assert.equal(family.variants[0].product_variant_id, "2973");
+});
+
 test("full-catalogue executor confines evidence output to tmp", () => {
   assert.equal(parseArgs(["--mode=validate", "--report=tmp/report.json", "--artifact=tmp/artifact.json", "--output=tmp/gym-high/out.json"]).mode, "validate");
   assert.throws(() => parseArgs(["--mode=apply", "--report=a", "--artifact=b", "--output=outside.json"]), /inside repository tmp/);
@@ -17,7 +25,7 @@ test("workflow is manual, exact, and separates production roles", () => {
   assert.doesNotMatch(workflow, /^  push:/m);
   assert.match(workflow, /^  schedule:/m);
   assert.match(workflow, /cron: "13 4 \* \* \*"/);
-  assert.match(workflow, /inputs\.approval_fingerprint == 'feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59'/);
+  assert.match(workflow, /inputs\.approval_fingerprint == '2ef000791f59a73cf0034babe6cb1486b9bb3adc142b23003281025a688386e6'/);
   assert.match(workflow, /OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66/);
   assert.match(workflow, /GYM_HIGH_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /GYM_HIGH_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);

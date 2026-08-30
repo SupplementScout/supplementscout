@@ -22,7 +22,7 @@
   "excluded_source_rows": ["3449:3452", "3449:3453", "3449:3454", "3449:3455"],
   "exception_source_rows": ["639:644"],
   "families": [
-    { "external_product_id": "4623", "product_id": "529", "expected_name": "GYM HIGH Creatine Monohydrate 400g", "product_format": "powder", "option_name": null, "variants": [{ "external_variant_id": "4623", "product_variant_id": "507", "source_label": null, "canonical_label": null }] },
+    { "external_product_id": "4623", "product_id": "529", "expected_name": "GYM HIGH Creatine Monohydrate 400g", "product_format": "powder", "option_name": null, "variants": [{ "external_variant_id": "4623", "product_variant_id": "2973", "source_label": null, "canonical_label": null }] },
     { "external_product_id": "3955", "product_id": "527", "expected_name": "GYM HIGH L-Carnitine Liquid 500 ml", "product_format": "liquid", "size_value": "500", "size_unit": "ml", "option_name": "Flavour", "variants": [{ "external_variant_id": "3957", "source_label": "orange", "canonical_label": "Orange" }, { "external_variant_id": "3958", "source_label": "watermelon", "canonical_label": "Watermelon" }] },
     { "external_product_id": "3627", "product_id": "510", "expected_name": "GYM HIGH Whey Pro Synergy Dynamic 600g", "product_format": "powder", "size_value": "600", "size_unit": "g", "option_name": "Flavour", "variants": [{ "external_variant_id": "4299", "product_variant_id": "999", "source_label": "banana", "canonical_label": "Banana" }, { "external_variant_id": "4300", "product_variant_id": "1068", "source_label": "chocolate", "canonical_label": "Belgian Chocolate" }, { "external_variant_id": "4301", "product_variant_id": "1000", "source_label": "strawberry", "canonical_label": "Strawberry" }, { "external_variant_id": "4302", "product_variant_id": "1971", "source_label": "vanilla", "canonical_label": "Vanilla" }] },
     { "external_product_id": "3405", "product_id": "525", "expected_name": "GYM HIGH Liquid Chalk", "product_format": null, "option_name": null, "variants": [{ "external_variant_id": "3405", "product_variant_id": "510", "source_label": null, "canonical_label": null }] },
@@ -48,5 +48,5 @@
     { "external_product_id": "635", "product_id": "429", "expected_name": "GYM HIGH Testo Pro 180 Capsules", "product_format": "capsule", "option_name": null, "variants": [{ "external_variant_id": "635", "product_variant_id": "391", "source_label": null, "canonical_label": null }] },
     { "external_product_id": "632", "product_id": "1", "expected_name": "GYM HIGH CREA-4 Elite Capsules", "product_format": "capsule", "option_name": null, "variants": [{ "external_variant_id": "632", "product_variant_id": "559", "source_label": null, "canonical_label": null }] }
   ],
-  "approval_fingerprint": "feda6c5cc6f03556dbadfb2e56dc7216150d502a70cee03b1880ec35ec37ad59"
+  "approval_fingerprint": "2ef000791f59a73cf0034babe6cb1486b9bb3adc142b23003281025a688386e6"
 }
