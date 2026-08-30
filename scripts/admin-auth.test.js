@@ -754,3 +754,17 @@ test("automation review publisher is exact, idempotent and targets only the revi
   assert.match(source, /catalogue_writes: 0/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
 });
+
+test("Discount review reconciliation expires exact stale evidence without catalogue access", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts", "reconcile-automation-review-queue.js"), "utf8");
+  const { validateEvidencePayload } = require("./reconcile-automation-review-queue");
+  const owner = require("../docs/rollouts/automation-reliability-owner-pack-2026-08-30.json");
+  const zero = { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 };
+  const commercial = { offer_price_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_stock_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, mapping_updated_at_updates: 0 };
+  const evidence = validateEvidencePayload({ result: "PASS", target: "production", approved_mapping_count: 109, review_row_count: 0, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 109 }, expected_deltas: { row_count_deltas: zero, logical_field_deltas: commercial } }, owner);
+  assert.equal(evidence.staleOfferIds.length, 47);
+  assert.match(source, /EXPIRE_DISCOUNT_STALE_EVIDENCE_EXACT_47/);
+  assert.match(source, /review_status: "EXPIRED"/);
+  assert.match(source, /new_review_rows: 0/);
+  assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
+});
