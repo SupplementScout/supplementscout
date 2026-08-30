@@ -1,0 +1,2244 @@
+{
+  "schema_version": 1,
+  "kind": "ebay-fresh-source-drift-field-level-diagnostic",
+  "approved": {
+    "run_id": "33329160827",
+    "artifact_id": "9737191533",
+    "report_sha256": "1a3b5f4bfd48a7c825f2f928deeeac6655e8b3ae0483a0ab14705a027f897157",
+    "full_source_fingerprint_legacy": "4426d791fbcd4e8ff0c19fa013e43418be33f294fba5c43081c73466fd9e21ad",
+    "plan_fingerprint_legacy": "f445f8fa3a08eee9fcb8543c2fe6ecc9cb333dfc01409042030610064ffd26af"
+  },
+  "failed_apply": {
+    "run_id": "33330111793",
+    "result": "BLOCK",
+    "failed_step": "Prepare exact approved existing-offer refresh",
+    "error": "Fresh source_fingerprint drift",
+    "approval_apply_rpc_count": 0,
+    "database_writes": 0
+  },
+  "evidence_integrity": {
+    "final_fresh_semantic_source_rows_persisted": false,
+    "reason": "verifyFreshReport threw before the final prepare-apply report was written",
+    "artifact_production_dry_run_is_stale_test_output": true,
+    "stale_test_output_sha256": "98fe7a4b1eb1246217b5790e746543eb0036025067bbf98797312cfa729f4760",
+    "exact_source_field_diff_available": false,
+    "exact_plan_and_database_before_state_diff_available_for_all_approved_executable_rows": true
+  },
+  "inventory": {
+    "approved_source_rows": 237,
+    "approved_executable_rows": 197,
+    "fresh_pending_plans": 204,
+    "fresh_verify_no_change_plans": 197,
+    "missing_approved_executable_offer_ids": [],
+    "unexpected_fresh_executable_offer_ids": [],
+    "executable_order_changed": false
+  },
+  "executable_plan_diff": {
+    "differing_offer_count": 197,
+    "differing_mapping_count": 197,
+    "field_counts": {
+      "offer.values.last_checked_at": 197
+    },
+    "rows": [
+      {
+        "offer_id": "2539",
+        "mapping_id": "2724",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:18.704Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2540",
+        "mapping_id": "2725",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:19.706Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2541",
+        "mapping_id": "2726",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:20.792Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2542",
+        "mapping_id": "2727",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:22.048Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2543",
+        "mapping_id": "2728",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:23.094Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2544",
+        "mapping_id": "2729",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:24.097Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2545",
+        "mapping_id": "2730",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:25.115Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2546",
+        "mapping_id": "2731",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:26.180Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2547",
+        "mapping_id": "2732",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:27.241Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2548",
+        "mapping_id": "2733",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:28.372Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2549",
+        "mapping_id": "2734",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:29.467Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2550",
+        "mapping_id": "2735",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:30.599Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2551",
+        "mapping_id": "2736",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:31.614Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2552",
+        "mapping_id": "2737",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:32.701Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2553",
+        "mapping_id": "2738",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:33.765Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2555",
+        "mapping_id": "2740",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:35.776Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2556",
+        "mapping_id": "2741",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:36.843Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2557",
+        "mapping_id": "2742",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:37.864Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2558",
+        "mapping_id": "2743",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:38.883Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2559",
+        "mapping_id": "2744",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:39.899Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2560",
+        "mapping_id": "2745",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:40.985Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2561",
+        "mapping_id": "2746",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:42.067Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2562",
+        "mapping_id": "2747",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:43.064Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2563",
+        "mapping_id": "2748",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:44.214Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2564",
+        "mapping_id": "2749",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:45.708Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2565",
+        "mapping_id": "2750",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:46.702Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2566",
+        "mapping_id": "2751",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:47.735Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2567",
+        "mapping_id": "2752",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:48.732Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2568",
+        "mapping_id": "2753",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:49.808Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2569",
+        "mapping_id": "2754",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:50.803Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2570",
+        "mapping_id": "2755",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:51.811Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2571",
+        "mapping_id": "2756",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:52.836Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2572",
+        "mapping_id": "2757",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:53.822Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2573",
+        "mapping_id": "2758",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:54.760Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2574",
+        "mapping_id": "2759",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:55.806Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2575",
+        "mapping_id": "2760",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:56.788Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2576",
+        "mapping_id": "2761",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:57.800Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2577",
+        "mapping_id": "2762",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:58.780Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2578",
+        "mapping_id": "2763",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:51:59.792Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2579",
+        "mapping_id": "2764",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:00.756Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2580",
+        "mapping_id": "2765",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:01.788Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2581",
+        "mapping_id": "2766",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:02.780Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2588",
+        "mapping_id": "2773",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:08.614Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2589",
+        "mapping_id": "2774",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:09.525Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2590",
+        "mapping_id": "2775",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:10.535Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2591",
+        "mapping_id": "2776",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:11.552Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2592",
+        "mapping_id": "2777",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:12.611Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2593",
+        "mapping_id": "2778",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:13.576Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2594",
+        "mapping_id": "2779",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:14.613Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2595",
+        "mapping_id": "2780",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:15.634Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2596",
+        "mapping_id": "2781",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:16.590Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2597",
+        "mapping_id": "2782",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:17.661Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2598",
+        "mapping_id": "2783",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:18.664Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2599",
+        "mapping_id": "2784",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:19.732Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2600",
+        "mapping_id": "2785",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:20.774Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2601",
+        "mapping_id": "2786",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:21.795Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2602",
+        "mapping_id": "2787",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:22.861Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2603",
+        "mapping_id": "2788",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:23.839Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2604",
+        "mapping_id": "2789",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:24.842Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2605",
+        "mapping_id": "2790",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:25.836Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2606",
+        "mapping_id": "2791",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:26.849Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2607",
+        "mapping_id": "2792",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:27.864Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2608",
+        "mapping_id": "2793",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:28.919Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2609",
+        "mapping_id": "2794",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:29.873Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2610",
+        "mapping_id": "2796",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:30.915Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2611",
+        "mapping_id": "2797",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:31.893Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2612",
+        "mapping_id": "2798",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:32.895Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2613",
+        "mapping_id": "2799",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:33.916Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2614",
+        "mapping_id": "2800",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:34.966Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2615",
+        "mapping_id": "2801",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:35.908Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2616",
+        "mapping_id": "2802",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:36.870Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2617",
+        "mapping_id": "2803",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:37.886Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2618",
+        "mapping_id": "2804",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:38.935Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2619",
+        "mapping_id": "2805",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:40.125Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2620",
+        "mapping_id": "2806",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:41.162Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2621",
+        "mapping_id": "2807",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:42.196Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2622",
+        "mapping_id": "2808",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:43.273Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2623",
+        "mapping_id": "2809",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:44.266Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2628",
+        "mapping_id": "2814",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:48.646Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2629",
+        "mapping_id": "2815",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:49.660Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2631",
+        "mapping_id": "2817",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:51.444Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2632",
+        "mapping_id": "2818",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:52.429Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2633",
+        "mapping_id": "2819",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:53.343Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2634",
+        "mapping_id": "2820",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:54.332Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2635",
+        "mapping_id": "2821",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:55.337Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2639",
+        "mapping_id": "2825",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:58.681Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2640",
+        "mapping_id": "2826",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:52:59.678Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2641",
+        "mapping_id": "2827",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:00.916Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2644",
+        "mapping_id": "2830",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:03.925Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2645",
+        "mapping_id": "2831",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:04.938Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2652",
+        "mapping_id": "2838",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:11.039Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2657",
+        "mapping_id": "2843",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:15.201Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2658",
+        "mapping_id": "2844",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:16.219Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2659",
+        "mapping_id": "2845",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:17.256Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2660",
+        "mapping_id": "2846",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:18.242Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2661",
+        "mapping_id": "2847",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:19.250Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2662",
+        "mapping_id": "2848",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:20.306Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2663",
+        "mapping_id": "2849",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:21.303Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2664",
+        "mapping_id": "2850",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:22.284Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2665",
+        "mapping_id": "2851",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:23.278Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2666",
+        "mapping_id": "2852",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:24.364Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2667",
+        "mapping_id": "2853",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:25.373Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2668",
+        "mapping_id": "2854",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:26.341Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2669",
+        "mapping_id": "2855",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:27.324Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2670",
+        "mapping_id": "2856",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:28.278Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2671",
+        "mapping_id": "2857",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:29.295Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2672",
+        "mapping_id": "2858",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:30.262Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2673",
+        "mapping_id": "2859",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:31.282Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2674",
+        "mapping_id": "2860",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:32.233Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2675",
+        "mapping_id": "2861",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:33.261Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2676",
+        "mapping_id": "2862",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:34.205Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2677",
+        "mapping_id": "2863",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:35.198Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2678",
+        "mapping_id": "2864",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:36.208Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2679",
+        "mapping_id": "2865",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:37.171Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2680",
+        "mapping_id": "2866",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:38.141Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2681",
+        "mapping_id": "2867",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:39.174Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2682",
+        "mapping_id": "2868",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:40.197Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2683",
+        "mapping_id": "2869",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:41.203Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2684",
+        "mapping_id": "2870",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:42.237Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2685",
+        "mapping_id": "2871",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:43.291Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2687",
+        "mapping_id": "2873",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:44.269Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2689",
+        "mapping_id": "2875",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:46.236Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2690",
+        "mapping_id": "2876",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:47.235Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2691",
+        "mapping_id": "2877",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:48.252Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2692",
+        "mapping_id": "2878",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:49.225Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2693",
+        "mapping_id": "2879",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:50.214Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2694",
+        "mapping_id": "2880",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:51.202Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2696",
+        "mapping_id": "2882",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:52.275Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2697",
+        "mapping_id": "2883",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:53.258Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2698",
+        "mapping_id": "2884",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:54.238Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2699",
+        "mapping_id": "2885",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:55.248Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2700",
+        "mapping_id": "2886",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:56.258Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2701",
+        "mapping_id": "2887",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:57.216Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2702",
+        "mapping_id": "2888",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:58.170Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2703",
+        "mapping_id": "2889",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:53:59.188Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2704",
+        "mapping_id": "2890",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:00.268Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2705",
+        "mapping_id": "2891",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:01.289Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2706",
+        "mapping_id": "2892",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:02.285Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2707",
+        "mapping_id": "2893",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:03.341Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2708",
+        "mapping_id": "2894",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:04.383Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2709",
+        "mapping_id": "2895",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:05.384Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2710",
+        "mapping_id": "2896",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:06.446Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2711",
+        "mapping_id": "2897",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:07.434Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2712",
+        "mapping_id": "2898",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:08.402Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2713",
+        "mapping_id": "2899",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:09.443Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2714",
+        "mapping_id": "2900",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:10.499Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2716",
+        "mapping_id": "2902",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:12.763Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2717",
+        "mapping_id": "2903",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:13.788Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2718",
+        "mapping_id": "2904",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:14.852Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2719",
+        "mapping_id": "2905",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:15.834Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2720",
+        "mapping_id": "2906",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:16.850Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2721",
+        "mapping_id": "2907",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:17.881Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2722",
+        "mapping_id": "2908",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:18.896Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2723",
+        "mapping_id": "2909",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:19.956Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2724",
+        "mapping_id": "2910",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:20.911Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2725",
+        "mapping_id": "2911",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:21.893Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2726",
+        "mapping_id": "2912",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:22.930Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2729",
+        "mapping_id": "2915",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:25.695Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2730",
+        "mapping_id": "2916",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:26.713Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2731",
+        "mapping_id": "2917",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:27.729Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2732",
+        "mapping_id": "2918",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:28.692Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2733",
+        "mapping_id": "2919",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:29.625Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2734",
+        "mapping_id": "2920",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:30.712Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2736",
+        "mapping_id": "2922",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:32.623Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2737",
+        "mapping_id": "2923",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:33.643Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2738",
+        "mapping_id": "2924",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:34.594Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2739",
+        "mapping_id": "2925",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:35.653Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2740",
+        "mapping_id": "2926",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:36.669Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2741",
+        "mapping_id": "2927",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:37.690Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2742",
+        "mapping_id": "2928",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:38.661Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2743",
+        "mapping_id": "2929",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:39.707Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2744",
+        "mapping_id": "2930",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:40.724Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2745",
+        "mapping_id": "2931",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:41.730Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2746",
+        "mapping_id": "2932",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:42.848Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2747",
+        "mapping_id": "2933",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:43.905Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2748",
+        "mapping_id": "2934",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:44.890Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2749",
+        "mapping_id": "2935",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:45.913Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2751",
+        "mapping_id": "2937",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:46.882Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2752",
+        "mapping_id": "2938",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:47.899Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2753",
+        "mapping_id": "2939",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:48.846Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2754",
+        "mapping_id": "2940",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:49.860Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2755",
+        "mapping_id": "2941",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:50.886Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2756",
+        "mapping_id": "2942",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:51.865Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2757",
+        "mapping_id": "2943",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:52.896Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2762",
+        "mapping_id": "2948",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:53.905Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2763",
+        "mapping_id": "2949",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:54.865Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2764",
+        "mapping_id": "2950",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:55.865Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2765",
+        "mapping_id": "2951",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:56.861Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2766",
+        "mapping_id": "2952",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:57.868Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2767",
+        "mapping_id": "2953",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:58.902Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2768",
+        "mapping_id": "2954",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:54:59.904Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2769",
+        "mapping_id": "2955",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:55:00.871Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2771",
+        "mapping_id": "2957",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:55:01.905Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2772",
+        "mapping_id": "2958",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:55:02.876Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2773",
+        "mapping_id": "2959",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:55:03.898Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2774",
+        "mapping_id": "2960",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:55:04.978Z",
+            "after": "__MISSING__"
+          }
+        ]
+      },
+      {
+        "offer_id": "2775",
+        "mapping_id": "2961",
+        "differences": [
+          {
+            "field": "offer.values.last_checked_at",
+            "before": "2026-08-30T18:55:06.004Z",
+            "after": "__MISSING__"
+          }
+        ]
+      }
+    ]
+  },
+  "protected_field_changes": {
+    "price": 0,
+    "stock": 0,
+    "shipping": 0,
+    "total": 0,
+    "offer_url": 0,
+    "mapping": 0,
+    "product": 0,
+    "variant": 0,
+    "price_history": 0,
+    "last_checked_at_target_timestamp_only": 197
+  },
+  "diagnosis": {
+    "categories": [
+      "VOLATILE_FIELD_IN_FINGERPRINT",
+      "CANONICALIZATION_BUG"
+    ],
+    "executable_row_semantic_drift_proven": false,
+    "executable_plan_nontechnical_drift_count": 0,
+    "review_only_source_drift_proven": false,
+    "source_inventory_drift_proven": false,
+    "row_order_drift_proven": false,
+    "systemic_source_failure_proven": false,
+    "evidence_gap": "The failed run did not persist final fresh source rows, so the exact source field and review-only attribution cannot be reconstructed from its artifact.",
+    "legacy_contract_defects": [
+      "plan fingerprint included the newly generated offer.values.last_checked_at",
+      "one source fingerprint bound executable and review rows together",
+      "raw returned affiliate URL could include volatile amdata",
+      "failure evidence was written after the throwing comparison"
+    ]
+  },
+  "canonical_reconstruction_fingerprint": "c06908b84ca2dd1c7d6aaab7f094c1697f45930b86a239d6e517320a8e97e370"
+}

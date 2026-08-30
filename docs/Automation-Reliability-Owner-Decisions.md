@@ -1,5 +1,9 @@
 # Automation Reliability — Owner Decision Pack
 
+## eBay executable-scope approval reset — 30 August 2026
+
+The approval for dry-run `33329160827` is closed and cannot be replayed. Apply run `33330111793` stopped before approval/apply RPC because contract v1 bound volatile and review-only evidence into the manual source/plan comparison. No catalogue data changed. Contract v2 requires a new dry-run and new owner approval containing the full-capture, executable-source, review-scope and plan fingerprints plus manifest/report hashes. No eBay apply or cron enablement is currently authorized.
+
 ## eBay artifact-bound approval reset — 30 August 2026
 
 The owner approval tied to dry-run `33327218721` was intentionally not executed. Audit proved that the previous manual workflow accepted only a static broad confirmation and could not verify the approved run ID, artifact ID, commit, semantic source/plan fingerprints, manifest hash or report hash before the approval/executor boundary. That run and every older eBay dry-run are therefore non-reusable for apply.
