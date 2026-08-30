@@ -104,6 +104,10 @@ test("Simply DB postflight proves executable freshness, review isolation and pla
   assert.equal(result.result, "PASS");
   assert.equal(result.freshness_change_count, 1);
   assert.equal(result.stock_change_count, 1);
+  assert.equal(verifyPostflight(baseline, {
+    ...after,
+    rows: [after.rows[0], { ...after.rows[1], last_checked_at: new Date(after.rows[1].last_checked_at) }],
+  }, execution).result, "PASS");
   assert.throws(() => verifyPostflight(baseline, { ...after, rows: [after.rows[0], { ...after.rows[1], last_checked_at: "2026-08-30T00:00:00Z" }] }, execution), /Review offer 2 changed/);
 });
 

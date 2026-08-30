@@ -151,7 +151,8 @@ function verifyPostflight(baseline, after, execution) {
     if (current.url !== before.url) offerUrlChanges += 1;
     if (current.external_url !== before.external_url) mappingUrlChanges += 1;
     if (reviewIds.has(offerId)) {
-      invariant(canonicalJson(current) === canonicalJson(before), `Review offer ${offerId} changed`);
+      invariant(Date.parse(current.last_checked_at) === Date.parse(before.last_checked_at), `Review offer ${offerId} changed`);
+      invariant(hash({ ...current, last_checked_at: null }) === hash({ ...before, last_checked_at: null }), `Review offer ${offerId} changed`);
     } else {
       invariant(Date.parse(current.last_checked_at) > Date.parse(before.last_checked_at), `Executable offer ${offerId} did not advance freshness`);
       freshnessChanges += 1;
