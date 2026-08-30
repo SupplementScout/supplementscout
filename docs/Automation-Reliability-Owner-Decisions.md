@@ -1,5 +1,13 @@
 # Automation Reliability — Owner Decision Pack
 
+## Review execution phase result — 30 August 2026, 15:33 UTC
+
+The queue now separates owner decision from execution and records decision actor/time plus plan/execution evidence. `Approve decision` changes only Review Queue state. `Execute approved` must perform fresh source and DB validation and delegate to a registered existing protected retailer adapter; because no such server adapter is registered yet, the action currently fails closed and performs no catalogue write. This is a technical blocker, not a request for broader owner authority.
+
+The 47 historical Discount rows are no longer actionable: exact reconciliation against owner pack SHA-256 `419c758d55affd2e2bd2a0730a953a25a750c4f62fb53c14a6da3089ee8f1737` and fresh no-change report SHA-256 `636dbb85458dc79f048ccdd966c74938c93405e3fb8da88d13e3c12efd32cc4f` changed them to `EXPIRED`. It created no replacement rows because fresh source reported 109 `VERIFY_NO_CHANGE`, zero review and zero blocked. This was a Review Queue lifecycle update only: all catalogue and commercial deltas are zero.
+
+No new owner decision is inferred. The remaining 328 `PENDING` rows are Whey Okay 284, Dolphin Fitness 2, eBay UK 40 and GYM HIGH 2. Discount has zero active pending review rows. eBay fresh run `33319490141` still isolates 40 review rows and 197 safe confirmations, but cron remains disabled because independent idempotency evidence cannot be strictly correlated to the prior apply commit and immutable plan/postflight fields. All previous restrictions on commercial changes, identity changes, source-missing policy, offer `2686` and GYM HIGH remain in force.
+
 ## Unified Review Queue decision checkpoint — 30 August 2026, 14:51 UTC
 
 The shared authenticated Review Queue is live at `/admin/automation-review`. It contains `375` pending records and zero blocked records: Whey Okay `284`, Discount Supplements `47`, Dolphin Fitness `2`, eBay UK `40`, and GYM HIGH `2`. Every row is fingerprinted, expires, records before/proposed/source evidence and has one immutable `CREATED` audit event. Queue presence is not approval and does not authorize catalogue writes.
