@@ -1,5 +1,13 @@
 # Automation Reliability Roadmap
 
+### Review decision execution phase start — 30 August 2026, 15:02 UTC
+
+- Clean `main` and `origin/main` start at `0f8ed044735abc9570f43a6c949c8e026e4ac696`; `verify:project` passed. Fresh production reads reproduce the checkpoint: 375 pending automation review rows, 375 immutable `CREATED` events, zero failed rows, catalogue counts `1130/2849/2808/2808/6610`, and no catalogue writes. The new read-only queue evidence SHA-256 is `43725d05a09981a42626118d7a99fd11caf6d0d05e09a91a8b1f6b29edeafe86`.
+- Catalog Health at `2026-08-30T15:01:38.715Z` remains `334/322` stale offers over 7/30 days, 269 products with stale offers, 208 products without a valid in-stock offer and unchanged Overall `Critical`. eBay remains `1/0`; Whey `284/284`, Discount `47/36`, Dolphin `2/2`, all others `0/0`.
+- Reuse audit: `approve_product_import_plan` and `apply_approved_product_import_plan` are the existing per-row approval and atomic apply boundary. Retailer-specific builders own source identity, classification and guard policy; existing executors own protected role sessions and checkpoints; `retailer-offer-refresh-postflight.js` owns manifest-scoped DB baseline/postflight; each workflow owns fresh source idempotency. The Review Queue must not duplicate any of these mechanisms.
+- No shared review execution dispatcher exists. The current admin route records decisions only, performs no source recapture and has no executor handoff. The safe extension is a coordinator/registry that validates an approved queue item, delegates fresh plan reproduction to an explicitly registered existing retailer adapter, compares source/plan/before-state fingerprints, and only then invokes that adapter's existing protected workflow. Unsupported retailer/operation pairs remain review-only.
+- This phase will add explicit queued/execution lifecycle and richer immutable audit evidence, an execution coordinator that cannot write catalogue data itself, idempotent evidence reconciliation, and exact eBay evidence correlation. A production pilot is permitted only if a real current freshness-only review item exists; none will be fabricated.
+
 ### Unified Review Queue rollout checkpoint — 30 August 2026, 14:51 UTC
 
 - Existing mechanisms were extended rather than replaced. The legacy `product_match_review_queue`, admin authentication, retailer classifiers, protected approval/apply RPCs, control ledgers, DB postflight and watchdog remain authoritative. The queue is a review and audit surface; it does not write catalogue tables.
