@@ -317,7 +317,16 @@ const SCOPE = SCOPES.find((scope) => scope.offer_id === "2558");
 function pendingArtifact(scope) { return path.join(OUT, `pending-${scope.offer_id}.json`); }
 
 function writePendingBatch(report, now) {
-  const manifest = { schema_version: 1, kind: KIND, created_at: now.toISOString(), offer_ids: SCOPES.map((scope) => scope.offer_id), eligible_offer_ids: Object.keys(report.classifications), blocked_rows: report.blocked_rows };
+  if (report.blocked_row_count !== 0) fail("Global eBay refresh blockers prevent apply preparation");
+  const manifest = {
+    schema_version: 1,
+    kind: KIND,
+    created_at: now.toISOString(),
+    offer_ids: SCOPES.map((scope) => scope.offer_id),
+    executable_offer_ids: report.execution_offer_ids,
+    review_rows: report.review_rows,
+    blocked_rows: report.blocked_rows,
+  };
   const bytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
   fs.writeFileSync(PENDING_BATCH, bytes, { flag: "wx" });
   fs.writeFileSync(`${PENDING_BATCH}.sha256`, `${sha256(bytes)}\n`, { flag: "wx" });
@@ -329,9 +338,11 @@ function loadPendingBatch(now = new Date()) {
   if (sha256(bytes) !== expectedHash) fail("Pending eBay refresh batch SHA-256 mismatch");
   const manifest = JSON.parse(bytes.toString("utf8"));
   const ageMs = now.getTime() - new Date(manifest.created_at).getTime();
-  const eligible = new Set(manifest.eligible_offer_ids || []), blocked = new Set((manifest.blocked_rows || []).map((row) => row.offer_id));
-  if (manifest.schema_version !== 1 || manifest.kind !== KIND || !Number.isFinite(ageMs) || ageMs < -120000 || ageMs > 15 * 60 * 1000 || JSON.stringify(manifest.offer_ids) !== JSON.stringify(SCOPES.map((scope) => scope.offer_id)) || eligible.size !== (manifest.eligible_offer_ids || []).length || blocked.size !== (manifest.blocked_rows || []).length || [...eligible].some((id) => blocked.has(id)) || eligible.size + blocked.size !== SCOPES.length || SCOPES.some((scope) => !eligible.has(scope.offer_id) && !blocked.has(scope.offer_id))) fail("Pending eBay refresh batch scope, partition or freshness mismatch");
-  return { manifest, eligible };
+  const executable = new Set(manifest.executable_offer_ids || []);
+  const review = new Set((manifest.review_rows || []).map((row) => String(row.offer_id)));
+  const blocked = new Set((manifest.blocked_rows || []).map((row) => String(row.offer_id)));
+  if (manifest.schema_version !== 1 || manifest.kind !== KIND || !Number.isFinite(ageMs) || ageMs < -120000 || ageMs > 15 * 60 * 1000 || JSON.stringify(manifest.offer_ids) !== JSON.stringify(SCOPES.map((scope) => scope.offer_id)) || executable.size !== (manifest.executable_offer_ids || []).length || review.size !== (manifest.review_rows || []).length || blocked.size !== (manifest.blocked_rows || []).length || blocked.size !== 0 || [...executable].some((id) => review.has(id) || blocked.has(id)) || [...review].some((id) => blocked.has(id)) || executable.size + review.size !== SCOPES.length || SCOPES.some((scope) => !executable.has(scope.offer_id) && !review.has(scope.offer_id))) fail("Pending eBay refresh batch scope, partition or freshness mismatch");
+  return { manifest, executable };
 }
 
 function parseArgs(argv) {
@@ -406,7 +417,22 @@ function validatePreparedArtifact(scope, loaded, now = new Date()) {
   if (loaded.artifact.environment_marker !== "production") fail("Prepared refresh artifact target mismatch");
   const createdAt = new Date(loaded.artifact.created_at), ageMs = now.getTime() - createdAt.getTime();
   if (!Number.isFinite(createdAt.getTime()) || ageMs < -120000 || ageMs > 15 * 60 * 1000) fail("Prepared refresh artifact is not fresh");
-  return validatePlan(scope, loaded);
+  const approved = validatePlan(scope, loaded);
+  const plan = approved.entry.resolved_plan;
+  if (plan.offer.action !== "verify_no_change" || plan.price_history.action !== "noop") fail(`Only VERIFY_NO_CHANGE may execute automatically for offer ${scope.offer_id}`);
+  return approved;
+}
+
+function actionForPlan(plan) {
+  if (plan.offer.action === "verify_no_change") return "VERIFY_NO_CHANGE";
+  const before = plan.expected_state.offer;
+  const after = plan.offer.values;
+  const price = Number(before.price) !== Number(after.price);
+  const stock = before.in_stock !== after.in_stock;
+  if (price && stock) return "UPDATE_PRICE_AND_STOCK";
+  if (price) return "UPDATE_PRICE";
+  if (stock) return "UPDATE_STOCK";
+  return "MANUAL_REVIEW";
 }
 
 async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = null) {
@@ -425,6 +451,14 @@ async function prepareScope(scope, evaluation, mode, dependencies, stamp) {
   let artifactRows = [row];
   let result = await (dependencies.runImportRows || runImportRows)([row], { mode: "manual", dryRun: true });
   const initialPlan = result.report?.approvedRows?.[0]?.importPlan;
+  if (!initialPlan) {
+    const blockedRows = result.blockedRows || result.report?.blockedRows || [];
+    const reason = String(blockedRows[0]?.block_reason || blockedRows[0]?.reason || "");
+    if (blockedRows.length === 1 && /conflicting variant evidence/i.test(reason)) {
+      return { review: { offer_id: scope.offer_id, item_id: evaluation.item_id, action: "IDENTITY_CONFLICT", review_type: "IDENTITY_CONFLICT", reason } };
+    }
+    fail(`Refresh importer blocked offer ${scope.offer_id} outside the isolated identity-conflict contract`);
+  }
   if (initialPlan?.offer?.action === "noop") {
     const capturedAt = new Date().toISOString();
     const snapshotHash = sha256(JSON.stringify({ item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price, shipping: evaluation.uk_shipping, delivered: evaluation.delivered_price, captured_at: capturedAt }));
@@ -446,10 +480,30 @@ async function run(options, dependencies = {}) {
   const now = dependencies.now || new Date();
   if (options.mode === "execute-apply") {
     const batch = (dependencies.loadPendingBatch || loadPendingBatch)(now);
-    const approved = SCOPES.filter((scope) => batch.eligible.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
+    const approved = SCOPES.filter((scope) => batch.executable.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
     for (const item of approved) await (dependencies.executePlan || executePlan)(item, KIND);
-    const report = { result: "PASS", mode: options.mode, scope: { offers: SCOPES.length, eligible: approved.length, blocked: batch.manifest.blocked_rows.length, offer_ids: SCOPES.map((scope) => scope.offer_id) }, executed: approved.length, blocked_rows: batch.manifest.blocked_rows, automatic_oos: "blocked" };
+    const report = {
+      result: batch.manifest.review_rows.length ? "PASS_WITH_REVIEW" : "PASS",
+      mode: options.mode,
+      approved_mapping_count: SCOPES.length,
+      executable_plan_count: approved.length,
+      executed_plan_count: approved.length,
+      review_row_count: batch.manifest.review_rows.length,
+      blocked_row_count: 0,
+      execution_offer_ids: [...batch.executable],
+      review_rows: batch.manifest.review_rows,
+      blocked_rows: [],
+      classification: { VERIFY_NO_CHANGE: approved.length },
+      expected_deltas: {
+        logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: approved.length },
+        row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 },
+      },
+      scope: { offers: SCOPES.length, executable: approved.length, review: batch.manifest.review_rows.length, blocked: 0, offer_ids: SCOPES.map((scope) => scope.offer_id) },
+      executed: approved.length,
+      automatic_oos: "blocked",
+    };
     fs.writeFileSync(path.join(OUT, `execute-apply-${now.toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
+    fs.writeFileSync(path.join(OUT, "production-apply.json"), `${JSON.stringify(report, null, 2)}\n`);
     return report;
   }
   const config = dependencies.config || assertConfig(dependencies.env || process.env);
@@ -459,7 +513,7 @@ async function run(options, dependencies = {}) {
   for (const scope of SCOPES) {
     try {
       const evaluation = dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token);
-      evaluations.push({ ...evaluation, continuity: classifyContinuity(scope, evaluation) });
+      evaluations.push({ ...evaluation, continuity: evaluation.continuity || classifyContinuity(scope, evaluation) });
     } catch {
       evaluations.push({
         item_id: scope.external_variant_id,
@@ -472,7 +526,7 @@ async function run(options, dependencies = {}) {
       });
     }
   }
-  const blocked = evaluations.flatMap((evaluation, index) => evaluation.continuity.eligible ? [] : [{
+  const unsafeRows = evaluations.flatMap((evaluation, index) => evaluation.continuity.eligible ? [] : [{
     offer_id: SCOPES[index].offer_id,
     item_id: evaluation.item_id,
     decision: evaluation.decision,
@@ -486,14 +540,41 @@ async function run(options, dependencies = {}) {
     if (!evaluations[index].continuity.eligible) continue;
     prepared.push(await prepareScope(SCOPES[index], evaluations[index], options.mode, dependencies, stamp));
   }
+  const globalBlocked = unsafeRows.filter((row) => row.source_error === "SOURCE_READ_FAILED");
+  const identityReview = unsafeRows.filter((row) => row.source_error !== "SOURCE_READ_FAILED").map((row) => ({ ...row, review_type: "IDENTITY_CONFLICT" }));
+  const importerIdentityReview = prepared.flatMap(({ review }) => review ? [review] : []);
+  const preparedRows = prepared.filter(({ approved }) => approved).map(({ approved }) => {
+    const plan = approved.entry.resolved_plan;
+    return { offer_id: String(plan.offer.id), action: actionForPlan(plan), approved };
+  });
+  const executableRows = globalBlocked.length ? [] : preparedRows.filter((row) => row.action === "VERIFY_NO_CHANGE");
+  const commercialReview = preparedRows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => ({ offer_id: row.offer_id, action: row.action, review_type: "COMMERCIAL_CHANGE" }));
+  const reviewRows = [...identityReview, ...importerIdentityReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+  const classification = preparedRows.reduce((counts, row) => ({ ...counts, [row.action]: (counts[row.action] || 0) + 1 }), {});
   const report = {
-    result: blocked.length ? "PASS_WITH_BLOCKS" : "PASS", mode: options.mode,
-    scope: { offers: SCOPES.length, eligible: prepared.length, blocked: blocked.length, offer_ids: SCOPES.map((scope) => scope.offer_id) },
-    classifications: Object.fromEntries(prepared.map(({ approved }) => [String(approved.entry.resolved_plan.offer.id), approved.entry.resolved_plan.offer.action])),
+    result: globalBlocked.length ? "BLOCK" : reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
+    mode: options.mode,
+    approved_mapping_count: SCOPES.length,
+    executable_plan_count: executableRows.length,
+    executed_plan_count: 0,
+    review_row_count: reviewRows.length,
+    blocked_row_count: globalBlocked.length,
+    execution_offer_ids: executableRows.map((row) => row.offer_id),
+    scope: { offers: SCOPES.length, executable: executableRows.length, review: reviewRows.length, blocked: globalBlocked.length, offer_ids: SCOPES.map((scope) => scope.offer_id) },
+    classification,
+    classifications: Object.fromEntries(preparedRows.map((row) => [row.offer_id, row.action])),
     source: evaluations.map((evaluation, index) => ({ offer_id: SCOPES[index].offer_id, item_id: evaluation.item_id, gtin: evaluation.returned_gtin, continuity_tier: evaluation.continuity.tier, price: evaluation.item_price?.value ?? null, shipping: evaluation.uk_shipping?.value ?? null, delivered: evaluation.delivered_price?.value ?? null })),
-    blocked_rows: blocked, executed: 0, automatic_oos: "blocked",
+    review_rows: reviewRows,
+    blocked_rows: globalBlocked,
+    commercial_change_count: commercialReview.length,
+    identity_conflict_count: identityReview.length + importerIdentityReview.length,
+    expected_deltas: {
+      logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: executableRows.length },
+      row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 },
+    },
+    executed: 0, automatic_oos: "blocked",
   };
-  if (options.mode === "prepare-apply") (dependencies.writePendingBatch || writePendingBatch)(report, now);
+  if (options.mode === "prepare-apply" && !globalBlocked.length) (dependencies.writePendingBatch || writePendingBatch)(report, now);
   fs.writeFileSync(path.join(OUT, `${options.mode}-${stamp}.json`), `${JSON.stringify(report, null, 2)}\n`);
   return report;
 }
@@ -501,4 +582,4 @@ async function run(options, dependencies = {}) {
 async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); if (!report.result.startsWith("PASS")) process.exitCode = 2; }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
+module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };

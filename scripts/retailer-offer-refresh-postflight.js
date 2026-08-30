@@ -23,6 +23,13 @@ const PROFILES = Object.freeze({
     manifestPath: "config/retailers/dolphin-vegan-protein-approved-offer-manifest.json",
     approvedMappingCount: 1,
   },
+  "ebay-uk": {
+    retailerId: "12",
+    retailerName: "eBay UK",
+    credential: "EBAY_REFRESH_VALIDATOR_DATABASE_URL",
+    offerIds: Object.freeze(Array.from({ length: 237 }, (_, index) => String(2539 + index))),
+    approvedMappingCount: 237,
+  },
   "fit-house": {
     retailerId: "9",
     retailerName: "Fit House",
@@ -72,6 +79,11 @@ function epoch(value) { return value instanceof Date ? value.getTime() : Date.pa
 function baselineHash(value) { const payload = { ...value }; delete payload.evidence_hash; return hash(payload); }
 function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 function approvedOfferIds(profile) {
+  if (profile.offerIds) {
+    invariant(profile.offerIds.length === profile.approvedMappingCount, "Approved postflight scope count drift");
+    invariant(new Set(profile.offerIds).size === profile.offerIds.length, "Approved postflight scope contains duplicate offers");
+    return [...profile.offerIds];
+  }
   if (!profile.manifestPath) return null;
   const manifest = read(path.join(ROOT, profile.manifestPath));
   const offerIds = manifest.rows.map((row) => {

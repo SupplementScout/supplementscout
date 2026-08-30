@@ -66,6 +66,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run ebay:refresh -- --target=production --mode=prepare-apply
+      - name: Capture eBay UK DB baseline read-only
+        if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
+        env:
+          EBAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=ebay-uk --mode=baseline --output=tmp/ebay-offer-refresh/production-db-baseline.json
       - name: Apply exact approved existing-offer refresh
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:
@@ -73,6 +78,11 @@ jobs:
           EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: npm run ebay:refresh -- --target=production --mode=execute-apply
+      - name: Verify eBay UK DB postflight read-only
+        if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
+        env:
+          EBAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=ebay-uk --mode=postflight --baseline=tmp/ebay-offer-refresh/production-db-baseline.json --execution=tmp/ebay-offer-refresh/production-apply.json --output=tmp/ebay-offer-refresh/production-db-postflight.json
       - name: Verify fresh no-op after apply
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:

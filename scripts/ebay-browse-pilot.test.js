@@ -7,7 +7,7 @@ const { parse } = require("csv-parse/sync");
 const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource } = require("./lib/ebay-browse-pilot");
 const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
-const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, rowFromEvaluation, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
+const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
 const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: validateBatchHRecovery } = require("./ebay-offer-batch-h-recovery-executor");
@@ -721,11 +721,74 @@ test("Batch R refresh continuity remains sealed to the exact approved item, sell
   assert.equal(classifyContinuity(exact, evaluation("2722", "powerbodyltd", [], [], exact.gtin)).eligible, false);
 });
 
-test("eBay refresh isolates an unreadable listing without automatic OOS or stopping the remaining scope", () => {
+test("eBay refresh treats an unreadable listing as a global blocker without automatic OOS", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
   assert.match(source, /catch \{[\s\S]*blockers: \["SOURCE_READ_FAILED"\][\s\S]*continuity: \{ eligible: false, tier: "blocked" \}/);
+  assert.match(source, /globalBlocked = unsafeRows\.filter/);
+  assert.match(source, /executableRows = globalBlocked\.length \? \[\]/);
   assert.match(source, /automatic_oos: "blocked"/);
   assert.doesNotMatch(source, /SOURCE_READ_FAILED[\s\S]{0,300}in_stock:\s*false/);
+});
+
+test("eBay per-row preflight isolates one identity conflict and executes only VERIFY_NO_CHANGE", async () => {
+  const conflictId = "2582";
+  const evaluations = new Map(REFRESH_SCOPES.map((scope) => [scope.offer_id, {
+    item_id: scope.external_variant_id,
+    legacy_item_id: scope.external_product_id,
+    returned_gtin: scope.gtin || null,
+    decision: "AUTO_ELIGIBLE",
+    blockers: [],
+    review_reasons: [],
+    affiliate_ready: true,
+    affiliate_url: scope.affiliate_url,
+    item_price: { value: Number(scope.price), currency: "GBP" },
+    uk_shipping: { value: Number(scope.shipping_cost), currency: "GBP" },
+    delivered_price: { value: Number(scope.price) + Number(scope.shipping_cost), currency: "GBP" },
+    continuity: { eligible: true, tier: "test_exact" },
+  }]));
+  const plans = new Map();
+  const report = await runRefresh({ target: "production", mode: "dry-run" }, {
+    config: {}, token: "test-token", evaluations,
+    runImportRows: async ([row]) => {
+      const scope = REFRESH_SCOPES.find((candidate) => candidate.external_variant_id === row.external_variant_id);
+      if (scope.offer_id === conflictId) return { report: { approvedRows: [] }, blockedRows: [{ block_reason: "conflicting variant evidence: retailer product mapping" }] };
+      const plan = {
+        product: { action: "existing", id: scope.product_id },
+        product_variant: { action: "existing", id: scope.product_variant_id },
+        retailer: { action: "existing", id: "12" },
+        retailer_product: { action: "noop", id: scope.retailer_product_id },
+        offer: { action: "verify_no_change", id: scope.offer_id, values: { price: row.price, shipping_cost: row.shipping_cost, total_price: (Number(row.price) + Number(row.shipping_cost)).toFixed(2), in_stock: true, url: scope.affiliate_url } },
+        price_history: { action: "noop" },
+        expected_state: { offer: { price: row.price, shipping_cost: row.shipping_cost, total_price: (Number(row.price) + Number(row.shipping_cost)).toFixed(2), in_stock: true, url: scope.affiliate_url, retailer_product_id: scope.retailer_product_id } },
+      };
+      plans.set(scope.offer_id, plan);
+      return { report: { approvedRows: [{ importPlan: plan }] } };
+    },
+    writeDryRunArtifact: (_rows, result) => {
+      const plan = result.report.approvedRows[0].importPlan;
+      return { artifact: { blocked_rows: [], plans: [{ plan_kind: "manual", retailer_id: "12", resolved_plan: plan }] }, artifactSha256: "a".repeat(64) };
+    },
+  });
+  assert.equal(report.result, "PASS_WITH_REVIEW");
+  assert.equal(report.approved_mapping_count, 237);
+  assert.equal(report.executable_plan_count, 236);
+  assert.equal(report.executed_plan_count, 0);
+  assert.equal(report.review_row_count, 1);
+  assert.equal(report.blocked_row_count, 0);
+  assert.equal(report.identity_conflict_count, 1);
+  assert.equal(report.commercial_change_count, 0);
+  assert.equal(report.classification.VERIFY_NO_CHANGE, 236);
+  assert.deepEqual(report.review_rows.map((row) => row.offer_id), [conflictId]);
+  assert.equal(plans.has(conflictId), false);
+});
+
+test("eBay automatic action contract keeps commercial changes in review", () => {
+  const base = { price: "10.00", in_stock: true };
+  const plan = (values) => ({ offer: { action: "update", values }, expected_state: { offer: base } });
+  assert.equal(refreshActionForPlan({ offer: { action: "verify_no_change" } }), "VERIFY_NO_CHANGE");
+  assert.equal(refreshActionForPlan(plan({ price: "11.00", in_stock: true })), "UPDATE_PRICE");
+  assert.equal(refreshActionForPlan(plan({ price: "10.00", in_stock: false })), "UPDATE_STOCK");
+  assert.equal(refreshActionForPlan(plan({ price: "11.00", in_stock: false })), "UPDATE_PRICE_AND_STOCK");
 });
 
 test("eBay refresh plan permits only noop or bounded update of offer 2558", () => {
@@ -740,8 +803,10 @@ test("eBay refresh plan permits only noop or bounded update of offer 2558", () =
   assert.throws(() => validateRefreshPlan(REFRESH_SCOPE, { ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, product: { action: "existing", id: "999" } } }] } }), /escaped/);
   assert.throws(() => validateRefreshPlan(REFRESH_SCOPE, { ...loaded, artifact: { ...loaded.artifact, plans: [{ ...loaded.artifact.plans[0], resolved_plan: { ...plan, offer: { ...plan.offer, values: { ...plan.offer.values, price: "45.00", total_price: "45.00" } } } }] } }), /hard limit/);
   const fresh = { ...loaded, artifact: { ...loaded.artifact, environment_marker: "production", created_at: "2026-08-17T10:00:00.000Z" } };
-  assert.equal(validatePreparedArtifact(REFRESH_SCOPE, fresh, new Date("2026-08-17T10:14:59.000Z")).entry.resolved_plan.offer.id, "2558");
-  assert.throws(() => validatePreparedArtifact(REFRESH_SCOPE, fresh, new Date("2026-08-17T10:15:01.000Z")), /not fresh/);
+  assert.throws(() => validatePreparedArtifact(REFRESH_SCOPE, fresh, new Date("2026-08-17T10:14:59.000Z")), /Only VERIFY_NO_CHANGE/);
+  const verified = { ...fresh, artifact: { ...fresh.artifact, plans: [{ ...fresh.artifact.plans[0], resolved_plan: { ...plan, offer: { ...plan.offer, action: "verify_no_change" }, price_history: { action: "noop" } } }] } };
+  assert.equal(validatePreparedArtifact(REFRESH_SCOPE, verified, new Date("2026-08-17T10:14:59.000Z")).entry.resolved_plan.offer.id, "2558");
+  assert.throws(() => validatePreparedArtifact(REFRESH_SCOPE, verified, new Date("2026-08-17T10:15:01.000Z")), /not fresh/);
 });
 
 test("eBay refresh workflow is scheduled, default dry-run and has no push trigger", () => {
@@ -755,6 +820,9 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /EBAY_CLIENT_ID/);
   assert.match(workflow, /JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /vars\.EBAY_REFRESH_ENABLED == 'true'/);
+  assert.match(workflow, /Capture eBay UK DB baseline read-only/);
+  assert.match(workflow, /Verify eBay UK DB postflight read-only/);
+  assert.match(workflow, /--profile=ebay-uk/);
   assert.match(workflow, /Verify fresh no-op after apply/);
   const applyStep = workflow.match(/- name: Apply exact approved existing-offer refresh[\s\S]*?run: npm run ebay:refresh -- --target=production --mode=execute-apply/)?.[0] || "";
   assert.match(applyStep, /EBAY_CANARY_APPROVER_DATABASE_URL/);
