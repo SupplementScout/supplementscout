@@ -166,7 +166,10 @@ function verifyPostflight(baseline, after, execution) {
   invariant(totalChanges === Number(logical.offer_total_updates || 0), "Total update count differs from plan");
   invariant(offerUrlChanges === Number(logical.offer_url_updates || 0), "Offer URL update count differs from plan");
   invariant(mappingUrlChanges === Number(logical.mapping_url_updates || 0), "Mapping URL update count differs from plan");
-  invariant(freshnessChanges === execution.executed_plan_count && freshnessChanges === Number(logical.last_checked_at_updates || 0), "Freshness update count differs from execution");
+  invariant(freshnessChanges === execution.executed_plan_count, "Freshness update count differs from execution");
+  if (logical.last_checked_at_updates !== undefined) {
+    invariant(freshnessChanges === Number(logical.last_checked_at_updates), "Freshness update count differs from plan");
+  }
   const historyDelta = after.price_history_count - baseline.snapshot.price_history_count;
   invariant(historyDelta === Number(rowDeltas.price_history || 0), "Price history delta differs from plan");
   return { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: baseline.profile, approved_mapping_count: execution.approved_mapping_count, executable_plan_count: execution.executable_plan_count, executed_plan_count: execution.executed_plan_count, review_row_count: execution.review_row_count, blocked_row_count: execution.blocked_row_count, price_change_count: priceChanges, stock_change_count: stockChanges, shipping_change_count: shippingChanges, total_change_count: totalChanges, offer_url_change_count: offerUrlChanges, mapping_url_change_count: mappingUrlChanges, freshness_change_count: freshnessChanges, price_history_delta: historyDelta, baseline_hash: baseline.evidence_hash, postflight_hash: hash(after), completed_at: new Date().toISOString() };

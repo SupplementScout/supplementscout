@@ -109,6 +109,10 @@ test("Simply DB postflight proves executable freshness, review isolation and pla
     rows: [after.rows[0], { ...after.rows[1], last_checked_at: new Date(after.rows[1].last_checked_at) }],
   }, execution).result, "PASS");
   assert.throws(() => verifyPostflight(baseline, { ...after, rows: [after.rows[0], { ...after.rows[1], last_checked_at: "2026-08-30T00:00:00Z" }] }, execution), /Review offer 2 changed/);
+
+  const freshnessOnlyExecution = { result: "PASS", approved_mapping_count: 2, executable_plan_count: 2, executed_plan_count: 2, review_row_count: 0, blocked_row_count: 0, review_rows: [] };
+  const freshnessOnlyAfter = { row_count: 2, price_history_count: 4, rows: [row(1, true, "2026-08-30T00:00:00Z"), row(2, true, "2026-08-30T00:00:00Z")] };
+  assert.equal(verifyPostflight(baseline, freshnessOnlyAfter, freshnessOnlyExecution).freshness_change_count, 2);
 });
 
 test("DB baseline evidence hash is stable across PostgreSQL Date serialization", () => {
