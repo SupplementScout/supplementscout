@@ -230,6 +230,13 @@ test("DB postflight proves 13 exact histories, 6 stock changes, no mapping or en
   assert.equal(executionRows.find((row) => row.offer_id === "2006").price_history_id, null);
 });
 
+test("reviewed postflight normalizes live pg Date values to persisted baseline timestamps", () => {
+  const { normalizeSnapshot } = require("./six-pack-reviewed-postflight");
+  const captured = normalizeSnapshot({ offers: [{ id: "2006", created_at: new Date("2026-07-27T15:20:49.509Z") }] });
+  assert.deepEqual(captured, { offers: [{ id: "2006", created_at: "2026-07-27T15:20:49.509Z" }] });
+  assert.equal(hash(captured.offers[0]), hash({ id: "2006", created_at: "2026-07-27T15:20:49.509Z" }));
+});
+
 test("source timeout after passed execution and DB postflight is deferred success, never replay", () => {
   const execution = { result: "PASS", executed_plan_count: 14, rows: Array.from({ length: 14 }, (_, index) => ({ offer_id: String(2000 + index) })), reviewed_owner_approval: { approved_reviewed_plan_count: 14, reviewed_batch_fingerprint: "a".repeat(64) } };
   const postflight = { result: "PASS", reviewed_batch_fingerprint: "a".repeat(64) };

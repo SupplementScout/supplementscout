@@ -13,6 +13,7 @@ const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 
 function fail(message) { throw new Error(message); }
 function hash(value) { return crypto.createHash("sha256").update(canonicalJson(value)).digest("hex"); }
+function normalizeSnapshot(value) { return JSON.parse(JSON.stringify(value)); }
 
 function parseArgs(argv) {
   const values = {};
@@ -44,7 +45,8 @@ async function capture(client, batch) {
     query(`select ${TABLES.map((table) => `(select count(*)::int from public.${table}) as ${table}`).join(",")}`),
   ]);
   if (offers.length !== batch.offer_ids.length || mappings.length !== batch.retailer_product_ids.length || products.length !== batch.product_ids.length || variants.length !== batch.product_variant_ids.length) fail("Reviewed DB scope is incomplete");
-  const commercial = offers.map((offer) => {
+  const persisted = normalizeSnapshot({ offers, mappings, products, variants, histories });
+  const commercial = persisted.offers.map((offer) => {
     const row = { ...offer };
     delete row.last_checked_at;
     delete row.updated_at;
@@ -52,8 +54,9 @@ async function capture(client, batch) {
   });
   return {
     captured_at: new Date().toISOString(), transaction_read_only: "on", counts: counts[0],
-    offers, retailer_products: mappings, products, product_variants: variants, price_history: histories,
-    commercial_hash_without_last_checked_at: hash(commercial), mapping_hash: hash(mappings),
+    offers: persisted.offers, retailer_products: persisted.mappings, products: persisted.products,
+    product_variants: persisted.variants, price_history: persisted.histories,
+    commercial_hash_without_last_checked_at: hash(commercial), mapping_hash: hash(persisted.mappings),
   };
 }
 
@@ -133,4 +136,4 @@ async function run(options) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { capture, hash, parseArgs, verifyPostflight, withReadOnlyValidatorClient, VALIDATOR_LOGIN, VALIDATOR_ROLE };
+module.exports = { capture, hash, normalizeSnapshot, parseArgs, verifyPostflight, withReadOnlyValidatorClient, VALIDATOR_LOGIN, VALIDATOR_ROLE };
