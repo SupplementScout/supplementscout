@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 91,
+    ledgerCount: 92,
     ledgerFingerprint:
-      "9a012da210abd083f69cc6c443594afc8bb3fb605da07a7a4b54b65270c8ef0a",
+      "8769270770b163e5f69f685ec016bb8ae9e2f0063fbed2965330e551480caf04",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -201,7 +201,7 @@ const CONTRACTS = Object.freeze({
       "20260830120000_expand_discount_supplements_freshness_scope_109.sql":
         "8ded2b941bd3637f0e1d5aeedcecbaaf235c35e4681aaf30a26877faf84d5e28",
     }),
-    pending: Object.freeze([{ filename: "20260830173000_create_automation_review_execution_requests.sql", sha256: "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a" }]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -210,9 +210,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 167,
+    ledgerCount: 168,
     ledgerFingerprint:
-      "8a2b800387b0088751a4e9a731809a1eada0906e10e47d4cbd8369a955c8b347",
+      "9aff17137838bd63ee7f9d54059b38b32257a9fbd52127f085f948a22d4aaa09",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -229,7 +229,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([{ filename: "20260830173000_create_automation_review_execution_requests.sql", sha256: "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a" }]),
+    pending: Object.freeze([]),
   }),
 });
 

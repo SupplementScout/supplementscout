@@ -72,11 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging selects only the reviewed execution request migration", () => {
+test("staging records the reviewed execution request migration as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 91);
+  assert.equal(result.ledger_count, 92);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260830173000_create_automation_review_execution_requests"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 92);
 });
 
@@ -151,13 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production selects only the reviewed execution request migration", () => {
+test("production records the reviewed execution request migration as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending.map((row) => row.filename), ["20260830173000_create_automation_review_execution_requests.sql"]);
-  assert.equal(contract.ledgerCount, 167);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 168);
   assert.equal(
     contract.ledgerFingerprint,
-    "8a2b800387b0088751a4e9a731809a1eada0906e10e47d4cbd8369a955c8b347",
+    "9aff17137838bd63ee7f9d54059b38b32257a9fbd52127f085f948a22d4aaa09",
   );
 });
 
@@ -260,14 +260,14 @@ test("production binds its exact ledger after the automation review queue extens
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 167);
+  assert.equal(result.ledger_count, 168);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260830173000_create_automation_review_execution_requests"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 168);
-  assert.deepEqual(result.pending_files, ["20260830173000_create_automation_review_execution_requests.sql"]);
-  assert.equal(result.pending_file, "20260830173000_create_automation_review_execution_requests.sql");
-  assert.equal(result.pending_sha256, "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a");
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -344,12 +344,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output binds the one pending execution request migration", () => {
+test("staging output reports no pending migration after execution request apply", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, "20260830173000_create_automation_review_execution_requests.sql");
-  assert.equal(result.pending_sha256, "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a");
-  assert.deepEqual(result.pending_files, ["20260830173000_create_automation_review_execution_requests.sql"]);
-  assert.deepEqual(result.pending_sha256s, { "20260830173000_create_automation_review_execution_requests.sql": "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a" });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
