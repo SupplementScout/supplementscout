@@ -59,7 +59,7 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 - Whey Okay: ten approved identities from source product `24` are absent from the healthy feed and are now isolated to review; a fresh dry-run has 576 executable plans, including one unapproved stock transition.
 - Simply Supplements: the missing source variant is now isolated to review and DB postflight is installed; production apply of 119 executable plans still needs owner approval because two are stock transitions.
 - eBay UK: offer `2581` and mapping `2766` point to default variant `1178`, while the existing exact `405g` variant is `2920`.
-- Source reads: an individual product page can time out without bounded retry.
+- Source reads: the previously missing KIOR, GYM HIGH Store API and eBay retry paths now use bounded retry; production retry evidence is still incomplete.
 - Workflow contracts are inconsistent in whether unchanged offers update freshness, whether review rows are isolated and whether every apply has an authoritative DB postflight.
 - The six-hour watchdog is live, but nine retailers do not yet emit authoritative DB-postflight and per-row execution-contract evidence for it to prove.
 - Catalog Health does not yet separate genuinely stale data, pending review, workflow failure, missing freshness confirmation and no-in-stock coverage.
@@ -73,7 +73,7 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 5. Validator, approver and executor identities stay separate. No role receives new grants merely to compensate for failure to activate its intended role.
 6. A shared validator session owns one PostgreSQL client and one transaction: `BEGIN READ ONLY`, `SET LOCAL ROLE`, identity/read-only checks, callback, then `COMMIT` or `ROLLBACK` and close.
 7. Postflight is authoritative. A later source timeout cannot invalidate a completed apply plus passing DB postflight and must never trigger replay.
-8. Checkpoints list executed, remaining and blocked IDs so interruption recovery never replays completed plans.
+8. The existing control ledger is the durable child-batch checkpoint: applied child ordinals are immutable and replay-blocked, and `resume_retailer_catalogue_parent_plan` exposes pending dependencies. Reviewed 6 Pack also writes executed, remaining and blocked offer IDs. Renewing an expired production parent remains an explicit owner operation; a local file is not treated as resumable authority.
 9. Monitoring and reports are read-only. Production writes remain bounded by existing owner-approved scope and guarded RPCs.
 
 ## 6. Delivery sequence
@@ -161,7 +161,9 @@ Local targeted tests, `verify:quick` and `verify:full` passed. A local productio
 
 Commit `9a67b33080b41b6d504e0d06ec5d11fdaebc9092` added one bounded transport helper to the three source paths that lacked retry: KIOR Shopify JSON, the GYM HIGH WooCommerce Store API catalogue and eBay OAuth/Browse/exact-item reads. It retries only transient network failures and HTTP `408`, `425`, `429`, `500`, `502`, `503` and `504`, with at most three attempts by default, per-attempt timeout and bounded backoff. Existing schema, identity, size and commercial guards remain outside the transport retry and therefore still fail closed without replay.
 
-Targeted tests passed `117/117`; `verify:quick`, `verify:full` and `git diff --check` passed. The post-commit KIOR read-only capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5` read all 11 approved rows on its first attempt, reported zero price/stock/URL/identity drift, zero blocked rows and `database_writes = 0`. Its adapter report SHA-256 is `debe80262f3764ed96c948d2ed404672b568bac2b733a944c51676626487a170`. GYM HIGH and eBay production retry evidence remains pending their existing read-only/scheduled paths; their identity blockers are unchanged.
+Targeted tests passed `117/117`; `verify:quick`, `verify:full` and `git diff --check` passed. The post-commit KIOR read-only capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5` read all 11 approved rows on its first attempt, reported zero price/stock/URL/identity drift, zero blocked rows and `database_writes = 0`. Its adapter report SHA-256 is `debe80262f3764ed96c948d2ed404672b568bac2b733a944c51676626487a170`.
+
+The post-commit GYM HIGH full-catalogue read-only audit captured at `2026-08-30T05:14:46.230Z` also passed on its first Store API attempt: 26 parent products, 71 source rows, one approved existing mapping, zero production writes and report SHA-256 `bd3626dcd82338333094ddf5f5d701c3d7e4a993a024055ef7783dd5e1e15c93`. eBay production retry evidence remains pending its existing scheduled path; all retailer identity blockers are unchanged.
 
 ## 7. Exit criteria
 
@@ -198,7 +200,7 @@ Targeted tests passed `117/117`; `verify:quick`, `verify:full` and `git diff --c
 | 2026-08-30 | P5 | `5c6d8ada9fec01dd842dc0389493010b052efcd2`; run `33292889053`; artifact `9726516784` | FAIL-CLOSED AS DESIGNED | Six-hour read-only watchdog is live for all 11 retailers. Validator DB read passed, zero writes; all 11 currently lack at least one required reliability signal. |
 | 2026-08-30 | P6 | `2fbe908` | PARTIAL PASS | Catalog Health now exposes truthful per-retailer DB freshness and coverage metrics. Live workflow/review/cron fields remain blocked on a shared read source rather than being inferred. |
 | 2026-08-30 | P5 | `0957dd0` | IMPLEMENTED / EVIDENCE PENDING | Shared read-only DB baseline/postflight adopted by Discount, Dolphin, Fit House, Jon's and ordinary 6 Pack; seven retailer profiles total. No apply was dispatched. |
-| 2026-08-30 | P5 | `9a67b33080b41b6d504e0d06ec5d11fdaebc9092`; KIOR capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5` | PASS / PARTIAL LIVE EVIDENCE | Missing KIOR, GYM HIGH Store API and eBay HTTP transports now use bounded retry. KIOR proved 11/11 read-only with zero writes; GYM HIGH/eBay scheduled evidence remains pending. |
+| 2026-08-30 | P5 | `9a67b33080b41b6d504e0d06ec5d11fdaebc9092`; KIOR capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5`; GYM HIGH audit `2026-08-30T05:14:46.230Z` | PASS / PARTIAL LIVE EVIDENCE | Missing KIOR, GYM HIGH Store API and eBay HTTP transports now use bounded retry. KIOR proved 11/11 and GYM HIGH 26 parents/71 rows read-only with zero writes; eBay scheduled evidence remains pending. |
 
 ## 9. Owner-required blockers
 
