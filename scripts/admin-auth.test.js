@@ -667,3 +667,27 @@ test("new-product decisions require full-catalog confirmation and manual search 
   assert.match(source, /APPROVE_NEW_VARIANT_SEED_EXISTING_MANUAL/);
   assert.match(source, /variant\.product_id\) !== selectedProductId/);
 });
+
+test("automation review queue is admin-only, paginated and exposes bounded evidence without catalogue writes", () => {
+  const page = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "page.tsx"), "utf8");
+  assert.match(page, /await requireAdminPage\(\)/);
+  assert.match(page, /pageSize = 50/);
+  assert.match(page, /PENDING.*APPROVED.*REJECTED.*IGNORED.*EXPIRED.*EXECUTING.*EXECUTED.*FAILED/s);
+  assert.match(page, /before_state.*proposed_state.*impact_summary.*source_evidence/);
+  assert.match(page, /Compatible selected rows/);
+  assert.match(page, /existing protected importer approval and executor RPCs/);
+});
+
+test("automation review decisions fail closed on auth, fingerprint, expiry and bulk incompatibility", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "decision", "route.ts"), "utf8");
+  const handler = source.slice(source.indexOf("export async function POST"));
+  assert(handler.indexOf("requireAdminRoute(request)") < handler.indexOf("request.formData()"));
+  assert.match(source, /selections\.length > 100/);
+  assert.match(source, /source_row_fingerprint/);
+  assert.match(source, /new Date\(row\.expires_at\)\.getTime\(\) <= now/);
+  assert.match(source, /compatible\.size !== 1/);
+  assert.match(source, /\.eq\("review_status", "PENDING"\)/);
+  assert.match(source, /confirmed_unavailable !== true/);
+  assert.match(source, /variant\.product_id/);
+  assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.update/);
+});

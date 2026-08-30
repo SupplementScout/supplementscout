@@ -132,6 +132,7 @@ export default async function ProductMatchingPage({
     .select(
       "id, snapshot_id, review_item_id, source_record_id, retailer, product_title, variant_title, primary_status, reason_codes, confidence, canonical_candidates, source_sku, source_gtin, source_weight, source_price, source_url, suggested_action, decision, selected_canonical_product_id, selected_canonical_variant_id, selected_family_seed_review_item_id, proposed_family_name, proposed_variant_name, reviewer_notes, reviewed_at, consumed_at, source_row_fingerprint, updated_at"
     )
+    .is("review_status", null)
     .order("updated_at", { ascending: false })
     .limit(1000);
   const rows = (data || []) as ReviewRow[];
