@@ -19,15 +19,17 @@ function hash(value) { return crypto.createHash("sha256").update(canonicalJson(J
 function parseArgs(argv) {
   const values = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(review-item-id|execution-request-id|retailer|review-fingerprint|mode)=(.*)$/);
+    const match = argument.match(/^--(review-item-id|execution-request-id|retailer|review-fingerprint|review-plan-fingerprint|execution-idempotency-key|mode)=(.*)$/);
     invariant(match && values[match[1]] === undefined, "WORKER_ARGUMENT_INVALID"); values[match[1]] = match[2];
   }
   invariant(/^[1-9]\d*$/.test(values["review-item-id"] || ""), "REVIEW_ITEM_ID_INVALID");
   invariant(/^[0-9a-f-]{36}$/.test(values["execution-request-id"] || ""), "EXECUTION_REQUEST_ID_INVALID");
   invariant(values.retailer === "ebay-uk", "RETAILER_BINDING_INVALID");
   invariant(/^[0-9a-f]{64}$/.test(values["review-fingerprint"] || ""), "REVIEW_FINGERPRINT_INVALID");
+  invariant(/^[0-9a-f]{64}$/.test(values["review-plan-fingerprint"] || ""), "REVIEW_PLAN_FINGERPRINT_INVALID");
+  invariant(/^[0-9a-f]{64}$/.test(values["execution-idempotency-key"] || ""), "EXECUTION_IDEMPOTENCY_KEY_INVALID");
   invariant(values.mode === "review-queue", "WORKER_MODE_INVALID");
-  return { reviewItemId: values["review-item-id"], executionRequestId: values["execution-request-id"], retailer: values.retailer, reviewFingerprint: values["review-fingerprint"], mode: values.mode };
+  return { reviewItemId: values["review-item-id"], executionRequestId: values["execution-request-id"], retailer: values.retailer, reviewFingerprint: values["review-fingerprint"], reviewPlanFingerprint: values["review-plan-fingerprint"], executionIdempotencyKey: values["execution-idempotency-key"], mode: values.mode };
 }
 function assertContext(env = process.env) {
   invariant(env.GITHUB_ACTIONS === "true" && env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.GITHUB_REF === "refs/heads/main" && env.GITHUB_REPOSITORY === "SupplementScout/supplementscout", "WORKER_CONTEXT_INVALID");
@@ -46,8 +48,8 @@ async function loadControlState(client, options) {
     client.from("product_match_review_events").select("event_type,actor,new_status,source_row_fingerprint,plan_fingerprint,created_at").eq("review_id", options.reviewItemId).order("created_at", { ascending: false }),
   ]);
   invariant(!reviewError && review, "REVIEW_ITEM_NOT_FOUND"); invariant(!requestError && request, "EXECUTION_REQUEST_NOT_FOUND"); invariant(!eventsError && events, "APPROVAL_AUDIT_READ_FAILED");
-  invariant(request.status === "DISPATCHED" && String(request.review_id) === options.reviewItemId && request.review_fingerprint === options.reviewFingerprint && request.retailer_slug === options.retailer && request.execution_mode === options.mode, "EXECUTION_REQUEST_BINDING_DRIFT");
-  invariant(review.review_status === "APPROVED" && review.source_row_fingerprint === options.reviewFingerprint && review.operation_type === "VERIFY_NO_CHANGE" && String(review.retailer_id) === "12", "REVIEW_BINDING_DRIFT");
+  invariant(request.status === "DISPATCHED" && String(request.review_id) === options.reviewItemId && request.review_fingerprint === options.reviewFingerprint && request.idempotency_key === options.executionIdempotencyKey && request.retailer_slug === options.retailer && request.execution_mode === options.mode, "EXECUTION_REQUEST_BINDING_DRIFT");
+  invariant(review.review_status === "APPROVED" && review.source_row_fingerprint === options.reviewFingerprint && review.plan_fingerprint === options.reviewPlanFingerprint && review.operation_type === "VERIFY_NO_CHANGE" && String(review.retailer_id) === "12", "REVIEW_BINDING_DRIFT");
   invariant(review.expires_at && Date.parse(review.expires_at) > Date.now(), "REVIEW_EVIDENCE_EXPIRED");
   invariant(review.decision_actor && review.decision_at && events.some((event) => event.new_status === "APPROVED" && event.actor === review.decision_actor && event.source_row_fingerprint === review.source_row_fingerprint && event.plan_fingerprint === review.plan_fingerprint), "APPROVAL_AUDIT_MISSING");
   invariant(review.plan_fingerprint && review.before_state && review.proposed_state && review.source_captured_at && new Date(review.source_captured_at).toISOString() === review.source_captured_at, "REVIEW_PLAN_EVIDENCE_MISSING");

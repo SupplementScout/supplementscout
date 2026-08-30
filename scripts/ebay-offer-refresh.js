@@ -6,11 +6,20 @@ const { assertConfig, evaluateItem, DEFAULT_POLICY, getApplicationToken } = requ
 const { loadDryRunArtifact, runImportRows, writeDryRunArtifact } = require("./import-products");
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refresh");
+const {
+  approvedFromEnv,
+  bindSemanticEvidence,
+  buildSemanticPlanRows,
+  buildSemanticSourceRows,
+  loadAndVerifyContract,
+  verifyFreshReport,
+  writeDryRunContract,
+} = require("./lib/ebay-artifact-bound-contract");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 const ROLLOUT_DIR = path.join(ROOT, "docs", "rollouts", "ebay-offer-canary");
-const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH_EXACT_237";
+const CONFIRMATION = "OWNER_APPROVED_EBAY_REFRESH";
 const KIND = "ebay-existing-offer-refresh-exact-237-v1";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
 const PENDING_BATCH = path.join(OUT, "pending-batch.json");
@@ -363,19 +372,26 @@ function loadPendingBatch(now = new Date()) {
 function parseArgs(argv) {
   const options = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(mode|target)=(.*)$/);
+    const match = argument.match(/^--(mode|target|approved-contract|emit-approval-contract)=(.*)$/);
     if (!match || options[match[1]] !== undefined) fail(`Invalid argument ${argument}`);
     options[match[1]] = match[2];
   }
   if (options.target !== "production") fail("Required --target=production");
   if (!new Set(["dry-run", "prepare-apply", "execute-apply"]).has(options.mode)) fail("Required --mode=dry-run|prepare-apply|execute-apply");
+  if (options["approved-contract"] !== undefined) options.approvedContract = options["approved-contract"];
+  if (options["emit-approval-contract"] !== undefined && !["true", "false"].includes(options["emit-approval-contract"])) fail("emit-approval-contract must be true or false");
+  if (options["emit-approval-contract"] !== undefined) options.emitApprovalContract = options["emit-approval-contract"] === "true";
+  delete options["approved-contract"];
+  delete options["emit-approval-contract"];
+  if (options.mode === "prepare-apply" && process.env.GITHUB_EVENT_NAME === "workflow_dispatch" && !options.approvedContract) fail("Artifact-bound manual apply requires --approved-contract");
+  if (options.mode !== "dry-run" && options.emitApprovalContract) fail("Only dry-run may emit an approval contract");
   return options;
 }
 
 function assertExecutionContext(mode, env = process.env) {
   if (mode === "dry-run") return;
   if (env.GITHUB_ACTIONS !== "true" || env.GITHUB_REF !== "refs/heads/main" || !["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME)) fail("eBay refresh apply requires GitHub Actions schedule or manual dispatch on main");
-  if (env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.EBAY_REFRESH_OWNER_CONFIRMATION !== CONFIRMATION) fail("Manual eBay refresh apply requires exact owner confirmation");
+  if (env.GITHUB_EVENT_NAME === "workflow_dispatch") approvedFromEnv(env);
 }
 
 function classifyContinuity(scope, evaluation) {
@@ -496,6 +512,11 @@ async function run(options, dependencies = {}) {
   const now = dependencies.now || new Date();
   if (options.mode === "execute-apply") {
     const batch = (dependencies.loadPendingBatch || loadPendingBatch)(now);
+    let approvedInput = null;
+    if ((dependencies.env || process.env).GITHUB_EVENT_NAME === "workflow_dispatch") {
+      approvedInput = approvedFromEnv(dependencies.env || process.env);
+      if (batch.manifest.commit_sha !== approvedInput.commitSha || batch.manifest.source_fingerprint !== approvedInput.sourceFingerprint || batch.manifest.plan_fingerprint !== approvedInput.planFingerprint) fail("Pending batch escaped the approved artifact-bound contract");
+    }
     const approved = SCOPES.filter((scope) => batch.executable.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
     for (const item of approved) await (dependencies.executePlan || executePlan)(item, KIND);
     const report = {
@@ -521,6 +542,11 @@ async function run(options, dependencies = {}) {
       manifest_sha256: batch.manifestSha256,
       source_fingerprint: batch.manifest.source_fingerprint,
       plan_fingerprint: batch.manifest.plan_fingerprint,
+      approved_dry_run_id: approvedInput?.runId || null,
+      approved_artifact_id: approvedInput?.artifactId || null,
+      approved_commit_sha: approvedInput?.commitSha || null,
+      approved_manifest_sha256: approvedInput?.manifestSha256 || null,
+      approved_report_sha256: approvedInput?.reportSha256 || null,
     };
     fs.writeFileSync(path.join(OUT, `execute-apply-${now.toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
     fs.writeFileSync(path.join(OUT, "production-apply.json"), `${JSON.stringify(report, null, 2)}\n`);
@@ -571,9 +597,9 @@ async function run(options, dependencies = {}) {
   const commercialReview = preparedRows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => ({ offer_id: row.offer_id, action: row.action, review_type: "COMMERCIAL_CHANGE" }));
   const reviewRows = [...sourceFailureReview, ...identityReview, ...importerIdentityReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
   const classification = preparedRows.reduce((counts, row) => ({ ...counts, [row.action]: (counts[row.action] || 0) + 1 }), {});
-  const sourceFingerprint = sha256(JSON.stringify(executableRows.map((row) => [row.offer_id, row.approved.entry.source_row_fingerprint]).sort(([a], [b]) => Number(a) - Number(b))));
-  const planFingerprint = sha256(JSON.stringify(executableRows.map((row) => [row.offer_id, row.approved.entry.plan_fingerprint]).sort(([a], [b]) => Number(a) - Number(b))));
-  const report = {
+  const semanticSourceRows = buildSemanticSourceRows(SCOPES, evaluations);
+  const semanticPlanRows = buildSemanticPlanRows(preparedRows, reviewRows, globalBlocked);
+  let report = {
     result: globalBlocked.length ? "BLOCK" : reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
     mode: options.mode,
     approved_mapping_count: SCOPES.length,
@@ -597,15 +623,21 @@ async function run(options, dependencies = {}) {
     },
     executed: 0, automatic_oos: "blocked",
     commit_sha: process.env.GITHUB_SHA || null,
-    source_fingerprint: sourceFingerprint,
-    plan_fingerprint: planFingerprint,
   };
+  report = bindSemanticEvidence(report, semanticSourceRows, semanticPlanRows);
   if (options.mode === "prepare-apply" && !globalBlocked.length) {
+    if ((dependencies.env || process.env).GITHUB_EVENT_NAME === "workflow_dispatch") {
+      const approved = loadAndVerifyContract(path.dirname(path.resolve(options.approvedContract)), approvedFromEnv(dependencies.env || process.env), now);
+      verifyFreshReport(approved, report);
+    }
     const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now);
     report.manifest_sha256 = binding?.manifestSha256 || null;
   }
   fs.writeFileSync(path.join(OUT, `${options.mode}-${stamp}.json`), `${JSON.stringify(report, null, 2)}\n`);
-  if (options.mode === "dry-run") fs.writeFileSync(path.join(OUT, "production-dry-run.json"), `${JSON.stringify(report, null, 2)}\n`);
+  if (options.mode === "dry-run") {
+    fs.writeFileSync(path.join(OUT, "production-dry-run.json"), `${JSON.stringify(report, null, 2)}\n`);
+    if (options.emitApprovalContract) report.approval_contract = writeDryRunContract(OUT, report, dependencies.env || process.env, now);
+  }
   return report;
 }
 

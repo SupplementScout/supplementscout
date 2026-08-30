@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     response = await fetch(`https://api.github.com/repos/${REPOSITORY}/actions/workflows/${encodeURIComponent(resolved.adapter.workflow)}/dispatches`, {
       method: "POST",
       headers: { accept: "application/vnd.github+json", authorization: `Bearer ${token}`, "content-type": "application/json", "x-github-api-version": "2022-11-28", "user-agent": "SupplementScout-Review-Dispatcher/1.0" },
-      body: JSON.stringify({ ref: "main", inputs: { operation: "apply", execution_mode: "review-queue", review_item_id: String(data.id), execution_request_id: executionRequestId, retailer: resolved.adapter.retailerSlug, review_fingerprint: data.source_row_fingerprint } }),
+      body: JSON.stringify({ ref: "main", inputs: { operation: "apply", execution_mode: "review-queue", review_item_id: String(data.id), execution_request_id: executionRequestId, retailer: resolved.adapter.retailerSlug, review_fingerprint: data.source_row_fingerprint, review_plan_fingerprint: data.plan_fingerprint, execution_idempotency_key: key } }),
       cache: "no-store",
     });
   } catch (dispatchError) {

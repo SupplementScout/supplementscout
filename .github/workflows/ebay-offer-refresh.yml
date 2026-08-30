@@ -10,7 +10,35 @@ on:
         type: choice
         options: [dry-run, apply]
       owner_confirmation:
-        description: "Required only for a manual apply"
+        description: "OWNER_APPROVED_EBAY_REFRESH:<plan fingerprint>:<manifest SHA-256>"
+        required: false
+        type: string
+      approved_dry_run_id:
+        description: "Exact successful eBay dry-run ID approved by the owner"
+        required: false
+        type: string
+      approved_artifact_id:
+        description: "Exact artifact ID belonging to the approved dry-run"
+        required: false
+        type: string
+      approved_commit_sha:
+        description: "Exact 40-character commit shared by dry-run and apply"
+        required: false
+        type: string
+      approved_source_fingerprint:
+        description: "Timestamp-independent semantic source fingerprint"
+        required: false
+        type: string
+      approved_plan_fingerprint:
+        description: "Timestamp-independent semantic plan fingerprint"
+        required: false
+        type: string
+      approved_manifest_sha256:
+        description: "SHA-256 of production-dry-run-contract.json"
+        required: false
+        type: string
+      approved_report_sha256:
+        description: "SHA-256 of production-dry-run.json"
         required: false
         type: string
       execution_mode:
@@ -35,11 +63,20 @@ on:
         description: "Approved Review Queue source fingerprint"
         required: false
         type: string
+      review_plan_fingerprint:
+        description: "Approved Review Queue plan fingerprint"
+        required: false
+        type: string
+      execution_idempotency_key:
+        description: "Server-derived immutable execution idempotency key"
+        required: false
+        type: string
   schedule:
     - cron: "43 5 * * *"
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: ebay-offer-refresh
@@ -47,15 +84,36 @@ concurrency:
 
 jobs:
   refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.execution_mode == 'catalogue-refresh')) && (github.event_name != 'workflow_dispatch' || inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_EBAY_REFRESH_EXACT_237') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.execution_mode == 'catalogue-refresh')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production-readonly
     steps:
       - name: Validate protected execution context
+        env:
+          OPERATION: ${{ inputs.operation }}
+          APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
+          APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
+          APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
+          APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
+          APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
+          APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
+          OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
           case "$GITHUB_EVENT_NAME" in schedule|workflow_dispatch) ;; *) exit 1 ;; esac
+          if test "$GITHUB_EVENT_NAME" = workflow_dispatch && test "$OPERATION" = apply; then
+            printf '%s' "$APPROVED_DRY_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
+            printf '%s' "$APPROVED_ARTIFACT_ID" | grep -Eq '^[1-9][0-9]*$'
+            printf '%s' "$APPROVED_COMMIT_SHA" | grep -Eq '^[0-9a-f]{40}$'
+            printf '%s' "$APPROVED_SOURCE_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+            printf '%s' "$APPROVED_PLAN_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+            printf '%s' "$APPROVED_MANIFEST_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+            printf '%s' "$APPROVED_REPORT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+            test "$GITHUB_SHA" = "$APPROVED_COMMIT_SHA"
+            test "$OWNER_CONFIRMATION" = "OWNER_APPROVED_EBAY_REFRESH:$APPROVED_PLAN_FINGERPRINT:$APPROVED_MANIFEST_SHA256"
+          fi
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
@@ -65,8 +123,22 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - name: Test exact eBay refresh contracts without production credentials
-        run: node --test --test-name-pattern="eBay.*refresh" scripts/ebay-browse-pilot.test.js
+        run: node --test scripts/ebay-browse-pilot.test.js
+      - name: Verify and download exact owner-approved dry-run artifact
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'apply' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
+          EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
+          EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
+          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
+          EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
+          EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
+          EBAY_REFRESH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+        run: node scripts/ebay-artifact-bound-verifier.js --mode=download
       - name: Fresh read-only preflight
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'dry-run' }}
         env:
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
@@ -75,11 +147,18 @@ jobs:
           EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npm run ebay:refresh -- --target=production --mode=dry-run
+        run: npm run ebay:refresh -- --target=production --mode=dry-run --emit-approval-contract=true
       - name: Prepare exact approved existing-offer refresh
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:
           EBAY_REFRESH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+          EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
+          EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
+          EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
+          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
+          EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
+          EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
           EBAY_UK_DELIVERY_POSTCODE: ${{ secrets.EBAY_UK_DELIVERY_POSTCODE }}
@@ -87,16 +166,35 @@ jobs:
           EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npm run ebay:refresh -- --target=production --mode=prepare-apply
+        run: npm run ebay:refresh -- --target=production --mode=prepare-apply ${{ github.event_name == 'workflow_dispatch' && '--approved-contract=tmp/ebay-offer-refresh/approved-artifact/production-dry-run-contract.json' || '' }}
       - name: Capture eBay UK DB baseline read-only
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:
           EBAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=ebay-uk --mode=baseline --output=tmp/ebay-offer-refresh/production-db-baseline.json
+      - name: Verify exact approved DB before-state before approval RPC
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'apply' }}
+        env:
+          EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
+          EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
+          EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
+          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
+          EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
+          EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
+          EBAY_REFRESH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+        run: node scripts/ebay-artifact-bound-verifier.js --mode=baseline --contract=tmp/ebay-offer-refresh/approved-artifact/production-dry-run-contract.json --baseline=tmp/ebay-offer-refresh/production-db-baseline.json
       - name: Apply exact approved existing-offer refresh
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:
           EBAY_REFRESH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
+          EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
+          EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
+          EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
+          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
+          EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
+          EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
           EBAY_CANARY_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           EBAY_CANARY_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: npm run ebay:refresh -- --target=production --mode=execute-apply
@@ -129,7 +227,7 @@ jobs:
           path: tmp/ebay-offer-refresh/*.json
 
   review-execution:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.operation == 'apply' && inputs.execution_mode == 'review-queue' && inputs.retailer == 'ebay-uk' && inputs.review_item_id != '' && inputs.execution_request_id != '' && inputs.review_fingerprint != '' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.operation == 'apply' && inputs.execution_mode == 'review-queue' && inputs.retailer == 'ebay-uk' && inputs.review_item_id != '' && inputs.execution_request_id != '' && inputs.review_fingerprint != '' && inputs.review_plan_fingerprint != '' && inputs.execution_idempotency_key != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production-readonly
@@ -139,6 +237,8 @@ jobs:
           REVIEW_ITEM_ID: ${{ inputs.review_item_id }}
           EXECUTION_REQUEST_ID: ${{ inputs.execution_request_id }}
           REVIEW_FINGERPRINT: ${{ inputs.review_fingerprint }}
+          REVIEW_PLAN_FINGERPRINT: ${{ inputs.review_plan_fingerprint }}
+          EXECUTION_IDEMPOTENCY_KEY: ${{ inputs.execution_idempotency_key }}
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
@@ -146,6 +246,8 @@ jobs:
           printf '%s' "$REVIEW_ITEM_ID" | grep -Eq '^[1-9][0-9]*$'
           printf '%s' "$EXECUTION_REQUEST_ID" | grep -Eq '^[0-9a-f-]{36}$'
           printf '%s' "$REVIEW_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$REVIEW_PLAN_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$EXECUTION_IDEMPOTENCY_KEY" | grep -Eq '^[0-9a-f]{64}$'
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
@@ -174,6 +276,8 @@ jobs:
           --execution-request-id=${{ inputs.execution_request_id }}
           --retailer=${{ inputs.retailer }}
           --review-fingerprint=${{ inputs.review_fingerprint }}
+          --review-plan-fingerprint=${{ inputs.review_plan_fingerprint }}
+          --execution-idempotency-key=${{ inputs.execution_idempotency_key }}
           --mode=review-queue
       - name: Upload Review Queue execution evidence
         if: always()

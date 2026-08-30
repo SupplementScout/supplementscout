@@ -21,6 +21,8 @@ const RETAILER_CAPABILITIES = Object.freeze({
     environment: "production-readonly",
     maximum_batch: 1,
     isolation: "per-row",
+    review_binding: "immutable-review-record",
+    manual_catalogue_binding: Object.freeze({ kind: "github-artifact", semantic_timestamp_policy: "capture-time-only" }),
   }),
 });
 

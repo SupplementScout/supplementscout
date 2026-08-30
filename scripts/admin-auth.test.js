@@ -714,6 +714,8 @@ test("automation review execute action authenticates, queues idempotently and di
   assert.match(source, /already_queued/);
   assert.match(source, /idempotencyKey/);
   assert.match(source, /execution_mode: "review-queue"/);
+  assert.match(source, /review_plan_fingerprint: data\.plan_fingerprint/);
+  assert.match(source, /execution_idempotency_key: key/);
   assert.match(source, /record_automation_review_execution_checkpoint/);
   assert(source.indexOf('"DISPATCH_STARTED"') < source.indexOf("await fetch("));
   assert.match(source, /authorization: `Bearer \$\{token\}`/);
@@ -731,6 +733,9 @@ test("automation review adapter registry is exact, default-deny and freshness-on
   assert.match(source, /reasonCodes: Object\.freeze\(\["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION"\]\)/);
   assert.match(source, /maximumBatch: 1/);
   assert.match(source, /isolation: "per-row"/);
+  assert.match(source, /reviewBinding: "immutable-review-record"/);
+  assert.match(source, /kind: "github-artifact"/);
+  for (const input of ["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_source_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]) assert.match(source, new RegExp(input));
   assert.match(source, /EXECUTION_UNSUPPORTED/);
   assert.doesNotMatch(source, /UPDATE_PRICE|UPDATE_STOCK|REBIN|MARK_OOS/);
 });
@@ -754,8 +759,9 @@ test("execution request migration is additive, immutable, role-closed and contai
 test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbids replay or offer 2686", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-ebay-worker.js"), "utf8");
   const { parseArgs, assertContext } = require("./automation-review-ebay-worker");
-  assert.deepEqual(parseArgs(["--review-item-id=7", "--execution-request-id=11111111-1111-4111-8111-111111111111", "--retailer=ebay-uk", `--review-fingerprint=${"a".repeat(64)}`, "--mode=review-queue"]), { reviewItemId: "7", executionRequestId: "11111111-1111-4111-8111-111111111111", retailer: "ebay-uk", reviewFingerprint: "a".repeat(64), mode: "review-queue" });
-  assert.throws(() => parseArgs(["--review-item-id=7", "--execution-request-id=bad", "--retailer=ebay-uk", `--review-fingerprint=${"a".repeat(64)}`, "--mode=review-queue"]), /EXECUTION_REQUEST_ID_INVALID/);
+  const args = ["--review-item-id=7", "--execution-request-id=11111111-1111-4111-8111-111111111111", "--retailer=ebay-uk", `--review-fingerprint=${"a".repeat(64)}`, `--review-plan-fingerprint=${"b".repeat(64)}`, `--execution-idempotency-key=${"c".repeat(64)}`, "--mode=review-queue"];
+  assert.deepEqual(parseArgs(args), { reviewItemId: "7", executionRequestId: "11111111-1111-4111-8111-111111111111", retailer: "ebay-uk", reviewFingerprint: "a".repeat(64), reviewPlanFingerprint: "b".repeat(64), executionIdempotencyKey: "c".repeat(64), mode: "review-queue" });
+  assert.throws(() => parseArgs(args.map((value) => value.startsWith("--execution-request-id=") ? "--execution-request-id=bad" : value)), /EXECUTION_REQUEST_ID_INVALID/);
   assert.throws(() => assertContext({}), /WORKER_CONTEXT_INVALID/);
   assert.match(source, /request\.status === "DISPATCHED"/);
   assert.match(source, /review\.review_status === "APPROVED"/);
@@ -775,6 +781,7 @@ test("eBay workflow isolates Review Queue dispatch payload and protected credent
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "ebay-offer-refresh.yml"), "utf8");
   assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue\]/);
   assert.match(workflow, /review_item_id:[\s\S]*execution_request_id:[\s\S]*review_fingerprint:/);
+  assert.match(workflow, /review_plan_fingerprint:[\s\S]*execution_idempotency_key:/);
   assert.match(workflow, /review-execution:[\s\S]*environment: production-readonly/);
   assert.match(workflow, /inputs\.operation == 'apply'.*inputs\.execution_mode == 'review-queue'/);
   assert.match(workflow, /automation-review-ebay-worker\.js/);

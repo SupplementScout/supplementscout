@@ -16,6 +16,12 @@ export type ReviewAdapter = {
   ownerDecisionRequired: boolean;
   maximumBatch: number;
   isolation: "per-row";
+  reviewBinding: "immutable-review-record";
+  manualCatalogueBinding: {
+    kind: "github-artifact";
+    requiredInputs: readonly string[];
+    semanticTimestampPolicy: "capture-time-only";
+  };
 };
 
 export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze([
@@ -35,6 +41,12 @@ export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze([
     ownerDecisionRequired: true,
     maximumBatch: 1,
     isolation: "per-row",
+    reviewBinding: "immutable-review-record",
+    manualCatalogueBinding: Object.freeze({
+      kind: "github-artifact",
+      requiredInputs: Object.freeze(["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_source_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]),
+      semanticTimestampPolicy: "capture-time-only",
+    }),
   }),
 ]);
 

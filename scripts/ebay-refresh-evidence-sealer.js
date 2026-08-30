@@ -12,6 +12,7 @@ function seal({ apply, postflight, idempotency, env = process.env }) {
   invariant(["PASS", "PASS_WITH_REVIEW"].includes(apply.result) && apply.approved_mapping_count === 237 && apply.executable_plan_count > 0 && apply.executed_plan_count === apply.executable_plan_count && apply.review_row_count + apply.executable_plan_count === 237 && apply.blocked_row_count === 0, "eBay apply contract drift");
   invariant(apply.classification?.VERIFY_NO_CHANGE === apply.executable_plan_count && Object.keys(apply.classification).length === 1, "eBay apply contains a non-freshness action");
   invariant(apply.commit_sha === env.GITHUB_SHA && /^[0-9a-f]{64}$/.test(apply.manifest_sha256 || "") && /^[0-9a-f]{64}$/.test(apply.source_fingerprint || "") && /^[0-9a-f]{64}$/.test(apply.plan_fingerprint || ""), "eBay apply correlation binding missing");
+  if (env.GITHUB_EVENT_NAME === "workflow_dispatch") invariant(/^[1-9][0-9]*$/.test(apply.approved_dry_run_id || "") && /^[1-9][0-9]*$/.test(apply.approved_artifact_id || "") && apply.approved_commit_sha === env.GITHUB_SHA && /^[0-9a-f]{64}$/.test(apply.approved_manifest_sha256 || "") && /^[0-9a-f]{64}$/.test(apply.approved_report_sha256 || ""), "eBay approved dry-run correlation binding missing");
   const logical = apply.expected_deltas?.logical_field_deltas || {}, rows = apply.expected_deltas?.row_count_deltas || {};
   invariant(logical.last_checked_at_updates === apply.executed_plan_count && ["offer_price_updates","offer_stock_updates","offer_shipping_updates","offer_total_updates","offer_url_updates","mapping_url_updates"].every((field) => logical[field] === 0) && ["products","product_variants","retailer_products","offers","price_history"].every((field) => rows[field] === 0), "eBay apply expected deltas drift");
   invariant(postflight.result === "PASS" && postflight.approved_mapping_count === 237 && postflight.executable_plan_count === apply.executable_plan_count && postflight.executed_plan_count === apply.executed_plan_count && postflight.review_row_count === apply.review_row_count && postflight.blocked_row_count === 0, "eBay DB postflight scope drift");
@@ -33,6 +34,11 @@ function seal({ apply, postflight, idempotency, env = process.env }) {
     manifest_sha256: apply.manifest_sha256,
     source_fingerprint: apply.source_fingerprint,
     plan_fingerprint: apply.plan_fingerprint,
+    approved_dry_run_id: apply.approved_dry_run_id,
+    approved_artifact_id: apply.approved_artifact_id,
+    approved_commit_sha: apply.approved_commit_sha,
+    approved_manifest_sha256: apply.approved_manifest_sha256,
+    approved_report_sha256: apply.approved_report_sha256,
     idempotency_source_fingerprint: idempotency.source_fingerprint,
     idempotency_plan_fingerprint: idempotency.plan_fingerprint,
     postflight_hash: postflight.postflight_hash,
