@@ -17,7 +17,10 @@ export async function POST(request: NextRequest) {
   const now = Date.now(), compatible = new Set(data.map((row) => `${row.retailer_id}:${row.review_kind}:${row.operation_type}`));
   if (compatible.size !== 1 || data.some((row) => row.review_status !== "PENDING" || !row.expires_at || new Date(row.expires_at).getTime() <= now || expected.get(String(row.id)) !== row.source_row_fingerprint)) return new NextResponse("Review rows are stale, expired or incompatible; nothing was saved.", { status: 409 });
   const action = String(form.get("action"));
+  if (["approve", "rebind", "unavailable"].includes(action) && form.get("confirmImpact") !== "yes") return new NextResponse("Exact impact confirmation is required; nothing was saved.", { status: 409 });
   const changes: Record<string, unknown> = { review_status: targetStatus, updated_at: new Date().toISOString() };
+  changes.decision_actor = "authenticated-admin";
+  changes.decision_at = new Date().toISOString();
   if (action === "rebind") {
     const binding = String(form.get("binding") || "").match(/^([1-9]\d*):([1-9]\d*)$/);
     if (!binding || !["IDENTITY_CONFLICT", "MAPPING_DRIFT"].includes(String(data[0].review_kind))) return new NextResponse("Invalid reviewed rebind.", { status: 400 });

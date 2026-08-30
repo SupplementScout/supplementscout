@@ -675,6 +675,9 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /PENDING.*APPROVED.*REJECTED.*IGNORED.*EXPIRED.*EXECUTING.*EXECUTED.*FAILED/s);
   assert.match(page, /before_state.*proposed_state.*impact_summary.*source_evidence/);
   assert.match(page, /Compatible selected rows/);
+  assert.match(page, /Approve decision/);
+  assert.match(page, /Execute approved/);
+  assert.match(page, /Approval alone has not changed the catalogue/);
   assert.match(page, /existing protected importer approval and executor RPCs/);
 });
 
@@ -688,8 +691,58 @@ test("automation review decisions fail closed on auth, fingerprint, expiry and b
   assert.match(source, /compatible\.size !== 1/);
   assert.match(source, /\.eq\("review_status", "PENDING"\)/);
   assert.match(source, /confirmed_unavailable !== true/);
+  assert.match(source, /confirmImpact/);
+  assert.match(source, /decision_actor/);
   assert.match(source, /variant\.product_id/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.update/);
+});
+
+test("automation review execute action is authenticated and remains fail closed without a protected adapter", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "execute", "route.ts"), "utf8");
+  const handler = source.slice(source.indexOf("export async function POST"));
+  assert(handler.indexOf("requireAdminRoute(request)") < handler.indexOf("request.formData()"));
+  assert.match(source, /review_status !== "APPROVED"/);
+  assert.match(source, /Date\.parse\(data\.expires_at\) <= Date\.now\(\)/);
+  assert.match(source, /no catalogue write was attempted/i);
+  assert.doesNotMatch(source, /approve_product_import_plan|apply_approved_product_import_plan/);
+  assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
+});
+
+test("review execution coordinator delegates protected execution and blocks drift or replay", async () => {
+  const { coordinateReviewExecution, transitionAllowed, capabilityFor, hash } = require("./lib/automation-review-execution-coordinator");
+  const now = new Date("2026-08-30T15:00:00.000Z");
+  const before = { offer: { price: "10.00", shipping_cost: "0.00", total_price: "10.00", in_stock: true, url: "https://example.test/p", last_checked_at: "2026-08-29T00:00:00.000Z" } };
+  const after = { offer: { ...before.offer, last_checked_at: "2026-08-30T14:59:00.000Z" } };
+  const item = { id: "1", retailer_id: "12", offer_id: "2539", review_status: "APPROVED", decision_actor: "owner", operation_type: "VERIFY_NO_CHANGE", expires_at: "2026-08-31T00:00:00.000Z", source_row_fingerprint: "a".repeat(64), before_state: before, proposed_state: after };
+  const calls = [];
+  const plan = { operation_type: "VERIFY_NO_CHANGE", before_state: before, after_state: after, expected_deltas: { price_history: 0 }, fingerprint: "b".repeat(64) };
+  const adapter = {
+    authorize: async () => true,
+    capture: async () => ({ fingerprint: item.source_row_fingerprint, captured_at: "2026-08-30T14:59:00.000Z" }),
+    loadDatabaseState: async () => before,
+    buildProtectedPlan: async () => plan,
+    approveProtectedPlan: async () => (calls.push("approve"), { approval_id: "approval-1" }),
+    applyProtectedPlan: async () => (calls.push("apply"), { executed: true }),
+    postflight: async () => (calls.push("postflight"), { result: "PASS" }),
+    idempotency: async () => (calls.push("idempotency"), { result: "PASS" }),
+  };
+  const dryRun = await coordinateReviewExecution({ reviewItem: item, actor: "owner", adapter, now });
+  assert.equal(dryRun.result, "READY"); assert.equal(dryRun.database_writes, 0); assert.deepEqual(calls, []);
+  const result = await coordinateReviewExecution({ reviewItem: item, actor: "owner", adapter, now, mode: "apply", checkpoint: async (status) => (calls.push(status), "execution-1") });
+  assert.equal(result.result, "PASS");
+  assert.deepEqual(calls, ["EXECUTING", "approve", "apply", "postflight", "idempotency", "EXECUTED"]);
+  const failedCalls = [];
+  await assert.rejects(() => coordinateReviewExecution({ reviewItem: item, actor: "owner", adapter: { ...adapter, postflight: async () => ({ result: "BLOCK" }) }, now, mode: "apply", checkpoint: async (status) => (failedCalls.push(status), "execution-2") }), /DB_POSTFLIGHT_FAILED/);
+  assert.deepEqual(failedCalls, ["EXECUTING", "FAILED"]);
+  const deferred = await coordinateReviewExecution({ reviewItem: item, actor: "owner", adapter: { ...adapter, idempotency: async () => { const error = new Error("timeout"); error.code = "SOURCE_TIMEOUT"; throw error; } }, now, mode: "apply", checkpoint: async () => "execution-3" });
+  assert.equal(deferred.result, "PASS_IDEMPOTENCY_DEFERRED");
+  await assert.rejects(() => coordinateReviewExecution({ reviewItem: { ...item, source_row_fingerprint: "c".repeat(64) }, actor: "owner", adapter, now }), /SOURCE_FINGERPRINT_DRIFT/);
+  await assert.rejects(() => coordinateReviewExecution({ reviewItem: { ...item, review_status: "FAILED" }, actor: "owner", adapter, now }), /REVIEW_NOT_APPROVED/);
+  await assert.rejects(() => coordinateReviewExecution({ reviewItem: { ...item, retailer_id: "4", operation_type: "UPDATE_PRICE" }, actor: "owner", adapter, now }), /PLAN_OPERATION_DRIFT/);
+  assert.equal(transitionAllowed("PENDING", "APPROVED"), true);
+  assert.equal(transitionAllowed("FAILED", "EXECUTING"), false);
+  assert.equal(capabilityFor("1", "VERIFY_NO_CHANGE"), null);
+  assert.equal(hash(before), hash(JSON.parse(JSON.stringify(before))));
 });
 
 test("automation review publisher is exact, idempotent and targets only the review queue", () => {
