@@ -338,6 +338,26 @@ test("automation review queue extension is additive, idempotent per offer finger
   );
 });
 
+test("automation review execution evidence is additive, audit-rich and cannot write catalogue data", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase", "migrations", "20260830151000_extend_automation_review_execution_evidence.sql"),
+    "utf8"
+  );
+
+  assert.match(migration, /add column plan_fingerprint text/);
+  assert.match(migration, /add column execution_id text/);
+  assert.match(migration, /add column superseded_by_review_id bigint references public\.product_match_review_queue/);
+  assert.match(migration, /previous_status, new_status, decision, plan_fingerprint/);
+  assert.match(migration, /execution_id, run_id, error_code, blocked_reason/);
+  assert.match(migration, /new\.retailer_id, new\.offer_id/);
+  assert.match(migration, /before_snapshot, after_snapshot/);
+  assert.doesNotMatch(migration, /\bdrop\b/i);
+  assert.doesNotMatch(
+    migration,
+    /\b(insert|update|delete)\s+(into\s+|from\s+)?public\.(products|product_variants|retailer_products|offers|price_history)\b/i
+  );
+});
+
 test("family variant merge is narrow, transactional and preserves evidence", () => {
   const migration = fs.readFileSync(
     path.join(
