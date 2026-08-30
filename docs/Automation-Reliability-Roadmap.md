@@ -1,5 +1,13 @@
 # Automation Reliability Roadmap
 
+### Group A owner-authorized rollout checkpoint — 30 August 2026, 12:06 UTC
+
+- **Outcome: `GROUP_A_NOT_EXECUTED`; production data writes: zero.** The approved owner-pack file hash matched `419c758d55affd2e2bd2a0730a953a25a750c4f62fb53c14a6da3089ee8f1737` and the fresh evidence retained the exact 145-row partition, but no currently registered protected path could safely execute an approved row.
+- Discount's fresh capture retained exactly 95 owner-approved no-change rows, evidence fingerprint `b6856b17074ebe4c73f1da47ea4445efb163150649db0af2a5f1ab77c0772e31`. The live protected registration is immutable-bound to the separate 14-row manifest, while the stage-1 plans are `standard_import/noop` and cannot prove a freshness write. The 95 rows therefore stopped at a global control-scope boundary with zero per-row blocks and zero writes; no manifest substitution or new executor was introduced.
+- Whey's 50 approved candidates remain review-only under existing guards: the three rebind targets violate current active/optioned/cross-product rules, and all 47 promotions lack a fresh versioned SKU in the current EKM evidence. No exception, bypass or manual identity update was added.
+- Read-only Catalog Health at `2026-08-30T12:06:05.200Z` reports active-catalog stale `449/416` over 7/30 days and Overall `Critical` from 208 products without a valid in-stock offer. Per retailer: Whey `284/284`, Discount `142/130`, Dolphin `2/2`, eBay `21/0`, every other retailer `0/0`.
+- The single post-decision watchdog is run `33310512505`, artifact `9731837132`: expected aggregate `FAIL`, KIOR PASS, `database_error = null`, `database_writes = 0`. No apply, DB write postflight or post-write idempotency was run because there was no execution.
+
 **Status date:** 30 August 2026  
 **Priority:** P0 — active until every exit criterion below is evidenced  
 **Authority:** Source of truth for the Automation Reliability Sprint. The SupplementScout Operating Plan remains the project authority; this ledger controls the reliability sprint and must be updated after each completed phase.

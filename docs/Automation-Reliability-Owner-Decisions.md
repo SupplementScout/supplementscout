@@ -1,5 +1,18 @@
 # Automation Reliability — Owner Decision Pack
 
+## Wynik zatwierdzenia Grupy A — 30 sierpnia 2026, 12:06 UTC
+
+**GROUP_A_NOT_EXECUTED.** Zatwierdzenie właściciela oraz plikowy SHA-256 `419c758d55affd2e2bd2a0730a953a25a750c4f62fb53c14a6da3089ee8f1737` zostały potwierdzone, ale istniejące guardy nie dopuściły żadnego zapisu.
+
+- Fresh Discount capture objął 341 produktów i 994 warianty. Dokładnie 95 zatwierdzonych ofert nadal jest `NO_CHANGE`; ich fresh read-only plan evidence ma fingerprint `b6856b17074ebe4c73f1da47ea4445efb163150649db0af2a5f1ab77c0772e31`, run ID `efd1e72f-2f0e-4dc4-9682-f1cccb280251` i zero blocked rows. Nie wykonano ich, ponieważ działający chroniony workflow Discount oraz jego produkcyjna funkcja rejestracyjna są immutable-bound do innego, dokładnego zakresu 14 ofert. Artefakt stage-1 klasyfikuje te 95 jako `standard_import/noop`, a więc nie stanowi istniejącej gwarantowanej ścieżki freshness-only. Podmiana manifestu, ręczne wywołania albo nowy executor byłyby niezatwierdzonym bypassem.
+- Wszystkie 50 zatwierdzonych wierszy Whey pozostało w review. Trzy proponowane rebindy nie przechodzą istniejącego guardu: jeden prowadzi z wariantu optioned do `Default`, dwa prowadzą cross-product do nieaktywnych produktów scalonych. Pozostałe 47 identity promotions nie ma wymaganego świeżego, wersjonowanego SKU w aktualnym EKM feedzie; nie dodano wyjątku od guardu.
+- Wynik per-row: identity promotions `0`, rebindy `0`, freshness confirmations `0`, review rows `50`, blocked rows `0`. Rollout ma osobny globalny control-scope block dla 95 poprawnych Discount rows. Cena, stock, shipping, URL, `price_history`, produkty, warianty, mappings i offers zmieniły się o `0`.
+- Nie utworzono approval, nie uruchomiono atomowego apply, postflightu zapisu ani idempotency po zapisie, ponieważ nie było wykonania. Wszystkie lokalne i produkcyjne operacje tego przebiegu były read-only.
+- Read-only Catalog Health z `2026-08-30T12:06:05.200Z`: global stale `449` >7 dni i `416` >30 dni; Whey `284/284`, Discount `142/130`, Dolphin `2/2`, eBay `21/0`, pozostali retailerzy `0/0`. Overall pozostaje `Critical` z powodu dokładnie `208` aktywnych produktów bez valid in-stock offer.
+- Jedyny watchdog tego przebiegu: run `33310512505`, artifact `9731837132`, wynik oczekiwany `FAIL`, `database_writes = 0`. KIOR jest pełnym PASS; pozostałe błędy są jawnie rozdzielone na wiek danych i brakujące dowody workflow/postflight.
+
+Bezpieczny następny krok wymaga osobnej zgody na rozszerzenie istniejącego immutable Discount control manifestu do dokładnych 95 ofert oraz kontraktowego `VERIFY_NO_CHANGE`, albo przygotowania zatwierdzonego reviewed identity path dla Whey z wersjonowanym fresh identity evidence. Żadnej z tych zmian nie wykonano w ramach obecnej zgody.
+
 **Stan dowodów:** 30 sierpnia 2026, 10:04 UTC
 
 **Źródło prawdy:** [Automation-Reliability-Roadmap.md](./Automation-Reliability-Roadmap.md)
