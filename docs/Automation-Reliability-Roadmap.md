@@ -61,7 +61,7 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 - eBay UK: offer `2581` and mapping `2766` point to default variant `1178`, while the existing exact `405g` variant is `2920`.
 - Source reads: an individual product page can time out without bounded retry.
 - Workflow contracts are inconsistent in whether unchanged offers update freshness, whether review rows are isolated and whether every apply has an authoritative DB postflight.
-- No single six-hour watchdog currently proves capture/apply/postflight success within 48 hours for every active retailer.
+- The six-hour watchdog is live, but nine retailers do not yet emit authoritative DB-postflight and per-row execution-contract evidence for it to prove.
 - Catalog Health does not yet separate genuinely stale data, pending review, workflow failure, missing freshness confirmation and no-in-stock coverage.
 
 ## 5. Architecture decisions
@@ -86,7 +86,7 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | IN PROGRESS / OWNER BLOCKED | Simply and Whey code paths are repaired and dry-run cleanly with isolated review. eBay and GYM HIGH require owner identity decisions; production applies for Simply and Whey require commercial approval. |
 | P4 | Classify or refresh genuinely old offers | COMPLETE / OWNER BLOCKED | All four legacy scopes are classified below. Execution requires grouped owner approval because the scopes include identity promotion or commercial changes. |
 | P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Remaining adoption work is authoritative DB postflight/contract evidence for nine retailers and bounded retry proof for every source path. |
-| P6 | Catalog Health reliability view | NOT STARTED | Add per-retailer success, stale, review, failure and cron state without changing Overall Critical. |
+| P6 | Catalog Health reliability view | IN PROGRESS | Per-retailer DB freshness and no-in-stock metrics are live without changing Overall Critical. Workflow/review/cron state remains in the watchdog artifact until an approved shared read source exists. |
 | Closeout | Verify every exit criterion and return to Operating Plan | NOT STARTED | Final evidence, commits, run IDs and clean `main`. |
 
 ### P1 read-only inventory
@@ -143,6 +143,12 @@ Initial run `33292889053` intentionally failed closed and still uploaded artifac
 - GYM HIGH has 66 old offers; Whey Okay 284; Discount 142; Dolphin 2; Simply 120; KIOR 11; eBay 237; Predators 20.
 - KIOR and Predators have no registered autonomous refresh workflow. All retailers currently fail at least one required reliability signal, so the watchdog's aggregate `FAIL` is accurate rather than a false positive.
 
+### P6 Catalog Health evidence
+
+Commit `2fbe908` extends the existing authenticated `/admin/catalog-health` loader and page without a new data source. The dashboard now reports, per retailer, all active-catalogue offers, exact offers older than 48 hours, the existing >7-day and >30-day measures, never-checked offers, oldest/newest database check and products for which that retailer has no valid in-stock offer. Overall status and its existing Critical rule are unchanged.
+
+The page explicitly does not infer workflow success, pending review or cron state from timestamps. Those remain authoritative in the six-hour watchdog artifact. Rendering them live in the web application needs an approved shared read source for GitHub workflow evidence; none currently exists in the application environment, so no token, migration or persistence layer was invented.
+
 ## 7. Exit criteria
 
 - 6 Pack has zero stale offers.
@@ -176,6 +182,7 @@ Initial run `33292889053` intentionally failed closed and still uploaded artifac
 | 2026-08-30 | P3 / Whey Okay | `dfe4a2c3a7742800975aa4da2c073c6ece09c882`; run `33292109660` | PASS_WITH_REVIEW | Healthy 523-product/1,705-row source; 586 approved, 576 executable, ten isolated review rows, zero blocked and zero writes. One stock transition awaits approval. |
 | 2026-08-30 | P4 | KIOR adapter, DB inventory and run `33292337530` | CLASSIFIED / OWNER BLOCKED | Exact 439-row legacy starting scope classified without writes; identity promotion or commercial-change approval is required per retailer. |
 | 2026-08-30 | P5 | `5c6d8ada9fec01dd842dc0389493010b052efcd2`; run `33292889053`; artifact `9726516784` | FAIL-CLOSED AS DESIGNED | Six-hour read-only watchdog is live for all 11 retailers. Validator DB read passed, zero writes; all 11 currently lack at least one required reliability signal. |
+| 2026-08-30 | P6 | `2fbe908` | PARTIAL PASS | Catalog Health now exposes truthful per-retailer DB freshness and coverage metrics. Live workflow/review/cron fields remain blocked on a shared read source rather than being inferred. |
 
 ## 9. Owner-required blockers
 
