@@ -318,6 +318,26 @@ test("family review migration keeps family decisions review-only and guarded", (
   );
 });
 
+test("automation review queue extension is additive, idempotent per offer fingerprint and audit-only", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase", "migrations", "20260830140000_extend_product_match_review_queue_for_automation.sql"),
+    "utf8"
+  );
+
+  assert.match(migration, /add column offer_id bigint references public\.offers/);
+  assert.match(migration, /'PENDING', 'APPROVED', 'REJECTED', 'IGNORED', 'EXPIRED'/);
+  assert.match(migration, /'EXECUTING', 'EXECUTED', 'FAILED'/);
+  assert.match(migration, /'IDENTITY_CONFLICT', 'COMMERCIAL_CHANGE', 'SOURCE_FAILURE'/);
+  assert.match(migration, /unique index product_match_review_queue_offer_fingerprint_unique/);
+  assert.match(migration, /create table public\.product_match_review_events/);
+  assert.match(migration, /grant select, insert on table public\.product_match_review_events to service_role/);
+  assert.doesNotMatch(migration, /grant[^;]*\b(update|delete)\b[^;]*product_match_review_events/i);
+  assert.doesNotMatch(
+    migration,
+    /\b(insert|update|delete)\s+(into\s+|from\s+)?public\.(products|product_variants|retailer_products|offers|price_history)\b/i
+  );
+});
+
 test("family variant merge is narrow, transactional and preserves evidence", () => {
   const migration = fs.readFileSync(
     path.join(
