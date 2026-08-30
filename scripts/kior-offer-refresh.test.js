@@ -50,6 +50,10 @@ test("KIOR scope is immutable to exactly eleven existing mappings and offers", (
   assert.equal(config.discovery_policy.catalogue_creates, false);
   assert.equal(config.policy.catalogue_creates, false);
   assert.equal(config.policy.mapping_creates, false);
+  assert.equal(config.guardrails.mass_oos_block_count, 3);
+  assert.equal(config.guardrails.maximum_oos_increase_percentage_points, 0.15);
+  assert.equal(config.guardrails.maximum_changed_record_ratio, 0.25);
+  assert.equal(config.guardrails.mass_price_change_block_ratio, 0.2);
 });
 
 test("KIOR exact scope hash normalizes database strings and manifest numbers", () => {
@@ -68,16 +72,18 @@ test("KIOR shared classifier supports no-change and safe price/stock actions", (
   assert.equal(unchanged.rows.length, 11);
   assert.equal(unchanged.rows.every((row) => row.action === "VERIFY_NO_CHANGE"), true);
 
-  const changed = scenario();
-  changed.sourceVariants[0].price = "10.50";
-  changed.sourceVariants[1].in_stock = false;
-  changed.sourceVariants[2].price = "10.50";
-  changed.sourceVariants[2].in_stock = false;
-  const classified = classifyExistingOffers(changed);
-  assert.equal(classified.state, "DRY_RUN_READY");
-  assert.equal(classified.rows.filter((row) => row.action === "UPDATE_PRICE").length, 1);
-  assert.equal(classified.rows.filter((row) => row.action === "UPDATE_STOCK").length, 1);
-  assert.equal(classified.rows.filter((row) => row.action === "UPDATE_PRICE_AND_STOCK").length, 1);
+  const scenarios = [
+    ["UPDATE_PRICE", (input) => { input.sourceVariants[0].price = "10.50"; }],
+    ["UPDATE_STOCK", (input) => { input.sourceVariants[1].in_stock = false; }],
+    ["UPDATE_PRICE_AND_STOCK", (input) => { input.sourceVariants[2].price = "10.50"; input.sourceVariants[2].in_stock = false; }],
+  ];
+  for (const [action, change] of scenarios) {
+    const input = scenario();
+    change(input);
+    const classified = classifyExistingOffers(input);
+    assert.equal(classified.state, "DRY_RUN_READY");
+    assert.equal(classified.rows.filter((row) => row.action === action).length, 1);
+  }
 });
 
 test("KIOR suspicious row is isolated and cannot block safe confirmations", () => {
