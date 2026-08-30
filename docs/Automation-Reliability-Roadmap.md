@@ -80,14 +80,36 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 
 | Phase | Deliverable | Status | Current next action |
 | --- | --- | --- | --- |
-| P0 | Close 6 Pack safely | IN PROGRESS | Audit offer `2006` against existing variant/mapping mechanisms; isolate or correct it without weakening the atomic guard, then regenerate a fresh reviewed batch. |
-| P1 | One cross-retailer inventory and priority | NOT STARTED | Build one read-only table for all eleven retailers after the P0 execution path is safe. |
-| P2 | Shared reliability core | NOT STARTED | Extract only proven common session/contract behavior, starting from the working 6 Pack validator session. |
+| P0 | Close 6 Pack safely | OWNER BLOCKED | Offer `2006` needs an owner-approved mapping/offer rebind from default variant `1922` to existing exact variant `3126`; do not weaken the guard or apply the remaining batch first. |
+| P1 | One cross-retailer inventory and priority | COMPLETE | Snapshot and workflow evidence below; Simply Supplements is the first retailer repair after the shared postflight/session contract. |
+| P2 | Shared reliability core | IN PROGRESS | Extract only proven common session/contract behavior, starting from the working 6 Pack validator session. |
 | P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | NOT STARTED | Diagnose and fix in that order, one bounded retailer change at a time. |
 | P4 | Classify or refresh genuinely old offers | NOT STARTED | Whey Okay, Discount, Dolphin and KIOR; one grouped review batch per retailer when needed. |
 | P5 | Six-hour watchdog, retry and recovery | NOT STARTED | Add bounded source retry, 48-hour failure signal and cross-retailer checkpoint evidence. |
 | P6 | Catalog Health reliability view | NOT STARTED | Add per-retailer success, stale, review, failure and cron state without changing Overall Critical. |
 | Closeout | Verify every exit criterion and return to Operating Plan | NOT STARTED | Final evidence, commits, run IDs and clean `main`. |
+
+### P1 read-only inventory
+
+Database counts were captured at `2026-08-30T03:37:12.598Z`. Workflow evidence is from the latest five runs visible on 30 August. `Apply` means the scheduled workflow actually invokes a protected apply path; `DB PF` means an independent, role-bound database postflight rather than a second source dry-run. `Fresh` means unchanged rows are executable freshness confirmations. A dash means the repository or retained run evidence does not prove the capability.
+
+| Retailer | Mappings / offers | Latest successful capture / apply | Latest DB PF | Oldest check | Stale >7 / >30 | Fresh | Safe updates | Review isolation | Retry | Idempotency | Cron apply | Current blocker |
+| --- | ---: | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
+| GYM HIGH | 66 / 66 | source monitor `33269272837`; apply `32931853881` | source dry-run only | 2026-08-26 04:52Z | 0 / 0 | yes | yes | reviewed fixed scope | source artifact fallback | source postcondition | yes | Run `33249118555`: live 71-row source passed, then the immutable feed binding/build failed. |
+| Whey Okay | 870 / 870 | apply `33179855717` | source dry-run only | 2026-06-28 14:32Z | 284 / 284 | yes in protected plan | yes | classifier isolation, globally blocked on identity | source helper has retry contract; last used 0 | yes | yes | Run `33244661630`: healthy 1,705-row feed, `IDENTITY_DRIFT` for offer `16` with zero matches. |
+| Discount Supplements | 156 / 156 | apply `33253485439` | source dry-run only | 2026-06-28 14:32Z | 142 / 130 | bounded approved subset | yes | yes in subset | source adapter only | yes | yes | Cron refreshes only its authorised subset; 142 offers remain outside effective freshness scope. |
+| Dolphin Fitness | 3 / 3 | apply `33250721247` | source dry-run only | 2026-06-28 12:23Z | 2 / 2 | one approved row | yes for one row | fixed one-row scope | source helper | yes | yes | Two offers are outside the one-offer approved automation. |
+| Simply Supplements | 120 / 120 | last DB freshness 2026-08-24 05:50Z; no success in latest five runs | none | 2026-08-24 05:50Z | 0 / 0 | intended | yes | no at missing-variant gate | source helper, last used 0 | intended | yes | Run `33250567937`: healthy source (269 products/468 variants), global `missing mapped variant safety limit exceeded`. |
+| KIOR Health | 11 / 11 | shared dry-run does not capture KIOR | none | 2026-07-10 21:59Z | 11 / 11 | no active path | no | no | no | no | no | No scheduled KIOR apply; all 11 are genuinely stale. |
+| Fit House | 286 / 286 | apply `33245349979` | source dry-run only | 2026-08-29 09:23Z | 0 / 0 | yes | yes | yes | source helper | yes | yes | Healthy, but independent DB postflight is absent. |
+| Jon's Supplements | 506 / 506 | apply `33249957540` | source dry-run only | 2026-08-29 11:22Z | 0 / 0 | yes | yes | yes | source helper | yes | yes | Healthy, but independent DB postflight is absent. |
+| 6 Pack Supplements | 506 / 506 | confirmations `33272680452`; reviewed preflight `33274526268` | reviewed baseline passed in `33274526268`; apply PF not reached | 2026-08-20 03:56Z | 14 / 0 | yes | yes | executor checkpoints rows, but default-variant global invariant stopped at row 1 | bounded source retry | yes | yes | Owner decision required for offer `2006` mapping/variant drift. |
+| eBay UK | 237 / 237 | last DB freshness 2026-08-25 06:12Z; no success in latest five runs | none | 2026-08-21 19:55Z | 21 / 0 | intended | yes | preflight currently global | API client retry | intended | gated by `EBAY_REFRESH_ENABLED` | Run `33250919353`: offer `2581` has conflicting retailer-product variant evidence. |
+| Predators Gear | 47 / 47 | last DB freshness 2026-08-29 13:32Z | no active scheduled refresh PF identified | 2026-08-26 20:33Z | 0 / 0 | not proven | reviewed artifact paths exist | reviewed batches | not proven | batch postflights | no active refresh cron identified | Fresh today, but no single active autonomous refresh workflow is registered. |
+
+Inventory also found zero `never_checked` offers. Products without an in-stock offer by retailer were: GYM HIGH 3, Whey Okay 149, Discount 1, Dolphin 0, Simply 5, KIOR 1, Fit House 39, Jon's 9, 6 Pack 27, eBay 0 and Predators 0. These are coverage facts, not freshness failures.
+
+**Single repair priority:** establish the shared role-bound DB postflight/session wrapper, then repair Simply Supplements first. Its source and coverage guards pass, while one global missing-variant threshold currently prevents every safe row from confirming freshness.
 
 ## 7. Exit criteria
 
@@ -113,11 +135,12 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | 2026-08-29 | P0 | Run `33274294913` (#72) | PASS_WITH_REVIEW | Exact 506/492/14 scope, exact approved commercial values, zero blocked and zero writes. |
 | 2026-08-29 | P0 | `c8b8286ca871a5c998ee9df838dcf953ee002429` | PASS | Fingerprint-only manifest commit for `3f932dd5aa6ddbe92b79770a4ab0d52f8dcfa0900e21518d9eede0db9962c824`. |
 | 2026-08-29 | P0 | Run `33274526268` (#73) | SAFE BLOCK | Preflight and validator baseline passed. Offer `2006` hit default-variant guard; `executed_plan_count = 0`; no commercial writes. |
-| 2026-08-30 | Sprint setup | pending documentation commit | IN PROGRESS | Roadmap created and linked; P0 remains the only active reliability implementation. |
+| 2026-08-30 | Sprint setup | `789b6d834a63439999b8ec8e72e1bb73d57845c3` | PASS | Roadmap created and linked; no production writes. |
+| 2026-08-30 | P1 | DB snapshot plus GitHub run/artifact inventory | PASS | All 11 retailers inventoried once. Exact current blockers and cron behaviour recorded; P2 selected as active implementation. |
 
 ## 9. Owner-required blockers
 
-No owner decision is required merely to diagnose and reuse an existing safe variant/mapping mechanism for offer `2006`. Stop for owner input only if the evidence requires a product-identity decision, a new variant or mapping, changed commercial values, new database privileges, a destructive migration or a broader production scope.
+Offer `2006` now has a confirmed product-identity decision. Mapping `2192` and offer `2006` point to default variant `1922`, while the existing active exact `60-servings` variant `3126` was created later by the owner-reviewed Fit House exact-pack rollout for product `982`. Rebinding those two references is a production mapping/identity write and therefore requires explicit owner approval. Until then, the reviewed 6 Pack batch remains safely blocked and no guard will be weakened.
 
 All later ambiguous retailer rows must be collected into one bounded review report per retailer rather than individual interruptions.
 
