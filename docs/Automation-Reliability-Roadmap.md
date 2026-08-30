@@ -85,7 +85,7 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | P2 | Shared reliability core | COMPLETE | Shared validator/approver/executor role sessions and reusable manifest-scoped DB postflight are proven by 6 Pack, Simply and Whey Okay contracts. Adoption continues retailer by retailer. |
 | P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | IN PROGRESS / OWNER BLOCKED | Simply and Whey code paths are repaired and dry-run cleanly with isolated review. eBay and GYM HIGH require owner identity decisions; production applies for Simply and Whey require commercial approval. |
 | P4 | Classify or refresh genuinely old offers | COMPLETE / OWNER BLOCKED | All four legacy scopes are classified below. Execution requires grouped owner approval because the scopes include identity promotion or commercial changes. |
-| P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Shared DB postflight is installed for seven retailers; five new adoptions await their next scheduled production evidence. GYM HIGH, eBay, KIOR and Predators still need compatible evidence paths. |
+| P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Shared DB postflight is installed for seven retailers; five new adoptions await scheduled production evidence. All known active HTTP source readers now have bounded retry except the unregistered Predators path; GYM HIGH, eBay, KIOR and Predators still need compatible end-to-end evidence paths. |
 | P6 | Catalog Health reliability view | IN PROGRESS | Per-retailer DB freshness and no-in-stock metrics are live without changing Overall Critical. Workflow/review/cron state remains in the watchdog artifact until an approved shared read source exists. |
 | Closeout | Verify every exit criterion and return to Operating Plan | NOT STARTED | Final evidence, commits, run IDs and clean `main`. |
 
@@ -95,16 +95,16 @@ Database counts were captured at `2026-08-30T03:37:12.598Z`. Workflow evidence i
 
 | Retailer | Mappings / offers | Latest successful capture / apply | Latest DB PF | Oldest check | Stale >7 / >30 | Fresh | Safe updates | Review isolation | Retry | Idempotency | Cron apply | Current blocker |
 | --- | ---: | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
-| GYM HIGH | 66 / 66 | source monitor `33269272837`; apply `32931853881` | source dry-run only | 2026-08-26 04:52Z | 0 / 0 | yes | yes | reviewed fixed scope | source artifact fallback | source postcondition | yes | Run `33249118555`: live 71-row source passed, then the immutable feed binding/build failed. |
+| GYM HIGH | 66 / 66 | source monitor `33269272837`; apply `32931853881` | source dry-run only | 2026-08-26 04:52Z | 0 / 0 | yes | yes | reviewed fixed scope | bounded Store API and product-page retry | source postcondition | yes | Run `33249118555`: live 71-row source passed, then the immutable feed binding/build failed. |
 | Whey Okay | 870 / 870 | apply `33179855717` | source dry-run only | 2026-06-28 14:32Z | 284 / 284 | yes in protected plan | yes | classifier isolation, globally blocked on identity | source helper has retry contract; last used 0 | yes | yes | Run `33244661630`: healthy 1,705-row feed, `IDENTITY_DRIFT` for offer `16` with zero matches. |
 | Discount Supplements | 156 / 156 | apply `33253485439` | source dry-run only | 2026-06-28 14:32Z | 142 / 130 | bounded approved subset | yes | yes in subset | source adapter only | yes | yes | Cron refreshes only its authorised subset; 142 offers remain outside effective freshness scope. |
 | Dolphin Fitness | 3 / 3 | apply `33250721247` | source dry-run only | 2026-06-28 12:23Z | 2 / 2 | one approved row | yes for one row | fixed one-row scope | source helper | yes | yes | Two offers are outside the one-offer approved automation. |
 | Simply Supplements | 120 / 120 | last DB freshness 2026-08-24 05:50Z; no success in latest five runs | none | 2026-08-24 05:50Z | 0 / 0 | intended | yes | no at missing-variant gate | source helper, last used 0 | intended | yes | Run `33250567937`: healthy source (269 products/468 variants), global `missing mapped variant safety limit exceeded`. |
-| KIOR Health | 11 / 11 | shared dry-run does not capture KIOR | none | 2026-07-10 21:59Z | 11 / 11 | no active path | no | no | no | no | no | No scheduled KIOR apply; all 11 are genuinely stale. |
+| KIOR Health | 11 / 11 | local read-only capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5` | none | 2026-07-10 21:59Z | 11 / 11 | no active path | no | no | bounded Shopify retry | no | no | No scheduled KIOR apply; all 11 are genuinely stale. |
 | Fit House | 286 / 286 | apply `33245349979` | source dry-run only | 2026-08-29 09:23Z | 0 / 0 | yes | yes | yes | source helper | yes | yes | Healthy, but independent DB postflight is absent. |
 | Jon's Supplements | 506 / 506 | apply `33249957540` | source dry-run only | 2026-08-29 11:22Z | 0 / 0 | yes | yes | yes | source helper | yes | yes | Healthy, but independent DB postflight is absent. |
 | 6 Pack Supplements | 506 / 506 | confirmations `33272680452`; reviewed preflight `33274526268` | reviewed baseline passed in `33274526268`; apply PF not reached | 2026-08-20 03:56Z | 14 / 0 | yes | yes | executor checkpoints rows, but default-variant global invariant stopped at row 1 | bounded source retry | yes | yes | Owner decision required for offer `2006` mapping/variant drift. |
-| eBay UK | 237 / 237 | last DB freshness 2026-08-25 06:12Z; no success in latest five runs | none | 2026-08-21 19:55Z | 21 / 0 | intended | yes | preflight currently global | API client retry | intended | gated by `EBAY_REFRESH_ENABLED` | Run `33250919353`: offer `2581` has conflicting retailer-product variant evidence. |
+| eBay UK | 237 / 237 | last DB freshness 2026-08-25 06:12Z; no success in latest five runs | none | 2026-08-21 19:55Z | 21 / 0 | intended | yes | preflight currently global | bounded OAuth/Browse/item retry | intended | gated by `EBAY_REFRESH_ENABLED` | Run `33250919353`: offer `2581` has conflicting retailer-product variant evidence. |
 | Predators Gear | 47 / 47 | last DB freshness 2026-08-29 13:32Z | no active scheduled refresh PF identified | 2026-08-26 20:33Z | 0 / 0 | not proven | reviewed artifact paths exist | reviewed batches | not proven | batch postflights | no active refresh cron identified | Fresh today, but no single active autonomous refresh workflow is registered. |
 
 Inventory also found zero `never_checked` offers. Products without an in-stock offer by retailer were: GYM HIGH 3, Whey Okay 149, Discount 1, Dolphin 0, Simply 5, KIOR 1, Fit House 39, Jon's 9, 6 Pack 27, eBay 0 and Predators 0. These are coverage facts, not freshness failures.
@@ -157,6 +157,12 @@ Each adopted workflow captures the read-only baseline after a passing source pre
 
 Local targeted tests, `verify:quick` and `verify:full` passed. A local production baseline attempt stopped before connecting because the developer `.env.local` intentionally has no validator URL; no secret was copied and no DB operation occurred. Production proof for the five new profiles therefore remains pending their next existing scheduled runs, and the watchdog must continue to report missing DB-postflight evidence until those runs pass.
 
+### P5 bounded source retry
+
+Commit `9a67b33080b41b6d504e0d06ec5d11fdaebc9092` added one bounded transport helper to the three source paths that lacked retry: KIOR Shopify JSON, the GYM HIGH WooCommerce Store API catalogue and eBay OAuth/Browse/exact-item reads. It retries only transient network failures and HTTP `408`, `425`, `429`, `500`, `502`, `503` and `504`, with at most three attempts by default, per-attempt timeout and bounded backoff. Existing schema, identity, size and commercial guards remain outside the transport retry and therefore still fail closed without replay.
+
+Targeted tests passed `117/117`; `verify:quick`, `verify:full` and `git diff --check` passed. The post-commit KIOR read-only capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5` read all 11 approved rows on its first attempt, reported zero price/stock/URL/identity drift, zero blocked rows and `database_writes = 0`. Its adapter report SHA-256 is `debe80262f3764ed96c948d2ed404672b568bac2b733a944c51676626487a170`. GYM HIGH and eBay production retry evidence remains pending their existing read-only/scheduled paths; their identity blockers are unchanged.
+
 ## 7. Exit criteria
 
 - 6 Pack has zero stale offers.
@@ -192,6 +198,7 @@ Local targeted tests, `verify:quick` and `verify:full` passed. A local productio
 | 2026-08-30 | P5 | `5c6d8ada9fec01dd842dc0389493010b052efcd2`; run `33292889053`; artifact `9726516784` | FAIL-CLOSED AS DESIGNED | Six-hour read-only watchdog is live for all 11 retailers. Validator DB read passed, zero writes; all 11 currently lack at least one required reliability signal. |
 | 2026-08-30 | P6 | `2fbe908` | PARTIAL PASS | Catalog Health now exposes truthful per-retailer DB freshness and coverage metrics. Live workflow/review/cron fields remain blocked on a shared read source rather than being inferred. |
 | 2026-08-30 | P5 | `0957dd0` | IMPLEMENTED / EVIDENCE PENDING | Shared read-only DB baseline/postflight adopted by Discount, Dolphin, Fit House, Jon's and ordinary 6 Pack; seven retailer profiles total. No apply was dispatched. |
+| 2026-08-30 | P5 | `9a67b33080b41b6d504e0d06ec5d11fdaebc9092`; KIOR capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5` | PASS / PARTIAL LIVE EVIDENCE | Missing KIOR, GYM HIGH Store API and eBay HTTP transports now use bounded retry. KIOR proved 11/11 read-only with zero writes; GYM HIGH/eBay scheduled evidence remains pending. |
 
 ## 9. Owner-required blockers
 
