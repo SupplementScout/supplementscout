@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "manifest_type": "kior_approved_existing_offer_scope",
+  "retailer": {
+    "id": 8,
+    "slug": "kior-health",
+    "source_platform": "SHOPIFY"
+  },
+  "approved_mapping_count": 11,
+  "shipping_cost_gbp": "3.99",
+  "rows": [
+    { "mapping_id": 670, "offer_id": 678, "canonical_product_id": 439, "canonical_variant_id": 422, "external_product_id": "6717613539421", "external_variant_id": "39821206192221" },
+    { "mapping_id": 671, "offer_id": 679, "canonical_product_id": 441, "canonical_variant_id": 424, "external_product_id": "6825718546525", "external_variant_id": "40172613533789" },
+    { "mapping_id": 672, "offer_id": 680, "canonical_product_id": 438, "canonical_variant_id": 418, "external_product_id": "6717636903005", "external_variant_id": "39821296009309" },
+    { "mapping_id": 673, "offer_id": 681, "canonical_product_id": 437, "canonical_variant_id": 416, "external_product_id": "6717637328989", "external_variant_id": "39821296992349" },
+    { "mapping_id": 674, "offer_id": 682, "canonical_product_id": 436, "canonical_variant_id": 415, "external_product_id": "6825707929693", "external_variant_id": "40172596068445" },
+    { "mapping_id": 675, "offer_id": 683, "canonical_product_id": 435, "canonical_variant_id": 414, "external_product_id": "6758522355805", "external_variant_id": "39962446921821" },
+    { "mapping_id": 676, "offer_id": 684, "canonical_product_id": 434, "canonical_variant_id": 413, "external_product_id": "6758548078685", "external_variant_id": "39962495746141" },
+    { "mapping_id": 677, "offer_id": 685, "canonical_product_id": 442, "canonical_variant_id": 419, "external_product_id": "6766403551325", "external_variant_id": "39984169058397" },
+    { "mapping_id": 678, "offer_id": 686, "canonical_product_id": 460, "canonical_variant_id": 427, "external_product_id": "7067692138589", "external_variant_id": "40939513741405" },
+    { "mapping_id": 679, "offer_id": 687, "canonical_product_id": 461, "canonical_variant_id": 492, "external_product_id": "7067692531805", "external_variant_id": "40939514232925" },
+    { "mapping_id": 680, "offer_id": 688, "canonical_product_id": 458, "canonical_variant_id": 457, "external_product_id": "6758526025821", "external_variant_id": "39962452426845" }
+  ]
+}

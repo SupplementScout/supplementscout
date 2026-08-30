@@ -1,0 +1,100 @@
+name: KIOR Offer Refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Dry-run unless the exact approved 11-row freshness apply is authorised"
+        required: true
+        default: dry-run
+        type: choice
+        options: [dry-run, apply]
+  schedule:
+    - cron: "37 7 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kior-offer-refresh
+  cancel-in-progress: false
+
+jobs:
+  kior-offer-refresh:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production-readonly
+
+    steps:
+      - name: Validate protected execution context
+        env:
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          case "$GITHUB_EVENT_NAME" in schedule|workflow_dispatch) ;; *) exit 1 ;; esac
+
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Test exact KIOR automation contracts
+        run: node --test scripts/kior-offer-refresh.test.js scripts/retailer-offer-sync.test.js
+
+      - name: Dry-run the exact approved KIOR offers
+        env:
+          KIOR_REFRESH_PHASE: preflight
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          KIOR_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          KIOR_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          KIOR_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/kior-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
+
+      - name: Capture KIOR Health DB baseline read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          KIOR_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=kior-health --mode=baseline --output=tmp/kior-offer-refresh/production-db-baseline.json
+
+      - name: Apply the exact approved KIOR offer refresh
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          KIOR_REFRESH_PHASE: apply
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          KIOR_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          KIOR_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          KIOR_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/kior-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+
+      - name: Verify KIOR Health DB postflight read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          KIOR_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=kior-health --mode=postflight --baseline=tmp/kior-offer-refresh/production-db-baseline.json --execution=tmp/kior-offer-refresh/production-apply.json --output=tmp/kior-offer-refresh/production-db-postflight.json
+
+      - name: Verify idempotency with a fresh source capture
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        env:
+          KIOR_REFRESH_PHASE: idempotency
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          KIOR_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          KIOR_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          KIOR_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/kior-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
+
+      - name: Upload protected KIOR refresh evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: kior-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: tmp/kior-offer-refresh/*.json

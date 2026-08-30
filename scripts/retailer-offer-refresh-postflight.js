@@ -29,6 +29,13 @@ const PROFILES = Object.freeze({
     credential: "FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL",
     approvedMappingCount: 286,
   },
+  "kior-health": {
+    retailerId: "8",
+    retailerName: "KIOR Health",
+    credential: "KIOR_REFRESH_VALIDATOR_DATABASE_URL",
+    manifestPath: "config/retailers/kior-approved-offer-manifest.json",
+    approvedMappingCount: 11,
+  },
   "jons-supplements": {
     retailerId: "10",
     retailerName: "Jon's Supplements",

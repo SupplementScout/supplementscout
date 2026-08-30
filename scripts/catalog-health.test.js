@@ -575,12 +575,13 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
   );
 });
 
-test("shared DB postflight covers seven exact retailer scopes", () => {
+test("shared DB postflight covers eight exact retailer scopes", () => {
   const expected = {
     "discount-supplements": [14, 14],
     "dolphin-fitness": [1, 1],
     "fit-house": [286, null],
     "jons-supplements": [506, null],
+    "kior-health": [11, 11],
     "simply-supplements": [120, null],
     "six-pack-supplements": [506, 506],
     "whey-okay": [586, 586],
@@ -600,6 +601,7 @@ test("adopted retailer workflows place read-only DB evidence around apply", () =
     ["dolphin-vegan-protein-offer-refresh.yml", "Capture Dolphin Fitness DB baseline read-only", "Apply the one approved existing Dolphin offer refresh", "Verify Dolphin Fitness DB postflight read-only"],
     ["fit-house-offer-refresh.yml", "Capture Fit House DB baseline read-only", "Apply all approved Fit House offer refresh", "Verify Fit House DB postflight read-only"],
     ["jons-offer-refresh.yml", "Capture Jon's Supplements DB baseline read-only", "Apply all approved Jon's offer refresh", "Verify Jon's Supplements DB postflight read-only"],
+    ["kior-offer-refresh.yml", "Capture KIOR Health DB baseline read-only", "Apply the exact approved KIOR offer refresh", "Verify KIOR Health DB postflight read-only"],
     ["six-pack-offer-refresh.yml", "Capture 6 Pack DB baseline read-only", "Apply exact approved manifest", "Verify 6 Pack DB postflight read-only"],
   ];
 

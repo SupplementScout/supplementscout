@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "retailer_id": 8,
+  "retailer_name": "KIOR Health",
+  "retailer_slug": "kior-health",
+  "store_url": "https://kior.uk",
+  "source_platform": "SHOPIFY",
+  "manifest_path": "config/retailers/kior-approved-offer-manifest.json",
+  "manifest_sha256": "7f28705b6f4900439c8a6a661e4f14baa14be5965345f0a30e15ec83dfb32036",
+  "approved_mapping_count": 11,
+  "registration_rpc": "register_kior_offer_sync_control_plan",
+  "environment_prefix": "KIOR_REFRESH",
+  "phase_prefix": "KIOR_REFRESH",
+  "output_directory": "kior-offer-refresh",
+  "guard_scope_name": "KIOR_APPROVED_EXISTING_11",
+  "source_baseline": {
+    "product_count": 22,
+    "variant_count": 22,
+    "minimum_count_ratio": 0.9,
+    "genuine_collapse_ratio": 0.75
+  },
+  "source_fetch": {
+    "pagination_completion": "short-page",
+    "maximum_attempts": 3,
+    "retry_base_delay_ms": 250,
+    "timeout_ms": 15000,
+    "maximum_pages": 20,
+    "user_agent": "SupplementScout-KIOR-Offer-Refresh/1.0"
+  },
+  "guardrails": {
+    "required_matched_offers": 11,
+    "source_freshness_hours": 24,
+    "future_clock_skew_minutes": 5,
+    "full_snapshot_minimum_source_count_ratio": 0.9,
+    "maximum_total_oos_ratio": 0.3,
+    "maximum_oos_increase_percentage_points": 0.3,
+    "maximum_changed_record_ratio": 0.3,
+    "mass_price_change_block_ratio": 0.2,
+    "per_row_price_hard_block_ratio": 0.25,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "mass_oos_block_count": 4,
+    "ignore_source_sku": true
+  },
+  "shipping_policy": {
+    "mode": "fixed",
+    "cost_gbp": "3.99"
+  },
+  "discovery_policy": {
+    "mode": "report_only",
+    "catalogue_creates": false,
+    "missing_mapped_variant_mode": "BLOCK",
+    "maximum_missing_mapped_variants": 0,
+    "maximum_missing_mapped_variant_ratio": 0
+  },
+  "schedule": {
+    "cron_utc": "37 7 * * *"
+  },
+  "policy": {
+    "existing_identity_only": true,
+    "catalogue_creates": false,
+    "mapping_creates": false,
+    "allowed_fields": ["price", "in_stock", "last_checked_at"],
+    "maximum_price_change_ratio": 0.25,
+    "maximum_price_change_absolute_gbp": "20.00"
+  }
+}
