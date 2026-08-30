@@ -84,8 +84,8 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | P1 | One cross-retailer inventory and priority | COMPLETE | Snapshot and workflow evidence below; Simply Supplements is the first retailer repair after the shared postflight/session contract. |
 | P2 | Shared reliability core | COMPLETE | Shared validator/approver/executor role sessions and reusable manifest-scoped DB postflight are proven by 6 Pack, Simply and Whey Okay contracts. Adoption continues retailer by retailer. |
 | P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | IN PROGRESS / OWNER BLOCKED | Simply and Whey code paths are repaired and dry-run cleanly with isolated review. eBay and GYM HIGH require owner identity decisions; production applies for Simply and Whey require commercial approval. |
-| P4 | Classify or refresh genuinely old offers | NOT STARTED | Whey Okay, Discount, Dolphin and KIOR; one grouped review batch per retailer when needed. |
-| P5 | Six-hour watchdog, retry and recovery | NOT STARTED | Add bounded source retry, 48-hour failure signal and cross-retailer checkpoint evidence. |
+| P4 | Classify or refresh genuinely old offers | COMPLETE / OWNER BLOCKED | All four legacy scopes are classified below. Execution requires grouped owner approval because the scopes include identity promotion or commercial changes. |
+| P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Remaining adoption work is authoritative DB postflight/contract evidence for nine retailers and bounded retry proof for every source path. |
 | P6 | Catalog Health reliability view | NOT STARTED | Add per-retailer success, stale, review, failure and cron state without changing Overall Critical. |
 | Closeout | Verify every exit criterion and return to Operating Plan | NOT STARTED | Final evidence, commits, run IDs and clean `main`. |
 
@@ -119,6 +119,30 @@ Inventory also found zero `never_checked` offers. Products without an in-stock o
 - GYM HIGH run `33249118555` passed the 71-row live source audit and then exposed stale immutable control binding `4623:4623`; no write was attempted.
 - Whey commit `dfe4a2c3a7742800975aa4da2c073c6ece09c882` reuses the shared per-row classifier and DB postflight. Dry-run `33292109660` is `PASS_WITH_REVIEW`: 586 approved, 576 executable, 575 `VERIFY_NO_CHANGE`, one `UPDATE_STOCK` (offer `221`, `true` to `false`), ten `SOURCE_VARIANT_MISSING` review rows, zero blocked and zero writes. Apply, baseline, postflight and idempotency steps were correctly skipped for the dry-run dispatch.
 
+### P4 legacy-scope classification
+
+The four recorded legacy scopes were re-read without writes. None is a safe blanket freshness-only batch:
+
+| Retailer | Exact old scope | Classification | Safe next action |
+| --- | ---: | --- | --- |
+| Whey Okay | 284 | All 284 mappings lack external product and variant identity; no canonical mapping/offer conflict was found. Scope hash `d44049ef4256164520fc3a777a73dcb0d6db8203b8720851dcebaa8d06a64cd5`. | Grouped owner review for identity promotion; do not treat as no-change freshness. |
+| Discount Supplements | 142 | 95 `NO_CHANGE`, 29 `SAFE_UPDATE`, 13 `OUT_OF_STOCK`, three `MISSING_FROM_SOURCE`, plus two mappings without external IDs. Read-only run `33292337530`; scope hash `0827d1041303ddf7daff8ac757625c81e2b6cd86e1d794f9883ca70f5ad40d7a`. | Owner-review one bounded 137-row executable scope, explicitly including 42 commercial changes; leave five rows in review. |
+| Dolphin Fitness | 2 | Both mappings lack external identity; offers `8` and `9` remain canonically consistent. Scope hash `65dbb2164937f56c6c78c80fe7353b4d84807947cc1400065289eff681681a7d`. | Grouped owner review for identity promotion. |
+| KIOR Health | 11 | Healthy public source and no commercial/source drift, but all 11 mappings lack external IDs and therefore plan mapping updates rather than freshness-only. Scope hash `71e5d7d8dc62e15c1822e86f77d35f68d5e9e2e571aabf8a50e1d7439a9f4afb`. | Grouped owner review for identity promotion; no apply before approval. |
+
+KIOR's local adapter dry-run saw 11 configured/mapped rows, zero price, stock, shipping, URL or identity-content drift and zero writes. The classifications above separate genuine commercial/source changes from legacy identity gaps; no manual timestamp update was used.
+
+### P5 watchdog evidence
+
+Commit `5c6d8ada9fec01dd842dc0389493010b052efcd2` added one read-only watchdog for all 11 retailers on cron `11 */6 * * *`. It uses only the production validator connection, reads GitHub Actions evidence, requires fresh capture/apply/DB-postflight plus exact per-row execution counts, emits a retained JSON report, and fails the workflow as the native alert. It has no approver, executor or service-role credential.
+
+Initial run `33292889053` intentionally failed closed and still uploaded artifact `9726516784`. The DB read succeeded, `database_error` was null and `database_writes = 0`. It found:
+
+- Fit House and Jon's have no offers older than 48 hours, but still lack authoritative DB-postflight and execution-contract evidence.
+- 6 Pack has a valid `506 = 492 executable + 14 review` contract with `492` executed and zero blocked; exactly the 14 owner-blocked reviewed offers are older than 48 hours.
+- GYM HIGH has 66 old offers; Whey Okay 284; Discount 142; Dolphin 2; Simply 120; KIOR 11; eBay 237; Predators 20.
+- KIOR and Predators have no registered autonomous refresh workflow. All retailers currently fail at least one required reliability signal, so the watchdog's aggregate `FAIL` is accurate rather than a false positive.
+
 ## 7. Exit criteria
 
 - 6 Pack has zero stale offers.
@@ -150,6 +174,8 @@ Inventory also found zero `never_checked` offers. Products without an in-stock o
 | 2026-08-30 | P3 / eBay | Run `33250919353` plus DB identity check | OWNER BLOCKED | Offer `2581` has real default-versus-exact variant drift (`1178` versus `2920`); zero writes. |
 | 2026-08-30 | P3 / GYM HIGH | Run `33249118555` plus DB/control check | OWNER BLOCKED | Live mapping is exact variant `2973`, immutable approval still binds variant `507`; zero writes. |
 | 2026-08-30 | P3 / Whey Okay | `dfe4a2c3a7742800975aa4da2c073c6ece09c882`; run `33292109660` | PASS_WITH_REVIEW | Healthy 523-product/1,705-row source; 586 approved, 576 executable, ten isolated review rows, zero blocked and zero writes. One stock transition awaits approval. |
+| 2026-08-30 | P4 | KIOR adapter, DB inventory and run `33292337530` | CLASSIFIED / OWNER BLOCKED | Exact 439-row legacy starting scope classified without writes; identity promotion or commercial-change approval is required per retailer. |
+| 2026-08-30 | P5 | `5c6d8ada9fec01dd842dc0389493010b052efcd2`; run `33292889053`; artifact `9726516784` | FAIL-CLOSED AS DESIGNED | Six-hour read-only watchdog is live for all 11 retailers. Validator DB read passed, zero writes; all 11 currently lack at least one required reliability signal. |
 
 ## 9. Owner-required blockers
 
@@ -160,6 +186,7 @@ The current consolidated owner decisions are:
 3. **eBay UK:** approve or reject rebinding mapping `2766` and offer `2581` from default variant `1178` to existing exact `405g` variant `2920`.
 4. **GYM HIGH:** approve or reject refreshing the immutable control binding for source tuple `4623:4623` from old variant `507` to the already-live exact `400g` variant `2973`; this is approval/control evidence, not a request to rewrite the live mapping.
 5. **Whey Okay:** approve or reject the protected 576-plan apply: 575 freshness confirmations and stock `true` to `false` for offer `221`; the ten absent source-product-`24` rows remain unchanged in review.
+6. **Legacy old scopes:** approve or reject bounded grouped remediation separately for Whey Okay 284 identity promotions, Discount 137 executable rows including 42 commercial changes, Dolphin two identity promotions and KIOR 11 identity promotions. Discount's remaining five rows stay in review.
 
 No production apply is implied by these entries. Each approved operation must still use its existing protected workflow, fresh source capture, stale-state guards and DB postflight. Later ambiguous rows remain grouped into one bounded review report per retailer rather than individual interruptions.
 
