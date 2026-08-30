@@ -72,12 +72,12 @@ test.after(() => {
   }
 });
 
-test("staging records the reviewed execution evidence extension as applied", () => {
+test("staging selects only the reviewed execution request migration", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 91);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 91);
+  assert.deepEqual(result.pending, ["20260830173000_create_automation_review_execution_requests"]);
+  assert.equal(result.selected_files.length, 92);
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -151,9 +151,9 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed execution evidence extension as applied", () => {
+test("production selects only the reviewed execution request migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map((row) => row.filename), ["20260830173000_create_automation_review_execution_requests.sql"]);
   assert.equal(contract.ledgerCount, 167);
   assert.equal(
     contract.ledgerFingerprint,
@@ -218,7 +218,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 91);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 92);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -262,12 +262,12 @@ test("production binds its exact ledger after the automation review queue extens
   });
   assert.equal(result.ledger_count, 167);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 167);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.deepEqual(result.pending, ["20260830173000_create_automation_review_execution_requests"]);
+  assert.equal(result.selected_files.length, 168);
+  assert.deepEqual(result.pending_files, ["20260830173000_create_automation_review_execution_requests.sql"]);
+  assert.equal(result.pending_file, "20260830173000_create_automation_review_execution_requests.sql");
+  assert.equal(result.pending_sha256, "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a");
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -344,12 +344,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migration after execution evidence apply", () => {
+test("staging output binds the one pending execution request migration", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, "20260830173000_create_automation_review_execution_requests.sql");
+  assert.equal(result.pending_sha256, "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a");
+  assert.deepEqual(result.pending_files, ["20260830173000_create_automation_review_execution_requests.sql"]);
+  assert.deepEqual(result.pending_sha256s, { "20260830173000_create_automation_review_execution_requests.sql": "c527cdbc96711018f70ccd0ecb5a5998ac5415928c22bcc03c275dea7ce9887a" });
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
