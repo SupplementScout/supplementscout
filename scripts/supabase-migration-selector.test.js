@@ -151,17 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records KIOR and exposes only the reviewed Discount 109 extension as pending", () => {
+test("production records the reviewed Discount 109 extension as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260830120000_expand_discount_supplements_freshness_scope_109.sql",
-    sha256: "8ded2b941bd3637f0e1d5aeedcecbaaf235c35e4681aaf30a26877faf84d5e28",
-    expectedCatalogueDeltas: {},
-  }]);
-  assert.equal(contract.ledgerCount, 164);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 165);
   assert.equal(
     contract.ledgerFingerprint,
-    "0d2a4d0532de9bc4a51c43b6a9be3a3d2c7bbafaad4c4c0d39bee8088cdcca6d",
+    "4298d57930ea49b4260c527360a68b3c4dcc6e9efffcf7a2c0e326dd29c44cbc",
   );
 });
 
@@ -238,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects only the Discount 109 extension", () => {
+test("production binds its exact ledger after the Discount 109 extension", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -264,14 +260,14 @@ test("production binds its exact ledger and selects only the Discount 109 extens
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 164);
+  assert.equal(result.ledger_count, 165);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260830120000_expand_discount_supplements_freshness_scope_109"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 165);
-  assert.deepEqual(result.pending_files, ["20260830120000_expand_discount_supplements_freshness_scope_109.sql"]);
-  assert.equal(result.pending_file, "20260830120000_expand_discount_supplements_freshness_scope_109.sql");
-  assert.equal(result.pending_sha256, "8ded2b941bd3637f0e1d5aeedcecbaaf235c35e4681aaf30a26877faf84d5e28");
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
