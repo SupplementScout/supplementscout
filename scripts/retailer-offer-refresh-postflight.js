@@ -68,6 +68,7 @@ const PROFILES = Object.freeze({
 function invariant(condition, message) { if (!condition) throw new Error(message); }
 function jsonSerializable(value) { return JSON.parse(JSON.stringify(value)); }
 function hash(value) { return crypto.createHash("sha256").update(canonicalJson(jsonSerializable(value))).digest("hex"); }
+function epoch(value) { return value instanceof Date ? value.getTime() : Date.parse(value); }
 function baselineHash(value) { const payload = { ...value }; delete payload.evidence_hash; return hash(payload); }
 function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 function approvedOfferIds(profile) {
@@ -160,11 +161,11 @@ function verifyPostflight(baseline, after, execution) {
     if (current.url !== before.url) offerUrlChanges += 1;
     if (current.external_url !== before.external_url) mappingUrlChanges += 1;
     if (executionIds.has(offerId)) {
-      invariant(Date.parse(current.last_checked_at) > Date.parse(before.last_checked_at), `Executable offer ${offerId} did not advance freshness`);
+      invariant(epoch(current.last_checked_at) > epoch(before.last_checked_at), `Executable offer ${offerId} did not advance freshness`);
       freshnessChanges += 1;
     } else {
       const label = reviewIds.has(offerId) ? "Review" : "Non-executed";
-      invariant(Date.parse(current.last_checked_at) === Date.parse(before.last_checked_at), `${label} offer ${offerId} changed`);
+      invariant(epoch(current.last_checked_at) === epoch(before.last_checked_at), `${label} offer ${offerId} changed`);
       invariant(hash({ ...current, last_checked_at: null }) === hash({ ...before, last_checked_at: null }), `${label} offer ${offerId} changed`);
     }
   }
@@ -210,4 +211,4 @@ async function run(options, dependencies = {}) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { PROFILES, approvedOfferIds, baselineHash, capture, hash, parseArgs, run, verifyPostflight, VALIDATOR_LOGIN, VALIDATOR_ROLE };
+module.exports = { PROFILES, approvedOfferIds, baselineHash, capture, epoch, hash, parseArgs, run, verifyPostflight, VALIDATOR_LOGIN, VALIDATOR_ROLE };

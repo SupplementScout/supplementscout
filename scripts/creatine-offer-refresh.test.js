@@ -15,7 +15,7 @@ const manifest = require(MANIFEST_PATH);
 const ownerPack = require("../docs/rollouts/automation-reliability-owner-pack-2026-08-30.json");
 const refresh = require("./creatine-offer-refresh");
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
-const { PROFILES: POSTFLIGHT_PROFILES, baselineHash, verifyPostflight } = require("./retailer-offer-refresh-postflight");
+const { PROFILES: POSTFLIGHT_PROFILES, baselineHash, epoch, verifyPostflight } = require("./retailer-offer-refresh-postflight");
 
 function sha256(file) {
   return crypto.createHash("sha256").update(fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n")).digest("hex");
@@ -111,6 +111,11 @@ test("postflight requires freshness only for the explicitly executed segment", (
   const report = verifyPostflight(baseline, { row_count: 2, price_history_count: 0, rows: [row("1", "2026-08-29T00:00:00Z"), row("2", "2026-08-30T00:00:00Z")] }, execution);
   assert.equal(report.freshness_change_count, 1);
   assert.throws(() => verifyPostflight(baseline, { row_count: 2, price_history_count: 0, rows: [row("1", "2026-08-30T00:00:00Z"), row("2", "2026-08-30T00:00:00Z")] }, execution), /Non-executed offer 1 changed/);
+});
+
+test("postflight compares PostgreSQL Date values without dropping milliseconds", () => {
+  const iso = "2026-08-30T12:14:39.744Z";
+  assert.equal(epoch(iso), epoch(new Date(iso)));
 });
 
 test("Discount source and discovery guards fail closed", () => {
