@@ -215,9 +215,51 @@ test("product, variant, handle, vendor, image and URL guardrails remain blocking
 });
 
 test("fetch rejects bad responses and enforces timeout", async () => {
-  await assert.rejects(fetchJson("x", { timeoutMs: 50, maxBytes: 1000, fetchImpl: async () => response("x", 503) }), /HTTP 503/);
+  await assert.rejects(fetchJson("x", { timeoutMs: 50, maxBytes: 1000, maximumAttempts: 1, fetchImpl: async () => response("x", 503) }), /HTTP 503/);
   await assert.rejects(fetchJson("x", { timeoutMs: 50, maxBytes: 1000, fetchImpl: async () => response("{") }), /not valid JSON/);
-  await assert.rejects(fetchJson("x", { timeoutMs: 5, maxBytes: 1000, fetchImpl: (_url, options) => new Promise((_resolve, reject) => options.signal.addEventListener("abort", () => reject(new Error("aborted")))) }), /aborted/);
+  await assert.rejects(
+    fetchJson("x", { timeoutMs: 5, maxBytes: 1000, maximumAttempts: 1, fetchImpl: (_url, options) => new Promise((_resolve, reject) => options.signal.addEventListener("abort", () => reject(new Error("aborted")))) }),
+    (error) => /aborted/.test(error.message) && error.source_retry?.attempts === 1 && error.source_retry?.retry_count === 0,
+  );
+});
+
+test("KIOR source fetch retries one transient response and reports it", async () => {
+  let calls = 0;
+  const result = await fetchJson("x", {
+    timeoutMs: 50,
+    maxBytes: 1000,
+    maximumAttempts: 2,
+    retryBaseDelayMs: 0,
+    fetchImpl: async () => {
+      calls += 1;
+      return calls === 1 ? response("x", 503) : response(JSON.stringify({ products: [{}] }));
+    },
+  });
+
+  assert.equal(calls, 2);
+  assert.deepEqual(result.source_retry, { attempts: 2, retry_count: 1 });
+});
+
+test("source timeout is retried once before a successful read", async () => {
+  let calls = 0;
+  const result = await fetchJson("x", {
+    timeoutMs: 5,
+    maxBytes: 1000,
+    maximumAttempts: 2,
+    retryBaseDelayMs: 0,
+    fetchImpl: (_url, options) => {
+      calls += 1;
+      if (calls === 1) {
+        return new Promise((_resolve, reject) =>
+          options.signal.addEventListener("abort", () => reject(new Error("aborted")))
+        );
+      }
+      return Promise.resolve(response(JSON.stringify({ products: [{}] })));
+    },
+  });
+
+  assert.equal(calls, 2);
+  assert.deepEqual(result.source_retry, { attempts: 2, retry_count: 1 });
 });
 
 test("canonical mapping validation performs read-only ID/slug checks", async () => {

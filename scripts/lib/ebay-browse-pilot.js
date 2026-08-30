@@ -1,6 +1,7 @@
 const { hash } = require("./retailer-snapshot/fingerprints");
 const { isValidGtin, normalizeGtin } = require("./gtin-promotion");
 const { getApplicationToken, resetTokenCache } = require("../../lib/ebay-oauth");
+const { boundedSourceFetch } = require("./bounded-source-fetch");
 
 const DECISIONS = Object.freeze(["AUTO_ELIGIBLE", "REVIEW", "REJECT", "NOT_FOUND"]);
 const DEFAULT_POLICY = Object.freeze({
@@ -260,6 +261,7 @@ function buildReport(input, results, policy = DEFAULT_POLICY, metadata = {}) {
     request_policy: policy,
     request_policy_fingerprint: hash("EBAY-BROWSE-POLICY:1", policy),
     affiliate_campaign_configured: metadata.affiliate_campaign_configured === true,
+    source_retry: metadata.source_retry || null,
     summary: {
       checked: results.length,
       products_checked: new Set(results.map((row) => row.product_id)).size,
@@ -301,8 +303,31 @@ function assertConfig(env = process.env) {
   };
 }
 
+function createRetryingFetch(fetchImpl = fetch, options = {}) {
+  const diagnostic = { request_count: 0, retry_count: 0, maximum_attempts_used: 0 };
+  const retryingFetch = async (url, init = {}) => {
+    const fetched = await boundedSourceFetch(url, init, {
+      fetchImpl,
+      maximumAttempts: options.maximumAttempts || 3,
+      retryBaseDelayMs: options.retryBaseDelayMs ?? 250,
+      sleepImpl: options.sleepImpl,
+      timeoutMs: options.timeoutMs || 20_000,
+    });
+    diagnostic.request_count += 1;
+    diagnostic.retry_count += fetched.retry_count;
+    diagnostic.maximum_attempts_used = Math.max(
+      diagnostic.maximum_attempts_used,
+      fetched.attempts,
+    );
+    return fetched.response;
+  };
+  retryingFetch.diagnostic = diagnostic;
+  return retryingFetch;
+}
+
 async function browseIdentity(identity, config, fetchImpl = fetch, options = {}) {
-  const token = await getApplicationToken(config, fetchImpl);
+  const sourceFetch = createRetryingFetch(fetchImpl, options);
+  const token = await getApplicationToken(config, sourceFetch);
   const limit = Number(options.limit || 50);
   const maxDetails = Number(options.maxDetails || limit);
   if (!Number.isInteger(limit) || limit < 1 || limit > 50) throw new Error("Browse result limit must be between 1 and 50");
@@ -324,7 +349,7 @@ async function browseIdentity(identity, config, fetchImpl = fetch, options = {})
   const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`];
   if (config.campaign_id) context.push(`affiliateCampaignId=${encodeURIComponent(config.campaign_id)}`);
   headers["X-EBAY-C-ENDUSERCTX"] = context.join(",");
-  const response = await fetchImpl(`${BROWSE_URL}/item_summary/search?${query}`, { headers });
+  const response = await sourceFetch(`${BROWSE_URL}/item_summary/search?${query}`, { headers });
   if (!response.ok) throw new Error(`eBay Browse search failed with HTTP ${response.status} for product ${identity.product_id} variant ${identity.variant_id}`);
   const body = await response.json();
   const items = [];
@@ -332,11 +357,15 @@ async function browseIdentity(identity, config, fetchImpl = fetch, options = {})
     if (!clean(summary.itemHref)) { items.push(summary); continue; }
     const href = new URL(summary.itemHref);
     if (href.origin !== "https://api.ebay.com" || !href.pathname.startsWith("/buy/browse/v1/item/")) throw new Error("eBay returned an unsafe itemHref");
-    const detailResponse = await fetchImpl(href.toString(), { headers });
+    const detailResponse = await sourceFetch(href.toString(), { headers });
     if (!detailResponse.ok) throw new Error(`eBay Browse item detail failed with HTTP ${detailResponse.status}`);
     items.push({ ...summary, ...(await detailResponse.json()) });
   }
+  Object.defineProperty(items, "source_retry", {
+    enumerable: false,
+    value: { ...sourceFetch.diagnostic },
+  });
   return items;
 }
 
-module.exports = { DECISIONS, DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource };
+module.exports = { DECISIONS, DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, createRetryingFetch, evaluateIdentity, evaluateItem, getApplicationToken, resetTokenCache, sellerMatchesCurrentSource };

@@ -2,8 +2,8 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const { readWooCommerceStoreCatalogue } = require("./woocommerce-store-api-reader");
 
-function response(body, headers = {}) {
-  return { status: 200, headers: { get: (name) => ({ "content-type": "application/json", "x-wp-total": "2", "x-wp-totalpages": "1", ...headers })[name.toLowerCase()] || null }, text: async () => JSON.stringify(body) };
+function response(body, headers = {}, status = 200) {
+  return { status, headers: { get: (name) => ({ "content-type": "application/json", "x-wp-total": "2", "x-wp-totalpages": "1", ...headers })[name.toLowerCase()] || null }, text: async () => JSON.stringify(body) };
 }
 
 const simple = { id: 10, name: "Simple", slug: "simple", type: "simple", permalink: "https://gymhigh.co.uk/product/simple/", sku: "", prices: { currency_code: "GBP", currency_minor_unit: 2 }, categories: [], variations: [] };
@@ -14,6 +14,23 @@ test("reads a complete bounded WooCommerce Store API catalogue", async () => {
   assert.equal(result.declared_total, 2);
   assert.equal(result.products[1].variations[0].external_variant_id, "21");
   assert.deepEqual(result.products[1].categories, ["Protein & Powder"]);
+  assert.deepEqual(result.source_retry, { request_count: 1, retry_count: 0, maximum_attempts_used: 1 });
+});
+
+test("Store API retries one transient response with bounded evidence", async () => {
+  let calls = 0;
+  const result = await readWooCommerceStoreCatalogue({
+    storeUrl: "https://gymhigh.co.uk",
+    maximumAttempts: 2,
+    retryBaseDelayMs: 0,
+    fetchImpl: async () => {
+      calls += 1;
+      return calls === 1 ? response({}, {}, 503) : response([simple, variable]);
+    },
+  });
+
+  assert.equal(calls, 2);
+  assert.deepEqual(result.source_retry, { request_count: 1, retry_count: 1, maximum_attempts_used: 2 });
 });
 
 test("blocks an oversized Store API page", async () => {

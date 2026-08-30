@@ -51,7 +51,7 @@ async function buildCatalogueAudit(scope, dependencies = {}) {
     .map((row) => { const identity = { ...row }; delete identity.price_gbp; delete identity.in_stock; return identity; })
     .sort((left, right) => Number(right.external_product_id) - Number(left.external_product_id));
   const sourceIdentityFingerprint = crypto.createHash("sha256").update(canonicalJson(identityRows)).digest("hex");
-  return { schema_version: 1, result: "PASS", mode: "FULL_CATALOGUE_READ_ONLY_AUDIT", production_writes: 0, catalogue_creates: 0, captured_at: catalogue.captured_at, parent_product_count: catalogue.products.length, source_row_count: rows.length, source_identity_fingerprint: sourceIdentityFingerprint, classification_counts: counts, rows };
+  return { schema_version: 1, result: "PASS", mode: "FULL_CATALOGUE_READ_ONLY_AUDIT", production_writes: 0, catalogue_creates: 0, captured_at: catalogue.captured_at, source_retry: catalogue.source_retry || null, parent_product_count: catalogue.products.length, source_row_count: rows.length, source_identity_fingerprint: sourceIdentityFingerprint, classification_counts: counts, rows };
 }
 
 async function main(dependencies = {}) {

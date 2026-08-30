@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const { buildReadOnlyPreview, loadClient, readAll } = require("./gtin-promotion-dry-run");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { isValidGtin, normalizeGtin } = require("./lib/gtin-promotion");
-const { assertConfig, browseIdentity, buildReport, DEFAULT_POLICY, evaluateIdentity, getApplicationToken } = require("./lib/ebay-browse-pilot");
+const { assertConfig, browseIdentity, buildReport, createRetryingFetch, DEFAULT_POLICY, evaluateIdentity, getApplicationToken } = require("./lib/ebay-browse-pilot");
 
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUTPUT = path.join(ROOT, "tmp", "ebay-uk-coverage");
@@ -343,22 +343,30 @@ async function main(argv = process.argv.slice(2), dependencies = {}) {
     affiliate_campaign_configured: Boolean(config.campaign_id),
   };
   const fetchImpl = dependencies.fetch || fetch;
-  const directToken = options.refreshItemsReport ? await getApplicationToken(config, fetchImpl) : null;
+  const directSourceFetch = options.refreshItemsReport ? createRetryingFetch(fetchImpl) : null;
+  const directToken = options.refreshItemsReport ? await getApplicationToken(config, directSourceFetch) : null;
   const results = [];
   const rawRows = [];
+  const sourceRetry = { request_count: 0, retry_count: 0, maximum_attempts_used: 0 };
   for (const identity of input.rows) {
     const browseOptions = options.titleLeadsReport
       ? { limit: 5, maxDetails: 5, searchMode: "title" }
       : options.discovery ? { limit: 5, maxDetails: 5 } : undefined;
     const items = options.refreshItemsReport
-      ? await readExactItem(identity, config, fetchImpl, directToken)
+      ? await readExactItem(identity, config, directSourceFetch, directToken)
       : await browseIdentity(identity, config, fetchImpl, browseOptions);
-    rawRows.push({ product_id: identity.product_id, variant_id: identity.variant_id, gtin: identity.gtin, items });
+    if (!options.refreshItemsReport && items.source_retry) {
+      sourceRetry.request_count += items.source_retry.request_count;
+      sourceRetry.retry_count += items.source_retry.retry_count;
+      sourceRetry.maximum_attempts_used = Math.max(sourceRetry.maximum_attempts_used, items.source_retry.maximum_attempts_used);
+    }
+    rawRows.push({ product_id: identity.product_id, variant_id: identity.variant_id, gtin: identity.gtin, source_retry: items.source_retry || null, items });
     results.push(evaluateIdentity(identity, items, policy));
   }
+  if (directSourceFetch) Object.assign(sourceRetry, directSourceFetch.diagnostic);
   const operationType = options.refreshItemsReport ? "EBAY_BROWSE_API_ITEM_REFRESH" : options.titleLeadsReport ? "EBAY_BROWSE_API_TITLE_LEADS" : options.discovery ? "EBAY_BROWSE_API_DISCOVERY" : "EBAY_BROWSE_API_PILOT";
-  const report = buildReport(input, results, policy, { captured_at: dependencies.now?.() || new Date().toISOString(), affiliate_campaign_configured: Boolean(config.campaign_id), operation_type: operationType });
-  const raw = { schema_version: 1, operation_type: `${operationType}_RAW`, captured_at: report.captured_at, rows: rawRows, artifact_fingerprint: null };
+  const report = buildReport(input, results, policy, { captured_at: dependencies.now?.() || new Date().toISOString(), affiliate_campaign_configured: Boolean(config.campaign_id), operation_type: operationType, source_retry: sourceRetry });
+  const raw = { schema_version: 1, operation_type: `${operationType}_RAW`, captured_at: report.captured_at, source_retry: sourceRetry, rows: rawRows, artifact_fingerprint: null };
   raw.artifact_fingerprint = hash("EBAY-BROWSE-RAW:1", raw);
   const rawPath = writeImmutableJson(options.outputDir, `${prefix}-raw-${stamp}.json`, raw);
   const reportPath = writeImmutableJson(options.outputDir, `${prefix}-report-${stamp}.json`, report);

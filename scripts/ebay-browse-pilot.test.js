@@ -202,6 +202,35 @@ test("mock Browse request has exact read-only filters, follows safe detail URL a
   assert.ok(requests.slice(1).every((request) => !request.options.method || request.options.method === "GET"));
 });
 
+test("eBay source reads retry one transient response and expose bounded evidence", async () => {
+  resetTokenCache();
+  let calls = 0;
+  let searchCalls = 0;
+  const mockFetch = async (url) => {
+    calls += 1;
+    if (String(url).includes("oauth2/token")) {
+      return { ok: true, status: 200, json: async () => ({ access_token: "token", expires_in: 7200 }) };
+    }
+    searchCalls += 1;
+    if (searchCalls === 1) return { ok: false, status: 503 };
+    return { ok: true, status: 200, json: async () => ({ itemSummaries: [] }) };
+  };
+  const rows = await browseIdentity(
+    identity,
+    { client_id: "id", client_secret: "secret", marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: null },
+    mockFetch,
+    { maximumAttempts: 2, retryBaseDelayMs: 0 }
+  );
+
+  assert.equal(calls, 3);
+  assert.deepEqual(rows.source_retry, {
+    request_count: 2,
+    retry_count: 1,
+    maximum_attempts_used: 2,
+  });
+  resetTokenCache();
+});
+
 test("scaled discovery caps exact-GTIN result and detail reads", async () => {
   resetTokenCache();
   const requests = [];

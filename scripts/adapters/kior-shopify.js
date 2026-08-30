@@ -5,6 +5,7 @@ const { spawnSync } = require("child_process");
 const { parse } = require("csv-parse/sync");
 const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
+const { boundedSourceFetch } = require("../lib/bounded-source-fetch");
 
 const ROOT = path.resolve(__dirname, "../..");
 const CONFIG_PATH = path.join(ROOT, "config/retailers/kior-shopify.json");
@@ -68,39 +69,40 @@ function validateConfig(config) {
   }
 }
 
-async function fetchJson(url, { timeoutMs, maxBytes, fetchImpl = fetch }) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetchImpl(url, { method: "GET", signal: controller.signal, headers: { accept: "application/json" } });
-    if (response.status !== 200) fail(`Shopify fetch returned HTTP ${response.status}`);
-    const contentLength = Number(response.headers?.get?.("content-length"));
-    if (Number.isFinite(contentLength) && contentLength > maxBytes) fail("Shopify response exceeds maximum size");
-    let body;
-    if (response.body?.getReader) {
-      const reader = response.body.getReader();
-      const chunks = [];
-      let total = 0;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        total += value.byteLength;
-        if (total > maxBytes) { await reader.cancel(); fail("Shopify response exceeds maximum size"); }
-        chunks.push(Buffer.from(value));
-      }
-      body = Buffer.concat(chunks).toString("utf8");
-    } else {
-      body = await response.text();
-      if (Buffer.byteLength(body) > maxBytes) fail("Shopify response exceeds maximum size");
+async function fetchJson(url, { timeoutMs, maxBytes, fetchImpl = fetch, maximumAttempts = 3, retryBaseDelayMs = 250, sleepImpl }) {
+  const fetched = await boundedSourceFetch(url, { method: "GET", headers: { accept: "application/json" } }, {
+    fetchImpl, maximumAttempts, retryBaseDelayMs, sleepImpl, timeoutMs,
+  });
+  const response = fetched.response;
+  if (response.status !== 200) fail(`Shopify fetch returned HTTP ${response.status}`);
+  const contentLength = Number(response.headers?.get?.("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > maxBytes) fail("Shopify response exceeds maximum size");
+  let body;
+  if (response.body?.getReader) {
+    const reader = response.body.getReader();
+    const chunks = [];
+    let total = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) { await reader.cancel(); fail("Shopify response exceeds maximum size"); }
+      chunks.push(Buffer.from(value));
     }
-    let json;
-    try { json = JSON.parse(body); } catch { fail("Shopify response is not valid JSON"); }
-    if (!Array.isArray(json.products)) fail("Shopify response is missing products array");
-    if (!json.products.length) fail("Shopify products array is empty");
-    return json;
-  } finally {
-    clearTimeout(timer);
+    body = Buffer.concat(chunks).toString("utf8");
+  } else {
+    body = await response.text();
+    if (Buffer.byteLength(body) > maxBytes) fail("Shopify response exceeds maximum size");
   }
+  let json;
+  try { json = JSON.parse(body); } catch { fail("Shopify response is not valid JSON"); }
+  if (!Array.isArray(json.products)) fail("Shopify response is missing products array");
+  if (!json.products.length) fail("Shopify products array is empty");
+  Object.defineProperty(json, "source_retry", {
+    enumerable: false,
+    value: { attempts: fetched.attempts, retry_count: fetched.retry_count },
+  });
+  return json;
 }
 
 function indexShopifyProducts(products) {
@@ -327,6 +329,7 @@ async function main(deps = {}) {
   const report = {
     run_timestamp: new Date().toISOString(), runId: importer.runId, source_url: config.source_url,
     configured_products: config.products.length, mapped_products: built.rows.length,
+    source_retry: shopify.source_retry,
     unmapped_products: built.unmappedProducts, canonical_rows: built.rows.length,
     csv_enrichment_used: csvEnrichmentUsed,
     ...(csvEnrichmentUsed ? { csv_enrichment_path: exportPath } : {}),

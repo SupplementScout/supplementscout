@@ -1,3 +1,5 @@
+const { boundedSourceFetch } = require("./bounded-source-fetch");
+
 class WooCommerceStoreApiError extends Error {
   constructor(code, message, detail = {}) {
     super(message);
@@ -44,25 +46,23 @@ async function boundedJson(response, maximumBytes) {
   try { return JSON.parse(text); } catch { fail("SOURCE_SCHEMA_MISMATCH", "Store API response is not valid JSON"); }
 }
 
-async function readWooCommerceStoreCatalogue({ storeUrl, fetchImpl = globalThis.fetch, maximumPages = 5, maximumProducts = 100, maximumBytesPerPage = 2_000_000, timeoutMs = 20_000 }) {
+async function readWooCommerceStoreCatalogue({ storeUrl, fetchImpl = globalThis.fetch, maximumPages = 5, maximumProducts = 100, maximumBytesPerPage = 2_000_000, timeoutMs = 20_000, maximumAttempts = 3, retryBaseDelayMs = 250, sleepImpl }) {
   const origin = new URL(storeUrl);
   if (origin.protocol !== "https:" || origin.pathname !== "/" || origin.search || origin.hash || origin.username || origin.password) fail("SOURCE_CONFIGURATION", "storeUrl must be a credential-free HTTPS origin");
   const products = [];
   let expectedTotal = null;
   let totalPages = 1;
+  const sourceRetry = { request_count: 0, retry_count: 0, maximum_attempts_used: 0 };
   for (let page = 1; page <= totalPages; page += 1) {
     if (page > maximumPages) fail("SOURCE_TOO_LARGE", "Store API catalogue exceeds the page limit");
     const url = new URL("/wp-json/wc/store/v1/products", origin);
     url.searchParams.set("per_page", "100");
     url.searchParams.set("page", String(page));
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    let response;
-    try {
-      response = await fetchImpl(url, { headers: { accept: "application/json", "user-agent": "SupplementScout-GYM-HIGH-Catalogue/1.0" }, redirect: "error", signal: controller.signal });
-    } finally {
-      clearTimeout(timer);
-    }
+    const fetched = await boundedSourceFetch(url, { headers: { accept: "application/json", "user-agent": "SupplementScout-GYM-HIGH-Catalogue/1.0" }, redirect: "error" }, { fetchImpl, maximumAttempts, retryBaseDelayMs, sleepImpl, timeoutMs });
+    const response = fetched.response;
+    sourceRetry.request_count += 1;
+    sourceRetry.retry_count += fetched.retry_count;
+    sourceRetry.maximum_attempts_used = Math.max(sourceRetry.maximum_attempts_used, fetched.attempts);
     if (response.status !== 200 || !String(response.headers.get("content-type") || "").toLowerCase().startsWith("application/json")) fail("SOURCE_HTTP_ERROR", `Store API page ${page} was unavailable`);
     const declaredTotal = Number(response.headers.get("x-wp-total"));
     const declaredPages = Number(response.headers.get("x-wp-totalpages"));
@@ -75,7 +75,7 @@ async function readWooCommerceStoreCatalogue({ storeUrl, fetchImpl = globalThis.
     if (products.length > maximumProducts) fail("SOURCE_TOO_LARGE", "Store API catalogue exceeds the product limit");
   }
   if (products.length !== expectedTotal || new Set(products.map((row) => row.external_product_id)).size !== products.length) fail("SOURCE_COVERAGE_MISMATCH", "Store API catalogue count or identity is inconsistent");
-  return { captured_at: new Date().toISOString(), declared_total: expectedTotal, products };
+  return { captured_at: new Date().toISOString(), declared_total: expectedTotal, products, source_retry: sourceRetry };
 }
 
 module.exports = { WooCommerceStoreApiError, boundedJson, productRow, readWooCommerceStoreCatalogue };
