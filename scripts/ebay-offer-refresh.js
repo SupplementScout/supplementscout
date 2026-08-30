@@ -253,6 +253,9 @@ const LIVE_IDENTITY_OVERRIDES = new Map([
   ["v1|256904088070|557459693860", ["2940", "2754"]], ["v1|235526727416|0", ["2941", "2755"]],
   ["v1|267647291151|0", ["2942", "2756"]], ["v1|147032518200|445550089805", ["2943", "2757"]],
 ]);
+const OWNER_REVIEWED_CANONICAL_VARIANT_OVERRIDES = new Map([
+  ["2581", Object.freeze({ product_variant_id: "2920", variant_name: "405g", size_value: "405", size_unit: "g", pack_count: "1" })],
+]);
 
 function fail(message) { throw new Error(message); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
@@ -303,7 +306,9 @@ function loadScopes() {
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
   return Object.freeze(rows.map((row, index) => {
     const live = LIVE_IDENTITY_OVERRIDES.get(row.external_variant_id) || [String(2724 + index), String(2539 + index)];
-    return Object.freeze({ ...row, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: live[0], offer_id: live[1] });
+    const offerId = live[1];
+    const reviewedVariant = OWNER_REVIEWED_CANONICAL_VARIANT_OVERRIDES.get(offerId) || {};
+    return Object.freeze({ ...row, ...reviewedVariant, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: live[0], offer_id: offerId });
   }));
 }
 

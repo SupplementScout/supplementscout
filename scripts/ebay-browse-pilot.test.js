@@ -506,6 +506,16 @@ test("Batch I refresh permits only the exact reviewed Time 4 continuity exceptio
   assert.equal(classifyContinuity(whey, evaluation(whey, ["SIZE_MISMATCH"], [], "5060420310000")).eligible, false);
 });
 
+test("owner-reviewed eBay offer 2581 uses the existing exact 405g canonical variant", () => {
+  const scope = REFRESH_SCOPES.find((row) => row.offer_id === "2581");
+  assert.equal(scope.retailer_product_id, "2766");
+  assert.equal(scope.product_id, "831");
+  assert.equal(scope.product_variant_id, "2920");
+  assert.equal(scope.variant_name, "405g");
+  assert.equal(scope.size_value, "405");
+  assert.equal(scope.size_unit, "g");
+});
+
 test("eBay refresh reads the approved item directly and remains GET-only", async () => {
   resetTokenCache();
   const requests = [];
