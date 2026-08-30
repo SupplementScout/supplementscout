@@ -1,5 +1,19 @@
 # Automation Reliability — Owner Decision Pack
 
+## Final eBay freshness apply approval boundary — 30 August 2026, 18:05 UTC
+
+The fresh, read-only run `33326501229` on commit `88ec0a3311ac2197fd43c36a976e14ca81403482` produced the exact permitted partition: 237 approved mappings, 197 executable `VERIFY_NO_CHANGE`, 40 isolated review rows and zero blocked rows. Artifact `9736439158`; source fingerprint `f2710f56b68bf24e6156629d2d8c4bbea9685e993a2c4f09da2033a612ea9f81`; plan fingerprint `5d3f77c92bfd8c1d89ef5b15d1878f7c4aaf2a14341875caf1f965b8e9f59238`. The 40 review rows contain 7 price changes, 32 identity conflicts and source-failure offer `2686`; none is executable.
+
+The production dispatch did not occur because the execution approval boundary required a new direct confirmation for this exact apply. No catalogue row, review status or execution request was changed. Cron remains disabled and `EBAY_REFRESH_ENABLED` remains absent.
+
+Exact approval line required by the execution boundary:
+
+```text
+Zatwierdzam jeden produkcyjny eBay apply z runu dry-run 33326501229, artefaktu 9736439158 i commita 88ec0a3311ac2197fd43c36a976e14ca81403482: dokładnie 197 ofert VERIFY_NO_CHANGE z source fingerprint f2710f56b68bf24e6156629d2d8c4bbea9685e993a2c4f09da2033a612ea9f81 i plan fingerprint 5d3f77c92bfd8c1d89ef5b15d1878f7c4aaf2a14341875caf1f965b8e9f59238; nie zatwierdzam 40 review rows ani oferty 2686.
+```
+
+This line authorizes only the existing protected workflow, per-row approval/apply RPC, DB postflight and idempotency. It does not authorize commercial changes, identity changes, direct SQL, new entities or replay of historical runs.
+
 ## Review execution phase result — 30 August 2026, 15:33 UTC
 
 The queue now separates owner decision from execution and records decision actor/time plus plan/execution evidence. `Approve decision` changes only Review Queue state. `Execute approved` must perform fresh source and DB validation and delegate to a registered existing protected retailer adapter; because no such server adapter is registered yet, the action currently fails closed and performs no catalogue write. This is a technical blocker, not a request for broader owner authority.
