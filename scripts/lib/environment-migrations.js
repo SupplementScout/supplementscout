@@ -90,6 +90,7 @@ const EXCLUSIONS = Object.freeze({
     "20260830092000_promote_owner_approved_kior_11_identities",
     "20260830100000_add_kior_offer_sync_registration",
     "20260830102000_repair_kior_registration_scope_hash",
+    "20260830103000_rebind_owner_approved_ebay_offer_2582",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

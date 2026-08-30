@@ -7,7 +7,7 @@ const { shippingCostForPrice } = require("./gym-high-shipping-policy");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
-const APPROVAL_FINGERPRINT = "2ef000791f59a73cf0034babe6cb1486b9bb3adc142b23003281025a688386e6";
+const APPROVAL_FINGERPRINT = "e81cf7cc270103733590f3b6195530f0ae8c6441e3ed674c79c9a7bf352b855b";
 const APPROVAL = path.join(ROOT, "config", "retailers", "gym-high-reviewed-full-catalogue-2026-08-01.json");
 
 function fail(message) { throw new Error(message); }

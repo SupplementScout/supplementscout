@@ -151,9 +151,11 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the applied KIOR registration hash repair", () => {
+test("production records the applied KIOR repair and selects only the approved eBay rebind", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map((row) => row.filename), [
+    "20260830103000_rebind_owner_approved_ebay_offer_2582.sql",
+  ]);
   assert.equal(contract.ledgerCount, 164);
   assert.equal(
     contract.ledgerFingerprint,
@@ -234,7 +236,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the KIOR hash repair", () => {
+test("production binds its exact ledger and selects the owner-approved eBay rebind", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -262,12 +264,12 @@ test("production binds its exact ledger after the KIOR hash repair", () => {
   });
   assert.equal(result.ledger_count, 164);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 164);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.deepEqual(result.pending, ["20260830103000_rebind_owner_approved_ebay_offer_2582"]);
+  assert.equal(result.selected_files.length, 165);
+  assert.deepEqual(result.pending_files, ["20260830103000_rebind_owner_approved_ebay_offer_2582.sql"]);
+  assert.equal(result.pending_file, "20260830103000_rebind_owner_approved_ebay_offer_2582.sql");
+  assert.equal(result.pending_sha256, "18382d9aa14a5ba7e8f39497b9364bd2a850e2126b5607c33e20bc8894cf5397");
+  assert.equal(Object.keys(result.pending_sha256s).length, 1);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -371,6 +373,17 @@ test("Group A identity migrations are production-bound and cannot change commerc
   assert.match(sql[1], /id=2766[\s\S]*product_variant_id=2920/);
   assert.match(sql[1], /id=2581[\s\S]*product_variant_id=2920/);
   assert.match(sql[2], /v_rows<>11/);
+});
+
+test("owner-approved eBay 2582 rebind is exact, row-preserving, and identity-only", () => {
+  const file = path.join(SOURCE, "20260830103000_rebind_owner_approved_ebay_offer_2582.sql");
+  const sql = fs.readFileSync(file, "utf8");
+  for (const token of ["id=2767", "id=2582", "product_id=832", "product_variant_id=1179", "product_variant_id=2910", "315370516891", "v1|315370516891|0", "5060420313208", "30 Servings", "30-servings"]) assert.match(sql, new RegExp(token.replace(/[|]/g, "\\|")));
+  assert.match(sql, /current_user <> 'postgres'/);
+  assert.match(sql, /supplementscout-production:aftboxmrdgyhizicfsfu/);
+  assert.doesNotMatch(sql, /(?:insert into|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.doesNotMatch(sql, /update\s+public\.(?:products|product_variants|price_history)/i);
+  assert.doesNotMatch(sql, /set\s+(?:price|shipping_cost|total_price|in_stock|last_checked_at|url|product_id)\s*=/i);
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {
