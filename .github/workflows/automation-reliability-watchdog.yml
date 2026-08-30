@@ -1,0 +1,62 @@
+name: Automation Reliability Watchdog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "11 */6 * * *"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: automation-reliability-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+
+    steps:
+      - name: Validate read-only context
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          case "$GITHUB_EVENT_NAME" in schedule|workflow_dispatch) ;; *) exit 1 ;; esac
+
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Test watchdog contract
+        run: node --test scripts/catalog-health.test.js
+
+      - name: Check retailer automation reliability read-only
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AUTOMATION_WATCHDOG_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/automation-reliability-watchdog.js --output=tmp/automation-reliability/watchdog.json
+
+      - name: Publish watchdog summary
+        if: always()
+        run: |
+          if [ -f tmp/automation-reliability/watchdog.json ]; then
+            node -e 'const r=require("./tmp/automation-reliability/watchdog.json"); console.log(`## Automation reliability watchdog\n\n- Result: ${r.result}\n- Retailers checked: ${r.retailer_count}\n- Failed retailers: ${r.failed_retailer_count}\n- Database writes: ${r.database_writes}`); for(const x of r.retailers) console.log(`- ${x.retailer}: ${x.result}${x.failures.length ? ` — ${x.failures.join(", ")}` : ""}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Automation reliability watchdog" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Report unavailable; watchdog failed before evidence capture." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload watchdog evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: automation-reliability-watchdog-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: tmp/automation-reliability/watchdog.json

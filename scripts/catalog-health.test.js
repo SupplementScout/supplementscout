@@ -55,6 +55,12 @@ const {
   getCatalogHealthLoadErrorMessage,
   normalizeCatalogHealthFilters,
 } = require(path.join(process.cwd(), "app", "admin", "lib", "catalogHealth.ts"));
+const {
+  evaluateRetailer,
+  findContractEvidence,
+  loadConfig: loadWatchdogConfig,
+  parseArgs: parseWatchdogArgs,
+} = require("./automation-reliability-watchdog");
 
 const now = new Date("2026-07-06T12:00:00.000Z");
 
@@ -408,4 +414,81 @@ test("catalog health page authenticates before loading report", () => {
   assert(loadIndex > authIndex);
   assert.equal(pageSource.includes("SUPABASE_SERVICE_ROLE_KEY"), false);
   assert.equal(pageSource.includes("supabaseAdmin"), false);
+});
+
+test("automation watchdog covers all retailers on a read-only six-hour schedule", () => {
+  const config = loadWatchdogConfig();
+  const workflow = fs.readFileSync(
+    path.join(process.cwd(), ".github/workflows/automation-reliability-watchdog.yml"),
+    "utf8"
+  );
+  assert.equal(config.retailers.length, 11);
+  assert.equal(config.maximum_success_age_hours, 48);
+  assert.match(workflow, /cron: "11 \*\/6 \* \* \*"/);
+  assert.match(workflow, /actions: read/);
+  assert.match(workflow, /JONS_SYNC_VALIDATOR_DATABASE_URL/);
+  assert.doesNotMatch(
+    workflow,
+    /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/
+  );
+  assert.throws(
+    () => parseWatchdogArgs(["--output=docs/watchdog.json"]),
+    /inside repository tmp/
+  );
+});
+
+test("automation watchdog requires fresh capture, apply, DB postflight and exact execution counts", () => {
+  const completed = "2026-08-30T03:00:00.000Z";
+  const input = {
+    profile: { id: 3, name: "Whey Okay", workflow: "whey.yml" },
+    stages: {
+      capture: { completed_at: completed },
+      apply: { completed_at: completed },
+      db_postflight: { completed_at: completed },
+    },
+    contract: {
+      approved_mapping_count: 586,
+      executable_plan_count: 576,
+      executed_plan_count: 576,
+      review_row_count: 10,
+      blocked_row_count: 0,
+    },
+    database: { offer_count: 586, offers_older_than_48h: 0 },
+  };
+  const now = new Date("2026-08-30T04:00:00.000Z");
+  assert.equal(evaluateRetailer(input, now, 48).result, "PASS");
+  const failed = evaluateRetailer(
+    {
+      ...input,
+      stages: { ...input.stages, db_postflight: null },
+      contract: { ...input.contract, executed_plan_count: 575 },
+      database: { ...input.database, offers_older_than_48h: 1 },
+    },
+    now,
+    48
+  );
+  assert.equal(failed.result, "FAIL");
+  assert.deepEqual(failed.failures, [
+    "DB_POSTFLIGHT_SUCCESS_MISSING",
+    "EXECUTED_PLAN_COUNT_MISMATCH",
+    "DATABASE_OFFERS_OLDER_THAN_48H",
+  ]);
+});
+
+test("automation watchdog finds only complete per-row execution evidence", () => {
+  assert.deepEqual(
+    findContractEvidence({ nested: { approved_mapping_count: 6, executable_plan_count: 4, executed_plan_count: 4, blocked_row_count: 0, review_row_count: 2 } }),
+    {
+      approved_mapping_count: 6,
+      executable_plan_count: 4,
+      executed_plan_count: 4,
+      review_row_count: 2,
+      blocked_row_count: 0,
+      result: null,
+    }
+  );
+  assert.equal(
+    findContractEvidence({ executable_plan_count: 4, executed_plan_count: 4, blocked_row_count: 0, review_row_count: 0 }),
+    null
+  );
 });

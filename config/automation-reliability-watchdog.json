@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "maximum_success_age_hours": 48,
+  "retailers": [
+    {
+      "id": 1,
+      "name": "GYM HIGH",
+      "workflow": "gym-high-full-catalogue-apply.yml",
+      "capture_step": "Capture fresh approved source and verify canonical variants",
+      "apply_step": "Validate and optionally apply exact catalogue",
+      "db_postflight_step": null
+    },
+    {
+      "id": 3,
+      "name": "Whey Okay",
+      "workflow": "whey-okay-offer-refresh.yml",
+      "capture_step": "Dry-run all approved Whey Okay offers",
+      "apply_step": "Apply all approved Whey Okay offer refreshes",
+      "db_postflight_step": "Verify Whey Okay DB postflight read-only"
+    },
+    {
+      "id": 4,
+      "name": "Discount Supplements",
+      "workflow": "creatine-offer-refresh.yml",
+      "capture_step": "Dry-run authorised Discount offers",
+      "apply_step": "Apply safe authorised Discount refresh",
+      "db_postflight_step": null
+    },
+    {
+      "id": 5,
+      "name": "Dolphin Fitness",
+      "workflow": "dolphin-vegan-protein-offer-refresh.yml",
+      "capture_step": "Dry-run the one approved existing Dolphin offer",
+      "apply_step": "Apply the one approved existing Dolphin offer refresh",
+      "db_postflight_step": null
+    },
+    {
+      "id": 7,
+      "name": "Simply Supplements",
+      "workflow": "simply-supplements-offer-refresh.yml",
+      "capture_step": "Dry-run all approved Simply Supplements offers",
+      "apply_step": "Apply approved Simply Supplements offer refresh",
+      "db_postflight_step": "Verify Simply Supplements DB postflight read-only"
+    },
+    {
+      "id": 8,
+      "name": "KIOR Health",
+      "workflow": null,
+      "capture_step": null,
+      "apply_step": null,
+      "db_postflight_step": null
+    },
+    {
+      "id": 9,
+      "name": "Fit House",
+      "workflow": "fit-house-offer-refresh.yml",
+      "capture_step": "Dry-run all approved Fit House offers",
+      "apply_step": "Apply all approved Fit House offer refresh",
+      "db_postflight_step": null
+    },
+    {
+      "id": 10,
+      "name": "Jon's Supplements",
+      "workflow": "jons-offer-refresh.yml",
+      "capture_step": "Dry-run all approved Jon's offers",
+      "apply_step": "Apply all approved Jon's offer refresh",
+      "db_postflight_step": null
+    },
+    {
+      "id": 11,
+      "name": "6 Pack Supplements",
+      "workflow": "six-pack-offer-refresh.yml",
+      "capture_step": "Fresh live-source dry-run",
+      "apply_step": "Apply exact approved manifest",
+      "db_postflight_step": null
+    },
+    {
+      "id": 12,
+      "name": "eBay UK",
+      "workflow": "ebay-offer-refresh.yml",
+      "capture_step": "Fresh read-only preflight",
+      "apply_step": "Apply exact approved existing-offer refresh",
+      "db_postflight_step": null
+    },
+    {
+      "id": 13,
+      "name": "Predators Gear",
+      "workflow": null,
+      "capture_step": null,
+      "apply_step": null,
+      "db_postflight_step": null
+    }
+  ]
+}
