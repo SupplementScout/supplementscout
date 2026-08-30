@@ -697,6 +697,7 @@ test("automation review publisher is exact, idempotent and targets only the revi
   assert.match(source, /OWNER_APPROVED_REVIEW_QUEUE_EXACT_373/);
   assert.match(source, /retailer_id,offer_id,source_row_fingerprint/);
   assert.match(source, /already_present/);
+  assert.match(source, /Review seed retailer binding mismatch/);
   assert.match(source, /catalogue_writes: 0/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
 });

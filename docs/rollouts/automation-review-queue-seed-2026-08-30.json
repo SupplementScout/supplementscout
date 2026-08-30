@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-30T14:24:09.270Z",
+  "generated_at": "2026-08-30T14:30:22.841Z",
   "source_owner_pack_sha256": "eba6cb7bbcafd72f1cd3cffec22d6b3dcae3f07fd1211590419ee2a6fb124791",
   "source_ebay_report_sha256": "009f6f237085f47b7e5a760a361dcdad81fe5fe8368933b229e7207d2d544286",
   "row_count": 373,
@@ -30272,7 +30272,7 @@
     },
     {
       "snapshot_id": "automation-review-2026-08-30",
-      "review_item_id": "2:8:0161af1e398864f1ee69034e28fc27f57005258ff2fc5aa90d79b5d05c6d34b5",
+      "review_item_id": "5:8:0161af1e398864f1ee69034e28fc27f57005258ff2fc5aa90d79b5d05c6d34b5",
       "source_record_id": "8",
       "retailer": "Dolphin Fitness",
       "product_title": "Ghost Legend V4 Pre-Workout 660g",
@@ -30290,7 +30290,7 @@
       "decision": "PENDING",
       "source_row_fingerprint": "0161af1e398864f1ee69034e28fc27f57005258ff2fc5aa90d79b5d05c6d34b5",
       "artifact_fingerprint": "eba6cb7bbcafd72f1cd3cffec22d6b3dcae3f07fd1211590419ee2a6fb124791",
-      "retailer_id": 2,
+      "retailer_id": 5,
       "retailer_product_id": 7,
       "offer_id": "8",
       "current_product_id": 6,
@@ -30923,7 +30923,7 @@
     },
     {
       "snapshot_id": "automation-review-2026-08-30",
-      "review_item_id": "2:9:94ac4cba5b8b02d6257b503153c71df167deacd98c355284b4e7c29b3f7402d7",
+      "review_item_id": "5:9:94ac4cba5b8b02d6257b503153c71df167deacd98c355284b4e7c29b3f7402d7",
       "source_record_id": "9",
       "retailer": "Dolphin Fitness",
       "product_title": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
@@ -30941,7 +30941,7 @@
       "decision": "PENDING",
       "source_row_fingerprint": "94ac4cba5b8b02d6257b503153c71df167deacd98c355284b4e7c29b3f7402d7",
       "artifact_fingerprint": "eba6cb7bbcafd72f1cd3cffec22d6b3dcae3f07fd1211590419ee2a6fb124791",
-      "retailer_id": 2,
+      "retailer_id": 5,
       "retailer_product_id": 9,
       "offer_id": "9",
       "current_product_id": 7,

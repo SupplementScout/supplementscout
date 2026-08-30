@@ -29,7 +29,7 @@ function build(ownerPackFile, ebayReportFile, ebayArtifactDir) {
   const rows = [];
   for (const row of pack.scopes.whey_legacy.rows) rows.push(baseRow({ retailer: "Whey Okay", retailerId: 3, capture, artifactFingerprint: packFingerprint, source: row, classification: row.classification, operation: row.operation_type || "MANUAL_REVIEW" }));
   for (const row of pack.scopes.discount_stale.rows.filter((item) => item.classification !== "NO_CHANGE")) rows.push(baseRow({ retailer: "Discount Supplements", retailerId: 4, capture, artifactFingerprint: packFingerprint, source: row, classification: row.classification, operation: row.classification }));
-  for (const row of pack.scopes.dolphin_stale.rows) rows.push(baseRow({ retailer: "Dolphin Fitness", retailerId: 2, capture, artifactFingerprint: packFingerprint, source: row, classification: "IDENTITY_CONFLICT", operation: "MANUAL_REVIEW" }));
+  for (const row of pack.scopes.dolphin_stale.rows) rows.push(baseRow({ retailer: "Dolphin Fitness", retailerId: 5, capture, artifactFingerprint: packFingerprint, source: row, classification: "IDENTITY_CONFLICT", operation: "MANUAL_REVIEW" }));
   const scopes = new Map(EBAY_SCOPES.map((scope) => [String(scope.offer_id), scope]));
   for (const review of ebay.review_rows) {
     const scope = scopes.get(String(review.offer_id)); if (!scope) fail(`Unknown eBay offer ${review.offer_id}`);
