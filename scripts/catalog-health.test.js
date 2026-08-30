@@ -577,7 +577,7 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
 
 test("shared DB postflight covers eight exact retailer scopes", () => {
   const expected = {
-    "discount-supplements": [14, 14],
+    "discount-supplements": [109, 109],
     "dolphin-fitness": [1, 1],
     "fit-house": [286, null],
     "jons-supplements": [506, null],

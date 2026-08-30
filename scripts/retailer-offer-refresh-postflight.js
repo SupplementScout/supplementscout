@@ -14,7 +14,7 @@ const PROFILES = Object.freeze({
     retailerName: "Discount Supplements",
     credential: "DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL",
     manifestPath: "config/retailers/discount-supplements-approved-offer-manifest.json",
-    approvedMappingCount: 14,
+    approvedMappingCount: 109,
   },
   "dolphin-fitness": {
     retailerId: "5",
@@ -144,6 +144,8 @@ function verifyPostflight(baseline, after, execution) {
   const beforeByOffer = new Map(baseline.snapshot.rows.map((row) => [row.offer_id, row]));
   const afterByOffer = new Map(after.rows.map((row) => [row.offer_id, row]));
   const reviewIds = new Set((execution.review_rows || []).map((row) => String(row.offer_id)));
+  const executionIds = new Set((execution.execution_offer_ids || baseline.snapshot.rows.filter((row) => !reviewIds.has(row.offer_id)).map((row) => row.offer_id)).map(String));
+  invariant(executionIds.size === execution.executed_plan_count, "Execution offer scope differs from executed plan count");
   invariant(reviewIds.size === execution.review_row_count, "Review row count drift");
   const identityFields = ["mapping_id","retailer_id","mapping_product_id","mapping_variant_id","external_product_id","external_variant_id","external_sku","external_gtin","external_options","offer_id","offer_product_id","offer_variant_id"];
   let priceChanges = 0, stockChanges = 0, shippingChanges = 0, totalChanges = 0, offerUrlChanges = 0, mappingUrlChanges = 0, freshnessChanges = 0;
@@ -157,12 +159,13 @@ function verifyPostflight(baseline, after, execution) {
     if (current.total_price !== before.total_price) totalChanges += 1;
     if (current.url !== before.url) offerUrlChanges += 1;
     if (current.external_url !== before.external_url) mappingUrlChanges += 1;
-    if (reviewIds.has(offerId)) {
-      invariant(Date.parse(current.last_checked_at) === Date.parse(before.last_checked_at), `Review offer ${offerId} changed`);
-      invariant(hash({ ...current, last_checked_at: null }) === hash({ ...before, last_checked_at: null }), `Review offer ${offerId} changed`);
-    } else {
+    if (executionIds.has(offerId)) {
       invariant(Date.parse(current.last_checked_at) > Date.parse(before.last_checked_at), `Executable offer ${offerId} did not advance freshness`);
       freshnessChanges += 1;
+    } else {
+      const label = reviewIds.has(offerId) ? "Review" : "Non-executed";
+      invariant(Date.parse(current.last_checked_at) === Date.parse(before.last_checked_at), `${label} offer ${offerId} changed`);
+      invariant(hash({ ...current, last_checked_at: null }) === hash({ ...before, last_checked_at: null }), `${label} offer ${offerId} changed`);
     }
   }
   const logical = execution.expected_deltas?.logical_field_deltas || {};

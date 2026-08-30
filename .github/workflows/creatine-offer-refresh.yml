@@ -19,6 +19,14 @@ on:
         options:
           - workflow_dispatch
           - schedule
+      scope_segment:
+        description: "Approved immutable segment; scheduled runs always use the complete 109-offer scope"
+        required: true
+        default: combined_109
+        type: choice
+        options:
+          - combined_109
+          - group_a_freshness_95
   schedule:
     - cron: "47 6 * * *"
 
@@ -75,7 +83,11 @@ jobs:
           DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
+          DISCOUNT_SUPPLEMENTS_EXECUTION_SCOPE_SEGMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.scope_segment || '' }}
+        run: |
+          SCOPE_ARG=""
+          if [ "$DISCOUNT_SUPPLEMENTS_EXECUTION_SCOPE_SEGMENT" = "group_a_freshness_95" ]; then SCOPE_ARG="--scope-segment=group_a_freshness_95"; fi
+          node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true $SCOPE_ARG
 
       - name: Capture Discount Supplements DB baseline read-only
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -91,7 +103,11 @@ jobs:
           DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/creatine-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+          DISCOUNT_SUPPLEMENTS_EXECUTION_SCOPE_SEGMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.scope_segment || '' }}
+        run: |
+          SCOPE_ARG=""
+          if [ "$DISCOUNT_SUPPLEMENTS_EXECUTION_SCOPE_SEGMENT" = "group_a_freshness_95" ]; then SCOPE_ARG="--scope-segment=group_a_freshness_95"; fi
+          node scripts/creatine-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true $SCOPE_ARG
 
       - name: Verify Discount Supplements DB postflight read-only
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -107,7 +123,11 @@ jobs:
           DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
+          DISCOUNT_SUPPLEMENTS_EXECUTION_SCOPE_SEGMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.scope_segment || '' }}
+        run: |
+          SCOPE_ARG=""
+          if [ "$DISCOUNT_SUPPLEMENTS_EXECUTION_SCOPE_SEGMENT" = "group_a_freshness_95" ]; then SCOPE_ARG="--scope-segment=group_a_freshness_95"; fi
+          node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true $SCOPE_ARG
 
       - name: Summarize Discount refresh
         if: always()

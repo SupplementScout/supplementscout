@@ -6,13 +6,13 @@
   "store_url": "https://www.discount-supplements.co.uk",
   "source_platform": "SHOPIFY",
   "manifest_path": "config/retailers/discount-supplements-approved-offer-manifest.json",
-  "manifest_sha256": "ce13e2a72d12024aac98005d5d40288bd5f109b6f2a63b4f30c9016d46e017a7",
-  "approved_mapping_count": 14,
+  "manifest_sha256": "308ab2f082abaf1c541210917b168b2ce6bc69ffd78026bf8d18c9801f898746",
+  "approved_mapping_count": 109,
   "registration_rpc": "register_discount_supplements_offer_sync_control_plan",
   "environment_prefix": "DISCOUNT_SUPPLEMENTS_REFRESH",
   "phase_prefix": "DISCOUNT_SUPPLEMENTS_REFRESH",
   "output_directory": "discount-supplements-offer-refresh",
-  "guard_scope_name": "DISCOUNT_SUPPLEMENTS_APPROVED_14",
+  "guard_scope_name": "DISCOUNT_SUPPLEMENTS_APPROVED_109",
   "source_baseline": {
     "product_count": 341,
     "variant_count": 993,
@@ -28,7 +28,7 @@
     "user_agent": "SupplementScout-Discount-Supplements-Refresh/1.0"
   },
   "guardrails": {
-    "required_matched_offers": 14,
+    "required_matched_offers": 109,
     "source_freshness_hours": 24,
     "future_clock_skew_minutes": 5,
     "full_snapshot_minimum_source_count_ratio": 0.9,
