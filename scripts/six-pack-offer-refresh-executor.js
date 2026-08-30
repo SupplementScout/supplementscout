@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
+const { openPostgresClient, runRoleTransaction } = require("./lib/retailer-offer-sync/production-role-session");
 const { loadDryRunArtifact } = require("./import-products");
 const { loadReviewedMassOosManifest } = require("./six-pack-offer-refresh");
 const {
@@ -311,30 +312,23 @@ function credential(kind) {
 }
 
 async function openRoleClient(kind) {
-  const client = new Client({
+  return openPostgresClient({
     connectionString: credential(kind),
-    ssl: { rejectUnauthorized: false },
-    application_name: `six-pack-offer-refresh-${kind}`,
-    options: "-c statement_timeout=120000",
+    applicationName: `six-pack-offer-refresh-${kind}`,
+    ClientClass: Client,
   });
-  await client.connect();
-  return client;
 }
 
 async function roleTransaction(client, kind, callback) {
-  try {
-    await client.query("begin");
-    await client.query("select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)");
-    await client.query(`set role retailer_catalogue_production_${kind}`);
-    const identity = (await client.query("select current_user,session_user")).rows[0];
-    if (identity.current_user !== `retailer_catalogue_production_${kind}`) fail(`${kind} role mismatch`);
-    const result = await callback(client);
-    await client.query("commit");
-    return result;
-  } catch (error) {
-    try { await client.query("rollback"); } catch {}
-    throw error;
-  }
+  const session = await runRoleTransaction(client, {
+    role: `retailer_catalogue_production_${kind}`,
+    kind,
+    localSettings: {
+      "app.retailer_catalogue_production_marker": "1",
+      "app.retailer_catalogue_allow": "1",
+    },
+  }, callback);
+  return session.result;
 }
 
 async function executeEntry(entry, artifactSha256, runId, clients, approvalReason) {

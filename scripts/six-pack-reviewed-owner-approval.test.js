@@ -14,6 +14,7 @@ const { authorizeReviewedOwnerBatch } = require("./six-pack-offer-refresh");
 const {
   hash, VALIDATOR_LOGIN, VALIDATOR_ROLE, verifyPostflight, withReadOnlyValidatorClient,
 } = require("./six-pack-reviewed-postflight");
+const { runRoleTransaction } = require("./lib/retailer-offer-sync/production-role-session");
 const { finalizeOutcome } = require("./six-pack-reviewed-outcome");
 
 const CHANGES = [
@@ -349,4 +350,40 @@ test("validator activation and read failures roll back before any reviewed apply
   const source = fs.readFileSync(path.join(__dirname, "six-pack-reviewed-postflight.js"), "utf8");
   assert.doesNotMatch(source, /approve_product_import_plan|apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /client\.query\(["'`](?:insert|update|delete)\b/i);
+});
+
+test("shared approver and executor sessions keep exact roles, transactions and local guards", async () => {
+  for (const kind of ["approver", "executor"]) {
+    const calls = [];
+    const role = `retailer_catalogue_production_${kind}`;
+    const client = {
+      async query(sql, params) {
+        calls.push([sql, params]);
+        if (sql.startsWith("select session_user")) return { rows: [{ session_user: `supplementscout_production_${kind}_login`, current_user: role, transaction_read_only: "off" }] };
+        return { rows: [{ result: kind }] };
+      },
+    };
+    const session = await runRoleTransaction(client, {
+      role,
+      kind,
+      localSettings: {
+        "app.retailer_catalogue_production_marker": "1",
+        "app.retailer_catalogue_allow": "1",
+      },
+    }, async (activeClient) => {
+      assert.equal(activeClient, client);
+      return (await activeClient.query(`select public.${kind}_rpc() result`)).rows[0].result;
+    });
+    assert.equal(session.result, kind);
+    assert.deepEqual(calls.map(([sql]) => sql), [
+      "begin",
+      "select set_config($1,$2,true)",
+      "select set_config($1,$2,true)",
+      `set local role ${role}`,
+      "select session_user, current_user, current_setting('transaction_read_only') transaction_read_only",
+      `select public.${kind}_rpc() result`,
+      "commit",
+    ]);
+    assert.ok(!calls.some(([sql]) => sql === "rollback"));
+  }
 });

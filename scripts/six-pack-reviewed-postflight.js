@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
+const { normalizeConnectionString, withPostgresRoleSession } = require("./lib/retailer-offer-sync/production-role-session");
 const { canonicalJson } = require("./lib/canonical-json");
 const { loadReviewedBatch } = require("./lib/six-pack-reviewed-owner-approval");
 
@@ -103,30 +104,17 @@ async function withReadOnlyValidatorClient(callback, dependencies = {}) {
   const value = dependencies.env
     ? dependencies.env.SIX_PACK_SYNC_VALIDATOR_DATABASE_URL
     : process.env.SIX_PACK_SYNC_VALIDATOR_DATABASE_URL;
-  if (!value) fail("Missing protected validator database credential");
-  const parsed = new URL(value); parsed.searchParams.delete("sslmode");
-  const client = new ClientClass({ connectionString: parsed.href, ssl: { rejectUnauthorized: false }, application_name: "six-pack-reviewed-postflight-read-only", options: "-c default_transaction_read_only=on -c statement_timeout=120000" });
-  let transactionStarted = false;
-  await client.connect();
-  try {
-    await client.query("begin read only");
-    transactionStarted = true;
-    await client.query(`set local role ${VALIDATOR_ROLE}`);
-    const identity = (await client.query("select session_user, current_user, current_setting('transaction_read_only') transaction_read_only")).rows[0];
-    if (identity.session_user !== VALIDATOR_LOGIN || identity.current_user !== VALIDATOR_ROLE) fail("Validator database identity is not the protected validator login and role");
-    if (identity.transaction_read_only !== "on") fail("Postflight connection is not read-only");
-    const result = await callback(client);
-    await client.query("commit");
-    transactionStarted = false;
-    return result;
-  } catch (error) {
-    if (transactionStarted) {
-      try { await client.query("rollback"); } catch (rollbackError) { error.rollbackError = rollbackError; }
-    }
-    throw error;
-  } finally {
-    await client.end();
-  }
+  const session = await withPostgresRoleSession({
+    connectionString: normalizeConnectionString(value, "validator"),
+    applicationName: "six-pack-reviewed-postflight-read-only",
+    ClientClass,
+    defaultReadOnly: true,
+    readOnly: true,
+    role: VALIDATOR_ROLE,
+    expectedSessionUser: VALIDATOR_LOGIN,
+    kind: "validator",
+  }, callback);
+  return session.result;
 }
 
 async function run(options) {
