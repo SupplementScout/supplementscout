@@ -22,6 +22,9 @@ test("Simply automation is bound to the approved 120-row identity authority", ()
 
 test("Simply schedule isolates unsafe rows", () => {
   assert.match(workflow, /--isolate-unsafe=true/g);
+  assert.match(automation, /approved_mapping_count:config\.approved_mapping_count,executable_plan_count:executablePlanCount,executed_plan_count:0,review_row_count:reviewRows\.length,blocked_row_count:0/);
+  assert.match(automation, /missing_variants_review_only:missingReviewOnly,missing_variants_marked_unavailable:run\.discovery\.missing_variants\.length-missingReviewOnly/);
+  assert.match(automation, /executed_plan_count:appliedRows/);
 });
 
 test("Simply build start does not inherit the Fit House stable OOS exception", () => {

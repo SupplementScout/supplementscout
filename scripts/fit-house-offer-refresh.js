@@ -485,7 +485,7 @@ async function executeRefresh(args,diagnostic,reviewed=null){
   const counts={};for(const row of run.classification.rows)counts[row.action]=(counts[row.action]||0)+1;
   const reviewRows=(run.classification.quarantined_rows||[]).map(row=>({offer_id:String(row.offer_id),reason:row.reason,external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id)}));
   if(run.artifacts.length===0){
-    const output={result:"PASS_WITH_REVIEW",mode:args.mode,target:args.target,project_ref:spec.ref,scope:{mappings:config.approved_mapping_count,offers:config.approved_mapping_count,children:0,rows:0},classification:counts,review_rows:reviewRows,validator_batches:0,business:{products_delta:0,variants_delta:0,mappings_delta:0,offers_delta:0,price_history_delta:0,offers_refreshed:0},safe_update:"unset"};
+    const output={result:"PASS_WITH_REVIEW",mode:args.mode,target:args.target,project_ref:spec.ref,approved_mapping_count:config.approved_mapping_count,executable_plan_count:0,executed_plan_count:0,review_row_count:reviewRows.length,blocked_row_count:0,scope:{mappings:config.approved_mapping_count,offers:config.approved_mapping_count,children:0,rows:0},classification:counts,review_rows:reviewRows,validator_batches:0,business:{products_delta:0,variants_delta:0,mappings_delta:0,offers_delta:0,price_history_delta:0,offers_refreshed:0},safe_update:"unset"};
     write(`${args.target}-${args.mode}.json`,output);
     return output;
   }
@@ -493,7 +493,9 @@ async function executeRefresh(args,diagnostic,reviewed=null){
   diagnostic.validator_result="PASS";
   diagnostic.guard_results.push({guard:"VALIDATOR",result:"PASS",batches:validations.length});
   const appliedExpected=run.artifacts.reduce((total,artifact)=>{for(const key of Object.keys(total.row_count_deltas))total.row_count_deltas[key]+=artifact.expected_deltas.row_count_deltas[key];for(const key of Object.keys(total.logical_field_deltas))total.logical_field_deltas[key]+=artifact.expected_deltas.logical_field_deltas[key];return total},{row_count_deltas:{...ZERO_ROWS},logical_field_deltas:{...ZERO_LOGICAL}});
-  const base={result:reviewRows.length?"PASS_WITH_REVIEW":"PASS",mode:args.mode,target:args.target,project_ref:spec.ref,approved_manifest_sha256:config.manifest_sha256,source:{country:"GB",products:run.snapshot.products.length,variants:run.sourceVariants.length,available:run.sourceVariants.filter(row=>row.in_stock).length,fingerprint:run.snapshot.semantic_source_fingerprint,diagnostic:run.snapshot.source_diagnostic},scope:{mappings:config.approved_mapping_count,offers:config.approved_mapping_count,children:run.artifacts.length,rows:run.artifacts.reduce((sum,artifact)=>sum+artifact.rows.length,0)},classification:counts,review_rows:reviewRows,reviewed_mass_oos:run.massOosAuthorization,expected_deltas:appliedExpected,discovery:{new_variants:run.discovery.new_variants.length,missing_variants:run.discovery.missing_variants.length,missing_variants_marked_unavailable:run.discovery.missing_variants.length,catalogue_creates:0},validator_batches:validations.length,safe_update:"unset"};
+  const executablePlanCount=run.artifacts.reduce((sum,artifact)=>sum+artifact.rows.length,0);
+  const missingReviewOnly=run.classification.quarantined_rows?.filter(row=>row.reason==="SOURCE_VARIANT_MISSING").length||0;
+  const base={result:reviewRows.length?"PASS_WITH_REVIEW":"PASS",mode:args.mode,target:args.target,project_ref:spec.ref,approved_manifest_sha256:config.manifest_sha256,approved_mapping_count:config.approved_mapping_count,executable_plan_count:executablePlanCount,executed_plan_count:0,review_row_count:reviewRows.length,blocked_row_count:0,source:{country:"GB",products:run.snapshot.products.length,variants:run.sourceVariants.length,available:run.sourceVariants.filter(row=>row.in_stock).length,fingerprint:run.snapshot.semantic_source_fingerprint,diagnostic:run.snapshot.source_diagnostic},scope:{mappings:config.approved_mapping_count,offers:config.approved_mapping_count,children:run.artifacts.length,rows:executablePlanCount},classification:counts,review_rows:reviewRows,reviewed_mass_oos:run.massOosAuthorization,expected_deltas:appliedExpected,discovery:{new_variants:run.discovery.new_variants.length,missing_variants:run.discovery.missing_variants.length,missing_variants_review_only:missingReviewOnly,missing_variants_marked_unavailable:run.discovery.missing_variants.length-missingReviewOnly,catalogue_creates:0},validator_batches:validations.length,safe_update:"unset"};
   if(args.mode==="dry-run"){write(`${args.target}-dry-run.json`,base);return base}
   diagnostic.database_writes_attempted=1;
   const registration=registrationRequest(run),registered=await register(run,registration);
@@ -510,7 +512,7 @@ async function executeRefresh(args,diagnostic,reviewed=null){
   diagnostic.database_writes_completed=executions.length;
   const appliedRows=run.artifacts.reduce((sum,artifact)=>sum+artifact.rows.length,0);
   diagnostic.business_writes_completed=appliedRows;
-  const output={...base,registration:registered.result,executions:executions.map(row=>row.result),business:{products_delta:0,variants_delta:0,mappings_delta:0,offers_delta:0,price_history_delta:historyDelta,offers_refreshed:appliedRows},recovery_calls:0};
+  const output={...base,executed_plan_count:appliedRows,registration:registered.result,executions:executions.map(row=>row.result),business:{products_delta:0,variants_delta:0,mappings_delta:0,offers_delta:0,price_history_delta:historyDelta,offers_refreshed:appliedRows},recovery_calls:0};
   write(`${args.target}-apply.json`,output);
   return output;
 }
