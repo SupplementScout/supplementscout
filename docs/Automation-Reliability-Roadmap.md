@@ -85,7 +85,7 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | P2 | Shared reliability core | COMPLETE | Shared validator/approver/executor role sessions and reusable manifest-scoped DB postflight are proven by 6 Pack, Simply and Whey Okay contracts. Adoption continues retailer by retailer. |
 | P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | IN PROGRESS / OWNER BLOCKED | Simply and Whey code paths are repaired and dry-run cleanly with isolated review. eBay and GYM HIGH require owner identity decisions; production applies for Simply and Whey require commercial approval. |
 | P4 | Classify or refresh genuinely old offers | COMPLETE / OWNER BLOCKED | All four legacy scopes are classified below. Execution requires grouped owner approval because the scopes include identity promotion or commercial changes. |
-| P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Remaining adoption work is authoritative DB postflight/contract evidence for nine retailers and bounded retry proof for every source path. |
+| P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Shared DB postflight is installed for seven retailers; five new adoptions await their next scheduled production evidence. GYM HIGH, eBay, KIOR and Predators still need compatible evidence paths. |
 | P6 | Catalog Health reliability view | IN PROGRESS | Per-retailer DB freshness and no-in-stock metrics are live without changing Overall Critical. Workflow/review/cron state remains in the watchdog artifact until an approved shared read source exists. |
 | Closeout | Verify every exit criterion and return to Operating Plan | NOT STARTED | Final evidence, commits, run IDs and clean `main`. |
 
@@ -149,6 +149,14 @@ Commit `2fbe908` extends the existing authenticated `/admin/catalog-health` load
 
 The page explicitly does not infer workflow success, pending review or cron state from timestamps. Those remain authoritative in the six-hour watchdog artifact. Rendering them live in the web application needs an approved shared read source for GitHub workflow evidence; none currently exists in the application environment, so no token, migration or persistence layer was invented.
 
+### P5 shared postflight adoption
+
+Commit `0957dd0` extends the existing validator-only DB baseline/postflight to Discount Supplements (exact 14), Dolphin Fitness (exact one), Fit House (full 286), Jon's Supplements (full 506) and the ordinary 6 Pack 506-row workflow. Together with Simply Supplements and Whey Okay, seven retailer workflows now have the shared authoritative DB contract installed.
+
+Each adopted workflow captures the read-only baseline after a passing source preflight, applies through the unchanged approver/executor path, verifies DB state before source idempotency and uploads the evidence in its existing artifact. Jon's one-row reviewed-price path and 6 Pack's reviewed MASS_OOS path remain explicitly outside the full-scope generic postflight. No commercial guard, permission, secret value or schedule changed.
+
+Local targeted tests, `verify:quick` and `verify:full` passed. A local production baseline attempt stopped before connecting because the developer `.env.local` intentionally has no validator URL; no secret was copied and no DB operation occurred. Production proof for the five new profiles therefore remains pending their next existing scheduled runs, and the watchdog must continue to report missing DB-postflight evidence until those runs pass.
+
 ## 7. Exit criteria
 
 - 6 Pack has zero stale offers.
@@ -183,6 +191,7 @@ The page explicitly does not infer workflow success, pending review or cron stat
 | 2026-08-30 | P4 | KIOR adapter, DB inventory and run `33292337530` | CLASSIFIED / OWNER BLOCKED | Exact 439-row legacy starting scope classified without writes; identity promotion or commercial-change approval is required per retailer. |
 | 2026-08-30 | P5 | `5c6d8ada9fec01dd842dc0389493010b052efcd2`; run `33292889053`; artifact `9726516784` | FAIL-CLOSED AS DESIGNED | Six-hour read-only watchdog is live for all 11 retailers. Validator DB read passed, zero writes; all 11 currently lack at least one required reliability signal. |
 | 2026-08-30 | P6 | `2fbe908` | PARTIAL PASS | Catalog Health now exposes truthful per-retailer DB freshness and coverage metrics. Live workflow/review/cron fields remain blocked on a shared read source rather than being inferred. |
+| 2026-08-30 | P5 | `0957dd0` | IMPLEMENTED / EVIDENCE PENDING | Shared read-only DB baseline/postflight adopted by Discount, Dolphin, Fit House, Jon's and ordinary 6 Pack; seven retailer profiles total. No apply was dispatched. |
 
 ## 9. Owner-required blockers
 
