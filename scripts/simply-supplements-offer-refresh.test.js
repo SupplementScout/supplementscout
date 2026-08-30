@@ -7,6 +7,7 @@ const test = require("node:test");
 const config = require("../config/retailers/simply-supplements-offer-sync.json");
 const { canonicalHash, loadApprovedManifest, projectSourceVariants, reconcileMissingMappedVariants, registrationRequest } = require("./simply-supplements-offer-refresh");
 const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
+const { baselineHash, verifyPostflight } = require("./retailer-offer-refresh-postflight");
 
 const ROOT = path.resolve(__dirname, "..");
 const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/simply-supplements-offer-refresh.yml"), "utf8");
@@ -81,6 +82,29 @@ test("scheduled workflow reuses protected roles and contains no Awin credential"
   assert.equal(config.discovery_policy.catalogue_creates, false);
   assert.equal(config.source_fetch.pagination_completion, "empty-page");
   assert.match(automation, /paginationCompletion:config\.source_fetch\.pagination_completion\|\|"short-page"/);
+  const baselineIndex = workflow.indexOf("Capture Simply Supplements DB baseline read-only");
+  const applyIndex = workflow.indexOf("Apply approved Simply Supplements offer refresh");
+  const postflightIndex = workflow.indexOf("Verify Simply Supplements DB postflight read-only");
+  assert.ok(baselineIndex > -1 && applyIndex > baselineIndex && postflightIndex > applyIndex);
+  for (const name of ["Capture Simply Supplements DB baseline read-only", "Verify Simply Supplements DB postflight read-only"]) {
+    const step = workflow.slice(workflow.indexOf(name), workflow.indexOf("\n      - name:", workflow.indexOf(name) + 1));
+    assert.match(step, /SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL/);
+    assert.doesNotMatch(step, /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
+  }
+});
+
+test("Simply DB postflight proves executable freshness, review isolation and planned stock delta", () => {
+  const row = (offerId, stock, checked) => ({ mapping_id: `m${offerId}`, retailer_id: "7", mapping_product_id: "10", mapping_variant_id: "11", external_product_id: "p", external_variant_id: `v${offerId}`, external_sku: null, external_gtin: null, external_options: {}, external_url: "https://www.simplysupplements.co.uk/products/p", offer_id: String(offerId), offer_product_id: "10", offer_variant_id: "11", price: "10.00", shipping_cost: "1.99", total_price: "11.99", in_stock: stock, url: "https://www.awin1.com/pclick.php?p=1", last_checked_at: checked });
+  const snapshot = { row_count: 2, price_history_count: 4, rows: [row(1, true, "2026-08-29T00:00:00Z"), row(2, true, "2026-08-29T00:00:00Z")] };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "simply-supplements", snapshot };
+  baseline.evidence_hash = baselineHash(baseline);
+  const execution = { result: "PASS_WITH_REVIEW", approved_mapping_count: 2, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 1, blocked_row_count: 0, review_rows: [{ offer_id: "2" }], expected_deltas: { row_count_deltas: { price_history: 0 }, logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 1, last_checked_at_updates: 1 } } };
+  const after = { row_count: 2, price_history_count: 4, rows: [row(1, false, "2026-08-30T00:00:00Z"), row(2, true, "2026-08-29T00:00:00Z")] };
+  const result = verifyPostflight(baseline, after, execution);
+  assert.equal(result.result, "PASS");
+  assert.equal(result.freshness_change_count, 1);
+  assert.equal(result.stock_change_count, 1);
+  assert.throws(() => verifyPostflight(baseline, { ...after, rows: [after.rows[0], { ...after.rows[1], last_checked_at: "2026-08-30T00:00:00Z" }] }, execution), /Review offer 2 changed/);
 });
 
 test("authority file bytes remain frozen", () => {
