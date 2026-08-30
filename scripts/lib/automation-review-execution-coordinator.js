@@ -3,7 +3,8 @@ const { canonicalJson } = require("./canonical-json");
 
 const TRANSITIONS = Object.freeze({
   PENDING: new Set(["APPROVED", "REJECTED", "IGNORED", "EXPIRED"]),
-  APPROVED: new Set(["EXECUTING", "EXPIRED"]),
+  APPROVED: new Set(["QUEUED", "EXPIRED"]),
+  QUEUED: new Set(["EXECUTING", "FAILED", "EXPIRED"]),
   EXECUTING: new Set(["EXECUTED", "FAILED"]),
   REJECTED: new Set(),
   IGNORED: new Set(),
@@ -13,11 +14,14 @@ const TRANSITIONS = Object.freeze({
 });
 
 const RETAILER_CAPABILITIES = Object.freeze({
-  "3": Object.freeze({ workflow: "whey-okay-offer-refresh.yml", operations: Object.freeze(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]) }),
-  "4": Object.freeze({ workflow: "creatine-offer-refresh.yml", operations: Object.freeze(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]) }),
-  "5": Object.freeze({ workflow: "dolphin-vegan-protein-offer-refresh.yml", operations: Object.freeze(["VERIFY_NO_CHANGE"]) }),
-  "11": Object.freeze({ workflow: "six-pack-offer-refresh.yml", operations: Object.freeze(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]) }),
-  "12": Object.freeze({ workflow: "ebay-offer-refresh.yml", operations: Object.freeze(["VERIFY_NO_CHANGE"]) }),
+  "12": Object.freeze({
+    workflow: "ebay-offer-refresh.yml",
+    operations: Object.freeze(["VERIFY_NO_CHANGE"]),
+    reason_codes: Object.freeze(["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION"]),
+    environment: "production-readonly",
+    maximum_batch: 1,
+    isolation: "per-row",
+  }),
 });
 
 function invariant(condition, code) {

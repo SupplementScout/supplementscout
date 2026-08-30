@@ -336,10 +336,15 @@ function writePendingBatch(report, now) {
     executable_offer_ids: report.execution_offer_ids,
     review_rows: report.review_rows,
     blocked_rows: report.blocked_rows,
+    commit_sha: report.commit_sha,
+    source_fingerprint: report.source_fingerprint,
+    plan_fingerprint: report.plan_fingerprint,
   };
   const bytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
+  const manifestSha256 = sha256(bytes);
   fs.writeFileSync(PENDING_BATCH, bytes, { flag: "wx" });
-  fs.writeFileSync(`${PENDING_BATCH}.sha256`, `${sha256(bytes)}\n`, { flag: "wx" });
+  fs.writeFileSync(`${PENDING_BATCH}.sha256`, `${manifestSha256}\n`, { flag: "wx" });
+  return { manifest, manifestSha256 };
 }
 
 function loadPendingBatch(now = new Date()) {
@@ -352,7 +357,7 @@ function loadPendingBatch(now = new Date()) {
   const review = new Set((manifest.review_rows || []).map((row) => String(row.offer_id)));
   const blocked = new Set((manifest.blocked_rows || []).map((row) => String(row.offer_id)));
   if (manifest.schema_version !== 1 || manifest.kind !== KIND || !Number.isFinite(ageMs) || ageMs < -120000 || ageMs > 15 * 60 * 1000 || JSON.stringify(manifest.offer_ids) !== JSON.stringify(SCOPES.map((scope) => scope.offer_id)) || executable.size !== (manifest.executable_offer_ids || []).length || review.size !== (manifest.review_rows || []).length || blocked.size !== (manifest.blocked_rows || []).length || blocked.size !== 0 || [...executable].some((id) => review.has(id) || blocked.has(id)) || [...review].some((id) => blocked.has(id)) || executable.size + review.size !== SCOPES.length || SCOPES.some((scope) => !executable.has(scope.offer_id) && !review.has(scope.offer_id))) fail("Pending eBay refresh batch scope, partition or freshness mismatch");
-  return { manifest, executable };
+  return { manifest, executable, manifestSha256: expectedHash };
 }
 
 function parseArgs(argv) {
@@ -456,7 +461,7 @@ async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = nul
   return evaluateItem(scope, exact, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
 }
 
-async function prepareScope(scope, evaluation, mode, dependencies, stamp) {
+async function prepareScope(scope, evaluation, mode, dependencies, stamp, approvedSourceCapturedAt = null) {
   const row = rowFromEvaluation(scope, evaluation);
   let artifactRows = [row];
   let result = await (dependencies.runImportRows || runImportRows)([row], { mode: "manual", dryRun: true });
@@ -470,7 +475,8 @@ async function prepareScope(scope, evaluation, mode, dependencies, stamp) {
     fail(`Refresh importer blocked offer ${scope.offer_id} outside the isolated identity-conflict contract`);
   }
   if (initialPlan?.offer?.action === "noop") {
-    const capturedAt = new Date().toISOString();
+    const capturedAt = approvedSourceCapturedAt || new Date().toISOString();
+    if (new Date(capturedAt).toISOString() !== capturedAt || Date.parse(capturedAt) > Date.now()) fail(`Approved source capture timestamp is invalid for offer ${scope.offer_id}`);
     const snapshotHash = sha256(JSON.stringify({ item_id: evaluation.item_id, gtin: evaluation.returned_gtin, price: evaluation.item_price, shipping: evaluation.uk_shipping, delivered: evaluation.delivered_price, captured_at: capturedAt }));
     const target = JSON.parse(JSON.stringify(initialPlan.expected_state));
     delete target.retailer_product.updated_at;
@@ -511,6 +517,10 @@ async function run(options, dependencies = {}) {
       scope: { offers: SCOPES.length, executable: approved.length, review: batch.manifest.review_rows.length, blocked: 0, offer_ids: SCOPES.map((scope) => scope.offer_id) },
       executed: approved.length,
       automatic_oos: "blocked",
+      commit_sha: process.env.GITHUB_SHA || null,
+      manifest_sha256: batch.manifestSha256,
+      source_fingerprint: batch.manifest.source_fingerprint,
+      plan_fingerprint: batch.manifest.plan_fingerprint,
     };
     fs.writeFileSync(path.join(OUT, `execute-apply-${now.toISOString().replace(/[:.]/g, "-")}.json`), `${JSON.stringify(report, null, 2)}\n`);
     fs.writeFileSync(path.join(OUT, "production-apply.json"), `${JSON.stringify(report, null, 2)}\n`);
@@ -561,6 +571,8 @@ async function run(options, dependencies = {}) {
   const commercialReview = preparedRows.filter((row) => row.action !== "VERIFY_NO_CHANGE").map((row) => ({ offer_id: row.offer_id, action: row.action, review_type: "COMMERCIAL_CHANGE" }));
   const reviewRows = [...sourceFailureReview, ...identityReview, ...importerIdentityReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
   const classification = preparedRows.reduce((counts, row) => ({ ...counts, [row.action]: (counts[row.action] || 0) + 1 }), {});
+  const sourceFingerprint = sha256(JSON.stringify(executableRows.map((row) => [row.offer_id, row.approved.entry.source_row_fingerprint]).sort(([a], [b]) => Number(a) - Number(b))));
+  const planFingerprint = sha256(JSON.stringify(executableRows.map((row) => [row.offer_id, row.approved.entry.plan_fingerprint]).sort(([a], [b]) => Number(a) - Number(b))));
   const report = {
     result: globalBlocked.length ? "BLOCK" : reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
     mode: options.mode,
@@ -584,13 +596,20 @@ async function run(options, dependencies = {}) {
       row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 },
     },
     executed: 0, automatic_oos: "blocked",
+    commit_sha: process.env.GITHUB_SHA || null,
+    source_fingerprint: sourceFingerprint,
+    plan_fingerprint: planFingerprint,
   };
-  if (options.mode === "prepare-apply" && !globalBlocked.length) (dependencies.writePendingBatch || writePendingBatch)(report, now);
+  if (options.mode === "prepare-apply" && !globalBlocked.length) {
+    const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now);
+    report.manifest_sha256 = binding?.manifestSha256 || null;
+  }
   fs.writeFileSync(path.join(OUT, `${options.mode}-${stamp}.json`), `${JSON.stringify(report, null, 2)}\n`);
+  if (options.mode === "dry-run") fs.writeFileSync(path.join(OUT, "production-dry-run.json"), `${JSON.stringify(report, null, 2)}\n`);
   return report;
 }
 
 async function main(argv = process.argv.slice(2)) { const report = await run(parseArgs(argv)); console.log(JSON.stringify(report)); if (!report.result.startsWith("PASS")) process.exitCode = 2; }
 if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, partitionSourceFailures, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };
+module.exports = { CONFIRMATION, KIND, ROLLOUTS, SCOPES, SCOPE, actionForPlan, assertExecutionContext, buildSource, classifyContinuity, loadPendingBatch, loadScopes, parseArgs, partitionSourceFailures, pendingArtifact, prepareScope, rowFromEvaluation, run, validatePlan, validatePreparedArtifact, writePendingBatch };

@@ -679,6 +679,11 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Execute approved/);
   assert.match(page, /Approval alone has not changed the catalogue/);
   assert.match(page, /existing protected importer approval and executor RPCs/);
+  assert.match(page, /Execution adapter/);
+  assert.match(page, /confirmExecution/);
+  assert.match(page, /disabled=\{!adapterReady\}/);
+  assert.match(page, /Execution history/);
+  assert.match(page, /idempotency_result/);
 });
 
 test("automation review decisions fail closed on auth, fingerprint, expiry and bulk incompatibility", () => {
@@ -697,15 +702,84 @@ test("automation review decisions fail closed on auth, fingerprint, expiry and b
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.update/);
 });
 
-test("automation review execute action is authenticated and remains fail closed without a protected adapter", () => {
+test("automation review execute action authenticates, queues idempotently and dispatches only a protected adapter", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "execute", "route.ts"), "utf8");
   const handler = source.slice(source.indexOf("export async function POST"));
   assert(handler.indexOf("requireAdminRoute(request)") < handler.indexOf("request.formData()"));
   assert.match(source, /review_status !== "APPROVED"/);
   assert.match(source, /Date\.parse\(data\.expires_at\) <= Date\.now\(\)/);
-  assert.match(source, /no catalogue write was attempted/i);
+  assert.match(source, /resolveReviewAdapter/);
+  assert.match(source, /reviewDispatchConfigured/);
+  assert.match(source, /queue_automation_review_execution/);
+  assert.match(source, /already_queued/);
+  assert.match(source, /idempotencyKey/);
+  assert.match(source, /execution_mode: "review-queue"/);
+  assert.match(source, /record_automation_review_execution_checkpoint/);
+  assert(source.indexOf('"DISPATCH_STARTED"') < source.indexOf("await fetch("));
+  assert.match(source, /authorization: `Bearer \$\{token\}`/);
+  assert.doesNotMatch(source, /SUPABASE_SERVICE_ROLE_KEY.*body|DATABASE_URL.*body/s);
   assert.doesNotMatch(source, /approve_product_import_plan|apply_approved_product_import_plan/);
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
+});
+
+test("automation review adapter registry is exact, default-deny and freshness-only", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
+  assert.equal((source.match(/retailerSlug: "ebay-uk"/g) || []).length, 1);
+  assert.match(source, /retailerId: "12"/);
+  assert.match(source, /retailerSlug: "ebay-uk"/);
+  assert.match(source, /operations: Object\.freeze\(\["VERIFY_NO_CHANGE"\]\)/);
+  assert.match(source, /reasonCodes: Object\.freeze\(\["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION"\]\)/);
+  assert.match(source, /maximumBatch: 1/);
+  assert.match(source, /isolation: "per-row"/);
+  assert.match(source, /EXECUTION_UNSUPPORTED/);
+  assert.doesNotMatch(source, /UPDATE_PRICE|UPDATE_STOCK|REBIN|MARK_OOS/);
+});
+
+test("execution request migration is additive, immutable, role-closed and contains no catalogue DML", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "supabase", "migrations", "20260830173000_create_automation_review_execution_requests.sql"), "utf8");
+  assert.match(source, /^begin;/i); assert.match(source, /commit;\s*$/i);
+  assert.match(source, /create table public\.automation_review_execution_requests/);
+  assert.match(source, /create table public\.automation_review_execution_events/);
+  assert.match(source, /where status in \('QUEUED','DISPATCHED','EXECUTING'\)/);
+  assert.match(source, /AUTOMATION_EXECUTION_REQUEST_IDENTITY_IMMUTABLE/);
+  assert.match(source, /queue_automation_review_execution/);
+  assert.match(source, /record_automation_review_execution_checkpoint/);
+  assert.match(source, /coalesce\(auth\.role\(\),''\) <> 'service_role'/);
+  assert.doesNotMatch(source, /current_user <> 'service_role'/);
+  assert.match(source, /grant execute on function public\.queue_automation_review_execution[^;]+ to service_role/s);
+  assert.doesNotMatch(source, /\b(drop|truncate)\b/i);
+  assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbids replay or offer 2686", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-ebay-worker.js"), "utf8");
+  const { parseArgs, assertContext } = require("./automation-review-ebay-worker");
+  assert.deepEqual(parseArgs(["--review-item-id=7", "--execution-request-id=11111111-1111-4111-8111-111111111111", "--retailer=ebay-uk", `--review-fingerprint=${"a".repeat(64)}`, "--mode=review-queue"]), { reviewItemId: "7", executionRequestId: "11111111-1111-4111-8111-111111111111", retailer: "ebay-uk", reviewFingerprint: "a".repeat(64), mode: "review-queue" });
+  assert.throws(() => parseArgs(["--review-item-id=7", "--execution-request-id=bad", "--retailer=ebay-uk", `--review-fingerprint=${"a".repeat(64)}`, "--mode=review-queue"]), /EXECUTION_REQUEST_ID_INVALID/);
+  assert.throws(() => assertContext({}), /WORKER_CONTEXT_INVALID/);
+  assert.match(source, /request\.status === "DISPATCHED"/);
+  assert.match(source, /review\.review_status === "APPROVED"/);
+  assert.match(source, /event\.source_row_fingerprint === review\.source_row_fingerprint/);
+  assert.match(source, /event\.plan_fingerprint === review\.plan_fingerprint/);
+  assert.match(source, /SOURCE_FINGERPRINT_DRIFT/);
+  assert.match(source, /PLAN_FINGERPRINT_DRIFT/);
+  assert.match(source, /DATABASE_BEFORE_STATE_DRIFT/);
+  assert.match(source, /OFFER_2686_FORBIDDEN/);
+  assert.match(source, /APPLY_RESULT_SCOPE_DRIFT/);
+  assert.match(source, /actionForPlan\(fresh\.approved\.entry\.resolved_plan\) === "VERIFY_NO_CHANGE"/);
+  assert.match(source, /price_history_delta/);
+  assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("eBay workflow isolates Review Queue dispatch payload and protected credentials", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "ebay-offer-refresh.yml"), "utf8");
+  assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue\]/);
+  assert.match(workflow, /review_item_id:[\s\S]*execution_request_id:[\s\S]*review_fingerprint:/);
+  assert.match(workflow, /review-execution:[\s\S]*environment: production-readonly/);
+  assert.match(workflow, /inputs\.operation == 'apply'.*inputs\.execution_mode == 'review-queue'/);
+  assert.match(workflow, /automation-review-ebay-worker\.js/);
+  assert.match(workflow, /persist-credentials: false/);
+  assert.doesNotMatch(workflow, /\$\{\{ secrets\.[^}]+ \}\}.*review_(?:item|fingerprint)/);
 });
 
 test("review execution coordinator delegates protected execution and blocks drift or replay", async () => {
@@ -738,7 +812,7 @@ test("review execution coordinator delegates protected execution and blocks drif
   assert.equal(deferred.result, "PASS_IDEMPOTENCY_DEFERRED");
   await assert.rejects(() => coordinateReviewExecution({ reviewItem: { ...item, source_row_fingerprint: "c".repeat(64) }, actor: "owner", adapter, now }), /SOURCE_FINGERPRINT_DRIFT/);
   await assert.rejects(() => coordinateReviewExecution({ reviewItem: { ...item, review_status: "FAILED" }, actor: "owner", adapter, now }), /REVIEW_NOT_APPROVED/);
-  await assert.rejects(() => coordinateReviewExecution({ reviewItem: { ...item, retailer_id: "4", operation_type: "UPDATE_PRICE" }, actor: "owner", adapter, now }), /PLAN_OPERATION_DRIFT/);
+  await assert.rejects(() => coordinateReviewExecution({ reviewItem: { ...item, retailer_id: "4", operation_type: "UPDATE_PRICE" }, actor: "owner", adapter, now }), /RETAILER_OPERATION_UNSUPPORTED/);
   assert.equal(transitionAllowed("PENDING", "APPROVED"), true);
   assert.equal(transitionAllowed("FAILED", "EXECUTING"), false);
   assert.equal(capabilityFor("1", "VERIFY_NO_CHANGE"), null);

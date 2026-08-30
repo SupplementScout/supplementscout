@@ -79,6 +79,9 @@ function findContractEvidence(value) {
       manifest_sha256: value.approved_manifest_sha256 || value.manifest_sha256 || null,
       plan_fingerprint: value.plan_fingerprint || null,
       postflight_hash: value.postflight_hash || null,
+      source_fingerprint: value.source_fingerprint || null,
+      idempotency_result: value.idempotency_result || null,
+      database_writes: Number.isInteger(value.database_writes) ? value.database_writes : null,
     };
   }
   for (const child of Array.isArray(value) ? value : Object.values(value)) {
@@ -122,6 +125,11 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
       failures.push("APPROVED_SCOPE_PARTITION_MISMATCH");
     }
     if (contract.blocked_row_count !== 0) failures.push("BLOCKED_ROWS_PRESENT");
+    if (String(profile.id) === "12") {
+      for (const field of ["execution_offer_ids", "expected_deltas", "commit_sha", "manifest_sha256", "source_fingerprint", "plan_fingerprint", "postflight_hash"]) if (!contract[field]) failures.push(`EBAY_${field.toUpperCase()}_MISSING`);
+      if (contract.idempotency_result !== "PASS") failures.push("EBAY_IDEMPOTENCY_NOT_PASSED");
+      if (contract.database_writes !== contract.executed_plan_count) failures.push("EBAY_DATABASE_WRITE_COUNT_MISMATCH");
+    }
   }
   const correlation = correlateEvidence(stages, contract);
   failures.push(...correlation.failures);
@@ -209,6 +217,7 @@ async function contractFromArtifacts(repository, runId, token) {
     path.join(os.tmpdir(), "supplementscout-watchdog-"),
   );
   try {
+    const candidates = [];
     for (const artifact of listing.artifacts || []) {
       if (artifact.expired) continue;
       const response = await fetch(artifact.archive_download_url, {
@@ -235,11 +244,14 @@ async function contractFromArtifacts(repository, runId, token) {
         if (extracted.status !== 0) continue;
         try {
           const found = findContractEvidence(JSON.parse(extracted.stdout));
-          if (found && found.executed_plan_count > 0) return found;
+          if (found && found.executed_plan_count > 0) candidates.push(found);
         } catch {}
       }
     }
-    return null;
+    return candidates.sort((left, right) => {
+      const score = (value) => ["execution_offer_ids","expected_deltas","commit_sha","manifest_sha256","source_fingerprint","plan_fingerprint","postflight_hash","idempotency_result","database_writes"].filter((field) => value[field] !== null && value[field] !== undefined).length;
+      return score(right) - score(left);
+    })[0] || null;
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }
