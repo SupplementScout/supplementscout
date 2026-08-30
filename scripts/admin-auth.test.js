@@ -694,7 +694,7 @@ test("automation review decisions fail closed on auth, fingerprint, expiry and b
 
 test("automation review publisher is exact, idempotent and targets only the review queue", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "publish-automation-review-queue.js"), "utf8");
-  assert.match(source, /OWNER_APPROVED_REVIEW_QUEUE_EXACT_373/);
+  assert.match(source, /OWNER_APPROVED_REVIEW_QUEUE_EXACT_375/);
   assert.match(source, /retailer_id,offer_id,source_row_fingerprint/);
   assert.match(source, /already_present/);
   assert.match(source, /Review seed retailer binding mismatch/);

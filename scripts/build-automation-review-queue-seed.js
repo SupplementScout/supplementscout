@@ -21,7 +21,7 @@ function baseRow({ retailer, retailerId, capture, artifactFingerprint, source, c
   return { snapshot_id: `automation-review-${capture.slice(0, 10)}`, review_item_id: `${retailerId}:${offerId}:${fingerprint}`, source_record_id: String(source.external_variant_id || source.external_product_id || offerId), retailer, product_title: source.full_name || source.product_title || `Offer ${offerId}`, variant_title: source.flavour || source.current_variant?.name || null, primary_status: classification, reason_codes: source.risk_flags || source.block_reason || source.reason || classification, confidence: confidence(source.confidence), canonical_candidates: [], source_sku: source.source_sku || null, source_gtin: source.gtin || null, source_weight: source.size || null, source_price: source.offer?.price ?? source.price ?? null, source_url: source.retailer_url || source.affiliate_url || null, suggested_action: source.recommendation || operation, decision: "PENDING", source_row_fingerprint: fingerprint, artifact_fingerprint: artifactFingerprint, retailer_id: retailerId, retailer_product_id: source.mapping_id || source.retailer_product_id || null, offer_id: offerId, current_product_id: source.current_product?.id || source.product_id || null, current_variant_id: source.current_variant?.id || source.product_variant_id || null, proposed_product_id: source.proposed_product?.id || null, proposed_variant_id: source.proposed_variant?.id || null, review_status: "PENDING", review_kind: kind(classification), operation_type: operation, before_state: beforeState, proposed_state: proposedState, impact_summary: { catalogue_entity_creates: 0, direct_catalogue_writes: 0, proposed_operation: operation }, source_evidence: evidence, source_captured_at: capture, expires_at: isoPlusDays(capture, 7), workflow_run_url: workflowRunUrl, artifact_url: artifactUrl };
 }
 
-function build(ownerPackFile, ebayReportFile, ebayArtifactDir) {
+function build(ownerPackFile, ebayReportFile, ebayArtifactDir, gymReportFile) {
   const packBytes = fs.readFileSync(ownerPackFile), pack = JSON.parse(packBytes), reportBytes = fs.readFileSync(ebayReportFile), ebay = JSON.parse(reportBytes);
   if (pack.database_writes !== 0 || pack.scopes.whey_legacy.rows.length !== 284 || pack.scopes.dolphin_stale.rows.length !== 2) fail("Owner pack scope mismatch");
   if (ebay.result !== "PASS_WITH_REVIEW" || ebay.review_row_count !== 40 || ebay.blocked_row_count !== 0) fail("Fresh eBay review scope mismatch");
@@ -39,14 +39,21 @@ function build(ownerPackFile, ebayReportFile, ebayArtifactDir) {
     if (String(review.offer_id) === "2686") Object.assign(source, { consecutive_independent_captures: 2, first_missing_at: "2026-08-30T13:50:13.389Z", retry_count: 0 });
     rows.push(baseRow({ retailer: "eBay UK", retailerId: 12, capture: ebayCapture, artifactFingerprint: sha256(reportBytes), source, classification: review.review_type, operation: review.action || "MANUAL_REVIEW", workflowRunUrl: "https://github.com/SupplementScout/supplementscout/actions/runs/33315614452", artifactUrl: "https://github.com/SupplementScout/supplementscout/actions/runs/33315614452" }));
   }
+  const gymBytes = fs.readFileSync(gymReportFile), gym = JSON.parse(gymBytes), gymRows = new Map(gym.rows.map((row) => [String(row.external_variant_id), row]));
+  if (gym.result !== "PASS" || gym.production_writes !== 0 || !gymRows.has("2796") || !gymRows.has("3333")) fail("Fresh GYM HIGH drift scope mismatch");
+  const gymBindings = [{ external: "2796", mapping_id: 136, offer_id: 550, product_id: 508, product_variant_id: 2975, shipping_cost: 3.99 }, { external: "3333", mapping_id: 385, offer_id: 551, product_id: 516, product_variant_id: 2972, shipping_cost: 3.99 }];
+  for (const binding of gymBindings) {
+    const live = gymRows.get(binding.external), source = { ...binding, full_name: live.name, external_product_id: live.external_product_id, external_variant_id: live.external_variant_id, retailer_url: live.canonical_url, offer: { price: Number(live.price_gbp), shipping_cost: binding.shipping_cost, total_price: Number(live.price_gbp) + binding.shipping_cost, in_stock: live.in_stock }, current_product: { id: binding.product_id }, current_variant: { id: binding.product_variant_id }, source_evidence: live };
+    rows.push(baseRow({ retailer: "GYM HIGH", retailerId: 1, capture: gym.captured_at, artifactFingerprint: sha256(gymBytes), source, classification: "MAPPING_DRIFT", operation: "MANUAL_REVIEW", workflowRunUrl: "https://github.com/SupplementScout/supplementscout/actions/runs/33316685676", artifactUrl: "https://github.com/SupplementScout/supplementscout/actions/runs/33316685676" }));
+  }
   const keys = new Set(rows.map((row) => `${row.retailer_id}:${row.offer_id}:${row.source_row_fingerprint}`));
-  if (rows.length !== 373 || keys.size !== rows.length) fail(`Expected 373 unique unresolved review rows, received ${rows.length}/${keys.size}`);
+  if (rows.length !== 375 || keys.size !== rows.length) fail(`Expected 375 unique unresolved review rows, received ${rows.length}/${keys.size}`);
   return { schema_version: 1, generated_at: new Date().toISOString(), source_owner_pack_sha256: packFingerprint, source_ebay_report_sha256: sha256(reportBytes), row_count: rows.length, counts: rows.reduce((out, row) => { const key = `${row.retailer}:${row.review_kind}`; out[key] = (out[key] || 0) + 1; return out; }, {}), rows };
 }
 
 if (require.main === module) {
-  const [owner, ebay, artifacts, output] = process.argv.slice(2);
-  if (![owner, ebay, artifacts, output].every(Boolean)) fail("Usage: owner-pack ebay-report ebay-artifact-dir output");
-  const result = build(path.resolve(owner), path.resolve(ebay), path.resolve(artifacts)); fs.writeFileSync(path.resolve(output), `${JSON.stringify(result, null, 2)}\n`); console.log(JSON.stringify({ result: "PASS", rows: result.row_count, counts: result.counts, output: path.resolve(output) }));
+  const [owner, ebay, artifacts, gym, output] = process.argv.slice(2);
+  if (![owner, ebay, artifacts, gym, output].every(Boolean)) fail("Usage: owner-pack ebay-report ebay-artifact-dir gym-report output");
+  const result = build(path.resolve(owner), path.resolve(ebay), path.resolve(artifacts), path.resolve(gym)); fs.writeFileSync(path.resolve(output), `${JSON.stringify(result, null, 2)}\n`); console.log(JSON.stringify({ result: "PASS", rows: result.row_count, counts: result.counts, output: path.resolve(output) }));
 }
 module.exports = { baseRow, build, kind };
