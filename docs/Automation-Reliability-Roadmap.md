@@ -16,7 +16,7 @@ It does not authorize new retailer scope, new catalogue identities, destructive 
 
 ## 3. Current confirmed state
 
-### 6 Pack Supplements
+### 6 Pack Supplements — initial incident snapshot (historical)
 
 - Approved scope: 506 mappings and 506 offers.
 - A protected apply completed 492 `VERIFY_NO_CHANGE` plans. Those offers received a newer `last_checked_at`; commercial fields, mappings and `price_history` remained unchanged.
@@ -49,7 +49,7 @@ The fresh 6 Pack capture in run `33300176675` reproduced exactly `492 VERIFY_NO_
 
 Ordinary 6 Pack run `33301481783` then executed `506/506` freshness confirmations. Its row-level postflight proved that all 506 timestamps advanced and no commercial field changed, before a final optional-report count treated an omitted field as zero. Commit `802c910` makes the authoritative comparison use `executed_plan_count`; no replay was performed. Fresh read-only idempotency run `33302525576` is `PASS` with 506 `VERIFY_NO_CHANGE`, zero review, zero blocked and zero writes.
 
-The remaining outcomes are deliberately isolated. eBay run `33300177322` proved offer `2581` exact on variant `2920`, then stopped without apply on unrelated offer `2582` (`conflicting variant evidence`). GYM HIGH run `33300178041` proved the new `4623:4623 -> 2973` control and the complete 26-parent/71-row source, then stopped without apply on unrelated mapping `3333` canonical drift. KIOR read-only capture `98f311e9-61ac-4633-bbbe-3e1b44971508` proved all eleven promoted identities with zero commercial drift and zero writes, but the approved identity migration does not mutate `last_checked_at` and no existing registered KIOR freshness apply exists. No autonomous KIOR path or cron was created.
+The remaining outcomes were deliberately isolated at this checkpoint. eBay run `33300177322` proved offer `2581` exact on variant `2920`, then stopped without apply on unrelated offer `2582` (`conflicting variant evidence`). GYM HIGH run `33300178041` proved the new `4623:4623 -> 2973` control and the complete 26-parent/71-row source, then stopped without apply on unrelated mapping `3333` canonical drift. KIOR read-only capture `98f311e9-61ac-4633-bbbe-3e1b44971508` proved all eleven promoted identities with zero commercial drift and zero writes. The later final checkpoint below supersedes this pre-automation KIOR state.
 
 The final read-only Catalog Health capture at `2026-08-30T08:54:27.627Z` and watchdog run `33302526439` report:
 
@@ -58,11 +58,36 @@ The final read-only Catalog Health capture at `2026-08-30T08:54:27.627Z` and wat
 | 6 Pack Supplements | 506 | 0 / 0 | 0 | `33302525576` PASS | `33301481783` | row-level DB verification passed; final evidence false positive fixed in `802c910` | 506 / 506 |
 | eBay UK | 237 | 1 / 0 | at least 1 (`2582`) | `33300177322` blocked after exact `2581` proof | `32697125213` | missing for a current apply | n/a |
 | GYM HIGH | 66 | 0 / 0 | at least 1 (`3333`) | `33300178041` blocked after exact control proof | `32931853881` | missing for a current apply | n/a |
-| KIOR Health | 11 | 11 / 11 | 0 in the approved identity scope | local `98f311e9-61ac-4633-bbbe-3e1b44971508` PASS | no registered apply | identity postflight passed; freshness PF unavailable | n/a |
+| KIOR Health | 11 | 0 / 0 | 0 | `33305131273` PASS | `33305173344` | PASS; 11 timestamp-only, zero history/commercial delta | 11 / 11 |
 | Simply Supplements | 120 | 0 / 0 | 1 | `33295723920` | `33295723920` | equivalent-state artifact false positive; fixed, no replay | 119 / 119 |
 | Whey Okay | 870 | 284 / 284 | 10 in current scope, plus 284 legacy identity gaps | `33301348255` | `33301348255` | equivalent-state artifact false positive; fixed, no replay | 576 / 576 |
 
-The same Catalog Health read found oldest checks of `2026-08-30T08:24:17.484Z` (6 Pack), `2026-08-21T19:55:44.933Z` (eBay), `2026-08-26T04:52:57.290Z` (GYM HIGH), `2026-07-10T21:59:47.620Z` (KIOR), `2026-08-24T05:50:16.642Z` (Simply) and `2026-06-28T14:32:45.625Z` (Whey Okay). Products without a valid in-stock offer for those retailers were respectively `28`, `0`, `3`, `1`, `7` and `150`. Global Overall status remains `Critical` solely because 208 active products have no valid in-stock offer; missing brand and category counts remain zero.
+That historical Catalog Health read is superseded by the final read-only checkpoint below.
+
+### Final Group A/KIOR closeout checkpoint
+
+- **6 Pack data is healthy, but formal evidence is incomplete:** reconstructed read-only verification proves 506 current mappings/offers, 506 idempotent no-change rows, zero stale offers, zero commercial/URL/mapping/history drift, and the exact reviewed 14-row outcome. The original apply artifact lacks the generic DB-postflight stage required by the current watchdog. Status is therefore `DATA_HEALTHY_EVIDENCE_INCOMPLETE`; no replay is allowed merely to manufacture evidence.
+- **KIOR is complete and autonomous for the exact eleven-row scope:** implementation commits `61979a6`, `58dfd26`, `0df11e2`, `f2fc780`; migration seals `2a16db1`, `6281527`; daily cron `37 7 * * *`. Final dry-run `33305131273` produced exactly eleven `VERIFY_NO_CHANGE`, zero review, zero blocked and zero writes. Owner-authorized apply `33305173344` executed `11/11`; DB postflight proved eleven freshness-only updates and zero product, variant, mapping, commercial, URL or `price_history` delta. Idempotency returned eleven no-change rows and zero writes.
+- **Fresh identity audits remained read-only:** eBay run `33305286364` isolated offer `2582`/mapping `2767`; GYM HIGH run `33305289178` isolated stale control expectation for mapping `3333`. Neither workflow reached apply.
+- **Final watchdog:** run `33305571284`, artifact `9730349176`, completed read-only with `database_writes = 0`. KIOR is `PASS`. 6 Pack fails only `DB_POSTFLIGHT_SUCCESS_MISSING`, consistent with the formal closeout status. Aggregate failure remains truthful because other retailer evidence gaps are outside this Group A closeout.
+
+Final Catalog Health read at `2026-08-30T10:04:20.684Z` (`database_writes = 0`):
+
+| Retailer | Offers | Stale >7 | Stale >30 | Oldest check | Products without in-stock offer |
+| --- | ---: | ---: | ---: | --- | ---: |
+| GYM HIGH | 66 | 0 | 0 | `2026-08-26T04:52:57.290Z` | 3 |
+| Whey Okay | 870 | 284 | 284 | `2026-06-28T14:32:45.625Z` | 150 |
+| Discount Supplements | 156 | 142 | 130 | `2026-06-28T14:32:45.398Z` | 1 |
+| Dolphin Fitness | 3 | 2 | 2 | `2026-06-28T12:23:52Z` | 0 |
+| Simply Supplements | 120 | 0 | 0 | `2026-08-24T05:50:16.642Z` | 7 |
+| KIOR Health | 11 | 0 | 0 | `2026-08-30T09:54:49.751Z` | 1 |
+| Fit House | 286 | 0 | 0 | `2026-08-29T09:23:27.544Z` | 39 |
+| Jon's Supplements | 506 | 0 | 0 | `2026-08-29T11:22:44.675Z` | 9 |
+| 6 Pack Supplements | 506 | 0 | 0 | `2026-08-30T08:24:17.484Z` | 28 |
+| eBay UK | 237 | 77 | 0 | `2026-08-21T19:55:44.933Z` | 0 |
+| Predators Gear | 47 | 0 | 0 | `2026-08-26T20:33:05.744Z` | 0 |
+
+Global counts are 505 stale offers over seven days, 416 over thirty days, 344 products with stale offers and 208 products without a valid in-stock offer. Missing brand/category counts are zero. Overall remains `Critical` solely under the existing 208-products-without-in-stock-offer rule.
 
 ### Confirmed remaining old-offer starting point
 
@@ -107,8 +132,8 @@ After 6 Pack is closed, the recorded starting total is 439 genuinely old offers.
 | P1 | One cross-retailer inventory and priority | COMPLETE | Snapshot and workflow evidence below; Simply Supplements is the first retailer repair after the shared postflight/session contract. |
 | P2 | Shared reliability core | COMPLETE | Shared validator/approver/executor role sessions and reusable manifest-scoped DB postflight are proven by 6 Pack, Simply and Whey Okay contracts. Adoption continues retailer by retailer. |
 | P3 | Stabilize Simply, eBay, GYM HIGH, Whey Okay | PARTIAL COMPLETE / NEW DRIFT BLOCKED | Simply 119 and Whey 576 safe plans executed exactly. Approved eBay and GYM HIGH identity corrections completed; fresh validation isolated new unrelated drift at eBay offer `2582` and GYM HIGH mapping `3333` without apply. |
-| P4 | Classify or refresh genuinely old offers | PARTIAL COMPLETE / OWNER BLOCKED | KIOR's approved eleven identities were promoted, but freshness remains unchanged because no registered safe apply exists. The other legacy scopes remain grouped owner decisions. |
-| P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only six-hour watchdog and native 48-hour failure signal are live. Shared DB postflight is installed for seven retailers; five new adoptions await scheduled production evidence. All known active HTTP source readers now have bounded retry except the unregistered Predators path; GYM HIGH, eBay, KIOR and Predators still need compatible end-to-end evidence paths. |
+| P4 | Classify or refresh genuinely old offers | PARTIAL COMPLETE / OWNER BLOCKED | KIOR's exact eleven-row scope is refreshed and autonomous. Other legacy scopes remain grouped owner decisions. |
+| P5 | Six-hour watchdog, retry and recovery | IN PROGRESS | Read-only watchdog `33305571284` recognizes KIOR end to end. 6 Pack is data-healthy but retains an evidence-only missing-stage signal; unrelated retailer gaps remain truthful. |
 | P6 | Catalog Health reliability view | IN PROGRESS | Per-retailer DB freshness and no-in-stock metrics are live without changing Overall Critical. Workflow/review/cron state remains in the watchdog artifact until an approved shared read source exists. |
 | Closeout | Verify every exit criterion and return to Operating Plan | NOT STARTED | Final evidence, commits, run IDs and clean `main`. |
 
@@ -123,7 +148,7 @@ Database counts were captured at `2026-08-30T03:37:12.598Z`. Workflow evidence i
 | Discount Supplements | 156 / 156 | apply `33253485439` | source dry-run only | 2026-06-28 14:32Z | 142 / 130 | bounded approved subset | yes | yes in subset | source adapter only | yes | yes | Cron refreshes only its authorised subset; 142 offers remain outside effective freshness scope. |
 | Dolphin Fitness | 3 / 3 | apply `33250721247` | source dry-run only | 2026-06-28 12:23Z | 2 / 2 | one approved row | yes for one row | fixed one-row scope | source helper | yes | yes | Two offers are outside the one-offer approved automation. |
 | Simply Supplements | 120 / 120 | last DB freshness 2026-08-24 05:50Z; no success in latest five runs | none | 2026-08-24 05:50Z | 0 / 0 | intended | yes | no at missing-variant gate | source helper, last used 0 | intended | yes | Run `33250567937`: healthy source (269 products/468 variants), global `missing mapped variant safety limit exceeded`. |
-| KIOR Health | 11 / 11 | local read-only capture `fc13a04e-fba0-49ae-9e85-0d80f3263ca5` | none | 2026-07-10 21:59Z | 11 / 11 | no active path | no | no | bounded Shopify retry | no | no | No scheduled KIOR apply; all 11 are genuinely stale. |
+| KIOR Health | 11 / 11 | dry-run `33305131273`; apply `33305173344` | `33305173344` PASS | 2026-08-30 09:54Z | 0 / 0 | yes | yes | per-row, zero review | bounded Shopify retry | yes | daily `37 7 * * *` | Complete for immutable exact eleven-row scope. |
 | Fit House | 286 / 286 | apply `33245349979` | source dry-run only | 2026-08-29 09:23Z | 0 / 0 | yes | yes | yes | source helper | yes | yes | Healthy, but independent DB postflight is absent. |
 | Jon's Supplements | 506 / 506 | apply `33249957540` | source dry-run only | 2026-08-29 11:22Z | 0 / 0 | yes | yes | yes | source helper | yes | yes | Healthy, but independent DB postflight is absent. |
 | 6 Pack Supplements | 506 / 506 | confirmations `33272680452`; reviewed preflight `33274526268` | reviewed baseline passed in `33274526268`; apply PF not reached | 2026-08-20 03:56Z | 14 / 0 | yes | yes | executor checkpoints rows, but default-variant global invariant stopped at row 1 | bounded source retry | yes | yes | Owner decision required for offer `2006` mapping/variant drift. |
@@ -136,6 +161,9 @@ Inventory also found zero `never_checked` offers. Products without an in-stock o
 
 ### Progress after the P1 snapshot
 
+- KIOR adopted the shared protected executor without a retailer-specific database path. Commits `61979a6`, `58dfd26`, `0df11e2` and `f2fc780`, with migration seals `2a16db1` and `6281527`, register an immutable eleven-row manifest and daily schedule. Exact dry-run `33305131273`, apply `33305173344`, authoritative DB postflight and idempotency all passed.
+- Formal read-only 6 Pack reconstruction proves the production data healthy with 506 no-change rows and no drift, but the current watchdog correctly cannot infer an original generic DB-postflight artifact. The closeout is `DATA_HEALTHY_EVIDENCE_INCOMPLETE`; no replay was performed.
+- Fresh eBay run `33305286364` and GYM HIGH run `33305289178` isolated only the new identity rows described in the owner decision pack and performed zero writes.
 - Shared protected-role session commit `0caa0af78d83584d8741105ac5f9352f956392d1` completed P2's connection foundation. Shared DB postflight commit `8a0d9033df08dba7f7b67b05a9dfadec9939ad56` added authoritative baseline/postflight verification for Simply.
 - Simply dry-runs `33291309650` and `33291579003` are `PASS_WITH_REVIEW`: 120 approved, 119 executable, one `SOURCE_VARIANT_MISSING` review row (offer `670`), zero blocked and zero writes. The executable scope is 117 `VERIFY_NO_CHANGE` plus two `UPDATE_STOCK` rows (offers `578` and `649`, `true` to `false`). No apply was dispatched.
 - eBay run `33250919353` is a real mapping/variant drift blocker for offer `2581`; no guard was weakened and no write was attempted.
@@ -166,9 +194,11 @@ Initial run `33292889053` intentionally failed closed and still uploaded artifac
 - Fit House and Jon's have no offers older than 48 hours, but still lack authoritative DB-postflight and execution-contract evidence.
 - 6 Pack has a valid `506 = 492 executable + 14 review` contract with `492` executed and zero blocked; exactly the 14 owner-blocked reviewed offers are older than 48 hours.
 - GYM HIGH has 66 old offers; Whey Okay 284; Discount 142; Dolphin 2; Simply 120; KIOR 11; eBay 237; Predators 20.
-- KIOR and Predators have no registered autonomous refresh workflow. All retailers currently fail at least one required reliability signal, so the watchdog's aggregate `FAIL` is accurate rather than a false positive.
+- At the initial snapshot KIOR and Predators had no registered autonomous refresh workflow. KIOR is now registered and proven; Predators remains outside this completed Group A scope.
 
 Post-apply watchdog run `33296506999` (artifact `9727579813`) also completed read-only with `database_writes = 0` and accurately returned aggregate `FAIL`. It sees Simply `119/119` and Whey `576/576` execution contracts and their successful apply stages, but no authoritative DB-postflight artifacts because both original runs ended on the representation defects above. Database freshness now leaves only one Simply review row older than 48 hours and 284 Whey legacy rows older than 48 hours. No apply was replayed to manufacture a passing postflight.
+
+Final read-only watchdog run `33305571284` (artifact `9730349176`) recognizes the KIOR capture/apply/DB-postflight/execution contract as `PASS`, with all eleven rows current. Its aggregate result remains `FAIL` for truthful unrelated evidence gaps. For 6 Pack it reports only `DB_POSTFLIGHT_SUCCESS_MISSING`: current DB data and the 506-row execution contract are healthy, but the original run did not retain the newer generic postflight artifact. `database_error` is null and `database_writes = 0`.
 
 ### P6 Catalog Health evidence
 
@@ -231,15 +261,19 @@ The post-commit GYM HIGH full-catalogue read-only audit captured at `2026-08-30T
 | 2026-08-30 | P3 / Simply | Run `33295723920`; `0e8da89d288c6271c0051d7465b88184beb28c1c` | APPLY COMPLETE / PF EVIDENCE INCOMPLETE | Exact 119 executable plans applied, zero history/entity/mapping delta; postflight false-positive hash serialization fixed afterward. No replay. |
 | 2026-08-30 | P3 / Whey | Run `33296119370`; `5f32934a4e016fb5cc9f6fc59cc45e8610b0ee66` | APPLY COMPLETE / PF EVIDENCE INCOMPLETE | Exact 576 executable plans applied, zero history/entity/mapping delta; equivalent review timestamp representation fixed afterward. No replay. |
 | 2026-08-30 | P5 / P6 | Watchdog `33296506999`, artifact `9727579813`; Catalog Health read `2026-08-30T06:19:38.438Z` | READ-ONLY FAIL / CRITICAL | Zero writes. Watchdog truthfully reports missing PF evidence; dashboard is Critical because 208 active products lack a valid in-stock offer. |
+| 2026-08-30 | P0 / 6 Pack | Reconstructed formal closeout and current DB postflight | DATA HEALTHY / EVIDENCE INCOMPLETE | 506 mappings/offers and 506 no-change rows; zero commercial, URL, mapping or history drift. Original generic DB-postflight artifact is absent; no replay. |
+| 2026-08-30 | P4 / KIOR | `61979a6`, `58dfd26`, `0df11e2`, `f2fc780`; seals `2a16db1`, `6281527`; dry-run `33305131273`; apply `33305173344` | COMPLETE | Exact 11-row immutable scope; 11 freshness-only executions, authoritative DB postflight, zero history/commercial delta, idempotency PASS, daily cron active. |
+| 2026-08-30 | P3 / identity | eBay `33305286364`; GYM HIGH `33305289178` | READ-ONLY / DECISIONS READY | eBay `2582` is a HIGH-confidence rebind candidate. GYM mapping `3333` is already correctly bound to exact `500g`; stale control config should later be corrected. Zero writes. |
+| 2026-08-30 | P5 / P6 final | Watchdog `33305571284`, artifact `9730349176`; Catalog Health read `2026-08-30T10:04:20.684Z` | READ-ONLY FAIL / CRITICAL | KIOR PASS; 6 Pack evidence-only PF signal; aggregate gaps remain truthful. Dashboard Critical solely because 208 products lack a valid in-stock offer. Zero writes. |
 
 ## 9. Owner-required blockers
 
 The detailed consolidated owner decisions and commercial deltas are in [Automation-Reliability-Owner-Decisions.md](./Automation-Reliability-Owner-Decisions.md). Group A is executed. The remaining decisions are:
 
-1. **New eBay drift:** review offer `2582`; it was not part of Group A and safely prevented the ordinary apply.
-2. **New GYM HIGH drift:** review mapping `3333`; it was not part of Group A and safely prevented the ordinary apply.
+1. **EBAY_2582 — HIGH / APPROVE_REBIND:** fresh evidence supports rebinding mapping `2767` and offer `2582` from Default variant `1179` to existing exact `30 Servings` variant `2910`, with no commercial, URL or history change. This is the only current approval block.
+2. **GYM_HIGH_3333 — HIGH / KEEP_CURRENT:** live mapping `385` and offer `551` already point to exact `500g` variant `2972`. Keep DB state; later correct the stale control/bootstrap expectation `572 -> 2972` without production rebind.
 3. **Legacy/review scopes:** decide grouped remediation for Whey ten source-missing rows and 284 identity gaps, Discount 137 executable plus five review rows, and Dolphin two identity gaps.
-4. **Future automation authority:** decide the exact autonomous KIOR and Predators scopes and the read-only control-ledger projection for Catalog Health. KIOR's identity promotion does not itself authorize freshness writes.
+4. **Future automation authority:** decide the exact autonomous Predators scope and the read-only control-ledger projection for Catalog Health. KIOR authority is already bounded to and proven for its immutable eleven-row manifest.
 
 No production apply is implied by these entries. Each approved operation must still use its existing protected workflow, fresh source capture, stale-state guards and DB postflight. Later ambiguous rows remain grouped into one bounded review report per retailer rather than individual interruptions.
 
