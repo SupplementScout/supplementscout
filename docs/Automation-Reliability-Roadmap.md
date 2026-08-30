@@ -1,5 +1,14 @@
 # Automation Reliability Roadmap
 
+### Unified Review Queue implementation start — 30 August 2026, 13:52 UTC
+
+- Clean `main` and `origin/main` start at `e936a6e`; worktree was clean, `verify:project` passed and the final owner pack retained file SHA-256 `db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a`.
+- Fresh read-only Catalog Health at `2026-08-30T13:49:43.650Z` confirms no drift from the prior checkpoint: global stale `354/322` over 7/30 days, Whey `284/284`, Discount `47/36`, Dolphin `2/2`, eBay `21/0`, all other retailers `0/0`, and 208 products without a valid in-stock offer. Overall remains `Critical` under the unchanged rule.
+- Existing infrastructure will be extended, not duplicated: `/admin/product-matching`, `product_match_review_queue`, signed admin sessions, product-match decisions, immutable source/artifact fingerprints, the protected import-plan approval/apply RPCs, retailer control ledgers, postflights, idempotency and watchdog GitHub evidence already exist.
+- The production queue currently contains 141 unconsumed, already-decided 6 Pack identity rows and no pending rows. Its current schema is identity-oriented and lacks offer/mapping IDs, before/after commercial evidence, expiry, workflow links, execution lifecycle and immutable decision events. The validator role correctly has no queue SELECT; the existing admin server connection can read it. No privilege expansion is planned.
+- Reuse plan: add only nullable retailer-offer review fields and an immutable audit/event table; retain legacy rows and decisions; make publishing idempotent on retailer + offer + fingerprint; keep UI writes confined to review decisions/audit; route any catalogue execution through existing builders and protected approval/apply RPCs. Direct catalogue SQL from the UI remains forbidden.
+- Work sequence: fresh eBay source capture and per-row source-failure isolation; fresh Discount package; additive queue schema plus RLS/RPC guards; shared `/admin/product-matching` filters/actions/impact preview; idempotent queue population for current eBay/Discount/Dolphin/Whey and fresh GYM drifts; Catalog Health/watchdog integration; local/full verification; protected migration deployment and read-only postflight; final evidence checkpoint.
+
 ### Remaining-stale reconciliation checkpoint — 30 August 2026, 13:35 UTC
 
 - **Outcome: `RELIABILITY_NO_SAFE_PROGRESS`.** All permitted read-only work completed, but no new production row met every execution guard. No production apply was dispatched in this phase. The complete unresolved-row artifact is `docs/rollouts/automation-reliability-owner-pack-2026-08-30-final.json`, file SHA-256 `db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a` and payload SHA-256 `c3891eacd2427f45bf8866ac4eeaf997a8286ae7351578f3dcb0643083ff5e01`.
