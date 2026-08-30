@@ -25,8 +25,16 @@ on:
         description: "Exact 40-character commit shared by dry-run and apply"
         required: false
         type: string
-      approved_source_fingerprint:
-        description: "Timestamp-independent semantic source fingerprint"
+      approved_full_capture_fingerprint:
+        description: "Audit fingerprint for all 237 stable semantic source rows"
+        required: false
+        type: string
+      approved_executable_source_fingerprint:
+        description: "Binding fingerprint for the exact approved executable source rows"
+        required: false
+        type: string
+      approved_review_scope_fingerprint:
+        description: "Audit fingerprint for the exact approved review rows"
         required: false
         type: string
       approved_plan_fingerprint:
@@ -95,7 +103,9 @@ jobs:
           APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
           APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
           APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
-          APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          APPROVED_FULL_CAPTURE_FINGERPRINT: ${{ inputs.approved_full_capture_fingerprint }}
+          APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: ${{ inputs.approved_executable_source_fingerprint }}
+          APPROVED_REVIEW_SCOPE_FINGERPRINT: ${{ inputs.approved_review_scope_fingerprint }}
           APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
           APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
           APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
@@ -107,7 +117,9 @@ jobs:
             printf '%s' "$APPROVED_DRY_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
             printf '%s' "$APPROVED_ARTIFACT_ID" | grep -Eq '^[1-9][0-9]*$'
             printf '%s' "$APPROVED_COMMIT_SHA" | grep -Eq '^[0-9a-f]{40}$'
-            printf '%s' "$APPROVED_SOURCE_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+            printf '%s' "$APPROVED_FULL_CAPTURE_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+            printf '%s' "$APPROVED_EXECUTABLE_SOURCE_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+            printf '%s' "$APPROVED_REVIEW_SCOPE_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
             printf '%s' "$APPROVED_PLAN_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
             printf '%s' "$APPROVED_MANIFEST_SHA256" | grep -Eq '^[0-9a-f]{64}$'
             printf '%s' "$APPROVED_REPORT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
@@ -131,7 +143,9 @@ jobs:
           EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
           EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
           EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
-          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT: ${{ inputs.approved_full_capture_fingerprint }}
+          EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: ${{ inputs.approved_executable_source_fingerprint }}
+          EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT: ${{ inputs.approved_review_scope_fingerprint }}
           EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
           EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
           EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
@@ -155,7 +169,9 @@ jobs:
           EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
           EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
           EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
-          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT: ${{ inputs.approved_full_capture_fingerprint }}
+          EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: ${{ inputs.approved_executable_source_fingerprint }}
+          EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT: ${{ inputs.approved_review_scope_fingerprint }}
           EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
           EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
           EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
@@ -178,7 +194,9 @@ jobs:
           EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
           EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
           EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
-          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT: ${{ inputs.approved_full_capture_fingerprint }}
+          EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: ${{ inputs.approved_executable_source_fingerprint }}
+          EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT: ${{ inputs.approved_review_scope_fingerprint }}
           EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
           EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
           EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}
@@ -191,7 +209,9 @@ jobs:
           EBAY_APPROVED_DRY_RUN_ID: ${{ inputs.approved_dry_run_id }}
           EBAY_APPROVED_ARTIFACT_ID: ${{ inputs.approved_artifact_id }}
           EBAY_APPROVED_COMMIT_SHA: ${{ inputs.approved_commit_sha }}
-          EBAY_APPROVED_SOURCE_FINGERPRINT: ${{ inputs.approved_source_fingerprint }}
+          EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT: ${{ inputs.approved_full_capture_fingerprint }}
+          EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: ${{ inputs.approved_executable_source_fingerprint }}
+          EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT: ${{ inputs.approved_review_scope_fingerprint }}
           EBAY_APPROVED_PLAN_FINGERPRINT: ${{ inputs.approved_plan_fingerprint }}
           EBAY_APPROVED_MANIFEST_SHA256: ${{ inputs.approved_manifest_sha256 }}
           EBAY_APPROVED_REPORT_SHA256: ${{ inputs.approved_report_sha256 }}

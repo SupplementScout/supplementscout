@@ -80,6 +80,9 @@ function findContractEvidence(value) {
       plan_fingerprint: value.plan_fingerprint || null,
       postflight_hash: value.postflight_hash || null,
       source_fingerprint: value.source_fingerprint || null,
+      full_capture_fingerprint: value.full_capture_fingerprint || null,
+      executable_source_fingerprint: value.executable_source_fingerprint || null,
+      review_scope_fingerprint: value.review_scope_fingerprint || null,
       idempotency_result: value.idempotency_result || null,
       database_writes: Number.isInteger(value.database_writes) ? value.database_writes : null,
     };
@@ -126,7 +129,7 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
     }
     if (contract.blocked_row_count !== 0) failures.push("BLOCKED_ROWS_PRESENT");
     if (String(profile.id) === "12") {
-      for (const field of ["execution_offer_ids", "expected_deltas", "commit_sha", "manifest_sha256", "source_fingerprint", "plan_fingerprint", "postflight_hash"]) if (!contract[field]) failures.push(`EBAY_${field.toUpperCase()}_MISSING`);
+      for (const field of ["execution_offer_ids", "expected_deltas", "commit_sha", "manifest_sha256", "full_capture_fingerprint", "executable_source_fingerprint", "review_scope_fingerprint", "plan_fingerprint", "postflight_hash"]) if (!contract[field]) failures.push(`EBAY_${field.toUpperCase()}_MISSING`);
       if (contract.idempotency_result !== "PASS") failures.push("EBAY_IDEMPOTENCY_NOT_PASSED");
       if (contract.database_writes !== contract.executed_plan_count) failures.push("EBAY_DATABASE_WRITE_COUNT_MISMATCH");
     }

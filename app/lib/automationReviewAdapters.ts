@@ -44,7 +44,7 @@ export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze([
     reviewBinding: "immutable-review-record",
     manualCatalogueBinding: Object.freeze({
       kind: "github-artifact",
-      requiredInputs: Object.freeze(["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_source_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]),
+      requiredInputs: Object.freeze(["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_full_capture_fingerprint", "approved_executable_source_fingerprint", "approved_review_scope_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]),
       semanticTimestampPolicy: "capture-time-only",
     }),
   }),

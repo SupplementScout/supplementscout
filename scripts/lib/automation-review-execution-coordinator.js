@@ -97,7 +97,7 @@ async function coordinateReviewExecution({ reviewItem, actor, adapter, mode = "d
     invariant(hash(commercialState(plan.before_state.offer || plan.before_state)) === hash(commercialState(plan.after_state.offer || plan.after_state)), "FRESHNESS_ONLY_COMMERCIAL_DRIFT");
     invariant(Number(plan.expected_deltas?.price_history || 0) === 0, "FRESHNESS_ONLY_HISTORY_DRIFT");
   }
-  const prepared = { result: "READY", mode, workflow: capability.workflow, review_id: String(reviewItem.id), offer_id: String(reviewItem.offer_id), source_fingerprint: source.fingerprint, plan_fingerprint: plan.fingerprint, expected_deltas: plan.expected_deltas };
+  const prepared = { result: "READY", mode, workflow: capability.workflow, review_id: String(reviewItem.id), offer_id: String(reviewItem.offer_id), source_fingerprint: source.fingerprint, full_capture_fingerprint: source.fingerprint, executable_source_fingerprint: source.fingerprint, review_scope_fingerprint: hash([]), source_row_fingerprints: [{ offer_id: String(reviewItem.offer_id), semantic_fingerprint: source.fingerprint, scope: "EXECUTABLE" }], executable_offer_ids: [String(reviewItem.offer_id)], review_offer_ids: [], plan_fingerprint: plan.fingerprint, expected_deltas: plan.expected_deltas };
   if (mode === "dry-run") return { ...prepared, database_writes: 0 };
 
   const executionId = await checkpoint("EXECUTING", prepared);

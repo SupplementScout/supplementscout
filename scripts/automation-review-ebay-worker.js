@@ -63,7 +63,10 @@ function executionEvidence(review, approved, postflight, idempotency, baseline) 
     executed_offer_ids: [String(review.offer_id)], failed_offer_ids: [], remaining_offer_ids: [], expected_deltas: plan.expected_deltas || { price_history: 0 },
     actual_deltas: { freshness: postflight.freshness_change_count, price: postflight.price_change_count, stock: postflight.stock_change_count, shipping: postflight.shipping_change_count, total: postflight.total_change_count, offer_url: postflight.offer_url_change_count, mapping_url: postflight.mapping_url_change_count },
     price_history_delta: postflight.price_history_delta, database_writes: 1, idempotency_result: idempotency,
-    baseline_hash: baseline.evidence_hash, source_fingerprint: review.source_row_fingerprint, plan_fingerprint: approved.entry.plan_fingerprint,
+    baseline_hash: baseline.evidence_hash, source_fingerprint: review.source_row_fingerprint,
+    full_capture_fingerprint: review.source_row_fingerprint, executable_source_fingerprint: review.source_row_fingerprint,
+    review_scope_fingerprint: hash([]), source_row_fingerprints: [{ offer_id: String(review.offer_id), semantic_fingerprint: review.source_row_fingerprint, scope: "EXECUTABLE" }],
+    executable_offer_ids: [String(review.offer_id)], review_offer_ids: [], plan_fingerprint: approved.entry.plan_fingerprint,
   };
 }
 async function run(options, dependencies = {}) {
@@ -97,7 +100,7 @@ async function run(options, dependencies = {}) {
     databaseWrites = 1;
     invariant(String(applied?.offer_id) === scope.offer_id && applied?.price_history_id == null, "APPLY_RESULT_SCOPE_DRIFT");
     const reviewRows = SCOPES.filter((candidate) => candidate.offer_id !== scope.offer_id).map((candidate) => ({ offer_id: candidate.offer_id, review_type: "NOT_SELECTED_BY_EXECUTION_REQUEST" }));
-    const execution = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 236, blocked_row_count: 0, execution_offer_ids: [scope.offer_id], review_rows: reviewRows, expected_deltas: { logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 }, row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 } } };
+    const execution = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 236, blocked_row_count: 0, execution_offer_ids: [scope.offer_id], review_rows: reviewRows, full_capture_fingerprint: state.review.source_row_fingerprint, executable_source_fingerprint: state.review.source_row_fingerprint, review_scope_fingerprint: hash(reviewRows), source_row_fingerprints: [{ offer_id: scope.offer_id, semantic_fingerprint: state.review.source_row_fingerprint, scope: "EXECUTABLE" }], expected_deltas: { logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 }, row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 } } };
     fs.writeFileSync(executionPath, `${JSON.stringify(execution, null, 2)}\n`);
     const postflight = await (dependencies.runPostflight || runPostflight)({ profile: "ebay-uk", mode: "postflight", baseline: baselinePath, execution: executionPath, output: postflightPath }, dependencies);
     const fresh = dependencies.idempotencyPrepared || await prepareScope(scope, dependencies.idempotencyEvaluation || await buildSource(scope, config, dependencies.fetchImpl || fetch, token), "dry-run", dependencies, `${Date.now()}-idempotency`);

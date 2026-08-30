@@ -735,9 +735,15 @@ test("automation review adapter registry is exact, default-deny and freshness-on
   assert.match(source, /isolation: "per-row"/);
   assert.match(source, /reviewBinding: "immutable-review-record"/);
   assert.match(source, /kind: "github-artifact"/);
-  for (const input of ["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_source_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]) assert.match(source, new RegExp(input));
+  for (const input of ["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_full_capture_fingerprint", "approved_executable_source_fingerprint", "approved_review_scope_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]) assert.match(source, new RegExp(input));
   assert.match(source, /EXECUTION_UNSUPPORTED/);
   assert.doesNotMatch(source, /UPDATE_PRICE|UPDATE_STOCK|REBIN|MARK_OOS/);
+});
+
+test("automation review UI exposes executable versus review drift scope", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "page.tsx"), "utf8");
+  assert.match(source, /source_evidence\?\.drift_scope/);
+  assert.match(source, /Drift scope: \{driftScope\}/);
 });
 
 test("execution request migration is additive, immutable, role-closed and contains no catalogue DML", () => {

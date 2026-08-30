@@ -323,12 +323,11 @@ function loadScopes() {
 
 const SCOPES = loadScopes();
 const SCOPE = SCOPES.find((scope) => scope.offer_id === "2558");
-const ISOLATED_SOURCE_FAILURE_OFFER_IDS = new Set(["2686"]);
 function pendingArtifact(scope) { return path.join(OUT, `pending-${scope.offer_id}.json`); }
 
 function partitionSourceFailures(unsafeRows) {
   const sourceFailures = unsafeRows.filter((row) => row.source_error === "SOURCE_READ_FAILED");
-  const isolated = sourceFailures.length === 1 && ISOLATED_SOURCE_FAILURE_OFFER_IDS.has(String(sourceFailures[0].offer_id));
+  const isolated = sourceFailures.length <= 1;
   return {
     globalBlocked: isolated ? [] : sourceFailures,
     sourceFailureReview: isolated ? sourceFailures.map((row) => ({ ...row, review_type: "SOURCE_FAILURE" })) : [],
@@ -338,7 +337,7 @@ function partitionSourceFailures(unsafeRows) {
 function writePendingBatch(report, now) {
   if (report.blocked_row_count !== 0) fail("Global eBay refresh blockers prevent apply preparation");
   const manifest = {
-    schema_version: 1,
+    schema_version: 2,
     kind: KIND,
     created_at: now.toISOString(),
     offer_ids: SCOPES.map((scope) => scope.offer_id),
@@ -347,6 +346,15 @@ function writePendingBatch(report, now) {
     blocked_rows: report.blocked_rows,
     commit_sha: report.commit_sha,
     source_fingerprint: report.source_fingerprint,
+    full_capture_fingerprint: report.full_capture_fingerprint,
+    executable_source_fingerprint: report.executable_source_fingerprint,
+    review_scope_fingerprint: report.review_scope_fingerprint,
+    approved_full_capture_fingerprint: report.approved_full_capture_fingerprint || report.full_capture_fingerprint,
+    approved_review_scope_fingerprint: report.approved_review_scope_fingerprint || report.review_scope_fingerprint,
+    fresh_full_capture_fingerprint: report.fresh_full_capture_fingerprint || report.full_capture_fingerprint,
+    fresh_review_scope_fingerprint: report.fresh_review_scope_fingerprint || report.review_scope_fingerprint,
+    source_row_fingerprints: report.source_row_fingerprints,
+    plan_row_fingerprints: report.plan_row_fingerprints,
     plan_fingerprint: report.plan_fingerprint,
   };
   const bytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
@@ -365,7 +373,10 @@ function loadPendingBatch(now = new Date()) {
   const executable = new Set(manifest.executable_offer_ids || []);
   const review = new Set((manifest.review_rows || []).map((row) => String(row.offer_id)));
   const blocked = new Set((manifest.blocked_rows || []).map((row) => String(row.offer_id)));
-  if (manifest.schema_version !== 1 || manifest.kind !== KIND || !Number.isFinite(ageMs) || ageMs < -120000 || ageMs > 15 * 60 * 1000 || JSON.stringify(manifest.offer_ids) !== JSON.stringify(SCOPES.map((scope) => scope.offer_id)) || executable.size !== (manifest.executable_offer_ids || []).length || review.size !== (manifest.review_rows || []).length || blocked.size !== (manifest.blocked_rows || []).length || blocked.size !== 0 || [...executable].some((id) => review.has(id) || blocked.has(id)) || [...review].some((id) => blocked.has(id)) || executable.size + review.size !== SCOPES.length || SCOPES.some((scope) => !executable.has(scope.offer_id) && !review.has(scope.offer_id))) fail("Pending eBay refresh batch scope, partition or freshness mismatch");
+  const sourceFingerprintIds = new Set((manifest.source_row_fingerprints || []).map((row) => String(row.offer_id)));
+  const planFingerprintIds = new Set((manifest.plan_row_fingerprints || []).map((row) => String(row.offer_id)));
+  const fingerprintFields = ["source_fingerprint", "full_capture_fingerprint", "executable_source_fingerprint", "review_scope_fingerprint", "approved_full_capture_fingerprint", "approved_review_scope_fingerprint", "fresh_full_capture_fingerprint", "fresh_review_scope_fingerprint", "plan_fingerprint"];
+  if (manifest.schema_version !== 2 || manifest.kind !== KIND || !Number.isFinite(ageMs) || ageMs < -120000 || ageMs > 15 * 60 * 1000 || JSON.stringify(manifest.offer_ids) !== JSON.stringify(SCOPES.map((scope) => scope.offer_id)) || executable.size !== (manifest.executable_offer_ids || []).length || review.size !== (manifest.review_rows || []).length || blocked.size !== (manifest.blocked_rows || []).length || blocked.size !== 0 || [...executable].some((id) => review.has(id) || blocked.has(id)) || [...review].some((id) => blocked.has(id)) || executable.size + review.size !== SCOPES.length || SCOPES.some((scope) => !executable.has(scope.offer_id) && !review.has(scope.offer_id)) || sourceFingerprintIds.size !== SCOPES.length || SCOPES.some((scope) => !sourceFingerprintIds.has(scope.offer_id)) || planFingerprintIds.size !== executable.size || [...executable].some((id) => !planFingerprintIds.has(id)) || (manifest.source_row_fingerprints || []).some((row) => !/^[0-9a-f]{64}$/.test(row.semantic_fingerprint || "")) || (manifest.plan_row_fingerprints || []).some((row) => row.scope !== "EXECUTABLE" || !/^[0-9a-f]{64}$/.test(row.semantic_fingerprint || "")) || fingerprintFields.some((field) => !/^[0-9a-f]{64}$/.test(manifest[field] || ""))) fail("Pending eBay refresh batch scope, partition or freshness mismatch");
   return { manifest, executable, manifestSha256: expectedHash };
 }
 
@@ -515,7 +526,7 @@ async function run(options, dependencies = {}) {
     let approvedInput = null;
     if ((dependencies.env || process.env).GITHUB_EVENT_NAME === "workflow_dispatch") {
       approvedInput = approvedFromEnv(dependencies.env || process.env);
-      if (batch.manifest.commit_sha !== approvedInput.commitSha || batch.manifest.source_fingerprint !== approvedInput.sourceFingerprint || batch.manifest.plan_fingerprint !== approvedInput.planFingerprint) fail("Pending batch escaped the approved artifact-bound contract");
+      if (batch.manifest.commit_sha !== approvedInput.commitSha || batch.manifest.approved_full_capture_fingerprint !== approvedInput.fullCaptureFingerprint || batch.manifest.executable_source_fingerprint !== approvedInput.executableSourceFingerprint || batch.manifest.approved_review_scope_fingerprint !== approvedInput.reviewScopeFingerprint || batch.manifest.plan_fingerprint !== approvedInput.planFingerprint) fail("Pending batch escaped the approved executable-scope contract");
     }
     const approved = SCOPES.filter((scope) => batch.executable.has(scope.offer_id)).map((scope) => validatePreparedArtifact(scope, (dependencies.loadDryRunArtifact || loadDryRunArtifact)(pendingArtifact(scope)), now));
     for (const item of approved) await (dependencies.executePlan || executePlan)(item, KIND);
@@ -541,6 +552,13 @@ async function run(options, dependencies = {}) {
       commit_sha: process.env.GITHUB_SHA || null,
       manifest_sha256: batch.manifestSha256,
       source_fingerprint: batch.manifest.source_fingerprint,
+      full_capture_fingerprint: batch.manifest.full_capture_fingerprint,
+      executable_source_fingerprint: batch.manifest.executable_source_fingerprint,
+      review_scope_fingerprint: batch.manifest.review_scope_fingerprint,
+      approved_full_capture_fingerprint: batch.manifest.approved_full_capture_fingerprint,
+      approved_review_scope_fingerprint: batch.manifest.approved_review_scope_fingerprint,
+      fresh_full_capture_fingerprint: batch.manifest.fresh_full_capture_fingerprint,
+      fresh_review_scope_fingerprint: batch.manifest.fresh_review_scope_fingerprint,
       plan_fingerprint: batch.manifest.plan_fingerprint,
       approved_dry_run_id: approvedInput?.runId || null,
       approved_artifact_id: approvedInput?.artifactId || null,
@@ -611,7 +629,8 @@ async function run(options, dependencies = {}) {
     scope: { offers: SCOPES.length, executable: executableRows.length, review: reviewRows.length, blocked: globalBlocked.length, offer_ids: SCOPES.map((scope) => scope.offer_id) },
     classification,
     classifications: Object.fromEntries(preparedRows.map((row) => [row.offer_id, row.action])),
-    source: evaluations.map((evaluation, index) => ({ offer_id: SCOPES[index].offer_id, item_id: evaluation.item_id, gtin: evaluation.returned_gtin, continuity_tier: evaluation.continuity.tier, price: evaluation.item_price?.value ?? null, shipping: evaluation.uk_shipping?.value ?? null, delivered: evaluation.delivered_price?.value ?? null })),
+    captured_at: now.toISOString(),
+    source: evaluations.map((evaluation, index) => ({ offer_id: SCOPES[index].offer_id, item_id: evaluation.item_id, gtin: evaluation.returned_gtin, continuity_tier: evaluation.continuity.tier, price: evaluation.item_price?.value ?? null, shipping: evaluation.uk_shipping?.value ?? null, delivered: evaluation.delivered_price?.value ?? null, captured_at: now.toISOString(), source_retry: evaluation.source_retry || null, http_metadata: evaluation.http_metadata || null })),
     review_rows: reviewRows,
     blocked_rows: globalBlocked,
     commercial_change_count: commercialReview.length,
@@ -628,7 +647,9 @@ async function run(options, dependencies = {}) {
   if (options.mode === "prepare-apply" && !globalBlocked.length) {
     if ((dependencies.env || process.env).GITHUB_EVENT_NAME === "workflow_dispatch") {
       const approved = loadAndVerifyContract(path.dirname(path.resolve(options.approvedContract)), approvedFromEnv(dependencies.env || process.env), now);
-      verifyFreshReport(approved, report);
+      fs.writeFileSync(path.join(OUT, "fresh-revalidation-candidate.json"), `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
+      report = verifyFreshReport(approved, report);
+      fs.writeFileSync(path.join(OUT, "fresh-revalidation-result.json"), `${JSON.stringify({ result: "PASS", drift_scope: report.drift_scope, approved_executable_offer_ids: report.execution_offer_ids, fresh_candidate_executable_offer_ids: report.fresh_candidate_executable_offer_ids, full_capture_fingerprint: report.full_capture_fingerprint, executable_source_fingerprint: report.executable_source_fingerprint, review_scope_fingerprint: report.review_scope_fingerprint, plan_fingerprint: report.plan_fingerprint, database_writes: 0 }, null, 2)}\n`, { flag: "wx" });
     }
     const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now);
     report.manifest_sha256 = binding?.manifestSha256 || null;

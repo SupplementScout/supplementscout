@@ -9,7 +9,7 @@ const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdent
 const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, partitionSourceFailures, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
-const { approvalConfirmation, approvedFromEnv, bindSemanticEvidence, canonicalHash, fileSha256, loadAndVerifyContract, verifyDatabaseBaseline, verifyFreshReport, writeDryRunContract } = require("./lib/ebay-artifact-bound-contract");
+const { approvalConfirmation, approvedFromEnv, bindSemanticEvidence, buildSemanticPlanRows, buildSemanticSourceRows, fileSha256, loadAndVerifyContract, stableAffiliateUrl, verifyDatabaseBaseline, verifyFreshReport, writeDryRunContract } = require("./lib/ebay-artifact-bound-contract");
 const { downloadAndVerify } = require("./ebay-artifact-bound-verifier");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
@@ -283,7 +283,7 @@ test("eBay refresh is frozen to the exact 237 approved existing offers", () => {
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=dry-run"]), { target: "production", mode: "dry-run" });
   assert.deepEqual(parseRefreshArgs(["--target=production", "--mode=execute-apply"]), { target: "production", mode: "execute-apply" });
   assert.throws(() => parseRefreshArgs(["--target=staging", "--mode=execute-apply"]), /production/);
-  const approval = { GITHUB_ACTIONS: "true", GITHUB_REF: "refs/heads/main", GITHUB_EVENT_NAME: "workflow_dispatch", EBAY_APPROVED_DRY_RUN_ID: "1", EBAY_APPROVED_ARTIFACT_ID: "2", EBAY_APPROVED_COMMIT_SHA: "a".repeat(40), EBAY_APPROVED_SOURCE_FINGERPRINT: "b".repeat(64), EBAY_APPROVED_PLAN_FINGERPRINT: "c".repeat(64), EBAY_APPROVED_MANIFEST_SHA256: "d".repeat(64), EBAY_APPROVED_REPORT_SHA256: "e".repeat(64), EBAY_REFRESH_OWNER_CONFIRMATION: approvalConfirmation("c".repeat(64), "d".repeat(64)) };
+  const approval = { GITHUB_ACTIONS: "true", GITHUB_REF: "refs/heads/main", GITHUB_EVENT_NAME: "workflow_dispatch", EBAY_APPROVED_DRY_RUN_ID: "1", EBAY_APPROVED_ARTIFACT_ID: "2", EBAY_APPROVED_COMMIT_SHA: "a".repeat(40), EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT: "b".repeat(64), EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: "f".repeat(64), EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT: "9".repeat(64), EBAY_APPROVED_PLAN_FINGERPRINT: "c".repeat(64), EBAY_APPROVED_MANIFEST_SHA256: "d".repeat(64), EBAY_APPROVED_REPORT_SHA256: "e".repeat(64), EBAY_REFRESH_OWNER_CONFIRMATION: approvalConfirmation("c".repeat(64), "d".repeat(64)) };
   assert.throws(() => assertExecutionContext("execute-apply", { ...approval, EBAY_REFRESH_OWNER_CONFIRMATION: "wrong" }), /owner confirmation/);
   assert.doesNotThrow(() => assertExecutionContext("execute-apply", approval));
   assert.equal(REFRESH_CONFIRMATION, "OWNER_APPROVED_EBAY_REFRESH");
@@ -726,14 +726,14 @@ test("Batch R refresh continuity remains sealed to the exact approved item, sell
   assert.equal(classifyContinuity(exact, evaluation("2722", "powerbodyltd", [], [], exact.gtin)).eligible, false);
 });
 
-test("eBay refresh isolates only the reviewed source failure and keeps all other source failures global", () => {
+test("eBay refresh isolates one source failure per row and keeps a systemic multi-row failure global", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
   assert.match(source, /catch \{[\s\S]*blockers: \["SOURCE_READ_FAILED"\][\s\S]*continuity: \{ eligible: false, tier: "blocked" \}/);
   assert.deepEqual(partitionSourceFailures([{ offer_id: "2686", source_error: "SOURCE_READ_FAILED" }]), {
     globalBlocked: [],
     sourceFailureReview: [{ offer_id: "2686", source_error: "SOURCE_READ_FAILED", review_type: "SOURCE_FAILURE" }],
   });
-  assert.equal(partitionSourceFailures([{ offer_id: "2685", source_error: "SOURCE_READ_FAILED" }]).globalBlocked.length, 1);
+  assert.equal(partitionSourceFailures([{ offer_id: "2685", source_error: "SOURCE_READ_FAILED" }]).sourceFailureReview.length, 1);
   assert.equal(partitionSourceFailures([{ offer_id: "2686", source_error: "SOURCE_READ_FAILED" }, { offer_id: "2685", source_error: "SOURCE_READ_FAILED" }]).globalBlocked.length, 2);
   assert.match(source, /executableRows = globalBlocked\.length \? \[\]/);
   assert.match(source, /automatic_oos: "blocked"/);
@@ -825,7 +825,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /default: dry-run/);
   assert.doesNotMatch(workflow, /\bpush:/);
-  for (const input of ["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_source_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]) assert.match(workflow, new RegExp(`${input}:`));
+  for (const input of ["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_full_capture_fingerprint", "approved_executable_source_fingerprint", "approved_review_scope_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]) assert.match(workflow, new RegExp(`${input}:`));
   assert.match(workflow, /OWNER_APPROVED_EBAY_REFRESH:\$APPROVED_PLAN_FINGERPRINT:\$APPROVED_MANIFEST_SHA256/);
   assert.doesNotMatch(workflow, /OWNER_APPROVED_EBAY_REFRESH_EXACT_237/);
   assert.match(workflow, /actions: read/);
@@ -851,7 +851,7 @@ function artifactBoundFixture(now = new Date("2026-08-30T18:00:00.000Z")) {
   const allIds = Array.from({ length: 237 }, (_, index) => String(2539 + index));
   const executableIds = allIds.filter((id) => id !== "2686").slice(0, 197);
   const reviewIds = allIds.filter((id) => !executableIds.includes(id));
-  const semanticSourceRows = allIds.map((id) => ({ offer_id: id, item_id: `item-${id}`, price: "10", shipping: "0", total: "10", in_stock: true, url: `https://www.ebay.co.uk/itm/${id}` }));
+  const semanticSourceRows = allIds.map((id) => ({ offer_id: id, mapping_id: `m-${id}`, item_id: `item-${id}`, price: "10.00", shipping: "0.00", total: "10.00", in_stock: true, url: `https://www.ebay.co.uk/itm/${id}` }));
   const executable = executableIds.map((id) => ({ offer_id: id, operation_type: "VERIFY_NO_CHANGE", importer_operation_type: "verify_offer_no_change", plan_kind: "feed", retailer_id: "12", product: { action: "existing", id: `p-${id}` }, product_variant: { action: "existing", id: `v-${id}` }, retailer: { action: "existing", id: "12" }, retailer_product: { action: "noop", id: `m-${id}` }, offer: { action: "verify_no_change", id, values: { price: "10", shipping_cost: "0", total_price: "10", in_stock: true, url: `https://www.ebay.co.uk/itm/${id}` } }, price_history: { action: "noop" }, before_state: { offer: { id, product_id: `p-${id}`, product_variant_id: `v-${id}`, retailer_id: "12", retailer_product_id: `m-${id}`, price: "10", shipping_cost: "0", total_price: "10", in_stock: true, url: `https://www.ebay.co.uk/itm/${id}`, last_checked_at: "2026-08-29T00:00:00.000Z" }, retailer_product: { id: `m-${id}`, retailer_id: "12", product_id: `p-${id}`, product_variant_id: `v-${id}`, external_product_id: `ep-${id}`, external_variant_id: `ev-${id}`, external_sku: null, external_gtin: null, external_options: {}, external_url: `https://www.ebay.co.uk/itm/${id}` } } }));
   const reviewRows = reviewIds.map((offer_id, index) => offer_id === "2686" ? { offer_id, review_type: "SOURCE_FAILURE", source_error: "SOURCE_READ_FAILED" } : { offer_id, review_type: index < 7 ? "COMMERCIAL_CHANGE" : "IDENTITY_CONFLICT", action: index < 7 ? "UPDATE_PRICE" : "IDENTITY_CONFLICT" });
   const semanticPlanRows = { executable, review: reviewRows, blocked: [] };
@@ -861,14 +861,14 @@ function artifactBoundFixture(now = new Date("2026-08-30T18:00:00.000Z")) {
   fs.writeFileSync(path.join(directory, "dry-run-evidence.json"), `${JSON.stringify({ result: "PASS", database_writes: 0 })}\n`);
   const github = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_RUN_ID: "123", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: report.commit_sha };
   const emitted = writeDryRunContract(directory, report, github, now);
-  const env = { ...github, EBAY_APPROVED_DRY_RUN_ID: "123", EBAY_APPROVED_ARTIFACT_ID: "456", EBAY_APPROVED_COMMIT_SHA: report.commit_sha, EBAY_APPROVED_SOURCE_FINGERPRINT: report.source_fingerprint, EBAY_APPROVED_PLAN_FINGERPRINT: report.plan_fingerprint, EBAY_APPROVED_MANIFEST_SHA256: emitted.manifestSha256, EBAY_APPROVED_REPORT_SHA256: emitted.reportSha256, EBAY_REFRESH_OWNER_CONFIRMATION: approvalConfirmation(report.plan_fingerprint, emitted.manifestSha256) };
+  const env = { ...github, EBAY_APPROVED_DRY_RUN_ID: "123", EBAY_APPROVED_ARTIFACT_ID: "456", EBAY_APPROVED_COMMIT_SHA: report.commit_sha, EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT: report.full_capture_fingerprint, EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT: report.executable_source_fingerprint, EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT: report.review_scope_fingerprint, EBAY_APPROVED_PLAN_FINGERPRINT: report.plan_fingerprint, EBAY_APPROVED_MANIFEST_SHA256: emitted.manifestSha256, EBAY_APPROVED_REPORT_SHA256: emitted.reportSha256, EBAY_REFRESH_OWNER_CONFIRMATION: approvalConfirmation(report.plan_fingerprint, emitted.manifestSha256) };
   return { directory, report, emitted, env, now };
 }
 
 test("eBay artifact-bound approval requires every immutable input and an exact derived confirmation", () => {
   const fixture = artifactBoundFixture();
   assert.equal(approvedFromEnv(fixture.env).runId, "123");
-  for (const field of ["EBAY_APPROVED_DRY_RUN_ID", "EBAY_APPROVED_ARTIFACT_ID", "EBAY_APPROVED_COMMIT_SHA", "EBAY_APPROVED_SOURCE_FINGERPRINT", "EBAY_APPROVED_PLAN_FINGERPRINT", "EBAY_APPROVED_MANIFEST_SHA256", "EBAY_APPROVED_REPORT_SHA256", "EBAY_REFRESH_OWNER_CONFIRMATION"]) {
+  for (const field of ["EBAY_APPROVED_DRY_RUN_ID", "EBAY_APPROVED_ARTIFACT_ID", "EBAY_APPROVED_COMMIT_SHA", "EBAY_APPROVED_FULL_CAPTURE_FINGERPRINT", "EBAY_APPROVED_EXECUTABLE_SOURCE_FINGERPRINT", "EBAY_APPROVED_REVIEW_SCOPE_FINGERPRINT", "EBAY_APPROVED_PLAN_FINGERPRINT", "EBAY_APPROVED_MANIFEST_SHA256", "EBAY_APPROVED_REPORT_SHA256", "EBAY_REFRESH_OWNER_CONFIRMATION"]) {
     assert.throws(() => approvedFromEnv({ ...fixture.env, [field]: "" }), /missing|invalid|confirmation/);
   }
 });
@@ -883,27 +883,102 @@ test("eBay dry-run contract verifies exact file, report, manifest and semantic h
   fs.appendFileSync(reportPath, " ");
   assert.throws(() => loadAndVerifyContract(fixture.directory, approved, new Date(fixture.now.getTime() + 1000)), /report SHA-256|file set or content/);
   assert.equal(fileSha256(path.join(fixture.directory, "production-dry-run-contract.json")), fixture.emitted.manifestSha256);
+  assert.equal(fixture.emitted.manifest.source_row_fingerprints.length, 237);
+  assert.equal(fixture.emitted.manifest.plan_row_fingerprints.length, 197);
 });
 
-test("eBay fresh semantic revalidation permits only capture-time drift and blocks source, plan, scope or action drift", () => {
+test("eBay semantic fingerprints exclude freshness time, row/key order, affiliate amdata and decimal noise", () => {
+  const scope = { offer_id: "1", retailer_product_id: "2", retailer_id: "12", product_id: "3", product_variant_id: "4", external_product_id: "5", external_variant_id: "v1|5|0", external_url: "https://www.ebay.co.uk/itm/5", affiliate_url: "https://www.ebay.co.uk/itm/5?campid=1" };
+  const evaluation = { item_id: "v1|5|0", legacy_item_id: "5", returned_gtin: "123", decision: "AUTO_ELIGIBLE", blockers: [], review_reasons: [], continuity: { tier: "live_exact_gtin" }, seller: { username: "seller", account_type: "BUSINESS" }, item_price: { value: 41.99 }, uk_shipping: { value: 5.99 }, delivered_price: { value: 47.980000000000004 }, affiliate_ready: true, affiliate_url: "https://www.ebay.co.uk/itm/5?campid=1&amdata=volatile-a" };
+  const firstSource = buildSemanticSourceRows([scope], [evaluation]);
+  const secondSource = buildSemanticSourceRows([scope], [{ ...evaluation, affiliate_url: "https://www.ebay.co.uk/itm/5?amdata=volatile-b&campid=1", source_captured_at: "later", retry_metadata: { attempts: 2 }, http_metadata: { request_id: "other" } }]);
+  assert.deepEqual(firstSource, secondSource);
+  assert.equal(firstSource[0].total, "47.98");
+  assert.equal(stableAffiliateUrl(evaluation.affiliate_url), "https://www.ebay.co.uk/itm/5?campid=1");
+  const plan = (lastCheckedAt) => ({ offer_id: "1", action: "VERIFY_NO_CHANGE", approved: { entry: { operation_type: "verify_offer_no_change", plan_kind: "feed", retailer_id: "12", resolved_plan: { product: { action: "existing", id: "3" }, product_variant: { action: "existing", id: "4" }, retailer: { action: "existing", id: "12" }, retailer_product: { action: "noop", id: "2" }, offer: { action: "verify_no_change", id: "1", values: { price: "41.99", shipping_cost: "5.99", total_price: "47.98", in_stock: true, url: scope.affiliate_url, last_checked_at: lastCheckedAt } }, price_history: { action: "noop" }, expected_state: { offer: { id: "1", last_checked_at: "2026-08-30T00:00:00.000Z" } } } } } });
+  assert.deepEqual(buildSemanticPlanRows([plan("2026-08-30T10:00:00.000Z")], [], []), buildSemanticPlanRows([plan("2026-08-30T11:00:00.000Z")], [], []));
+  const refreshSource = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
+  assert.match(refreshSource, /captured_at: now\.toISOString\(\).*source_retry: evaluation\.source_retry.*http_metadata: evaluation\.http_metadata/s);
+});
+
+test("eBay fresh semantic revalidation ignores technical metadata and isolates review-only drift", () => {
   const fixture = artifactBoundFixture();
   const approved = { report: fixture.report };
-  assert.equal(verifyFreshReport(approved, { ...structuredClone(fixture.report), captured_at: "2026-08-30T18:05:00.000Z" }), true);
+  const technical = structuredClone(fixture.report);
+  technical.captured_at = "2026-08-30T18:05:00.000Z";
+  technical.http_metadata = { request_id: "volatile" };
+  technical.retry_metadata = { attempts: 2 };
+  technical.semantic_source_rows.reverse();
+  assert.equal(verifyFreshReport(approved, technical).drift_scope, "NONE");
+  const reviewOnly = structuredClone(fixture.report);
+  const reviewId = fixture.report.review_rows[0].offer_id;
+  reviewOnly.semantic_source_rows.find((row) => row.offer_id === reviewId).price = "99.00";
+  const bounded = verifyFreshReport(approved, reviewOnly);
+  assert.equal(bounded.drift_scope, "REVIEW_ONLY");
+  assert.equal(bounded.executable_plan_count, 197);
+  assert.equal(bounded.review_row_count, 40);
+  const promoted = structuredClone(fixture.report);
+  promoted.review_rows = promoted.review_rows.filter((row) => row.offer_id !== reviewId);
+  promoted.execution_offer_ids.push(reviewId);
+  promoted.semantic_plan_rows.executable.push({ ...structuredClone(promoted.semantic_plan_rows.executable[0]), offer_id: reviewId, offer: { ...structuredClone(promoted.semantic_plan_rows.executable[0].offer), id: reviewId } });
+  promoted.semantic_plan_rows.review = promoted.semantic_plan_rows.review.filter((row) => row.offer_id !== reviewId);
+  promoted.classifications = { [reviewId]: "VERIFY_NO_CHANGE" };
+  const stillBounded = verifyFreshReport(approved, promoted);
+  assert.equal(stillBounded.execution_offer_ids.includes(reviewId), false);
+  assert.equal(stillBounded.review_rows.find((row) => row.offer_id === reviewId).review_type, "UNAPPROVED_EXECUTABLE_CANDIDATE");
+});
+
+test("eBay review-only commercial, identity and source-error drift stays isolated from approved executable rows", () => {
+  const fixture = artifactBoundFixture();
+  const approved = { report: fixture.report };
+  const reviewId = fixture.report.review_rows[0].offer_id;
+  for (const reviewPatch of [
+    { review_type: "COMMERCIAL_CHANGE", action: "UPDATE_PRICE" },
+    { review_type: "IDENTITY_CONFLICT", action: "IDENTITY_CONFLICT", reason: "fresh identity evidence" },
+    { review_type: "SOURCE_FAILURE", source_error: "SOURCE_READ_FAILED" },
+  ]) {
+    const fresh = structuredClone(fixture.report);
+    fresh.review_rows = fresh.review_rows.map((row) => row.offer_id === reviewId ? { offer_id: reviewId, ...reviewPatch } : row);
+    fresh.semantic_plan_rows.review = structuredClone(fresh.review_rows);
+    fresh.semantic_source_rows.find((row) => row.offer_id === reviewId).continuity_tier = reviewPatch.review_type;
+    const bounded = verifyFreshReport(approved, fresh);
+    assert.deepEqual(bounded.execution_offer_ids, fixture.report.execution_offer_ids);
+    assert.equal(bounded.executable_plan_count, 197);
+    assert.equal(bounded.review_row_count, 40);
+    assert.equal(bounded.review_rows.find((row) => row.offer_id === reviewId).review_type, reviewPatch.review_type);
+    assert.equal(bounded.drift_scope, "REVIEW_ONLY");
+  }
+});
+
+test("eBay fresh revalidation evidence is emitted before verification and pending batch preparation", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
+  const evidence = source.indexOf('"fresh-revalidation-candidate.json"');
+  const verification = source.indexOf("report = verifyFreshReport(approved, report)");
+  const pendingBatch = source.indexOf("const binding = (dependencies.writePendingBatch || writePendingBatch)(report, now)");
+  const execution = source.indexOf("await (dependencies.executePlan || executePlan)(item, KIND)");
+  assert.ok(evidence > 0 && evidence < verification && verification < pendingBatch);
+  assert.ok(execution > 0 && source.indexOf('if (options.mode === "execute-apply")') < execution);
+});
+
+test("eBay fresh semantic revalidation blocks any approved executable, plan, inventory or global drift", () => {
+  const fixture = artifactBoundFixture();
+  const approved = { report: fixture.report };
   const mutations = [
-    (value) => { value.semantic_source_rows[0].price = "11"; value.source_fingerprint = canonicalHash(value.semantic_source_rows); },
-    (value) => { value.semantic_plan_rows.executable[0].offer.values.price = "11"; value.plan_fingerprint = canonicalHash(value.semantic_plan_rows); },
-    (value) => { value.semantic_plan_rows.executable[0].offer.values.in_stock = false; value.plan_fingerprint = canonicalHash(value.semantic_plan_rows); },
-    (value) => { value.semantic_plan_rows.executable[0].offer.values.url += "?drift=1"; value.plan_fingerprint = canonicalHash(value.semantic_plan_rows); },
-    (value) => { value.semantic_plan_rows.executable[0].product_variant.id = "other"; value.plan_fingerprint = canonicalHash(value.semantic_plan_rows); },
-    (value) => { value.semantic_plan_rows.executable[0].retailer_product.id = "other"; value.plan_fingerprint = canonicalHash(value.semantic_plan_rows); },
-    (value) => { value.semantic_plan_rows.executable[0].operation_type = "UPDATE_PRICE"; value.plan_fingerprint = canonicalHash(value.semantic_plan_rows); },
+    (value) => { value.semantic_source_rows[0].price = "11.00"; },
+    (value) => { value.semantic_plan_rows.executable[0].offer.values.price = "11"; },
+    (value) => { value.semantic_plan_rows.executable[0].offer.values.in_stock = false; },
+    (value) => { value.semantic_plan_rows.executable[0].offer.values.url += "?drift=1"; },
+    (value) => { value.semantic_plan_rows.executable[0].product_variant.id = "other"; },
+    (value) => { value.semantic_plan_rows.executable[0].retailer_product.id = "other"; },
+    (value) => { value.semantic_plan_rows.executable[0].operation_type = "UPDATE_PRICE"; },
     (value) => { value.execution_offer_ids.pop(); },
-    (value) => { value.review_rows[0].review_type = "OTHER"; },
+    (value) => { value.semantic_source_rows.pop(); },
+    (value) => { value.semantic_source_rows.find((row) => row.offer_id === fixture.report.review_rows[0].offer_id).mapping_id = "other-review-mapping"; },
     (value) => { value.blocked_rows.push({ offer_id: "1" }); value.blocked_row_count = 1; },
   ];
   for (const mutate of mutations) {
     const changed = structuredClone(fixture.report); mutate(changed);
-    assert.throws(() => verifyFreshReport(approved, changed), /drift|contract/);
+    assert.throws(() => verifyFreshReport(approved, changed), /drift|contract|missing|no longer/);
   }
 });
 

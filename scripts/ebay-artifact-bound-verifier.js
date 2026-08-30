@@ -71,7 +71,7 @@ async function downloadAndVerify({ env = process.env, fetchImpl = fetch, spawn =
   fs.writeFileSync(zipPath, archive, { flag: "wx" });
   extractZip(zipPath, approvedDirectory, spawn);
   const verified = loadAndVerifyContract(approvedDirectory, approved, now);
-  const evidence = { schema_version: 1, kind: "ebay-approved-dry-run-verification", result: "PASS", repository: REPOSITORY, workflow: WORKFLOW, run_id: approved.runId, artifact_id: approved.artifactId, commit_sha: approved.commitSha, manifest_sha256: approved.manifestSha256, report_sha256: approved.reportSha256, artifact_content_sha256: verified.manifest.artifact_content_sha256, source_fingerprint: approved.sourceFingerprint, plan_fingerprint: approved.planFingerprint, expires_at: verified.manifest.expires_at, database_writes: 0 };
+  const evidence = { schema_version: 2, kind: "ebay-approved-dry-run-verification", result: "PASS", repository: REPOSITORY, workflow: WORKFLOW, run_id: approved.runId, artifact_id: approved.artifactId, commit_sha: approved.commitSha, manifest_sha256: approved.manifestSha256, report_sha256: approved.reportSha256, artifact_content_sha256: verified.manifest.artifact_content_sha256, full_capture_fingerprint: approved.fullCaptureFingerprint, executable_source_fingerprint: approved.executableSourceFingerprint, review_scope_fingerprint: approved.reviewScopeFingerprint, plan_fingerprint: approved.planFingerprint, executable_offer_ids: verified.manifest.executable_offer_ids, review_offer_ids: verified.manifest.review_offer_ids, source_row_fingerprints: verified.manifest.source_row_fingerprints, plan_row_fingerprints: verified.manifest.plan_row_fingerprints, expires_at: verified.manifest.expires_at, database_writes: 0 };
   fs.writeFileSync(path.join(outDirectory, "approved-artifact-verification.json"), `${JSON.stringify(evidence, null, 2)}\n`, { flag: "wx" });
   return evidence;
 }
@@ -82,7 +82,7 @@ function verifyBaseline(options, env = process.env) {
   invariant(path.basename(options.contract) === CONTRACT_FILE, "Approved contract filename mismatch");
   const contract = loadAndVerifyContract(directory, approved);
   verifyDatabaseBaseline(contract, read(options.baseline));
-  const evidence = { schema_version: 1, kind: "ebay-artifact-bound-db-before-state", result: "PASS", run_id: approved.runId, artifact_id: approved.artifactId, commit_sha: approved.commitSha, source_fingerprint: approved.sourceFingerprint, plan_fingerprint: approved.planFingerprint, baseline_hash: read(options.baseline).evidence_hash, executable_plan_count: contract.report.executable_plan_count, database_writes: 0 };
+  const evidence = { schema_version: 2, kind: "ebay-artifact-bound-db-before-state", result: "PASS", run_id: approved.runId, artifact_id: approved.artifactId, commit_sha: approved.commitSha, full_capture_fingerprint: approved.fullCaptureFingerprint, executable_source_fingerprint: approved.executableSourceFingerprint, review_scope_fingerprint: approved.reviewScopeFingerprint, plan_fingerprint: approved.planFingerprint, baseline_hash: read(options.baseline).evidence_hash, executable_plan_count: contract.report.executable_plan_count, executable_offer_ids: contract.report.execution_offer_ids, database_writes: 0 };
   fs.writeFileSync(path.join(OUT, "approved-db-before-state.json"), `${JSON.stringify(evidence, null, 2)}\n`, { flag: "wx" });
   return evidence;
 }

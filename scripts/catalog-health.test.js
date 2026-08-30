@@ -67,6 +67,7 @@ const {
   approvedOfferIds,
 } = require("./retailer-offer-refresh-postflight");
 const { seal: sealEbayRefreshEvidence } = require("./ebay-refresh-evidence-sealer");
+const { canonicalHash } = require("./lib/ebay-artifact-bound-contract");
 
 const now = new Date("2026-07-06T12:00:00.000Z");
 
@@ -591,6 +592,9 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
       plan_fingerprint: null,
       postflight_hash: null,
       source_fingerprint: null,
+      full_capture_fingerprint: null,
+      executable_source_fingerprint: null,
+      review_scope_fingerprint: null,
       idempotency_result: null,
       database_writes: null,
     }
@@ -616,19 +620,25 @@ test("same-run eBay evidence sealer requires exact apply, postflight and idempot
   const reviewRows = Array.from({ length: 40 }, (_, index) => ({ offer_id: String(index + 198) }));
   const classifications = Object.fromEntries(executionOfferIds.map((id) => [id, "VERIFY_NO_CHANGE"]));
   const expectedDeltas = { logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 197 }, row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 } };
-  const apply = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197 }, execution_offer_ids: executionOfferIds, review_rows: reviewRows, expected_deltas: expectedDeltas, commit_sha: "a".repeat(40), manifest_sha256: "b".repeat(64), source_fingerprint: "c".repeat(64), plan_fingerprint: "d".repeat(64) };
+  const semanticSourceRows = [...executionOfferIds, ...reviewRows.map((row) => row.offer_id)].map((offer_id) => ({ offer_id, mapping_id: `m-${offer_id}`, price: "10.00" }));
+  const semanticExecutablePlans = executionOfferIds.map((offer_id) => ({ offer_id, operation_type: "VERIFY_NO_CHANGE" }));
+  const fullCaptureFingerprint = canonicalHash(semanticSourceRows);
+  const executableSourceFingerprint = canonicalHash(semanticSourceRows.slice(0, 197));
+  const reviewScopeFingerprint = canonicalHash(semanticSourceRows.slice(197));
+  const planFingerprint = canonicalHash({ executable_offer_ids: executionOfferIds, executable: semanticExecutablePlans, expected_deltas: expectedDeltas });
+  const apply = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197 }, execution_offer_ids: executionOfferIds, review_rows: reviewRows, expected_deltas: expectedDeltas, commit_sha: "a".repeat(40), manifest_sha256: "b".repeat(64), source_fingerprint: fullCaptureFingerprint, full_capture_fingerprint: fullCaptureFingerprint, executable_source_fingerprint: executableSourceFingerprint, review_scope_fingerprint: reviewScopeFingerprint, plan_fingerprint: planFingerprint };
   const postflight = { result: "PASS", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, freshness_change_count: 197, price_change_count: 0, stock_change_count: 0, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, price_history_delta: 0, postflight_hash: "e".repeat(64), completed_at: "2026-08-30T18:00:00.000Z" };
-  const idempotency = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 0, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197, UPDATE_PRICE: 7 }, classifications, execution_offer_ids: executionOfferIds, review_rows: reviewRows, commit_sha: "a".repeat(40), source_fingerprint: "f".repeat(64), plan_fingerprint: "0".repeat(64) };
+  const idempotency = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 0, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197, UPDATE_PRICE: 7 }, classifications, execution_offer_ids: executionOfferIds, review_rows: reviewRows, commit_sha: "a".repeat(40), source_fingerprint: fullCaptureFingerprint, full_capture_fingerprint: fullCaptureFingerprint, executable_source_fingerprint: executableSourceFingerprint, review_scope_fingerprint: reviewScopeFingerprint, plan_fingerprint: planFingerprint, semantic_source_rows: semanticSourceRows, semantic_plan_rows: { executable: semanticExecutablePlans, review: reviewRows, blocked: [] } };
   const env = { GITHUB_SHA: "a".repeat(40), GITHUB_RUN_ID: "1", GITHUB_SERVER_URL: "https://github.com", GITHUB_REPOSITORY: "SupplementScout/supplementscout" };
   const sealed = sealEbayRefreshEvidence({ apply, postflight, idempotency, env });
-  assert.equal(sealed.result, "PASS"); assert.equal(sealed.idempotency_result, "PASS"); assert.equal(sealed.database_writes, 197); assert.equal(sealed.price_history_delta, 0); assert.equal(sealed.idempotency_source_fingerprint, "f".repeat(64));
+  assert.equal(sealed.result, "PASS"); assert.equal(sealed.idempotency_result, "PASS"); assert.equal(sealed.database_writes, 197); assert.equal(sealed.price_history_delta, 0); assert.equal(sealed.idempotency_executable_source_fingerprint, executableSourceFingerprint);
   assert.throws(() => sealEbayRefreshEvidence({ apply, postflight: { ...postflight, price_history_delta: 1 }, idempotency, env }), /postflight delta drift/);
-  assert.throws(() => sealEbayRefreshEvidence({ apply, postflight, idempotency: { ...idempotency, execution_offer_ids: executionOfferIds.slice(1) }, env }), /executable scope drift/);
+  assert.throws(() => sealEbayRefreshEvidence({ apply, postflight, idempotency: { ...idempotency, execution_offer_ids: executionOfferIds.slice(1) }, env }), /approved executable scope/);
 });
 
 test("watchdog isolates database-old offers only when every row is explicit review", () => {
   const completed = "2026-08-30T03:00:00.000Z";
-  const input = { profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "1", head_sha: "a" }, apply: { completed_at: completed, run_id: "1", head_sha: "a" }, db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" } }, contract: { approved_mapping_count: 2, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 1, blocked_row_count: 0, review_offer_ids: ["2"], execution_offer_ids: ["1"], expected_deltas: {}, commit_sha: "a", manifest_sha256: "m", source_fingerprint: "s", plan_fingerprint: "p", postflight_hash: "h", idempotency_result: "PASS", database_writes: 1 }, database: { offer_count: 2, offers_older_than_48h: 1, older_offer_ids: ["2"] } };
+  const input = { profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "1", head_sha: "a" }, apply: { completed_at: completed, run_id: "1", head_sha: "a" }, db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" } }, contract: { approved_mapping_count: 2, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 1, blocked_row_count: 0, review_offer_ids: ["2"], execution_offer_ids: ["1"], expected_deltas: {}, commit_sha: "a", manifest_sha256: "m", source_fingerprint: "s", full_capture_fingerprint: "f", executable_source_fingerprint: "e", review_scope_fingerprint: "r", plan_fingerprint: "p", postflight_hash: "h", idempotency_result: "PASS", database_writes: 1 }, database: { offer_count: 2, offers_older_than_48h: 1, older_offer_ids: ["2"] } };
   assert.equal(evaluateRetailer(input, new Date("2026-08-30T04:00:00.000Z"), 48).result, "PASS");
   assert(evaluateRetailer({ ...input, database: { ...input.database, older_offer_ids: ["1"] } }, new Date("2026-08-30T04:00:00.000Z"), 48).failures.includes("DATABASE_OFFERS_OLDER_THAN_48H"));
   assert.equal(loadWatchdogConfig().retailers.find((row) => row.id === 12).db_postflight_step, "Verify eBay UK DB postflight read-only");
