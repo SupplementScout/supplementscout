@@ -48,10 +48,23 @@ test("Simply shipping follows the existing £20 threshold", () => {
   assert.equal(rows[1].shipping_cost, "0.00");
 });
 
-test("Simply missing mapped variants block instead of being marked OOS", () => {
-  assert.throws(() => reconcileMissingMappedVariants([
-    { external_variant_id: "2", external_url: "https://www.simplysupplements.co.uk/products/p?variant=2" },
-  ], [], config.discovery_policy), /safety limit exceeded/);
+test("Simply missing mapped variants stay unchanged in review while safe rows remain executable", () => {
+  const missing = { offer_id: "1", retailer_product_id: "2", external_product_id: "3", external_variant_id: "4", external_sku: null, price: "10.00", shipping_cost: "1.99", total_price: "11.99", in_stock: true, url: "https://www.awin1.com/pclick.php?p=1", external_url: "https://www.simplysupplements.co.uk/products/missing?variant=4" };
+  assert.throws(() => reconcileMissingMappedVariants([missing], [], config.discovery_policy), /safety limit exceeded/);
+  const isolated = reconcileMissingMappedVariants([missing], [], config.discovery_policy, { isolateUnsafe: true });
+  assert.deepEqual(isolated.missingVariantIds, ["4"]);
+  assert.equal(isolated.sourceVariants.length, 0);
+  assert.equal(isolated.newUnavailableCount, 0);
+  const classification = classifyExistingOffers({
+    targets: [missing], sourceVariants: isolated.sourceVariants,
+    policy: { ...config.guardrails, required_matched_offers: 1, store_url: config.store_url },
+    sourceCapturedAt: "2026-08-30T00:00:00.000Z", now: new Date("2026-08-30T00:00:01.000Z"),
+    sourceProductCount: 269, previousSourceProductCount: 276, guardScope: { name: "SIMPLY_TEST" }, quarantineUnsafeRows: true,
+  });
+  assert.equal(classification.state, "DRY_RUN_READY_WITH_REVIEW");
+  assert.equal(classification.rows.length, 0);
+  assert.deepEqual(classification.quarantined_rows.map((row) => [row.offer_id, row.reason]), [["1", "SOURCE_VARIANT_MISSING"]]);
+  assert.equal(classification.quarantined_rows[0].source, null);
 });
 
 test("scheduled workflow reuses protected roles and contains no Awin credential", () => {

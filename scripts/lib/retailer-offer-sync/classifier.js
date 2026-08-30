@@ -148,6 +148,22 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
   const usedReviewedPriceIds = new Set();
   for (const target of sortRows(targets)) {
     const candidates = byVariant.get(String(target.external_variant_id)) || [];
+    if (candidates.length === 0 && quarantineUnsafeRows) {
+      quarantinedRows.push({
+        offer_id: String(target.offer_id),
+        retailer_product_id: String(target.retailer_product_id),
+        external_product_id: String(target.external_product_id),
+        external_variant_id: String(target.external_variant_id),
+        action: "BLOCK_SOURCE_ANOMALY",
+        reason: "SOURCE_VARIANT_MISSING",
+        changed_fields: { price: false, stock: false, url: false, blocked: true },
+        source_captured_at: sourceCapturedAt,
+        source: null,
+        target,
+        expected_deltas: deltasForChanges({ price: false, stock: false, url: false, blocked: true }, { shippingChanged: false, totalChanged: false }),
+      });
+      continue;
+    }
     if (candidates.length !== 1) return block("IDENTITY_DRIFT", { offer_id: target.offer_id, matches: candidates.length });
     const source = candidates[0];
     if (String(source.external_product_id) !== String(target.external_product_id)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id });

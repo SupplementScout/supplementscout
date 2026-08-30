@@ -129,13 +129,14 @@ function executionRow(row){return{offer_id:row.offer_id,retailer_product_id:row.
 function sumDeltas(rows){const out={row_count_deltas:{...ZERO_ROWS},logical_field_deltas:{...ZERO_LOGICAL}};for(const row of rows){for(const key of Object.keys(out.row_count_deltas))out.row_count_deltas[key]+=Number(row.expected_deltas.row_count_deltas[key]);for(const key of Object.keys(out.logical_field_deltas))out.logical_field_deltas[key]+=Number(row.expected_deltas.logical_field_deltas[key])}return out}
 function balancedExecutionBatches(rows,maximumBatchSize=50,maximumNewOosPerBatch=3){invariant(Number.isInteger(maximumBatchSize)&&maximumBatchSize>0,"invalid maximum batch size");invariant(Number.isInteger(maximumNewOosPerBatch)&&maximumNewOosPerBatch>0,"invalid new OOS batch limit");if(rows.length===0)return[];const newOos=rows.filter(row=>Boolean(row.atomic_plan.expected_state.offer.in_stock)&&!Boolean(row.atomic_plan.offer.values.in_stock)),count=Math.max(Math.ceil(rows.length/maximumBatchSize),Math.ceil(newOos.length/maximumNewOosPerBatch)),batches=Array.from({length:count},()=>[]),priceChanged=[],otherChanged=[],existingOos=[],unchanged=[];for(const row of rows){const before=Boolean(row.atomic_plan.expected_state.offer.in_stock),after=Boolean(row.atomic_plan.offer.values.in_stock);if(!after&&before)continue;if(Boolean(row.changed_fields?.price))priceChanged.push(row);else if(row.action!=="VERIFY_NO_CHANGE")otherChanged.push(row);else if(!after)existingOos.push(row);else unchanged.push(row)}let cursor=0;for(const group of[newOos,priceChanged,otherChanged,existingOos,unchanged])for(const row of group){while(batches[cursor%count].length>=maximumBatchSize)cursor+=1;batches[cursor%count].push(row);cursor+=1}for(const batch of batches){batch.sort((a,b)=>Number(a.offer_id)-Number(b.offer_id));const priceCount=batch.filter(row=>Boolean(row.changed_fields?.price)).length;invariant(batch.length>0&&batch.length<=maximumBatchSize,"balanced batch size drift");invariant(batch.filter(row=>Boolean(row.atomic_plan.expected_state.offer.in_stock)&&!Boolean(row.atomic_plan.offer.values.in_stock)).length<=maximumNewOosPerBatch,"new OOS batch limit exceeded");invariant(priceCount/batch.length<Number(config.guardrails.mass_price_change_block_ratio),"balanced batch price-change ratio drift")}invariant(batches.reduce((sum,batch)=>sum+batch.length,0)===rows.length,"balanced batch coverage drift");return batches}
 
-function reconcileMissingMappedVariants(targets,sourceVariants,discoveryPolicy=config.discovery_policy){
+function reconcileMissingMappedVariants(targets,sourceVariants,discoveryPolicy=config.discovery_policy,{isolateUnsafe=false}={}){
   invariant(["MARK_UNAVAILABLE","BLOCK"].includes(discoveryPolicy?.missing_mapped_variant_mode),"missing mapped variant policy must fail closed");
   const sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id)));
   const missing=targets.filter(target=>!sourceIds.has(String(target.external_variant_id)));
   const maximumCount=Number(discoveryPolicy.maximum_missing_mapped_variants);
   const maximumRatio=Number(discoveryPolicy.maximum_missing_mapped_variant_ratio);
   invariant(Number.isInteger(maximumCount)&&maximumCount>=0&&maximumRatio>=0&&maximumRatio<=1,"invalid missing mapped variant limits");
+  if(discoveryPolicy.missing_mapped_variant_mode==="BLOCK"&&isolateUnsafe)return{sourceVariants,missingVariantIds:missing.map(row=>String(row.external_variant_id)),newUnavailableCount:0,reviewOnly:true};
   invariant(missing.length<=maximumCount&&missing.length/Math.max(1,targets.length)<=maximumRatio,"missing mapped variant safety limit exceeded");
   if(discoveryPolicy.missing_mapped_variant_mode==="BLOCK")return{sourceVariants,missingVariantIds:[],newUnavailableCount:0};
   const unavailable=missing.map(target=>{
@@ -386,7 +387,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
   const ownerApprovedMissing=config.retailer_id===9
     ? reconcileOwnerApprovedMissingVariant(state.records,sourceVariants)
     : null;
-  const reconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,ownerApprovedMissing?.sourceVariants||sourceVariants,auditedMissing):reconcileMissingMappedVariants(targets,ownerApprovedMissing?.sourceVariants||sourceVariants);
+  const reconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,ownerApprovedMissing?.sourceVariants||sourceVariants,auditedMissing):reconcileMissingMappedVariants(targets,ownerApprovedMissing?.sourceVariants||sourceVariants,config.discovery_policy,{isolateUnsafe});
   if(ownerApprovedMissing){
     reconciled.missingVariantIds=[...ownerApprovedMissing.missingVariantIds,...reconciled.missingVariantIds];
     reconciled.newUnavailableCount=Number(ownerApprovedMissing.newUnavailableCount)+Number(reconciled.newUnavailableCount);
@@ -414,7 +415,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
       const secondSnapshot=await readSourceSnapshot(secondCapturedAt),secondRaw=projectSourceVariants(secondSnapshot),secondHealth=sourceHealth(secondSnapshot,secondRaw);
       invariant(secondHealth.result==="PASS",`second ${config.retailer_name} source capture failed health checks`);
       const secondOwner=config.retailer_id===9?reconcileOwnerApprovedMissingVariant(state.records,secondRaw):null;
-      const secondReconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,secondOwner?.sourceVariants||secondRaw,auditedMissing):reconcileMissingMappedVariants(targets,secondOwner?.sourceVariants||secondRaw);
+      const secondReconciled=auditedMissing?reconcileAuditedMissingVariants(state.records,secondOwner?.sourceVariants||secondRaw,auditedMissing):reconcileMissingMappedVariants(targets,secondOwner?.sourceVariants||secondRaw,config.discovery_policy,{isolateUnsafe});
       const secondMappedFingerprint=mappedOfferSourceFingerprint(state.records,secondReconciled.sourceVariants);
       invariant(secondMappedFingerprint===firstMappedFingerprint,`${config.retailer_name} mapped offers changed between confirmation captures`);
       if(diagnostic)diagnostic.aggregate_confirmation={result:"PASS",first_mapped_fingerprint:firstMappedFingerprint,second_mapped_fingerprint:secondMappedFingerprint,second_source_fingerprint:secondSnapshot.semantic_source_fingerprint,second_captured_at:secondCapturedAt};
@@ -455,7 +456,7 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
   const manifest=[...state.records].sort((a,b)=>Number(a.mapping.id)-Number(b.mapping.id)).map(row=>({mapping_id:String(row.mapping.id),offer_id:String(row.offer.id),external_product_id:String(row.mapping.external_product_id),external_variant_id:String(row.mapping.external_variant_id),canonical_product_id:String(row.product.id),canonical_variant_id:String(row.variant.id)}));
   const sourceIds=new Set(sourceVariants.map(row=>String(row.external_variant_id))),mappedIds=new Set(manifest.map(row=>row.external_variant_id));
   const discovery={new_variants:[...sourceIds].filter(id=>!mappedIds.has(id)),missing_variants:[...mappedIds].filter(id=>!sourceIds.has(id))};
-  if(diagnostic){diagnostic.mappings_matched=manifest.length;diagnostic.mappings_missing=discovery.missing_variants.length;diagnostic.guard_results.push({guard:"APPROVED_MAPPING_COVERAGE",result:"PASS",expected:manifest.length,matched:manifest.length,source_absent_marked_unavailable:discovery.missing_variants.length,maximum_source_absent:config.discovery_policy.maximum_missing_mapped_variants})}
+  if(diagnostic){diagnostic.mappings_matched=manifest.length-discovery.missing_variants.length;diagnostic.mappings_missing=discovery.missing_variants.length;diagnostic.guard_results.push({guard:"APPROVED_MAPPING_COVERAGE",result:reconciled.reviewOnly&&discovery.missing_variants.length?"REVIEW_ISOLATED":"PASS",expected:manifest.length,matched:manifest.length-discovery.missing_variants.length,source_absent_review_rows:reconciled.reviewOnly?discovery.missing_variants.length:0,source_absent_marked_unavailable:reconciled.reviewOnly?0:discovery.missing_variants.length,maximum_source_absent:config.discovery_policy.maximum_missing_mapped_variants})}
   const reviewedExpiresAt=reviewed?new Date(Date.now()+14*60000).toISOString():null;
   const reviewedContract=reviewed?(reviewed.buildContract
     ?reviewed.buildContract({artifact:artifacts[0],targetEnvironment:spec.environment,expiresAt:reviewedExpiresAt})
