@@ -56,6 +56,7 @@ const {
   normalizeCatalogHealthFilters,
 } = require(path.join(process.cwd(), "app", "admin", "lib", "catalogHealth.ts"));
 const {
+  correlateEvidence,
   evaluateRetailer,
   findContractEvidence,
   loadConfig: loadWatchdogConfig,
@@ -537,9 +538,9 @@ test("automation watchdog requires fresh capture, apply, DB postflight and exact
   const input = {
     profile: { id: 3, name: "Whey Okay", workflow: "whey.yml" },
     stages: {
-      capture: { completed_at: completed },
-      apply: { completed_at: completed },
-      db_postflight: { completed_at: completed },
+      capture: { completed_at: completed, run_id: "1", head_sha: "a" },
+      apply: { completed_at: completed, run_id: "1", head_sha: "a" },
+      db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" },
     },
     contract: {
       approved_mapping_count: 586,
@@ -547,6 +548,7 @@ test("automation watchdog requires fresh capture, apply, DB postflight and exact
       executed_plan_count: 576,
       review_row_count: 10,
       blocked_row_count: 0,
+      review_offer_ids: [],
     },
     database: { offer_count: 586, offers_older_than_48h: 0 },
   };
@@ -580,12 +582,37 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
       review_row_count: 2,
       blocked_row_count: 0,
       result: null,
+      execution_offer_ids: null,
+      review_offer_ids: null,
+      expected_deltas: null,
+      commit_sha: null,
+      manifest_sha256: null,
+      plan_fingerprint: null,
+      postflight_hash: null,
     }
   );
   assert.equal(
     findContractEvidence({ executable_plan_count: 4, executed_plan_count: 4, blocked_row_count: 0, review_row_count: 0 }),
     null
   );
+});
+
+test("watchdog rejects unrelated independent idempotency evidence", () => {
+  const core = { apply: { run_id: "10", head_sha: "a" }, db_postflight: { run_id: "10", head_sha: "a" } };
+  assert.equal(correlateEvidence({ ...core, capture: { run_id: "10", head_sha: "a" } }, {}).result, "CORRELATED");
+  const unrelated = correlateEvidence({ ...core, capture: { run_id: "11", head_sha: "b" } }, {});
+  assert.equal(unrelated.result, "UNRELATED_EVIDENCE");
+  assert(unrelated.failures.includes("INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH"));
+  const complete = { execution_offer_ids: ["1"], expected_deltas: {}, manifest_sha256: "m", plan_fingerprint: "p", postflight_hash: "h" };
+  assert.equal(correlateEvidence({ ...core, capture: { run_id: "11", head_sha: "a" } }, complete).result, "CORRELATED");
+});
+
+test("watchdog isolates database-old offers only when every row is explicit review", () => {
+  const completed = "2026-08-30T03:00:00.000Z";
+  const input = { profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "1", head_sha: "a" }, apply: { completed_at: completed, run_id: "1", head_sha: "a" }, db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" } }, contract: { approved_mapping_count: 2, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 1, blocked_row_count: 0, review_offer_ids: ["2"] }, database: { offer_count: 2, offers_older_than_48h: 1, older_offer_ids: ["2"] } };
+  assert.equal(evaluateRetailer(input, new Date("2026-08-30T04:00:00.000Z"), 48).result, "PASS");
+  assert(evaluateRetailer({ ...input, database: { ...input.database, older_offer_ids: ["1"] } }, new Date("2026-08-30T04:00:00.000Z"), 48).failures.includes("DATABASE_OFFERS_OLDER_THAN_48H"));
+  assert.equal(loadWatchdogConfig().retailers.find((row) => row.id === 12).db_postflight_step, "Verify eBay UK DB postflight read-only");
 });
 
 test("shared DB postflight covers nine exact retailer scopes", () => {

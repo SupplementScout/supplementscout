@@ -80,7 +80,7 @@
       "workflow": "ebay-offer-refresh.yml",
       "capture_step": "Fresh read-only preflight",
       "apply_step": "Apply exact approved existing-offer refresh",
-      "db_postflight_step": null
+      "db_postflight_step": "Verify eBay UK DB postflight read-only"
     },
     {
       "id": 13,

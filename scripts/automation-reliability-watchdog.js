@@ -72,6 +72,13 @@ function findContractEvidence(value) {
       review_row_count: value.review_row_count,
       blocked_row_count: value.blocked_row_count,
       result: value.result || null,
+      execution_offer_ids: Array.isArray(value.execution_offer_ids) ? value.execution_offer_ids.map(String).sort() : null,
+      review_offer_ids: Array.isArray(value.review_rows) ? value.review_rows.map((row) => String(row.offer_id)).sort() : null,
+      expected_deltas: value.expected_deltas || null,
+      commit_sha: value.commit_sha || null,
+      manifest_sha256: value.approved_manifest_sha256 || value.manifest_sha256 || null,
+      plan_fingerprint: value.plan_fingerprint || null,
+      postflight_hash: value.postflight_hash || null,
     };
   }
   for (const child of Array.isArray(value) ? value : Object.values(value)) {
@@ -79,6 +86,17 @@ function findContractEvidence(value) {
     if (found) return found;
   }
   return null;
+}
+
+function correlateEvidence(stages, contract) {
+  if (!stages?.apply || !stages?.db_postflight) return { result: "INCOMPLETE_CORE", failures: [] };
+  const failures = [];
+  if (!stages.apply.run_id || stages.apply.run_id !== stages.db_postflight.run_id || !stages.apply.head_sha || stages.apply.head_sha !== stages.db_postflight.head_sha) failures.push("APPLY_POSTFLIGHT_CORRELATION_MISMATCH");
+  if (stages.capture && stages.capture.run_id !== stages.apply.run_id) {
+    if (!stages.capture.head_sha || stages.capture.head_sha !== stages.apply.head_sha) failures.push("INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH");
+    for (const field of ["execution_offer_ids", "expected_deltas", "manifest_sha256", "plan_fingerprint", "postflight_hash"]) if (!contract?.[field]) failures.push(`INDEPENDENT_IDEMPOTENCY_${field.toUpperCase()}_MISSING`);
+  }
+  return { result: failures.length ? "UNRELATED_EVIDENCE" : "CORRELATED", failures };
 }
 
 function evaluateRetailer({ profile, stages, contract, database }, now, maximumAge) {
@@ -105,9 +123,13 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
     }
     if (contract.blocked_row_count !== 0) failures.push("BLOCKED_ROWS_PRESENT");
   }
+  const correlation = correlateEvidence(stages, contract);
+  failures.push(...correlation.failures);
   if (!database) failures.push("DATABASE_FRESHNESS_EVIDENCE_MISSING");
   else if (Number(database.offers_older_than_48h) !== 0) {
-    failures.push("DATABASE_OFFERS_OLDER_THAN_48H");
+    const older = (database.older_offer_ids || []).map(String).sort();
+    const review = (contract?.review_offer_ids || []).map(String).sort();
+    if (!older.length || older.some((id) => !review.includes(id))) failures.push("DATABASE_OFFERS_OLDER_THAN_48H");
   }
   return {
     retailer_id: String(profile.id),
@@ -118,6 +140,7 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
     stages,
     contract,
     database,
+    evidence_correlation: correlation.result,
   };
 }
 
@@ -165,6 +188,7 @@ async function runStages(profile, repository, token) {
           run_id: String(run.id),
           run_url: run.html_url,
           completed_at: step.completed_at || run.updated_at,
+          head_sha: run.head_sha || null,
         };
         if (stage === "apply" && applyRunId === null) applyRunId = run.id;
       }
@@ -246,7 +270,11 @@ async function databaseEvidence(config, env, dependencies = {}) {
                 count(*) filter (
                   where last_checked_at is null
                      or last_checked_at <= now() - interval '48 hours'
-                )::integer offers_older_than_48h
+                )::integer offers_older_than_48h,
+                coalesce(array_agg(id::text order by id) filter (
+                  where last_checked_at is null
+                     or last_checked_at <= now() - interval '48 hours'
+                ), '{}'::text[]) older_offer_ids
            from public.offers
           where retailer_id = any($1::bigint[])
           group by retailer_id`,
@@ -355,6 +383,7 @@ module.exports = {
   contractFromArtifacts,
   databaseEvidence,
   evaluateRetailer,
+  correlateEvidence,
   findContractEvidence,
   hoursSince,
   loadConfig,
