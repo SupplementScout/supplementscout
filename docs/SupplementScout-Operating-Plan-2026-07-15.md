@@ -7,6 +7,8 @@
 
 **Active P0 reliability incident:** The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) is the source of truth for the active Automation Reliability Sprint until its exit criteria are evidenced. It temporarily takes execution priority over the next SEO unit without changing the recorded SEO sequence; SEO-15 resumes after sprint closeout.
 
+**30 August 2026, 13:35 UTC reliability checkpoint:** the remaining-stale reconciliation completed read-only with status `RELIABILITY_NO_SAFE_PROGRESS`. No production apply was dispatched. eBay's new per-row isolation commit `09c49d1` was proved locally, but two fresh production dry-runs remained globally blocked by the same source read failure. Discount 47, Dolphin 2 and Whey 284 were fully classified and left unchanged. Final Catalog Health remains 354/322 stale offers over 7/30 days and Overall `Critical` from 208 products without a valid in-stock offer. The authoritative detailed checkpoint is in `Automation-Reliability-Roadmap.md`; the complete unresolved-row artifact is `docs/rollouts/automation-reliability-owner-pack-2026-08-30-final.json` with file SHA-256 `db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a`.
+
 ---
 
 ## 0. Binding audit reset - 19 July 2026

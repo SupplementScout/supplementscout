@@ -1,5 +1,32 @@
 # Automation Reliability — Owner Decision Pack
 
+## Końcowy pakiet pozostałych decyzji — 30 sierpnia 2026, 13:35 UTC
+
+**Status: `RELIABILITY_NO_SAFE_PROGRESS`.** W tej fazie nie uruchomiono żadnego produkcyjnego apply. Pełne dane każdego niewykonanego wiersza znajdują się w `docs/rollouts/automation-reliability-owner-pack-2026-08-30-final.json`; plikowy SHA-256 to `db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a`, a wewnętrzny payload SHA-256 to `c3891eacd2427f45bf8866ac4eeaf997a8286ae7351578f3dcb0643083ff5e01`.
+
+- Reconciliation `438` kontra `439`: JSON ma dokładnie 438 unikalnych wierszy. Liczba 439 w dokumencie obejmowała dodatkowy, późniejszy i niezależny drift GYM HIGH mapping `2796`, którego nigdy nie było w tym JSON. Nie ma duplikatu ani brakującego wiersza wewnątrz artefaktu.
+- eBay: dwa fresh dry-runy (`33313875741`, `33314170314`) identycznie wykazały 197 `VERIFY_NO_CHANGE`, 32 identity conflicts, 7 zmian ceny i globalny `SOURCE_READ_FAILED` dla offer `2686`. Globalny guard zablokował cały apply; wykonano 0 planów i 0 zapisów. Offer `2582` pozostał jedną z 32 review rows; nie wykonano rebindu. Cron `43 5 * * *` pozostaje gated przez wyłączoną zmienną enablement.
+- Discount, pozostałe 47: 20 `UPDATE_PRICE`, 2 `UPDATE_PRICE_AND_STOCK`, 18 `UPDATE_STOCK`, 3 `SOURCE_MISSING`, 2 `IDENTITY_MISSING`, 2 nowe `NO_CHANGE`. Dwa no-change są wyłącznie przyszłym draftem immutable scope; wszystkie 47 pozostały bez zmian.
+- Dolphin: offers `8`/mapping `7` i `9`/mapping `9` mają działające strony i flavour-specific SKU, ale generic canonical variants bez zgodnego flavor/size/GTIN. Oba pozostają w manual review; promotions `0`, freshness `0`, writes `0`.
+- Whey Okay, pełne 284: `EXACT_IDENTITY_PROMOTION 0`, `EXACT_SAME_VARIANT_FRESHNESS 0`, `EXACT_REBIND_TO_EXISTING_VARIANT 0`, `SOURCE_MISSING 2`, `COMMERCIAL_CHANGE 38`, `AMBIGUOUS_IDENTITY 49`, `VARIANT_CONFLICT 195`, `ALREADY_RESOLVED 0`. Nie obniżono wymagań SKU/MPN/GTIN, nie użyto nieaktualnych rebindów i nie wykonano zapisu.
+- Końcowy Catalog Health: stale >7/>30 globalnie `354/322`; Whey `284/284`, Discount `47/36`, Dolphin `2/2`, eBay `21/0`, pozostali `0/0`. Produkty bez valid in-stock offer: `208`; Overall nadal `Critical` według niezmienionej reguły.
+- Jedyny końcowy watchdog to run `33314564081`, artifact `9733037263`: oczekiwany zbiorczy `FAIL`, KIOR jako jedyny `PASS`, `database_error=null`, `database_writes=0`. Nie wykonano replay w celu odtworzenia brakujących historycznych dowodów.
+
+### Grupy decyzji
+
+| Grupa | Liczba | Wpływ przed zgodą | Ryzyko | Rekomendacja |
+| --- | ---: | --- | --- | --- |
+| A. HIGH confidence rebinds | 0 | zero | Żaden fresh candidate nie spełnia exact current-state contract | brak bloku zgody |
+| B. Zweryfikowane zmiany handlowe | 85 | zero; wszystkie pozostają bez zmian | cena/stock i ewentualny `price_history` zmienią się po apply | osobna decyzja właściciela |
+| C. Source missing/read failure | 6 | zero | brak w źródle nie dowodzi OOS; eBay ma powtarzalny source read failure | zachować stan do decyzji politycznej |
+| D. Ambiguous identity | 280 | zero | ryzyko błędnego canonical mapping/variant | manual review, bez zbiorczego approval |
+
+### Maksymalnie trzy bloki zgody
+
+1. **Rebindy:** brak — nie istnieje fresh HIGH-confidence rebind spełniający guardy.
+2. **Zmiany handlowe:** `Zatwierdzam wyłącznie zweryfikowane zmiany handlowe z grupy B artefaktu o plikowym SHA-256 db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a, po fresh capture, exact fingerprint, approval per row, stale-state guard, atomowym apply, read-only postflight i idempotency; nie zatwierdzam żadnych rebindów, source-missing ani ambiguous identity.`
+3. **Source missing:** `Zatwierdzam wyłącznie politykę source-missing z grupy C artefaktu o plikowym SHA-256 db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a po niezależnym ponownym capture i per-row review; brak w źródle nie może samodzielnie oznaczać OOS; nie zatwierdzam zmian handlowych ani identity.`
+
 ## Wynik zatwierdzenia Grupy A — 30 sierpnia 2026, 12:55 UTC
 
 **GROUP_A_PARTIAL.** Zatwierdzenie właściciela i plikowy SHA-256 `419c758d55affd2e2bd2a0730a953a25a750c4f62fb53c14a6da3089ee8f1737` zostały zachowane. Wykonano wyłącznie 95 Discount Supplements freshness confirmations; wszystkie 50 Whey Okay identity rows pozostało bez zmian w review.
