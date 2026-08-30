@@ -1,9 +1,11 @@
 # SupplementScout Operating Plan
 
-**Status date:** 26 August 2026<br>
+**Status date:** 30 August 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**Active P0 reliability incident:** The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) is the source of truth for the active Automation Reliability Sprint until its exit criteria are evidenced. It temporarily takes execution priority over the next SEO unit without changing the recorded SEO sequence; SEO-15 resumes after sprint closeout.
 
 ---
 
