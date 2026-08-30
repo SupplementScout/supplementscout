@@ -543,15 +543,16 @@ function IssueSection({ report }: { report: CatalogHealthReport }) {
   );
 }
 
-function RetailerReliabilityTable({ report }: { report: CatalogHealthReport }) {
+type ReviewCounts = Record<string, { pending: number; blocked: number; sourceUnavailable: number }>;
+function RetailerReliabilityTable({ report, reviewCounts }: { report: CatalogHealthReport; reviewCounts: ReviewCounts | null }) {
   return (
     <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
       <div className="border-b border-zinc-200 p-5">
         <h2 className="text-xl font-bold">Retailer database freshness</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Read-only database evidence for active catalogue offers. Workflow runs,
-          pending review rows and cron state are monitored separately by the
-          six-hour Automation Reliability Watchdog and are not inferred here.
+          Read-only database evidence for active catalogue offers and the shared
+          Review Queue. Workflow runs and cron state are monitored separately by the
+          six-hour Automation Reliability Watchdog and are not inferred from timestamps.
         </p>
       </div>
       <div className="overflow-x-auto">
@@ -564,6 +565,9 @@ function RetailerReliabilityTable({ report }: { report: CatalogHealthReport }) {
               <th className="px-4 py-3">Older than 7d</th>
               <th className="px-4 py-3">Older than 30d</th>
               <th className="px-4 py-3">Never checked</th>
+              <th className="px-4 py-3">Pending review</th>
+              <th className="px-4 py-3">Source unavailable</th>
+              <th className="px-4 py-3">Blocked review</th>
               <th className="px-4 py-3">Oldest check</th>
               <th className="px-4 py-3">Newest DB check</th>
               <th className="px-4 py-3">Products without this retailer in stock</th>
@@ -586,6 +590,9 @@ function RetailerReliabilityTable({ report }: { report: CatalogHealthReport }) {
                 <td className="px-4 py-3">
                   {formatCount(row.neverCheckedOffers)}
                 </td>
+                <td className="px-4 py-3"><Link className="font-semibold underline" href={`/admin/automation-review?status=PENDING&retailer=${encodeURIComponent(row.name)}`}>{reviewCounts ? formatCount(reviewCounts[row.id]?.pending || 0) : "Unavailable"}</Link></td>
+                <td className="px-4 py-3">{reviewCounts ? formatCount(reviewCounts[row.id]?.sourceUnavailable || 0) : "Unavailable"}</td>
+                <td className="px-4 py-3">{reviewCounts ? formatCount(reviewCounts[row.id]?.blocked || 0) : "Unavailable"}</td>
                 <td className="px-4 py-3">{formatDate(row.oldestCheck)}</td>
                 <td className="px-4 py-3">{formatDate(row.newestCheck)}</td>
                 <td className="px-4 py-3">
@@ -603,9 +610,11 @@ function RetailerReliabilityTable({ report }: { report: CatalogHealthReport }) {
 export function CatalogHealthDashboard({
   report,
   loadError,
+  reviewCounts,
 }: {
   report: CatalogHealthReport | null;
   loadError: string;
+  reviewCounts: ReviewCounts | null;
 }) {
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-10 text-zinc-950">
@@ -720,7 +729,7 @@ export function CatalogHealthDashboard({
               />
             </section>
 
-            <RetailerReliabilityTable report={report} />
+            <RetailerReliabilityTable report={report} reviewCounts={reviewCounts} />
 
             <FilterBar report={report} />
             <IssueTabs filters={report.filters} />

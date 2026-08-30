@@ -498,6 +498,19 @@ test("catalog health renders per-retailer DB freshness without inventing workflo
   assert.match(componentsSource, /Automation Reliability Watchdog/);
 });
 
+test("catalog health joins the shared review queue without inferring workflow or cron state", () => {
+  const page = fs.readFileSync(path.join(process.cwd(), "app", "admin", "catalog-health", "page.tsx"), "utf8");
+  const loader = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewHealth.ts"), "utf8");
+  const components = fs.readFileSync(path.join(process.cwd(), "app", "admin", "catalog-health", "components.tsx"), "utf8");
+  assert.match(page, /loadAutomationReviewCounts/);
+  assert.match(loader, /product_match_review_queue/);
+  assert.match(loader, /review_kind,review_status/);
+  assert.match(components, /Pending review/);
+  assert.match(components, /Source unavailable/);
+  assert.match(components, /\/admin\/automation-review\?status=PENDING/);
+  assert.match(components, /are not inferred from timestamps/);
+});
+
 test("automation watchdog covers all retailers on a read-only six-hour schedule", () => {
   const config = loadWatchdogConfig();
   const workflow = fs.readFileSync(
