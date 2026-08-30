@@ -30,9 +30,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_STAGING_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 89,
+    ledgerCount: 90,
     ledgerFingerprint:
-      "cb252160f447c9e64c1f7d62b591cc212b8ac714b002b7f6f2c618aa9f831381",
+      "f3ede0abe75c64dd1e041693edbc9869f3d96e4e663468a1f894a1d601e55966",
     excluded: Object.freeze({
       "20260717130000_add_local_retailer_catalogue_child_executor.sql":
         "50965e74cd78f7aa7bcc99dea739123833b7904cf0e13507f48ea08d9cc9643c",
@@ -201,13 +201,7 @@ const CONTRACTS = Object.freeze({
       "20260830120000_expand_discount_supplements_freshness_scope_109.sql":
         "8ded2b941bd3637f0e1d5aeedcecbaaf235c35e4681aaf30a26877faf84d5e28",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260830140000_extend_product_match_review_queue_for_automation.sql",
-        sha256: "4945c39bf27947986aa08b88a1feb374728716ef38d4a7d07da34fa995b91f29",
-        expectedCatalogueDeltas: Object.freeze({}),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -216,9 +210,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 165,
+    ledgerCount: 166,
     ledgerFingerprint:
-      "4298d57930ea49b4260c527360a68b3c4dcc6e9efffcf7a2c0e326dd29c44cbc",
+      "a1bb516852272eb64a97bdf299cfd46d51cd110d709cbffbc18ea631d9e23316",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -235,13 +229,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260830140000_extend_product_match_review_queue_for_automation.sql",
-        sha256: "4945c39bf27947986aa08b88a1feb374728716ef38d4a7d07da34fa995b91f29",
-        expectedCatalogueDeltas: Object.freeze({}),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

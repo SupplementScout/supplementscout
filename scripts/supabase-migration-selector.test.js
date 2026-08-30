@@ -72,11 +72,11 @@ test.after(() => {
   }
 });
 
-test("staging binds the automation review queue extension as the only pending migration", () => {
+test("staging records the automation review queue extension as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 89);
+  assert.equal(result.ledger_count, 90);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260830140000_extend_product_match_review_queue_for_automation"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 90);
 });
 
@@ -151,14 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production binds the automation review queue extension as the only pending migration", () => {
+test("production records the automation review queue extension as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(contract.pending.length, 1);
-  assert.equal(contract.pending[0].filename, "20260830140000_extend_product_match_review_queue_for_automation.sql");
-  assert.equal(contract.ledgerCount, 165);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 166);
   assert.equal(
     contract.ledgerFingerprint,
-    "4298d57930ea49b4260c527360a68b3c4dcc6e9efffcf7a2c0e326dd29c44cbc",
+    "a1bb516852272eb64a97bdf299cfd46d51cd110d709cbffbc18ea631d9e23316",
   );
 });
 
@@ -235,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production selects only the automation review queue extension", () => {
+test("production binds its exact ledger after the automation review queue extension", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -261,14 +260,14 @@ test("production selects only the automation review queue extension", () => {
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 165);
+  assert.equal(result.ledger_count, 166);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260830140000_extend_product_match_review_queue_for_automation"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 166);
-  assert.deepEqual(result.pending_files, ["20260830140000_extend_product_match_review_queue_for_automation.sql"]);
-  assert.equal(result.pending_file, "20260830140000_extend_product_match_review_queue_for_automation.sql");
-  assert.equal(result.pending_sha256, "4945c39bf27947986aa08b88a1feb374728716ef38d4a7d07da34fa995b91f29");
-  assert.equal(Object.keys(result.pending_sha256s).length, 1);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -345,12 +344,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports the exact pending automation review migration", () => {
+test("staging output reports no pending migration after the automation review apply", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, "20260830140000_extend_product_match_review_queue_for_automation.sql");
-  assert.equal(result.pending_sha256, "4945c39bf27947986aa08b88a1feb374728716ef38d4a7d07da34fa995b91f29");
-  assert.deepEqual(result.pending_files, ["20260830140000_extend_product_match_review_queue_for_automation.sql"]);
-  assert.deepEqual(result.pending_sha256s, { "20260830140000_extend_product_match_review_queue_for_automation.sql": "4945c39bf27947986aa08b88a1feb374728716ef38d4a7d07da34fa995b91f29" });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, []);
+  assert.deepEqual(result.pending_sha256s, {});
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
