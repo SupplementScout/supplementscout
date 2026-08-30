@@ -8,6 +8,7 @@ const config = require("../config/retailers/kior-offer-sync.json");
 const manifest = require("../config/retailers/kior-approved-offer-manifest.json");
 const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
 const { baselineHash, verifyPostflight } = require("./retailer-offer-refresh-postflight");
+const { canonicalHash, normalizeExactScopeRows } = require("./fit-house-offer-refresh");
 
 const ROOT = path.resolve(__dirname, "..");
 const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/kior-offer-refresh.yml"), "utf8");
@@ -49,6 +50,16 @@ test("KIOR scope is immutable to exactly eleven existing mappings and offers", (
   assert.equal(config.discovery_policy.catalogue_creates, false);
   assert.equal(config.policy.catalogue_creates, false);
   assert.equal(config.policy.mapping_creates, false);
+});
+
+test("KIOR exact scope hash normalizes database strings and manifest numbers", () => {
+  const databaseRows = manifest.rows.map((row) => ({
+    mapping_id: String(row.mapping_id), offer_id: String(row.offer_id),
+    external_product_id: String(row.external_product_id), external_variant_id: String(row.external_variant_id),
+    canonical_product_id: String(row.canonical_product_id), canonical_variant_id: String(row.canonical_variant_id),
+  }));
+  assert.equal(canonicalHash(databaseRows), canonicalHash(normalizeExactScopeRows(manifest.rows)));
+  assert.notEqual(canonicalHash(databaseRows), canonicalHash(manifest.rows));
 });
 
 test("KIOR shared classifier supports no-change and safe price/stock actions", () => {
