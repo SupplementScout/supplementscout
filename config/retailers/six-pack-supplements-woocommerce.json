@@ -111,7 +111,7 @@
   "automation": {
     "retailer_id": 11,
     "manifest_path": "config/retailers/six-pack-approved-offer-manifest.json",
-    "manifest_sha256": "6e0d2efa9589ad9fe8ea191d3a256f521d660afce5d465e630a9a120c974820f",
+    "manifest_sha256": "62f88fabc33e339d1106e597091217eabbbfaa4c5015b5625fb5257eacf0e7ff",
     "approved_mapping_count": 506,
     "approved_product_page_count": 279,
     "model": "ONE_SHARED_RETAILER_MANIFEST",

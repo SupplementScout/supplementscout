@@ -15,6 +15,13 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 
+test("owner-approved offer 2006 is bound to the existing exact 60 Servings variant", () => {
+  const row = manifest.rows.find((entry) => String(entry.offer_id) === "2006");
+  assert.equal(row.mapping_id, "2192");
+  assert.equal(row.canonical_product_id, "982");
+  assert.equal(row.canonical_variant_id, "3126");
+});
+
 function fixture(priceChanges = new Map()) {
   const captured = "2026-07-27T13:43:04.000Z";
   const retailer = { id: 11, name: "6 Pack Supplements", slug: "6-pack-supplements", website: "https://6pack-supplements.co.uk" };
