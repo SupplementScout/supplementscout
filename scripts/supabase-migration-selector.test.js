@@ -151,16 +151,13 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records Group A and selects only the KIOR registration", () => {
+test("production records the applied KIOR registration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: "20260830100000_add_kior_offer_sync_registration.sql",
-    sha256: "a9d75c9be585fbd52cd85c9f9e2fec223046e96f408623c927f624c836b2a84b",
-  }]);
-  assert.equal(contract.ledgerCount, 162);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 163);
   assert.equal(
     contract.ledgerFingerprint,
-    "1054c31ccb272b801c968afdcac03a8242ad7748dbe245440502ef326fcc7707",
+    "ec6a221b574b7a43edfc1a7c5d8cb0ce817869240e80e22bc684ea507dd130fd",
   );
 });
 
@@ -237,7 +234,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and one pending KIOR registration", () => {
+test("production binds its exact ledger after the KIOR registration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -263,14 +260,14 @@ test("production binds its exact ledger and one pending KIOR registration", () =
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 162);
+  assert.equal(result.ledger_count, 163);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, ["20260830100000_add_kior_offer_sync_registration"]);
+  assert.deepEqual(result.pending, []);
   assert.equal(result.selected_files.length, 163);
-  assert.deepEqual(result.pending_files, ["20260830100000_add_kior_offer_sync_registration.sql"]);
-  assert.equal(result.pending_file, "20260830100000_add_kior_offer_sync_registration.sql");
-  assert.equal(result.pending_sha256, "a9d75c9be585fbd52cd85c9f9e2fec223046e96f408623c927f624c836b2a84b");
-  assert.equal(result.pending_sha256s["20260830100000_add_kior_offer_sync_registration.sql"], result.pending_sha256);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.equal(Object.keys(result.pending_sha256s).length, 0);
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));

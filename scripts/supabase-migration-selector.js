@@ -206,9 +206,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 162,
+    ledgerCount: 163,
     ledgerFingerprint:
-      "1054c31ccb272b801c968afdcac03a8242ad7748dbe245440502ef326fcc7707",
+      "ec6a221b574b7a43edfc1a7c5d8cb0ce817869240e80e22bc684ea507dd130fd",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -225,12 +225,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260830100000_add_kior_offer_sync_registration.sql",
-        sha256: "a9d75c9be585fbd52cd85c9f9e2fec223046e96f408623c927f624c836b2a84b",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 
