@@ -1,5 +1,13 @@
 # Automation Reliability Roadmap
 
+### eBay autonomous closeout — 31 August 2026, 10:09 UTC
+
+- Final closeout did not run another offer apply, replay, approval RPC, apply RPC, manual SQL or catalogue write. It correlated the already-completed production apply run `33374870684` with independent read-only idempotency run `33378021842` and watchdog run `33380240188`.
+- The eBay watchdog row now passes with split-run evidence: apply `197/197 VERIFY_NO_CHANGE`, `40` review rows isolated, `0` blocked, offer `2686` review-only, DB postflight `PASS`, postflight hash `0281412744d3034b9437cc79e9bb1ecac61019a569a58d2aa6d8adef8a62c40f`, postflight file SHA-256 `35920e013b10518bdd6ee6fa899c3704464508cbf1f0dbf814f4349fc5b8d3e8`, and attestation fingerprint `fd2add2b2b2cf873595ad2f637c87c7edb6bc1aa50a0de5356816fc07bd12969`.
+- Production deltas are exactly bounded to `197` `last_checked_at` updates. Price, stock, shipping, total, URL, mappings, products, variants, offer count and `price_history` all remained unchanged. Independent idempotency reported the same executable/review scope with zero blocked rows, zero executed plans and zero database writes.
+- eBay cron is now enabled after the eBay watchdog PASS: repository variable `EBAY_REFRESH_ENABLED=true` was read back at `2026-08-31T10:05:44Z`. The scheduled workflow remains `43 5 * * *`, gated by that variable, and its scheduled path prepares and executes only autonomous `VERIFY_NO_CHANGE` rows through the existing guarded prepare/apply/postflight/idempotency/sealer sequence.
+- Final read-only Catalog Health at `2026-08-31T10:09:03.147Z`: status `Critical`; active unmerged products `1088`; products without in-stock offers `208`; products with stale offers `278`; global stale offers >7/>30 days `343/322`; evidence hash `4a1bb5df4adcd8e6f3b53ffb2fdbada92733071b42780f67bd27a0b187cf783a`. eBay is `237` offers, `40` older than 48h, `10/0` stale >7/>30; the older eBay rows are the isolated review scope, not failed executable confirmations.
+
 ### eBay split-run evidence correlation decision — 31 August 2026
 
 - Apply run `33374870684` already completed the approved eBay freshness mutation: `197/197 VERIFY_NO_CHANGE`, `40` review rows isolated, `0` blocked, offer `2686` review-only, DB postflight `PASS`, exactly `197` `last_checked_at` changes and zero commercial, identity, mapping, entity-count or `price_history` deltas. No further eBay apply, replay, approval RPC, apply RPC, manual SQL or catalogue update is authorized for closeout.

@@ -1,5 +1,15 @@
 # Automation Reliability — Owner Decision Pack
 
+## eBay autonomous closeout — 31 August 2026, 10:09 UTC
+
+The owner-approved eBay freshness closeout is complete without another offer apply or replay. Production apply run `33374870684` executed exactly `197/197 VERIFY_NO_CHANGE`; all `40` review rows, including offer `2686`, remained outside execution. DB postflight passed with postflight hash `0281412744d3034b9437cc79e9bb1ecac61019a569a58d2aa6d8adef8a62c40f` and file SHA-256 `35920e013b10518bdd6ee6fa899c3704464508cbf1f0dbf814f4349fc5b8d3e8`.
+
+Independent read-only idempotency run `33378021842` matched the same semantic executable/review scope and returned zero blocked rows, zero executed plans and zero database writes. Watchdog run `33380240188` now reports the eBay row as `PASS` with split-run attestation fingerprint `fd2add2b2b2cf873595ad2f637c87c7edb6bc1aa50a0de5356816fc07bd12969`. The aggregate watchdog still reports other-retailer failures; no authority is inferred for those retailers.
+
+The production effect is exactly `197` `last_checked_at` changes and zero price, stock, shipping, total, URL, mapping, product, variant, offer-count or `price_history` changes. Repository variable `EBAY_REFRESH_ENABLED=true` was read back at `2026-08-31T10:05:44Z`; the eBay workflow schedule remains `43 5 * * *` and gated to the existing autonomous `VERIFY_NO_CHANGE` refresh path.
+
+Final read-only Catalog Health at `2026-08-31T10:09:03.147Z`: status `Critical`; active unmerged products `1088`; products without in-stock offers `208`; products with stale offers `278`; stale >7/>30 `343/322`; hash `4a1bb5df4adcd8e6f3b53ffb2fdbada92733071b42780f67bd27a0b187cf783a`. eBay has `237` offers, `40` older than 48h, `10/0` stale >7/>30 and `0` products without in-stock eBay offer; the stale eBay rows are isolated review rows, not executable confirmations.
+
 ## eBay executable-scope approval reset — 30 August 2026
 
 The approval for dry-run `33329160827` is closed and cannot be replayed. Apply run `33330111793` stopped before approval/apply RPC because contract v1 bound volatile and review-only evidence into the manual source/plan comparison. No catalogue data changed. Contract v2 requires a new dry-run and new owner approval containing the full-capture, executable-source, review-scope and plan fingerprints plus manifest/report hashes. No eBay apply or cron enablement is currently authorized.
