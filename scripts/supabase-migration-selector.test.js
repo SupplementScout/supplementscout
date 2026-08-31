@@ -26,6 +26,8 @@ const TIMESTAMP_GUARD_MIGRATION = "20260831080000_fix_verified_no_change_timesta
 const TIMESTAMP_GUARD_SHA256 = "727a47ddabc29664693c299c5b4e0915ba06e44fbfc2beb098277c2b81866bbe";
 const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql";
 const TIMESTAMP_OPERATOR_SHA256 = "16d92f7e0b404b81bcbda62bfb512ff6690bb78b36b7e5a345788b6fdcc8ef20";
+const REVIEW_QUEUE_PUBLICATION_MIGRATION = "20260831110000_create_automation_review_queue_publication_rpc.sql";
+const REVIEW_QUEUE_PUBLICATION_SHA256 = "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -80,15 +82,16 @@ test("staging records both verified no-change timestamp repairs as applied", () 
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 94);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
+  assert.equal(result.pending_file, REVIEW_QUEUE_PUBLICATION_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEW_QUEUE_PUBLICATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
-  assert.equal(result.selected_files.length, 94);
+  assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
+  assert.equal(result.selected_files.length, 95);
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
+  assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -169,7 +172,7 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records both verified no-change timestamp repairs as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending.map(({ filename }) => filename), [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
   assert.equal(contract.ledgerCount, 170);
   assert.equal(
     contract.ledgerFingerprint,
@@ -234,7 +237,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 94);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 95);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -278,12 +281,12 @@ test("production binds its exact ledger after the automation review queue extens
   });
   assert.equal(result.ledger_count, 170);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 170);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
+  assert.equal(result.selected_files.length, 171);
+  assert.equal(result.pending_file, REVIEW_QUEUE_PUBLICATION_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEW_QUEUE_PUBLICATION_SHA256);
+  assert.equal(result.pending_sha256s[REVIEW_QUEUE_PUBLICATION_MIGRATION], REVIEW_QUEUE_PUBLICATION_SHA256);
+  assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
   assert.ok(result.selected_files.includes(
@@ -362,12 +365,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migrations after timestamp guard repairs", () => {
+test("staging output reports only the review queue publication RPC as pending", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, REVIEW_QUEUE_PUBLICATION_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEW_QUEUE_PUBLICATION_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, { [REVIEW_QUEUE_PUBLICATION_MIGRATION]: REVIEW_QUEUE_PUBLICATION_SHA256 });
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {

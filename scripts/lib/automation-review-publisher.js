@@ -167,6 +167,171 @@ function planPublication(manifestInput, activeRowsInput, options = {}) {
   };
 }
 
+function expectedState(row) {
+  return {
+    review_id: row && row.id != null ? String(row.id) : null,
+    review_status: row && row.review_status ? row.review_status : null,
+    source_row_fingerprint: row && row.source_row_fingerprint ? row.source_row_fingerprint : null,
+    superseded_by_review_id: row && row.superseded_by_review_id != null ? String(row.superseded_by_review_id) : null,
+  };
+}
+
+function publicationRow(row) {
+  const textOrNull = (value) => value == null || value === "" ? null : String(value);
+  const numberOrNull = (value) => value == null || value === "" ? null : String(value);
+  return {
+    snapshot_id: textOrNull(row.snapshot_id) || `automation-review-${row.retailer_id}-${row.offer_id}`,
+    review_item_id: textOrNull(row.review_item_id) || `${row.retailer_id}:${row.offer_id}:${row.source_row_fingerprint}`,
+    source_record_id: textOrNull(row.source_record_id) || `${row.retailer_id}:${row.offer_id}`,
+    retailer: row.retailer,
+    product_title: row.product_title || `Offer ${row.offer_id}`,
+    variant_title: textOrNull(row.variant_title),
+    primary_status: row.primary_status || row.review_status || "PENDING",
+    reason_codes: Array.isArray(row.reason_codes) ? row.reason_codes.join(",") : String(row.reason_codes || ""),
+    confidence: row.confidence || "LOW",
+    canonical_candidates: Array.isArray(row.canonical_candidates) ? row.canonical_candidates : [],
+    source_sku: textOrNull(row.source_sku),
+    source_gtin: textOrNull(row.source_gtin),
+    source_weight: textOrNull(row.source_weight),
+    source_price: row.source_price == null || row.source_price === "" ? null : String(row.source_price),
+    source_url: textOrNull(row.source_url),
+    suggested_action: row.suggested_action || row.operation_type || "",
+    retailer_id: String(row.retailer_id),
+    retailer_product_id: numberOrNull(row.retailer_product_id),
+    offer_id: String(row.offer_id),
+    current_product_id: numberOrNull(row.current_product_id),
+    current_variant_id: numberOrNull(row.current_variant_id),
+    proposed_product_id: numberOrNull(row.proposed_product_id),
+    proposed_variant_id: numberOrNull(row.proposed_variant_id),
+    review_status: row.review_status,
+    review_kind: row.review_kind,
+    operation_type: row.operation_type,
+    before_state: row.before_state || null,
+    proposed_state: row.proposed_state || null,
+    impact_summary: row.impact_summary || {},
+    source_evidence: row.source_evidence || {},
+    source_captured_at: row.source_captured_at,
+    expires_at: row.expires_at,
+    workflow_run_url: textOrNull(row.workflow_run_url),
+    artifact_url: textOrNull(row.artifact_url),
+    source_row_fingerprint: row.source_row_fingerprint,
+    artifact_fingerprint: row.artifact_fingerprint || row.source_row_fingerprint,
+    plan_fingerprint: textOrNull(row.plan_fingerprint),
+    plan_artifact_sha256: textOrNull(row.plan_artifact_sha256),
+  };
+}
+
+function refreshPayload(row) {
+  return {
+    source_evidence: row.source_evidence || {},
+    source_captured_at: row.source_captured_at,
+    expires_at: row.expires_at,
+    workflow_run_url: row.workflow_run_url || null,
+    artifact_url: row.artifact_url || null,
+    plan_fingerprint: row.plan_fingerprint || null,
+    plan_artifact_sha256: row.plan_artifact_sha256 || null,
+  };
+}
+
+function buildPublicationChangeset(manifestInput, activeRowsInput, options = {}) {
+  const plan = planPublication(manifestInput, activeRowsInput, options);
+  const insertedIdsByKey = options.insertedIdsByProblemKey || {};
+  const operations = [];
+  for (const row of plan.created) {
+    operations.push({
+      op: "CREATE",
+      expected: expectedState(null),
+      row: publicationRow(row),
+      replacement_row: null,
+    });
+  }
+  for (const item of plan.refreshed) {
+    operations.push({
+      op: "REFRESH",
+      expected: expectedState(item.existing),
+      row: refreshPayload(item.row),
+      replacement_row: null,
+    });
+  }
+  for (const item of plan.expired) {
+    const op = item.replacement ? "SUPERSEDE" : "RESOLVE_BY_SOURCE";
+    operations.push({
+      op,
+      expected: expectedState(item.existing),
+      row: null,
+      replacement_row: item.replacement
+        ? {
+          id: insertedIdsByKey[rowProblemKey(item.replacement)] || null,
+          offer_id: String(item.replacement.offer_id),
+          source_row_fingerprint: item.replacement.source_row_fingerprint,
+        }
+        : null,
+    });
+  }
+  return {
+    ...plan,
+    operations,
+    changeset_fingerprint: sha256({
+      retailer_id: plan.manifest.retailer_id,
+      observed_offer_ids: plan.manifest.observed_offer_ids,
+      operations,
+    }),
+  };
+}
+
+function buildPublicationRpcRequest(manifestInput, activeRowsInput, options = {}) {
+  const activeRows = activeRowsInput || [];
+  const changeset = buildPublicationChangeset(manifestInput, activeRows, options);
+  const manifest = changeset.manifest;
+  const idempotencySeed = {
+    retailer_id: manifest.retailer_id,
+    publisher_batch_fingerprint: changeset.plan_hash,
+    changeset_fingerprint: changeset.changeset_fingerprint,
+    workflow_run_id: manifest.workflow_run_id || null,
+    artifact_id: manifest.artifact_id || null,
+    commit_sha: manifest.commit_sha || null,
+  };
+  return {
+    schema_version: 1,
+    kind: "automation-review-queue-publication",
+    retailer: {
+      id: String(manifest.retailer_id),
+      slug: manifest.retailer_slug || manifest.retailer_slug_hint || String(manifest.retailer).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    },
+    publisher_batch_fingerprint: changeset.plan_hash,
+    idempotency_key: options.idempotencyKey || sha256(idempotencySeed),
+    changeset_fingerprint: changeset.changeset_fingerprint,
+    workflow_run_id: String(manifest.workflow_run_id || ""),
+    artifact_id: String(manifest.artifact_id || ""),
+    commit_sha: String(manifest.commit_sha || ""),
+    capture_timestamp: manifest.generated_at,
+    expected_baseline: options.expectedBaseline || {
+      active_review_count: activeRows.length,
+      catalogue_counts: options.catalogueCounts || {},
+      catalogue_hash_without_review_queue: options.catalogueHashWithoutReviewQueue || sha256({ catalogue_counts: options.catalogueCounts || {} }),
+    },
+    operations: changeset.operations,
+  };
+}
+
+function validateRpcResult(request, result) {
+  if (!result || typeof result !== "object") fail("Review publisher RPC returned no result");
+  if (result.batch_fingerprint !== request.publisher_batch_fingerprint) fail("Review publisher RPC batch fingerprint mismatch");
+  if (result.changeset_fingerprint !== request.changeset_fingerprint) fail("Review publisher RPC changeset fingerprint mismatch");
+  if (result.idempotency_key !== request.idempotency_key) fail("Review publisher RPC idempotency key mismatch");
+  if (Number(result.catalogue_writes || 0) !== 0) fail("Review publisher RPC reported catalogue writes");
+}
+
+async function publishReviewManifestViaRpc(manifestInput, store, options = {}) {
+  if (!store || typeof store.callRpc !== "function") fail("Review publisher requires a single-RPC store");
+  const activeRows = options.activeRows || [];
+  const request = buildPublicationRpcRequest(manifestInput, activeRows, options);
+  if (options.mode === "dry-run") return { request, mode: "dry-run", database_writes: 0 };
+  const result = await store.callRpc("publish_automation_review_queue_changes", { p_request: request });
+  validateRpcResult(request, result);
+  return { request, result, mode: "apply", database_writes: Number(result.database_writes || 0) };
+}
+
 async function publishReviewManifest(manifestInput, store, options = {}) {
   if (!store || typeof store.transaction !== "function") fail("Review publisher requires a transaction-capable store");
   const manifest = validateManifest(manifestInput, options);
@@ -215,11 +380,15 @@ module.exports = {
   TERMINAL_STATUSES,
   MAX_BATCH_ROWS,
   activeProblemKey,
+  buildPublicationChangeset,
+  buildPublicationRpcRequest,
   canonicalJson,
   planPublication,
   publishReviewManifest,
+  publishReviewManifestViaRpc,
   reasonList,
   rowProblemKey,
   sha256,
+  validateRpcResult,
   validateManifest,
 };

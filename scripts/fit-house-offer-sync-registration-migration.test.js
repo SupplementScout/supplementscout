@@ -15,7 +15,9 @@ const expectedSha = "94894a4ec1a083fa167ec87d487aa409cc9f48e9482ee441733c34858d2
 test("migration is hash-bound and transactional", () => {
   const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
   assert.equal(crypto.createHash("sha256").update(repositoryBytes).digest("hex"), expectedSha);
-  assert.deepEqual(selector.CONTRACTS.STAGING.pending, []);
+  assert.deepEqual(selector.CONTRACTS.STAGING.pending.map(({ filename }) => filename), [
+    "20260831110000_create_automation_review_queue_publication_rpc.sql",
+  ]);
   assert.equal(selector.CONTRACTS.STAGING.ledgerCount, 94);
   assert.equal(
     selector.CONTRACTS.PRODUCTION.pending.some(({ filename }) =>

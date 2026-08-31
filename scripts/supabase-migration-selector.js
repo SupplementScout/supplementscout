@@ -201,7 +201,12 @@ const CONTRACTS = Object.freeze({
       "20260830120000_expand_discount_supplements_freshness_scope_109.sql":
         "8ded2b941bd3637f0e1d5aeedcecbaaf235c35e4681aaf30a26877faf84d5e28",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260831110000_create_automation_review_queue_publication_rpc.sql",
+        sha256: "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409",
+      }),
+    ]),
   }),
   PRODUCTION: Object.freeze({
     environment: "PRODUCTION",
@@ -229,7 +234,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260831110000_create_automation_review_queue_publication_rpc.sql",
+        sha256: "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409",
+      }),
+    ]),
   }),
 });
 

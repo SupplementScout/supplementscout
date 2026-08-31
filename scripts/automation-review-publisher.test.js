@@ -1,8 +1,10 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
+  buildPublicationRpcRequest,
   planPublication,
   publishReviewManifest,
+  publishReviewManifestViaRpc,
   sha256,
   validateManifest,
 } = require("./lib/automation-review-publisher");
@@ -53,6 +55,7 @@ function manifest(overrides = {}) {
     generated_at: "2026-08-31T10:31:00.000Z",
     retailer_id: "12",
     retailer: "eBay UK",
+    retailer_slug: "ebay-uk",
     observed_offer_ids: rows.map((item) => String(item.offer_id)),
     workflow_run_id: "33382627453",
     artifact_id: "9754436306",
@@ -218,4 +221,73 @@ test("unknown retailer fails before control-plane writes", async () => {
   const fake = store({ retailers: [] });
   await assert.rejects(() => publishReviewManifest(manifest(), fake, { mode: "apply" }), /retailer binding mismatch/);
   assert.deepEqual(fake.calls.map((call) => call[0]), ["begin", "fetchRetailers", "rollback"]);
+});
+
+test("RPC publisher builds a single transactional changeset and does not use REST-style lifecycle writes", async () => {
+  const request = buildPublicationRpcRequest(manifest(), [active()], {
+    expectedBaseline: {
+      active_review_count: 1,
+      catalogue_counts: { products: 10, product_variants: 11, retailer_products: 12, offers: 13, price_history: 14 },
+      catalogue_hash_without_review_queue: "9".repeat(64),
+    },
+  });
+  assert.equal(request.kind, "automation-review-queue-publication");
+  assert.equal(request.retailer.slug, "ebay-uk");
+  assert.equal(request.operations.length, 1);
+  assert.equal(request.operations[0].op, "REFRESH");
+  assert.equal(request.operations[0].expected.review_id, "501");
+  assert.equal(request.operations[0].row.source_captured_at, row().source_captured_at);
+
+  const calls = [];
+  const result = await publishReviewManifestViaRpc(manifest(), {
+    async callRpc(name, args) {
+      calls.push([name, args]);
+      return {
+        status: "APPLIED",
+        batch_fingerprint: args.p_request.publisher_batch_fingerprint,
+        changeset_fingerprint: args.p_request.changeset_fingerprint,
+        idempotency_key: args.p_request.idempotency_key,
+        catalogue_writes: 0,
+        database_writes: 3,
+      };
+    },
+  }, { activeRows: [active()] });
+  assert.deepEqual(calls.map((call) => call[0]), ["publish_automation_review_queue_changes"]);
+  assert.equal(result.mode, "apply");
+  assert.equal(result.database_writes, 3);
+});
+
+test("RPC publisher dry-run prepares request without database writes and rejects unsafe RPC echoes", async () => {
+  const dryRun = await publishReviewManifestViaRpc(manifest(), {
+    async callRpc() {
+      throw new Error("RPC should not be called in dry-run");
+    },
+  }, { activeRows: [active()], mode: "dry-run" });
+  assert.equal(dryRun.mode, "dry-run");
+  assert.equal(dryRun.database_writes, 0);
+
+  await assert.rejects(() => publishReviewManifestViaRpc(manifest(), {
+    async callRpc(name, args) {
+      return {
+        batch_fingerprint: args.p_request.publisher_batch_fingerprint,
+        changeset_fingerprint: args.p_request.changeset_fingerprint,
+        idempotency_key: args.p_request.idempotency_key,
+        catalogue_writes: 1,
+      };
+    },
+  }, { activeRows: [active()] }), /catalogue writes/);
+});
+
+test("RPC changeset supersede links by replacement fingerprint instead of pre-known database id", () => {
+  const replacement = row({
+    source_row_fingerprint: "c".repeat(64),
+    reason_codes: "MAPPING_DRIFT",
+    review_kind: "MAPPING_DRIFT",
+    operation_type: "REBIND_EXISTING_VARIANT",
+  });
+  const request = buildPublicationRpcRequest(manifest({ rows: [replacement] }), [active()]);
+  assert.deepEqual(request.operations.map((operation) => operation.op), ["CREATE", "SUPERSEDE"]);
+  assert.equal(request.operations[1].replacement_row.id, null);
+  assert.equal(request.operations[1].replacement_row.offer_id, "2748");
+  assert.equal(request.operations[1].replacement_row.source_row_fingerprint, "c".repeat(64));
 });
