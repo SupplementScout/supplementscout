@@ -48,6 +48,7 @@ function parseArgs(argv) {
       if (value !== undefined) fail("--download-source-artifact does not take a value");
       options.downloadSourceArtifact = true;
     } else if ([
+      "sourceBinding",
       "sourceArtifactDir",
       "sourceZip",
       "sourceRunId",
@@ -65,6 +66,30 @@ function parseArgs(argv) {
     } else {
       fail(`Unknown argument ${arg}`);
     }
+  }
+  if (options.sourceBinding) {
+    const parts = options.sourceBinding.split(":");
+    if (parts.length !== 8) fail("--source-binding must contain 8 colon-delimited fields");
+    const [
+      sourceRunId,
+      sourceArtifactId,
+      sourceCommitSha,
+      sourceArtifactDigest,
+      sourceContractSha256,
+      sourceReportSha256,
+      sourceArtifactContentSha256,
+      sourceReviewScopeFingerprint,
+    ] = parts;
+    Object.assign(options, {
+      sourceRunId,
+      sourceArtifactId,
+      sourceCommitSha,
+      sourceArtifactDigest,
+      sourceContractSha256,
+      sourceReportSha256,
+      sourceArtifactContentSha256,
+      sourceReviewScopeFingerprint,
+    });
   }
   for (const key of [
     "sourceRunId",

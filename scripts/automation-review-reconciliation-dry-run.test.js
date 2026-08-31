@@ -273,6 +273,22 @@ test("CLI parser requires immutable source binding inputs", () => {
 
   assert.equal(parsed.sourceRunId, SOURCE.run);
   assert.equal(parsed.sourceArtifactId, SOURCE.artifact);
+
+  const bound = parseArgs([
+    `--source-artifact-dir=${fixture.directory}`,
+    `--source-binding=${[
+      options.sourceRunId,
+      options.sourceArtifactId,
+      options.sourceCommitSha,
+      options.sourceArtifactDigest,
+      options.sourceContractSha256,
+      options.sourceReportSha256,
+      options.sourceArtifactContentSha256,
+      options.sourceReviewScopeFingerprint,
+    ].join(":")}`,
+  ]);
+  assert.equal(bound.sourceRunId, SOURCE.run);
+  assert.equal(bound.sourceReviewScopeFingerprint, SOURCE.reviewScope);
 });
 
 test("workflow exposes a dry-run-only Review Queue reconciliation path", () => {
@@ -281,7 +297,7 @@ test("workflow exposes a dry-run-only Review Queue reconciliation path", () => {
   assert.match(workflow, /inputs\.operation == 'dry-run' && inputs\.execution_mode == 'review-queue-reconciliation'/);
   assert.match(workflow, /automation-review-reconciliation-dry-run\.js/);
   assert.match(workflow, /--download-source-artifact/);
-  assert.match(workflow, /reconciliation_source_artifact_digest/);
+  assert.match(workflow, /reconciliation_source_binding/);
   assert.doesNotMatch(workflow, /review-queue-reconciliation[\s\S]*publish_automation_review_queue_changes/);
 });
 

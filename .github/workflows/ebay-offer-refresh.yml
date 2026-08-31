@@ -55,36 +55,8 @@ on:
         default: catalogue-refresh
         type: choice
         options: [catalogue-refresh, review-queue, review-queue-reconciliation]
-      reconciliation_source_run_id:
-        description: "Successful eBay offer-refresh dry-run ID used as Review Queue source evidence"
-        required: false
-        type: string
-      reconciliation_source_artifact_id:
-        description: "Artifact ID belonging to the source eBay offer-refresh dry-run"
-        required: false
-        type: string
-      reconciliation_source_commit_sha:
-        description: "Exact source eBay offer-refresh dry-run commit SHA"
-        required: false
-        type: string
-      reconciliation_source_artifact_digest:
-        description: "SHA-256 digest of the source eBay offer-refresh artifact ZIP"
-        required: false
-        type: string
-      reconciliation_source_contract_sha256:
-        description: "SHA-256 of source production-dry-run-contract.json"
-        required: false
-        type: string
-      reconciliation_source_report_sha256:
-        description: "SHA-256 of source production-dry-run.json"
-        required: false
-        type: string
-      reconciliation_source_artifact_content_sha256:
-        description: "Source artifact content SHA-256 recorded in production-dry-run-contract.json"
-        required: false
-        type: string
-      reconciliation_source_review_scope_fingerprint:
-        description: "Review-scope fingerprint from the source eBay offer-refresh dry-run"
+      reconciliation_source_binding:
+        description: "run_id:artifact_id:commit_sha:artifact_sha256:contract_sha256:report_sha256:content_sha256:review_scope_fingerprint"
         required: false
         type: string
       review_item_id:
@@ -286,25 +258,11 @@ jobs:
     steps:
       - name: Validate Review Queue reconciliation dry-run context
         env:
-          SOURCE_RUN_ID: ${{ inputs.reconciliation_source_run_id }}
-          SOURCE_ARTIFACT_ID: ${{ inputs.reconciliation_source_artifact_id }}
-          SOURCE_COMMIT_SHA: ${{ inputs.reconciliation_source_commit_sha }}
-          SOURCE_ARTIFACT_DIGEST: ${{ inputs.reconciliation_source_artifact_digest }}
-          SOURCE_CONTRACT_SHA256: ${{ inputs.reconciliation_source_contract_sha256 }}
-          SOURCE_REPORT_SHA256: ${{ inputs.reconciliation_source_report_sha256 }}
-          SOURCE_ARTIFACT_CONTENT_SHA256: ${{ inputs.reconciliation_source_artifact_content_sha256 }}
-          SOURCE_REVIEW_SCOPE_FINGERPRINT: ${{ inputs.reconciliation_source_review_scope_fingerprint }}
+          SOURCE_BINDING: ${{ inputs.reconciliation_source_binding }}
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
-          printf '%s' "$SOURCE_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
-          printf '%s' "$SOURCE_ARTIFACT_ID" | grep -Eq '^[1-9][0-9]*$'
-          printf '%s' "$SOURCE_COMMIT_SHA" | grep -Eq '^[0-9a-f]{40}$'
-          printf '%s' "$SOURCE_ARTIFACT_DIGEST" | grep -Eq '^[0-9a-f]{64}$'
-          printf '%s' "$SOURCE_CONTRACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
-          printf '%s' "$SOURCE_REPORT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
-          printf '%s' "$SOURCE_ARTIFACT_CONTENT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
-          printf '%s' "$SOURCE_REVIEW_SCOPE_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SOURCE_BINDING" | grep -Eq '^[1-9][0-9]*:[1-9][0-9]*:[0-9a-f]{40}(:[0-9a-f]{64}){5}$'
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
@@ -323,14 +281,7 @@ jobs:
         run: >-
           node scripts/automation-review-reconciliation-dry-run.js
           --download-source-artifact
-          --source-run-id=${{ inputs.reconciliation_source_run_id }}
-          --source-artifact-id=${{ inputs.reconciliation_source_artifact_id }}
-          --source-commit-sha=${{ inputs.reconciliation_source_commit_sha }}
-          --source-artifact-digest=${{ inputs.reconciliation_source_artifact_digest }}
-          --source-contract-sha256=${{ inputs.reconciliation_source_contract_sha256 }}
-          --source-report-sha256=${{ inputs.reconciliation_source_report_sha256 }}
-          --source-artifact-content-sha256=${{ inputs.reconciliation_source_artifact_content_sha256 }}
-          --source-review-scope-fingerprint=${{ inputs.reconciliation_source_review_scope_fingerprint }}
+          --source-binding=${{ inputs.reconciliation_source_binding }}
           --output=tmp/automation-review-reconciliation/reconciliation-dry-run.json
       - name: Upload Review Queue reconciliation evidence
         if: always()
