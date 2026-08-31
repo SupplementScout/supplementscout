@@ -4,6 +4,7 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { normalizeConnectionString, withPostgresRoleSession } = require("./lib/retailer-offer-sync/production-role-session");
 const { canonicalJson } = require("./lib/canonical-json");
+const { canonicalizeTimestamps, timestampEpochNanoseconds } = require("./lib/canonical-timestamp");
 const { loadReviewedBatch } = require("./lib/six-pack-reviewed-owner-approval");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -12,7 +13,7 @@ const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 
 function fail(message) { throw new Error(message); }
-function hash(value) { return crypto.createHash("sha256").update(canonicalJson(value)).digest("hex"); }
+function hash(value) { return crypto.createHash("sha256").update(canonicalJson(canonicalizeTimestamps(value))).digest("hex"); }
 function normalizeSnapshot(value) { return JSON.parse(JSON.stringify(value)); }
 
 function parseArgs(argv) {
@@ -71,7 +72,7 @@ function verifyPostflight(batch, baseline, after, execution) {
     const executed = executionByOffer.get(String(row.offer_id));
     if (!before || !current || !executed) fail(`Missing postflight evidence for offer ${row.offer_id}`);
     for (const field of ["price", "shipping_cost", "total_price"]) if (Number(current[field]).toFixed(2) !== Number(row.after[field]).toFixed(2)) fail(`Postflight ${field} mismatch for offer ${row.offer_id}`);
-    if (current.in_stock !== row.after.in_stock || current.url !== row.after.url || Date.parse(current.last_checked_at) <= Date.parse(before.last_checked_at)) fail(`Postflight state mismatch for offer ${row.offer_id}`);
+    if (current.in_stock !== row.after.in_stock || current.url !== row.after.url || timestampEpochNanoseconds(current.last_checked_at) <= timestampEpochNanoseconds(before.last_checked_at)) fail(`Postflight state mismatch for offer ${row.offer_id}`);
     const unchanged = (value) => Object.fromEntries(Object.entries(value).filter(([key]) => !new Set(["price", "shipping_cost", "total_price", "in_stock", "last_checked_at", "updated_at"]).has(key)));
     if (canonicalJson(unchanged(before)) !== canonicalJson(unchanged(current))) fail(`Non-commercial offer identity changed for offer ${row.offer_id}`);
     const expectsHistory = row.operation_type !== "UPDATE_STOCK";

@@ -1,7 +1,8 @@
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
-const { canonicalJson } = require("./canonical-json");
+const { canonicalJson, normalizeDecimalString } = require("./canonical-json");
+const { canonicalTimestamp, canonicalizeTimestamps } = require("./canonical-timestamp");
 
 const CONTRACT_FILE = "production-dry-run-contract.json";
 const REPORT_FILE = "production-dry-run.json";
@@ -12,7 +13,7 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 function invariant(condition, message) { if (!condition) throw new Error(message); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
-function canonicalHash(value) { return sha256(canonicalJson(value)); }
+function canonicalHash(value) { return sha256(canonicalJson(canonicalizeTimestamps(value))); }
 function fileSha256(file) { return sha256(fs.readFileSync(file)); }
 function sortedStrings(values) { return [...new Set((values || []).map(String))].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b)); }
 function withoutTechnicalTimestamps(value) {
@@ -218,10 +219,29 @@ function verifyFreshReport(approved, fresh) {
   return bounded;
 }
 
+function beforeStateCanonical(field, value) {
+  if (["price", "shipping_cost", "total_price"].includes(field)) return value === null ? null : normalizeDecimalString(value, field);
+  if (field === "last_checked_at") return canonicalTimestamp(value, field);
+  if (field === "in_stock") {
+    invariant(typeof value === "boolean", `${field} must remain boolean`);
+    return value;
+  }
+  return value;
+}
+
+function reasonCode(field, left, right) {
+  if (left === null || right === null) return "NULLABILITY_DRIFT";
+  if (["price", "shipping_cost", "total_price"].includes(field)) return "DECIMAL_VALUE_DRIFT";
+  if (field === "last_checked_at") return "TIMESTAMP_INSTANT_DRIFT";
+  if (field === "in_stock") return "BOOLEAN_VALUE_DRIFT";
+  return "EXACT_VALUE_DRIFT";
+}
+
 function verifyDatabaseBaseline(contract, baseline) {
   invariant(baseline?.result === "PASS" && baseline?.profile === "ebay-uk" && baseline.snapshot?.row_count === 237, "Artifact-bound DB baseline invalid");
   const rows = new Map(baseline.snapshot.rows.map((row) => [String(row.offer_id), row]));
   invariant(rows.size === 237 && canonicalJson(sortedStrings([...rows.keys()])) === canonicalJson(sortedStrings(contract.report.semantic_source_rows.map((row) => row.offer_id))), "Artifact-bound DB baseline offer scope drift");
+  const differences = [];
   for (const planRow of contract.report.semantic_plan_rows.executable) {
     const current = rows.get(planRow.offer_id), before = planRow.before_state.offer, mapping = planRow.before_state.retailer_product;
     invariant(current, `Approved offer ${planRow.offer_id} missing from DB baseline`);
@@ -233,7 +253,22 @@ function verifyDatabaseBaseline(contract, baseline) {
       price: String(before.price), shipping_cost: String(before.shipping_cost), total_price: String(before.total_price), in_stock: before.in_stock, url: before.url,
       last_checked_at: before.last_checked_at,
     };
-    for (const [field, value] of Object.entries(expected)) invariant(canonicalJson(current[field]) === canonicalJson(value), `DB before-state drift for offer ${planRow.offer_id}: ${field}`);
+    for (const [field, value] of Object.entries(expected)) {
+      const canonical = (side, item) => {
+        try { return { valid: true, value: beforeStateCanonical(field, item) }; }
+        catch (error) { return { valid: false, value: null, error: `${side}: ${error.message}` }; }
+      };
+      const artifact = canonical("artifact", value), database = canonical("database", current[field]);
+      const equal = artifact.valid && database.valid && canonicalJson(artifact.value) === canonicalJson(database.value);
+      if (!equal) differences.push({ offer_id: String(planRow.offer_id), field, raw_artifact_value: value, raw_database_value: current[field], canonical_artifact_value: artifact.value, canonical_database_value: database.value, semantic_equality: false, reason_code: !artifact.valid || !database.valid ? "INVALID_TYPED_VALUE" : reasonCode(field, value, current[field]), validation_errors: [artifact.error, database.error].filter(Boolean) });
+    }
+  }
+  if (differences.length) {
+    const first = differences[0];
+    const error = new Error(`DB before-state drift for offer ${first.offer_id}: ${first.field}`);
+    error.code = "DB_BEFORE_STATE_DRIFT";
+    error.diagnostic = { schema_version: 1, kind: "ebay-db-before-state-diagnostic", result: "BLOCK", database_writes: 0, difference_count: differences.length, affected_offer_count: new Set(differences.map((item) => item.offer_id)).size, differences };
+    throw error;
   }
   return true;
 }

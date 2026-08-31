@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
 const { canonicalJson, normalizeDecimalString } = require("../canonical-json");
+const { canonicalTimestamp } = require("../canonical-timestamp");
 const { fail } = require("./errors");
 
 const VERSION = "RSBI-CJ1";
@@ -27,13 +28,16 @@ const OMIT_BY_TYPE = Object.freeze({
 });
 
 function normalizeTimestamp(value) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) fail("RSBI_SOURCE_SCHEMA_MISMATCH", `Invalid timestamp ${value}`);
-  return date.toISOString();
+  try { return canonicalTimestamp(value); }
+  catch { fail("RSBI_SOURCE_SCHEMA_MISMATCH", `Invalid timestamp ${value}`); }
 }
 
 function normalize(value, options = {}, path = "$", key = "") {
   if (value === undefined) fail("RSBI_SOURCE_SCHEMA_MISMATCH", "Undefined is forbidden in canonical JSON", path);
+  if (value instanceof Date) {
+    if (!options.timestampKeys?.has(key)) fail("RSBI_SOURCE_SCHEMA_MISMATCH", "Date values require an explicit timestamp key", path);
+    return normalizeTimestamp(value);
+  }
   if (value === null || typeof value === "boolean") return value;
   if (typeof value === "number") {
     if (ID_KEYS.test(key)) fail("RSBI_SOURCE_SCHEMA_MISMATCH", "IDs must remain strings", path);

@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
 const { canonicalJson } = require("./canonical-json");
+const { canonicalizeTimestamps, timestampEpochNanoseconds } = require("./canonical-timestamp");
 
 const TRANSITIONS = Object.freeze({
   PENDING: new Set(["APPROVED", "REJECTED", "IGNORED", "EXPIRED"]),
@@ -35,7 +36,7 @@ function invariant(condition, code) {
 }
 
 function hash(value) {
-  return crypto.createHash("sha256").update(canonicalJson(value)).digest("hex");
+  return crypto.createHash("sha256").update(canonicalJson(canonicalizeTimestamps(value))).digest("hex");
 }
 
 function transitionAllowed(from, to) {
@@ -66,7 +67,9 @@ function assertFreshReview(reviewItem, actor, now) {
   invariant(reviewItem?.review_status === "APPROVED", "REVIEW_NOT_APPROVED");
   invariant(typeof reviewItem.decision_actor === "string" && reviewItem.decision_actor.trim().length > 0, "OWNER_DECISION_MISSING");
   invariant(typeof actor === "string" && actor.trim().length > 0, "ACTOR_MISSING");
-  invariant(Number.isFinite(Date.parse(reviewItem.expires_at || "")) && Date.parse(reviewItem.expires_at) > now.getTime(), "REVIEW_EVIDENCE_EXPIRED");
+  let expiresAt;
+  try { expiresAt = timestampEpochNanoseconds(reviewItem.expires_at); } catch {}
+  invariant(expiresAt !== undefined && expiresAt > BigInt(now.getTime()) * 1_000_000n, "REVIEW_EVIDENCE_EXPIRED");
   invariant(/^[0-9a-f]{64}$/.test(reviewItem.source_row_fingerprint || ""), "SOURCE_FINGERPRINT_INVALID");
   invariant(reviewItem.before_state && typeof reviewItem.before_state === "object", "BEFORE_STATE_MISSING");
   invariant(expectedAfter(reviewItem), "PROPOSED_STATE_MISSING");
@@ -84,7 +87,9 @@ async function coordinateReviewExecution({ reviewItem, actor, adapter, mode = "d
 
   const source = await adapter.capture(reviewItem);
   invariant(source?.fingerprint === reviewItem.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
-  invariant(Number.isFinite(Date.parse(source.captured_at || "")) && Date.parse(source.captured_at) <= now.getTime(), "SOURCE_CAPTURE_INVALID");
+  let capturedAt;
+  try { capturedAt = timestampEpochNanoseconds(source.captured_at); } catch {}
+  invariant(capturedAt !== undefined && capturedAt <= BigInt(now.getTime()) * 1_000_000n, "SOURCE_CAPTURE_INVALID");
   const database = await adapter.loadDatabaseState(reviewItem);
   invariant(hash(database) === hash(reviewItem.before_state), "DATABASE_BEFORE_STATE_DRIFT");
   const plan = await adapter.buildProtectedPlan({ reviewItem, source, database });

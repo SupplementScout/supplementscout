@@ -9,8 +9,8 @@ const { DEFAULT_POLICY, assertConfig, browseIdentity, buildReport, evaluateIdent
 const { buildDiscoveryRows, buildItemRefreshInput, buildTitleLeadInput, currentOfferEvidence, parseArgs, parseQuarantinedGtins, readExactItem, sealInput } = require("./ebay-browse-pilot");
 const { hash } = require("./lib/retailer-snapshot/fingerprints");
 const { CONFIRMATION: REFRESH_CONFIRMATION, SCOPES: REFRESH_SCOPES, SCOPE: REFRESH_SCOPE, actionForPlan: refreshActionForPlan, assertExecutionContext, buildSource: buildRefreshSource, classifyContinuity, parseArgs: parseRefreshArgs, partitionSourceFailures, rowFromEvaluation, run: runRefresh, validatePlan: validateRefreshPlan, validatePreparedArtifact } = require("./ebay-offer-refresh");
-const { approvalConfirmation, approvedFromEnv, bindSemanticEvidence, buildSemanticPlanRows, buildSemanticSourceRows, fileSha256, loadAndVerifyContract, stableAffiliateUrl, verifyDatabaseBaseline, verifyFreshReport, writeDryRunContract } = require("./lib/ebay-artifact-bound-contract");
-const { downloadAndVerify } = require("./ebay-artifact-bound-verifier");
+const { approvalConfirmation, approvedFromEnv, bindSemanticEvidence, buildSemanticPlanRows, buildSemanticSourceRows, canonicalHash, fileSha256, loadAndVerifyContract, stableAffiliateUrl, verifyDatabaseBaseline, verifyFreshReport, writeDryRunContract } = require("./lib/ebay-artifact-bound-contract");
+const { downloadAndVerify, writeBaselineDiagnostic } = require("./ebay-artifact-bound-verifier");
 const { CONFIRMATION: CANARY_CONFIRMATION, EXPECTED_SCOPE: CANARY_SCOPE, LIVE_EXPECTATIONS: CANARY_LIVE, parseArgs: parseCanaryArgs, validateLiveSources, validateRollout } = require("./ebay-offer-canary-executor");
 const { CONFIRMATION: BATCH_H_CONFIRMATION, EXPECTED_IDENTITIES: BATCH_H_IDENTITIES, parseArgs: parseBatchHArgs, validateRollout: validateBatchHRollout } = require("./ebay-offer-batch-h-executor");
 const { EXPECTED_IDENTITIES: BATCH_H_RECOVERY_IDENTITIES, validateRollout: validateBatchHRecovery } = require("./ebay-offer-batch-h-recovery-executor");
@@ -989,8 +989,27 @@ test("eBay DB before-state validation blocks stale commercial, identity, mapping
   for (const source of fixture.report.semantic_source_rows) if (!rows.some((row) => row.offer_id === source.offer_id)) rows.push({ offer_id: source.offer_id });
   const baseline = { result: "PASS", profile: "ebay-uk", snapshot: { row_count: 237, rows } };
   assert.equal(verifyDatabaseBaseline(contract, baseline), true);
+  const equivalent = structuredClone(baseline);
+  for (const plan of contract.report.semantic_plan_rows.executable) plan.before_state.offer.last_checked_at = "2026-08-30T14:11:22.619000Z";
+  for (const row of equivalent.snapshot.rows.filter((row) => row.last_checked_at)) row.last_checked_at = "2026-08-30T14:11:22.619Z";
+  assert.equal(verifyDatabaseBaseline(contract, equivalent), true);
+  assert.equal(canonicalHash({ last_checked_at: "2026-08-30T14:11:22.619000Z" }), canonicalHash({ last_checked_at: "2026-08-30T14:11:22.619Z" }));
+  assert.notEqual(canonicalHash({ last_checked_at: "2026-08-30T14:11:22.619001Z" }), canonicalHash({ last_checked_at: "2026-08-30T14:11:22.619000Z" }));
+  const moneyEquivalent = structuredClone(equivalent); moneyEquivalent.snapshot.rows.find((row) => row.price).price = "10.0000";
+  assert.equal(verifyDatabaseBaseline(contract, moneyEquivalent), true);
+  const microsecondDrift = structuredClone(equivalent); microsecondDrift.snapshot.rows.find((row) => row.last_checked_at).last_checked_at = "2026-08-30T14:11:22.619001Z";
+  let diagnosticError;
+  try { verifyDatabaseBaseline(contract, microsecondDrift); } catch (error) { diagnosticError = error; }
+  assert.equal(diagnosticError.code, "DB_BEFORE_STATE_DRIFT");
+  assert.equal(diagnosticError.diagnostic.differences[0].reason_code, "TIMESTAMP_INSTANT_DRIFT");
+  assert.equal(diagnosticError.diagnostic.differences[0].canonical_artifact_value, "2026-08-30T14:11:22.619Z");
+  assert.equal(diagnosticError.diagnostic.differences[0].canonical_database_value, "2026-08-30T14:11:22.619001Z");
+  const diagnosticPath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "ebay-db-diagnostic-")), "diagnostic.json");
+  assert.equal(writeBaselineDiagnostic(diagnosticError, diagnosticPath), true);
+  const persisted = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+  assert.equal(persisted.result, "BLOCK"); assert.equal(persisted.database_writes, 0); assert.equal(persisted.differences[0].offer_id, fixture.report.semantic_plan_rows.executable[0].offer_id);
   for (const field of ["price", "shipping_cost", "total_price", "in_stock", "url", "mapping_id", "mapping_variant_id", "external_variant_id", "last_checked_at"]) {
-    const changed = structuredClone(baseline); changed.snapshot.rows[0][field] = field === "in_stock" ? false : "drift";
+    const changed = structuredClone(equivalent); changed.snapshot.rows[0][field] = field === "in_stock" ? false : "drift";
     assert.throws(() => verifyDatabaseBaseline(contract, changed), /DB before-state drift/);
   }
 });

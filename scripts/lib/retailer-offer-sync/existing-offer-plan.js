@@ -1,5 +1,6 @@
 const { planFingerprint, serializeImportPlan, sourceRowFingerprint } = require("../../import-products");
 const { normalizeDecimalString, normalizeNumbersToDecimalStrings } = require("../canonical-json");
+const { canonicalTimestamp, timestampEpochNanoseconds } = require("../canonical-timestamp");
 
 const PRODUCT_KEYS = ["id", "name", "is_active", "merged_into_product_id", "product_format"];
 const RETAILER_KEYS = ["id", "name", "slug", "website"];
@@ -12,7 +13,7 @@ function select(value, keys) { return Object.fromEntries(keys.map((key) => [key,
 function decimal(value) { return value === null || value === undefined ? null : normalizeDecimalString(value); }
 function id(value, label) { const out=String(value ?? ""); if (!/^\d+$/.test(out)) throw new Error(`${label} must be an ID`); return out; }
 function externalIdentity(value) { return /^[A-Za-z0-9][A-Za-z0-9._:|\-]{0,127}$/.test(String(value ?? "")); }
-function databaseTimestamp(value,label){const text=value instanceof Date?value.toISOString():String(value??"");if(!text||!Number.isFinite(Date.parse(text)))throw new Error(`${label} must be a timestamp`);return text}
+function databaseTimestamp(value,label){return canonicalTimestamp(value,label)}
 
 function normalizeState(input) {
   const product=select(input.product,PRODUCT_KEYS),retailer=select(input.retailer,RETAILER_KEYS),variant=select(input.variant,VARIANT_KEYS),mapping=select(input.mapping,MAPPING_KEYS),offer=select(input.offer,OFFER_KEYS);
@@ -28,10 +29,10 @@ function normalizeState(input) {
 }
 
 function buildExistingOfferUpdatePlan(input) {
-  const state=normalizeState(input),source=input.source,capturedAt=new Date(input.sourceCapturedAt).toISOString();
+  const state=normalizeState(input),source=input.source,capturedAt=canonicalTimestamp(input.sourceCapturedAt,"sourceCapturedAt");
   if (!/^[0-9a-f]{64}$/.test(input.sourceSnapshotFingerprint)||!externalIdentity(source.external_product_id)||!externalIdentity(source.external_variant_id)) throw new Error("invalid source identity");
   if (state.mapping.external_product_id!==String(source.external_product_id)||state.mapping.external_variant_id!==String(source.external_variant_id)) throw new Error("external identity drift");
-  if (Date.parse(capturedAt)<=Date.parse(state.offer.last_checked_at)) throw new Error("source capture is not newer");
+  if (timestampEpochNanoseconds(capturedAt)<=timestampEpochNanoseconds(state.offer.last_checked_at)) throw new Error("source capture is not newer");
   const next={price:decimal(source.price),shipping_cost:decimal(source.shipping_cost),total_price:decimal(source.total_price),in_stock:Boolean(source.in_stock),url:String(source.url),last_checked_at:capturedAt};
   const priceChanged=next.price!==state.offer.price||next.shipping_cost!==state.offer.shipping_cost||next.total_price!==state.offer.total_price;
   const stockChanged=next.in_stock!==state.offer.in_stock,urlChanged=next.url!==state.offer.url;

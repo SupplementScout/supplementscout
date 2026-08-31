@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
 const { canonicalJson } = require("./lib/canonical-json");
+const { canonicalTimestamp, canonicalizeTimestamps } = require("./lib/canonical-timestamp");
 const { assertConfig, getApplicationToken } = require("./lib/ebay-browse-pilot");
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { SCOPES, actionForPlan, buildSource, classifyContinuity, prepareScope } = require("./ebay-offer-refresh");
@@ -15,7 +16,7 @@ const WORKER_KIND = "automation-review-ebay-verify-no-change-v1";
 function invariant(condition, code) {
   if (!condition) { const error = new Error(code); error.code = code; throw error; }
 }
-function hash(value) { return crypto.createHash("sha256").update(canonicalJson(JSON.parse(JSON.stringify(value)))).digest("hex"); }
+function hash(value) { return crypto.createHash("sha256").update(canonicalJson(canonicalizeTimestamps(JSON.parse(JSON.stringify(value))))).digest("hex"); }
 function parseArgs(argv) {
   const values = {};
   for (const argument of argv) {
@@ -52,7 +53,9 @@ async function loadControlState(client, options) {
   invariant(review.review_status === "APPROVED" && review.source_row_fingerprint === options.reviewFingerprint && review.plan_fingerprint === options.reviewPlanFingerprint && review.operation_type === "VERIFY_NO_CHANGE" && String(review.retailer_id) === "12", "REVIEW_BINDING_DRIFT");
   invariant(review.expires_at && Date.parse(review.expires_at) > Date.now(), "REVIEW_EVIDENCE_EXPIRED");
   invariant(review.decision_actor && review.decision_at && events.some((event) => event.new_status === "APPROVED" && event.actor === review.decision_actor && event.source_row_fingerprint === review.source_row_fingerprint && event.plan_fingerprint === review.plan_fingerprint), "APPROVAL_AUDIT_MISSING");
-  invariant(review.plan_fingerprint && review.before_state && review.proposed_state && review.source_captured_at && new Date(review.source_captured_at).toISOString() === review.source_captured_at, "REVIEW_PLAN_EVIDENCE_MISSING");
+  let canonicalCapture = null;
+  try { canonicalCapture = canonicalTimestamp(review.source_captured_at, "source_captured_at"); } catch {}
+  invariant(review.plan_fingerprint && review.before_state && review.proposed_state && canonicalCapture, "REVIEW_PLAN_EVIDENCE_MISSING");
   return { review, request };
 }
 function executionEvidence(review, approved, postflight, idempotency, baseline) {

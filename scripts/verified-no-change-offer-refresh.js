@@ -8,6 +8,7 @@ const {
   writeDryRunArtifact,
 } = require("./import-products");
 const { canonicalJson, normalizeDecimalString, normalizeNumbersToDecimalStrings } = require("./lib/canonical-json");
+const { canonicalTimestamp, timestampEpochNanoseconds } = require("./lib/canonical-timestamp");
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const TARGETS = new Map([
@@ -63,16 +64,13 @@ function exactBoolean(value, label) {
 
 function isoTimestamp(value, label) {
   const result = requiredString(value, label);
-  if (!Number.isFinite(Date.parse(result))) fail(`${label} must be an ISO timestamp`);
-  return new Date(result).toISOString();
+  try { canonicalTimestamp(result, label); return result; }
+  catch { return fail(`${label} must be an ISO timestamp`); }
 }
 
 function databaseTimestamp(value, label) {
-  const result = requiredString(value, label);
-  if (!Number.isFinite(Date.parse(result))) fail(`${label} must be an ISO timestamp`);
-  const fraction = result.match(/\.(\d{1,6})/)?.[1] || "";
-  const milliseconds = new Date(result).toISOString();
-  return `${milliseconds.slice(0, 23)}${fraction.padEnd(6, "0").slice(3, 6)}Z`;
+  try { return canonicalTimestamp(value, label); }
+  catch { return fail(`${label} must be an ISO timestamp`); }
 }
 
 function nullableDecimal(value, label) {
@@ -104,9 +102,10 @@ function normalizeRecord(record, options) {
   const snapshotHash = requiredString(record.source_snapshot_sha256, "source_snapshot_sha256").toLowerCase();
   if (!SHA256.test(snapshotHash) || !options.sourceSnapshotSha256s.has(snapshotHash)) fail("source snapshot SHA-256 mismatch");
   const capturedAt = isoTimestamp(record.source_captured_at, "source_captured_at");
-  const capturedMs = Date.parse(capturedAt);
-  if (capturedMs > options.now.getTime() + options.futureSkewMs) fail("source capture time is in the future");
-  if (capturedMs < options.now.getTime() - options.maximumSourceAgeMs) fail("source snapshot is stale");
+  const capturedNs = timestampEpochNanoseconds(capturedAt);
+  const nowNs = BigInt(options.now.getTime()) * 1_000_000n;
+  if (capturedNs > nowNs + BigInt(options.futureSkewMs) * 1_000_000n) fail("source capture time is in the future");
+  if (capturedNs < nowNs - BigInt(options.maximumSourceAgeMs) * 1_000_000n) fail("source snapshot is stale");
 
   const product = normalizeState(record.target.product, PRODUCT_KEYS);
   const retailer = normalizeState(record.target.retailer, RETAILER_KEYS);
@@ -141,7 +140,7 @@ function normalizeRecord(record, options) {
   if (offer.price !== source.price) fail("price drift");
   if (offer.in_stock !== source.in_stock) fail("stock drift");
   const previousCheckedAt = databaseTimestamp(offer.last_checked_at, "target last_checked_at");
-  if (capturedMs <= Date.parse(previousCheckedAt)) fail("source capture is not newer than target last_checked_at");
+  if (timestampEpochNanoseconds(capturedAt) <= timestampEpochNanoseconds(previousCheckedAt)) fail("source capture is not newer than target last_checked_at");
 
   return normalizeNumbersToDecimalStrings({
     source_snapshot_sha256: snapshotHash,

@@ -2,7 +2,8 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client } = require("pg");
-const { canonicalJson } = require("./lib/canonical-json");
+const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
+const { canonicalizeTimestamps, timestampEpochNanoseconds } = require("./lib/canonical-timestamp");
 const { normalizeConnectionString, withPostgresRoleSession } = require("./lib/retailer-offer-sync/production-role-session");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -74,8 +75,12 @@ const PROFILES = Object.freeze({
 
 function invariant(condition, message) { if (!condition) throw new Error(message); }
 function jsonSerializable(value) { return JSON.parse(JSON.stringify(value)); }
-function hash(value) { return crypto.createHash("sha256").update(canonicalJson(jsonSerializable(value))).digest("hex"); }
-function epoch(value) { return value instanceof Date ? value.getTime() : Date.parse(value); }
+function hash(value) { return crypto.createHash("sha256").update(canonicalJson(canonicalizeTimestamps(jsonSerializable(value)))).digest("hex"); }
+function epoch(value) { return timestampEpochNanoseconds(value); }
+function decimalEqual(left, right, field) {
+  if (left === null || right === null) return left === right;
+  return normalizeDecimalString(left, field) === normalizeDecimalString(right, field);
+}
 function baselineHash(value) { const payload = { ...value }; delete payload.evidence_hash; return hash(payload); }
 function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 function approvedOfferIds(profile) {
@@ -166,10 +171,10 @@ function verifyPostflight(baseline, after, execution) {
     const current = afterByOffer.get(offerId);
     invariant(current, `Offer ${offerId} disappeared during apply`);
     for (const field of identityFields) invariant(canonicalJson(current[field]) === canonicalJson(before[field]), `Forbidden ${field} change for offer ${offerId}`);
-    if (current.price !== before.price) priceChanges += 1;
+    if (!decimalEqual(current.price, before.price, "price")) priceChanges += 1;
     if (current.in_stock !== before.in_stock) stockChanges += 1;
-    if (current.shipping_cost !== before.shipping_cost) shippingChanges += 1;
-    if (current.total_price !== before.total_price) totalChanges += 1;
+    if (!decimalEqual(current.shipping_cost, before.shipping_cost, "shipping_cost")) shippingChanges += 1;
+    if (!decimalEqual(current.total_price, before.total_price, "total_price")) totalChanges += 1;
     if (current.url !== before.url) offerUrlChanges += 1;
     if (current.external_url !== before.external_url) mappingUrlChanges += 1;
     if (executionIds.has(offerId)) {

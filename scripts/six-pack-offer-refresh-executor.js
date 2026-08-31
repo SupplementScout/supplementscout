@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { canonicalTimestamp, timestampEpochNanoseconds } = require("./lib/canonical-timestamp");
 const { Client } = require("pg");
 const { openPostgresClient, runRoleTransaction } = require("./lib/retailer-offer-sync/production-role-session");
 const { loadDryRunArtifact } = require("./import-products");
@@ -115,6 +116,11 @@ function validateOperationContract(plan) {
   const after = plan.offer?.values;
   const verifiedNoChange = plan.meta?.operation_type === "verify_offer_no_change";
   const standardUpdate = plan.meta?.operation_type === "standard_import";
+  let validTimestampTransition = false;
+  try {
+    validTimestampTransition = canonicalTimestamp(after?.last_checked_at) === canonicalTimestamp(plan.meta?.source_captured_at)
+      && timestampEpochNanoseconds(after.last_checked_at) > timestampEpochNanoseconds(before?.last_checked_at);
+  } catch {}
 
   if (verifiedNoChange !== (plan.offer?.action === "verify_no_change")) {
     fail("Refresh operation type and offer action mismatch");
@@ -124,9 +130,7 @@ function validateOperationContract(plan) {
       plan.retailer_product?.action !== "noop" ||
       plan.price_history?.action !== "noop" ||
       !sameCommercialOfferState(before, after) ||
-      after?.last_checked_at !== plan.meta.source_captured_at ||
-      !Number.isFinite(Date.parse(before?.last_checked_at || "")) ||
-      Date.parse(after.last_checked_at) <= Date.parse(before.last_checked_at)
+      !validTimestampTransition
     ) fail("Verified no-change plan may update only last_checked_at");
     return;
   }
@@ -140,9 +144,7 @@ function validateOperationContract(plan) {
     plan.price_history?.action !== (priceChanged ? "create" : "noop") ||
     plan.retailer_product?.action !== (urlChanged ? "update" : "noop") ||
     (urlChanged && plan.retailer_product?.values?.external_url !== after.url) ||
-    after?.last_checked_at !== plan.meta.source_captured_at ||
-    !Number.isFinite(Date.parse(before?.last_checked_at || "")) ||
-    Date.parse(after.last_checked_at) <= Date.parse(before.last_checked_at) ||
+    !validTimestampTransition ||
     plan.approval?.approved !== false
   ) fail("Standard refresh update contract mismatch");
 }

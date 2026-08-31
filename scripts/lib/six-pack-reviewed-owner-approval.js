@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const { canonicalJson } = require("./canonical-json");
+const { canonicalTimestamp, canonicalizeTimestamps, timestampEpochNanoseconds } = require("./canonical-timestamp");
 
 const ROOT = path.resolve(__dirname, "../..");
 const BATCH_DIRECTORY = path.join(ROOT, "config/retailers/six-pack-reviewed-batches");
@@ -25,7 +26,7 @@ function fail(message, code = "REVIEWED_BATCH_BLOCKED") {
 }
 
 function sha256(value) {
-  return crypto.createHash("sha256").update(typeof value === "string" || Buffer.isBuffer(value) ? value : canonicalJson(value)).digest("hex");
+  return crypto.createHash("sha256").update(typeof value === "string" || Buffer.isBuffer(value) ? value : canonicalJson(canonicalizeTimestamps(value))).digest("hex");
 }
 
 function money(value) {
@@ -83,10 +84,11 @@ function validateRow(row) {
   if (row.before.url !== row.after.url) fail("Reviewed approval cannot authorize URL changes", "REVIEWED_BATCH_URL_DRIFT");
   if (!Number.isFinite(Number(row.before.price)) || !Number.isFinite(Number(row.after.price)) || Number(row.after.price) <= 0) fail("Reviewed row price is invalid", "REVIEWED_BATCH_PRICE_INVALID");
   for (const side of [row.before, row.after]) {
-    if (typeof side.in_stock !== "boolean" || !Number.isFinite(Date.parse(side.last_checked_at || ""))) fail("Reviewed row state is incomplete", "REVIEWED_BATCH_ROW_INVALID");
+    try { canonicalTimestamp(side.last_checked_at, "last_checked_at"); } catch { fail("Reviewed row state is incomplete", "REVIEWED_BATCH_ROW_INVALID"); }
+    if (typeof side.in_stock !== "boolean") fail("Reviewed row state is incomplete", "REVIEWED_BATCH_ROW_INVALID");
   }
-  if (row.after.last_checked_at !== row.source_captured_at) fail("Reviewed after timestamp must equal source capture", "REVIEWED_BATCH_ROW_INVALID");
-  if (Date.parse(row.after.last_checked_at) <= Date.parse(row.before.last_checked_at)) fail("Reviewed capture is not newer than current state", "REVIEWED_BATCH_STALE_STATE");
+  if (canonicalTimestamp(row.after.last_checked_at) !== canonicalTimestamp(row.source_captured_at)) fail("Reviewed after timestamp must equal source capture", "REVIEWED_BATCH_ROW_INVALID");
+  if (timestampEpochNanoseconds(row.after.last_checked_at) <= timestampEpochNanoseconds(row.before.last_checked_at)) fail("Reviewed capture is not newer than current state", "REVIEWED_BATCH_STALE_STATE");
   if (row.review_reason !== "MASS_OOS" || row.approved_guard !== "MASS_OOS") fail("Only MASS_OOS can be owner-reviewed", "REVIEWED_BATCH_GUARD_INVALID");
 }
 
@@ -106,10 +108,13 @@ function validateReviewedBatch(batch, options = {}) {
   if (batch.expected_price_history_delta !== expectedHistory || batch.expected_mapping_delta !== 0) fail("Reviewed batch expected deltas mismatch");
   if (batch.source_semantic_fingerprint !== semanticSourceFingerprint(batch.rows)) fail("Reviewed source semantic fingerprint mismatch", "REVIEWED_SOURCE_FINGERPRINT_MISMATCH");
   if (batch.reviewed_batch_fingerprint !== reviewedBatchFingerprint(batch)) fail("Reviewed batch fingerprint mismatch", "REVIEWED_BATCH_FINGERPRINT_MISMATCH");
-  const captured = Date.parse(batch.source_captured_at || "");
-  const expires = Date.parse(batch.expires_at || "");
-  const now = options.now ? new Date(options.now).getTime() : Date.now();
-  if (!Number.isFinite(captured) || !Number.isFinite(expires) || expires <= captured || expires - captured > MAX_CAPTURE_AGE_MS || now > expires || now - captured > MAX_CAPTURE_AGE_MS) fail("Reviewed source capture is expired", "REVIEWED_BATCH_EXPIRED");
+  let captured, expires;
+  try { captured = timestampEpochNanoseconds(batch.source_captured_at); expires = timestampEpochNanoseconds(batch.expires_at); }
+  catch { fail("Reviewed source capture is expired", "REVIEWED_BATCH_EXPIRED"); }
+  const nowDate = options.now ? new Date(options.now) : new Date();
+  if (!Number.isFinite(nowDate.getTime())) fail("Reviewed source capture is expired", "REVIEWED_BATCH_EXPIRED");
+  const now = BigInt(nowDate.getTime()) * 1_000_000n, maxAge = BigInt(MAX_CAPTURE_AGE_MS) * 1_000_000n;
+  if (expires <= captured || expires - captured > maxAge || now > expires || now - captured > maxAge) fail("Reviewed source capture is expired", "REVIEWED_BATCH_EXPIRED");
   if (options.expectedFingerprint && options.expectedFingerprint !== batch.reviewed_batch_fingerprint) fail("Dispatched reviewed fingerprint mismatch", "REVIEWED_BATCH_FINGERPRINT_MISMATCH");
   return batch;
 }

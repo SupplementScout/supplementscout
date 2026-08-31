@@ -116,6 +116,8 @@ test("postflight requires freshness only for the explicitly executed segment", (
 test("postflight compares PostgreSQL Date values without dropping milliseconds", () => {
   const iso = "2026-08-30T12:14:39.744Z";
   assert.equal(epoch(iso), epoch(new Date(iso)));
+  assert.equal(epoch("2026-08-30T12:14:39.744000Z"), epoch(iso));
+  assert.equal(epoch("2026-08-30T12:14:39.744001Z") - epoch(iso), 1_000n);
 });
 
 test("Discount source and discovery guards fail closed", () => {

@@ -783,6 +783,15 @@ test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbi
   assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
 });
 
+test("Review Queue stale-state hashing canonicalizes equivalent timestamps without losing microseconds", () => {
+  const { hash } = require("./automation-review-ebay-worker");
+  assert.equal(
+    hash({ offer: { last_checked_at: "2026-08-30T14:11:22.619000Z" }, source_captured_at: "2026-08-30T14:11:23Z" }),
+    hash({ offer: { last_checked_at: "2026-08-30T14:11:22.619Z" }, source_captured_at: "2026-08-30T15:11:23+01:00" }),
+  );
+  assert.notEqual(hash({ last_checked_at: "2026-08-30T14:11:22.619001Z" }), hash({ last_checked_at: "2026-08-30T14:11:22.619000Z" }));
+});
+
 test("eBay workflow isolates Review Queue dispatch payload and protected credentials", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "ebay-offer-refresh.yml"), "utf8");
   assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue\]/);

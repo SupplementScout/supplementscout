@@ -81,12 +81,23 @@ function verifyBaseline(options, env = process.env) {
   const directory = path.dirname(options.contract);
   invariant(path.basename(options.contract) === CONTRACT_FILE, "Approved contract filename mismatch");
   const contract = loadAndVerifyContract(directory, approved);
-  verifyDatabaseBaseline(contract, read(options.baseline));
+  try { verifyDatabaseBaseline(contract, read(options.baseline)); }
+  catch (error) {
+    writeBaselineDiagnostic(error);
+    throw error;
+  }
   const evidence = { schema_version: 2, kind: "ebay-artifact-bound-db-before-state", result: "PASS", run_id: approved.runId, artifact_id: approved.artifactId, commit_sha: approved.commitSha, full_capture_fingerprint: approved.fullCaptureFingerprint, executable_source_fingerprint: approved.executableSourceFingerprint, review_scope_fingerprint: approved.reviewScopeFingerprint, plan_fingerprint: approved.planFingerprint, baseline_hash: read(options.baseline).evidence_hash, executable_plan_count: contract.report.executable_plan_count, executable_offer_ids: contract.report.execution_offer_ids, database_writes: 0 };
   fs.writeFileSync(path.join(OUT, "approved-db-before-state.json"), `${JSON.stringify(evidence, null, 2)}\n`, { flag: "wx" });
   return evidence;
 }
 
+function writeBaselineDiagnostic(error, output = path.join(OUT, "db-before-state-diagnostic.json")) {
+  if (!error.diagnostic) return false;
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  fs.writeFileSync(output, `${JSON.stringify(error.diagnostic, null, 2)}\n`, { flag: "wx" });
+  return true;
+}
+
 async function run(options, dependencies = {}) { return options.mode === "download" ? downloadAndVerify(dependencies) : verifyBaseline(options, dependencies.env || process.env); }
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((result) => console.log(JSON.stringify(result))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { APPROVED_DIR, downloadAndVerify, extractZip, githubJson, parseArgs, run, verifyBaseline };
+module.exports = { APPROVED_DIR, downloadAndVerify, extractZip, githubJson, parseArgs, run, verifyBaseline, writeBaselineDiagnostic };
