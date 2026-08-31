@@ -1,5 +1,13 @@
 # Automation Reliability Roadmap
 
+### eBay Review Queue reconciliation applied - 31 August 2026, 17:22 UTC
+
+- Owner-approved Review Queue reconciliation apply completed via `publish_automation_review_queue_changes(jsonb)` for GitHub dry-run `33418109981`, artifact `9767810569`, code commit `cf077e01a129775233a3d93a6a177bf502495b45`, report SHA-256 `79cd5f93ec0cf895466522aef3572e5d585ed9d56931974fa760a472c5e976e1`. No offer apply, commercial change, identity/rebind apply, freshness apply, cron change, replay or other-retailer work was run.
+- RPC result `APPLIED`: created review IDs `590-629`, superseded review IDs `548-587`, `CREATE 40`, `SUPERSEDE 40`, `REFRESH 0`, `RESOLVE_BY_SOURCE 0`, `EXPIRE 0`, audit event delta `80`, publication seals `+1`, catalogue writes `0`, idempotency key `0766793aa53e88ff15cdd26dde93ab1b7841feb0388d25c679aadb40532b11bc`.
+- DB postflight passed with SHA-256 `ae5c391814508d173f66755acfde212a17721db8655f53169315331dee2ef394`: queue rows `516 -> 556`, audit events `422 -> 502`, publication seals `0 -> 1`, active eBay review rows `40 -> 40`; products `1130`, product variants `2849`, retailer products `2808`, offers `2808` and price history `7113` all unchanged.
+- Read-only post-apply check passed with SHA-256 `3a37d9bcaba96cacf12e113afd10725f57a89ef353d85693b38fb9f4e39e7367`: one publication seal matches batch fingerprint `7fec143c13b159c6ef7c48d7682909d1534dd6ec447a82666c05591ab4f9da48` and changeset fingerprint `9c59149ca5162d69909b1597db5326ccd06116eac3e6c15d063ab3a6a195b3bc`; `40` active eBay rows remain pending and `40` historical rows are expired with supersede links.
+- Read-only Catalog Health snapshot at `2026-08-31T17:22:07.240Z`: active unmerged products `1088`, products without valid in-stock offer `208`, global stale >7/>30 `344/322`, queue rows `556`, active review rows `328`, eBay stale >7/>30 `10/0`, eBay active review rows `40`, hash `d75f329accd31d49c289e0fedc58f018222a8140b9f5415ccf08537f2c967d55`.
+
 ### eBay Review Queue reconciliation artifact ready - 31 August 2026, 17:10 UTC
 
 - GitHub dry-run `33418109981` on commit `cf077e01a129775233a3d93a6a177bf502495b45` completed `PASS` for `execution_mode=review-queue-reconciliation`. Jobs: `review-queue-reconciliation` success, `refresh` skipped, `review-execution` skipped. No offer apply, Review Queue apply, replay, cron change or catalogue write was run.
