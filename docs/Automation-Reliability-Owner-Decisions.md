@@ -1,5 +1,29 @@
 # Automation Reliability — Owner Decision Pack
 
+## Remaining scope grouped for owner decisions — 31 August 2026, 10:55 UTC
+
+The remaining Automation Reliability scope is grouped but not approved for execution. No production offer apply, commercial change, identity change, rebind, manual SQL, catalogue creation or expanded freshness apply was run in this phase.
+
+Source pack: `docs/rollouts/automation-reliability-remaining-scope-2026-08-31.json`.
+
+Evidence summary:
+
+- eBay first scheduled run after enablement has not yet occurred; next expected schedule is `2026-09-01T05:43:00Z` (`06:43` Europe/London). Fresh eBay dry-run `33382627453` is `PASS_WITH_REVIEW` with `196` executable freshness rows, `41` review rows and `0` blocked. Offer `2748` is a new review-only row versus the completed closeout; offer `2686` remains source-review-only.
+- Discount Supplements dry-run `33382625827` is `PASS`: all `109` immutable-scope mappings are `VERIFY_NO_CHANGE`, with zero review, zero blocked and zero catalogue/commercial/history deltas.
+- Whey Okay dry-run `33382624165` failed closed before source/apply because an active approval, workflow or conflicting session exists. It attempted/completed `0` database writes and `0` control writes.
+- Dolphin local read-only dry-run passed for offer `2490` as `VERIFY_NO_CHANGE`, zero review and zero blocked. Existing Dolphin review rows `8` and `9` remain identity review only; no rebind or new variant was created.
+- GYM HIGH validate run `33383167927` produced read-only source and variant-postflight artifacts with `PASS`; active review rows `550` and `551` remain mapping/control review only, with DB/source commercial state matching current evidence.
+- Watchdog `33384346978` is aggregate `FAIL`, artifact `9754988581`, JSON SHA-256 `8dddab60cb8d92059ed178de9ea16518c372fac161bea3eb481128ba4fcc4357`. The failure is retained as evidence of remaining non-eBay gaps and fresh eBay review-scope drift, not as permission to replay eBay.
+
+Prepared owner decisions:
+
+1. **Freshness-only** — eligible for a future separate approval only through existing protected workflows. Discount Supplements has `109` `VERIFY_NO_CHANGE` rows; Dolphin has offer `2490` as one `VERIFY_NO_CHANGE`. Expected deltas are only `last_checked_at`; products, variants, mappings, offers, price, stock, shipping, total, URL and `price_history` stay unchanged.
+2. **Stock and price** — review-only. Discount historical rows include `13` out-of-stock and `29` safe-update review rows; eBay has `7` price-review rows. These require a separate commercial decision and a refreshed owner-bound manifest before any apply.
+3. **Identity** — review-only. Whey Okay retains `47` identity promotions, `3` exact rebind candidates, `132` manual identity rows and `2` mapping drift rows; Dolphin retains offers `8` and `9`; GYM HIGH retains offers `550` and `551`; eBay retains `33` identity/review rows including new offer `2748`; Discount retains offers `10` and `764`. No product, variant or mapping write is approved.
+4. **Source problems** — review-only. Whey Okay has `100` source-failure rows, Discount has missing-source offers `871`, `873`, `875`, and eBay offer `2686` remains source-review-only. Missing source is not unavailable approval.
+
+Copy-ready future approval blocks must be generated from a fresh run immediately before execution. Current evidence is a decision pack, not an apply authorization.
+
 ## eBay autonomous closeout — 31 August 2026, 10:09 UTC
 
 The owner-approved eBay freshness closeout is complete without another offer apply or replay. Production apply run `33374870684` executed exactly `197/197 VERIFY_NO_CHANGE`; all `40` review rows, including offer `2686`, remained outside execution. DB postflight passed with postflight hash `0281412744d3034b9437cc79e9bb1ecac61019a569a58d2aa6d8adef8a62c40f` and file SHA-256 `35920e013b10518bdd6ee6fa899c3704464508cbf1f0dbf814f4349fc5b8d3e8`.

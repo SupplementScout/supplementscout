@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "kind": "automation_reliability_remaining_scope_owner_decision_pack",
+  "created_at": "2026-08-31T10:55:00Z",
+  "status": "GROUPED_FOR_OWNER_DECISIONS",
+  "catalogue_writes_authorized": false,
+  "catalogue_writes_performed": false,
+  "source_evidence": {
+    "catalog_health_snapshot_at": "2026-08-31T10:27:46.304Z",
+    "catalog_health_snapshot_hash": "377981bd64d4b0b832c8000717315a4436bd0d1656851c2ec31e68ab81838842",
+    "watchdog_run_id": "33384346978",
+    "watchdog_artifact_id": "9754988581",
+    "watchdog_artifact_digest": "sha256:527c2c939d9fbbd411171a2d50cfd78fffe00d4cc828aee00c73d8618e762d91",
+    "watchdog_json_sha256": "8dddab60cb8d92059ed178de9ea16518c372fac161bea3eb481128ba4fcc4357"
+  },
+  "review_queue_before": {
+    "total": 516,
+    "with_automation_status": 375,
+    "pending": 328,
+    "expired": 47,
+    "legacy_unclassified": 141,
+    "active_by_retailer": {
+      "Whey Okay": 284,
+      "Dolphin Fitness": 2,
+      "eBay UK": 40,
+      "GYM HIGH": 2
+    },
+    "rows_hash": "677c3ed08220b711dfbe479f60de0df0cec674ff38bd822cdc03649ed4d7fbe6"
+  },
+  "review_queue_after": {
+    "status": "NO_QUEUE_RECONCILIATION_APPLY_PERFORMED",
+    "reason": "Existing reconciliation script is Discount-specific and already reconciled that scope. eBay fresh evidence adds offer 2748 as review-only, but no general idempotent publisher for supersede/create was widened in this phase.",
+    "catalogue_writes": 0
+  },
+  "fresh_runs": {
+    "discount_supplements": {
+      "run_id": "33382625827",
+      "artifact_id": "9754344368",
+      "result": "PASS",
+      "approved_mapping_count": 109,
+      "executable_plan_count": 109,
+      "review_row_count": 0,
+      "blocked_row_count": 0,
+      "classification": { "VERIFY_NO_CHANGE": 109 },
+      "source_fingerprint": "8642fd139fb5f5f2c305bd24e3a8f90a44c7c809be9149dc25e199ddb667fee4",
+      "report_sha256": "fc27066c16fc3f491b7f1c3907305cac20d8034c8a9c4374a2be2953b2ee969b",
+      "offer_ids": ["762","763","765","766","771","772","774","775","776","777","778","779","780","781","782","783","784","785","786","787","788","789","790","791","792","793","794","795","796","797","798","799","800","801","802","803","804","805","806","807","808","809","810","811","812","813","814","815","816","827","828","829","830","831","832","833","834","836","837","839","840","841","842","843","844","845","846","847","861","862","863","864","866","867","868","869","874","876","877","880","882","883","884","885","887","888","889","890","892","894","895","896","897","898","900","902","903","904","905","906","1498","1499","1500","1501","1503","1504","1505","2537","2538"]
+    },
+    "whey_okay": {
+      "run_id": "33382624165",
+      "artifact_id": "9754341735",
+      "result": "FAIL",
+      "failure_stage": "STARTUP_OR_INTERNAL",
+      "error_code": "INTERNAL_ERROR",
+      "error_message": "active approval, workflow or conflicting session exists",
+      "database_writes_attempted": 0,
+      "database_writes_completed": 0,
+      "control_writes_completed": 0,
+      "report_sha256": "61c5b7fc5f9f9d8519ad40b3cdf383fd3d7903c1d40ba5888bd60797827f023f"
+    },
+    "dolphin_fitness": {
+      "run_id": "local-read-only-2026-08-31T10:43Z",
+      "result": "PASS",
+      "approved_mapping_count": 1,
+      "executable_plan_count": 1,
+      "review_row_count": 0,
+      "blocked_row_count": 0,
+      "classification": { "VERIFY_NO_CHANGE": 1 },
+      "source_fingerprint": "7a35471a9a0eae1645522a59eaef06491df1cb65cb52be5c00e8b5690a261953",
+      "offer_ids": ["2490"],
+      "database_writes_attempted": 0
+    },
+    "gym_high": {
+      "run_id": "33383167927",
+      "artifact_id": "9754572259",
+      "workflow_result": "failure",
+      "read_only_source_result": "PASS",
+      "variant_postflight_result": "PASS",
+      "source_identity_fingerprint": "abd419fcd0400df086b666110b66a187c5f81747c26ea46ba80ad5cb5a301552",
+      "approved_mapping_count": 66,
+      "planned_variant_create_count": 0,
+      "inserted_variant_count": 0,
+      "source_report_sha256": "cfe386a11d5cf5a53028b1f4900f435265ddc2cb8d299051adef1407832deecf",
+      "variant_postflight_sha256": "63b0e023bd10ced987f18eaa9b055041d0a109cad4c401ddeb700933cd352874"
+    },
+    "ebay_uk": {
+      "run_id": "33382627453",
+      "artifact_id": "9754436306",
+      "result": "PASS_WITH_REVIEW",
+      "approved_mapping_count": 237,
+      "executable_plan_count": 196,
+      "review_row_count": 41,
+      "blocked_row_count": 0,
+      "classification": { "VERIFY_NO_CHANGE": 196, "UPDATE_PRICE": 7 },
+      "source_fingerprint": "9c52004980f9d51dd747033b7794281f5377aac190eb86d35434dca9e7790230",
+      "executable_source_fingerprint": "3b2b95a1d1a4a980d006b3ff8d50e0a97d0ec71df584376367e00c40b2b5c4ef",
+      "review_scope_fingerprint": "1d481eb29c93f2629b3bc8735a56a79e4c2b514f916de6970e52ed33a4235fcc",
+      "plan_fingerprint": "30eec80eabbfbfdca31906711a9838aed91bdb59d6122a0efc45ad69880f9131",
+      "report_sha256": "dd52ddd79281bd0c83360380200610f3ae1586df19671e409880bd1127122b3a",
+      "new_review_offer_ids_since_closeout": ["2748"]
+    }
+  },
+  "owner_decision_groups": [
+    {
+      "group": "Freshness-only",
+      "status": "READY_FOR_SEPARATE_APPROVAL_OR_EXISTING_AUTONOMOUS_WORKFLOW",
+      "rows": [
+        {
+          "retailer": "Discount Supplements",
+          "operation": "VERIFY_NO_CHANGE",
+          "count": 109,
+          "expected_deltas": { "last_checked_at": 109, "catalogue": 0, "commercial": 0, "price_history": 0 },
+          "workflow": "creatine-offer-refresh.yml",
+          "offer_ids_ref": "fresh_runs.discount_supplements.offer_ids"
+        },
+        {
+          "retailer": "Dolphin Fitness",
+          "operation": "VERIFY_NO_CHANGE",
+          "count": 1,
+          "offer_ids": ["2490"],
+          "expected_deltas": { "last_checked_at": 1, "catalogue": 0, "commercial": 0, "price_history": 0 },
+          "workflow": "dolphin-vegan-protein-offer-refresh.yml"
+        }
+      ]
+    },
+    {
+      "group": "Stock and price",
+      "status": "REVIEW_ONLY",
+      "rows": [
+        { "retailer": "Discount Supplements", "operation": "OUT_OF_STOCK", "count": 13, "offer_ids": ["826","835","838","865","870","767","822","823","824","825","899","901","1502"] },
+        { "retailer": "Discount Supplements", "operation": "SAFE_UPDATE", "count": 29, "offer_ids": ["848","849","850","851","852","853","854","855","856","857","858","859","860","872","878","879","881","886","768","769","770","773","817","818","819","820","821","891","893"] },
+        { "retailer": "eBay UK", "operation": "UPDATE_PRICE", "count": 7, "offer_ids": ["2554","2642","2643","2688","2715","2728","2735"] }
+      ]
+    },
+    {
+      "group": "Identity",
+      "status": "REVIEW_ONLY",
+      "rows": [
+        { "retailer": "Whey Okay", "operation": "IDENTITY_PROMOTION", "count": 47, "offer_ids": ["47","86","105","121","149","90","147","151","100","148","160","165","235","279","359","367","240","356","241","345","218","270","330","366","435","391","399","403","419","423","401","405","396","400","404","420","424","434","444","446","449","402","530","519","496","481","529"] },
+        { "retailer": "Whey Okay", "operation": "REBIND_EXISTING_VARIANT", "count": 3, "offer_ids": ["301","302","303"] },
+        { "retailer": "Whey Okay", "operation": "MANUAL_REVIEW_IDENTITY", "count": 132, "offer_ids_ref": "product_match_review_queue snapshot rows_hash 677c3ed08220b711dfbe479f60de0df0cec674ff38bd822cdc03649ed4d7fbe6" },
+        { "retailer": "Whey Okay", "operation": "MAPPING_DRIFT", "count": 2, "offer_ids": ["39","534"] },
+        { "retailer": "Dolphin Fitness", "operation": "MANUAL_REVIEW_IDENTITY", "count": 2, "offer_ids": ["8","9"] },
+        { "retailer": "GYM HIGH", "operation": "MAPPING_DRIFT_REVIEW", "count": 2, "offer_ids": ["550","551"] },
+        { "retailer": "eBay UK", "operation": "IDENTITY_REVIEW", "count": 33, "offer_ids": ["2582","2583","2584","2585","2586","2587","2624","2625","2626","2627","2630","2636","2637","2638","2646","2647","2648","2649","2650","2651","2653","2654","2655","2656","2727","2695","2748","2750","2758","2759","2760","2761","2770"] },
+        { "retailer": "Discount Supplements", "operation": "IDENTITY_CONFLICT", "count": 2, "offer_ids": ["10","764"] }
+      ]
+    },
+    {
+      "group": "Source problems",
+      "status": "REVIEW_ONLY",
+      "rows": [
+        { "retailer": "Whey Okay", "operation": "SOURCE_FAILURE", "count": 100, "offer_ids_ref": "product_match_review_queue snapshot rows_hash 677c3ed08220b711dfbe479f60de0df0cec674ff38bd822cdc03649ed4d7fbe6" },
+        { "retailer": "Discount Supplements", "operation": "MISSING_FROM_SOURCE", "count": 3, "offer_ids": ["871","873","875"] },
+        { "retailer": "eBay UK", "operation": "SOURCE_FAILURE", "count": 1, "offer_ids": ["2686"] }
+      ]
+    }
+  ]
+}

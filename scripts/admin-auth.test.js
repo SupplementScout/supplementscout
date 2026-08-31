@@ -673,6 +673,12 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /await requireAdminPage\(\)/);
   assert.match(page, /pageSize = 50/);
   assert.match(page, /PENDING.*APPROVED.*REJECTED.*IGNORED.*EXPIRED.*EXECUTING.*EXECUTED.*FAILED/s);
+  assert.match(page, /Freshness-only.*Stock and price.*Identity.*Source problems/s);
+  assert.match(page, /AUTONOMOUS.*REVIEW_EXECUTABLE.*REVIEW_ONLY.*UNSUPPORTED/s);
+  assert.match(page, /All confidence/);
+  assert.match(page, /capabilityForReview/);
+  assert.match(page, /decisionGroupForReview/);
+  assert.match(page, /confidenceForReview/);
   assert.match(page, /before_state.*proposed_state.*impact_summary.*source_evidence/);
   assert.match(page, /Compatible selected rows/);
   assert.match(page, /Approve decision/);
@@ -680,10 +686,26 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Approval alone has not changed the catalogue/);
   assert.match(page, /existing protected importer approval and executor RPCs/);
   assert.match(page, /Execution adapter/);
+  assert.match(page, /Recommended decision/);
+  assert.match(page, /Capability note/);
+  assert.match(page, /Disabled reason/);
   assert.match(page, /confirmExecution/);
   assert.match(page, /disabled=\{!adapterReady\}/);
   assert.match(page, /Execution history/);
   assert.match(page, /idempotency_result/);
+});
+
+test("automation review capability matrix groups remaining retailers without widening execution registry", () => {
+  const matrixSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
+  const adapterSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
+  for (const retailer of ["Whey Okay", "Discount Supplements", "Dolphin Fitness", "GYM HIGH", "Simply Supplements", "6 Pack Supplements", "KIOR Health", "Fit House", "Jon's Supplements", "eBay UK"]) assert.match(matrixSource, new RegExp(retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  for (const operation of ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK", "IDENTITY_PROMOTION", "REBIND_EXISTING_VARIANT", "SOURCE_MISSING", "UNAVAILABLE_DECISION"]) assert.match(matrixSource, new RegExp(operation));
+  for (const capability of ["AUTONOMOUS", "REVIEW_EXECUTABLE", "REVIEW_ONLY", "UNSUPPORTED"]) assert.match(matrixSource, new RegExp(capability));
+  assert.match(matrixSource, /capabilityForReview/);
+  assert.match(matrixSource, /decisionGroupForReview/);
+  assert.match(matrixSource, /confidenceForReview/);
+  assert.equal((adapterSource.match(/retailerSlug: "ebay-uk"/g) || []).length, 1);
+  assert.doesNotMatch(adapterSource, /UPDATE_PRICE|UPDATE_STOCK|REBIN|MARK_OOS/);
 });
 
 test("automation review decisions fail closed on auth, fingerprint, expiry and bulk incompatibility", () => {
