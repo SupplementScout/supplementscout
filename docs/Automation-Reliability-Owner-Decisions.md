@@ -1,5 +1,17 @@
 # Automation Reliability — Owner Decision Pack
 
+## Review Queue baseline hash fix; reconciliation approval pending fresh GitHub artifact - 31 August 2026
+
+The owner-approved Review Queue reconciliation apply for eBay run `33382627453` / artifact `9754436306` was dispatched once and stopped fail-closed before any queue, audit, publication seal or catalogue write. Production RPC returned `AUTOMATION_REVIEW_PUBLICATION_BASELINE_HASH_MISMATCH`; no retry, replay, bypass, manual SQL or offer apply was run.
+
+Root cause was in the publisher request generator, not in the SQL guard. The approved request hashed catalogue counts as strings, for example canonical JSON `{"offers":"2808","price_history":"7113","product_variants":"2849","products":"1130","retailer_products":"2808"}`, producing the stale hash `71961dec9830f74f9ee80996e6e69b670623733f4d6830bfa20cda61db4204bb`. Active production SQL builds the same five-table baseline as JSONB numeric counts, for example canonical JSON `{"offers":2808,"price_history":7113,"product_variants":2849,"products":1130,"retailer_products":2808}`, producing `7adab698d33a3a08b9b304b4d0f23e7ebbb7d3df9df3013ab0d90b5112ad6a51`.
+
+Fix commit `e8bf9f73dd86021c18c7075f97a90aec9bea3ede` aligns `buildPublicationRpcRequest` with the active SQL contract by normalizing catalogue counts to numeric JSONB-equivalent values and hashing the direct five-table object. No production migration is required. The active production function definitions were verified read-only: `publish_automation_review_queue_changes(jsonb)` SHA-256 `4e14d782e86cf3636d1af3900fd94b16c14aadf2398a48324190ddab692fd75a`; `retailer_catalogue_sha256_json(jsonb)` SHA-256 `35d07d9e45fe5c891aa4eedc3336fa70615876c2c85a1ee64ffdb3c20800f4db`; `atomic_import_canonical_json(jsonb)` SHA-256 `f63fc33357e2e542797e8f990b6b18163aec157e566d100a145d1da83b4c44ce`.
+
+Post-fix local read-only eBay offer-refresh dry-run is evidence only, not an approval contract: file SHA-256 `03b5ef6c49009f9ee2ad03a3f8baf95f117be76c0cf85c39245cc50117547f2f`; result `PASS_WITH_REVIEW`; approved mappings `237`; executable plans `197`; review rows `40`; blocked rows `0`; full capture fingerprint `3fe7e069e6556f0f9824becf044f1d86314683dda467ed66cc36a22d85acee4d`; executable source fingerprint `3543bb3687ef544be07c8faf05e82c1c1a6f6987bf00e046c3d7847af560758f`; review scope fingerprint `63067cd5432f9fc37898a32c38ce5348353648f262eb801ed6948095a04d2572`; plan fingerprint `0d6383a7c7a15190597dbff0b0c3303d2a8abfb0bf1168aab12d542309af5cb8`.
+
+No new copy-ready approval line exists from this environment. The GitHub CLI is not installed and no `GH_TOKEN`/`GITHUB_TOKEN` is available, while the local runner correctly refused to emit an approval contract because approval contracts may only come from a manual main-branch GitHub dry-run. Required next step is a fresh authenticated GitHub dry-run from current `main`, then a new artifact-bound reconciliation manifest, report hash, baseline hash, publisher fingerprint, changeset fingerprint, idempotency key and expiry. The historical line below must not be reused.
+
 ## Review Queue transactional RPC deployed; reconciliation awaiting approval — 31 August 2026
 
 Production migration `20260831110000_create_automation_review_queue_publication_rpc.sql` was applied from commit `b95bdf8b30465c1be6c799b3a27a56d2a5e208af` with SHA-256 `8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409`. The migration added only the shared Review Queue publication RPC and its idempotency seal table. It did not run live reconciliation, publisher apply, offer apply, replay, cron, approval RPC or catalogue DML.
@@ -12,7 +24,7 @@ Prepared but not executed reconciliation dry-run: current production queue plus 
 
 eBay offer `2748` remains review-only identity evidence, not an executable catalogue change: mapping `2934`, item `v1|354343324643|623744168324`, semantic fingerprint `32c17043f6c3c1b0181f707f7cdd312d9d69487a42042bfef1a0fe3f4efee86c`, blockers `BRAND_MISMATCH` and `UNIT_COUNT_MISMATCH`, review reason `UK_SHIPPING_UNKNOWN`, returned GTIN `6009544952923`, confidence `LOW`, recommended decision `MANUAL_REVIEW`.
 
-Copy-ready approval line:
+Blocked historical approval line - do not reuse:
 
 ```text
 Zatwierdzam jeden produkcyjny Review Queue reconciliation apply przez publish_automation_review_queue_changes(jsonb) z commita b95bdf8b30465c1be6c799b3a27a56d2a5e208af dla eBay UK run 33382627453, artifact 9754436306, report SHA-256 dd52ddd79281bd0c83360380200610f3ae1586df19671e409880bd1127122b3a, baseline queue hash 46eb066439328e73a801a5a74847a4a638b19adaca835a0ea52a98d749093599, catalogue hash 71961dec9830f74f9ee80996e6e69b670623733f4d6830bfa20cda61db4204bb, publisher batch fingerprint 7c922e905ec882b8fa412809530818804aad1fb7e95513367428a9653438d304, changeset fingerprint 8c1f16d8d3875129ded5835a09af1fe9491ec9b24f90e05f5fcb1bc6cdd426b3 i idempotency key bf59bef527908a6a813c25b84bab63b0429ee31b26180918fe25ed2692eb0141; zatwierdzam dokładnie CREATE 41, SUPERSEDE 40, REFRESH 0, RESOLVE_BY_SOURCE 0, EXPIRE 0, expected audit delta 81, final active eBay review rows 41 i catalogue_writes 0; nie zatwierdzam offer apply, commercial changes, identity/rebind apply, freshness apply, crona, replayu ani prac przy innych retailerach.

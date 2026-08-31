@@ -1,5 +1,14 @@
 # Automation Reliability Roadmap
 
+### Review Queue baseline hash fix; fresh reconciliation artifact pending - 31 August 2026
+
+- The approved eBay Review Queue reconciliation apply for run `33382627453` / artifact `9754436306` stopped safely at `AUTOMATION_REVIEW_PUBLICATION_BASELINE_HASH_MISMATCH` before any queue, audit, publication seal or catalogue write. No retry, replay, bypass, manual SQL, offer apply or cron action was run.
+- Exact cause: the publisher request generator hashed catalogue counts as strings, yielding `71961dec9830f74f9ee80996e6e69b670623733f4d6830bfa20cda61db4204bb`, while active production SQL hashes the direct five-table JSONB numeric count object, yielding `7adab698d33a3a08b9b304b4d0f23e7ebbb7d3df9df3013ab0d90b5112ad6a51`. The guarded SQL contract was correct; no production migration is needed.
+- Implementation commit `e8bf9f73dd86021c18c7075f97a90aec9bea3ede` fixes `buildPublicationRpcRequest` to normalize `products`, `product_variants`, `retailer_products`, `offers` and `price_history` counts to numeric JSONB-equivalent values before hashing. Contract tests now pin the string-vs-numeric mismatch and the SQL-side direct hash shape.
+- Verification passed before this documentation update: targeted publisher/RPC tests `20/20`, `npm run verify:quick` `235/235`, `npm run verify:full` including production Next.js build, `npm run verify:project`, and `git diff --check`.
+- Post-fix local read-only eBay offer-refresh dry-run remained non-mutating and produced `PASS_WITH_REVIEW`: approved mappings `237`, executable plans `197`, review rows `40`, blocked rows `0`; file SHA-256 `03b5ef6c49009f9ee2ad03a3f8baf95f117be76c0cf85c39245cc50117547f2f`; executable source fingerprint `3543bb3687ef544be07c8faf05e82c1c1a6f6987bf00e046c3d7847af560758f`. This is not an approval artifact because the local guard refused approval-contract emission outside a manual main-branch GitHub dry-run.
+- Fresh artifact-bound reconciliation approval remains pending. This environment cannot dispatch the GitHub workflow because `gh` is not installed and no `GH_TOKEN`/`GITHUB_TOKEN` is available. The previous changeset, report hash, baseline hash, publisher fingerprint, idempotency key and expiry must not be reused; generate a fresh GitHub dry-run from current `main` before any new reconciliation approval.
+
 ### Review Queue transactional RPC deployed — 31 August 2026
 
 - Production migration `20260831110000_create_automation_review_queue_publication_rpc.sql` was applied from commit `b95bdf8b30465c1be6c799b3a27a56d2a5e208af` with SHA-256 `8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409`. The production selected-migration apply reported `PASS`, ledger count `171`, canonical ledger fingerprint `f3b5681787c3700883853be28032aea6cdf557f59af2017ef608fc55da540406`, and unchanged catalogue counts: products `1130`, product variants `2849`, retailer products `2808`, offers `2808`, price history `7113`.
