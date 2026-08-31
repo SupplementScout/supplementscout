@@ -72,6 +72,14 @@ test("RPC fails closed when the expected baseline no longer matches live state",
   assert.match(sql, /\(p_request#>>'\{expected_baseline,active_review_count\}'\)::bigint <> v_active_review_count/);
 });
 
+test("RPC catalogue baseline hash is direct numeric JSONB counts and excludes Review Queue", () => {
+  assert.match(sql, /jsonb_build_object\(\s*'products', \(select count\(\*\) from public\.products\),\s*'product_variants', \(select count\(\*\) from public\.product_variants\),\s*'retailer_products', \(select count\(\*\) from public\.retailer_products\),\s*'offers', \(select count\(\*\) from public\.offers\),\s*'price_history', \(select count\(\*\) from public\.price_history\)/i);
+  assert.match(sql, /public\.retailer_catalogue_sha256_json\(v_catalog_before\)/);
+  assert.doesNotMatch(sql, /catalogue_counts'\s*,\s*v_catalog_before/);
+  assert.doesNotMatch(sql, /product_match_review_queue[^;]*v_catalog_before/i);
+  assert.doesNotMatch(sql, /automation_review_queue_publications[^;]*v_catalog_before/i);
+});
+
 test("RPC result is deterministic and audit-trigger aware without double audit insertion", () => {
   assert.match(sql, /select count\(\*\) into v_audit_before from public\.product_match_review_events/i);
   assert.match(sql, /select count\(\*\) into v_audit_after from public\.product_match_review_events/i);

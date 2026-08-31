@@ -6,6 +6,7 @@ const {
   publishReviewManifest,
   publishReviewManifestViaRpc,
   sha256,
+  sqlJsonCatalogueCounts,
   validateManifest,
 } = require("./lib/automation-review-publisher");
 
@@ -76,6 +77,17 @@ function active(overrides = {}) {
     offer_id: base.offer_id,
     review_status: "PENDING",
     source_row_fingerprint: base.source_row_fingerprint,
+    ...overrides,
+  };
+}
+
+function catalogueCounts(overrides = {}) {
+  return {
+    products: "1130",
+    product_variants: "2849",
+    retailer_products: "2808",
+    offers: "2808",
+    price_history: "7113",
     ...overrides,
   };
 }
@@ -251,7 +263,7 @@ test("RPC publisher builds a single transactional changeset and does not use RES
         database_writes: 3,
       };
     },
-  }, { activeRows: [active()] });
+  }, { activeRows: [active()], catalogueCounts: catalogueCounts() });
   assert.deepEqual(calls.map((call) => call[0]), ["publish_automation_review_queue_changes"]);
   assert.equal(result.mode, "apply");
   assert.equal(result.database_writes, 3);
@@ -262,7 +274,7 @@ test("RPC publisher dry-run prepares request without database writes and rejects
     async callRpc() {
       throw new Error("RPC should not be called in dry-run");
     },
-  }, { activeRows: [active()], mode: "dry-run" });
+  }, { activeRows: [active()], mode: "dry-run", catalogueCounts: catalogueCounts() });
   assert.equal(dryRun.mode, "dry-run");
   assert.equal(dryRun.database_writes, 0);
 
@@ -275,7 +287,7 @@ test("RPC publisher dry-run prepares request without database writes and rejects
         catalogue_writes: 1,
       };
     },
-  }, { activeRows: [active()] }), /catalogue writes/);
+  }, { activeRows: [active()], catalogueCounts: catalogueCounts() }), /catalogue writes/);
 });
 
 test("RPC changeset supersede links by replacement fingerprint instead of pre-known database id", () => {
@@ -285,9 +297,39 @@ test("RPC changeset supersede links by replacement fingerprint instead of pre-kn
     review_kind: "MAPPING_DRIFT",
     operation_type: "REBIND_EXISTING_VARIANT",
   });
-  const request = buildPublicationRpcRequest(manifest({ rows: [replacement] }), [active()]);
+  const request = buildPublicationRpcRequest(manifest({ rows: [replacement] }), [active()], { catalogueCounts: catalogueCounts() });
   assert.deepEqual(request.operations.map((operation) => operation.op), ["CREATE", "SUPERSEDE"]);
   assert.equal(request.operations[1].replacement_row.id, null);
   assert.equal(request.operations[1].replacement_row.offer_id, "2748");
   assert.equal(request.operations[1].replacement_row.source_row_fingerprint, "c".repeat(64));
+});
+
+test("RPC baseline catalogue hash matches PostgreSQL JSONB numeric counts contract", () => {
+  const counts = catalogueCounts();
+  const request = buildPublicationRpcRequest(manifest(), [active()], { catalogueCounts: counts });
+  assert.deepEqual(request.expected_baseline.catalogue_counts, {
+    products: 1130,
+    product_variants: 2849,
+    retailer_products: 2808,
+    offers: 2808,
+    price_history: 7113,
+  });
+  assert.equal(
+    request.expected_baseline.catalogue_hash_without_review_queue,
+    "7adab698d33a3a08b9b304b4d0f23e7ebbb7d3df9df3013ab0d90b5112ad6a51",
+  );
+  assert.equal(sha256(counts), "71961dec9830f74f9ee80996e6e69b670623733f4d6830bfa20cda61db4204bb");
+  assert.notEqual(request.expected_baseline.catalogue_hash_without_review_queue, sha256(counts));
+  assert.equal(request.expected_baseline.catalogue_hash_without_review_queue, sha256(sqlJsonCatalogueCounts(counts)));
+});
+
+test("RPC baseline catalogue hash is deterministic, table-scoped and fails on catalogue value changes", () => {
+  const base = buildPublicationRpcRequest(manifest(), [active()], { catalogueCounts: catalogueCounts() });
+  const repeated = buildPublicationRpcRequest(manifest(), [active()], { catalogueCounts: { price_history: "7113", offers: "2808", retailer_products: "2808", product_variants: "2849", products: "1130" } });
+  const changed = buildPublicationRpcRequest(manifest(), [active()], { catalogueCounts: catalogueCounts({ offers: "2809" }) });
+  assert.equal(base.expected_baseline.catalogue_hash_without_review_queue, repeated.expected_baseline.catalogue_hash_without_review_queue);
+  assert.notEqual(base.expected_baseline.catalogue_hash_without_review_queue, changed.expected_baseline.catalogue_hash_without_review_queue);
+  assert.deepEqual(Object.keys(base.expected_baseline.catalogue_counts), ["products", "product_variants", "retailer_products", "offers", "price_history"]);
+  assert.throws(() => buildPublicationRpcRequest(manifest(), [active()], { catalogueCounts: { ...catalogueCounts(), product_match_review_queue: "516" } }), /Invalid catalogue count|Unexpected/);
+  assert.throws(() => buildPublicationRpcRequest(manifest(), [active()], { catalogueCounts: { ...catalogueCounts(), offers: null } }), /Invalid catalogue count/);
 });

@@ -35,6 +35,13 @@ const REASON_CODES = new Set([
 ]);
 const HEX64 = /^[0-9a-f]{64}$/;
 const MAX_BATCH_ROWS = 1000;
+const CATALOGUE_COUNT_KEYS = Object.freeze([
+  "products",
+  "product_variants",
+  "retailer_products",
+  "offers",
+  "price_history",
+]);
 
 function fail(message) {
   throw new Error(message);
@@ -42,6 +49,20 @@ function fail(message) {
 
 function sha256(value) {
   return crypto.createHash("sha256").update(typeof value === "string" ? value : canonicalJson(value)).digest("hex");
+}
+
+function sqlJsonCatalogueCounts(value = {}) {
+  const keys = Object.keys(value).sort();
+  if (keys.length !== CATALOGUE_COUNT_KEYS.length || keys.some((key) => !CATALOGUE_COUNT_KEYS.includes(key))) fail("Unexpected catalogue count keys");
+  const out = {};
+  for (const key of CATALOGUE_COUNT_KEYS) {
+    const raw = value[key];
+    if (!/^\d+$/.test(String(raw))) fail(`Invalid catalogue count for ${key}`);
+    const number = Number(raw);
+    if (!Number.isSafeInteger(number) || number < 0) fail(`Unsafe catalogue count for ${key}`);
+    out[key] = number;
+  }
+  return out;
 }
 
 function canonicalJson(value) {
@@ -283,6 +304,7 @@ function buildPublicationRpcRequest(manifestInput, activeRowsInput, options = {}
   const activeRows = activeRowsInput || [];
   const changeset = buildPublicationChangeset(manifestInput, activeRows, options);
   const manifest = changeset.manifest;
+  const catalogueCounts = options.expectedBaseline ? null : sqlJsonCatalogueCounts(options.catalogueCounts || {});
   const idempotencySeed = {
     retailer_id: manifest.retailer_id,
     publisher_batch_fingerprint: changeset.plan_hash,
@@ -307,8 +329,8 @@ function buildPublicationRpcRequest(manifestInput, activeRowsInput, options = {}
     capture_timestamp: manifest.generated_at,
     expected_baseline: options.expectedBaseline || {
       active_review_count: activeRows.length,
-      catalogue_counts: options.catalogueCounts || {},
-      catalogue_hash_without_review_queue: options.catalogueHashWithoutReviewQueue || sha256({ catalogue_counts: options.catalogueCounts || {} }),
+      catalogue_counts: catalogueCounts,
+      catalogue_hash_without_review_queue: options.catalogueHashWithoutReviewQueue || sha256(catalogueCounts),
     },
     operations: changeset.operations,
   };
@@ -389,6 +411,7 @@ module.exports = {
   reasonList,
   rowProblemKey,
   sha256,
+  sqlJsonCatalogueCounts,
   validateRpcResult,
   validateManifest,
 };
