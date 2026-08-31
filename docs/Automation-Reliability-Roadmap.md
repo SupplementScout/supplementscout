@@ -1,5 +1,12 @@
 # Automation Reliability Roadmap
 
+### eBay Review Queue reconciliation artifact ready - 31 August 2026, 17:10 UTC
+
+- GitHub dry-run `33418109981` on commit `cf077e01a129775233a3d93a6a177bf502495b45` completed `PASS` for `execution_mode=review-queue-reconciliation`. Jobs: `review-queue-reconciliation` success, `refresh` skipped, `review-execution` skipped. No offer apply, Review Queue apply, replay, cron change or catalogue write was run.
+- Artifact `9767810569`, name `ebay-review-queue-reconciliation-33418109981-1`, ZIP SHA-256 `6293930120f0ab615ab4e7780f2f6ac40183793932e6d8518bfa7e1ddb03d88d`, report SHA-256 `79cd5f93ec0cf895466522aef3572e5d585ed9d56931974fa760a472c5e976e1`. It binds source run `33409588643`, source artifact `9764693519`, source commit `57e9ecd5554b82d714d3b563f2ba322841fa1ef7`, source contract SHA-256 `ae3f1e452d899ab2e22e12b990e6c1b96c9e51d5c45263062c43d6a3ed63b75e`, source report SHA-256 `2a23876b94f0e4b2e51ac31a965d2b6f552ae0110bbf3217f16c2a4a994835b1`, source content SHA-256 `a7e47e3fea7938ceebd50e15fcca6813b54ba8865a885489f48a3401092abffc` and review scope fingerprint `63067cd5432f9fc37898a32c38ce5348353648f262eb801ed6948095a04d2572`.
+- Fresh production baseline in the artifact: queue rows `516`, audit events `422`, publication seals `0`, products `1130`, product variants `2849`, retailer products `2808`, offers `2808`, price history `7113`, catalogue hash `7adab698d33a3a08b9b304b4d0f23e7ebbb7d3df9df3013ab0d90b5112ad6a51`, queue snapshot hash `0c8f3cbfbeb43d4eabca945a08de0c96df96005ddc5683926f50317e6c8c3b0f`.
+- Reconciliation plan is review-control-plane only: `CREATE 40`, `SUPERSEDE 40`, `REFRESH 0`, `RESOLVE_BY_SOURCE 0`, `EXPIRE 0`, expected audit delta `80`, final active eBay review rows `40`, catalogue writes `0`, publisher batch fingerprint `7fec143c13b159c6ef7c48d7682909d1534dd6ec447a82666c05591ab4f9da48`, changeset fingerprint `9c59149ca5162d69909b1597db5326ccd06116eac3e6c15d063ab3a6a195b3bc`, idempotency key `0766793aa53e88ff15cdd26dde93ab1b7841feb0388d25c679aadb40532b11bc`. Source contract expiry remains `2026-09-01T15:38:44.505Z`.
+
 ### eBay Review Queue artifact-bound reconciliation dry-run path - 31 August 2026
 
 - Implemented a dry-run-only Review Queue reconciliation path for current eBay offer-refresh review rows. It reuses the shared `automation-review-publisher` model and emits a bounded publisher request, but it never calls `publish_automation_review_queue_changes(jsonb)` and has no apply mode.
