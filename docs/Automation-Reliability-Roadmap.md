@@ -1,5 +1,12 @@
 # Automation Reliability Roadmap
 
+### eBay split-run evidence correlation decision — 31 August 2026
+
+- Apply run `33374870684` already completed the approved eBay freshness mutation: `197/197 VERIFY_NO_CHANGE`, `40` review rows isolated, `0` blocked, offer `2686` review-only, DB postflight `PASS`, exactly `197` `last_checked_at` changes and zero commercial, identity, mapping, entity-count or `price_history` deltas. No further eBay apply, replay, approval RPC, apply RPC, manual SQL or catalogue update is authorized for closeout.
+- Independent read-only idempotency run `33378021842` completed on the same commit with the same `237 = 197 executable + 40 review` semantic scope, zero blocked rows and zero database writes. Its plan fingerprint differs because a future freshness timestamp is intentionally regenerated; that is not commercial or identity drift when the executed offer set, executable source fingerprint, review isolation and stable catalogue state match.
+- Current watchdog run `33378589504` failed eBay with `EBAY_POSTFLIGHT_HASH_MISSING`, `EBAY_IDEMPOTENCY_NOT_PASSED`, `EBAY_DATABASE_WRITE_COUNT_MISMATCH` and `INDEPENDENT_IDEMPOTENCY_POSTFLIGHT_HASH_MISSING` because the watchdog can only score same-run sealed evidence today. It extracts `production-apply.json` rather than a split-run attestation, expects the independent dry-run to contain the apply postflight hash, and conflates apply writes with idempotency writes.
+- Decision: extend only the evidence-correlation/watchdog layer to accept a fail-closed split-run attestation when apply and DB postflight succeeded in the original run, the original job was cancelled only after postflight, an independent read-only dry-run succeeded on a compatible unchanged scope, apply writes and idempotency writes are counted separately, and the attestation is built from downloaded verified artifacts rather than manual values. This does not loosen eBay execution, commercial, identity, review or SQL guards.
+
 ### Canonical timestamp guard correction — 31 August 2026
 
 - Apply run `33332717721` stopped before approval/apply RPC because its eBay DB before-state guard compared the same UTC instant as different JSON strings: PostgreSQL baseline `2026-08-30T14:11:22.619Z` versus approved evidence `2026-08-30T14:11:22.619000Z`. All 197 executable rows had text differences but `0/197` instant differences; execution and database writes remained zero.

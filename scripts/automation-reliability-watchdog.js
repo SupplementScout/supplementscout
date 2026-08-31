@@ -7,6 +7,7 @@ const {
   normalizeConnectionString,
   withPostgresRoleSession,
 } = require("./lib/retailer-offer-sync/production-role-session");
+const { canonicalHash, sortedStrings } = require("./lib/ebay-artifact-bound-contract");
 
 const ROOT = path.resolve(__dirname, "..");
 const CONFIG_PATH = path.join(
@@ -73,7 +74,7 @@ function findContractEvidence(value) {
       blocked_row_count: value.blocked_row_count,
       result: value.result || null,
       execution_offer_ids: Array.isArray(value.execution_offer_ids) ? value.execution_offer_ids.map(String).sort() : null,
-      review_offer_ids: Array.isArray(value.review_rows) ? value.review_rows.map((row) => String(row.offer_id)).sort() : null,
+      review_offer_ids: Array.isArray(value.review_offer_ids) ? value.review_offer_ids.map(String).sort() : Array.isArray(value.review_rows) ? value.review_rows.map((row) => String(row.offer_id)).sort() : null,
       expected_deltas: value.expected_deltas || null,
       commit_sha: value.commit_sha || null,
       manifest_sha256: value.approved_manifest_sha256 || value.manifest_sha256 || null,
@@ -85,6 +86,20 @@ function findContractEvidence(value) {
       review_scope_fingerprint: value.review_scope_fingerprint || null,
       idempotency_result: value.idempotency_result || null,
       database_writes: Number.isInteger(value.database_writes) ? value.database_writes : null,
+      apply_run_id: value.apply_run_id || null,
+      apply_artifact_id: value.apply_artifact_id || null,
+      apply_artifact_digest: value.apply_artifact_digest || null,
+      apply_database_writes: Number.isInteger(value.apply_database_writes) ? value.apply_database_writes : null,
+      apply_executed_plan_count: Number.isInteger(value.apply_executed_plan_count) ? value.apply_executed_plan_count : null,
+      idempotency_run_id: value.idempotency_run_id || null,
+      idempotency_artifact_id: value.idempotency_artifact_id || null,
+      idempotency_artifact_digest: value.idempotency_artifact_digest || null,
+      idempotency_database_writes: Number.isInteger(value.idempotency_database_writes) ? value.idempotency_database_writes : null,
+      idempotency_executed_plan_count: Number.isInteger(value.idempotency_executed_plan_count) ? value.idempotency_executed_plan_count : null,
+      idempotency_plan_fingerprint: value.idempotency_plan_fingerprint || null,
+      postflight_file_sha256: value.postflight_file_sha256 || null,
+      evidence_model: value.evidence_model || null,
+      attestation_fingerprint: value.attestation_fingerprint || null,
     };
   }
   for (const child of Array.isArray(value) ? value : Object.values(value)) {
@@ -101,6 +116,13 @@ function correlateEvidence(stages, contract) {
   if (stages.capture && stages.capture.run_id !== stages.apply.run_id) {
     if (!stages.capture.head_sha || stages.capture.head_sha !== stages.apply.head_sha) failures.push("INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH");
     for (const field of ["execution_offer_ids", "expected_deltas", "manifest_sha256", "plan_fingerprint", "postflight_hash"]) if (!contract?.[field]) failures.push(`INDEPENDENT_IDEMPOTENCY_${field.toUpperCase()}_MISSING`);
+    if (contract?.evidence_model === "split-run-v1") {
+      if (contract.idempotency_result !== "PASS") failures.push("INDEPENDENT_IDEMPOTENCY_NOT_PASSED");
+      if (contract.idempotency_database_writes !== 0) failures.push("INDEPENDENT_IDEMPOTENCY_DATABASE_WRITES_PRESENT");
+      if (contract.idempotency_executed_plan_count !== 0) failures.push("INDEPENDENT_IDEMPOTENCY_EXECUTED_PLANS_PRESENT");
+      if (contract.apply_run_id && contract.apply_run_id !== stages.apply.run_id) failures.push("INDEPENDENT_IDEMPOTENCY_APPLY_RUN_MISMATCH");
+      if (contract.idempotency_run_id && contract.idempotency_run_id !== stages.capture.run_id) failures.push("INDEPENDENT_IDEMPOTENCY_RUN_MISMATCH");
+    }
   }
   return { result: failures.length ? "UNRELATED_EVIDENCE" : "CORRELATED", failures };
 }
@@ -131,7 +153,12 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
     if (String(profile.id) === "12") {
       for (const field of ["execution_offer_ids", "expected_deltas", "commit_sha", "manifest_sha256", "full_capture_fingerprint", "executable_source_fingerprint", "review_scope_fingerprint", "plan_fingerprint", "postflight_hash"]) if (!contract[field]) failures.push(`EBAY_${field.toUpperCase()}_MISSING`);
       if (contract.idempotency_result !== "PASS") failures.push("EBAY_IDEMPOTENCY_NOT_PASSED");
-      if (contract.database_writes !== contract.executed_plan_count) failures.push("EBAY_DATABASE_WRITE_COUNT_MISMATCH");
+      if (contract.evidence_model === "split-run-v1") {
+        if (contract.apply_database_writes !== contract.executed_plan_count) failures.push("EBAY_APPLY_DATABASE_WRITE_COUNT_MISMATCH");
+        if (contract.apply_executed_plan_count !== contract.executed_plan_count) failures.push("EBAY_APPLY_EXECUTED_PLAN_COUNT_MISMATCH");
+        if (contract.idempotency_database_writes !== 0 || contract.idempotency_executed_plan_count !== 0) failures.push("EBAY_IDEMPOTENCY_DATABASE_WRITE_COUNT_MISMATCH");
+        for (const field of ["apply_run_id", "apply_artifact_id", "apply_artifact_digest", "idempotency_run_id", "idempotency_artifact_id", "idempotency_artifact_digest", "postflight_file_sha256", "attestation_fingerprint"]) if (!contract[field]) failures.push(`EBAY_${field.toUpperCase()}_MISSING`);
+      } else if (contract.database_writes !== contract.executed_plan_count) failures.push("EBAY_DATABASE_WRITE_COUNT_MISMATCH");
     }
   }
   const correlation = correlateEvidence(stages, contract);
@@ -166,6 +193,199 @@ async function githubJson(url, token) {
   });
   invariant(response.ok, `GitHub API ${response.status} for ${url}`);
   return response.json();
+}
+
+function sha256(value) {
+  return require("node:crypto").createHash("sha256").update(value).digest("hex");
+}
+
+function parseJsonFilesFromArtifact(zipPath) {
+  const names = spawnSync("unzip", ["-Z1", zipPath], { encoding: "utf8" });
+  invariant(names.status === 0, "Unable to list watchdog artifact ZIP");
+  const files = [];
+  for (const name of names.stdout.split(/\r?\n/).filter(Boolean)) {
+    if (!name.endsWith(".json")) continue;
+    const extracted = spawnSync("unzip", ["-p", zipPath, name], {
+      encoding: "utf8",
+      maxBuffer: 30 * 1024 * 1024,
+    });
+    if (extracted.status !== 0) continue;
+    try {
+      files.push({
+        name,
+        sha256: sha256(extracted.stdout),
+        json: JSON.parse(extracted.stdout),
+      });
+    } catch {}
+  }
+  return files;
+}
+
+async function artifactsForRun(repository, runId, token, directory) {
+  const base = `https://api.github.com/repos/${repository}`;
+  const listing = await githubJson(
+    `${base}/actions/runs/${runId}/artifacts?per_page=100`,
+    token,
+  );
+  const results = [];
+  for (const artifact of listing.artifacts || []) {
+    if (artifact.expired) continue;
+    const response = await fetch(artifact.archive_download_url, {
+      headers: {
+        accept: "application/vnd.github+json",
+        authorization: `Bearer ${token}`,
+        "x-github-api-version": "2022-11-28",
+        "user-agent": "SupplementScout-Automation-Reliability-Watchdog/1.0",
+      },
+    });
+    invariant(response.ok, `GitHub artifact download ${response.status}`);
+    const zipPath = path.join(directory, `${artifact.id}.zip`);
+    fs.writeFileSync(zipPath, Buffer.from(await response.arrayBuffer()));
+    results.push({ artifact, files: parseJsonFilesFromArtifact(zipPath) });
+  }
+  return results;
+}
+
+function jsonFile(files, name) {
+  return files.find((file) => file.name === name || path.basename(file.name) === name) || null;
+}
+
+function validateEbayApplyArtifacts({ run, artifact, files }) {
+  const applyFile = jsonFile(files, "production-apply.json");
+  const postflightFile = jsonFile(files, "production-db-postflight.json");
+  const verificationFile = jsonFile(files, "approved-artifact-verification.json");
+  invariant(applyFile && postflightFile && verificationFile, "eBay apply artifact missing apply, postflight or approved verification evidence");
+  const apply = applyFile.json;
+  const postflight = postflightFile.json;
+  const verification = verificationFile.json;
+  invariant(String(run.id) === String(applyFile.json.approved_dry_run_id) || run.event === "workflow_dispatch", "eBay apply run metadata invalid");
+  invariant(run.head_sha === apply.commit_sha && apply.commit_sha === verification.commit_sha, "eBay apply commit evidence mismatch");
+  invariant(run.conclusion === "cancelled" || run.conclusion === "success", "eBay apply run must be success or cancelled after postflight");
+  invariant(["PASS", "PASS_WITH_REVIEW"].includes(apply.result) && apply.mode === "execute-apply", "eBay apply evidence did not pass");
+  invariant(apply.approved_mapping_count === 237 && apply.executable_plan_count === 197 && apply.executed_plan_count === 197 && apply.review_row_count === 40 && apply.blocked_row_count === 0, "eBay apply scope drift");
+  invariant(apply.classification?.VERIFY_NO_CHANGE === 197 && Object.keys(apply.classification || {}).length === 1, "eBay apply executed a non-freshness action");
+  const logical = apply.expected_deltas?.logical_field_deltas || {};
+  const rows = apply.expected_deltas?.row_count_deltas || {};
+  invariant(logical.last_checked_at_updates === 197 && ["offer_price_updates","offer_stock_updates","offer_shipping_updates","offer_total_updates","offer_url_updates","mapping_url_updates"].every((field) => logical[field] === 0), "eBay apply expected logical deltas drift");
+  invariant(["products","product_variants","retailer_products","offers","price_history"].every((field) => rows[field] === 0), "eBay apply expected row-count deltas drift");
+  invariant(postflight.result === "PASS" && postflight.freshness_change_count === 197 && postflight.executed_plan_count === 197 && postflight.review_row_count === 40 && postflight.blocked_row_count === 0, "eBay postflight scope drift");
+  invariant(["price_change_count","stock_change_count","shipping_change_count","total_change_count","offer_url_change_count","mapping_url_change_count","price_history_delta"].every((field) => postflight[field] === 0), "eBay postflight delta drift");
+  invariant(/^sha256:[0-9a-f]{64}$/.test(artifact.digest || ""), "eBay apply artifact digest missing");
+  invariant(/^[0-9a-f]{64}$/.test(postflight.postflight_hash || ""), "eBay postflight hash missing");
+  return { apply, postflight, verification, postflightFileSha256: postflightFile.sha256 };
+}
+
+function validateEbayIdempotencyArtifacts({ run, artifact, files, applyEvidence }) {
+  const reportFile = jsonFile(files, "production-dry-run.json");
+  const contractFile = jsonFile(files, "production-dry-run-contract.json");
+  invariant(reportFile && contractFile, "eBay independent idempotency artifact missing dry-run report or contract");
+  invariant(!jsonFile(files, "production-apply.json") && !jsonFile(files, "production-db-postflight.json"), "eBay independent idempotency artifact contains apply/postflight evidence");
+  const report = reportFile.json;
+  const contract = contractFile.json;
+  const apply = applyEvidence.apply;
+  invariant(run.conclusion === "success" && run.head_sha === apply.commit_sha, "eBay independent idempotency run status or commit mismatch");
+  invariant(["PASS", "PASS_WITH_REVIEW"].includes(report.result) && report.mode === "dry-run" && report.executed_plan_count === 0, "eBay independent idempotency run was not read-only");
+  invariant(report.approved_mapping_count === 237 && report.executable_plan_count === 197 && report.review_row_count === 40 && report.blocked_row_count === 0, "eBay independent idempotency scope drift");
+  invariant(contract.approved_mapping_count === 237 && contract.executable_plan_count === 197 && contract.review_row_count === 40 && contract.blocked_row_count === 0, "eBay independent idempotency contract scope drift");
+  const applyIds = sortedStrings(apply.execution_offer_ids);
+  const idempotencyIds = sortedStrings(report.execution_offer_ids);
+  const applyReviews = sortedStrings(apply.review_rows.map((row) => row.offer_id));
+  const idempotencyReviews = sortedStrings(report.review_rows.map((row) => row.offer_id));
+  invariant(JSON.stringify(applyIds) === JSON.stringify(idempotencyIds), "eBay independent idempotency executable offer IDs drift");
+  invariant(JSON.stringify(applyReviews) === JSON.stringify(idempotencyReviews), "eBay independent idempotency review offer IDs drift");
+  invariant(!idempotencyIds.includes("2686") && idempotencyReviews.includes("2686"), "eBay independent idempotency executed offer 2686 or failed to isolate review row");
+  invariant(report.executable_source_fingerprint === apply.executable_source_fingerprint, "eBay independent idempotency executable source fingerprint drift");
+  invariant(report.review_scope_fingerprint === apply.approved_review_scope_fingerprint || report.review_scope_fingerprint === apply.review_scope_fingerprint, "eBay independent idempotency review scope fingerprint drift");
+  invariant(JSON.stringify(report.expected_deltas) === JSON.stringify(apply.expected_deltas), "eBay independent idempotency expected deltas drift");
+  invariant(report.classification?.VERIFY_NO_CHANGE === 197, "eBay independent idempotency executable classification drift");
+  invariant(/^sha256:[0-9a-f]{64}$/.test(artifact.digest || ""), "eBay independent idempotency artifact digest missing");
+  return { report, contract, reportFileSha256: reportFile.sha256, contractFileSha256: contractFile.sha256 };
+}
+
+function buildEbaySplitRunAttestation({ applyRun, applyArtifact, applyEvidence, idempotencyRun, idempotencyArtifact, idempotencyEvidence }) {
+  const apply = applyEvidence.apply;
+  const postflight = applyEvidence.postflight;
+  const idempotency = idempotencyEvidence.report;
+  const executionOfferIds = sortedStrings(apply.execution_offer_ids);
+  const reviewOfferIds = sortedStrings(apply.review_rows.map((row) => row.offer_id));
+  const attestation = {
+    schema_version: 1,
+    kind: "ebay-split-run-correlation-attestation",
+    evidence_model: "split-run-v1",
+    result: "PASS",
+    retailer_id: "12",
+    retailer: "eBay UK",
+    apply_run_id: String(applyRun.id),
+    apply_artifact_id: String(applyArtifact.id),
+    apply_artifact_digest: applyArtifact.digest,
+    apply_commit_sha: apply.commit_sha,
+    apply_database_writes: apply.executed_plan_count,
+    apply_executed_plan_count: apply.executed_plan_count,
+    idempotency_run_id: String(idempotencyRun.id),
+    idempotency_artifact_id: String(idempotencyArtifact.id),
+    idempotency_artifact_digest: idempotencyArtifact.digest,
+    idempotency_database_writes: 0,
+    idempotency_executed_plan_count: idempotency.executed_plan_count,
+    idempotency_result: "PASS",
+    commit_sha: apply.commit_sha,
+    manifest_sha256: apply.approved_manifest_sha256 || apply.manifest_sha256,
+    source_fingerprint: apply.source_fingerprint,
+    full_capture_fingerprint: apply.approved_full_capture_fingerprint || apply.full_capture_fingerprint,
+    executable_source_fingerprint: apply.executable_source_fingerprint,
+    review_scope_fingerprint: apply.approved_review_scope_fingerprint || apply.review_scope_fingerprint,
+    plan_fingerprint: apply.plan_fingerprint,
+    idempotency_plan_fingerprint: idempotency.plan_fingerprint,
+    postflight_hash: postflight.postflight_hash,
+    postflight_file_sha256: applyEvidence.postflightFileSha256,
+    approved_mapping_count: apply.approved_mapping_count,
+    executable_plan_count: apply.executable_plan_count,
+    executed_plan_count: apply.executed_plan_count,
+    review_row_count: apply.review_row_count,
+    blocked_row_count: apply.blocked_row_count,
+    execution_offer_ids: executionOfferIds,
+    review_offer_ids: reviewOfferIds,
+    expected_deltas: apply.expected_deltas,
+    actual_deltas: {
+      freshness: postflight.freshness_change_count,
+      price: postflight.price_change_count,
+      stock: postflight.stock_change_count,
+      shipping: postflight.shipping_change_count,
+      total: postflight.total_change_count,
+      offer_url: postflight.offer_url_change_count,
+      mapping_url: postflight.mapping_url_change_count,
+      price_history: postflight.price_history_delta,
+    },
+    price_history_delta: postflight.price_history_delta,
+    database_writes: apply.executed_plan_count,
+    split_run_reason: "APPLY_AND_POSTFLIGHT_SUCCEEDED_ORIGINAL_JOB_CANCELLED_DURING_IDEMPOTENCY",
+  };
+  attestation.attestation_fingerprint = canonicalHash(attestation);
+  return attestation;
+}
+
+async function buildEbaySplitRunEvidence(repository, stages, token, directory) {
+  if (!stages?.apply?.run_id || !stages?.capture?.run_id || stages.capture.run_id === stages.apply.run_id) return null;
+  const base = `https://api.github.com/repos/${repository}`;
+  const [applyRun, idempotencyRun] = await Promise.all([
+    githubJson(`${base}/actions/runs/${stages.apply.run_id}`, token),
+    githubJson(`${base}/actions/runs/${stages.capture.run_id}`, token),
+  ]);
+  const [applyArtifacts, idempotencyArtifacts] = await Promise.all([
+    artifactsForRun(repository, stages.apply.run_id, token, directory),
+    artifactsForRun(repository, stages.capture.run_id, token, directory),
+  ]);
+  for (const applyArtifact of applyArtifacts) {
+    let applyEvidence = null;
+    try { applyEvidence = validateEbayApplyArtifacts({ run: applyRun, artifact: applyArtifact.artifact, files: applyArtifact.files }); } catch {}
+    if (!applyEvidence) continue;
+    for (const idempotencyArtifact of idempotencyArtifacts) {
+      try {
+        const idempotencyEvidence = validateEbayIdempotencyArtifacts({ run: idempotencyRun, artifact: idempotencyArtifact.artifact, files: idempotencyArtifact.files, applyEvidence });
+        return buildEbaySplitRunAttestation({ applyRun, applyArtifact: applyArtifact.artifact, applyEvidence, idempotencyRun, idempotencyArtifact: idempotencyArtifact.artifact, idempotencyEvidence });
+      } catch {}
+    }
+  }
+  return null;
 }
 
 async function runStages(profile, repository, token) {
@@ -209,7 +429,7 @@ async function runStages(profile, repository, token) {
   return { stages, applyRunId };
 }
 
-async function contractFromArtifacts(repository, runId, token) {
+async function contractFromArtifacts(repository, runId, token, options = {}) {
   if (!runId) return null;
   const base = `https://api.github.com/repos/${repository}`;
   const listing = await githubJson(
@@ -220,6 +440,10 @@ async function contractFromArtifacts(repository, runId, token) {
     path.join(os.tmpdir(), "supplementscout-watchdog-"),
   );
   try {
+    if (String(options.profile?.id) === "12") {
+      const split = await buildEbaySplitRunEvidence(repository, options.stages, token, directory);
+      if (split) return findContractEvidence(split);
+    }
     const candidates = [];
     for (const artifact of listing.artifacts || []) {
       if (artifact.expired) continue;
@@ -334,7 +558,7 @@ async function run(options, dependencies = {}) {
       stages = stageResult.stages;
       contract = await (
         dependencies.contractFromArtifacts || contractFromArtifacts
-      )(repository, stageResult.applyRunId, token);
+      )(repository, stageResult.applyRunId, token, { profile, stages });
     } catch (error) {
       monitoringError = error.message;
     }
@@ -395,11 +619,15 @@ module.exports = {
   CONFIG_PATH,
   VALIDATOR_LOGIN,
   VALIDATOR_ROLE,
+  buildEbaySplitRunAttestation,
+  buildEbaySplitRunEvidence,
   contractFromArtifacts,
   databaseEvidence,
   evaluateRetailer,
   correlateEvidence,
   findContractEvidence,
+  validateEbayApplyArtifacts,
+  validateEbayIdempotencyArtifacts,
   hoursSince,
   loadConfig,
   main,

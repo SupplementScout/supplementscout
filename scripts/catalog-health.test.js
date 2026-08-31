@@ -56,11 +56,14 @@ const {
   normalizeCatalogHealthFilters,
 } = require(path.join(process.cwd(), "app", "admin", "lib", "catalogHealth.ts"));
 const {
+  buildEbaySplitRunAttestation,
   correlateEvidence,
   evaluateRetailer,
   findContractEvidence,
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
+  validateEbayApplyArtifacts,
+  validateEbayIdempotencyArtifacts,
 } = require("./automation-reliability-watchdog");
 const {
   PROFILES: postflightProfiles,
@@ -597,6 +600,20 @@ test("automation watchdog finds only complete per-row execution evidence", () =>
       review_scope_fingerprint: null,
       idempotency_result: null,
       database_writes: null,
+      apply_run_id: null,
+      apply_artifact_id: null,
+      apply_artifact_digest: null,
+      apply_database_writes: null,
+      apply_executed_plan_count: null,
+      idempotency_run_id: null,
+      idempotency_artifact_id: null,
+      idempotency_artifact_digest: null,
+      idempotency_database_writes: null,
+      idempotency_executed_plan_count: null,
+      idempotency_plan_fingerprint: null,
+      postflight_file_sha256: null,
+      evidence_model: null,
+      attestation_fingerprint: null,
     }
   );
   assert.equal(
@@ -634,6 +651,98 @@ test("same-run eBay evidence sealer requires exact apply, postflight and idempot
   assert.equal(sealed.result, "PASS"); assert.equal(sealed.idempotency_result, "PASS"); assert.equal(sealed.database_writes, 197); assert.equal(sealed.price_history_delta, 0); assert.equal(sealed.idempotency_executable_source_fingerprint, executableSourceFingerprint);
   assert.throws(() => sealEbayRefreshEvidence({ apply, postflight: { ...postflight, price_history_delta: 1 }, idempotency, env }), /postflight delta drift/);
   assert.throws(() => sealEbayRefreshEvidence({ apply, postflight, idempotency: { ...idempotency, execution_offer_ids: executionOfferIds.slice(1) }, env }), /approved executable scope/);
+});
+
+function ebaySplitRunFixture(overrides = {}) {
+  const executionOfferIds = Array.from({ length: 197 }, (_, index) => String(2539 + index)).filter((id) => !["2554","2582","2583","2584","2585","2586","2587","2624","2625","2626","2627","2630","2636","2637","2638","2642","2643","2646","2647","2648","2649","2650","2651","2653","2654","2655","2656","2686","2688","2695","2715","2727","2728","2735","2750","2758","2759","2760","2761","2770"].includes(id)).slice(0, 197);
+  while (executionOfferIds.length < 197) executionOfferIds.push(String(2600 + executionOfferIds.length));
+  const reviewIds = ["2554","2582","2583","2584","2585","2586","2587","2624","2625","2626","2627","2630","2636","2637","2638","2642","2643","2646","2647","2648","2649","2650","2651","2653","2654","2655","2656","2686","2688","2695","2715","2727","2728","2735","2750","2758","2759","2760","2761","2770"];
+  const reviewRows = reviewIds.map((offer_id) => ({ offer_id, review_type: offer_id === "2686" ? "SOURCE_FAILURE" : "IDENTITY_CONFLICT" }));
+  const expectedDeltas = { logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 197 }, row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 } };
+  const sourceRows = [...executionOfferIds, ...reviewIds].map((offer_id) => ({ offer_id, mapping_id: `m-${offer_id}`, retailer_id: "12", product_id: `p-${offer_id}`, product_variant_id: `v-${offer_id}`, external_url: `https://www.ebay.co.uk/itm/${offer_id}`, price: "10.00", shipping: "0.00", total: "10.00", decision: reviewIds.includes(offer_id) ? "REVIEW" : "ACCEPT" }));
+  const executableSourceFingerprint = canonicalHash(sourceRows.filter((row) => executionOfferIds.includes(row.offer_id)));
+  const fullCaptureFingerprint = canonicalHash(sourceRows);
+  const reviewScopeFingerprint = canonicalHash(sourceRows.filter((row) => reviewIds.includes(row.offer_id)));
+  const applyPlanFingerprint = "4dea4728c98fdf74e61fb058b02258c227ed4d5045cf826463cf959d9df86314";
+  const idempotencyPlanFingerprint = "f7d081e3cdcc316b5d558ae502ac5ba5d07bd439e3634e3e67557c0710ec77fa";
+  const commit = "8389a5f765e4da422f3a1ce22cc4496dadceeb2e";
+  const apply = { result: "PASS_WITH_REVIEW", mode: "execute-apply", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197 }, execution_offer_ids: executionOfferIds, review_rows: reviewRows, expected_deltas: expectedDeltas, commit_sha: commit, manifest_sha256: "e".repeat(64), approved_manifest_sha256: "16d8ed6bbced25790030a5d8e929562e510749fe9baaf34c8b484f7228ac9eb7", source_fingerprint: fullCaptureFingerprint, full_capture_fingerprint: fullCaptureFingerprint, executable_source_fingerprint: executableSourceFingerprint, review_scope_fingerprint: reviewScopeFingerprint, approved_full_capture_fingerprint: "31d602ec4deadfc7d2644c97831499fb72dc680149687c02896f1fab5810650d", approved_review_scope_fingerprint: reviewScopeFingerprint, plan_fingerprint: applyPlanFingerprint };
+  const postflight = { result: "PASS", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 197, review_row_count: 40, blocked_row_count: 0, freshness_change_count: 197, price_change_count: 0, stock_change_count: 0, shipping_change_count: 0, total_change_count: 0, offer_url_change_count: 0, mapping_url_change_count: 0, price_history_delta: 0, postflight_hash: "0281412744d3034b9437cc79e9bb1ecac61019a569a58d2aa6d8adef8a62c40f", completed_at: "2026-08-31T09:08:36.575Z" };
+  const verification = { result: "PASS", run_id: "33373500248", artifact_id: "9751118948", commit_sha: commit, database_writes: 0 };
+  const idempotency = { result: "PASS_WITH_REVIEW", mode: "dry-run", approved_mapping_count: 237, executable_plan_count: 197, executed_plan_count: 0, review_row_count: 40, blocked_row_count: 0, classification: { VERIFY_NO_CHANGE: 197, UPDATE_PRICE: 7 }, classifications: Object.fromEntries(executionOfferIds.map((id) => [id, "VERIFY_NO_CHANGE"])), execution_offer_ids: executionOfferIds, review_rows: reviewRows, blocked_rows: [], expected_deltas: expectedDeltas, commit_sha: commit, source_fingerprint: fullCaptureFingerprint, full_capture_fingerprint: fullCaptureFingerprint, executable_source_fingerprint: executableSourceFingerprint, review_scope_fingerprint: reviewScopeFingerprint, plan_fingerprint: idempotencyPlanFingerprint, semantic_source_rows: sourceRows, semantic_plan_binding: { executable_offer_ids: executionOfferIds, executable: executionOfferIds.map((offer_id) => ({ offer_id, operation_type: "VERIFY_NO_CHANGE", before_state: { offer: { last_checked_at: "2026-08-31T09:08:36.000Z" } } })), expected_deltas: expectedDeltas } };
+  const contract = { ...idempotency, schema_version: 2, kind: "ebay-offer-refresh-executable-scope-contract-v2" };
+  const applyRun = { id: 33374870684, conclusion: "cancelled", event: "workflow_dispatch", head_sha: commit };
+  const idempotencyRun = { id: 33378021842, conclusion: "success", event: "workflow_dispatch", head_sha: commit };
+  const applyArtifact = { id: 9752044455, digest: "sha256:74ab4426108c6d2bc57614c6db9c87bae938f6f8aac44e11541b2de6fa2c57d9" };
+  const idempotencyArtifact = { id: 9752753449, digest: "sha256:b4ff2faa5d5a72145cf51b30ae778345e1516160d44cb47cba8d89400c92708f" };
+  const applyFiles = [{ name: "production-apply.json", sha256: "apply", json: apply }, { name: "production-db-postflight.json", sha256: "35920e013b10518bdd6ee6fa899c3704464508cbf1f0dbf814f4349fc5b8d3e8", json: postflight }, { name: "approved-artifact-verification.json", sha256: "verification", json: verification }];
+  const idempotencyFiles = [{ name: "production-dry-run.json", sha256: "dryrun", json: idempotency }, { name: "production-dry-run-contract.json", sha256: "contract", json: contract }];
+  return { executionOfferIds, reviewIds, expectedDeltas, apply, postflight, verification, idempotency, contract, applyRun, idempotencyRun, applyArtifact, idempotencyArtifact, applyFiles, idempotencyFiles, ...overrides };
+}
+
+test("watchdog accepts split-run eBay evidence from apply 33374870684 and independent idempotency 33378021842", () => {
+  const fixture = ebaySplitRunFixture();
+  const applyEvidence = validateEbayApplyArtifacts({ run: fixture.applyRun, artifact: fixture.applyArtifact, files: fixture.applyFiles });
+  const idempotencyEvidence = validateEbayIdempotencyArtifacts({ run: fixture.idempotencyRun, artifact: fixture.idempotencyArtifact, files: fixture.idempotencyFiles, applyEvidence });
+  const attestation = buildEbaySplitRunAttestation({ applyRun: fixture.applyRun, applyArtifact: fixture.applyArtifact, applyEvidence, idempotencyRun: fixture.idempotencyRun, idempotencyArtifact: fixture.idempotencyArtifact, idempotencyEvidence });
+  const contract = findContractEvidence(attestation);
+  assert.equal(contract.evidence_model, "split-run-v1");
+  assert.equal(contract.apply_database_writes, 197);
+  assert.equal(contract.idempotency_database_writes, 0);
+  assert.equal(contract.idempotency_executed_plan_count, 0);
+  assert.equal(contract.plan_fingerprint, "4dea4728c98fdf74e61fb058b02258c227ed4d5045cf826463cf959d9df86314");
+  assert.equal(contract.idempotency_plan_fingerprint, "f7d081e3cdcc316b5d558ae502ac5ba5d07bd439e3634e3e67557c0710ec77fa");
+  assert.match(contract.attestation_fingerprint, /^[0-9a-f]{64}$/);
+  const completed = "2026-08-31T09:40:00.000Z";
+  const evaluated = evaluateRetailer({ profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "33378021842", head_sha: fixture.apply.commit_sha }, apply: { completed_at: completed, run_id: "33374870684", head_sha: fixture.apply.commit_sha }, db_postflight: { completed_at: completed, run_id: "33374870684", head_sha: fixture.apply.commit_sha } }, contract, database: { offer_count: 237, offers_older_than_48h: 40, older_offer_ids: fixture.reviewIds } }, new Date("2026-08-31T10:00:00.000Z"), 48);
+  assert.equal(evaluated.result, "PASS");
+  assert.equal(evaluated.evidence_correlation, "CORRELATED");
+});
+
+test("watchdog split-run eBay evidence remains fail-closed for drift and unsafe idempotency", () => {
+  const cases = [
+    ["missing apply artifact", (fixture) => { fixture.applyFiles = fixture.applyFiles.filter((file) => file.name !== "production-apply.json"); }, /missing apply/],
+    ["bad artifact digest", (fixture) => { fixture.applyArtifact.digest = "sha256:not-a-digest"; }, /digest/],
+    ["missing postflight hash", (fixture) => { fixture.postflight.postflight_hash = null; }, /postflight hash missing/],
+    ["postflight failure", (fixture) => { fixture.postflight.result = "FAIL"; }, /postflight scope drift/],
+    ["job interrupted before postflight", (fixture) => { fixture.applyFiles = fixture.applyFiles.filter((file) => file.name !== "production-db-postflight.json"); }, /missing apply, postflight/],
+    ["independent run contains apply", (fixture) => { fixture.idempotencyFiles.push({ name: "production-apply.json", sha256: "x", json: fixture.apply }); }, /contains apply/],
+    ["independent run with database writes", (fixture) => { fixture.idempotency.executed_plan_count = 1; fixture.contract.executed_plan_count = 1; }, /not read-only/],
+    ["missing executed offer ID", (fixture) => { fixture.idempotency.execution_offer_ids = fixture.idempotency.execution_offer_ids.slice(1); }, /offer IDs drift/],
+    ["additional offer ID", (fixture) => { fixture.idempotency.execution_offer_ids = [...fixture.idempotency.execution_offer_ids, "9999"]; }, /offer IDs drift/],
+    ["price drift", (fixture) => { fixture.idempotency.executable_source_fingerprint = "1".repeat(64); }, /executable source fingerprint drift/],
+    ["stock drift", (fixture) => { fixture.idempotency.executable_source_fingerprint = "2".repeat(64); }, /executable source fingerprint drift/],
+    ["url drift", (fixture) => { fixture.idempotency.executable_source_fingerprint = "3".repeat(64); }, /executable source fingerprint drift/],
+    ["mapping drift", (fixture) => { fixture.idempotency.executable_source_fingerprint = "4".repeat(64); }, /executable source fingerprint drift/],
+    ["identity drift", (fixture) => { fixture.idempotency.executable_source_fingerprint = "5".repeat(64); }, /executable source fingerprint drift/],
+    ["review row in executable scope", (fixture) => { fixture.idempotency.execution_offer_ids[0] = "2686"; }, /offer IDs drift|2686/],
+    ["blocked row", (fixture) => { fixture.idempotency.blocked_row_count = 1; fixture.contract.blocked_row_count = 1; }, /scope drift/],
+    ["different retailer scope", (fixture) => { fixture.idempotency.approved_mapping_count = 236; }, /scope drift/],
+    ["incompatible commit", (fixture) => { fixture.idempotencyRun.head_sha = "b".repeat(40); }, /status or commit mismatch/],
+  ];
+  for (const [name, mutate, pattern] of cases) {
+    const fixture = ebaySplitRunFixture();
+    mutate(fixture);
+    assert.throws(() => {
+      const applyEvidence = validateEbayApplyArtifacts({ run: fixture.applyRun, artifact: fixture.applyArtifact, files: fixture.applyFiles });
+      validateEbayIdempotencyArtifacts({ run: fixture.idempotencyRun, artifact: fixture.idempotencyArtifact, files: fixture.idempotencyFiles, applyEvidence });
+    }, pattern, name);
+  }
+});
+
+test("watchdog split-run keeps future freshness timestamp plan fingerprint drift distinct from semantic drift", () => {
+  const fixture = ebaySplitRunFixture();
+  const applyEvidence = validateEbayApplyArtifacts({ run: fixture.applyRun, artifact: fixture.applyArtifact, files: fixture.applyFiles });
+  const idempotencyEvidence = validateEbayIdempotencyArtifacts({ run: fixture.idempotencyRun, artifact: fixture.idempotencyArtifact, files: fixture.idempotencyFiles, applyEvidence });
+  const attestation = buildEbaySplitRunAttestation({ applyRun: fixture.applyRun, applyArtifact: fixture.applyArtifact, applyEvidence, idempotencyRun: fixture.idempotencyRun, idempotencyArtifact: fixture.idempotencyArtifact, idempotencyEvidence });
+  assert.notEqual(attestation.plan_fingerprint, attestation.idempotency_plan_fingerprint);
+  assert.equal(attestation.executable_source_fingerprint, fixture.apply.executable_source_fingerprint);
+  assert.throws(() => {
+    const drift = ebaySplitRunFixture();
+    drift.idempotency.expected_deltas = { ...drift.idempotency.expected_deltas, logical_field_deltas: { ...drift.idempotency.expected_deltas.logical_field_deltas, offer_price_updates: 1 } };
+    const driftApplyEvidence = validateEbayApplyArtifacts({ run: drift.applyRun, artifact: drift.applyArtifact, files: drift.applyFiles });
+    validateEbayIdempotencyArtifacts({ run: drift.idempotencyRun, artifact: drift.idempotencyArtifact, files: drift.idempotencyFiles, applyEvidence: driftApplyEvidence });
+  }, /expected deltas drift/);
 });
 
 test("watchdog isolates database-old offers only when every row is explicit review", () => {
