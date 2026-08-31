@@ -1,5 +1,23 @@
 # Automation Reliability — Owner Decision Pack
 
+## Review Queue transactional RPC deployed; reconciliation awaiting approval — 31 August 2026
+
+Production migration `20260831110000_create_automation_review_queue_publication_rpc.sql` was applied from commit `b95bdf8b30465c1be6c799b3a27a56d2a5e208af` with SHA-256 `8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409`. The migration added only the shared Review Queue publication RPC and its idempotency seal table. It did not run live reconciliation, publisher apply, offer apply, replay, cron, approval RPC or catalogue DML.
+
+Production postflight passed. Ledger count is `171`; canonical ledger fingerprint is `f3b5681787c3700883853be28032aea6cdf557f59af2017ef608fc55da540406`. `publish_automation_review_queue_changes(jsonb)` is owned by `postgres`, uses `SECURITY DEFINER`, has `search_path=""`, denies public/anon/authenticated execute, and grants execute only to `service_role`. `automation_review_queue_publications` has forced RLS, idempotency uniqueness, retailer index, and service-role select-only access. Fail-closed tests for invalid schema, unknown retailer, unknown operation, invalid idempotency key, stale expected baseline and disallowed role produced zero queue, audit, publication and catalogue deltas.
+
+Read-only postflight counts remained unchanged: Review Queue `516`, audit events `422`, publication seals `0`, products `1130`, product variants `2849`, retailer products `2808`, offers `2808`, price history `7113`. Queue snapshot hash `46eb066439328e73a801a5a74847a4a638b19adaca835a0ea52a98d749093599`; catalogue hash `7adab698d33a3a08b9b304b4d0f23e7ebbb7d3df9df3013ab0d90b5112ad6a51`.
+
+Prepared but not executed reconciliation dry-run: current production queue plus eBay run `33382627453` / artifact `9754436306` yields one eBay-only shared publisher changeset: `CREATE 41`, `SUPERSEDE 40`, `REFRESH 0`, `RESOLVE_BY_SOURCE 0`, `EXPIRE 0`; expected audit delta `81`; expected final active eBay review rows `41`; expected catalogue writes `0`; changeset fingerprint `8c1f16d8d3875129ded5835a09af1fe9491ec9b24f90e05f5fcb1bc6cdd426b3`; idempotency key `bf59bef527908a6a813c25b84bab63b0429ee31b26180918fe25ed2692eb0141`; expiry `2026-09-01T13:46:55.185Z`. Discount, Dolphin and GYM HIGH have no publisher lifecycle operation in this prepared changeset; Whey Okay is excluded because run `33382624165` failed closed on an active/conflicting session.
+
+eBay offer `2748` remains review-only identity evidence, not an executable catalogue change: mapping `2934`, item `v1|354343324643|623744168324`, semantic fingerprint `32c17043f6c3c1b0181f707f7cdd312d9d69487a42042bfef1a0fe3f4efee86c`, blockers `BRAND_MISMATCH` and `UNIT_COUNT_MISMATCH`, review reason `UK_SHIPPING_UNKNOWN`, returned GTIN `6009544952923`, confidence `LOW`, recommended decision `MANUAL_REVIEW`.
+
+Copy-ready approval line:
+
+```text
+Zatwierdzam jeden produkcyjny Review Queue reconciliation apply przez publish_automation_review_queue_changes(jsonb) z commita b95bdf8b30465c1be6c799b3a27a56d2a5e208af dla eBay UK run 33382627453, artifact 9754436306, report SHA-256 dd52ddd79281bd0c83360380200610f3ae1586df19671e409880bd1127122b3a, baseline queue hash 46eb066439328e73a801a5a74847a4a638b19adaca835a0ea52a98d749093599, catalogue hash 71961dec9830f74f9ee80996e6e69b670623733f4d6830bfa20cda61db4204bb, publisher batch fingerprint 7c922e905ec882b8fa412809530818804aad1fb7e95513367428a9653438d304, changeset fingerprint 8c1f16d8d3875129ded5835a09af1fe9491ec9b24f90e05f5fcb1bc6cdd426b3 i idempotency key bf59bef527908a6a813c25b84bab63b0429ee31b26180918fe25ed2692eb0141; zatwierdzam dokładnie CREATE 41, SUPERSEDE 40, REFRESH 0, RESOLVE_BY_SOURCE 0, EXPIRE 0, expected audit delta 81, final active eBay review rows 41 i catalogue_writes 0; nie zatwierdzam offer apply, commercial changes, identity/rebind apply, freshness apply, crona, replayu ani prac przy innych retailerach.
+```
+
 ## Remaining scope grouped for owner decisions — 31 August 2026, 10:55 UTC
 
 The remaining Automation Reliability scope is grouped but not approved for execution. No production offer apply, commercial change, identity change, rebind, manual SQL, catalogue creation or expanded freshness apply was run in this phase.

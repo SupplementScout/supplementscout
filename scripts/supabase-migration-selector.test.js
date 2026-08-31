@@ -170,13 +170,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records both verified no-change timestamp repairs as applied", () => {
+test("production records verified timestamp repairs and review queue publication RPC as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending.map(({ filename }) => filename), [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
-  assert.equal(contract.ledgerCount, 170);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 171);
   assert.equal(
     contract.ledgerFingerprint,
-    "f125166252a1cc5ee263edaa9db0b5e1fdd98dbba0110c29f8329c0de618801a",
+    "f3b5681787c3700883853be28032aea6cdf557f59af2017ef608fc55da540406",
   );
 });
 
@@ -253,7 +253,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the automation review queue extension", () => {
+test("production binds its exact ledger after the automation review queue publication RPC", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -279,13 +279,13 @@ test("production binds its exact ledger after the automation review queue extens
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 170);
+  assert.equal(result.ledger_count, 171);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
   assert.equal(result.selected_files.length, 171);
-  assert.equal(result.pending_file, REVIEW_QUEUE_PUBLICATION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.pending_sha256s[REVIEW_QUEUE_PUBLICATION_MIGRATION], REVIEW_QUEUE_PUBLICATION_SHA256);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
