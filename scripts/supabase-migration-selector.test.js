@@ -22,6 +22,10 @@ const TARGET = Object.freeze({
   project_ref: CONTRACT.projectRef,
   database_identity: CONTRACT.databaseIdentity,
 });
+const TIMESTAMP_GUARD_MIGRATION = "20260831080000_fix_verified_no_change_timestamp_guard.sql";
+const TIMESTAMP_GUARD_SHA256 = "727a47ddabc29664693c299c5b4e0915ba06e44fbfc2beb098277c2b81866bbe";
+const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql";
+const TIMESTAMP_OPERATOR_SHA256 = "16d92f7e0b404b81bcbda62bfb512ff6690bb78b36b7e5a345788b6fdcc8ef20";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -72,12 +76,19 @@ test.after(() => {
   }
 });
 
-test("staging records the reviewed execution request migration as applied", () => {
+test("staging records both verified no-change timestamp repairs as applied", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.ledger_count, 92);
+  assert.equal(result.ledger_count, 94);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 92);
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
+  assert.equal(result.selected_files.length, 94);
+  assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
+  assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
 });
 
 test("the local-only migration is the exact shared-policy exclusion", () => {
@@ -151,13 +162,18 @@ test("a changed excluded migration SHA fails closed", () => {
   assert.throws(() => validateSelection(validInput({ sourceDir })), /excluded migration SHA-256 mismatch/);
 });
 
-test("production records the reviewed execution request migration as applied", () => {
+test("production keeps the verified no-change timestamp migrations byte-for-byte", () => {
+  assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
+});
+
+test("production records both verified no-change timestamp repairs as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 168);
+  assert.equal(contract.ledgerCount, 170);
   assert.equal(
     contract.ledgerFingerprint,
-    "9aff17137838bd63ee7f9d54059b38b32257a9fbd52127f085f948a22d4aaa09",
+    "f125166252a1cc5ee263edaa9db0b5e1fdd98dbba0110c29f8329c0de618801a",
   );
 });
 
@@ -218,7 +234,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 92);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 94);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -260,14 +276,16 @@ test("production binds its exact ledger after the automation review queue extens
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 168);
+  assert.equal(result.ledger_count, 170);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.deepEqual(result.pending, []);
-  assert.equal(result.selected_files.length, 168);
+  assert.equal(result.selected_files.length, 170);
   assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
   assert.equal(Object.keys(result.pending_sha256s).length, 0);
+  assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
+  assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
   assert.ok(result.selected_files.includes(
     "20260825163000_create_jons_exact_pack_canary_5.sql",
   ));
@@ -344,7 +362,7 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports no pending migration after execution request apply", () => {
+test("staging output reports no pending migrations after timestamp guard repairs", () => {
   const result = validateSelection(validInput());
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);

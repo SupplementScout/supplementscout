@@ -24,6 +24,8 @@ const migrations = [
   "20260716004000_support_optioned_parent_size_evidence.sql",
   "20260716005000_allow_optioned_legacy_identity_update_null_total.sql",
   "20260718150000_add_verified_no_change_offer_refresh.sql",
+  "20260831080000_fix_verified_no_change_timestamp_guard.sql",
+  "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql",
 ].map((name) => path.join(root, "supabase/migrations", name));
 const stage2Setup = path.join(root, "supabase/test/product_variants_stage2_migration_test.sql");
 const image = "postgres:17-alpine";
@@ -86,6 +88,9 @@ function refreshFingerprint(plan) {
   plan.meta.plan_fingerprint = crypto.createHash("md5").update(canonicalJson(plan)).digest("hex");
   return plan;
 }
+function clonePlan(plan) {
+  return structuredClone(plan);
+}
 function writeArtifact(directory, name, records) {
   const hashes = [...new Set(records.map((record) => record.source_snapshot_sha256))];
   const dryRun = buildVerifiedNoChangeDryRun(records, {
@@ -128,16 +133,20 @@ test("approval-bound verified no-change refresh is atomic and metadata-only on d
       insert into public.retailers(id,name,slug,website) values(970001,'Verified Retailer','verified-retailer','https://verified.local');
       insert into public.products(id,name,slug,brand,category,product_format,is_active) values
         (970001,'Verified Creatine A','verified-creatine-a','Verified','Creatine','powder',true),
-        (970002,'Verified Creatine B','verified-creatine-b','Verified','Creatine','powder',true);
+        (970002,'Verified Creatine B','verified-creatine-b','Verified','Creatine','powder',true),
+        (970003,'Verified Creatine Timestamp','verified-creatine-timestamp','Verified','Creatine','powder',true);
       insert into public.product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default) values
         (970001,970001,'500g','500g',500,'g',1,'powder',true,false),
-        (970002,970002,'500g','500g',500,'g',1,'powder',true,false);
+        (970002,970002,'500g','500g',500,'g',1,'powder',true,false),
+        (970003,970003,'500g','500g',500,'g',1,'powder',true,false);
       insert into public.retailer_products(id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_name,external_slug,external_url,match_method,match_confidence) values
         (970001,970001,970001,970001,'10001','20001','Verified Creatine A','verified-creatine-a','https://verified.local/a?variant=20001','external_id',100),
-        (970002,970001,970002,970002,'10002','20002','Verified Creatine B','verified-creatine-b','https://verified.local/b?variant=20002','external_id',100);
+        (970002,970001,970002,970002,'10002','20002','Verified Creatine B','verified-creatine-b','https://verified.local/b?variant=20002','external_id',100),
+        (970003,970001,970003,970003,'10003','20003','Verified Creatine Timestamp','verified-creatine-timestamp','https://verified.local/t?variant=20003','external_id',100);
       insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values
         (970001,970001,970001,970001,970001,19.99,3.99,23.98,true,'https://verified.local/a?variant=20001',now()-interval '2 days'),
-        (970002,970002,970001,970002,970002,29.99,3.99,33.98,true,'https://verified.local/b?variant=20002',now()-interval '2 days');
+        (970002,970002,970001,970002,970002,29.99,3.99,33.98,true,'https://verified.local/b?variant=20002',now()-interval '2 days'),
+        (970003,970003,970001,970003,970003,39.99,3.99,43.98,true,'https://verified.local/t?variant=20003','2026-08-30T14:11:22.619Z'::timestamptz);
       insert into public.verified_offer_refresh_targets(id,target_environment,project_ref,database_system_identifier,database_oid,is_active,attested_by)
       select true,'STAGING','hxnrsyyqffztlvcrtgbf',system_identifier::text,(select oid from pg_database where datname=current_database()),true,'integration-test'
       from pg_control_system();`;
@@ -163,6 +172,49 @@ test("approval-bound verified no-change refresh is atomic and metadata-only on d
 
     const initial = snapshot();
     const capture = new Date(Date.now() - 60_000).toISOString();
+    const timestampArtifact = writeArtifact(directory, "timestamp", [recordFromState(stateFor(970003), capture, "d".repeat(64))]);
+    const timestampPlan = timestampArtifact.artifact.plans[0].resolved_plan;
+    const approvalCount = () => psqlJson(container, database, "select count(*)::int from public.approved_import_plans;");
+    const offerChecked = () => psqlJson(container, database, "select to_char(last_checked_at at time zone 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') from public.offers where id=970003;");
+    const validatePlan = (plan) => exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", `select public.validate_product_import_plan_read_only(${sqlLiteral(JSON.stringify(refreshFingerprint(plan)))}::jsonb);`]);
+    const expectPass = (mutate, label) => {
+      const plan = clonePlan(timestampPlan);
+      mutate(plan);
+      requireSuccess(validatePlan(plan), label);
+    };
+    const expectBlock = async (mutate, label, pattern = /verified no-change|stale/) => {
+      const plan = clonePlan(timestampPlan);
+      mutate(plan);
+      const beforeApprovals = approvalCount();
+      const beforeChecked = offerChecked();
+      const result = validatePlan(plan);
+      assert.notEqual(result.status, 0, `${label} unexpectedly passed`);
+      assert.match(output(result), pattern);
+      const approve = await postgresRpcClient(container, database).rpc("approve_product_import_plan", {
+        p_plan: refreshFingerprint(clonePlan(plan)),
+        p_artifact_sha256: timestampArtifact.artifactSha256,
+        p_run_id: timestampArtifact.artifact.run_id,
+        p_source: "verified-no-change-test",
+      });
+      assert.ok(approve.error, `${label} unexpectedly created an approval`);
+      assert.equal(approvalCount(), beforeApprovals, `${label} created an approval row`);
+      assert.equal(offerChecked(), beforeChecked, `${label} changed offer data during validation`);
+    };
+    expectPass((plan) => { plan.expected_state.offer.last_checked_at = "2026-08-30T14:11:22.619000Z"; }, "microsecond-equivalent timestamp");
+    expectPass((plan) => { plan.expected_state.offer.last_checked_at = "2026-08-30T14:11:22.619+00:00"; }, "Z and +00:00 timestamp");
+    expectPass((plan) => { plan.expected_state.offer.last_checked_at = "2026-08-30T15:11:22.619+01:00"; }, "equivalent offset timestamp");
+    await expectBlock((plan) => { plan.expected_state.offer.last_checked_at = "2026-08-30T14:11:22.619001Z"; }, "microsecond drift");
+    await expectBlock((plan) => { plan.expected_state.offer.last_checked_at = "2026-08-30T14:11:23.619000Z"; }, "second drift");
+    await expectBlock((plan) => { plan.expected_state.offer.last_checked_at = "not-a-timestamp"; }, "invalid timestamp", /invalid verified no-change timestamp/);
+    await expectBlock((plan) => { plan.expected_state.offer.last_checked_at = null; }, "null timestamp", /invalid verified no-change timestamp/);
+    await expectBlock((plan) => { delete plan.expected_state.offer.last_checked_at; }, "missing timestamp", /expected state schema/);
+    await expectBlock((plan) => { plan.expected_state.offer.price = "40.00"; }, "price drift");
+    await expectBlock((plan) => { plan.expected_state.offer.in_stock = false; }, "stock drift");
+    await expectBlock((plan) => { plan.expected_state.offer.url = "https://verified.local/other"; }, "URL drift");
+    await expectBlock((plan) => { plan.expected_state.retailer_product.external_variant_id = "drift"; plan.retailer_product.values.external_variant_id = "drift"; }, "mapping drift");
+    await expectBlock((plan) => { plan.expected_state.product.id = "970004"; }, "product drift");
+    await expectBlock((plan) => { plan.expected_state.product_variant.id = "970004"; }, "variant drift");
+
     const artifact = writeArtifact(directory, "single", [recordFromState(stateFor(970001), capture, "a".repeat(64))]);
     const fingerprint = artifact.artifact.plans[0].plan_fingerprint;
     const approved = await approveArtifactPlan({ artifactPath: artifact.artifactPath, planFingerprint: fingerprint });
