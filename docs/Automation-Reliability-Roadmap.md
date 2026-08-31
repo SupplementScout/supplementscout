@@ -1,5 +1,12 @@
 # Automation Reliability Roadmap
 
+### Live Review Queue publisher architecture — 31 August 2026
+
+- Architecture decision before implementation: keep one shared automation publisher for the existing `product_match_review_queue`; do not create a second queue, coordinator or audit table. Retailer-specific code may normalize dry-run/source evidence into a bounded review-row manifest, but lifecycle reconciliation is shared.
+- The publisher reuses the current control-plane schema: `review_status='PENDING'` for active owner decisions, `review_status='EXPIRED'` plus `execution_error_code`/`execution_error_message` for superseded, source-resolved or stale historical evidence, `superseded_by_review_id` for replacement links, and the existing `product_match_review_events` trigger for immutable audit (`CREATED`, `STATE_CHANGED`, `EVIDENCE_REFRESHED`). No catalogue table is in scope.
+- Stable active-problem identity is `retailer_id + offer_id + source_row_fingerprint`, where `source_row_fingerprint` is a semantic problem fingerprint, not a volatile capture timestamp. Matching active evidence is refreshed idempotently; a new fingerprint for the same offer creates a new `PENDING` row and expires the old active row; observed offers whose problem disappears are expired as source-resolved evidence.
+- The first implementation target is a CLI/library path that can run dry-run or control-plane apply from validated artifacts. It must validate retailer binding, reason codes, operation/capability, run/artifact/commit metadata, batch limits and zero catalogue writes before any queue mutation.
+
 ### Remaining Review Queue grouping checkpoint — 31 August 2026, 10:55 UTC
 
 - eBay closeout remains complete and no replay/apply was run. The first scheduled eBay run after `EBAY_REFRESH_ENABLED=true` has not yet occurred; the next scheduled run is `2026-09-01T05:43:00Z` (`06:43` Europe/London). The current fresh read-only eBay dry-run is run `33382627453`, artifact `9754436306`, result `PASS_WITH_REVIEW`: `237` mappings, `196` executable `VERIFY_NO_CHANGE`, `41` review rows, `0` blocked and `0` writes. The added review-only row versus closeout is offer `2748`; this is review evidence, not authority for another eBay apply.
