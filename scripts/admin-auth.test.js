@@ -816,7 +816,7 @@ test("Review Queue stale-state hashing canonicalizes equivalent timestamps witho
 
 test("eBay workflow isolates Review Queue dispatch payload and protected credentials", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "ebay-offer-refresh.yml"), "utf8");
-  assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue\]/);
+  assert.match(workflow, /execution_mode:[\s\S]*options: \[catalogue-refresh, review-queue, review-queue-reconciliation\]/);
   assert.match(workflow, /review_item_id:[\s\S]*execution_request_id:[\s\S]*review_fingerprint:/);
   assert.match(workflow, /review_plan_fingerprint:[\s\S]*execution_idempotency_key:/);
   assert.match(workflow, /review-execution:[\s\S]*environment: production-readonly/);

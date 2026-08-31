@@ -54,7 +54,39 @@ on:
         required: true
         default: catalogue-refresh
         type: choice
-        options: [catalogue-refresh, review-queue]
+        options: [catalogue-refresh, review-queue, review-queue-reconciliation]
+      reconciliation_source_run_id:
+        description: "Successful eBay offer-refresh dry-run ID used as Review Queue source evidence"
+        required: false
+        type: string
+      reconciliation_source_artifact_id:
+        description: "Artifact ID belonging to the source eBay offer-refresh dry-run"
+        required: false
+        type: string
+      reconciliation_source_commit_sha:
+        description: "Exact source eBay offer-refresh dry-run commit SHA"
+        required: false
+        type: string
+      reconciliation_source_artifact_digest:
+        description: "SHA-256 digest of the source eBay offer-refresh artifact ZIP"
+        required: false
+        type: string
+      reconciliation_source_contract_sha256:
+        description: "SHA-256 of source production-dry-run-contract.json"
+        required: false
+        type: string
+      reconciliation_source_report_sha256:
+        description: "SHA-256 of source production-dry-run.json"
+        required: false
+        type: string
+      reconciliation_source_artifact_content_sha256:
+        description: "Source artifact content SHA-256 recorded in production-dry-run-contract.json"
+        required: false
+        type: string
+      reconciliation_source_review_scope_fingerprint:
+        description: "Review-scope fingerprint from the source eBay offer-refresh dry-run"
+        required: false
+        type: string
       review_item_id:
         description: "Server-dispatched Review Queue item ID"
         required: false
@@ -245,6 +277,69 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: tmp/ebay-offer-refresh/*.json
+
+  review-queue-reconciliation:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.operation == 'dry-run' && inputs.execution_mode == 'review-queue-reconciliation' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - name: Validate Review Queue reconciliation dry-run context
+        env:
+          SOURCE_RUN_ID: ${{ inputs.reconciliation_source_run_id }}
+          SOURCE_ARTIFACT_ID: ${{ inputs.reconciliation_source_artifact_id }}
+          SOURCE_COMMIT_SHA: ${{ inputs.reconciliation_source_commit_sha }}
+          SOURCE_ARTIFACT_DIGEST: ${{ inputs.reconciliation_source_artifact_digest }}
+          SOURCE_CONTRACT_SHA256: ${{ inputs.reconciliation_source_contract_sha256 }}
+          SOURCE_REPORT_SHA256: ${{ inputs.reconciliation_source_report_sha256 }}
+          SOURCE_ARTIFACT_CONTENT_SHA256: ${{ inputs.reconciliation_source_artifact_content_sha256 }}
+          SOURCE_REVIEW_SCOPE_FINGERPRINT: ${{ inputs.reconciliation_source_review_scope_fingerprint }}
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          printf '%s' "$SOURCE_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
+          printf '%s' "$SOURCE_ARTIFACT_ID" | grep -Eq '^[1-9][0-9]*$'
+          printf '%s' "$SOURCE_COMMIT_SHA" | grep -Eq '^[0-9a-f]{40}$'
+          printf '%s' "$SOURCE_ARTIFACT_DIGEST" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SOURCE_CONTRACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SOURCE_REPORT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SOURCE_ARTIFACT_CONTENT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SOURCE_REVIEW_SCOPE_FINGERPRINT" | grep -Eq '^[0-9a-f]{64}$'
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test Review Queue reconciliation contracts without production credentials
+        run: node --test scripts/automation-review-reconciliation-dry-run.test.js scripts/automation-review-publisher.test.js scripts/automation-review-queue-publication-rpc.test.js
+      - name: Build artifact-bound Review Queue reconciliation dry-run
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          node scripts/automation-review-reconciliation-dry-run.js
+          --download-source-artifact
+          --source-run-id=${{ inputs.reconciliation_source_run_id }}
+          --source-artifact-id=${{ inputs.reconciliation_source_artifact_id }}
+          --source-commit-sha=${{ inputs.reconciliation_source_commit_sha }}
+          --source-artifact-digest=${{ inputs.reconciliation_source_artifact_digest }}
+          --source-contract-sha256=${{ inputs.reconciliation_source_contract_sha256 }}
+          --source-report-sha256=${{ inputs.reconciliation_source_report_sha256 }}
+          --source-artifact-content-sha256=${{ inputs.reconciliation_source_artifact_content_sha256 }}
+          --source-review-scope-fingerprint=${{ inputs.reconciliation_source_review_scope_fingerprint }}
+          --output=tmp/automation-review-reconciliation/reconciliation-dry-run.json
+      - name: Upload Review Queue reconciliation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ebay-review-queue-reconciliation-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: error
+          path: tmp/automation-review-reconciliation/*.json
 
   review-execution:
     if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.operation == 'apply' && inputs.execution_mode == 'review-queue' && inputs.retailer == 'ebay-uk' && inputs.review_item_id != '' && inputs.execution_request_id != '' && inputs.review_fingerprint != '' && inputs.review_plan_fingerprint != '' && inputs.execution_idempotency_key != '' }}

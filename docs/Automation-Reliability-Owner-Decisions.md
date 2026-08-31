@@ -1,5 +1,17 @@
 # Automation Reliability — Owner Decision Pack
 
+## eBay Review Queue reconciliation dry-run path; GitHub artifact required - 31 August 2026
+
+A separate, dry-run-only eBay Review Queue reconciliation path now exists in the existing eBay workflow. It reuses the shared publisher request builder and current `product_match_review_queue` lifecycle model; it does not create a second queue, does not call `publish_automation_review_queue_changes(jsonb)`, does not approve/apply offers and has no production apply mode.
+
+The source eBay offer-refresh artifact was verified read-only: run `33409588643`, artifact `9764693519`, name `ebay-offer-refresh-33409588643-1`, commit `57e9ecd5554b82d714d3b563f2ba322841fa1ef7`, ZIP SHA-256 `0e0f4bb7e6fbd068d1b3dc5aa263632445c8b112328170cd1a8c8d947d14ed88`, contract SHA-256 `ae3f1e452d899ab2e22e12b990e6c1b96c9e51d5c45263062c43d6a3ed63b75e`, report SHA-256 `2a23876b94f0e4b2e51ac31a965d2b6f552ae0110bbf3217f16c2a4a994835b1`, artifact content SHA-256 `a7e47e3fea7938ceebd50e15fcca6813b54ba8865a885489f48a3401092abffc`, review scope fingerprint `63067cd5432f9fc37898a32c38ce5348353648f262eb801ed6948095a04d2572`, expiry `2026-09-01T15:38:44.505Z`. It contains `237` approved mappings, `197` executable `VERIFY_NO_CHANGE`, `40` review rows and `0` blocked rows. Offer `2748` is not in this source review scope.
+
+Fresh production baseline was read-only and unchanged by this work: queue rows `516`, audit events `422`, publication seals `0`, products `1130`, product variants `2849`, retailer products `2808`, offers `2808`, price history `7113`; active eBay review rows `40`; queue snapshot hash `0c8f3cbfbeb43d4eabca945a08de0c96df96005ddc5683926f50317e6c8c3b0f`; catalogue hash `7adab698d33a3a08b9b304b4d0f23e7ebbb7d3df9df3013ab0d90b5112ad6a51`.
+
+Local dry-run rehearsal, using that source artifact and the fresh production baseline, produced only review-control-plane lifecycle operations: `CREATE 40`, `SUPERSEDE 40`, `REFRESH 0`, `RESOLVE_BY_SOURCE 0`, `EXPIRE 0`; expected audit delta `80`; final active eBay review rows `40`; catalogue writes `0`; publisher batch fingerprint `7fec143c13b159c6ef7c48d7682909d1534dd6ec447a82666c05591ab4f9da48`; changeset fingerprint `9c59149ca5162d69909b1597db5326ccd06116eac3e6c15d063ab3a6a195b3bc`; idempotency key `0766793aa53e88ff15cdd26dde93ab1b7841feb0388d25c679aadb40532b11bc`; report SHA-256 `8a60ca65f7e1317834f0fe14d3e01d1ed623b100b1baa9dee2f2bcef9a3a99e3`.
+
+This local rehearsal is not an approval contract and must not be used as an apply line. A copy-ready owner approval may only be generated from a fresh manual GitHub Actions dry-run on `main` with `operation=dry-run`, `execution_mode=review-queue-reconciliation` and the exact source binding above. Until that artifact exists, no Review Queue reconciliation apply, offer apply, replay, cron change, commercial change, identity/rebind change or other-retailer work is approved.
+
 ## Review Queue baseline hash fix; reconciliation approval pending fresh GitHub artifact - 31 August 2026
 
 The owner-approved Review Queue reconciliation apply for eBay run `33382627453` / artifact `9754436306` was dispatched once and stopped fail-closed before any queue, audit, publication seal or catalogue write. Production RPC returned `AUTOMATION_REVIEW_PUBLICATION_BASELINE_HASH_MISMATCH`; no retry, replay, bypass, manual SQL or offer apply was run.
