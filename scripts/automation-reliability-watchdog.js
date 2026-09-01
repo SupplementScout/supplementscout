@@ -33,6 +33,45 @@ function loadConfig(file = CONFIG_PATH) {
     new Set(config.retailers.map((row) => String(row.id))).size === 11,
     "Watchdog retailer IDs must be unique",
   );
+  const baseline = config.monitored_backlog;
+  invariant(baseline?.schema_version === 1, "Watchdog monitored backlog baseline is missing");
+  invariant(
+    /^[0-9a-f]{64}$/.test(baseline.closeout_snapshot_sha256 || ""),
+    "Watchdog monitored backlog snapshot hash is invalid",
+  );
+  invariant(
+    Object.keys(baseline.retailers || {}).length === 11,
+    "Watchdog monitored backlog must cover 11 retailers",
+  );
+  invariant(
+    baseline.closeout_counts.review_queue_pending ===
+      baseline.closeout_counts.out_of_stock +
+        baseline.closeout_counts.commercial +
+        baseline.closeout_counts.identity_or_mapping +
+        baseline.closeout_counts.source_missing,
+    "Watchdog closeout queue counts do not reconcile",
+  );
+  for (const profile of config.retailers) {
+    const rule = baseline.retailers[String(profile.id)];
+    invariant(
+      Number.isInteger(rule?.maximum_offers_older_than_48h) &&
+        rule.maximum_offers_older_than_48h >= 0,
+      `Watchdog stale ceiling is invalid for retailer ${profile.id}`,
+    );
+    invariant(
+      Number.isInteger(rule.maximum_review_row_count) &&
+        rule.maximum_review_row_count >= 0,
+      `Watchdog review ceiling is invalid for retailer ${profile.id}`,
+    );
+    invariant(
+      Array.isArray(rule.allowed_failure_codes) &&
+        rule.allowed_failure_codes.every(
+          (code) => typeof code === "string" && /^[A-Z0-9_]+$/.test(code),
+        ) &&
+        new Set(rule.allowed_failure_codes).size === rule.allowed_failure_codes.length,
+      `Watchdog allowed failure codes are invalid for retailer ${profile.id}`,
+    );
+  }
   return config;
 }
 
@@ -140,6 +179,9 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
   }
   if (!contract) failures.push("EXECUTION_CONTRACT_EVIDENCE_MISSING");
   else {
+    if (!["PASS", "PASS_WITH_REVIEW"].includes(contract.result)) {
+      failures.push("EXECUTION_CONTRACT_RESULT_INVALID");
+    }
     if (contract.executed_plan_count !== contract.executable_plan_count) {
       failures.push("EXECUTED_PLAN_COUNT_MISMATCH");
     }
@@ -173,13 +215,100 @@ function evaluateRetailer({ profile, stages, contract, database }, now, maximumA
     retailer_id: String(profile.id),
     retailer: profile.name,
     workflow: profile.workflow,
-    result: failures.length ? "FAIL" : "PASS",
+    result: failures.length
+      ? "FAIL"
+      : contract?.review_row_count > 0
+        ? "PASS_WITH_REVIEW"
+        : "PASS",
     failures,
     stages,
     contract,
     database,
     evidence_correlation: correlation.result,
   };
+}
+
+function applyMonitoredBacklog(evaluation, baseline) {
+  invariant(baseline && typeof baseline === "object", "Retailer monitored backlog baseline is missing");
+  const allowed = new Set(baseline.allowed_failure_codes || []);
+  const unexpected = evaluation.failures.filter((code) => !allowed.has(code));
+  const growth = [];
+  const older = Number(evaluation.database?.offers_older_than_48h || 0);
+  const review = Number(evaluation.contract?.review_row_count || 0);
+  if (older > baseline.maximum_offers_older_than_48h) {
+    growth.push("OFFERS_OLDER_THAN_48H_GROWTH");
+  }
+  if (review > baseline.maximum_review_row_count) {
+    growth.push("REVIEW_ROW_COUNT_GROWTH");
+  }
+  if (unexpected.length || growth.length) {
+    return {
+      ...evaluation,
+      result: "FAIL",
+      failures: [
+        ...evaluation.failures,
+        ...(growth.length ? ["MONITORED_BACKLOG_GROWTH"] : []),
+      ],
+      monitored_backlog: {
+        result: "OUTSIDE_BASELINE",
+        unexpected_failure_codes: unexpected,
+        growth,
+      },
+    };
+  }
+  if (evaluation.failures.length) {
+    return {
+      ...evaluation,
+      result: "PASS_WITH_MONITORED_BACKLOG",
+      failures: [],
+      warnings: evaluation.failures,
+      monitored_backlog: {
+        result: "WITHIN_BASELINE",
+        maximum_offers_older_than_48h: baseline.maximum_offers_older_than_48h,
+        current_offers_older_than_48h: older,
+        maximum_review_row_count: baseline.maximum_review_row_count,
+        current_review_row_count: review,
+      },
+    };
+  }
+  return {
+    ...evaluation,
+    warnings: [],
+    monitored_backlog: {
+      result: "WITHIN_BASELINE",
+      maximum_offers_older_than_48h: baseline.maximum_offers_older_than_48h,
+      current_offers_older_than_48h: older,
+      maximum_review_row_count: baseline.maximum_review_row_count,
+      current_review_row_count: review,
+    },
+  };
+}
+
+function summarizeWatchdogResult(retailers, options = {}) {
+  const globalFailures = [];
+  if (options.databaseError) globalFailures.push("DATABASE_EVIDENCE_ERROR");
+  if (options.monitoringError) globalFailures.push("MONITORING_INFRASTRUCTURE_ERROR");
+  if (Number(options.databaseWrites || 0) !== 0) {
+    globalFailures.push("UNAUTHORIZED_DATABASE_WRITE");
+  }
+  if (globalFailures.length || retailers.some((row) => row.result === "FAIL")) {
+    return { result: "FAIL", globalFailures };
+  }
+  if (retailers.some((row) => row.result === "PASS_WITH_MONITORED_BACKLOG")) {
+    return { result: "PASS_WITH_MONITORED_BACKLOG", globalFailures };
+  }
+  if (retailers.some((row) => row.result === "PASS_WITH_REVIEW")) {
+    return { result: "PASS_WITH_REVIEW", globalFailures };
+  }
+  return { result: "PASS", globalFailures };
+}
+
+function watchdogExitCode(result) {
+  invariant(
+    ["PASS", "PASS_WITH_REVIEW", "PASS_WITH_MONITORED_BACKLOG", "FAIL"].includes(result),
+    "Unknown watchdog result",
+  );
+  return result === "FAIL" ? 1 : 0;
 }
 
 async function githubJson(url, token) {
@@ -545,6 +674,7 @@ async function run(options, dependencies = {}) {
     databaseError = error.message;
   }
   const retailers = [];
+  let monitoringInfrastructureError = null;
   for (const profile of config.retailers) {
     let stages = { capture: null, apply: null, db_postflight: null };
     let contract = null;
@@ -561,6 +691,7 @@ async function run(options, dependencies = {}) {
       )(repository, stageResult.applyRunId, token, { profile, stages });
     } catch (error) {
       monitoringError = error.message;
+      monitoringInfrastructureError ||= error.message;
     }
     const evaluated = evaluateRetailer(
       {
@@ -577,19 +708,39 @@ async function run(options, dependencies = {}) {
       evaluated.monitoring_error = monitoringError;
       evaluated.result = "FAIL";
     }
-    retailers.push(evaluated);
+    retailers.push(
+      applyMonitoredBacklog(
+        evaluated,
+        config.monitored_backlog.retailers[String(profile.id)],
+      ),
+    );
   }
+  const databaseWrites = 0;
+  const summary = summarizeWatchdogResult(retailers, {
+    databaseError,
+    monitoringError: monitoringInfrastructureError,
+    databaseWrites,
+  });
   const report = {
     schema_version: 1,
     kind: "automation-reliability-watchdog",
-    result: retailers.every((row) => row.result === "PASS") ? "PASS" : "FAIL",
+    result: summary.result,
+    closeout_snapshot_sha256:
+      config.monitored_backlog.closeout_snapshot_sha256,
     maximum_success_age_hours: config.maximum_success_age_hours,
     generated_at: now.toISOString(),
     retailer_count: retailers.length,
     failed_retailer_count: retailers.filter((row) => row.result === "FAIL").length,
+    monitored_retailer_count: retailers.filter(
+      (row) => row.result === "PASS_WITH_MONITORED_BACKLOG",
+    ).length,
+    review_retailer_count: retailers.filter(
+      (row) => row.result === "PASS_WITH_REVIEW",
+    ).length,
     database_error: databaseError,
+    global_failures: summary.globalFailures,
     retailers,
-    database_writes: 0,
+    database_writes: databaseWrites,
   };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
@@ -604,7 +755,7 @@ async function main(argv = process.argv.slice(2)) {
     failed_retailer_count: report.failed_retailer_count,
     database_writes: report.database_writes,
   }));
-  if (report.result !== "PASS") process.exitCode = 1;
+  process.exitCode = watchdogExitCode(report.result) || undefined;
   return report;
 }
 
@@ -619,6 +770,7 @@ module.exports = {
   CONFIG_PATH,
   VALIDATOR_LOGIN,
   VALIDATOR_ROLE,
+  applyMonitoredBacklog,
   buildEbaySplitRunAttestation,
   buildEbaySplitRunEvidence,
   contractFromArtifacts,
@@ -634,4 +786,6 @@ module.exports = {
   parseArgs,
   run,
   runStages,
+  summarizeWatchdogResult,
+  watchdogExitCode,
 };

@@ -56,12 +56,15 @@ const {
   normalizeCatalogHealthFilters,
 } = require(path.join(process.cwd(), "app", "admin", "lib", "catalogHealth.ts"));
 const {
+  applyMonitoredBacklog,
   buildEbaySplitRunAttestation,
   correlateEvidence,
   evaluateRetailer,
   findContractEvidence,
   loadConfig: loadWatchdogConfig,
   parseArgs: parseWatchdogArgs,
+  summarizeWatchdogResult,
+  watchdogExitCode,
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
 } = require("./automation-reliability-watchdog");
@@ -548,6 +551,7 @@ test("automation watchdog requires fresh capture, apply, DB postflight and exact
       db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" },
     },
     contract: {
+      result: "PASS_WITH_REVIEW",
       approved_mapping_count: 586,
       executable_plan_count: 576,
       executed_plan_count: 576,
@@ -558,7 +562,7 @@ test("automation watchdog requires fresh capture, apply, DB postflight and exact
     database: { offer_count: 586, offers_older_than_48h: 0 },
   };
   const now = new Date("2026-08-30T04:00:00.000Z");
-  assert.equal(evaluateRetailer(input, now, 48).result, "PASS");
+  assert.equal(evaluateRetailer(input, now, 48).result, "PASS_WITH_REVIEW");
   const failed = evaluateRetailer(
     {
       ...input,
@@ -575,6 +579,85 @@ test("automation watchdog requires fresh capture, apply, DB postflight and exact
     "EXECUTED_PLAN_COUNT_MISMATCH",
     "DATABASE_OFFERS_OLDER_THAN_48H",
   ]);
+});
+
+test("automation watchdog returns exit 0 only for review or unchanged monitored backlog", () => {
+  const baseline = {
+    maximum_offers_older_than_48h: 47,
+    maximum_review_row_count: 0,
+    allowed_failure_codes: ["DATABASE_OFFERS_OLDER_THAN_48H"],
+  };
+  const historical = {
+    retailer_id: "4",
+    retailer: "Discount Supplements",
+    result: "FAIL",
+    failures: ["DATABASE_OFFERS_OLDER_THAN_48H"],
+    database: { offers_older_than_48h: 47 },
+    contract: { review_row_count: 0 },
+  };
+  const monitored = applyMonitoredBacklog(historical, baseline);
+  assert.equal(monitored.result, "PASS_WITH_MONITORED_BACKLOG");
+  assert.deepEqual(monitored.warnings, ["DATABASE_OFFERS_OLDER_THAN_48H"]);
+  assert.equal(watchdogExitCode(monitored.result), 0);
+  assert.equal(watchdogExitCode("PASS_WITH_REVIEW"), 0);
+  assert.equal(watchdogExitCode("FAIL"), 1);
+  assert.deepEqual(historical.failures, ["DATABASE_OFFERS_OLDER_THAN_48H"]);
+});
+
+test("automation watchdog fails on backlog growth and any new reason code", () => {
+  const baseline = {
+    maximum_offers_older_than_48h: 47,
+    maximum_review_row_count: 1,
+    allowed_failure_codes: ["DATABASE_OFFERS_OLDER_THAN_48H"],
+  };
+  const base = {
+    result: "FAIL",
+    failures: ["DATABASE_OFFERS_OLDER_THAN_48H"],
+    database: { offers_older_than_48h: 47 },
+    contract: { review_row_count: 1 },
+  };
+  const growth = applyMonitoredBacklog(
+    { ...base, database: { offers_older_than_48h: 48 } },
+    baseline,
+  );
+  assert.equal(growth.result, "FAIL");
+  assert(growth.failures.includes("MONITORED_BACKLOG_GROWTH"));
+  const unknown = applyMonitoredBacklog(
+    { ...base, failures: [...base.failures, "NEW_REASON_CODE"] },
+    baseline,
+  );
+  assert.equal(unknown.result, "FAIL");
+  assert.deepEqual(unknown.monitored_backlog.unexpected_failure_codes, ["NEW_REASON_CODE"]);
+});
+
+test("automation watchdog never suppresses infrastructure, writes or postflight mismatch", () => {
+  const baseline = {
+    maximum_offers_older_than_48h: 0,
+    maximum_review_row_count: 0,
+    allowed_failure_codes: [],
+  };
+  const postflightMismatch = applyMonitoredBacklog(
+    {
+      result: "FAIL",
+      failures: ["APPLY_POSTFLIGHT_CORRELATION_MISMATCH"],
+      database: { offers_older_than_48h: 0 },
+      contract: { review_row_count: 0 },
+    },
+    baseline,
+  );
+  assert.equal(postflightMismatch.result, "FAIL");
+  assert.equal(
+    summarizeWatchdogResult([], { databaseError: "permission denied" }).result,
+    "FAIL",
+  );
+  assert.equal(
+    summarizeWatchdogResult([], { monitoringError: "GitHub API 503" }).result,
+    "FAIL",
+  );
+  const unauthorized = summarizeWatchdogResult([], { databaseWrites: 1 });
+  assert.equal(unauthorized.result, "FAIL");
+  assert.deepEqual(unauthorized.globalFailures, ["UNAUTHORIZED_DATABASE_WRITE"]);
+  assert.throws(() => watchdogExitCode("UNKNOWN"), /Unknown watchdog result/);
 });
 
 test("automation watchdog finds only complete per-row execution evidence", () => {
@@ -695,7 +778,7 @@ test("watchdog accepts split-run eBay evidence from apply 33374870684 and indepe
   assert.match(contract.attestation_fingerprint, /^[0-9a-f]{64}$/);
   const completed = "2026-08-31T09:40:00.000Z";
   const evaluated = evaluateRetailer({ profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "33378021842", head_sha: fixture.apply.commit_sha }, apply: { completed_at: completed, run_id: "33374870684", head_sha: fixture.apply.commit_sha }, db_postflight: { completed_at: completed, run_id: "33374870684", head_sha: fixture.apply.commit_sha } }, contract, database: { offer_count: 237, offers_older_than_48h: 40, older_offer_ids: fixture.reviewIds } }, new Date("2026-08-31T10:00:00.000Z"), 48);
-  assert.equal(evaluated.result, "PASS");
+  assert.equal(evaluated.result, "PASS_WITH_REVIEW");
   assert.equal(evaluated.evidence_correlation, "CORRELATED");
 });
 
@@ -747,8 +830,8 @@ test("watchdog split-run keeps future freshness timestamp plan fingerprint drift
 
 test("watchdog isolates database-old offers only when every row is explicit review", () => {
   const completed = "2026-08-30T03:00:00.000Z";
-  const input = { profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "1", head_sha: "a" }, apply: { completed_at: completed, run_id: "1", head_sha: "a" }, db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" } }, contract: { approved_mapping_count: 2, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 1, blocked_row_count: 0, review_offer_ids: ["2"], execution_offer_ids: ["1"], expected_deltas: {}, commit_sha: "a", manifest_sha256: "m", source_fingerprint: "s", full_capture_fingerprint: "f", executable_source_fingerprint: "e", review_scope_fingerprint: "r", plan_fingerprint: "p", postflight_hash: "h", idempotency_result: "PASS", database_writes: 1 }, database: { offer_count: 2, offers_older_than_48h: 1, older_offer_ids: ["2"] } };
-  assert.equal(evaluateRetailer(input, new Date("2026-08-30T04:00:00.000Z"), 48).result, "PASS");
+  const input = { profile: { id: 12, name: "eBay UK", workflow: "ebay.yml" }, stages: { capture: { completed_at: completed, run_id: "1", head_sha: "a" }, apply: { completed_at: completed, run_id: "1", head_sha: "a" }, db_postflight: { completed_at: completed, run_id: "1", head_sha: "a" } }, contract: { result: "PASS_WITH_REVIEW", approved_mapping_count: 2, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 1, blocked_row_count: 0, review_offer_ids: ["2"], execution_offer_ids: ["1"], expected_deltas: {}, commit_sha: "a", manifest_sha256: "m", source_fingerprint: "s", full_capture_fingerprint: "f", executable_source_fingerprint: "e", review_scope_fingerprint: "r", plan_fingerprint: "p", postflight_hash: "h", idempotency_result: "PASS", database_writes: 1 }, database: { offer_count: 2, offers_older_than_48h: 1, older_offer_ids: ["2"] } };
+  assert.equal(evaluateRetailer(input, new Date("2026-08-30T04:00:00.000Z"), 48).result, "PASS_WITH_REVIEW");
   assert(evaluateRetailer({ ...input, database: { ...input.database, older_offer_ids: ["1"] } }, new Date("2026-08-30T04:00:00.000Z"), 48).failures.includes("DATABASE_OFFERS_OLDER_THAN_48H"));
   assert.equal(loadWatchdogConfig().retailers.find((row) => row.id === 12).db_postflight_step, "Verify eBay UK DB postflight read-only");
 });

@@ -46,7 +46,7 @@ jobs:
         if: always()
         run: |
           if [ -f tmp/automation-reliability/watchdog.json ]; then
-            node -e 'const r=require("./tmp/automation-reliability/watchdog.json"); console.log(`## Automation reliability watchdog\n\n- Result: ${r.result}\n- Retailers checked: ${r.retailer_count}\n- Failed retailers: ${r.failed_retailer_count}\n- Database writes: ${r.database_writes}`); for(const x of r.retailers) console.log(`- ${x.retailer}: ${x.result}${x.failures.length ? ` — ${x.failures.join(", ")}` : ""}`)' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const r=require("./tmp/automation-reliability/watchdog.json"); console.log(`## Automation reliability watchdog\n\n- Result: ${r.result}\n- Retailers checked: ${r.retailer_count}\n- Failed retailers: ${r.failed_retailer_count}\n- Monitored backlog retailers: ${r.monitored_retailer_count}\n- Review retailers: ${r.review_retailer_count}\n- Closeout snapshot: ${r.closeout_snapshot_sha256}\n- Database writes: ${r.database_writes}`); for(const x of r.retailers) { const details=x.result === "FAIL" ? x.failures : (x.warnings || []); console.log(`- ${x.retailer}: ${x.result}${details.length ? ` — ${details.join(", ")}` : ""}`) }' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "## Automation reliability watchdog" >> "$GITHUB_STEP_SUMMARY"
             echo "- Report unavailable; watchdog failed before evidence capture." >> "$GITHUB_STEP_SUMMARY"
