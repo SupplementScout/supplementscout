@@ -1,5 +1,15 @@
 # Automation Reliability — Owner Decision Pack
 
+## Whey Okay offer 73 reviewed path - migration approval pending - 1 September 2026, 11:42 UTC
+
+The owner previously authorized local preparation only for Whey Okay offer `73`, mapping `65`, product `69`, current variant `64`, source IDs `300:301`, exact variant Biscuit Spread / 908g, price `24.99 -> 22.70` and stock `false -> true`. Commit `462a2597ec9c26619a45488a1c9de4b032c1101f` implements that path as a generic extension of the existing atomic importer and approval ledger.
+
+The new production-only migration is `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql`, SHA-256 `a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7`. It is locally verified but not deployed. No migration or offer apply is authorized by this entry.
+
+Fresh read-only evidence passed with two matching captures, artifact SHA-256 `ad699b81ba36533a440307dc84ee5080a0a4c44063d027846b7c8a7b68d02e5b`, report SHA-256 `727c8e4b7033398a247dcd0798053a66981a48c57d17f7679a43d8619ab38837`, and identical before/after database hash `8c53adc7c1715ef451eb7e0625fa341568a7ed7fec1b22936392d048cb3a86dc`. The artifact expired at `2026-09-01T11:42:30.882Z` and must not be used for an offer apply. Production writes, approval rows and RPC calls were `0`.
+
+Current decision boundary: authorize only the named production migration in the next phase if desired. After a successful migration ledger/postflight check, create new fresh two-capture evidence and request a separate, fingerprint-bound offer approval. Parent product metadata, all other Whey Okay rows and all other retailers remain outside scope.
+
 ## Dolphin Fitness one-offer freshness apply complete - 1 September 2026, 10:07 UTC
 
 The owner-approved Dolphin Fitness freshness apply was executed exactly once through the existing protected `Dolphin Vegan Protein Offer Refresh` workflow. Scope: run `33495512343`, artifact `9795560852`, code commit `4de0caed260437bc6cd9a715cb553d396c2329da`; this commit differed from the approved dry-run commit `3a67dc2abadfb47b88776e970509079f0827b9cb` only by documentation changes in this ledger and Roadmap. Artifact ZIP SHA-256 is `d4cba8509b47ea348a787b441d01c66825012125d29a20b54e6857a1bf05db31`.
