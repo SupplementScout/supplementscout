@@ -1,14 +1,12 @@
 # Automation Reliability — Owner Decision Pack
 
-## Whey Okay offer 73 reviewed path - migration approval pending - 1 September 2026, 11:42 UTC
+## Whey Okay offer 73 digest repair - migration approval pending - 1 September 2026, 12:35 UTC
 
-The owner previously authorized local preparation only for Whey Okay offer `73`, mapping `65`, product `69`, current variant `64`, source IDs `300:301`, exact variant Biscuit Spread / 908g, price `24.99 -> 22.70` and stock `false -> true`. Commit `462a2597ec9c26619a45488a1c9de4b032c1101f` implements that path as a generic extension of the existing atomic importer and approval ledger.
+The owner-approved base migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone and is present at production ledger `172`. Its migration postflight had zero catalogue and control-plane deltas. The mandatory active-function test then blocked before approval or offer apply because four `digest(...)` calls could not resolve `extensions.digest(text,text)` under the intentionally restricted `search_path=pg_catalog, public, pg_temp`.
 
-The new production-only migration is `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql`, SHA-256 `a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7`. It is locally verified but not deployed. No migration or offer apply is authorized by this entry.
+The minimal forward-only repair is `20260901100000_fix_reviewed_variant_digest_schema_resolution.sql`, SHA-256 `aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49`. It changes only those four calls to `extensions.digest(...)`; it does not add `extensions` to the search path, edit the historical migration, add grants, execute DML or weaken validation, stale-state, locking, approval or idempotency controls. Isolated PostgreSQL and the full quality gate passed.
 
-Fresh read-only evidence passed with two matching captures, artifact SHA-256 `ad699b81ba36533a440307dc84ee5080a0a4c44063d027846b7c8a7b68d02e5b`, report SHA-256 `727c8e4b7033398a247dcd0798053a66981a48c57d17f7679a43d8619ab38837`, and identical before/after database hash `8c53adc7c1715ef451eb7e0625fa341568a7ed7fec1b22936392d048cb3a86dc`. The artifact expired at `2026-09-01T11:42:30.882Z` and must not be used for an offer apply. Production writes, approval rows and RPC calls were `0`.
-
-Current decision boundary: authorize only the named production migration in the next phase if desired. After a successful migration ledger/postflight check, create new fresh two-capture evidence and request a separate, fingerprint-bound offer approval. Parent product metadata, all other Whey Okay rows and all other retailers remain outside scope.
+This entry does not authorize the repair migration or any offer operation. Current decision boundary: the next owner action may authorize only the named repair migration. Offer `73` remains blocked; no approval RPC, valid production apply RPC, new variant, rebind, commercial/freshness/history write, replay, cron or other-retailer work is authorized. Any offer approval requires a successful active-function production postflight and a later fresh two-capture artifact.
 
 ## Dolphin Fitness one-offer freshness apply complete - 1 September 2026, 10:07 UTC
 

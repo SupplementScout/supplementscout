@@ -3,10 +3,12 @@ const crypto = require("node:crypto");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { canonicalJson } = require("./lib/canonical-json");
 const { buildReviewedVariantCreateRebindPlan } = require("./lib/reviewed-variant-create-rebind-offer-update");
 
 const ROOT = path.resolve(__dirname, "..");
 const MIGRATION = "supabase/migrations/20260901090000_add_reviewed_variant_create_rebind_offer_update.sql";
+const DIGEST_FIX_MIGRATION = "supabase/migrations/20260901100000_fix_reviewed_variant_digest_schema_resolution.sql";
 const IMAGE = "postgres:17-alpine";
 function run(command, args, options = {}) { return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout: options.timeout || 180_000, input: options.input }); }
 function output(result) { return `${result.stdout || ""}\n${result.stderr || ""}`; }
@@ -41,7 +43,7 @@ function fixture() {
   return buildReviewedVariantCreateRebindPlan({ state, source, captures: [{ captured_at: new Date(now - 120_000).toISOString(), semantic_fingerprint: semantic }, { captured_at: new Date(now - 60_000).toISOString(), semantic_fingerprint: semantic }], expiresAt: new Date(now + 15 * 60_000).toISOString() });
 }
 const setup = `
-create extension pgcrypto;
+create schema extensions; create extension pgcrypto with schema extensions;
 create role anon nologin; create role authenticated nologin; create role service_role nologin;
 create table public.retailers(id bigint primary key,name text,slug text,website text);
 create table public.products(id bigint primary key,name text,slug text,brand text,category text,net_weight_g numeric,product_format text,is_active boolean,merged_into_product_id bigint);
@@ -75,12 +77,30 @@ test("reviewed variant create/rebind/update is atomic, fail-closed, private, and
     ok(run("docker", ["run", "--detach", "--rm", "--name", container, "--network", "none", "-e", "POSTGRES_PASSWORD=local-only", "-v", `${ROOT}:/workspace:ro`, IMAGE]), "start postgres");
     wait(container); sql(container, setup);
     ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${MIGRATION}`]), "apply migration");
+    const preRepair = sql(container, `select public.validate_product_import_plan_read_only(${literal(fixture())});`, false);
+    assert.notEqual(preRepair.status, 0);
+    assert.match(output(preRepair), /function digest\(text, unknown\) does not exist/);
+    ok(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-f", `/workspace/${DIGEST_FIX_MIGRATION}`]), "apply digest repair");
     const plan = fixture();
     assert.equal(json(container, `public.validate_product_import_plan_read_only(${literal(plan)})` ).valid, true);
+    const activeDefinition = json(container, `jsonb_build_object('unqualified',(select count(*) from regexp_matches(pg_get_functiondef('public.validate_reviewed_variant_create_rebind_offer_update_plan(jsonb)'::regprocedure),'(^|[^A-Za-z0-9_.])digest\\s*\\(','g')),'qualified',(select count(*) from regexp_matches(pg_get_functiondef('public.validate_reviewed_variant_create_rebind_offer_update_plan(jsonb)'::regprocedure),'extensions\\.digest\\s*\\(','g')),'search_path',(select proconfig from pg_proc where oid='public.validate_reviewed_variant_create_rebind_offer_update_plan(jsonb)'::regprocedure),'extension_schema',(select n.nspname from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.oid='extensions.digest(text,text)'::regprocedure))`);
+    assert.deepEqual(activeDefinition, { unqualified:0, qualified:4, search_path:["search_path=pg_catalog, public, pg_temp"], extension_schema:"extensions" });
+    const failClosedCounts = json(container, `jsonb_build_array((select count(*) from products),(select count(*) from product_variants),(select count(*) from retailer_products),(select count(*) from offers),(select count(*) from price_history))`);
+    const wrongSource = structuredClone(plan);
+    wrongSource.meta.source_row_fingerprint = "0".repeat(64);
+    wrongSource.meta.plan_fingerprint = null;
+    wrongSource.meta.plan_fingerprint = crypto.createHash("md5").update(canonicalJson(wrongSource)).digest("hex");
+    const wrongSourceResult = sql(container, `select public.validate_product_import_plan_read_only(${literal(wrongSource)});`, false);
+    assert.notEqual(wrongSourceResult.status, 0);
+    assert.match(output(wrongSourceResult), /source semantics or two-capture proof/);
+    assert.doesNotMatch(output(wrongSourceResult), /function digest\(/);
     for (const mutation of ["update public.offers set price=25 where id=73", "update public.retailer_products set product_variant_id=999 where id=65", "update public.products set name='drift' where id=69"]) {
       const failed = sql(container, `begin;${mutation};select public.validate_product_import_plan_read_only(${literal(plan)});rollback;`, false);
       assert.notEqual(failed.status, 0, `stale mutation passed: ${mutation}`);
+      assert.match(output(failed), /stale reviewed variant rebind plan/);
     }
+    assert.deepEqual(json(container, `jsonb_build_array((select count(*) from products),(select count(*) from product_variants),(select count(*) from retailer_products),(select count(*) from offers),(select count(*) from price_history))`), failClosedCounts);
+    assert.deepEqual(json(container, `public.validate_product_import_plan_read_only('{"meta":{"operation_type":"legacy"}}'::jsonb)`), { legacy:true });
     const artifact = "b".repeat(64), runId = "reviewed-rebind-integration";
     const approved = json(container, `public.approve_product_import_plan(${literal(plan)},'${artifact}','${runId}','integration-test',((${literal(plan)})#>>'{meta,expires_at}')::timestamptz)`);
     const before = json(container, `jsonb_build_object('product',(select to_jsonb(p) from products p where id=69),'counts',jsonb_build_array((select count(*) from products),(select count(*) from product_variants),(select count(*) from retailer_products),(select count(*) from offers),(select count(*) from price_history)))`);
@@ -97,8 +117,8 @@ test("reviewed variant create/rebind/update is atomic, fail-closed, private, and
     assert.deepEqual(after.offer, { variant:after.offer.variant, price:22.70, shipping:3.99, total:26.69, stock:true, url:"https://wheyokay.com/efectiv-nutrition-vegan-protein-908g-300-p.asp" });
     const replay = json(container, call); assert.equal(replay.status,"ALREADY_APPLIED"); assert.equal(replay.already_applied,true);
     const replayCounts = json(container, `jsonb_build_array((select count(*) from products),(select count(*) from product_variants),(select count(*) from retailer_products),(select count(*) from offers),(select count(*) from price_history))`); assert.deepEqual(replayCounts,after.counts);
-    const grants = json(container, `jsonb_build_object('approved',has_function_privilege('service_role','public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)','execute'),'raw_apply',has_function_privilege('service_role','public.apply_product_import_plan(jsonb)','execute'),'validator',has_function_privilege('service_role','public.validate_product_import_plan_read_only(jsonb)','execute'),'helper',has_function_privilege('service_role','public.apply_reviewed_variant_create_rebind_offer_update_plan(jsonb)','execute'))`);
-    assert.deepEqual(grants,{ approved:true, raw_apply:false, validator:false, helper:false });
+    const grants = json(container, `jsonb_build_object('approved',has_function_privilege('service_role','public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)','execute'),'raw_apply',has_function_privilege('service_role','public.apply_product_import_plan(jsonb)','execute'),'validator',has_function_privilege('service_role','public.validate_product_import_plan_read_only(jsonb)','execute'),'helper',has_function_privilege('service_role','public.apply_reviewed_variant_create_rebind_offer_update_plan(jsonb)','execute'),'anon_approved',has_function_privilege('anon','public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)','execute'),'authenticated_approved',has_function_privilege('authenticated','public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)','execute'))`);
+    assert.deepEqual(grants,{ approved:true, raw_apply:false, validator:false, helper:false, anon_approved:false, authenticated_approved:false });
   } catch (error) { primary=error; throw error; } finally {
     const stopped=run("docker",["rm","--force",container],{timeout:30_000}); if(!primary && stopped.status!==0 && !/No such container/i.test(output(stopped))) ok(stopped,"stop postgres");
   }

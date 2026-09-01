@@ -5,6 +5,8 @@ const test = require("node:test");
 
 const migrationPath = path.join(__dirname, "../supabase/migrations/20260901090000_add_reviewed_variant_create_rebind_offer_update.sql");
 const sql = fs.readFileSync(migrationPath, "utf8");
+const repairPath = path.join(__dirname, "../supabase/migrations/20260901100000_fix_reviewed_variant_digest_schema_resolution.sql");
+const repairSql = fs.readFileSync(repairPath, "utf8");
 
 test("migration extends the existing importer and approval ledger", () => {
   assert.match(sql, /rename to atomic_import_validate_before_reviewed_variant_rebind/);
@@ -57,4 +59,32 @@ test("migration contains no catalogue DML outside the guarded apply function", (
   const afterApply = sql.slice(sql.indexOf("create function public.validate_product_import_plan_read_only"));
   const install = `${beforeApply}\n${afterApply}`;
   assert.doesNotMatch(install, /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+});
+
+test("forward-only digest repair changes only the four validator extension calls", () => {
+  const validator = sql.slice(
+    sql.indexOf("create function public.validate_reviewed_variant_create_rebind_offer_update_plan"),
+    sql.indexOf("create function public.apply_reviewed_variant_create_rebind_offer_update_plan"),
+  );
+  const repaired = validator.replaceAll("digest(", "extensions.digest(");
+  assert.equal((validator.match(/(?<![A-Za-z0-9_.])digest\s*\(/g) || []).length, 4);
+  assert.equal((repaired.match(/(?<![A-Za-z0-9_.])digest\s*\(/g) || []).length, 0);
+  assert.equal((repaired.match(/extensions\.digest\s*\(/g) || []).length, 4);
+  assert.match(repairSql, /pg_get_functiondef\('public\.validate_reviewed_variant_create_rebind_offer_update_plan\(jsonb\)'::regprocedure\)/);
+  assert.match(repairSql, /replace\(v_definition,'digest\(', 'extensions\.digest\('\)/);
+  assert.match(repairSql, /v_unqualified_count <> 4[\s\S]+v_qualified_count <> 0/);
+  assert.match(repairSql, /v_unqualified_count <> 0[\s\S]+v_qualified_count <> 4/);
+  assert.doesNotMatch(repairSql, /search_path\s*=\s*[^\n;]*extensions/i);
+});
+
+test("digest repair preserves owner, security boundary, and contains no data writes", () => {
+  assert.match(repairSql, /current_user <> 'postgres'/);
+  assert.match(repairSql, /supplementscout-production:aftboxmrdgyhizicfsfu/);
+  assert.match(repairSql, /v_owner <> 'postgres'/);
+  assert.match(repairSql, /not v_security_definer/);
+  assert.match(repairSql, /array\['search_path=pg_catalog, public, pg_temp'\]/);
+  assert.match(repairSql, /revoke all on function public\.validate_reviewed_variant_create_rebind_offer_update_plan\(jsonb\)[\s\S]+from public,anon,authenticated,service_role/);
+  assert.match(repairSql, /not has_function_privilege\('service_role','public\.apply_approved_product_import_plan/);
+  assert.doesNotMatch(repairSql, /\b(?:insert\s+into|update|delete\s+from|merge\s+into|truncate)\b/i);
+  assert.doesNotMatch(repairSql, /\bgrant\b/i);
 });
