@@ -7,6 +7,8 @@ const migrationPath = path.join(__dirname, "../supabase/migrations/2026090109000
 const sql = fs.readFileSync(migrationPath, "utf8");
 const repairPath = path.join(__dirname, "../supabase/migrations/20260901100000_fix_reviewed_variant_digest_schema_resolution.sql");
 const repairSql = fs.readFileSync(repairPath, "utf8");
+const executorAclRepairPath = path.join(__dirname, "../supabase/migrations/20260901110000_restore_reviewed_variant_executor_rpc_acl.sql");
+const executorAclRepairSql = fs.readFileSync(executorAclRepairPath, "utf8");
 
 test("migration extends the existing importer and approval ledger", () => {
   assert.match(sql, /rename to atomic_import_validate_before_reviewed_variant_rebind/);
@@ -87,4 +89,20 @@ test("digest repair preserves owner, security boundary, and contains no data wri
   assert.match(repairSql, /not has_function_privilege\('service_role','public\.apply_approved_product_import_plan/);
   assert.doesNotMatch(repairSql, /\b(?:insert\s+into|update|delete\s+from|merge\s+into|truncate)\b/i);
   assert.doesNotMatch(repairSql, /\bgrant\b/i);
+});
+
+test("forward-only ACL repair restores only the reviewed executor RPC capability", () => {
+  assert.match(executorAclRepairSql, /current_user <> 'postgres'/);
+  assert.match(executorAclRepairSql, /supplementscout-production:aftboxmrdgyhizicfsfu/);
+  assert.match(executorAclRepairSql, /v_owner <> 'postgres'/);
+  assert.match(executorAclRepairSql, /not v_security_definer/);
+  assert.match(executorAclRepairSql, /array\['search_path=pg_catalog, public, pg_temp'\]/);
+  assert.match(executorAclRepairSql, /grant execute on function public\.apply_approved_product_import_plan\(uuid,text,text,text,bigint,text,text\)\s+to retailer_catalogue_production_executor;/);
+  assert.doesNotMatch(executorAclRepairSql, /grant execute[\s\S]+to (?:public|anon|authenticated|service_role|retailer_catalogue_production_approver|retailer_catalogue_production_validator)/i);
+  for (const forbidden of ["public", "anon", "authenticated", "retailer_catalogue_production_approver", "retailer_catalogue_production_validator"]) {
+    assert.match(executorAclRepairSql, new RegExp(`has_function_privilege\\('${forbidden}'.+,'execute'\\)`));
+  }
+  assert.match(executorAclRepairSql, /not has_function_privilege\('service_role'.+,'execute'\)/);
+  assert.match(executorAclRepairSql, /not has_function_privilege\('retailer_catalogue_production_executor'.+,'execute'\)/);
+  assert.doesNotMatch(executorAclRepairSql, /\b(?:insert\s+into|update|delete\s+from|merge\s+into|truncate|create\s+(?:or\s+replace\s+)?function|alter\s+function)\b/i);
 });
