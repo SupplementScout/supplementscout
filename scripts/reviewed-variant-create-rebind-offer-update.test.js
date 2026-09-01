@@ -12,11 +12,31 @@ const {
 } = require("./lib/reviewed-variant-create-rebind-offer-update");
 const { approveArtifactPlan, loadDryRunArtifact, planFingerprint, setSupabaseForTests, writeDryRunArtifact } = require("./import-products");
 const {
+  evidenceHash,
   ownerConfirmation,
   targetBinding,
   verifyLoadedArtifact,
   verifyPostflight,
 } = require("./reviewed-artifact-orchestrator");
+
+test("reviewed DB evidence hash survives the GitHub artifact JSON round-trip", () => {
+  const evidence = {
+    schema_version: 1,
+    kind: "reviewed-artifact-db-baseline",
+    result: "PASS",
+    snapshot: {
+      product: { id: "69", updated_at: new Date("2026-06-30T19:40:13.950Z") },
+      mapping: { id: "65", updated_at: new Date("2026-06-30T19:40:13.950Z") },
+      offer: { id: "73", price: "24.99", last_checked_at: new Date("2026-06-29T12:32:18.530Z") },
+      price_history: [{ id: "1", checked_at: new Date("2026-06-29T12:32:18.530Z") }],
+    },
+    database_writes: 0,
+  };
+  const artifactRoundTrip = JSON.parse(JSON.stringify(evidence));
+  assert.equal(evidenceHash(evidence), evidenceHash(artifactRoundTrip));
+  artifactRoundTrip.snapshot.offer.price = "24.98";
+  assert.notEqual(evidenceHash(evidence), evidenceHash(artifactRoundTrip), "a real baseline change must remain fail-closed");
+});
 
 function fixture() {
   const state = {
@@ -164,7 +184,7 @@ test("reviewed postflight requires exact atomic deltas and proves idempotency wi
     price_history: [{ id: "1", offer_id: "73", price: "24.99", shipping_cost: "3.99", total_price: null, checked_at: "2026-06-29T12:32:18.530Z" }], snapshot_hash: "before",
   };
   const baseline = { schema_version: 1, kind: "reviewed-artifact-db-baseline", result: "PASS", snapshot: beforeSnapshot };
-  baseline.evidence_hash = crypto.createHash("sha256").update(canonicalJson(baseline)).digest("hex");
+  baseline.evidence_hash = evidenceHash(baseline);
   const afterPayload = {
     counts: { products: "10", product_variants: "21", retailer_products: "30", offers: "40", price_history: "51" },
     product: beforeSnapshot.product,

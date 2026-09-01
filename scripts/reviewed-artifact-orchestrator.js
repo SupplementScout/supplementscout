@@ -4,6 +4,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
+const { canonicalizeTimestamps } = require("./lib/canonical-timestamp");
 const { loadDryRunArtifact } = require("./import-products");
 const { parseReviewedContract } = require("./whey-okay-workflow-router");
 const {
@@ -22,6 +23,7 @@ const MAX_ZIP_BYTES = 20 * 1024 * 1024;
 function invariant(value, message) { if (!value) throw new Error(message); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
 function hash(value) { return sha256(canonicalJson(value)); }
+function evidenceHash(value) { return sha256(canonicalJson(canonicalizeTimestamps(JSON.parse(JSON.stringify(value))))); }
 function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 function write(file, value) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, { flag: "wx" }); }
 function exactDecimal(value) { return value == null ? null : Number(value).toFixed(2); }
@@ -152,7 +154,7 @@ async function capture(client, entry) {
   ]);
   invariant(product.rows.length === 1 && mapping.rows.length === 1 && offer.rows.length === 1, "reviewed DB scope is incomplete");
   const snapshot = { counts: counts.rows[0], product: product.rows[0], variants: variants.rows, mapping: mapping.rows[0], offer: offer.rows[0], price_history: history.rows };
-  return { ...snapshot, snapshot_hash: hash(snapshot) };
+  return { ...snapshot, snapshot_hash: evidenceHash(snapshot) };
 }
 
 async function validatorCapture(artifactDirectory, env = process.env, ClientClass = Client, options = {}) {
@@ -170,7 +172,7 @@ async function baseline(options = {}) {
   const out = options.out || OUT, env = options.env || process.env;
   const result = await validatorCapture(path.join(out, "source-artifact"), env, options.Client || Client);
   const evidence = { schema_version: 1, kind: "reviewed-artifact-db-baseline", result: "PASS", contract: contractFromEnv(env), target: targetBinding(result.verified.entry), snapshot: result.snapshot, database_writes: 0 };
-  evidence.evidence_hash = hash(evidence);
+  evidence.evidence_hash = evidenceHash(evidence);
   write(path.join(out, "baseline.json"), evidence);
   return evidence;
 }
@@ -199,7 +201,7 @@ async function approve(options = {}) {
   const validation = read(path.join(out, "verification.json"));
   const dbBaseline = read(path.join(out, "baseline.json"));
   invariant(validation.result === "PASS" && validation.database_writes === 0 && canonicalJson(validation.contract) === canonicalJson(contract), "artifact validation evidence mismatch");
-  invariant(dbBaseline.result === "PASS" && dbBaseline.database_writes === 0 && dbBaseline.evidence_hash === hash(Object.fromEntries(Object.entries(dbBaseline).filter(([key]) => key !== "evidence_hash"))) && canonicalJson(dbBaseline.contract) === canonicalJson(contract), "DB baseline evidence mismatch");
+  invariant(dbBaseline.result === "PASS" && dbBaseline.database_writes === 0 && dbBaseline.evidence_hash === evidenceHash(Object.fromEntries(Object.entries(dbBaseline).filter(([key]) => key !== "evidence_hash"))) && canonicalJson(dbBaseline.contract) === canonicalJson(contract), "DB baseline evidence mismatch");
   const entry = verified.entry;
   const approval = await roleRpc("approver", "REVIEWED_APPROVER_DATABASE_URL", async (client) => {
     const result = await client.query("select public.approve_product_import_plan($1::jsonb,$2,$3,$4,$5::timestamptz) result", [entry.resolved_plan, contract.artifact_sha256, verified.loaded.artifact.run_id, env.OWNER_CONFIRMATION, entry.resolved_plan.meta.expires_at]);
@@ -228,7 +230,7 @@ async function execute(options = {}) {
 }
 
 function verifyPostflight(baselineEvidence, after, entry, execution) {
-  invariant(baselineEvidence.result === "PASS" && baselineEvidence.evidence_hash === hash(Object.fromEntries(Object.entries(baselineEvidence).filter(([key]) => key !== "evidence_hash"))), "baseline evidence integrity mismatch");
+  invariant(baselineEvidence.result === "PASS" && baselineEvidence.evidence_hash === evidenceHash(Object.fromEntries(Object.entries(baselineEvidence).filter(([key]) => key !== "evidence_hash"))), "baseline evidence integrity mismatch");
   invariant(execution.result === "PASS" && execution.apply_rpc_count === 1, "execution evidence mismatch");
   const before = baselineEvidence.snapshot, plan = entry.resolved_plan, deltas = plan.expected_deltas.row_count_deltas;
   for (const table of Object.keys(deltas)) invariant(BigInt(after.counts[table]) - BigInt(before.counts[table]) === BigInt(deltas[table]), `${table} row-count delta mismatch`);
@@ -258,7 +260,7 @@ async function postflight(options = {}) {
   const result = await validatorCapture(path.join(out, "source-artifact"), env, options.Client || Client, { requireFresh: false });
   const verified = verifyPostflight(baselineEvidence, result.snapshot, result.verified.entry, execution);
   const evidence = { schema_version: 1, kind: "reviewed-artifact-db-postflight", ...verified, contract: contractFromEnv(env), snapshot: result.snapshot, database_writes: 0, approval_rpc_count: 1, apply_rpc_count: 1 };
-  evidence.evidence_hash = hash(evidence);
+  evidence.evidence_hash = evidenceHash(evidence);
   write(path.join(out, "postflight.json"), evidence);
   return evidence;
 }
@@ -278,4 +280,4 @@ async function main(argv = process.argv.slice(2)) {
 
 if (require.main === module) main().then((value) => console.log(JSON.stringify(value))).catch((error) => { console.error(error.stack || error); process.exitCode = 1; });
 
-module.exports = { baseline, capture, contractFromEnv, downloadAndVerify, execute, extractZip, githubJson, main, ownerConfirmation, parseArgs, postflight, targetBinding, verifyLoadedArtifact, verifyPostflight, approve };
+module.exports = { approve, baseline, capture, contractFromEnv, downloadAndVerify, evidenceHash, execute, extractZip, githubJson, main, ownerConfirmation, parseArgs, postflight, targetBinding, verifyLoadedArtifact, verifyPostflight };
