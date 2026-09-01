@@ -202,3 +202,47 @@ test("reviewed postflight requires exact atomic deltas and proves idempotency wi
   assert.throws(() => verifyPostflight(baseline, { ...afterPayload, counts: { ...afterPayload.counts, offers: "41" } }, { resolved_plan: plan }, execution), /offers row-count delta mismatch/);
   fs.rmSync(directory, { recursive: true, force: true });
 });
+
+test("reviewed postflight normalizes DB Date objects but still blocks real timestamp and data drift", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-postflight-timestamps-"));
+  try {
+    const { plan } = reviewedArtifactFixture(directory);
+    const createdAt = "2026-06-28T14:59:28.773Z";
+    const beforeSnapshot = {
+      counts: { products: "10", product_variants: "20", retailer_products: "30", offers: "40", price_history: "50" },
+      product: { ...plan.expected_state.product, created_at: createdAt },
+      variants: [{ ...plan.expected_state.product_variant, created_at: createdAt, updated_at: createdAt }],
+      mapping: { ...plan.expected_state.retailer_product, match_confidence: "100.00", created_at: createdAt },
+      offer: { ...plan.expected_state.offer, created_at: createdAt },
+      price_history: [{ id: "1", offer_id: "73", price: "24.99", shipping_cost: "3.99", total_price: null, checked_at: "2026-06-29T12:32:18.530Z", created_at: createdAt }],
+      snapshot_hash: "before",
+    };
+    const baseline = { schema_version: 1, kind: "reviewed-artifact-db-baseline", result: "PASS", snapshot: beforeSnapshot };
+    baseline.evidence_hash = evidenceHash(baseline);
+    const date = new Date(createdAt);
+    const after = {
+      counts: { products: "10", product_variants: "21", retailer_products: "30", offers: "40", price_history: "51" },
+      product: { ...beforeSnapshot.product, created_at: date },
+      variants: [
+        { ...beforeSnapshot.variants[0], created_at: date, updated_at: date },
+        { id: "65", product_id: "69", ...plan.product_variant.values, gtin: null, is_active: true, is_default: false },
+      ],
+      mapping: { ...beforeSnapshot.mapping, ...plan.retailer_product.values, product_variant_id: "65", created_at: date, updated_at: new Date("2026-09-01T12:00:02.000Z") },
+      offer: { ...beforeSnapshot.offer, ...plan.offer.values, product_variant_id: "65", price: "22.7", shipping_cost: "3.990", total_price: "26.690", created_at: date, last_checked_at: new Date(plan.offer.values.last_checked_at) },
+      price_history: [
+        { ...beforeSnapshot.price_history[0], checked_at: new Date(beforeSnapshot.price_history[0].checked_at), created_at: date },
+        { id: "2", offer_id: "73", price: "22.70", shipping_cost: "3.99", total_price: "26.69", checked_at: new Date(plan.offer.values.last_checked_at) },
+      ],
+      snapshot_hash: "after",
+    };
+    const entry = { resolved_plan: plan };
+    const execution = { result: "PASS", apply_rpc_count: 1, execution: { product_variant_id: "65", price_history_id: "2" } };
+
+    assert.equal(verifyPostflight(baseline, after, entry, execution).result, "PASS");
+    assert.throws(() => verifyPostflight(baseline, { ...after, mapping: { ...after.mapping, match_confidence: "99.99" } }, entry, execution), /mapping match confidence mismatch/);
+    assert.throws(() => verifyPostflight(baseline, { ...after, product: { ...after.product, created_at: new Date("2026-06-28T14:59:28.774Z") } }, entry, execution), /parent product changed/);
+    assert.throws(() => verifyPostflight(baseline, { ...after, product: { ...after.product, name: "Drifted product" } }, entry, execution), /parent product changed/);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});

@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const { Client } = require("pg");
-const { canonicalJson } = require("./lib/canonical-json");
+const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { canonicalizeTimestamps } = require("./lib/canonical-timestamp");
 const { loadDryRunArtifact } = require("./import-products");
 const { parseReviewedContract } = require("./whey-okay-workflow-router");
@@ -24,6 +24,7 @@ function invariant(value, message) { if (!value) throw new Error(message); }
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
 function hash(value) { return sha256(canonicalJson(value)); }
 function evidenceHash(value) { return sha256(canonicalJson(canonicalizeTimestamps(JSON.parse(JSON.stringify(value))))); }
+function comparableDbJson(value) { return canonicalJson(canonicalizeTimestamps(value)); }
 function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 function write(file, value) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, { flag: "wx" }); }
 function exactDecimal(value) { return value == null ? null : Number(value).toFixed(2); }
@@ -234,20 +235,21 @@ function verifyPostflight(baselineEvidence, after, entry, execution) {
   invariant(execution.result === "PASS" && execution.apply_rpc_count === 1, "execution evidence mismatch");
   const before = baselineEvidence.snapshot, plan = entry.resolved_plan, deltas = plan.expected_deltas.row_count_deltas;
   for (const table of Object.keys(deltas)) invariant(BigInt(after.counts[table]) - BigInt(before.counts[table]) === BigInt(deltas[table]), `${table} row-count delta mismatch`);
-  invariant(canonicalJson(after.product) === canonicalJson(before.product), "parent product changed");
+  invariant(comparableDbJson(after.product) === comparableDbJson(before.product), "parent product changed");
   invariant(after.variants.length === before.variants.length + 1, "variant delta mismatch");
-  for (const existing of before.variants) invariant(canonicalJson(after.variants.find((row) => String(row.id) === String(existing.id))) === canonicalJson(existing), `existing variant ${existing.id} changed`);
+  for (const existing of before.variants) invariant(comparableDbJson(after.variants.find((row) => String(row.id) === String(existing.id))) === comparableDbJson(existing), `existing variant ${existing.id} changed`);
   const newVariantId = String(execution.execution.product_variant_id);
   const newVariant = after.variants.find((row) => String(row.id) === newVariantId);
   invariant(newVariant && String(newVariant.product_id) === String(plan.product.id) && newVariant.variant_key === plan.product_variant.values.variant_key && newVariant.display_name === plan.product_variant.values.display_name && newVariant.flavour_code === plan.product_variant.values.flavour_code && newVariant.flavour_label === plan.product_variant.values.flavour_label && String(newVariant.size_value) === String(plan.product_variant.values.size_value) && newVariant.size_unit === plan.product_variant.values.size_unit && String(newVariant.pack_count) === String(plan.product_variant.values.pack_count) && newVariant.product_format === plan.product_variant.values.product_format && newVariant.gtin == null && canonicalJson(newVariant.nutrition_override || {}) === "{}" && newVariant.is_active === true && newVariant.is_default === false, "approved target variant mismatch");
   invariant(String(after.mapping.product_variant_id) === newVariantId && String(after.offer.product_variant_id) === newVariantId, "mapping or offer was not rebound atomically");
-  const expectedMapping = { ...before.mapping, ...plan.retailer_product.values, product_variant_id: newVariantId, updated_at: after.mapping.updated_at };
-  invariant(canonicalJson(after.mapping) === canonicalJson(expectedMapping), "mapping target state contains an unapproved change");
-  const expectedOffer = { ...before.offer, ...plan.offer.values, product_variant_id: newVariantId };
-  invariant(canonicalJson(after.offer) === canonicalJson(expectedOffer), "offer target state contains an unapproved change");
+  invariant(normalizeDecimalString(after.mapping.match_confidence, "mapping match_confidence") === normalizeDecimalString(plan.retailer_product.values.match_confidence, "approved mapping match_confidence"), "mapping match confidence mismatch");
+  const expectedMapping = { ...before.mapping, ...plan.retailer_product.values, product_variant_id: newVariantId, match_confidence: after.mapping.match_confidence, updated_at: after.mapping.updated_at };
+  invariant(comparableDbJson(after.mapping) === comparableDbJson(expectedMapping), "mapping target state contains an unapproved change");
   invariant(exactDecimal(after.offer.price) === plan.offer.values.price && exactDecimal(after.offer.shipping_cost) === plan.offer.values.shipping_cost && exactDecimal(after.offer.total_price) === plan.offer.values.total_price && after.offer.in_stock === plan.offer.values.in_stock && after.offer.url === plan.offer.values.url, "offer target state mismatch");
   invariant(new Date(after.offer.last_checked_at).toISOString() === new Date(plan.offer.values.last_checked_at).toISOString(), "offer freshness target mismatch");
-  for (const existing of before.price_history) invariant(canonicalJson(after.price_history.find((row) => String(row.id) === String(existing.id))) === canonicalJson(existing), `existing price history ${existing.id} changed`);
+  const expectedOffer = { ...before.offer, ...plan.offer.values, product_variant_id: newVariantId, price: after.offer.price, shipping_cost: after.offer.shipping_cost, total_price: after.offer.total_price };
+  invariant(comparableDbJson(after.offer) === comparableDbJson(expectedOffer), "offer target state contains an unapproved change");
+  for (const existing of before.price_history) invariant(comparableDbJson(after.price_history.find((row) => String(row.id) === String(existing.id))) === comparableDbJson(existing), `existing price history ${existing.id} changed`);
   const newHistory = after.price_history.find((row) => String(row.id) === String(execution.execution.price_history_id));
   invariant(after.price_history.length === before.price_history.length + 1 && newHistory && String(newHistory.offer_id) === String(plan.offer.id) && exactDecimal(newHistory.price) === plan.offer.values.price && exactDecimal(newHistory.shipping_cost) === plan.offer.values.shipping_cost && exactDecimal(newHistory.total_price) === plan.offer.values.total_price && new Date(newHistory.checked_at).toISOString() === new Date(plan.offer.values.last_checked_at).toISOString(), "price history delta mismatch");
   return { result: "PASS", exact_deltas: plan.expected_deltas, baseline_hash: baselineEvidence.evidence_hash, after_hash: after.snapshot_hash, idempotency: { result: "PASS", key: plan.meta.idempotency_key, proof: "consumed approval plus exact target state; no second apply RPC invoked" } };
