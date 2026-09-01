@@ -11,6 +11,12 @@ const {
   buildReviewedVariantCreateRebindPlan,
 } = require("./lib/reviewed-variant-create-rebind-offer-update");
 const { approveArtifactPlan, loadDryRunArtifact, planFingerprint, setSupabaseForTests, writeDryRunArtifact } = require("./import-products");
+const {
+  ownerConfirmation,
+  targetBinding,
+  verifyLoadedArtifact,
+  verifyPostflight,
+} = require("./reviewed-artifact-orchestrator");
 
 function fixture() {
   const state = {
@@ -102,4 +108,76 @@ test("reviewed operation uses the immutable existing import artifact and per-row
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }
+});
+
+function reviewedArtifactFixture(directory) {
+  const plan = buildReviewedVariantCreateRebindPlan(fixture());
+  const row = plan.source_record;
+  const written = writeDryRunArtifact([row], { skipped: 0, blockedRows: [], report: { approvedRows: [{ rowNumber: 2, row, importPlan: plan }], blockedRows: [] } }, {
+    artifactPath: path.join(directory, "reviewed-plan.json"), runId: "reviewed-plan-run",
+    sourceContent: canonicalJson(row), sourceFileName: "source.json", environmentMarker: "production-readonly",
+  });
+  const report = {
+    result: "PASS", mode: "dry-run", database_writes: 0, approval_rpc_invoked: false, apply_rpc_invoked: false,
+    artifact_sha256: written.artifactSha256, plan_fingerprint: plan.meta.plan_fingerprint,
+    approval_fingerprint: plan.meta.approval_fingerprint, idempotency_key: plan.meta.idempotency_key,
+    expires_at: plan.meta.expires_at, expected_deltas: plan.expected_deltas,
+  };
+  const reportPath = `${written.artifactPath}.report.json`;
+  fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  const contract = {
+    source_run_id: "1", source_artifact_id: "2", source_artifact_name: "whey-okay-offer-73-reviewed-1-1",
+    source_commit: "a".repeat(40), zip_sha256: "b".repeat(64), artifact_sha256: written.artifactSha256,
+    report_sha256: crypto.createHash("sha256").update(fs.readFileSync(reportPath)).digest("hex"),
+    plan_fingerprint: plan.meta.plan_fingerprint, approval_fingerprint: plan.meta.approval_fingerprint,
+    idempotency_key: plan.meta.idempotency_key,
+  };
+  return { contract, plan, written };
+}
+
+test("generic reviewed artifact contract binds exact hashes, target, deltas and owner confirmation", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-artifact-contract-"));
+  try {
+    const { contract, plan } = reviewedArtifactFixture(directory);
+    const verified = verifyLoadedArtifact(directory, contract, new Date("2026-09-01T12:05:00.000Z"));
+    const target = targetBinding(verified.entry);
+    assert.equal(target.operation_type, OPERATION_TYPE);
+    assert.deepEqual([target.retailer_id, target.product_id, target.current_variant_id, target.mapping_id, target.offer_id], ["3", "69", "64", "65", "73"]);
+    assert.deepEqual([target.source_product_id, target.source_variant_id, target.target_variant_key, target.target_display_name], ["300", "301", "biscuit-spread-908g", "Biscuit Spread / 908g"]);
+    assert.deepEqual(target.before_state.offer, plan.expected_state.offer);
+    assert.deepEqual(target.approved_after_state.offer, plan.offer.values);
+    assert.deepEqual(target.expected_deltas, plan.expected_deltas);
+    assert.equal(target.expires_at, plan.meta.expires_at);
+    assert.match(ownerConfirmation(contract, verified.entry), /^OWNER_APPROVED_REVIEWED_ARTIFACT:[0-9a-f]{64}$/);
+    assert.throws(() => verifyLoadedArtifact(directory, { ...contract, report_sha256: "0".repeat(64) }, new Date("2026-09-01T12:05:00.000Z")), /report SHA-256 mismatch/);
+    assert.throws(() => verifyLoadedArtifact(directory, contract, new Date("2026-09-01T12:16:00.000Z")), /expired/);
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("reviewed postflight requires exact atomic deltas and proves idempotency without replay", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-postflight-plan-"));
+  const { plan } = reviewedArtifactFixture(directory);
+  const beforeSnapshot = {
+    counts: { products: "10", product_variants: "20", retailer_products: "30", offers: "40", price_history: "50" },
+    product: plan.expected_state.product, variants: [plan.expected_state.product_variant],
+    mapping: plan.expected_state.retailer_product, offer: plan.expected_state.offer,
+    price_history: [{ id: "1", offer_id: "73", price: "24.99", shipping_cost: "3.99", total_price: null, checked_at: "2026-06-29T12:32:18.530Z" }], snapshot_hash: "before",
+  };
+  const baseline = { schema_version: 1, kind: "reviewed-artifact-db-baseline", result: "PASS", snapshot: beforeSnapshot };
+  baseline.evidence_hash = crypto.createHash("sha256").update(canonicalJson(baseline)).digest("hex");
+  const afterPayload = {
+    counts: { products: "10", product_variants: "21", retailer_products: "30", offers: "40", price_history: "51" },
+    product: beforeSnapshot.product,
+    variants: [...beforeSnapshot.variants, { id: "65", product_id: "69", ...plan.product_variant.values, gtin: null, is_active: true, is_default: false }],
+    mapping: { ...beforeSnapshot.mapping, ...plan.retailer_product.values, product_variant_id: "65", updated_at: "2026-09-01T12:00:02.000Z" },
+    offer: { ...beforeSnapshot.offer, ...plan.offer.values, product_variant_id: "65" },
+    price_history: [...beforeSnapshot.price_history, { id: "2", offer_id: "73", price: "22.70", shipping_cost: "3.99", total_price: "26.69", checked_at: plan.offer.values.last_checked_at }], snapshot_hash: "after",
+  };
+  const execution = { result: "PASS", apply_rpc_count: 1, execution: { product_variant_id: "65", price_history_id: "2" } };
+  const result = verifyPostflight(baseline, afterPayload, { resolved_plan: plan }, execution);
+  assert.equal(result.result, "PASS");
+  assert.equal(result.idempotency.result, "PASS");
+  assert.match(result.idempotency.proof, /no second apply RPC/);
+  assert.throws(() => verifyPostflight(baseline, { ...afterPayload, counts: { ...afterPayload.counts, offers: "41" } }, { resolved_plan: plan }, execution), /offers row-count delta mismatch/);
+  fs.rmSync(directory, { recursive: true, force: true });
 });

@@ -13,6 +13,7 @@ on:
           - dry-run
           - apply
           - reviewed-offer-73-dry-run
+          - reviewed-artifact-apply
       validation_context:
         description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
         required: true
@@ -21,6 +22,14 @@ on:
         options:
           - workflow_dispatch
           - schedule
+      reviewed_contract:
+        description: "Exact JSON contract for reviewed-artifact-apply; leave empty for other operations"
+        required: false
+        type: string
+      owner_confirmation:
+        description: "OWNER_APPROVED_REVIEWED_ARTIFACT:<bound SHA-256>; leave empty for other operations"
+        required: false
+        type: string
   schedule:
     - cron: "17 2 * * *"
 
@@ -42,7 +51,10 @@ jobs:
       validation_context: ${{ steps.route.outputs.validation_context }}
       run_standard_refresh: ${{ steps.route.outputs.run_standard_refresh }}
       run_reviewed_offer_73: ${{ steps.route.outputs.run_reviewed_offer_73 }}
+      run_reviewed_artifact_apply: ${{ steps.route.outputs.run_reviewed_artifact_apply }}
       run_standard_apply: ${{ steps.route.outputs.run_standard_apply }}
+      reviewed_contract: ${{ steps.route.outputs.reviewed_contract }}
+      owner_confirmation: ${{ steps.route.outputs.owner_confirmation }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -222,3 +234,159 @@ jobs:
           retention-days: 14
           if-no-files-found: error
           path: tmp/whey-okay-offer-refresh/
+
+  validate-reviewed-artifact:
+    needs: route-operation
+    if: ${{ needs.route-operation.outputs.run_reviewed_artifact_apply == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-readonly
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout exact reviewed implementation
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Download and validate exact reviewed source artifact
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REVIEWED_CONTRACT_JSON: ${{ needs.route-operation.outputs.reviewed_contract }}
+          OWNER_CONFIRMATION: ${{ needs.route-operation.outputs.owner_confirmation }}
+        run: node scripts/reviewed-artifact-orchestrator.js --mode=download
+      - name: Capture exact reviewed DB baseline read-only
+        env:
+          REVIEWED_CONTRACT_JSON: ${{ needs.route-operation.outputs.reviewed_contract }}
+          REVIEWED_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/reviewed-artifact-orchestrator.js --mode=baseline
+      - name: Upload immutable reviewed validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-reviewed-validation-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: error
+          path: tmp/reviewed-artifact-apply/
+
+  approve-reviewed-artifact:
+    needs: [route-operation, validate-reviewed-artifact]
+    if: ${{ needs.route-operation.outputs.run_reviewed_artifact_apply == 'true' && needs.validate-reviewed-artifact.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-readonly
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Download validated reviewed evidence
+        uses: actions/download-artifact@v8
+        with:
+          name: whey-okay-reviewed-validation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tmp/reviewed-artifact-apply
+      - name: Approve exact reviewed plan once
+        env:
+          REVIEWED_CONTRACT_JSON: ${{ needs.route-operation.outputs.reviewed_contract }}
+          OWNER_CONFIRMATION: ${{ needs.route-operation.outputs.owner_confirmation }}
+          REVIEWED_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+        run: node scripts/reviewed-artifact-orchestrator.js --mode=approve
+      - name: Upload reviewed approval evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-reviewed-approval-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: error
+          path: tmp/reviewed-artifact-apply/approval.json
+
+  execute-reviewed-artifact:
+    needs: [route-operation, validate-reviewed-artifact, approve-reviewed-artifact]
+    if: ${{ needs.route-operation.outputs.run_reviewed_artifact_apply == 'true' && needs.approve-reviewed-artifact.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-readonly
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Download reviewed validation and approval evidence
+        uses: actions/download-artifact@v8
+        with:
+          pattern: whey-okay-reviewed-*-${{ github.run_id }}-${{ github.run_attempt }}
+          merge-multiple: true
+          path: tmp/reviewed-artifact-apply
+      - name: Execute exact reviewed plan atomically once
+        env:
+          REVIEWED_CONTRACT_JSON: ${{ needs.route-operation.outputs.reviewed_contract }}
+          OWNER_CONFIRMATION: ${{ needs.route-operation.outputs.owner_confirmation }}
+          REVIEWED_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+        run: node scripts/reviewed-artifact-orchestrator.js --mode=execute
+      - name: Upload reviewed execution evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-reviewed-execution-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: error
+          path: tmp/reviewed-artifact-apply/execution.json
+
+  postflight-reviewed-artifact:
+    needs: [route-operation, validate-reviewed-artifact, approve-reviewed-artifact, execute-reviewed-artifact]
+    if: ${{ always() && needs.route-operation.outputs.run_reviewed_artifact_apply == 'true' && needs.execute-reviewed-artifact.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-readonly
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Download full reviewed execution evidence
+        uses: actions/download-artifact@v8
+        with:
+          pattern: whey-okay-reviewed-*-${{ github.run_id }}-${{ github.run_attempt }}
+          merge-multiple: true
+          path: tmp/reviewed-artifact-apply
+      - name: Verify reviewed DB postflight and idempotency read-only
+        env:
+          REVIEWED_CONTRACT_JSON: ${{ needs.route-operation.outputs.reviewed_contract }}
+          REVIEWED_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/reviewed-artifact-orchestrator.js --mode=postflight
+      - name: Upload reviewed postflight evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-reviewed-postflight-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: error
+          path: tmp/reviewed-artifact-apply/postflight.json
