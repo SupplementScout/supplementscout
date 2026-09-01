@@ -91,6 +91,7 @@ const EXCLUSIONS = Object.freeze({
     "20260830100000_add_kior_offer_sync_registration",
     "20260830102000_repair_kior_registration_scope_hash",
     "20260830120000_expand_discount_supplements_freshness_scope_109",
+    "20260901090000_add_reviewed_variant_create_rebind_offer_update",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

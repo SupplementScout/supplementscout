@@ -381,7 +381,7 @@ function loadDryRunArtifact(artifactPath) {
         || entry.source_row_fingerprint !== plan.meta?.source_row_fingerprint
         || entry.plan_kind !== plan.meta?.plan_kind
         || entry.operation_type !== plan.meta?.operation_type
-        || !["standard_import", "legacy_mapping_upgrade", "verify_offer_no_change"].includes(entry.operation_type)
+        || !["standard_import", "legacy_mapping_upgrade", "verify_offer_no_change", "reviewed_variant_create_rebind_offer_update"].includes(entry.operation_type)
         || entry.plan_fingerprint !== planFingerprint(plan)
         || !MD5_PATTERN.test(entry.plan_fingerprint)
         || !SHA256_PATTERN.test(entry.source_row_fingerprint)) {
@@ -455,6 +455,36 @@ function loadDryRunArtifact(artifactPath) {
         values.last_checked_at !== source.source_captured_at
       ) {
         throw new Error("Dry-run artifact verified no-change metadata mismatch");
+      }
+    }
+    if (entry.operation_type === "reviewed_variant_create_rebind_offer_update") {
+      const source = sourceRow.normalized_source_row || {};
+      if (
+        entry.plan_kind !== "feed" ||
+        plan.meta?.version !== "3" ||
+        plan.meta?.source_row_fingerprint !== sourceRow.source_row_fingerprint ||
+        canonicalJson(plan.source_record) !== canonicalJson(source) ||
+        plan.product?.action !== "existing" ||
+        plan.product_variant?.action !== "create_variant" ||
+        plan.retailer?.action !== "existing" ||
+        plan.retailer_product?.action !== "update" ||
+        plan.offer?.action !== "update" ||
+        plan.price_history?.action !== "create" ||
+        plan.approval?.approved !== false ||
+        plan.approval?.approval_type !== "owner_reviewed_variant_create_rebind_offer_update" ||
+        plan.approval?.approval_fingerprint !== plan.meta?.approval_fingerprint ||
+        !SHA256_PATTERN.test(plan.meta?.source_snapshot_sha256 || "") ||
+        !SHA256_PATTERN.test(plan.meta?.approval_fingerprint || "") ||
+        !SHA256_PATTERN.test(plan.meta?.idempotency_key || "") ||
+        plan.retailer_product?.id !== plan.product_variant?.evidence?.approved_mapping_id ||
+        plan.retailer_product?.values?.product_variant_id !== null ||
+        plan.offer?.values?.product_variant_id !== null ||
+        plan.expected_state?.retailer_product?.id !== plan.retailer_product?.id ||
+        plan.expected_state?.offer?.id !== plan.offer?.id ||
+        plan.expected_state?.product_variant?.id !== plan.expected_state?.retailer_product?.product_variant_id ||
+        plan.expected_state?.product_variant?.id !== plan.expected_state?.offer?.product_variant_id
+      ) {
+        throw new Error("Dry-run artifact reviewed variant create/rebind metadata mismatch");
       }
     }
   }
@@ -5083,12 +5113,15 @@ async function approveArtifactPlan(options = {}) {
   const loaded = loadDryRunArtifact(options.artifactPath);
   verifyOptionalSourceFile(loaded, options.sourcePath);
   const entry = selectArtifactPlan(loaded, options.planFingerprint);
+  const approvalExpiresAt = entry.operation_type === "reviewed_variant_create_rebind_offer_update"
+    ? entry.resolved_plan.meta.expires_at
+    : options.approvalExpiresAt;
   const args = {
     p_plan: entry.resolved_plan,
     p_artifact_sha256: loaded.artifactSha256,
     p_run_id: loaded.artifact.run_id,
     p_source: String(options.approvalSource || "supplementscout_importer"),
-    ...(options.approvalExpiresAt ? { p_expires_at: options.approvalExpiresAt } : {}),
+    ...(approvalExpiresAt ? { p_expires_at: approvalExpiresAt } : {}),
   };
   const { data, error } = await supabase.rpc("approve_product_import_plan", args);
   if (error) throw error;

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 287,
-    "sha256": "99b4075cd0dcdc51fff11938d3ae65a315c1fab3944c7b8a445a9a88692ccc4f"
+    "count": 290,
+    "sha256": "71b1daf3199920ea1174ba4f252208c3cadcd9d0aeb5565fa95f697a0250623f"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -39,6 +39,7 @@
     "scripts/reviewed-nutrition-policy-migration.integration.test.js",
     "scripts/reviewed-parent-hydration-bar-allowlist-migration.integration.test.js",
     "scripts/reviewed-strom-health-policy-migration.integration.test.js",
+    "scripts/reviewed-variant-create-rebind.integration.test.js",
     "scripts/reviewed-variant-nutrition-migration.integration.test.js",
     "scripts/shared-parent-import-identity.integration.test.js",
     "scripts/verified-no-change-offer-refresh.integration.test.js",

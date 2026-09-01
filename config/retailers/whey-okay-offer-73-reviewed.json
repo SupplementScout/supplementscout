@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed-variant-create-rebind-offer-update-first-scope",
+  "retailer_id": 3,
+  "retailer_slug": "whey-okay",
+  "product_id": 69,
+  "mapping_id": 65,
+  "offer_id": 73,
+  "expected_current_variant_id": 64,
+  "source_product_id": "300",
+  "source_variant_id": "301",
+  "exact_source_title": "Efectiv Nutrition Vegan Protein 908g - Biscuit Spread",
+  "option_name": "Flavour",
+  "option_value": "Biscuit Spread",
+  "weight_value": "908",
+  "weight_unit": "g",
+  "expected_before": {
+    "price": "24.99",
+    "shipping_cost": "3.99",
+    "total_price": null,
+    "in_stock": false
+  },
+  "expected_after": {
+    "price": "22.70",
+    "shipping_cost": "3.99",
+    "total_price": "26.69",
+    "in_stock": true
+  },
+  "approval_ttl_minutes": 15
+}

@@ -28,6 +28,8 @@ const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_time
 const TIMESTAMP_OPERATOR_SHA256 = "16d92f7e0b404b81bcbda62bfb512ff6690bb78b36b7e5a345788b6fdcc8ef20";
 const REVIEW_QUEUE_PUBLICATION_MIGRATION = "20260831110000_create_automation_review_queue_publication_rpc.sql";
 const REVIEW_QUEUE_PUBLICATION_SHA256 = "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409";
+const REVIEWED_VARIANT_REBIND_MIGRATION = "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql";
+const REVIEWED_VARIANT_REBIND_SHA256 = "a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -104,6 +106,8 @@ test("the local-only migration is the exact shared-policy exclusion", () => {
 
 test("the production-only migration is the exact shared-policy exclusion", () => {
   const result = validateSelection(validInput());
+  assert.ok(result.excluded_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
+  assert.ok(!result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
   assert.ok(result.excluded_files.includes("20260719100000_add_production_retailer_sync_enablement.sql"));
   assert.ok(!result.selected_files.includes("20260719100000_add_production_retailer_sync_enablement.sql"));
   assert.ok(result.excluded_files.includes(
@@ -170,9 +174,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records verified timestamp repairs and review queue publication RPC as applied", () => {
+test("production records prior repairs as applied and seals the reviewed variant migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{ filename: REVIEWED_VARIANT_REBIND_MIGRATION, sha256: REVIEWED_VARIANT_REBIND_SHA256 }]);
   assert.equal(contract.ledgerCount, 171);
   assert.equal(
     contract.ledgerFingerprint,
@@ -253,7 +257,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger after the automation review queue publication RPC", () => {
+test("production binds its exact ledger and exposes only the reviewed variant migration as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -281,11 +285,12 @@ test("production binds its exact ledger after the automation review queue public
   });
   assert.equal(result.ledger_count, 171);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 171);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 172);
+  assert.deepEqual(result.pending_files, [REVIEWED_VARIANT_REBIND_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_VARIANT_REBIND_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_VARIANT_REBIND_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_VARIANT_REBIND_MIGRATION]: REVIEWED_VARIANT_REBIND_SHA256 });
+  assert.ok(result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
