@@ -6,9 +6,10 @@ on:
       operation:
         description: "Dry-run only unless an explicitly authorised apply is required"
         required: true
-        default: dry-run
+        default: select-operation
         type: choice
         options:
+          - select-operation
           - dry-run
           - apply
           - reviewed-offer-73-dry-run
@@ -31,8 +32,29 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  route-operation:
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      operation: ${{ steps.route.outputs.operation }}
+      validation_context: ${{ steps.route.outputs.validation_context }}
+      run_standard_refresh: ${{ steps.route.outputs.run_standard_refresh }}
+      run_reviewed_offer_73: ${{ steps.route.outputs.run_reviewed_offer_73 }}
+      run_standard_apply: ${{ steps.route.outputs.run_standard_apply }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Route exact workflow event payload
+        id: route
+        run: node scripts/whey-okay-workflow-router.js
+
   whey-okay-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.operation == 'dry-run' || github.event.inputs.operation == 'apply'))) }}
+    needs: route-operation
+    if: ${{ needs.route-operation.outputs.run_standard_refresh == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: production-readonly
@@ -80,39 +102,39 @@ jobs:
       - name: Dry-run all approved Whey Okay offers
         env:
           WHEY_OKAY_REFRESH_PHASE: preflight
-          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || github.event.inputs.validation_context }}
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ needs.route-operation.outputs.validation_context }}
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Capture Whey Okay DB baseline read-only
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
+        if: ${{ needs.route-operation.outputs.run_standard_apply == 'true' }}
         env:
           WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=whey-okay --mode=baseline --output=tmp/whey-okay-offer-refresh/production-db-baseline.json
 
       - name: Apply all approved Whey Okay offer refreshes
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
+        if: ${{ needs.route-operation.outputs.run_standard_apply == 'true' }}
         env:
           WHEY_OKAY_REFRESH_PHASE: apply
-          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || github.event.inputs.validation_context }}
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ needs.route-operation.outputs.validation_context }}
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
 
       - name: Verify Whey Okay DB postflight read-only
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
+        if: ${{ needs.route-operation.outputs.run_standard_apply == 'true' }}
         env:
           WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=whey-okay --mode=postflight --baseline=tmp/whey-okay-offer-refresh/production-db-baseline.json --execution=tmp/whey-okay-offer-refresh/production-apply-apply.json --output=tmp/whey-okay-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency with a fresh source capture
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
+        if: ${{ needs.route-operation.outputs.run_standard_apply == 'true' }}
         env:
           WHEY_OKAY_REFRESH_PHASE: idempotency
-          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || github.event.inputs.validation_context }}
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ needs.route-operation.outputs.validation_context }}
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
@@ -139,7 +161,8 @@ jobs:
           path: tmp/whey-okay-offer-refresh/
 
   reviewed-offer-73-dry-run:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'reviewed-offer-73-dry-run' }}
+    needs: route-operation
+    if: ${{ needs.route-operation.outputs.run_reviewed_offer_73 == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production-readonly
@@ -147,14 +170,17 @@ jobs:
     steps:
       - name: Validate reviewed offer 73 routing
         env:
-          REQUESTED_OPERATION: ${{ github.event.inputs.operation }}
+          REQUESTED_OPERATION: ${{ needs.route-operation.outputs.operation }}
+          VALIDATION_CONTEXT: ${{ needs.route-operation.outputs.validation_context }}
           EXPECTED_REPOSITORY: SupplementScout/supplementscout
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
           test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
           test "$REQUESTED_OPERATION" = "reviewed-offer-73-dry-run"
+          test "$VALIDATION_CONTEXT" = "workflow_dispatch"
           echo "Requested operation: $REQUESTED_OPERATION"
+          echo "Validation context: $VALIDATION_CONTEXT"
 
       - name: Checkout repository
         uses: actions/checkout@v6

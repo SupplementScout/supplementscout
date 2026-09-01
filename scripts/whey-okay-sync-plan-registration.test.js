@@ -1,7 +1,9 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
+const { main: runWorkflowRouter, routeWorkflowEvent } = require("./whey-okay-workflow-router");
 
 const migration = fs.readFileSync(
   path.join(
@@ -188,7 +190,7 @@ test("reviewed creatine rebinding advances only the frozen manifest hash and is 
 
 test("workflow is scheduled, dry-run by default and role-separated without service role", () => {
   assert.match(workflow, /workflow_dispatch:/);
-  assert.match(workflow, /default: dry-run/);
+  assert.match(workflow, /default: select-operation/);
   assert.match(workflow, /cron: "17 2 \* \* \*"/);
   assert.match(workflow, /environment: production-readonly/);
   for (const secret of [
@@ -206,21 +208,24 @@ test("workflow is scheduled, dry-run by default and role-separated without servi
 });
 
 test("workflow exposes exact reviewed offer 73 dry-run with validator-only credentials", () => {
+  const routerStart = workflow.indexOf("\n  route-operation:");
   const standardStart = workflow.indexOf("\n  whey-okay-offer-refresh:");
   const reviewedStart = workflow.indexOf("\n  reviewed-offer-73-dry-run:");
-  assert.ok(standardStart > -1 && reviewedStart > standardStart);
+  assert.ok(routerStart > -1 && standardStart > routerStart && reviewedStart > standardStart);
+  const routerJob = workflow.slice(routerStart, standardStart);
   const standardJob = workflow.slice(standardStart, reviewedStart);
   const reviewedJob = workflow.slice(reviewedStart);
 
-  assert.match(standardJob, /github\.event\.inputs\.operation == 'dry-run'/);
-  assert.match(standardJob, /github\.event\.inputs\.operation == 'apply'/);
-  assert.doesNotMatch(standardJob, /github\.event\.inputs\.operation == 'reviewed-offer-73-dry-run'/);
+  assert.match(routerJob, /route-operation:[\s\S]*whey-okay-workflow-router\.js/);
+  assert.doesNotMatch(routerJob, /secrets\.|DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(standardJob, /needs: route-operation/);
+  assert.match(standardJob, /needs\.route-operation\.outputs\.run_standard_refresh == 'true'/);
+  assert.match(standardJob, /needs\.route-operation\.outputs\.run_standard_apply == 'true'/);
   assert.match(standardJob, /Dry-run all approved Whey Okay offers/);
   assert.match(standardJob, /Apply all approved Whey Okay offer refreshes/);
-  assert.match(standardJob, /github\.event_name == 'schedule'/);
 
-  assert.match(reviewedJob, /github\.event_name == 'workflow_dispatch'/);
-  assert.match(reviewedJob, /github\.event\.inputs\.operation == 'reviewed-offer-73-dry-run'/);
+  assert.match(reviewedJob, /needs: route-operation/);
+  assert.match(reviewedJob, /needs\.route-operation\.outputs\.run_reviewed_offer_73 == 'true'/);
   assert.match(reviewedJob, /Build immutable reviewed offer 73 dry-run/);
   assert.match(reviewedJob, /whey-okay-offer-73-reviewed-dry-run\.js/);
   assert.match(reviewedJob, /Upload reviewed offer 73 evidence[\s\S]*if: always\(\)/);
@@ -233,4 +238,53 @@ test("workflow exposes exact reviewed offer 73 dry-run with validator-only crede
   assert.match(reviewedOffer73DryRun, /set local role retailer_catalogue_production_validator/);
   assert.match(reviewedOffer73DryRun, /supplementscout_production_validator_login/);
   assert.doesNotMatch(reviewedOffer73DryRun, /SUPABASE_SERVICE_ROLE_KEY|approve_product_import_plan|apply_approved_product_import_plan/);
+});
+
+test("workflow router evaluates real workflow_dispatch payload shapes and fails closed", () => {
+  const dispatch = (operation, validation_context = "workflow_dispatch") => ({ inputs: { operation, validation_context } });
+  assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dry-run")), {
+    operation: "reviewed-offer-73-dry-run", validation_context: "workflow_dispatch",
+    run_standard_refresh: false, run_reviewed_offer_73: true, run_standard_apply: false,
+  });
+  assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("dry-run")), {
+    operation: "dry-run", validation_context: "workflow_dispatch",
+    run_standard_refresh: true, run_reviewed_offer_73: false, run_standard_apply: false,
+  });
+  assert.deepEqual(routeWorkflowEvent("workflow_dispatch", dispatch("apply")), {
+    operation: "apply", validation_context: "workflow_dispatch",
+    run_standard_refresh: true, run_reviewed_offer_73: false, run_standard_apply: true,
+  });
+  assert.deepEqual(routeWorkflowEvent("schedule", {}), {
+    operation: "schedule", validation_context: "schedule",
+    run_standard_refresh: true, run_reviewed_offer_73: false, run_standard_apply: true,
+  });
+  assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("")), /unknown or empty operation/);
+  assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dryrun")), /unknown or empty operation/);
+  assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dry-run", "push")), /invalid validation context/);
+  assert.throws(() => routeWorkflowEvent("workflow_dispatch", dispatch("reviewed-offer-73-dry-run", "schedule")), /invalid validation context for reviewed offer 73/);
+});
+
+test("workflow router reads the actual GitHub event file and emits deterministic outputs", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "whey-workflow-router-"));
+  const eventPath = path.join(directory, "event.json");
+  const outputPath = path.join(directory, "output.txt");
+  try {
+    fs.writeFileSync(eventPath, JSON.stringify({
+      inputs: {
+        operation: "reviewed-offer-73-dry-run",
+        validation_context: "workflow_dispatch",
+      },
+    }));
+    const route = runWorkflowRouter({
+      GITHUB_EVENT_NAME: "workflow_dispatch",
+      GITHUB_EVENT_PATH: eventPath,
+      GITHUB_OUTPUT: outputPath,
+    });
+    assert.equal(route.run_standard_refresh, false);
+    assert.equal(route.run_reviewed_offer_73, true);
+    assert.equal(route.run_standard_apply, false);
+    assert.match(fs.readFileSync(outputPath, "utf8"), /run_standard_refresh=false\nrun_reviewed_offer_73=true\nrun_standard_apply=false/);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
 });
