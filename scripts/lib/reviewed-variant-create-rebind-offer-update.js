@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
 const { canonicalJson } = require("./canonical-json");
+const { canonicalTimestamp } = require("./canonical-timestamp");
 const { normalizeSourceRow, planFingerprint, sourceRowFingerprint } = require("../import-products");
 
 const OPERATION_TYPE = "reviewed_variant_create_rebind_offer_update";
@@ -29,9 +30,7 @@ function integerText(value, field) {
 }
 
 function timestamp(value, field) {
-  const parsed = new Date(value);
-  invariant(Number.isFinite(parsed.getTime()), `${field} must be a timestamp`);
-  return parsed.toISOString();
+  return canonicalTimestamp(value, field);
 }
 
 function productState(row) {

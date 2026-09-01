@@ -74,10 +74,11 @@ test("builds the exact atomic create/rebind/commercial reviewed plan", () => {
   assert.equal(plan.retailer_product.values.product_variant_id, null);
   assert.equal(plan.offer.action, "update");
   assert.equal(plan.offer.id, "73");
-  assert.deepEqual(plan.offer.values, { product_variant_id: null, price: "22.70", shipping_cost: "3.99", total_price: "26.69", in_stock: true, url: fixture().state.offer.url, last_checked_at: "2026-09-01T12:00:01.000Z" });
+  assert.deepEqual(plan.offer.values, { product_variant_id: null, price: "22.70", shipping_cost: "3.99", total_price: "26.69", in_stock: true, url: fixture().state.offer.url, last_checked_at: "2026-09-01T12:00:01Z" });
   assert.equal(plan.price_history.action, "create");
   assert.equal(plan.approval.approval_type, APPROVAL_TYPE);
   assert.equal(plan.expected_state.product.net_weight_g, "900");
+  assert.equal(plan.expected_state.retailer_product.updated_at, "2026-06-30T19:40:13.950723Z", "stale-state evidence must retain PostgreSQL microseconds");
   assert.equal(plan.expected_deltas.row_count_deltas.product_variants, "1");
   assert.equal(plan.expected_deltas.row_count_deltas.price_history, "1");
   assert.equal(planFingerprint(plan), plan.meta.plan_fingerprint);
