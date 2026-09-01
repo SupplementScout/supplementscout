@@ -1,5 +1,19 @@
 # Automation Reliability — Owner Decision Pack
 
+## Final closeout decision boundary - 1 September 2026, 17:47 UTC
+
+Decision status is `CLOSE_WITH_MONITORED_BACKLOG`. The P0 Automation Reliability Sprint is closed; product development may resume. This section supersedes the pending/retry status of older decision entries below, which remain historical evidence and are not reusable approvals. This does not approve any new offer, commercial, identity, rebind, freshness, Review Queue, migration, cron or replay operation. All future writes continue to require fresh bounded evidence and the existing owner-approval boundary.
+
+The final read-only evidence was captured at `2026-09-01T17:43:39.305Z`, database writes `0`, SHA-256 `2520eb28453314ea659238dd59c95aa987ed3a106de08e78f14873b8b3f83f08`. There are no active import/batch approvals, active apply runs, Review Queue execution requests or conflicting sessions. The existing validator, per-row approval, artifact binding, separated approver/executor roles, stale-state protection, atomic apply, idempotency, immutable audit, DB baseline/postflight, Review Queue publisher, watchdog and Catalog Health remain the only authorized control model. The generic `reviewed_variant_create_rebind_offer_update` and `reviewed-artifact-apply` paths are established; do not create a parallel path for another row.
+
+Whey Okay offer `73` is complete: one `Biscuit Spread / 908g` variant `3217`; mapping `65` rebound to variant `3217` and source IDs `300:301`; offer `73` rebound to variant `3217`; price `24.99 -> 22.70`; stock `false -> true`; shipping unchanged `3.99`; total `NULL -> 26.69`; URL and parent product `69` unchanged; price history `+1`; `last_checked_at` updated once. Approval `7df0cad7-d075-4a6d-ba91-d266d7a313c9` is consumed and no replay occurred. Run `33534477006` ended red only because the automated read-only postflight falsely reported `parent product changed`; the independent full-row readback proves no parent change.
+
+Current active Review Queue scope is `328 PENDING`: `100` correct source-OOS/no-action, `7` commercial changes requiring a future bounded batch approval, `220` identity/mapping rows requiring the reviewed path, and `1` source-missing row. There are no currently approved queue freshness confirmations. Forty expired eBay rows still marked pending and one expired Fit House parent/six-child control set are non-executable lifecycle backlog. Queue presence, age or an old decision must never be inferred as approval.
+
+The stop rule is binding: reliability work does not continue row-by-row. Reopen only for a shared-guard regression, unisolated/cross-retailer write, public freshness bypass, mass user-impacting automation failure, or a repeated 48-hour alarm that the existing protected workflow cannot isolate. Otherwise use monitoring, Review Queue and owner-approved batches.
+
+The proposed next milestone is Better-value alternatives MVP. This entry authorizes planning only, not implementation. Its future implementation should reuse fresh delivered offers, exact identity and verified unit-value helpers on existing product pages, add no new public route in the MVP, and measure alternative-card and retailer-offer click-through while failing closed on stale or incomparable candidates.
+
 ## Whey Okay offer 73 digest repair - migration approval pending - 1 September 2026, 12:35 UTC
 
 The owner-approved base migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone and is present at production ledger `172`. Its migration postflight had zero catalogue and control-plane deltas. The mandatory active-function test then blocked before approval or offer apply because four `digest(...)` calls could not resolve `extensions.digest(text,text)` under the intentionally restricted `search_path=pg_catalog, public, pg_temp`.

@@ -1,5 +1,53 @@
 # Automation Reliability Roadmap
 
+### Final sprint closeout: protected writes complete, monitored backlog retained - 1 September 2026, 17:47 UTC
+
+**Verdict: `CLOSE_WITH_MONITORED_BACKLOG`.** The Automation Reliability Sprint is closed as a P0 implementation incident. This section supersedes the pending/retry status of older entries below, which remain historical evidence only. No confirmed unisolated write path, cross-retailer mutation or mass incorrect-data write remains. Existing unresolved rows and automation failures remain fail-closed, excluded by the 24-hour public-offer freshness gate, or isolated in Review Queue. They are operational backlog and do not authorize another redesign, migration, replay or single-row repair.
+
+The final read-only production snapshot was captured at `2026-09-01T17:43:39.305Z` in a read-only transaction with database writes `0`; evidence SHA-256 `2520eb28453314ea659238dd59c95aa987ed3a106de08e78f14873b8b3f83f08`. Catalogue counts were products `1130`, product variants `2850`, retailer products `2808`, offers `2808`, price history `7114`. There were no active unconsumed import approvals, no active batch approvals, no active apply runs, no Review Queue execution requests and no conflicting database sessions. One expired Fit House parent approval and its six children remain in legacy control-ledger states (`APPROVED`/`PLANNED`); expiry prevents execution and this is lifecycle-cleanup backlog, not current authority.
+
+The durable control model is present and reused rather than duplicated: read-only validator capture; per-row approval through `approve_product_import_plan`; atomic executor-only `apply_approved_product_import_plan`; stale-state and before-state guards; artifact, commit and fingerprint binding; separate validator/approver/executor credentials; idempotent consumed-approval protection; immutable approval/history/audit evidence; DB baseline and postflight; transactional Review Queue publisher; read-only watchdog and Catalog Health; generic `reviewed_variant_create_rebind_offer_update`; and the existing generic `reviewed-artifact-apply` orchestration. Owner approval remains mandatory for identity, rebind and commercial writes.
+
+Whey Okay offer `73` is complete in production. Parent product `69` is unchanged. Exactly one `Biscuit Spread / 908g` variant exists (`3217`); mapping `65` moved from variant `64` with no source IDs to variant `3217` with source `300:301`; offer `73` moved from variant `64`, price `24.99`, stock `false`, shipping `3.99`, total `NULL` to variant `3217`, price `22.70`, stock `true`, shipping `3.99`, total `26.69`; URL is unchanged; `last_checked_at` is `2026-09-01T16:47:40.538Z`; price history changed exactly `1 -> 2` with one new `22.70/3.99/26.69` record. Approval `7df0cad7-d075-4a6d-ba91-d266d7a313c9` is consumed. Read-only idempotency proof is `PASS`: exact target state plus consumed approval, with no replay or second apply RPC. GitHub run `33534477006` performed the write but ended `failure` because its postflight reported `parent product changed`; the independent full-row comparison proves `product_changes={}`. This is a postflight false positive retained as monitored evidence debt, not a catalogue-state failure.
+
+Catalog Health at the final snapshot is `Critical` solely because `208` active products have zero valid in-stock offer; missing brand and category counts are both `0`. Active products `1088`; products with one valid in-stock offer `491`; with at least two `389`; products with a stale offer `278`; stale offers >7 days `343`, >30 days `321`, never checked `0`. Staleness is defined by `offers.last_checked_at`; the dashboard counts an offer stale over seven days when its age is strictly greater than seven days. `Overall: Critical` is not caused by stale age: it is triggered when zero-valid-in-stock products, missing categories or missing brands is greater than zero.
+
+| Retailer | Offers | >48h | >7d | >30d | Oldest check | Products without in-stock offer |
+| --- | ---: | ---: | ---: | ---: | --- | ---: |
+| GYM HIGH | 66 | 66 | 0 | 0 | `2026-08-26T04:52:57.290Z` | 3 |
+| Jon's Supplements | 506 | 0 | 0 | 0 | `2026-08-31T11:10:13.963Z` | 9 |
+| 6 Pack Supplements | 506 | 0 | 0 | 0 | `2026-09-01T08:35:35.998Z` | 28 |
+| eBay UK | 237 | 40 | 10 | 0 | `2026-08-22T10:46:45.006Z` | 0 |
+| Predators Gear | 47 | 47 | 0 | 0 | `2026-08-26T20:33:05.744Z` | 0 |
+| Whey Okay | 870 | 869 | 283 | 283 | `2026-06-28T14:32:45.625Z` | 149 |
+| Discount Supplements | 156 | 47 | 47 | 36 | `2026-06-28T14:32:45.398Z` | 1 |
+| Dolphin Fitness | 3 | 2 | 2 | 2 | `2026-06-28T12:23:52.000Z` | 0 |
+| Simply Supplements | 120 | 1 | 1 | 0 | `2026-08-24T05:50:16.642Z` | 8 |
+| KIOR Health | 11 | 0 | 0 | 0 | `2026-08-31T15:22:23.850Z` | 1 |
+| Fit House | 286 | 286 | 0 | 0 | `2026-08-29T09:23:27.544Z` | 39 |
+
+Review Queue has `415` automation lifecycle rows: `328 PENDING`, `87 EXPIRED`; active pending scope is Whey Okay `284`, eBay `40`, Dolphin `2`, GYM HIGH `2`. The active scope is completely classified, without treating queue presence as approval:
+
+1. Correct source OOS/no action: `100` rows (`all source sellable rows for parent are out of stock`).
+2. Freshness-only through existing automation: `0` currently approved/executable queue rows. The `343` stale >7-day offers are an age signal, not an executable manifest; they require fresh capture and existing guards.
+3. Price/stock batch approval: `7` commercial-change rows, all retained in review.
+4. Identity/variant/rebind reviewed path: `220` rows (`216 IDENTITY_CONFLICT`, `4 MAPPING_DRIFT`).
+5. Source failure/no data: `1` remaining source-missing row.
+
+Forty eBay rows still show `PENDING` after their row expiry; they remain non-executable and are lifecycle-reconciliation backlog. The final watchdog run `33539129034` on commit `c554af064ca79565214993bc31605174fc598a20`, artifact `9812888223`, ZIP SHA-256 `5320c03fd4199abbacab691d33ba87016a4d8c08ec1a2832c311f7b9ebf3556a`, performed database writes `0` and returned aggregate `FAIL`: PASS for Simply Supplements, KIOR Health and 6 Pack Supplements; FAIL for eight retailers. The failures separate into real age/coverage debt (GYM HIGH, Whey Okay, Discount, Dolphin, Fit House, Predators), missing/old workflow evidence (GYM HIGH, Whey, Fit House, Jon's, Predators), and an eBay evidence-correlation false negative despite isolated review scope. `EBAY_REFRESH_ENABLED=true` exists read-only; its scheduled run remains fail-closed at evidence sealing. All defined workflows are active; Predators has no offer-refresh workflow. Latest scheduled runs succeeded for Dolphin, Simply and 6 Pack, and failed for GYM HIGH, Whey, Discount, KIOR, Fit House, Jon's and eBay.
+
+The three monitored risks are: (1) retailer schedules are not uniformly healthy and freshness coverage can shrink, although stale offers are excluded from public comparison after 24 hours; (2) watchdog/postflight evidence correlation has false negatives, including offer `73`, Jon's and eBay, so a red monitor does not always mean a bad catalogue write; (3) expired queue and Fit House control-ledger states need lifecycle hygiene before those scopes can be reused. None is authority for a replay or catalogue mutation.
+
+**Stop rule:** do not continue reliability work row-by-row. Reopen this sprint only for a confirmed regression in a shared guard, an unisolated or cross-retailer write, a public freshness bypass, a mass user-impacting automation failure, or a repeated 48-hour retailer alarm that cannot be handled through the existing workflow and Review Queue. Normal review rows, OOS evidence, stale isolated offers, source absence and single-retailer failed runs stay in monitored backlog and are handled in bounded batches under existing owner approval.
+
+The next product milestone proposal is **Better-value alternatives MVP** on existing product pages. Reuse the current product offer loader, 24-hour freshness gate, delivered-price normalization, exact-variant resolution, verified price-per-kg/serving/unit metrics, category comparison rows/cards and consent-aware analytics. The minimum missing slice is one deterministic selector for up to three same-category, compatible-format alternatives; a compact product-page section; explicit alternative impression/click analytics; and contract tests proving stale, OOS, unresolved-identity and incomparable-unit candidates are excluded. Compare value only on a shared verified basis (delivered price per kg/unit/serving, or verified protein metric), never raw shelf price across unlike packs. MVP scope is product pages only, no new indexable route, no personalization, no catalogue writes and no claim of nutritional equivalence. Primary metric: alternative-card click-through rate and downstream retailer-offer click-through on eligible product pages, guarded by zero stale/identity violations.
+
+Ready implementation prompt:
+
+```text
+Implement Better-value alternatives MVP on existing product pages only. First audit and reuse the existing product loader, offerFreshness 24-hour contract, delivered-price helpers, exact-variant/category comparison normalization, unit-value helpers, presentation components and consent-aware analytics; do not create a new public route or catalogue-write path. Select at most three in-stock, <=24h fresh, resolved-identity products from the same category and compatible product format, excluding the current product. Rank only on one shared verified basis available to both products (delivered price per kg, unit or serving; verified protein value only when both nutrition contracts permit it); never compare raw prices across unlike packs and render nothing when candidates are not safely comparable. Add a compact accessible section, alternative impression/click events, deterministic contract tests for ranking and exclusions, and product-page tests. Measure section CTR and downstream retailer-offer CTR, with zero stale/identity violations as a release guard. Follow the indexability lifecycle, run verify:quick, verify:full and verify:project, and do not alter retailer automation or production data.
+```
+
 ### Whey Okay offer 73 digest repair ready for production migration approval - 1 September 2026, 12:35 UTC
 
 - Owner-approved migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone to production at ledger `172`. Catalogue counts remained `1130/2849/2808/2808/7113`, approval/apply/Review Queue control counts were unchanged, and exact scope `69/64/65/73` retained hash `1c18ff2e742c08c9ee024ce9f2d3a97937c6ac76bb7f370828c979f69b35ced6`.
