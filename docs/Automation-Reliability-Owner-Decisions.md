@@ -1,5 +1,17 @@
 # Automation Reliability — Owner Decision Pack
 
+## Dolphin Fitness one-offer freshness dry-run ready for approval - 1 September 2026, 09:58 UTC
+
+GitHub dry-run `33494970439` (`Dolphin Vegan Protein Offer Refresh` #51) completed `success` from commit `3a67dc2abadfb47b88776e970509079f0827b9cb`. Artifact `9795332857`, `dolphin-vegan-protein-offer-refresh-33494970439-1`, has ZIP SHA-256 `9833931c89842bd33952133ae3e3f396d9dc4c6d2736f40956c0bafe36177ea7`; `production-dry-run.json` SHA-256 `8649b62574678ee9e3bbf5b0713d31dab1ffcacf32d396eec8849e5efe735e5b`; `production-preflight-diagnostic.json` SHA-256 `9a2ea23ebb20c98f29ea11f367641e29cd42cc5a90d34ac82e602ee828066cf3`.
+
+The evidence is exact and freshness-only: approved manifest SHA-256 `fe0d6d278328d82f23c39711d91e262cdea8d8fa8f870f345d1260c6b6d234b7`, source fingerprint `7a35471a9a0eae1645522a59eaef06491df1cb65cb52be5c00e8b5690a261953`, approved mappings `1`, execution offer IDs `[2490]`, executable plans `1`, executed plans `0`, review rows `0`, blocked rows `0`, classification `VERIFY_NO_CHANGE 1`, production writes `0`.
+
+Copy-ready approval line for the next phase, if the owner chooses to execute only this one Dolphin freshness confirmation:
+
+```text
+Zatwierdzam jeden produkcyjny Dolphin Fitness apply przez istniejący chroniony workflow "Dolphin Vegan Protein Offer Refresh" z dry-runu 33494970439, artefaktu 9795332857, commita 3a67dc2abadfb47b88776e970509079f0827b9cb, artifact ZIP SHA-256 9833931c89842bd33952133ae3e3f396d9dc4c6d2736f40956c0bafe36177ea7, dry-run report SHA-256 8649b62574678ee9e3bbf5b0713d31dab1ffcacf32d396eec8849e5efe735e5b, approved manifest SHA-256 fe0d6d278328d82f23c39711d91e262cdea8d8fa8f870f345d1260c6b6d234b7 i source fingerprint 7a35471a9a0eae1645522a59eaef06491df1cb65cb52be5c00e8b5690a261953; zatwierdzam dokładnie 1 ofertę 2490 jako VERIFY_NO_CHANGE, 0 review i 0 blocked; dopuszczam wyłącznie 1 zmianę last_checked_at i zero zmian ceny, stocku, shippingu, totalu, URL, mappingów, produktów, wariantów, liczby offers i price_history; wymagane są DB baseline, atomic apply, DB postflight i idempotency; nie zatwierdzam commercial changes, identity/rebind, zmian ofert 8 ani 9, replayu ani prac przy innych retailerach.
+```
+
 ## Discount Supplements approved freshness apply complete - 1 September 2026, 09:09 UTC
 
 The owner-approved `combined_109` Discount Supplements freshness apply was executed exactly once through the existing protected `Discount Supplements Offer Refresh` workflow (`creatine-offer-refresh.yml`). Scope: run `33490387707`, artifact `9793553302`, code commit `0f729521998c5fc01f4cc071da4b7a7626630a5f`, artifact ZIP SHA-256 `9efd0a40ad3c646fd27767cfad55f57d00336c591bc9d4c0b712944198c41fac`, source fingerprint `9caa65e90eec7d9383a35e206d4967fc44bfa652722843885b5c45e3a7c106e0`, approved manifest SHA-256 `308ab2f082abaf1c541210917b168b2ce6bc69ffd78026bf8d18c9801f898746`.

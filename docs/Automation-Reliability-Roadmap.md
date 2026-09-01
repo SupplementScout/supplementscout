@@ -1,5 +1,12 @@
 # Automation Reliability Roadmap
 
+### Dolphin Fitness one-offer freshness dry-run ready - 1 September 2026, 09:58 UTC
+
+- GitHub dry-run `33494970439` (`Dolphin Vegan Protein Offer Refresh` #51) completed `success` from commit `3a67dc2abadfb47b88776e970509079f0827b9cb`. The dry-run-only workflow path ran tests and preflight, then skipped DB baseline, apply, DB postflight and idempotency because `operation=dry-run`.
+- Artifact `9795332857`, name `dolphin-vegan-protein-offer-refresh-33494970439-1`, is not expired and has ZIP SHA-256 `9833931c89842bd33952133ae3e3f396d9dc4c6d2736f40956c0bafe36177ea7`. `production-dry-run.json` SHA-256 is `8649b62574678ee9e3bbf5b0713d31dab1ffcacf32d396eec8849e5efe735e5b`; `production-preflight-diagnostic.json` SHA-256 is `9a2ea23ebb20c98f29ea11f367641e29cd42cc5a90d34ac82e602ee828066cf3`.
+- Contract is exact and freshness-only: approved manifest SHA-256 `fe0d6d278328d82f23c39711d91e262cdea8d8fa8f870f345d1260c6b6d234b7`; source fingerprint `7a35471a9a0eae1645522a59eaef06491df1cb65cb52be5c00e8b5690a261953`; approved mappings `1`; execution offer IDs `[2490]`; executable plans `1`; executed plans `0`; review rows `0`; blocked rows `0`; classification `VERIFY_NO_CHANGE 1`.
+- Expected apply delta, if separately owner-approved, is only one `last_checked_at` update. Price, stock, shipping, total, URL, mapping URL, mapping updated_at, products, product variants, retailer products, offers and price history remain unchanged. This dry-run is evidence only and does not authorize apply.
+
 ### Discount Supplements approved freshness apply complete - 1 September 2026, 09:09 UTC
 
 - Owner-approved Discount Supplements production apply completed exactly once through the existing protected `Discount Supplements Offer Refresh` workflow (`creatine-offer-refresh.yml`) for run `33490387707`, artifact `9793553302`, commit `0f729521998c5fc01f4cc071da4b7a7626630a5f`. Scope was `combined_109`; no replay, manual SQL, commercial change, identity/rebind change or other-retailer work was run.
