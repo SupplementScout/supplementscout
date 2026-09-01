@@ -1,5 +1,15 @@
 # Automation Reliability Roadmap
 
+### Discount Supplements approved freshness apply complete - 1 September 2026, 09:09 UTC
+
+- Owner-approved Discount Supplements production apply completed exactly once through the existing protected `Discount Supplements Offer Refresh` workflow (`creatine-offer-refresh.yml`) for run `33490387707`, artifact `9793553302`, commit `0f729521998c5fc01f4cc071da4b7a7626630a5f`. Scope was `combined_109`; no replay, manual SQL, commercial change, identity/rebind change or other-retailer work was run.
+- Workflow result `success`: preflight dry-run `PASS`, DB baseline read-only `PASS`, atomic apply `PASS`, DB postflight `PASS`, idempotency dry-run `PASS`. Artifact ZIP SHA-256 is `9efd0a40ad3c646fd27767cfad55f57d00336c591bc9d4c0b712944198c41fac`.
+- Apply contract matched the approval: approved mappings `109`, executable plans `109`, executed plans `109`, review rows `0`, blocked rows `0`, classification `VERIFY_NO_CHANGE 109`, source fingerprint `9caa65e90eec7d9383a35e206d4967fc44bfa652722843885b5c45e3a7c106e0`, approved manifest SHA-256 `308ab2f082abaf1c541210917b168b2ce6bc69ffd78026bf8d18c9801f898746`.
+- DB postflight passed with baseline hash `6ed414c5c6f164d19afbdfc33af654f718922b8289a08a53224d735fc12508a1` and postflight hash `da899da970e477fccee3fee619cacab6372e70fb5400c0af3f22091f4b5bf2b6`: freshness changes `109`; price, stock, shipping, total, URL and mapping URL changes `0`; products, product variants, retailer products, offers and price history row deltas `0`.
+- Idempotency evidence passed with zero writes: database writes attempted/completed `0`, business writes `0`, control writes `0`, approvals created/consumed `0`; the fresh source still classified the same `109` rows as `VERIFY_NO_CHANGE`.
+- Read-only Catalog Health after the apply remained `Critical` from other unresolved scope: active unmerged products `1088`, products without valid in-stock offer `208`, global stale >7/>30 `374/322`, Discount stale >7/>30 `47/36`, active review rows `328`. The remaining Discount stale rows are outside the approved immutable `109` freshness scope and were intentionally not changed.
+- Local read-only watchdog after the apply returned aggregate `FAIL` with database writes `0` because all-retailer monitoring still has known sprint evidence/stale gaps. This is retained as a sprint-level blocker, not a Discount apply failure.
+
 ### eBay Review Queue reconciliation applied - 31 August 2026, 17:22 UTC
 
 - Owner-approved Review Queue reconciliation apply completed via `publish_automation_review_queue_changes(jsonb)` for GitHub dry-run `33418109981`, artifact `9767810569`, code commit `cf077e01a129775233a3d93a6a177bf502495b45`, report SHA-256 `79cd5f93ec0cf895466522aef3572e5d585ed9d56931974fa760a472c5e976e1`. No offer apply, commercial change, identity/rebind apply, freshness apply, cron change, replay or other-retailer work was run.

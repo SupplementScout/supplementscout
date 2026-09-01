@@ -1,5 +1,15 @@
 # Automation Reliability — Owner Decision Pack
 
+## Discount Supplements approved freshness apply complete - 1 September 2026, 09:09 UTC
+
+The owner-approved `combined_109` Discount Supplements freshness apply was executed exactly once through the existing protected `Discount Supplements Offer Refresh` workflow (`creatine-offer-refresh.yml`). Scope: run `33490387707`, artifact `9793553302`, code commit `0f729521998c5fc01f4cc071da4b7a7626630a5f`, artifact ZIP SHA-256 `9efd0a40ad3c646fd27767cfad55f57d00336c591bc9d4c0b712944198c41fac`, source fingerprint `9caa65e90eec7d9383a35e206d4967fc44bfa652722843885b5c45e3a7c106e0`, approved manifest SHA-256 `308ab2f082abaf1c541210917b168b2ce6bc69ffd78026bf8d18c9801f898746`.
+
+Production effect: `109/109 VERIFY_NO_CHANGE` executed; review rows `0`; blocked rows `0`; exactly `109` `last_checked_at` changes. DB postflight passed with baseline hash `6ed414c5c6f164d19afbdfc33af654f718922b8289a08a53224d735fc12508a1` and postflight hash `da899da970e477fccee3fee619cacab6372e70fb5400c0af3f22091f4b5bf2b6`. Price, stock, shipping, total, URL, mapping URL, products, product variants, retailer products, offers and price history were unchanged.
+
+Idempotency passed with zero database writes, zero business writes, zero control writes and zero approvals created/consumed. No replay, manual SQL, commercial change, identity/rebind apply or other-retailer work was run.
+
+Post-apply Catalog Health remains `Critical` because the unresolved sprint scope is elsewhere: active unmerged products `1088`, products without valid in-stock offer `208`, global stale >7/>30 `374/322`, active review rows `328`. Discount still shows stale >7/>30 `47/36`; those rows are outside the approved immutable `109` freshness scope and remain unmodified pending separate evidence/decision.
+
 ## eBay Review Queue reconciliation apply complete - 31 August 2026, 17:22 UTC
 
 The owner-approved Review Queue lifecycle reconciliation was applied exactly once through `publish_automation_review_queue_changes(jsonb)`. Scope: eBay UK dry-run `33418109981`, artifact `9767810569`, code commit `cf077e01a129775233a3d93a6a177bf502495b45`, report SHA-256 `79cd5f93ec0cf895466522aef3572e5d585ed9d56931974fa760a472c5e976e1`, baseline queue hash `0c8f3cbfbeb43d4eabca945a08de0c96df96005ddc5683926f50317e6c8c3b0f`, catalogue hash `7adab698d33a3a08b9b304b4d0f23e7ebbb7d3df9df3013ab0d90b5112ad6a51`, publisher batch fingerprint `7fec143c13b159c6ef7c48d7682909d1534dd6ec447a82666c05591ab4f9da48`, changeset fingerprint `9c59149ca5162d69909b1597db5326ccd06116eac3e6c15d063ab3a6a195b3bc`, idempotency key `0766793aa53e88ff15cdd26dde93ab1b7841feb0388d25c679aadb40532b11bc`.
