@@ -206,16 +206,28 @@ test("workflow is scheduled, dry-run by default and role-separated without servi
 });
 
 test("workflow exposes exact reviewed offer 73 dry-run with validator-only credentials", () => {
-  assert.match(workflow, /reviewed-offer-73-dry-run/);
-  const start = workflow.indexOf("Build immutable reviewed offer 73 dry-run");
-  const end = workflow.indexOf("\n      - name:", start + 1);
-  const step = workflow.slice(start, end);
-  assert.match(step, /github\.event_name == 'workflow_dispatch'/);
-  assert.match(step, /inputs\.operation == 'reviewed-offer-73-dry-run'/);
-  assert.match(step, /whey-okay-offer-73-reviewed-dry-run\.js/);
-  assert.match(step, /WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL/);
-  assert.doesNotMatch(step, /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
-  assert.match(workflow, /path: tmp\/whey-okay-offer-refresh\//);
+  const standardStart = workflow.indexOf("\n  whey-okay-offer-refresh:");
+  const reviewedStart = workflow.indexOf("\n  reviewed-offer-73-dry-run:");
+  assert.ok(standardStart > -1 && reviewedStart > standardStart);
+  const standardJob = workflow.slice(standardStart, reviewedStart);
+  const reviewedJob = workflow.slice(reviewedStart);
+
+  assert.match(standardJob, /github\.event\.inputs\.operation == 'dry-run'/);
+  assert.match(standardJob, /github\.event\.inputs\.operation == 'apply'/);
+  assert.doesNotMatch(standardJob, /github\.event\.inputs\.operation == 'reviewed-offer-73-dry-run'/);
+  assert.match(standardJob, /Dry-run all approved Whey Okay offers/);
+  assert.match(standardJob, /Apply all approved Whey Okay offer refreshes/);
+  assert.match(standardJob, /github\.event_name == 'schedule'/);
+
+  assert.match(reviewedJob, /github\.event_name == 'workflow_dispatch'/);
+  assert.match(reviewedJob, /github\.event\.inputs\.operation == 'reviewed-offer-73-dry-run'/);
+  assert.match(reviewedJob, /Build immutable reviewed offer 73 dry-run/);
+  assert.match(reviewedJob, /whey-okay-offer-73-reviewed-dry-run\.js/);
+  assert.match(reviewedJob, /Upload reviewed offer 73 evidence[\s\S]*if: always\(\)/);
+  assert.match(reviewedJob, /WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL/);
+  assert.doesNotMatch(reviewedJob, /Dry-run all approved Whey Okay offers|Apply all approved Whey Okay offer refreshes/);
+  assert.doesNotMatch(reviewedJob, /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(reviewedJob, /path: tmp\/whey-okay-offer-refresh\//);
   assert.match(reviewedOffer73DryRun, /default_transaction_read_only=on/);
   assert.match(reviewedOffer73DryRun, /begin read only/);
   assert.match(reviewedOffer73DryRun, /set local role retailer_catalogue_production_validator/);

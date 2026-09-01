@@ -32,7 +32,7 @@ concurrency:
 
 jobs:
   whey-okay-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.operation == 'dry-run' || github.event.inputs.operation == 'apply'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: production-readonly
@@ -78,51 +78,41 @@ jobs:
           scripts/adapters/jons-supplements.test.js
 
       - name: Dry-run all approved Whey Okay offers
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'dry-run' || inputs.operation == 'apply' }}
         env:
           WHEY_OKAY_REFRESH_PHASE: preflight
-          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || github.event.inputs.validation_context }}
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
-      - name: Build immutable reviewed offer 73 dry-run
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'reviewed-offer-73-dry-run' }}
-        env:
-          WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
-        run: >-
-          node scripts/whey-okay-offer-73-reviewed-dry-run.js
-          --mode=dry-run
-          --output=tmp/whey-okay-offer-refresh/reviewed-offer-73-plan.json
-
       - name: Capture Whey Okay DB baseline read-only
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
         env:
           WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=whey-okay --mode=baseline --output=tmp/whey-okay-offer-refresh/production-db-baseline.json
 
       - name: Apply all approved Whey Okay offer refreshes
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
         env:
           WHEY_OKAY_REFRESH_PHASE: apply
-          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || github.event.inputs.validation_context }}
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
 
       - name: Verify Whey Okay DB postflight read-only
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
         env:
           WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=whey-okay --mode=postflight --baseline=tmp/whey-okay-offer-refresh/production-db-baseline.json --execution=tmp/whey-okay-offer-refresh/production-apply-apply.json --output=tmp/whey-okay-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency with a fresh source capture
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.operation == 'apply' }}
         env:
           WHEY_OKAY_REFRESH_PHASE: idempotency
-          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
+          WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || github.event.inputs.validation_context }}
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
@@ -144,6 +134,65 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: whey-okay-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: error
+          path: tmp/whey-okay-offer-refresh/
+
+  reviewed-offer-73-dry-run:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'reviewed-offer-73-dry-run' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-readonly
+
+    steps:
+      - name: Validate reviewed offer 73 routing
+        env:
+          REQUESTED_OPERATION: ${{ github.event.inputs.operation }}
+          EXPECTED_REPOSITORY: SupplementScout/supplementscout
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          test "$REQUESTED_OPERATION" = "reviewed-offer-73-dry-run"
+          echo "Requested operation: $REQUESTED_OPERATION"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Test reviewed offer 73 contracts
+        run: >
+          node --test
+          scripts/ekm-google-product-feed-reader.test.js
+          scripts/reviewed-variant-create-rebind-offer-update.test.js
+          scripts/whey-okay-sync-plan-registration.test.js
+
+      - name: Initialize reviewed evidence path
+        run: mkdir -p tmp/whey-okay-offer-refresh
+
+      - name: Build immutable reviewed offer 73 dry-run
+        env:
+          WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: >-
+          node scripts/whey-okay-offer-73-reviewed-dry-run.js
+          --mode=dry-run
+          --output=tmp/whey-okay-offer-refresh/reviewed-offer-73-plan.json
+
+      - name: Upload reviewed offer 73 evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: whey-okay-offer-73-reviewed-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: error
           path: tmp/whey-okay-offer-refresh/
