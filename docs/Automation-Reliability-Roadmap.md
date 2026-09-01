@@ -1,5 +1,15 @@
 # Automation Reliability Roadmap
 
+### Dolphin Fitness one-offer freshness apply complete - 1 September 2026, 10:07 UTC
+
+- Owner-approved Dolphin Fitness production apply completed exactly once through the existing protected `Dolphin Vegan Protein Offer Refresh` workflow for run `33495512343`, artifact `9795560852`, commit `4de0caed260437bc6cd9a715cb553d396c2329da`. The only difference from the owner-approved dry-run commit `3a67dc2abadfb47b88776e970509079f0827b9cb` was documentation in this ledger and Owner Decisions; no workflow, executor or catalogue code changed.
+- Workflow result `success`: tests, preflight dry-run, DB baseline, atomic apply, DB postflight and idempotency all completed successfully. Artifact ZIP SHA-256 is `d4cba8509b47ea348a787b441d01c66825012125d29a20b54e6857a1bf05db31`.
+- Apply contract matched the approved scope: approved mappings `1`, execution offer IDs `[2490]`, executable plans `1`, executed plans `1`, review rows `0`, blocked rows `0`, classification `VERIFY_NO_CHANGE 1`, source fingerprint `7a35471a9a0eae1645522a59eaef06491df1cb65cb52be5c00e8b5690a261953`, approved manifest SHA-256 `fe0d6d278328d82f23c39711d91e262cdea8d8fa8f870f345d1260c6b6d234b7`.
+- DB postflight passed with baseline hash `25f8ab9f07fb689f8a0beaae645d3a6d1c616c8ff039fcb6244201654d6e56e1` and postflight hash `ff27a4bef41ff4183e200c4ce88259df68da27bd1697fb9d0d1570a6ceb78015`: exactly one freshness change; price, stock, shipping, total, URL, mapping URL and price history deltas `0`.
+- Idempotency passed with database/business/control writes `0`, approvals created/consumed `0`, and fresh source still classified offer `2490` as `VERIFY_NO_CHANGE`.
+- Read-only Catalog Health after apply: active unmerged products `1088`, products without valid in-stock offer `209`, global stale >7/>30 `374/322`, Dolphin stale >7/>30 `2/2`, active review rows `328`. A scoped read-only sanity check confirmed product `70` remains active with valid in-stock offers, offer `2490` remains in stock at `21.95`, and its `last_checked_at` is `2026-09-01T10:04:57.74+00:00`; therefore the global `208 -> 209` valid-offer metric movement is outside this Dolphin freshness-only apply.
+- No commercial change, identity/rebind change, offer `8` or `9` change, replay, manual SQL or other-retailer work was run.
+
 ### Dolphin Fitness one-offer freshness dry-run ready - 1 September 2026, 09:58 UTC
 
 - GitHub dry-run `33494970439` (`Dolphin Vegan Protein Offer Refresh` #51) completed `success` from commit `3a67dc2abadfb47b88776e970509079f0827b9cb`. The dry-run-only workflow path ran tests and preflight, then skipped DB baseline, apply, DB postflight and idempotency because `operation=dry-run`.

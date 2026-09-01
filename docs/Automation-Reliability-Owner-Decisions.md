@@ -1,5 +1,17 @@
 # Automation Reliability — Owner Decision Pack
 
+## Dolphin Fitness one-offer freshness apply complete - 1 September 2026, 10:07 UTC
+
+The owner-approved Dolphin Fitness freshness apply was executed exactly once through the existing protected `Dolphin Vegan Protein Offer Refresh` workflow. Scope: run `33495512343`, artifact `9795560852`, code commit `4de0caed260437bc6cd9a715cb553d396c2329da`; this commit differed from the approved dry-run commit `3a67dc2abadfb47b88776e970509079f0827b9cb` only by documentation changes in this ledger and Roadmap. Artifact ZIP SHA-256 is `d4cba8509b47ea348a787b441d01c66825012125d29a20b54e6857a1bf05db31`.
+
+Production effect: offer `2490` executed as `1/1 VERIFY_NO_CHANGE`; review rows `0`; blocked rows `0`; exactly one `last_checked_at` change. Source fingerprint `7a35471a9a0eae1645522a59eaef06491df1cb65cb52be5c00e8b5690a261953` and approved manifest SHA-256 `fe0d6d278328d82f23c39711d91e262cdea8d8fa8f870f345d1260c6b6d234b7` matched the approved contract.
+
+DB postflight passed with baseline hash `25f8ab9f07fb689f8a0beaae645d3a6d1c616c8ff039fcb6244201654d6e56e1` and postflight hash `ff27a4bef41ff4183e200c4ce88259df68da27bd1697fb9d0d1570a6ceb78015`. Price, stock, shipping, total, URL, mapping URL and price history deltas were all `0`. Idempotency passed with zero database, business and control writes and no approval rows created or consumed.
+
+Read-only Catalog Health after apply remains `Critical`: active unmerged products `1088`, products without valid in-stock offer `209`, global stale >7/>30 `374/322`, Dolphin stale >7/>30 `2/2`, active review rows `328`. A scoped read-only check confirmed product `70` remains active with valid in-stock offers and offer `2490` remains in stock at `21.95`; the global valid-offer metric movement is therefore outside this one-offer Dolphin apply.
+
+No commercial change, identity/rebind apply, offer `8` or `9` change, replay, manual SQL or other-retailer work was run.
+
 ## Dolphin Fitness one-offer freshness dry-run ready for approval - 1 September 2026, 09:58 UTC
 
 GitHub dry-run `33494970439` (`Dolphin Vegan Protein Offer Refresh` #51) completed `success` from commit `3a67dc2abadfb47b88776e970509079f0827b9cb`. Artifact `9795332857`, `dolphin-vegan-protein-offer-refresh-33494970439-1`, has ZIP SHA-256 `9833931c89842bd33952133ae3e3f396d9dc4c6d2736f40956c0bafe36177ea7`; `production-dry-run.json` SHA-256 `8649b62574678ee9e3bbf5b0713d31dab1ffcacf32d396eec8849e5efe735e5b`; `production-preflight-diagnostic.json` SHA-256 `9a2ea23ebb20c98f29ea11f367641e29cd42cc5a90d34ac82e602ee828066cf3`.
