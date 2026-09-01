@@ -14,6 +14,10 @@ const workflow = fs.readFileSync(
   path.join(process.cwd(), ".github/workflows/whey-okay-offer-refresh.yml"),
   "utf8",
 );
+const reviewedOffer73DryRun = fs.readFileSync(
+  path.join(process.cwd(), "scripts/whey-okay-offer-73-reviewed-dry-run.js"),
+  "utf8",
+);
 const isolatedRefreshMigration = fs.readFileSync(
   path.join(process.cwd(), "supabase/migrations/20260820100000_add_whey_okay_isolated_confirmed_price_refresh.sql"),
   "utf8",
@@ -198,5 +202,23 @@ test("workflow is scheduled, dry-run by default and role-separated without servi
   assert.doesNotMatch(workflow, /^\s*SAFE_UPDATE\s*:/m);
   assert.match(workflow, /if: always\(\)/);
   assert.match(workflow, /continue-on-error: true/);
-  assert.match(workflow, /if-no-files-found: warn/);
+  assert.match(workflow, /if-no-files-found: error/);
+});
+
+test("workflow exposes exact reviewed offer 73 dry-run with validator-only credentials", () => {
+  assert.match(workflow, /reviewed-offer-73-dry-run/);
+  const start = workflow.indexOf("Build immutable reviewed offer 73 dry-run");
+  const end = workflow.indexOf("\n      - name:", start + 1);
+  const step = workflow.slice(start, end);
+  assert.match(step, /github\.event_name == 'workflow_dispatch'/);
+  assert.match(step, /inputs\.operation == 'reviewed-offer-73-dry-run'/);
+  assert.match(step, /whey-okay-offer-73-reviewed-dry-run\.js/);
+  assert.match(step, /WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL/);
+  assert.doesNotMatch(step, /APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(workflow, /path: tmp\/whey-okay-offer-refresh\//);
+  assert.match(reviewedOffer73DryRun, /default_transaction_read_only=on/);
+  assert.match(reviewedOffer73DryRun, /begin read only/);
+  assert.match(reviewedOffer73DryRun, /set local role retailer_catalogue_production_validator/);
+  assert.match(reviewedOffer73DryRun, /supplementscout_production_validator_login/);
+  assert.doesNotMatch(reviewedOffer73DryRun, /SUPABASE_SERVICE_ROLE_KEY|approve_product_import_plan|apply_approved_product_import_plan/);
 });

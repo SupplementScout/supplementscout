@@ -2,7 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const dotenv = require("dotenv");
-const { createClient } = require("@supabase/supabase-js");
+const { Client } = require("pg");
 const { canonicalJson } = require("./lib/canonical-json");
 const { readEkmGoogleProductFeed } = require("./lib/ekm-google-product-feed-reader");
 const { buildReviewedVariantCreateRebindPlan } = require("./lib/reviewed-variant-create-rebind-offer-update");
@@ -30,14 +30,14 @@ function parseArgs(argv) {
   return { ...args, output };
 }
 async function one(client, table, select, id) {
-  const { data, error } = await client.from(table).select(select).eq("id", id).maybeSingle();
-  invariant(!error && data, `${table} ${id} read failed: ${error?.message || "missing"}`);
-  return data;
+  invariant(select === "*", "reviewed state reads must request the complete row");
+  const result = await client.query(`select to_jsonb(row) value from public.${table} row where id=$1`, [id]);
+  invariant(result.rows.length === 1, `${table} ${id} read failed: missing`);
+  return result.rows[0].value;
 }
 async function variants(client) {
-  const { data, error } = await client.from("product_variants").select("*").eq("product_id", scope.product_id).order("id");
-  invariant(!error, `product_variants read failed: ${error?.message}`);
-  return data || [];
+  const result = await client.query("select to_jsonb(row) value from public.product_variants row where product_id=$1 order by id", [scope.product_id]);
+  return result.rows.map((row) => row.value);
 }
 async function state(client) {
   const [product, retailer, mapping, offer, allVariants] = await Promise.all([
@@ -74,9 +74,19 @@ async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   invariant(!fs.existsSync(args.output) && !fs.existsSync(`${args.output}.sha256`), "refusing to overwrite immutable dry-run artifact");
   dotenv.config({ path: path.join(ROOT, ".env.local"), quiet: true });
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  invariant(url && key && new URL(url).hostname.split(".")[0] === PRODUCTION_REF, "production read-only binding missing");
-  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const connectionString = process.env.WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL;
+  invariant(connectionString && connectionString.includes(PRODUCTION_REF), "production validator binding missing");
+  const url = new URL(connectionString);
+  url.searchParams.delete("sslmode");
+  const client = new Client({ connectionString: url.href, ssl: { rejectUnauthorized: false }, application_name: "whey-offer-73-reviewed-dry-run", options: "-c default_transaction_read_only=on -c statement_timeout=120000" });
+  await client.connect();
+  let transactionStarted = false;
+  try {
+  await client.query("begin read only");
+  transactionStarted = true;
+  await client.query("set local role retailer_catalogue_production_validator");
+  const role = (await client.query("select session_user, current_user, current_setting('transaction_read_only') read_only")).rows[0];
+  invariant(role.session_user === "supplementscout_production_validator_login" && role.current_user === "retailer_catalogue_production_validator" && role.read_only === "on", "validator role or read-only mode mismatch");
   const before = await state(client);
   const first = await capture();
   const second = await capture();
@@ -116,7 +126,15 @@ async function main(argv = process.argv.slice(2)) {
   const reportPath = `${args.output}.report.json`;
   fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
   console.log(JSON.stringify({ ...report, report_sha256: crypto.createHash("sha256").update(fs.readFileSync(reportPath)).digest("hex") }, null, 2));
+  await client.query("commit");
+  transactionStarted = false;
   return report;
+  } catch (error) {
+    if (transactionStarted) await client.query("rollback").catch(() => {});
+    throw error;
+  } finally {
+    await client.end();
+  }
 }
 
 if (require.main === module) main().catch((error) => { console.error(error.stack || error); process.exitCode = 1; });

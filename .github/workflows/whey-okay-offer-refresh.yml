@@ -11,6 +11,7 @@ on:
         options:
           - dry-run
           - apply
+          - reviewed-offer-73-dry-run
       validation_context:
         description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
         required: true
@@ -68,6 +69,7 @@ jobs:
           node --test
           scripts/ekm-google-product-feed-reader.test.js
           scripts/whey-okay-offer-refresh.test.js
+          scripts/reviewed-variant-create-rebind-offer-update.test.js
           scripts/whey-okay-sync-plan-registration.test.js
           scripts/retailer-offer-sync.test.js
           scripts/retailer-offer-sync-matrix.test.js
@@ -76,6 +78,7 @@ jobs:
           scripts/adapters/jons-supplements.test.js
 
       - name: Dry-run all approved Whey Okay offers
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'dry-run' || inputs.operation == 'apply' }}
         env:
           WHEY_OKAY_REFRESH_PHASE: preflight
           WHEY_OKAY_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
@@ -83,6 +86,15 @@ jobs:
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/whey-okay-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
+
+      - name: Build immutable reviewed offer 73 dry-run
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'reviewed-offer-73-dry-run' }}
+        env:
+          WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: >-
+          node scripts/whey-okay-offer-73-reviewed-dry-run.js
+          --mode=dry-run
+          --output=tmp/whey-okay-offer-refresh/reviewed-offer-73-plan.json
 
       - name: Capture Whey Okay DB baseline read-only
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -133,5 +145,5 @@ jobs:
         with:
           name: whey-okay-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
-          if-no-files-found: warn
-          path: tmp/whey-okay-offer-refresh/*.json
+          if-no-files-found: error
+          path: tmp/whey-okay-offer-refresh/
