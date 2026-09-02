@@ -3,6 +3,7 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { parse } = require("csv-parse/sync");
 const { assertConfig, evaluateItem, DEFAULT_POLICY, getApplicationToken } = require("./lib/ebay-browse-pilot");
+const { boundedSourceFetch } = require("./lib/bounded-source-fetch");
 const { loadDryRunArtifact, runImportRows, writeDryRunArtifact } = require("./import-products");
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { buildVerifiedNoChangeDryRun } = require("./verified-no-change-offer-refresh");
@@ -327,10 +328,14 @@ function pendingArtifact(scope) { return path.join(OUT, `pending-${scope.offer_i
 
 function partitionSourceFailures(unsafeRows) {
   const sourceFailures = unsafeRows.filter((row) => row.source_error === "SOURCE_READ_FAILED");
-  const isolated = sourceFailures.length <= 1;
+  const explicitlyIsolated = sourceFailures.filter((row) => row.source_failure_scope === "ROW");
+  const unclassified = sourceFailures.filter((row) => !row.source_failure_scope);
+  const globalBlocked = sourceFailures.filter((row) => row.source_failure_scope === "GLOBAL");
+  if (unclassified.length > 1) globalBlocked.push(...unclassified);
+  else explicitlyIsolated.push(...unclassified);
   return {
-    globalBlocked: isolated ? [] : sourceFailures,
-    sourceFailureReview: isolated ? sourceFailures.map((row) => ({ ...row, review_type: "SOURCE_FAILURE" })) : [],
+    globalBlocked,
+    sourceFailureReview: explicitlyIsolated.map((row) => ({ ...row, review_type: "SOURCE_FAILURE" })),
   };
 }
 
@@ -477,15 +482,27 @@ function actionForPlan(plan) {
   return "MANUAL_REVIEW";
 }
 
-async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = null) {
+async function buildSource(scope, config, fetchImpl = fetch, tokenOverride = null, sourceFetchOptions = {}) {
   const token = tokenOverride || await getApplicationToken(config, fetchImpl);
   const context = [`contextualLocation=country%3DGB%2Czip%3D${encodeURIComponent(config.postcode)}`];
   if (config.campaign_id) context.push(`affiliateCampaignId=${encodeURIComponent(config.campaign_id)}`);
-  const response = await fetchImpl(`https://api.ebay.com/buy/browse/v1/item/${encodeURIComponent(scope.external_variant_id)}`, { headers: { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id, "X-EBAY-C-ENDUSERCTX": context.join(",") } });
-  if (!response.ok) fail(`Approved eBay listing ${scope.external_variant_id} direct read failed with HTTP ${response.status}; automatic OOS is intentionally blocked`);
+  const fetched = await boundedSourceFetch(`https://api.ebay.com/buy/browse/v1/item/${encodeURIComponent(scope.external_variant_id)}`, { headers: { Authorization: `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": config.marketplace_id, "X-EBAY-C-ENDUSERCTX": context.join(",") } }, { fetchImpl, ...sourceFetchOptions });
+  const response = fetched.response;
+  const status = Number(response.status || (response.ok ? 200 : 0));
+  if (!response.ok) {
+    const error = new Error(`Approved eBay listing ${scope.external_variant_id} direct read failed with HTTP ${status}; automatic OOS is intentionally blocked`);
+    error.source_failure_scope = status === 404 ? "ROW" : "GLOBAL";
+    error.source_retry = { attempts: fetched.attempts, retry_count: fetched.retry_count };
+    error.http_metadata = { status };
+    throw error;
+  }
   const exact = await response.json();
   if (String(exact.itemId) !== scope.external_variant_id || String(exact.legacyItemId) !== scope.external_product_id) fail(`Direct eBay item identity drift for offer ${scope.offer_id}`);
-  return evaluateItem(scope, exact, { ...DEFAULT_POLICY, affiliate_campaign_configured: true });
+  return {
+    ...evaluateItem(scope, exact, { ...DEFAULT_POLICY, affiliate_campaign_configured: true }),
+    source_retry: { attempts: fetched.attempts, retry_count: fetched.retry_count },
+    http_metadata: { status },
+  };
 }
 
 async function prepareScope(scope, evaluation, mode, dependencies, stamp, approvedSourceCapturedAt = null) {
@@ -576,9 +593,9 @@ async function run(options, dependencies = {}) {
   const evaluations = [];
   for (const scope of SCOPES) {
     try {
-      const evaluation = dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token);
+      const evaluation = dependencies.evaluations?.get(scope.offer_id) || await buildSource(scope, config, dependencies.fetchImpl || fetch, token, dependencies.sourceFetchOptions);
       evaluations.push({ ...evaluation, continuity: evaluation.continuity || classifyContinuity(scope, evaluation) });
-    } catch {
+    } catch (error) {
       evaluations.push({
         item_id: scope.external_variant_id,
         decision: "NOT_FOUND",
@@ -586,6 +603,9 @@ async function run(options, dependencies = {}) {
         review_reasons: [],
         returned_gtin: null,
         source_error: "SOURCE_READ_FAILED",
+        source_failure_scope: error?.source_failure_scope || "GLOBAL",
+        source_retry: error?.source_retry || null,
+        http_metadata: error?.http_metadata || null,
         continuity: { eligible: false, tier: "blocked" },
       });
     }
@@ -598,6 +618,9 @@ async function run(options, dependencies = {}) {
     review_reasons: evaluation.review_reasons,
     returned_gtin: evaluation.returned_gtin,
     source_error: evaluation.source_error || null,
+    source_failure_scope: evaluation.source_failure_scope || null,
+    source_retry: evaluation.source_retry || null,
+    http_metadata: evaluation.http_metadata || null,
   }]);
   const prepared = [];
   for (let index = 0; index < SCOPES.length; index += 1) {

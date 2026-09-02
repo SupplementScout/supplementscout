@@ -537,6 +537,49 @@ test("eBay refresh reads the approved item directly and remains GET-only", async
   resetTokenCache();
 });
 
+test("eBay refresh retries transient direct reads and records bounded source evidence", async () => {
+  let attempts = 0;
+  const exact = item({ itemId: REFRESH_SCOPE.external_variant_id, legacyItemId: REFRESH_SCOPE.external_product_id, gtin: REFRESH_SCOPE.gtin, brand: REFRESH_SCOPE.brand, title: "Trec Nutrition Creatine Monohydrate Taurine Unflavoured 400g Powder", localizedAspects: [{ name: "Flavour", value: "Unflavoured" }, { name: "Size", value: "400g" }, { name: "Formulation", value: "Powder" }] });
+  const fetchImpl = async () => {
+    attempts += 1;
+    if (attempts < 3) return { ok: false, status: 503, body: { cancel: async () => {} } };
+    return { ok: true, status: 200, json: async () => exact };
+  };
+  const result = await buildRefreshSource(
+    REFRESH_SCOPE,
+    { marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: "123" },
+    fetchImpl,
+    "test-token",
+    { retryBaseDelayMs: 0, sleepImpl: async () => {} },
+  );
+  assert.equal(attempts, 3);
+  assert.deepEqual(result.source_retry, { attempts: 3, retry_count: 2 });
+  assert.deepEqual(result.http_metadata, { status: 200 });
+});
+
+test("eBay refresh classifies unavailable items per row while systemic source errors remain global", async () => {
+  await assert.rejects(
+    buildRefreshSource(
+      REFRESH_SCOPE,
+      { marketplace_id: "EBAY_GB", postcode: "SW1A 1AA", campaign_id: null },
+      async () => ({ ok: false, status: 404 }),
+      "test-token",
+      { retryBaseDelayMs: 0, sleepImpl: async () => {} },
+    ),
+    (error) => error.source_failure_scope === "ROW"
+      && error.source_retry.attempts === 1
+      && error.http_metadata.status === 404,
+  );
+  const rows = [
+    { offer_id: "2552", source_error: "SOURCE_READ_FAILED", source_failure_scope: "ROW", http_metadata: { status: 404 } },
+    { offer_id: "2686", source_error: "SOURCE_READ_FAILED", source_failure_scope: "ROW", http_metadata: { status: 404 } },
+  ];
+  assert.equal(partitionSourceFailures(rows).globalBlocked.length, 0);
+  assert.deepEqual(partitionSourceFailures(rows).sourceFailureReview.map((row) => row.offer_id), ["2552", "2686"]);
+  const outage = rows.concat({ offer_id: "2708", source_error: "SOURCE_READ_FAILED", source_failure_scope: "GLOBAL", http_metadata: { status: 503 } });
+  assert.deepEqual(partitionSourceFailures(outage).globalBlocked.map((row) => row.offer_id), ["2708"]);
+});
+
 test("Batch K refresh continuity is sealed to the nine owner-reviewed missing-GTIN items", () => {
   const scopes = REFRESH_SCOPES.slice(71, 80);
   const reviewed = [
@@ -728,7 +771,7 @@ test("Batch R refresh continuity remains sealed to the exact approved item, sell
 
 test("eBay refresh isolates one source failure per row and keeps a systemic multi-row failure global", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/ebay-offer-refresh.js"), "utf8");
-  assert.match(source, /catch \{[\s\S]*blockers: \["SOURCE_READ_FAILED"\][\s\S]*continuity: \{ eligible: false, tier: "blocked" \}/);
+  assert.match(source, /catch \(error\) \{[\s\S]*blockers: \["SOURCE_READ_FAILED"\][\s\S]*continuity: \{ eligible: false, tier: "blocked" \}/);
   assert.deepEqual(partitionSourceFailures([{ offer_id: "2686", source_error: "SOURCE_READ_FAILED" }]), {
     globalBlocked: [],
     sourceFailureReview: [{ offer_id: "2686", source_error: "SOURCE_READ_FAILED", review_type: "SOURCE_FAILURE" }],
