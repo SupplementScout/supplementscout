@@ -71,6 +71,15 @@ function loadConfig(file = CONFIG_PATH) {
         new Set(rule.allowed_failure_codes).size === rule.allowed_failure_codes.length,
       `Watchdog allowed failure codes are invalid for retailer ${profile.id}`,
     );
+    if (rule.allowed_review_offer_ids !== undefined) {
+      invariant(
+        Array.isArray(rule.allowed_review_offer_ids) &&
+          rule.allowed_review_offer_ids.every((offerId) => /^\d+$/.test(String(offerId))) &&
+          new Set(rule.allowed_review_offer_ids.map(String)).size === rule.allowed_review_offer_ids.length &&
+          rule.allowed_review_offer_ids.length <= rule.maximum_review_row_count,
+        `Watchdog allowed review offer IDs are invalid for retailer ${profile.id}`,
+      );
+    }
   }
   return config;
 }
@@ -240,6 +249,15 @@ function applyMonitoredBacklog(evaluation, baseline) {
   }
   if (review > baseline.maximum_review_row_count) {
     growth.push("REVIEW_ROW_COUNT_GROWTH");
+  }
+  if (review > 0 && baseline.allowed_review_offer_ids !== undefined) {
+    const allowedReviewIds = new Set(baseline.allowed_review_offer_ids.map(String));
+    const observedReviewIds = evaluation.contract?.review_offer_ids;
+    if (!Array.isArray(observedReviewIds) || observedReviewIds.length !== review) {
+      growth.push("REVIEW_SCOPE_EVIDENCE_MISSING");
+    } else if (observedReviewIds.some((offerId) => !allowedReviewIds.has(String(offerId)))) {
+      growth.push("REVIEW_SCOPE_DRIFT");
+    }
   }
   if (unexpected.length || growth.length) {
     return {
@@ -574,6 +592,7 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
       if (split) return findContractEvidence(split);
     }
     const candidates = [];
+    const reviewScopeCandidates = [];
     for (const artifact of listing.artifacts || []) {
       if (artifact.expired) continue;
       const response = await fetch(artifact.archive_download_url, {
@@ -601,13 +620,26 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
         try {
           const found = findContractEvidence(JSON.parse(extracted.stdout));
           if (found && found.executed_plan_count > 0) candidates.push(found);
+          else if (found?.review_offer_ids) reviewScopeCandidates.push(found);
         } catch {}
       }
     }
-    return candidates.sort((left, right) => {
+    const selected = candidates.sort((left, right) => {
       const score = (value) => ["execution_offer_ids","expected_deltas","commit_sha","manifest_sha256","source_fingerprint","plan_fingerprint","postflight_hash","idempotency_result","database_writes"].filter((field) => value[field] !== null && value[field] !== undefined).length;
       return score(right) - score(left);
     })[0] || null;
+    if (!selected || selected.review_offer_ids) return selected;
+    const matchingReviewScopes = reviewScopeCandidates.filter((candidate) =>
+      candidate.manifest_sha256 === selected.manifest_sha256 &&
+      candidate.approved_mapping_count === selected.approved_mapping_count &&
+      candidate.executable_plan_count === selected.executable_plan_count &&
+      candidate.review_row_count === selected.review_row_count &&
+      candidate.blocked_row_count === selected.blocked_row_count
+    );
+    if (!matchingReviewScopes.length) return selected;
+    const serializedScopes = new Set(matchingReviewScopes.map((candidate) => JSON.stringify(sortedStrings(candidate.review_offer_ids))));
+    invariant(serializedScopes.size === 1, "Artifact review offer scopes disagree");
+    return { ...selected, review_offer_ids: sortedStrings(matchingReviewScopes[0].review_offer_ids) };
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }

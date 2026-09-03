@@ -628,6 +628,23 @@ test("automation watchdog fails on backlog growth and any new reason code", () =
   );
   assert.equal(unknown.result, "FAIL");
   assert.deepEqual(unknown.monitored_backlog.unexpected_failure_codes, ["NEW_REASON_CODE"]);
+
+  const exactReviewBaseline = {
+    maximum_offers_older_than_48h: 0,
+    maximum_review_row_count: 1,
+    allowed_review_offer_ids: ["2060"],
+    allowed_failure_codes: [],
+  };
+  const exactReview = { result: "PASS_WITH_REVIEW", failures: [], database: { offers_older_than_48h: 0 }, contract: { review_row_count: 1, review_offer_ids: ["2060"] } };
+  assert.equal(applyMonitoredBacklog(exactReview, exactReviewBaseline).result, "PASS_WITH_REVIEW");
+  assert.deepEqual(
+    applyMonitoredBacklog({ ...exactReview, contract: { review_row_count: 1, review_offer_ids: ["2061"] } }, exactReviewBaseline).monitored_backlog.growth,
+    ["REVIEW_SCOPE_DRIFT"]
+  );
+  assert.deepEqual(
+    applyMonitoredBacklog({ ...exactReview, contract: { review_row_count: 1, review_offer_ids: null } }, exactReviewBaseline).monitored_backlog.growth,
+    ["REVIEW_SCOPE_EVIDENCE_MISSING"]
+  );
 });
 
 test("automation watchdog never suppresses infrastructure, writes or postflight mismatch", () => {

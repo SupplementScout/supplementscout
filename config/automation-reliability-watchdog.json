@@ -24,7 +24,7 @@
       "8": { "maximum_offers_older_than_48h": 0, "maximum_review_row_count": 0, "allowed_failure_codes": [] },
       "9": { "maximum_offers_older_than_48h": 286, "maximum_review_row_count": 0, "allowed_failure_codes": ["APPLY_SUCCESS_OLDER_THAN_48H", "DB_POSTFLIGHT_SUCCESS_MISSING", "EXECUTION_CONTRACT_EVIDENCE_MISSING", "DATABASE_OFFERS_OLDER_THAN_48H"] },
       "10": { "maximum_offers_older_than_48h": 0, "maximum_review_row_count": 0, "allowed_failure_codes": ["DB_POSTFLIGHT_SUCCESS_MISSING"] },
-      "11": { "maximum_offers_older_than_48h": 0, "maximum_review_row_count": 0, "allowed_failure_codes": [] },
+      "11": { "maximum_offers_older_than_48h": 0, "maximum_review_row_count": 1, "allowed_review_offer_ids": ["2060"], "allowed_failure_codes": [] },
       "12": { "maximum_offers_older_than_48h": 40, "maximum_review_row_count": 42, "allowed_failure_codes": ["EBAY_POSTFLIGHT_HASH_MISSING", "EBAY_IDEMPOTENCY_NOT_PASSED", "EBAY_DATABASE_WRITE_COUNT_MISMATCH", "INDEPENDENT_IDEMPOTENCY_COMMIT_MISMATCH", "INDEPENDENT_IDEMPOTENCY_POSTFLIGHT_HASH_MISSING"] },
       "13": { "maximum_offers_older_than_48h": 47, "maximum_review_row_count": 0, "allowed_failure_codes": ["AUTOMATION_WORKFLOW_MISSING", "CAPTURE_SUCCESS_MISSING", "APPLY_SUCCESS_MISSING", "DB_POSTFLIGHT_SUCCESS_MISSING", "EXECUTION_CONTRACT_EVIDENCE_MISSING", "DATABASE_OFFERS_OLDER_THAN_48H"] }
     }

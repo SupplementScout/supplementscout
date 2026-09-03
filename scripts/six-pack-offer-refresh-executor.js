@@ -474,6 +474,12 @@ async function run(options) {
       })
       : await executeApprovedPlans(plans, execute);
     const counts = executionCounts(plans, rows, approved.manifest.approved_mapping_count);
+    const executionOfferIds = rows.map((row) => String(row.offer_id));
+    const executionOfferIdSet = new Set(executionOfferIds);
+    const reviewOfferIds = approved.manifest.rows
+      .map((row) => String(row.offer_id))
+      .filter((offerId) => !executionOfferIdSet.has(offerId));
+    if (reviewOfferIds.length !== counts.review_row_count) fail("Execution review scope differs from the manifest partition");
     const report = {
       schema_version: 1,
       kind: "six-pack-approved-offer-refresh-execution",
@@ -495,7 +501,8 @@ async function run(options) {
         implementation_commit_sha: ownerContext.implementation_commit_sha,
         runtime_commit_sha: ownerContext.runtime_commit_sha,
       } : null,
-      execution_offer_ids: rows.map((row) => String(row.offer_id)),
+      execution_offer_ids: executionOfferIds,
+      review_offer_ids: reviewOfferIds,
       rows,
       completed_at: new Date().toISOString(),
     };
