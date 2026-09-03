@@ -605,6 +605,18 @@ This period predates the 3 September Better-value release and supplies no CTR
 evidence for that feature. The sitemap API's zero indexed value remains
 excluded from aggregate indexing evidence.
 
+Better-value measurement was then extended through the existing weekly
+analytics workflow rather than a parallel collector. Read-only validation run
+`33743176950` on commit `562ed4b` produced schema-v3 artifact `9888548236`
+(ZIP SHA-256
+`118b1122401fc307a99be1be5625d27140f4cc205fc6fbff0446b266e3edc118`;
+report SHA-256
+`bb6bacbef5cd39798efc2d6b47c9d3b843bf2f213b147bf965da041e19139947`).
+The live GA4 Data API accepted both the existing impression/select event query
+and the closed select-to-retailer-click user funnel with a 30-minute window.
+Its 27 August-2 September period ends before release, so the resulting zeroes
+validate the reporting contract only; the post-launch CTR remains pending.
+
 ### 0.0.11 Jon's reviewed mass-OOS closeout - 3 August 2026
 
 Jon's scheduled 506-offer refresh correctly blocked a net increase of ten new
