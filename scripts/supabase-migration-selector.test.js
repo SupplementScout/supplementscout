@@ -38,6 +38,8 @@ const WHEY_REVIEWED_SCOPE_MIGRATION = "20260903100000_exclude_reviewed_whey_offe
 const WHEY_REVIEWED_SCOPE_SHA256 = "138ad03243e58fb6efac6246dcee528771ae24f7c8c10c290de7670c94c47618";
 const FIT_HOUSE_EXPIRED_PLAN_MIGRATION = "20260903101000_supersede_expired_fit_house_control_plan.sql";
 const FIT_HOUSE_EXPIRED_PLAN_SHA256 = "27c235580b0a4d253ecb48f99f672a2f09f6103507005caa1e3c268010a18901";
+const WHEY_REGISTRATION_EXCLUSION_MIGRATION = "20260903130000_exclude_reviewed_whey_offer_73_from_registration.sql";
+const WHEY_REGISTRATION_EXCLUSION_SHA256 = "65b173e91a642838a68ab39a61862f96efc2f44e4ef63539eb9640e3a54e2aa4";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -186,9 +188,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the Whey and Fit House repairs as applied", () => {
+test("production records prior repairs and exposes only the Whey registration exclusion as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: WHEY_REGISTRATION_EXCLUSION_MIGRATION,
+    sha256: WHEY_REGISTRATION_EXCLUSION_SHA256,
+  }]);
   assert.equal(contract.ledgerCount, 176);
   assert.equal(
     contract.ledgerFingerprint,
@@ -199,6 +204,7 @@ test("production records the Whey and Fit House repairs as applied", () => {
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION)), REVIEWED_VARIANT_EXECUTOR_ACL_SHA256);
   assert.equal(sha256File(path.join(SOURCE, WHEY_REVIEWED_SCOPE_MIGRATION)), WHEY_REVIEWED_SCOPE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, FIT_HOUSE_EXPIRED_PLAN_MIGRATION)), FIT_HOUSE_EXPIRED_PLAN_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, WHEY_REGISTRATION_EXCLUSION_MIGRATION)), WHEY_REGISTRATION_EXCLUSION_SHA256);
 });
 
 test("an additional pending migration fails closed", () => {
@@ -274,7 +280,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the Whey and Fit House repairs applied", () => {
+test("production binds its exact ledger and selects only the pending Whey registration exclusion", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -302,16 +308,17 @@ test("production binds its exact ledger with the Whey and Fit House repairs appl
   });
   assert.equal(result.ledger_count, 176);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 176);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 177);
+  assert.deepEqual(result.pending_files, [WHEY_REGISTRATION_EXCLUSION_MIGRATION]);
+  assert.equal(result.pending_file, WHEY_REGISTRATION_EXCLUSION_MIGRATION);
+  assert.equal(result.pending_sha256, WHEY_REGISTRATION_EXCLUSION_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [WHEY_REGISTRATION_EXCLUSION_MIGRATION]: WHEY_REGISTRATION_EXCLUSION_SHA256 });
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_DIGEST_FIX_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION));
   assert.ok(result.selected_files.includes(WHEY_REVIEWED_SCOPE_MIGRATION));
   assert.ok(result.selected_files.includes(FIT_HOUSE_EXPIRED_PLAN_MIGRATION));
+  assert.ok(result.selected_files.includes(WHEY_REGISTRATION_EXCLUSION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));

@@ -210,6 +210,8 @@ const CONTRACTS = Object.freeze({
         "138ad03243e58fb6efac6246dcee528771ae24f7c8c10c290de7670c94c47618",
       "20260903101000_supersede_expired_fit_house_control_plan.sql":
         "27c235580b0a4d253ecb48f99f672a2f09f6103507005caa1e3c268010a18901",
+      "20260903130000_exclude_reviewed_whey_offer_73_from_registration.sql":
+        "65b173e91a642838a68ab39a61862f96efc2f44e4ef63539eb9640e3a54e2aa4",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -244,7 +246,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260903130000_exclude_reviewed_whey_offer_73_from_registration.sql",
+        sha256: "65b173e91a642838a68ab39a61862f96efc2f44e4ef63539eb9640e3a54e2aa4",
+      }),
+    ]),
   }),
 });
 

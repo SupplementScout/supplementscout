@@ -70,10 +70,39 @@ const reviewedOffer73ScopeMigration = fs.readFileSync(
   path.join(process.cwd(), "supabase/migrations/20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql"),
   "utf8",
 );
+const reviewedOffer73RegistrationMigration = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260903130000_exclude_reviewed_whey_offer_73_from_registration.sql"),
+  "utf8",
+);
+const reviewedOffer73RegistrationRollback = fs.readFileSync(
+  path.join(process.cwd(), "supabase/rollbacks/20260903130000_exclude_reviewed_whey_offer_73_from_registration.sql"),
+  "utf8",
+);
 const wheyConfig = JSON.parse(fs.readFileSync(
   path.join(process.cwd(), "config/retailers/whey-okay-offer-sync.json"),
   "utf8",
 ));
+
+test("registration repair restores only the dedicated read-only validator entry point", () => {
+  assert.match(
+    reviewedOffer73RegistrationMigration,
+    /grant execute on function public\.validate_product_import_plan_read_only\(jsonb\)\s+to retailer_catalogue_production_validator/i,
+  );
+  assert.match(
+    reviewedOffer73RegistrationMigration,
+    /not has_function_privilege\('retailer_catalogue_production_validator','public\.validate_product_import_plan_read_only\(jsonb\)','EXECUTE'\)/i,
+  );
+  for (const role of ["public", "anon", "authenticated", "service_role", "retailer_catalogue_production_approver", "retailer_catalogue_production_executor"]) {
+    assert.match(
+      reviewedOffer73RegistrationMigration,
+      new RegExp(`has_function_privilege\\('${role}','public\\.validate_product_import_plan_read_only\\(jsonb\\)','EXECUTE'\\)`, "i"),
+    );
+  }
+  assert.match(
+    reviewedOffer73RegistrationRollback,
+    /revoke execute on function public\.validate_product_import_plan_read_only\(jsonb\)\s+from retailer_catalogue_production_validator/i,
+  );
+});
 
 test("migration reuses control ledgers through narrow state and registration RPCs", () => {
   assert.match(
@@ -209,6 +238,19 @@ test("reviewed offer 73 remains outside the exact autonomous 586-row scope", () 
   assert.doesNotMatch(reviewedOffer73ScopeMigration, /retailer_catalogue_staging_validator/);
   assert.doesNotMatch(reviewedOffer73ScopeMigration, /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
   assert.doesNotMatch(reviewedOffer73ScopeMigration, /grant\s/i);
+});
+
+test("Whey registration excludes only reviewed offer 73 after revalidating its exact state", () => {
+  assert.match(reviewedOffer73RegistrationMigration, /target_environment' <> 'PRODUCTION'/);
+  assert.match(reviewedOffer73RegistrationMigration, /rp\.id=65[\s\S]+o\.id=73[\s\S]+v\.id=3217/);
+  assert.match(reviewedOffer73RegistrationMigration, /external_product_id=''300''[\s\S]+external_variant_id=''301''/);
+  assert.match(reviewedOffer73RegistrationMigration, /where rp\.retailer_id=3 and rp\.id<>65/);
+  assert.match(reviewedOffer73RegistrationMigration, /where o\.retailer_id=3 and rp\.id<>65/);
+  assert.match(reviewedOffer73RegistrationMigration, /Reviewed Whey Okay offer 73 registration exclusion drift/);
+  assert.doesNotMatch(reviewedOffer73RegistrationMigration, /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.match(reviewedOffer73RegistrationRollback, /where rp\.retailer_id=3 and rp\.id<>65/);
+  assert.match(reviewedOffer73RegistrationRollback, /where o\.retailer_id=3 and rp\.id<>65/);
+  assert.match(reviewedOffer73RegistrationRollback, /execute v_definition/);
 });
 
 test("workflow is scheduled, dry-run by default and role-separated without service role", () => {
