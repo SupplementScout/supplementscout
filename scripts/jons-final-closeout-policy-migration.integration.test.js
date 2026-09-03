@@ -67,7 +67,7 @@ test('Predators Gear reviewed-new-products-v3 DB policy accepts only exact revie
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-c',`
       create role anon; create role authenticated; create role service_role;
       create function public.atomic_import_safe_create_category_allowed(p_category text,p_name text,p_product_format text) returns boolean language sql immutable as $fn$
-        select coalesce(p_category,'') in ('Vitamins','Health Supplements','Amino Acids','Creatine') $fn$;
+        select coalesce(p_category, '') in ('Vitamins','Health Supplements','Amino Acids','Creatine') $fn$;
       create function public.atomic_import_reviewed_parent_variant_allowed(p_name text,p_brand text,p_category text,p_format text,p_size_value text,p_size_unit text) returns boolean language sql immutable as $fn$
         select exists(select 1 from (values ('DY Nutrition The Creatine Complex 316g','DY Nutrition','Creatine','powder','316','g')) a(name,brand,category,format,size_value,size_unit)
           where a.name=p_name and a.brand=p_brand and a.category=p_category and a.format=p_format and a.size_value=p_size_value and a.size_unit=p_size_unit) $fn$;

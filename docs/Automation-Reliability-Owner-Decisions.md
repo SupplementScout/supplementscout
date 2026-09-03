@@ -1,5 +1,45 @@
 # Automation Reliability — Owner Decision Pack
 
+## eBay reviewed 34-row remediation prepared - final apply approval pending - 3 September 2026
+
+The owner approved correction of the current `11` commercial rows and the
+reviewed rebind of `23` mappings to existing exact variants. This is a scope
+and identity decision, not yet the final production-apply authority required
+by the owner's artifact-bound rule. No product, variant, mapping or offer may
+be created.
+
+The prepared atomic production migration is
+`20260903140000_apply_reviewed_ebay_34_remediation.sql`, SHA-256
+`04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13`.
+It is bound to read-only run `33773580580`, artifact `9900823759`, artifact
+digest `e67a04ced4e9ad3b1d6940d6e79977297bbb90293b0aa62fd54282a6dded055d`
+and report SHA-256
+`8100a1687b981f1d9ed0f5c9f0379d166e6c5f97a6067048340f5b23c63d502e`.
+It hard-expires at `2026-09-04T15:36:30.405Z` and fails closed on any changed
+before-state or any scope other than exactly 237 eBay mappings/offers.
+
+The exact rebind offer IDs are `2582`, `2583`, `2584`, `2585`, `2586`, `2587`,
+`2624`, `2625`, `2626`, `2627`, `2630`, `2636`, `2646`, `2647`, `2648`, `2649`,
+`2650`, `2651`, `2653`, `2654`, `2655`, `2656` and `2727`. Each target is an
+already-active non-default variant on the same active product. The exact
+commercial transitions (product/shipping/delivered GBP) are: `2554`
+`35.08/14.58/49.66 -> 29.23/12.15/41.38`; `2617` `43.97/0/43.97 ->
+46.97/0/46.97`; `2642` `22/0/22 -> 20/0/20`; `2643` `8.49/0/8.49 ->
+12.99/0/12.99`; `2689` `28.63/0/28.63 -> 30.14/0/30.14`; `2704`
+`19.69/0/19.69 -> 18.79/0/18.79`; `2715` `9.14/0/9.14 -> 8.97/0/8.97`;
+`2728` `37/0/37 -> 40/0/40`; `2731` `34.99/0/34.99 -> 33.24/0/33.24`;
+`2735` `46.24/0/46.24 -> 41.84/0/41.84`; and `2742` `40.95/0/40.95 ->
+43.10/0/43.10`.
+
+Expected deltas are mapping rebind `23`, offer rebind `23`, commercial offer
+updates `11` and price history `+11`; product, variant, mapping and offer row
+counts remain unchanged. The bounded rollback SHA-256 is
+`9e836a99016cf6ab79237e6c4f58a1a19ebd66965ad8c5f98cd4621f3ff596de`.
+A final exact owner confirmation naming these hashes and artifact is mandatory
+while the artifact remains fresh. Expiry or drift requires a new read-only
+capture and a newly sealed migration; neither this entry nor the earlier broad
+consent authorises apply.
+
 ## Final closeout decision boundary - 1 September 2026, 17:47 UTC
 
 Decision status is `CLOSE_WITH_MONITORED_BACKLOG`. The P0 Automation Reliability Sprint is closed; product development may resume. This section supersedes the pending/retry status of older decision entries below, which remain historical evidence and are not reusable approvals. This does not approve any new offer, commercial, identity, rebind, freshness, Review Queue, migration, cron or replay operation. All future writes continue to require fresh bounded evidence and the existing owner-approval boundary.

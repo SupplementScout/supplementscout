@@ -127,7 +127,16 @@ test("approval-bound verified no-change refresh is atomic and metadata-only on d
     requireSuccess(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", "do $roles$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin; end if; if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if; if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role nologin; end if; end $roles$;"]), "create local roles");
     requireSuccess(psqlFile(container, database, migrations[0]), "apply baseline");
     requireSuccess(psqlFile(container, database, stage2Setup, ["stage2_test_database_confirmed=1", "stage2_test_host=127.0.0.1", `stage2_expected_database=${database}`, "stage2_scenario=success"]), "seed Stage 2 fixture");
-    for (const migration of migrations.slice(1)) requireSuccess(psqlFile(container, database, migration), `apply ${path.basename(migration)}`);
+    for (const migration of migrations.slice(1, 12)) requireSuccess(psqlFile(container, database, migration), `apply ${path.basename(migration)}`);
+    requireSuccess(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", `
+      insert into public.verified_offer_refresh_targets(id,target_environment,project_ref,database_system_identifier,database_oid,is_active,attested_by)
+      select true,'STAGING','hxnrsyyqffztlvcrtgbf',system_identifier::text,(select oid from pg_database where datname=current_database()),true,'integration-test'
+      from pg_control_system();
+      create function public.retailer_catalogue_actual_database_target() returns jsonb language sql stable as $fixture$
+        select public.verified_offer_refresh_actual_target()
+          || jsonb_build_object('database_identity','supplementscout-staging:hxnrsyyqffztlvcrtgbf')
+      $fixture$;`]), "seed verified-refresh target attestation");
+    for (const migration of migrations.slice(12)) requireSuccess(psqlFile(container, database, migration), `apply ${path.basename(migration)}`);
 
     const fixtureSql = `
       insert into public.retailers(id,name,slug,website) values(970001,'Verified Retailer','verified-retailer','https://verified.local');
@@ -146,10 +155,7 @@ test("approval-bound verified no-change refresh is atomic and metadata-only on d
       insert into public.offers(id,product_id,retailer_id,retailer_product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url,last_checked_at) values
         (970001,970001,970001,970001,970001,19.99,3.99,23.98,true,'https://verified.local/a?variant=20001',now()-interval '2 days'),
         (970002,970002,970001,970002,970002,29.99,3.99,33.98,true,'https://verified.local/b?variant=20002',now()-interval '2 days'),
-        (970003,970003,970001,970003,970003,39.99,3.99,43.98,true,'https://verified.local/t?variant=20003','2026-08-30T14:11:22.619Z'::timestamptz);
-      insert into public.verified_offer_refresh_targets(id,target_environment,project_ref,database_system_identifier,database_oid,is_active,attested_by)
-      select true,'STAGING','hxnrsyyqffztlvcrtgbf',system_identifier::text,(select oid from pg_database where datname=current_database()),true,'integration-test'
-      from pg_control_system();`;
+        (970003,970003,970001,970003,970003,39.99,3.99,43.98,true,'https://verified.local/t?variant=20003','2026-08-30T14:11:22.619Z'::timestamptz);`;
     requireSuccess(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", fixtureSql]), "seed verification fixtures");
     setSupabaseForTests(postgresRpcClient(container, database));
 
@@ -175,7 +181,7 @@ test("approval-bound verified no-change refresh is atomic and metadata-only on d
     const timestampArtifact = writeArtifact(directory, "timestamp", [recordFromState(stateFor(970003), capture, "d".repeat(64))]);
     const timestampPlan = timestampArtifact.artifact.plans[0].resolved_plan;
     const approvalCount = () => psqlJson(container, database, "select count(*)::int from public.approved_import_plans;");
-    const offerChecked = () => psqlJson(container, database, "select to_char(last_checked_at at time zone 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') from public.offers where id=970003;");
+    const offerChecked = () => psqlJson(container, database, "select to_jsonb(to_char(last_checked_at at time zone 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')) from public.offers where id=970003;");
     const validatePlan = (plan) => exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", `select public.validate_product_import_plan_read_only(${sqlLiteral(JSON.stringify(refreshFingerprint(plan)))}::jsonb);`]);
     const expectPass = (mutate, label) => {
       const plan = clonePlan(timestampPlan);

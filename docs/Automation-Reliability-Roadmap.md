@@ -1,5 +1,28 @@
 # Automation Reliability Roadmap
 
+### eBay reviewed 34-row remediation prepared - 3 September 2026
+
+The owner resolved the two bounded review groups: update the exact 11 fresh
+commercial values and rebind the exact 23 default-variant mappings to their
+already-existing active exact variants, with no catalogue creation. One atomic,
+production-bound migration now reuses the migration selector rather than
+adding a second refresh or Review Queue executor:
+`20260903140000_apply_reviewed_ebay_34_remediation.sql`, SHA-256
+`04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13`.
+Its bounded rollback SHA-256 is
+`9e836a99016cf6ab79237e6c4f58a1a19ebd66965ad8c5f98cd4621f3ff596de`.
+
+The migration is bound to read-only run `33773580580`, artifact `9900823759`,
+artifact digest `e67a04ced4e9ad3b1d6940d6e79977297bbb90293b0aa62fd54282a6dded055d`,
+report SHA-256
+`8100a1687b981f1d9ed0f5c9f0379d166e6c5f97a6067048340f5b23c63d502e`
+and expiry `2026-09-04T15:36:30.405Z`. It hard-checks the full 237-row eBay
+scope and every affected before-state. Expected deltas are 23 mapping rebinds,
+23 corresponding offer rebinds, 11 commercial/freshness updates and 11 price
+history inserts, with zero catalogue entity creation and unchanged product,
+variant, mapping and offer counts. A production apply is not yet authorised;
+it requires a final exact artifact-and-hash confirmation while fresh.
+
 ### eBay exact-237 freshness incident classified - 3 September 2026
 
 Scheduled run `33742461042` read all `237` existing eBay mappings, executed and

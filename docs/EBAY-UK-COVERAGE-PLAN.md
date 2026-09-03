@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 237-OFFER ROLLOUT LIVE; FRESH READ-ONLY 187 EXECUTABLE / 50 ISOLATED; SEALER REPAIR LIVE
+**Status:** CONTROLLED 237-OFFER ROLLOUT LIVE; 34-ROW REVIEW REMEDIATION PREPARED; FINAL APPLY APPROVAL PENDING
 **Last verified:** 3 September 2026
 **Production writes:** 237 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 237 mappings, 237 offers, 237 initial price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 237 live eBay offers
@@ -94,6 +94,21 @@ window and the same historical `49` are older than both 24 and 48 hours. Offer
 it, but the newest source capture now isolates it on unknown UK shipping. This
 distinguishes current database freshness (`188/49`) from the next safe source
 execution scope (`187/50`).
+
+The owner subsequently approved the identity/commercial decisions for the 11
+commercial rows and 23 existing-variant rebinds, explicitly with no product
+creation. The single prepared atomic migration is
+`20260903140000_apply_reviewed_ebay_34_remediation.sql`, SHA-256
+`04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13`;
+rollback SHA-256 is
+`9e836a99016cf6ab79237e6c4f58a1a19ebd66965ad8c5f98cd4621f3ff596de`.
+It is bound to run `33773580580`, artifact `9900823759`, its recorded artifact
+and report digests, the exact 237-row scope, the 34 row-level before-states and
+expiry `2026-09-04T15:36:30.405Z`. Expected changes are exactly 23 mapping and
+offer rebinds plus 11 commercial/freshness updates and 11 history inserts;
+catalogue entity counts remain unchanged. Preparation is complete, but the
+separate final artifact-and-hash production-apply confirmation has not been
+given.
 
 Batch H is live verified 11/11. The exact official Applied Nutrition scope now
 has mappings `2755`-`2765` and offers `2570`-`2580`; all 11 postflight plans are
@@ -2149,15 +2164,15 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Retain the exact-237 shared refresh and do not repeat Batches A-S,
-create a second scheduler or widen any reviewed identity. The same-run sealer
-repair is live and fresh production-readonly artifact 9900823759 covers all
-237 rows. The 11 current commercial rows require exact artifact-bound owner
-approval before price writes. The 23 mapping/default-variant rows require an
-exact owner-reviewed rebind to existing variants; no new catalogue record is
-needed or permitted. The eight remaining identity-quality rows (including
-2714 UK shipping unknown) stay isolated until their evidence is resolved. The
-eight HTTP-404 listings cannot be called available or refreshed as in-stock;
-replacement or OOS treatment is a separate owner decision. No production apply
+create a second scheduler or widen any reviewed identity. Review and, only
+after a final exact owner confirmation while artifact 9900823759 is fresh,
+apply sole pending migration
+20260903140000_apply_reviewed_ebay_34_remediation.sql at SHA-256
+04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13.
+It may only rebind the approved 23 mappings/offers to existing variants, update
+the approved 11 commercial rows and insert 11 history rows; it may create no
+catalogue entity. The eight remaining identity-quality rows (including 2714 UK
+shipping unknown) and eight HTTP-404 rows stay isolated. No production apply
 is authorised by this checkpoint.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.

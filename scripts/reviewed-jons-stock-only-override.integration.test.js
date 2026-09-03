@@ -24,7 +24,7 @@ function dockerAvailable() { return run("docker", ["version", "--format", "{{.Se
 function exec(container, args, options = {}) { return run("docker", ["exec", ...(options.stdin ? ["-i"] : []), container, ...args], options); }
 function sql(container, text) { return exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-tA", "-f", "-"], { stdin: true, input: text }); }
 function literal(value) { const text=typeof value==="string"?value:JSON.stringify(value); return `'${text.replaceAll("'", "''")}'::jsonb`; }
-function wait(container) { for (let i=0;i<80;i+=1) { const result=exec(container,["pg_isready","-U","postgres"]); if(result.status===0)return; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250); } assert.fail("PostgreSQL unavailable"); }
+function wait(container) { let consecutive=0; for (let i=0;i<80;i+=1) { const result=exec(container,["psql","-X","--no-psqlrc","-U","postgres","-d","postgres","-tAc","select 1"]); consecutive=result.status===0&&result.stdout.trim()==="1"?consecutive+1:0; if(consecutive===3)return; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250); } assert.fail("PostgreSQL unavailable"); }
 
 function setupSql() {
   return `
