@@ -495,6 +495,7 @@ async function run(options) {
         implementation_commit_sha: ownerContext.implementation_commit_sha,
         runtime_commit_sha: ownerContext.runtime_commit_sha,
       } : null,
+      execution_offer_ids: rows.map((row) => String(row.offer_id)),
       rows,
       completed_at: new Date().toISOString(),
     };

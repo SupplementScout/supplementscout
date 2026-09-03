@@ -110,6 +110,13 @@ test("Simply DB postflight proves executable freshness, review isolation and pla
   }, execution).result, "PASS");
   assert.throws(() => verifyPostflight(baseline, { ...after, rows: [after.rows[0], { ...after.rows[1], last_checked_at: "2026-08-30T00:00:00Z" }] }, execution), /Review offer 2 changed/);
 
+  const rowBoundExecution = { ...execution, review_rows: undefined, rows: [{ offer_id: "1" }] };
+  assert.equal(verifyPostflight(baseline, after, rowBoundExecution).freshness_change_count, 1);
+  assert.throws(
+    () => verifyPostflight(baseline, after, { ...rowBoundExecution, rows: [{ offer_id: "1" }, { offer_id: "2" }] }),
+    /Execution offer scope differs from executed plan count/
+  );
+
   const freshnessOnlyExecution = { result: "PASS", approved_mapping_count: 2, executable_plan_count: 2, executed_plan_count: 2, review_row_count: 0, blocked_row_count: 0, review_rows: [] };
   const freshnessOnlyAfter = { row_count: 2, price_history_count: 4, rows: [row(1, true, "2026-08-30T00:00:00Z"), row(2, true, "2026-08-30T00:00:00Z")] };
   assert.equal(verifyPostflight(baseline, freshnessOnlyAfter, freshnessOnlyExecution).freshness_change_count, 2);

@@ -162,9 +162,21 @@ function verifyPostflight(baseline, after, execution) {
   const beforeByOffer = new Map(baseline.snapshot.rows.map((row) => [row.offer_id, row]));
   const afterByOffer = new Map(after.rows.map((row) => [row.offer_id, row]));
   const reviewIds = new Set((execution.review_rows || []).map((row) => String(row.offer_id)));
-  const executionIds = new Set((execution.execution_offer_ids || baseline.snapshot.rows.filter((row) => !reviewIds.has(row.offer_id)).map((row) => row.offer_id)).map(String));
+  const executedRows = Array.isArray(execution.rows) ? execution.rows : [];
+  const executionOfferIds = execution.execution_offer_ids ||
+    (executedRows.length ? executedRows.map((row) => row.offer_id) : null) ||
+    baseline.snapshot.rows.filter((row) => !reviewIds.has(row.offer_id)).map((row) => row.offer_id);
+  invariant(executionOfferIds.every((offerId) => offerId !== undefined && offerId !== null), "Execution row lacks offer ID");
+  const executionIds = new Set(executionOfferIds.map(String));
   invariant(executionIds.size === execution.executed_plan_count, "Execution offer scope differs from executed plan count");
-  invariant(reviewIds.size === execution.review_row_count, "Review row count drift");
+  const nonExecutionIds = new Set(baseline.snapshot.rows.filter((row) => !executionIds.has(row.offer_id)).map((row) => row.offer_id));
+  if (execution.executable_plan_count + execution.review_row_count === baseline.snapshot.row_count) {
+    invariant(nonExecutionIds.size === execution.review_row_count, "Non-executed review scope differs from review row count");
+  }
+  if (execution.review_rows) {
+    invariant(reviewIds.size === execution.review_row_count, "Review row count drift");
+    invariant([...reviewIds].every((offerId) => nonExecutionIds.has(offerId)), "Review offer scope differs from non-executed scope");
+  }
   const identityFields = ["mapping_id","retailer_id","mapping_product_id","mapping_variant_id","external_product_id","external_variant_id","external_sku","external_gtin","external_options","offer_id","offer_product_id","offer_variant_id"];
   let priceChanges = 0, stockChanges = 0, shippingChanges = 0, totalChanges = 0, offerUrlChanges = 0, mappingUrlChanges = 0, freshnessChanges = 0;
   for (const [offerId, before] of beforeByOffer) {
