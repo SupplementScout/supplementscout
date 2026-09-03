@@ -7,7 +7,7 @@ const OUT = path.join(ROOT, "tmp", "ebay-offer-refresh");
 function invariant(condition, message) { if (!condition) throw new Error(message); }
 function read(name) { return JSON.parse(fs.readFileSync(path.join(OUT, name), "utf8")); }
 
-function seal({ apply, postflight, idempotency, env = process.env }) {
+function seal({ apply, baseline, postflight, idempotency, env = process.env }) {
   invariant(/^[0-9a-f]{40}$/.test(env.GITHUB_SHA || ""), "Correlated eBay evidence requires the workflow commit SHA");
   invariant(["PASS", "PASS_WITH_REVIEW"].includes(apply.result) && apply.approved_mapping_count === 237 && apply.executable_plan_count > 0 && apply.executed_plan_count === apply.executable_plan_count && apply.review_row_count + apply.executable_plan_count === 237 && apply.blocked_row_count === 0, "eBay apply contract drift");
   invariant(apply.classification?.VERIFY_NO_CHANGE === apply.executable_plan_count && Object.keys(apply.classification).length === 1, "eBay apply contains a non-freshness action");
@@ -23,7 +23,19 @@ function seal({ apply, postflight, idempotency, env = process.env }) {
   const sourceMap = new Map(idempotency.semantic_source_rows.map((row) => [String(row.offer_id), row]));
   invariant(canonicalHash(approvedIds.map((id) => sourceMap.get(id))) === apply.executable_source_fingerprint, "eBay idempotency executable source fingerprint drift");
   const planMap = new Map(idempotency.semantic_plan_rows.executable.map((row) => [String(row.offer_id), row]));
-  invariant(canonicalHash({ executable_offer_ids: approvedIds, executable: approvedIds.map((id) => planMap.get(id)), expected_deltas: apply.expected_deltas }) === apply.plan_fingerprint, "eBay idempotency approved plan fingerprint drift");
+  const baselineMap = new Map((baseline?.snapshot?.rows || []).map((row) => [String(row.offer_id), row]));
+  const expectedPlanFingerprints = new Map((apply.plan_row_fingerprints || []).map((row) => [String(row.offer_id), row.semantic_fingerprint]));
+  invariant(baseline?.result === "PASS" && baseline?.profile === "ebay-uk" && baseline?.snapshot?.row_count === 237 && baselineMap.size === 237, "eBay idempotency baseline evidence missing");
+  invariant(expectedPlanFingerprints.size === approvedIds.length && approvedIds.every((id) => expectedPlanFingerprints.has(id)), "eBay apply plan-row fingerprints missing");
+  const restoredPlans = approvedIds.map((id) => {
+    const freshPlan = planMap.get(id), before = baselineMap.get(id);
+    invariant(freshPlan?.before_state?.offer && before?.last_checked_at, `eBay idempotency plan or baseline missing for offer ${id}`);
+    const restored = JSON.parse(JSON.stringify(freshPlan));
+    restored.before_state.offer.last_checked_at = before.last_checked_at;
+    invariant(canonicalHash(restored) === expectedPlanFingerprints.get(id), `eBay idempotency plan drift outside freshness for offer ${id}`);
+    return restored;
+  });
+  invariant(canonicalHash({ executable_offer_ids: approvedIds, executable: restoredPlans, expected_deltas: apply.expected_deltas }) === apply.plan_fingerprint, "eBay idempotency approved plan fingerprint drift outside freshness");
   invariant(idempotency.commit_sha === env.GITHUB_SHA, "eBay idempotency commit binding missing");
   return {
     schema_version: 2,
@@ -69,7 +81,7 @@ function seal({ apply, postflight, idempotency, env = process.env }) {
 }
 
 function main() {
-  const evidence = seal({ apply: read("production-apply.json"), postflight: read("production-db-postflight.json"), idempotency: read("production-dry-run.json") });
+  const evidence = seal({ apply: read("production-apply.json"), baseline: read("production-db-baseline.json"), postflight: read("production-db-postflight.json"), idempotency: read("production-dry-run.json") });
   fs.writeFileSync(path.join(OUT, "production-correlated-evidence.json"), `${JSON.stringify(evidence, null, 2)}\n`);
   console.log(JSON.stringify(evidence));
 }

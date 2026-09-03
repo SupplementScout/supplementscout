@@ -1001,6 +1001,7 @@ test("eBay fresh revalidation evidence is emitted before verification and pendin
   const execution = source.indexOf("await (dependencies.executePlan || executePlan)(item, KIND)");
   assert.ok(evidence > 0 && evidence < verification && verification < pendingBatch);
   assert.ok(execution > 0 && source.indexOf('if (options.mode === "execute-apply")') < execution);
+  assert.match(source, /plan_row_fingerprints: batch\.manifest\.plan_row_fingerprints/);
 });
 
 test("eBay fresh semantic revalidation blocks any approved executable, plan, inventory or global drift", () => {

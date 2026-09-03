@@ -1,5 +1,26 @@
 # Automation Reliability Roadmap
 
+### eBay exact-237 freshness incident classified - 3 September 2026
+
+Scheduled run `33742461042` read all `237` existing eBay mappings, executed and
+postflight-verified `188` freshness-only confirmations, and isolated `49` rows
+before writes: 11 price changes, 23 mapping/default-variant conflicts, seven
+source identity-quality conflicts and eight exact-item HTTP `404` responses.
+The postflight recorded zero price, stock, URL, mapping or history delta. The
+workflow conclusion was false-red only at evidence sealing: its comparison did
+not account for the intended post-apply `last_checked_at` change. The local
+repair carries per-row plan fingerprints into the execution report and verifies
+the idempotency plans against the captured baseline while permitting only that
+timestamp transition; archived evidence reproduces `PASS` and price mutation
+still fails closed.
+
+This repair does not hide the 49-row backlog and authorises no production
+write. Eleven commercial changes need a fresh exact artifact and owner
+approval; 23 rebind candidates target existing variants but remain owner
+identity decisions; seven identity rows remain unresolved; and eight 404
+listings cannot truthfully be refreshed as available. The exact-237 adapter,
+scheduler, Review Queue and shared guarded importer remain the only mechanisms.
+
 ### Better-value alternatives MVP live verified - 3 September 2026
 
 Commit `8532613` is deployed and public. The product-page MVP reuses the shared

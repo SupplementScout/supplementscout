@@ -2,8 +2,8 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 237-OFFER ROLLOUT LIVE; BATCH S COMPLETE 18/18; MULTI-RETAILER MILESTONE 250/250
-**Last verified:** 23 August 2026
+**Status:** CONTROLLED 237-OFFER ROLLOUT LIVE; 188 CURRENT / 49 ISOLATED; SEALER REPAIR LOCAL
+**Last verified:** 3 September 2026
 **Production writes:** 237 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 237 mappings, 237 offers, 237 initial price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 237 live eBay offers
 
@@ -55,6 +55,21 @@ remains explicit evidence and is accepted only for the exact approved item,
 business seller and reviewed metadata-gap set. No second scheduler or importer
 was introduced.
 Credential values remain outside the repository.
+
+The 3 September 2026 scheduled run `33742461042` read the full exact-237
+scope. It safely executed and postflight-verified `188` freshness-only plans;
+`49` offers remained isolated: `11` bounded price changes, `23` existing
+mapping/default-variant conflicts, `7` source identity-quality conflicts and
+`8` exact-item HTTP `404` responses. The database postflight passed with
+exactly `188` freshness changes and zero price, stock, URL, mapping or history
+deltas. The workflow failed only because the evidence sealer compared the
+pre-apply plan fingerprint with the post-apply idempotency fingerprint without
+normalising the intended `last_checked_at` transition. The local repair carries
+the original per-row plan fingerprints into execution and reconstructs each
+idempotency plan with the read-only baseline timestamp; only that timestamp may
+differ. Archived run evidence then seals `PASS`, while price, stock, URL or
+identity drift still fails closed. No review row, price, identity or OOS write
+is authorised by this repair.
 
 Batch H is live verified 11/11. The exact official Applied Nutrition scope now
 has mappings `2755`-`2765` and offers `2570`-`2580`; all 11 postflight plans are
@@ -2109,12 +2124,16 @@ rollback and explicit approval.
 
 ## Next action
 
-`NEXT ACTION: The owner-approved 250-product multi-retailer coverage phase is
-complete at the independently verified 250/250 checkpoint. Do not repeat
-Batches A-S, return to an older refresh scope, create a second scheduler or
-widen any reviewed shared-parent identity. Retain the exact-237 shared refresh;
-after the eBay read limit resets, obtain one complete production-readonly
-237-row pass, then follow the binding master-plan sequence.`
+`NEXT ACTION: Retain the exact-237 shared refresh and do not repeat Batches A-S,
+create a second scheduler or widen any reviewed identity. Merge and verify the
+same-run sealer repair, then obtain one fresh production-readonly 237-row
+artifact. The 11 current commercial rows require exact artifact-bound owner
+approval before price writes. The 23 mapping/default-variant rows require an
+exact owner-reviewed rebind to existing variants; no new catalogue record is
+needed or permitted. The seven remaining identity-quality rows stay isolated
+until their evidence is resolved. The eight HTTP-404 listings cannot be called
+available or refreshed as in-stock; replacement or OOS treatment is a separate
+owner decision. No production apply is authorised by this checkpoint.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -2935,6 +2954,22 @@ owner-reviewed production design and approval.
   implementation part; it still made no live eBay call or production write.
 
 ## Decision changelog
+
+### 3 September 2026
+
+- Diagnosed scheduled run `33742461042` and watchdog `33765765305`: exact scope
+  `237`, freshness applied `188`, review `49`, blocked `0`; database writes were
+  the intended `188` timestamp confirmations only.
+- Classified the isolated scope as 11 price changes, 23 existing
+  default-to-exact-variant rebind candidates, seven unresolved source identity
+  rows and eight HTTP-404 listings. No row was treated as current merely to
+  clear the alert.
+- Repaired the existing same-run evidence sealer locally. It now proves
+  idempotency against the captured baseline and per-row plan fingerprints while
+  allowing only the intended `last_checked_at` change. Replaying the archived
+  evidence returns `PASS`; mutation of a price still fails the contract.
+- No production apply, mapping/variant/offer creation, identity rebind, price
+  change or automatic OOS action was performed.
 
 ### 23 August 2026
 
