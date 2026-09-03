@@ -1,5 +1,26 @@
 # Automation Reliability Roadmap
 
+### Better-value alternatives MVP live verified - 3 September 2026
+
+Commit `8532613` is deployed and public. The product-page MVP reuses the shared
+category comparison normalizer, exact variant resolution, complete delivered
+price and strict 24-hour freshness contract. It selects no more than three
+same-category, exact-format products, uses one verified basis for the entire
+section and renders nothing for stale, OOS, unresolved, incomplete-delivery or
+incomparable candidates. It adds consent-aware impression and internal-product
+click events, with downstream retailer clicks retained in the existing event
+funnel. It adds no public route, catalogue mutation, personalization or
+nutrition-equivalence claim.
+
+Public read-only postflight found three CREA-4 alternatives on one per-serving
+basis and proved all three internal destinations return `200` with their
+expected canonicals. The active stale Rich Piana CreaTen control remained
+public with the recheck state while current price, schema offers, retailer CTA
+and the alternatives section stayed absent. `verify:quick`, `verify:full`,
+`verify:project`, the production build and `git diff --check` passed. The next
+evidence task is GA4 section CTR and downstream retailer-offer CTR after data
+accrues; no catalogue write is authorised by this feature.
+
 ### Final sprint closeout: protected writes complete, monitored backlog retained - 1 September 2026, 17:47 UTC
 
 **Verdict: `CLOSE_WITH_MONITORED_BACKLOG`.** The Automation Reliability Sprint is closed as a P0 implementation incident. This section supersedes the pending/retry status of older entries below, which remain historical evidence only. No confirmed unisolated write path, cross-retailer mutation or mass incorrect-data write remains. Existing unresolved rows and automation failures remain fail-closed, excluded by the 24-hour public-offer freshness gate, or isolated in Review Queue. They are operational backlog and do not authorize another redesign, migration, replay or single-row repair.

@@ -29,6 +29,13 @@ no production apply is authorised. This plan must not be marked complete until
 the deferred source proof, fresh artifact, exact owner-approved apply,
 postflight, idempotency, watchdog and public verification all pass.
 
+The intervening Better-value alternatives milestone is now `LIVE VERIFIED` at
+commit `8532613`, so Predators Gear is the final remaining step under the
+owner-approved sequence. This changes only ordering: the next permitted action
+is a fresh read-only source capture with the existing exact-47 adapter. A
+production apply remains prohibited unless that capture produces a complete,
+fresh, bounded artifact and the owner then gives exact approval for it.
+
 ## 1. Owner outcome
 
 SupplementScout must remain useful when a retailer refresh is late without presenting an old price as current.
