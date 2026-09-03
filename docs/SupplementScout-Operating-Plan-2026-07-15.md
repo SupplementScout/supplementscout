@@ -80,6 +80,10 @@ entity counts unchanged. The exact owner approval was consumed at
 Read-only postflight passed all `23` rebinds, all `11` commercial rows and
 exactly `11` history rows; products, variants, mappings and offers remained
 `1130/2850/2808/2808`. No production migration remains pending.
+The complete 237-offer read-only audit at `2026-09-03T17:48:41.058Z` found
+`199` current within the strict 24-hour window and `38` older than 24/48 hours.
+The 23 identity-only rebinds retain their historical timestamps and cannot
+surface a current price until verified by the existing guarded refresh.
 
 **1 September 2026, 12:35 UTC reliability checkpoint:** production migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone at ledger `172` with zero catalogue and control-plane deltas, but the required active-function test correctly blocked the reviewed path before any approval or offer apply: `digest(text,text)` is installed in `extensions` while the validator's pinned `search_path` excludes that schema and its four calls were unqualified. Forward-only migration `20260901100000_fix_reviewed_variant_digest_schema_resolution.sql` (SHA-256 `aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49`) is locally complete and is the only pending production migration. It preserves the exact active function, owner, `SECURITY DEFINER`, pinned search path and ACL while qualifying only those four calls as `extensions.digest(...)`. Isolated PostgreSQL and the full quality gate passed. No production repair migration, approval RPC, offer apply or catalogue write has been run. Next authority gate is migration-only owner approval; a new offer artifact remains prohibited until the repaired active production function passes postflight.
 

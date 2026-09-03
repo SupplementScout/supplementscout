@@ -27,6 +27,10 @@ The production ledger advanced `177 -> 178` with fingerprint
 Postflight proved all `23` rebinds, all `11` commercial rows and exactly `11`
 matching history rows; products, variants, mappings and offers remained
 `1130/2850/2808/2808`. There is no pending production migration.
+The full 237-offer read-only audit at `2026-09-03T17:48:41.058Z` reported
+`199` current within 24 hours and `38` older than 24/48 hours. The 23 rebinds
+did not manufacture fresh price evidence; they and the remaining isolated rows
+stay unavailable as current prices until the existing refresh verifies them.
 
 ### eBay exact-237 freshness incident classified - 3 September 2026
 

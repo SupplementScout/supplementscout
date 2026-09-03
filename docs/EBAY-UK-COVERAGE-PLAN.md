@@ -111,6 +111,11 @@ at `2026-09-03T17:40:34Z`; ledger `177 -> 178` and fingerprint
 `426157f9872f184505fc39560691b06a4ad8178bffa9bc7680d8dd1fc89fdc9e`.
 Read-only postflight passed `23/23` rebinds, `11/11` commercial rows and
 `11/11` matching history rows. No production migration remains pending.
+The subsequent full 237-offer read-only audit at
+`2026-09-03T17:48:41.058Z` returned all rows with zero writes: `199` are within
+24 hours and `38` are older than 24/48 hours. The 23 identity-only rebinds keep
+their old timestamps; strict freshness remains unchanged and no price becomes
+current without a verified refresh.
 
 Batch H is live verified 11/11. The exact official Applied Nutrition scope now
 has mappings `2755`-`2765` and offers `2570`-`2580`; all 11 postflight plans are
