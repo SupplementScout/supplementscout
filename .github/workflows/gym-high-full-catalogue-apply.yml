@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   catalogue:
-    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.approval_fingerprint == 'b7ef586a0fa6fa19bab3509aea7fd67c1123a1696818cbe0cabe1c1ebec350a7' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66')) || github.event_name == 'schedule') }}
+    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.approval_fingerprint == 'b5886eda9300b9cfb5319f868ad5b87e7e6b01b0b77d3d7c4ac270681c101919' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66')) || github.event_name == 'schedule') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
@@ -40,7 +40,7 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       GYM_HIGH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
       GYM_HIGH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-      GYM_HIGH_APPROVAL_FINGERPRINT: ${{ inputs.approval_fingerprint || 'b7ef586a0fa6fa19bab3509aea7fd67c1123a1696818cbe0cabe1c1ebec350a7' }}
+      GYM_HIGH_APPROVAL_FINGERPRINT: ${{ inputs.approval_fingerprint || 'b5886eda9300b9cfb5319f868ad5b87e7e6b01b0b77d3d7c4ac270681c101919' }}
       GYM_HIGH_OWNER_CONFIRMATION: ${{ inputs.owner_confirmation }}
     steps:
       - uses: actions/checkout@v6

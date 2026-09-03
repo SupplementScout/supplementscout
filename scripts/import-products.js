@@ -3680,27 +3680,27 @@ function normalizeVariantDisplayIdentity(value) {
 const SHOPIFY_NUMERIC_ID_PATTERN = /^[0-9]{10,}$/;
 const WOOCOMMERCE_NUMERIC_ID_PATTERN = /^[1-9][0-9]{0,9}$/;
 const REVIEWED_LEGACY_NO_SKU_IDENTITIES = new Set([
-  "gym-high:1:1:632:632:559",
+  "gym-high:1:1:632:632:2965",
   "gym-high:403:3:661:676:956",
   "gym-high:367:4:696:697:1044",
   "gym-high:414:5:639:640:2741",
   "gym-high:411:76:680:681:1047",
-  "gym-high:444:77:702:702:533",
+  "gym-high:444:77:702:702:2966",
   "gym-high:390:78:703:704:1064",
-  "gym-high:429:106:635:635:391",
+  "gym-high:429:106:635:635:2967",
   "gym-high:495:135:738:739:1843",
   "gym-high:508:136:2796:2796:2975",
   "gym-high:510:137:3627:4299:999",
   "gym-high:527:138:3955:3957:2711",
-  "gym-high:427:139:638:638:379",
+  "gym-high:427:139:638:638:2968",
   "gym-high:408:140:646:1337:2735",
-  "gym-high:412:141:700:700:400",
-  "gym-high:413:142:707:707:390",
+  "gym-high:412:141:700:700:2969",
+  "gym-high:413:142:707:707:2970",
   "gym-high:445:144:712:712:574",
-  "gym-high:389:384:701:701:555",
+  "gym-high:389:384:701:701:2971",
   "gym-high:516:385:3333:3333:2972",
   "gym-high:525:386:3405:3405:510",
-  "gym-high:529:387:4623:4623:507",
+  "gym-high:529:387:4623:4623:2973",
 ]);
 const NO_SKU_SOURCE_EXCLUSION_PATTERN =
   /\b(bundle|stack|with\s+free|plus\s+free|free\s+item|bbe|dated|best\s+before|short\s+date|short\s+dated)\b/i;

@@ -4,6 +4,7 @@ const path = require("node:path");
 const test = require("node:test");
 const { parseArgs, validateScheduledPlans } = require("./gym-high-full-catalogue-executor");
 const { parseArgs: parseRefreshArgs, sameBusinessOffer } = require("./gym-high-refresh-artifact");
+const { UPGRADES } = require("./gym-high-legacy-identity-feed-builder");
 
 const workflow = fs.readFileSync(path.resolve(__dirname, "../.github/workflows/gym-high-full-catalogue-apply.yml"), "utf8");
 
@@ -31,6 +32,20 @@ test("owner-approved GYM HIGH Shred Mode control keeps the live exact 60-serving
   assert.equal(family.variants[0].product_variant_id, "2975");
 });
 
+test("all nine owner-reviewed exact-pack mappings use their live production variants", () => {
+  const expected = new Map([
+    ["632", "2965"], ["702", "2966"], ["635", "2967"],
+    ["638", "2968"], ["700", "2969"], ["707", "2970"],
+    ["701", "2971"], ["3333", "2972"], ["4623", "2973"],
+  ]);
+  const approval = require("../config/retailers/gym-high-reviewed-full-catalogue-2026-08-01.json");
+  for (const [externalId, variantId] of expected) {
+    const family = approval.families.find((row) => String(row.external_product_id) === externalId);
+    assert.equal(String(family.variants[0].product_variant_id), variantId);
+    assert.equal(UPGRADES.find((row) => row.externalVariantId === externalId).variantId, variantId);
+  }
+});
+
 test("full-catalogue executor confines evidence output to tmp", () => {
   assert.equal(parseArgs(["--mode=validate", "--report=tmp/report.json", "--artifact=tmp/artifact.json", "--output=tmp/gym-high/out.json"]).mode, "validate");
   assert.throws(() => parseArgs(["--mode=apply", "--report=a", "--artifact=b", "--output=outside.json"]), /inside repository tmp/);
@@ -41,7 +56,7 @@ test("workflow is manual, exact, and separates production roles", () => {
   assert.doesNotMatch(workflow, /^  push:/m);
   assert.match(workflow, /^  schedule:/m);
   assert.match(workflow, /cron: "13 4 \* \* \*"/);
-  assert.match(workflow, /inputs\.approval_fingerprint == 'b7ef586a0fa6fa19bab3509aea7fd67c1123a1696818cbe0cabe1c1ebec350a7'/);
+  assert.match(workflow, /inputs\.approval_fingerprint == 'b5886eda9300b9cfb5319f868ad5b87e7e6b01b0b77d3d7c4ac270681c101919'/);
   assert.match(workflow, /OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66/);
   assert.match(workflow, /GYM_HIGH_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /GYM_HIGH_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
