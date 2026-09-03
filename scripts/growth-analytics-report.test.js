@@ -14,6 +14,7 @@ const {
   parseEndDate,
   parseServiceAccount,
   reportingPeriod,
+  safeRatio,
 } = require("./growth-analytics-report");
 
 const { privateKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
@@ -71,6 +72,12 @@ test("weekly period ends yesterday by default and accepts one exact override", (
   assert.equal(parseEndDate(["--end-date=2026-07-20"]), "2026-07-20");
   assert.throws(() => parseEndDate(["--output=elsewhere"]), /Usage/);
   assert.match(OUTPUT_ROOT, /tmp[\\/]growth-analytics$/);
+});
+
+test("CTR calculations fail closed when the denominator is absent", () => {
+  assert.equal(safeRatio(3, 12), 0.25);
+  assert.equal(safeRatio(3, 0), 0);
+  assert.equal(safeRatio("invalid", 12), 0);
 });
 
 test("authenticated report combines GSC, sitemap and organic GA4 evidence", async () => {
@@ -135,6 +142,40 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
         },
       });
     }
+    if (url.includes(":runFunnelReport")) {
+      return response({
+        funnelTable: {
+          dimensionHeaders: [{ name: "funnelStepName" }],
+          metricHeaders: [{ name: "activeUsers" }],
+          rows: [
+            {
+              dimensionValues: [{ value: "1. Alternative selected" }],
+              metricValues: [{ value: "3" }],
+            },
+            {
+              dimensionValues: [{ value: "2. Retailer offer clicked" }],
+              metricValues: [{ value: "2" }],
+            },
+          ],
+        },
+      });
+    }
+    if (body.dimensions?.[0]?.name === "eventName") {
+      return response({
+        dimensionHeaders: [{ name: "eventName" }],
+        metricHeaders: [{ name: "eventCount" }],
+        rows: [
+          {
+            dimensionValues: [{ value: "view_better_value_alternatives" }],
+            metricValues: [{ value: "12" }],
+          },
+          {
+            dimensionValues: [{ value: "select_better_value_alternative" }],
+            metricValues: [{ value: "3" }],
+          },
+        ],
+      });
+    }
     if (body.dimensionFilter) {
       return response({ metricHeaders: [{ name: "eventCount" }], rows: [{ metricValues: [{ value: "4" }] }] });
     }
@@ -165,7 +206,7 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     ctr: 0,
     position: 18.5,
   });
-  assert.equal(report.schemaVersion, 2);
+  assert.equal(report.schemaVersion, 3);
   assert.equal(report.searchConsole.sitemaps[0].errors, 0);
   assert.deepEqual(report.ga4.organicSearch, {
     sessions: 20,
@@ -173,17 +214,36 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     views: 31,
     retailerOfferClicks: 4,
   });
+  assert.deepEqual(report.ga4.betterValueAlternatives, {
+    impressions: 12,
+    clicks: 3,
+    clickThroughRate: 0.25,
+    selectingUsers: 3,
+    downstreamRetailerClickUsers: 2,
+    downstreamRetailerClickThroughRate: 2 / 3,
+    downstreamWindowMinutes: 30,
+  });
   assert.equal(report.searchConsole.indexing.inspectionTargets.length, 2);
   assert.equal(report.searchConsole.indexing.inspections[0].state, "ok");
   assert.equal(report.searchConsole.indexing.inspectedCount, 2);
   assert.match(report.limitations.pageIndexingTotals, /URL-level/);
-  assert.equal(requests.length, 10);
+  assert.equal(requests.length, 12);
   const gscBodies = requests
     .filter(({ url }) => url.includes("searchAnalytics"))
     .map(({ options }) => JSON.parse(options.body));
   assert.ok(gscBodies.some((body) => body.rowLimit === 100 && body.dimensions?.[0] === "page"));
   assert.ok(gscBodies.some((body) => body.rowLimit === 250 && body.dimensions?.join(",") === "page,query"));
   assert.ok(requests.slice(1).every(({ options }) => options.headers.Authorization === "Bearer test-token"));
+  const funnelRequest = requests.find(({ url }) => url.includes(":runFunnelReport"));
+  assert.ok(funnelRequest.url.includes("/v1alpha/"));
+  assert.deepEqual(
+    JSON.parse(funnelRequest.options.body).funnel.steps.map((step) => step.name),
+    ["Alternative selected", "Retailer offer clicked"]
+  );
+  assert.equal(
+    JSON.parse(funnelRequest.options.body).funnel.steps[1].withinDurationFromPriorStep,
+    "1800s"
+  );
 });
 
 test("Google API errors stop the report without fabricated evidence", async () => {

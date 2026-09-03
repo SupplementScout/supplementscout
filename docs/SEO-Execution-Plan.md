@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 26 August 2026<br>
+**Status date:** 3 September 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -253,6 +253,7 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
+| 2026-08-31 | Weekly GSC/GA4 | Authenticated read-only workflow run `33413636032`, artifact `9766122662` (ZIP SHA-256 `982775ba4eba0d7fd191bd521e0bd929f034578e6a7cb443d658c2bd80e99355`), covering 2026-08-24 through 2026-08-30: GSC 1,076 impressions, 5 clicks, 0.46% CTR and average position 64.55; GA4 Organic Search 20 sessions, 5 users, 115 views and 0 organic retailer-offer clicks. Sitemap reported 1,115 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors: five canonical `www` URLs were submitted and indexed, while the apex hostname was correctly reported as a redirect to the indexed `www` homepage. The sitemap API's `indexed: 0` remains excluded from aggregate Page-indexing evidence. This period predates the 3 September Better-value release and cannot measure its CTR. | `CAPTURED` |
 | 2026-08-17 | Weekly GSC/GA4 | Authenticated read-only workflow run `32014837584`, artifact `9283110120`, covering 2026-08-10 through 2026-08-16: GSC 736 impressions, 9 clicks, 1.22% CTR and average position 61.68; GA4 Organic Search 12 sessions, 4 users, 107 views and 3 organic retailer-offer clicks. Sitemap reported 1,090 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors; the five canonical `www` URLs were submitted and indexed, while the apex hostname correctly resolved as a redirect to the indexed `www` homepage. | `CAPTURED` |
 | 2026-08-10 | Weekly GSC/GA4 | Authenticated read-only workflow run `31377198053`, artifact `9058392768`, covering 2026-08-03 through 2026-08-09: GSC 582 impressions, 3 clicks, 0.52% CTR and average position 61.03; GA4 Organic Search 4 sessions, 3 users, 2 views and 2 organic retailer-offer clicks. Sitemap reported 1,089 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors; the five canonical `www` URLs were submitted and indexed, while the apex hostname correctly resolved as a redirect to the indexed `www` homepage. | `CAPTURED` |
 | 2026-08-03 | Weekly GSC/GA4 | Authenticated read-only workflow run `30812538721`, covering 2026-07-27 through 2026-08-02: GSC 772 impressions, 1 click, 0.13% CTR and average position 59.56; GA4 43 total sessions, 3 users and 486 views (Direct), and 0 organic sessions with 0 organic retailer-offer clicks; sitemap 1,088 submitted URLs, 0 warnings and 0 errors. | `CAPTURED PARTIAL`; SEO-07 remains blocked on aggregate indexed/excluded totals, Core Web Vitals and Links evidence. |

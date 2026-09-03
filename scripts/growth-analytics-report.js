@@ -4,6 +4,7 @@ const path = require("node:path");
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GA4_API_ROOT = "https://analyticsdata.googleapis.com/v1beta";
+const GA4_FUNNEL_API_ROOT = "https://analyticsdata.googleapis.com/v1alpha";
 const GSC_API_ROOT = "https://www.googleapis.com/webmasters/v3";
 const GSC_INDEXING_API_URL = "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect";
 const GOOGLE_SCOPES = [
@@ -190,6 +191,27 @@ function numberValue(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
+function safeRatio(numerator, denominator) {
+  const safeNumerator = numberValue(numerator);
+  const safeDenominator = numberValue(denominator);
+  return safeDenominator > 0 ? safeNumerator / safeDenominator : 0;
+}
+
+function funnelActiveUsers(response, stepName) {
+  const report = response?.funnelTable || {};
+  const dimensionNames = (report.dimensionHeaders || []).map((item) => item.name);
+  const metricNames = (report.metricHeaders || []).map((item) => item.name);
+  const stepIndex = dimensionNames.indexOf("funnelStepName");
+  const usersIndex = metricNames.indexOf("activeUsers");
+  if (stepIndex < 0 || usersIndex < 0) return 0;
+
+  const row = (report.rows || []).find((item) => {
+    const value = item.dimensionValues?.[stepIndex]?.value || "";
+    return value === stepName || value.endsWith(`. ${stepName}`);
+  });
+  return numberValue(row?.metricValues?.[usersIndex]?.value);
+}
+
 function gscRows(response, keyName) {
   return gscDimensionRows(response, [keyName]);
 }
@@ -276,9 +298,10 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const encodedSite = encodeURIComponent(siteUrl);
   const gscQueryUrl = `${GSC_API_ROOT}/sites/${encodedSite}/searchAnalytics/query`;
   const gaReportUrl = `${GA4_API_ROOT}/properties/${propertyId}:runReport`;
+  const gaFunnelUrl = `${GA4_FUNNEL_API_ROOT}/properties/${propertyId}:runFunnelReport`;
   const dateRanges = [{ startDate: period.startDate, endDate: period.endDate }];
 
-  const [gscTotals, gscQueries, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks] =
+  const [gscTotals, gscQueries, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks, gaBetterValueEvents, gaBetterValueFunnel] =
     await Promise.all([
       postJson(fetchImpl, gscQueryUrl, accessToken, { ...period, rowLimit: 1 }),
       postJson(fetchImpl, gscQueryUrl, accessToken, {
@@ -335,6 +358,45 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
           },
         },
       }),
+      postJson(fetchImpl, gaReportUrl, accessToken, {
+        dateRanges,
+        dimensions: [{ name: "eventName" }],
+        metrics: [{ name: "eventCount" }],
+        dimensionFilter: {
+          filter: {
+            fieldName: "eventName",
+            inListFilter: {
+              values: [
+                "view_better_value_alternatives",
+                "select_better_value_alternative",
+              ],
+            },
+          },
+        },
+      }),
+      postJson(fetchImpl, gaFunnelUrl, accessToken, {
+        dateRanges,
+        funnel: {
+          isOpenFunnel: false,
+          steps: [
+            {
+              name: "Alternative selected",
+              filterExpression: {
+                funnelEventFilter: {
+                  eventName: "select_better_value_alternative",
+                },
+              },
+            },
+            {
+              name: "Retailer offer clicked",
+              withinDurationFromPriorStep: "1800s",
+              filterExpression: {
+                funnelEventFilter: { eventName: "retailer_offer_click" },
+              },
+            },
+          ],
+        },
+      }),
     ]);
 
   const total = gscRows(gscTotals, "scope")[0] || {
@@ -349,6 +411,23 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
     (row) => row.sessionDefaultChannelGroup === "Organic Search"
   ) || { sessions: 0, totalUsers: 0, screenPageViews: 0 };
   const offerClicks = gaMetricRows(gaOfferClicks)[0]?.eventCount || 0;
+  const betterValueEvents = gaMetricRows(gaBetterValueEvents);
+  const betterValueImpressions =
+    betterValueEvents.find(
+      (row) => row.eventName === "view_better_value_alternatives"
+    )?.eventCount || 0;
+  const betterValueClicks =
+    betterValueEvents.find(
+      (row) => row.eventName === "select_better_value_alternative"
+    )?.eventCount || 0;
+  const selectingUsers = funnelActiveUsers(
+    gaBetterValueFunnel,
+    "Alternative selected"
+  );
+  const downstreamRetailerClickUsers = funnelActiveUsers(
+    gaBetterValueFunnel,
+    "Retailer offer clicked"
+  );
   const topPages = gscRows(gscPages, "page");
   const pageQueryRows = gscDimensionRows(gscPageQueries, ["page", "query"]);
   const opportunities = pageQueryRows
@@ -375,7 +454,7 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const inspectedCount = inspectionResults.filter((item) => item.state === "ok").length;
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAt: now.toISOString(),
     period,
     source: {
@@ -412,6 +491,21 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         users: numberValue(organic.totalUsers),
         views: numberValue(organic.screenPageViews),
         retailerOfferClicks: numberValue(offerClicks),
+      },
+      betterValueAlternatives: {
+        impressions: numberValue(betterValueImpressions),
+        clicks: numberValue(betterValueClicks),
+        clickThroughRate: safeRatio(
+          betterValueClicks,
+          betterValueImpressions
+        ),
+        selectingUsers,
+        downstreamRetailerClickUsers,
+        downstreamRetailerClickThroughRate: safeRatio(
+          downstreamRetailerClickUsers,
+          selectingUsers
+        ),
+        downstreamWindowMinutes: 30,
       },
       channelRows: channels,
     },
@@ -466,4 +560,5 @@ module.exports = {
   parseEndDate,
   parseServiceAccount,
   reportingPeriod,
+  safeRatio,
 };

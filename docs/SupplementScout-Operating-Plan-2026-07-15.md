@@ -594,6 +594,17 @@ Page indexing baseline because GSC already records impressions. SEO-07 remains
 `BLOCKED` only on the Search Console UI/export evidence for Page indexing, Core
 Web Vitals, Links and priority URL inspection.
 
+The latest retrieved weekly evidence is successful read-only workflow run
+`33413636032`, artifact `9766122662`, covering 24-30 August 2026. GSC recorded
+`1,076` impressions, `5` clicks, `0.46%` CTR and average position `64.55`;
+GA4 Organic Search recorded `20` sessions, `5` users, `115` views and `0`
+retailer-offer clicks. The sitemap reported `1,115` submitted URLs, zero
+warnings and zero errors. URL Inspection passed `6/6`: five canonical `www`
+URLs were submitted and indexed, and the apex correctly remained a redirect.
+This period predates the 3 September Better-value release and supplies no CTR
+evidence for that feature. The sitemap API's zero indexed value remains
+excluded from aggregate indexing evidence.
+
 ### 0.0.11 Jon's reviewed mass-OOS closeout - 3 August 2026
 
 Jon's scheduled 506-offer refresh correctly blocked a net increase of ten new
