@@ -95,9 +95,9 @@ it, but the newest source capture now isolates it on unknown UK shipping. This
 distinguishes current database freshness (`188/49`) from the next safe source
 execution scope (`187/50`).
 
-The owner subsequently approved the identity/commercial decisions for the 11
+The owner subsequently approved and applied the identity/commercial decisions for the 11
 commercial rows and 23 existing-variant rebinds, explicitly with no product
-creation. The single prepared atomic migration is
+creation. The single atomic migration was
 `20260903140000_apply_reviewed_ebay_34_remediation.sql`, SHA-256
 `04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13`;
 rollback SHA-256 is
@@ -106,9 +106,11 @@ It is bound to run `33773580580`, artifact `9900823759`, its recorded artifact
 and report digests, the exact 237-row scope, the 34 row-level before-states and
 expiry `2026-09-04T15:36:30.405Z`. Expected changes are exactly 23 mapping and
 offer rebinds plus 11 commercial/freshness updates and 11 history inserts;
-catalogue entity counts remain unchanged. Preparation is complete, but the
-separate final artifact-and-hash production-apply confirmation has not been
-given.
+catalogue entity counts remain unchanged. The final exact approval was consumed
+at `2026-09-03T17:40:34Z`; ledger `177 -> 178` and fingerprint
+`426157f9872f184505fc39560691b06a4ad8178bffa9bc7680d8dd1fc89fdc9e`.
+Read-only postflight passed `23/23` rebinds, `11/11` commercial rows and
+`11/11` matching history rows. No production migration remains pending.
 
 Batch H is live verified 11/11. The exact official Applied Nutrition scope now
 has mappings `2755`-`2765` and offers `2570`-`2580`; all 11 postflight plans are
@@ -2164,16 +2166,11 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Retain the exact-237 shared refresh and do not repeat Batches A-S,
-create a second scheduler or widen any reviewed identity. Review and, only
-after a final exact owner confirmation while artifact 9900823759 is fresh,
-apply sole pending migration
-20260903140000_apply_reviewed_ebay_34_remediation.sql at SHA-256
-04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13.
-It may only rebind the approved 23 mappings/offers to existing variants, update
-the approved 11 commercial rows and insert 11 history rows; it may create no
-catalogue entity. The eight remaining identity-quality rows (including 2714 UK
-shipping unknown) and eight HTTP-404 rows stay isolated. No production apply
-is authorised by this checkpoint.`
+create a second scheduler or widen any reviewed identity. Migration
+20260903140000_apply_reviewed_ebay_34_remediation.sql is applied and its exact
+approval is consumed. The eight remaining identity-quality rows (including
+2714 UK shipping unknown) and eight HTTP-404 rows stay isolated. Any further
+production write requires new fresh bounded evidence and exact approval.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate

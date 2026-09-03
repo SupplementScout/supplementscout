@@ -229,9 +229,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 177,
+    ledgerCount: 178,
     ledgerFingerprint:
-      "761337483dd7258a0b90a1c8760ff86608759705fd984f823b4b267f9e2a64e0",
+      "426157f9872f184505fc39560691b06a4ad8178bffa9bc7680d8dd1fc89fdc9e",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -248,13 +248,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260903140000_apply_reviewed_ebay_34_remediation.sql",
-        sha256: "04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13",
-        expectedCatalogueDeltas: Object.freeze({ price_history: 11 }),
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

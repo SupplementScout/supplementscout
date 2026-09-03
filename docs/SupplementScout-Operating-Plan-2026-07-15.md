@@ -65,7 +65,7 @@ review offers older than both 24 and 48 hours, with zero writes.
 
 The owner then approved resolving the exact 11 commercial reviews and the 23
 default-to-existing-variant identity decisions, with no catalogue creation.
-One atomic migration is prepared through the existing production migration
+One atomic migration was applied through the existing production migration
 selector: `20260903140000_apply_reviewed_ebay_34_remediation.sql`, SHA-256
 `04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13`;
 bounded rollback SHA-256
@@ -74,9 +74,12 @@ It is bound to run `33773580580`, artifact `9900823759`, the sealed artifact
 and report digests, exact before-states and expiry
 `2026-09-04T15:36:30.405Z`. Expected deltas are 23 mapping/offer rebinds, 11
 commercial/freshness updates and price history `+11`, with all catalogue
-entity counts unchanged. This preparation does not authorise production apply;
-the owner's final exact artifact-and-hash confirmation is still required while
-the evidence remains fresh.
+entity counts unchanged. The exact owner approval was consumed at
+`2026-09-03T17:40:34Z`: production ledger `177 -> 178`, fingerprint
+`426157f9872f184505fc39560691b06a4ad8178bffa9bc7680d8dd1fc89fdc9e`.
+Read-only postflight passed all `23` rebinds, all `11` commercial rows and
+exactly `11` history rows; products, variants, mappings and offers remained
+`1130/2850/2808/2808`. No production migration remains pending.
 
 **1 September 2026, 12:35 UTC reliability checkpoint:** production migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone at ledger `172` with zero catalogue and control-plane deltas, but the required active-function test correctly blocked the reviewed path before any approval or offer apply: `digest(text,text)` is installed in `extensions` while the validator's pinned `search_path` excludes that schema and its four calls were unqualified. Forward-only migration `20260901100000_fix_reviewed_variant_digest_schema_resolution.sql` (SHA-256 `aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49`) is locally complete and is the only pending production migration. It preserves the exact active function, owner, `SECURITY DEFINER`, pinned search path and ACL while qualifying only those four calls as `extensions.digest(...)`. Isolated PostgreSQL and the full quality gate passed. No production repair migration, approval RPC, offer apply or catalogue write has been run. Next authority gate is migration-only owner approval; a new offer artifact remains prohibited until the repaired active production function passes postflight.
 

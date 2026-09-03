@@ -1,6 +1,6 @@
 # Automation Reliability Roadmap
 
-### eBay reviewed 34-row remediation prepared - 3 September 2026
+### eBay reviewed 34-row remediation applied and verified - 3 September 2026
 
 The owner resolved the two bounded review groups: update the exact 11 fresh
 commercial values and rebind the exact 23 default-variant mappings to their
@@ -20,8 +20,13 @@ and expiry `2026-09-04T15:36:30.405Z`. It hard-checks the full 237-row eBay
 scope and every affected before-state. Expected deltas are 23 mapping rebinds,
 23 corresponding offer rebinds, 11 commercial/freshness updates and 11 price
 history inserts, with zero catalogue entity creation and unchanged product,
-variant, mapping and offer counts. A production apply is not yet authorised;
-it requires a final exact artifact-and-hash confirmation while fresh.
+variant, mapping and offer counts. The owner supplied the exact artifact-and-
+hash approval and the migration was applied alone at `2026-09-03T17:40:34Z`.
+The production ledger advanced `177 -> 178` with fingerprint
+`426157f9872f184505fc39560691b06a4ad8178bffa9bc7680d8dd1fc89fdc9e`.
+Postflight proved all `23` rebinds, all `11` commercial rows and exactly `11`
+matching history rows; products, variants, mappings and offers remained
+`1130/2850/2808/2808`. There is no pending production migration.
 
 ### eBay exact-237 freshness incident classified - 3 September 2026
 
