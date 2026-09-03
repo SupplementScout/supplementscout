@@ -82,7 +82,6 @@ begin
      or strpos(v_definition,'where rp.retailer_id = 3 and rp.id <> 65')=0
      or strpos(v_definition,'array[11,65,150,191,249]')=0
      or strpos(v_definition,'jsonb_array_length(v_exceptions) <> 5')=0
-     or not has_function_privilege('retailer_catalogue_staging_validator','public.read_retailer_offer_sync_approved_state(bigint)','EXECUTE')
      or not has_function_privilege('retailer_catalogue_production_validator','public.read_retailer_offer_sync_approved_state(bigint)','EXECUTE')
      or has_function_privilege('public','public.read_retailer_offer_sync_approved_state(bigint)','EXECUTE')
      or has_function_privilege('service_role','public.read_retailer_offer_sync_approved_state(bigint)','EXECUTE')

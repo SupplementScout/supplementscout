@@ -205,6 +205,8 @@ test("reviewed offer 73 remains outside the exact autonomous 586-row scope", () 
   assert.match(reviewedOffer73ScopeMigration, /external_product_id='300'[\s\S]+external_variant_id='301'/);
   assert.match(reviewedOffer73ScopeMigration, /where rp\.retailer_id = 3 and rp\.id <> 65/);
   assert.match(reviewedOffer73ScopeMigration, /array\[11,65,150,191,249\]/);
+  assert.match(reviewedOffer73ScopeMigration, /has_function_privilege\('retailer_catalogue_production_validator'/);
+  assert.doesNotMatch(reviewedOffer73ScopeMigration, /retailer_catalogue_staging_validator/);
   assert.doesNotMatch(reviewedOffer73ScopeMigration, /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
   assert.doesNotMatch(reviewedOffer73ScopeMigration, /grant\s/i);
 });

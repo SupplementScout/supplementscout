@@ -207,7 +207,7 @@ const CONTRACTS = Object.freeze({
       "20260901110000_restore_reviewed_variant_executor_rpc_acl.sql":
         "f2f59726a5f3cb60f3c48b01b313ab877610bfd8b1c0d4ae8088ba6624573d8e",
       "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql":
-        "7f6f5e8c46714619146be70d518b1e9caad668528b1c0df14aea37fed54afe82",
+        "138ad03243e58fb6efac6246dcee528771ae24f7c8c10c290de7670c94c47618",
       "20260903101000_supersede_expired_fit_house_control_plan.sql":
         "27c235580b0a4d253ecb48f99f672a2f09f6103507005caa1e3c268010a18901",
     }),
@@ -247,7 +247,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql",
-        sha256: "7f6f5e8c46714619146be70d518b1e9caad668528b1c0df14aea37fed54afe82",
+        sha256: "138ad03243e58fb6efac6246dcee528771ae24f7c8c10c290de7670c94c47618",
       }),
       Object.freeze({
         filename: "20260903101000_supersede_expired_fit_house_control_plan.sql",
