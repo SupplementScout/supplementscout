@@ -192,7 +192,11 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the Whey registration and validator repair as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: EBAY_REVIEWED_34_MIGRATION, sha256: EBAY_REVIEWED_34_SHA256 }]);
+  assert.deepEqual(contract.pending, [{
+    filename: EBAY_REVIEWED_34_MIGRATION,
+    sha256: EBAY_REVIEWED_34_SHA256,
+    expectedCatalogueDeltas: { price_history: 11 },
+  }]);
   assert.equal(contract.ledgerCount, 177);
   assert.equal(
     contract.ledgerFingerprint,

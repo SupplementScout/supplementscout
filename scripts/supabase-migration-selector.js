@@ -252,6 +252,7 @@ const CONTRACTS = Object.freeze({
       Object.freeze({
         filename: "20260903140000_apply_reviewed_ebay_34_remediation.sql",
         sha256: "04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13",
+        expectedCatalogueDeltas: Object.freeze({ price_history: 11 }),
       }),
     ]),
   }),
