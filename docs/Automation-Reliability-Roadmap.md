@@ -21,6 +21,15 @@ and the alternatives section stayed absent. `verify:quick`, `verify:full`,
 evidence task is GA4 section CTR and downstream retailer-offer CTR after data
 accrues; no catalogue write is authorised by this feature.
 
+The subsequently resumed Predators Gear final step remains fail-closed. A
+fresh validator-only source proof from clean commit `d0488fe` confirmed the
+unchanged exact `47` mappings and offers, but every one of the `29` approved
+product-page requests returned HTTP `403`. Source coverage was `0/29` products
+and `0/47` variants; the shared `SOURCE_INCOMPLETE` guard stopped before batch
+validation, approval or execution, with every write counter `0`. No executable
+artifact exists. Resolution requires an authorised retailer feed/API or
+source allowlisting/credentials, not a scraper bypass.
+
 ### Final sprint closeout: protected writes complete, monitored backlog retained - 1 September 2026, 17:47 UTC
 
 **Verdict: `CLOSE_WITH_MONITORED_BACKLOG`.** The Automation Reliability Sprint is closed as a P0 implementation incident. This section supersedes the pending/retry status of older entries below, which remain historical evidence only. No confirmed unisolated write path, cross-retailer mutation or mass incorrect-data write remains. Existing unresolved rows and automation failures remain fail-closed, excluded by the 24-hour public-offer freshness gate, or isolated in Review Queue. They are operational backlog and do not authorize another redesign, migration, replay or single-row repair.

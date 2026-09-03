@@ -1,7 +1,7 @@
 # Catalogue visibility and Predators Gear implementation plan
 
 **Status date:** 3 September 2026  
-**Status:** PHASE A LIVE VERIFIED — PREDATORS GEAR DEFERRED TO FINAL STEP<br>
+**Status:** PHASE A AND BETTER-VALUE LIVE VERIFIED — PREDATORS GEAR BLOCKED ON SOURCE 403<br>
 **Purpose:** authoritative handoff for the next chat and the bounded implementation that follows.  
 **Active work package:** keep canonical products visible independently of offer freshness, then add the missing guarded Predators Gear refresh.  
 
@@ -35,6 +35,21 @@ owner-approved sequence. This changes only ordering: the next permitted action
 is a fresh read-only source capture with the existing exact-47 adapter. A
 production apply remains prohibited unless that capture produces a complete,
 fresh, bounded artifact and the owner then gives exact approval for it.
+
+**3 September 2026 final-step retry:** the existing exact-47 adapter ran from
+clean commit `d0488fe` in production-target, validator-only `source-proof`
+mode. The read-only database baseline confirmed exactly `47` mappings and
+`47` offers; every production/control write counter remained `0`, and the
+validator, approver and executor were never invoked. All `29` approved product
+requests returned HTTP `403` after the bounded retry policy (`0/29` products,
+`0/47` variants, source ratio `0`), so the shared source guard stopped at
+`SOURCE_INCOMPLETE`. The diagnostic is
+`tmp/predators-gear-offer-refresh/production-source-proof-diagnostic.json`,
+SHA-256 `3549038eccb328e32784fc57ce0c86d99aa21757b36401f444b360f8495b8f48`.
+It is failure evidence, not an executable artifact. This is now a genuine
+external blocker: continue only when Predators Gear supplies an authorised
+public feed/API or credentials/allowlisting for this adapter. Do not bypass the
+`403`; no apply is possible or authorised.
 
 ## 1. Owner outcome
 

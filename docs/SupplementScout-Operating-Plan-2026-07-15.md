@@ -29,6 +29,17 @@ of that rollout plan and resumed the existing Better-value alternatives
 milestone. This sequencing decision does not waive any Predators definition of
 done or production approval gate.
 
+**3 September 2026 Predators Gear final-step blocker:** after Better-value
+alternatives became live verified, the exact-47 adapter was retried from clean
+commit `d0488fe` in validator-only source-proof mode. The production read-only
+baseline retained exactly `47` mappings and `47` offers, but all `29` approved
+source pages returned HTTP `403`; the shared guard stopped at
+`SOURCE_INCOMPLETE` with `0/47` source variants. Database, business, control,
+approval and execution writes were all `0`, and no executable artifact exists.
+The package is blocked pending an authorised Predators Gear feed/API or source
+allowlisting/credentials. No access-control bypass or production apply is
+authorised.
+
 **1 September 2026, 12:35 UTC reliability checkpoint:** production migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone at ledger `172` with zero catalogue and control-plane deltas, but the required active-function test correctly blocked the reviewed path before any approval or offer apply: `digest(text,text)` is installed in `extensions` while the validator's pinned `search_path` excludes that schema and its four calls were unqualified. Forward-only migration `20260901100000_fix_reviewed_variant_digest_schema_resolution.sql` (SHA-256 `aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49`) is locally complete and is the only pending production migration. It preserves the exact active function, owner, `SECURITY DEFINER`, pinned search path and ACL while qualifying only those four calls as `extensions.digest(...)`. Isolated PostgreSQL and the full quality gate passed. No production repair migration, approval RPC, offer apply or catalogue write has been run. Next authority gate is migration-only owner approval; a new offer artifact remains prohibited until the repaired active production function passes postflight.
 
 **30 August 2026, 13:35 UTC reliability checkpoint:** the remaining-stale reconciliation completed read-only with status `RELIABILITY_NO_SAFE_PROGRESS`. No production apply was dispatched. eBay's new per-row isolation commit `09c49d1` was proved locally, but two fresh production dry-runs remained globally blocked by the same source read failure. Discount 47, Dolphin 2 and Whey 284 were fully classified and left unchanged. Final Catalog Health remains 354/322 stale offers over 7/30 days and Overall `Critical` from 208 products without a valid in-stock offer. The authoritative detailed checkpoint is in `Automation-Reliability-Roadmap.md`; the complete unresolved-row artifact is `docs/rollouts/automation-reliability-owner-pack-2026-08-30-final.json` with file SHA-256 `db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a`.
