@@ -2,7 +2,7 @@
 
 **Workstream:** `eBay UK Offer Coverage`  
 **Role:** durable technical source of truth subordinate to the SupplementScout Operating Plan  
-**Status:** CONTROLLED 237-OFFER ROLLOUT LIVE; 188 CURRENT / 49 ISOLATED; SEALER REPAIR LOCAL
+**Status:** CONTROLLED 237-OFFER ROLLOUT LIVE; FRESH READ-ONLY 187 EXECUTABLE / 50 ISOLATED; SEALER REPAIR LIVE
 **Last verified:** 3 September 2026
 **Production writes:** 237 owner-approved create plans plus guarded exact existing-offer verification refreshes (1 retailer, 237 mappings, 237 offers, 237 initial price-history rows)
 **Public changes:** 1 guarded account-deletion API route and 237 live eBay offers
@@ -70,6 +70,30 @@ idempotency plan with the read-only baseline timestamp; only that timestamp may
 differ. Archived run evidence then seals `PASS`, while price, stock, URL or
 identity drift still fails closed. No review row, price, identity or OOS write
 is authorised by this repair.
+
+Commit `9c93ba2ab714de73225e7fd1bef982fd186d3482` published that repair. Fresh
+production-readonly run `33773580580`, artifact `9900823759`, completed
+successfully at `2026-09-03T15:36:30.405Z` and again read all `237` mappings:
+`187` exact `VERIFY_NO_CHANGE`, `50` review and `0` blocked. The review scope is
+`11` commercial price changes, `31` identity/review rows and `8` row-local HTTP
+`404` source failures. Of the 31 identity/review rows, 23 remain the known
+default-to-existing-exact-variant candidates, seven retain their earlier
+identity-quality conflicts, and offer `2714` newly reports
+`UK_SHIPPING_UNKNOWN`. All apply, baseline, postflight and evidence-sealing
+steps were skipped by the dry-run contract; database writes were `0` and
+automatic OOS remained blocked. The artifact digest is
+`sha256:e67a04ced4e9ad3b1d6940d6e79977297bbb90293b0aa62fd54282a6dded055d`;
+the report SHA-256 is
+`8100a1687b981f1d9ed0f5c9f0379d166e6c5f97a6067048340f5b23c63d502e`
+and it expires at `2026-09-04T15:36:30.405Z`.
+
+A separate production read at `2026-09-03T15:45:39.814Z` returned all 237
+database offers with zero writes: `188` are currently within the strict 24-hour
+window and the same historical `49` are older than both 24 and 48 hours. Offer
+`2714` is currently among the 188 because the earlier scheduled apply refreshed
+it, but the newest source capture now isolates it on unknown UK shipping. This
+distinguishes current database freshness (`188/49`) from the next safe source
+execution scope (`187/50`).
 
 Batch H is live verified 11/11. The exact official Applied Nutrition scope now
 has mappings `2755`-`2765` and offers `2570`-`2580`; all 11 postflight plans are
@@ -2125,15 +2149,16 @@ rollback and explicit approval.
 ## Next action
 
 `NEXT ACTION: Retain the exact-237 shared refresh and do not repeat Batches A-S,
-create a second scheduler or widen any reviewed identity. Merge and verify the
-same-run sealer repair, then obtain one fresh production-readonly 237-row
-artifact. The 11 current commercial rows require exact artifact-bound owner
+create a second scheduler or widen any reviewed identity. The same-run sealer
+repair is live and fresh production-readonly artifact 9900823759 covers all
+237 rows. The 11 current commercial rows require exact artifact-bound owner
 approval before price writes. The 23 mapping/default-variant rows require an
 exact owner-reviewed rebind to existing variants; no new catalogue record is
-needed or permitted. The seven remaining identity-quality rows stay isolated
-until their evidence is resolved. The eight HTTP-404 listings cannot be called
-available or refreshed as in-stock; replacement or OOS treatment is a separate
-owner decision. No production apply is authorised by this checkpoint.`
+needed or permitted. The eight remaining identity-quality rows (including
+2714 UK shipping unknown) stay isolated until their evidence is resolved. The
+eight HTTP-404 listings cannot be called available or refreshed as in-stock;
+replacement or OOS treatment is a separate owner decision. No production apply
+is authorised by this checkpoint.`
 
 The completed GTIN release and read-only Browse pilot must not be repeated.
 No result can enter the catalogue or public site without a separate
@@ -2957,6 +2982,14 @@ owner-reviewed production design and approval.
 
 ### 3 September 2026
 
+- Published sealer repair commit `9c93ba2` and completed fresh read-only run
+  `33773580580`, artifact `9900823759`: exact scope `237`, executable `187`,
+  review `50`, blocked `0`, writes `0`. All production-write steps were skipped.
+- The prior 49-row review scope persisted and offer `2714` joined review because
+  current source evidence could not confirm UK shipping. It was not falsely
+  refreshed or marked unavailable.
+- Independent DB read at `2026-09-03T15:45:39.814Z`: 237/237 returned, 188
+  within 24 hours, 49 older than 24 and 48 hours, writes 0.
 - Diagnosed scheduled run `33742461042` and watchdog `33765765305`: exact scope
   `237`, freshness applied `188`, review `49`, blocked `0`; database writes were
   the intended `188` timestamp confirmations only.

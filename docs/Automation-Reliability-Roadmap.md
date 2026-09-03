@@ -21,6 +21,19 @@ identity decisions; seven identity rows remain unresolved; and eight 404
 listings cannot truthfully be refreshed as available. The exact-237 adapter,
 scheduler, Review Queue and shared guarded importer remain the only mechanisms.
 
+The repair is live at commit `9c93ba2`. Fresh production-readonly run
+`33773580580` and artifact `9900823759` completed successfully with all `237`
+rows observed, `187 VERIFY_NO_CHANGE`, `50` review, `0` blocked and `0` writes.
+The prior 49 review rows persisted; offer `2714` moved to review because UK
+shipping could not be confirmed, producing the current split of 11 commercial,
+31 identity/review and eight HTTP-404 source-failure rows. No apply step ran.
+
+An independent production read at `2026-09-03T15:45:39.814Z` returned all 237
+offers with zero writes: 188 were within 24 hours and the same historical 49
+were older than both 24 and 48 hours. Offer `2714` is still within 24 hours from
+the earlier successful freshness apply, but its new shipping review means the
+next run will isolate it unless UK delivery becomes provable.
+
 ### Better-value alternatives MVP live verified - 3 September 2026
 
 Commit `8532613` is deployed and public. The product-page MVP reuses the shared

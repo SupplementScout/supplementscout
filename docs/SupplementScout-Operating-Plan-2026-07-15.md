@@ -51,6 +51,18 @@ and permits only that freshness transition; archived evidence then returns
 rebind, OOS or replacement write is authorised, and no new eBay catalogue
 record or parallel automation is in scope.
 
+The repair was published as commit `9c93ba2`. Fresh production-readonly run
+`33773580580`, artifact `9900823759`, then completed successfully over all 237
+mappings with `187 VERIFY_NO_CHANGE`, `50` review, `0` blocked and `0` writes.
+The one-row increase is offer `2714`, whose current source evidence did not
+confirm UK shipping. All production apply stages were skipped. Current review
+scope is 11 commercial price changes, 31 identity/review rows (23 known
+existing-variant candidates plus eight unresolved evidence rows) and eight
+HTTP-404 source failures; none is authorised for production write here.
+Independent database read at `2026-09-03T15:45:39.814Z` confirmed the distinct
+public-freshness state: 188 offers within 24 hours and the same 49 historical
+review offers older than both 24 and 48 hours, with zero writes.
+
 **1 September 2026, 12:35 UTC reliability checkpoint:** production migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone at ledger `172` with zero catalogue and control-plane deltas, but the required active-function test correctly blocked the reviewed path before any approval or offer apply: `digest(text,text)` is installed in `extensions` while the validator's pinned `search_path` excludes that schema and its four calls were unqualified. Forward-only migration `20260901100000_fix_reviewed_variant_digest_schema_resolution.sql` (SHA-256 `aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49`) is locally complete and is the only pending production migration. It preserves the exact active function, owner, `SECURITY DEFINER`, pinned search path and ACL while qualifying only those four calls as `extensions.digest(...)`. Isolated PostgreSQL and the full quality gate passed. No production repair migration, approval RPC, offer apply or catalogue write has been run. Next authority gate is migration-only owner approval; a new offer artifact remains prohibited until the repaired active production function passes postflight.
 
 **30 August 2026, 13:35 UTC reliability checkpoint:** the remaining-stale reconciliation completed read-only with status `RELIABILITY_NO_SAFE_PROGRESS`. No production apply was dispatched. eBay's new per-row isolation commit `09c49d1` was proved locally, but two fresh production dry-runs remained globally blocked by the same source read failure. Discount 47, Dolphin 2 and Whey 284 were fully classified and left unchanged. Final Catalog Health remains 354/322 stale offers over 7/30 days and Overall `Critical` from 208 products without a valid in-stock offer. The authoritative detailed checkpoint is in `Automation-Reliability-Roadmap.md`; the complete unresolved-row artifact is `docs/rollouts/automation-reliability-owner-pack-2026-08-30-final.json` with file SHA-256 `db5868c8d78ed67cdf00566421a07d9c5cabd4d0a328fb787542d7e95d42945a`.
