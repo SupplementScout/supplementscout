@@ -119,6 +119,53 @@ function isolateAggregateChanges(classification, policy, guardScope) {
   };
 }
 
+function isolateDefaultVariantConflicts(classification, records, policy, guardScope, allowIsolation) {
+  const recordByOffer = new Map(records.map((record) => [String(record.offer.id), record]));
+  const conflictingOfferIds = new Set((classification.rows || [])
+    .filter((row) => row.action !== "VERIFY_NO_CHANGE")
+    .filter((row) => {
+      const record = recordByOffer.get(String(row.offer_id));
+      if (!record?.variant?.is_default) return false;
+      return (record.active_variants || [record.variant]).some(
+        (variant) => variant.is_active === true && variant.is_default !== true && String(variant.id) !== String(record.variant.id)
+      );
+    })
+    .map((row) => String(row.offer_id)));
+  if (conflictingOfferIds.size === 0) return classification;
+  if (!allowIsolation) {
+    fail("Changed default-variant plans conflict with active non-default variants", "DEFAULT_VARIANT_CONFLICT");
+  }
+  const safeRows = [];
+  const quarantinedRows = [...(classification.quarantined_rows || [])];
+  for (const row of classification.rows || []) {
+    if (!conflictingOfferIds.has(String(row.offer_id))) {
+      safeRows.push(row);
+      continue;
+    }
+    quarantinedRows.push({
+      ...row,
+      original_action: row.action,
+      action: "BLOCK_VARIANT_CONFLICT",
+      reason: "DEFAULT_VARIANT_CONFLICT",
+      changed_fields: { ...row.changed_fields, blocked: true },
+    });
+  }
+  const guardEvidence = buildGuardEvidence(safeRows, policy, guardScope);
+  if (guardEvidence.guards.some((guard) => guard.result !== "PASS")) {
+    fail("Variant-conflict isolation still violates aggregate guardrails", "ISOLATION_GUARD_FAILED");
+  }
+  return {
+    ...classification,
+    state: "DRY_RUN_READY_WITH_REVIEW",
+    action: "PASS_WITH_REVIEW",
+    reason: null,
+    rows: safeRows,
+    quarantined_rows: quarantinedRows,
+    full_scope_guard_evidence: classification.full_scope_guard_evidence || classification.guard_evidence,
+    guard_evidence: guardEvidence,
+  };
+}
+
 function authorizeReviewedOwnerBatch(classification, records, sourceRows, approvedManifest, reviewedBatch, capturedAt) {
   if (!reviewedBatch) return { classification, review: null };
   const batch = reviewedBatch.batch;
@@ -352,14 +399,15 @@ async function readState(manifest, dependencies = {}) {
   const client = dependencies.client || createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const productIds = [...new Set(manifest.rows.map((row) => row.canonical_product_id))];
   const variantIds = [...new Set(manifest.rows.map((row) => row.canonical_variant_id))];
-  const [retailersResult, mappingsResult, offersResult, products, variants] = await Promise.all([
+  const [retailersResult, mappingsResult, offersResult, products, variants, activeVariantsResult] = await Promise.all([
     client.from("retailers").select("id,name,slug,website").eq("id", manifest.retailer.id),
     client.from("retailer_products").select("id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_options,external_name,external_slug,external_gtin,external_url,match_method,match_confidence,updated_at").eq("retailer_id", manifest.retailer.id),
     client.from("offers").select("id,product_id,retailer_id,product_variant_id,retailer_product_id,price,shipping_cost,total_price,in_stock,url,last_checked_at").eq("retailer_id", manifest.retailer.id),
     exactRows(client, "products", productIds, "id,name,is_active,merged_into_product_id,product_format"),
     exactRows(client, "product_variants", variantIds, "id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default"),
+    client.from("product_variants").select("id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default").in("product_id", productIds).eq("is_active", true),
   ]);
-  for (const result of [retailersResult, mappingsResult, offersResult]) if (result.error) throw result.error;
+  for (const result of [retailersResult, mappingsResult, offersResult, activeVariantsResult]) if (result.error) throw result.error;
   if (retailersResult.data.length !== 1) fail("Retailer identity missing or duplicated", "STATE_DRIFT");
   const retailer = retailersResult.data[0];
   if (retailer.slug !== config.retailer.slug || retailer.website !== config.retailer.website) fail("Retailer identity drift", "STATE_DRIFT");
@@ -370,6 +418,12 @@ async function readState(manifest, dependencies = {}) {
   const variantById = new Map(variants.map((row) => [String(row.id), row]));
   const mappingById = new Map(mappingsResult.data.map((row) => [String(row.id), row]));
   const offerById = new Map(offersResult.data.map((row) => [String(row.id), row]));
+  const activeVariantsByProduct = new Map();
+  for (const row of activeVariantsResult.data || []) {
+    const key = String(row.product_id);
+    if (!activeVariantsByProduct.has(key)) activeVariantsByProduct.set(key, []);
+    activeVariantsByProduct.get(key).push(row);
+  }
   const records = manifest.rows.map((binding) => {
     const mapping = mappingById.get(binding.mapping_id);
     const offer = offerById.get(binding.offer_id);
@@ -386,7 +440,7 @@ async function readState(manifest, dependencies = {}) {
       String(offer.product_variant_id) !== binding.canonical_variant_id ||
       product.is_active !== true || product.merged_into_product_id != null || variant.is_active !== true
     ) fail(`Approved binding drift for ${binding.external_variant_id}`, "STATE_DRIFT");
-    return { product, variant, retailer, mapping, offer };
+    return { product, variant, active_variants: activeVariantsByProduct.get(String(product.id)) || [variant], retailer, mapping, offer };
   });
   return { records };
 }
@@ -650,9 +704,16 @@ async function run(options, dependencies = {}) {
   const ownerAuthorization = authorizeReviewedOwnerBatch(
     massOosAuthorization.classification, state.records, sourceRows, approved, reviewedOwner, capturedAt
   );
-  const classification = options.isolateUnsafe && !reviewedOwner
+  let classification = options.isolateUnsafe && !reviewedOwner
     ? isolateAggregateChanges(ownerAuthorization.classification, policy, guardScope)
     : ownerAuthorization.classification;
+  classification = isolateDefaultVariantConflicts(
+    classification,
+    state.records,
+    policy,
+    guardScope,
+    options.isolateUnsafe && !reviewedOwner
+  );
   const sourceByVariant = new Map(sourceRows.map((row) => [String(row.external_variant_id), row]));
   const targetByOffer = new Map(state.records.map((record) => [String(record.offer.id), targetFor(record)]));
   const reviewRows = (classification.quarantined_rows || []).map((row) => {
@@ -776,6 +837,7 @@ module.exports = {
   buildArtifactRows,
   canonicalHash,
   isolateAggregateChanges,
+  isolateDefaultVariantConflicts,
   liveSourceFor,
   loadApprovedManifest,
   loadReviewedMassOosManifest,

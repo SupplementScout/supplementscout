@@ -8,6 +8,7 @@ const {
   executeApprovedPlans,
   executionCounts,
   parseArgs,
+  validatePlansReadOnly,
   validateArtifactScope,
 } = require("./six-pack-offer-refresh-executor");
 
@@ -96,6 +97,35 @@ test("full approved freshness plan executes every one of the 506 verified rows",
     review_row_count: 0,
     blocked_row_count: 0,
   });
+});
+
+test("executor validates the complete artifact in one read-only role transaction before writes", async () => {
+  const queries = [];
+  const plans = artifact().plans.slice(0, 2);
+  const client = {
+    query: async (sql, params) => {
+      queries.push({ sql, params });
+      if (sql.startsWith("select session_user")) {
+        return { rows: [{ session_user: "validator_login", current_user: "retailer_catalogue_production_validator", transaction_read_only: "on" }] };
+      }
+      if (sql.startsWith("select public.validate_product_import_plan_read_only")) {
+        return { rows: [{ result: { valid: true } }] };
+      }
+      return { rows: [] };
+    },
+  };
+  const validated = await validatePlansReadOnly(plans, client);
+  assert.equal(validated.length, 2);
+  assert.equal(queries[0].sql, "begin read only");
+  assert.equal(queries.at(-1).sql, "commit");
+  assert.equal(
+    queries.filter((entry) => entry.sql.startsWith("select public.validate_product_import_plan_read_only")).length,
+    2
+  );
+  assert.deepEqual(
+    queries.filter((entry) => entry.sql.startsWith("select public.validate_product_import_plan_read_only")).map((entry) => entry.params[0]),
+    plans.map((entry) => entry.resolved_plan)
+  );
 });
 
 test("executor counts and executes only the 492 approved plans in a reviewed mixed scope", async () => {
@@ -236,6 +266,7 @@ test("scheduled workflow always preflights, applies through split roles and veri
   assert.match(workflow, /Fresh live-source dry-run/);
   assert.match(workflow, /SIX_PACK_SYNC_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /SIX_PACK_SYNC_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
+  assert.match(applyStep, /SIX_PACK_SYNC_VALIDATOR_DATABASE_URL:[\s\S]*JONS_SYNC_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /--require-no-change=true/);
   assert.equal((workflow.match(/--isolate-unsafe=true/g) || []).length, 4);
   assert.match(workflow, /name: Upload refresh evidence[\s\S]*?if: always\(\)[\s\S]*?tmp\/six-pack-offer-refresh\/\*\.json/);
@@ -256,6 +287,7 @@ test("executor reuses role connections and executes all approved plans", () => {
   const source = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh-executor.js"), "utf8");
   assert.match(source, /clients\.approver = await openRoleClient\("approver"\)/);
   assert.match(source, /clients\.executor = await openRoleClient\("executor"\)/);
+  assert.ok(source.indexOf('await validatePlansReadOnly(plans, clients.validator)') < source.indexOf('clients.approver = await openRoleClient("approver")'));
   assert.doesNotMatch(source, /skipped_verified_no_change_count|executablePlans/);
   assert.match(source, /const rows = reviewedOwner[\s\S]*executeApprovedPlansWithCheckpoint\(plans[\s\S]*executeApprovedPlans\(plans/);
   assert.match(source, /if \(rows\.length !== plans\.length\) fail\("Verified and executed plan counts differ"\)/);

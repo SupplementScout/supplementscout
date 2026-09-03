@@ -134,7 +134,7 @@ jobs:
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           WHEY_OKAY_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/whey-okay-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+        run: node scripts/whey-okay-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true --preflight-artifact=tmp/whey-okay-offer-refresh/production-preflight-immutable.json
 
       - name: Verify Whey Okay DB postflight read-only
         if: ${{ needs.route-operation.outputs.run_standard_apply == 'true' }}

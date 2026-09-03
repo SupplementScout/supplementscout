@@ -17,10 +17,13 @@ const {
   changeSummary,
   deliveredTotalForSourcePrice,
   guardrailsFor,
+  loadImmutablePreflight,
   loadManifest,
   loadReviewedMassOosManifest,
   parseArgs,
   runWithDiagnostic,
+  sealImmutablePreflight,
+  sourceCapturedAt,
   sourceHealth,
 } = require("./whey-okay-offer-refresh");
 const {
@@ -47,6 +50,11 @@ test("Whey Okay DB postflight is manifest-scoped and surrounds apply", () => {
     baselineIndex > -1 &&
       applyIndex > baselineIndex &&
       postflightIndex > applyIndex,
+  );
+  const applyStep = workflow.slice(applyIndex, postflightIndex);
+  assert.match(
+    applyStep,
+    /--preflight-artifact=tmp\/whey-okay-offer-refresh\/production-preflight-immutable\.json/,
   );
   for (const name of [
     "Capture Whey Okay DB baseline read-only",
@@ -627,7 +635,26 @@ test("CLI is closed and diagnostic artifacts exist on success and failure", asyn
     mode: "dry-run",
     isolateUnsafe: false,
   });
-  assert.equal(parseArgs(["--target=production", "--mode=apply", "--isolate-unsafe=true"]).isolateUnsafe, true);
+  assert.throws(
+    () => parseArgs(["--target=production", "--mode=apply", "--isolate-unsafe=true"]),
+    /preflight-artifact/,
+  );
+  const applyArgs = parseArgs([
+    "--target=production",
+    "--mode=apply",
+    "--isolate-unsafe=true",
+    "--preflight-artifact=tmp/whey-preflight.json",
+  ]);
+  assert.equal(applyArgs.isolateUnsafe, true);
+  assert.equal(applyArgs.preflightArtifact, path.resolve("tmp/whey-preflight.json"));
+  assert.throws(
+    () => parseArgs([
+      "--target=production",
+      "--mode=apply",
+      "--preflight-artifact=../outside.json",
+    ]),
+    /inside repository tmp/,
+  );
   assert.throws(() => parseArgs(["--target=other", "--mode=apply"]));
   assert.deepEqual(
     parseArgs([
@@ -696,4 +723,69 @@ test("CLI is closed and diagnostic artifacts exist on success and failure", asyn
   assert.equal(failure.database_writes_completed, 0);
   assert.equal(failure.approvals_created, 0);
   assert.equal(failure.recovery_calls, 0);
+});
+
+test("apply consumes one hash-bound current Whey Okay preflight", () => {
+  const artifactCore = {
+    schema_version: 1,
+    kind: "retailer-existing-offer-mixed-batch-execution",
+    source_snapshot_fingerprint: "a".repeat(64),
+    source_captured_at: "2026-09-03T10:00:00.000Z",
+    rows: [{
+      offer_id: "5",
+      atomic_plan: {
+        meta: {
+          source_snapshot_sha256: "a".repeat(64),
+          source_captured_at: "2026-09-03T10:00:00.000Z",
+        },
+      },
+    }],
+  };
+  const run = {
+    target: "production",
+    capturedAt: "2026-09-03T10:00:00.000Z",
+    feed: { semantic_fingerprint: "a".repeat(64) },
+    artifacts: [{
+      ...artifactCore,
+      artifact_fingerprint: require("./jons-offer-refresh").canonicalHash(artifactCore),
+    }],
+    approvedManifestSha256: config.manifest_sha256,
+    manifestFingerprint: "b".repeat(64),
+    reviewedMassOos: null,
+    isolateUnsafe: true,
+    head: "c".repeat(40),
+  };
+  const sealed = sealImmutablePreflight(run);
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "whey-immutable-preflight-"));
+  const file = path.join(directory, "preflight.json");
+  fs.writeFileSync(file, JSON.stringify(sealed));
+  const loaded = loadImmutablePreflight(file, {
+    target: "production",
+    mode: "apply",
+    isolateUnsafe: true,
+  }, {
+    currentHead: "c".repeat(40),
+    now: new Date("2026-09-03T10:05:00.000Z"),
+  });
+  assert.equal(loaded.sealed.payload_sha256, sealed.payload_sha256);
+  assert.equal(loaded.run.artifacts[0].artifact_fingerprint, run.artifacts[0].artifact_fingerprint);
+
+  const tampered = structuredClone(sealed);
+  tampered.run.artifacts[0].rows[0].offer_id = "6";
+  fs.writeFileSync(file, JSON.stringify(tampered));
+  assert.throws(() => loadImmutablePreflight(file, {
+    target: "production",
+    mode: "apply",
+    isolateUnsafe: true,
+  }, {
+    currentHead: "c".repeat(40),
+    now: new Date("2026-09-03T10:05:00.000Z"),
+  }), /payload hash mismatch/);
+});
+
+test("Whey Okay run uses the canonical timestamp representation required by child plans", () => {
+  assert.equal(
+    sourceCapturedAt(new Date("2026-09-03T11:57:58.590Z")),
+    "2026-09-03T11:57:58.59Z",
+  );
 });

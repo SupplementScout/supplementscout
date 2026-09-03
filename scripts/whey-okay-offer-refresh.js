@@ -11,6 +11,7 @@ const {
   classifyExistingOffers,
 } = require("./lib/retailer-offer-sync/classifier");
 const { sealArtifact } = require("./lib/retailer-offer-sync/artifacts");
+const { canonicalTimestamp } = require("./lib/canonical-timestamp");
 const {
   buildExistingOfferUpdatePlan,
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
@@ -63,7 +64,7 @@ function git(...args) {
 }
 function parseArgs(argv) {
   const result = {};
-  const allowed = new Set(["target", "mode", "reviewed-mass-oos", "isolate-unsafe"]);
+  const allowed = new Set(["target", "mode", "reviewed-mass-oos", "isolate-unsafe", "preflight-artifact"]);
   for (const argument of argv) {
     const match = argument.match(/^--([^=]+)=(.*)$/);
     if (!match || !allowed.has(match[1]) || result[match[1]] !== undefined) {
@@ -91,6 +92,15 @@ function parseArgs(argv) {
   }
   result.isolateUnsafe = result["isolate-unsafe"] === "true";
   delete result["isolate-unsafe"];
+  if (result.mode === "apply") {
+    invariant(result["preflight-artifact"], "apply requires --preflight-artifact");
+    result.preflightArtifact = path.resolve(result["preflight-artifact"]);
+    const relative = path.relative(path.join(ROOT, "tmp"), result.preflightArtifact);
+    invariant(relative && !relative.startsWith("..") && !path.isAbsolute(relative), "preflight artifact must be inside repository tmp");
+  } else {
+    invariant(result["preflight-artifact"] === undefined, "dry-run cannot consume a preflight artifact");
+  }
+  delete result["preflight-artifact"];
   return result;
 }
 function loadEnvFile(file) {
@@ -429,6 +439,9 @@ async function readState(target) {
 function money(value) {
   return value == null ? null : Number(value).toFixed(2);
 }
+function sourceCapturedAt(now = new Date()) {
+  return canonicalTimestamp(now, "source_captured_at");
+}
 function deliveredTotalForSourcePrice(sourcePrice, target) {
   const price = money(sourcePrice);
   if (price === target.price || target.shipping_cost === null) {
@@ -611,6 +624,86 @@ function write(name, value, outDir = OUT) {
     `${JSON.stringify(value, null, 2)}\n`,
   );
 }
+function immutablePreflightName(target) {
+  return `${target}-preflight-immutable.json`;
+}
+function immutablePreflightCore(run) {
+  return {
+    schema_version: 1,
+    kind: "whey-okay-offer-refresh-immutable-preflight",
+    target: run.target,
+    source_captured_at: run.capturedAt,
+    source_snapshot_fingerprint: run.feed.semantic_fingerprint,
+    code_commit: run.head,
+    approved_manifest_sha256: run.approvedManifestSha256,
+    manifest_fingerprint: run.manifestFingerprint,
+    isolate_unsafe: run.isolateUnsafe,
+    reviewed_mass_oos_selector: run.reviewedMassOos?.selector || null,
+    run,
+  };
+}
+function sealImmutablePreflight(run) {
+  const core = immutablePreflightCore(run);
+  return { ...core, payload_sha256: canonicalHash(core) };
+}
+function loadImmutablePreflight(file, args, options = {}) {
+  const sealed = JSON.parse(fs.readFileSync(file, "utf8"));
+  const { payload_sha256: payloadSha256, ...core } = sealed;
+  invariant(
+    /^[0-9a-f]{64}$/.test(payloadSha256 || "") && canonicalHash(core) === payloadSha256,
+    "immutable preflight payload hash mismatch",
+  );
+  invariant(
+    core.schema_version === 1 && core.kind === "whey-okay-offer-refresh-immutable-preflight",
+    "immutable preflight contract mismatch",
+  );
+  const run = core.run;
+  invariant(run && run.target === args.target && core.target === args.target, "immutable preflight target mismatch");
+  invariant(run.isolateUnsafe === args.isolateUnsafe && core.isolate_unsafe === args.isolateUnsafe, "immutable preflight isolation mismatch");
+  invariant(
+    (run.reviewedMassOos?.selector || null) === (args["reviewed-mass-oos"] || null) &&
+      core.reviewed_mass_oos_selector === (args["reviewed-mass-oos"] || null),
+    "immutable preflight reviewed scope mismatch",
+  );
+  const currentHead = options.currentHead || process.env.GITHUB_SHA || git("rev-parse", "HEAD");
+  invariant(run.head === currentHead && core.code_commit === currentHead, "immutable preflight commit mismatch");
+  invariant(
+    run.approvedManifestSha256 === config.manifest_sha256 &&
+      core.approved_manifest_sha256 === config.manifest_sha256,
+    "immutable preflight manifest mismatch",
+  );
+  invariant(
+    run.capturedAt === core.source_captured_at &&
+      run.feed?.semantic_fingerprint === core.source_snapshot_fingerprint,
+    "immutable preflight source mismatch",
+  );
+  const now = options.now || new Date();
+  const capturedAt = Date.parse(run.capturedAt);
+  invariant(
+    Number.isFinite(capturedAt) &&
+      capturedAt <= now.getTime() + config.guardrails.future_clock_skew_minutes * 60_000 &&
+      now.getTime() - capturedAt <= config.guardrails.source_freshness_hours * 3_600_000,
+    "immutable preflight source is not current",
+  );
+  invariant(Array.isArray(run.artifacts) && run.artifacts.length > 0, "immutable preflight has no executable artifacts");
+  for (const artifact of run.artifacts) {
+    const { artifact_fingerprint: artifactFingerprint, ...artifactCore } = artifact;
+    invariant(canonicalHash(artifactCore) === artifactFingerprint, "immutable child artifact hash mismatch");
+    invariant(
+      artifact.source_snapshot_fingerprint === core.source_snapshot_fingerprint &&
+        artifact.source_captured_at === core.source_captured_at,
+      "immutable child source mismatch",
+    );
+    for (const row of artifact.rows) {
+      invariant(
+        row.atomic_plan?.meta?.source_snapshot_sha256 === core.source_snapshot_fingerprint &&
+          row.atomic_plan?.meta?.source_captured_at === core.source_captured_at,
+        "immutable row source mismatch",
+      );
+    }
+  }
+  return { sealed, run };
+}
 function diagnosticTemplate(argv, env = process.env) {
   const target =
     argv.find((value) => value.startsWith("--target="))?.slice(9) || "unknown";
@@ -686,7 +779,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
     options.reviewedMassOosSelector,
     approved.manifest,
   );
-  const capturedAt = new Date().toISOString();
+  const capturedAt = sourceCapturedAt();
   let feed;
   const reader = options.reader || readEkmGoogleProductFeed;
   try {
@@ -761,7 +854,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
       .sort((left, right) => Number(left) - Number(right));
     if (aggregateReasons.has(classification.reason) || hardPriceOfferIds.length) {
       const firstMappedFingerprint = mappedFeedFingerprint(state.records, sourceVariants);
-      const secondCapturedAt = new Date().toISOString();
+      const secondCapturedAt = sourceCapturedAt();
       const secondFeed = await readFeedSnapshot(reader, secondCapturedAt);
       const secondHealth = sourceHealth(secondFeed);
       invariant(secondHealth.result === "PASS", "second Whey Okay source capture failed health checks");
@@ -1278,10 +1371,28 @@ async function executeRefresh(args, diagnostic) {
   }
   const before = await readState(args.target);
   diagnostic.database_before = before.counts;
-  const run = await buildRun(args.target, before, diagnostic, {
-    reviewedMassOosSelector: args["reviewed-mass-oos"] || null,
-    isolateUnsafe: args.isolateUnsafe,
-  });
+  const immutablePreflight = args.mode === "apply"
+    ? loadImmutablePreflight(args.preflightArtifact, args)
+    : null;
+  const run = immutablePreflight
+    ? immutablePreflight.run
+    : await buildRun(args.target, before, diagnostic, {
+        reviewedMassOosSelector: args["reviewed-mass-oos"] || null,
+        isolateUnsafe: args.isolateUnsafe,
+      });
+  if (immutablePreflight) {
+    diagnostic.source = run.feed.diagnostic;
+    diagnostic.approved_mapping_count = config.approved_mapping_count;
+    diagnostic.mappings_matched = config.approved_mapping_count - run.discovery.missing_rows.length;
+    diagnostic.mappings_missing = run.discovery.missing_rows.length;
+    diagnostic.guard_results.push({
+      guard: "IMMUTABLE_PREFLIGHT",
+      result: "PASS",
+      payload_sha256: immutablePreflight.sealed.payload_sha256,
+      source_snapshot_fingerprint: immutablePreflight.sealed.source_snapshot_fingerprint,
+      source_captured_at: immutablePreflight.sealed.source_captured_at,
+    });
+  }
   if (
     approvedManifestCoverage(
       run.discovery.missing_rows,
@@ -1349,6 +1460,14 @@ async function executeRefresh(args, diagnostic) {
   };
   writeRunReports(args, run, base);
   if (args.mode === "dry-run") {
+    const sealedPreflight = sealImmutablePreflight(run);
+    write(immutablePreflightName(args.target), sealedPreflight);
+    base.immutable_preflight = {
+      file: immutablePreflightName(args.target),
+      payload_sha256: sealedPreflight.payload_sha256,
+      source_snapshot_fingerprint: sealedPreflight.source_snapshot_fingerprint,
+      source_captured_at: sealedPreflight.source_captured_at,
+    };
     write(`${artifactPrefix(args.target, args.mode)}-dry-run.json`, base);
     return base;
   }
@@ -1477,11 +1596,15 @@ module.exports = {
   diagnosticTemplate,
   guardrailsFor,
   loadManifest,
+  loadImmutablePreflight,
   loadReviewedMassOosManifest,
+  immutablePreflightName,
   parseArgs,
   readState,
   registrationRequest,
   runWithDiagnostic,
+  sealImmutablePreflight,
+  sourceCapturedAt,
   sourceHealth,
   targetFor,
 };

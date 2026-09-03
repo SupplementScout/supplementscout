@@ -7,6 +7,7 @@ const manifest = require("../config/retailers/six-pack-approved-offer-manifest.j
 const { loadDryRunArtifact } = require("./import-products");
 const { WooCommerceSourceError } = require("./lib/woocommerce-product-page-reader");
 const {
+  isolateDefaultVariantConflicts,
   loadReviewedMassOosManifest,
   parseArgs,
   run,
@@ -245,6 +246,63 @@ test("one hard price anomaly is isolated without blocking ordinary rows", async 
   assert.equal(result.report.result, "PASS_WITH_REVIEW");
   assert.deepEqual(result.report.review_rows.map((row) => row.reason), ["HARD_PRICE_ANOMALY"]);
   assert.equal(loadDryRunArtifact(output.artifact).artifact.plans.length, manifest.rows.length - 1);
+});
+
+test("preflight isolates a changed default variant when an active sibling exists", async () => {
+  const source = fixture();
+  const record = source.state.records.find((row) => row.variant.is_default === true);
+  record.active_variants = [
+    record.variant,
+    {
+      ...record.variant,
+      id: Number(record.variant.id) + 100000,
+      variant_key: "30-servings",
+      display_name: "30 Servings",
+      is_default: false,
+      is_active: true,
+    },
+  ];
+  source.byProduct.get(String(record.mapping.external_product_id)).product_offer.price =
+    (Number(record.offer.price) + 0.25).toFixed(2);
+  const output = paths();
+  const result = await run(
+    {
+      target: "production",
+      artifact: output.artifact,
+      report: output.report,
+      requireNoChange: false,
+      isolateUnsafe: true,
+    },
+    { state: source.state, readLive: async (id) => source.byProduct.get(String(id)) }
+  );
+  assert.equal(result.report.result, "PASS_WITH_REVIEW");
+  assert.equal(result.report.executable_plan_count, manifest.rows.length - 1);
+  assert.deepEqual(
+    result.report.review_rows.map((row) => ({ offer_id: row.offer_id, reason: row.reason, original_action: row.original_action })),
+    [{ offer_id: String(record.offer.id), reason: "DEFAULT_VARIANT_CONFLICT", original_action: "UPDATE_PRICE" }]
+  );
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+  assert.equal(artifact.plans.some((entry) => String(entry.resolved_plan.offer.id) === String(record.offer.id)), false);
+});
+
+test("default variant conflicts fail closed when isolation is not authorized", () => {
+  const record = {
+    offer: { id: 10 },
+    variant: { id: 20, is_default: true, is_active: true },
+    active_variants: [
+      { id: 20, is_default: true, is_active: true },
+      { id: 21, is_default: false, is_active: true },
+    ],
+  };
+  const classification = {
+    state: "DRY_RUN_READY",
+    rows: [{ offer_id: "10", action: "UPDATE_STOCK", changed_fields: { in_stock: true } }],
+    quarantined_rows: [],
+  };
+  assert.throws(
+    () => isolateDefaultVariantConflicts(classification, [record], {}, {}, false),
+    (error) => error.code === "DEFAULT_VARIANT_CONFLICT"
+  );
 });
 
 test("safe price, stock, and combined updates use the existing protected plans", async () => {

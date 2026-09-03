@@ -318,6 +318,7 @@ async function openRoleClient(kind) {
     connectionString: credential(kind),
     applicationName: `six-pack-offer-refresh-${kind}`,
     ClientClass: Client,
+    defaultReadOnly: kind === "validator",
   });
 }
 
@@ -329,8 +330,25 @@ async function roleTransaction(client, kind, callback) {
       "app.retailer_catalogue_production_marker": "1",
       "app.retailer_catalogue_allow": "1",
     },
+    readOnly: kind === "validator",
   }, callback);
   return session.result;
+}
+
+async function validatePlansReadOnly(plans, client) {
+  return roleTransaction(client, "validator", async (transaction) => {
+    const rows = [];
+    for (const entry of plans) {
+      const response = await transaction.query(
+        "select public.validate_product_import_plan_read_only($1::jsonb) result",
+        [entry.resolved_plan]
+      );
+      if (!response.rows[0]?.result) fail(`Read-only validation returned no result for row ${entry.row_number}`);
+      rows.push({ row_number: entry.row_number, result: response.rows[0].result });
+    }
+    if (rows.length !== plans.length) fail("Not every refresh plan passed read-only validation");
+    return rows;
+  });
 }
 
 async function executeEntry(entry, artifactSha256, runId, clients, approvalReason) {
@@ -441,6 +459,10 @@ async function run(options) {
   const plans = validateArtifactScope(loaded.artifact, approved.manifest, reviewed, reviewedOwner);
   const clients = {};
   try {
+    clients.validator = await openRoleClient("validator");
+    await validatePlansReadOnly(plans, clients.validator);
+    await clients.validator.end();
+    delete clients.validator;
     clients.approver = await openRoleClient("approver");
     clients.executor = await openRoleClient("executor");
     const approvalReason = reviewedOwner ? `six-pack-reviewed-owner:${reviewedOwner.batch.reviewed_batch_fingerprint}` : reviewed ? "six-pack-reviewed-mass-oos" : "six-pack-scheduled-offer-refresh";
@@ -501,6 +523,7 @@ module.exports = {
   parseArgs,
   reviewedPlanRows,
   sameCommercialOfferState,
+  validatePlansReadOnly,
   validateArtifactScope,
   validateOperationContract,
   validateReviewedMassOosArtifact,
