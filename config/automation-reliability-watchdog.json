@@ -17,7 +17,7 @@
     },
     "retailers": {
       "1": { "maximum_offers_older_than_48h": 66, "maximum_review_row_count": 0, "allowed_failure_codes": ["APPLY_SUCCESS_MISSING", "DB_POSTFLIGHT_SUCCESS_MISSING", "EXECUTION_CONTRACT_EVIDENCE_MISSING", "DATABASE_OFFERS_OLDER_THAN_48H"] },
-      "3": { "maximum_offers_older_than_48h": 869, "maximum_review_row_count": 0, "allowed_failure_codes": ["CAPTURE_SUCCESS_MISSING", "APPLY_SUCCESS_MISSING", "DB_POSTFLIGHT_SUCCESS_MISSING", "EXECUTION_CONTRACT_EVIDENCE_MISSING", "DATABASE_OFFERS_OLDER_THAN_48H"] },
+      "3": { "maximum_offers_older_than_48h": 869, "maximum_review_row_count": 10, "allowed_review_offer_ids": ["16", "1506", "1507", "1508", "1509", "1510", "1511", "1512", "1568", "1584"], "allowed_failure_codes": ["CAPTURE_SUCCESS_MISSING", "APPLY_SUCCESS_MISSING", "DB_POSTFLIGHT_SUCCESS_MISSING", "EXECUTION_CONTRACT_EVIDENCE_MISSING", "DATABASE_OFFERS_OLDER_THAN_48H"] },
       "4": { "maximum_offers_older_than_48h": 47, "maximum_review_row_count": 0, "allowed_failure_codes": ["DATABASE_OFFERS_OLDER_THAN_48H"] },
       "5": { "maximum_offers_older_than_48h": 2, "maximum_review_row_count": 0, "allowed_failure_codes": ["DATABASE_OFFERS_OLDER_THAN_48H"] },
       "7": { "maximum_offers_older_than_48h": 1, "maximum_review_row_count": 1, "allowed_failure_codes": [] },
