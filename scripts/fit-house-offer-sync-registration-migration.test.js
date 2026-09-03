@@ -11,6 +11,10 @@ const file = path.join(
 const sql = fs.readFileSync(file, "utf8");
 const selector = require("./supabase-migration-selector");
 const expectedSha = "94894a4ec1a083fa167ec87d487aa409cc9f48e9482ee441733c34858d29da85";
+const expiredPlanRepair = fs.readFileSync(path.join(
+  process.cwd(),
+  "supabase/migrations/20260903101000_supersede_expired_fit_house_control_plan.sql",
+), "utf8");
 
 test("migration is hash-bound and transactional", () => {
   const repositoryBytes = fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n");
@@ -25,7 +29,7 @@ test("migration is hash-bound and transactional", () => {
     ),
     false,
   );
-  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 173);
+  assert.equal(selector.CONTRACTS.PRODUCTION.ledgerCount, 174);
   assert.match(sql, /^begin;/i);
   assert.match(sql, /commit;\s*$/i);
 });
@@ -50,4 +54,17 @@ test("migration changes only the dedicated registry function and its ACL", () =>
   assert.match(sql, /to retailer_catalogue_production_validator/);
   assert.doesNotMatch(sql, /\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)\b/i);
   assert.doesNotMatch(sql, /MASS_OOS|maximum_total_oos|shipping_cost/);
+});
+
+test("expired Fit House repair is bound to the one unexecuted plan and changes control state only", () => {
+  assert.match(expiredPlanRepair, /fbb260ad-0984-40ef-8136-38dba975d6d0/);
+  assert.match(expiredPlanRepair, /fb0ded40e9d062b0d2ae7717041b58fc64d97e2317f56f30abd5060433f60c69/);
+  assert.match(expiredPlanRepair, /f158a21f-2d17-4fa3-b30a-828024ab1336/);
+  assert.match(expiredPlanRepair, /status='APPROVED'\)<>1[\s\S]+status='PLANNED'\)<>5/);
+  assert.match(expiredPlanRepair, /retailer_catalogue_apply_runs[\s\S]+<>0/);
+  assert.match(expiredPlanRepair, /approved_import_plans[\s\S]+mbs-43c791f90d02a472-%/);
+  assert.match(expiredPlanRepair, /status='SUPERSEDED'[\s\S]+v_rows<>6/);
+  assert.match(expiredPlanRepair, /v_after is distinct from v_before/);
+  assert.doesNotMatch(expiredPlanRepair, /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history|retailers)/i);
+  assert.doesNotMatch(expiredPlanRepair, /\bgrant\b|\brevoke\b|create\s+(?:role|user)/i);
 });

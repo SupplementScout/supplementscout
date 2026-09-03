@@ -206,6 +206,10 @@ const CONTRACTS = Object.freeze({
         "aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49",
       "20260901110000_restore_reviewed_variant_executor_rpc_acl.sql":
         "f2f59726a5f3cb60f3c48b01b313ab877610bfd8b1c0d4ae8088ba6624573d8e",
+      "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql":
+        "7f6f5e8c46714619146be70d518b1e9caad668528b1c0df14aea37fed54afe82",
+      "20260903101000_supersede_expired_fit_house_control_plan.sql":
+        "27c235580b0a4d253ecb48f99f672a2f09f6103507005caa1e3c268010a18901",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -221,9 +225,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 173,
+    ledgerCount: 174,
     ledgerFingerprint:
-      "f1dec1d0267de092477ca063072c2a035284d02f0f5544daf157e16ce943d62e",
+      "9b87ac839ee0b1ad5c0f551a2a3859ebea7d7d8e2f5fe5319e89e8630aff6f2f",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -242,8 +246,12 @@ const CONTRACTS = Object.freeze({
     }),
     pending: Object.freeze([
       Object.freeze({
-        filename: "20260901110000_restore_reviewed_variant_executor_rpc_acl.sql",
-        sha256: "f2f59726a5f3cb60f3c48b01b313ab877610bfd8b1c0d4ae8088ba6624573d8e",
+        filename: "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql",
+        sha256: "7f6f5e8c46714619146be70d518b1e9caad668528b1c0df14aea37fed54afe82",
+      }),
+      Object.freeze({
+        filename: "20260903101000_supersede_expired_fit_house_control_plan.sql",
+        sha256: "27c235580b0a4d253ecb48f99f672a2f09f6103507005caa1e3c268010a18901",
       }),
     ]),
   }),

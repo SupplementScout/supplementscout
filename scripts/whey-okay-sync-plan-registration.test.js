@@ -66,6 +66,14 @@ const creatineManifestRebindRollback = fs.readFileSync(
   ),
   "utf8",
 );
+const reviewedOffer73ScopeMigration = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql"),
+  "utf8",
+);
+const wheyConfig = JSON.parse(fs.readFileSync(
+  path.join(process.cwd(), "config/retailers/whey-okay-offer-sync.json"),
+  "utf8",
+));
 
 test("migration reuses control ledgers through narrow state and registration RPCs", () => {
   assert.match(
@@ -186,6 +194,19 @@ test("reviewed creatine rebinding advances only the frozen manifest hash and is 
     creatineManifestRebindRollback,
     /execute replace\(v_definition, v_rebound_hash, v_previous_hash\)/,
   );
+});
+
+test("reviewed offer 73 remains outside the exact autonomous 586-row scope", () => {
+  assert.deepEqual(wheyConfig.reviewed_exception_mapping_ids, [11, 65, 150, 191, 249]);
+  assert.equal(wheyConfig.approved_mapping_count, 586);
+  assert.equal(wheyConfig.legacy_mapping_count, 284);
+  assert.match(reviewedOffer73ScopeMigration, /v_approved_count = 587 and v_legacy_count = 283/);
+  assert.match(reviewedOffer73ScopeMigration, /rp\.id=65[\s\S]+o\.id=73[\s\S]+v\.id=3217/);
+  assert.match(reviewedOffer73ScopeMigration, /external_product_id='300'[\s\S]+external_variant_id='301'/);
+  assert.match(reviewedOffer73ScopeMigration, /where rp\.retailer_id = 3 and rp\.id <> 65/);
+  assert.match(reviewedOffer73ScopeMigration, /array\[11,65,150,191,249\]/);
+  assert.doesNotMatch(reviewedOffer73ScopeMigration, /(?:insert into|update|delete from) public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.doesNotMatch(reviewedOffer73ScopeMigration, /grant\s/i);
 });
 
 test("workflow is scheduled, dry-run by default and role-separated without service role", () => {

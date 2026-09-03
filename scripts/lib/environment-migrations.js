@@ -94,6 +94,8 @@ const EXCLUSIONS = Object.freeze({
     "20260901090000_add_reviewed_variant_create_rebind_offer_update",
     "20260901100000_fix_reviewed_variant_digest_schema_resolution",
     "20260901110000_restore_reviewed_variant_executor_rpc_acl",
+    "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope",
+    "20260903101000_supersede_expired_fit_house_control_plan",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

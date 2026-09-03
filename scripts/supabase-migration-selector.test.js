@@ -34,6 +34,10 @@ const REVIEWED_VARIANT_DIGEST_FIX_MIGRATION = "20260901100000_fix_reviewed_varia
 const REVIEWED_VARIANT_DIGEST_FIX_SHA256 = "aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49";
 const REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION = "20260901110000_restore_reviewed_variant_executor_rpc_acl.sql";
 const REVIEWED_VARIANT_EXECUTOR_ACL_SHA256 = "f2f59726a5f3cb60f3c48b01b313ab877610bfd8b1c0d4ae8088ba6624573d8e";
+const WHEY_REVIEWED_SCOPE_MIGRATION = "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql";
+const WHEY_REVIEWED_SCOPE_SHA256 = "7f6f5e8c46714619146be70d518b1e9caad668528b1c0df14aea37fed54afe82";
+const FIT_HOUSE_EXPIRED_PLAN_MIGRATION = "20260903101000_supersede_expired_fit_house_control_plan.sql";
+const FIT_HOUSE_EXPIRED_PLAN_SHA256 = "27c235580b0a4d253ecb48f99f672a2f09f6103507005caa1e3c268010a18901";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -182,17 +186,22 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the reviewed variant and digest repair as applied and seals only its executor ACL repair pending", () => {
+test("production records the executor ACL repair as applied and seals the Whey and Fit House repairs pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION, sha256: REVIEWED_VARIANT_EXECUTOR_ACL_SHA256 }]);
-  assert.equal(contract.ledgerCount, 173);
+  assert.deepEqual(contract.pending, [
+    { filename: WHEY_REVIEWED_SCOPE_MIGRATION, sha256: WHEY_REVIEWED_SCOPE_SHA256 },
+    { filename: FIT_HOUSE_EXPIRED_PLAN_MIGRATION, sha256: FIT_HOUSE_EXPIRED_PLAN_SHA256 },
+  ]);
+  assert.equal(contract.ledgerCount, 174);
   assert.equal(
     contract.ledgerFingerprint,
-    "f1dec1d0267de092477ca063072c2a035284d02f0f5544daf157e16ce943d62e",
+    "9b87ac839ee0b1ad5c0f551a2a3859ebea7d7d8e2f5fe5319e89e8630aff6f2f",
   );
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION)), REVIEWED_VARIANT_EXECUTOR_ACL_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, WHEY_REVIEWED_SCOPE_MIGRATION)), WHEY_REVIEWED_SCOPE_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, FIT_HOUSE_EXPIRED_PLAN_MIGRATION)), FIT_HOUSE_EXPIRED_PLAN_SHA256);
 });
 
 test("an additional pending migration fails closed", () => {
@@ -268,7 +277,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and exposes only the reviewed variant executor ACL repair as pending", () => {
+test("production binds its exact ledger and exposes only the Whey and Fit House repairs as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -294,16 +303,21 @@ test("production binds its exact ledger and exposes only the reviewed variant ex
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 173);
+  assert.equal(result.ledger_count, 174);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 174);
-  assert.deepEqual(result.pending_files, [REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION]);
-  assert.equal(result.pending_file, REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_VARIANT_EXECUTOR_ACL_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION]: REVIEWED_VARIANT_EXECUTOR_ACL_SHA256 });
+  assert.equal(result.selected_files.length, 176);
+  assert.deepEqual(result.pending_files, [WHEY_REVIEWED_SCOPE_MIGRATION, FIT_HOUSE_EXPIRED_PLAN_MIGRATION]);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {
+    [WHEY_REVIEWED_SCOPE_MIGRATION]: WHEY_REVIEWED_SCOPE_SHA256,
+    [FIT_HOUSE_EXPIRED_PLAN_MIGRATION]: FIT_HOUSE_EXPIRED_PLAN_SHA256,
+  });
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_DIGEST_FIX_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION));
+  assert.ok(result.selected_files.includes(WHEY_REVIEWED_SCOPE_MIGRATION));
+  assert.ok(result.selected_files.includes(FIT_HOUSE_EXPIRED_PLAN_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
