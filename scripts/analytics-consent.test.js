@@ -88,6 +88,20 @@ test("retailer_offer_click emits exactly once with its non-personal payload", ()
   delete global.window;
 });
 
+test("better-value impression and click events use consent-aware non-personal payloads", () => {
+  const calls = [];
+  global.window = { __supplementScoutAnalyticsConsent: "granted", __supplementScoutAnalyticsReady: true, gtag: (...args) => calls.push(args) };
+  const impression = { current_product_id: "7", category: "Creatine", value_basis: "price_per_kg", alternative_count: 3, source_page: "product" };
+  const click = { current_product_id: "7", alternative_product_id: "8", category: "Creatine", value_basis: "price_per_kg", position: 1, source_page: "product" };
+  assert.equal(analytics.sendAnalyticsEvent("view_better_value_alternatives", impression), true);
+  assert.equal(analytics.sendAnalyticsEvent("select_better_value_alternative", click), true);
+  assert.deepEqual(calls, [
+    ["event", "view_better_value_alternatives", impression],
+    ["event", "select_better_value_alternative", click],
+  ]);
+  delete global.window;
+});
+
 test("analytics failure is swallowed and cannot block the existing retailer anchor", () => {
   global.window = { __supplementScoutAnalyticsConsent: "granted", __supplementScoutAnalyticsReady: true, gtag: () => { throw new Error("offline"); } };
   assert.equal(analytics.sendAnalyticsEvent("retailer_offer_click", { product_id: "7", product_name: "Example", position: 1, source_page: "product_best_offer", is_affiliate: false }), false);

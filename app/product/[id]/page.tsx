@@ -1,6 +1,8 @@
 import PriceHistoryChart from "../../components/PriceHistoryChart";
 import RetailerOfferCard from "../../components/RetailerOfferCard";
 import {
+  BetterValueAlternativeLink,
+  BetterValueAlternativesImpression,
   ProductViewAnalytics,
   RetailerOfferLink,
   type ProductAnalyticsContext,
@@ -52,6 +54,10 @@ import {
   OFFER_PRESENTATION_LABELS,
   isOfferFresh,
 } from "../../lib/offerFreshness";
+import {
+  BETTER_VALUE_BASIS_LABELS,
+  getBetterValueAlternatives,
+} from "../../lib/betterValueAlternatives";
 
 type ProductRouteProduct = {
   id: string;
@@ -248,6 +254,11 @@ export default async function ProductPage({
   if (product.is_active === false) {
     notFound();
   }
+  const betterValueAlternativesPromise = getBetterValueAlternatives(
+    String(product.id),
+    product.category,
+    product.product_format
+  );
   const { data: offers } = await supabase
     .from("offers")
     .select(`
@@ -550,6 +561,11 @@ export default async function ProductPage({
     historyCount,
     priceRating,
   };
+  const betterValueAlternatives = await betterValueAlternativesPromise;
+  const betterValueBasis = betterValueAlternatives.basis;
+  const betterValueBasisLabel = betterValueBasis
+    ? BETTER_VALUE_BASIS_LABELS[betterValueBasis]
+    : null;
 
   return (
     <main className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-zinc-50">
@@ -873,6 +889,82 @@ export default async function ProductPage({
                 )}
               </div>
             )}
+            {betterValueBasis &&
+              betterValueBasisLabel &&
+              betterValueAlternatives.rows.length > 0 && (
+                <section
+                  aria-labelledby="better-value-alternatives-heading"
+                  className="mt-8 w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-emerald-200 bg-white p-5 sm:rounded-3xl sm:p-8"
+                >
+                  <BetterValueAlternativesImpression
+                    event={{
+                      current_product_id: String(product.id),
+                      ...(product.category ? { category: product.category } : {}),
+                      value_basis: betterValueBasis,
+                      alternative_count: betterValueAlternatives.rows.length,
+                      source_page: "product",
+                    }}
+                  />
+                  <h2
+                    id="better-value-alternatives-heading"
+                    className="text-2xl font-bold text-gray-900"
+                  >
+                    Better-value alternatives
+                  </h2>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Lower verified delivered cost {betterValueBasisLabel} among
+                    current offers for the same category and product format.
+                    Compare ingredients and serving directions before choosing.
+                  </p>
+                  <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {betterValueAlternatives.rows.map((alternative, index) => (
+                      <article
+                        key={alternative.id}
+                        className="flex min-w-0 flex-col rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
+                      >
+                        {alternative.image && (
+                          // Product images are remote, data-driven URLs and must preserve the full package.
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={alternative.image}
+                            alt=""
+                            className="mb-3 h-24 w-full object-contain"
+                          />
+                        )}
+                        {alternative.brand && (
+                          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            {alternative.brand}
+                          </p>
+                        )}
+                        <h3 className="mt-1 break-words text-base font-bold text-gray-900 [overflow-wrap:anywhere]">
+                          {alternative.name}
+                        </h3>
+                        <p className="mt-3 text-sm font-semibold text-emerald-800">
+                          {formatCurrency(alternative.value)} {betterValueBasisLabel}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-600">
+                          {alternative.savingPercent.toFixed(1)}% lower than this
+                          product on the same verified basis
+                        </p>
+                        <BetterValueAlternativeLink
+                          href={alternative.productUrl}
+                          className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#111827] px-4 py-2 text-sm font-semibold text-white hover:bg-black"
+                          event={{
+                            current_product_id: String(product.id),
+                            alternative_product_id: alternative.id,
+                            ...(product.category ? { category: product.category } : {}),
+                            value_basis: betterValueBasis,
+                            position: index + 1,
+                            source_page: "product",
+                          }}
+                        >
+                          View alternative
+                        </BetterValueAlternativeLink>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
             <div className="mt-8 w-full min-w-0 max-w-full overflow-hidden rounded-2xl border bg-white p-5 sm:rounded-3xl sm:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Price history</h2>
 

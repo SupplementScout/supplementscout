@@ -1,6 +1,6 @@
 # SupplementScout Operating Plan
 
-**Status date:** 1 September 2026<br>
+**Status date:** 3 September 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
@@ -14,6 +14,20 @@
 **Next product milestone:** Better-value alternatives MVP on existing product pages. Reuse the current 24-hour offer freshness gate, delivered-price normalization, exact-variant resolution, verified unit-price helpers, category comparison presentation and consent-aware analytics. The MVP should show at most three same-category, compatible-format alternatives ranked only on a shared verified value basis; exclude stale, OOS, unresolved-identity and incomparable-unit candidates; add impression/click measurement; and add no new indexable route, personalization or catalogue write. Success is measurable lift in alternative-card and downstream retailer-offer click-through with zero freshness/identity guard violations.
 
 **3 September 2026 owner-selected bounded catalogue task:** before beginning the Better-value alternatives implementation, complete the [Catalogue visibility and Predators Gear implementation plan](rollouts/catalog-visibility-and-predators-gear-implementation-plan-2026-09-03.md). Preserve the strict 24-hour contract for current prices, ranking, structured offers and automation, but decouple active canonical-product visibility from offer freshness. Then add one guarded refresh for exactly the 47 existing Predators Gear mappings; no product, variant, mapping or offer creation is in scope. This is a separately scoped catalogue/retailer task under the existing operating-model concurrency rule and does not change SEO-15 status or publication order. Production writes still require fresh bounded evidence and exact owner approval.
+
+**3 September 2026 catalogue visibility LIVE VERIFIED checkpoint:** Phase A of
+the bounded catalogue task is live at commit `f053557`. Public read-only checks
+proved that an active product without a current offer remains visible on its
+canonical product page and in search while old prices, retailer CTA links and
+schema.org offers remain absent. Testo Pro and CREA-4 also remained public and
+correctly showed newly qualifying 3 September offers after independent retailer
+refreshes. All local gates and the production build passed. The exact 47-row
+Predators Gear local/read-only adapter is code complete, but authorised source
+transports return `403`; it has no fresh artifact, registration, schedule or
+production apply. The owner therefore deferred Predators Gear to the final step
+of that rollout plan and resumed the existing Better-value alternatives
+milestone. This sequencing decision does not waive any Predators definition of
+done or production approval gate.
 
 **1 September 2026, 12:35 UTC reliability checkpoint:** production migration `20260901090000_add_reviewed_variant_create_rebind_offer_update.sql` was applied alone at ledger `172` with zero catalogue and control-plane deltas, but the required active-function test correctly blocked the reviewed path before any approval or offer apply: `digest(text,text)` is installed in `extensions` while the validator's pinned `search_path` excludes that schema and its four calls were unqualified. Forward-only migration `20260901100000_fix_reviewed_variant_digest_schema_resolution.sql` (SHA-256 `aaf408391412c3786a2b860b00989e0bad78ab511cbde57b8719a8656a6eea49`) is locally complete and is the only pending production migration. It preserves the exact active function, owner, `SECURITY DEFINER`, pinned search path and ACL while qualifying only those four calls as `extensions.digest(...)`. Isolated PostgreSQL and the full quality gate passed. No production repair migration, approval RPC, offer apply or catalogue write has been run. Next authority gate is migration-only owner approval; a new offer artifact remains prohibited until the repaired active production function passes postflight.
 

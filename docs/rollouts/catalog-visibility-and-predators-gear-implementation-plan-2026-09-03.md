@@ -1,9 +1,33 @@
 # Catalogue visibility and Predators Gear implementation plan
 
 **Status date:** 3 September 2026  
-**Status:** OWNER SELECTED — READY FOR IMPLEMENTATION  
+**Status:** PHASE A LIVE VERIFIED — PREDATORS GEAR DEFERRED TO FINAL STEP<br>
 **Purpose:** authoritative handoff for the next chat and the bounded implementation that follows.  
 **Active work package:** keep canonical products visible independently of offer freshness, then add the missing guarded Predators Gear refresh.  
+
+**3 September 2026 implementation checkpoint:** Phase A is `LIVE VERIFIED` at
+commit `f053557`. The shared classifier is the only source of the 24- and
+72-hour thresholds, and active eligible products remain public when no offer is
+current. Read-only public verification of
+`/product/5-nutrition-rich-piana-createn-240g` returned `200`, the expected
+canonical, `Availability being rechecked`, no `/go/` link and no schema.org
+`Offer` or `AggregateOffer`. The same product remained present for the search
+`Rich Piana CreaTen` with no current price or retailer CTA. Testo Pro and CREA-4
+were also public and had independently refreshed qualifying checks dated
+3 September, so their current prices remained correctly eligible. Local gates
+passed: `verify:quick`, `verify:full`, `verify:project`, production build and
+`git diff --check`.
+
+The local/read-only Phase B implementation is committed but not activated. Its
+manifest is frozen to the exact existing `47` mappings/offers and permits no
+catalogue creation. All authorised public Predators Gear transports tested on
+3 September returned `403`, so no fresh complete dry-run artifact exists. By
+owner decision in this chat, Predators Gear is deferred to the final step of
+this work package while the binding Better-value alternatives milestone
+resumes. The Predators workflow remains manual, unscheduled and unregistered;
+no production apply is authorised. This plan must not be marked complete until
+the deferred source proof, fresh artifact, exact owner-approved apply,
+postflight, idempotency, watchdog and public verification all pass.
 
 ## 1. Owner outcome
 
@@ -184,4 +208,3 @@ Contingency: add one to two working days only if Predators Gear requires a retai
 ```text
 Kontynuuj dokładnie plan z docs/rollouts/catalog-visibility-and-predators-gear-implementation-plan-2026-09-03.md. Pracuj długimi ciągami, bez ponownego projektowania i bez tworzenia równoległych mechanizmów. Najpierw potwierdź aktualny stan repozytorium i brak istniejącej implementacji, następnie wykonaj Phase A oraz lokalną/read-only część Phase B, wszystkie wymagane testy i pełny przegląd diffu. Zachowaj ścisłą 24-godzinną regułę dla bieżących cen, ale nie pozwól, aby aktywny produkt znikał tylko z powodu starej oferty. Predators Gear obejmuje wyłącznie 47 istniejących mappingów i nie wolno tworzyć nowych rekordów katalogowych. Nie wykonuj produkcyjnego apply bez świeżego artefaktu i mojej dokładnej zgody. Zatrzymuj się tylko przy rzeczywistym blockerze albo granicy wymagającej nowej produkcyjnej autoryzacji.
 ```
-

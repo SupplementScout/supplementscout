@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 291,
-    "sha256": "077fe1cd6aafc9bb5c284ea167974384f35df316ba785899e46d4db1908c9aba"
+    "count": 292,
+    "sha256": "1cdec6f73ed70e8b686c7755116c0a3d123d28565cf92f5b81637316b3786a5e"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -73,6 +73,7 @@
     "scripts/sitemap-freshness.test.js",
     "scripts/indexability-lifecycle.test.js",
     "scripts/analytics-consent.test.js",
+    "scripts/better-value-alternatives.test.js",
     "scripts/ebay-account-deletion.test.js",
     "scripts/outbound-click-redirect.test.js",
     "scripts/category-landing-relevance.test.js",

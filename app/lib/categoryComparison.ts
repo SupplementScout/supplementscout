@@ -9,6 +9,7 @@ import {
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerKg,
   getVerifiedPricePerServing,
+  getVerifiedPricePerUnit,
   type DeliveredPrice,
 } from "./pricing";
 
@@ -118,6 +119,10 @@ export type CategoryComparisonRow = {
   presentationState: OfferPresentationState;
   pricePerKg: number | null;
   pricePerServing: number | null;
+  pricePerUnit: {
+    price: number;
+    unitType: "capsule" | "tablet";
+  } | null;
   costPer25gProtein: number | null;
 };
 
@@ -393,6 +398,12 @@ export function normalizeCategoryComparison(
         pricePerServing: getVerifiedPricePerServing(
           bestOffer?.deliveredPrice || null,
           verifiedServingCount
+        ),
+        pricePerUnit: getVerifiedPricePerUnit(
+          bestOffer?.deliveredPrice || null,
+          product.unit_count,
+          product.unit_type,
+          unitPricingVerified
         ),
         costPer25gProtein: getVerifiedCostPer25gProtein(
           bestOffer?.deliveredPrice || null,

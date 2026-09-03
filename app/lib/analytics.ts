@@ -35,6 +35,21 @@ export type AnalyticsEventMap = {
     source_page: "product_best_offer" | "product_offer_list";
     is_affiliate: boolean;
   };
+  view_better_value_alternatives: {
+    current_product_id: string;
+    category?: string;
+    value_basis: string;
+    alternative_count: number;
+    source_page: "product";
+  };
+  select_better_value_alternative: {
+    current_product_id: string;
+    alternative_product_id: string;
+    category?: string;
+    value_basis: string;
+    position: number;
+    source_page: "product";
+  };
   no_results: {
     result_count: 0;
     has_filters: boolean;
@@ -51,6 +66,8 @@ export const ANALYTICS_EVENT_PARAMETER_KEYS = {
   filter_used: ["filter_name", "filter_action"],
   sort_used: ["sort_option"],
   retailer_offer_click: ["product_id", "product_name", "variant_id", "category", "retailer_id", "retailer_name", "offer_price", "position", "source_page", "is_affiliate"],
+  view_better_value_alternatives: ["current_product_id", "category", "value_basis", "alternative_count", "source_page"],
+  select_better_value_alternative: ["current_product_id", "alternative_product_id", "category", "value_basis", "position", "source_page"],
   no_results: ["result_count", "has_filters", "source_page"],
 } as const satisfies Record<AnalyticsEventName, readonly string[]>;
 export type QueuedAnalyticsEvent = {
