@@ -12,6 +12,7 @@ const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing
 const {bindReviewedMixedChangeContract,buildMappedScopeEvidence,buildReviewedMixedChangeContract,buildScopedSourceEvidence,loadReviewedMixedChangeManifest}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
 const {migrationBinding}=require("./lib/environment-migrations");
 const {canonicalJson}=require("./lib/canonical-json");
+const {canonicalTimestamp}=require("./lib/canonical-timestamp");
 const config=require("../config/retailers/jons-supplements-offer-sync.json");
 
 const ROOT=path.resolve(__dirname,"..");
@@ -24,6 +25,7 @@ class RefreshError extends Error{
   constructor(code,message,stage,detail={}){super(message);this.name="RefreshError";this.code=code;this.stage=stage;this.detail=detail}
 }
 function invariant(value,message){if(!value)throw new Error(message)}
+function sourceCaptureTimestamp(value=new Date()){return canonicalTimestamp(value,"source capture")}
 function parseArgs(argv){const out={};for(const arg of argv){const m=arg.match(/^--([^=]+)=(.*)$/);if(!m||out[m[1]]!==undefined||!["target","mode","reviewed-manifest","reviewed-manifest-sha256","isolate-unsafe"].includes(m[1]))throw new Error(`invalid argument ${arg}`);out[m[1]]=m[2]}if(!TARGETS[out.target]||!["dry-run","apply"].includes(out.mode))throw new Error("required --target=staging|production --mode=dry-run|apply");if(Boolean(out["reviewed-manifest"])!==Boolean(out["reviewed-manifest-sha256"]))throw new Error("reviewed manifest path and SHA-256 must be supplied together");if(out["isolate-unsafe"]!==undefined&&!['true','false'].includes(out["isolate-unsafe"]))throw new Error("isolate-unsafe must be true or false");out.isolateUnsafe=out["isolate-unsafe"]==="true";delete out["isolate-unsafe"];return out}
 function loadEnvFile(file){if(!fs.existsSync(file))return{};const out={};for(const line of fs.readFileSync(file,"utf8").split(/\r?\n/)){const m=line.match(/^([A-Z0-9_]+)=(.*)$/);if(m)out[m[1]]=m[2].trim().replace(/^(['"])(.*)\1$/,"$2")}return out}
 function loadEnvironment(){Object.assign(process.env,Object.fromEntries(Object.entries(loadEnvFile(path.join(ROOT,".env.local"))).filter(([key])=>!process.env[key])))}
@@ -236,7 +238,7 @@ function mappedOfferSourceFingerprint(records,sourceVariants,isolatedMissingVari
 }
 
 async function confirmAggregateSource(state,firstSourceFingerprint,diagnostic,isolatedMissingVariantIds=new Set()){
-  const capturedAt=new Date().toISOString();
+  const capturedAt=sourceCaptureTimestamp();
   const snapshot=await readShopifySnapshot({storeUrl:config.store_url,marketCountry:"GB",noCache:true,capturedAt,timeoutMs:config.source_fetch.timeout_ms,maximumPages:config.source_fetch.maximum_pages,maximumAttempts:config.source_fetch.maximum_attempts,retryBaseDelayMs:config.source_fetch.retry_base_delay_ms,userAgent:config.source_fetch.user_agent});
   const raw=projectShopifyVariants(snapshot,{shippingCost:"3.99"});
   const health=sourceHealth(snapshot,raw);
@@ -249,7 +251,7 @@ async function confirmAggregateSource(state,firstSourceFingerprint,diagnostic,is
 }
 
 async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe=false){
-  const spec=TARGETS[target],capturedAt=new Date().toISOString();
+  const spec=TARGETS[target],capturedAt=sourceCaptureTimestamp();
   let snapshot;
   try{
     snapshot=await readShopifySnapshot({storeUrl:config.store_url,marketCountry:"GB",noCache:true,capturedAt,timeoutMs:config.source_fetch.timeout_ms,maximumPages:config.source_fetch.maximum_pages,maximumAttempts:config.source_fetch.maximum_attempts,retryBaseDelayMs:config.source_fetch.retry_base_delay_ms,userAgent:config.source_fetch.user_agent});
@@ -416,4 +418,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,loadReviewedMissingVariantManifest,mappedOfferSourceFingerprint,migrationBinding,parseArgs,partitionExecutionRows,partitionIsolatedExecutionRows,readState,reconcileReviewedMissingVariants,registrationRequest,runWithDiagnostic,selectReviewedClassificationRows,sourceHealth,sumDeltas,verificationRecord};
+module.exports={RefreshError,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,executionRow,guardrailsFor,loadReviewedMissingVariantManifest,mappedOfferSourceFingerprint,migrationBinding,parseArgs,partitionExecutionRows,partitionIsolatedExecutionRows,readState,reconcileReviewedMissingVariants,registrationRequest,runWithDiagnostic,selectReviewedClassificationRows,sourceCaptureTimestamp,sourceHealth,sumDeltas,verificationRecord};
