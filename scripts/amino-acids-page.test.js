@@ -45,7 +45,7 @@ const freshness = compileModule(path.join(process.cwd(), "app", "lib", "creatine
 });
 const categoryComparison = compileModule(
   path.join(process.cwd(), "app", "lib", "categoryComparison.ts"),
-  { mocks: { "./creatineLaunch": freshness, "./pricing": pricing } }
+  { mocks: { "./creatineLaunch": freshness, "./offerFreshness": offerFreshness, "./pricing": pricing } }
 );
 const comparisonPath = path.join(process.cwd(), "app", "lib", "aminoAcidsComparison.ts");
 const pagePath = path.join(process.cwd(), "app", "amino-acids", "page.tsx");

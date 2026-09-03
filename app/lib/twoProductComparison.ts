@@ -16,8 +16,8 @@ import { supabase } from "./supabase";
 const PRODUCT_PAGE_SIZE = 200;
 
 export type TwoProductComparisonRow = CategoryComparisonRow & {
-  exactPackLabel: string;
-  exactVariantLabel: string;
+  exactPackLabel: string | null;
+  exactVariantLabel: string | null;
 };
 
 export type TwoProductComparisonResult = Omit<CategoryComparisonResult, "rows"> & {
@@ -158,12 +158,8 @@ export function normalizeTwoProductComparison(
     ...normalized,
     rows: normalized.rows.map((row) => ({
       ...row,
-      exactPackLabel: exactPackLabelFromVariant(
-        row.bestOffer.nutritionVariant
-      ) as string,
-      exactVariantLabel: exactVariantLabel(
-        row.bestOffer.nutritionVariant
-      ) as string,
+      exactPackLabel: exactPackLabelFromVariant(row.referenceVariant),
+      exactVariantLabel: exactVariantLabel(row.referenceVariant),
     })),
   };
 }
@@ -215,8 +211,6 @@ async function loadTwoProductComparison(): Promise<TwoProductComparisonResult> {
       .eq("is_active", true)
       .is("merged_into_product_id", null)
       .is("merged_at", null)
-      .eq("offers.in_stock", true)
-      .gt("offers.price", 0)
       .order("id", { ascending: true })
       .range(from, from + PRODUCT_PAGE_SIZE - 1);
 

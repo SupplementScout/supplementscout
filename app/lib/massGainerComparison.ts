@@ -10,10 +10,10 @@ import {
 } from "./categoryComparison";
 import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
 import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
+import { isOfferFresh } from "./offerFreshness";
 import { supabase } from "./supabase";
 
 const QUERY_LIMIT = 1000;
-export const MASS_GAINER_MAXIMUM_OFFER_AGE_HOURS = 24;
 
 export const MASS_GAINER_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -30,10 +30,7 @@ export function isMassGainerOfferFresh(
   checkedAt: string | null,
   now = new Date()
 ) {
-  const checkedAtTime = checkedAt ? Date.parse(checkedAt) : Number.NaN;
-  if (!Number.isFinite(checkedAtTime)) return false;
-  const ageHours = (now.getTime() - checkedAtTime) / 3_600_000;
-  return ageHours >= 0 && ageHours <= MASS_GAINER_MAXIMUM_OFFER_AGE_HOURS;
+  return isOfferFresh(checkedAt, now);
 }
 
 export function isMassGainerProduct(product: RawMassGainerProduct) {
@@ -91,8 +88,6 @@ async function loadMassGainerComparison(): Promise<MassGainerComparisonResult> {
     .is("merged_at", null)
     .eq("category", "Mass Gainer")
     .eq("product_format", "powder")
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, QUERY_LIMIT - 1);
 

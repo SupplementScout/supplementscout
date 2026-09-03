@@ -14,6 +14,7 @@ import {
 } from "../lib/indexabilityLifecycle";
 import { createLifecycleDataLoader } from "../lib/lifecycleDataCache";
 import { formatCurrency } from "../lib/pricing";
+import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 
 const siteUrl = "https://www.supplementscout.co.uk";
 const pagePath = "/creatine";
@@ -346,7 +347,11 @@ export function CreatinePageContent({ result }: { result: CreatineComparisonResu
                         {offer ? (
                           <OfferCheckedBadge checkedAt={row.lastCheckedAt} />
                         ) : (
-                          <span className="font-semibold text-zinc-600">No recently verified offer</span>
+                          <div className="font-semibold text-zinc-600">
+                            <span>{OFFER_PRESENTATION_LABELS[row.presentationState]}</span>
+                            {row.lastCheckedAt ? <OfferCheckedBadge checkedAt={row.lastCheckedAt} /> : null}
+                            {row.observedRetailerCount > 0 ? <span className="mt-1 block text-xs">Evidence from {row.observedRetailerCount} retailer{row.observedRetailerCount === 1 ? "" : "s"}.</span> : null}
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-4"><Link href={row.productUrl} className="inline-flex min-h-11 items-center rounded-lg bg-zinc-950 px-4 font-semibold text-white hover:bg-zinc-800">Compare details</Link></td>

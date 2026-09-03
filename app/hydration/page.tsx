@@ -4,6 +4,7 @@ import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
+  UnavailableComparisonProductCard,
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
@@ -130,6 +131,9 @@ export function buildHydrationStructuredData(rows: HydrationComparisonRow[]) {
 }
 
 function HydrationProductCard({ row }: { row: HydrationComparisonRow }) {
+  if (!row.bestOffer) {
+    return <UnavailableComparisonProductCard row={row} />;
+  }
   const facts = productFacts(row);
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),

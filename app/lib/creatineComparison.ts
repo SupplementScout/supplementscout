@@ -5,6 +5,10 @@ import {
   type DeliveredPrice,
 } from "./pricing";
 import { isCreatineOfferFresh } from "./creatineLaunch";
+import {
+  classifyOfferCollection,
+  type OfferPresentationState,
+} from "./offerFreshness";
 import { supabase } from "./supabase";
 
 const CREATINE_QUERY_LIMIT = 1000;
@@ -67,6 +71,8 @@ export type CreatineComparisonRow = {
   bestOffer: CreatineComparisonOffer | null;
   offerCount: number;
   retailerCount: number;
+  observedRetailerCount: number;
+  presentationState: OfferPresentationState;
   verifiedCostPer5g: number | null;
   lastCheckedAt: string | null;
 };
@@ -235,6 +241,7 @@ export function normalizeCreatineComparison(
   );
 
   const rows = exactProducts.map<CreatineComparisonRow>((product) => {
+    const rawOffers = product.offers || [];
     const offers = (product.offers || [])
       .map((offer) => normalizeOffer(offer, now))
       .filter((offer): offer is CreatineComparisonOffer => offer !== null)
@@ -242,6 +249,13 @@ export function normalizeCreatineComparison(
     const bestOffer = offers[0] || null;
     const retailerCount = new Set(
       offers.map((offer) => offer.retailer?.id || "").filter(Boolean)
+    ).size;
+    const presentation = classifyOfferCollection(rawOffers, now);
+    const observedRetailerCount = new Set(
+      rawOffers
+        .map((offer) => relationOne(offer.retailer)?.id)
+        .filter((id): id is number | string => id !== null && id !== undefined)
+        .map(String)
     ).size;
     return {
       id: String(product.id),
@@ -259,6 +273,8 @@ export function normalizeCreatineComparison(
       bestOffer,
       offerCount: offers.length,
       retailerCount,
+      observedRetailerCount,
+      presentationState: presentation.state,
       verifiedCostPer5g: getVerifiedCostPer5gCreatine(
         bestOffer?.deliveredPrice || null,
         product.serving_count_verified,
@@ -269,7 +285,7 @@ export function normalizeCreatineComparison(
         product.serving_size_g,
         product.product_format
       ),
-      lastCheckedAt: bestOffer?.lastCheckedAt || null,
+      lastCheckedAt: presentation.checkedAt,
     };
   });
 
@@ -358,8 +374,6 @@ export async function getCreatineComparison(): Promise<CreatineComparisonResult>
     .is("merged_into_product_id", null)
     .is("merged_at", null)
     .ilike("category", "creatine")
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, CREATINE_QUERY_LIMIT - 1);
 

@@ -20,9 +20,12 @@ function loadModule(relativePath) {
 }
 
 const {
+  classifyOfferCollection,
+  classifyOfferPresentation,
   isOfferFresh,
   MAXIMUM_CURRENT_OFFER_AGE_DAYS,
   MAXIMUM_CURRENT_OFFER_AGE_HOURS,
+  MAXIMUM_RECENT_OFFER_AGE_HOURS,
 } = loadModule("app/lib/offerFreshness.ts");
 const now = new Date("2026-08-01T12:00:00.000Z");
 
@@ -36,12 +39,37 @@ test("shared current-offer window is exactly 24 hours and fails closed", () => {
   assert.equal(isOfferFresh("invalid", now), false);
 });
 
+test("presentation classifier keeps exact 24 and 72 hour boundaries distinct", () => {
+  assert.equal(MAXIMUM_RECENT_OFFER_AGE_HOURS, 72);
+  assert.equal(classifyOfferPresentation({ in_stock: true, last_checked_at: "2026-07-31T12:00:00.000Z" }, now).state, "LIVE");
+  assert.equal(classifyOfferPresentation({ in_stock: true, last_checked_at: "2026-07-31T11:59:59.999Z" }, now).state, "RECENT");
+  assert.equal(classifyOfferPresentation({ in_stock: true, last_checked_at: "2026-07-29T12:00:00.000Z" }, now).state, "RECENT");
+  assert.equal(classifyOfferPresentation({ in_stock: true, last_checked_at: "2026-07-29T11:59:59.999Z" }, now).state, "UNVERIFIED");
+});
+
+test("fresh out of stock, invalid evidence and review are not current offers", () => {
+  assert.equal(classifyOfferPresentation({ in_stock: false, last_checked_at: "2026-08-01T11:00:00.000Z" }, now).state, "OUT_OF_STOCK");
+  assert.equal(classifyOfferPresentation({ in_stock: false, last_checked_at: "2026-07-31T11:00:00.000Z" }, now).state, "UNVERIFIED");
+  assert.equal(classifyOfferPresentation({ in_stock: true, last_checked_at: "invalid" }, now).state, "UNVERIFIED");
+  assert.equal(classifyOfferPresentation({ in_stock: true, last_checked_at: "2026-08-01T11:00:00.000Z", requires_review: true }, now).state, "REVIEW");
+});
+
+test("collection state gives current evidence precedence without weakening freshness", () => {
+  const presentation = classifyOfferCollection([
+    { in_stock: true, last_checked_at: "2026-07-29T11:00:00.000Z" },
+    { in_stock: false, last_checked_at: "2026-08-01T10:00:00.000Z" },
+    { in_stock: true, last_checked_at: "2026-08-01T09:00:00.000Z" },
+  ], now);
+  assert.equal(presentation.state, "LIVE");
+  assert.equal(isOfferFresh(presentation.checkedAt, now), true);
+});
+
 test("public product and search paths use the shared freshness gate", () => {
   const productPage = fs.readFileSync(path.join(process.cwd(), "app/product/[id]/page.tsx"), "utf8");
   const products = fs.readFileSync(path.join(process.cwd(), "app/lib/products.ts"), "utf8");
   const groups = fs.readFileSync(path.join(process.cwd(), "app/lib/productOfferGroups.ts"), "utf8");
 
-  assert.match(productPage, /filter\(\(offer\) => isOfferFresh\(offer\.last_checked_at\)\)/);
+  assert.match(productPage, /offer\.in_stock === true && isOfferFresh\(offer\.last_checked_at\)/);
   assert.match(products, /isOfferFresh\(offer\.last_checked_at/);
   assert.match(groups, /isOfferFresh\(offer\.last_checked_at, now\)/);
   assert.ok((products.match(/last_checked_at,/g) || []).length >= 3);

@@ -38,6 +38,7 @@ const nutritionMetrics = compileModule(path.join(process.cwd(), "app/lib/nutriti
 const proteinSubtypes = compileModule(path.join(process.cwd(), "app/lib/proteinSubtypes.ts"));
 const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), {
   "./creatineLaunch": creatineLaunch,
+  "./offerFreshness": offerFreshness,
   "./pricing": pricing,
 });
 const comparisonPath = path.join(process.cwd(), "app/lib/wheyIsolateComparison.ts");

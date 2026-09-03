@@ -49,6 +49,7 @@ const creatineLaunch = compileModule(path.join(root, "app/lib/creatineLaunch.ts"
 const nutritionMetrics = compileModule(path.join(root, "app/lib/nutritionMetrics.ts"));
 const categoryComparison = compileModule(path.join(root, "app/lib/categoryComparison.ts"), {
   "./creatineLaunch": creatineLaunch,
+  "./offerFreshness": offerFreshness,
   "./pricing": pricing,
 });
 const comparisonPath = path.join(root, "app/lib/twoProductComparison.ts");
@@ -139,7 +140,7 @@ test("exact pack identity never assumes one pack or falls back to product fields
   assert.equal(comparison.exactPackLabel(offer(5, { product_variant: { ...offer(5).product_variant, is_active: false } })), null);
 });
 
-test("normalization includes only fresh exact packs with known delivered totals", () => {
+test("normalization ranks only fresh exact packs but retains active unavailable products", () => {
   const comparison = loadComparison();
   const result = comparison.normalizeTwoProductComparison([
     product(1),
@@ -147,10 +148,14 @@ test("normalization includes only fresh exact packs with known delivered totals"
     product(3, [offer(30, { variant_resolution: "unresolved" })]),
     product(4, [offer(40, { last_checked_at: "2026-08-25T11:59:59.000Z" })]),
   ], { now: NOW });
-  assert.deepEqual(result.rows.map((row) => row.id), ["1"]);
+  assert.deepEqual(result.rows.map((row) => row.id), ["1", "2", "3", "4"]);
   assert.equal(result.rows[0].exactPackLabel, "500g");
   assert.ok(Math.abs(result.rows[0].bestOffer.deliveredPrice.totalPrice - 23.99) < 0.001);
   assert.equal(result.rows[0].netWeightG, 500);
+  assert.equal(result.rows[1].bestOffer, null);
+  assert.equal(result.rows[2].bestOffer, null);
+  assert.equal(result.rows[3].bestOffer, null);
+  assert.equal(result.rows[3].presentationState, "RECENT");
 });
 
 test("one product card never mixes offers from different canonical variants", () => {

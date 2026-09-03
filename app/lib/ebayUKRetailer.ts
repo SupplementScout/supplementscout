@@ -8,11 +8,11 @@ import {
   type CategoryComparisonSummary,
   type RawCategoryComparisonProduct,
 } from "./categoryComparison";
+import { isOfferFresh } from "./offerFreshness";
 import { supabase } from "./supabase";
 
 export const EBAY_UK_RETAILER_ID = "12";
 const QUERY_LIMIT = 1000;
-const FRESHNESS_MS = 24 * 60 * 60 * 1000;
 
 export const EBAY_UK_INDEX_GATE = {
   minimumVisibleProducts: 20,
@@ -65,14 +65,10 @@ function validHttpUrl(value: string | null) {
 }
 
 function isFreshTargetOffer(offer: TargetOfferCandidate, now: Date) {
-  const checkedAt = Date.parse(offer.last_checked_at || "");
-  const age = now.getTime() - checkedAt;
   return (
     offer.product_id != null &&
     offer.retailer_product_id != null &&
-    Number.isFinite(checkedAt) &&
-    age >= 0 &&
-    age <= FRESHNESS_MS &&
+    isOfferFresh(offer.last_checked_at, now) &&
     validHttpUrl(offer.url)
   );
 }
@@ -289,8 +285,6 @@ async function loadEbayUKRetailer(): Promise<EbayUKRetailerResult> {
     .eq("is_active", true)
     .is("merged_into_product_id", null)
     .is("merged_at", null)
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, QUERY_LIMIT - 1);
 

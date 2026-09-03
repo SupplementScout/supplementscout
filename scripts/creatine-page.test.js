@@ -133,6 +133,7 @@ function loadComparison(mockSupabase) {
   return compileModule(comparisonPath, {
     mocks: {
       "./creatineLaunch": launch,
+      "./offerFreshness": offerFreshness,
       "./pricing": pricing,
       "./supabase": { supabase: mockSupabase },
     },
@@ -197,6 +198,7 @@ function loadPage(result = comparisonFixture()) {
         },
       },
       "../lib/creatineLaunch": launch,
+      "../lib/offerFreshness": offerFreshness,
       "../lib/pricing": pricing,
     },
   });
@@ -326,7 +328,7 @@ test("comparison query is one exact-category request with no N+1 calls", async (
   assert.equal(result.error, false);
   assert.equal(result.rows.length, 1);
   assert.ok(mock.calls.some((call) => call[0] === "ilike" && call[1] === "category" && call[2] === "creatine"));
-  assert.ok(mock.calls.some((call) => call[0] === "eq" && call[1] === "offers.in_stock" && call[2] === true));
+  assert.ok(!mock.calls.some((call) => call[0] === "eq" && call[1] === "offers.in_stock"));
   assert.match(mock.calls.find((call) => call[0] === "select")[1], /last_checked_at/);
   assert.match(mock.calls.find((call) => call[0] === "select")[1], /retailer:retailers/);
 });
@@ -341,7 +343,7 @@ test("comparison normalization uses known delivered price and shared verified co
   assert.equal(verified.retailerCount, 2);
   assert.equal(verified.offerCount, 2);
   assert.equal(verified.verifiedCostPer5g, 0.28);
-  assert.equal(verified.lastCheckedAt, "2026-07-16T19:00:00.000Z");
+  assert.equal(verified.lastCheckedAt, "2026-07-16T20:48:02.382Z");
   assert.equal(result.summary.latestOfferCheckedAt, "2026-07-16T20:48:02.382Z");
 });
 
@@ -445,7 +447,7 @@ test("SSR content includes direct answer, comparison fields, stale catalogue row
   }
   assert.match(html, /Not yet verified/);
   assert.match(html, /Delivery not known/);
-  assert.match(html, /No recently verified offer/);
+  assert.match(html, /Availability being rechecked/);
   assert.match(html, /No Offer Creatine/);
   assert.match(html, /250 g/);
   assert.match(html, /50 verified servings/);
@@ -544,7 +546,7 @@ test("stale-only products stay visible in HTML but stale prices do not enter JSO
   const json = JSON.stringify(data);
 
   assert.match(html, /Stale Only Creatine/);
-  assert.match(html, /No recently verified offer/);
+  assert.match(html, /Availability being rechecked/);
   assert.equal(structuredDataProducts(data).length, 0);
   assert.equal(json.includes("Stale Only Creatine"), false);
   assert.equal(json.includes("1.23"), false);

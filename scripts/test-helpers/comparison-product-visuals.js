@@ -12,4 +12,8 @@ function OfferCheckedBadge({ checkedAt }) {
   return React.createElement("p", null, `Offer checked ${checkedAt || "unavailable"}`);
 }
 
-module.exports = { ComparisonProductThumbnail, OfferCheckedBadge };
+function UnavailableComparisonProductCard({ row }) {
+  return React.createElement("article", null, `Availability being rechecked: ${row.name}`);
+}
+
+module.exports = { ComparisonProductThumbnail, OfferCheckedBadge, UnavailableComparisonProductCard };

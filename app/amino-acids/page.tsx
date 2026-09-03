@@ -4,6 +4,7 @@ import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
+  UnavailableComparisonProductCard,
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
@@ -133,6 +134,9 @@ function AminoAcidsProductCard({
   row: AminoAcidsComparisonRow;
   position: number;
 }) {
+  if (!row.bestOffer) {
+    return <UnavailableComparisonProductCard row={row} position={position} />;
+  }
   const facts = productFacts(row);
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),

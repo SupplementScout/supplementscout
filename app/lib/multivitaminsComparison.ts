@@ -8,10 +8,10 @@ import {
   type CategoryComparisonSummary,
   type RawCategoryComparisonProduct,
 } from "./categoryComparison";
+import { isOfferFresh } from "./offerFreshness";
 import { supabase } from "./supabase";
 
 const QUERY_LIMIT = 1000;
-export const MULTIVITAMINS_MAXIMUM_OFFER_AGE_HOURS = 24;
 
 export const MULTIVITAMINS_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -28,10 +28,7 @@ export function isMultivitaminsOfferFresh(
   checkedAt: string | null,
   now = new Date()
 ) {
-  const checkedAtTime = checkedAt ? Date.parse(checkedAt) : Number.NaN;
-  if (!Number.isFinite(checkedAtTime)) return false;
-  const ageHours = (now.getTime() - checkedAtTime) / 3_600_000;
-  return ageHours >= 0 && ageHours <= MULTIVITAMINS_MAXIMUM_OFFER_AGE_HOURS;
+  return isOfferFresh(checkedAt, now);
 }
 
 export function isMultivitaminsProduct(product: RawMultivitaminsProduct) {
@@ -90,8 +87,6 @@ async function loadMultivitaminsComparison(): Promise<MultivitaminsComparisonRes
     .is("merged_into_product_id", null)
     .is("merged_at", null)
     .in("category", ["Vitamins", "Health Supplements"])
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, QUERY_LIMIT - 1);
 

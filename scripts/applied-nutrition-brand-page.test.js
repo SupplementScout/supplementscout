@@ -50,7 +50,7 @@ const freshness = compileModule(freshnessPath, {
   mocks: { "./offerFreshness": offerFreshness },
 });
 const categoryComparison = compileModule(categoryComparisonPath, {
-  mocks: { "./creatineLaunch": freshness, "./pricing": pricing },
+  mocks: { "./creatineLaunch": freshness, "./offerFreshness": offerFreshness, "./pricing": pricing },
 });
 const fixtureNow = new Date("2026-08-20T12:00:00.000Z");
 
@@ -178,9 +178,11 @@ test("brand normalization reuses fresh mapped offers and produces category bread
     rawProduct({ id: 2, slug: "applied-creatine", category: "Creatine", offers: [rawOffer({ id: 21 })] }),
     rawProduct({ id: 3, slug: "stale", offers: [rawOffer({ id: 31, last_checked_at: "2026-07-20T00:00:00Z" })] }),
   ], { now: fixtureNow });
-  assert.equal(result.summary.visibleProducts, 2);
+  assert.equal(result.summary.visibleProducts, 3);
   assert.equal(result.summary.productsWithMultipleFreshRetailers, 1);
   assert.equal(result.summary.freshOffers, 3);
+  assert.equal(result.rows.find((row) => row.id === "3").bestOffer, null);
+  assert.equal(result.rows.find((row) => row.id === "3").presentationState, "UNVERIFIED");
   assert.deepEqual(result.categories.map((row) => row.name), ["Whey Protein", "Creatine"]);
 });
 

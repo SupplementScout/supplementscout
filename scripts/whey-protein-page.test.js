@@ -75,6 +75,7 @@ const nutritionMetrics = compileModule(path.join(process.cwd(), "app", "lib", "n
 const categoryComparison = compileModule(categoryComparisonPath, {
   mocks: {
     "./creatineLaunch": freshness,
+    "./offerFreshness": offerFreshness,
     "./pricing": pricing,
   },
 });
@@ -278,6 +279,36 @@ test("normalization keeps only fresh mapped offers and ranks known delivery", ()
   assert.equal(result.rows[0].bestOffer.id, "2");
   assert.equal(result.rows[0].bestOffer.deliveredPrice.totalPrice, 26);
   assert.equal(result.summary.staleOrUnusableOffersExcluded, 3);
+});
+
+test("active canonical products remain visible when no offer is current", () => {
+  const { normalizeWheyComparison } = loadWheyComparison();
+  const recent = rawProduct({
+    id: 41,
+    name: "Recent unavailable Whey Protein",
+    offers: [rawOffer({ last_checked_at: "2026-07-27T12:00:00.000Z" })],
+  });
+  const unverified = rawProduct({
+    id: 42,
+    name: "Old unavailable Whey Protein",
+    offers: [rawOffer({ last_checked_at: "2026-07-20T12:00:00.000Z" })],
+  });
+  const live = rawProduct({ id: 43, name: "Live Whey Protein" });
+  const result = normalizeWheyComparison([unverified, recent, live], { now: FIXTURE_NOW });
+
+  assert.equal(result.summary.scopedProducts, 3);
+  assert.equal(result.summary.visibleProducts, 3);
+  assert.deepEqual(result.rows.map((row) => row.id), ["43", "42", "41"]);
+  assert.equal(result.rows[0].presentationState, "LIVE");
+  assert.equal(result.rows[1].presentationState, "UNVERIFIED");
+  assert.equal(result.rows[2].presentationState, "RECENT");
+  for (const row of result.rows.slice(1)) {
+    assert.equal(row.bestOffer, null);
+    assert.equal(row.offerCount, 0);
+    assert.equal(row.pricePerKg, null);
+    assert.equal(row.pricePerServing, null);
+    assert.equal(row.costPer25gProtein, null);
+  }
 });
 
 test("verified value metrics use delivered price and disappear without verification", () => {

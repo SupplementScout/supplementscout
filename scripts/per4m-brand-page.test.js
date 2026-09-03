@@ -46,7 +46,7 @@ const freshness = compileModule(path.join(root, "app/lib/creatineLaunch.ts"), {
 });
 const categoryComparison = compileModule(
   path.join(root, "app/lib/categoryComparison.ts"),
-  { mocks: { "./creatineLaunch": freshness, "./pricing": pricing } }
+  { mocks: { "./creatineLaunch": freshness, "./offerFreshness": offerFreshness, "./pricing": pricing } }
 );
 const brandPath = path.join(root, "app/lib/per4mBrand.ts");
 const pagePath = path.join(root, "app/brands/per4m/page.tsx");
@@ -184,9 +184,11 @@ test("brand normalization reuses current mapped offers", () => {
     rawProduct({ id: 2, slug: "per4m-creatine", category: "Creatine", offers: [rawOffer({ id: 21 })] }),
     rawProduct({ id: 3, slug: "stale", offers: [rawOffer({ id: 31, last_checked_at: "2026-07-20T00:00:00Z" })] }),
   ], { now: fixtureNow });
-  assert.equal(result.summary.visibleProducts, 2);
+  assert.equal(result.summary.visibleProducts, 3);
   assert.equal(result.summary.productsWithMultipleFreshRetailers, 1);
   assert.equal(result.summary.freshOffers, 3);
+  assert.equal(result.rows.find((row) => row.id === "3").bestOffer, null);
+  assert.equal(result.rows.find((row) => row.id === "3").presentationState, "UNVERIFIED");
 });
 
 test("brand indexability fails closed across all coverage gates", () => {

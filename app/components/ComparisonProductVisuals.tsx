@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { CategoryComparisonRow } from "../lib/categoryComparison";
+import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 
 function safeBackgroundImage(value: string | null) {
   if (!value) return null;
@@ -66,5 +68,45 @@ export function OfferCheckedBadge({ checkedAt }: { checkedAt: string | null }) {
       <span className="h-1.5 w-1.5 rounded-full bg-red-600" aria-hidden="true" />
       Offer checked {formatted}
     </p>
+  );
+}
+
+export function UnavailableComparisonProductCard({
+  row,
+  position,
+}: {
+  row: CategoryComparisonRow;
+  position?: number;
+}) {
+  const checkedAt = formatCheckedAt(row.lastCheckedAt);
+
+  return (
+    <article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:grid-cols-[128px_minmax(0,1fr)_20rem] lg:items-center lg:gap-5">
+        <ComparisonProductThumbnail image={row.image} name={row.name} productUrl={row.productUrl} />
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            {position ? `${position}. ` : ""}{row.brand || "Brand not stated"}
+          </p>
+          <Link href={row.productUrl} className="block">
+            <h3 className="mt-2 break-words text-xl font-bold hover:underline">{row.name}</h3>
+          </Link>
+          <p className="mt-3 text-sm leading-6 text-zinc-700">
+            {OFFER_PRESENTATION_LABELS[row.presentationState]}
+            {checkedAt ? `; latest verification ${checkedAt}` : ""}.
+            {row.observedRetailerCount > 0
+              ? ` Evidence from ${row.observedRetailerCount} retailer${row.observedRetailerCount === 1 ? "" : "s"}.`
+              : ""}
+          </p>
+        </div>
+        <div className="col-span-2 w-full shrink-0 rounded-xl bg-zinc-50 p-4 lg:col-span-1 lg:w-80">
+          <p className="text-sm font-semibold text-zinc-800">No price is currently eligible for ranking.</p>
+          <p className="mt-2 text-sm text-zinc-600">Old prices and retailer purchase links remain hidden until a new check qualifies.</p>
+          <Link href={row.productUrl} className="mt-4 flex min-h-11 items-center justify-center rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800">
+            View product
+          </Link>
+        </div>
+      </div>
+    </article>
   );
 }

@@ -101,8 +101,6 @@ async function loadWheyIsolateComparison(): Promise<WheyIsolateComparisonResult>
     .is("merged_into_product_id", null)
     .is("merged_at", null)
     .eq("category", "Whey Protein")
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, QUERY_LIMIT - 1);
 

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "retailer_id": 13,
+  "retailer_name": "Predators Gear",
+  "retailer_slug": "predators-gear",
+  "store_url": "https://predatorsgear.co.uk/",
+  "source_platform": "WOOCOMMERCE_PRODUCT_PAGES",
+  "manifest_path": "config/retailers/predators-gear-approved-offer-manifest.json",
+  "manifest_sha256": "dda098c9c4ebec2ba024856b83a06e9a04c068b187b38ab6eafaa3844e766462",
+  "approved_mapping_count": 47,
+  "registration_rpc": "register_predators_gear_offer_sync_control_plan",
+  "environment_prefix": "PREDATORS_GEAR_REFRESH",
+  "phase_prefix": "PREDATORS_GEAR_REFRESH",
+  "output_directory": "predators-gear-offer-refresh",
+  "guard_scope_name": "PREDATORS_GEAR_APPROVED_EXISTING_47",
+  "source_baseline": {
+    "product_count": 29,
+    "variant_count": 47,
+    "minimum_count_ratio": 0.9,
+    "genuine_collapse_ratio": 0.75
+  },
+  "source_fetch": {
+    "maximum_attempts": 3,
+    "retry_base_delay_ms": 250,
+    "timeout_ms": 20000,
+    "user_agent": "SupplementScout-Predators-Gear-Offer-Refresh/1.0",
+    "allowed_path_prefixes": ["/supplements-vitamins-shop/"]
+  },
+  "guardrails": {
+    "preserve_existing_urls": true,
+    "allowed_existing_offer_hosts": ["predatorsgear.co.uk"],
+    "required_matched_offers": 47,
+    "source_freshness_hours": 24,
+    "future_clock_skew_minutes": 5,
+    "full_snapshot_minimum_source_count_ratio": 0.9,
+    "maximum_total_oos_ratio": 0.4,
+    "maximum_oos_increase_percentage_points": 0.15,
+    "maximum_changed_record_ratio": 0.25,
+    "mass_price_change_block_ratio": 0.2,
+    "per_row_price_hard_block_ratio": 0.6,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "mass_oos_block_count": 4,
+    "ignore_source_sku": true
+  },
+  "shipping_policy": {
+    "mode": "preserve_existing_reviewed"
+  },
+  "discovery_policy": {
+    "mode": "report_only",
+    "catalogue_creates": false,
+    "missing_mapped_variant_mode": "BLOCK",
+    "maximum_missing_mapped_variants": 0,
+    "maximum_missing_mapped_variant_ratio": 0
+  },
+  "policy": {
+    "existing_identity_only": true,
+    "catalogue_creates": false,
+    "mapping_creates": false,
+    "allowed_fields": ["price", "in_stock", "last_checked_at"],
+    "maximum_price_change_ratio": 0.6,
+    "maximum_price_change_absolute_gbp": "20.00"
+  }
+}

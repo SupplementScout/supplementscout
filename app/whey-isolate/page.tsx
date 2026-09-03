@@ -4,6 +4,7 @@ import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
+  UnavailableComparisonProductCard,
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
@@ -111,7 +112,11 @@ export function getLowestDeliveredWheyIsolateRows(
   limit = 3,
 ) {
   return rows
-    .filter((row) => row.bestOffer.deliveredPrice !== null)
+    .filter((row): row is WheyIsolateComparisonRow & {
+      bestOffer: NonNullable<WheyIsolateComparisonRow["bestOffer"]> & {
+        deliveredPrice: NonNullable<NonNullable<WheyIsolateComparisonRow["bestOffer"]>["deliveredPrice"]>;
+      };
+    } => row.bestOffer?.deliveredPrice !== null && row.bestOffer !== null)
     .sort((left, right) => {
       const priceDifference =
         left.bestOffer.deliveredPrice!.totalPrice -
@@ -122,6 +127,9 @@ export function getLowestDeliveredWheyIsolateRows(
 }
 
 function IsolateProductCard({ row, position }: { row: WheyIsolateComparisonRow; position: number }) {
+  if (!row.bestOffer) {
+    return <UnavailableComparisonProductCard row={row} position={position} />;
+  }
   const retailerNames = [...new Set(row.offers.map((offer) => offer.retailer.name))];
   const displayedPrice = row.bestOffer.deliveredPrice?.totalPrice ?? row.bestOffer.productPrice;
   return (

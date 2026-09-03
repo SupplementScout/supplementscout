@@ -4,6 +4,7 @@ import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
+  UnavailableComparisonProductCard,
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
@@ -141,6 +142,9 @@ function WheyProductCard({
   row: WheyComparisonRow;
   position: number;
 }) {
+  if (!row.bestOffer) {
+    return <UnavailableComparisonProductCard row={row} position={position} />;
+  }
   const facts = productFacts(row);
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),
@@ -249,8 +253,8 @@ export function WheyProteinPageContent({
   const latestCheck = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const lowestDeliveredRow = result.rows.reduce<WheyComparisonRow | null>(
     (lowest, row) => {
-      const total = row.bestOffer.deliveredPrice?.totalPrice;
-      const lowestTotal = lowest?.bestOffer.deliveredPrice?.totalPrice;
+      const total = row.bestOffer?.deliveredPrice?.totalPrice;
+      const lowestTotal = lowest?.bestOffer?.deliveredPrice?.totalPrice;
 
       if (total === undefined || total === null) return lowest;
       if (lowestTotal === undefined || lowestTotal === null || total < lowestTotal) {
@@ -332,7 +336,7 @@ export function WheyProteinPageContent({
         </div>
       </section>
 
-      {lowestDeliveredRow?.bestOffer.deliveredPrice && (
+      {lowestDeliveredRow?.bestOffer?.deliveredPrice && (
         <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12">
           <div className="max-w-4xl rounded-xl border border-zinc-200 bg-white p-5 sm:p-6">
             <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">

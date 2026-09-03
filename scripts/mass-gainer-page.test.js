@@ -35,7 +35,7 @@ const pricing = compileModule(path.join(process.cwd(), "app/lib/pricing.ts"));
 const offerFreshness = compileModule(path.join(process.cwd(), "app/lib/offerFreshness.ts"));
 const creatineLaunch = compileModule(path.join(process.cwd(), "app/lib/creatineLaunch.ts"), { "./offerFreshness": offerFreshness });
 const nutritionMetrics = compileModule(path.join(process.cwd(), "app/lib/nutritionMetrics.ts"));
-const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), { "./creatineLaunch": creatineLaunch, "./pricing": pricing });
+const categoryComparison = compileModule(path.join(process.cwd(), "app/lib/categoryComparison.ts"), { "./creatineLaunch": creatineLaunch, "./offerFreshness": offerFreshness, "./pricing": pricing });
 const comparisonPath = path.join(process.cwd(), "app/lib/massGainerComparison.ts");
 
 function loadComparison(rows = []) {
@@ -45,6 +45,7 @@ function loadComparison(rows = []) {
     "./categoryComparison": categoryComparison,
     "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products },
     "./nutritionMetrics": nutritionMetrics,
+    "./offerFreshness": offerFreshness,
     "./supabase": { supabase: { from: () => builder } },
   });
 }
@@ -89,7 +90,7 @@ test("indexability retains the unchanged 3-product, 2-retailer and 20-offer gate
 test("production query stays bounded to exact active Mass Gainer powders", async () => {
   const calls = [];
   const builder = new Proxy({}, { get: (_, name) => (...args) => { calls.push([name, ...args]); return name === "range" ? { data: [], error: null } : builder; } });
-  const comparison = compileModule(comparisonPath, { react: { cache: (fn) => fn }, "./categoryComparison": categoryComparison, "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products }, "./nutritionMetrics": nutritionMetrics, "./supabase": { supabase: { from: (table) => { calls.push(["from", table]); return builder; } } } });
+  const comparison = compileModule(comparisonPath, { react: { cache: (fn) => fn }, "./categoryComparison": categoryComparison, "./categoryComparisonVariants": { resolveCategoryComparisonVariants: async (products) => products }, "./nutritionMetrics": nutritionMetrics, "./offerFreshness": offerFreshness, "./supabase": { supabase: { from: (table) => { calls.push(["from", table]); return builder; } } } });
   await comparison.getMassGainerComparison();
   assert.ok(calls.some((row) => row[0] === "eq" && row[1] === "category" && row[2] === "Mass Gainer"));
   assert.ok(calls.some((row) => row[0] === "eq" && row[1] === "product_format" && row[2] === "powder"));

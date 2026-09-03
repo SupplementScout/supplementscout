@@ -4,6 +4,7 @@ import CategoryViewAnalytics from "../../components/CategoryViewAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
+  UnavailableComparisonProductCard,
 } from "../../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import {
@@ -122,6 +123,9 @@ export function buildPer4mStructuredData(rows: Per4mBrandRow[]) {
 }
 
 function ProductCard({ row, position }: { row: Per4mBrandRow; position: number }) {
+  if (!row.bestOffer) {
+    return <UnavailableComparisonProductCard row={row} position={position} />;
+  }
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),
   ];

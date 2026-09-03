@@ -55,7 +55,19 @@ function loadProductsModule(mockSupabase = {}) {
     }
 
     if (parent === mod && request === "./offerFreshness") {
+      const classify = (offer, now = new Date()) => {
+        const checked = Date.parse(offer.last_checked_at || "");
+        const age = (now.getTime() - checked) / 3_600_000;
+        if (!Number.isFinite(age) || age < 0 || age > 72) return { state: "UNVERIFIED", checkedAt: null, ageHours: null };
+        if (age <= 24) return { state: offer.in_stock === false ? "OUT_OF_STOCK" : "LIVE", checkedAt: offer.last_checked_at, ageHours: age };
+        return { state: offer.in_stock === true ? "RECENT" : "UNVERIFIED", checkedAt: offer.last_checked_at, ageHours: age };
+      };
       return {
+        classifyOfferCollection: (offers, now = new Date()) =>
+          offers.map((offer) => classify(offer, now)).find((item) => item.state === "LIVE") ||
+          offers.map((offer) => classify(offer, now)).find((item) => item.state === "OUT_OF_STOCK") ||
+          offers.map((offer) => classify(offer, now)).find((item) => item.state === "RECENT") ||
+          { state: "UNVERIFIED", checkedAt: null, ageHours: null },
         isOfferFresh: (value, now = new Date()) => {
           const checked = Date.parse(value || "");
           const age = (now.getTime() - checked) / 3_600_000;
@@ -871,7 +883,7 @@ test("unpriced catalogue products sort after products with current prices", asyn
   }
 });
 
-test("budget and retailer filters do not claim an unverified stale offer", async () => {
+test("budget filters exclude stale prices while retailer filters retain observed catalogue coverage", async () => {
   const staleProduct = searchProduct(327, "Budget outage creatine", "Creatine");
   staleProduct.offers[0].last_checked_at = "2020-01-01T00:00:00.000Z";
 
@@ -887,7 +899,10 @@ test("budget and retailer filters do not claim an unverified stale offer", async
   );
 
   assert.equal(budget.totalCount, 0);
-  assert.equal(retailer.totalCount, 0);
+  assert.equal(retailer.totalCount, 1);
+  assert.equal(retailer.results[0].cheapestOffer, null);
+  assert.equal(retailer.results[0].availableOfferCount, 0);
+  assert.equal(retailer.results[0].presentationState, "UNVERIFIED");
 });
 
 test("natural-language budget filters on total delivered price", async () => {

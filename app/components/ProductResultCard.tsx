@@ -1,7 +1,11 @@
 import Link from "next/link";
 import type { ProductSearchResult } from "../lib/products";
 import { formatCurrency } from "../lib/pricing";
-import { buildBestOfferPricePresentation } from "../lib/productOfferPresentation";
+import {
+  buildBestOfferPricePresentation,
+  formatOfferCheckedDate,
+} from "../lib/productOfferPresentation";
+import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 import {
   primarySearchValueMetric,
   searchResultSize,
@@ -47,6 +51,7 @@ export default function ProductResultCard({
     : null;
   const valueMetric = primarySearchValueMetric(product);
   const packageSize = searchResultSize(product);
+  const verificationDate = formatOfferCheckedDate(product.latestVerificationAt);
   const availabilityLabel =
     product.availableRetailerCount > 1
       ? `${product.availableRetailerCount} retailers`
@@ -134,7 +139,7 @@ export default function ProductResultCard({
             } mt-2 min-w-0 flex-col items-start gap-1 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3`}
           >
             <span className="max-w-full break-words font-semibold text-zinc-800">
-              {retailerName || "Current price temporarily unavailable"}
+              {retailerName || OFFER_PRESENTATION_LABELS[product.presentationState]}
             </span>
             {cheapestOffer && (
               <span className="max-w-full break-words text-zinc-600">
@@ -171,7 +176,7 @@ export default function ProductResultCard({
               ? searchMobileFirst
                 ? pricePresentation.label
                 : "Best delivered price"
-              : "Current price"}
+              : OFFER_PRESENTATION_LABELS[product.presentationState]}
           </p>
           <p className={`mt-1 font-extrabold text-zinc-950 ${
             pricePresentation
@@ -186,7 +191,14 @@ export default function ProductResultCard({
           </p>
           {!cheapestOffer && (
             <p className="mt-2 text-sm text-zinc-600">
-              No retailer price has been verified in the last 24 hours.
+              {product.presentationState === "RECENT"
+                ? `Last verified in stock${verificationDate ? ` on ${verificationDate}` : ""}; the old price is not treated as current.`
+                : product.presentationState === "OUT_OF_STOCK"
+                  ? `A retailer check${verificationDate ? ` on ${verificationDate}` : ""} confirmed this product is out of stock.`
+                  : `No retailer price has been verified in the last 24 hours${verificationDate ? `; latest check ${verificationDate}` : ""}.`}
+              {product.observedRetailerCount > 0 && (
+                <> Evidence from {product.observedRetailerCount} retailer{product.observedRetailerCount === 1 ? "" : "s"}.</>
+              )}
             </p>
           )}
           {searchMobileFirst && pricePresentation && retailerName && (

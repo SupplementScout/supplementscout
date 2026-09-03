@@ -595,13 +595,14 @@ test("selected variant drives displayed price, checked date, analytics and CTA l
   assert.match(source, /retailer_name: selectedOffer\.retailer\?\.name/);
 });
 
-test("product page keeps in-stock filtering and uses a variant-aware best delivered price", () => {
+test("product page loads availability evidence but keeps current offer ranking in-stock and fresh", () => {
   const page = fs.readFileSync(
     path.join(process.cwd(), "app", "product", "[id]", "page.tsx"),
     "utf8"
   );
 
-  assert.match(page, /\.eq\("in_stock", true\)/);
+  assert.doesNotMatch(page, /\.eq\("in_stock", true\)/);
+  assert.match(page, /offer\.in_stock === true && isOfferFresh\(offer\.last_checked_at\)/);
   assert.match(page, /const \{ data: offers \} = await supabase/);
   assert.match(page, /await supabaseAdmin[\s\S]*\.from\("retailer_products"\)/);
   assert.match(page, /getBestProductOffer\(sortedOffers\)/);

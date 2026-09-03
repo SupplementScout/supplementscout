@@ -66,6 +66,7 @@ const freshness = compileModule(freshnessPath, {
 const categoryComparison = compileModule(categoryComparisonPath, {
   mocks: {
     "./creatineLaunch": freshness,
+    "./offerFreshness": offerFreshness,
     "./pricing": pricing,
   },
 });

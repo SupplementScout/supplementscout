@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "manifest_type": "predators_gear_approved_existing_offer_scope",
+  "retailer": {
+    "id": 13,
+    "slug": "predators-gear",
+    "source_platform": "WOOCOMMERCE_PRODUCT_PAGES"
+  },
+  "approved_mapping_count": 47,
+  "source_audit": {
+    "captured_at": "2026-09-03T08:34:20.424Z",
+    "database_writes": 0,
+    "transaction_read_only": true
+  },
+  "rows": [
+    {
+      "mapping_id": "2962",
+      "offer_id": "2776",
+      "external_product_id": "8594181608247",
+      "external_variant_id": "8594181608247",
+      "canonical_product_id": "1",
+      "canonical_variant_id": "2965",
+      "external_url": "https://predatorsgear.co.uk/?p=8594181608247"
+    },
+    {
+      "mapping_id": "2963",
+      "offer_id": "2777",
+      "external_product_id": "8594181608275",
+      "external_variant_id": "8594181608275",
+      "canonical_product_id": "412",
+      "canonical_variant_id": "2969",
+      "external_url": "https://predatorsgear.co.uk/?p=8594181608275"
+    },
+    {
+      "mapping_id": "2964",
+      "offer_id": "2778",
+      "external_product_id": "8594181608254",
+      "external_variant_id": "8594181608257",
+      "canonical_product_id": "510",
+      "canonical_variant_id": "1068",
+      "external_url": "https://predatorsgear.co.uk/?p=8594181608254"
+    },
+    {
+      "mapping_id": "2965",
+      "offer_id": "2779",
+      "external_product_id": "8594181608254",
+      "external_variant_id": "8594181608259",
+      "canonical_product_id": "510",
+      "canonical_variant_id": "1971",
+      "external_url": "https://predatorsgear.co.uk/?p=8594181608254"
+    },
+    {
+      "mapping_id": "2966",
+      "offer_id": "2780",
+      "external_product_id": "8594181608272",
+      "external_variant_id": "8594181608272",
+      "canonical_product_id": "414",
+      "canonical_variant_id": "2741",
+      "external_url": "https://predatorsgear.co.uk/?p=8594181608272"
+    },
+    {
+      "mapping_id": "2967",
+      "offer_id": "2781",
+      "external_product_id": "8594181608278",
+      "external_variant_id": "8594181608278",
+      "canonical_product_id": "411",
+      "canonical_variant_id": "1047",
+      "external_url": "https://predatorsgear.co.uk/?p=8594181608278"
+    },
+    {
+      "mapping_id": "2968",
+      "offer_id": "2782",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607509",
+      "canonical_product_id": "1067",
+      "canonical_variant_id": "2250",
+      "external_url": "https://predatorsgear.co.uk/?p=8594181607503"
+    },
+    {
+      "mapping_id": "2969",
+      "offer_id": "2783",
+      "external_product_id": "8594181604907",
+      "external_variant_id": "8594181607451",
+      "canonical_product_id": "19",
+      "canonical_variant_id": "768",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/blood-and-guts-pre-workout-380g/"
+    },
+    {
+      "mapping_id": "2970",
+      "offer_id": "2784",
+      "external_product_id": "8594181604907",
+      "external_variant_id": "8594181604910",
+      "canonical_product_id": "19",
+      "canonical_variant_id": "765",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/blood-and-guts-pre-workout-380g/"
+    },
+    {
+      "mapping_id": "2971",
+      "offer_id": "2785",
+      "external_product_id": "8594181604907",
+      "external_variant_id": "8594181604911",
+      "canonical_product_id": "19",
+      "canonical_variant_id": "770",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/blood-and-guts-pre-workout-380g/"
+    },
+    {
+      "mapping_id": "2972",
+      "offer_id": "2786",
+      "external_product_id": "8594181604907",
+      "external_variant_id": "8594181605197",
+      "canonical_product_id": "19",
+      "canonical_variant_id": "769",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/blood-and-guts-pre-workout-380g/"
+    },
+    {
+      "mapping_id": "2973",
+      "offer_id": "2787",
+      "external_product_id": "8594181607222",
+      "external_variant_id": "8594181607222",
+      "canonical_product_id": "1026",
+      "canonical_variant_id": "2148",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-vita-min-one-60-capsules/"
+    },
+    {
+      "mapping_id": "2974",
+      "offer_id": "2788",
+      "external_product_id": "8594181605044",
+      "external_variant_id": "8594181605044",
+      "canonical_product_id": "521",
+      "canonical_variant_id": "3128",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-vita-min-multivitamin-60-capsules/"
+    },
+    {
+      "mapping_id": "2975",
+      "offer_id": "2789",
+      "external_product_id": "8594181608241",
+      "external_variant_id": "8594181608241",
+      "canonical_product_id": "523",
+      "canonical_variant_id": "3138",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/ashwagandha-600-sport-60-capsules-olimp-nutrition/"
+    },
+    {
+      "mapping_id": "2976",
+      "offer_id": "2790",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607979",
+      "canonical_product_id": "361",
+      "canonical_variant_id": "1694",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/"
+    },
+    {
+      "mapping_id": "2977",
+      "offer_id": "2791",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607980",
+      "canonical_product_id": "361",
+      "canonical_variant_id": "1043",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/"
+    },
+    {
+      "mapping_id": "2978",
+      "offer_id": "2792",
+      "external_product_id": "8594181604885",
+      "external_variant_id": "8594181604888",
+      "canonical_product_id": "753",
+      "canonical_variant_id": "873",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-shadow-line-shadowhey-whey-protein-2000g/"
+    },
+    {
+      "mapping_id": "2979",
+      "offer_id": "2793",
+      "external_product_id": "8594181604885",
+      "external_variant_id": "8594181604890",
+      "canonical_product_id": "753",
+      "canonical_variant_id": "876",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-shadow-line-shadowhey-whey-protein-2000g/"
+    },
+    {
+      "mapping_id": "2980",
+      "offer_id": "2794",
+      "external_product_id": "8594181604885",
+      "external_variant_id": "8594181604891",
+      "canonical_product_id": "753",
+      "canonical_variant_id": "877",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-shadow-line-shadowhey-whey-protein-2000g/"
+    },
+    {
+      "mapping_id": "2981",
+      "offer_id": "2795",
+      "external_product_id": "8594181604892",
+      "external_variant_id": "8594181604895",
+      "canonical_product_id": "1143",
+      "canonical_variant_id": "3188",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-the-creatine-complex-316g/"
+    },
+    {
+      "mapping_id": "2982",
+      "offer_id": "2796",
+      "external_product_id": "8594181608172",
+      "external_variant_id": "8594181608172",
+      "canonical_product_id": "1144",
+      "canonical_variant_id": "3189",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-monohydrate-dy-nutiriton-300g/"
+    },
+    {
+      "mapping_id": "2983",
+      "offer_id": "2797",
+      "external_product_id": "8594181606995",
+      "external_variant_id": "8594181606995",
+      "canonical_product_id": "1145",
+      "canonical_variant_id": "3190",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-magnesium-citrate-90-tablets/"
+    },
+    {
+      "mapping_id": "2984",
+      "offer_id": "2798",
+      "external_product_id": "8594181604892",
+      "external_variant_id": "8594181604896",
+      "canonical_product_id": "1143",
+      "canonical_variant_id": "3191",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-the-creatine-complex-316g/"
+    },
+    {
+      "mapping_id": "2985",
+      "offer_id": "2799",
+      "external_product_id": "8594181604892",
+      "external_variant_id": "8594181604897",
+      "canonical_product_id": "1143",
+      "canonical_variant_id": "3192",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-the-creatine-complex-316g/"
+    },
+    {
+      "mapping_id": "2986",
+      "offer_id": "2800",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607507",
+      "canonical_product_id": "361",
+      "canonical_variant_id": "3193",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/"
+    },
+    {
+      "mapping_id": "2987",
+      "offer_id": "2801",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607563",
+      "canonical_product_id": "361",
+      "canonical_variant_id": "3194",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/"
+    },
+    {
+      "mapping_id": "2989",
+      "offer_id": "2802",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607506",
+      "canonical_product_id": "1067",
+      "canonical_variant_id": "3196",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/"
+    },
+    {
+      "mapping_id": "2990",
+      "offer_id": "2803",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607977",
+      "canonical_product_id": "1067",
+      "canonical_variant_id": "3197",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/"
+    },
+    {
+      "mapping_id": "2991",
+      "offer_id": "2804",
+      "external_product_id": "8594181607503",
+      "external_variant_id": "8594181607978",
+      "canonical_product_id": "1067",
+      "canonical_variant_id": "3198",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/creatine-cm3/"
+    },
+    {
+      "mapping_id": "2992",
+      "offer_id": "2805",
+      "external_product_id": "8594181605272",
+      "external_variant_id": "8594181605272",
+      "canonical_product_id": "1146",
+      "canonical_variant_id": "3199",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-the-glutamine-unflavoured-300g/"
+    },
+    {
+      "mapping_id": "2993",
+      "offer_id": "2806",
+      "external_product_id": "8594181606997",
+      "external_variant_id": "8594181606997",
+      "canonical_product_id": "1147",
+      "canonical_variant_id": "3200",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/dorian-yates-joint-support-90-tablets/"
+    },
+    {
+      "mapping_id": "2994",
+      "offer_id": "2807",
+      "external_product_id": "8594181607301",
+      "external_variant_id": "8594181607301",
+      "canonical_product_id": "1148",
+      "canonical_variant_id": "3201",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-gold-vit-d3k2-sport-edition-60-capsules/"
+    },
+    {
+      "mapping_id": "2995",
+      "offer_id": "2808",
+      "external_product_id": "8594181607610",
+      "external_variant_id": "8594181607610",
+      "canonical_product_id": "1149",
+      "canonical_variant_id": "3202",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/vit-d3-k2-mk-7-60-caps-2000ui/"
+    },
+    {
+      "mapping_id": "2996",
+      "offer_id": "2809",
+      "external_product_id": "8594181607614",
+      "external_variant_id": "8594181607614",
+      "canonical_product_id": "1150",
+      "canonical_variant_id": "3203",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/coenzyme-q10-90-caps-trec-lifestyle/"
+    },
+    {
+      "mapping_id": "2997",
+      "offer_id": "2810",
+      "external_product_id": "8594181608175",
+      "external_variant_id": "8594181608175",
+      "canonical_product_id": "1151",
+      "canonical_variant_id": "3204",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/turbo-daily-liposomal-multivitamins-90-capsules-super-nutrition/"
+    },
+    {
+      "mapping_id": "2998",
+      "offer_id": "2811",
+      "external_product_id": "8594181608181",
+      "external_variant_id": "8594181608181",
+      "canonical_product_id": "1152",
+      "canonical_variant_id": "3205",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/high-strength-d3-k2-mk-7-60-vegan-softgels-10-000-iu-super-nutrition/"
+    },
+    {
+      "mapping_id": "2999",
+      "offer_id": "2812",
+      "external_product_id": "8594181608202",
+      "external_variant_id": "8594181608202",
+      "canonical_product_id": "1153",
+      "canonical_variant_id": "3206",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/magnesium-bisglycinate-90-capsules/"
+    },
+    {
+      "mapping_id": "3000",
+      "offer_id": "2813",
+      "external_product_id": "8594181605941",
+      "external_variant_id": "8594181605941",
+      "canonical_product_id": "1154",
+      "canonical_variant_id": "3207",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-aakg-1250-extreme-mega-caps-nitric-oxide-booster/"
+    },
+    {
+      "mapping_id": "3001",
+      "offer_id": "2814",
+      "external_product_id": "8594181607617",
+      "external_variant_id": "8594181607617",
+      "canonical_product_id": "1155",
+      "canonical_variant_id": "3208",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/vitamin-b-complex/"
+    },
+    {
+      "mapping_id": "3002",
+      "offer_id": "2815",
+      "external_product_id": "8594181608219",
+      "external_variant_id": "8594181608219",
+      "canonical_product_id": "1156",
+      "canonical_variant_id": "3209",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/aakg-mega-hardcore-240-caps-trec-nutrition/"
+    },
+    {
+      "mapping_id": "3003",
+      "offer_id": "2816",
+      "external_product_id": "8594181608222",
+      "external_variant_id": "8594181608222",
+      "canonical_product_id": "1157",
+      "canonical_variant_id": "3210",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/citrulline-synergy-240g-trec-nutrition/"
+    },
+    {
+      "mapping_id": "3004",
+      "offer_id": "2817",
+      "external_product_id": "8594181603360",
+      "external_variant_id": "8594181603369",
+      "canonical_product_id": "1158",
+      "canonical_variant_id": "3211",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-bcaa-xplode-powder-branched-chain-amino-acids-glutamine-vitamin-b6-leucine-1000g-500g-280g/"
+    },
+    {
+      "mapping_id": "3005",
+      "offer_id": "2818",
+      "external_product_id": "8594181603396",
+      "external_variant_id": "8594181603399",
+      "canonical_product_id": "1159",
+      "canonical_variant_id": "3212",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-glutamine-xplode-powder-500g/"
+    },
+    {
+      "mapping_id": "3006",
+      "offer_id": "2819",
+      "external_product_id": "8594181603390",
+      "external_variant_id": "8594181605030",
+      "canonical_product_id": "1160",
+      "canonical_variant_id": "3213",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/eaa-amino/"
+    },
+    {
+      "mapping_id": "3007",
+      "offer_id": "2820",
+      "external_product_id": "8594181603360",
+      "external_variant_id": "8594181607205",
+      "canonical_product_id": "1158",
+      "canonical_variant_id": "3214",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-bcaa-xplode-powder-branched-chain-amino-acids-glutamine-vitamin-b6-leucine-1000g-500g-280g/"
+    },
+    {
+      "mapping_id": "3008",
+      "offer_id": "2821",
+      "external_product_id": "8594181603396",
+      "external_variant_id": "8594181603400",
+      "canonical_product_id": "1159",
+      "canonical_variant_id": "3215",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-glutamine-xplode-powder-500g/"
+    },
+    {
+      "mapping_id": "3009",
+      "offer_id": "2822",
+      "external_product_id": "8594181603396",
+      "external_variant_id": "8594181607759",
+      "canonical_product_id": "1159",
+      "canonical_variant_id": "3216",
+      "external_url": "https://predatorsgear.co.uk/supplements-vitamins-shop/olimp-glutamine-xplode-powder-500g/"
+    }
+  ]
+}

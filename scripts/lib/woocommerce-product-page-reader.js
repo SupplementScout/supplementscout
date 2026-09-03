@@ -265,6 +265,7 @@ function parseWooCommerceProductPage(html, options) {
     product_offer: productOffer,
     variations: variants,
     html_sha256: sha256(html),
+    html_bytes: Buffer.byteLength(html),
   };
 }
 
@@ -295,6 +296,8 @@ async function boundedText(response, maximumBytes) {
 async function readWooCommerceProductPage({
   storeUrl,
   productId,
+  productUrl,
+  allowedPathPrefixes = ["/product/"],
   fetchImpl = globalThis.fetch,
   timeoutMs = 20_000,
   maximumBytes = 2_000_000,
@@ -314,8 +317,16 @@ async function readWooCommerceProductPage({
   }
   const id = String(productId || "");
   if (!/^[1-9]\d*$/.test(id)) fail("SOURCE_CONFIGURATION", "productId must be a positive integer");
-  const requestUrl = new URL("/", origin);
-  requestUrl.searchParams.set("p", id);
+  if (!Array.isArray(allowedPathPrefixes) || allowedPathPrefixes.length === 0 ||
+      allowedPathPrefixes.some((prefix) => typeof prefix !== "string" || !prefix.startsWith("/"))) {
+    fail("SOURCE_CONFIGURATION", "allowedPathPrefixes must contain absolute path prefixes");
+  }
+  const requestUrl = productUrl ? new URL(productUrl) : new URL("/", origin);
+  if (!productUrl) requestUrl.searchParams.set("p", id);
+  if (requestUrl.protocol !== "https:" || requestUrl.hostname !== origin.hostname ||
+      requestUrl.username || requestUrl.password || requestUrl.hash) {
+    fail("SOURCE_CONFIGURATION", "productUrl must stay on the credential-free HTTPS store origin");
+  }
   let lastError;
   for (let attempt = 1; attempt <= maximumAttempts; attempt += 1) {
     const controller = new AbortController();
@@ -330,7 +341,8 @@ async function readWooCommerceProductPage({
       const contentType = String(response.headers?.get?.("content-type") || "").toLowerCase();
       if (!contentType.startsWith("text/html")) fail("SOURCE_CONTENT_TYPE", `WooCommerce product ${id} returned ${contentType || "unknown content type"}`);
       const finalUrl = new URL(response.url || requestUrl);
-      if (finalUrl.protocol !== "https:" || finalUrl.hostname !== origin.hostname || !finalUrl.pathname.startsWith("/product/")) {
+      if (finalUrl.protocol !== "https:" || finalUrl.hostname !== origin.hostname ||
+          !allowedPathPrefixes.some((prefix) => finalUrl.pathname.startsWith(prefix))) {
         fail("SOURCE_REDIRECT_ERROR", `WooCommerce product ${id} redirected outside the approved product origin`, { final_url: finalUrl.href });
       }
       const html = await boundedText(response, maximumBytes);

@@ -1,5 +1,9 @@
 import { isCreatineOfferFresh } from "./creatineLaunch";
 import {
+  classifyOfferCollection,
+  type OfferPresentationState,
+} from "./offerFreshness";
+import {
   getDeliveredPrice,
   getKnownProductPrice,
   getVerifiedCostPer25gProtein,
@@ -105,10 +109,13 @@ export type CategoryComparisonRow = {
   nutritionVerified: boolean;
   unitPricingVerified: boolean;
   offers: CategoryComparisonOffer[];
-  bestOffer: CategoryComparisonOffer;
+  bestOffer: CategoryComparisonOffer | null;
+  referenceVariant: ComparisonNutritionVariant;
   offerCount: number;
   retailerCount: number;
-  lastCheckedAt: string;
+  observedRetailerCount: number;
+  lastCheckedAt: string | null;
+  presentationState: OfferPresentationState;
   pricePerKg: number | null;
   pricePerServing: number | null;
   costPer25gProtein: number | null;
@@ -203,6 +210,21 @@ function normalizeOffer(
   };
 }
 
+function isPresentationEligibleOffer(offer: RawComparisonOffer) {
+  const retailer = relationOne(offer.retailer);
+  const hasRetailerIdentity = Boolean(retailer?.id && retailer.name?.trim());
+
+  if (!hasRetailerIdentity) return false;
+  if (offer.in_stock === false) return true;
+
+  return (
+    offer.in_stock === true &&
+    getKnownProductPrice(offer.price) !== null &&
+    offer.retailer_product_id !== null &&
+    validHttpUrl(offer.url)
+  );
+}
+
 function offerSort(
   left: CategoryComparisonOffer,
   right: CategoryComparisonOffer
@@ -233,6 +255,8 @@ export function categoryComparisonRowSort(
   right: CategoryComparisonRow
 ) {
   return (
+    Number(right.presentationState === "LIVE") -
+      Number(left.presentationState === "LIVE") ||
     right.retailerCount - left.retailerCount ||
     right.offerCount - left.offerCount ||
     completenessScore(right) - completenessScore(left) ||
@@ -271,6 +295,16 @@ export function normalizeCategoryComparison(
         .map((offer) => normalizeOffer(offer, now, options.isOfferFresh))
         .filter((offer): offer is CategoryComparisonOffer => offer !== null)
         .sort(offerSort);
+      const presentation = classifyOfferCollection(
+        scopedOffers.filter(isPresentationEligibleOffer),
+        now
+      );
+      const observedRetailerCount = new Set(
+        scopedOffers
+          .map((offer) => relationOne(offer.retailer)?.id)
+          .filter((id): id is number | string => id !== null && id !== undefined)
+          .map(String)
+      ).size;
 
       staleOrUnusableOffersExcluded += rawOffers.filter(
         (offer) =>
@@ -282,9 +316,11 @@ export function normalizeCategoryComparison(
           )
       ).length;
 
-      if (offers.length === 0) return null;
-
-      const bestOffer = offers[0];
+      const bestOffer = offers[0] || null;
+      const referenceVariant =
+        bestOffer?.nutritionVariant ||
+        relationOne(scopedOffers[0]?.product_variant) ||
+        null;
       const baseNutritionMetrics = {
         net_weight_g: product.net_weight_g,
         serving_count_verified: product.serving_count_verified,
@@ -298,10 +334,10 @@ export function normalizeCategoryComparison(
       const resolvedMetrics = options.resolveNutritionMetrics
         ? options.resolveNutritionMetrics(
             baseNutritionMetrics,
-            bestOffer.nutritionVariant
+            bestOffer?.nutritionVariant || null
           )
         : baseNutritionMetrics;
-      const effectiveMetrics = bestOffer.variantResolution === "unresolved"
+      const effectiveMetrics = bestOffer?.variantResolution === "unresolved"
         ? {
             ...resolvedMetrics,
             serving_count_verified: null,
@@ -342,24 +378,24 @@ export function normalizeCategoryComparison(
         unitPricingVerified,
         offers,
         bestOffer,
+        referenceVariant,
         offerCount: offers.length,
         retailerCount: new Set(offers.map((offer) => offer.retailer.id)).size,
-        lastCheckedAt: offers
-          .map((offer) => offer.lastCheckedAt)
-          .sort()
-          .at(-1) as string,
+        observedRetailerCount,
+        lastCheckedAt: presentation.checkedAt,
+        presentationState: presentation.state,
         pricePerKg: getVerifiedPricePerKg(
-          bestOffer.deliveredPrice,
+          bestOffer?.deliveredPrice || null,
           netWeightG,
           productFormat,
           unitPricingVerified
         ),
         pricePerServing: getVerifiedPricePerServing(
-          bestOffer.deliveredPrice,
+          bestOffer?.deliveredPrice || null,
           verifiedServingCount
         ),
         costPer25gProtein: getVerifiedCostPer25gProtein(
-          bestOffer.deliveredPrice,
+          bestOffer?.deliveredPrice || null,
           verifiedServingCount,
           proteinPerServingG,
           unitPricingVerified,

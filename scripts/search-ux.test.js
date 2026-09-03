@@ -131,7 +131,7 @@ test("search and landing queries do not require an offer row to expose a product
 
   assert.doesNotMatch(source, /offers!inner\s*\(/);
   assert.match(source, /cheapestOffer: SearchOffer \| null/);
-  assert.match(source, /filters\.retailer && !cheapestOffer/);
+  assert.match(source, /filters\.retailer && matchingObservedOffers\.length === 0/);
 });
 
 test("search cards show a safe no-price state without a retailer breakdown", () => {
@@ -140,7 +140,8 @@ test("search cards show a safe no-price state without a retailer breakdown", () 
     "utf8"
   );
 
-  assert.match(source, /Current price temporarily unavailable/);
+  assert.match(source, /OFFER_PRESENTATION_LABELS\[product\.presentationState\]/);
+  assert.match(source, /Temporarily unavailable/);
   assert.match(source, /No retailer price has been verified in the last 24 hours/);
   assert.match(source, /cheapestOffer && deliveredPrice && retailerName && \(/);
   assert.match(source, /pricePresentation && deliveredPrice/);

@@ -46,7 +46,7 @@ const freshness = compileModule(path.join(root, "app/lib/creatineLaunch.ts"), {
 });
 const categoryComparison = compileModule(
   path.join(root, "app/lib/categoryComparison.ts"),
-  { mocks: { "./creatineLaunch": freshness, "./pricing": pricing } }
+  { mocks: { "./creatineLaunch": freshness, "./offerFreshness": offerFreshness, "./pricing": pricing } }
 );
 const retailerPath = path.join(root, "app/lib/ebayUKRetailer.ts");
 const pagePath = path.join(root, "app/retailers/ebay-uk/page.tsx");
@@ -96,6 +96,7 @@ function loadRetailer(mockSupabase = {}) {
   return compileModule(retailerPath, {
     mocks: {
       "./categoryComparison": categoryComparison,
+      "./offerFreshness": offerFreshness,
       "./supabase": { supabase: mockSupabase },
     },
   });
@@ -203,7 +204,8 @@ test("production query uses the exact retailer, a bounded target scope and curre
   assert.match(source, /\.range\(0, QUERY_LIMIT - 1\)/);
   assert.match(source, /\.in\("id", productIds\)/);
   assert.match(source, /\.is\("merged_into_product_id", null\)/);
-  assert.match(source, /FRESHNESS_MS = 24 \* 60 \* 60 \* 1000/);
+  assert.match(source, /isOfferFresh\(offer\.last_checked_at, now\)/);
+  assert.doesNotMatch(source, /FRESHNESS_MS|24 \* 60 \* 60 \* 1000/);
 });
 
 test("metadata, JSON-LD and visible copy satisfy the retailer-page contract", async () => {

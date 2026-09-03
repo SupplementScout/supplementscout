@@ -100,8 +100,6 @@ async function loadPreWorkoutComparison(): Promise<PreWorkoutComparisonResult> {
     .is("merged_into_product_id", null)
     .is("merged_at", null)
     .eq("category", "Pre Workout")
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, PRE_WORKOUT_QUERY_LIMIT - 1);
 

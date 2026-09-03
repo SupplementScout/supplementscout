@@ -158,8 +158,6 @@ async function loadAppliedNutritionBrand(): Promise<AppliedNutritionBrandResult>
     .eq("is_active", true)
     .is("merged_into_product_id", null)
     .is("merged_at", null)
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, QUERY_LIMIT - 1);
 

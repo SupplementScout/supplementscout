@@ -4,6 +4,7 @@ import CategoryViewAnalytics from "../components/CategoryViewAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
+  UnavailableComparisonProductCard,
 } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
@@ -104,7 +105,7 @@ function ProductSelector({
     (left, right) =>
       (left.brand || "").localeCompare(right.brand || "") ||
       left.name.localeCompare(right.name) ||
-      left.exactPackLabel.localeCompare(right.exactPackLabel)
+      (left.exactPackLabel || "").localeCompare(right.exactPackLabel || "")
   );
   return (
     <label className="block">
@@ -139,6 +140,9 @@ function Metric({ label, value }: { label: string; value: string }) {
 }
 
 function ComparisonCard({ row }: { row: TwoProductComparisonRow }) {
+  if (!row.bestOffer) {
+    return <UnavailableComparisonProductCard row={row} />;
+  }
   const delivered = row.bestOffer.deliveredPrice;
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
@@ -158,7 +162,7 @@ function ComparisonCard({ row }: { row: TwoProductComparisonRow }) {
             </h2>
           </Link>
           <p className="mt-2 text-sm font-semibold text-zinc-700">
-            Exact variant: {row.exactVariantLabel}
+            Exact variant: {row.exactVariantLabel || "Unavailable"}
           </p>
         </div>
       </div>
@@ -191,7 +195,7 @@ function ComparisonCard({ row }: { row: TwoProductComparisonRow }) {
       </div>
 
       <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Metric label="Exact pack" value={row.exactPackLabel} />
+        <Metric label="Exact pack" value={row.exactPackLabel || "Unavailable"} />
         {row.verifiedServingCount !== null && (
           <Metric label="Verified servings" value={String(row.verifiedServingCount)} />
         )}

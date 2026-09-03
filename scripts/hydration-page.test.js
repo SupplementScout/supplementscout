@@ -42,6 +42,7 @@ const pricingPath = path.join(process.cwd(), "app", "lib", "pricing.ts");
 const offerFreshnessPath = path.join(process.cwd(), "app", "lib", "offerFreshness.ts");
 const creatineLaunchPath = path.join(process.cwd(), "app", "lib", "creatineLaunch.ts");
 const comparisonPath = path.join(process.cwd(), "app", "lib", "hydrationComparison.ts");
+const categoryComparisonPath = path.join(process.cwd(), "app", "lib", "categoryComparison.ts");
 const pagePath = path.join(process.cwd(), "app", "hydration", "page.tsx");
 const sitemapPath = path.join(process.cwd(), "app", "sitemap.ts");
 const pricing = compileModule(pricingPath);
@@ -85,8 +86,16 @@ function rawProduct(overrides = {}) {
 }
 
 function loadComparison(mockSupabase = {}) {
+  const categoryComparison = compileModule(categoryComparisonPath, {
+    mocks: {
+      "./creatineLaunch": creatineLaunch,
+      "./offerFreshness": offerFreshness,
+      "./pricing": pricing,
+    },
+  });
   return compileModule(comparisonPath, {
     mocks: {
+      "./categoryComparison": categoryComparison,
       "./creatineLaunch": creatineLaunch,
       "./pricing": pricing,
       "./supabase": { supabase: mockSupabase },

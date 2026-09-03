@@ -10,7 +10,11 @@ import {
 import {
   getEffectiveNutritionMetrics,
 } from "./nutritionMetrics";
-import { isOfferFresh } from "./offerFreshness";
+import {
+  classifyOfferCollection,
+  isOfferFresh,
+  type OfferPresentationState,
+} from "./offerFreshness";
 import { supabase } from "./supabase";
 
 export type SearchSort =
@@ -122,6 +126,10 @@ export type ProductSearchResult = {
   validOffers: SearchOffer[];
   availableOfferCount: number;
   availableRetailerCount: number;
+  observedRetailerCount: number;
+  observedRetailerKeys: string[];
+  latestVerificationAt: string | null;
+  presentationState: OfferPresentationState;
   verifiedCostPer5gCreatine: number | null;
   verifiedCostPer25gProtein: number | null;
   verifiedPricePerKg: number | null;
@@ -825,6 +833,26 @@ function normalizeRetailer(
   };
 }
 
+function hasValidOfferUrl(value: string | null) {
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function isSearchPresentationEvidence(offer: RawOffer) {
+  if (!normalizeRetailer(offer.retailer)) return false;
+  if (offer.in_stock === false) return true;
+  return (
+    offer.in_stock === true &&
+    getDeliveredPrice(offer) !== null &&
+    hasValidOfferUrl(offer.url)
+  );
+}
+
 export function retailerFilterValue(retailer: SearchRetailer | null) {
   if (!retailer) {
     return "";
@@ -944,7 +972,8 @@ function normalizeProduct(
   filters: SearchFilters,
   searchPlan?: SearchMetadata
 ): ProductSearchResult | null {
-  const validOffers = normalizeSearchOffers(product.offers || []);
+  const rawOffers = product.offers || [];
+  const validOffers = normalizeSearchOffers(rawOffers);
 
   const matchingRetailerOffers = filters.retailer
     ? validOffers.filter(
@@ -954,9 +983,30 @@ function normalizeProduct(
 
   const cheapestOffer = matchingRetailerOffers[0] || null;
 
-  if (filters.retailer && !cheapestOffer) {
+  const matchingObservedOffers = filters.retailer
+    ? rawOffers.filter(
+        (offer) => retailerFilterValue(normalizeRetailer(offer.retailer)) === filters.retailer
+      )
+    : rawOffers;
+
+  if (filters.retailer && matchingObservedOffers.length === 0) {
     return null;
   }
+  const presentation = classifyOfferCollection(
+    matchingObservedOffers.filter(isSearchPresentationEvidence)
+  );
+  const observedRetailerCount = new Set(
+    matchingObservedOffers
+      .map((offer) => normalizeRetailer(offer.retailer)?.id || "")
+      .filter(Boolean)
+  ).size;
+  const observedRetailerKeys = Array.from(
+    new Set(
+      matchingObservedOffers
+        .map((offer) => retailerFilterValue(normalizeRetailer(offer.retailer)))
+        .filter(Boolean)
+    )
+  );
   const effectiveMetrics = getEffectiveNutritionMetrics(
     product,
     cheapestOffer?.product_variant || null
@@ -983,6 +1033,10 @@ function normalizeProduct(
     validOffers,
     availableOfferCount: validOffers.length,
     availableRetailerCount: countAvailableRetailers(validOffers),
+    observedRetailerCount,
+    observedRetailerKeys,
+    latestVerificationAt: presentation.checkedAt,
+    presentationState: presentation.state,
     verifiedCostPer5gCreatine: cheapestOffer ? getVerifiedCostPer5gCreatine(
       cheapestOffer.deliveredPrice,
       effectiveMetrics.serving_count_verified,
@@ -1112,9 +1166,7 @@ function applyProductFilters(
 
     if (
       filters.retailer &&
-      !product.validOffers.some(
-        (offer) => retailerFilterValue(offer.retailer) === filters.retailer
-      )
+      !product.observedRetailerKeys.includes(filters.retailer)
     ) {
       return false;
     }
@@ -1240,8 +1292,6 @@ export async function searchProducts(
     .eq("is_active", true)
     .is("merged_into_product_id", null)
     .is("merged_at", null)
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .or(buildSearchFilter(sanitizedQuery))
     .order("name")
     .range(0, SEARCH_RESULT_LOAD_LIMIT - 1);
@@ -1372,8 +1422,6 @@ export async function getSearchSuggestions(query: string, limit?: number) {
     .is("merged_into_product_id", null)
     .is("merged_at", null)
     .not("slug", "is", null)
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .or(buildSearchFilter(sanitizedQuery))
     .order("name")
     .range(0, SEARCH_SUGGESTION_LOAD_LIMIT - 1);
@@ -1541,8 +1589,6 @@ export async function getLandingProducts(
       .eq("is_active", true)
       .is("merged_into_product_id", null)
       .is("merged_at", null)
-      .eq("offers.in_stock", true)
-      .gt("offers.price", 0)
       .or(buildLandingProductFilter(sanitizedQueries))
       .order("name")
       .order("id")

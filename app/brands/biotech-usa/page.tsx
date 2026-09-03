@@ -5,6 +5,7 @@ import CategoryViewAnalytics from "../../components/CategoryViewAnalytics";
 import {
   ComparisonProductThumbnail,
   OfferCheckedBadge,
+  UnavailableComparisonProductCard,
 } from "../../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../../components/ComparisonTransparencyLinks";
 import {
@@ -123,6 +124,9 @@ export function buildBioTechUSAStructuredData(rows: BioTechUSABrandRow[]) {
 }
 
 function ProductCard({ row, position }: { row: BioTechUSABrandRow; position: number }) {
+  if (!row.bestOffer) {
+    return <UnavailableComparisonProductCard row={row} position={position} />;
+  }
   const retailerNames = [
     ...new Set(row.offers.map((offer) => offer.retailer.name)),
   ];

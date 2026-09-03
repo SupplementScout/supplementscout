@@ -10,10 +10,10 @@ import {
   type RawComparisonOffer,
 } from "./categoryComparison";
 import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
+import { isOfferFresh } from "./offerFreshness";
 import { supabase } from "./supabase";
 
 const QUERY_LIMIT = 1000;
-export const PROTEIN_BARS_MAXIMUM_OFFER_AGE_HOURS = 24;
 
 export const PROTEIN_BARS_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -95,10 +95,7 @@ export function isProteinBarsOfferFresh(
   checkedAt: string | null,
   now = new Date()
 ) {
-  const checkedAtTime = checkedAt ? Date.parse(checkedAt) : Number.NaN;
-  if (!Number.isFinite(checkedAtTime)) return false;
-  const ageHours = (now.getTime() - checkedAtTime) / 3_600_000;
-  return ageHours >= 0 && ageHours <= PROTEIN_BARS_MAXIMUM_OFFER_AGE_HOURS;
+  return isOfferFresh(checkedAt, now);
 }
 
 export function isExactProteinBarsPackOffer(
@@ -174,8 +171,6 @@ async function loadProteinBarsComparison(): Promise<ProteinBarsComparisonResult>
     .is("merged_into_product_id", null)
     .is("merged_at", null)
     .eq("category", "Protein Bars")
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, QUERY_LIMIT - 1);
 

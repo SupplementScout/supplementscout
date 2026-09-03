@@ -47,7 +47,11 @@ import {
 } from "../../lib/productOfferGroups";
 import { supabase } from "../../lib/supabase";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
-import { isOfferFresh } from "../../lib/offerFreshness";
+import {
+  classifyOfferCollection,
+  OFFER_PRESENTATION_LABELS,
+  isOfferFresh,
+} from "../../lib/offerFreshness";
 
 type ProductRouteProduct = {
   id: string;
@@ -257,7 +261,6 @@ export default async function ProductPage({
     )
   `)
     .eq("product_id", product.id)
-    .eq("in_stock", true)
     .order("price", { ascending: true });
 
   const offerRows = (offers || []) as unknown as ProductOfferQueryRow[];
@@ -288,7 +291,7 @@ export default async function ProductPage({
     )
   );
 
-  const productOffers = offerRows.map(
+  const allProductOffers = offerRows.map(
     (offer): ProductOffer => {
       const retailerProduct = enrichmentByRetailerProductId.get(
         String(offer.retailer_product_id)
@@ -309,7 +312,20 @@ export default async function ProductPage({
         external_options: retailerProduct?.external_options || null,
       };
     }
-  ).filter((offer) => isOfferFresh(offer.last_checked_at));
+  );
+  const productOffers = allProductOffers.filter(
+    (offer) => offer.in_stock === true && isOfferFresh(offer.last_checked_at)
+  );
+  const offerPresentation = classifyOfferCollection(allProductOffers);
+  const latestVerificationDate = formatOfferCheckedDate(
+    offerPresentation.checkedAt
+  );
+  const observedRetailerCount = new Set(
+    allProductOffers
+      .map((offer) => offer.retailer?.id)
+      .filter((retailerId) => retailerId !== null && retailerId !== undefined)
+      .map(String)
+  ).size;
 
   const offerIds = productOffers.map((offer) => offer.id);
 
@@ -644,7 +660,7 @@ export default async function ProductPage({
                 <div className="grid min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                   <div className="min-w-0 max-w-full">
                     <p className="text-sm font-semibold text-[#4B5563]">
-                      {bestOfferPrice?.label || "Price unavailable"}
+                      {bestOfferPrice?.label || OFFER_PRESENTATION_LABELS[offerPresentation.state]}
                     </p>
                     <div className="mt-1 break-words text-[48px] font-extrabold leading-none text-[#111827] [overflow-wrap:anywhere] sm:text-6xl lg:text-5xl">
                       {bestOfferPrice?.primaryPrice || "Price unavailable"}
@@ -666,6 +682,25 @@ export default async function ProductPage({
                             : "Price check date unavailable"}
                         </p>
                         <p>You’ll continue to the retailer’s external store.</p>
+                      </div>
+                    )}
+                    {!cheapestOffer && (
+                      <div className="mt-4 space-y-1 border-t border-zinc-200 pt-4 text-sm text-[#4B5563]">
+                        <p className="font-semibold text-[#111827]">
+                          {offerPresentation.state === "RECENT"
+                            ? "Previously in stock; availability is being rechecked."
+                            : offerPresentation.state === "OUT_OF_STOCK"
+                              ? "A current retailer check confirmed this product is out of stock."
+                              : "Retailer availability is being rechecked."}
+                        </p>
+                        {latestVerificationDate && (
+                          <p>Latest verification: {latestVerificationDate}</p>
+                        )}
+                        {observedRetailerCount > 0 && (
+                          <p>
+                            Evidence from {observedRetailerCount} retailer{observedRetailerCount === 1 ? "" : "s"}; no old price is shown as current.
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -882,7 +917,10 @@ export default async function ProductPage({
                     />
                   ))
                 ) : (
-                  <p className="text-sm font-medium text-gray-700">No offers available.</p>
+                  <p className="text-sm font-medium text-gray-700">
+                    {OFFER_PRESENTATION_LABELS[offerPresentation.state]}
+                    {latestVerificationDate ? `; latest verification ${latestVerificationDate}` : ""}.
+                  </p>
                 )}
               </div>
             </div>

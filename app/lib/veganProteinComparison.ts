@@ -16,9 +16,9 @@ import {
   hasReviewedVeganProteinIdentity,
 } from "./proteinSubtypes";
 import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
+import { isOfferFresh } from "./offerFreshness";
 
 const QUERY_LIMIT = 1000;
-export const VEGAN_PROTEIN_MAXIMUM_OFFER_AGE_HOURS = 24;
 
 export const VEGAN_PROTEIN_INDEX_GATE = {
   minimumProductsWithMultipleFreshRetailers: 3,
@@ -57,10 +57,7 @@ export function isVeganProteinOfferFresh(
   checkedAt: string | null,
   now = new Date()
 ) {
-  const checkedAtTime = checkedAt ? Date.parse(checkedAt) : Number.NaN;
-  if (!Number.isFinite(checkedAtTime)) return false;
-  const ageHours = (now.getTime() - checkedAtTime) / 3_600_000;
-  return ageHours >= 0 && ageHours <= VEGAN_PROTEIN_MAXIMUM_OFFER_AGE_HOURS;
+  return isOfferFresh(checkedAt, now);
 }
 
 export function isVeganProteinProduct(product: RawVeganProteinProduct) {
@@ -124,8 +121,6 @@ async function loadVeganProteinComparison(): Promise<VeganProteinComparisonResul
     .is("merged_into_product_id", null)
     .is("merged_at", null)
     .or("name.ilike.%vegan%,name.ilike.%plant%,name.ilike.%pea%,name.ilike.%rice%,name.ilike.%hemp%")
-    .eq("offers.in_stock", true)
-    .gt("offers.price", 0)
     .order("name")
     .range(0, QUERY_LIMIT - 1);
 
