@@ -225,9 +225,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 174,
+    ledgerCount: 176,
     ledgerFingerprint:
-      "9b87ac839ee0b1ad5c0f551a2a3859ebea7d7d8e2f5fe5319e89e8630aff6f2f",
+      "eaf5345aced2dc25e9cf4fe24e0b064d274c9950fa1e705b11c258057facbc41",
     excluded: Object.freeze({
       "20260717120000_create_retailer_catalogue_control_ledger.sql":
         "df8539d1b63cdd37ac58fce40c1bd7fc6165982294b1554ed1f2945a62988270",
@@ -244,16 +244,7 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([
-      Object.freeze({
-        filename: "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql",
-        sha256: "138ad03243e58fb6efac6246dcee528771ae24f7c8c10c290de7670c94c47618",
-      }),
-      Object.freeze({
-        filename: "20260903101000_supersede_expired_fit_house_control_plan.sql",
-        sha256: "27c235580b0a4d253ecb48f99f672a2f09f6103507005caa1e3c268010a18901",
-      }),
-    ]),
+    pending: Object.freeze([]),
   }),
 });
 

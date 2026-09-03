@@ -186,16 +186,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the executor ACL repair as applied and seals the Whey and Fit House repairs pending", () => {
+test("production records the Whey and Fit House repairs as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [
-    { filename: WHEY_REVIEWED_SCOPE_MIGRATION, sha256: WHEY_REVIEWED_SCOPE_SHA256 },
-    { filename: FIT_HOUSE_EXPIRED_PLAN_MIGRATION, sha256: FIT_HOUSE_EXPIRED_PLAN_SHA256 },
-  ]);
-  assert.equal(contract.ledgerCount, 174);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 176);
   assert.equal(
     contract.ledgerFingerprint,
-    "9b87ac839ee0b1ad5c0f551a2a3859ebea7d7d8e2f5fe5319e89e8630aff6f2f",
+    "eaf5345aced2dc25e9cf4fe24e0b064d274c9950fa1e705b11c258057facbc41",
   );
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
@@ -277,7 +274,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and exposes only the Whey and Fit House repairs as pending", () => {
+test("production binds its exact ledger with the Whey and Fit House repairs applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -303,16 +300,13 @@ test("production binds its exact ledger and exposes only the Whey and Fit House 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 174);
+  assert.equal(result.ledger_count, 176);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 176);
-  assert.deepEqual(result.pending_files, [WHEY_REVIEWED_SCOPE_MIGRATION, FIT_HOUSE_EXPIRED_PLAN_MIGRATION]);
+  assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {
-    [WHEY_REVIEWED_SCOPE_MIGRATION]: WHEY_REVIEWED_SCOPE_SHA256,
-    [FIT_HOUSE_EXPIRED_PLAN_MIGRATION]: FIT_HOUSE_EXPIRED_PLAN_SHA256,
-  });
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_DIGEST_FIX_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION));
