@@ -214,6 +214,8 @@ const CONTRACTS = Object.freeze({
         "65b173e91a642838a68ab39a61862f96efc2f44e4ef63539eb9640e3a54e2aa4",
       "20260903140000_apply_reviewed_ebay_34_remediation.sql":
         "04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13",
+      "20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql":
+        "b6c995c405b441f7fe62dc1efc6a090f9556594a5d2b0ee8e777023b9b978abe",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -248,7 +250,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql",
+        sha256: "b6c995c405b441f7fe62dc1efc6a090f9556594a5d2b0ee8e777023b9b978abe",
+      }),
+    ]),
   }),
 });
 

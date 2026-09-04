@@ -69,7 +69,7 @@ const PROFILES = Object.freeze({
     credential: "WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL",
     manifestPath: "config/retailers/whey-okay-approved-offer-manifest.json",
     manifestEnvironment: "production",
-    approvedMappingCount: 586,
+    approvedMappingCount: 589,
   },
 });
 

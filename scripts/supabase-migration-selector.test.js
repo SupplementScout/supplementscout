@@ -42,6 +42,8 @@ const WHEY_REGISTRATION_EXCLUSION_MIGRATION = "20260903130000_exclude_reviewed_w
 const WHEY_REGISTRATION_EXCLUSION_SHA256 = "65b173e91a642838a68ab39a61862f96efc2f44e4ef63539eb9640e3a54e2aa4";
 const EBAY_REVIEWED_34_MIGRATION = "20260903140000_apply_reviewed_ebay_34_remediation.sql";
 const EBAY_REVIEWED_34_SHA256 = "04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13";
+const WHEY_REVIEWED_3_MIGRATION = "20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql";
+const WHEY_REVIEWED_3_SHA256 = "b6c995c405b441f7fe62dc1efc6a090f9556594a5d2b0ee8e777023b9b978abe";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -190,9 +192,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the eBay reviewed remediation as applied", () => {
+test("production records the eBay remediation and exposes only the reviewed Whey migration as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{ filename: WHEY_REVIEWED_3_MIGRATION, sha256: WHEY_REVIEWED_3_SHA256 }]);
   assert.equal(contract.ledgerCount, 178);
   assert.equal(
     contract.ledgerFingerprint,
@@ -205,6 +207,7 @@ test("production records the eBay reviewed remediation as applied", () => {
   assert.equal(sha256File(path.join(SOURCE, FIT_HOUSE_EXPIRED_PLAN_MIGRATION)), FIT_HOUSE_EXPIRED_PLAN_SHA256);
   assert.equal(sha256File(path.join(SOURCE, WHEY_REGISTRATION_EXCLUSION_MIGRATION)), WHEY_REGISTRATION_EXCLUSION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, EBAY_REVIEWED_34_MIGRATION)), EBAY_REVIEWED_34_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, WHEY_REVIEWED_3_MIGRATION)), WHEY_REVIEWED_3_SHA256);
 });
 
 test("an additional pending migration fails closed", () => {
@@ -280,7 +283,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the eBay reviewed remediation applied", () => {
+test("production binds its exact ledger with one reviewed Whey remediation pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -308,11 +311,12 @@ test("production binds its exact ledger with the eBay reviewed remediation appli
   });
   assert.equal(result.ledger_count, 178);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 178);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 179);
+  assert.deepEqual(result.pending_files, [WHEY_REVIEWED_3_MIGRATION]);
+  assert.equal(result.pending_file, WHEY_REVIEWED_3_MIGRATION);
+  assert.equal(result.pending_sha256, WHEY_REVIEWED_3_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [WHEY_REVIEWED_3_MIGRATION]: WHEY_REVIEWED_3_SHA256 });
+  assert.ok(result.selected_files.includes(WHEY_REVIEWED_3_MIGRATION));
   assert.ok(result.selected_files.includes(EBAY_REVIEWED_34_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_DIGEST_FIX_MIGRATION));

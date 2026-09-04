@@ -16,8 +16,8 @@
     "gtin_required_at_refresh": false,
     "mpn_required_at_refresh": false
   },
-  "approved_mapping_count": 586,
-  "legacy_mapping_count_excluded": 284,
+  "approved_mapping_count": 589,
+  "legacy_mapping_count_excluded": 281,
   "evidence_timestamp": "2026-07-24T06:12:58.942Z",
   "approved_catalogue_ledger": {
     "sha256": "C38F445DA81FEC006B66697AC591199686023C47EB54F7078D53CD6A0609C5E7",
@@ -27,6 +27,10 @@
     {
       "mapping_id": 11,
       "reason": "material current feed price and URL identity drift"
+    },
+    {
+      "mapping_id": 65,
+      "reason": "reviewed offer 73 remains outside autonomous scope"
     },
     {
       "mapping_id": 150,
@@ -2742,6 +2746,61 @@
         }
       },
       "evidence_timestamp": "2026-07-24T06:12:58.942Z"
+    },
+    {
+      "source_key": "65:66",
+      "retailer_id": 3,
+      "ekm_parent_id": "65",
+      "ekm_variant_id": "66",
+      "canonical_target": {
+        "product_id": 19,
+        "variant_key": "watermelon-380g",
+        "display_name": "Watermelon / 380g",
+        "flavour_code": "watermelon",
+        "flavour_label": "Watermelon",
+        "size_value": 380,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_format": "powder",
+        "is_active": true,
+        "is_default": false
+      },
+      "evidence": {
+        "sku": "5060763890411",
+        "gtin": "5060763890411",
+        "source": "owner-reviewed-ekm-export-and-existing-canonical-variant"
+      },
+      "normalized_option_tuple": {
+        "flavour": "Watermelon",
+        "size": "380g"
+      },
+      "approved_url_identity": "https://wheyokay.com/dorian-yates-blood--guts-pre-workout-380g-65-p.asp",
+      "frozen_offer_state": {
+        "price": "26.31",
+        "shipping_cost": "3.99",
+        "total_price": null,
+        "in_stock": false,
+        "classification": "inactive"
+      },
+      "environment_bindings": {
+        "staging": {
+          "mapping_id": 18,
+          "offer_id": 23,
+          "canonical_product_id": 19,
+          "canonical_variant_id": 770,
+          "mapping_updated_at": "2026-09-04T05:01:08.003Z",
+          "offer_last_checked_at": "2026-09-04T05:01:08.003Z"
+        },
+        "production": {
+          "mapping_id": 18,
+          "offer_id": 23,
+          "canonical_product_id": 19,
+          "canonical_variant_id": 770,
+          "mapping_updated_at": "2026-09-04T05:01:08.003Z",
+          "offer_last_checked_at": "2026-09-04T05:01:08.003Z"
+        }
+      },
+      "evidence_timestamp": "2026-09-04T05:01:08.003Z"
     },
     {
       "source_key": "65:67",
@@ -13248,6 +13307,61 @@
       "evidence_timestamp": "2026-07-24T06:12:58.942Z"
     },
     {
+      "source_key": "847:848",
+      "retailer_id": 3,
+      "ekm_parent_id": "847",
+      "ekm_variant_id": "848",
+      "canonical_target": {
+        "product_id": 158,
+        "variant_key": "chocolate-5400g",
+        "display_name": "Chocolate / 5.4kg",
+        "flavour_code": "chocolate",
+        "flavour_label": "Chocolate",
+        "size_value": 5400,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_format": "powder",
+        "is_active": true,
+        "is_default": false
+      },
+      "evidence": {
+        "sku": "5060245600446",
+        "gtin": "5060245600446",
+        "source": "owner-reviewed-ekm-export-and-existing-canonical-variant"
+      },
+      "normalized_option_tuple": {
+        "flavour": "Chocolate",
+        "size": "5.4kg"
+      },
+      "approved_url_identity": "https://wheyokay.com/optimum-nutrition-serious-mass--54kg-847-p.asp",
+      "frozen_offer_state": {
+        "price": "57.99",
+        "shipping_cost": "3.99",
+        "total_price": null,
+        "in_stock": false,
+        "classification": "inactive"
+      },
+      "environment_bindings": {
+        "staging": {
+          "mapping_id": 171,
+          "offer_id": 162,
+          "canonical_product_id": 158,
+          "canonical_variant_id": 747,
+          "mapping_updated_at": "2026-09-04T05:01:08.003Z",
+          "offer_last_checked_at": "2026-09-04T05:01:08.003Z"
+        },
+        "production": {
+          "mapping_id": 171,
+          "offer_id": 162,
+          "canonical_product_id": 158,
+          "canonical_variant_id": 747,
+          "mapping_updated_at": "2026-09-04T05:01:08.003Z",
+          "offer_last_checked_at": "2026-09-04T05:01:08.003Z"
+        }
+      },
+      "evidence_timestamp": "2026-09-04T05:01:08.003Z"
+    },
+    {
       "source_key": "847:849",
       "retailer_id": 3,
       "ekm_parent_id": "847",
@@ -17900,6 +18014,61 @@
         }
       },
       "evidence_timestamp": "2026-07-24T06:12:58.942Z"
+    },
+    {
+      "source_key": "1504:1504",
+      "retailer_id": 3,
+      "ekm_parent_id": "1504",
+      "ekm_variant_id": "1504",
+      "canonical_target": {
+        "product_id": 231,
+        "variant_key": "unflavoured-317g",
+        "display_name": "Unflavoured / 317g",
+        "flavour_code": "unflavoured",
+        "flavour_label": "Unflavoured",
+        "size_value": 317,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_format": "powder",
+        "is_active": true,
+        "is_default": false
+      },
+      "evidence": {
+        "sku": "5060245605397",
+        "gtin": "5060245605397",
+        "source": "owner-reviewed-ekm-export-and-existing-canonical-variant-gtin"
+      },
+      "normalized_option_tuple": {
+        "flavour": "Unflavoured",
+        "size": "317g"
+      },
+      "approved_url_identity": "https://wheyokay.com/optimum-nutrition-micronised-creatine-317g-1504-p.asp",
+      "frozen_offer_state": {
+        "price": "23.72",
+        "shipping_cost": "3.99",
+        "total_price": "27.71",
+        "in_stock": true,
+        "classification": "active"
+      },
+      "environment_bindings": {
+        "staging": {
+          "mapping_id": 204,
+          "offer_id": 235,
+          "canonical_product_id": 231,
+          "canonical_variant_id": 783,
+          "mapping_updated_at": "2026-09-04T05:01:08.003Z",
+          "offer_last_checked_at": "2026-09-04T05:01:08.003Z"
+        },
+        "production": {
+          "mapping_id": 204,
+          "offer_id": 235,
+          "canonical_product_id": 231,
+          "canonical_variant_id": 783,
+          "mapping_updated_at": "2026-09-04T05:01:08.003Z",
+          "offer_last_checked_at": "2026-09-04T05:01:08.003Z"
+        }
+      },
+      "evidence_timestamp": "2026-09-04T05:01:08.003Z"
     },
     {
       "source_key": "1507:1508",

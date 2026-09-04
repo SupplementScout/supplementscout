@@ -41,8 +41,8 @@ const workflow = fs.readFileSync(
 test("Whey Okay DB postflight is manifest-scoped and surrounds apply", () => {
   const profile = PROFILES["whey-okay"];
   const offerIds = approvedOfferIds(profile);
-  assert.equal(offerIds.length, 586);
-  assert.equal(new Set(offerIds).size, 586);
+  assert.equal(offerIds.length, 589);
+  assert.equal(new Set(offerIds).size, 589);
   const baselineIndex = workflow.indexOf("Capture Whey Okay DB baseline read-only");
   const applyIndex = workflow.indexOf("Apply all approved Whey Okay offer refreshes");
   const postflightIndex = workflow.indexOf("Verify Whey Okay DB postflight read-only");
@@ -124,11 +124,11 @@ function classify(targets, sources, overrides = {}) {
   });
 }
 
-test("frozen manifest contains exactly 586 unique approved mappings", () => {
+test("production manifest contains exactly 589 unique approved mappings", () => {
   const { manifest, sha256 } = loadManifest();
   assert.equal(sha256, config.manifest_sha256);
-  assert.equal(manifest.rows.length, 586);
-  assert.equal(new Set(manifest.rows.map((row) => row.source_key)).size, 586);
+  assert.equal(manifest.rows.length, 589);
+  assert.equal(new Set(manifest.rows.map((row) => row.source_key)).size, 589);
   assert.equal(
     new Set(
       manifest.rows.map(
@@ -138,7 +138,7 @@ test("frozen manifest contains exactly 586 unique approved mappings", () => {
           )}`,
       ),
     ).size,
-    586,
+    589,
   );
   for (const id of [11, 150, 191, 249]) {
     assert.equal(
@@ -151,6 +151,15 @@ test("frozen manifest contains exactly 586 unique approved mappings", () => {
     );
   }
   assert.equal(manifest.permanent_q3_q4_exception_count, 80);
+});
+
+test("staging projection retains the original frozen 586-row manifest", () => {
+  const { manifest, sha256 } = loadManifest("staging");
+  assert.equal(sha256, config.staging_scope.manifest_sha256);
+  assert.equal(manifest.rows.length, 586);
+  for (const sourceKey of config.staging_scope.production_only_source_keys) {
+    assert.equal(manifest.rows.some((row) => row.source_key === sourceKey), false);
+  }
 });
 
 test("Critical Cookie bindings follow the reviewed production family variants", () => {

@@ -227,8 +227,8 @@ test("reviewed creatine rebinding advances only the frozen manifest hash and is 
 
 test("reviewed offer 73 remains outside the exact autonomous 586-row scope", () => {
   assert.deepEqual(wheyConfig.reviewed_exception_mapping_ids, [11, 65, 150, 191, 249]);
-  assert.equal(wheyConfig.approved_mapping_count, 586);
-  assert.equal(wheyConfig.legacy_mapping_count, 284);
+  assert.equal(wheyConfig.approved_mapping_count, 589);
+  assert.equal(wheyConfig.legacy_mapping_count, 281);
   assert.match(reviewedOffer73ScopeMigration, /v_approved_count = 587 and v_legacy_count = 283/);
   assert.match(reviewedOffer73ScopeMigration, /rp\.id=65[\s\S]+o\.id=73[\s\S]+v\.id=3217/);
   assert.match(reviewedOffer73ScopeMigration, /external_product_id='300'[\s\S]+external_variant_id='301'/);

@@ -186,20 +186,51 @@ async function roleCall(target, kind, readOnly, body) {
 function manifestPath() {
   return path.join(ROOT, config.manifest_path);
 }
-function loadManifest() {
+function scopeForTarget(target = "production") {
+  if (target === "staging") {
+    return {
+      approvedMappingCount: config.staging_scope.approved_mapping_count,
+      legacyMappingCount: config.staging_scope.legacy_mapping_count,
+    };
+  }
+  return {
+    approvedMappingCount: config.approved_mapping_count,
+    legacyMappingCount: config.legacy_mapping_count,
+  };
+}
+function loadManifest(target = "production") {
   const bytes = fs.readFileSync(manifestPath());
   const actual = sha256(bytes).toUpperCase();
   invariant(actual === config.manifest_sha256, "approved manifest SHA mismatch");
-  const manifest = JSON.parse(bytes);
+  const fullManifest = JSON.parse(bytes);
   invariant(
-    manifest.retailer.id === config.retailer_id &&
-      manifest.approved_mapping_count === config.approved_mapping_count &&
-      manifest.rows.length === config.approved_mapping_count,
+    fullManifest.retailer.id === config.retailer_id &&
+      fullManifest.approved_mapping_count === config.approved_mapping_count &&
+      fullManifest.rows.length === config.approved_mapping_count,
     "approved manifest scope mismatch",
   );
+  let manifest = fullManifest;
+  let targetSha256 = actual;
+  if (target === "staging") {
+    const productionOnly = new Set(config.staging_scope.production_only_source_keys);
+    manifest = structuredClone(fullManifest);
+    manifest.approved_mapping_count = config.staging_scope.approved_mapping_count;
+    manifest.legacy_mapping_count_excluded = config.staging_scope.legacy_mapping_count;
+    manifest.reviewed_exceptions = manifest.reviewed_exceptions.filter(
+      (row) => row.mapping_id !== 65,
+    );
+    manifest.rows = manifest.rows.filter((row) => !productionOnly.has(row.source_key));
+    targetSha256 = sha256(`${JSON.stringify(manifest, null, 2)}\n`).toUpperCase();
+    invariant(
+      targetSha256 === config.staging_scope.manifest_sha256,
+      "staging manifest projection SHA mismatch",
+    );
+  }
+  const scope = scopeForTarget(target);
+  invariant(manifest.rows.length === scope.approvedMappingCount, "target manifest scope mismatch");
   invariant(
     new Set(manifest.rows.map((row) => row.source_key)).size ===
-      config.approved_mapping_count,
+      scope.approvedMappingCount,
     "approved manifest duplicate source identity",
   );
   for (const id of config.reviewed_exception_mapping_ids) {
@@ -212,7 +243,7 @@ function loadManifest() {
       `reviewed exception ${id} entered manifest`,
     );
   }
-  return { manifest, sha256: actual };
+  return { manifest, sha256: targetSha256 };
 }
 function reviewedSourceRow(row) {
   return {
@@ -396,12 +427,13 @@ async function readState(target) {
     ),
   );
   const state = normalizeStatePayload(call.result.rows[0].state);
-  const { manifest } = loadManifest();
+  const { manifest } = loadManifest(target);
+  const scope = scopeForTarget(target);
   invariant(state.retailer.id === config.retailer_id, "retailer identity drift");
   invariant(
-    state.counts.approved_mappings === config.approved_mapping_count &&
-      state.counts.approved_offers === config.approved_mapping_count &&
-      state.counts.legacy_mappings === config.legacy_mapping_count,
+    state.counts.approved_mappings === scope.approvedMappingCount &&
+      state.counts.approved_offers === scope.approvedMappingCount &&
+      state.counts.legacy_mappings === scope.legacyMappingCount,
     "Whey Okay approved/legacy scope drift",
   );
   invariant(
@@ -433,7 +465,7 @@ async function readState(target) {
       return { ...record, approved, source_key: sourceKey };
     })
     .sort((left, right) => Number(left.offer.id) - Number(right.offer.id));
-  invariant(records.length === config.approved_mapping_count, "record count drift");
+  invariant(records.length === scope.approvedMappingCount, "record count drift");
   return { ...state, records, identity: call.identity };
 }
 function money(value) {
@@ -774,7 +806,8 @@ function mappedFeedFingerprint(records, sourceVariants) {
 }
 async function buildRun(target, state, diagnostic = null, options = {}) {
   const spec = TARGETS[target];
-  const approved = loadManifest();
+  const scope = scopeForTarget(target);
+  const approved = loadManifest(target);
   const reviewed = loadReviewedMassOosManifest(
     options.reviewedMassOosSelector,
     approved.manifest,
@@ -821,7 +854,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
   const sourceVariants = projectFeedVariants(feed, targetByKey);
   const policy = {
     ...config.guardrails,
-    required_matched_offers: config.approved_mapping_count,
+    required_matched_offers: scope.approvedMappingCount,
     store_url: config.store_url,
   };
   let classification = classifyExistingOffers({
@@ -884,7 +917,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
   if (
     !options.isolateUnsafe &&
     classification.state !== "DRY_RUN_READY" ||
-    !options.isolateUnsafe && classification.rows.length !== config.approved_mapping_count
+    !options.isolateUnsafe && classification.rows.length !== scope.approvedMappingCount
   ) {
     throw new RefreshError(
       classification.reason || "CLASSIFIER_BLOCKED",
@@ -1049,9 +1082,9 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
       : [];
   });
   if (diagnostic) {
-    diagnostic.approved_mapping_count = config.approved_mapping_count;
+    diagnostic.approved_mapping_count = scope.approvedMappingCount;
     diagnostic.mappings_matched =
-      config.approved_mapping_count - discovery.missing_rows.length;
+      scope.approvedMappingCount - discovery.missing_rows.length;
     diagnostic.mappings_missing = discovery.missing_rows.length;
     diagnostic.guard_results.push({
       guard: "APPROVED_MANIFEST_COVERAGE",
@@ -1059,7 +1092,7 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
         discovery.missing_rows,
         options.isolateUnsafe,
       ),
-      expected: config.approved_mapping_count,
+      expected: scope.approvedMappingCount,
       matched: diagnostic.mappings_matched,
       missing: discovery.missing_rows.length,
     });
@@ -1079,6 +1112,8 @@ async function buildRun(target, state, diagnostic = null, options = {}) {
       rows: manifest,
     }),
     approvedManifestSha256: approved.sha256,
+    approvedMappingCount: scope.approvedMappingCount,
+    legacyMappingCount: scope.legacyMappingCount,
     reviewedMassOos: reviewedAuthorization.review,
     binding,
     head,
@@ -1226,7 +1261,7 @@ async function register(run, request) {
   const result = call.result.rows[0].result;
   invariant(
     result.status === "REGISTERED" &&
-      Number(result.mapping_count) === config.approved_mapping_count &&
+      Number(result.mapping_count) === run.approvedMappingCount &&
       Number(result.child_count) === run.artifacts.length &&
       Number(result.business_writes) === 0,
     "registration failed",
@@ -1382,8 +1417,8 @@ async function executeRefresh(args, diagnostic) {
       });
   if (immutablePreflight) {
     diagnostic.source = run.feed.diagnostic;
-    diagnostic.approved_mapping_count = config.approved_mapping_count;
-    diagnostic.mappings_matched = config.approved_mapping_count - run.discovery.missing_rows.length;
+    diagnostic.approved_mapping_count = run.approvedMappingCount;
+    diagnostic.mappings_matched = run.approvedMappingCount - run.discovery.missing_rows.length;
     diagnostic.mappings_missing = run.discovery.missing_rows.length;
     diagnostic.guard_results.push({
       guard: "IMMUTABLE_PREFLIGHT",
@@ -1409,7 +1444,7 @@ async function executeRefresh(args, diagnostic) {
   const reviewRows = (run.classification.quarantined_rows || []).map((row) => ({ offer_id: String(row.offer_id), reason: row.reason, external_product_id: String(row.external_product_id), external_variant_id: String(row.external_variant_id) }));
   const executablePlanCount = run.classification.rows.length;
   if (run.artifacts.length === 0) {
-    const output = { result: "PASS_WITH_REVIEW", mode: args.mode, target: args.target, approved_mapping_count: config.approved_mapping_count, executable_plan_count: 0, executed_plan_count: 0, review_row_count: reviewRows.length, blocked_row_count: 0, scope: { mappings: config.approved_mapping_count, offers: config.approved_mapping_count, children: 0, rows: 0 }, review_rows: reviewRows, validator_batches: 0, safe_update: "unset" };
+    const output = { result: "PASS_WITH_REVIEW", mode: args.mode, target: args.target, approved_mapping_count: run.approvedMappingCount, executable_plan_count: 0, executed_plan_count: 0, review_row_count: reviewRows.length, blocked_row_count: 0, scope: { mappings: run.approvedMappingCount, offers: run.approvedMappingCount, children: 0, rows: 0 }, review_rows: reviewRows, validator_batches: 0, safe_update: "unset" };
     write(`${artifactPrefix(args.target, args.mode)}-${args.mode}.json`, output);
     return output;
   }
@@ -1425,7 +1460,7 @@ async function executeRefresh(args, diagnostic) {
     result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS",
     mode: args.mode,
     target: args.target,
-    approved_mapping_count: config.approved_mapping_count,
+    approved_mapping_count: run.approvedMappingCount,
     executable_plan_count: executablePlanCount,
     executed_plan_count: 0,
     review_row_count: reviewRows.length,
@@ -1434,12 +1469,12 @@ async function executeRefresh(args, diagnostic) {
     source: run.feed.diagnostic,
     manifest: {
       sha256: run.approvedManifestSha256,
-      rows: config.approved_mapping_count,
+      rows: run.approvedMappingCount,
     },
     scope: {
-      mappings: config.approved_mapping_count,
-      offers: config.approved_mapping_count,
-      legacy_excluded: config.legacy_mapping_count,
+      mappings: run.approvedMappingCount,
+      offers: run.approvedMappingCount,
+      legacy_excluded: run.legacyMappingCount,
       children: run.artifacts.length,
     },
     classification,

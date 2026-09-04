@@ -868,7 +868,7 @@ test("shared DB postflight covers nine exact retailer scopes", () => {
     "kior-health": [11, 11],
     "simply-supplements": [120, null],
     "six-pack-supplements": [506, 506],
-    "whey-okay": [586, 586],
+    "whey-okay": [589, 589],
   };
 
   assert.deepEqual(Object.keys(postflightProfiles).sort(), Object.keys(expected));

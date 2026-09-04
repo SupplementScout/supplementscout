@@ -7,9 +7,19 @@
   "source_url": "https://wheyokay.com/ekmps/shops/2ab763/data/ekm_p_2ab763.txt",
   "source_classification": "FULL_AUTOMATIC_SOURCE",
   "manifest_path": "config/retailers/whey-okay-approved-offer-manifest.json",
-  "manifest_sha256": "52565DB2747D905FA2DB68162EBD56B1B4E5B8A3D007BB10C144F2213E216905",
-  "approved_mapping_count": 586,
-  "legacy_mapping_count": 284,
+  "manifest_sha256": "0B98D44E0C1811ED753202366F49B769F057CF31DD772E95FCF8695A41F293EA",
+  "approved_mapping_count": 589,
+  "legacy_mapping_count": 281,
+  "staging_scope": {
+    "approved_mapping_count": 586,
+    "legacy_mapping_count": 284,
+    "manifest_sha256": "52565DB2747D905FA2DB68162EBD56B1B4E5B8A3D007BB10C144F2213E216905",
+    "production_only_source_keys": [
+      "65:66",
+      "847:848",
+      "1504:1504"
+    ]
+  },
   "source_baseline": {
     "product_count": 520,
     "row_count": 1678,
@@ -26,7 +36,7 @@
     "user_agent": "SupplementScout-Whey-Okay-Refresh/1.0"
   },
   "guardrails": {
-    "required_matched_offers": 586,
+    "required_matched_offers": 589,
     "source_freshness_hours": 24,
     "future_clock_skew_minutes": 5,
     "full_snapshot_minimum_source_count_ratio": 0.9,
