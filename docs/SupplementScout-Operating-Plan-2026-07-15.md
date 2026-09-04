@@ -1,11 +1,27 @@
 # SupplementScout Operating Plan
 
-**Status date:** 3 September 2026<br>
+**Status date:** 4 September 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
 **Automation reliability status:** The P0 Automation Reliability Sprint is closed with monitored backlog. The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) remains the evidence source, but no longer blocks product development. Existing guarded workflows, Review Queue and alerts own ordinary freshness, OOS, source and review backlog.
+
+**4 September 2026 Whey Okay three-row remediation checkpoint:** the exact
+owner-approved migration
+`20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql` was applied
+alone before artifact expiry. It rebound mapping/offer `18/23` to existing
+variant `770`, `171/162` to `747`, and `204/235` to `783`; it created or
+deleted no catalogue entity. Production counts remained products `1130`,
+variants `2850`, mappings `2808`, offers `2808`, while price history advanced
+`7945 -> 7946`. The migration ledger advanced `178 -> 179`, fingerprint
+`2e6bef2874e887d51c3599e05e371ad6545c35e945bcdae62c453d6c752a5d08`.
+Independent read-only postflight passed all three exact identities and the one
+expected history row with database writes `0`. The existing Whey Okay
+automation scope is now `589`, with `281` legacy rows remaining after excluding
+the separately reviewed offer `73`. This bounded apply is complete; the wider
+repair remains in monitoring until several consecutive automatic successes and
+at least 48 hours without recurrence.
 
 **1 September 2026, 17:47 UTC final reliability checkpoint:** this checkpoint supersedes older reliability checkpoint statuses below. Final production audit was read-only with database writes `0` and evidence SHA-256 `2520eb28453314ea659238dd59c95aa987ed3a106de08e78f14873b8b3f83f08`. The protected write model is established: validator capture, per-row owner approval, artifact/commit/fingerprint binding, separate approver and executor roles, atomic apply, stale-state guards, idempotency, immutable audit, DB baseline/postflight, Review Queue publication, watchdog and Catalog Health. Whey Okay offer `73` has its exact approved final state; no replay occurred. Catalog Health remains `Critical` because `208` active products have no valid in-stock offer; stale >7/>30 is `343/321`; active Review Queue is `328 PENDING`, fully isolated. Watchdog run `33539129034` remains red from mixed age, missing evidence and evidence-correlation debt, not from a confirmed unisolated write. Verdict: `CLOSE_WITH_MONITORED_BACKLOG`.
 

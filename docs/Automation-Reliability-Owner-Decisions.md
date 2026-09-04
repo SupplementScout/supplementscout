@@ -1,5 +1,28 @@
 # Automation Reliability — Owner Decision Pack
 
+## Whey Okay three-row existing-variant remediation applied - 4 September 2026
+
+The exact owner approval for migration
+`20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql`, SHA-256
+`b6c995c405b441f7fe62dc1efc6a090f9556594a5d2b0ee8e777023b9b978abe`,
+was consumed before expiry. It was bound to run `33838335548`, artifact
+`9924141590`, semantic fingerprint
+`bcc8c9d0779fa6baa83ba1434b2f100d4fb1e53720c5cc0eff45fbe171cf6ce4`
+and manifest SHA-256
+`0b98d44e0c1811ed753202366f49b769f057cf31dd772e95fcf8695a41f293ea`.
+
+Production changed only mapping/offer `18/23` to existing variant `770`,
+`171/162` to `747`, and `204/235` to `783`. Exactly three offers were updated
+and one price-history row was added. Products, variants, mappings and offers
+remained `1130/2850/2808/2808`; price history became `7946`. The ledger is now
+`179`, fingerprint
+`2e6bef2874e887d51c3599e05e371ad6545c35e945bcdae62c453d6c752a5d08`.
+Independent read-only postflight passed with database writes `0`. Existing
+Whey Okay automation expanded `586 -> 589`; legacy reduced `284 -> 281`.
+This approval is consumed and is not reusable. The overall reliability repair
+still requires several consecutive successful automatic runs and at least 48
+hours without the alarm recurring.
+
 ## eBay reviewed 34-row remediation applied - 3 September 2026
 
 The owner gave the final exact artifact-and-hash approval for the `11`

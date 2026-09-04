@@ -1,5 +1,23 @@
 # Automation Reliability Roadmap
 
+### Whey Okay exact three-row remediation applied - 4 September 2026
+
+The existing migration selector applied only
+`20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql` under the
+owner's exact artifact-bound approval. Mapping/offer `18/23`, `171/162` and
+`204/235` now target existing variants `770`, `747` and `783`. No product,
+variant, mapping or offer was created or deleted; catalogue counts remain
+`1130/2850/2808/2808`, and price history advanced `7945 -> 7946`. Production
+ledger `179` has fingerprint
+`2e6bef2874e887d51c3599e05e371ad6545c35e945bcdae62c453d6c752a5d08`.
+Independent read-only postflight passed all exact rows with zero writes.
+
+The same Whey Okay automation now covers `589` mappings and the legacy scope is
+`281` after the separate offer `73` exclusion. No parallel automation was
+created. This apply is closed, but the parent reliability item stays in
+monitoring until several successive scheduled runs pass and at least 48 hours
+elapse without a repeated alarm.
+
 ### eBay reviewed 34-row remediation applied and verified - 3 September 2026
 
 The owner resolved the two bounded review groups: update the exact 11 fresh
