@@ -254,6 +254,7 @@ const CONTRACTS = Object.freeze({
       Object.freeze({
         filename: "20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql",
         sha256: "b6c995c405b441f7fe62dc1efc6a090f9556594a5d2b0ee8e777023b9b978abe",
+        expectedCatalogueDeltas: Object.freeze({ price_history: 1 }),
       }),
     ]),
   }),

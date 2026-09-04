@@ -194,7 +194,11 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the eBay remediation and exposes only the reviewed Whey migration as pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: WHEY_REVIEWED_3_MIGRATION, sha256: WHEY_REVIEWED_3_SHA256 }]);
+  assert.deepEqual(contract.pending, [{
+    filename: WHEY_REVIEWED_3_MIGRATION,
+    sha256: WHEY_REVIEWED_3_SHA256,
+    expectedCatalogueDeltas: { price_history: 1 },
+  }]);
   assert.equal(contract.ledgerCount, 178);
   assert.equal(
     contract.ledgerFingerprint,
