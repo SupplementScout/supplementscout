@@ -136,6 +136,21 @@ function shippingEvidence(item, currency) {
   return options[0] || null;
 }
 
+function listingStability(item) {
+  const availabilities = Array.isArray(item.estimatedAvailabilities) ? item.estimatedAvailabilities : [];
+  const firstNumber = (field) => availabilities
+    .map((row) => finiteNumber(row?.[field]))
+    .find((value) => value !== null) ?? null;
+  const createdAt = clean(item.itemCreationDate);
+  return {
+    availability_status: clean(availabilities[0]?.estimatedAvailabilityStatus) || null,
+    estimated_sold_quantity: firstNumber("estimatedSoldQuantity"),
+    estimated_remaining_quantity: firstNumber("estimatedRemainingQuantity"),
+    item_creation_date: createdAt && Number.isFinite(Date.parse(createdAt)) ? createdAt : null,
+    top_rated_buying_experience: item.topRatedBuyingExperience === true,
+  };
+}
+
 function evaluateItem(identity, item, policy = DEFAULT_POLICY) {
   const blockers = [];
   const review = [];
@@ -177,8 +192,11 @@ function evaluateItem(identity, item, policy = DEFAULT_POLICY) {
   else delivered = { value: Number((itemPrice.value + shipping.cost.value).toFixed(2)), currency: itemPrice.currency };
 
   const seller = item.seller || {};
+  const sellerAccountType = clean(seller.sellerAccountType).toUpperCase();
   const feedbackPercentage = finiteNumber(seller.feedbackPercentage);
   const feedbackScore = finiteNumber(seller.feedbackScore);
+  if (!sellerAccountType) review.push("SELLER_ACCOUNT_TYPE_UNPROVEN");
+  else if (sellerAccountType !== "BUSINESS") blockers.push("SELLER_ACCOUNT_NOT_BUSINESS");
   if (!clean(seller.username) || feedbackPercentage === null || feedbackScore === null) {
     review.push("SELLER_QUALITY_UNPROVEN");
   } else {
@@ -187,6 +205,10 @@ function evaluateItem(identity, item, policy = DEFAULT_POLICY) {
     if (feedbackScore < policy.minimum_feedback_score) review.push("SELLER_SCORE_BELOW_PROPOSED_THRESHOLD");
   }
 
+  const stability = listingStability(item);
+  if (stability.availability_status === "OUT_OF_STOCK" || stability.estimated_remaining_quantity === 0) {
+    blockers.push("LISTING_OUT_OF_STOCK");
+  }
   const decision = blockers.length ? "REJECT" : review.length ? "REVIEW" : "AUTO_ELIGIBLE";
   return {
     item_id: clean(item.itemId) || null,
@@ -198,10 +220,11 @@ function evaluateItem(identity, item, policy = DEFAULT_POLICY) {
     buying_options: buyingOptions,
     seller: {
       username: clean(seller.username) || null,
-      account_type: clean(seller.sellerAccountType) || null,
+      account_type: sellerAccountType || null,
       feedback_percentage: feedbackPercentage,
       feedback_score: feedbackScore,
     },
+    listing_stability: stability,
     item_price: itemPrice,
     uk_shipping: shipping?.cost || null,
     delivered_price: delivered,
@@ -221,10 +244,30 @@ function evaluateItem(identity, item, policy = DEFAULT_POLICY) {
 function candidateOrder(a, b) {
   const rank = { AUTO_ELIGIBLE: 0, REVIEW: 1, REJECT: 2 };
   if (rank[a.decision] !== rank[b.decision]) return rank[a.decision] - rank[b.decision];
+  const aBusiness = a.seller.account_type === "BUSINESS" ? 1 : 0;
+  const bBusiness = b.seller.account_type === "BUSINESS" ? 1 : 0;
+  if (aBusiness !== bBusiness) return bBusiness - aBusiness;
+  const aInStock = a.listing_stability?.availability_status === "IN_STOCK" ? 1 : 0;
+  const bInStock = b.listing_stability?.availability_status === "IN_STOCK" ? 1 : 0;
+  if (aInStock !== bInStock) return bInStock - aInStock;
+  const aSold = a.listing_stability?.estimated_sold_quantity ?? -1;
+  const bSold = b.listing_stability?.estimated_sold_quantity ?? -1;
+  if (aSold !== bSold) return bSold - aSold;
+  const aRemaining = a.listing_stability?.estimated_remaining_quantity ?? -1;
+  const bRemaining = b.listing_stability?.estimated_remaining_quantity ?? -1;
+  if (aRemaining !== bRemaining) return bRemaining - aRemaining;
+  const aCreated = Date.parse(a.listing_stability?.item_creation_date || "");
+  const bCreated = Date.parse(b.listing_stability?.item_creation_date || "");
+  const aCreationRank = Number.isFinite(aCreated) ? aCreated : Number.POSITIVE_INFINITY;
+  const bCreationRank = Number.isFinite(bCreated) ? bCreated : Number.POSITIVE_INFINITY;
+  if (aCreationRank !== bCreationRank) return aCreationRank - bCreationRank;
+  const aTopRated = a.listing_stability?.top_rated_buying_experience ? 1 : 0;
+  const bTopRated = b.listing_stability?.top_rated_buying_experience ? 1 : 0;
+  if (aTopRated !== bTopRated) return bTopRated - aTopRated;
+  if ((a.seller.feedback_score ?? -1) !== (b.seller.feedback_score ?? -1)) return (b.seller.feedback_score ?? -1) - (a.seller.feedback_score ?? -1);
   const aPrice = a.delivered_price?.value ?? Number.POSITIVE_INFINITY;
   const bPrice = b.delivered_price?.value ?? Number.POSITIVE_INFINITY;
   if (aPrice !== bPrice) return aPrice - bPrice;
-  if ((a.seller.feedback_score ?? -1) !== (b.seller.feedback_score ?? -1)) return (b.seller.feedback_score ?? -1) - (a.seller.feedback_score ?? -1);
   return clean(a.item_id).localeCompare(clean(b.item_id));
 }
 
@@ -338,8 +381,8 @@ async function browseIdentity(identity, config, fetchImpl = fetch, options = {})
   if (!Array.isArray(sellers) || sellers.length > 250 || sellers.some((seller) => !/^[A-Za-z0-9_.-]{1,64}$/.test(String(seller)))) {
     throw new Error("Browse seller filter must contain up to 250 safe eBay usernames");
   }
-  const filters = ["buyingOptions:{FIXED_PRICE}", "conditions:{NEW}", "deliveryCountry:GB"];
-  if (sellers.length) filters.push("sellerAccountTypes:{BUSINESS}", `sellers:{${sellers.join("|")}}`);
+  const filters = ["buyingOptions:{FIXED_PRICE}", "conditions:{NEW}", "deliveryCountry:GB", "sellerAccountTypes:{BUSINESS}"];
+  if (sellers.length) filters.push(`sellers:{${sellers.join("|")}}`);
   const query = new URLSearchParams({
     [options.searchMode === "title" ? "q" : "gtin"]: options.searchMode === "title" ? titleQuery : identity.gtin,
     limit: String(limit),

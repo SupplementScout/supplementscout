@@ -85,6 +85,26 @@ test("unknown shipping and proposed seller threshold fail closed to REVIEW", () 
   assert.equal(lowSeller.match_tier, "B");
 });
 
+test("seller account type is a fail-closed business requirement", () => {
+  const individual = evaluateItem(identity, item({ seller: { username: "private-seller", sellerAccountType: "INDIVIDUAL", feedbackPercentage: 100, feedbackScore: 5000 } }));
+  assert.equal(individual.decision, "REJECT");
+  assert.ok(individual.blockers.includes("SELLER_ACCOUNT_NOT_BUSINESS"));
+
+  const unknown = evaluateItem(identity, item({ seller: { username: "seller", feedbackPercentage: 100, feedbackScore: 5000 } }));
+  assert.equal(unknown.decision, "REVIEW");
+  assert.ok(unknown.review_reasons.includes("SELLER_ACCOUNT_TYPE_UNPROVEN"));
+});
+
+test("an explicitly out-of-stock listing is isolated instead of refreshed as available", () => {
+  const unavailable = evaluateItem(identity, item({
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "OUT_OF_STOCK", estimatedSoldQuantity: 20, estimatedRemainingQuantity: 0 }],
+  }));
+  assert.equal(unavailable.decision, "REJECT");
+  assert.ok(unavailable.blockers.includes("LISTING_OUT_OF_STOCK"));
+  assert.equal(unavailable.listing_stability.availability_status, "OUT_OF_STOCK");
+  assert.equal(unavailable.listing_stability.estimated_remaining_quantity, 0);
+});
+
 test("an eBay seller matching the current retailer is not independent coverage", () => {
   const sameRetailer = { ...identity, source_locations: ["https://www.simplysupplements.co.uk/products/example"] };
   const result = evaluateItem(sameRetailer, item({ seller: { username: "simplyssupplements", feedbackPercentage: 99.8, feedbackScore: 50000 } }));
@@ -111,6 +131,25 @@ test("identity selection prioritizes qualification over a cheaper rejected listi
   assert.equal(result.ebay_is_lower_delivered_price, true);
   assert.equal(result.rejected_candidates.length, 1);
   assert.equal(result.candidate_evidence.length, 2);
+});
+
+test("identity selection prefers an established high-volume business listing before price", () => {
+  const olderStable = item({
+    itemId: "stable",
+    price: { value: "31", currency: "GBP" },
+    itemCreationDate: "2024-01-01T00:00:00.000Z",
+    topRatedBuyingExperience: true,
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK", estimatedSoldQuantity: 250, estimatedRemainingQuantity: 40 }],
+  });
+  const cheaperOneOff = item({
+    itemId: "cheap",
+    price: { value: "25", currency: "GBP" },
+    itemCreationDate: "2026-09-01T00:00:00.000Z",
+    estimatedAvailabilities: [{ estimatedAvailabilityStatus: "IN_STOCK", estimatedSoldQuantity: 1, estimatedRemainingQuantity: 1 }],
+  });
+  const result = evaluateIdentity(identity, [cheaperOneOff, olderStable]);
+  assert.equal(result.selected_offer.item_id, "stable");
+  assert.equal(result.selected_offer.listing_stability.estimated_sold_quantity, 250);
 });
 
 test("ePID is not mistaken for a returned GTIN and marketplace ID is mandatory", () => {
@@ -200,6 +239,7 @@ test("mock Browse request has exact read-only filters, follows safe detail URL a
   const search = requests.find((request) => request.url.includes("item_summary/search"));
   assert.match(search.url, /gtin=6009544910770/);
   assert.match(decodeURIComponent(search.url), /buyingOptions:\{FIXED_PRICE\},conditions:\{NEW\},deliveryCountry:GB/);
+  assert.match(decodeURIComponent(search.url), /sellerAccountTypes:\{BUSINESS\}/);
   assert.equal(search.options.headers["X-EBAY-C-MARKETPLACE-ID"], "EBAY_GB");
   assert.match(search.options.headers["X-EBAY-C-ENDUSERCTX"], /contextualLocation=/);
   assert.ok(requests.slice(1).every((request) => !request.options.method || request.options.method === "GET"));
@@ -425,6 +465,7 @@ test("eBay existing-listing continuity tolerates only narrow evidence disappeara
   assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REVIEW", returned_gtin: null, review_reasons: ["RETURNED_GTIN_UNPROVEN"] }).tier, "sealed_existing_identity_continuity");
   assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REVIEW", returned_gtin: null, review_reasons: ["RETURNED_GTIN_UNPROVEN", "FORMAT_UNPROVEN"] }).eligible, false);
   assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REJECT", returned_gtin: "842595109191", blockers: ["GTIN_MISMATCH"] }).eligible, false);
+  assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, decision: "REJECT", blockers: ["LISTING_OUT_OF_STOCK"] }).eligible, false);
   assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, item_id: "v1|other|0" }).eligible, false);
   assert.equal(classifyContinuity(REFRESH_SCOPE, { ...base, affiliate_ready: false, affiliate_url: null }).eligible, false);
 });
