@@ -702,6 +702,16 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Szczegóły techniczne — dla osoby przygotowującej zmianę/);
   assert.match(page, /rowCapability\.capability === "REVIEW_EXECUTABLE"/);
   assert.match(page, /rowCapability\.capability !== "REVIEW_EXECUTABLE"/);
+  assert.match(page, /source_price,source_url,current_product_id,current_variant_id/);
+  assert.match(page, /from\("products"\)\.select\("id,name,slug"\)/);
+  assert.match(page, /from\("product_variants"\)\.select\("id,display_name"\)/);
+  assert.match(page, /Porównaj te dwie strony przed decyzją/);
+  assert.match(page, /Otwórz ofertę \{row\.retailer\}/);
+  assert.match(page, /Otwórz produkt SupplementScout/);
+  assert.match(page, /Cena wykryta/);
+  assert.match(page, /Zapisana cena/);
+  assert.match(page, /safeUrl\(row\.source_url\)/);
+  assert.doesNotMatch(page, /from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.update/);
   assert.match(page, /import Image from "next\/image"/);
   assert.equal((page.match(/\/mascots\/supplement-scout-raccoon\.webp/g) || []).length, 1);
   assert.equal(fs.existsSync(path.join(process.cwd(), "public", "mascots", "supplement-scout-raccoon.webp")), true);
