@@ -49,11 +49,11 @@ function writeFixture() {
     commit_sha: SOURCE.commit,
     captured_at: "2026-08-31T15:38:44.505Z",
     approved_mapping_count: 237,
-    executable_plan_count: 197,
+    executable_plan_count: 235,
     executed_plan_count: 0,
     review_row_count: 2,
     blocked_row_count: 0,
-    execution_offer_ids: ["2748"],
+    execution_offer_ids: ["2748", ...Array.from({ length: 234 }, (_, index) => String(3000 + index))],
     review_rows: [
       { offer_id: "2554", action: "UPDATE_PRICE", review_type: "COMMERCIAL_CHANGE" },
       { offer_id: "2686", decision: "NOT_FOUND", blockers: ["SOURCE_READ_FAILED"], source_error: "SOURCE_READ_FAILED", review_type: "SOURCE_FAILURE" },
@@ -92,8 +92,8 @@ function writeFixture() {
     review_scope_fingerprint: SOURCE.reviewScope,
     plan_fingerprint: report.plan_fingerprint,
     approved_mapping_count: 237,
-    executable_plan_count: 197,
-    review_row_count: 40,
+    executable_plan_count: 235,
+    review_row_count: 2,
     blocked_row_count: 0,
     executable_operation_types: ["VERIFY_NO_CHANGE"],
     review_offer_ids: ["2554", "2686"],
@@ -207,6 +207,15 @@ test("source artifact verification binds run, artifact hashes, commit and exclud
   assert.equal(source.contract.commit_sha, SOURCE.commit);
   assert.deepEqual(source.report.review_rows.map((row) => row.offer_id), ["2554", "2686"]);
   assert.equal(source.report.review_rows.some((row) => row.offer_id === "2748"), false);
+});
+
+test("source artifact verification derives the split dynamically and rejects count drift", () => {
+  const fixture = writeFixture();
+  assert.equal(verifySourceArtifact(sourceOptions(fixture.directory)).contract.review_row_count, 2);
+
+  fixture.contract.review_row_count = 3;
+  writeJson(path.join(fixture.directory, "production-dry-run-contract.json"), fixture.contract);
+  assert.throws(() => verifySourceArtifact(sourceOptions(fixture.directory)), /scope count mismatch/);
 });
 
 test("review reconciliation dry-run uses shared publisher and computes CREATE/SUPERSEDE from current active rows", () => {

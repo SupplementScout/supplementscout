@@ -174,10 +174,14 @@ function verifySourceArtifact(options) {
   if (contract.commit_sha !== options.sourceCommitSha || report.commit_sha !== options.sourceCommitSha) fail("Source commit mismatch");
   if (contract.report_sha256 !== options.sourceReportSha256) fail("Source contract report hash mismatch");
   if (contract.review_scope_fingerprint !== options.sourceReviewScopeFingerprint || report.review_scope_fingerprint !== options.sourceReviewScopeFingerprint) fail("Source review scope fingerprint mismatch");
-  if (contract.approved_mapping_count !== 237 || contract.review_row_count !== 40 || contract.blocked_row_count !== 0) fail("Source review scope count mismatch");
+  const executableCount = contract.executable_plan_count;
+  const reviewCount = contract.review_row_count;
+  if (contract.approved_mapping_count !== 237 || !Number.isInteger(executableCount) || executableCount < 0 || !Number.isInteger(reviewCount) || reviewCount < 0 || executableCount + reviewCount !== 237 || contract.blocked_row_count !== 0) fail("Source review scope count mismatch");
+  if (report.approved_mapping_count !== 237 || report.executable_plan_count !== executableCount || report.executed_plan_count !== 0 || report.review_row_count !== reviewCount || report.blocked_row_count !== 0) fail("Source report scope count mismatch");
   if (!Array.isArray(contract.executable_operation_types) || contract.executable_operation_types.length !== 1 || contract.executable_operation_types[0] !== "VERIFY_NO_CHANGE") fail("Source executable operation drift");
   const reviewIds = sortedStrings(report.review_rows.map((row) => row.offer_id));
   if (canonicalJson(reviewIds) !== canonicalJson(sortedStrings(contract.review_offer_ids))) fail("Source report and contract review IDs mismatch");
+  if (reviewIds.length !== reviewCount || sortedStrings(report.execution_offer_ids).length !== executableCount) fail("Source report offer ID count mismatch");
   if (reviewIds.includes("2748")) fail("Offer 2748 must not be in source review scope");
   return { contract, report, contractPath, reportPath };
 }
