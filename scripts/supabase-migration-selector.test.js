@@ -44,6 +44,8 @@ const EBAY_REVIEWED_34_MIGRATION = "20260903140000_apply_reviewed_ebay_34_remedi
 const EBAY_REVIEWED_34_SHA256 = "04e453eacd4c16885564a23b4721b9a2d2eebd582ff8fe786c4fda1d458f6a13";
 const WHEY_REVIEWED_3_MIGRATION = "20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql";
 const WHEY_REVIEWED_3_SHA256 = "b6c995c405b441f7fe62dc1efc6a090f9556594a5d2b0ee8e777023b9b978abe";
+const EBAY_REVIEWED_26_MIGRATION = "20260905170000_apply_reviewed_ebay_26_remediation.sql";
+const EBAY_REVIEWED_26_SHA256 = "e950ee61197a2e699c311e103ffc2ef34bc3cf4f8a93db8497c3e9a6b9774e1a";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -192,9 +194,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the reviewed Whey remediation as applied", () => {
+test("production records the reviewed Whey remediation and selects only the reviewed eBay 26", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: EBAY_REVIEWED_26_MIGRATION,
+    sha256: EBAY_REVIEWED_26_SHA256,
+    expectedCatalogueDeltas: { price_history: 8 },
+  }]);
   assert.equal(contract.ledgerCount, 179);
   assert.equal(
     contract.ledgerFingerprint,
@@ -208,6 +214,7 @@ test("production records the reviewed Whey remediation as applied", () => {
   assert.equal(sha256File(path.join(SOURCE, WHEY_REGISTRATION_EXCLUSION_MIGRATION)), WHEY_REGISTRATION_EXCLUSION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, EBAY_REVIEWED_34_MIGRATION)), EBAY_REVIEWED_34_SHA256);
   assert.equal(sha256File(path.join(SOURCE, WHEY_REVIEWED_3_MIGRATION)), WHEY_REVIEWED_3_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, EBAY_REVIEWED_26_MIGRATION)), EBAY_REVIEWED_26_SHA256);
 });
 
 test("an additional pending migration fails closed", () => {
@@ -311,11 +318,11 @@ test("production binds its exact ledger with the reviewed Whey remediation appli
   });
   assert.equal(result.ledger_count, 179);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 179);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 180);
+  assert.deepEqual(result.pending_files, [EBAY_REVIEWED_26_MIGRATION]);
+  assert.equal(result.pending_file, EBAY_REVIEWED_26_MIGRATION);
+  assert.equal(result.pending_sha256, EBAY_REVIEWED_26_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [EBAY_REVIEWED_26_MIGRATION]: EBAY_REVIEWED_26_SHA256 });
   assert.ok(result.selected_files.includes(WHEY_REVIEWED_3_MIGRATION));
   assert.ok(result.selected_files.includes(EBAY_REVIEWED_34_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));
