@@ -702,6 +702,9 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Szczegóły techniczne — dla osoby przygotowującej zmianę/);
   assert.match(page, /rowCapability\.capability === "REVIEW_EXECUTABLE"/);
   assert.match(page, /rowCapability\.capability !== "REVIEW_EXECUTABLE"/);
+  assert.match(page, /import Image from "next\/image"/);
+  assert.equal((page.match(/\/mascots\/supplement-scout-raccoon\.webp/g) || []).length, 1);
+  assert.equal(fs.existsSync(path.join(process.cwd(), "public", "mascots", "supplement-scout-raccoon.webp")), true);
 });
 
 test("automation review capability matrix groups remaining retailers without widening execution registry", () => {
