@@ -274,6 +274,19 @@ test("one transaction can refresh unchanged evidence and supersede changed evide
   assert.equal(output.production_writes, 0);
 });
 
+test("full 237-offer observation resolves an old review problem absent from the new review scope", () => {
+  const fixture = writeFixture();
+  const options = sourceOptions(fixture.directory);
+  const source = { ...verifySourceArtifact(options), options };
+  const rows = buildManifestRows(source, activeRows());
+  const oldResolved = active("600", "2748", "c".repeat(64), "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT");
+  const output = buildOutput(source, baseline([...activeRows(), oldResolved]), rows, options.output, {});
+
+  assert.equal(output.operations.RESOLVE_BY_SOURCE, 1);
+  assert.equal(output.expected.final_active_review_count_for_ebay, 2);
+  assert.equal(output.request.operations.find((operation) => operation.op === "RESOLVE_BY_SOURCE").expected.review_id, "600");
+});
+
 test("review row normalization uses current allowlisted operations", () => {
   assert.equal(operationForReview({ action: "UPDATE_PRICE" }).operation_type, "UPDATE_PRICE");
   assert.equal(operationForReview({ review_type: "SOURCE_FAILURE" }).operation_type, "SOURCE_MISSING");

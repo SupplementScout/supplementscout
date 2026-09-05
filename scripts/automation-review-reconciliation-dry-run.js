@@ -432,7 +432,7 @@ function buildOutput(source, baseline, manifestRows, outputPath, env = process.e
       artifact_content_sha256: source.options.sourceArtifactContentSha256,
       review_scope_fingerprint: source.options.sourceReviewScopeFingerprint,
     },
-    observed_offer_ids: sortedStrings(source.report.review_rows.map((row) => row.offer_id)),
+    observed_offer_ids: sortedStrings(source.report.semantic_source_rows.map((row) => row.offer_id)),
     rows: manifestRows,
   };
   const request = buildPublicationRpcRequest(manifest, baseline.active_rows, { catalogueCounts: baseline.catalogue_counts });
