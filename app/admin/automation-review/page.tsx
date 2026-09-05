@@ -83,7 +83,13 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
   const retailers = Array.from(new Set(loaded.map((row) => row.retailer))).sort();
 
   return <main className="min-h-screen bg-zinc-50 px-4 py-8 text-zinc-950 sm:px-6"><div className="mx-auto max-w-6xl">
-    <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-6"><div className="flex items-start gap-3 sm:gap-5"><Image src="/mascots/supplement-scout-raccoon.webp" alt="Maskotka SupplementScout — szop zwiadowca z shakerem i lupą" width={112} height={118} priority className="h-24 w-auto shrink-0 object-contain sm:h-28" /><div><p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Panel administracyjny</p><h1 className="mt-2 text-3xl font-bold">Oferty wymagające decyzji</h1><p className="mt-3 max-w-3xl text-sm text-zinc-600">Tutaj automat odkłada tylko przypadki, których nie powinien rozstrzygać sam. Zatwierdzenie decyzji nie zmienia jeszcze katalogu.</p></div></div><Link href="/admin" className="rounded-lg border bg-white px-4 py-2 font-semibold">Wróć do panelu</Link></header>
+    <header className="flex flex-col gap-4 border-b border-zinc-200 pb-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex min-w-0 items-start gap-3 sm:gap-5"><Image src="/mascots/supplement-scout-raccoon.webp" alt="Maskotka SupplementScout — szop zwiadowca z shakerem i lupą" width={112} height={118} priority className="h-24 w-auto shrink-0 object-contain sm:h-28" /><div><p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Panel administracyjny</p><h1 className="mt-2 text-3xl font-bold">Oferty wymagające decyzji</h1><p className="mt-3 max-w-3xl text-sm text-zinc-600">Tutaj automat odkłada tylko przypadki, których nie powinien rozstrzygać sam. Zatwierdzenie decyzji nie zmienia jeszcze katalogu.</p></div></div>
+      <div className="flex w-full shrink-0 items-start justify-between gap-4 lg:w-auto lg:justify-end">
+        <Link href="/admin" className="rounded-lg border bg-white px-4 py-2 font-semibold">Wróć do panelu</Link>
+        <Image src="/mascots/supplement-scout-human-scout.png" alt="Druga maskotka SupplementScout — zwiadowca z plecakiem i telefonem" width={1145} height={1374} className="h-28 w-auto object-contain sm:h-36" />
+      </div>
+    </header>
 
     <section className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-5"><h2 className="text-lg font-bold">Jak z tego korzystać?</h2><ol className="mt-3 grid gap-3 text-sm md:grid-cols-3"><li><strong>1. Przeczytaj zalecenie.</strong><br />Każda karta mówi wprost, czy masz coś zrobić.</li><li><strong>2. Nie zgaduj.</strong><br />Jeżeli widzisz „zostaw do analizy”, niczego nie zatwierdzaj.</li><li><strong>3. Wykonanie jest osobne.</strong><br />Zatwierdzenie zapisuje decyzję. Dopiero osobny, zabezpieczony krok może zmienić ofertę.</li></ol></section>
 

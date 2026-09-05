@@ -714,7 +714,9 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.doesNotMatch(page, /from\("(?:products|product_variants|retailer_products|offers|price_history)"\)\.update/);
   assert.match(page, /import Image from "next\/image"/);
   assert.equal((page.match(/\/mascots\/supplement-scout-raccoon\.webp/g) || []).length, 1);
+  assert.equal((page.match(/\/mascots\/supplement-scout-human-scout\.png/g) || []).length, 1);
   assert.equal(fs.existsSync(path.join(process.cwd(), "public", "mascots", "supplement-scout-raccoon.webp")), true);
+  assert.equal(fs.existsSync(path.join(process.cwd(), "public", "mascots", "supplement-scout-human-scout.png")), true);
 });
 
 test("automation review capability matrix groups remaining retailers without widening execution registry", () => {
