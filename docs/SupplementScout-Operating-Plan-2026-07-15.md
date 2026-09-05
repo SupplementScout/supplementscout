@@ -7,6 +7,23 @@
 
 **Automation reliability status:** The P0 Automation Reliability Sprint is closed with monitored backlog. The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) remains the evidence source, but no longer blocks product development. Existing guarded workflows, Review Queue and alerts own ordinary freshness, OOS, source and review backlog.
 
+**5 September 2026 eBay Review Queue publication checkpoint:** the owner's
+exact control-plane approval for run `33961938063`, artifact `9968209374` and
+commit `311ab2bf48cc44f09675258f611f0ba6726ec198` was consumed once before
+expiry. The immutable artifact and plan SHA-256 values were respectively
+`e7124a2eeb72e8aea3e24ded6c12f3e75035252d9455a08ad52def0624a70040`
+and `39997759425bed04c29416b7120fac2a0de92fff044233916076048c560d227e`.
+After an exact live baseline check, the existing service-role-only atomic
+publisher applied `CREATE 13`, `REFRESH 7`, `SUPERSEDE 5` and
+`RESOLVE_BY_SOURCE 28`. Queue/audit/publication counts moved exactly
+`839/1069/2 -> 852/1122/3`, leaving the approved 20 eBay cards active and
+unexpired. Products, variants, mappings, offers and price history remained
+`1130/2850/2808/2808/9069`; execution requests remained `0`. An independent
+read-only audit at `2026-09-05T11:07:04.344Z` confirmed all 237 eBay mappings
+and offers, 217 checks within 24 hours, and exactly 20 active review cards (8
+source failures, 7 identity conflicts and 5 commercial changes). No review
+decision or catalogue/offer mutation was authorised or executed.
+
 **5 September 2026 eBay exact-237 repair checkpoint:** the owner's exact
 artifact-bound approval was consumed once by manual run `33957632263`, artifact
 `9967163117`, on commit

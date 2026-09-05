@@ -1,5 +1,27 @@
 # Automation Reliability Roadmap
 
+### eBay 20-card Review Queue scope published atomically - 5 September 2026
+
+The owner approved only the control-plane reconciliation from run
+`33961938063`, artifact `9968209374`, commit
+`311ab2bf48cc44f09675258f611f0ba6726ec198`, artifact SHA-256
+`e7124a2eeb72e8aea3e24ded6c12f3e75035252d9455a08ad52def0624a70040`
+and plan SHA-256
+`39997759425bed04c29416b7120fac2a0de92fff044233916076048c560d227e`.
+The executor verified the live baseline and called the existing transactional
+publisher exactly once. Its result was `APPLIED`: `CREATE 13`, `REFRESH 7`,
+`SUPERSEDE 5`, `RESOLVE_BY_SOURCE 28`, audit delta `53`, catalogue writes `0`.
+Control-plane counts changed exactly from queue/audit/publications
+`839/1069/2` to `852/1122/3`; 20 eBay cards are active and unexpired.
+
+The same-call postflight and an independent read-only database audit confirmed
+unchanged products, variants, mappings, offers and price history at
+`1130/2850/2808/2808/9069`, unchanged execution-request count `0`, all 237
+eBay mappings/offers present, and a strict current/stale split of `217/20`.
+The 20 cards comprise eight `SOURCE_FAILURE`, seven `IDENTITY_CONFLICT` and
+five `COMMERCIAL_CHANGE` decisions. Publication makes those decisions usable
+in the existing admin panel; it does not approve or execute any of them.
+
 ### eBay exact-237 freshness apply repaired and independently verified - 5 September 2026
 
 The owner authorised only the immutable safe scope from read-only run
