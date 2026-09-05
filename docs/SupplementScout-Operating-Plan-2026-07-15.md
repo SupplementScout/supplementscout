@@ -27,6 +27,10 @@ The existing workflow timeout is extended from `20` to `40` minutes and the
 existing watchdog correlation accepts both manual approval-bound and scheduled
 applies while remaining exact-237, freshness-only and fail-closed. No price or
 identity decision for the 20 review rows is authorised by this checkpoint.
+Post-push watchdog run `33960470997`, artifact `9967772844`, evaluated eBay as
+`PASS_WITH_REVIEW` with `evidence_correlation = CORRELATED`, idempotency writes
+`0` and monitored backlog `WITHIN_BASELINE`. Its aggregate failure belongs only
+to separate Jon's and 6 Pack backlog signals, not to eBay.
 
 **4 September 2026 Whey Okay three-row remediation checkpoint:** the exact
 owner-approved migration

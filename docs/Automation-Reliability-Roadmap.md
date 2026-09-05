@@ -38,6 +38,15 @@ rejection. A direct read-only DB audit at `2026-09-05T10:07:53.984Z` confirmed
 `237` mappings/offers, `217` within 24 hours, `20` isolated as stale and no
 missing rows. The 20 review decisions remain outside this apply.
 
+After commit `d0111070a3195dcb2e4db281453c8282d8268a26` reached `main`, read-only
+watchdog run `33960470997`, artifact `9967772844` (ZIP SHA-256
+`40e8265a3f540c8205528eb942a0b70bec6a868c587246bc93e1456f5ee9f2c2`),
+accepted eBay as `PASS_WITH_REVIEW`: correlation `CORRELATED`, apply writes
+`217`, independent idempotency writes `0`, and review backlog
+`WITHIN_BASELINE`. The aggregate watchdog result remains red only for the
+separate Jon's and 6 Pack monitored-backlog signals; eBay has no failure or
+warning in this run.
+
 ### Whey Okay exact three-row remediation applied - 4 September 2026
 
 The existing migration selector applied only
