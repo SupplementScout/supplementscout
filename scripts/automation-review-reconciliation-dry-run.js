@@ -243,11 +243,12 @@ function beforeStateFromActive(row) {
   return null;
 }
 
-function buildManifestRows(source, activeRows) {
+function buildManifestRows(source, activeRows, currentStateRows = []) {
   const byOffer = sourceRowByOffer(source.report);
   const sourceFingerprints = sourceFingerprintByOffer(source.report, "REVIEW");
   const offerArtifacts = loadOfferArtifacts(source.options.sourceArtifactDir);
   const activeByOffer = new Map(activeRows.map((row) => [String(row.offer_id), row]));
+  const currentStateByOffer = new Map(currentStateRows.map((row) => [String(row.offer_id), row]));
   return source.report.review_rows.map((review) => {
     const offerId = String(review.offer_id);
     const semantic = byOffer.get(offerId);
@@ -258,7 +259,7 @@ function buildManifestRows(source, activeRows) {
     const active = activeByOffer.get(offerId);
     const artifact = offerArtifacts.get(offerId);
     const expectedState = artifact?.plans?.[0]?.resolved_plan?.expected_state || null;
-    const before = beforeStateFromActive(active) || beforeStateFromPlan(artifact);
+    const before = beforeStateFromActive(active) || beforeStateFromActive(currentStateByOffer.get(offerId)) || beforeStateFromPlan(artifact);
     if (!before) fail(`Missing before_state for review offer ${offerId}`);
     return {
       snapshot_id: `automation-review-${RETAILER_ID}-${offerId}`,
@@ -319,7 +320,41 @@ function buildManifestRows(source, activeRows) {
   });
 }
 
-async function fetchBaseline(db) {
+function nullableString(value) {
+  return value == null ? null : String(value);
+}
+
+function currentReviewStateRows(sourceRows, offers, mappings) {
+  const offersById = new Map((offers || []).map((row) => [String(row.id), row]));
+  const mappingsById = new Map((mappings || []).map((row) => [String(row.id), row]));
+  return sourceRows.map((source) => {
+    const offerId = String(source.offer_id);
+    const mappingId = String(source.mapping_id);
+    const offer = offersById.get(offerId);
+    const mapping = mappingsById.get(mappingId);
+    if (!offer || !mapping) fail(`Missing current DB state for review offer ${offerId}`);
+    if (String(offer.retailer_id) !== RETAILER_ID || String(mapping.retailer_id) !== RETAILER_ID || String(offer.retailer_product_id) !== mappingId || String(offer.product_id) !== String(source.product_id) || String(mapping.product_id) !== String(source.product_id) || String(offer.product_variant_id) !== String(source.product_variant_id) || String(mapping.product_variant_id) !== String(source.product_variant_id)) fail(`Current DB identity drift for review offer ${offerId}`);
+    return {
+      offer_id: offerId,
+      before_state: {
+        offer_id: offerId,
+        retailer_product_id: mappingId,
+        product_id: String(offer.product_id),
+        product_variant_id: String(offer.product_variant_id),
+        price: nullableString(offer.price),
+        shipping_cost: nullableString(offer.shipping_cost),
+        total_price: nullableString(offer.total_price),
+        in_stock: offer.in_stock === true,
+        url: offer.url || null,
+        external_url: mapping.external_url || null,
+        external_product_id: nullableString(mapping.external_product_id),
+        external_variant_id: nullableString(mapping.external_variant_id),
+      },
+    };
+  });
+}
+
+async function fetchBaseline(db, sourceRows = []) {
   const catalogueCounts = {};
   for (const table of CATALOGUE_TABLES) {
     const { count, error } = await db.from(table).select("*", { count: "exact", head: true });
@@ -339,6 +374,19 @@ async function fetchBaseline(db) {
   for (const row of allEbayRows || []) statusCounts[row.review_status] = (statusCounts[row.review_status] || 0) + 1;
   const { data: activeRows, error: activeError } = await db.from("product_match_review_queue").select("*").eq("retailer_id", RETAILER_ID).in("review_status", ACTIVE_STATUSES).order("id", { ascending: true });
   if (activeError) throw activeError;
+  let reviewStateRows = [];
+  if (sourceRows.length) {
+    const offerIds = sortedStrings(sourceRows.map((row) => row.offer_id));
+    const mappingIds = sortedStrings(sourceRows.map((row) => row.mapping_id));
+    if (offerIds.length !== sourceRows.length || mappingIds.length !== sourceRows.length) fail("Duplicate source identity in review scope");
+    const [{ data: offers, error: offerError }, { data: mappings, error: mappingError }] = await Promise.all([
+      db.from("offers").select("id,retailer_id,retailer_product_id,product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url").in("id", offerIds),
+      db.from("retailer_products").select("id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_url").in("id", mappingIds),
+    ]);
+    if (offerError) throw offerError;
+    if (mappingError) throw mappingError;
+    reviewStateRows = currentReviewStateRows(sourceRows, offers, mappings);
+  }
   const stableActive = activeRows.map((row) => ({
     id: String(row.id),
     retailer_id: String(row.retailer_id),
@@ -359,6 +407,7 @@ async function fetchBaseline(db) {
     active_ebay_review_count: activeRows.length,
     queue_snapshot_hash: sha256(stableActive),
     active_rows: activeRows,
+    current_review_state_rows: reviewStateRows,
     active_row_locks: stableActive.map((row) => row.id).sort((a, b) => Number(a) - Number(b)),
   };
 }
@@ -484,8 +533,9 @@ async function run(options, dependencies = {}) {
   await downloadSourceArtifact(parsed, dependencies);
   const sourceFiles = verifySourceArtifact(parsed);
   const db = dependencies.db || createDb(dependencies.env || process.env);
-  const baseline = await fetchBaseline(db);
-  const manifestRows = buildManifestRows({ ...sourceFiles, options: parsed }, baseline.active_rows);
+  const reviewOfferIds = new Set(sourceFiles.report.review_rows.map((row) => String(row.offer_id)));
+  const baseline = await fetchBaseline(db, sourceFiles.report.semantic_source_rows.filter((row) => reviewOfferIds.has(String(row.offer_id))));
+  const manifestRows = buildManifestRows({ ...sourceFiles, options: parsed }, baseline.active_rows, baseline.current_review_state_rows);
   const output = buildOutput({ ...sourceFiles, options: parsed }, baseline, manifestRows, safeTmpPath(parsed.output), dependencies.env || process.env);
   return output;
 }
@@ -512,6 +562,7 @@ if (require.main === module) {
 module.exports = {
   buildManifestRows,
   buildOutput,
+  currentReviewStateRows,
   fetchBaseline,
   operationForReview,
   parseArgs,

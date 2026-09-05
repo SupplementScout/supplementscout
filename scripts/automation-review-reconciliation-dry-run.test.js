@@ -7,6 +7,7 @@ const test = require("node:test");
 const {
   buildManifestRows,
   buildOutput,
+  currentReviewStateRows,
   operationForReview,
   parseArgs,
   verifySourceArtifact,
@@ -262,6 +263,14 @@ test("review row normalization uses current allowlisted operations", () => {
   assert.equal(operationForReview({ action: "UPDATE_PRICE" }).operation_type, "UPDATE_PRICE");
   assert.equal(operationForReview({ review_type: "SOURCE_FAILURE" }).operation_type, "SOURCE_MISSING");
   assert.equal(operationForReview({ review_type: "IDENTITY_CONFLICT" }).operation_type, "MANUAL_REVIEW_IDENTITY");
+});
+
+test("missing queue history uses exact current DB offer and mapping state", () => {
+  const source = [semantic("2554", "2739", { decision: "REVIEW", price: "29.23" })];
+  const rows = currentReviewStateRows(source, [{ id: "2554", retailer_id: "12", retailer_product_id: "2739", product_id: "67", product_variant_id: "1033", price: 20, shipping_cost: 0, total_price: 20, in_stock: true, url: "https://www.ebay.co.uk/itm/2554" }], [{ id: "2739", retailer_id: "12", product_id: "67", product_variant_id: "1033", external_product_id: "2554", external_variant_id: null, external_url: "https://www.ebay.co.uk/itm/2554" }]);
+  assert.deepEqual(rows[0].before_state, { offer_id: "2554", retailer_product_id: "2739", product_id: "67", product_variant_id: "1033", price: "20", shipping_cost: "0", total_price: "20", in_stock: true, url: "https://www.ebay.co.uk/itm/2554", external_url: "https://www.ebay.co.uk/itm/2554", external_product_id: "2554", external_variant_id: null });
+  assert.throws(() => currentReviewStateRows(source, [], []), /Missing current DB state/);
+  assert.throws(() => currentReviewStateRows(source, [{ id: "2554", retailer_id: "12", retailer_product_id: "2739", product_id: "67", product_variant_id: "999", price: 20 }], [{ id: "2739", retailer_id: "12", product_id: "67", product_variant_id: "1033" }]), /identity drift/);
 });
 
 test("CLI parser requires immutable source binding inputs", () => {
