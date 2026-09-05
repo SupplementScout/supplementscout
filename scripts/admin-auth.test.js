@@ -675,14 +675,14 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /PENDING.*APPROVED.*REJECTED.*IGNORED.*EXPIRED.*EXECUTING.*EXECUTED.*FAILED/s);
   assert.match(page, /Freshness-only.*Stock and price.*Identity.*Source problems/s);
   assert.match(page, /AUTONOMOUS.*REVIEW_EXECUTABLE.*REVIEW_ONLY.*UNSUPPORTED/s);
-  assert.match(page, /All confidence/);
+  assert.match(page, /Każdy poziom pewności/);
   assert.match(page, /capabilityForReview/);
   assert.match(page, /decisionGroupForReview/);
   assert.match(page, /confidenceForReview/);
   assert.match(page, /before_state.*proposed_state.*impact_summary.*source_evidence/);
   assert.match(page, /Compatible selected rows/);
   assert.match(page, /Approve decision/);
-  assert.match(page, /Execute approved/);
+  assert.match(page, /Wykonaj zatwierdzoną decyzję/);
   assert.match(page, /Approval alone has not changed the catalogue/);
   assert.match(page, /existing protected importer approval and executor RPCs/);
   assert.match(page, /Execution adapter/);
@@ -691,8 +691,17 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(page, /Disabled reason/);
   assert.match(page, /confirmExecution/);
   assert.match(page, /disabled=\{!adapterReady\}/);
-  assert.match(page, /Execution history/);
+  assert.match(page, /Historia wykonania/);
   assert.match(page, /idempotency_result/);
+  assert.match(page, /Oferty wymagające decyzji/);
+  assert.match(page, /Jak z tego korzystać\?/);
+  assert.match(page, /Co wykryto\?/);
+  assert.match(page, /Co masz zrobić\?/);
+  assert.match(page, /Na razie nic nie klikaj/);
+  assert.match(page, /Zostaw do analizy technicznej/);
+  assert.match(page, /Szczegóły techniczne — dla osoby przygotowującej zmianę/);
+  assert.match(page, /rowCapability\.capability === "REVIEW_EXECUTABLE"/);
+  assert.match(page, /rowCapability\.capability !== "REVIEW_EXECUTABLE"/);
 });
 
 test("automation review capability matrix groups remaining retailers without widening execution registry", () => {
