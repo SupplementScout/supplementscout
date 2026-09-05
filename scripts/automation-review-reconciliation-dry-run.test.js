@@ -259,6 +259,21 @@ test("matching fingerprints become REFRESH and missing source baseline stays iso
   assert.equal(output.direct_rest_writes, 0);
 });
 
+test("one transaction can refresh unchanged evidence and supersede changed evidence", () => {
+  const fixture = writeFixture();
+  const options = sourceOptions(fixture.directory);
+  const source = { ...verifySourceArtifact(options), options };
+  const rows = buildManifestRows(source, activeRows());
+  const mixedActive = activeRows().map((row, index) => index === 0 ? { ...row, source_row_fingerprint: rows[index].source_row_fingerprint } : row);
+  const output = buildOutput(source, baseline(mixedActive), rows, options.output, {});
+
+  assert.equal(output.operations.CREATE, 1);
+  assert.equal(output.operations.REFRESH, 1);
+  assert.equal(output.operations.SUPERSEDE, 1);
+  assert.equal(output.expected.final_active_review_count_for_ebay, 2);
+  assert.equal(output.production_writes, 0);
+});
+
 test("review row normalization uses current allowlisted operations", () => {
   assert.equal(operationForReview({ action: "UPDATE_PRICE" }).operation_type, "UPDATE_PRICE");
   assert.equal(operationForReview({ review_type: "SOURCE_FAILURE" }).operation_type, "SOURCE_MISSING");

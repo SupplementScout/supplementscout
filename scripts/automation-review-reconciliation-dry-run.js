@@ -442,7 +442,6 @@ function buildOutput(source, baseline, manifestRows, outputPath, env = process.e
   const finalActiveEbayRows = baseline.active_ebay_review_count + operationCounts.CREATE - operationCounts.SUPERSEDE - operationCounts.RESOLVE_BY_SOURCE - operationCounts.EXPIRE;
   if (request.expected_baseline.catalogue_hash_without_review_queue !== baseline.catalogue_hash_without_review_queue) fail("Corrected catalogue hash mismatch between baseline and RPC request");
   if (request.expected_baseline.active_review_count !== baseline.active_ebay_review_count) fail("Active review count mismatch between baseline and RPC request");
-  if (operationCounts.REFRESH && operationCounts.SUPERSEDE) fail("Mixed refresh and supersede for same-scope eBay review reconciliation is unexpected");
   const output = {
     schema_version: 1,
     kind: OUTPUT_KIND,
