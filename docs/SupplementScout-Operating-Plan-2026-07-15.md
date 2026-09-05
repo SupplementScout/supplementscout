@@ -1,11 +1,32 @@
 # SupplementScout Operating Plan
 
-**Status date:** 4 September 2026<br>
+**Status date:** 5 September 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
 **Automation reliability status:** The P0 Automation Reliability Sprint is closed with monitored backlog. The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) remains the evidence source, but no longer blocks product development. Existing guarded workflows, Review Queue and alerts own ordinary freshness, OOS, source and review backlog.
+
+**5 September 2026 eBay exact-237 repair checkpoint:** the owner's exact
+artifact-bound approval was consumed once by manual run `33957632263`, artifact
+`9967163117`, on commit
+`0c3ad558bf00e7c7f6fb741ed4adbe91485a6ef4`. Preflight, immutable approval
+validation, fresh source revalidation, DB before-state, apply and DB postflight
+all passed for exactly `217 VERIFY_NO_CHANGE` rows, with `20` rows isolated in
+review and `0` blocked. The only production delta was
+`last_checked_at +217`; price, stock, delivery, total, offer URL, mapping URL,
+catalogue counts and `price_history` all changed by `0`. The run timed out only
+during its final read-only idempotency check after the successful postflight.
+The already-scheduled run `33957849207`, artifact `9967444045`, independently
+repeated the same safe `217/20` apply and postflight, and read-only run
+`33958936674`, artifact `9967496191`, then reproduced the identical executable
+and review scopes with zero writes. A direct read-only DB audit at
+`2026-09-05T10:07:53.984Z` confirmed `237` mappings/offers, `217` checked within
+24 hours, the exact `20` isolated rows older than 24 hours, and no missing row.
+The existing workflow timeout is extended from `20` to `40` minutes and the
+existing watchdog correlation accepts both manual approval-bound and scheduled
+applies while remaining exact-237, freshness-only and fail-closed. No price or
+identity decision for the 20 review rows is authorised by this checkpoint.
 
 **4 September 2026 Whey Okay three-row remediation checkpoint:** the exact
 owner-approved migration

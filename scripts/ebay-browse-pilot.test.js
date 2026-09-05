@@ -898,6 +898,7 @@ test("eBay refresh workflow is scheduled, default dry-run and has no push trigge
   assert.match(workflow, /Verify eBay UK DB postflight read-only/);
   assert.match(workflow, /--profile=ebay-uk/);
   assert.match(workflow, /Verify fresh no-op after apply/);
+  assert.match(workflow, /refresh:[\s\S]{0,300}?timeout-minutes: 40/);
   const applyStep = workflow.match(/- name: Apply exact approved existing-offer refresh[\s\S]*?run: npm run ebay:refresh -- --target=production --mode=execute-apply/)?.[0] || "";
   assert.match(applyStep, /EBAY_CANARY_APPROVER_DATABASE_URL/);
   assert.doesNotMatch(applyStep, /SUPABASE_SERVICE_ROLE_KEY|EBAY_CLIENT_SECRET/);

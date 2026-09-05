@@ -1,5 +1,43 @@
 # Automation Reliability Roadmap
 
+### eBay exact-237 freshness apply repaired and independently verified - 5 September 2026
+
+The owner authorised only the immutable safe scope from read-only run
+`33957270614`, artifact `9966811756`, commit
+`0c3ad558bf00e7c7f6fb741ed4adbe91485a6ef4`: exactly
+`217 VERIFY_NO_CHANGE`, `20` review and no commercial, stock, delivery, URL,
+identity, catalogue or history mutation. Manual apply run `33957632263`,
+artifact `9967163117`, passed approval validation, fresh revalidation, DB
+before-state, all `217/217` writes and DB postflight. Its postflight proved the
+only logical delta was `last_checked_at +217`; all row counts and
+`price_history` changed by `0`. The job reached the old 20-minute timeout only
+during the final read-only idempotency capture, after the bounded apply and
+authoritative postflight were complete.
+
+The existing daily schedule, serialized behind that manual run, then executed
+run `33957849207`, artifact `9967444045` (ZIP SHA-256
+`2eebdc778c938c360be691460f0b9746d63f0a209542a3e7ba2ff56be45120f4`). It
+independently produced the same `237 = 217 executable + 20 review` partition,
+applied all `217` freshness-only plans, and passed DB postflight with zero
+price, stock, delivery, total, URL, mapping or history delta. It too reached the
+old timeout after postflight. Independent read-only run `33958936674`, artifact
+`9967496191` (ZIP SHA-256
+`1b6f5efa22a76efa69c3be434c03ceb788413257dfb6fbaaadbbaa54c60f77465`),
+completed successfully and reproduced the exact execution IDs, review IDs,
+fingerprints and expected deltas with database writes `0`.
+
+The repair extends the same workflow's job timeout from `20` to `40` minutes;
+it does not add another scheduler or executor. The same split-run watchdog is
+generalised from the historical `197/40` snapshot to an immutable total of
+`237`, exact disjoint executable/review ID sets and dynamic freshness-only
+deltas. It now recognises the existing scheduled path without requiring a
+manual-approval file that scheduled runs intentionally do not generate, while
+manual runs still fail closed without exact approval verification. Focused
+tests pass `130/130`, including scheduled/manual provenance and unsafe-drift
+rejection. A direct read-only DB audit at `2026-09-05T10:07:53.984Z` confirmed
+`237` mappings/offers, `217` within 24 hours, `20` isolated as stale and no
+missing rows. The 20 review decisions remain outside this apply.
+
 ### Whey Okay exact three-row remediation applied - 4 September 2026
 
 The existing migration selector applied only

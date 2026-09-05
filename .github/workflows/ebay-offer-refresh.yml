@@ -98,7 +98,7 @@ jobs:
   refresh:
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.execution_mode == 'catalogue-refresh')) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     environment: production-readonly
     steps:
       - name: Validate protected execution context

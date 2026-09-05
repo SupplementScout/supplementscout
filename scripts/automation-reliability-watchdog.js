@@ -401,21 +401,33 @@ function validateEbayApplyArtifacts({ run, artifact, files }) {
   const applyFile = jsonFile(files, "production-apply.json");
   const postflightFile = jsonFile(files, "production-db-postflight.json");
   const verificationFile = jsonFile(files, "approved-artifact-verification.json");
-  invariant(applyFile && postflightFile && verificationFile, "eBay apply artifact missing apply, postflight or approved verification evidence");
+  invariant(applyFile && postflightFile, "eBay apply artifact missing apply or postflight evidence");
   const apply = applyFile.json;
   const postflight = postflightFile.json;
-  const verification = verificationFile.json;
-  invariant(String(run.id) === String(applyFile.json.approved_dry_run_id) || run.event === "workflow_dispatch", "eBay apply run metadata invalid");
-  invariant(run.head_sha === apply.commit_sha && apply.commit_sha === verification.commit_sha, "eBay apply commit evidence mismatch");
+  const verification = verificationFile?.json || null;
+  invariant(run.event === "workflow_dispatch" || run.event === "schedule", "eBay apply run event invalid");
+  if (run.event === "workflow_dispatch") {
+    invariant(verification, "eBay manual apply artifact missing approved verification evidence");
+    invariant(apply.commit_sha === verification.commit_sha, "eBay apply commit evidence mismatch");
+  } else {
+    invariant(!verification, "eBay scheduled apply must not contain manual approval verification evidence");
+    invariant(!apply.approved_dry_run_id && !apply.approved_artifact_id && !apply.approved_commit_sha && !apply.approved_manifest_sha256 && !apply.approved_report_sha256, "eBay scheduled apply contains manual approval provenance");
+  }
+  invariant(run.head_sha === apply.commit_sha, "eBay apply commit evidence mismatch");
   invariant(run.conclusion === "cancelled" || run.conclusion === "success", "eBay apply run must be success or cancelled after postflight");
   invariant(["PASS", "PASS_WITH_REVIEW"].includes(apply.result) && apply.mode === "execute-apply", "eBay apply evidence did not pass");
-  invariant(apply.approved_mapping_count === 237 && apply.executable_plan_count === 197 && apply.executed_plan_count === 197 && apply.review_row_count === 40 && apply.blocked_row_count === 0, "eBay apply scope drift");
-  invariant(apply.classification?.VERIFY_NO_CHANGE === 197 && Object.keys(apply.classification || {}).length === 1, "eBay apply executed a non-freshness action");
+  const executableCount = apply.executable_plan_count;
+  const reviewCount = apply.review_row_count;
+  invariant(apply.approved_mapping_count === 237 && Number.isInteger(executableCount) && executableCount > 0 && apply.executed_plan_count === executableCount && Number.isInteger(reviewCount) && reviewCount >= 0 && executableCount + reviewCount === 237 && apply.blocked_row_count === 0, "eBay apply scope drift");
+  const executionIds = sortedStrings(apply.execution_offer_ids || []);
+  const reviewIds = sortedStrings((apply.review_rows || []).map((row) => row.offer_id));
+  invariant(executionIds.length === executableCount && new Set(executionIds).size === executableCount && reviewIds.length === reviewCount && new Set(reviewIds).size === reviewCount && executionIds.every((id) => !reviewIds.includes(id)), "eBay apply scope drift");
+  invariant(apply.classification?.VERIFY_NO_CHANGE === executableCount && Object.keys(apply.classification || {}).length === 1, "eBay apply executed a non-freshness action");
   const logical = apply.expected_deltas?.logical_field_deltas || {};
   const rows = apply.expected_deltas?.row_count_deltas || {};
-  invariant(logical.last_checked_at_updates === 197 && ["offer_price_updates","offer_stock_updates","offer_shipping_updates","offer_total_updates","offer_url_updates","mapping_url_updates"].every((field) => logical[field] === 0), "eBay apply expected logical deltas drift");
+  invariant(logical.last_checked_at_updates === executableCount && ["offer_price_updates","offer_stock_updates","offer_shipping_updates","offer_total_updates","offer_url_updates","mapping_url_updates"].every((field) => logical[field] === 0), "eBay apply expected logical deltas drift");
   invariant(["products","product_variants","retailer_products","offers","price_history"].every((field) => rows[field] === 0), "eBay apply expected row-count deltas drift");
-  invariant(postflight.result === "PASS" && postflight.freshness_change_count === 197 && postflight.executed_plan_count === 197 && postflight.review_row_count === 40 && postflight.blocked_row_count === 0, "eBay postflight scope drift");
+  invariant(postflight.result === "PASS" && postflight.approved_mapping_count === 237 && postflight.executable_plan_count === executableCount && postflight.freshness_change_count === executableCount && postflight.executed_plan_count === executableCount && postflight.review_row_count === reviewCount && postflight.blocked_row_count === 0, "eBay postflight scope drift");
   invariant(["price_change_count","stock_change_count","shipping_change_count","total_change_count","offer_url_change_count","mapping_url_change_count","price_history_delta"].every((field) => postflight[field] === 0), "eBay postflight delta drift");
   invariant(/^sha256:[0-9a-f]{64}$/.test(artifact.digest || ""), "eBay apply artifact digest missing");
   invariant(/^[0-9a-f]{64}$/.test(postflight.postflight_hash || ""), "eBay postflight hash missing");
@@ -430,21 +442,22 @@ function validateEbayIdempotencyArtifacts({ run, artifact, files, applyEvidence 
   const report = reportFile.json;
   const contract = contractFile.json;
   const apply = applyEvidence.apply;
+  const executableCount = apply.executable_plan_count;
+  const reviewCount = apply.review_row_count;
   invariant(run.conclusion === "success" && run.head_sha === apply.commit_sha, "eBay independent idempotency run status or commit mismatch");
   invariant(["PASS", "PASS_WITH_REVIEW"].includes(report.result) && report.mode === "dry-run" && report.executed_plan_count === 0, "eBay independent idempotency run was not read-only");
-  invariant(report.approved_mapping_count === 237 && report.executable_plan_count === 197 && report.review_row_count === 40 && report.blocked_row_count === 0, "eBay independent idempotency scope drift");
-  invariant(contract.approved_mapping_count === 237 && contract.executable_plan_count === 197 && contract.review_row_count === 40 && contract.blocked_row_count === 0, "eBay independent idempotency contract scope drift");
+  invariant(report.approved_mapping_count === 237 && report.executable_plan_count === executableCount && report.review_row_count === reviewCount && report.blocked_row_count === 0, "eBay independent idempotency scope drift");
+  invariant(contract.approved_mapping_count === 237 && contract.executable_plan_count === executableCount && contract.review_row_count === reviewCount && contract.blocked_row_count === 0, "eBay independent idempotency contract scope drift");
   const applyIds = sortedStrings(apply.execution_offer_ids);
   const idempotencyIds = sortedStrings(report.execution_offer_ids);
   const applyReviews = sortedStrings(apply.review_rows.map((row) => row.offer_id));
   const idempotencyReviews = sortedStrings(report.review_rows.map((row) => row.offer_id));
   invariant(JSON.stringify(applyIds) === JSON.stringify(idempotencyIds), "eBay independent idempotency executable offer IDs drift");
   invariant(JSON.stringify(applyReviews) === JSON.stringify(idempotencyReviews), "eBay independent idempotency review offer IDs drift");
-  invariant(!idempotencyIds.includes("2686") && idempotencyReviews.includes("2686"), "eBay independent idempotency executed offer 2686 or failed to isolate review row");
   invariant(report.executable_source_fingerprint === apply.executable_source_fingerprint, "eBay independent idempotency executable source fingerprint drift");
   invariant(report.review_scope_fingerprint === apply.approved_review_scope_fingerprint || report.review_scope_fingerprint === apply.review_scope_fingerprint, "eBay independent idempotency review scope fingerprint drift");
   invariant(JSON.stringify(report.expected_deltas) === JSON.stringify(apply.expected_deltas), "eBay independent idempotency expected deltas drift");
-  invariant(report.classification?.VERIFY_NO_CHANGE === 197, "eBay independent idempotency executable classification drift");
+  invariant(report.classification?.VERIFY_NO_CHANGE === executableCount, "eBay independent idempotency executable classification drift");
   invariant(/^sha256:[0-9a-f]{64}$/.test(artifact.digest || ""), "eBay independent idempotency artifact digest missing");
   return { report, contract, reportFileSha256: reportFile.sha256, contractFileSha256: contractFile.sha256 };
 }
