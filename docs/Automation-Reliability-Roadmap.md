@@ -1,5 +1,25 @@
 # Automation Reliability Roadmap
 
+### eBay reviewed 26-row remediation applied and verified - 5 September 2026
+
+The owner approved immutable read-only artifact
+`59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`
+from run `33978002980`, artifact `9972941188`: exactly five business-listing
+rebinds, eighteen OOS transitions (with offer `2628` explicitly retained as
+OOS) and three price updates. The existing production migration selector
+rehearsed and then atomically applied only
+`20260905170000_apply_reviewed_ebay_26_remediation.sql`, SHA-256
+`e950ee61197a2e699c311e103ffc2ef34bc3cf4f8a93db8497c3e9a6b9774e1a`.
+
+Independent read-only postflight passed all `5/18/3` actions and all eight
+expected price-history rows. Products, variants, mappings and offers stayed
+`1130/2850/2808/2808`; price history advanced `9069 -> 9077`. Production
+ledger advanced `179 -> 180`, fingerprint
+`0b70711b6942428034f45b6f7124664e0ace41b1f6cdb1aca3148b2294b0c6d9`.
+No catalogue entity was created or deleted and no second eBay automation path
+was introduced. Thirteen review rows outside the approved artifact remain
+isolated, including the newly observed offer `2704`.
+
 ### eBay 20-card Review Queue scope published atomically - 5 September 2026
 
 The owner approved only the control-plane reconciliation from run

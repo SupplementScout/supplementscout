@@ -194,17 +194,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the reviewed Whey remediation and selects only the reviewed eBay 26", () => {
+test("production records the reviewed eBay 26 remediation as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: EBAY_REVIEWED_26_MIGRATION,
-    sha256: EBAY_REVIEWED_26_SHA256,
-    expectedCatalogueDeltas: { price_history: 8 },
-  }]);
-  assert.equal(contract.ledgerCount, 179);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 180);
   assert.equal(
     contract.ledgerFingerprint,
-    "2e6bef2874e887d51c3599e05e371ad6545c35e945bcdae62c453d6c752a5d08",
+    "0b70711b6942428034f45b6f7124664e0ace41b1f6cdb1aca3148b2294b0c6d9",
   );
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
@@ -290,7 +286,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the reviewed Whey remediation applied", () => {
+test("production binds its exact ledger with the reviewed eBay 26 remediation applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -316,13 +312,13 @@ test("production binds its exact ledger with the reviewed Whey remediation appli
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 179);
+  assert.equal(result.ledger_count, 180);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 180);
-  assert.deepEqual(result.pending_files, [EBAY_REVIEWED_26_MIGRATION]);
-  assert.equal(result.pending_file, EBAY_REVIEWED_26_MIGRATION);
-  assert.equal(result.pending_sha256, EBAY_REVIEWED_26_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [EBAY_REVIEWED_26_MIGRATION]: EBAY_REVIEWED_26_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(WHEY_REVIEWED_3_MIGRATION));
   assert.ok(result.selected_files.includes(EBAY_REVIEWED_34_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_REBIND_MIGRATION));

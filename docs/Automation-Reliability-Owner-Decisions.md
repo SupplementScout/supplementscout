@@ -1,5 +1,24 @@
 # Automation Reliability — Owner Decision Pack
 
+## eBay reviewed 26-row remediation applied - 5 September 2026
+
+The exact owner approval for run `33978002980`, artifact `9972941188` and
+read-only artifact SHA-256
+`59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`
+was consumed once before its 24-hour expiry. Migration
+`20260905170000_apply_reviewed_ebay_26_remediation.sql`, SHA-256
+`e950ee61197a2e699c311e103ffc2ef34bc3cf4f8a93db8497c3e9a6b9774e1a`,
+applied exactly five approved existing-mapping listing rebinds, eighteen OOS
+transitions including `2628`, three price changes and eight history rows.
+
+Independent read-only postflight passed `26/26` target offers and `8/8`
+history rows. Counts are products `1130`, variants `2850`, mappings `2808`,
+offers `2808`, price history `9077`; ledger `180`, fingerprint
+`0b70711b6942428034f45b6f7124664e0ace41b1f6cdb1aca3148b2294b0c6d9`.
+No product, variant, mapping or offer was created or deleted. This approval is
+consumed and cannot be replayed; 13 unselected eBay review rows remain outside
+it.
+
 ## Whey Okay three-row existing-variant remediation applied - 4 September 2026
 
 The exact owner approval for migration

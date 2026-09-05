@@ -7,6 +7,22 @@
 
 **Automation reliability status:** The P0 Automation Reliability Sprint is closed with monitored backlog. The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) remains the evidence source, but no longer blocks product development. Existing guarded workflows, Review Queue and alerts own ordinary freshness, OOS, source and review backlog.
 
+**5 September 2026 eBay reviewed 26-row remediation checkpoint:** the owner's
+exact approval for read-only artifact SHA-256
+`59c6d03a2bbcff0b384b86065f76e6f456e3538ca538613cf83e5e017ec11a9d`,
+run `33978002980` and artifact `9972941188` was consumed once before expiry.
+The existing production migration selector applied only
+`20260905170000_apply_reviewed_ebay_26_remediation.sql` (SHA-256
+`e950ee61197a2e699c311e103ffc2ef34bc3cf4f8a93db8497c3e9a6b9774e1a`):
+five owner-confirmed listing rebinds, eighteen OOS transitions including offer
+`2628`, three price updates and `price_history +8`. Independent read-only
+postflight passed `26/26` offers and `8/8` history rows. Products, variants,
+mappings and offers remained `1130/2850/2808/2808`; price history became
+`9077`. Production ledger `180` has fingerprint
+`0b70711b6942428034f45b6f7124664e0ace41b1f6cdb1aca3148b2294b0c6d9`.
+No catalogue entity was created or removed, active-product visibility was not
+coupled back to offer freshness, and 13 unselected eBay review rows remain.
+
 **5 September 2026 eBay Review Queue publication checkpoint:** the owner's
 exact control-plane approval for run `33961938063`, artifact `9968209374` and
 commit `311ab2bf48cc44f09675258f611f0ba6726ec198` was consumed once before
