@@ -199,7 +199,7 @@ function fileSha(file) {
   return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
 
-test("source artifact verification binds run, artifact hashes, commit and excludes offer 2748 from review scope", () => {
+test("source artifact verification binds run, artifact hashes, commit and dynamic review scope", () => {
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);
   const source = verifySourceArtifact(options);
@@ -208,6 +208,24 @@ test("source artifact verification binds run, artifact hashes, commit and exclud
   assert.equal(source.contract.commit_sha, SOURCE.commit);
   assert.deepEqual(source.report.review_rows.map((row) => row.offer_id), ["2554", "2686"]);
   assert.equal(source.report.review_rows.some((row) => row.offer_id === "2748"), false);
+});
+
+test("source artifact verification permits offer 2748 when current signed evidence places it in review", () => {
+  const fixture = writeFixture();
+  fixture.report.execution_offer_ids = fixture.report.execution_offer_ids.map((offerId) => offerId === "2748" ? "2686" : offerId);
+  fixture.report.review_rows[1] = { offer_id: "2748", decision: "REJECT", blockers: ["LISTING_OUT_OF_STOCK"], review_type: "IDENTITY_CONFLICT" };
+  fixture.report.semantic_source_rows[1] = semantic("2686", "2872", { decision: "PASS", price: "20.99" });
+  fixture.report.semantic_source_rows[2] = semantic("2748", "2934", { decision: "REJECT", price: "20.99", blockers: ["LISTING_OUT_OF_STOCK"] });
+  fixture.report.source_row_fingerprints[1].scope = "EXECUTABLE";
+  fixture.report.source_row_fingerprints[2].scope = "REVIEW";
+  fixture.contract.review_offer_ids = ["2554", "2748"];
+  fixture.contract.executable_offer_ids = ["2686"];
+  writeJson(path.join(fixture.directory, "production-dry-run.json"), fixture.report);
+  fixture.contract.report_sha256 = fileSha(path.join(fixture.directory, "production-dry-run.json"));
+  writeJson(path.join(fixture.directory, "production-dry-run-contract.json"), fixture.contract);
+
+  const source = verifySourceArtifact(sourceOptions(fixture.directory));
+  assert.deepEqual(source.report.review_rows.map((row) => row.offer_id), ["2554", "2748"]);
 });
 
 test("source artifact verification derives the split dynamically and rejects count drift", () => {

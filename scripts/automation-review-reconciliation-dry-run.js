@@ -182,7 +182,6 @@ function verifySourceArtifact(options) {
   const reviewIds = sortedStrings(report.review_rows.map((row) => row.offer_id));
   if (canonicalJson(reviewIds) !== canonicalJson(sortedStrings(contract.review_offer_ids))) fail("Source report and contract review IDs mismatch");
   if (reviewIds.length !== reviewCount || sortedStrings(report.execution_offer_ids).length !== executableCount) fail("Source report offer ID count mismatch");
-  if (reviewIds.includes("2748")) fail("Offer 2748 must not be in source review scope");
   return { contract, report, contractPath, reportPath };
 }
 
