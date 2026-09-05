@@ -358,19 +358,19 @@ test("eBay refresh is frozen to the exact 237 approved existing offers", () => {
     { product_id: "1033", product_variant_id: "2162", retailer_product_id: "2807", offer_id: "2621" },
     { product_id: "294", product_variant_id: "1774", retailer_product_id: "2808", offer_id: "2622" },
     { product_id: "295", product_variant_id: "1777", retailer_product_id: "2809", offer_id: "2623" },
-    { product_id: "791", product_variant_id: "1138", retailer_product_id: "2810", offer_id: "2624" },
-    { product_id: "796", product_variant_id: "1143", retailer_product_id: "2811", offer_id: "2625" },
-    { product_id: "799", product_variant_id: "1146", retailer_product_id: "2812", offer_id: "2626" },
-    { product_id: "800", product_variant_id: "1147", retailer_product_id: "2813", offer_id: "2627" },
+    { product_id: "791", product_variant_id: "2881", retailer_product_id: "2810", offer_id: "2624" },
+    { product_id: "796", product_variant_id: "2882", retailer_product_id: "2811", offer_id: "2625" },
+    { product_id: "799", product_variant_id: "2883", retailer_product_id: "2812", offer_id: "2626" },
+    { product_id: "800", product_variant_id: "2893", retailer_product_id: "2813", offer_id: "2627" },
     { product_id: "882", product_variant_id: "1396", retailer_product_id: "2814", offer_id: "2628" },
     { product_id: "887", product_variant_id: "1445", retailer_product_id: "2815", offer_id: "2629" },
-    { product_id: "927", product_variant_id: "1535", retailer_product_id: "2816", offer_id: "2630" },
+    { product_id: "927", product_variant_id: "2927", retailer_product_id: "2816", offer_id: "2630" },
     { product_id: "481", product_variant_id: "763", retailer_product_id: "2817", offer_id: "2631" },
     { product_id: "770", product_variant_id: "943", retailer_product_id: "2818", offer_id: "2632" },
     { product_id: "770", product_variant_id: "944", retailer_product_id: "2819", offer_id: "2633" },
     { product_id: "66", product_variant_id: "1620", retailer_product_id: "2820", offer_id: "2634" },
     { product_id: "522", product_variant_id: "497", retailer_product_id: "2821", offer_id: "2635" },
-    { product_id: "794", product_variant_id: "1141", retailer_product_id: "2822", offer_id: "2636" },
+    { product_id: "794", product_variant_id: "2943", retailer_product_id: "2822", offer_id: "2636" },
     { product_id: "673", product_variant_id: "513", retailer_product_id: "2823", offer_id: "2637" },
     { product_id: "696", product_variant_id: "568", retailer_product_id: "2824", offer_id: "2638" },
     { product_id: "457", product_variant_id: "1050", retailer_product_id: "2825", offer_id: "2639" },
@@ -519,6 +519,22 @@ test("owner-reviewed eBay offer 2581 uses the existing exact 405g canonical vari
   assert.equal(scope.variant_name, "405g");
   assert.equal(scope.size_value, "405");
   assert.equal(scope.size_unit, "g");
+});
+
+test("eBay refresh scope follows all 23 applied reviewed existing-variant rebinds", () => {
+  const expected = new Map([
+    ["2582", "2910"], ["2583", "2911"], ["2584", "2912"], ["2585", "2946"], ["2586", "2929"], ["2587", "2913"],
+    ["2624", "2881"], ["2625", "2882"], ["2626", "2883"], ["2627", "2893"], ["2630", "2927"], ["2636", "2943"],
+    ["2646", "3014"], ["2647", "3052"], ["2648", "3063"], ["2649", "3064"], ["2650", "2995"], ["2651", "3165"],
+    ["2653", "2894"], ["2654", "2895"], ["2655", "2900"], ["2656", "2901"], ["2727", "2880"],
+  ]);
+  assert.equal(expected.size, 23);
+  for (const [offerId, productVariantId] of expected) {
+    const scope = REFRESH_SCOPES.find((row) => row.offer_id === offerId);
+    assert.ok(scope, `missing eBay refresh offer ${offerId}`);
+    assert.equal(scope.product_variant_id, productVariantId, offerId);
+  }
+  assert.equal(new Set(REFRESH_SCOPES.map((row) => row.product_variant_id)).size, 237);
 });
 
 test("eBay refresh reads the approved item directly and remains GET-only", async () => {

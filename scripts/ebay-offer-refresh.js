@@ -265,6 +265,29 @@ const LIVE_IDENTITY_OVERRIDES = new Map([
 ]);
 const OWNER_REVIEWED_CANONICAL_VARIANT_OVERRIDES = new Map([
   ["2581", Object.freeze({ product_variant_id: "2920", variant_name: "405g", size_value: "405", size_unit: "g", pack_count: "1" })],
+  ["2582", Object.freeze({ product_variant_id: "2910" })],
+  ["2583", Object.freeze({ product_variant_id: "2911" })],
+  ["2584", Object.freeze({ product_variant_id: "2912" })],
+  ["2585", Object.freeze({ product_variant_id: "2946" })],
+  ["2586", Object.freeze({ product_variant_id: "2929" })],
+  ["2587", Object.freeze({ product_variant_id: "2913" })],
+  ["2624", Object.freeze({ product_variant_id: "2881" })],
+  ["2625", Object.freeze({ product_variant_id: "2882" })],
+  ["2626", Object.freeze({ product_variant_id: "2883" })],
+  ["2627", Object.freeze({ product_variant_id: "2893" })],
+  ["2630", Object.freeze({ product_variant_id: "2927" })],
+  ["2636", Object.freeze({ product_variant_id: "2943" })],
+  ["2646", Object.freeze({ product_variant_id: "3014" })],
+  ["2647", Object.freeze({ product_variant_id: "3052" })],
+  ["2648", Object.freeze({ product_variant_id: "3063" })],
+  ["2649", Object.freeze({ product_variant_id: "3064" })],
+  ["2650", Object.freeze({ product_variant_id: "2995" })],
+  ["2651", Object.freeze({ product_variant_id: "3165" })],
+  ["2653", Object.freeze({ product_variant_id: "2894" })],
+  ["2654", Object.freeze({ product_variant_id: "2895" })],
+  ["2655", Object.freeze({ product_variant_id: "2900" })],
+  ["2656", Object.freeze({ product_variant_id: "2901" })],
+  ["2727", Object.freeze({ product_variant_id: "2880" })],
 ]);
 
 function fail(message) { throw new Error(message); }
@@ -314,12 +337,14 @@ function loadScopes() {
   if (rows.length !== 237) fail("Exact eBay refresh manifest must contain 237 rows");
   const unique = (key) => new Set(rows.map((row) => row[key])).size === rows.length;
   if (!["product_variant_id", "external_variant_id"].every(unique)) fail("Exact eBay refresh manifest contains duplicate identities");
-  return Object.freeze(rows.map((row, index) => {
+  const scopes = rows.map((row, index) => {
     const live = LIVE_IDENTITY_OVERRIDES.get(row.external_variant_id) || [String(2724 + index), String(2539 + index)];
     const offerId = live[1];
     const reviewedVariant = OWNER_REVIEWED_CANONICAL_VARIANT_OVERRIDES.get(offerId) || {};
     return Object.freeze({ ...row, ...reviewedVariant, gtin: row.external_gtin, retailer_id: "12", retailer_product_id: live[0], offer_id: offerId });
-  }));
+  });
+  if (new Set(scopes.map((row) => row.product_variant_id)).size !== scopes.length) fail("Applied eBay canonical variant overrides contain duplicate identities");
+  return Object.freeze(scopes);
 }
 
 const SCOPES = loadScopes();
