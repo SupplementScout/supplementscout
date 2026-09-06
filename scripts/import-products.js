@@ -106,6 +106,11 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256 =
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS = new Set(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile.external_variant_ids.map(String)
 );
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA256 =
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.time4_remaining_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_IDS = new Set(
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.time4_remaining_profile.external_variant_ids.map(String)
+);
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS = new Map(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.rows.map((row) => [
     String(row.external_variant_id),
@@ -925,15 +930,29 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const tenRepsReviewedRow = TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS.get(externalVariantId);
   const isTenRepsBootstrapSource =
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256;
+  const isTenRepsTime4RemainingSource =
+    predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA256;
+  const isTenRepsReviewedSource =
+    isTenRepsBootstrapSource || isTenRepsTime4RemainingSource;
   const isTenRepsReviewedIdentity = Boolean(
     tenRepsReviewedRow &&
-      TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) &&
+      (
+        isTenRepsBootstrapSource &&
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) ||
+        isTenRepsTime4RemainingSource &&
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_IDS.has(externalVariantId)
+      ) &&
       slugifyRetailerName(String(row.retailer_name || "")) === "10-reps"
   );
-  if (isTenRepsReviewedIdentity && !isTenRepsBootstrapSource) {
+  if (
+    tenRepsReviewedRow &&
+    TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) &&
+    slugifyRetailerName(String(row.retailer_name || "")) === "10-reps" &&
+    !isTenRepsReviewedSource
+  ) {
     throw new Error("10 Reps reviewed new-product source SHA mismatch");
   }
-  if (isTenRepsBootstrapSource) {
+  if (isTenRepsReviewedSource) {
     if (!isTenRepsReviewedIdentity) {
       throw new Error("10 Reps reviewed new-product row is outside the approved bootstrap manifest");
     }
@@ -1542,19 +1561,22 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
     return rows;
   }
-  if (
+  const tenRepsV8Profile =
     String(options.sourceFileSha256 || "").toLowerCase() ===
-    TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256
-  ) {
-    if (rows.length !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile.row_count) {
-      throw new Error("10 Reps reviewed new-product bootstrap contract requires exactly 4 rows");
+      TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256
+      ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile
+      : String(options.sourceFileSha256 || "").toLowerCase() ===
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA256
+        ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.time4_remaining_profile
+        : null;
+  if (tenRepsV8Profile) {
+    if (rows.length !== tenRepsV8Profile.row_count) {
+      throw new Error(`10 Reps reviewed new-product contract requires exactly ${tenRepsV8Profile.row_count} rows`);
     }
     const actualVariantIds = rows
       .map((row) => optionalIdentifier(row.external_variant_id))
       .sort();
-    const reviewedVariantIds = [
-      ...TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS,
-    ].sort();
+    const reviewedVariantIds = tenRepsV8Profile.external_variant_ids.map(String).sort();
     if (
       new Set(actualVariantIds).size !== reviewedVariantIds.length ||
       canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
@@ -4435,6 +4457,9 @@ function buildAtomicImportPlan(item) {
     legacyMappingUpgrade,
   } = item;
   const reviewedParentVariantCreate = Boolean(productVariant?.reviewed_parent_variant_create);
+  const reviewedTenRepsDefaultVariant =
+    row.__reviewed_10reps_new_product_identity?.action ===
+      "create_product_with_default_variant";
   const now = resolvePlanTimestamp(item.sourceCapturedAt);
   const rawProductData = product ? null : (item.plannedProduct?.planned_create ? item.plannedProduct : buildProductData(row, item.rowNumber, "feed"));
   if (rawProductData) rawProductData.gtin = null;
@@ -4556,7 +4581,14 @@ function buildAtomicImportPlan(item) {
         }
       : {
           action: "create_default",
-          evidence: buildVariantEvidence(row, null),
+          evidence: reviewedTenRepsDefaultVariant
+            ? {
+                ...buildVariantEvidence(row, null),
+                flavour: null,
+                size_value: null,
+                size_unit: null,
+              }
+            : buildVariantEvidence(row, null),
         },
     retailer: retailer
       ? { action: "existing", id: retailer.id }

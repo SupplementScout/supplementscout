@@ -12,7 +12,7 @@ const existingProducts14Manifest = require("../config/retailers/10reps-reviewed-
 const highConfidence25Manifest = require("../config/retailers/10reps-reviewed-bindings-v7-high-confidence-25.json");
 const newProductsV8Manifest = require("../config/retailers/10reps-reviewed-new-products-v8.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
 const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
 const exactOosOptions = { artifact: EXACT_OOS_PROFILE.artifact, csv: EXACT_OOS_PROFILE.csv, planFingerprint: EXACT_OOS_PROFILE.fingerprint };
@@ -23,6 +23,7 @@ const specificServings3Options = { artifact: SPECIFIC_SERVINGS_3_PROFILE.artifac
 const existingProducts14Options = { artifact: EXISTING_PRODUCTS_14_PROFILE.artifact, csv: EXISTING_PRODUCTS_14_PROFILE.csv, planFingerprint: EXISTING_PRODUCTS_14_PROFILE.fingerprint };
 const highConfidence25Options = { artifact: HIGH_CONFIDENCE_25_PROFILE.artifact, csv: HIGH_CONFIDENCE_25_PROFILE.csv, planFingerprint: HIGH_CONFIDENCE_25_PROFILE.fingerprint };
 const newProductsV8Options = { artifact: NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifact, csv: NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.fingerprint };
+const newProductsV8Time4Options = { artifact: NEW_PRODUCTS_V8_TIME4_PROFILE.artifact, csv: NEW_PRODUCTS_V8_TIME4_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V8_TIME4_PROFILE.fingerprint };
 const remainingTimes = [
   "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
   "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
@@ -432,6 +433,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   assert.deepEqual(runner.parseArgs([`--artifact=${EXISTING_PRODUCTS_14_PROFILE.artifact}`, `--csv=${EXISTING_PRODUCTS_14_PROFILE.csv}`, `--plan-fingerprint=${EXISTING_PRODUCTS_14_PROFILE.fingerprint}`]), existingProducts14Options);
   assert.deepEqual(runner.parseArgs([`--artifact=${HIGH_CONFIDENCE_25_PROFILE.artifact}`, `--csv=${HIGH_CONFIDENCE_25_PROFILE.csv}`, `--plan-fingerprint=${HIGH_CONFIDENCE_25_PROFILE.fingerprint}`]), highConfidence25Options);
   assert.deepEqual(runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.csv}`, `--plan-fingerprint=${NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.fingerprint}`]), newProductsV8Options);
+  assert.deepEqual(runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_TIME4_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_TIME4_PROFILE.csv}`, `--plan-fingerprint=${NEW_PRODUCTS_V8_TIME4_PROFILE.fingerprint}`]), newProductsV8Time4Options);
   for (const fingerprint of REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of EXACT_OOS_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of REVIEW_22_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REVIEW_22_PROFILE.artifact}`, `--csv=${REVIEW_22_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
@@ -441,6 +443,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   for (const fingerprint of EXISTING_PRODUCTS_14_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${EXISTING_PRODUCTS_14_PROFILE.artifact}`, `--csv=${EXISTING_PRODUCTS_14_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of HIGH_CONFIDENCE_25_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${HIGH_CONFIDENCE_25_PROFILE.artifact}`, `--csv=${HIGH_CONFIDENCE_25_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
+  for (const fingerprint of NEW_PRODUCTS_V8_TIME4_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_TIME4_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_TIME4_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const args of [[], [`--artifact=${PROFILE.artifact}`, `--artifact=${PROFILE.artifact}`], ["--apply"], ["--pilot-apply"], ["--profile=other"]]) assert.throws(() => runner.parseArgs(args));
   for (const key of ["artifact", "csv", "planFingerprint"]) assert.throws(() => runner.prepareApproval({ ...options, [key]: "wrong" }, () => { throw new Error("Must not read files"); }), /Invalid/);
   for (const row of manifest.rows.slice(1)) assert.throws(() => runner.prepareApproval({ ...options, planFingerprint: row.plan_fingerprint }), /bootstrap fingerprint/);
@@ -456,6 +459,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   assert.throws(() => runner.parseArgs([`--artifact=${EXISTING_PRODUCTS_14_PROFILE.artifact}`, `--csv=${EXISTING_PRODUCTS_14_PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), /existing-products-14 fingerprint/);
   assert.throws(() => runner.parseArgs([`--artifact=${HIGH_CONFIDENCE_25_PROFILE.artifact}`, `--csv=${HIGH_CONFIDENCE_25_PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), /high-confidence-25 fingerprint/);
   assert.throws(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), /new-products-v8-bootstrap-4 fingerprint/);
+  assert.throws(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_TIME4_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_TIME4_PROFILE.csv}`, `--plan-fingerprint=960b153093ab0f9e7a5f1c87861fc604`]), /new-products-v8-time4-remaining-1 fingerprint/);
 });
 test("wrong artifact and CSV SHA are rejected by the package digest guard", () => {
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt artifact"), PROFILE.artifactSha256, "artifact"), /artifact SHA/);
@@ -482,6 +486,8 @@ test("wrong artifact and CSV SHA are rejected by the package digest guard", () =
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt high confidence CSV"), HIGH_CONFIDENCE_25_PROFILE.csvSha256, "CSV"), /CSV SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt new-products artifact"), NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt new-products CSV"), NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.csvSha256, "CSV"), /CSV SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt Time 4 artifact"), NEW_PRODUCTS_V8_TIME4_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt Time 4 CSV"), NEW_PRODUCTS_V8_TIME4_PROFILE.csvSha256, "CSV"), /CSV SHA/);
 });
 test("10 Reps v8 closed bootstrap validates only the exact four reviewed new-product plans", {
   skip: !fs.existsSync(NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifact) ||
@@ -514,6 +520,42 @@ test("10 Reps v8 closed bootstrap validates only the exact four reviewed new-pro
     const value = { manifest: structuredClone(newProductsV8Manifest), artifact: structuredClone(artifact), csvRows: structuredClone(csvRows) };
     mutate(value);
     assert.throws(() => runner.validatePackage(value.manifest, value.artifact, value.csvRows, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE));
+  }
+});
+test("10 Reps v8 Time 4 profile validates only the fresh safe default-variant plan", {
+  skip: !fs.existsSync(NEW_PRODUCTS_V8_TIME4_PROFILE.artifact) ||
+    !fs.existsSync(NEW_PRODUCTS_V8_TIME4_PROFILE.csv),
+}, () => {
+  const prepared = runner.prepareApproval(newProductsV8Time4Options);
+  assert.equal(prepared.profile, NEW_PRODUCTS_V8_TIME4_PROFILE);
+  assert.equal(prepared.entry.plan_fingerprint, "4b7eb05055c37a65810ae22953d68e6c");
+  assert.equal(prepared.entry.resolved_plan.retailer.id, "14");
+  assert.equal(prepared.entry.resolved_plan.product.action, "create");
+  assert.equal(prepared.entry.resolved_plan.product.values.name, "Time 4 Glutamine 600g 120 Servings");
+  assert.equal(prepared.entry.resolved_plan.product_variant.action, "create_default");
+  assert.deepEqual(prepared.entry.resolved_plan.product_variant.evidence, {
+    approved_mapping_id: null,
+    external_options: { Size: "600g" },
+    flavour: null,
+    pack_count: "1",
+    product_format: "powder",
+    size_unit: null,
+    size_value: null,
+  });
+  assert.equal(prepared.entry.resolved_plan.retailer_product.values.external_variant_id, "582");
+  assert.equal(prepared.entry.resolved_plan.offer.values.shipping_cost, "3.99");
+
+  const artifact = JSON.parse(fs.readFileSync(NEW_PRODUCTS_V8_TIME4_PROFILE.artifact));
+  const csvRows = parse(fs.readFileSync(NEW_PRODUCTS_V8_TIME4_PROFILE.csv), { columns: true, skip_empty_lines: true });
+  for (const mutate of [
+    value => { value.artifact.plans[0].resolved_plan.product_variant.evidence.size_value = "600"; },
+    value => { value.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "4.99"; },
+    value => { value.artifact.plans[0].resolved_plan.retailer_product.values.external_variant_id = "3840"; },
+    value => { value.manifest.time4_remaining_profile.plan_fingerprints = ["960b153093ab0f9e7a5f1c87861fc604"]; },
+  ]) {
+    const value = { manifest: structuredClone(newProductsV8Manifest), artifact: structuredClone(artifact), csvRows: structuredClone(csvRows) };
+    mutate(value);
+    assert.throws(() => runner.validatePackage(value.manifest, value.artifact, value.csvRows, NEW_PRODUCTS_V8_TIME4_PROFILE));
   }
 });
 test("all 20 synthetic plans are checked and only the exact bootstrap is selected", () => {

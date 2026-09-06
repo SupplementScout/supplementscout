@@ -73,6 +73,8 @@ const PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA =
   predatorsReviewedCm3MissingVariants.canonical_csv.sha256;
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA =
   tenRepsReviewedNewProductsV8.bootstrap_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA =
+  tenRepsReviewedNewProductsV8.time4_remaining_profile.sha256;
 
 function tenRepsReviewedNewProductsV8BootstrapRows() {
   const ids = new Set(
@@ -2959,6 +2961,15 @@ test("10 Reps reviewed v8 bootstrap plans only four owner-approved new products"
     result.report.approvedRows.map((item) => item.importPlan.product_variant.action),
     ["create_reviewed_variant", "create_reviewed_variant", "create_reviewed_variant", "create_default"]
   );
+  assert.deepEqual(result.report.approvedRows[3].importPlan.product_variant.evidence, {
+    approved_mapping_id: null,
+    external_options: { Size: "600g" },
+    flavour: null,
+    pack_count: "1",
+    product_format: "powder",
+    size_unit: null,
+    size_value: null,
+  });
   assert.ok(result.report.approvedRows.every((item) =>
     item.importPlan.retailer.action === "existing" &&
       String(item.importPlan.retailer.id) === "14" &&
@@ -2966,6 +2977,51 @@ test("10 Reps reviewed v8 bootstrap plans only four owner-approved new products"
       Number(item.importPlan.offer.values.total_price) ===
         (Math.round(Number(item.importPlan.offer.values.price) * 100) + 399) / 100
   ));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("10 Reps reviewed v8 Time 4 remaining plan keeps source size but creates a safe default variant", async () => {
+  const rows = tenRepsReviewedNewProductsV8BootstrapRows().filter(
+    (row) => row.external_variant_id === "582"
+  );
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA,
+  });
+  assert.equal(normalized.length, 1);
+  assert.equal(normalized[0].external_variant_id, "582");
+
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{
+      id: "14",
+      name: "10 Reps",
+      slug: "10-reps",
+      website: "https://www.10reps.co.uk/",
+      is_active: true,
+    }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 1);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product.action, "create");
+  assert.equal(plan.product_variant.action, "create_default");
+  assert.deepEqual(plan.product_variant.evidence, {
+    approved_mapping_id: null,
+    external_options: { Size: "600g" },
+    flavour: null,
+    pack_count: "1",
+    product_format: "powder",
+    size_unit: null,
+    size_value: null,
+  });
   assert.equal(supabase.writes.length, 0);
 });
 

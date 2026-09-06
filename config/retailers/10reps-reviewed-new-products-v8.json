@@ -63,6 +63,30 @@
       "price_history_create": 4
     }
   },
+  "time4_remaining_profile": {
+    "path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-time4-remaining-1.csv",
+    "sha256": "baad5be6233e98c072c86e69d4517ae17721a2c4a601f99ec7518bca3e812186",
+    "row_count": 1,
+    "external_variant_ids": [
+      "582"
+    ],
+    "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-time4-remaining-1-dry-run.json",
+    "artifact_sha256": "6fe37371e4056030feffc56e596b14ff760695951f7d7865617af5a8ae2d3b30",
+    "plan_fingerprints": [
+      "4b7eb05055c37a65810ae22953d68e6c"
+    ],
+    "status": "DRY_RUN_PASS",
+    "blocked_row_count": 0,
+    "conflict_count": 0,
+    "expected_actions": {
+      "retailers_create": 0,
+      "products_create": 1,
+      "default_product_variants_create": 1,
+      "retailer_products_create": 1,
+      "offers_create": 1,
+      "price_history_create": 1
+    }
+  },
   "remaining_profile": {
     "status": "PENDING_BOOTSTRAP_APPLY",
     "row_count": 18

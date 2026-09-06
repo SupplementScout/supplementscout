@@ -432,7 +432,7 @@ const NEW_PRODUCTS_V8_BOOTSTRAP_BINDINGS = Object.freeze([
 const NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE = Object.freeze({
   id: "new-products-v8-bootstrap-4",
   manifest: path.join(ROOT, "config/retailers/10reps-reviewed-new-products-v8.json"),
-  manifestSha256: "b5ea9ac27b0987f867a50562711ddd34373a6e5447c47dd06a5b31903635a38d",
+  manifestSha256: "6f036086291b4db3a9e01ceda39bb03f1dcfd5eb3941c7dc67ceab526ae032cb",
   manifestKind: "10reps-reviewed-new-products-v8",
   manifestRowCount: 22,
   artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-bootstrap-4-dry-run.json"),
@@ -451,8 +451,35 @@ const NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE = Object.freeze({
   login: PROFILE.login,
   project: PROFILE.project,
   allowsReviewedProductCreation: true,
+  manifestProfileKey: "bootstrap_profile",
+  safeDefaultVariantEvidence: false,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE]);
+const NEW_PRODUCTS_V8_TIME4_PROFILE = Object.freeze({
+  id: "new-products-v8-time4-remaining-1",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-new-products-v8.json"),
+  manifestSha256: "6f036086291b4db3a9e01ceda39bb03f1dcfd5eb3941c7dc67ceab526ae032cb",
+  manifestKind: "10reps-reviewed-new-products-v8",
+  manifestRowCount: 22,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-time4-remaining-1-dry-run.json"),
+  artifactSha256: "6fe37371e4056030feffc56e596b14ff760695951f7d7865617af5a8ae2d3b30",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-time4-remaining-1.csv"),
+  csvSha256: "baad5be6233e98c072c86e69d4517ae17721a2c4a601f99ec7518bca3e812186",
+  fingerprint: "4b7eb05055c37a65810ae22953d68e6c",
+  allowedFingerprints: Object.freeze(["4b7eb05055c37a65810ae22953d68e6c"]),
+  bindings: Object.freeze([Object.freeze({ reviewRow: 22, externalVariantId: "582", fingerprint: "4b7eb05055c37a65810ae22953d68e6c" })]),
+  rowCount: 1,
+  retailerAction: "existing",
+  retailerId: "14",
+  approvalSource: "10reps-reviewed-new-products-v8-time4-remaining-1",
+  applicationName: "10reps-new-products-v8-time4-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  allowsReviewedProductCreation: true,
+  manifestProfileKey: "time4_remaining_profile",
+  safeDefaultVariantEvidence: true,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -666,8 +693,8 @@ function validateNewProductsV8Plan(entry, reviewed, source, profile) {
       flavour: null,
       pack_count: "1",
       product_format: reviewed.product_format,
-      size_unit: reviewed.size_unit,
-      size_value: String(reviewed.size),
+      size_unit: profile.safeDefaultVariantEvidence ? null : reviewed.size_unit,
+      size_value: profile.safeDefaultVariantEvidence ? null : String(reviewed.size),
     }, "default bootstrap variant evidence");
   }
   same(plan.retailer_product.action, "create", "new-product mapping action");
@@ -756,38 +783,40 @@ function validateNewProductsV8Package(manifest, artifact, csvRows, profile, sele
     fresh_single_use_approval_per_plan: true,
     strict_production_readback_after_each_apply: true,
   })) same(manifest.policy[key], value, `new-product policy ${key}`);
-  same(manifest.bootstrap_profile.path, "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-bootstrap-4.csv", "bootstrap CSV path");
-  same(manifest.bootstrap_profile.sha256, profile.csvSha256, "bootstrap CSV manifest SHA");
-  same(manifest.bootstrap_profile.row_count, 4, "bootstrap manifest rows");
-  same(manifest.bootstrap_profile.external_variant_ids, profile.bindings.map(binding => binding.externalVariantId), "bootstrap manifest sources");
-  same(manifest.bootstrap_profile.artifact_path, "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-bootstrap-4-dry-run.json", "bootstrap artifact path");
-  same(manifest.bootstrap_profile.artifact_sha256, profile.artifactSha256, "bootstrap artifact manifest SHA");
-  same(manifest.bootstrap_profile.plan_fingerprints, profile.allowedFingerprints, "bootstrap manifest fingerprints");
-  same(manifest.bootstrap_profile.status, "DRY_RUN_PASS", "bootstrap manifest status");
-  same(manifest.bootstrap_profile.blocked_row_count, 0, "bootstrap blockers");
-  same(manifest.bootstrap_profile.conflict_count, 0, "bootstrap conflicts");
+  const manifestProfile = manifest[profile.manifestProfileKey];
+  requireCondition(manifestProfile, "Missing new-product manifest profile");
+  same(manifestProfile.path, path.relative(ROOT, profile.csv).replaceAll("\\", "/"), "new-product CSV path");
+  same(manifestProfile.sha256, profile.csvSha256, "new-product CSV manifest SHA");
+  same(manifestProfile.row_count, profile.rowCount, "new-product manifest profile rows");
+  same(manifestProfile.external_variant_ids, profile.bindings.map(binding => binding.externalVariantId), "new-product manifest sources");
+  same(manifestProfile.artifact_path, path.relative(ROOT, profile.artifact).replaceAll("\\", "/"), "new-product artifact path");
+  same(manifestProfile.artifact_sha256, profile.artifactSha256, "new-product artifact manifest SHA");
+  same(manifestProfile.plan_fingerprints, profile.allowedFingerprints, "new-product manifest fingerprints");
+  same(manifestProfile.status, "DRY_RUN_PASS", "new-product manifest status");
+  same(manifestProfile.blocked_row_count, 0, "new-product blockers");
+  same(manifestProfile.conflict_count, 0, "new-product conflicts");
   same(artifact.artifact_version, "1", "artifact version");
-  same(artifact.row_count, "4", "bootstrap artifact rows");
-  same(artifact.summary, { blocked_row_count: "0", plan_count: "4", skipped_row_count: "0" }, "bootstrap artifact summary");
-  same(artifact.blocked_rows, [], "bootstrap artifact blockers");
-  same(artifact.source_file_sha256, profile.csvSha256, "bootstrap artifact CSV digest");
-  same(artifact.plans.length, 4, "bootstrap plan count");
-  same(artifact.source_rows.length, 4, "bootstrap source count");
-  same(csvRows.length, 4, "bootstrap CSV count");
-  same([...new Set(artifact.plans.map(entry => entry.plan_fingerprint))], profile.allowedFingerprints, "bootstrap exact fingerprints");
+  same(artifact.row_count, String(profile.rowCount), "new-product artifact rows");
+  same(artifact.summary, { blocked_row_count: "0", plan_count: String(profile.rowCount), skipped_row_count: "0" }, "new-product artifact summary");
+  same(artifact.blocked_rows, [], "new-product artifact blockers");
+  same(artifact.source_file_sha256, profile.csvSha256, "new-product artifact CSV digest");
+  same(artifact.plans.length, profile.rowCount, "new-product plan count");
+  same(artifact.source_rows.length, profile.rowCount, "new-product source count");
+  same(csvRows.length, profile.rowCount, "new-product CSV count");
+  same([...new Set(artifact.plans.map(entry => entry.plan_fingerprint))], profile.allowedFingerprints, "new-product exact fingerprints");
   const reviewedRows = profile.bindings.map(binding => {
     const reviewed = manifest.rows.find(row => row.review_row === binding.reviewRow);
-    requireCondition(reviewed && reviewed.external_variant_id === binding.externalVariantId, "Missing exact reviewed bootstrap row");
+    requireCondition(reviewed && reviewed.external_variant_id === binding.externalVariantId, "Missing exact reviewed new-product row");
     return reviewed;
   });
   for (let index = 0; index < reviewedRows.length; index++) {
     const reviewed = reviewedRows[index];
     const entry = artifact.plans.find(candidate => candidate.row_number === String(index + 2));
     const source = artifact.source_rows.find(candidate => candidate.row_number === String(index + 2));
-    requireCondition(entry && source, "Missing bootstrap plan/source row");
-    same(source.status, "planned", "bootstrap source disposition");
-    same(source.source_row_fingerprint, entry.source_row_fingerprint, "bootstrap source binding");
-    same(source.plan_fingerprint, entry.plan_fingerprint, "bootstrap plan binding");
+    requireCondition(entry && source, "Missing new-product plan/source row");
+    same(source.status, "planned", "new-product source disposition");
+    same(source.source_row_fingerprint, entry.source_row_fingerprint, "new-product source binding");
+    same(source.plan_fingerprint, entry.plan_fingerprint, "new-product plan binding");
     const normalized = {
       ...csvRows[index],
       variant: [csvRows[index].variant_name, csvRows[index].pack_count ? `pack of ${csvRows[index].pack_count}` : ""].filter(Boolean).join(" "),
@@ -795,12 +824,12 @@ function validateNewProductsV8Package(manifest, artifact, csvRows, profile, sele
     };
     const artifactCsvSource = { ...source.normalized_source_row };
     delete artifactCsvSource.__reviewed_10reps_new_product_identity;
-    same(normalized, artifactCsvSource, "bootstrap CSV to artifact source");
+    same(normalized, artifactCsvSource, "new-product CSV to artifact source");
     validateNewProductsV8Plan(entry, reviewed, source.normalized_source_row, profile);
   }
-  requireCondition(profile.allowedFingerprints.includes(selectedFingerprint), "Invalid new-products-v8 bootstrap fingerprint");
+  requireCondition(profile.allowedFingerprints.includes(selectedFingerprint), "Invalid new-products-v8 fingerprint");
   const entry = artifact.plans.find(candidate => candidate.plan_fingerprint === selectedFingerprint);
-  requireCondition(entry, "Missing exact new-products-v8 bootstrap plan");
+  requireCondition(entry, "Missing exact new-products-v8 plan");
   return { entry, artifact, profile };
 }
 function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selectedFingerprint = profile.fingerprint) {
@@ -995,4 +1024,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
