@@ -218,6 +218,8 @@ const CONTRACTS = Object.freeze({
         "b6c995c405b441f7fe62dc1efc6a090f9556594a5d2b0ee8e777023b9b978abe",
       "20260905170000_apply_reviewed_ebay_26_remediation.sql":
         "e950ee61197a2e699c311e103ffc2ef34bc3cf4f8a93db8497c3e9a6b9774e1a",
+      "20260906143000_allow_10reps_reviewed_new_products_v8.sql":
+        "61e12ebe62dc3ebbde696e50842fe5503d5515b9b0e3b35956c37e421be9c05b",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -252,7 +254,13 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260906143000_allow_10reps_reviewed_new_products_v8.sql",
+        sha256: "61e12ebe62dc3ebbde696e50842fe5503d5515b9b0e3b35956c37e421be9c05b",
+        expectedCatalogueDeltas: Object.freeze({}),
+      }),
+    ]),
   }),
 });
 

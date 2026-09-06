@@ -59,6 +59,7 @@ const PREDATORS_GEAR_REVIEWED_CROSS_PRODUCT_PARENT_CM3 = require("../config/reta
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1 = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3 = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_V1 = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8 = require("../config/retailers/10reps-reviewed-new-products-v8.json");
 
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256 =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.canonical_csv.sha256;
@@ -96,6 +97,17 @@ const PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_SHA256 =
   PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_V1.canonical_csv.sha256;
 const PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANT_ROWS = new Map(
   PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_V1.rows.map((row) => [
+    String(row.external_variant_id),
+    row,
+  ])
+);
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256 =
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS = new Set(
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile.external_variant_ids.map(String)
+);
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS = new Map(
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.rows.map((row) => [
     String(row.external_variant_id),
     row,
   ])
@@ -897,6 +909,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   delete sourceRow.__reviewed_whey_okay_q1_q2_package_identity;
   delete sourceRow.__reviewed_six_pack_family_identity;
   delete sourceRow.__reviewed_predators_new_product_identity;
+  delete sourceRow.__reviewed_10reps_new_product_identity;
   row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -909,6 +922,90 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const predatorsReviewedRow =
     PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS.get(externalVariantId);
   const predatorsSourceSha = String(options.sourceFileSha256 || "").toLowerCase();
+  const tenRepsReviewedRow = TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS.get(externalVariantId);
+  const isTenRepsBootstrapSource =
+    predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256;
+  const isTenRepsReviewedIdentity = Boolean(
+    tenRepsReviewedRow &&
+      TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) &&
+      slugifyRetailerName(String(row.retailer_name || "")) === "10-reps"
+  );
+  if (isTenRepsReviewedIdentity && !isTenRepsBootstrapSource) {
+    throw new Error("10 Reps reviewed new-product source SHA mismatch");
+  }
+  if (isTenRepsBootstrapSource) {
+    if (!isTenRepsReviewedIdentity) {
+      throw new Error("10 Reps reviewed new-product row is outside the approved bootstrap manifest");
+    }
+    const exactTextFields = [
+      ["retailer_name", TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.retailer.name],
+      ["retailer_website", TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.retailer.website],
+      ["external_product_id", tenRepsReviewedRow.external_product_id],
+      ["external_variant_id", tenRepsReviewedRow.external_variant_id],
+      ["external_sku", tenRepsReviewedRow.external_sku],
+      ["external_gtin", ""],
+      ["product_name", tenRepsReviewedRow.product_name],
+      ["slug", tenRepsReviewedRow.slug],
+      ["brand", tenRepsReviewedRow.brand],
+      ["category", tenRepsReviewedRow.category],
+      ["description", ""],
+      ["product_format", tenRepsReviewedRow.product_format],
+      ["image", tenRepsReviewedRow.image],
+      ["external_url", tenRepsReviewedRow.source_url],
+      ["affiliate_url", tenRepsReviewedRow.source_url],
+      ["pack_count", "1"],
+      ["variant_name", tenRepsReviewedRow.variant_name],
+      ["flavour", tenRepsReviewedRow.flavour || ""],
+      ["size", `${tenRepsReviewedRow.size} ${tenRepsReviewedRow.size_unit}`],
+      ["size_unit", tenRepsReviewedRow.size_unit],
+    ];
+    for (const [field, expected] of exactTextFields) {
+      if (String(row[field] ?? "").trim() !== String(expected ?? "")) {
+        throw new Error(`10 Reps reviewed new-product ${field} mismatch`);
+      }
+    }
+    if (
+      canonicalJson(parseExternalOptions(row.external_options)) !==
+      canonicalJson(tenRepsReviewedRow.external_options)
+    ) {
+      throw new Error("10 Reps reviewed new-product external_options mismatch");
+    }
+    if (optionalIdentifier(row.product_id) || optionalIdentifier(row.product_variant_id)) {
+      throw new Error("10 Reps reviewed new-product rows cannot supply canonical IDs");
+    }
+    const expectedPrice = normalizeDecimalString(tenRepsReviewedRow.price, "price");
+    if (
+      normalizeDecimalString(row.price, "price") !== expectedPrice ||
+      normalizeDecimalString(row.shipping_cost, "shipping_cost") !== "3.99" ||
+      !parseRequiredBoolean(row.shipping_known, "shipping_known") ||
+      !parseRequiredBoolean(row.in_stock, "in_stock") ||
+      !parseRequiredBoolean(row.is_for_sale, "is_for_sale")
+    ) {
+      throw new Error("10 Reps reviewed new-product commercial fields mismatch");
+    }
+    if (
+      String(row.total_price ?? "").trim() &&
+      normalizeDecimalString(row.total_price, "total_price") !==
+        addDecimalStrings(expectedPrice, "3.99")
+    ) {
+      throw new Error("10 Reps reviewed new-product delivered price mismatch");
+    }
+    row = {
+      ...row,
+      __reviewed_10reps_new_product_identity: {
+        contract: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind,
+        review_row: tenRepsReviewedRow.review_row,
+        action: tenRepsReviewedRow.action,
+        external_product_id: tenRepsReviewedRow.external_product_id,
+        external_variant_id: tenRepsReviewedRow.external_variant_id,
+        flavour: tenRepsReviewedRow.flavour,
+        size_value: String(tenRepsReviewedRow.size),
+        size_unit: tenRepsReviewedRow.size_unit,
+        product_format: tenRepsReviewedRow.product_format,
+        source_url: tenRepsReviewedRow.source_url,
+      },
+    };
+  }
   const isPredatorsInitialReviewedSource =
     predatorsSourceSha === PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256;
   const isPredatorsPostCreateReviewedSource =
@@ -1444,6 +1541,26 @@ function isCanonicalRetailerFeedRow(row) {
 function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
     return rows;
+  }
+  if (
+    String(options.sourceFileSha256 || "").toLowerCase() ===
+    TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256
+  ) {
+    if (rows.length !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile.row_count) {
+      throw new Error("10 Reps reviewed new-product bootstrap contract requires exactly 4 rows");
+    }
+    const actualVariantIds = rows
+      .map((row) => optionalIdentifier(row.external_variant_id))
+      .sort();
+    const reviewedVariantIds = [
+      ...TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS,
+    ].sort();
+    if (
+      new Set(actualVariantIds).size !== reviewedVariantIds.length ||
+      canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
+    ) {
+      throw new Error("10 Reps reviewed new-product bootstrap row set mismatch");
+    }
   }
   if (
     String(options.sourceFileSha256 || "").toLowerCase() ===
@@ -3035,6 +3152,23 @@ function externalOptionValues(options, names) {
 
 function collectCanonicalVariantEvidence(row) {
   const options = parseExternalOptions(row.external_options);
+  const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
+  if (
+    reviewedTenReps?.action === "create_reviewed_product_variant"
+  ) {
+    return {
+      flavour: normalizeFlavour(reviewedTenReps.flavour),
+      size: parseSize(
+        `${reviewedTenReps.size_value} ${reviewedTenReps.size_unit}`
+      ),
+      packCount: parsePackCount(
+        row.pack_count ? `pack of ${row.pack_count}` : ""
+      ),
+      productFormat: parseProductFormat(reviewedTenReps.product_format),
+      discriminatingSupplied: true,
+      supplied: true,
+    };
+  }
   const reviewedPredators = row.__reviewed_predators_new_product_identity;
   if (
     reviewedPredators?.action === "create_reviewed_product_variant"
@@ -3742,6 +3876,10 @@ function isLikelyWooCommerceProductUrl(row, externalProductId) {
 }
 
 const REVIEWED_PARENT_VARIANT_POLICY = new Map([
+  ["Chaos Crew Whey Protein Powder 720g", { brand: "Chaos Crew", category: "Whey Protein", format: "powder", size: "720:g", tenRepsV8Only: true }],
+  ["AK-47 Labs Pre-Workout 240g", { brand: "AK - 47", category: "Pre Workout", format: "powder", size: "240:g", tenRepsV8Only: true }],
+  ["Efectiv Whey – Advanced Protein Complex 900g", { brand: "Efectiv", category: "Whey Protein", format: "powder", size: "900:g", tenRepsV8Only: true }],
+  ["Time 4 Glutamine 600g 120 Servings", { brand: "Time 4 Nutrition", category: "Amino Acids", format: "powder", size: "600:g", tenRepsV8Only: true, allowUnflavoured: true, simpleProduct: true }],
   ["DY Nutrition The Creatine Complex 316g", { brand: "DY Nutrition", category: "Creatine", format: "powder", size: "316:g" }],
   ["Olimp BCAA Xplode 500g", { brand: "Olimp", category: "Amino Acids", format: "powder", size: "500:g" }],
   ["Olimp Glutamine Xplode 500g", { brand: "Olimp", category: "Amino Acids", format: "powder", size: "500:g" }],
@@ -3826,8 +3964,39 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   const retailerSlug = slugifyRetailerName(
     required(row.retailer_name, "retailer_name", rowNumber)
   );
+  const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
   const reviewedPredators = row.__reviewed_predators_new_product_identity;
-  if (reviewedPredators) {
+  if (reviewedTenReps) {
+    if (
+      retailerSlug !== "10-reps" ||
+      reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind ||
+      !["create_reviewed_product_variant", "create_product_with_default_variant"].includes(
+        reviewedTenReps.action
+      )
+    ) {
+      throw new Error("reviewed 10 Reps parent identity contract mismatch");
+    }
+    if (
+      !WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalProductId || "") ||
+      !WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalVariantId || "")
+    ) {
+      throw new Error("reviewed 10 Reps parent requires numeric product and variant IDs");
+    }
+    if (
+      policy.simpleProduct
+        ? externalProductId !== externalVariantId
+        : externalProductId === externalVariantId
+    ) {
+      throw new Error("reviewed 10 Reps parent product/variant identity mismatch");
+    }
+    const directUrl = getDirectRetailerProductUrl(row) || getRetailerProductUrl(row);
+    if (
+      directUrl !== reviewedTenReps.source_url ||
+      !isLikelyWooCommerceProductUrl(row, externalProductId)
+    ) {
+      throw new Error("reviewed 10 Reps parent URL mismatch");
+    }
+  } else if (reviewedPredators) {
     const reviewedPredatorsCm3 =
       reviewedPredators.cm3_missing_variant === true &&
       reviewedPredators.contract === PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_V1.kind;
@@ -3854,6 +4023,9 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
       throw new Error("reviewed Predators Gear parent URL mismatch");
     }
   } else {
+    if (policy.tenRepsV8Only) {
+      throw new Error("reviewed parent explicit-variant policy is 10 Reps v8 only");
+    }
     if (policy.predatorsCm3Only) {
       throw new Error("reviewed CM3 parent explicit-variant policy is Predators Gear only");
     }
@@ -3876,7 +4048,7 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   if (normalizeCategory(required(row.category, "category", rowNumber)) !== policy.category) {
     throw new Error("reviewed parent explicit-variant category mismatch");
   }
-  if (!evidence.flavour) {
+  if (!evidence.flavour && !policy.allowUnflavoured) {
     throw new Error("reviewed parent explicit-variant requires explicit flavour");
   }
   if (reviewedSizeKey(evidence) !== policy.size) {
@@ -3893,9 +4065,13 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   }
 
   const optionFlavours = externalOptionValues(externalOptions, ["flavour", "flavor"]);
-  if (optionFlavours.length !== 1 || normalizeFlavour(optionFlavours[0]) !== evidence.flavour) {
+  if (
+    policy.allowUnflavoured
+      ? optionFlavours.length !== 0
+      : optionFlavours.length !== 1 || normalizeFlavour(optionFlavours[0]) !== evidence.flavour
+  ) {
     throw new Error(
-      reviewedPredators
+      reviewedPredators || reviewedTenReps
         ? "reviewed parent explicit-variant requires exact WooCommerce flavour option"
         : "reviewed parent explicit-variant requires exact Shopify flavour option"
     );
@@ -3906,7 +4082,7 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size)
   )) {
     throw new Error(
-      reviewedPredators
+      reviewedPredators || reviewedTenReps
         ? "reviewed parent explicit-variant WooCommerce size option mismatch"
         : "reviewed parent explicit-variant Shopify size option mismatch"
     );
@@ -3973,12 +4149,18 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
   }
   const reviewedWooCommerceIdentity =
     row.__reviewed_six_pack_family_identity;
+  const reviewedTenRepsIdentity =
+    row.__reviewed_10reps_new_product_identity;
   const exactReviewedWooCommerceCreate =
-    reviewedWooCommerceIdentity &&
-    reviewedWooCommerceIdentity.canonical_product_variant_id === null &&
-    reviewedWooCommerceIdentity.external_variant_id === externalVariantId &&
-    reviewedWooCommerceIdentity.canonical_product_id ===
-      String(product?.id || "") &&
+    ((reviewedWooCommerceIdentity &&
+      reviewedWooCommerceIdentity.canonical_product_variant_id === null &&
+      reviewedWooCommerceIdentity.external_variant_id === externalVariantId &&
+      reviewedWooCommerceIdentity.canonical_product_id ===
+        String(product?.id || "")) ||
+      (reviewedTenRepsIdentity &&
+        reviewedTenRepsIdentity.action === "create_reviewed_product_variant" &&
+        reviewedTenRepsIdentity.external_product_id === externalProductId &&
+        reviewedTenRepsIdentity.external_variant_id === externalVariantId)) &&
     WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalProductId) &&
     WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalVariantId) &&
     externalProductId !== externalVariantId;
@@ -4819,10 +5001,15 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
         if (gtinPeer) {
           throw new Error("reviewed parent explicit-variant GTIN conflict");
         }
-        const planned = planReviewedParentVariant(shippingNormalizedRow, rowNumber, evidence);
-        plannedProduct = planned.product;
-        productVariant = planned.variant;
-        reviewedParentVariantCreate = true;
+        if (
+          shippingNormalizedRow.__reviewed_10reps_new_product_identity?.action !==
+          "create_product_with_default_variant"
+        ) {
+          const planned = planReviewedParentVariant(shippingNormalizedRow, rowNumber, evidence);
+          plannedProduct = planned.product;
+          productVariant = planned.variant;
+          reviewedParentVariantCreate = true;
+        }
       }
     } catch (error) {
       variantResolutionError = error?.message || String(error);

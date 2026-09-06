@@ -57,6 +57,7 @@ const {
 const predatorsReviewedNewProducts = require("../config/retailers/predators-gear-reviewed-new-products-v1.json");
 const predatorsReviewedNewProductsV3 = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const predatorsReviewedCm3MissingVariants = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
+const tenRepsReviewedNewProductsV8 = require("../config/retailers/10reps-reviewed-new-products-v8.json");
 
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
   predatorsReviewedNewProducts.canonical_csv.sha256;
@@ -70,6 +71,49 @@ const PREDATORS_REVIEWED_NEW_PRODUCTS_V3_REMAINING_SHA =
   predatorsReviewedNewProductsV3.remaining_sibling_profile.sha256;
 const PREDATORS_REVIEWED_CM3_MISSING_VARIANTS_SHA =
   predatorsReviewedCm3MissingVariants.canonical_csv.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA =
+  tenRepsReviewedNewProductsV8.bootstrap_profile.sha256;
+
+function tenRepsReviewedNewProductsV8BootstrapRows() {
+  const ids = new Set(
+    tenRepsReviewedNewProductsV8.bootstrap_profile.external_variant_ids
+  );
+  return tenRepsReviewedNewProductsV8.rows
+    .filter((reviewed) => ids.has(reviewed.external_variant_id))
+    .map((reviewed) =>
+      baseCanonicalFeedRow({
+        retailer_name: tenRepsReviewedNewProductsV8.retailer.name,
+        retailer_website: tenRepsReviewedNewProductsV8.retailer.website,
+        product_id: "",
+        product_variant_id: "",
+        external_product_id: reviewed.external_product_id,
+        external_variant_id: reviewed.external_variant_id,
+        external_sku: reviewed.external_sku || "",
+        external_gtin: "",
+        external_options: JSON.stringify(reviewed.external_options),
+        product_name: reviewed.product_name,
+        variant_name: reviewed.variant_name || "",
+        brand: reviewed.brand,
+        category: reviewed.category,
+        description: "",
+        image: reviewed.image,
+        slug: reviewed.slug,
+        external_url: reviewed.source_url,
+        affiliate_url: reviewed.source_url,
+        price: reviewed.price.toFixed(2),
+        shipping_known: "true",
+        shipping_cost: "3.99",
+        total_price: reviewed.delivered_price.toFixed(2),
+        in_stock: "true",
+        is_for_sale: "true",
+        size: String(reviewed.size),
+        size_unit: reviewed.size_unit,
+        flavour: reviewed.flavour || "",
+        product_format: reviewed.product_format,
+        pack_count: "1",
+      })
+    );
+}
 
 function predatorsReviewedNewProductRows() {
   return predatorsReviewedNewProducts.rows.map((reviewed) =>
@@ -2870,6 +2914,130 @@ test("Predators Gear reviewed new-product package plans exactly three products a
     )
   );
   assert.equal(supabase.writes.length, 0);
+});
+
+test("10 Reps reviewed v8 bootstrap plans only four owner-approved new products", async () => {
+  const rows = tenRepsReviewedNewProductsV8BootstrapRows();
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA,
+  });
+  assert.deepEqual(
+    normalized.map((row) => row.external_variant_id),
+    ["3840", "8099", "559", "582"]
+  );
+  assert.ok(normalized.every((row) =>
+    row.__reviewed_10reps_new_product_identity.contract ===
+      tenRepsReviewedNewProductsV8.kind
+  ));
+
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{
+      id: "14",
+      name: "10 Reps",
+      slug: "10-reps",
+      website: "https://www.10reps.co.uk/",
+      is_active: true,
+    }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 4);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 4);
+  assert.equal(result.report.productVariantsToCreate.length, 3);
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product.action),
+    ["create_or_reuse_reviewed", "create_or_reuse_reviewed", "create_or_reuse_reviewed", "create"]
+  );
+  assert.deepEqual(
+    result.report.approvedRows.map((item) => item.importPlan.product_variant.action),
+    ["create_reviewed_variant", "create_reviewed_variant", "create_reviewed_variant", "create_default"]
+  );
+  assert.ok(result.report.approvedRows.every((item) =>
+    item.importPlan.retailer.action === "existing" &&
+      String(item.importPlan.retailer.id) === "14" &&
+      Number(item.importPlan.offer.values.shipping_cost) === 3.99 &&
+      Number(item.importPlan.offer.values.total_price) ===
+        (Math.round(Number(item.importPlan.offer.values.price) * 100) + 399) / 100
+  ));
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("10 Reps reviewed v8 bootstrap rejects SHA, row-set, identity, GTIN, category, and shipping drift", () => {
+  const rows = tenRepsReviewedNewProductsV8BootstrapRows();
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(rows, {
+      safeCreate: true,
+      sourceFileSha256: "0".repeat(64),
+    }),
+    /source SHA mismatch/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows(rows.slice(0, 3), {
+      safeCreate: true,
+      sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA,
+    }),
+    /requires exactly 4 rows/
+  );
+  assert.throws(
+    () => normalizeCanonicalRetailerFeedRows([rows[0], rows[0], ...rows.slice(2)], {
+      safeCreate: true,
+      sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA,
+    }),
+    /row set mismatch/
+  );
+  for (const [field, value, pattern] of [
+    ["product_name", "Other Product 720g", /product_name mismatch/],
+    ["category", "Amino Acids", /category mismatch/],
+    ["external_gtin", "05000000000000", /external_gtin mismatch/],
+    ["shipping_cost", "4.99", /commercial fields mismatch/],
+    ["product_id", "1", /cannot supply canonical IDs/],
+  ]) {
+    assert.throws(
+      () => normalizeCanonicalRetailerFeedRows(
+        rows.map((row, index) => index === 0 ? { ...row, [field]: value } : row),
+        {
+          safeCreate: true,
+          sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA,
+        }
+      ),
+      pattern
+    );
+  }
+});
+
+test("10 Reps reviewed v8 SQL policy is exact and does not mutate catalogue rows", () => {
+  const migration = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "supabase/migrations/20260906143000_allow_10reps_reviewed_new_products_v8.sql"
+    ),
+    "utf8"
+  );
+  for (const value of [
+    "Chaos Crew Whey Protein Powder 720g",
+    "AK-47 Labs Pre-Workout 240g",
+    "Efectiv Whey – Advanced Protein Complex 900g",
+    "atomic_import_10reps_v8_parent_variant_transport_allowed",
+    "shipping_cost}' = '3.99'",
+    "v_retailer_id = 13",
+  ]) {
+    assert.match(migration, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(
+    migration,
+    /revoke all on function[\s\S]*from public, anon, authenticated, service_role/i
+  );
+  assert.doesNotMatch(
+    migration,
+    /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i
+  );
 });
 
 test("Predators Gear reviewed new-product v3 initial profile plans only seven exact owner-approved anchors", async () => {

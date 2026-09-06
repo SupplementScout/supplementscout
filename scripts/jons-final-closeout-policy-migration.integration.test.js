@@ -9,6 +9,7 @@ const password = 'final-closeout-policy-local-only';
 const migration = 'supabase/migrations/20260722113000_allow_final_reviewed_jons_closeout.sql';
 const predatorsMigration = 'supabase/migrations/20260827200000_allow_predators_gear_reviewed_creatine_316g.sql';
 const predatorsV3Migration = 'supabase/migrations/20260829100000_allow_predators_gear_reviewed_new_products_v3.sql';
+const tenRepsV8Migration = 'supabase/migrations/20260906143000_allow_10reps_reviewed_new_products_v8.sql';
 function run(command,args,timeout=120000){return spawnSync(command,args,{cwd:root,encoding:'utf8',timeout});}
 function ok(result,label){assert.equal(result.status,0,`${label}\n${result.stdout}\n${result.stderr}`);return result.stdout.trim();}
 function exec(container,args){return run('docker',['exec',container,...args]);}
@@ -83,15 +84,22 @@ test('Predators Gear reviewed-new-products-v3 DB policy accepts only exact revie
       end $fn$;
     `]),'create policy stubs');
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${predatorsV3Migration}`]),'apply Predators Gear v3 policy migration');
+    ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${tenRepsV8Migration}`]),'apply 10 Reps v8 policy migration');
     const exact=JSON.parse(ok(exec(container,['psql','-X','--no-psqlrc','-A','-t','-U','postgres','-c',`
       select jsonb_build_object(
         'aakg',public.atomic_import_safe_create_category_allowed('Pre Workout','Olimp AAKG 1250 Extreme Mega Caps 120 Capsules','capsule'),
         'wrong_aakg',public.atomic_import_safe_create_category_allowed('Pre Workout','Olimp AAKG 1250 Extreme Mega Caps 60 Capsules','capsule'),
         'bcaa',public.atomic_import_reviewed_parent_variant_allowed('Olimp BCAA Xplode 500g','Olimp','Amino Acids','powder','500','g'),
         'wrong_bcaa',public.atomic_import_reviewed_parent_variant_allowed('Olimp BCAA Xplode 1000g','Olimp','Amino Acids','powder','1000','g'),
+        'chaos',public.atomic_import_reviewed_parent_variant_allowed('Chaos Crew Whey Protein Powder 720g','Chaos Crew','Whey Protein','powder','720','g'),
+        'wrong_chaos',public.atomic_import_reviewed_parent_variant_allowed('Chaos Crew Whey Protein Powder 900g','Chaos Crew','Whey Protein','powder','900','g'),
+        'ak47',public.atomic_import_reviewed_parent_variant_allowed('AK-47 Labs Pre-Workout 240g','AK - 47','Pre Workout','powder','240','g'),
+        'efectiv',public.atomic_import_reviewed_parent_variant_allowed('Efectiv Whey – Advanced Protein Complex 900g','Efectiv','Whey Protein','powder','900','g'),
         'patched',strpos(pg_get_functiondef('public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure),'atomic_import_predators_v3_parent_variant_transport_allowed')>0,
-        'service_execute',has_function_privilege('service_role','public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb)','EXECUTE'));
+        'tenreps_patched',strpos(pg_get_functiondef('public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure),'atomic_import_10reps_v8_parent_variant_transport_allowed')>0,
+        'service_execute',has_function_privilege('service_role','public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb)','EXECUTE'),
+        'tenreps_service_execute',has_function_privilege('service_role','public.atomic_import_10reps_v8_parent_variant_transport_allowed(jsonb,jsonb)','EXECUTE'));
     `]),'query exact v3 policy'));
-    assert.deepEqual(exact,{aakg:true,wrong_aakg:false,bcaa:true,wrong_bcaa:false,patched:true,service_execute:false});
+    assert.deepEqual(exact,{aakg:true,wrong_aakg:false,bcaa:true,wrong_bcaa:false,chaos:true,wrong_chaos:false,ak47:true,efectiv:true,patched:true,tenreps_patched:true,service_execute:false,tenreps_service_execute:false});
   }catch(error){failure=error;}finally{run('docker',['rm','--force',container],30000);}if(failure)throw failure;
 });
