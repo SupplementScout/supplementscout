@@ -61,6 +61,7 @@ const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3 = require("../config/retailers/pre
 const PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_V1 = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8 = require("../config/retailers/10reps-reviewed-new-products-v8.json");
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9 = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
+const TEN_REPS_REVIEWED_CATALOGUE_V10 = require("../config/retailers/10reps-reviewed-catalogue-v10-93.json");
 
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256 =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.canonical_csv.sha256;
@@ -135,6 +136,17 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS = new Set(
 );
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS = new Map(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.rows.map((row) => [
+    String(row.external_variant_id),
+    row,
+  ])
+);
+const TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_SHA256 =
+  TEN_REPS_REVIEWED_CATALOGUE_V10.bootstrap_profile.sha256;
+const TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS = new Set(
+  TEN_REPS_REVIEWED_CATALOGUE_V10.bootstrap_profile.external_variant_ids.map(String)
+);
+const TEN_REPS_REVIEWED_CATALOGUE_V10_ROWS = new Map(
+  TEN_REPS_REVIEWED_CATALOGUE_V10.rows.map((row) => [
     String(row.external_variant_id),
     row,
   ])
@@ -953,12 +965,18 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_SHA256;
   const isTenRepsV9RemainingSource =
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_SHA256;
-  const tenRepsReviewedManifest = isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
-    ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9
-    : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8;
-  const tenRepsReviewedRows = isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
-    ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS
-    : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS;
+  const isTenRepsV10BootstrapSource =
+    predatorsSourceSha === TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_SHA256;
+  const tenRepsReviewedManifest = isTenRepsV10BootstrapSource
+    ? TEN_REPS_REVIEWED_CATALOGUE_V10
+    : isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
+      ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9
+      : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8;
+  const tenRepsReviewedRows = isTenRepsV10BootstrapSource
+    ? TEN_REPS_REVIEWED_CATALOGUE_V10_ROWS
+    : isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
+      ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS
+      : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS;
   const tenRepsReviewedRow = tenRepsReviewedRows.get(externalVariantId);
   const isTenRepsBootstrapSource =
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256;
@@ -969,7 +987,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const isTenRepsReviewedSource =
     isTenRepsBootstrapSource || isTenRepsTime4RemainingSource ||
     isTenRepsVariantRemainingSource || isTenRepsV9BootstrapSource ||
-    isTenRepsV9RemainingSource;
+    isTenRepsV9RemainingSource || isTenRepsV10BootstrapSource;
   const isTenRepsReviewedIdentity = Boolean(
     tenRepsReviewedRow &&
       (
@@ -982,7 +1000,9 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         isTenRepsV9BootstrapSource &&
           TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId) ||
         isTenRepsV9RemainingSource &&
-          TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId)
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId) ||
+        isTenRepsV10BootstrapSource &&
+          TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS.has(externalVariantId)
       ) &&
       slugifyRetailerName(String(row.retailer_name || "")) === "10-reps"
   );
@@ -990,7 +1010,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     tenRepsReviewedRow &&
     (TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) ||
       TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId) ||
-      TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId)) &&
+      TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId) ||
+      TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS.has(externalVariantId)) &&
     slugifyRetailerName(String(row.retailer_name || "")) === "10-reps" &&
     !isTenRepsReviewedSource
   ) {
@@ -1622,7 +1643,10 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   }
   const tenRepsReviewedProfile =
     String(options.sourceFileSha256 || "").toLowerCase() ===
-      TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256
+      TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_SHA256
+      ? TEN_REPS_REVIEWED_CATALOGUE_V10.bootstrap_profile
+      : String(options.sourceFileSha256 || "").toLowerCase() ===
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256
       ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile
       : String(options.sourceFileSha256 || "").toLowerCase() ===
           TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA256
@@ -3968,6 +3992,14 @@ function isLikelyWooCommerceProductUrl(row, externalProductId) {
 }
 
 const REVIEWED_PARENT_VARIANT_POLICY = new Map([
+  ["NXT Nutrition Beef Protein Isolate 540g", { brand: "NXT Nutrition", category: "Protein Powder", format: "powder", size: "540:g", tenRepsV10Only: true }],
+  ["Darkstims Pre V4 Pre-Workout 500g", { brand: "Dark Stims", category: "Pre Workout", format: "powder", size: "500:g", tenRepsV10Only: true }],
+  ["Refined Nutrition Ultra Hydration 300g", { brand: "Refined Nutrition", category: "Electrolytes", format: "powder", size: "300:g", tenRepsV10Only: true }],
+  ["NXT Nutrition TNT Nuclear Pump Stim-Free 500g", { brand: "NXT Nutrition", category: "Pre Workout", format: "powder", size: "500:g", tenRepsV10Only: true }],
+  ["Pharma Grade EAA 390g", { brand: "Pharma Grade", category: "Amino Acids", format: "powder", size: "390:g", tenRepsV10Only: true }],
+  ["NXT Nutrition Pure Whey ISO Juice 900g", { brand: "NXT Nutrition", category: "Whey Protein", format: "powder", size: "900:g", tenRepsV10Only: true }],
+  ["Applied Nutrition L-Carnitine 3000 Liquid 480ml", { brand: "Applied Nutrition", category: "Weight Management", format: "liquid", size: "480:ml", tenRepsV10Only: true }],
+  ["Warrior EAA Essential Amino Acids 360g", { brand: "Warrior", category: "Amino Acids", format: "powder", size: "360:g", tenRepsV10Only: true }],
   ["NXT Nutrition Pure Whey Deluxe 510g", { brand: "NXT Nutrition", category: "Whey Protein", format: "powder", size: "510:g", tenRepsV9Only: true }],
   ["NXT Nutrition Pure Whey Deluxe 2.1kg", { brand: "NXT Nutrition", category: "Whey Protein", format: "powder", size: "2100:g", tenRepsV9Only: true }],
   ["Cellucor C4 Original Pre-Workout Powder 30 Servings", { brand: "Cellucor", category: "Pre Workout", format: "powder", size: "30:servings", tenRepsV9Only: true }],
@@ -4071,6 +4103,7 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
       ![
         TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind,
         TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.kind,
+        TEN_REPS_REVIEWED_CATALOGUE_V10.kind,
       ].includes(reviewedTenReps.contract) ||
       !["create_reviewed_product_variant", "create_product_with_default_variant", "create_variant_after_parent"].includes(
         reviewedTenReps.action
@@ -4080,7 +4113,8 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     }
     if (
       (policy.tenRepsV8Only && reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind) ||
-      (policy.tenRepsV9Only && reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.kind)
+      (policy.tenRepsV9Only && reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.kind) ||
+      (policy.tenRepsV10Only && reviewedTenReps.contract !== TEN_REPS_REVIEWED_CATALOGUE_V10.kind)
     ) {
       throw new Error("reviewed 10 Reps parent policy version mismatch");
     }
@@ -4136,6 +4170,9 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     }
     if (policy.tenRepsV9Only) {
       throw new Error("reviewed parent explicit-variant policy is 10 Reps v9 only");
+    }
+    if (policy.tenRepsV10Only) {
+      throw new Error("reviewed parent explicit-variant policy is 10 Reps v10 only");
     }
     if (policy.predatorsCm3Only) {
       throw new Error("reviewed CM3 parent explicit-variant policy is Predators Gear only");

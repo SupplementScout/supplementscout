@@ -721,6 +721,37 @@ const REVIEWED_SAFE_CREATE_FAMILIES = [
     categories: ["Whey Protein"],
     pattern: /\btrained\s+by\s+jp\s+performance\s+protein\s+(?:1kg|2kg)\b/i,
   },
+  {
+    categories: ["Protein Powder"],
+    exactNames: ["NXT Nutrition Beef Protein Isolate 540g"],
+  },
+  {
+    categories: ["Pre Workout"],
+    exactNames: [
+      "Darkstims Pre V4 Pre-Workout 500g",
+      "NXT Nutrition TNT Nuclear Pump Stim-Free 500g",
+    ],
+  },
+  {
+    categories: ["Electrolytes"],
+    exactNames: ["Refined Nutrition Ultra Hydration 300g"],
+  },
+  {
+    categories: ["Amino Acids"],
+    exactNames: [
+      "Pharma Grade EAA 390g",
+      "Warrior EAA Essential Amino Acids 360g",
+    ],
+  },
+  {
+    categories: ["Whey Protein"],
+    exactNames: ["NXT Nutrition Pure Whey ISO Juice 900g"],
+  },
+  {
+    allowedFormats: ["liquid"],
+    categories: ["Weight Management"],
+    exactNames: ["Applied Nutrition L-Carnitine 3000 Liquid 480ml"],
+  },
 ];
 
 const SAFE_CREATE_CREAM_EXCLUSION_PATTERN = /\bcream\b/i;

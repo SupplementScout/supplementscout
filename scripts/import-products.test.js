@@ -59,6 +59,7 @@ const predatorsReviewedNewProductsV3 = require("../config/retailers/predators-ge
 const predatorsReviewedCm3MissingVariants = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 const tenRepsReviewedNewProductsV8 = require("../config/retailers/10reps-reviewed-new-products-v8.json");
 const tenRepsReviewedNewProductsV9 = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
+const tenRepsReviewedCatalogueV10 = require("../config/retailers/10reps-reviewed-catalogue-v10-93.json");
 
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
   predatorsReviewedNewProducts.canonical_csv.sha256;
@@ -80,6 +81,31 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA =
   tenRepsReviewedNewProductsV8.remaining_profile.sha256;
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_SHA =
   tenRepsReviewedNewProductsV9.bootstrap_profile.sha256;
+const TEN_REPS_REVIEWED_CATALOGUE_V10_SHA =
+  tenRepsReviewedCatalogueV10.bootstrap_profile.sha256;
+
+function tenRepsReviewedCatalogueV10BootstrapRows() {
+  const ids = new Set(tenRepsReviewedCatalogueV10.bootstrap_profile.external_variant_ids);
+  return tenRepsReviewedCatalogueV10.rows
+    .filter((reviewed) => ids.has(reviewed.external_variant_id))
+    .map((reviewed) => baseCanonicalFeedRow({
+      retailer_name: tenRepsReviewedCatalogueV10.retailer.name,
+      retailer_website: tenRepsReviewedCatalogueV10.retailer.website,
+      product_id: "", product_variant_id: "",
+      external_product_id: reviewed.external_product_id,
+      external_variant_id: reviewed.external_variant_id,
+      external_sku: reviewed.external_sku || "", external_gtin: "",
+      external_options: JSON.stringify(reviewed.external_options),
+      product_name: reviewed.product_name, variant_name: reviewed.variant_name,
+      brand: reviewed.brand, category: reviewed.category, description: "",
+      image: reviewed.image, slug: reviewed.slug,
+      external_url: reviewed.source_url, affiliate_url: reviewed.source_url,
+      price: reviewed.price.toFixed(2), shipping_known: "true", shipping_cost: "3.99",
+      total_price: reviewed.delivered_price.toFixed(2), in_stock: "true", is_for_sale: "true",
+      size: String(reviewed.size), size_unit: reviewed.size_unit, flavour: reviewed.flavour,
+      product_format: reviewed.product_format, pack_count: "1",
+    }));
+}
 
 function tenRepsReviewedNewProductsV9BootstrapRows() {
   const ids = new Set(tenRepsReviewedNewProductsV9.bootstrap_profile.external_variant_ids);
@@ -3095,6 +3121,40 @@ test("10 Reps reviewed v9 large bootstrap plans only seven owner-approved produc
   assert.equal(supabase.writes.length, 0);
 });
 
+test("10 Reps reviewed v10 bootstrap plans only eight owner-approved product anchors", async () => {
+  const rows = tenRepsReviewedCatalogueV10BootstrapRows();
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_CATALOGUE_V10_SHA,
+  });
+  assert.deepEqual(
+    normalized.map((row) => row.external_variant_id),
+    tenRepsReviewedCatalogueV10.bootstrap_profile.external_variant_ids,
+  );
+  assert.ok(normalized.every((row) =>
+    row.__reviewed_10reps_new_product_identity.contract === tenRepsReviewedCatalogueV10.kind
+  ));
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "14", name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/", is_active: true }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed", safeCreate: true, dryRun: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_CATALOGUE_V10_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 8);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 8);
+  assert.equal(result.report.productVariantsToCreate.length, 8);
+  assert.ok(result.report.approvedRows.every((item) =>
+    item.importPlan.product.action === "create_or_reuse_reviewed" &&
+    item.importPlan.product_variant.action === "create_reviewed_variant" &&
+    item.importPlan.retailer.id === "14" &&
+    item.importPlan.offer.values.shipping_cost === "3.99"
+  ));
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("10 Reps reviewed v8 Time 4 remaining plan keeps source size but creates a safe default variant", async () => {
   const rows = tenRepsReviewedNewProductsV8BootstrapRows().filter(
     (row) => row.external_variant_id === "582"
@@ -3288,6 +3348,24 @@ test("10 Reps reviewed v9 bootstrap SQL policy is exact and changes no catalogue
     "shipping_cost}' = '3.99'",
   ]) assert.match(migration, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   assert.match(migration, /revoke all on function[\s\S]*from public, anon, authenticated, service_role/i);
+  assert.doesNotMatch(migration, /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i);
+});
+
+test("10 Reps reviewed v10 bootstrap SQL policy is exact and changes no catalogue rows", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/20260906220000_allow_10reps_reviewed_catalogue_v10.sql"),
+    "utf8",
+  );
+  for (const value of [
+    "atomic_import_10reps_v10_parent_variant_transport_allowed",
+    "afb4c93d5874c24aa5ce864a2d0b8607",
+    "9bce2f76fd2e7ee920c765a1fd9b3d03",
+    "NXT Nutrition Beef Protein Isolate 540g",
+    "Warrior EAA Essential Amino Acids 360g",
+    "Applied Nutrition L-Carnitine 3000 Liquid 480ml",
+    "shipping_cost}'='3.99'",
+  ]) assert.match(migration, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(migration, /revoke all on function[\s\S]*from public,anon,authenticated,service_role/i);
   assert.doesNotMatch(migration, /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i);
 });
 

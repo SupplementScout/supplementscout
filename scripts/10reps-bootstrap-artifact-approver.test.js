@@ -12,8 +12,9 @@ const existingProducts14Manifest = require("../config/retailers/10reps-reviewed-
 const highConfidence25Manifest = require("../config/retailers/10reps-reviewed-bindings-v7-high-confidence-25.json");
 const newProductsV8Manifest = require("../config/retailers/10reps-reviewed-new-products-v8.json");
 const newProductsV9Manifest = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
+const catalogueV10Manifest = require("../config/retailers/10reps-reviewed-catalogue-v10-93.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CATALOGUE_V10_EXISTING_PROFILE, CATALOGUE_V10_BOOTSTRAP_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
 const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
 const exactOosOptions = { artifact: EXACT_OOS_PROFILE.artifact, csv: EXACT_OOS_PROFILE.csv, planFingerprint: EXACT_OOS_PROFILE.fingerprint };
@@ -28,6 +29,8 @@ const newProductsV8Time4Options = { artifact: NEW_PRODUCTS_V8_TIME4_PROFILE.arti
 const newProductsV8RemainingOptions = { artifact: NEW_PRODUCTS_V8_REMAINING_PROFILE.artifact, csv: NEW_PRODUCTS_V8_REMAINING_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V8_REMAINING_PROFILE.fingerprint };
 const newProductsV9Options = { artifact: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.artifact, csv: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.fingerprint };
 const newProductsV9RemainingOptions = { artifact: NEW_PRODUCTS_V9_REMAINING_PROFILE.artifact, csv: NEW_PRODUCTS_V9_REMAINING_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V9_REMAINING_PROFILE.fingerprint };
+const catalogueV10ExistingOptions = { artifact: CATALOGUE_V10_EXISTING_PROFILE.artifact, csv: CATALOGUE_V10_EXISTING_PROFILE.csv, planFingerprint: CATALOGUE_V10_EXISTING_PROFILE.fingerprint };
+const catalogueV10BootstrapOptions = { artifact: CATALOGUE_V10_BOOTSTRAP_PROFILE.artifact, csv: CATALOGUE_V10_BOOTSTRAP_PROFILE.csv, planFingerprint: CATALOGUE_V10_BOOTSTRAP_PROFILE.fingerprint };
 const remainingTimes = [
   "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
   "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
@@ -532,6 +535,52 @@ test("10 Reps v9 remaining profile validates only the 94 owner-approved sibling 
   changed.plans[0].resolved_plan.offer.values.shipping_cost = "0.00";
   assert.throws(() => runner.validatePackage(structuredClone(newProductsV9Manifest), changed, structuredClone(csvRows), NEW_PRODUCTS_V9_REMAINING_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE.fingerprint), /shipping|fingerprint/i);
 });
+test("10 Reps catalogue v10 existing profile validates only the 14 approved existing-product plans", () => {
+  const prepared = runner.prepareApproval(catalogueV10ExistingOptions);
+  assert.equal(prepared.profile, CATALOGUE_V10_EXISTING_PROFILE);
+  assert.equal(prepared.artifact.plans.length, 14);
+  const artifact = JSON.parse(fs.readFileSync(CATALOGUE_V10_EXISTING_PROFILE.artifact));
+  const csvRows = parse(fs.readFileSync(CATALOGUE_V10_EXISTING_PROFILE.csv), { columns: true, skip_empty_lines: true });
+  for (const fingerprint of CATALOGUE_V10_EXISTING_PROFILE.allowedFingerprints) {
+    assert.doesNotThrow(() => runner.validatePackage(structuredClone(catalogueV10Manifest), structuredClone(artifact), structuredClone(csvRows), CATALOGUE_V10_EXISTING_PROFILE, fingerprint));
+  }
+  for (const mutate of [
+    value => { value.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "4.99"; },
+    value => { value.artifact.plans[0].resolved_plan.product.id = "758"; },
+    value => { value.artifact.plans[0].resolved_plan.product.action = "create"; },
+    value => { value.artifact.plans[0].resolved_plan.retailer.id = "13"; },
+    value => { value.artifact.plans.pop(); },
+    value => { value.manifest.policy.allow_canonical_variant_updates = true; },
+  ]) {
+    const value = { manifest: structuredClone(catalogueV10Manifest), artifact: structuredClone(artifact), csvRows: structuredClone(csvRows) };
+    mutate(value);
+    assert.throws(() => runner.validatePackage(value.manifest, value.artifact, value.csvRows, CATALOGUE_V10_EXISTING_PROFILE));
+  }
+  assert.throws(() => runner.parseArgs([`--artifact=${CATALOGUE_V10_EXISTING_PROFILE.artifact}`, `--csv=${CATALOGUE_V10_EXISTING_PROFILE.csv}`, `--plan-fingerprint=${CATALOGUE_V10_BOOTSTRAP_PROFILE.fingerprint}`]), /catalogue-v10-existing-14 fingerprint/);
+});
+test("10 Reps catalogue v10 bootstrap validates only the eight approved product anchors", () => {
+  const prepared = runner.prepareApproval(catalogueV10BootstrapOptions);
+  assert.equal(prepared.profile, CATALOGUE_V10_BOOTSTRAP_PROFILE);
+  assert.equal(prepared.artifact.plans.length, 8);
+  const artifact = JSON.parse(fs.readFileSync(CATALOGUE_V10_BOOTSTRAP_PROFILE.artifact));
+  const csvRows = parse(fs.readFileSync(CATALOGUE_V10_BOOTSTRAP_PROFILE.csv), { columns: true, skip_empty_lines: true });
+  for (const fingerprint of CATALOGUE_V10_BOOTSTRAP_PROFILE.allowedFingerprints) {
+    assert.doesNotThrow(() => runner.validatePackage(structuredClone(catalogueV10Manifest), structuredClone(artifact), structuredClone(csvRows), CATALOGUE_V10_BOOTSTRAP_PROFILE, fingerprint));
+  }
+  for (const mutate of [
+    value => { value.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "0.00"; },
+    value => { value.artifact.plans[0].resolved_plan.product.values.category = "Pre Workout"; },
+    value => { value.artifact.plans[0].resolved_plan.product.action = "existing"; },
+    value => { value.artifact.plans[0].resolved_plan.retailer.id = "13"; },
+    value => { value.artifact.plans.pop(); },
+    value => { value.manifest.policy.allow_canonical_gtin_updates = true; },
+  ]) {
+    const value = { manifest: structuredClone(catalogueV10Manifest), artifact: structuredClone(artifact), csvRows: structuredClone(csvRows) };
+    mutate(value);
+    assert.throws(() => runner.validatePackage(value.manifest, value.artifact, value.csvRows, CATALOGUE_V10_BOOTSTRAP_PROFILE));
+  }
+  assert.throws(() => runner.parseArgs([`--artifact=${CATALOGUE_V10_BOOTSTRAP_PROFILE.artifact}`, `--csv=${CATALOGUE_V10_BOOTSTRAP_PROFILE.csv}`, `--plan-fingerprint=${CATALOGUE_V10_EXISTING_PROFILE.fingerprint}`]), /catalogue-v10-bootstrap-8 fingerprint/);
+});
 test("10 Reps v8 closed bootstrap validates only the exact four reviewed new-product plans", {
   skip: !fs.existsSync(NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifact) ||
     !fs.existsSync(NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.csv),
@@ -992,6 +1041,7 @@ test("runner has no elevated backend token, HTTP approval, execution RPC or busi
   const ownerAliasManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v4-owner-alias-22.json"), "utf8");
   const specificServingsManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v5-specific-servings-3.json"), "utf8");
   const highConfidenceManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v7-high-confidence-25.json"), "utf8");
+  const catalogueV10ManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-catalogue-v10-93.json"), "utf8");
   assert.doesNotMatch(code, /service_role|SERVICE_ROLE|createClient|PostgREST|supabase-js|fetch\s*\(|apply_approved|apply_product|pilot-apply|\b(?:insert\s+into|update\s+public\.|delete\s+from|alter\s+table|grant\s+execute)\b/i);
   const forbiddenFeedMarkers = new RegExp(`${["TEN", "REPS", "FEED", "URL"].join("_")}|${"trpf"}_${"feed"}`, "i");
   assert.doesNotMatch(code, forbiddenFeedMarkers);
@@ -999,6 +1049,7 @@ test("runner has no elevated backend token, HTTP approval, execution RPC or busi
   assert.doesNotMatch(ownerAliasManifestText, forbiddenFeedMarkers);
   assert.doesNotMatch(specificServingsManifestText, forbiddenFeedMarkers);
   assert.doesNotMatch(highConfidenceManifestText, forbiddenFeedMarkers);
+  assert.doesNotMatch(catalogueV10ManifestText, forbiddenFeedMarkers);
   assert.match(code, /require\("pg"\)/);
   assert.match(code, /SET LOCAL ROLE retailer_catalogue_production_approver/);
   assert.match(code, /credentials\/production-approver\.env/);
