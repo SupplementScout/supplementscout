@@ -10,6 +10,8 @@ const PROFILE = Object.freeze({
   id: "bootstrap",
   manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v1.json"),
   manifestSha256: "dc0bc67840bb7f74e555ab2b60a42dc13b46fc8522ae3549a6a3888d7c5c3283",
+  manifestKind: "10reps-reviewed-existing-bindings-v1",
+  manifestRowCount: 20,
   artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v1-dry-run.json"),
   artifactSha256: "68bff98ddabff332a71fcf968214a09a0fe94d473c2dae110d473a725cc33785",
   csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v1.csv"),
@@ -20,6 +22,8 @@ const PROFILE = Object.freeze({
   rowCount: 20,
   retailerAction: "create",
   retailerId: null,
+  expectedInStock: true,
+  sourceVariantIncludesPackCount: false,
   approvalSource: "10reps-reviewed-bootstrap-row-1",
   applicationName: "10reps-bootstrap-artifact-approver",
   role: "retailer_catalogue_production_approver",
@@ -51,6 +55,8 @@ const REMAINING_PROFILE = Object.freeze({
   id: "remaining-19",
   manifest: PROFILE.manifest,
   manifestSha256: PROFILE.manifestSha256,
+  manifestKind: PROFILE.manifestKind,
+  manifestRowCount: PROFILE.manifestRowCount,
   artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v1-remaining-19-dry-run.json"),
   artifactSha256: "a1f5ca5aacb093d55ad909b4528e9ab0d6e88dbd5eb144c4cd2406d107abbb3e",
   csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v1-remaining-19.csv"),
@@ -62,13 +68,66 @@ const REMAINING_PROFILE = Object.freeze({
   rowCount: 19,
   retailerAction: "existing",
   retailerId: "14",
+  expectedInStock: true,
+  sourceVariantIncludesPackCount: false,
   approvalSource: "10reps-reviewed-remaining-19",
   applicationName: "10reps-remaining-19-artifact-approver",
   role: PROFILE.role,
   login: PROFILE.login,
   project: PROFILE.project,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE]);
+const EXACT_OOS_BINDINGS = Object.freeze([
+  [1, "7712", 788, 1073, "80844944ed999b45ce749d1f16274304"],
+  [2, "7713", 788, 1074, "3eefc534e996ede22e2b830297f6d6a9"],
+  [3, "7714", 788, 1075, "f541bef74fbc877f3e96786bde5aef3f"],
+  [4, "7715", 788, 1076, "1906577cf68aa7fca411059a1865316b"],
+  [5, "7716", 788, 1077, "fdd8edd307ce1957efb0f81abe3b15a4"],
+  [6, "7718", 788, 1078, "f2b7f6c51b92264fd325925df9e3e9e1"],
+  [7, "7720", 788, 1081, "cd08db137f96ece56f8145cb7e0cc7c4"],
+  [8, "7721", 788, 1082, "4892cbd3b9114a46b4a4f61a5fb1cf93"],
+  [9, "8007", 752, 868, "388313c77aa61f3983819920f22a00ce"],
+  [10, "8008", 752, 869, "fcd9a1accbd6133b4a314e442257a221"],
+  [11, "8040", 745, 817, "9b3aa18ee272da4fbfd94d0cb41b6478"],
+  [12, "8043", 745, 819, "3f4f80a065340901b669eb28a062191a"],
+  [13, "8045", 745, 820, "f8a3956616ffdd400d00822d543c130e"],
+  [14, "8046", 745, 821, "733569284c1c47cc223fb14cd634f65e"],
+  [15, "8047", 745, 2254, "3092ea0f943bf26b270e7f84c02fa76e"],
+  [16, "8048", 745, 822, "eb6646e9ed1b505c0ff68d6717c763e1"],
+  [17, "8049", 745, 823, "f8805e4702acee5fdf87845e3f3e6744"],
+  [18, "8482", 882, 1405, "7f8b891898adf548159d4e421c335d78"],
+  [19, "8483", 882, 1396, "63a086989578c560d0d784e85d1b8ffd"],
+  [20, "8485", 882, 1403, "581e887f018d1e3b161e3c17a6458e59"],
+  [21, "8490", 882, 1401, "fa4d1cc55ff30c86fd475bd8f7bbcb4e"],
+  [22, "8491", 882, 1402, "eacfc62806bf405aa14e999c8fd54cdf"],
+  [23, "8644", 837, 1241, "ae6f5c4da3205cd4907c607b6f8158dc"],
+  [24, "8964", 743, 1994, "16eb5b63c63cee623dc7d493b29ce640"],
+].map(([reviewRow, externalVariantId, productId, productVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, productId, productVariantId, fingerprint })));
+const EXACT_OOS_PROFILE = Object.freeze({
+  id: "exact-oos-24",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v2-exact-oos-24.json"),
+  manifestSha256: "9afccb03487cce2d5c38b139675001368932b5e63e25f1723a38494e8fff9f52",
+  manifestKind: "10reps-reviewed-existing-bindings-v2-exact-oos-24",
+  manifestRowCount: 24,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v2-exact-oos-24-dry-run.json"),
+  artifactSha256: "560dd434328955f4acd12554c3096863c482d1d0d8a97ca3b148b367ae2c64cf",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v2-exact-oos-24.csv"),
+  csvSha256: "5e16a807360d75afd9325e527a7ee35ea71aafd5836c1d5230ade957da6ec92d",
+  fingerprint: EXACT_OOS_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(EXACT_OOS_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: EXACT_OOS_BINDINGS,
+  reviewedStart: 0,
+  rowCount: 24,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: false,
+  sourceVariantIncludesPackCount: true,
+  approvalSource: "10reps-reviewed-exact-oos-24",
+  applicationName: "10reps-exact-oos-24-artifact-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -139,10 +198,10 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   same(plan.offer.values.shipping_cost, "3.99", "shipping");
   same(plan.offer.values.total_price, ((Math.round(reviewed.price * 100) + 399) / 100).toFixed(2), "delivered price");
   same(plan.offer.values.url, reviewed.source_url, "offer URL");
-  same(plan.offer.values.in_stock, true, "in-stock offer");
+  same(plan.offer.values.in_stock, profile.expectedInStock, `${profile.id} stock`);
   same(plan.price_history, { action: "create" }, "initial history");
   same(plan.approval, { approved: false, approval_type: "none" }, "unapproved plan");
-  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: reviewed.flavour, size: `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit, image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: "true", is_for_sale: "true" })) same(source[key], value, `source ${key}`);
+  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: reviewed.flavour, size: `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit, image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: String(profile.expectedInStock), is_for_sale: "true" })) same(source[key], value, `source ${key}`);
   // The immutable package supplies the complete schema; these checks also keep
   // identity and commercial guards independently testable without private files.
   same(entry.operation_type, "standard_import", "operation");
@@ -157,15 +216,22 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   same(entry.plan_fingerprint, reviewedPlanFingerprint(profile, reviewed), "reviewed plan fingerprint");
 }
 function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selectedFingerprint = profile.fingerprint) {
-  same(manifest.kind, "10reps-reviewed-existing-bindings-v1", "manifest kind");
-  same(manifest.row_count, 20, "manifest row count");
-  same(manifest.rows.length, 20, "reviewed rows");
+  same(manifest.kind, profile.manifestKind, "manifest kind");
+  same(manifest.row_count, profile.manifestRowCount, "manifest row count");
+  same(manifest.rows.length, profile.manifestRowCount, "reviewed rows");
   same(manifest.held_rows, [], "held rows");
   for (const flag of ["existing_products_only", "existing_variants_only", "sku_is_not_gtin"]) same(manifest.policy[flag], true, flag);
   for (const flag of ["allow_product_creation", "allow_variant_creation", "allow_canonical_gtin_updates", "allow_category_changes", "allow_live_import"]) same(manifest.policy[flag], false, flag);
   same(manifest.production_approval.approved, false, "production approval state");
   same(manifest.retailer.shipping_known, true, "known shipping");
   same(manifest.retailer.shipping_cost, 3.99, "manifest shipping");
+  if (profile === EXACT_OOS_PROFILE) {
+    for (const flag of ["allow_canonical_product_updates", "allow_canonical_variant_updates", "allow_approval_submission", "allow_production_writes"]) same(manifest.policy[flag], false, flag);
+    same(manifest.status, "OWNER_REVIEWED_BINDINGS_PENDING_BLOCKER_REVIEW", "reviewed status");
+    same(manifest.binding_review.owner_reviewed, true, "owner-reviewed state");
+    same(manifest.retailer.id, 14, "manifest retailer ID");
+    same(manifest.retailer.expected_action, "existing", "manifest retailer action");
+  }
   same(artifact.artifact_version, "1", "artifact version");
   same(artifact.row_count, String(profile.rowCount), "artifact row count");
   same(artifact.plans.length, profile.rowCount, "plan count");
@@ -189,7 +255,10 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
     same(source.status, "planned", "source disposition");
     same(source.source_row_fingerprint, entry.source_row_fingerprint, "source binding");
     same(source.plan_fingerprint, entry.plan_fingerprint, "source plan binding");
-    const normalized = { ...csvRows[index], variant: csvRows[index].variant_name, size: `${csvRows[index].size} ${csvRows[index].size_unit}` };
+    const normalizedVariant = profile.sourceVariantIncludesPackCount
+      ? `${csvRows[index].variant_name} pack of ${csvRows[index].pack_count}`
+      : csvRows[index].variant_name;
+    const normalized = { ...csvRows[index], variant: normalizedVariant, size: `${csvRows[index].size} ${csvRows[index].size_unit}` };
     same(normalized, source.normalized_source_row, "CSV to artifact source");
     validatePlan(entry, reviewed, source.normalized_source_row, profile);
   }
@@ -202,7 +271,7 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
     same(entry.resolved_plan.product_variant.id, "1080", "bootstrap variant");
     same(entry.resolved_plan.retailer_product.values.external_variant_id, "10003", "bootstrap source");
   } else {
-    same([...new Set(artifact.plans.map(candidate => candidate.plan_fingerprint))].sort(), [...profile.allowedFingerprints].sort(), "remaining fingerprints");
+    same([...new Set(artifact.plans.map(candidate => candidate.plan_fingerprint))].sort(), [...profile.allowedFingerprints].sort(), `${profile.id} fingerprints`);
     requireCondition(!artifact.plans.some(candidate => candidate.plan_fingerprint === PROFILE.fingerprint || candidate.resolved_plan.retailer_product.values.external_variant_id === "10003" || candidate.resolved_plan.product.id === "788" && candidate.resolved_plan.product_variant.id === "1080"), "Bootstrap plan is forbidden in remaining profile");
   }
   return { entry, artifact, profile };
@@ -275,4 +344,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };

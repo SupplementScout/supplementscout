@@ -2,15 +2,25 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const test = require("node:test");
 const manifest = require("../config/retailers/10reps-reviewed-bindings-v1.json");
+const exactOosManifest = require("../config/retailers/10reps-reviewed-bindings-v2-exact-oos-24.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE, REMAINING_PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
 const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
+const exactOosOptions = { artifact: EXACT_OOS_PROFILE.artifact, csv: EXACT_OOS_PROFILE.csv, planFingerprint: EXACT_OOS_PROFILE.fingerprint };
 const remainingTimes = [
   "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
   "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
   "2026-09-06T06:06:33.238Z", "2026-09-06T06:06:33.238Z", "2026-09-06T06:06:33.239Z", "2026-09-06T06:06:33.240Z", "2026-09-06T06:06:33.240Z",
   "2026-09-06T06:06:33.241Z", "2026-09-06T06:06:33.241Z", "2026-09-06T06:06:33.242Z", "2026-09-06T06:06:33.243Z",
+];
+const exactOosTimes = [
+  "2026-09-06T08:46:17.539Z", "2026-09-06T08:46:17.544Z", "2026-09-06T08:46:17.545Z", "2026-09-06T08:46:17.546Z",
+  "2026-09-06T08:46:17.548Z", "2026-09-06T08:46:17.549Z", "2026-09-06T08:46:17.550Z", "2026-09-06T08:46:17.551Z",
+  "2026-09-06T08:46:17.552Z", "2026-09-06T08:46:17.553Z", "2026-09-06T08:46:17.554Z", "2026-09-06T08:46:17.555Z",
+  "2026-09-06T08:46:17.556Z", "2026-09-06T08:46:17.556Z", "2026-09-06T08:46:17.557Z", "2026-09-06T08:46:17.558Z",
+  "2026-09-06T08:46:17.560Z", "2026-09-06T08:46:17.561Z", "2026-09-06T08:46:17.561Z", "2026-09-06T08:46:17.562Z",
+  "2026-09-06T08:46:17.562Z", "2026-09-06T08:46:17.563Z", "2026-09-06T08:46:17.563Z", "2026-09-06T08:46:17.564Z",
 ];
 
 // Synthetic package built entirely from committed reviewed identities. No
@@ -75,15 +85,60 @@ function remainingFixture() {
   return { manifest: reviewed, artifact, csvRows };
 }
 function validateRemaining(f, fingerprint = REMAINING_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, REMAINING_PROFILE, fingerprint); }
+function exactOosFixture() {
+  const reviewed = structuredClone(exactOosManifest);
+  const csvRows = reviewed.rows.map(r => ({
+    retailer_name: "10 Reps", retailer_website: "https://www.10reps.co.uk/", external_product_id: r.external_product_id, external_variant_id: r.external_variant_id,
+    product_name: r.external_name, variant_name: r.variant_name, brand: r.brand, category: r.category, description: "", image: r.image_url, slug: r.canonical_slug,
+    external_url: r.source_url, affiliate_url: r.source_url, external_gtin: r.external_gtin || "", price: r.price.toFixed(2), shipping_known: "true", shipping_cost: "3.99",
+    in_stock: "false", is_for_sale: "true", size: String(r.size), size_unit: r.size_unit, flavour: r.flavour, product_format: r.product_format, pack_count: String(r.pack_count),
+    source_updated_at: r.source_updated_at, external_sku: r.external_sku || "", external_options: JSON.stringify({ Flavour: r.flavour, Size: r.source_size }), product_id: String(r.product_id), product_variant_id: String(r.product_variant_id),
+  }));
+  const artifact = { artifact_version: "1", row_count: "24", run_id: "10reps-exact-oos-24-test", source_file_sha256: EXACT_OOS_PROFILE.csvSha256, blocked_rows: [], plans: [], source_rows: [], summary: { blocked_row_count: "0", plan_count: "24", skipped_row_count: "0" } };
+  for (let i = 0; i < 24; i++) {
+    const r = reviewed.rows[i], csv = csvRows[i];
+    const source = { ...csv, variant: `${r.variant_name} pack of ${r.pack_count}`, size: `${r.size} ${r.size_unit}` };
+    const sourceHash = runner.sourceFingerprint(source);
+    const flavour = r.flavour.toLowerCase().replace(/&/g, "and");
+    const plan = {
+      approval: { approval_type: "none", approved: false },
+      expected_state: {
+        offer: null,
+        product: { id: String(r.product_id), is_active: true, merged_into_product_id: null, name: r.canonical_product, product_format: r.product_format },
+        product_variant: { display_name: r.canonical_variant, flavour_code: flavour, flavour_label: r.canonical_flavour, id: String(r.product_variant_id), is_active: true, is_default: false, pack_count: String(r.pack_count), product_format: r.product_format, product_id: String(r.product_id), size_unit: r.size_unit, size_value: String(r.size), variant_key: `${flavour.replace(/\s+/g, "-")}-${r.size}${r.size_unit}` },
+        retailer: { id: "14", name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" },
+        retailer_product: null,
+      },
+      meta: { operation_type: "standard_import", plan_fingerprint: null, plan_kind: "feed", source_row_fingerprint: sourceHash, version: "2" },
+      offer: { action: "create", values: { in_stock: false, last_checked_at: exactOosTimes[i], price: r.price.toFixed(2), shipping_cost: "3.99", total_price: r.delivered_price.toFixed(2), url: r.source_url } },
+      price_history: { action: "create" },
+      product: { action: "existing", id: String(r.product_id) },
+      product_variant: { action: "existing", evidence: { approved_mapping_id: null, external_options: { Flavour: r.flavour, Size: r.source_size }, flavour, pack_count: String(r.pack_count), product_format: r.product_format, size_unit: r.size_unit, size_value: String(r.size) }, id: String(r.product_variant_id) },
+      retailer: { action: "existing", id: "14" },
+      retailer_product: { action: "create", values: { external_gtin: r.external_gtin, external_name: r.external_name, external_options: { Flavour: r.flavour, Size: r.source_size }, external_product_id: r.external_product_id, external_sku: r.external_sku, external_slug: r.canonical_slug, external_url: r.source_url, external_variant_id: r.external_variant_id, match_confidence: "90", match_method: "slug", product_variant_id: String(r.product_variant_id) } },
+    };
+    const fingerprint = runner.planFingerprint(plan);
+    assert.equal(fingerprint, EXACT_OOS_PROFILE.allowedFingerprints[i]);
+    plan.meta.plan_fingerprint = fingerprint;
+    artifact.plans.push({ operation_type: "standard_import", plan_fingerprint: fingerprint, plan_kind: "feed", resolved_plan: plan, retailer_id: "14", row_number: String(i + 2), source_row_fingerprint: sourceHash });
+    artifact.source_rows.push({ normalized_source_row: source, plan_fingerprint: fingerprint, row_number: String(i + 2), source_row_fingerprint: sourceHash, status: "planned" });
+  }
+  return { manifest: reviewed, artifact, csvRows };
+}
+function validateExactOos(f, fingerprint = EXACT_OOS_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, EXACT_OOS_PROFILE, fingerprint); }
 test("closed CLI accepts only the exact profile paths and allowed fingerprints", () => {
   assert.deepEqual(runner.parseArgs([`--artifact=${PROFILE.artifact}`, `--csv=${PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), options);
   assert.deepEqual(runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${REMAINING_PROFILE.fingerprint}`]), remainingOptions);
+  assert.deepEqual(runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${EXACT_OOS_PROFILE.fingerprint}`]), exactOosOptions);
   for (const fingerprint of REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
+  for (const fingerprint of EXACT_OOS_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const args of [[], [`--artifact=${PROFILE.artifact}`, `--artifact=${PROFILE.artifact}`], ["--apply"], ["--pilot-apply"], ["--profile=other"]]) assert.throws(() => runner.parseArgs(args));
   for (const key of ["artifact", "csv", "planFingerprint"]) assert.throws(() => runner.prepareApproval({ ...options, [key]: "wrong" }, () => { throw new Error("Must not read files"); }), /Invalid/);
   for (const row of manifest.rows.slice(1)) assert.throws(() => runner.prepareApproval({ ...options, planFingerprint: row.plan_fingerprint }), /bootstrap fingerprint/);
   assert.throws(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), /remaining-19 fingerprint/);
   assert.throws(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${PROFILE.csv}`, `--plan-fingerprint=${REMAINING_PROFILE.fingerprint}`]), /closed profile/);
+  assert.throws(() => runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${REMAINING_PROFILE.fingerprint}`]), /exact-oos-24 fingerprint/);
+  assert.throws(() => runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${EXACT_OOS_PROFILE.fingerprint}`]), /closed profile/);
 });
 test("wrong artifact and CSV SHA are rejected by the package digest guard", () => {
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt artifact"), PROFILE.artifactSha256, "artifact"), /artifact SHA/);
@@ -94,6 +149,8 @@ test("wrong artifact and CSV SHA are rejected by the package digest guard", () =
   assert.throws(() => runner.prepareApproval(options, () => Buffer.from("{}")), /manifest SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt remaining artifact"), REMAINING_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt remaining CSV"), REMAINING_PROFILE.csvSha256, "CSV"), /CSV SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt exact OOS artifact"), EXACT_OOS_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt exact OOS CSV"), EXACT_OOS_PROFILE.csvSha256, "CSV"), /CSV SHA/);
 });
 test("all 20 synthetic plans are checked and only the exact bootstrap is selected", () => {
   const f = fixture(), selected = validate(f);
@@ -109,6 +166,32 @@ test("valid remaining-19 artifact checks every reviewed row and selects only an 
   assert.equal(selected.entry.resolved_plan.retailer.id, "14");
   assert.equal(selected.entry.resolved_plan.retailer_product.values.external_variant_id, "8481");
   assert.ok(!selected.artifact.plans.some(entry => entry.plan_fingerprint === PROFILE.fingerprint || entry.resolved_plan.retailer_product.values.external_variant_id === "10003"));
+});
+test("valid exact OOS artifact checks all 24 reviewed rows and selects only an allowed fingerprint", () => {
+  const selected = validateExactOos(exactOosFixture());
+  assert.equal(selected.profile, EXACT_OOS_PROFILE);
+  assert.equal(selected.artifact.plans.length, 24);
+  assert.equal(selected.entry.plan_fingerprint, "80844944ed999b45ce749d1f16274304");
+  assert.equal(selected.entry.resolved_plan.retailer.id, "14");
+  assert.equal(selected.entry.resolved_plan.retailer_product.values.external_variant_id, "7712");
+  assert.equal(selected.entry.resolved_plan.product.id, "788");
+  assert.equal(selected.entry.resolved_plan.product_variant.id, "1073");
+  assert.equal(selected.entry.resolved_plan.offer.values.in_stock, false);
+});
+for (const [label, mutate, message] of [
+  ["retailer create", f => { f.artifact.plans[23].resolved_plan.retailer = { action: "create", values: { name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" } }; }, /existing retailer/],
+  ["wrong retailer ID", f => { f.artifact.plans[23].retailer_id = "15"; }, /retailer ID/],
+  ["product creation", f => { f.artifact.plans[23].resolved_plan.product.action = "create"; }, /existing product/],
+  ["variant creation", f => { f.artifact.plans[23].resolved_plan.product_variant.action = "create_variant"; }, /existing variant/],
+  ["in-stock substitution", f => { f.artifact.plans[23].resolved_plan.offer.values.in_stock = true; }, /exact-oos-24 stock/],
+  ["shipping other than 3.99", f => { f.artifact.plans[23].resolved_plan.offer.values.shipping_cost = "0"; }, /shipping/],
+  ["wrong product", f => { f.artifact.plans[23].resolved_plan.product.id = "1"; }, /existing product/],
+  ["wrong variant", f => { f.artifact.plans[23].resolved_plan.product_variant.id = "1"; }, /existing variant/],
+  ["fingerprint outside exact OOS scope", f => { f.artifact.plans[23].plan_fingerprint = "0".repeat(32); }, /source plan binding|plan integrity|exact-oos-24 fingerprints/],
+  ["previous bootstrap fingerprint", f => { f.artifact.plans[23].plan_fingerprint = PROFILE.fingerprint; }, /source plan binding|plan integrity|exact-oos-24 fingerprints/],
+  ["SKU promoted into GTIN", f => { f.artifact.plans[23].resolved_plan.retailer_product.values.external_gtin = f.manifest.rows[23].external_sku; }, /external_gtin/],
+]) test(`exact-oos-24 rejects ${label}`, () => {
+  const f = exactOosFixture(); mutate(f); assert.throws(() => validateExactOos(f), message);
 });
 for (const [label, mutate, message] of [
   ["retailer create", f => { f.artifact.plans[18].resolved_plan.retailer = { action: "create", values: { name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" } }; }, /existing retailer/],
@@ -129,7 +212,7 @@ for (const [label, mutate, message] of [
   ["shipping other than 3.99", p => { p.offer.values.shipping_cost = "0"; }, /shipping/],
   ["wrong delivered total", p => { p.offer.values.total_price = "24.99"; }, /delivered price/],
   ["changed price", p => { p.offer.values.price = "1.00"; }, /effective price/],
-  ["out of stock", p => { p.offer.values.in_stock = false; }, /in-stock/],
+  ["out of stock", p => { p.offer.values.in_stock = false; }, /bootstrap stock/],
   ["SKU promoted into GTIN", p => { p.retailer_product.values.external_gtin = "PER406"; }, /external_gtin/],
   ["source URL substitution", p => { p.offer.values.url = "https://example.test/"; }, /offer URL/],
   ["wrong variant parent", p => { p.expected_state.product_variant.product_id = "1"; }, /variant product_id/],
@@ -174,6 +257,19 @@ test("remaining-19 uses the same direct PG transaction for exactly one selected 
   assert.equal(queries.filter(call => call.sql.includes("approve_product_import_plan")).length, 1);
   assert.equal(queries[4].args[1], REMAINING_PROFILE.artifactSha256);
   assert.equal(queries[4].args[3], "10reps-reviewed-remaining-19");
+  assert.equal(queries.at(-1).sql, "commit");
+});
+test("exact-oos-24 uses the same direct PG transaction for exactly one selected approval", async () => {
+  const prepared = validateExactOos(exactOosFixture()), client = fakeClient(prepared);
+  const result = await runner.approveWithClient(prepared, client);
+  assert.deepEqual(
+    { fingerprint: result.plan_fingerprint, product: result.product_id, variant: result.product_variant_id, source: result.external_variant_id, retailer: result.retailer_id },
+    { fingerprint: EXACT_OOS_PROFILE.fingerprint, product: 788, variant: 1073, source: "7712", retailer: 14 },
+  );
+  const queries = client.calls.filter(call => call.sql);
+  assert.equal(queries.filter(call => call.sql.includes("approve_product_import_plan")).length, 1);
+  assert.equal(queries[4].args[1], EXACT_OOS_PROFILE.artifactSha256);
+  assert.equal(queries[4].args[3], "10reps-reviewed-exact-oos-24");
   assert.equal(queries.at(-1).sql, "commit");
 });
 test("wrong role/login never reaches approval; wrong receipt rolls back", async () => {
