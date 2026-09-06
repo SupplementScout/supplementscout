@@ -88,8 +88,67 @@
     }
   },
   "remaining_profile": {
-    "status": "PENDING_BOOTSTRAP_APPLY",
-    "row_count": 18
+    "path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-remaining-18.csv",
+    "sha256": "4843377df92ce50803844f50cd558b8054dc59969ccfe8caca0bc49ecb25d76b",
+    "row_count": 18,
+    "external_variant_ids": [
+      "11125",
+      "477",
+      "2279",
+      "479",
+      "480",
+      "8097",
+      "8098",
+      "8100",
+      "8101",
+      "8102",
+      "8103",
+      "534",
+      "535",
+      "536",
+      "560",
+      "3741",
+      "561",
+      "562"
+    ],
+    "parent_product_ids": {
+      "469": 1161,
+      "530": 1162,
+      "554": 1163
+    },
+    "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-remaining-18-dry-run.json",
+    "artifact_sha256": "da01fabc4595c12f75dda3de85069daa652d0bbc8ba3964d79b55c36deb06a10",
+    "plan_fingerprints": [
+      "e1a52211982ad9e86eb31227fd8868e0",
+      "2ef1a539fd5bd001d07331cbfdb83365",
+      "a78538498e4cc470399f7ad21211f1cd",
+      "49ea3748020ba4ee28483cfd39752cb8",
+      "c7dd7aae8148e8f3be3458177999cf11",
+      "74fea21530d77c5ee9696d22edc0d385",
+      "18b0d461ee42cda635c1fc0a2d5a2922",
+      "b825158eabffac0e5bce76e7b7719133",
+      "155267542b77bd723400d4922456c4e4",
+      "ea5d10186e9bd2f9a7f682fd97e7c7ff",
+      "cdfabde12b19ff9c51695846273a7248",
+      "7bbd7dca65c513c59f5cab2082a0b042",
+      "27ca7de1de8fb297a0e2b0e0c8a3e5cf",
+      "a022a77cb6615bd69c8a5d09695d0bbe",
+      "1d1505504bf011292195ec10bf3f925c",
+      "270af38616d5e3de2c6bdc56da99686e",
+      "dcc1061f93220c12801ff9d2507984a9",
+      "6228303288bd43a228926e3658b6f01a"
+    ],
+    "status": "DRY_RUN_PASS",
+    "blocked_row_count": 0,
+    "conflict_count": 0,
+    "expected_actions": {
+      "retailers_create": 0,
+      "products_create": 0,
+      "product_variants_create": 18,
+      "retailer_products_create": 18,
+      "offers_create": 18,
+      "price_history_create": 18
+    }
   },
   "held_rows": [],
   "rows": [

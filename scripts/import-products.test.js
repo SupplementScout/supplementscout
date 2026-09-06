@@ -75,6 +75,8 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_SHA =
   tenRepsReviewedNewProductsV8.bootstrap_profile.sha256;
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA =
   tenRepsReviewedNewProductsV8.time4_remaining_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA =
+  tenRepsReviewedNewProductsV8.remaining_profile.sha256;
 
 function tenRepsReviewedNewProductsV8BootstrapRows() {
   const ids = new Set(
@@ -115,6 +117,43 @@ function tenRepsReviewedNewProductsV8BootstrapRows() {
         pack_count: "1",
       })
     );
+}
+
+function tenRepsReviewedNewProductsV8RemainingRows() {
+  const ids = new Set(tenRepsReviewedNewProductsV8.remaining_profile.external_variant_ids);
+  return tenRepsReviewedNewProductsV8.rows
+    .filter((reviewed) => ids.has(reviewed.external_variant_id))
+    .map((reviewed) => baseCanonicalFeedRow({
+      retailer_name: tenRepsReviewedNewProductsV8.retailer.name,
+      retailer_website: tenRepsReviewedNewProductsV8.retailer.website,
+      product_id: String(tenRepsReviewedNewProductsV8.remaining_profile.parent_product_ids[reviewed.external_product_id]),
+      product_variant_id: "",
+      external_product_id: reviewed.external_product_id,
+      external_variant_id: reviewed.external_variant_id,
+      external_sku: reviewed.external_sku || "",
+      external_gtin: "",
+      external_options: JSON.stringify(reviewed.external_options),
+      product_name: reviewed.product_name,
+      variant_name: reviewed.variant_name,
+      brand: reviewed.brand,
+      category: reviewed.category,
+      description: "",
+      image: reviewed.image,
+      slug: reviewed.slug,
+      external_url: reviewed.source_url,
+      affiliate_url: reviewed.source_url,
+      price: reviewed.price.toFixed(2),
+      shipping_known: "true",
+      shipping_cost: "3.99",
+      total_price: reviewed.delivered_price.toFixed(2),
+      in_stock: String(reviewed.in_stock),
+      is_for_sale: "true",
+      size: String(reviewed.size),
+      size_unit: reviewed.size_unit,
+      flavour: reviewed.flavour,
+      product_format: reviewed.product_format,
+      pack_count: "1",
+    }));
 }
 
 function predatorsReviewedNewProductRows() {
@@ -3026,6 +3065,44 @@ test("10 Reps reviewed v8 Time 4 remaining plan keeps source size but creates a 
   assert.equal(supabase.writes.length, 0);
 });
 
+test("10 Reps reviewed v8 remaining profile plans exactly 18 variants under the three live parents", async () => {
+  const rows = tenRepsReviewedNewProductsV8RemainingRows();
+  const products = [
+    { id: "1161", name: "Chaos Crew Whey Protein Powder 720g", slug: "chaos-crew-whey-protein-powder-720g", brand: "Chaos Crew", category: "Whey Protein", product_format: "powder", is_active: true, merged_into_product_id: null },
+    { id: "1162", name: "AK-47 Labs Pre-Workout 240g", slug: "ak-47-labs-pre-workout-240g", brand: "AK - 47", category: "Pre Workout", product_format: "powder", is_active: true, merged_into_product_id: null },
+    { id: "1163", name: "Efectiv Whey – Advanced Protein Complex 900g", slug: "efectiv-whey-advanced-protein-complex-900g", brand: "Efectiv", category: "Whey Protein", product_format: "powder", is_active: true, merged_into_product_id: null },
+  ];
+  const productVariants = [
+    { id: "3232", product_id: "1161", variant_key: "vanilla-ice-cream-720g", display_name: "Vanilla Ice Cream", flavour_code: "vanilla ice cream", flavour_label: "Vanilla Ice Cream", size_value: "720", size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false },
+    { id: "3233", product_id: "1162", variant_key: "cotton-candy-240g", display_name: "Cotton Candy", flavour_code: "cotton candy", flavour_label: "Cotton Candy", size_value: "240", size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false },
+    { id: "3234", product_id: "1163", variant_key: "banana-cr-me-900g", display_name: "Banana Crème", flavour_code: "banana crème", flavour_label: "Banana Crème", size_value: "900", size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false },
+  ];
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "14", name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/", is_active: true }],
+    products,
+    product_variants: productVariants,
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 18);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 0);
+  assert.equal(result.report.productVariantsToCreate.length, 18);
+  assert.ok(result.report.approvedRows.every(item =>
+    item.importPlan.product.action === "existing" &&
+    item.importPlan.product_variant.action === "create_variant" &&
+    item.importPlan.retailer.id === "14" &&
+    item.importPlan.offer.values.shipping_cost === "3.99"
+  ));
+  assert.equal(result.report.approvedRows.filter(item => item.importPlan.offer.values.in_stock).length, 9);
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("10 Reps reviewed v8 bootstrap rejects SHA, row-set, identity, GTIN, category, and shipping drift", () => {
   const rows = tenRepsReviewedNewProductsV8BootstrapRows();
   assert.throws(
@@ -3054,7 +3131,7 @@ test("10 Reps reviewed v8 bootstrap rejects SHA, row-set, identity, GTIN, catego
     ["category", "Amino Acids", /category mismatch/],
     ["external_gtin", "05000000000000", /external_gtin mismatch/],
     ["shipping_cost", "4.99", /commercial fields mismatch/],
-    ["product_id", "1", /cannot supply canonical IDs/],
+    ["product_id", "1", /canonical IDs mismatch/],
   ]) {
     assert.throws(
       () => normalizeCanonicalRetailerFeedRows(
@@ -3095,6 +3172,28 @@ test("10 Reps reviewed v8 SQL policy is exact and does not mutate catalogue rows
     migration,
     /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i
   );
+});
+
+test("10 Reps reviewed v8 sibling policy is fingerprint-bound and changes no catalogue rows", () => {
+  const migration = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      "supabase/migrations/20260906153000_allow_10reps_v8_sibling_variants_without_default.sql"
+    ),
+    "utf8"
+  );
+  for (const value of [
+    "atomic_import_10reps_v8_sibling_variant_allowed",
+    "e1a52211982ad9e86eb31227fd8868e0",
+    "6228303288bd43a228926e3658b6f01a",
+    "'1161','469','11125','CHA074'",
+    "'1162','530','8097','AKL037'",
+    "'1163','554','562',null",
+    "shipping_cost}' = '3.99'",
+    "3a909be49aad0919c619c4ccfb1b30b796fd0bed6f209d7a607a1c3aca38e1f9",
+  ]) assert.match(migration, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(migration, /revoke all on function[\s\S]*from public, anon, authenticated, service_role/i);
+  assert.doesNotMatch(migration, /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i);
 });
 
 test("Predators Gear reviewed new-product v3 initial profile plans only seven exact owner-approved anchors", async () => {

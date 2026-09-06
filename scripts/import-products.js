@@ -111,6 +111,11 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA256 =
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_IDS = new Set(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.time4_remaining_profile.external_variant_ids.map(String)
 );
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA256 =
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.remaining_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_IDS = new Set(
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.remaining_profile.external_variant_ids.map(String)
+);
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS = new Map(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.rows.map((row) => [
     String(row.external_variant_id),
@@ -932,15 +937,20 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256;
   const isTenRepsTime4RemainingSource =
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA256;
+  const isTenRepsVariantRemainingSource =
+    predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA256;
   const isTenRepsReviewedSource =
-    isTenRepsBootstrapSource || isTenRepsTime4RemainingSource;
+    isTenRepsBootstrapSource || isTenRepsTime4RemainingSource ||
+    isTenRepsVariantRemainingSource;
   const isTenRepsReviewedIdentity = Boolean(
     tenRepsReviewedRow &&
       (
         isTenRepsBootstrapSource &&
           TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) ||
         isTenRepsTime4RemainingSource &&
-          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_IDS.has(externalVariantId)
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_IDS.has(externalVariantId) ||
+        isTenRepsVariantRemainingSource &&
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_IDS.has(externalVariantId)
       ) &&
       slugifyRetailerName(String(row.retailer_name || "")) === "10-reps"
   );
@@ -994,15 +1004,24 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     ) {
       throw new Error("10 Reps reviewed new-product external_options mismatch");
     }
-    if (optionalIdentifier(row.product_id) || optionalIdentifier(row.product_variant_id)) {
-      throw new Error("10 Reps reviewed new-product rows cannot supply canonical IDs");
+    const expectedParentProductId = isTenRepsVariantRemainingSource
+      ? String(TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.remaining_profile.parent_product_ids[tenRepsReviewedRow.external_product_id] || "")
+      : "";
+    if (
+      isTenRepsVariantRemainingSource
+        ? optionalIdentifier(row.product_id) !== expectedParentProductId ||
+          optionalIdentifier(row.product_variant_id)
+        : optionalIdentifier(row.product_id) || optionalIdentifier(row.product_variant_id)
+    ) {
+      throw new Error("10 Reps reviewed new-product canonical IDs mismatch");
     }
     const expectedPrice = normalizeDecimalString(tenRepsReviewedRow.price, "price");
     if (
       normalizeDecimalString(row.price, "price") !== expectedPrice ||
       normalizeDecimalString(row.shipping_cost, "shipping_cost") !== "3.99" ||
       !parseRequiredBoolean(row.shipping_known, "shipping_known") ||
-      !parseRequiredBoolean(row.in_stock, "in_stock") ||
+      parseRequiredBoolean(row.in_stock, "in_stock") !==
+        Boolean(tenRepsReviewedRow.in_stock) ||
       !parseRequiredBoolean(row.is_for_sale, "is_for_sale")
     ) {
       throw new Error("10 Reps reviewed new-product commercial fields mismatch");
@@ -1573,6 +1592,9 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       : String(options.sourceFileSha256 || "").toLowerCase() ===
           TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA256
         ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.time4_remaining_profile
+        : String(options.sourceFileSha256 || "").toLowerCase() ===
+            TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA256
+          ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.remaining_profile
         : null;
   if (tenRepsV8Profile) {
     if (rows.length !== tenRepsV8Profile.row_count) {
@@ -3181,7 +3203,9 @@ function collectCanonicalVariantEvidence(row) {
   const options = parseExternalOptions(row.external_options);
   const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
   if (
-    reviewedTenReps?.action === "create_reviewed_product_variant"
+    ["create_reviewed_product_variant", "create_variant_after_parent"].includes(
+      reviewedTenReps?.action
+    )
   ) {
     return {
       flavour: normalizeFlavour(reviewedTenReps.flavour),
@@ -3997,7 +4021,7 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     if (
       retailerSlug !== "10-reps" ||
       reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind ||
-      !["create_reviewed_product_variant", "create_product_with_default_variant"].includes(
+      !["create_reviewed_product_variant", "create_product_with_default_variant", "create_variant_after_parent"].includes(
         reviewedTenReps.action
       )
     ) {
@@ -4185,7 +4209,9 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
       reviewedWooCommerceIdentity.canonical_product_id ===
         String(product?.id || "")) ||
       (reviewedTenRepsIdentity &&
-        reviewedTenRepsIdentity.action === "create_reviewed_product_variant" &&
+        ["create_reviewed_product_variant", "create_variant_after_parent"].includes(
+          reviewedTenRepsIdentity.action
+        ) &&
         reviewedTenRepsIdentity.external_product_id === externalProductId &&
         reviewedTenRepsIdentity.external_variant_id === externalVariantId)) &&
     WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalProductId) &&
@@ -4345,9 +4371,13 @@ function planMissingProductVariant(row, product, activeVariants, rowNumber, evid
     throw new Error("create_variant requires an active unmerged canonical product");
   }
   const defaultVariants = activeVariants.filter((variant) => variant.is_default);
-  const strictNoSkuWithoutDefault =
-    defaultVariants.length === 0 && !optionalIdentifier(row.external_sku);
-  if (defaultVariants.length > 1 || (defaultVariants.length === 0 && !strictNoSkuWithoutDefault)) {
+  const exactReviewedTenRepsSibling =
+    row.__reviewed_10reps_new_product_identity?.action ===
+      "create_variant_after_parent";
+  const strictReviewedWithoutDefault =
+    defaultVariants.length === 0 &&
+    (!optionalIdentifier(row.external_sku) || exactReviewedTenRepsSibling);
+  if (defaultVariants.length > 1 || (defaultVariants.length === 0 && !strictReviewedWithoutDefault)) {
     throw new Error("create_variant requires exactly one active default product_variant");
   }
   const values = buildPlannedVariantValues(row, product, rowNumber, evidence);

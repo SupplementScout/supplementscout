@@ -222,6 +222,8 @@ const CONTRACTS = Object.freeze({
         "61e12ebe62dc3ebbde696e50842fe5503d5515b9b0e3b35956c37e421be9c05b",
       "20260906150000_allow_10reps_v8_short_source_ids.sql":
         "f0b40f544c308164941987e94147d72409db141999a769805b803c4218d78b91",
+      "20260906153000_allow_10reps_v8_sibling_variants_without_default.sql":
+        "372c8679c2fdab5cefea3427bb03494526071c7b4891830af3c5562be088119f",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -256,7 +258,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260906153000_allow_10reps_v8_sibling_variants_without_default.sql",
+        sha256: "372c8679c2fdab5cefea3427bb03494526071c7b4891830af3c5562be088119f",
+      }),
+    ]),
   }),
 });
 
