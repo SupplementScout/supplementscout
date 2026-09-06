@@ -317,7 +317,54 @@ const SPECIFIC_SERVINGS_3_PROFILE = Object.freeze({
   project: PROFILE.project,
   strictReviewedManifest: true,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE]);
+const EXISTING_PRODUCTS_14_BINDINGS = Object.freeze([
+  [1, "10447", 861, null, "87186ecb98c7d750025bc019faa06421"],
+  [2, "7717", 788, null, "ec894c657f2405602f0922d15764a841"],
+  [3, "8039", 745, null, "245aa36e62097c86776583fc899a4345"],
+  [4, "8044", 745, null, "e3acbac94cabb66743539cc514a543b7"],
+  [5, "8639", 837, null, "e7e573bf175f35d8bf16c29f804b8eed"],
+  [6, "8958", 743, 801, "8ac8dfe9073f7f253d849dbab72258e4"],
+  [7, "8960", 743, 804, "82f32ff732895e83771d8eafcbc791ca"],
+  [8, "9573", 338, null, "09b8b2166ed4e02777df980834e2ca8b"],
+  [9, "10741", 1103, 2393, "790a31fc2d69bdcc2b8c89250af96857"],
+  [10, "11276", 424, null, "fd6f0a4cd8e9a5fe758a56b8fccfcf90"],
+  [11, "11277", 424, null, "006fd346f8e11d617b1592a1e3476304"],
+  [12, "11278", 424, null, "88730c14aa4c725ee2a63fdcc7a3cc1d"],
+  [13, "11279", 424, null, "6c3fcdae8934017c4aa3053de87c2a57"],
+  [14, "11280", 424, null, "e001f45e7a2fc6d1f17e9246e93804b5"],
+].map(([reviewRow, externalVariantId, productId, productVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, productId, productVariantId, fingerprint })));
+const EXISTING_PRODUCTS_14_PROFILE = Object.freeze({
+  id: "existing-products-14",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v6-existing-products-14.json"),
+  manifestSha256: "239bbfda9721af1a921aeb992f8705ae0c5aa3a3460dc206ef6ee82523ce6051",
+  manifestKind: "10reps-reviewed-existing-products-new-variants-v6",
+  manifestRowCount: 14,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-next-14-owner-review-dry-run.json"),
+  artifactSha256: "ff6b4fe7606a4a6dcccd29f7ebf225fc6347a8a4047faea871e00c560f7a7cff",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-next-14-owner-review.csv"),
+  csvSha256: "191fbb11b8a4575bd1a2f3c4c7abb7ae409401266100c3ec2be555677a27d8b7",
+  fingerprint: EXISTING_PRODUCTS_14_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(EXISTING_PRODUCTS_14_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: EXISTING_PRODUCTS_14_BINDINGS,
+  reviewedStart: 0,
+  rowCount: 14,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  sourceVariantIncludesPackCount: true,
+  useReviewedMappingOptions: true,
+  useCanonicalMappingFlavour: true,
+  allowsReviewedVariantCreation: true,
+  existingVariantCount: 3,
+  variantCreateCount: 11,
+  approvalSource: "10reps-reviewed-existing-products-14",
+  applicationName: "10reps-existing-products-14-artifact-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  strictReviewedManifest: true,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -371,25 +418,54 @@ function reviewedSourceOptions(profile, reviewed) {
 function validatePlan(entry, reviewed, source, profile = PROFILE) {
   const plan = entry.resolved_plan;
   same(plan.product, { action: "existing", id: String(reviewed.product_id) }, "existing product");
-  same(plan.product_variant.action, "existing", "existing variant action");
-  same(plan.product_variant.id, String(reviewed.product_variant_id), "existing variant ID");
   same(plan.expected_state.product.id, String(reviewed.product_id), "product before-state");
   same(plan.expected_state.product.name, reviewed.canonical_product, "canonical name");
   same(plan.expected_state.product.is_active, true, "active product");
   same(plan.expected_state.product.merged_into_product_id, null, "unmerged product");
-  const variant = plan.expected_state.product_variant;
-  const expectedVariant = {
-    id: String(reviewed.product_variant_id),
-    product_id: String(reviewed.product_id),
-    size_value: reviewed.size == null ? null : String(reviewed.size),
-    size_unit: reviewed.size_unit,
-    flavour_label: reviewed.canonical_flavour,
-    product_format: reviewed.product_format,
-    pack_count: reviewed.pack_count == null ? null : String(reviewed.pack_count),
-    is_active: true,
-    is_default: reviewed.is_default_variant === true,
-  };
-  for (const [key, value] of Object.entries(expectedVariant)) same(variant[key], value, `variant ${key}`);
+  if (reviewed.canonical_product_format !== undefined) same(plan.expected_state.product.product_format, reviewed.canonical_product_format, "canonical product format");
+  const createsVariant = profile.allowsReviewedVariantCreation && reviewed.variant_action === "create_variant";
+  if (createsVariant) {
+    same(reviewed.product_variant_id, null, "new variant reviewed ID");
+    same(plan.product_variant.action, "create_variant", "reviewed variant creation action");
+    const expectedVariant = {
+      display_name: reviewed.canonical_variant,
+      flavour_code: reviewed.canonical_flavour_code,
+      flavour_label: reviewed.canonical_flavour,
+      pack_count: reviewed.pack_count == null ? null : String(reviewed.pack_count),
+      product_format: reviewed.product_format,
+      size_unit: reviewed.size_unit,
+      size_value: reviewed.size == null ? null : String(reviewed.size),
+      variant_key: reviewed.canonical_variant_key,
+    };
+    same(plan.product_variant.values, expectedVariant, "reviewed variant values");
+    same(plan.product_variant.evidence, {
+      approved_mapping_id: null,
+      external_options: reviewed.mapping_options,
+      flavour: reviewed.canonical_flavour_code,
+      pack_count: reviewed.pack_count == null ? null : String(reviewed.pack_count),
+      product_format: reviewed.product_format,
+      size_unit: reviewed.size_unit,
+      size_value: reviewed.size == null ? null : String(reviewed.size),
+    }, "reviewed variant evidence");
+    same(plan.expected_state.product_variant, null, "new variant absent before-state");
+  } else {
+    same(reviewed.variant_action === undefined ? "existing" : reviewed.variant_action, "existing", "reviewed existing variant action");
+    same(plan.product_variant.action, "existing", "existing variant action");
+    same(plan.product_variant.id, String(reviewed.product_variant_id), "existing variant ID");
+    const variant = plan.expected_state.product_variant;
+    const expectedVariant = {
+      id: String(reviewed.product_variant_id),
+      product_id: String(reviewed.product_id),
+      size_value: reviewed.size == null ? null : String(reviewed.size),
+      size_unit: reviewed.size_unit,
+      flavour_label: reviewed.canonical_flavour,
+      product_format: reviewed.product_format,
+      pack_count: reviewed.pack_count == null ? null : String(reviewed.pack_count),
+      is_active: true,
+      is_default: reviewed.is_default_variant === true,
+    };
+    for (const [key, value] of Object.entries(expectedVariant)) same(variant[key], value, `variant ${key}`);
+  }
   if (profile.retailerAction === "create") {
     same(plan.retailer, { action: "create", values: { name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" } }, "retailer creation");
     same(plan.expected_state.retailer, null, "retailer absent before-state");
@@ -400,8 +476,28 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   for (const key of ["retailer_product", "offer"]) same(plan.expected_state[key], null, `${key} absent before-state`);
   same(plan.retailer_product.action, "create", "mapping action");
   const mapping = plan.retailer_product.values;
-  for (const [key, value] of Object.entries({ external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_variant_id: String(reviewed.product_variant_id), external_sku: reviewed.external_sku, external_gtin: reviewed.external_gtin, external_url: reviewed.source_url, external_name: reviewed.external_name })) same(mapping[key], value, `mapping ${key}`);
+  for (const [key, value] of Object.entries({ external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_variant_id: createsVariant ? null : String(reviewed.product_variant_id), external_sku: reviewed.external_sku, external_gtin: reviewed.external_gtin, external_url: reviewed.source_url, external_name: reviewed.external_name })) same(mapping[key], value, `mapping ${key}`);
   same(mapping.external_options, reviewedSourceOptions(profile, reviewed), "source options");
+  if (createsVariant) {
+    const identity = plan.retailer_product.identity_contract;
+    same(identity.version, "1", "identity contract version");
+    same(identity.approved_url_peers.length, 1, "reviewed identity peer count");
+    same(identity.approved_url_peers[0], identity.incoming, "reviewed identity peer");
+    same(identity.incoming, {
+      canonical_variant: plan.product_variant.values,
+      external_gtin: reviewed.external_gtin,
+      external_options: reviewed.mapping_options,
+      external_product_id: reviewed.external_product_id,
+      external_sku: reviewed.external_sku,
+      external_url: reviewed.source_url,
+      external_variant_id: reviewed.external_variant_id,
+      legacy: false,
+      product_id: String(reviewed.product_id),
+      product_variant_id: null,
+      retailer_id: profile.retailerId,
+    }, "reviewed incoming identity");
+    same(identity.peer_set_fingerprint, reviewed.identity_peer_set_fingerprint, "reviewed identity peer fingerprint");
+  }
   same(plan.offer.action, "create", "offer action");
   same(plan.offer.values.price, reviewed.price.toFixed(2), "effective price");
   same(plan.offer.values.shipping_cost, "3.99", "shipping");
@@ -414,7 +510,7 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   const sourceFlavour = profile.useCanonicalMappingFlavour
     ? reviewed.canonical_mapping_flavour || ""
     : reviewed.flavour || "";
-  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: sourceFlavour, size: reviewed.size == null ? "" : `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit || "", image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: String(expectedInStock), is_for_sale: "true" })) same(source[key], value, `source ${key}`);
+  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: createsVariant ? "" : String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: sourceFlavour, size: reviewed.size == null ? "" : `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit || "", image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: String(expectedInStock), is_for_sale: "true" })) same(source[key], value, `source ${key}`);
   // The immutable package supplies the complete schema; these checks also keep
   // identity and commercial guards independently testable without private files.
   same(entry.operation_type, "standard_import", "operation");
@@ -438,8 +534,15 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
     same(manifest.held_rows.map(row => row.external_variant_id).sort(), [...profile.heldExternalVariantIds].sort(), "held source variants");
     requireCondition(manifest.held_rows.every(row => row.reason === "PRODUCTION_GUARD_REJECTS_DEFAULT_WHILE_ACTIVE_SPECIFIC_VARIANTS_EXIST"), "Invalid held-row reason");
   }
-  for (const flag of ["existing_products_only", "existing_variants_only", "sku_is_not_gtin"]) same(manifest.policy[flag], true, flag);
-  for (const flag of ["allow_product_creation", "allow_variant_creation", "allow_canonical_gtin_updates", "allow_category_changes", "allow_live_import"]) same(manifest.policy[flag], false, flag);
+  for (const flag of ["existing_products_only", "sku_is_not_gtin"]) same(manifest.policy[flag], true, flag);
+  if (profile.allowsReviewedVariantCreation) {
+    same(manifest.policy.existing_variants_only, false, "existing variants only");
+    same(manifest.policy.allow_variant_creation, true, "reviewed variant creation");
+  } else {
+    same(manifest.policy.existing_variants_only, true, "existing variants only");
+    same(manifest.policy.allow_variant_creation, false, "variant creation disabled");
+  }
+  for (const flag of ["allow_product_creation", "allow_canonical_gtin_updates", "allow_category_changes", "allow_live_import"]) same(manifest.policy[flag], false, flag);
   same(manifest.production_approval.approved, false, "production approval state");
   same(manifest.retailer.shipping_known, true, "known shipping");
   same(manifest.retailer.shipping_cost, 3.99, "manifest shipping");
@@ -492,7 +595,19 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
   same(artifact.source_file_sha256, profile.csvSha256, "artifact CSV digest");
   const reviewedRows = manifest.rows.slice(profile.reviewedStart, profile.reviewedStart + profile.rowCount);
   same(reviewedRows.length, profile.rowCount, "reviewed scope");
-  same(new Set(reviewedRows.map(r => r.product_variant_id)).size, profile.rowCount, "unique target variants");
+  if (profile.allowsReviewedVariantCreation) {
+    const existingRows = reviewedRows.filter(row => row.variant_action === "existing");
+    const createRows = reviewedRows.filter(row => row.variant_action === "create_variant");
+    same(existingRows.length, profile.existingVariantCount, "reviewed existing variant count");
+    same(createRows.length, profile.variantCreateCount, "reviewed variant create count");
+    requireCondition(existingRows.every(row => row.product_variant_id != null), "Existing reviewed variants require IDs");
+    requireCondition(createRows.every(row => row.product_variant_id == null), "New reviewed variants cannot have IDs");
+    same(new Set(existingRows.map(row => row.product_variant_id)).size, profile.existingVariantCount, "unique existing target variants");
+    same(new Set(reviewedRows.map(row => `${row.product_id}:${row.canonical_variant_key}`)).size, profile.rowCount, "unique reviewed variant identities");
+    same(manifest.expected_actions.product_variants_create, profile.variantCreateCount, "manifest variant create count");
+  } else {
+    same(new Set(reviewedRows.map(r => r.product_variant_id)).size, profile.rowCount, "unique target variants");
+  }
   same(new Set(artifact.plans.map(e => e.row_number)).size, profile.rowCount, "unique plan rows");
   same(new Set(artifact.source_rows.map(e => e.row_number)).size, profile.rowCount, "unique source rows");
   same(new Set(artifact.plans.map(e => e.plan_fingerprint)).size, profile.rowCount, "unique fingerprints");
@@ -580,7 +695,7 @@ async function approveWithClient(prepared, client) {
     const receipt = response.rows[0]?.result;
     verifyApprovalResult(receipt, prepared);
     await client.query("commit"); began = false;
-    return { approval_id: receipt.approval_id, expires_at: receipt.expires_at, plan_fingerprint: entry.plan_fingerprint, product_id: Number(entry.resolved_plan.product.id), product_variant_id: Number(entry.resolved_plan.product_variant.id), external_variant_id: entry.resolved_plan.retailer_product.values.external_variant_id, retailer_id: profile.retailerId === null ? null : Number(profile.retailerId), approval_only: true };
+    return { approval_id: receipt.approval_id, expires_at: receipt.expires_at, plan_fingerprint: entry.plan_fingerprint, product_id: Number(entry.resolved_plan.product.id), product_variant_id: entry.resolved_plan.product_variant.id == null ? null : Number(entry.resolved_plan.product_variant.id), external_variant_id: entry.resolved_plan.retailer_product.values.external_variant_id, retailer_id: profile.retailerId === null ? null : Number(profile.retailerId), approval_only: true };
   } catch (error) {
     if (began) await client.query("rollback").catch(() => {});
     throw error;
@@ -598,4 +713,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
