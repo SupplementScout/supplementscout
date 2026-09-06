@@ -525,7 +525,44 @@ const NEW_PRODUCTS_V8_REMAINING_PROFILE = Object.freeze({
   login: PROFILE.login,
   project: PROFILE.project,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE]);
+const NEW_PRODUCTS_V9_BOOTSTRAP_BINDINGS = Object.freeze([
+  [5, "10130", "b685b77f476a0105f3a0a1c833780002"],
+  [24, "7682", "ed4cc5be1cdf7e1b90b5ba58f0586e40"],
+  [37, "8739", "b776aebf391f80326e8cde1fea43ea26"],
+  [50, "8985", "5f00835130146ca94725eeb4da9a3405"],
+  [69, "8756", "2876f86904bbc4b401b2e95669210860"],
+  [81, "11171", "15bbbd2ebaa12f8201f59ab8f90d8d2c"],
+  [93, "11102", "928153e3c6ca5971a8ae2122dfa66bf8"],
+].map(([reviewRow, externalVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, fingerprint })));
+const NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE = Object.freeze({
+  id: "new-products-v9-large-101-bootstrap-7",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-new-products-v9-large-101.json"),
+  manifestSha256: "029b876c634cb20400343226cd7a0eb7d9b7aa3a95be847184dbe619439fade4",
+  manifestKind: "10reps-reviewed-new-products-v9-large-101",
+  manifestRowCount: 101,
+  manifestProductCount: 7,
+  allowedProductCreations: 7,
+  allowedVariantCreations: 101,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v9-large-101-bootstrap-7-dry-run.json"),
+  artifactSha256: "e218eadaae92f6604dce8caee633e5af3383adc76b3cb61f868c477dd9fc3a71",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v9-large-101-bootstrap-7.csv"),
+  csvSha256: "9497f360c5f7f1e524d618edea860a193a67b79351ba45147a4a5a3a2bca360a",
+  fingerprint: NEW_PRODUCTS_V9_BOOTSTRAP_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(NEW_PRODUCTS_V9_BOOTSTRAP_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: NEW_PRODUCTS_V9_BOOTSTRAP_BINDINGS,
+  rowCount: 7,
+  retailerAction: "existing",
+  retailerId: "14",
+  approvalSource: "10reps-reviewed-new-products-v9-large-101-bootstrap-7",
+  applicationName: "10reps-new-products-v9-large-bootstrap-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  allowsReviewedProductCreation: true,
+  manifestProfileKey: "bootstrap_profile",
+  safeDefaultVariantEvidence: false,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -807,18 +844,18 @@ function validateNewProductsV8Plan(entry, reviewed, source, profile) {
 }
 function validateNewProductsV8Package(manifest, artifact, csvRows, profile, selectedFingerprint) {
   same(manifest.kind, profile.manifestKind, "new-product manifest kind");
-  same(manifest.row_count, 22, "new-product manifest rows");
-  same(manifest.product_count, 4, "new-product manifest products");
-  same(manifest.rows.length, 22, "new-product reviewed rows");
+  same(manifest.row_count, profile.manifestRowCount, "new-product manifest rows");
+  same(manifest.product_count, profile.manifestProductCount || 4, "new-product manifest products");
+  same(manifest.rows.length, profile.manifestRowCount, "new-product reviewed rows");
   same(manifest.held_rows, [], "new-product held rows");
   same(manifest.retailer, { id: 14, name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/", expected_action: "existing", shipping_known: true, shipping_cost: 3.99 }, "new-product retailer manifest");
   for (const [key, value] of Object.entries({
     reviewed_rows_only: true,
     existing_retailer_only: true,
     allow_product_creation: true,
-    allowed_product_creations: 4,
+    allowed_product_creations: profile.allowedProductCreations || 4,
     allow_variant_creation: true,
-    allowed_variant_creations: 22,
+    allowed_variant_creations: profile.allowedVariantCreations || 22,
     allow_canonical_product_updates: false,
     allow_canonical_variant_updates: false,
     allow_canonical_gtin_updates: false,
@@ -1176,4 +1213,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };

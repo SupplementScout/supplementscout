@@ -60,6 +60,7 @@ const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1 = require("../config/retailers/pre
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V3 = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const PREDATORS_GEAR_REVIEWED_CM3_MISSING_VARIANTS_V1 = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8 = require("../config/retailers/10reps-reviewed-new-products-v8.json");
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9 = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
 
 const PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_SHA256 =
   PREDATORS_GEAR_REVIEWED_NEW_PRODUCTS_V1.canonical_csv.sha256;
@@ -118,6 +119,17 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_IDS = new Set(
 );
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS = new Map(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.rows.map((row) => [
+    String(row.external_variant_id),
+    row,
+  ])
+);
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_SHA256 =
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.bootstrap_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS = new Set(
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.bootstrap_profile.external_variant_ids.map(String)
+);
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS = new Map(
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.rows.map((row) => [
     String(row.external_variant_id),
     row,
   ])
@@ -932,7 +944,15 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const predatorsReviewedRow =
     PREDATORS_GEAR_REVIEWED_NEW_PRODUCT_ROWS.get(externalVariantId);
   const predatorsSourceSha = String(options.sourceFileSha256 || "").toLowerCase();
-  const tenRepsReviewedRow = TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS.get(externalVariantId);
+  const isTenRepsV9BootstrapSource =
+    predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_SHA256;
+  const tenRepsReviewedManifest = isTenRepsV9BootstrapSource
+    ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9
+    : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8;
+  const tenRepsReviewedRows = isTenRepsV9BootstrapSource
+    ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS
+    : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS;
+  const tenRepsReviewedRow = tenRepsReviewedRows.get(externalVariantId);
   const isTenRepsBootstrapSource =
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256;
   const isTenRepsTime4RemainingSource =
@@ -941,7 +961,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA256;
   const isTenRepsReviewedSource =
     isTenRepsBootstrapSource || isTenRepsTime4RemainingSource ||
-    isTenRepsVariantRemainingSource;
+    isTenRepsVariantRemainingSource || isTenRepsV9BootstrapSource;
   const isTenRepsReviewedIdentity = Boolean(
     tenRepsReviewedRow &&
       (
@@ -950,13 +970,16 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         isTenRepsTime4RemainingSource &&
           TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_IDS.has(externalVariantId) ||
         isTenRepsVariantRemainingSource &&
-          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_IDS.has(externalVariantId)
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_IDS.has(externalVariantId) ||
+        isTenRepsV9BootstrapSource &&
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId)
       ) &&
       slugifyRetailerName(String(row.retailer_name || "")) === "10-reps"
   );
   if (
     tenRepsReviewedRow &&
-    TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) &&
+    (TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) ||
+      TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId)) &&
     slugifyRetailerName(String(row.retailer_name || "")) === "10-reps" &&
     !isTenRepsReviewedSource
   ) {
@@ -967,8 +990,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
       throw new Error("10 Reps reviewed new-product row is outside the approved bootstrap manifest");
     }
     const exactTextFields = [
-      ["retailer_name", TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.retailer.name],
-      ["retailer_website", TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.retailer.website],
+      ["retailer_name", tenRepsReviewedManifest.retailer.name],
+      ["retailer_website", tenRepsReviewedManifest.retailer.website],
       ["external_product_id", tenRepsReviewedRow.external_product_id],
       ["external_variant_id", tenRepsReviewedRow.external_variant_id],
       ["external_sku", tenRepsReviewedRow.external_sku],
@@ -1036,7 +1059,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     row = {
       ...row,
       __reviewed_10reps_new_product_identity: {
-        contract: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind,
+        contract: tenRepsReviewedManifest.kind,
         review_row: tenRepsReviewedRow.review_row,
         action: tenRepsReviewedRow.action,
         external_product_id: tenRepsReviewedRow.external_product_id,
@@ -1585,7 +1608,7 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
     return rows;
   }
-  const tenRepsV8Profile =
+  const tenRepsReviewedProfile =
     String(options.sourceFileSha256 || "").toLowerCase() ===
       TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_SHA256
       ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.bootstrap_profile
@@ -1595,15 +1618,18 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
         : String(options.sourceFileSha256 || "").toLowerCase() ===
             TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA256
           ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.remaining_profile
-        : null;
-  if (tenRepsV8Profile) {
-    if (rows.length !== tenRepsV8Profile.row_count) {
-      throw new Error(`10 Reps reviewed new-product contract requires exactly ${tenRepsV8Profile.row_count} rows`);
+          : String(options.sourceFileSha256 || "").toLowerCase() ===
+              TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_SHA256
+            ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.bootstrap_profile
+            : null;
+  if (tenRepsReviewedProfile) {
+    if (rows.length !== tenRepsReviewedProfile.row_count) {
+      throw new Error(`10 Reps reviewed new-product contract requires exactly ${tenRepsReviewedProfile.row_count} rows`);
     }
     const actualVariantIds = rows
       .map((row) => optionalIdentifier(row.external_variant_id))
       .sort();
-    const reviewedVariantIds = tenRepsV8Profile.external_variant_ids.map(String).sort();
+    const reviewedVariantIds = tenRepsReviewedProfile.external_variant_ids.map(String).sort();
     if (
       new Set(actualVariantIds).size !== reviewedVariantIds.length ||
       canonicalJson(actualVariantIds) !== canonicalJson(reviewedVariantIds)
@@ -3927,6 +3953,13 @@ function isLikelyWooCommerceProductUrl(row, externalProductId) {
 }
 
 const REVIEWED_PARENT_VARIANT_POLICY = new Map([
+  ["NXT Nutrition Pure Whey Deluxe 510g", { brand: "NXT Nutrition", category: "Whey Protein", format: "powder", size: "510:g", tenRepsV9Only: true }],
+  ["NXT Nutrition Pure Whey Deluxe 2.1kg", { brand: "NXT Nutrition", category: "Whey Protein", format: "powder", size: "2100:g", tenRepsV9Only: true }],
+  ["Cellucor C4 Original Pre-Workout Powder 30 Servings", { brand: "Cellucor", category: "Pre Workout", format: "powder", size: "30:servings", tenRepsV9Only: true }],
+  ["Per4m Isolate Zero 2kg", { brand: "Per4m", category: "Whey Protein", format: "powder", size: "2000:g", tenRepsV9Only: true }],
+  ["Cellucor C4 Original Pre-Workout Powder 60 Servings", { brand: "Cellucor", category: "Pre Workout", format: "powder", size: "60:servings", tenRepsV9Only: true }],
+  ["Per4m Advanced Protein 800g", { brand: "Per4m", category: "Protein Powder", format: "powder", size: "800:g", tenRepsV9Only: true }],
+  ["Darkstims Electrolytes Advanced Hydration Formula 195g", { brand: "Dark Stims", category: "Electrolytes", format: "powder", size: "195:g", tenRepsV9Only: true }],
   ["Chaos Crew Whey Protein Powder 720g", { brand: "Chaos Crew", category: "Whey Protein", format: "powder", size: "720:g", tenRepsV8Only: true }],
   ["AK-47 Labs Pre-Workout 240g", { brand: "AK - 47", category: "Pre Workout", format: "powder", size: "240:g", tenRepsV8Only: true }],
   ["Efectiv Whey – Advanced Protein Complex 900g", { brand: "Efectiv", category: "Whey Protein", format: "powder", size: "900:g", tenRepsV8Only: true }],
@@ -4020,12 +4053,21 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   if (reviewedTenReps) {
     if (
       retailerSlug !== "10-reps" ||
-      reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind ||
+      ![
+        TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind,
+        TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.kind,
+      ].includes(reviewedTenReps.contract) ||
       !["create_reviewed_product_variant", "create_product_with_default_variant", "create_variant_after_parent"].includes(
         reviewedTenReps.action
       )
     ) {
       throw new Error("reviewed 10 Reps parent identity contract mismatch");
+    }
+    if (
+      (policy.tenRepsV8Only && reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.kind) ||
+      (policy.tenRepsV9Only && reviewedTenReps.contract !== TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.kind)
+    ) {
+      throw new Error("reviewed 10 Reps parent policy version mismatch");
     }
     if (
       !WOOCOMMERCE_NUMERIC_ID_PATTERN.test(externalProductId || "") ||
@@ -4076,6 +4118,9 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   } else {
     if (policy.tenRepsV8Only) {
       throw new Error("reviewed parent explicit-variant policy is 10 Reps v8 only");
+    }
+    if (policy.tenRepsV9Only) {
+      throw new Error("reviewed parent explicit-variant policy is 10 Reps v9 only");
     }
     if (policy.predatorsCm3Only) {
       throw new Error("reviewed CM3 parent explicit-variant policy is Predators Gear only");

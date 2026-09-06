@@ -58,6 +58,7 @@ const predatorsReviewedNewProducts = require("../config/retailers/predators-gear
 const predatorsReviewedNewProductsV3 = require("../config/retailers/predators-gear-reviewed-new-products-v3.json");
 const predatorsReviewedCm3MissingVariants = require("../config/retailers/predators-gear-reviewed-cm3-missing-variants-v1.json");
 const tenRepsReviewedNewProductsV8 = require("../config/retailers/10reps-reviewed-new-products-v8.json");
+const tenRepsReviewedNewProductsV9 = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
 
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
   predatorsReviewedNewProducts.canonical_csv.sha256;
@@ -77,6 +78,45 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA =
   tenRepsReviewedNewProductsV8.time4_remaining_profile.sha256;
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA =
   tenRepsReviewedNewProductsV8.remaining_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_SHA =
+  tenRepsReviewedNewProductsV9.bootstrap_profile.sha256;
+
+function tenRepsReviewedNewProductsV9BootstrapRows() {
+  const ids = new Set(tenRepsReviewedNewProductsV9.bootstrap_profile.external_variant_ids);
+  return tenRepsReviewedNewProductsV9.rows
+    .filter((reviewed) => ids.has(reviewed.external_variant_id))
+    .map((reviewed) => baseCanonicalFeedRow({
+      retailer_name: tenRepsReviewedNewProductsV9.retailer.name,
+      retailer_website: tenRepsReviewedNewProductsV9.retailer.website,
+      product_id: "",
+      product_variant_id: "",
+      external_product_id: reviewed.external_product_id,
+      external_variant_id: reviewed.external_variant_id,
+      external_sku: reviewed.external_sku || "",
+      external_gtin: "",
+      external_options: JSON.stringify(reviewed.external_options),
+      product_name: reviewed.product_name,
+      variant_name: reviewed.variant_name,
+      brand: reviewed.brand,
+      category: reviewed.category,
+      description: "",
+      image: reviewed.image,
+      slug: reviewed.slug,
+      external_url: reviewed.source_url,
+      affiliate_url: reviewed.source_url,
+      price: reviewed.price.toFixed(2),
+      shipping_known: "true",
+      shipping_cost: "3.99",
+      total_price: reviewed.delivered_price.toFixed(2),
+      in_stock: "true",
+      is_for_sale: "true",
+      size: String(reviewed.size),
+      size_unit: reviewed.size_unit,
+      flavour: reviewed.flavour,
+      product_format: reviewed.product_format,
+      pack_count: "1",
+    }));
+}
 
 function tenRepsReviewedNewProductsV8BootstrapRows() {
   const ids = new Set(
@@ -3019,6 +3059,42 @@ test("10 Reps reviewed v8 bootstrap plans only four owner-approved new products"
   assert.equal(supabase.writes.length, 0);
 });
 
+test("10 Reps reviewed v9 large bootstrap plans only seven owner-approved product anchors", async () => {
+  const rows = tenRepsReviewedNewProductsV9BootstrapRows();
+  const normalized = normalizeCanonicalRetailerFeedRows(rows, {
+    safeCreate: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_SHA,
+  });
+  assert.deepEqual(
+    normalized.map((row) => row.external_variant_id),
+    tenRepsReviewedNewProductsV9.bootstrap_profile.external_variant_ids
+  );
+  assert.ok(normalized.every((row) =>
+    row.__reviewed_10reps_new_product_identity.contract === tenRepsReviewedNewProductsV9.kind
+  ));
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "14", name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/", is_active: true }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw(rows, {
+    mode: "feed",
+    safeCreate: true,
+    dryRun: true,
+    sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_SHA,
+  });
+  assert.equal(result.report.approvedRows.length, 7);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.newProductsToCreate.length, 7);
+  assert.equal(result.report.productVariantsToCreate.length, 7);
+  assert.ok(result.report.approvedRows.every(item =>
+    item.importPlan.product.action === "create_or_reuse_reviewed" &&
+    item.importPlan.product_variant.action === "create_reviewed_variant" &&
+    item.importPlan.retailer.id === "14" &&
+    item.importPlan.offer.values.shipping_cost === "3.99"
+  ));
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("10 Reps reviewed v8 Time 4 remaining plan keeps source size but creates a safe default variant", async () => {
   const rows = tenRepsReviewedNewProductsV8BootstrapRows().filter(
     (row) => row.external_variant_id === "582"
@@ -3191,6 +3267,25 @@ test("10 Reps reviewed v8 sibling policy is fingerprint-bound and changes no cat
     "'1163','554','562',null",
     "shipping_cost}' = '3.99'",
     "3a909be49aad0919c619c4ccfb1b30b796fd0bed6f209d7a607a1c3aca38e1f9",
+  ]) assert.match(migration, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(migration, /revoke all on function[\s\S]*from public, anon, authenticated, service_role/i);
+  assert.doesNotMatch(migration, /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i);
+});
+
+test("10 Reps reviewed v9 bootstrap SQL policy is exact and changes no catalogue rows", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/20260906200000_allow_10reps_reviewed_new_products_v9.sql"),
+    "utf8"
+  );
+  for (const value of [
+    "atomic_import_10reps_v9_parent_variant_transport_allowed",
+    "b685b77f476a0105f3a0a1c833780002",
+    "928153e3c6ca5971a8ae2122dfa66bf8",
+    "NXT Nutrition Pure Whey Deluxe 510g",
+    "Cellucor C4 Original Pre-Workout Powder 30 Servings",
+    "Per4m Isolate Zero 2kg",
+    "Darkstims Electrolytes Advanced Hydration Formula 195g",
+    "shipping_cost}' = '3.99'",
   ]) assert.match(migration, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   assert.match(migration, /revoke all on function[\s\S]*from public, anon, authenticated, service_role/i);
   assert.doesNotMatch(migration, /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i);
