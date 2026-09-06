@@ -528,7 +528,7 @@ test("10 Reps v8 Time 4 profile validates only the fresh safe default-variant pl
 }, () => {
   const prepared = runner.prepareApproval(newProductsV8Time4Options);
   assert.equal(prepared.profile, NEW_PRODUCTS_V8_TIME4_PROFILE);
-  assert.equal(prepared.entry.plan_fingerprint, "fdacde208dcdb70f5ea356e5f6759162");
+  assert.equal(prepared.entry.plan_fingerprint, "7d30f3ec258c3e51034f217857d935ae");
   assert.equal(prepared.entry.resolved_plan.retailer.id, "14");
   assert.equal(prepared.entry.resolved_plan.product.action, "create");
   assert.equal(prepared.entry.resolved_plan.product.values.name, "Time 4 Glutamine 600g 120 Servings");

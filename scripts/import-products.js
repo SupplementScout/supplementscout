@@ -983,9 +983,14 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         throw new Error(`10 Reps reviewed new-product ${field} mismatch`);
       }
     }
+    const reviewedExternalOptions =
+      isTenRepsTime4RemainingSource &&
+      tenRepsReviewedRow.action === "create_product_with_default_variant"
+        ? {}
+        : tenRepsReviewedRow.external_options;
     if (
       canonicalJson(parseExternalOptions(row.external_options)) !==
-      canonicalJson(tenRepsReviewedRow.external_options)
+      canonicalJson(reviewedExternalOptions)
     ) {
       throw new Error("10 Reps reviewed new-product external_options mismatch");
     }

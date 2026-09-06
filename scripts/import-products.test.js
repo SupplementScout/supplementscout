@@ -2984,6 +2984,7 @@ test("10 Reps reviewed v8 Time 4 remaining plan keeps source size but creates a 
   const rows = tenRepsReviewedNewProductsV8BootstrapRows().filter(
     (row) => row.external_variant_id === "582"
   );
+  rows[0].external_options = "{}";
   const normalized = normalizeCanonicalRetailerFeedRows(rows, {
     safeCreate: true,
     sourceFileSha256: TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_TIME4_SHA,

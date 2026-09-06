@@ -65,15 +65,15 @@
   },
   "time4_remaining_profile": {
     "path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-time4-remaining-1.csv",
-    "sha256": "baad5be6233e98c072c86e69d4517ae17721a2c4a601f99ec7518bca3e812186",
+    "sha256": "45ebeafaa283d6d14a83714c7df1af5ddb5a0a5151828239daf033a14725d73a",
     "row_count": 1,
     "external_variant_ids": [
       "582"
     ],
     "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-time4-remaining-1-dry-run.json",
-    "artifact_sha256": "58a22d6d34a7feb1fcebbcff4ac36ed7989b4a6c280ee97b238f020c39e6a1fd",
+    "artifact_sha256": "bcd141d34ceece338f9e67cb11357597ee2bbf8c9418b7a1db8fe8a773fba832",
     "plan_fingerprints": [
-      "fdacde208dcdb70f5ea356e5f6759162"
+      "7d30f3ec258c3e51034f217857d935ae"
     ],
     "status": "DRY_RUN_PASS",
     "blocked_row_count": 0,
