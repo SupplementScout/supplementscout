@@ -364,7 +364,66 @@ const EXISTING_PRODUCTS_14_PROFILE = Object.freeze({
   project: PROFILE.project,
   strictReviewedManifest: true,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE]);
+const HIGH_CONFIDENCE_25_BINDINGS = Object.freeze([
+  [1, "7874", 17, 714, "cb37829eab69823bf143ccbc8e2e72a9"],
+  [2, "7875", 17, 715, "cb02fb2adeab331407e23de31add5745"],
+  [3, "7876", 17, 717, "8858f39e3ad989eebb018a1e7287f8f4"],
+  [4, "1382", 17, 716, "c12d975f81af4524e36fcb58f5a53891"],
+  [5, "1383", 17, null, "7cfc5e8783a64f7bca6bd90762a70de2"],
+  [6, "10109", 506, null, "cd77877839a7ced1607fa3910ed4e62a"],
+  [7, "7415", 506, 2525, "9599f966b4cf9cf83904241f470dc69d"],
+  [8, "1700", 506, 2526, "042d999723c9baae8f32e8fd9c4d5581"],
+  [9, "3375", 506, 1798, "29019549a89fe4ae0331133d2da39ae7"],
+  [10, "8616", 749, 852, "a86cae8a4efda8b41ff34ca4b2c54856"],
+  [11, "8617", 749, 847, "224e566239c75ab2122e664821c02a8c"],
+  [12, "8618", 749, 848, "d1a804e7faa5c99ad6ab758c5a79f460"],
+  [13, "8619", 749, 849, "ee88f4fdd17d60ba2be0f4f679000e03"],
+  [14, "8620", 749, 853, "2228717e9078eb6603d6a424bf873446"],
+  [15, "8621", 749, 851, "b15500b46cfbadc986f19dd0c6650a02"],
+  [16, "8622", 749, 854, "302a6fa8f4fe4973588bb60117bb882f"],
+  [17, "8623", 749, 855, "cce12bcf4e9f915b7eb212c8207a675d"],
+  [18, "8624", 749, 856, "c3c37a1997b4684c9fb9d92189c91c97"],
+  [19, "8625", 749, 857, "4e4441fcd03722f6cefd978d10ffc08e"],
+  [20, "8626", 749, 858, "2ecaae1659fd8079a11b5c60ca4d12c9"],
+  [21, "10315", 843, 1222, "369f2102e3cd37396b6a118f9ed687e0"],
+  [22, "10316", 843, 1223, "7f7ed3febec1cdfef4ce565d3dfb3b19"],
+  [23, "10317", 843, 2770, "0f900aaa96b2c3c63fbb8cc0d7c0b8a3"],
+  [24, "10318", 843, null, "4938cd00fba133630dbe3d08ec0b005f"],
+  [25, "10319", 843, 1224, "4f5e5a59f52f6e353f11f23876d0823e"],
+].map(([reviewRow, externalVariantId, productId, productVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, productId, productVariantId, fingerprint })));
+const HIGH_CONFIDENCE_25_PROFILE = Object.freeze({
+  id: "high-confidence-25",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v7-high-confidence-25.json"),
+  manifestSha256: "8661c94f1f24f2246de64388ae26490cc570bcdda62826e25427eb36dca5345e",
+  manifestKind: "10reps-reviewed-high-confidence-existing-products-v7",
+  manifestRowCount: 25,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v7-high-confidence-25-dry-run.json"),
+  artifactSha256: "7cea41c00f6878dca6fc61a15d21666e450014296341322261122a6a981b4abb",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v7-high-confidence-25.csv"),
+  csvSha256: "d74735a009dfb7dd1ebcf5ed7faf1db8d7788609f3ee6a44be7e91634b1394b0",
+  fingerprint: HIGH_CONFIDENCE_25_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(HIGH_CONFIDENCE_25_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: HIGH_CONFIDENCE_25_BINDINGS,
+  reviewedStart: 0,
+  rowCount: 25,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  sourceVariantIncludesPackCount: true,
+  useReviewedMappingOptions: true,
+  useCanonicalMappingFlavour: true,
+  allowsReviewedVariantCreation: true,
+  existingVariantCount: 22,
+  variantCreateCount: 3,
+  compactDeliveredPrice: true,
+  approvalSource: "10reps-reviewed-high-confidence-25",
+  applicationName: "10reps-high-confidence-25-artifact-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  strictReviewedManifest: true,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -501,7 +560,7 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   same(plan.offer.action, "create", "offer action");
   same(plan.offer.values.price, reviewed.price.toFixed(2), "effective price");
   same(plan.offer.values.shipping_cost, "3.99", "shipping");
-  same(plan.offer.values.total_price, ((Math.round(reviewed.price * 100) + 399) / 100).toFixed(2), "delivered price");
+  same(Number(plan.offer.values.total_price), (Math.round(reviewed.price * 100) + 399) / 100, "delivered price");
   same(plan.offer.values.url, reviewed.source_url, "offer URL");
   const expectedInStock = profile.expectedInStock === null ? reviewed.in_stock : profile.expectedInStock;
   same(plan.offer.values.in_stock, expectedInStock, `${profile.id} stock`);
@@ -713,4 +772,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };

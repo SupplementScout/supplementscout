@@ -8,8 +8,9 @@ const reviewRemaining14Manifest = require("../config/retailers/10reps-reviewed-b
 const ownerAlias19Manifest = require("../config/retailers/10reps-reviewed-bindings-v4-owner-alias-22.json");
 const specificServings3Manifest = require("../config/retailers/10reps-reviewed-bindings-v5-specific-servings-3.json");
 const existingProducts14Manifest = require("../config/retailers/10reps-reviewed-bindings-v6-existing-products-14.json");
+const highConfidence25Manifest = require("../config/retailers/10reps-reviewed-bindings-v7-high-confidence-25.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
 const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
 const exactOosOptions = { artifact: EXACT_OOS_PROFILE.artifact, csv: EXACT_OOS_PROFILE.csv, planFingerprint: EXACT_OOS_PROFILE.fingerprint };
@@ -18,6 +19,7 @@ const reviewRemaining14Options = { artifact: REVIEW_REMAINING_14_PROFILE.artifac
 const ownerAlias19Options = { artifact: OWNER_ALIAS_19_PROFILE.artifact, csv: OWNER_ALIAS_19_PROFILE.csv, planFingerprint: OWNER_ALIAS_19_PROFILE.fingerprint };
 const specificServings3Options = { artifact: SPECIFIC_SERVINGS_3_PROFILE.artifact, csv: SPECIFIC_SERVINGS_3_PROFILE.csv, planFingerprint: SPECIFIC_SERVINGS_3_PROFILE.fingerprint };
 const existingProducts14Options = { artifact: EXISTING_PRODUCTS_14_PROFILE.artifact, csv: EXISTING_PRODUCTS_14_PROFILE.csv, planFingerprint: EXISTING_PRODUCTS_14_PROFILE.fingerprint };
+const highConfidence25Options = { artifact: HIGH_CONFIDENCE_25_PROFILE.artifact, csv: HIGH_CONFIDENCE_25_PROFILE.csv, planFingerprint: HIGH_CONFIDENCE_25_PROFILE.fingerprint };
 const remainingTimes = [
   "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
   "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
@@ -61,6 +63,13 @@ const existingProducts14Times = [
   "2026-09-06T12:07:49.660Z", "2026-09-06T12:07:49.660Z", "2026-09-06T12:07:49.661Z", "2026-09-06T12:07:49.662Z",
   "2026-09-06T12:07:49.663Z", "2026-09-06T12:07:49.664Z", "2026-09-06T12:07:49.665Z", "2026-09-06T12:07:49.665Z",
   "2026-09-06T12:07:49.667Z", "2026-09-06T12:07:49.668Z",
+];
+const highConfidence25Times = [
+  "2026-09-06T12:53:16.006Z", "2026-09-06T12:53:16.011Z", "2026-09-06T12:53:16.012Z", "2026-09-06T12:53:16.012Z", "2026-09-06T12:53:16.013Z",
+  "2026-09-06T12:53:16.017Z", "2026-09-06T12:53:16.018Z", "2026-09-06T12:53:16.018Z", "2026-09-06T12:53:16.019Z", "2026-09-06T12:53:16.019Z",
+  "2026-09-06T12:53:16.020Z", "2026-09-06T12:53:16.021Z", "2026-09-06T12:53:16.021Z", "2026-09-06T12:53:16.022Z", "2026-09-06T12:53:16.023Z",
+  "2026-09-06T12:53:16.024Z", "2026-09-06T12:53:16.025Z", "2026-09-06T12:53:16.025Z", "2026-09-06T12:53:16.026Z", "2026-09-06T12:53:16.026Z",
+  "2026-09-06T12:53:16.027Z", "2026-09-06T12:53:16.028Z", "2026-09-06T12:53:16.029Z", "2026-09-06T12:53:16.029Z", "2026-09-06T12:53:16.030Z",
 ];
 
 // Synthetic package built entirely from committed reviewed identities. No
@@ -347,8 +356,8 @@ function specificServings3Fixture() {
   return { manifest: reviewed, artifact, csvRows };
 }
 function validateSpecificServings3(f, fingerprint = SPECIFIC_SERVINGS_3_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, SPECIFIC_SERVINGS_3_PROFILE, fingerprint); }
-function existingProducts14Fixture() {
-  const reviewed = structuredClone(existingProducts14Manifest);
+function reviewedVariantCreationFixture(manifestValue, profile, times, runId) {
+  const reviewed = structuredClone(manifestValue);
   const csvRows = reviewed.rows.map(r => ({
     retailer_name: "10 Reps", retailer_website: "https://www.10reps.co.uk/", external_product_id: r.external_product_id, external_variant_id: r.external_variant_id,
     product_name: r.external_name, variant_name: r.canonical_mapping_flavour || r.variant_name || "", brand: r.brand, category: r.category, description: "", image: r.image_url, slug: r.canonical_slug,
@@ -357,7 +366,8 @@ function existingProducts14Fixture() {
     product_format: r.product_format || "", pack_count: "1", source_updated_at: r.source_updated_at, external_sku: r.external_sku || "",
     external_options: JSON.stringify(r.mapping_options), product_id: String(r.product_id), product_variant_id: r.product_variant_id == null ? "" : String(r.product_variant_id),
   }));
-  const artifact = { artifact_version: "1", row_count: "14", run_id: "10reps-existing-products-14-test", source_file_sha256: EXISTING_PRODUCTS_14_PROFILE.csvSha256, blocked_rows: [], plans: [], source_rows: [], summary: { blocked_row_count: "0", plan_count: "14", skipped_row_count: "0" } };
+  const rowCount = String(reviewed.rows.length);
+  const artifact = { artifact_version: "1", row_count: rowCount, run_id: runId, source_file_sha256: profile.csvSha256, blocked_rows: [], plans: [], source_rows: [], summary: { blocked_row_count: "0", plan_count: rowCount, skipped_row_count: "0" } };
   for (let i = 0; i < reviewed.rows.length; i++) {
     const r = reviewed.rows[i], csv = csvRows[i];
     const source = { ...csv, variant: `${csv.variant_name} pack of 1`, size: r.size == null ? "" : `${r.size} ${r.size_unit}` };
@@ -385,7 +395,7 @@ function existingProducts14Fixture() {
         retailer_product: null,
       },
       meta: { operation_type: "standard_import", plan_fingerprint: null, plan_kind: "feed", source_row_fingerprint: sourceHash, version: "2" },
-      offer: { action: "create", values: { in_stock: r.in_stock, last_checked_at: existingProducts14Times[i], price: r.price.toFixed(2), shipping_cost: "3.99", total_price: r.delivered_price.toFixed(2), url: r.source_url } },
+      offer: { action: "create", values: { in_stock: r.in_stock, last_checked_at: times[i], price: r.price.toFixed(2), shipping_cost: "3.99", total_price: profile.compactDeliveredPrice ? String(r.delivered_price) : r.delivered_price.toFixed(2), url: r.source_url } },
       price_history: { action: "create" },
       product: { action: "existing", id: String(r.product_id) },
       product_variant: createsVariant ? { action: "create_variant", evidence, values: variantValues } : { action: "existing", evidence, id: String(r.product_variant_id) },
@@ -397,14 +407,17 @@ function existingProducts14Fixture() {
       plan.retailer_product.identity_contract = { approved_url_peers: [incoming], incoming, peer_set_fingerprint: r.identity_peer_set_fingerprint, version: "1" };
     }
     const fingerprint = runner.planFingerprint(plan);
-    assert.equal(fingerprint, EXISTING_PRODUCTS_14_PROFILE.allowedFingerprints[i]);
+    assert.equal(fingerprint, profile.allowedFingerprints[i]);
     plan.meta.plan_fingerprint = fingerprint;
     artifact.plans.push({ operation_type: "standard_import", plan_fingerprint: fingerprint, plan_kind: "feed", resolved_plan: plan, retailer_id: "14", row_number: String(i + 2), source_row_fingerprint: sourceHash });
     artifact.source_rows.push({ normalized_source_row: source, plan_fingerprint: fingerprint, row_number: String(i + 2), source_row_fingerprint: sourceHash, status: "planned" });
   }
   return { manifest: reviewed, artifact, csvRows };
 }
+function existingProducts14Fixture() { return reviewedVariantCreationFixture(existingProducts14Manifest, EXISTING_PRODUCTS_14_PROFILE, existingProducts14Times, "10reps-existing-products-14-test"); }
+function highConfidence25Fixture() { return reviewedVariantCreationFixture(highConfidence25Manifest, HIGH_CONFIDENCE_25_PROFILE, highConfidence25Times, "10reps-high-confidence-25-test"); }
 function validateExistingProducts14(f, fingerprint = EXISTING_PRODUCTS_14_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, EXISTING_PRODUCTS_14_PROFILE, fingerprint); }
+function validateHighConfidence25(f, fingerprint = HIGH_CONFIDENCE_25_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, HIGH_CONFIDENCE_25_PROFILE, fingerprint); }
 test("closed CLI accepts only the exact profile paths and allowed fingerprints", () => {
   assert.deepEqual(runner.parseArgs([`--artifact=${PROFILE.artifact}`, `--csv=${PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), options);
   assert.deepEqual(runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${REMAINING_PROFILE.fingerprint}`]), remainingOptions);
@@ -414,6 +427,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   assert.deepEqual(runner.parseArgs([`--artifact=${OWNER_ALIAS_19_PROFILE.artifact}`, `--csv=${OWNER_ALIAS_19_PROFILE.csv}`, `--plan-fingerprint=${OWNER_ALIAS_19_PROFILE.fingerprint}`]), ownerAlias19Options);
   assert.deepEqual(runner.parseArgs([`--artifact=${SPECIFIC_SERVINGS_3_PROFILE.artifact}`, `--csv=${SPECIFIC_SERVINGS_3_PROFILE.csv}`, `--plan-fingerprint=${SPECIFIC_SERVINGS_3_PROFILE.fingerprint}`]), specificServings3Options);
   assert.deepEqual(runner.parseArgs([`--artifact=${EXISTING_PRODUCTS_14_PROFILE.artifact}`, `--csv=${EXISTING_PRODUCTS_14_PROFILE.csv}`, `--plan-fingerprint=${EXISTING_PRODUCTS_14_PROFILE.fingerprint}`]), existingProducts14Options);
+  assert.deepEqual(runner.parseArgs([`--artifact=${HIGH_CONFIDENCE_25_PROFILE.artifact}`, `--csv=${HIGH_CONFIDENCE_25_PROFILE.csv}`, `--plan-fingerprint=${HIGH_CONFIDENCE_25_PROFILE.fingerprint}`]), highConfidence25Options);
   for (const fingerprint of REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of EXACT_OOS_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of REVIEW_22_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REVIEW_22_PROFILE.artifact}`, `--csv=${REVIEW_22_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
@@ -421,6 +435,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   for (const fingerprint of OWNER_ALIAS_19_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${OWNER_ALIAS_19_PROFILE.artifact}`, `--csv=${OWNER_ALIAS_19_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of SPECIFIC_SERVINGS_3_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${SPECIFIC_SERVINGS_3_PROFILE.artifact}`, `--csv=${SPECIFIC_SERVINGS_3_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of EXISTING_PRODUCTS_14_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${EXISTING_PRODUCTS_14_PROFILE.artifact}`, `--csv=${EXISTING_PRODUCTS_14_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
+  for (const fingerprint of HIGH_CONFIDENCE_25_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${HIGH_CONFIDENCE_25_PROFILE.artifact}`, `--csv=${HIGH_CONFIDENCE_25_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const args of [[], [`--artifact=${PROFILE.artifact}`, `--artifact=${PROFILE.artifact}`], ["--apply"], ["--pilot-apply"], ["--profile=other"]]) assert.throws(() => runner.parseArgs(args));
   for (const key of ["artifact", "csv", "planFingerprint"]) assert.throws(() => runner.prepareApproval({ ...options, [key]: "wrong" }, () => { throw new Error("Must not read files"); }), /Invalid/);
   for (const row of manifest.rows.slice(1)) assert.throws(() => runner.prepareApproval({ ...options, planFingerprint: row.plan_fingerprint }), /bootstrap fingerprint/);
@@ -434,6 +449,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   assert.throws(() => runner.parseArgs([`--artifact=${OWNER_ALIAS_19_PROFILE.artifact}`, `--csv=${OWNER_ALIAS_19_PROFILE.csv}`, `--plan-fingerprint=${REVIEW_22_PROFILE.fingerprint}`]), /owner-alias-19 fingerprint/);
   assert.throws(() => runner.parseArgs([`--artifact=${SPECIFIC_SERVINGS_3_PROFILE.artifact}`, `--csv=${SPECIFIC_SERVINGS_3_PROFILE.csv}`, `--plan-fingerprint=${OWNER_ALIAS_19_PROFILE.fingerprint}`]), /specific-servings-3 fingerprint/);
   assert.throws(() => runner.parseArgs([`--artifact=${EXISTING_PRODUCTS_14_PROFILE.artifact}`, `--csv=${EXISTING_PRODUCTS_14_PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), /existing-products-14 fingerprint/);
+  assert.throws(() => runner.parseArgs([`--artifact=${HIGH_CONFIDENCE_25_PROFILE.artifact}`, `--csv=${HIGH_CONFIDENCE_25_PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), /high-confidence-25 fingerprint/);
 });
 test("wrong artifact and CSV SHA are rejected by the package digest guard", () => {
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt artifact"), PROFILE.artifactSha256, "artifact"), /artifact SHA/);
@@ -456,6 +472,8 @@ test("wrong artifact and CSV SHA are rejected by the package digest guard", () =
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt specific servings CSV"), SPECIFIC_SERVINGS_3_PROFILE.csvSha256, "CSV"), /CSV SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt existing products artifact"), EXISTING_PRODUCTS_14_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt existing products CSV"), EXISTING_PRODUCTS_14_PROFILE.csvSha256, "CSV"), /CSV SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt high confidence artifact"), HIGH_CONFIDENCE_25_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt high confidence CSV"), HIGH_CONFIDENCE_25_PROFILE.csvSha256, "CSV"), /CSV SHA/);
 });
 test("all 20 synthetic plans are checked and only the exact bootstrap is selected", () => {
   const f = fixture(), selected = validate(f);
@@ -537,6 +555,37 @@ test("valid existing-products-14 artifact accepts exactly 3 existing and 11 revi
   );
   assert.equal(selected.artifact.plans[5].resolved_plan.retailer_product.values.external_options.Flavour, "Banana Strawberry");
   assert.equal(selected.artifact.plans[6].resolved_plan.retailer_product.values.external_options.Flavour, "Chocolate");
+});
+test("valid high-confidence-25 artifact accepts exactly 22 existing and 3 owner-approved new variants", () => {
+  const selected = validateHighConfidence25(highConfidence25Fixture());
+  assert.equal(selected.profile, HIGH_CONFIDENCE_25_PROFILE);
+  assert.equal(selected.artifact.plans.length, 25);
+  assert.equal(selected.artifact.plans.filter(entry => entry.resolved_plan.product_variant.action === "existing").length, 22);
+  assert.equal(selected.artifact.plans.filter(entry => entry.resolved_plan.product_variant.action === "create_variant").length, 3);
+  assert.deepEqual(
+    selected.artifact.plans.filter(entry => entry.resolved_plan.product_variant.action === "create_variant").map(entry => [entry.resolved_plan.retailer_product.values.external_variant_id, entry.resolved_plan.product.id, entry.resolved_plan.product_variant.values.flavour_label]),
+    [["1383", "17", "Kiwi"], ["10109", "506", "Cherry Chill SLUSH PUPPiE"], ["10318", "843", "Strawberry Creme"]],
+  );
+  assert.equal(selected.artifact.plans[7].resolved_plan.retailer_product.values.external_options.Flavour, "Millions Blackcurrant");
+  assert.equal(selected.artifact.plans[21].resolved_plan.retailer_product.values.external_options.Flavour, "Cookie 'N Creme");
+});
+for (const [label, mutate, message] of [
+  ["retailer creation", f => { f.artifact.plans[0].resolved_plan.retailer = { action: "create" }; }, /existing retailer/],
+  ["wrong retailer", f => { f.artifact.plans[0].retailer_id = "15"; }, /retailer ID/],
+  ["product creation", f => { f.artifact.plans[0].resolved_plan.product.action = "create"; }, /existing product/],
+  ["unreviewed variant creation", f => { f.artifact.plans[0].resolved_plan.product_variant.action = "create_variant"; }, /existing variant action/],
+  ["missing approved variant creation", f => { f.artifact.plans[4].resolved_plan.product_variant.action = "existing"; }, /reviewed variant creation action/],
+  ["wrong existing target", f => { f.artifact.plans[7].resolved_plan.product_variant.id = "1798"; }, /existing variant ID/],
+  ["wrong new variant identity", f => { f.artifact.plans[5].resolved_plan.product_variant.values.flavour_label = "Cherry"; }, /reviewed variant values/],
+  ["shipping change", f => { f.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "4.99"; }, /shipping/],
+  ["delivered total change", f => { f.artifact.plans[0].resolved_plan.offer.values.total_price = "1.00"; }, /delivered price/],
+  ["category change", f => { f.artifact.source_rows[0].normalized_source_row.category = "Creatine"; }, /source category|CSV to artifact source/],
+  ["SKU as GTIN", f => { f.artifact.plans[0].resolved_plan.retailer_product.values.external_gtin = f.manifest.rows[0].external_sku; }, /external_gtin/],
+  ["fingerprint outside owner scope", f => { f.artifact.plans[24].plan_fingerprint = "0".repeat(32); }, /source plan binding|plan integrity|high-confidence-25 fingerprints/],
+]) test(`high-confidence-25 rejects ${label}`, () => {
+  const f = highConfidence25Fixture();
+  mutate(f);
+  assert.throws(() => validateHighConfidence25(f), message);
 });
 for (const [label, mutate, message] of [
   ["retailer creation", f => { f.artifact.plans[0].resolved_plan.retailer = { action: "create" }; }, /existing retailer/],
@@ -758,6 +807,19 @@ test("existing-products-14 uses one direct PG approval and returns no variant ID
   assert.equal(queries[4].args[3], "10reps-reviewed-existing-products-14");
   assert.equal(queries.at(-1).sql, "commit");
 });
+test("high-confidence-25 uses one direct PG approval for one exact reviewed plan", async () => {
+  const prepared = validateHighConfidence25(highConfidence25Fixture()), client = fakeClient(prepared);
+  const result = await runner.approveWithClient(prepared, client);
+  assert.deepEqual(
+    { fingerprint: result.plan_fingerprint, product: result.product_id, variant: result.product_variant_id, source: result.external_variant_id, retailer: result.retailer_id },
+    { fingerprint: HIGH_CONFIDENCE_25_PROFILE.fingerprint, product: 17, variant: 714, source: "7874", retailer: 14 },
+  );
+  const queries = client.calls.filter(call => call.sql);
+  assert.equal(queries.filter(call => call.sql.includes("approve_product_import_plan")).length, 1);
+  assert.equal(queries[4].args[1], HIGH_CONFIDENCE_25_PROFILE.artifactSha256);
+  assert.equal(queries[4].args[3], "10reps-reviewed-high-confidence-25");
+  assert.equal(queries.at(-1).sql, "commit");
+});
 test("wrong role/login never reaches approval; wrong receipt rolls back", async () => {
   for (const changes of [{ role: "postgres" }, { login: "wrong_login" }, { receipt: { plan_fingerprint: "wrong" } }, { receipt: { expires_at: new Date(0).toISOString() } }]) {
     const prepared = validate(fixture()), client = fakeClient(prepared, changes);
@@ -772,12 +834,14 @@ test("runner has no elevated backend token, HTTP approval, execution RPC or busi
   const tests = fs.readFileSync(__filename, "utf8");
   const ownerAliasManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v4-owner-alias-22.json"), "utf8");
   const specificServingsManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v5-specific-servings-3.json"), "utf8");
+  const highConfidenceManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v7-high-confidence-25.json"), "utf8");
   assert.doesNotMatch(code, /service_role|SERVICE_ROLE|createClient|PostgREST|supabase-js|fetch\s*\(|apply_approved|apply_product|pilot-apply|\b(?:insert\s+into|update\s+public\.|delete\s+from|alter\s+table|grant\s+execute)\b/i);
   const forbiddenFeedMarkers = new RegExp(`${["TEN", "REPS", "FEED", "URL"].join("_")}|${"trpf"}_${"feed"}`, "i");
   assert.doesNotMatch(code, forbiddenFeedMarkers);
   assert.doesNotMatch(tests, forbiddenFeedMarkers);
   assert.doesNotMatch(ownerAliasManifestText, forbiddenFeedMarkers);
   assert.doesNotMatch(specificServingsManifestText, forbiddenFeedMarkers);
+  assert.doesNotMatch(highConfidenceManifestText, forbiddenFeedMarkers);
   assert.match(code, /require\("pg"\)/);
   assert.match(code, /SET LOCAL ROLE retailer_catalogue_production_approver/);
   assert.match(code, /credentials\/production-approver\.env/);
