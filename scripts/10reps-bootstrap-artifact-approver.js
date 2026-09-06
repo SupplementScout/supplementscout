@@ -178,7 +178,51 @@ const REVIEW_22_PROFILE = Object.freeze({
   project: PROFILE.project,
   strictReviewedManifest: true,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE]);
+const REVIEW_REMAINING_14_BINDINGS = Object.freeze([
+  [1, "8176", 861, 1295, "57d8643a59cdaf2034772ef012e1f1f0"],
+  [2, "8177", 861, 1296, "cb56582f7909360ed6a2c58cf3c54b5c"],
+  [3, "8178", 861, 1297, "1b209f0f6b289cda4876f920350cf5a2"],
+  [4, "8179", 861, 1298, "147805f2bdc3d3d5df35a70e7062bde5"],
+  [5, "8180", 861, 1299, "23b62fe50d7ade72c6b654502d71d982"],
+  [6, "8182", 861, 1380, "b5e489f148a537efb137058f4846279e"],
+  [7, "3958", 861, 1381, "ad76b68f081020b33bf9d6e18c5530aa"],
+  [8, "4011", 90, 24, "feed4c48d7e27a4986b0b475a231e713"],
+  [9, "10421", 1147, 3200, "4cef8597f2d2a84ae4ebdd79fdd00b6b"],
+  [10, "10461", 790, 1094, "c76ae079cbc0c6ebbadcfd047251b41d"],
+  [11, "10462", 790, 1095, "4c9b8ca231e3157e3d57b87d0ee4e010"],
+  [12, "10464", 790, 1097, "bc3de98f8077b63ca0ffa2216c29899b"],
+  [13, "10465", 790, 1098, "657668c50df7f589774cc91bc608e029"],
+  [14, "10717", 507, 471, "c31f48ac7d75df2277184b8fc16beb13"],
+].map(([reviewRow, externalVariantId, productId, productVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, productId, productVariantId, fingerprint })));
+const REVIEW_REMAINING_14_PROFILE = Object.freeze({
+  id: "existing-variant-remaining-14",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v3-existing-variant-remaining-14.json"),
+  manifestSha256: "369437420e9804b96c0ed595ef68be266da843430e3b285411f001013706ea70",
+  manifestKind: "10reps-reviewed-existing-bindings-v3-existing-variant-remaining-14",
+  manifestRowCount: 14,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v3-existing-variant-remaining-14-dry-run.json"),
+  artifactSha256: "c63df97b5dfa0f8a53976a5326f31ebd46942e1c74e091bddefab9ab6dcd9be5",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v3-existing-variant-remaining-14.csv"),
+  csvSha256: "20913c9f01f3e4b71edc16ff534e02fe3ca6462a87d9201b61708b60ceef2cea",
+  fingerprint: REVIEW_REMAINING_14_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(REVIEW_REMAINING_14_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: REVIEW_REMAINING_14_BINDINGS,
+  reviewedStart: 0,
+  rowCount: 14,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  sourceVariantIncludesPackCount: true,
+  sourceOptionFlavourAliases: Object.freeze({ "8176": "Cookies and Cream" }),
+  forbiddenExternalVariantIds: Object.freeze(["8166", "8167", "8168", "8169", "8170", "8173", "8174", "8175"]),
+  approvalSource: "10reps-reviewed-existing-variant-remaining-14",
+  applicationName: "10reps-existing-variant-remaining-14-artifact-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  strictReviewedManifest: true,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -221,6 +265,11 @@ function reviewedPlanFingerprint(profile, reviewed) {
   same(binding.productVariantId, reviewed.product_variant_id, "profile variant");
   return binding.fingerprint;
 }
+function reviewedSourceOptions(profile, reviewed) {
+  if (reviewed.is_default_variant === true) return {};
+  const flavour = profile.sourceOptionFlavourAliases?.[reviewed.external_variant_id] || reviewed.flavour;
+  return { Flavour: flavour, Size: reviewed.source_size };
+}
 function validatePlan(entry, reviewed, source, profile = PROFILE) {
   const plan = entry.resolved_plan;
   same(plan.product, { action: "existing", id: String(reviewed.product_id) }, "existing product");
@@ -254,7 +303,7 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   same(plan.retailer_product.action, "create", "mapping action");
   const mapping = plan.retailer_product.values;
   for (const [key, value] of Object.entries({ external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_variant_id: String(reviewed.product_variant_id), external_sku: reviewed.external_sku, external_gtin: reviewed.external_gtin, external_url: reviewed.source_url, external_name: reviewed.external_name })) same(mapping[key], value, `mapping ${key}`);
-  same(mapping.external_options, reviewed.is_default_variant === true ? {} : { Flavour: reviewed.flavour, Size: reviewed.source_size }, "source options");
+  same(mapping.external_options, reviewedSourceOptions(profile, reviewed), "source options");
   same(plan.offer.action, "create", "offer action");
   same(plan.offer.values.price, reviewed.price.toFixed(2), "effective price");
   same(plan.offer.values.shipping_cost, "3.99", "shipping");
@@ -294,6 +343,19 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
     same(manifest.binding_review.owner_reviewed, true, "owner-reviewed state");
     same(manifest.retailer.id, 14, "manifest retailer ID");
     same(manifest.retailer.expected_action, "existing", "manifest retailer action");
+  }
+  if (profile.sourceOptionFlavourAliases) {
+    for (const [externalVariantId, canonical] of Object.entries(profile.sourceOptionFlavourAliases)) {
+      const reviewed = manifest.rows.find(row => row.external_variant_id === externalVariantId);
+      requireCondition(reviewed, `Missing reviewed flavour alias ${externalVariantId}`);
+      same(manifest.owner_resolutions.flavour_aliases?.[externalVariantId], {
+        source: reviewed.flavour,
+        canonical,
+        resolution: "OWNER_CONFIRMED_EQUIVALENT_PRODUCT_VARIANT",
+      }, "reviewed flavour alias");
+      same(reviewed.canonical_mapping_flavour, canonical, "canonical mapping flavour");
+      same(reviewed.flavour_resolution, "OWNER_CONFIRMED_PUNCTUATION_ALIAS", "flavour alias resolution");
+    }
   }
   same(artifact.artifact_version, "1", "artifact version");
   same(artifact.row_count, String(profile.rowCount), "artifact row count");
@@ -337,6 +399,9 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
   } else {
     same([...new Set(artifact.plans.map(candidate => candidate.plan_fingerprint))].sort(), [...profile.allowedFingerprints].sort(), `${profile.id} fingerprints`);
     requireCondition(!artifact.plans.some(candidate => candidate.plan_fingerprint === PROFILE.fingerprint || candidate.resolved_plan.retailer_product.values.external_variant_id === "10003" || candidate.resolved_plan.product.id === "788" && candidate.resolved_plan.product_variant.id === "1080"), "Bootstrap plan is forbidden in remaining profile");
+    if (profile.forbiddenExternalVariantIds) {
+      requireCondition(!artifact.plans.some(candidate => profile.forbiddenExternalVariantIds.includes(candidate.resolved_plan.retailer_product.values.external_variant_id)), `Already-applied source is forbidden in ${profile.id}`);
+    }
   }
   return { entry, artifact, profile };
 }
@@ -408,4 +473,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
