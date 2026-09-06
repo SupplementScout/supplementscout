@@ -204,13 +204,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the reviewed 10 Reps v9 product policy as applied and sibling policy pending", () => {
+test("production records both reviewed 10 Reps v9 policies as applied", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION, sha256: TEN_REPS_V9_SIBLING_VARIANTS_SHA256 }]);
-  assert.equal(contract.ledgerCount, 184);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 185);
   assert.equal(
     contract.ledgerFingerprint,
-    "3ae5723884043dbc9513aa8204996df5a115e249eb471a72c352a1be3bbe2381",
+    "b4d9a28680f399357a3a9f4f1d53075859a29cc0e474cb5be0d05a62a2f109aa",
   );
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
@@ -301,7 +301,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the 10 Reps v9 sibling policy pending", () => {
+test("production binds its exact ledger with the 10 Reps v9 sibling policy applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -327,13 +327,13 @@ test("production binds its exact ledger with the 10 Reps v9 sibling policy pendi
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 184);
+  assert.equal(result.ledger_count, 185);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 185);
-  assert.deepEqual(result.pending_files, [TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION]);
-  assert.equal(result.pending_file, TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION);
-  assert.equal(result.pending_sha256, TEN_REPS_V9_SIBLING_VARIANTS_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION]: TEN_REPS_V9_SIBLING_VARIANTS_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V9_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V8_MIGRATION));
