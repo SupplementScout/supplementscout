@@ -126,8 +126,59 @@ const EXACT_OOS_PROFILE = Object.freeze({
   role: PROFILE.role,
   login: PROFILE.login,
   project: PROFILE.project,
+  strictReviewedManifest: true,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE]);
+const REVIEW_22_BINDINGS = Object.freeze([
+  [1, "8166", 861, 2780, "e478bcf2f818d98c2ff92e2cc35dc8d2"],
+  [2, "8167", 861, 1286, "9040c9ed2aa206dd6c034427ac826d39"],
+  [3, "8168", 861, 1287, "816264f639ead948a7d281c15cb95485"],
+  [4, "8169", 861, 1288, "8e68331d0b0f82bffc501ba4db162eb8"],
+  [5, "8170", 861, 1289, "ee495c514489cb164ef42e1ab21f2c17"],
+  [6, "8173", 861, 1291, "dfd9b1ec7b0a40f7aba6c3591946cfe3"],
+  [7, "8174", 861, 1292, "fcffa91822bd6a37b936929932466aa1"],
+  [8, "8175", 861, 1294, "f0ff0f112b2b98901efac76a4aac0a9e"],
+  [9, "8176", 861, 1295, "f311138c520d9ec77c529407b8712d59"],
+  [10, "8177", 861, 1296, "182ff913e1d4f266e34e812145e38705"],
+  [11, "8178", 861, 1297, "a1857eae01aac98c555b47b65010b83b"],
+  [12, "8179", 861, 1298, "365fe544d9436b85719c8b13dd5a32da"],
+  [13, "8180", 861, 1299, "6e3dd2b268705ca0119520bfc074e0d6"],
+  [14, "8182", 861, 1380, "68bd4739d7d4fbc995788c611db479ad"],
+  [15, "3958", 861, 1381, "ddcb058129cbbd4a3077edbef5401291"],
+  [16, "4011", 90, 24, "ab3744347558caf66f3ec97c3b894db9"],
+  [17, "10421", 1147, 3200, "d008d01d0fcefd232bbe7005512208c8"],
+  [18, "10461", 790, 1094, "6ab8414097b4b7b147d58a2a0202f428"],
+  [19, "10462", 790, 1095, "374c56cf7c52b05e6e5d98efe568bd77"],
+  [20, "10464", 790, 1097, "513f7f3b0734db605209f3a50b3198bb"],
+  [21, "10465", 790, 1098, "b9abb779aa77b88fe8fb3f3f9c8b2bdb"],
+  [22, "10717", 507, 471, "2321350d339a74960d419f16b6a338d4"],
+].map(([reviewRow, externalVariantId, productId, productVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, productId, productVariantId, fingerprint })));
+const REVIEW_22_PROFILE = Object.freeze({
+  id: "existing-variant-22",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v3-existing-variant-22.json"),
+  manifestSha256: "ad802135687a67ffe81b5b4720e49cb386e137234a5c08909ed59c59b65a80c8",
+  manifestKind: "10reps-reviewed-existing-bindings-v3-existing-variant-22",
+  manifestRowCount: 22,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v3-existing-variant-22-dry-run.json"),
+  artifactSha256: "213ebc24a96a66a4d15338e7d902b70e0a6bfec6aeaddc109f59a0f2504a5f38",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v3-existing-variant-22.csv"),
+  csvSha256: "a8788bea99cf5f584ced46f8c6db72a9464303deb89fe0a6162a9654022379bb",
+  fingerprint: REVIEW_22_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(REVIEW_22_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: REVIEW_22_BINDINGS,
+  reviewedStart: 0,
+  rowCount: 22,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  sourceVariantIncludesPackCount: true,
+  approvalSource: "10reps-reviewed-existing-variant-22",
+  applicationName: "10reps-existing-variant-22-artifact-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  strictReviewedManifest: true,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -180,7 +231,18 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   same(plan.expected_state.product.is_active, true, "active product");
   same(plan.expected_state.product.merged_into_product_id, null, "unmerged product");
   const variant = plan.expected_state.product_variant;
-  for (const [key, value] of Object.entries({ id: String(reviewed.product_variant_id), product_id: String(reviewed.product_id), size_value: String(reviewed.size), size_unit: reviewed.size_unit, flavour_label: reviewed.canonical_flavour, product_format: reviewed.product_format, pack_count: String(reviewed.pack_count), is_active: true, is_default: false })) same(variant[key], value, `variant ${key}`);
+  const expectedVariant = {
+    id: String(reviewed.product_variant_id),
+    product_id: String(reviewed.product_id),
+    size_value: reviewed.size == null ? null : String(reviewed.size),
+    size_unit: reviewed.size_unit,
+    flavour_label: reviewed.canonical_flavour,
+    product_format: reviewed.product_format,
+    pack_count: reviewed.pack_count == null ? null : String(reviewed.pack_count),
+    is_active: true,
+    is_default: reviewed.is_default_variant === true,
+  };
+  for (const [key, value] of Object.entries(expectedVariant)) same(variant[key], value, `variant ${key}`);
   if (profile.retailerAction === "create") {
     same(plan.retailer, { action: "create", values: { name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" } }, "retailer creation");
     same(plan.expected_state.retailer, null, "retailer absent before-state");
@@ -192,16 +254,17 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   same(plan.retailer_product.action, "create", "mapping action");
   const mapping = plan.retailer_product.values;
   for (const [key, value] of Object.entries({ external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_variant_id: String(reviewed.product_variant_id), external_sku: reviewed.external_sku, external_gtin: reviewed.external_gtin, external_url: reviewed.source_url, external_name: reviewed.external_name })) same(mapping[key], value, `mapping ${key}`);
-  same(mapping.external_options, { Flavour: reviewed.flavour, Size: reviewed.source_size }, "source options");
+  same(mapping.external_options, reviewed.is_default_variant === true ? {} : { Flavour: reviewed.flavour, Size: reviewed.source_size }, "source options");
   same(plan.offer.action, "create", "offer action");
   same(plan.offer.values.price, reviewed.price.toFixed(2), "effective price");
   same(plan.offer.values.shipping_cost, "3.99", "shipping");
   same(plan.offer.values.total_price, ((Math.round(reviewed.price * 100) + 399) / 100).toFixed(2), "delivered price");
   same(plan.offer.values.url, reviewed.source_url, "offer URL");
-  same(plan.offer.values.in_stock, profile.expectedInStock, `${profile.id} stock`);
+  const expectedInStock = profile.expectedInStock === null ? reviewed.in_stock : profile.expectedInStock;
+  same(plan.offer.values.in_stock, expectedInStock, `${profile.id} stock`);
   same(plan.price_history, { action: "create" }, "initial history");
   same(plan.approval, { approved: false, approval_type: "none" }, "unapproved plan");
-  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: reviewed.flavour, size: `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit, image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: String(profile.expectedInStock), is_for_sale: "true" })) same(source[key], value, `source ${key}`);
+  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: reviewed.flavour || "", size: reviewed.size == null ? "" : `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit || "", image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: String(expectedInStock), is_for_sale: "true" })) same(source[key], value, `source ${key}`);
   // The immutable package supplies the complete schema; these checks also keep
   // identity and commercial guards independently testable without private files.
   same(entry.operation_type, "standard_import", "operation");
@@ -225,7 +288,7 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
   same(manifest.production_approval.approved, false, "production approval state");
   same(manifest.retailer.shipping_known, true, "known shipping");
   same(manifest.retailer.shipping_cost, 3.99, "manifest shipping");
-  if (profile === EXACT_OOS_PROFILE) {
+  if (profile.strictReviewedManifest) {
     for (const flag of ["allow_canonical_product_updates", "allow_canonical_variant_updates", "allow_approval_submission", "allow_production_writes"]) same(manifest.policy[flag], false, flag);
     same(manifest.status, "OWNER_REVIEWED_BINDINGS_PENDING_BLOCKER_REVIEW", "reviewed status");
     same(manifest.binding_review.owner_reviewed, true, "owner-reviewed state");
@@ -256,9 +319,10 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
     same(source.source_row_fingerprint, entry.source_row_fingerprint, "source binding");
     same(source.plan_fingerprint, entry.plan_fingerprint, "source plan binding");
     const normalizedVariant = profile.sourceVariantIncludesPackCount
-      ? `${csvRows[index].variant_name} pack of ${csvRows[index].pack_count}`
+      ? [csvRows[index].variant_name, csvRows[index].pack_count ? `pack of ${csvRows[index].pack_count}` : ""].filter(Boolean).join(" ")
       : csvRows[index].variant_name;
-    const normalized = { ...csvRows[index], variant: normalizedVariant, size: `${csvRows[index].size} ${csvRows[index].size_unit}` };
+    const normalizedSize = [csvRows[index].size, csvRows[index].size_unit].filter(Boolean).join(" ");
+    const normalized = { ...csvRows[index], variant: normalizedVariant, size: normalizedSize };
     same(normalized, source.normalized_source_row, "CSV to artifact source");
     validatePlan(entry, reviewed, source.normalized_source_row, profile);
   }
@@ -344,4 +408,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
