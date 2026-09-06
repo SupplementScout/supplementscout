@@ -46,8 +46,8 @@ test("deployed GTIN, Whey Okay rebind and traffic classification migrations rema
     "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
     "20260817114500_add_outbound_click_traffic_classification.sql",
   ]) assert.equal(pending.has(filename), false);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 182);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "8103a57d2915bc7512ac8df6479a70c8e2395060f06e6491db59e08dcb45e1e2");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 183);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint, "90d361a88c52385e9806b95200dd77c80082408ffe32ec36b6577a8994cd847a");
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", MIGRATION)), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260816173000_extend_guarded_gtin_promotion_exact_36.sql")), true);
   assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", "20260817114500_add_outbound_click_traffic_classification.sql")), true);
