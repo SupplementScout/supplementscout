@@ -278,7 +278,46 @@ const OWNER_ALIAS_19_PROFILE = Object.freeze({
   project: PROFILE.project,
   strictReviewedManifest: true,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE]);
+const SPECIFIC_SERVINGS_3_BINDINGS = Object.freeze([
+  [1, "2779", 726, 3018, "63e9a64a79e2ac3503814a2c37bff3e4"],
+  [2, "8034", 798, 2793, "e815b9b7c2c995ffed46dc3d66f04133"],
+  [3, "10310", 796, 2882, "ca5bb49d87ef2edb3fef6a00cc69396a"],
+].map(([reviewRow, externalVariantId, productId, productVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, productId, productVariantId, fingerprint })));
+const SPECIFIC_SERVINGS_3_PROFILE = Object.freeze({
+  id: "specific-servings-3",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v5-specific-servings-3.json"),
+  manifestSha256: "845be56e0c20c836ea801d373185dacb64dace1c929a71dd726bf2309ae4a92a",
+  manifestKind: "10reps-reviewed-existing-bindings-v5-specific-servings-3",
+  manifestRowCount: 3,
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v5-specific-servings-3-dry-run.json"),
+  artifactSha256: "c189934ef5366139bc2a11ee11ba2c9058d3165decead4875e8b93f2f1bfeadf",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v5-specific-servings-3.csv"),
+  csvSha256: "151014a0c84ea43770edb053c5fb4ba08c03f41366fbd552d66c194db41bf82c",
+  fingerprint: SPECIFIC_SERVINGS_3_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(SPECIFIC_SERVINGS_3_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: SPECIFIC_SERVINGS_3_BINDINGS,
+  reviewedStart: 0,
+  rowCount: 3,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  sourceVariantIncludesPackCount: true,
+  useReviewedMappingOptions: true,
+  forbiddenExternalVariantIds: Object.freeze([
+    "10003",
+    ...REMAINING_BINDINGS.map(binding => binding.externalVariantId),
+    ...EXACT_OOS_BINDINGS.map(binding => binding.externalVariantId),
+    ...REVIEW_22_BINDINGS.map(binding => binding.externalVariantId),
+    ...OWNER_ALIAS_19_BINDINGS.map(binding => binding.externalVariantId),
+  ]),
+  approvalSource: "10reps-reviewed-specific-servings-3",
+  applicationName: "10reps-specific-servings-3-artifact-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  strictReviewedManifest: true,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -323,6 +362,7 @@ function reviewedPlanFingerprint(profile, reviewed) {
 }
 function reviewedSourceOptions(profile, reviewed) {
   if (reviewed.is_default_variant === true) return {};
+  if (profile.useReviewedMappingOptions) return reviewed.mapping_options;
   const flavour = profile.useCanonicalMappingFlavour
     ? reviewed.canonical_mapping_flavour
     : profile.sourceOptionFlavourAliases?.[reviewed.external_variant_id] || reviewed.flavour;
@@ -558,4 +598,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };

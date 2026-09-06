@@ -6,14 +6,16 @@ const exactOosManifest = require("../config/retailers/10reps-reviewed-bindings-v
 const review22Manifest = require("../config/retailers/10reps-reviewed-bindings-v3-existing-variant-22.json");
 const reviewRemaining14Manifest = require("../config/retailers/10reps-reviewed-bindings-v3-existing-variant-remaining-14.json");
 const ownerAlias19Manifest = require("../config/retailers/10reps-reviewed-bindings-v4-owner-alias-22.json");
+const specificServings3Manifest = require("../config/retailers/10reps-reviewed-bindings-v5-specific-servings-3.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
 const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
 const exactOosOptions = { artifact: EXACT_OOS_PROFILE.artifact, csv: EXACT_OOS_PROFILE.csv, planFingerprint: EXACT_OOS_PROFILE.fingerprint };
 const review22Options = { artifact: REVIEW_22_PROFILE.artifact, csv: REVIEW_22_PROFILE.csv, planFingerprint: REVIEW_22_PROFILE.fingerprint };
 const reviewRemaining14Options = { artifact: REVIEW_REMAINING_14_PROFILE.artifact, csv: REVIEW_REMAINING_14_PROFILE.csv, planFingerprint: REVIEW_REMAINING_14_PROFILE.fingerprint };
 const ownerAlias19Options = { artifact: OWNER_ALIAS_19_PROFILE.artifact, csv: OWNER_ALIAS_19_PROFILE.csv, planFingerprint: OWNER_ALIAS_19_PROFILE.fingerprint };
+const specificServings3Options = { artifact: SPECIFIC_SERVINGS_3_PROFILE.artifact, csv: SPECIFIC_SERVINGS_3_PROFILE.csv, planFingerprint: SPECIFIC_SERVINGS_3_PROFILE.fingerprint };
 const remainingTimes = [
   "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
   "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
@@ -48,6 +50,9 @@ const ownerAlias19Times = [
   "2026-09-06T11:10:13.872Z", "2026-09-06T11:10:13.872Z", "2026-09-06T11:10:13.873Z", "2026-09-06T11:10:13.874Z",
   "2026-09-06T11:10:13.874Z", "2026-09-06T11:10:13.876Z", "2026-09-06T11:10:13.876Z", "2026-09-06T11:10:13.877Z",
   "2026-09-06T11:10:13.877Z", "2026-09-06T11:10:13.878Z", "2026-09-06T11:10:13.878Z",
+];
+const specificServings3Times = [
+  "2026-09-06T11:40:38.486Z", "2026-09-06T11:40:38.489Z", "2026-09-06T11:40:38.490Z",
 ];
 
 // Synthetic package built entirely from committed reviewed identities. No
@@ -292,6 +297,48 @@ function ownerAlias19Fixture() {
   return { manifest: reviewed, artifact, csvRows };
 }
 function validateOwnerAlias19(f, fingerprint = OWNER_ALIAS_19_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, OWNER_ALIAS_19_PROFILE, fingerprint); }
+function specificServings3Fixture() {
+  const reviewed = structuredClone(specificServings3Manifest);
+  const csvRows = reviewed.rows.map(r => ({
+    retailer_name: "10 Reps", retailer_website: "https://www.10reps.co.uk/", external_product_id: r.external_product_id, external_variant_id: r.external_variant_id,
+    product_name: r.external_name, variant_name: r.variant_name, brand: r.brand, category: r.category, description: "", image: r.image_url, slug: r.canonical_slug,
+    external_url: r.source_url, affiliate_url: r.source_url, external_gtin: "", price: r.price.toFixed(2), shipping_known: "true", shipping_cost: "3.99",
+    in_stock: String(r.in_stock), is_for_sale: "true", size: String(r.size), size_unit: r.size_unit, flavour: "",
+    product_format: r.product_format || "", pack_count: String(r.pack_count), source_updated_at: r.source_updated_at,
+    external_sku: r.external_sku || "", external_options: JSON.stringify(r.mapping_options), product_id: String(r.product_id), product_variant_id: String(r.product_variant_id),
+  }));
+  const artifact = { artifact_version: "1", row_count: "3", run_id: "10reps-specific-servings-3-test", source_file_sha256: SPECIFIC_SERVINGS_3_PROFILE.csvSha256, blocked_rows: [], plans: [], source_rows: [], summary: { blocked_row_count: "0", plan_count: "3", skipped_row_count: "0" } };
+  for (let i = 0; i < reviewed.rows.length; i++) {
+    const r = reviewed.rows[i], csv = csvRows[i];
+    const source = { ...csv, variant: `${csv.variant_name} pack of ${csv.pack_count}`, size: `${r.size} ${r.size_unit}` };
+    const sourceHash = runner.sourceFingerprint(source);
+    const evidence = { approved_mapping_id: null, external_options: r.mapping_options, flavour: null, pack_count: String(r.pack_count), product_format: r.product_format, size_unit: r.size_unit, size_value: String(r.size) };
+    const plan = {
+      approval: { approval_type: "none", approved: false },
+      expected_state: {
+        offer: null,
+        product: { id: String(r.product_id), is_active: true, merged_into_product_id: null, name: r.canonical_product, product_format: r.canonical_product_format },
+        product_variant: { display_name: r.canonical_variant, flavour_code: r.canonical_flavour_code, flavour_label: r.canonical_flavour, id: String(r.product_variant_id), is_active: true, is_default: false, pack_count: String(r.pack_count), product_format: r.product_format, product_id: String(r.product_id), size_unit: r.size_unit, size_value: String(r.size), variant_key: r.canonical_variant_key },
+        retailer: { id: "14", name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" },
+        retailer_product: null,
+      },
+      meta: { operation_type: "standard_import", plan_fingerprint: null, plan_kind: "feed", source_row_fingerprint: sourceHash, version: "2" },
+      offer: { action: "create", values: { in_stock: r.in_stock, last_checked_at: specificServings3Times[i], price: r.price.toFixed(2), shipping_cost: "3.99", total_price: r.delivered_price.toFixed(2), url: r.source_url } },
+      price_history: { action: "create" },
+      product: { action: "existing", id: String(r.product_id) },
+      product_variant: { action: "existing", evidence, id: String(r.product_variant_id) },
+      retailer: { action: "existing", id: "14" },
+      retailer_product: { action: "create", values: { external_gtin: null, external_name: r.external_name, external_options: r.mapping_options, external_product_id: r.external_product_id, external_sku: r.external_sku, external_slug: r.canonical_slug, external_url: r.source_url, external_variant_id: r.external_variant_id, match_confidence: "90", match_method: "slug", product_variant_id: String(r.product_variant_id) } },
+    };
+    const fingerprint = runner.planFingerprint(plan);
+    assert.equal(fingerprint, SPECIFIC_SERVINGS_3_PROFILE.allowedFingerprints[i]);
+    plan.meta.plan_fingerprint = fingerprint;
+    artifact.plans.push({ operation_type: "standard_import", plan_fingerprint: fingerprint, plan_kind: "feed", resolved_plan: plan, retailer_id: "14", row_number: String(i + 2), source_row_fingerprint: sourceHash });
+    artifact.source_rows.push({ normalized_source_row: source, plan_fingerprint: fingerprint, row_number: String(i + 2), source_row_fingerprint: sourceHash, status: "planned" });
+  }
+  return { manifest: reviewed, artifact, csvRows };
+}
+function validateSpecificServings3(f, fingerprint = SPECIFIC_SERVINGS_3_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, SPECIFIC_SERVINGS_3_PROFILE, fingerprint); }
 test("closed CLI accepts only the exact profile paths and allowed fingerprints", () => {
   assert.deepEqual(runner.parseArgs([`--artifact=${PROFILE.artifact}`, `--csv=${PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), options);
   assert.deepEqual(runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${REMAINING_PROFILE.fingerprint}`]), remainingOptions);
@@ -299,11 +346,13 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   assert.deepEqual(runner.parseArgs([`--artifact=${REVIEW_22_PROFILE.artifact}`, `--csv=${REVIEW_22_PROFILE.csv}`, `--plan-fingerprint=${REVIEW_22_PROFILE.fingerprint}`]), review22Options);
   assert.deepEqual(runner.parseArgs([`--artifact=${REVIEW_REMAINING_14_PROFILE.artifact}`, `--csv=${REVIEW_REMAINING_14_PROFILE.csv}`, `--plan-fingerprint=${REVIEW_REMAINING_14_PROFILE.fingerprint}`]), reviewRemaining14Options);
   assert.deepEqual(runner.parseArgs([`--artifact=${OWNER_ALIAS_19_PROFILE.artifact}`, `--csv=${OWNER_ALIAS_19_PROFILE.csv}`, `--plan-fingerprint=${OWNER_ALIAS_19_PROFILE.fingerprint}`]), ownerAlias19Options);
+  assert.deepEqual(runner.parseArgs([`--artifact=${SPECIFIC_SERVINGS_3_PROFILE.artifact}`, `--csv=${SPECIFIC_SERVINGS_3_PROFILE.csv}`, `--plan-fingerprint=${SPECIFIC_SERVINGS_3_PROFILE.fingerprint}`]), specificServings3Options);
   for (const fingerprint of REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of EXACT_OOS_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of REVIEW_22_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REVIEW_22_PROFILE.artifact}`, `--csv=${REVIEW_22_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of REVIEW_REMAINING_14_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REVIEW_REMAINING_14_PROFILE.artifact}`, `--csv=${REVIEW_REMAINING_14_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of OWNER_ALIAS_19_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${OWNER_ALIAS_19_PROFILE.artifact}`, `--csv=${OWNER_ALIAS_19_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
+  for (const fingerprint of SPECIFIC_SERVINGS_3_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${SPECIFIC_SERVINGS_3_PROFILE.artifact}`, `--csv=${SPECIFIC_SERVINGS_3_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const args of [[], [`--artifact=${PROFILE.artifact}`, `--artifact=${PROFILE.artifact}`], ["--apply"], ["--pilot-apply"], ["--profile=other"]]) assert.throws(() => runner.parseArgs(args));
   for (const key of ["artifact", "csv", "planFingerprint"]) assert.throws(() => runner.prepareApproval({ ...options, [key]: "wrong" }, () => { throw new Error("Must not read files"); }), /Invalid/);
   for (const row of manifest.rows.slice(1)) assert.throws(() => runner.prepareApproval({ ...options, planFingerprint: row.plan_fingerprint }), /bootstrap fingerprint/);
@@ -315,6 +364,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   assert.throws(() => runner.parseArgs([`--artifact=${REVIEW_22_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${REVIEW_22_PROFILE.fingerprint}`]), /closed profile/);
   assert.throws(() => runner.parseArgs([`--artifact=${REVIEW_REMAINING_14_PROFILE.artifact}`, `--csv=${REVIEW_REMAINING_14_PROFILE.csv}`, `--plan-fingerprint=${REVIEW_22_PROFILE.fingerprint}`]), /remaining-14 fingerprint/);
   assert.throws(() => runner.parseArgs([`--artifact=${OWNER_ALIAS_19_PROFILE.artifact}`, `--csv=${OWNER_ALIAS_19_PROFILE.csv}`, `--plan-fingerprint=${REVIEW_22_PROFILE.fingerprint}`]), /owner-alias-19 fingerprint/);
+  assert.throws(() => runner.parseArgs([`--artifact=${SPECIFIC_SERVINGS_3_PROFILE.artifact}`, `--csv=${SPECIFIC_SERVINGS_3_PROFILE.csv}`, `--plan-fingerprint=${OWNER_ALIAS_19_PROFILE.fingerprint}`]), /specific-servings-3 fingerprint/);
 });
 test("wrong artifact and CSV SHA are rejected by the package digest guard", () => {
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt artifact"), PROFILE.artifactSha256, "artifact"), /artifact SHA/);
@@ -333,6 +383,8 @@ test("wrong artifact and CSV SHA are rejected by the package digest guard", () =
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt reviewed remaining 14 CSV"), REVIEW_REMAINING_14_PROFILE.csvSha256, "CSV"), /CSV SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt owner alias 19 artifact"), OWNER_ALIAS_19_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt owner alias 19 CSV"), OWNER_ALIAS_19_PROFILE.csvSha256, "CSV"), /CSV SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt specific servings artifact"), SPECIFIC_SERVINGS_3_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt specific servings CSV"), SPECIFIC_SERVINGS_3_PROFILE.csvSha256, "CSV"), /CSV SHA/);
 });
 test("all 20 synthetic plans are checked and only the exact bootstrap is selected", () => {
   const f = fixture(), selected = validate(f);
@@ -391,6 +443,29 @@ test("valid owner alias 19 artifact checks exact canonical aliases and records t
   assert.equal(selected.artifact.source_rows[0].normalized_source_row.flavour, "Chocolate Banana");
   assert.deepEqual(ownerAlias19Fixture().manifest.held_rows.map(row => row.external_variant_id), ["2779", "8034", "10310"]);
   assert.ok(!selected.artifact.plans.some(entry => OWNER_ALIAS_19_PROFILE.forbiddenExternalVariantIds.includes(entry.resolved_plan.retailer_product.values.external_variant_id)));
+});
+test("valid specific-servings-3 artifact accepts only the three owner-confirmed serving variants", () => {
+  const selected = validateSpecificServings3(specificServings3Fixture());
+  assert.equal(selected.profile, SPECIFIC_SERVINGS_3_PROFILE);
+  assert.equal(selected.artifact.plans.length, 3);
+  assert.deepEqual(
+    selected.artifact.plans.map(entry => [entry.resolved_plan.retailer_product.values.external_variant_id, entry.resolved_plan.product.id, entry.resolved_plan.product_variant.id]),
+    [["2779", "726", "3018"], ["8034", "798", "2793"], ["10310", "796", "2882"]],
+  );
+  assert.deepEqual(selected.entry.resolved_plan.retailer_product.values.external_options, { "Source Pack Size": "90 Capsules", "Canonical Variant": "30 Servings" });
+});
+for (const [label, mutate, message] of [
+  ["retailer create", f => { f.artifact.plans[0].resolved_plan.retailer = { action: "create" }; }, /existing retailer/],
+  ["product creation", f => { f.artifact.plans[0].resolved_plan.product.action = "create"; }, /existing product/],
+  ["variant creation", f => { f.artifact.plans[0].resolved_plan.product_variant.action = "create_variant"; }, /existing variant action/],
+  ["wrong serving variant", f => { f.artifact.plans[0].resolved_plan.product_variant.id = "627"; }, /existing variant ID/],
+  ["shipping other than 3.99", f => { f.artifact.plans[0].resolved_plan.offer.values.shipping_cost = "0"; }, /shipping/],
+  ["source pack substitution", f => { f.artifact.plans[0].resolved_plan.retailer_product.values.external_options["Source Pack Size"] = "30 Capsules"; }, /source options|plan integrity/],
+  ["canonical serving substitution", f => { f.artifact.plans[0].resolved_plan.retailer_product.values.external_options["Canonical Variant"] = "Default"; }, /source options|plan integrity/],
+  ["fingerprint outside owner scope", f => { f.artifact.plans[2].plan_fingerprint = "0".repeat(32); }, /source plan binding|plan integrity|specific-servings-3 fingerprints/],
+  ["previously applied source", f => { f.artifact.plans[2].resolved_plan.retailer_product.values.external_variant_id = "8171"; }, /mapping external_variant_id|Already-applied source/],
+]) test(`specific-servings-3 rejects ${label}`, () => {
+  const f = specificServings3Fixture(); mutate(f); assert.throws(() => validateSpecificServings3(f), message);
 });
 for (const [label, mutate, message] of [
   ["retailer create", f => { f.artifact.plans[0].resolved_plan.retailer = { action: "create" }; }, /existing retailer/],
@@ -554,6 +629,19 @@ test("owner-alias-19 uses one direct PG approval for one selected reviewed plan"
   assert.equal(queries[4].args[3], "10reps-reviewed-owner-alias-19");
   assert.equal(queries.at(-1).sql, "commit");
 });
+test("specific-servings-3 uses one direct PG approval for one selected reviewed plan", async () => {
+  const prepared = validateSpecificServings3(specificServings3Fixture()), client = fakeClient(prepared);
+  const result = await runner.approveWithClient(prepared, client);
+  assert.deepEqual(
+    { fingerprint: result.plan_fingerprint, product: result.product_id, variant: result.product_variant_id, source: result.external_variant_id, retailer: result.retailer_id },
+    { fingerprint: SPECIFIC_SERVINGS_3_PROFILE.fingerprint, product: 726, variant: 3018, source: "2779", retailer: 14 },
+  );
+  const queries = client.calls.filter(call => call.sql);
+  assert.equal(queries.filter(call => call.sql.includes("approve_product_import_plan")).length, 1);
+  assert.equal(queries[4].args[1], SPECIFIC_SERVINGS_3_PROFILE.artifactSha256);
+  assert.equal(queries[4].args[3], "10reps-reviewed-specific-servings-3");
+  assert.equal(queries.at(-1).sql, "commit");
+});
 test("wrong role/login never reaches approval; wrong receipt rolls back", async () => {
   for (const changes of [{ role: "postgres" }, { login: "wrong_login" }, { receipt: { plan_fingerprint: "wrong" } }, { receipt: { expires_at: new Date(0).toISOString() } }]) {
     const prepared = validate(fixture()), client = fakeClient(prepared, changes);
@@ -567,11 +655,13 @@ test("runner has no elevated backend token, HTTP approval, execution RPC or busi
   const code = fs.readFileSync(require.resolve("./10reps-bootstrap-artifact-approver"), "utf8");
   const tests = fs.readFileSync(__filename, "utf8");
   const ownerAliasManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v4-owner-alias-22.json"), "utf8");
+  const specificServingsManifestText = fs.readFileSync(require.resolve("../config/retailers/10reps-reviewed-bindings-v5-specific-servings-3.json"), "utf8");
   assert.doesNotMatch(code, /service_role|SERVICE_ROLE|createClient|PostgREST|supabase-js|fetch\s*\(|apply_approved|apply_product|pilot-apply|\b(?:insert\s+into|update\s+public\.|delete\s+from|alter\s+table|grant\s+execute)\b/i);
   const forbiddenFeedMarkers = new RegExp(`${["TEN", "REPS", "FEED", "URL"].join("_")}|${"trpf"}_${"feed"}`, "i");
   assert.doesNotMatch(code, forbiddenFeedMarkers);
   assert.doesNotMatch(tests, forbiddenFeedMarkers);
   assert.doesNotMatch(ownerAliasManifestText, forbiddenFeedMarkers);
+  assert.doesNotMatch(specificServingsManifestText, forbiddenFeedMarkers);
   assert.match(code, /require\("pg"\)/);
   assert.match(code, /SET LOCAL ROLE retailer_catalogue_production_approver/);
   assert.match(code, /credentials\/production-approver\.env/);
