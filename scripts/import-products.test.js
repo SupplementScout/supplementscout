@@ -2963,7 +2963,7 @@ test("10 Reps reviewed v8 bootstrap plans only four owner-approved new products"
   );
   assert.deepEqual(result.report.approvedRows[3].importPlan.product_variant.evidence, {
     approved_mapping_id: null,
-    external_options: { Size: "600g" },
+    external_options: {},
     flavour: null,
     pack_count: "1",
     product_format: "powder",
@@ -3015,7 +3015,7 @@ test("10 Reps reviewed v8 Time 4 remaining plan keeps source size but creates a 
   assert.equal(plan.product_variant.action, "create_default");
   assert.deepEqual(plan.product_variant.evidence, {
     approved_mapping_id: null,
-    external_options: { Size: "600g" },
+    external_options: {},
     flavour: null,
     pack_count: "1",
     product_format: "powder",

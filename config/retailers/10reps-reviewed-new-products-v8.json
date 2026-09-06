@@ -71,9 +71,9 @@
       "582"
     ],
     "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-v8-time4-remaining-1-dry-run.json",
-    "artifact_sha256": "6fe37371e4056030feffc56e596b14ff760695951f7d7865617af5a8ae2d3b30",
+    "artifact_sha256": "58a22d6d34a7feb1fcebbcff4ac36ed7989b4a6c280ee97b238f020c39e6a1fd",
     "plan_fingerprints": [
-      "4b7eb05055c37a65810ae22953d68e6c"
+      "fdacde208dcdb70f5ea356e5f6759162"
     ],
     "status": "DRY_RUN_PASS",
     "blocked_row_count": 0,
