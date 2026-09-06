@@ -10,6 +10,7 @@ const migration = 'supabase/migrations/20260722113000_allow_final_reviewed_jons_
 const predatorsMigration = 'supabase/migrations/20260827200000_allow_predators_gear_reviewed_creatine_316g.sql';
 const predatorsV3Migration = 'supabase/migrations/20260829100000_allow_predators_gear_reviewed_new_products_v3.sql';
 const tenRepsV8Migration = 'supabase/migrations/20260906143000_allow_10reps_reviewed_new_products_v8.sql';
+const tenRepsV8ShortSourceIdsMigration = 'supabase/migrations/20260906150000_allow_10reps_v8_short_source_ids.sql';
 function run(command,args,timeout=120000){return spawnSync(command,args,{cwd:root,encoding:'utf8',timeout});}
 function ok(result,label){assert.equal(result.status,0,`${label}\n${result.stdout}\n${result.stderr}`);return result.stdout.trim();}
 function exec(container,args){return run('docker',['exec',container,...args]);}
@@ -73,8 +74,17 @@ test('Predators Gear reviewed-new-products-v3 DB policy accepts only exact revie
         select exists(select 1 from (values ('DY Nutrition The Creatine Complex 316g','DY Nutrition','Creatine','powder','316','g')) a(name,brand,category,format,size_value,size_unit)
           where a.name=p_name and a.brand=p_brand and a.category=p_category and a.format=p_format and a.size_value=p_size_value and a.size_unit=p_size_unit) $fn$;
       create function public.atomic_import_validate_pre_source_metadata_plan_core(p_plan jsonb) returns jsonb language plpgsql as $fn$
-      declare v_retailer_id bigint := nullif(p_plan#>>'{retailer,id}','')::bigint; v_retailer_actual jsonb := p_plan#>'{expected_state,retailer}';
+      declare
+        v_retailer_id bigint := nullif(p_plan#>>'{retailer,id}','')::bigint;
+        v_retailer_actual jsonb := p_plan#>'{expected_state,retailer}';
+        v_external_product_id text := p_plan#>>'{retailer_product,values,external_product_id}';
+        v_external_variant_id text := p_plan#>>'{retailer_product,values,external_variant_id}';
       begin
+        if v_external_product_id !~ '^[0-9]{10,}$'
+          or v_external_variant_id !~ '^[0-9]{10,}$'
+          or v_external_product_id = v_external_variant_id then
+          raise exception 'invalid product import plan: reviewed retailer product values';
+        end if;
         if v_retailer_actual->>'slug'='jon-s-supplements' then null;
         elsif v_retailer_id = 13
           and p_plan#>>'{product,values,name}'='DY Nutrition The Creatine Complex 316g' then null;
@@ -85,6 +95,7 @@ test('Predators Gear reviewed-new-products-v3 DB policy accepts only exact revie
     `]),'create policy stubs');
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${predatorsV3Migration}`]),'apply Predators Gear v3 policy migration');
     ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${tenRepsV8Migration}`]),'apply 10 Reps v8 policy migration');
+    ok(exec(container,['psql','-X','--no-psqlrc','-v','ON_ERROR_STOP=1','-U','postgres','-f',`/workspace/${tenRepsV8ShortSourceIdsMigration}`]),'apply 10 Reps v8 short source ID migration');
     const exact=JSON.parse(ok(exec(container,['psql','-X','--no-psqlrc','-A','-t','-U','postgres','-c',`
       select jsonb_build_object(
         'aakg',public.atomic_import_safe_create_category_allowed('Pre Workout','Olimp AAKG 1250 Extreme Mega Caps 120 Capsules','capsule'),
@@ -97,9 +108,10 @@ test('Predators Gear reviewed-new-products-v3 DB policy accepts only exact revie
         'efectiv',public.atomic_import_reviewed_parent_variant_allowed('Efectiv Whey – Advanced Protein Complex 900g','Efectiv','Whey Protein','powder','900','g'),
         'patched',strpos(pg_get_functiondef('public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure),'atomic_import_predators_v3_parent_variant_transport_allowed')>0,
         'tenreps_patched',strpos(pg_get_functiondef('public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure),'atomic_import_10reps_v8_parent_variant_transport_allowed')>0,
+        'tenreps_short_ids_patched',strpos(pg_get_functiondef('public.atomic_import_validate_pre_source_metadata_plan_core(jsonb)'::regprocedure),'10 Reps short WooCommerce source IDs')>0,
         'service_execute',has_function_privilege('service_role','public.atomic_import_predators_v3_parent_variant_transport_allowed(jsonb,jsonb)','EXECUTE'),
         'tenreps_service_execute',has_function_privilege('service_role','public.atomic_import_10reps_v8_parent_variant_transport_allowed(jsonb,jsonb)','EXECUTE'));
     `]),'query exact v3 policy'));
-    assert.deepEqual(exact,{aakg:true,wrong_aakg:false,bcaa:true,wrong_bcaa:false,chaos:true,wrong_chaos:false,ak47:true,efectiv:true,patched:true,tenreps_patched:true,service_execute:false,tenreps_service_execute:false});
+    assert.deepEqual(exact,{aakg:true,wrong_aakg:false,bcaa:true,wrong_bcaa:false,chaos:true,wrong_chaos:false,ak47:true,efectiv:true,patched:true,tenreps_patched:true,tenreps_short_ids_patched:true,service_execute:false,tenreps_service_execute:false});
   }catch(error){failure=error;}finally{run('docker',['rm','--force',container],30000);}if(failure)throw failure;
 });

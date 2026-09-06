@@ -101,6 +101,7 @@ const EXCLUSIONS = Object.freeze({
     "20260904100000_apply_reviewed_whey_okay_existing_variant_3",
     "20260905170000_apply_reviewed_ebay_26_remediation",
     "20260906143000_allow_10reps_reviewed_new_products_v8",
+    "20260906150000_allow_10reps_v8_short_source_ids",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
