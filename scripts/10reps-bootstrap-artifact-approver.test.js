@@ -3,8 +3,15 @@ const fs = require("node:fs");
 const test = require("node:test");
 const manifest = require("../config/retailers/10reps-reviewed-bindings-v1.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
+const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
+const remainingTimes = [
+  "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
+  "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
+  "2026-09-06T06:06:33.238Z", "2026-09-06T06:06:33.238Z", "2026-09-06T06:06:33.239Z", "2026-09-06T06:06:33.240Z", "2026-09-06T06:06:33.240Z",
+  "2026-09-06T06:06:33.241Z", "2026-09-06T06:06:33.241Z", "2026-09-06T06:06:33.242Z", "2026-09-06T06:06:33.243Z",
+];
 
 // Synthetic package built entirely from committed reviewed identities. No
 // ignored artifact, credential file, network or real database is used by tests.
@@ -44,11 +51,39 @@ function fixture() {
   return { manifest: reviewed, artifact, csvRows };
 }
 function validate(f) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows); }
-test("closed CLI accepts only the exact paths and bootstrap fingerprint", () => {
+function remainingFixture() {
+  const original = fixture();
+  const reviewed = original.manifest;
+  const csvRows = original.csvRows.slice(1);
+  const artifact = { artifact_version: "1", row_count: "19", run_id: "10reps-remaining-19-test", source_file_sha256: REMAINING_PROFILE.csvSha256, blocked_rows: [], plans: [], source_rows: [], summary: { blocked_row_count: "0", plan_count: "19", skipped_row_count: "0" } };
+  for (let i = 0; i < 19; i++) {
+    const reviewedRow = reviewed.rows[i + 1], source = { ...csvRows[i], variant: csvRows[i].variant_name, size: `${csvRows[i].size} ${csvRows[i].size_unit}` };
+    const sourceHash = runner.sourceFingerprint(source);
+    const plan = structuredClone(original.artifact.plans[i + 1].resolved_plan);
+    plan.expected_state.retailer = { id: "14", name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" };
+    plan.retailer = { action: "existing", id: "14" };
+    plan.offer.values.last_checked_at = remainingTimes[i];
+    plan.meta.source_row_fingerprint = sourceHash;
+    plan.meta.plan_fingerprint = null;
+    const fingerprint = runner.planFingerprint(plan);
+    assert.equal(fingerprint, REMAINING_PROFILE.allowedFingerprints[i]);
+    plan.meta.plan_fingerprint = fingerprint;
+    assert.equal(plan.retailer_product.values.external_variant_id, reviewedRow.external_variant_id);
+    artifact.plans.push({ operation_type: "standard_import", plan_fingerprint: fingerprint, plan_kind: "feed", resolved_plan: plan, retailer_id: "14", row_number: String(i + 2), source_row_fingerprint: sourceHash });
+    artifact.source_rows.push({ normalized_source_row: source, plan_fingerprint: fingerprint, row_number: String(i + 2), source_row_fingerprint: sourceHash, status: "planned" });
+  }
+  return { manifest: reviewed, artifact, csvRows };
+}
+function validateRemaining(f, fingerprint = REMAINING_PROFILE.fingerprint) { return runner.validatePackage(f.manifest, f.artifact, f.csvRows, REMAINING_PROFILE, fingerprint); }
+test("closed CLI accepts only the exact profile paths and allowed fingerprints", () => {
   assert.deepEqual(runner.parseArgs([`--artifact=${PROFILE.artifact}`, `--csv=${PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), options);
+  assert.deepEqual(runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${REMAINING_PROFILE.fingerprint}`]), remainingOptions);
+  for (const fingerprint of REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const args of [[], [`--artifact=${PROFILE.artifact}`, `--artifact=${PROFILE.artifact}`], ["--apply"], ["--pilot-apply"], ["--profile=other"]]) assert.throws(() => runner.parseArgs(args));
   for (const key of ["artifact", "csv", "planFingerprint"]) assert.throws(() => runner.prepareApproval({ ...options, [key]: "wrong" }, () => { throw new Error("Must not read files"); }), /Invalid/);
   for (const row of manifest.rows.slice(1)) assert.throws(() => runner.prepareApproval({ ...options, planFingerprint: row.plan_fingerprint }), /bootstrap fingerprint/);
+  assert.throws(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${PROFILE.fingerprint}`]), /remaining-19 fingerprint/);
+  assert.throws(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${PROFILE.csv}`, `--plan-fingerprint=${REMAINING_PROFILE.fingerprint}`]), /closed profile/);
 });
 test("wrong artifact and CSV SHA are rejected by the package digest guard", () => {
   assert.throws(() => runner.checkDigest(Buffer.from("corrupt artifact"), PROFILE.artifactSha256, "artifact"), /artifact SHA/);
@@ -57,12 +92,34 @@ test("wrong artifact and CSV SHA are rejected by the package digest guard", () =
   assert.throws(() => runner.prepareApproval(options, file => { reads++; return file === PROFILE.manifest ? fs.readFileSync(file) : Buffer.from("corrupt artifact"); }), /artifact SHA/);
   assert.equal(reads, 2);
   assert.throws(() => runner.prepareApproval(options, () => Buffer.from("{}")), /manifest SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt remaining artifact"), REMAINING_PROFILE.artifactSha256, "artifact"), /artifact SHA/);
+  assert.throws(() => runner.checkDigest(Buffer.from("corrupt remaining CSV"), REMAINING_PROFILE.csvSha256, "CSV"), /CSV SHA/);
 });
 test("all 20 synthetic plans are checked and only the exact bootstrap is selected", () => {
   const f = fixture(), selected = validate(f);
   assert.equal(selected.entry.row_number, "2");
   assert.equal(selected.entry.resolved_plan.product.id, "788");
   assert.equal(selected.entry.resolved_plan.product_variant.id, "1080");
+});
+test("valid remaining-19 artifact checks every reviewed row and selects only an allowed fingerprint", () => {
+  const selected = validateRemaining(remainingFixture());
+  assert.equal(selected.profile, REMAINING_PROFILE);
+  assert.equal(selected.artifact.plans.length, 19);
+  assert.equal(selected.entry.plan_fingerprint, "0146b444423932cdac03d5175a354fc8");
+  assert.equal(selected.entry.resolved_plan.retailer.id, "14");
+  assert.equal(selected.entry.resolved_plan.retailer_product.values.external_variant_id, "8481");
+  assert.ok(!selected.artifact.plans.some(entry => entry.plan_fingerprint === PROFILE.fingerprint || entry.resolved_plan.retailer_product.values.external_variant_id === "10003"));
+});
+for (const [label, mutate, message] of [
+  ["retailer create", f => { f.artifact.plans[18].resolved_plan.retailer = { action: "create", values: { name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/" } }; }, /existing retailer/],
+  ["wrong retailer ID", f => { f.artifact.plans[18].retailer_id = "15"; }, /retailer ID/],
+  ["product creation", f => { f.artifact.plans[18].resolved_plan.product.action = "create"; }, /existing product/],
+  ["variant creation", f => { f.artifact.plans[18].resolved_plan.product_variant.action = "create_variant"; }, /existing variant/],
+  ["shipping other than 3.99", f => { f.artifact.plans[18].resolved_plan.offer.values.shipping_cost = "0"; }, /shipping/],
+  ["fingerprint outside remaining scope", f => { f.artifact.plans[18].plan_fingerprint = "0".repeat(32); }, /source plan binding|plan integrity|remaining fingerprints/],
+  ["bootstrap row", f => { f.artifact.plans[0] = structuredClone(fixture().artifact.plans[0]); }, /source binding|reviewed plan fingerprint|existing retailer|profile external variant/],
+]) test(`remaining-19 rejects ${label}`, () => {
+  const f = remainingFixture(); mutate(f); assert.throws(() => validateRemaining(f), message);
 });
 for (const [label, mutate, message] of [
   ["product creation", p => { p.product.action = "create"; }, /existing product/],
@@ -94,7 +151,7 @@ function fakeClient(prepared, changes = {}) {
   return { calls, async connect() { calls.push("CONNECT"); }, async end() { calls.push("END"); }, async query(sql, args) {
     calls.push({ sql, args });
     if (sql === "select current_user,session_user") return { rows: [{ current_user: changes.role || PROFILE.role, session_user: changes.login || PROFILE.login }] };
-    if (sql.includes("approve_product_import_plan")) return { rows: [{ result: { approval_id: "11111111-1111-4111-8111-111111111111", status: "approved", artifact_sha256: PROFILE.artifactSha256, run_id: prepared.artifact.run_id, plan_fingerprint: PROFILE.fingerprint, source_row_fingerprint: prepared.entry.source_row_fingerprint, retailer_id: null, plan_kind: "feed", expires_at: new Date(Date.now() + 15 * 60_000).toISOString(), ...changes.receipt } }] };
+    if (sql.includes("approve_product_import_plan")) return { rows: [{ result: { approval_id: "11111111-1111-4111-8111-111111111111", status: "approved", artifact_sha256: prepared.profile.artifactSha256, run_id: prepared.artifact.run_id, plan_fingerprint: prepared.entry.plan_fingerprint, source_row_fingerprint: prepared.entry.source_row_fingerprint, retailer_id: prepared.profile.retailerId, plan_kind: "feed", expires_at: new Date(Date.now() + 15 * 60_000).toISOString(), ...changes.receipt } }] };
     return { rows: [] };
   } };
 }
@@ -109,6 +166,16 @@ test("direct PG transaction checks role and login and submits exactly one approv
   assert.equal(approval.args[1], PROFILE.artifactSha256);
   assert.equal(client.calls.at(-1), "END");
 });
+test("remaining-19 uses the same direct PG transaction for exactly one selected approval", async () => {
+  const prepared = validateRemaining(remainingFixture()), client = fakeClient(prepared);
+  const result = await runner.approveWithClient(prepared, client);
+  assert.deepEqual({ fingerprint: result.plan_fingerprint, product: result.product_id, variant: result.product_variant_id, source: result.external_variant_id, retailer: result.retailer_id }, { fingerprint: REMAINING_PROFILE.fingerprint, product: 882, variant: 1406, source: "8481", retailer: 14 });
+  const queries = client.calls.filter(call => call.sql);
+  assert.equal(queries.filter(call => call.sql.includes("approve_product_import_plan")).length, 1);
+  assert.equal(queries[4].args[1], REMAINING_PROFILE.artifactSha256);
+  assert.equal(queries[4].args[3], "10reps-reviewed-remaining-19");
+  assert.equal(queries.at(-1).sql, "commit");
+});
 test("wrong role/login never reaches approval; wrong receipt rolls back", async () => {
   for (const changes of [{ role: "postgres" }, { login: "wrong_login" }, { receipt: { plan_fingerprint: "wrong" } }, { receipt: { expires_at: new Date(0).toISOString() } }]) {
     const prepared = validate(fixture()), client = fakeClient(prepared, changes);
@@ -120,7 +187,11 @@ test("wrong role/login never reaches approval; wrong receipt rolls back", async 
 });
 test("runner has no elevated backend token, HTTP approval, execution RPC or business DML", () => {
   const code = fs.readFileSync(require.resolve("./10reps-bootstrap-artifact-approver"), "utf8");
+  const tests = fs.readFileSync(__filename, "utf8");
   assert.doesNotMatch(code, /service_role|SERVICE_ROLE|createClient|PostgREST|supabase-js|fetch\s*\(|apply_approved|apply_product|pilot-apply|\b(?:insert\s+into|update\s+public\.|delete\s+from|alter\s+table|grant\s+execute)\b/i);
+  const forbiddenFeedMarkers = new RegExp(`${["TEN", "REPS", "FEED", "URL"].join("_")}|${"trpf"}_${"feed"}`, "i");
+  assert.doesNotMatch(code, forbiddenFeedMarkers);
+  assert.doesNotMatch(tests, forbiddenFeedMarkers);
   assert.match(code, /require\("pg"\)/);
   assert.match(code, /SET LOCAL ROLE retailer_catalogue_production_approver/);
   assert.match(code, /credentials\/production-approver\.env/);
