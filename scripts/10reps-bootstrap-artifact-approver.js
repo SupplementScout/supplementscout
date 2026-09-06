@@ -222,7 +222,63 @@ const REVIEW_REMAINING_14_PROFILE = Object.freeze({
   project: PROFILE.project,
   strictReviewedManifest: true,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE]);
+const OWNER_ALIAS_19_BINDINGS = Object.freeze([
+  [1, "8171", 861, 1290, "ff48d99c67e843f4d093034a43609ab1"],
+  [2, "8172", 861, 1293, "e691e9a0d6ae27c4f73a38d0e3ad2ba2"],
+  [3, "8181", 861, 1379, "b218bb5d20910371b5b479e1975ea5da"],
+  [4, "8183", 861, 1382, "233597a14f92cd94b00941e20fd730f0"],
+  [5, "7719", 788, 1079, "2084defe630cf6a632434673195c2587"],
+  [6, "8009", 752, 871, "f1419d29821fb68ba1647cd2af431c5a"],
+  [7, "8010", 752, 872, "88710026d4165a83520336c81c4b2393"],
+  [8, "8038", 745, 2253, "ae918e5537ca5e6ae544ea82746b4a57"],
+  [9, "8041", 745, 1269, "3d10db9cb5c3924adc3db93bb9609694"],
+  [10, "8042", 745, 2255, "42ef05278a9b750e587fb9a0bf7d9923"],
+  [11, "8484", 882, 1399, "d2792b3113dd1fa478c8be92f537c088"],
+  [12, "8486", 882, 1398, "4200832431e602c6fc1077d90d7111f4"],
+  [13, "8487", 882, 1404, "d9ea9dd7f6929b4b85e081df8ff97bda"],
+  [14, "8488", 882, 1400, "0b01bf19938e17bce51d6490d49f9243"],
+  [15, "8959", 743, 803, "b56180dee7dfd6471258fd6f9d61b1b3"],
+  [16, "8961", 743, 805, "612f9e52f835d3ef5662df4b32b6c580"],
+  [17, "8967", 743, 812, "8b0719531187d5c9f4cafe35e1bb9704"],
+  [18, "8968", 743, 813, "1044239759f6546604d582d5192db62a"],
+  [19, "10463", 790, 1096, "ade7be5c3868f7aa1a92b3b389af8581"],
+].map(([reviewRow, externalVariantId, productId, productVariantId, fingerprint]) => Object.freeze({ reviewRow, externalVariantId, productId, productVariantId, fingerprint })));
+const OWNER_ALIAS_19_PROFILE = Object.freeze({
+  id: "owner-alias-19",
+  manifest: path.join(ROOT, "config/retailers/10reps-reviewed-bindings-v4-owner-alias-22.json"),
+  manifestSha256: "cec3ebe3af6b7ee7c1449226e7c9448c485c0707cd71225eb41b39aac22079ea",
+  manifestKind: "10reps-reviewed-existing-bindings-v4-owner-alias-22",
+  manifestRowCount: 19,
+  expectedHeldRowCount: 3,
+  heldExternalVariantIds: Object.freeze(["2779", "8034", "10310"]),
+  artifact: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v4-owner-alias-19-dry-run.json"),
+  artifactSha256: "6732cf515fc77352019460cf35646492a78b2790b51fb5deac47ee7567da3b02",
+  csv: path.join(ROOT, "tmp/retailer-feeds/10reps/10reps-reviewed-bindings-v4-owner-alias-19.csv"),
+  csvSha256: "24c70a8fbe896ae79e2045a5094af2e3bd729f83c78860707ed37ea8526824eb",
+  fingerprint: OWNER_ALIAS_19_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(OWNER_ALIAS_19_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: OWNER_ALIAS_19_BINDINGS,
+  reviewedStart: 0,
+  rowCount: 19,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  sourceVariantIncludesPackCount: true,
+  useCanonicalMappingFlavour: true,
+  forbiddenExternalVariantIds: Object.freeze([
+    "10003", "2779", "8034", "10310",
+    ...REMAINING_BINDINGS.map(binding => binding.externalVariantId),
+    ...EXACT_OOS_BINDINGS.map(binding => binding.externalVariantId),
+    ...REVIEW_22_BINDINGS.map(binding => binding.externalVariantId),
+  ]),
+  approvalSource: "10reps-reviewed-owner-alias-19",
+  applicationName: "10reps-owner-alias-19-artifact-approver",
+  role: PROFILE.role,
+  login: PROFILE.login,
+  project: PROFILE.project,
+  strictReviewedManifest: true,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -267,7 +323,9 @@ function reviewedPlanFingerprint(profile, reviewed) {
 }
 function reviewedSourceOptions(profile, reviewed) {
   if (reviewed.is_default_variant === true) return {};
-  const flavour = profile.sourceOptionFlavourAliases?.[reviewed.external_variant_id] || reviewed.flavour;
+  const flavour = profile.useCanonicalMappingFlavour
+    ? reviewed.canonical_mapping_flavour
+    : profile.sourceOptionFlavourAliases?.[reviewed.external_variant_id] || reviewed.flavour;
   return { Flavour: flavour, Size: reviewed.source_size };
 }
 function validatePlan(entry, reviewed, source, profile = PROFILE) {
@@ -313,7 +371,10 @@ function validatePlan(entry, reviewed, source, profile = PROFILE) {
   same(plan.offer.values.in_stock, expectedInStock, `${profile.id} stock`);
   same(plan.price_history, { action: "create" }, "initial history");
   same(plan.approval, { approved: false, approval_type: "none" }, "unapproved plan");
-  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: reviewed.flavour || "", size: reviewed.size == null ? "" : `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit || "", image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: String(expectedInStock), is_for_sale: "true" })) same(source[key], value, `source ${key}`);
+  const sourceFlavour = profile.useCanonicalMappingFlavour
+    ? reviewed.canonical_mapping_flavour || ""
+    : reviewed.flavour || "";
+  for (const [key, value] of Object.entries({ product_id: String(reviewed.product_id), product_variant_id: String(reviewed.product_variant_id), external_product_id: reviewed.external_product_id, external_variant_id: reviewed.external_variant_id, product_name: reviewed.external_name, brand: reviewed.brand, category: reviewed.category, flavour: sourceFlavour, size: reviewed.size == null ? "" : `${reviewed.size} ${reviewed.size_unit}`, size_unit: reviewed.size_unit || "", image: reviewed.image_url, external_url: reviewed.source_url, affiliate_url: reviewed.source_url, external_sku: reviewed.external_sku || "", external_gtin: reviewed.external_gtin || "", shipping_known: "true", shipping_cost: "3.99", price: reviewed.price.toFixed(2), in_stock: String(expectedInStock), is_for_sale: "true" })) same(source[key], value, `source ${key}`);
   // The immutable package supplies the complete schema; these checks also keep
   // identity and commercial guards independently testable without private files.
   same(entry.operation_type, "standard_import", "operation");
@@ -331,7 +392,12 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
   same(manifest.kind, profile.manifestKind, "manifest kind");
   same(manifest.row_count, profile.manifestRowCount, "manifest row count");
   same(manifest.rows.length, profile.manifestRowCount, "reviewed rows");
-  same(manifest.held_rows, [], "held rows");
+  same(manifest.held_rows.length, profile.expectedHeldRowCount || 0, "held row count");
+  if (!profile.expectedHeldRowCount) same(manifest.held_rows, [], "held rows");
+  if (profile.heldExternalVariantIds) {
+    same(manifest.held_rows.map(row => row.external_variant_id).sort(), [...profile.heldExternalVariantIds].sort(), "held source variants");
+    requireCondition(manifest.held_rows.every(row => row.reason === "PRODUCTION_GUARD_REJECTS_DEFAULT_WHILE_ACTIVE_SPECIFIC_VARIANTS_EXIST"), "Invalid held-row reason");
+  }
   for (const flag of ["existing_products_only", "existing_variants_only", "sku_is_not_gtin"]) same(manifest.policy[flag], true, flag);
   for (const flag of ["allow_product_creation", "allow_variant_creation", "allow_canonical_gtin_updates", "allow_category_changes", "allow_live_import"]) same(manifest.policy[flag], false, flag);
   same(manifest.production_approval.approved, false, "production approval state");
@@ -355,6 +421,25 @@ function validatePackage(manifest, artifact, csvRows, profile = PROFILE, selecte
       }, "reviewed flavour alias");
       same(reviewed.canonical_mapping_flavour, canonical, "canonical mapping flavour");
       same(reviewed.flavour_resolution, "OWNER_CONFIRMED_PUNCTUATION_ALIAS", "flavour alias resolution");
+    }
+  }
+  if (profile.useCanonicalMappingFlavour) {
+    for (const reviewed of manifest.rows) {
+      if (reviewed.is_default_variant === true) {
+        same(reviewed.canonical_mapping_flavour, null, "default mapping flavour");
+        continue;
+      }
+      same(reviewed.canonical_mapping_flavour, reviewed.canonical_flavour, "canonical mapping flavour");
+      if (reviewed.flavour === reviewed.canonical_flavour) {
+        same(reviewed.flavour_resolution, "EXACT", "exact flavour resolution");
+      } else {
+        same(reviewed.flavour_resolution, "OWNER_CONFIRMED_EQUIVALENT_ALIAS", "owner flavour resolution");
+        same(manifest.owner_resolutions.flavour_aliases?.[reviewed.external_variant_id], {
+          source: reviewed.flavour,
+          canonical: reviewed.canonical_flavour,
+          resolution: "OWNER_CONFIRMED_EQUIVALENT_PRODUCT_VARIANT",
+        }, "reviewed flavour alias");
+      }
     }
   }
   same(artifact.artifact_version, "1", "artifact version");
@@ -473,4 +558,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
