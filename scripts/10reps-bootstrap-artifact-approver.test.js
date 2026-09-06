@@ -13,7 +13,7 @@ const highConfidence25Manifest = require("../config/retailers/10reps-reviewed-bi
 const newProductsV8Manifest = require("../config/retailers/10reps-reviewed-new-products-v8.json");
 const newProductsV9Manifest = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
 const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
 const exactOosOptions = { artifact: EXACT_OOS_PROFILE.artifact, csv: EXACT_OOS_PROFILE.csv, planFingerprint: EXACT_OOS_PROFILE.fingerprint };
@@ -27,6 +27,7 @@ const newProductsV8Options = { artifact: NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artif
 const newProductsV8Time4Options = { artifact: NEW_PRODUCTS_V8_TIME4_PROFILE.artifact, csv: NEW_PRODUCTS_V8_TIME4_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V8_TIME4_PROFILE.fingerprint };
 const newProductsV8RemainingOptions = { artifact: NEW_PRODUCTS_V8_REMAINING_PROFILE.artifact, csv: NEW_PRODUCTS_V8_REMAINING_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V8_REMAINING_PROFILE.fingerprint };
 const newProductsV9Options = { artifact: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.artifact, csv: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.fingerprint };
+const newProductsV9RemainingOptions = { artifact: NEW_PRODUCTS_V9_REMAINING_PROFILE.artifact, csv: NEW_PRODUCTS_V9_REMAINING_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V9_REMAINING_PROFILE.fingerprint };
 const remainingTimes = [
   "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
   "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
@@ -439,6 +440,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   assert.deepEqual(runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_TIME4_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_TIME4_PROFILE.csv}`, `--plan-fingerprint=${NEW_PRODUCTS_V8_TIME4_PROFILE.fingerprint}`]), newProductsV8Time4Options);
   assert.deepEqual(runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_REMAINING_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_REMAINING_PROFILE.csv}`, `--plan-fingerprint=${NEW_PRODUCTS_V8_REMAINING_PROFILE.fingerprint}`]), newProductsV8RemainingOptions);
   assert.deepEqual(runner.parseArgs([`--artifact=${NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.csv}`, `--plan-fingerprint=${NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.fingerprint}`]), newProductsV9Options);
+  assert.deepEqual(runner.parseArgs([`--artifact=${NEW_PRODUCTS_V9_REMAINING_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V9_REMAINING_PROFILE.csv}`, `--plan-fingerprint=${NEW_PRODUCTS_V9_REMAINING_PROFILE.fingerprint}`]), newProductsV9RemainingOptions);
   for (const fingerprint of REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REMAINING_PROFILE.artifact}`, `--csv=${REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of EXACT_OOS_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${EXACT_OOS_PROFILE.artifact}`, `--csv=${EXACT_OOS_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of REVIEW_22_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${REVIEW_22_PROFILE.artifact}`, `--csv=${REVIEW_22_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
@@ -451,6 +453,7 @@ test("closed CLI accepts only the exact profile paths and allowed fingerprints",
   for (const fingerprint of NEW_PRODUCTS_V8_TIME4_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_TIME4_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_TIME4_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of NEW_PRODUCTS_V8_REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V8_REMAINING_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V8_REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const fingerprint of NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
+  for (const fingerprint of NEW_PRODUCTS_V9_REMAINING_PROFILE.allowedFingerprints) assert.doesNotThrow(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V9_REMAINING_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V9_REMAINING_PROFILE.csv}`, `--plan-fingerprint=${fingerprint}`]));
   for (const args of [[], [`--artifact=${PROFILE.artifact}`, `--artifact=${PROFILE.artifact}`], ["--apply"], ["--pilot-apply"], ["--profile=other"]]) assert.throws(() => runner.parseArgs(args));
   for (const key of ["artifact", "csv", "planFingerprint"]) assert.throws(() => runner.prepareApproval({ ...options, [key]: "wrong" }, () => { throw new Error("Must not read files"); }), /Invalid/);
   for (const row of manifest.rows.slice(1)) assert.throws(() => runner.prepareApproval({ ...options, planFingerprint: row.plan_fingerprint }), /bootstrap fingerprint/);
@@ -514,6 +517,20 @@ test("10 Reps v9 large bootstrap validates only the seven owner-approved product
   const changed = structuredClone(artifact);
   changed.plans[0].resolved_plan.offer.values.shipping_cost = "0.00";
   assert.throws(() => runner.validatePackage(structuredClone(newProductsV9Manifest), changed, structuredClone(csvRows), NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.fingerprint), /shipping|fingerprint/i);
+});
+test("10 Reps v9 remaining profile validates only the 94 owner-approved sibling variants", () => {
+  const prepared = runner.prepareApproval(newProductsV9RemainingOptions);
+  assert.equal(prepared.profile, NEW_PRODUCTS_V9_REMAINING_PROFILE);
+  const artifact = JSON.parse(fs.readFileSync(NEW_PRODUCTS_V9_REMAINING_PROFILE.artifact));
+  const csvRows = parse(fs.readFileSync(NEW_PRODUCTS_V9_REMAINING_PROFILE.csv), { columns: true, skip_empty_lines: true });
+  assert.equal(NEW_PRODUCTS_V9_REMAINING_PROFILE.allowedFingerprints.length, 94);
+  for (const fingerprint of NEW_PRODUCTS_V9_REMAINING_PROFILE.allowedFingerprints) {
+    assert.doesNotThrow(() => runner.validatePackage(structuredClone(newProductsV9Manifest), structuredClone(artifact), structuredClone(csvRows), NEW_PRODUCTS_V9_REMAINING_PROFILE, fingerprint));
+  }
+  assert.throws(() => runner.parseArgs([`--artifact=${NEW_PRODUCTS_V9_REMAINING_PROFILE.artifact}`, `--csv=${NEW_PRODUCTS_V9_REMAINING_PROFILE.csv}`, `--plan-fingerprint=${NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.fingerprint}`]), /remaining-94 fingerprint/);
+  const changed = structuredClone(artifact);
+  changed.plans[0].resolved_plan.offer.values.shipping_cost = "0.00";
+  assert.throws(() => runner.validatePackage(structuredClone(newProductsV9Manifest), changed, structuredClone(csvRows), NEW_PRODUCTS_V9_REMAINING_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE.fingerprint), /shipping|fingerprint/i);
 });
 test("10 Reps v8 closed bootstrap validates only the exact four reviewed new-product plans", {
   skip: !fs.existsSync(NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE.artifact) ||

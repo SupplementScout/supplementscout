@@ -537,7 +537,7 @@ const NEW_PRODUCTS_V9_BOOTSTRAP_BINDINGS = Object.freeze([
 const NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE = Object.freeze({
   id: "new-products-v9-large-101-bootstrap-7",
   manifest: path.join(ROOT, "config/retailers/10reps-reviewed-new-products-v9-large-101.json"),
-  manifestSha256: "029b876c634cb20400343226cd7a0eb7d9b7aa3a95be847184dbe619439fade4",
+  manifestSha256: "e5e63a50d96c27c5f178d089c85bfa043c67d97fd7ebbf5f66920f2562245823",
   manifestKind: "10reps-reviewed-new-products-v9-large-101",
   manifestRowCount: 101,
   manifestProductCount: 7,
@@ -562,7 +562,44 @@ const NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE = Object.freeze({
   manifestProfileKey: "bootstrap_profile",
   safeDefaultVariantEvidence: false,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE]);
+const NEW_PRODUCTS_V9_MANIFEST = JSON.parse(fs.readFileSync(NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.manifest, "utf8"));
+const NEW_PRODUCTS_V9_REMAINING_ROWS = NEW_PRODUCTS_V9_MANIFEST.rows.filter(row => row.action === "create_variant_after_parent");
+const NEW_PRODUCTS_V9_REMAINING_BINDINGS = Object.freeze(NEW_PRODUCTS_V9_REMAINING_ROWS.map((row, index) => Object.freeze({
+  reviewRow: row.review_row,
+  externalVariantId: String(row.external_variant_id),
+  productId: String(NEW_PRODUCTS_V9_MANIFEST.remaining_profile.parent_product_ids[row.external_product_id]),
+  productVariantId: null,
+  fingerprint: NEW_PRODUCTS_V9_MANIFEST.remaining_profile.plan_fingerprints[index],
+})));
+const NEW_PRODUCTS_V9_REMAINING_PROFILE = Object.freeze({
+  id: "new-products-v9-large-101-remaining-94",
+  manifest: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.manifest,
+  manifestSha256: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.manifestSha256,
+  manifestKind: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.manifestKind,
+  manifestRowCount: 101,
+  manifestProductCount: 7,
+  allowedProductCreations: 7,
+  allowedVariantCreations: 101,
+  manifestProfileKey: "remaining_profile",
+  artifact: path.join(ROOT, NEW_PRODUCTS_V9_MANIFEST.remaining_profile.artifact_path),
+  artifactSha256: NEW_PRODUCTS_V9_MANIFEST.remaining_profile.artifact_sha256,
+  csv: path.join(ROOT, NEW_PRODUCTS_V9_MANIFEST.remaining_profile.path),
+  csvSha256: NEW_PRODUCTS_V9_MANIFEST.remaining_profile.sha256,
+  fingerprint: NEW_PRODUCTS_V9_REMAINING_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(NEW_PRODUCTS_V9_REMAINING_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: NEW_PRODUCTS_V9_REMAINING_BINDINGS,
+  rowCount: 94,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  useReviewedMappingOptions: true,
+  allowsReviewedVariantCreation: true,
+  allowsReviewedV8SiblingVariants: true,
+  approvalSource: "10reps-reviewed-new-products-v9-large-101-remaining-94",
+  applicationName: "10reps-new-products-v9-large-remaining-approver",
+  role: PROFILE.role, login: PROFILE.login, project: PROFILE.project,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -917,18 +954,18 @@ function validateNewProductsV8Package(manifest, artifact, csvRows, profile, sele
 }
 function validateNewProductsV8RemainingPackage(manifest, artifact, csvRows, profile, selectedFingerprint) {
   same(manifest.kind, profile.manifestKind, "v8 remaining manifest kind");
-  same(manifest.row_count, 22, "v8 remaining manifest rows");
-  same(manifest.product_count, 4, "v8 remaining manifest products");
-  same(manifest.rows.length, 22, "v8 remaining reviewed rows");
+  same(manifest.row_count, profile.manifestRowCount, "v8 remaining manifest rows");
+  same(manifest.product_count, profile.manifestProductCount || 4, "v8 remaining manifest products");
+  same(manifest.rows.length, profile.manifestRowCount, "v8 remaining reviewed rows");
   same(manifest.held_rows, [], "v8 remaining held rows");
   same(manifest.retailer, { id: 14, name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/", expected_action: "existing", shipping_known: true, shipping_cost: 3.99 }, "v8 remaining retailer manifest");
   for (const [key, value] of Object.entries({
     reviewed_rows_only: true,
     existing_retailer_only: true,
     allow_product_creation: true,
-    allowed_product_creations: 4,
+    allowed_product_creations: profile.allowedProductCreations || 4,
     allow_variant_creation: true,
-    allowed_variant_creations: 22,
+    allowed_variant_creations: profile.allowedVariantCreations || 22,
     allow_canonical_product_updates: false,
     allow_canonical_variant_updates: false,
     allow_canonical_gtin_updates: false,
@@ -939,12 +976,15 @@ function validateNewProductsV8RemainingPackage(manifest, artifact, csvRows, prof
     fresh_single_use_approval_per_plan: true,
     strict_production_readback_after_each_apply: true,
   })) same(manifest.policy[key], value, `v8 remaining policy ${key}`);
-  const manifestProfile = manifest.remaining_profile;
+  const manifestProfile = manifest[profile.manifestProfileKey || "remaining_profile"];
   same(manifestProfile.path, path.relative(ROOT, profile.csv).replaceAll("\\", "/"), "v8 remaining CSV path");
   same(manifestProfile.sha256, profile.csvSha256, "v8 remaining CSV manifest SHA");
-  same(manifestProfile.row_count, 18, "v8 remaining profile rows");
+  same(manifestProfile.row_count, profile.rowCount, "v8 remaining profile rows");
   same(manifestProfile.external_variant_ids, profile.bindings.map(binding => binding.externalVariantId), "v8 remaining sources");
-  same(manifestProfile.parent_product_ids, { "469": 1161, "530": 1162, "554": 1163 }, "v8 remaining parents");
+  same(Object.fromEntries(Object.entries(manifestProfile.parent_product_ids).map(([key, value]) => [key, String(value)])), Object.fromEntries(profile.bindings.map(binding => {
+    const reviewed = manifest.rows.find(row => row.review_row === binding.reviewRow);
+    return [String(reviewed.external_product_id), String(binding.productId)];
+  })), "v8 remaining parents");
   same(manifestProfile.artifact_path, path.relative(ROOT, profile.artifact).replaceAll("\\", "/"), "v8 remaining artifact path");
   same(manifestProfile.artifact_sha256, profile.artifactSha256, "v8 remaining artifact manifest SHA");
   same(manifestProfile.plan_fingerprints, profile.allowedFingerprints, "v8 remaining manifest fingerprints");
@@ -952,13 +992,13 @@ function validateNewProductsV8RemainingPackage(manifest, artifact, csvRows, prof
   same(manifestProfile.blocked_row_count, 0, "v8 remaining blockers");
   same(manifestProfile.conflict_count, 0, "v8 remaining conflicts");
   same(artifact.artifact_version, "1", "v8 remaining artifact version");
-  same(artifact.row_count, "18", "v8 remaining artifact rows");
-  same(artifact.summary, { blocked_row_count: "0", plan_count: "18", skipped_row_count: "0" }, "v8 remaining artifact summary");
+  same(artifact.row_count, String(profile.rowCount), "v8 remaining artifact rows");
+  same(artifact.summary, { blocked_row_count: "0", plan_count: String(profile.rowCount), skipped_row_count: "0" }, "v8 remaining artifact summary");
   same(artifact.blocked_rows, [], "v8 remaining artifact blockers");
   same(artifact.source_file_sha256, profile.csvSha256, "v8 remaining artifact CSV digest");
-  same(artifact.plans.length, 18, "v8 remaining plan count");
-  same(artifact.source_rows.length, 18, "v8 remaining source count");
-  same(csvRows.length, 18, "v8 remaining CSV count");
+  same(artifact.plans.length, profile.rowCount, "v8 remaining plan count");
+  same(artifact.source_rows.length, profile.rowCount, "v8 remaining source count");
+  same(csvRows.length, profile.rowCount, "v8 remaining CSV count");
   same([...new Set(artifact.plans.map(entry => entry.plan_fingerprint))], profile.allowedFingerprints, "v8 remaining exact fingerprints");
   for (let index = 0; index < profile.bindings.length; index++) {
     const binding = profile.bindings[index];
@@ -1213,4 +1253,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };

@@ -128,6 +128,11 @@ const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_SHA256 =
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS = new Set(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.bootstrap_profile.external_variant_ids.map(String)
 );
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_SHA256 =
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.remaining_profile.sha256;
+const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS = new Set(
+  TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.remaining_profile.external_variant_ids.map(String)
+);
 const TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS = new Map(
   TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.rows.map((row) => [
     String(row.external_variant_id),
@@ -946,10 +951,12 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const predatorsSourceSha = String(options.sourceFileSha256 || "").toLowerCase();
   const isTenRepsV9BootstrapSource =
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_SHA256;
-  const tenRepsReviewedManifest = isTenRepsV9BootstrapSource
+  const isTenRepsV9RemainingSource =
+    predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_SHA256;
+  const tenRepsReviewedManifest = isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
     ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9
     : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8;
-  const tenRepsReviewedRows = isTenRepsV9BootstrapSource
+  const tenRepsReviewedRows = isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
     ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS
     : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_ROWS;
   const tenRepsReviewedRow = tenRepsReviewedRows.get(externalVariantId);
@@ -961,7 +968,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_SHA256;
   const isTenRepsReviewedSource =
     isTenRepsBootstrapSource || isTenRepsTime4RemainingSource ||
-    isTenRepsVariantRemainingSource || isTenRepsV9BootstrapSource;
+    isTenRepsVariantRemainingSource || isTenRepsV9BootstrapSource ||
+    isTenRepsV9RemainingSource;
   const isTenRepsReviewedIdentity = Boolean(
     tenRepsReviewedRow &&
       (
@@ -972,14 +980,17 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         isTenRepsVariantRemainingSource &&
           TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_REMAINING_IDS.has(externalVariantId) ||
         isTenRepsV9BootstrapSource &&
-          TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId)
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId) ||
+        isTenRepsV9RemainingSource &&
+          TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId)
       ) &&
       slugifyRetailerName(String(row.retailer_name || "")) === "10-reps"
   );
   if (
     tenRepsReviewedRow &&
     (TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) ||
-      TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId)) &&
+      TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId) ||
+      TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId)) &&
     slugifyRetailerName(String(row.retailer_name || "")) === "10-reps" &&
     !isTenRepsReviewedSource
   ) {
@@ -1027,11 +1038,12 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     ) {
       throw new Error("10 Reps reviewed new-product external_options mismatch");
     }
-    const expectedParentProductId = isTenRepsVariantRemainingSource
-      ? String(TEN_REPS_REVIEWED_NEW_PRODUCTS_V8.remaining_profile.parent_product_ids[tenRepsReviewedRow.external_product_id] || "")
+    const isTenRepsSiblingSource = isTenRepsVariantRemainingSource || isTenRepsV9RemainingSource;
+    const expectedParentProductId = isTenRepsSiblingSource
+      ? String(tenRepsReviewedManifest.remaining_profile.parent_product_ids[tenRepsReviewedRow.external_product_id] || "")
       : "";
     if (
-      isTenRepsVariantRemainingSource
+      isTenRepsSiblingSource
         ? optionalIdentifier(row.product_id) !== expectedParentProductId ||
           optionalIdentifier(row.product_variant_id)
         : optionalIdentifier(row.product_id) || optionalIdentifier(row.product_variant_id)
@@ -1621,6 +1633,9 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
           : String(options.sourceFileSha256 || "").toLowerCase() ===
               TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_SHA256
             ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.bootstrap_profile
+            : String(options.sourceFileSha256 || "").toLowerCase() ===
+                TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_SHA256
+              ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9.remaining_profile
             : null;
   if (tenRepsReviewedProfile) {
     if (rows.length !== tenRepsReviewedProfile.row_count) {
