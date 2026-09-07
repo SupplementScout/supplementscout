@@ -239,7 +239,7 @@ test("package executor keeps per-plan atomic deltas and strict commercial readba
   const entry = { plan_fingerprint: plan.meta.plan_fingerprint, resolved_plan: plan };
   const product = { ...plan.expected_state.product };
   const variant = { ...plan.expected_state.product_variant, product_id: "788" };
-  const mapping = { id: "3010", product_id: "788", product_variant_id: "1080", ...plan.retailer_product.values };
+  const mapping = { id: "3010", product_id: "788", product_variant_id: "1080", ...plan.retailer_product.values, match_confidence: "100.00" };
   const offer = { id: "2823", ...plan.offer.values, retailer_product_id: "3010" };
   const history = [{ id: "9001", offer_id: "2823", checked_at: plan.offer.values.last_checked_at, ...plan.price_history.values }];
   const checked = verifyTarget(entry, { product, variant, mapping, offer, history });

@@ -148,10 +148,12 @@ async function captureTarget(client, entry) {
 }
 
 function compareFields(actual, expected, fields, label) {
-  for (const field of fields) invariant(
-    actual[field] == null && expected[field] == null || String(actual[field]) === String(expected[field]),
-    `${label} ${field} mismatch`,
-  );
+  for (const field of fields) {
+    const matches = field === "match_confidence"
+      ? Number(actual[field]) === Number(expected[field])
+      : actual[field] == null && expected[field] == null || String(actual[field]) === String(expected[field]);
+    invariant(matches, `${label} ${field} mismatch`);
+  }
 }
 
 function verifyTarget(entry, state, { requireSingleHistory = true } = {}) {
