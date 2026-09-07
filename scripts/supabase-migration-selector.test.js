@@ -206,13 +206,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records both reviewed 10 Reps v9 policies and selects only v10", () => {
+test("production records the applied 10 Reps v10 policy with no migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: TEN_REPS_V10_MIGRATION, sha256: TEN_REPS_V10_SHA256, expectedCatalogueDeltas: {} }]);
-  assert.equal(contract.ledgerCount, 185);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 186);
   assert.equal(
     contract.ledgerFingerprint,
-    "b4d9a28680f399357a3a9f4f1d53075859a29cc0e474cb5be0d05a62a2f109aa",
+    "33ec275d57ca6fe0630ba62e32d01862aed0efd10397ebfe84a0a7625bb237cc",
   );
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
@@ -330,13 +330,13 @@ test("production binds its exact ledger and selects only the 10 Reps v10 policy"
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 185);
+  assert.equal(result.ledger_count, 186);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 186);
-  assert.deepEqual(result.pending_files, [TEN_REPS_V10_MIGRATION]);
-  assert.equal(result.pending_file, TEN_REPS_V10_MIGRATION);
-  assert.equal(result.pending_sha256, TEN_REPS_V10_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [TEN_REPS_V10_MIGRATION]: TEN_REPS_V10_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.ok(result.selected_files.includes(TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V9_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V8_MIGRATION));
