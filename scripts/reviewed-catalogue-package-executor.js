@@ -278,7 +278,9 @@ async function run(options, dependencies = {}) {
       const checked = await roleTransaction(clients.validator, "validator", async client => ({ counts: await counts(client, loaded.manifest.retailer.id), target: await captureTarget(client, entry) }), { readOnly: true });
       for (const key of Object.keys(delta)) invariant(checked.counts[key] - currentCounts[key] === delta[key], `${key} row-count delta mismatch`);
       const row = verifyTarget(entry, checked.target);
-      invariant(String(execution.product_id) === row.product_id && String(execution.product_variant_id) === row.product_variant_id && String(execution.retailer_product_id) === row.retailer_product_id && String(execution.offer_id) === row.offer_id && String(execution.price_history_id) === row.price_history_id, "Apply and readback IDs mismatch");
+      for (const field of ["product_id", "product_variant_id", "retailer_product_id", "offer_id", "price_history_id"]) {
+        if (execution[field] != null) invariant(String(execution[field]) === row[field], `Apply and readback ${field} mismatch`);
+      }
       result.completed.push({ sequence: index + 1, approval_id: receipt.approval_id, approval_expires_at: receipt.expires_at, consumed_at: execution.consumed_at, ...row });
       currentCounts = checked.counts;
       fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`);

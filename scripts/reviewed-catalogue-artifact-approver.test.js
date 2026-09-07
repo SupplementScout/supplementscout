@@ -233,6 +233,13 @@ test("package executor accepts the standard atomic receipt without a replay flag
   assert.equal(queries.at(-1), "rollback");
 });
 
+test("package executor treats strict database readback as authoritative when the standard receipt omits business IDs", () => {
+  const source = fs.readFileSync(path.join(__dirname, "reviewed-catalogue-package-executor.js"), "utf8");
+  assert.match(source, /if \(execution\[field\] != null\) invariant\(String\(execution\[field\]\) === row\[field\]/);
+  assert.match(source, /for \(const field of \["product_id", "product_variant_id", "retailer_product_id", "offer_id", "price_history_id"\]\)/);
+  assert.match(source, /verifyTarget\(entry, checked\.target\)/);
+});
+
 test("package executor keeps per-plan atomic deltas and strict commercial readback", () => {
   const plan = fixture().plan;
   assert.deepEqual(expectedDelta(plan), { products: 0, product_variants: 0, retailer_products: 1, offers: 1, price_history: 1 });
