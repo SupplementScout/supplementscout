@@ -149,7 +149,7 @@ function validatePlan(entry, reviewed, retailer) {
   invariant(plan.expected_state.retailer_product === null && plan.expected_state.offer === null, "Reviewed source mapping already exists");
 }
 
-function loadReviewedPackage(options, readFile = fs.readFileSync) {
+function loadReviewedPackageScope(options, readFile = fs.readFileSync) {
   const root = path.resolve(options.root || path.resolve(__dirname, "../.."));
   invariant(HEX64.test(String(options.manifestSha256 || "").toLowerCase()), "Exact reviewed manifest SHA-256 required");
   const manifestPath = withinRoot(root, options.manifestPath, "config/retailers/");
@@ -178,10 +178,15 @@ function loadReviewedPackage(options, readFile = fs.readFileSync) {
     invariant(source && source.status === "planned" && source.source_row_fingerprint === reviewed.source_row_fingerprint, "Reviewed artifact source row mismatch");
     validatePlan(entry, reviewed, manifest.retailer);
   }
+  return { root, manifestPath, manifest, profile, csvPath, artifactPath, artifact, csvRows, byFingerprint };
+}
+
+function loadReviewedPackage(options, readFile = fs.readFileSync) {
+  const loaded = loadReviewedPackageScope(options, readFile);
   invariant(HEX32.test(options.planFingerprint || ""), "Exact reviewed plan fingerprint required");
-  const reviewed = profile.rows.find(row => row.plan_fingerprint === options.planFingerprint);
+  const reviewed = loaded.profile.rows.find(row => row.plan_fingerprint === options.planFingerprint);
   invariant(reviewed, "Selected plan is outside the reviewed manifest");
-  return { root, manifestPath, manifest, profile, csvPath, artifactPath, artifact, csvRows, reviewed, entry: byFingerprint.get(options.planFingerprint) };
+  return { ...loaded, reviewed, entry: loaded.byFingerprint.get(options.planFingerprint) };
 }
 
 function loadReviewedSourceProfile(options, sourceBytes, readFile = fs.readFileSync) {
@@ -196,4 +201,4 @@ function loadReviewedSourceProfile(options, sourceBytes, readFile = fs.readFileS
   return { manifest, profile, manifestPath };
 }
 
-module.exports = { actionCounts, loadReviewedPackage, loadReviewedSourceProfile, normalizedManifestSha, planFingerprint, sha256, validateManifest, validatePlan };
+module.exports = { actionCounts, loadReviewedPackage, loadReviewedPackageScope, loadReviewedSourceProfile, normalizedManifestSha, planFingerprint, sha256, validateManifest, validatePlan };

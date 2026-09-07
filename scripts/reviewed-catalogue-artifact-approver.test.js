@@ -4,8 +4,18 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { loadReviewedPackage, normalizedManifestSha, planFingerprint, sha256 } = require("./lib/reviewed-catalogue-package");
+const { loadReviewedPackage, loadReviewedPackageScope, normalizedManifestSha, planFingerprint, sha256 } = require("./lib/reviewed-catalogue-package");
 const { APPROVAL_SQL, CREDENTIAL_PATH, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
+const {
+  APPLY_SQL: PACKAGE_APPLY_SQL,
+  APPROVAL_SQL: PACKAGE_APPROVAL_SQL,
+  CREDENTIAL: PACKAGE_CREDENTIAL,
+  expectedDelta,
+  parseArgs: parsePackageArgs,
+  parseCredential: parsePackageCredential,
+  roleTransaction,
+  verifyTarget,
+} = require("./reviewed-catalogue-package-executor");
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-catalogue-"));
@@ -52,6 +62,13 @@ test("one common reviewed package accepts arbitrary source IDs and reviewed prod
   assert.equal(prepared.reviewed.external_variant_id, "v-short");
   assert.equal(prepared.reviewed.product_format, "liquid");
   assert.equal(prepared.entry.plan_fingerprint, value.plan.meta.plan_fingerprint);
+});
+
+test("common reviewed package loads the complete owner-approved scope once", () => {
+  const value = fixture();
+  const loaded = loadReviewedPackageScope({ root: value.root, manifestPath: "config/retailers/example-reviewed.json", manifestSha256: value.manifestSha256, profileId: "batch-1" });
+  assert.equal(loaded.profile.rows.length, 1);
+  assert.equal(loaded.byFingerprint.get(value.plan.meta.plan_fingerprint).resolved_plan.meta.idempotency_key, "reviewed-test");
 });
 
 test("reviewed package accepts its bounded default-variant product-create action", () => {
@@ -138,4 +155,68 @@ test("database contract accepts only ledger-bound reviewed plans and keeps role 
   assert.match(sql, /has_function_privilege\('retailer_catalogue_production_approver',[\s\S]+apply_approved_product_import_plan/i);
   assert.doesNotMatch(sql, /grant execute[\s\S]+approve_reviewed_catalogue_import_plan[\s\S]+to (?:service_role|anon|authenticated|retailer_catalogue_production_executor)/i);
   assert.doesNotMatch(sql, /insert into public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+});
+
+test("package executor CLI binds one complete manifest profile and explicit mode", () => {
+  assert.deepEqual(parsePackageArgs([
+    "--mode=apply",
+    "--manifest=config/retailers/example.json",
+    `--manifest-sha256=${"a".repeat(64)}`,
+    "--profile=batch-1",
+    "--output=tmp/retailer-feeds/example/result.json",
+  ]), {
+    mode: "apply", manifestPath: "config/retailers/example.json", manifestSha256: "a".repeat(64),
+    profileId: "batch-1", outputPath: "tmp/retailer-feeds/example/result.json",
+  });
+  assert.throws(() => parsePackageArgs(["--mode=apply"]), /required/);
+  assert.throws(() => parsePackageArgs([
+    "--mode=bulk", "--manifest=config/retailers/example.json", `--manifest-sha256=${"a".repeat(64)}`,
+    "--profile=batch-1", "--output=tmp/retailer-feeds/example/result.json",
+  ]), /preflight or apply/);
+});
+
+test("package executor requires three distinct protected direct PostgreSQL credentials", () => {
+  for (const kind of ["approver", "executor", "validator"]) {
+    assert.equal(PACKAGE_CREDENTIAL[kind], path.join(process.env.USERPROFILE || "", `.supplementscout/credentials/production-${kind}.env`));
+    const login = `supplementscout_production_${kind}_login.aftboxmrdgyhizicfsfu`;
+    assert.match(parsePackageCredential(kind, `CATALOGUE_DATABASE_URL=postgresql://${login}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=require`), /^postgresql:/);
+  }
+  assert.throws(() => parsePackageCredential("executor", "SUPABASE_SERVICE_ROLE_KEY=secret"), /one database URL/);
+});
+
+test("package role transactions set the exact role, commit success and roll back errors", async () => {
+  const queries = [];
+  const client = { async query(sql) {
+    queries.push(sql);
+    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", transaction_read_only: "off" }] };
+    return { rows: [] };
+  } };
+  assert.equal(await roleTransaction(client, "executor", async () => "done"), "done");
+  assert.deepEqual(queries, ["begin", "select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)", "set local role retailer_catalogue_production_executor", "select current_user,session_user,current_setting('transaction_read_only') transaction_read_only", "commit"]);
+  queries.length = 0;
+  await assert.rejects(() => roleTransaction(client, "executor", async () => { throw new Error("stop"); }), /stop/);
+  assert.equal(queries.at(-1), "rollback");
+});
+
+test("package executor keeps per-plan atomic deltas and strict commercial readback", () => {
+  const plan = fixture().plan;
+  assert.deepEqual(expectedDelta(plan), { products: 0, product_variants: 0, retailer_products: 1, offers: 1, price_history: 1 });
+  const entry = { plan_fingerprint: plan.meta.plan_fingerprint, resolved_plan: plan };
+  const product = { ...plan.expected_state.product };
+  const variant = { ...plan.expected_state.product_variant, product_id: "788" };
+  const mapping = { id: "3010", product_id: "788", product_variant_id: "1080", ...plan.retailer_product.values };
+  const offer = { id: "2823", ...plan.offer.values, retailer_product_id: "3010" };
+  const history = [{ id: "9001", offer_id: "2823", checked_at: plan.offer.values.last_checked_at, ...plan.price_history.values }];
+  const checked = verifyTarget(entry, { product, variant, mapping, offer, history });
+  assert.equal(checked.offer_id, "2823");
+  assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer: { ...offer, shipping_cost: "4.99" }, history }), /price mismatch/);
+});
+
+test("package executor uses only approval/apply RPCs and contains no direct business DML or service role", () => {
+  const source = fs.readFileSync(path.join(__dirname, "reviewed-catalogue-package-executor.js"), "utf8");
+  assert.match(PACKAGE_APPROVAL_SQL, /approve_reviewed_catalogue_import_plan/);
+  assert.match(PACKAGE_APPLY_SQL, /apply_approved_product_import_plan/);
+  assert.doesNotMatch(source, /SUPABASE_SERVICE_ROLE_KEY|service_role|createClient|\.from\(|postgrest/i);
+  assert.doesNotMatch(source, /\b(?:insert\s+into|update|delete\s+from)\s+(?:public\.)?(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.doesNotMatch(source, /spawnSync|forEach\([^)]*approve|Promise\.all\([^)]*apply/i);
 });
