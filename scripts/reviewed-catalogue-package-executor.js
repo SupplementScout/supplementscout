@@ -121,6 +121,14 @@ function comparable(row) {
   return copy;
 }
 
+function sameExpectedState(actual, expected, label) {
+  const expectedComparable = comparable(expected);
+  const actualComparable = Object.fromEntries(
+    Object.keys(expectedComparable).map(field => [field, comparable(actual)?.[field]])
+  );
+  same(actualComparable, expectedComparable, label);
+}
+
 function expectedDelta(plan) {
   return {
     products: ["create", "create_or_reuse_reviewed"].includes(plan.product.action) ? 1 : 0,
@@ -164,8 +172,8 @@ function verifyTarget(entry, state, { requireSingleHistory = true } = {}) {
   same(state.mapping.external_options || {}, mappingExpected.external_options || {}, "mapping external options");
   invariant(String(state.variant.product_id) === String(state.product.id) && state.product.is_active === true && state.product.merged_into_product_id == null && state.variant.is_active === true, "Canonical target is inactive or invalid");
   if (["create", "create_or_reuse_reviewed"].includes(plan.product.action)) compareFields(state.product, plan.product.values, Object.keys(plan.product.values), "created product");
-  else same(comparable(state.product), comparable(plan.expected_state.product), "existing product");
-  if (plan.product_variant.action === "existing") same(comparable(state.variant), comparable(plan.expected_state.product_variant), "existing variant");
+  else sameExpectedState(state.product, plan.expected_state.product, "existing product");
+  if (plan.product_variant.action === "existing") sameExpectedState(state.variant, plan.expected_state.product_variant, "existing variant");
   else if (plan.product_variant.action === "create_default") invariant(state.variant.is_default === true && state.variant.variant_key === "default" && state.variant.display_name === "Default" && state.variant.gtin == null, "Default variant mismatch");
   else {
     invariant(state.variant.is_default === false && state.variant.gtin == null, "Reviewed variant state mismatch");
