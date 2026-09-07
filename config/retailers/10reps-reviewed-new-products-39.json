@@ -33,7 +33,7 @@
       "csv_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-39.csv",
       "csv_sha256": "c03f381e0b46ce089c80952c038673d9d3e2716ab8043ad35cecf3b2767d58cf",
       "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-39-dry-run.json",
-      "artifact_sha256": "66e78b2e3d7342a48ef45f4b4354aa98edb038cae466c868829c3b2559151d6f",
+      "artifact_sha256": "16897c967588b7cb5295ce95c60ca1acb0d6faa5487d880a555d592c5e7c50d4",
       "row_count": 39,
       "blocked_row_count": 0,
       "conflict_count": 0,
@@ -67,8 +67,8 @@
           "product_format": "powder",
           "price": 13.99,
           "in_stock": true,
-          "source_row_fingerprint": "cf89abb186745aceeddc1aeba45c2f969c9ff9f7c420e8aafd12ebd6883c780b",
-          "plan_fingerprint": "4e56a0279cf750bfce4b603ecc038e58"
+          "source_row_fingerprint": "deaca6c7371c1d5fdc096da725bd99eafe6412fd6aed5f436d38c71883674331",
+          "plan_fingerprint": "461a7b25b2a059cb3b6d9b6320e46f48"
         },
         {
           "review_row": 2,
@@ -91,8 +91,8 @@
           "product_format": "powder",
           "price": 14.99,
           "in_stock": true,
-          "source_row_fingerprint": "9e794d064faa93af5d2e0dde626e895beb155465219c4f9fc5cf91554c1b4b21",
-          "plan_fingerprint": "834af6fa95bcadd4cbdf66af51244a39"
+          "source_row_fingerprint": "8e86105ae49cf039f2a9344a3684ff06b2f37575ea2d514644d9c48033227ed1",
+          "plan_fingerprint": "a49244443bfca44157e9984aedd00ac7"
         },
         {
           "review_row": 3,
@@ -115,8 +115,8 @@
           "product_format": "powder",
           "price": 21.49,
           "in_stock": true,
-          "source_row_fingerprint": "8d8403bbdbb1c78df2898d0ef359d17f54f7eca24565046d3f9fb78d387555e5",
-          "plan_fingerprint": "8caab7dfcdc25fa5b26bf7b821e26247"
+          "source_row_fingerprint": "8eb9f8957f9ab05b772a2971af4e801696b7172a8a361619ca7f5b95a27f1fe2",
+          "plan_fingerprint": "b54df4f23865a3f6e12e69ea75a508fd"
         },
         {
           "review_row": 4,
@@ -140,7 +140,7 @@
           "price": 19.49,
           "in_stock": true,
           "source_row_fingerprint": "d60ebbda434a4df19f91be787bf5437183722aa077716c959e1d4a286e33552d",
-          "plan_fingerprint": "1dd5255659e79a81843eabeea24bb940"
+          "plan_fingerprint": "cc9a668eb20ea951f1eacb483d1ae175"
         },
         {
           "review_row": 5,
@@ -163,8 +163,8 @@
           "product_format": "powder",
           "price": 12.49,
           "in_stock": true,
-          "source_row_fingerprint": "455dca158b32eab2d2027f0abb7d78c1ceaf7143d548ce6fbe7f305ccee7ce81",
-          "plan_fingerprint": "dc338bb069afed5f3d70f65324008ac7"
+          "source_row_fingerprint": "14418e61ec5b7329ba4cc54bc9453091f6286b0d62abaa17af9a43cc21bc7cb0",
+          "plan_fingerprint": "426e7494933f4a80f533bc6d393ab1f4"
         },
         {
           "review_row": 6,
@@ -187,8 +187,8 @@
           "product_format": "powder",
           "price": 15.99,
           "in_stock": true,
-          "source_row_fingerprint": "81d6e472b68b0adb302a04ec8df9569e3d49f4585b61d8e67907d37242a86a7b",
-          "plan_fingerprint": "8a57785a340963c6e96eee1246c9363c"
+          "source_row_fingerprint": "068747bb3622133bb0b65f99b72936333d25966ea2509bf6a5e5536ac038c0e2",
+          "plan_fingerprint": "d101b73d2b9a91f038e10b896fbfebcd"
         },
         {
           "review_row": 7,
@@ -211,8 +211,8 @@
           "product_format": "powder",
           "price": 15.99,
           "in_stock": true,
-          "source_row_fingerprint": "11e2126c0ebf380564c50ec79f5a00d824efcd4cb511bb65ac67a48cebb48094",
-          "plan_fingerprint": "c975b3d31c9ee0cca6ab142a318714ce"
+          "source_row_fingerprint": "90613f03cd2cb0dd9a6e46ff3e39d8cfafc9f7e11821e538cdf4b13e3b43ae16",
+          "plan_fingerprint": "6c1357bf65a1eb37bd2d21f3c33c4170"
         },
         {
           "review_row": 8,
@@ -235,8 +235,8 @@
           "product_format": "capsule",
           "price": 17.49,
           "in_stock": true,
-          "source_row_fingerprint": "d0f687c87114475a8fbd6ead3506e282921edb4d112666cf253afae72acadd68",
-          "plan_fingerprint": "b6cd0bcbe3327587a57d1a61a573a1bb"
+          "source_row_fingerprint": "6f76a989caa80de9a4420c7d5924dcfc08397a44b19fed4e8a8628a2a2ca8553",
+          "plan_fingerprint": "a4cdf15ebd910617199d9749ddb61161"
         },
         {
           "review_row": 9,
@@ -259,8 +259,8 @@
           "product_format": "powder",
           "price": 14.99,
           "in_stock": true,
-          "source_row_fingerprint": "0d18556e22267b88c73104d627167df0c46734cc3343b3806898e5817d5f487c",
-          "plan_fingerprint": "edd87a618762f88e4ca7d806a9853fda"
+          "source_row_fingerprint": "35f22f00fc6d23e0be29239ff7a6ec3e54d3e774d42b30900b510773e17b037d",
+          "plan_fingerprint": "9972a749d6998de1d3f36d3f7ea44234"
         },
         {
           "review_row": 10,
@@ -283,8 +283,8 @@
           "product_format": "powder",
           "price": 14.99,
           "in_stock": true,
-          "source_row_fingerprint": "b708cb65fa0c9052d386372a8eca55b057509fa6bdbd37fbce6428a62e89d65e",
-          "plan_fingerprint": "694ad4987f086760e6b0488f8b6b7287"
+          "source_row_fingerprint": "ecee010ea77525c311458302d7b0b113b69e179cc0fd762da1aa34e5f62fcc02",
+          "plan_fingerprint": "997fbd71a925037df4966409fe8b0ef8"
         },
         {
           "review_row": 11,
@@ -307,8 +307,8 @@
           "product_format": "tablet",
           "price": 11.59,
           "in_stock": true,
-          "source_row_fingerprint": "523c1db57b199697ae0ef89944a8007f336ac0e9163dad6dff1f89db2bab2fe3",
-          "plan_fingerprint": "a52fe3f16fe0707342534280c4350c66"
+          "source_row_fingerprint": "0e5560dea4f9e813bf6e6a1a205fd1398b07e71f6f352eeb76ae1a11537a5ea9",
+          "plan_fingerprint": "84193e0d456b996e5669bf87aaa88127"
         },
         {
           "review_row": 12,
@@ -332,7 +332,7 @@
           "price": 9.99,
           "in_stock": true,
           "source_row_fingerprint": "04225da7dc852a5730cc90dfdb186922891f346179fea1a14d7825bc46179a4d",
-          "plan_fingerprint": "8cfe62d44247ceb7e11e91525533c29f"
+          "plan_fingerprint": "dab7d84f6569bdb71825142c33ac89c8"
         },
         {
           "review_row": 13,
@@ -355,8 +355,8 @@
           "product_format": "tablet",
           "price": 5.99,
           "in_stock": true,
-          "source_row_fingerprint": "497aba56c07cd670767a9bf09e1d6e580b69b9a8dc22ee8358341e3e35b375d3",
-          "plan_fingerprint": "cfd3fb5bd34929c4c517763c22ae9ff4"
+          "source_row_fingerprint": "b375da2de829d4b1bfbeafecf948df300dbe85aab71bcc9939ce493ba7b7615a",
+          "plan_fingerprint": "8d22738b0d2e066a4be388a1f67ee61f"
         },
         {
           "review_row": 14,
@@ -379,8 +379,8 @@
           "product_format": "powder",
           "price": 14.99,
           "in_stock": true,
-          "source_row_fingerprint": "b0d41d52c0c067239f0378b95e0eb25fd1ed8ffaf6309ab95e7f2ebcb67a3cea",
-          "plan_fingerprint": "210bfaa28e2adcf044f58d35228c9310"
+          "source_row_fingerprint": "b5c7fb78188c4ecc452774975372ae8509368327fdaf282aa2ba92c69834ef74",
+          "plan_fingerprint": "23d3058a47d59d8b719f6ddb8e82adab"
         },
         {
           "review_row": 15,
@@ -403,8 +403,8 @@
           "product_format": "powder",
           "price": 22.99,
           "in_stock": true,
-          "source_row_fingerprint": "9a47be61fe8f146bf7d76360971f735e9c351b1509ef49ba419ae666f0e4e64a",
-          "plan_fingerprint": "5a65d00c621c6c96848f4c8f6d456180"
+          "source_row_fingerprint": "e35080cdfe5a4eae6b914ba6da1363a5f3b62b29bdb76c59f43a6c3d892432b1",
+          "plan_fingerprint": "737f8ef6c62507cdf12924b85b16834d"
         },
         {
           "review_row": 16,
@@ -428,7 +428,7 @@
           "price": 27.49,
           "in_stock": true,
           "source_row_fingerprint": "fcf4e203e0962d07139e18c02df49babcbba104fd3c5aa976604cf73b8554894",
-          "plan_fingerprint": "43258d192f1d06551837dab11e212e0d"
+          "plan_fingerprint": "cfbb2a2c8a3e37d1dd84ff03a274805a"
         },
         {
           "review_row": 17,
@@ -452,7 +452,7 @@
           "price": 7.49,
           "in_stock": true,
           "source_row_fingerprint": "1e2251bd50bd84b3c6d39690a9af886c1e97287ec42339999b0561a895f77792",
-          "plan_fingerprint": "ed6b8b25b11115a03d98596643c94e30"
+          "plan_fingerprint": "dcdf377e7881d15d3611fe6f0b72350a"
         },
         {
           "review_row": 18,
@@ -476,7 +476,7 @@
           "price": 14.49,
           "in_stock": true,
           "source_row_fingerprint": "54fe09d4d1392505b9bcfadb2ac11a6d335d6ed52fbaf86c3ec5ec6794f0c37a",
-          "plan_fingerprint": "593ca91f1602f7348a9188cadded4a6c"
+          "plan_fingerprint": "2e4bbbcea3def083175857e9c0caceab"
         },
         {
           "review_row": 19,
@@ -500,7 +500,7 @@
           "price": 28.49,
           "in_stock": true,
           "source_row_fingerprint": "73cf141555ae31d20d39e45c10ecc639ca81eec3525f47c2fa9c3117663de549",
-          "plan_fingerprint": "3f8c99c02ded2dce33cba8467f939e55"
+          "plan_fingerprint": "615143e378b75e286eea7664bf8d39db"
         },
         {
           "review_row": 20,
@@ -524,7 +524,7 @@
           "price": 13.49,
           "in_stock": true,
           "source_row_fingerprint": "d0f168b0e8ff438e7ea7bd3ba853a25df51614076dd845925e31f5411443c1fb",
-          "plan_fingerprint": "4a6c2d5295de1f33892d8ffab2e1f64e"
+          "plan_fingerprint": "234dd39a6628b35b654b86180c2fa6f6"
         },
         {
           "review_row": 21,
@@ -548,7 +548,7 @@
           "price": 5.98,
           "in_stock": true,
           "source_row_fingerprint": "54776a1038d300c9405002db9fb6227500a8a4586451620aa2b535be46bbe412",
-          "plan_fingerprint": "dd1c140979f28b38363bc52afb88f5a5"
+          "plan_fingerprint": "ba4f6da688e0214d48680e20e0542cc3"
         },
         {
           "review_row": 22,
@@ -571,8 +571,8 @@
           "product_format": "capsule",
           "price": 21.49,
           "in_stock": true,
-          "source_row_fingerprint": "a05f6158b20d2d2bc4123f3870f85d5a9ac3f18651f5e6f0eb9dbbded8c9004f",
-          "plan_fingerprint": "edf90b1cc337ae22881d2d13c15a4e51"
+          "source_row_fingerprint": "e56d1ce022002958b9f72cbb50b230d4eb9eb12ad1f5e1e08d23627494b8d4de",
+          "plan_fingerprint": "8f00f6899d392da31c396d7ccd1705ff"
         },
         {
           "review_row": 23,
@@ -595,8 +595,8 @@
           "product_format": "tablet",
           "price": 10.49,
           "in_stock": true,
-          "source_row_fingerprint": "4e85e7f38833472a569406aa199708787ef08d0f397a0a1664b1a531f234f0c7",
-          "plan_fingerprint": "2a997121476e641313f53c3cfed521f3"
+          "source_row_fingerprint": "7f0060e89bedf691d0c151b30a5abbb5612038c8e2502dd25ffaf67fc447d34b",
+          "plan_fingerprint": "6c1a458bf659c4203dce6b34a9e7d8ef"
         },
         {
           "review_row": 24,
@@ -620,7 +620,7 @@
           "price": 13.99,
           "in_stock": true,
           "source_row_fingerprint": "8a544ccc879e8066a460b1b6a6bb8726c95f2ee69a4242f7f194c2741f4a9641",
-          "plan_fingerprint": "059cf321e1c3f14081d9c80a865c9d86"
+          "plan_fingerprint": "eea9cf21a7ce2e62e24659a73f3e88e3"
         },
         {
           "review_row": 25,
@@ -643,8 +643,8 @@
           "product_format": "capsule",
           "price": 12.99,
           "in_stock": true,
-          "source_row_fingerprint": "74946b2a9c1fb08a9dcd56014cf5269f182d7b9ebd8053b5457e526701d00170",
-          "plan_fingerprint": "252e99b05784702cdb2e9ad6a0acba50"
+          "source_row_fingerprint": "31614623cfe5138ae199be2275f4e53ab7a9ca27a19c43b31edc88aef7dc58c0",
+          "plan_fingerprint": "239af728ee70c8ceaee8dc1ec805b720"
         },
         {
           "review_row": 26,
@@ -667,8 +667,8 @@
           "product_format": "tablet",
           "price": 8.99,
           "in_stock": true,
-          "source_row_fingerprint": "2401affa97a83462ade1e4b9bc3a4a6a85c827b964f9eaf7a836285d4aed8b0a",
-          "plan_fingerprint": "bf3db15ef90488ac6d3737678a59ab6e"
+          "source_row_fingerprint": "ac484f15f81b041050bf003981caf265ade2acc02f7d9c07d51e0344243bb17e",
+          "plan_fingerprint": "8b4a19d12544b55b5742803ee33960bd"
         },
         {
           "review_row": 27,
@@ -691,8 +691,8 @@
           "product_format": "tablet",
           "price": 8.99,
           "in_stock": true,
-          "source_row_fingerprint": "794688d83350502d36f8c9af5c039b08ee163b55868d138fd0eec075e2f1cce0",
-          "plan_fingerprint": "072ba5fb3048ab97778ec16c23d30186"
+          "source_row_fingerprint": "c7497cf6c9faf6ba808df7b9d58fcd3491fd1bff292ed2a6ba4014e002a603d9",
+          "plan_fingerprint": "55383ad1f3fa92f19bd4d46c71e2123d"
         },
         {
           "review_row": 28,
@@ -715,8 +715,8 @@
           "product_format": "tablet",
           "price": 8.99,
           "in_stock": true,
-          "source_row_fingerprint": "0a351d4fb960ce516a37268eba8c9c51cf193adac94895f6fcde63fe366f5b34",
-          "plan_fingerprint": "517ff0bf1a14cac4c0471cc0cb3108b8"
+          "source_row_fingerprint": "8d02db44c0c2a9b9a20796d1875c6b6bdc5c245af535d73987d586ea4e7aa937",
+          "plan_fingerprint": "923cd9a114b5a975777764de63c0e93b"
         },
         {
           "review_row": 29,
@@ -739,8 +739,8 @@
           "product_format": "capsule",
           "price": 20.49,
           "in_stock": true,
-          "source_row_fingerprint": "6de4945b13a8fa9123b6a0c178dcb8c187176da96c394d19dfd36527771e6eda",
-          "plan_fingerprint": "a005d31b35742461149cbe954f8fd7dc"
+          "source_row_fingerprint": "b72035c62f18c36e990079cec3c9ac667853026c075f0a41490a1a659eb9944f",
+          "plan_fingerprint": "a908f7a41011c0b048bafc9a990f502d"
         },
         {
           "review_row": 30,
@@ -763,8 +763,8 @@
           "product_format": "capsule",
           "price": 6.99,
           "in_stock": true,
-          "source_row_fingerprint": "cd96bade818ce3f40da762db607e5fe2a537cd5a302cb761186f9349b24d19cb",
-          "plan_fingerprint": "bb77bf924788c663213424fd7867f6bb"
+          "source_row_fingerprint": "b9ee67bcf53d428f7ceb47020604056a2a3e7fa3d557525672bd330d38f332dc",
+          "plan_fingerprint": "cbabb05e4f7ceb587f46aac802bb81ae"
         },
         {
           "review_row": 31,
@@ -787,8 +787,8 @@
           "product_format": "tablet",
           "price": 8.99,
           "in_stock": true,
-          "source_row_fingerprint": "af564a76ad8c9e66a1e4e1e41d0ddd9c3f991d64011bd5a3f41934f1c01e85e6",
-          "plan_fingerprint": "f40e9a82a0cc170543225191c9c38a47"
+          "source_row_fingerprint": "7e9794ba849ed2cd4db630447effe370f102f8fc5236e0ee97415383010fd0c1",
+          "plan_fingerprint": "ac80f0ea092180890ede009700c62807"
         },
         {
           "review_row": 32,
@@ -811,8 +811,8 @@
           "product_format": "capsule",
           "price": 35.49,
           "in_stock": true,
-          "source_row_fingerprint": "79fec4912d7614565cb290454656a78c4e42181ba346d93dfa07644c9b845b90",
-          "plan_fingerprint": "7532b4f9576272578b21bcf8420e2c40"
+          "source_row_fingerprint": "8eca2c0c6745cd07d7abb0f26c52d17cfaa40026d10aacff1a32737405e851c4",
+          "plan_fingerprint": "e828d5c361969eba0b0106515f9c33ba"
         },
         {
           "review_row": 33,
@@ -835,8 +835,8 @@
           "product_format": "powder",
           "price": 19.49,
           "in_stock": true,
-          "source_row_fingerprint": "f2f2673baf129b73943e1b45804fb51fe598d850b78bd02199b78d468e5b44f6",
-          "plan_fingerprint": "0633fce5bd1b7b0212652e6bba09fa68"
+          "source_row_fingerprint": "c27fe4eacba61e8c19710943fc857dc2761956742d7dda5c8bf294c9981ec452",
+          "plan_fingerprint": "91a58b7740fc67f79d69089c1ca514bd"
         },
         {
           "review_row": 34,
@@ -859,8 +859,8 @@
           "product_format": "powder",
           "price": 19.49,
           "in_stock": true,
-          "source_row_fingerprint": "059697484073ebbc7e0ba853221579e035f5fc9994c3ef88bea27b1fc028a8d5",
-          "plan_fingerprint": "453bcdfe425fd24951b5c519c8ca794b"
+          "source_row_fingerprint": "827973f9dc39747ed2fa4107bbbb96bbaefcbf89ba4e4ab2f9a72ccff0d7ccfd",
+          "plan_fingerprint": "1e5623bd297d7480f8e9d2e4027dd8a3"
         },
         {
           "review_row": 35,
@@ -884,7 +884,7 @@
           "price": 21.99,
           "in_stock": true,
           "source_row_fingerprint": "6904819bc09f9c1ed51e9be7305e684b7098f93dcee3c7929600025cfe73c332",
-          "plan_fingerprint": "b557a834c9853847984e9c45c5420b4b"
+          "plan_fingerprint": "df573c10bc18f521fab516b620805d87"
         },
         {
           "review_row": 36,
@@ -907,8 +907,8 @@
           "product_format": "capsule",
           "price": 12.49,
           "in_stock": true,
-          "source_row_fingerprint": "df26a1460610e64b1e77d5fb98c76eed4ecb7129b6cb8ea5c9ac9ee419e14775",
-          "plan_fingerprint": "60bd6fd9ba65227f6b71908ee9ffc43e"
+          "source_row_fingerprint": "1e54ba2688909f4894e295adea52af3cb124d2cb9333480adf00b72cb7738b94",
+          "plan_fingerprint": "4d0e8eaadc67cd95d00d6d8084284eed"
         },
         {
           "review_row": 37,
@@ -931,8 +931,8 @@
           "product_format": "capsule",
           "price": 8.99,
           "in_stock": true,
-          "source_row_fingerprint": "5aabbf4a2c25f925ae9cdadbe074952687f62db50d1425a73ce81d9aee4895d2",
-          "plan_fingerprint": "fb784997d369951b08c7c4b684d6a8fd"
+          "source_row_fingerprint": "3e3ad533557413a1d3296bbc817d89bf5ce648305cb497daadd76bd5440b825b",
+          "plan_fingerprint": "f9fd25545406d780b56947a39c3398cf"
         },
         {
           "review_row": 38,
@@ -955,8 +955,8 @@
           "product_format": "tablet",
           "price": 8.99,
           "in_stock": true,
-          "source_row_fingerprint": "02ba46e1de6afb3d6cc8eaa0a68f8e69fe564ec201f223cb23d51156081d61c8",
-          "plan_fingerprint": "9c5359746523cd6233f1670740256915"
+          "source_row_fingerprint": "30ae39db1c313d9d4672f257c5da33f296c2fa00f859abfc7701f75a949055e3",
+          "plan_fingerprint": "756ae3e3ca03d75f18d1655c81bae4a5"
         },
         {
           "review_row": 39,
@@ -979,8 +979,8 @@
           "product_format": "powder",
           "price": 16.99,
           "in_stock": true,
-          "source_row_fingerprint": "b508183b9e5f770b355b7ad68672cb3e9f07a8c6ef13e9d74161a637c9f012d5",
-          "plan_fingerprint": "fd989271304e3ffe6af9271d126f5916"
+          "source_row_fingerprint": "38c2e754bfdd0bc63fe535224b57ec5112322fa9d80adc38e865bc79b998ccd4",
+          "plan_fingerprint": "b182b8ef1a393f96e2b254901677bc59"
         }
       ]
     }

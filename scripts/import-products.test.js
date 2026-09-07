@@ -3109,8 +3109,8 @@ test("generic reviewed catalogue plans explicit-size and simple default new prod
   assert.equal(result.report.approvedRows.length, 2);
   assert.deepEqual(result.report.approvedRows.map((item) => item.importPlan.product.action), ["create_or_reuse_reviewed", "create"]);
   assert.deepEqual(result.report.approvedRows.map((item) => item.importPlan.product_variant.action), ["create_reviewed_variant", "create_default"]);
-  assert.deepEqual(result.report.approvedRows[1].importPlan.product_variant.evidence.external_options, { Size: "60 Capsules" });
-  assert.deepEqual(result.report.approvedRows[1].importPlan.retailer_product.values.external_options, { Size: "60 Capsules" });
+  assert.deepEqual(result.report.approvedRows[1].importPlan.product_variant.evidence.external_options, {});
+  assert.deepEqual(result.report.approvedRows[1].importPlan.retailer_product.values.external_options, {});
   assert.equal(supabase.writes.length, 0);
 });
 

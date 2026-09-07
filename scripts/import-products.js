@@ -1919,6 +1919,9 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
         : genericReviewed.action;
     return {
       ...corrected,
+      external_options: action === "create_product_with_default_variant"
+        ? "{}"
+        : corrected.external_options,
       __reviewed_catalogue_identity: {
         contract: "reviewed-catalogue-package-v1",
         retailer_slug: genericReviewedProfile.manifest.retailer.slug,
