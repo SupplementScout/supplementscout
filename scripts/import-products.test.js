@@ -3380,6 +3380,17 @@ test("10 Reps v10 short-source bridge reuses only the fingerprint-bound transpor
   assert.doesNotMatch(migration, /\b(create\s+or\s+replace\s+function\s+public\.atomic_import_10reps_v10_parent_variant_transport_allowed|insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from|grant\s+)\b/i);
 });
 
+test("10 Reps v10 reviewed-liquid bridge is exact and changes no catalogue rows", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/20260907080000_allow_10reps_v10_reviewed_liquid_parent.sql"),
+    "utf8",
+  );
+  assert.match(migration, /atomic_import_10reps_v10_parent_variant_transport_allowed/);
+  assert.match(migration, /product_format' not in \('powder','bar'\)/);
+  assert.match(migration, /single reviewed/);
+  assert.doesNotMatch(migration, /\b(create\s+or\s+replace\s+function\s+public\.atomic_import_10reps_v10_parent_variant_transport_allowed|insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from|grant\s+)\b/i);
+});
+
 test("Predators Gear reviewed new-product v3 initial profile plans only seven exact owner-approved anchors", async () => {
   const rows = predatorsReviewedNewProductV3Rows();
   const normalized = normalizeCanonicalRetailerFeedRows(rows, {

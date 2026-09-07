@@ -107,6 +107,7 @@ const EXCLUSIONS = Object.freeze({
     "20260906210000_allow_10reps_v9_sibling_variants_without_default",
     "20260906220000_allow_10reps_reviewed_catalogue_v10",
     "20260907070000_allow_10reps_v10_short_source_ids",
+    "20260907080000_allow_10reps_v10_reviewed_liquid_parent",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

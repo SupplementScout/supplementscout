@@ -60,6 +60,8 @@ const TEN_REPS_V10_MIGRATION = "20260906220000_allow_10reps_reviewed_catalogue_v
 const TEN_REPS_V10_SHA256 = "d3c45368c606db4c69e60c126a1a47342f2295026a030231374913538bff840d";
 const TEN_REPS_V10_SHORT_SOURCE_MIGRATION = "20260907070000_allow_10reps_v10_short_source_ids.sql";
 const TEN_REPS_V10_SHORT_SOURCE_SHA256 = "c966bee7f212c5acaff3eea9cb0c9d2781725dbcf5038eaeefe2e6dff08609ba";
+const TEN_REPS_V10_LIQUID_MIGRATION = "20260907080000_allow_10reps_v10_reviewed_liquid_parent.sql";
+const TEN_REPS_V10_LIQUID_SHA256 = "de2bedfd3e86a351644eb5ff4855117f577d795336410795de57b65ed2ec942a";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -208,9 +210,9 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied v10 short-source bridge with no migration pending", () => {
+test("production records the applied v10 bridges and selects only reviewed liquid support", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{ filename: TEN_REPS_V10_LIQUID_MIGRATION, sha256: TEN_REPS_V10_LIQUID_SHA256, expectedCatalogueDeltas: {} }]);
   assert.equal(contract.ledgerCount, 187);
   assert.equal(
     contract.ledgerFingerprint,
@@ -232,6 +234,7 @@ test("production records the applied v10 short-source bridge with no migration p
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION)), TEN_REPS_V9_SIBLING_VARIANTS_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_V10_MIGRATION)), TEN_REPS_V10_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_V10_SHORT_SOURCE_MIGRATION)), TEN_REPS_V10_SHORT_SOURCE_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, TEN_REPS_V10_LIQUID_MIGRATION)), TEN_REPS_V10_LIQUID_SHA256);
 });
 
 test("an additional pending migration fails closed", () => {
@@ -335,11 +338,11 @@ test("production binds its exact ledger and selects the 10 Reps v10 policies", (
   });
   assert.equal(result.ledger_count, 187);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 187);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 188);
+  assert.deepEqual(result.pending_files, [TEN_REPS_V10_LIQUID_MIGRATION]);
+  assert.equal(result.pending_file, TEN_REPS_V10_LIQUID_MIGRATION);
+  assert.equal(result.pending_sha256, TEN_REPS_V10_LIQUID_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [TEN_REPS_V10_LIQUID_MIGRATION]: TEN_REPS_V10_LIQUID_SHA256 });
   assert.ok(result.selected_files.includes(TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V9_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V8_MIGRATION));
