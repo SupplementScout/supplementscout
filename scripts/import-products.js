@@ -4819,7 +4819,9 @@ function buildAtomicImportPlan(item) {
           evidence: reviewedTenRepsDefaultVariant
             ? {
                 ...buildVariantEvidence(row, null),
-                external_options: {},
+                external_options: row.__reviewed_catalogue_identity
+                  ? parseExternalOptions(row.external_options)
+                  : {},
                 flavour: null,
                 size_value: null,
                 size_unit: null,
