@@ -145,6 +145,11 @@ const TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_SHA256 =
 const TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS = new Set(
   TEN_REPS_REVIEWED_CATALOGUE_V10.bootstrap_profile.external_variant_ids.map(String)
 );
+const TEN_REPS_REVIEWED_CATALOGUE_V10_REMAINING_SHA256 =
+  TEN_REPS_REVIEWED_CATALOGUE_V10.remaining_profile.sha256;
+const TEN_REPS_REVIEWED_CATALOGUE_V10_REMAINING_IDS = new Set(
+  TEN_REPS_REVIEWED_CATALOGUE_V10.remaining_profile.external_variant_ids.map(String)
+);
 const TEN_REPS_REVIEWED_CATALOGUE_V10_ROWS = new Map(
   TEN_REPS_REVIEWED_CATALOGUE_V10.rows.map((row) => [
     String(row.external_variant_id),
@@ -967,12 +972,14 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     predatorsSourceSha === TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_SHA256;
   const isTenRepsV10BootstrapSource =
     predatorsSourceSha === TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_SHA256;
-  const tenRepsReviewedManifest = isTenRepsV10BootstrapSource
+  const isTenRepsV10RemainingSource =
+    predatorsSourceSha === TEN_REPS_REVIEWED_CATALOGUE_V10_REMAINING_SHA256;
+  const tenRepsReviewedManifest = isTenRepsV10BootstrapSource || isTenRepsV10RemainingSource
     ? TEN_REPS_REVIEWED_CATALOGUE_V10
     : isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
       ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9
       : TEN_REPS_REVIEWED_NEW_PRODUCTS_V8;
-  const tenRepsReviewedRows = isTenRepsV10BootstrapSource
+  const tenRepsReviewedRows = isTenRepsV10BootstrapSource || isTenRepsV10RemainingSource
     ? TEN_REPS_REVIEWED_CATALOGUE_V10_ROWS
     : isTenRepsV9BootstrapSource || isTenRepsV9RemainingSource
       ? TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_ROWS
@@ -987,7 +994,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   const isTenRepsReviewedSource =
     isTenRepsBootstrapSource || isTenRepsTime4RemainingSource ||
     isTenRepsVariantRemainingSource || isTenRepsV9BootstrapSource ||
-    isTenRepsV9RemainingSource || isTenRepsV10BootstrapSource;
+    isTenRepsV9RemainingSource || isTenRepsV10BootstrapSource ||
+    isTenRepsV10RemainingSource;
   const isTenRepsReviewedIdentity = Boolean(
     tenRepsReviewedRow &&
       (
@@ -1002,7 +1010,9 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
         isTenRepsV9RemainingSource &&
           TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId) ||
         isTenRepsV10BootstrapSource &&
-          TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS.has(externalVariantId)
+          TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS.has(externalVariantId) ||
+        isTenRepsV10RemainingSource &&
+          TEN_REPS_REVIEWED_CATALOGUE_V10_REMAINING_IDS.has(externalVariantId)
       ) &&
       slugifyRetailerName(String(row.retailer_name || "")) === "10-reps"
   );
@@ -1011,7 +1021,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     (TEN_REPS_REVIEWED_NEW_PRODUCTS_V8_BOOTSTRAP_IDS.has(externalVariantId) ||
       TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_BOOTSTRAP_IDS.has(externalVariantId) ||
       TEN_REPS_REVIEWED_NEW_PRODUCTS_V9_REMAINING_IDS.has(externalVariantId) ||
-      TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS.has(externalVariantId)) &&
+      TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_IDS.has(externalVariantId) ||
+      TEN_REPS_REVIEWED_CATALOGUE_V10_REMAINING_IDS.has(externalVariantId)) &&
     slugifyRetailerName(String(row.retailer_name || "")) === "10-reps" &&
     !isTenRepsReviewedSource
   ) {
@@ -1059,7 +1070,8 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
     ) {
       throw new Error("10 Reps reviewed new-product external_options mismatch");
     }
-    const isTenRepsSiblingSource = isTenRepsVariantRemainingSource || isTenRepsV9RemainingSource;
+    const isTenRepsSiblingSource = isTenRepsVariantRemainingSource ||
+      isTenRepsV9RemainingSource || isTenRepsV10RemainingSource;
     const expectedParentProductId = isTenRepsSiblingSource
       ? String(tenRepsReviewedManifest.remaining_profile.parent_product_ids[tenRepsReviewedRow.external_product_id] || "")
       : "";

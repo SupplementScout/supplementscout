@@ -600,7 +600,7 @@ const NEW_PRODUCTS_V9_REMAINING_PROFILE = Object.freeze({
   role: PROFILE.role, login: PROFILE.login, project: PROFILE.project,
 });
 const CATALOGUE_V10_MANIFEST = JSON.parse(fs.readFileSync(path.join(ROOT, "config/retailers/10reps-reviewed-catalogue-v10-93.json"), "utf8"));
-const CATALOGUE_V10_MANIFEST_SHA256 = "8c5f3e2925aecc5df738d8b831d85d648c817e2f48c5afeb25b17b2293158d31";
+const CATALOGUE_V10_MANIFEST_SHA256 = "ef6c253649064322dc136e1484b85811a3d70171b57f4cee36ff78fe30ccb5aa";
 function catalogueV10Bindings(manifestProfile) {
   return Object.freeze(manifestProfile.external_variant_ids.map((externalVariantId, index) => {
     const reviewed = CATALOGUE_V10_MANIFEST.rows.find(row => row.external_variant_id === externalVariantId);
@@ -608,7 +608,9 @@ function catalogueV10Bindings(manifestProfile) {
     return Object.freeze({
       reviewRow: reviewed.review_row,
       externalVariantId,
-      productId: reviewed.product_id == null ? null : reviewed.product_id,
+      productId: reviewed.product_id == null
+        ? manifestProfile.parent_product_ids?.[reviewed.external_product_id] ?? null
+        : reviewed.product_id,
       productVariantId: reviewed.product_variant_id == null ? null : reviewed.product_variant_id,
       fingerprint: manifestProfile.plan_fingerprints[index],
     });
@@ -672,7 +674,37 @@ const CATALOGUE_V10_BOOTSTRAP_PROFILE = Object.freeze({
   manifestProfileKey: "bootstrap_profile",
   safeDefaultVariantEvidence: false,
 });
-const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CATALOGUE_V10_EXISTING_PROFILE, CATALOGUE_V10_BOOTSTRAP_PROFILE]);
+const CATALOGUE_V10_REMAINING_BINDINGS = catalogueV10Bindings(CATALOGUE_V10_MANIFEST.remaining_profile);
+const CATALOGUE_V10_REMAINING_PROFILE = Object.freeze({
+  id: "catalogue-v10-remaining-71",
+  manifest: CATALOGUE_V10_EXISTING_PROFILE.manifest,
+  manifestSha256: CATALOGUE_V10_MANIFEST_SHA256,
+  manifestKind: CATALOGUE_V10_EXISTING_PROFILE.manifestKind,
+  manifestRowCount: 93,
+  manifestProductCount: 10,
+  manifestProductCountField: "product_family_count",
+  allowedProductCreations: 8,
+  allowedVariantCreations: 83,
+  manifestProfileKey: "remaining_profile",
+  artifact: path.join(ROOT, CATALOGUE_V10_MANIFEST.remaining_profile.artifact_path),
+  artifactSha256: CATALOGUE_V10_MANIFEST.remaining_profile.artifact_sha256,
+  csv: path.join(ROOT, CATALOGUE_V10_MANIFEST.remaining_profile.path),
+  csvSha256: CATALOGUE_V10_MANIFEST.remaining_profile.sha256,
+  fingerprint: CATALOGUE_V10_REMAINING_BINDINGS[0].fingerprint,
+  allowedFingerprints: Object.freeze(CATALOGUE_V10_REMAINING_BINDINGS.map(binding => binding.fingerprint)),
+  bindings: CATALOGUE_V10_REMAINING_BINDINGS,
+  rowCount: 71,
+  retailerAction: "existing",
+  retailerId: "14",
+  expectedInStock: null,
+  useReviewedMappingOptions: true,
+  allowsReviewedVariantCreation: true,
+  allowsReviewedV8SiblingVariants: true,
+  approvalSource: "10reps-reviewed-catalogue-v10-remaining-71",
+  applicationName: "10reps-catalogue-v10-remaining-approver",
+  role: PROFILE.role, login: PROFILE.login, project: PROFILE.project,
+});
+const PROFILES = Object.freeze([PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CATALOGUE_V10_EXISTING_PROFILE, CATALOGUE_V10_BOOTSTRAP_PROFILE, CATALOGUE_V10_REMAINING_PROFILE]);
 const CREDENTIAL_PATH = path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env");
 const APPROVAL_SQL = "select public.approve_product_import_plan($1::jsonb,$2,$3,$4,now()+interval '15 minutes') result";
 function requireCondition(value, message) { if (!value) throw new Error(message); }
@@ -1028,7 +1060,7 @@ function validateNewProductsV8Package(manifest, artifact, csvRows, profile, sele
 function validateNewProductsV8RemainingPackage(manifest, artifact, csvRows, profile, selectedFingerprint) {
   same(manifest.kind, profile.manifestKind, "v8 remaining manifest kind");
   same(manifest.row_count, profile.manifestRowCount, "v8 remaining manifest rows");
-  same(manifest.product_count, profile.manifestProductCount || 4, "v8 remaining manifest products");
+  same(manifest[profile.manifestProductCountField || "product_count"], profile.manifestProductCount || 4, "v8 remaining manifest products");
   same(manifest.rows.length, profile.manifestRowCount, "v8 remaining reviewed rows");
   same(manifest.held_rows, [], "v8 remaining held rows");
   same(manifest.retailer, { id: 14, name: "10 Reps", slug: "10-reps", website: "https://www.10reps.co.uk/", expected_action: "existing", shipping_known: true, shipping_cost: 3.99 }, "v8 remaining retailer manifest");
@@ -1432,4 +1464,4 @@ if (require.main === module) {
     .then(result => console.log(JSON.stringify(result, null, 2)))
     .catch(() => { console.error("10 Reps bootstrap approval failed; credentials and database diagnostics suppressed."); process.exitCode = 1; });
 }
-module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CATALOGUE_V10_EXISTING_PROFILE, CATALOGUE_V10_BOOTSTRAP_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };
+module.exports = { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CATALOGUE_V10_EXISTING_PROFILE, CATALOGUE_V10_BOOTSTRAP_PROFILE, CATALOGUE_V10_REMAINING_PROFILE, CREDENTIAL_PATH, parseArgs, prepareApproval, validatePackage, validatePlan, validateNewProductsV8Plan, parseCredential, planFingerprint, sourceFingerprint, checkDigest, verifyApprovalResult, approveWithClient };

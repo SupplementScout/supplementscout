@@ -14,7 +14,7 @@ const newProductsV8Manifest = require("../config/retailers/10reps-reviewed-new-p
 const newProductsV9Manifest = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
 const catalogueV10Manifest = require("../config/retailers/10reps-reviewed-catalogue-v10-93.json");
 const runner = require("./10reps-bootstrap-artifact-approver");
-const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CATALOGUE_V10_EXISTING_PROFILE, CATALOGUE_V10_BOOTSTRAP_PROFILE } = runner;
+const { PROFILE, REMAINING_PROFILE, EXACT_OOS_PROFILE, REVIEW_22_PROFILE, REVIEW_REMAINING_14_PROFILE, OWNER_ALIAS_19_PROFILE, SPECIFIC_SERVINGS_3_PROFILE, EXISTING_PRODUCTS_14_PROFILE, HIGH_CONFIDENCE_25_PROFILE, NEW_PRODUCTS_V8_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V8_TIME4_PROFILE, NEW_PRODUCTS_V8_REMAINING_PROFILE, NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE, CATALOGUE_V10_EXISTING_PROFILE, CATALOGUE_V10_BOOTSTRAP_PROFILE, CATALOGUE_V10_REMAINING_PROFILE } = runner;
 const options = { artifact: PROFILE.artifact, csv: PROFILE.csv, planFingerprint: PROFILE.fingerprint };
 const remainingOptions = { artifact: REMAINING_PROFILE.artifact, csv: REMAINING_PROFILE.csv, planFingerprint: REMAINING_PROFILE.fingerprint };
 const exactOosOptions = { artifact: EXACT_OOS_PROFILE.artifact, csv: EXACT_OOS_PROFILE.csv, planFingerprint: EXACT_OOS_PROFILE.fingerprint };
@@ -31,6 +31,7 @@ const newProductsV9Options = { artifact: NEW_PRODUCTS_V9_BOOTSTRAP_PROFILE.artif
 const newProductsV9RemainingOptions = { artifact: NEW_PRODUCTS_V9_REMAINING_PROFILE.artifact, csv: NEW_PRODUCTS_V9_REMAINING_PROFILE.csv, planFingerprint: NEW_PRODUCTS_V9_REMAINING_PROFILE.fingerprint };
 const catalogueV10ExistingOptions = { artifact: CATALOGUE_V10_EXISTING_PROFILE.artifact, csv: CATALOGUE_V10_EXISTING_PROFILE.csv, planFingerprint: CATALOGUE_V10_EXISTING_PROFILE.fingerprint };
 const catalogueV10BootstrapOptions = { artifact: CATALOGUE_V10_BOOTSTRAP_PROFILE.artifact, csv: CATALOGUE_V10_BOOTSTRAP_PROFILE.csv, planFingerprint: CATALOGUE_V10_BOOTSTRAP_PROFILE.fingerprint };
+const catalogueV10RemainingOptions = { artifact: CATALOGUE_V10_REMAINING_PROFILE.artifact, csv: CATALOGUE_V10_REMAINING_PROFILE.csv, planFingerprint: CATALOGUE_V10_REMAINING_PROFILE.fingerprint };
 const remainingTimes = [
   "2026-09-06T06:06:33.228Z", "2026-09-06T06:06:33.231Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.232Z", "2026-09-06T06:06:33.233Z",
   "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.235Z", "2026-09-06T06:06:33.236Z", "2026-09-06T06:06:33.237Z", "2026-09-06T06:06:33.237Z",
@@ -534,6 +535,20 @@ test("10 Reps v9 remaining profile validates only the 94 owner-approved sibling 
   const changed = structuredClone(artifact);
   changed.plans[0].resolved_plan.offer.values.shipping_cost = "0.00";
   assert.throws(() => runner.validatePackage(structuredClone(newProductsV9Manifest), changed, structuredClone(csvRows), NEW_PRODUCTS_V9_REMAINING_PROFILE, NEW_PRODUCTS_V9_REMAINING_PROFILE.fingerprint), /shipping|fingerprint/i);
+});
+test("10 Reps catalogue v10 remaining profile validates only the 71 owner-approved sibling variants", () => {
+  const prepared = runner.prepareApproval(catalogueV10RemainingOptions);
+  assert.equal(prepared.profile, CATALOGUE_V10_REMAINING_PROFILE);
+  const artifact = JSON.parse(fs.readFileSync(CATALOGUE_V10_REMAINING_PROFILE.artifact));
+  const csvRows = parse(fs.readFileSync(CATALOGUE_V10_REMAINING_PROFILE.csv), { columns: true, skip_empty_lines: true });
+  assert.equal(CATALOGUE_V10_REMAINING_PROFILE.allowedFingerprints.length, 71);
+  for (const fingerprint of CATALOGUE_V10_REMAINING_PROFILE.allowedFingerprints) {
+    assert.doesNotThrow(() => runner.validatePackage(structuredClone(catalogueV10Manifest), structuredClone(artifact), structuredClone(csvRows), CATALOGUE_V10_REMAINING_PROFILE, fingerprint));
+  }
+  assert.throws(() => runner.parseArgs([`--artifact=${CATALOGUE_V10_REMAINING_PROFILE.artifact}`, `--csv=${CATALOGUE_V10_REMAINING_PROFILE.csv}`, `--plan-fingerprint=${CATALOGUE_V10_BOOTSTRAP_PROFILE.fingerprint}`]), /remaining-71 fingerprint/);
+  const changed = structuredClone(artifact);
+  changed.plans[0].resolved_plan.offer.values.shipping_cost = "0.00";
+  assert.throws(() => runner.validatePackage(structuredClone(catalogueV10Manifest), changed, structuredClone(csvRows), CATALOGUE_V10_REMAINING_PROFILE, CATALOGUE_V10_REMAINING_PROFILE.fingerprint), /shipping|fingerprint/i);
 });
 test("10 Reps catalogue v10 existing profile validates only the 14 approved existing-product plans", () => {
   const prepared = runner.prepareApproval(catalogueV10ExistingOptions);

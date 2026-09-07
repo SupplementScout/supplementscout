@@ -3391,6 +3391,18 @@ test("10 Reps v10 reviewed-liquid bridge is exact and changes no catalogue rows"
   assert.doesNotMatch(migration, /\b(create\s+or\s+replace\s+function\s+public\.atomic_import_10reps_v10_parent_variant_transport_allowed|insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from|grant\s+)\b/i);
 });
 
+test("10 Reps v10 sibling policy is fingerprint-bound to exactly 71 reviewed plans", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/20260907090000_allow_10reps_v10_sibling_variants_without_default.sql"),
+    "utf8",
+  );
+  assert.match(migration, /atomic_import_10reps_v10_sibling_variant_allowed/);
+  assert.match(migration, /exactly the 71 owner-reviewed/);
+  assert.equal((migration.match(/^      \('[0-9a-f]{32}'/gm) || []).length, 71);
+  assert.match(migration, /shipping_cost}' = '3\.99'/);
+  assert.doesNotMatch(migration, /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i);
+});
+
 test("Predators Gear reviewed new-product v3 initial profile plans only seven exact owner-approved anchors", async () => {
   const rows = predatorsReviewedNewProductV3Rows();
   const normalized = normalizeCanonicalRetailerFeedRows(rows, {
