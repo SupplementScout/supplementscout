@@ -3369,6 +3369,17 @@ test("10 Reps reviewed v10 bootstrap SQL policy is exact and changes no catalogu
   assert.doesNotMatch(migration, /\b(insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from)\b/i);
 });
 
+test("10 Reps v10 short-source bridge reuses only the fingerprint-bound transport", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/20260907070000_allow_10reps_v10_short_source_ids.sql"),
+    "utf8",
+  );
+  assert.match(migration, /atomic_import_10reps_v10_parent_variant_transport_allowed/);
+  assert.match(migration, /atomic_import_validate_pre_source_metadata_plan_core/);
+  assert.match(migration, /10 Reps short WooCommerce source IDs/);
+  assert.doesNotMatch(migration, /\b(create\s+or\s+replace\s+function\s+public\.atomic_import_10reps_v10_parent_variant_transport_allowed|insert\s+into|update\s+(products|product_variants|retailers|retailer_products|offers|price_history)|delete\s+from|grant\s+)\b/i);
+});
+
 test("Predators Gear reviewed new-product v3 initial profile plans only seven exact owner-approved anchors", async () => {
   const rows = predatorsReviewedNewProductV3Rows();
   const normalized = normalizeCanonicalRetailerFeedRows(rows, {
