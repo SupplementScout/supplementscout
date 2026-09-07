@@ -3327,6 +3327,19 @@ function collectCanonicalVariantEvidence(row) {
   const reviewedTenReps = row.__reviewed_catalogue_identity ||
     row.__reviewed_10reps_new_product_identity;
   if (
+    reviewedTenReps?.contract === "reviewed-catalogue-package-v1" &&
+    reviewedTenReps.action === "create_product_with_default_variant"
+  ) {
+    return {
+      flavour: null,
+      size: null,
+      packCount: 1,
+      productFormat: parseProductFormat(reviewedTenReps.product_format),
+      discriminatingSupplied: false,
+      supplied: true,
+    };
+  }
+  if (
     ["map_existing_variant", "create_reviewed_product_variant", "create_variant_after_parent"].includes(
       reviewedTenReps?.action
     )
@@ -4283,7 +4296,7 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   if (!evidence.flavour && !policy.allowUnflavoured) {
     throw new Error("reviewed parent explicit-variant requires explicit flavour");
   }
-  if (reviewedSizeKey(evidence) !== policy.size) {
+  if ((genericReviewed ? sizeKey(evidence.size) : reviewedSizeKey(evidence)) !== policy.size) {
     throw new Error("reviewed parent explicit-variant exact size mismatch");
   }
   if (policy.packCount !== undefined && Number(evidence.packCount) !== policy.packCount) {
@@ -4309,9 +4322,15 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     );
   }
   const optionSizes = externalOptionValues(externalOptions, ["size"]);
+  const reviewedPackedSizeMatches =
+    genericReviewed &&
+    optionSizes.length === 1 &&
+    Number(evidence.packCount) > 1 &&
+    reviewedSizeKey({ size: parseSize(optionSizes[0]) }) === reviewedSizeKey(evidence) &&
+    Number(parsePackCount(optionSizes[0])) === Number(evidence.packCount);
   if (optionSizes.length > 0 && (
     optionSizes.length !== 1 ||
-    sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size)
+    (!reviewedPackedSizeMatches && sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size))
   )) {
     throw new Error(
       reviewedPredators || reviewedTenReps

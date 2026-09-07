@@ -54,6 +54,36 @@ test("one common reviewed package accepts arbitrary source IDs and reviewed prod
   assert.equal(prepared.entry.plan_fingerprint, value.plan.meta.plan_fingerprint);
 });
 
+test("reviewed package accepts its bounded default-variant product-create action", () => {
+  const value = fixture();
+  const entry = value.artifact.plans[0];
+  entry.resolved_plan.product = { action: "create", id: null, values: { name: "Example" } };
+  entry.resolved_plan.product_variant = { action: "create_default", id: null, values: { display_name: "Default" } };
+  entry.resolved_plan.approval = { approved: true, approval_type: "safe_create" };
+  entry.resolved_plan.expected_state.product = null;
+  entry.resolved_plan.expected_state.product_variant = null;
+  entry.plan_fingerprint = planFingerprint(entry.resolved_plan);
+  entry.resolved_plan.meta.plan_fingerprint = entry.plan_fingerprint;
+  value.artifact.source_rows[0].plan_fingerprint = entry.plan_fingerprint;
+  const reviewed = value.manifest.profiles[0].rows[0];
+  reviewed.action = "create_product_with_default_variant";
+  reviewed.product_id = null;
+  reviewed.product_variant_id = null;
+  reviewed.plan_fingerprint = entry.plan_fingerprint;
+  value.manifest.policy.allow_product_creation = true;
+  value.manifest.policy.allow_variant_creation = true;
+  value.manifest.profiles[0].expected_actions.products_create = 1;
+  value.manifest.profiles[0].expected_actions.product_variants_create = 1;
+  fs.writeFileSync(value.artifactPath, `${JSON.stringify(value.artifact, null, 2)}\n`);
+  value.manifest.profiles[0].artifact_sha256 = sha256(fs.readFileSync(value.artifactPath));
+  fs.writeFileSync(value.manifestPath, `${JSON.stringify(value.manifest, null, 2)}\n`);
+  value.manifestSha256 = normalizedManifestSha(fs.readFileSync(value.manifestPath));
+  value.plan = entry.resolved_plan;
+  const prepared = load(value);
+  assert.equal(prepared.reviewed.action, "create_product_with_default_variant");
+  assert.equal(prepared.entry.resolved_plan.product_variant.action, "create_default");
+});
+
 test("reviewed package rejects digest, scope, shipping, SKU-as-GTIN and canonical write drift", () => {
   const cases = [
     ["manifest digest", value => { value.manifestSha256 = "0".repeat(64); }, /manifest SHA-256/],

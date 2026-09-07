@@ -3068,6 +3068,50 @@ test("generic reviewed catalogue profile supplies format and source identity wit
   assert.equal(evidence.size.unit, "ml");
 });
 
+test("generic reviewed catalogue plans explicit-size and simple default new products", async () => {
+  const explicit = baseCanonicalFeedRow({
+    retailer_name: "Example Shop", retailer_website: "https://shop.example/",
+    external_product_id: "p-7", external_variant_id: "v-7", external_sku: "EX-7", external_gtin: "",
+    external_options: JSON.stringify({ Flavour: "Berry", Size: "10 x 50ml" }),
+    product_name: "Example Liquid Aminos 10 x 50ml", variant_name: "Berry", brand: "Example", category: "Amino Acids",
+    product_format: "liquid", flavour: "Berry", size: "50", size_unit: "ml", pack_count: "10", slug: "example-liquid-aminos-10-x-50ml",
+    external_url: "https://shop.example/product/p-7?attribute_flavour=Berry", affiliate_url: "https://shop.example/product/p-7?attribute_flavour=Berry",
+  });
+  const simple = baseCanonicalFeedRow({
+    retailer_name: "Example Shop", retailer_website: "https://shop.example/",
+    external_product_id: "c-60", external_variant_id: "c-60", external_sku: "EX-60", external_gtin: "",
+    external_options: JSON.stringify({ Size: "60 Capsules" }),
+    product_name: "Example Vitamin C 60 Capsules", variant_name: "", brand: "Example", category: "Vitamins",
+    product_format: "capsule", flavour: "", size: "", size_unit: "", slug: "example-vitamin-c-60-capsules",
+    external_url: "https://shop.example/product/c-60", affiliate_url: "https://shop.example/product/c-60",
+  });
+  const reviewedRows = [
+    {
+      review_row: 1, external_product_id: "p-7", external_variant_id: "v-7", action: "create_product_with_variant",
+      product_id: null, product_variant_id: null, product_name: explicit.product_name, variant_name: "Berry", brand: "Example", category: "Amino Acids",
+      flavour: "Berry", size_value: "50", size_unit: "ml", pack_count: "10", product_format: "liquid", source_url: explicit.external_url,
+    },
+    {
+      review_row: 2, external_product_id: "c-60", external_variant_id: "c-60", action: "create_product_with_default_variant",
+      product_id: null, product_variant_id: null, product_name: simple.product_name, variant_name: "", brand: "Example", category: "Vitamins",
+      flavour: null, size_value: null, size_unit: null, pack_count: "1", product_format: "capsule", source_url: simple.external_url,
+    },
+  ];
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "14", name: "Example Shop", slug: "example-shop", website: "https://shop.example/", is_active: true }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([explicit, simple], {
+    mode: "feed", safeCreate: true, dryRun: true,
+    reviewedCatalogueProfile: { manifest: { retailer: { slug: "example-shop" } }, profile: { row_count: 2, rows: reviewedRows } },
+  });
+  assert.deepEqual(result.report.blockedRows, []);
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.deepEqual(result.report.approvedRows.map((item) => item.importPlan.product.action), ["create_or_reuse_reviewed", "create"]);
+  assert.deepEqual(result.report.approvedRows.map((item) => item.importPlan.product_variant.action), ["create_reviewed_variant", "create_default"]);
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("generic reviewed catalogue can bind an exact existing variant across retailer naming", () => {
   const row = {
     product_name: "Retailer Advanced Product 2.01kg",

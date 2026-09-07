@@ -136,7 +136,10 @@ function validatePlan(entry, reviewed, retailer) {
   invariant(Number(offer.total_price) === Number((Number(offer.price) + Number(retailer.shipping_cost)).toFixed(2)), "Reviewed delivered price mismatch");
   invariant(Number(offer.price) === Number(reviewed.price) && Boolean(offer.in_stock) === reviewed.in_stock, "Reviewed price or stock mismatch");
   if (reviewed.action.startsWith("create_product")) {
-    invariant(plan.approval.approved === true && plan.approval.approval_type === "reviewed_parent_variant_safe_create", "Reviewed product-create identity approval invalid");
+    const approvalType = reviewed.action === "create_product_with_default_variant"
+      ? "safe_create"
+      : "reviewed_parent_variant_safe_create";
+    invariant(plan.approval.approved === true && plan.approval.approval_type === approvalType, "Reviewed product-create identity approval invalid");
   } else {
     invariant(plan.approval.approved === false && plan.approval.approval_type === "none", "Reviewed dry-run approval state invalid");
   }
