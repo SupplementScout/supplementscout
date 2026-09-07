@@ -63,7 +63,7 @@ const TEN_REPS_V10_SHORT_SOURCE_SHA256 = "c966bee7f212c5acaff3eea9cb0c9d2781725d
 const TEN_REPS_V10_LIQUID_MIGRATION = "20260907080000_allow_10reps_v10_reviewed_liquid_parent.sql";
 const TEN_REPS_V10_LIQUID_SHA256 = "de2bedfd3e86a351644eb5ff4855117f577d795336410795de57b65ed2ec942a";
 const TEN_REPS_V10_SIBLING_MIGRATION = "20260907090000_allow_10reps_v10_sibling_variants_without_default.sql";
-const TEN_REPS_V10_SIBLING_SHA256 = "5ccf2fc35a50437ed828062a74122aecf286cf96eeab7938f003be930ddaa986";
+const TEN_REPS_V10_SIBLING_SHA256 = "8b58089c67eab9258b1a842b464ce63db3c5f55fbf83d099498913cc05134553";
 const temporaryRoots = [];
 
 function temporaryRoot() {

@@ -235,7 +235,7 @@ const CONTRACTS = Object.freeze({
       "20260907080000_allow_10reps_v10_reviewed_liquid_parent.sql":
         "de2bedfd3e86a351644eb5ff4855117f577d795336410795de57b65ed2ec942a",
       "20260907090000_allow_10reps_v10_sibling_variants_without_default.sql":
-        "5ccf2fc35a50437ed828062a74122aecf286cf96eeab7938f003be930ddaa986",
+        "8b58089c67eab9258b1a842b464ce63db3c5f55fbf83d099498913cc05134553",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -273,7 +273,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260907090000_allow_10reps_v10_sibling_variants_without_default.sql",
-        sha256: "5ccf2fc35a50437ed828062a74122aecf286cf96eeab7938f003be930ddaa986",
+        sha256: "8b58089c67eab9258b1a842b464ce63db3c5f55fbf83d099498913cc05134553",
         expectedCatalogueDeltas: Object.freeze({}),
       }),
     ]),
