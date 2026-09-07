@@ -3114,6 +3114,57 @@ test("generic reviewed catalogue plans explicit-size and simple default new prod
   assert.equal(supabase.writes.length, 0);
 });
 
+test("generic reviewed catalogue accepts an explicitly reviewed unflavoured variant with or without a source flavour option", async () => {
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Example Shop", retailer_website: "https://shop.example/",
+    external_product_id: "creatine-parent", external_variant_id: "creatine-1kg",
+    external_sku: "CRE-1KG", external_gtin: "", external_options: JSON.stringify({ Size: "1kg" }),
+    product_name: "Example Creatine Monohydrate Unflavoured", variant_name: "Unflavoured",
+    brand: "Example", category: "Creatine", product_format: "powder", flavour: "Unflavoured",
+    size: "1000", size_unit: "g", pack_count: "1", slug: "example-creatine-monohydrate-unflavoured",
+    external_url: "https://shop.example/product/creatine", affiliate_url: "https://shop.example/product/creatine",
+  });
+  const optionedRow = {
+    ...row,
+    external_product_id: "creatine-optioned-parent",
+    external_variant_id: "creatine-optioned-1kg",
+    external_sku: "CRE-OPT-1KG",
+    external_options: JSON.stringify({ Flavour: "Unflavoured", Size: "1kg" }),
+    product_name: "Example Optioned Creatine Monohydrate Unflavoured",
+    slug: "example-optioned-creatine-monohydrate-unflavoured",
+    external_url: "https://shop.example/product/creatine-optioned",
+    affiliate_url: "https://shop.example/product/creatine-optioned",
+  };
+  const reviewed = {
+    review_row: 1, external_product_id: "creatine-parent", external_variant_id: "creatine-1kg",
+    action: "create_product_with_variant", product_id: null, product_variant_id: null,
+    product_name: row.product_name, variant_name: "Unflavoured", brand: "Example", category: "Creatine",
+    flavour: "Unflavoured", size_value: "1000", size_unit: "g", pack_count: "1", product_format: "powder",
+    source_url: row.external_url,
+  };
+  const optionedReviewed = {
+    ...reviewed,
+    review_row: 2,
+    external_product_id: optionedRow.external_product_id,
+    external_variant_id: optionedRow.external_variant_id,
+    product_name: optionedRow.product_name,
+    source_url: optionedRow.external_url,
+  };
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "14", name: "Example Shop", slug: "example-shop", website: "https://shop.example/", is_active: true }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([row, optionedRow], {
+    mode: "feed", safeCreate: true, dryRun: true,
+    reviewedCatalogueProfile: { manifest: { retailer: { slug: "example-shop" } }, profile: { row_count: 2, rows: [reviewed, optionedReviewed] } },
+  });
+  assert.deepEqual(result.report.blockedRows, []);
+  assert.equal(result.report.approvedRows.length, 2);
+  assert.equal(result.report.approvedRows[0].importPlan.product.action, "create_or_reuse_reviewed");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.action, "create_reviewed_variant");
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("generic reviewed catalogue can bind an exact existing variant across retailer naming", () => {
   const row = {
     product_name: "Retailer Advanced Product 2.01kg",

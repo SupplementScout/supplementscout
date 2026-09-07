@@ -4170,7 +4170,9 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
         format: parseProductFormat(genericReviewed.product_format),
         size: genericSize ? sizeKey(genericSize) : null,
         packCount: Number(genericReviewed.pack_count || 1),
-        allowUnflavoured: !genericReviewed.flavour,
+        allowUnflavoured:
+          !genericReviewed.flavour ||
+          normalizeFlavour(genericReviewed.flavour) === "unflavoured",
         simpleProduct: genericReviewed.external_product_id === genericReviewed.external_variant_id,
       }
     : REVIEWED_PARENT_VARIANT_POLICY.get(productName);
@@ -4315,7 +4317,8 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   const optionFlavours = externalOptionValues(externalOptions, ["flavour", "flavor"]);
   if (
     policy.allowUnflavoured
-      ? optionFlavours.length !== 0
+      ? optionFlavours.length > 1 ||
+        (optionFlavours.length === 1 && normalizeFlavour(optionFlavours[0]) !== evidence.flavour)
       : optionFlavours.length !== 1 || normalizeFlavour(optionFlavours[0]) !== evidence.flavour
   ) {
     throw new Error(
