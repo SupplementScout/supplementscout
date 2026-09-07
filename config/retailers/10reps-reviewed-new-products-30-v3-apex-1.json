@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed-catalogue-package-v1",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "owner-chat",
+  "authorized_at": "2026-09-07T16:30:00.000Z",
+  "retailer": {
+    "id": 14,
+    "name": "10 Reps",
+    "slug": "10-reps",
+    "website": "https://www.10reps.co.uk/",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 3.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "new-products-30-v3-apex-1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-30-v3-apex-1.csv",
+      "csv_sha256": "80f129a3de61ec62277ef14241b3b92d9642c75cb5afc8e1bfdaf7b5c9bc7b6b",
+      "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-new-products-30-v3-apex-1-dry-run.json",
+      "artifact_sha256": "a3087789ec1fb5be4dae98e83a1c1f213eea822d2f1b75373a0e190911f88c21",
+      "row_count": 1,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 1,
+        "product_variants_create": 1,
+        "retailer_products_create": 1,
+        "offers_create": 1,
+        "price_history_create": 1
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "10808",
+          "external_variant_id": "10811",
+          "external_sku": "APE002",
+          "external_gtin": null,
+          "source_url": "https://www.10reps.co.uk/product/apex-formulas-morning-ritual-660g/?attribute_flavours=Citrus%20Punch",
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Apex Formulas",
+          "category": "Vitamins",
+          "product_name": "Apex Formulas Morning Ritual 660g",
+          "variant_name": "Citrus Punch",
+          "flavour": "Citrus Punch",
+          "size_value": "660",
+          "size_unit": "g",
+          "pack_count": "1",
+          "product_format": "powder",
+          "price": 34.49,
+          "in_stock": true,
+          "source_row_fingerprint": "a9c012021e9d69589d88fd32e941e987f619389431881ab8708c1d76a4e015b9",
+          "plan_fingerprint": "7a19c44a129dbfce3a38ca164bc2084e"
+        }
+      ]
+    }
+  ]
+}
