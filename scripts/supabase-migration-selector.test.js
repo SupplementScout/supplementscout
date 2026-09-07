@@ -214,18 +214,15 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied v10 policies and the reviewed catalogue package pending", () => {
+test("production records the applied reviewed catalogue package with no migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: REVIEWED_CATALOGUE_PACKAGE_MIGRATION,
-    sha256: REVIEWED_CATALOGUE_PACKAGE_SHA256,
-    expectedCatalogueDeltas: {},
-  }]);
-  assert.equal(contract.ledgerCount, 189);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 190);
   assert.equal(
     contract.ledgerFingerprint,
-    "7bf1efcf5681c2a5afd5a90d0157f1c68c6ac12cde98229011accd7dd75d9e8b",
+    "5033c294e229d9fb5d58982431cb7eb4b95713be7e5410a48bff50cf9605a9be",
   );
+  assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_PACKAGE_MIGRATION)), REVIEWED_CATALOGUE_PACKAGE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_EXECUTOR_ACL_MIGRATION)), REVIEWED_VARIANT_EXECUTOR_ACL_SHA256);
@@ -345,15 +342,14 @@ test("production binds its exact ledger and selects the reviewed catalogue packa
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 189);
+  assert.equal(result.ledger_count, 190);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 190);
-  assert.deepEqual(result.pending_files, [REVIEWED_CATALOGUE_PACKAGE_MIGRATION]);
-  assert.equal(result.pending_file, REVIEWED_CATALOGUE_PACKAGE_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_CATALOGUE_PACKAGE_SHA256);
-  assert.deepEqual(result.pending_sha256s, {
-    [REVIEWED_CATALOGUE_PACKAGE_MIGRATION]: REVIEWED_CATALOGUE_PACKAGE_SHA256,
-  });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
+  assert.ok(result.selected_files.includes(REVIEWED_CATALOGUE_PACKAGE_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V9_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V8_MIGRATION));
