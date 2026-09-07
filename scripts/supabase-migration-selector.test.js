@@ -64,6 +64,8 @@ const TEN_REPS_V10_LIQUID_MIGRATION = "20260907080000_allow_10reps_v10_reviewed_
 const TEN_REPS_V10_LIQUID_SHA256 = "de2bedfd3e86a351644eb5ff4855117f577d795336410795de57b65ed2ec942a";
 const TEN_REPS_V10_SIBLING_MIGRATION = "20260907090000_allow_10reps_v10_sibling_variants_without_default.sql";
 const TEN_REPS_V10_SIBLING_SHA256 = "8b58089c67eab9258b1a842b464ce63db3c5f55fbf83d099498913cc05134553";
+const REVIEWED_CATALOGUE_PACKAGE_MIGRATION = "20260907100000_add_reviewed_catalogue_package_v1.sql";
+const REVIEWED_CATALOGUE_PACKAGE_SHA256 = "bd4b525fe328f17020ac5bb19ea2bf49d6c8c457b96bbcf1e58ebd843382a704";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -212,9 +214,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied v10 71-sibling policy with no migration pending", () => {
+test("production records the applied v10 policies and the reviewed catalogue package pending", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: REVIEWED_CATALOGUE_PACKAGE_MIGRATION,
+    sha256: REVIEWED_CATALOGUE_PACKAGE_SHA256,
+    expectedCatalogueDeltas: {},
+  }]);
   assert.equal(contract.ledgerCount, 189);
   assert.equal(
     contract.ledgerFingerprint,
@@ -313,7 +319,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects the 10 Reps v10 policies", () => {
+test("production binds its exact ledger and selects the reviewed catalogue package", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -341,11 +347,13 @@ test("production binds its exact ledger and selects the 10 Reps v10 policies", (
   });
   assert.equal(result.ledger_count, 189);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 189);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 190);
+  assert.deepEqual(result.pending_files, [REVIEWED_CATALOGUE_PACKAGE_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_CATALOGUE_PACKAGE_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_CATALOGUE_PACKAGE_SHA256);
+  assert.deepEqual(result.pending_sha256s, {
+    [REVIEWED_CATALOGUE_PACKAGE_MIGRATION]: REVIEWED_CATALOGUE_PACKAGE_SHA256,
+  });
   assert.ok(result.selected_files.includes(TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V9_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V8_MIGRATION));

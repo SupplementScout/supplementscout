@@ -3023,6 +3023,49 @@ test("Predators Gear reviewed new-product package plans exactly three products a
   assert.equal(supabase.writes.length, 0);
 });
 
+test("generic reviewed catalogue profile supplies format and source identity without retailer-specific code", () => {
+  const originalRow = baseCanonicalFeedRow({
+    retailer_name: "Example Shop",
+    external_product_id: "p-7",
+    external_variant_id: "v-short",
+    product_name: "Example Liquid",
+    brand: "Example",
+    category: "Amino Acids",
+    product_format: "liquid",
+    variant_name: "Berry",
+    flavour: "Berry",
+    size: "500",
+    size_unit: "ml",
+    pack_count: "1",
+    external_url: "https://shop.example/product/p-7",
+    affiliate_url: "https://shop.example/product/p-7",
+  });
+  const reviewed = {
+    review_row: 1, external_product_id: "p-7", external_variant_id: "v-short",
+    action: "create_product_with_variant", brand: "Example", category: "Amino Acids",
+    flavour: "Berry", size_value: "500", size_unit: "ml", pack_count: "1",
+    product_format: "liquid", source_url: "https://shop.example/product/p-7",
+  };
+  const [row] = normalizeCanonicalRetailerFeedRows([originalRow], {
+    safeCreate: true,
+    reviewedCatalogueProfile: {
+      manifest: { retailer: { slug: "example-shop" } },
+      profile: { row_count: 1, rows: [reviewed] },
+    },
+  });
+  assert.deepEqual(row.__reviewed_catalogue_identity, {
+    contract: "reviewed-catalogue-package-v1", retailer_slug: "example-shop",
+    review_row: 1, action: "create_reviewed_product_variant",
+    external_product_id: "p-7", external_variant_id: "v-short", flavour: "Berry",
+    size_value: "500", size_unit: "ml", pack_count: "1", product_format: "liquid",
+    source_url: "https://shop.example/product/p-7", brand: "Example", category: "Amino Acids",
+  });
+  const evidence = collectCanonicalVariantEvidence(row);
+  assert.equal(evidence.productFormat, "liquid");
+  assert.equal(evidence.size.value, "500");
+  assert.equal(evidence.size.unit, "ml");
+});
+
 test("10 Reps reviewed v8 bootstrap plans only four owner-approved new products", async () => {
   const rows = tenRepsReviewedNewProductsV8BootstrapRows();
   const normalized = normalizeCanonicalRetailerFeedRows(rows, {

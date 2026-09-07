@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 296,
-    "sha256": "eba7767729dcb2a3e0f26cca36aae45b3f7d3341e445d1cc22dc7271c6c399fd"
+    "count": 297,
+    "sha256": "64876a5fc58e7165f557fdfb3528b5f13fd0b0a0322db92edea383aa568dff39"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -64,23 +64,24 @@
     }
   ],
   "quick": [
-    "scripts/quality-gate.test.js",
-    "scripts/project-guardian.test.js",
-    "scripts/search.test.js",
-    "scripts/pricing.test.js",
-    "scripts/offer-freshness.test.js",
-    "scripts/product-structured-data.test.js",
-    "scripts/sitemap-freshness.test.js",
-    "scripts/indexability-lifecycle.test.js",
+    "scripts/10reps-bootstrap-artifact-approver.test.js",
     "scripts/analytics-consent.test.js",
     "scripts/better-value-alternatives.test.js",
-    "scripts/ebay-account-deletion.test.js",
-    "scripts/outbound-click-redirect.test.js",
     "scripts/category-landing-relevance.test.js",
-    "scripts/whey-protein-page.test.js",
-    "scripts/protein-bars-page.test.js",
     "scripts/deals-page.test.js",
+    "scripts/ebay-account-deletion.test.js",
+    "scripts/indexability-lifecycle.test.js",
+    "scripts/offer-freshness.test.js",
+    "scripts/outbound-click-redirect.test.js",
     "scripts/pre-workout-page.test.js",
-    "scripts/10reps-bootstrap-artifact-approver.test.js"
+    "scripts/pricing.test.js",
+    "scripts/product-structured-data.test.js",
+    "scripts/project-guardian.test.js",
+    "scripts/protein-bars-page.test.js",
+    "scripts/quality-gate.test.js",
+    "scripts/reviewed-catalogue-artifact-approver.test.js",
+    "scripts/search.test.js",
+    "scripts/sitemap-freshness.test.js",
+    "scripts/whey-protein-page.test.js"
   ]
 }

@@ -18,6 +18,7 @@ const {
   peerFromMapping,
   validateSharedParentPeerCohort,
 } = require("./lib/retailer-shared-parent-identity");
+const { loadReviewedSourceProfile } = require("./lib/reviewed-catalogue-package");
 const {
   analyzeFeedRows,
   assessVariantCompatibility,
@@ -954,6 +955,7 @@ function applyReviewedCanonicalFeedCorrections(row, options = {}) {
   delete sourceRow.__reviewed_six_pack_family_identity;
   delete sourceRow.__reviewed_predators_new_product_identity;
   delete sourceRow.__reviewed_10reps_new_product_identity;
+  delete sourceRow.__reviewed_catalogue_identity;
   row = sourceRow;
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -1653,6 +1655,20 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
   if (!rows.length || !isCanonicalRetailerFeedRow(rows[0])) {
     return rows;
   }
+  const genericReviewedProfile = options.reviewedCatalogueProfile || null;
+  const genericReviewedRows = genericReviewedProfile
+    ? new Map(genericReviewedProfile.profile.rows.map((row) => [String(row.external_variant_id), row]))
+    : null;
+  if (genericReviewedProfile) {
+    if (rows.length !== genericReviewedProfile.profile.row_count) {
+      throw new Error("Reviewed catalogue CSV row count mismatch");
+    }
+    const actualIds = rows.map((row) => optionalIdentifier(row.external_variant_id)).sort();
+    const reviewedIds = genericReviewedProfile.profile.rows.map((row) => row.external_variant_id).sort();
+    if (new Set(actualIds).size !== reviewedIds.length || canonicalJson(actualIds) !== canonicalJson(reviewedIds)) {
+      throw new Error("Reviewed catalogue CSV source scope mismatch");
+    }
+  }
   const tenRepsReviewedProfile =
     String(options.sourceFileSha256 || "").toLowerCase() ===
       TEN_REPS_REVIEWED_CATALOGUE_V10_BOOTSTRAP_SHA256
@@ -1884,7 +1900,7 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       .filter(Boolean)
       .join(" ");
 
-    return applyReviewedCanonicalFeedCorrections(
+    const corrected = applyReviewedCanonicalFeedCorrections(
       {
         ...row,
         variant: variantEvidence,
@@ -1894,6 +1910,32 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
       },
       options
     );
+    const genericReviewed = genericReviewedRows?.get(optionalIdentifier(row.external_variant_id));
+    if (!genericReviewed) return corrected;
+    const action = genericReviewed.action === "create_variant_on_existing_product"
+      ? "create_variant_after_parent"
+      : genericReviewed.action === "create_product_with_variant"
+        ? "create_reviewed_product_variant"
+        : genericReviewed.action;
+    return {
+      ...corrected,
+      __reviewed_catalogue_identity: {
+        contract: "reviewed-catalogue-package-v1",
+        retailer_slug: genericReviewedProfile.manifest.retailer.slug,
+        review_row: genericReviewed.review_row,
+        action,
+        external_product_id: genericReviewed.external_product_id,
+        external_variant_id: genericReviewed.external_variant_id,
+        flavour: genericReviewed.flavour,
+        size_value: genericReviewed.size_value,
+        size_unit: genericReviewed.size_unit,
+        pack_count: genericReviewed.pack_count,
+        product_format: genericReviewed.product_format,
+        source_url: genericReviewed.source_url,
+        brand: genericReviewed.brand,
+        category: genericReviewed.category,
+      },
+    };
   });
 }
 
@@ -3278,7 +3320,8 @@ function externalOptionValues(options, names) {
 
 function collectCanonicalVariantEvidence(row) {
   const options = parseExternalOptions(row.external_options);
-  const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
+  const reviewedTenReps = row.__reviewed_catalogue_identity ||
+    row.__reviewed_10reps_new_product_identity;
   if (
     ["create_reviewed_product_variant", "create_variant_after_parent"].includes(
       reviewedTenReps?.action
@@ -4096,7 +4139,21 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   if (prohibitedReason) {
     throw new Error(prohibitedReason);
   }
-  const policy = REVIEWED_PARENT_VARIANT_POLICY.get(productName);
+  const genericReviewed = row.__reviewed_catalogue_identity;
+  const genericSize = genericReviewed
+    ? parseSize(`${genericReviewed.size_value} ${genericReviewed.size_unit}`)
+    : null;
+  const policy = genericReviewed
+    ? {
+        brand: genericReviewed.brand,
+        category: normalizeCategory(genericReviewed.category),
+        format: parseProductFormat(genericReviewed.product_format),
+        size: genericSize ? sizeKey(genericSize) : null,
+        packCount: Number(genericReviewed.pack_count || 1),
+        allowUnflavoured: !genericReviewed.flavour,
+        simpleProduct: genericReviewed.external_product_id === genericReviewed.external_variant_id,
+      }
+    : REVIEWED_PARENT_VARIANT_POLICY.get(productName);
   if (!policy) {
     throw new Error("reviewed parent explicit-variant policy does not allow this canonical family");
   }
@@ -4109,7 +4166,18 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   );
   const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
   const reviewedPredators = row.__reviewed_predators_new_product_identity;
-  if (reviewedTenReps) {
+  if (genericReviewed) {
+    if (
+      genericReviewed.contract !== "reviewed-catalogue-package-v1" ||
+      retailerSlug !== genericReviewed.retailer_slug ||
+      !["create_reviewed_product_variant", "create_product_with_default_variant", "create_variant_after_parent"].includes(genericReviewed.action) ||
+      externalProductId !== genericReviewed.external_product_id ||
+      externalVariantId !== genericReviewed.external_variant_id ||
+      (getDirectRetailerProductUrl(row) || getRetailerProductUrl(row)) !== genericReviewed.source_url
+    ) {
+      throw new Error("reviewed catalogue parent identity contract mismatch");
+    }
+  } else if (reviewedTenReps) {
     if (
       retailerSlug !== "10-reps" ||
       ![
@@ -4310,7 +4378,7 @@ function assertStrictNoSkuShopifyCreateVariantEvidence(row, product, evidence, p
   const reviewedWooCommerceIdentity =
     row.__reviewed_six_pack_family_identity;
   const reviewedTenRepsIdentity =
-    row.__reviewed_10reps_new_product_identity;
+    row.__reviewed_catalogue_identity || row.__reviewed_10reps_new_product_identity;
   const exactReviewedWooCommerceCreate =
     ((reviewedWooCommerceIdentity &&
       reviewedWooCommerceIdentity.canonical_product_variant_id === null &&
@@ -4481,7 +4549,7 @@ function planMissingProductVariant(row, product, activeVariants, rowNumber, evid
   }
   const defaultVariants = activeVariants.filter((variant) => variant.is_default);
   const exactReviewedTenRepsSibling =
-    row.__reviewed_10reps_new_product_identity?.action ===
+    (row.__reviewed_catalogue_identity || row.__reviewed_10reps_new_product_identity)?.action ===
       "create_variant_after_parent";
   const strictReviewedWithoutDefault =
     defaultVariants.length === 0 &&
@@ -4602,7 +4670,7 @@ function buildAtomicImportPlan(item) {
   } = item;
   const reviewedParentVariantCreate = Boolean(productVariant?.reviewed_parent_variant_create);
   const reviewedTenRepsDefaultVariant =
-    row.__reviewed_10reps_new_product_identity?.action ===
+    (row.__reviewed_catalogue_identity || row.__reviewed_10reps_new_product_identity)?.action ===
       "create_product_with_default_variant";
   const now = resolvePlanTimestamp(item.sourceCapturedAt);
   const rawProductData = product ? null : (item.plannedProduct?.planned_create ? item.plannedProduct : buildProductData(row, item.rowNumber, "feed"));
@@ -5179,7 +5247,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
           throw new Error("reviewed parent explicit-variant GTIN conflict");
         }
         if (
-          shippingNormalizedRow.__reviewed_10reps_new_product_identity?.action !==
+          (shippingNormalizedRow.__reviewed_catalogue_identity || shippingNormalizedRow.__reviewed_10reps_new_product_identity)?.action !==
           "create_product_with_default_variant"
         ) {
           const planned = planReviewedParentVariant(shippingNormalizedRow, rowNumber, evidence);
@@ -5648,6 +5716,9 @@ function parseArgs(argv) {
     planFingerprint: null,
     csvProvided: false,
     csvPath: path.join(process.cwd(), "products-import.csv"),
+    reviewedManifestPath: null,
+    reviewedManifestSha256: null,
+    reviewedProfileId: null,
   };
 
   for (const arg of argv) {
@@ -5675,6 +5746,12 @@ function parseArgs(argv) {
     } else if (arg.startsWith("--csv=")) {
       options.csvPath = path.resolve(process.cwd(), arg.slice("--csv=".length));
       options.csvProvided = true;
+    } else if (arg.startsWith("--reviewed-manifest=")) {
+      options.reviewedManifestPath = arg.slice("--reviewed-manifest=".length).replaceAll("\\", "/");
+    } else if (arg.startsWith("--reviewed-manifest-sha256=")) {
+      options.reviewedManifestSha256 = arg.slice("--reviewed-manifest-sha256=".length).toLowerCase();
+    } else if (arg.startsWith("--reviewed-profile=")) {
+      options.reviewedProfileId = arg.slice("--reviewed-profile=".length);
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -5700,6 +5777,13 @@ function parseArgs(argv) {
   }
   if (options.dryRun && options.approvalId) {
     throw new Error("Dry run cannot consume an approval ID");
+  }
+  const reviewedArguments = [options.reviewedManifestPath, options.reviewedManifestSha256, options.reviewedProfileId].filter(Boolean).length;
+  if (reviewedArguments !== 0 && reviewedArguments !== 3) {
+    throw new Error("Reviewed catalogue dry-run requires manifest, manifest SHA-256 and profile");
+  }
+  if (reviewedArguments === 3 && (!options.dryRun || options.mode !== "feed" || !options.safeCreate)) {
+    throw new Error("Reviewed catalogue manifest is supported only for feed safe-create dry-runs");
   }
 
   return options;
@@ -5747,6 +5831,15 @@ async function runImport(options = parseArgs(process.argv.slice(2))) {
   }
 
   const csvContent = fs.readFileSync(csvPath, "utf8");
+  const csvBytes = Buffer.from(csvContent, "utf8");
+  const reviewedCatalogueProfile = options.reviewedManifestPath
+    ? loadReviewedSourceProfile({
+        root: process.cwd(),
+        manifestPath: options.reviewedManifestPath,
+        manifestSha256: options.reviewedManifestSha256,
+        profileId: options.reviewedProfileId,
+      }, csvBytes)
+    : null;
 
   const rows = parse(csvContent, {
     columns: true,
@@ -5757,13 +5850,14 @@ async function runImport(options = parseArgs(process.argv.slice(2))) {
   console.log(`Found ${rows.length} CSV row(s).`);
   const result = await runImportRows(rows, {
     ...options,
-    sourceFileSha256: sha256Bytes(Buffer.from(csvContent, "utf8")),
+    sourceFileSha256: sha256Bytes(csvBytes),
+    reviewedCatalogueProfile,
   });
 
   if (options.dryRun) {
     const artifactResult = writeDryRunArtifact(rows, result, {
       artifactPath: options.artifactPath,
-      sourceBytes: Buffer.from(csvContent, "utf8"),
+      sourceBytes: csvBytes,
       sourceFileName: csvPath,
       environmentMarker: "local",
     });
