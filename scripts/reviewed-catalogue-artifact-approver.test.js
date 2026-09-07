@@ -10,6 +10,7 @@ const {
   APPLY_SQL: PACKAGE_APPLY_SQL,
   APPROVAL_SQL: PACKAGE_APPROVAL_SQL,
   CREDENTIAL: PACKAGE_CREDENTIAL,
+  apply: applyPackage,
   expectedDelta,
   parseArgs: parsePackageArgs,
   parseCredential: parsePackageCredential,
@@ -195,6 +196,40 @@ test("package role transactions set the exact role, commit success and roll back
   assert.deepEqual(queries, ["begin", "select set_config('app.retailer_catalogue_production_marker','1',true),set_config('app.retailer_catalogue_allow','1',true)", "set local role retailer_catalogue_production_executor", "select current_user,session_user,current_setting('transaction_read_only') transaction_read_only", "commit"]);
   queries.length = 0;
   await assert.rejects(() => roleTransaction(client, "executor", async () => { throw new Error("stop"); }), /stop/);
+  assert.equal(queries.at(-1), "rollback");
+});
+
+test("package executor accepts the standard atomic receipt without a replay flag and rejects an explicit replay", async () => {
+  const value = fixture();
+  const loaded = load(value);
+  const prepared = { ...loaded, entry: loaded.entry, reviewed: loaded.reviewed, manifestSha256: value.manifestSha256 };
+  const receipt = { approval_id: "123e4567-e89b-42d3-a456-426614174000" };
+  const baseResult = {
+    approval_status: "consumed",
+    artifact_sha256: prepared.profile.artifact_sha256,
+    plan_fingerprint: prepared.entry.plan_fingerprint,
+    source_row_fingerprint: prepared.entry.source_row_fingerprint,
+    retailer_id: prepared.entry.retailer_id,
+    plan_kind: prepared.entry.plan_kind,
+    run_id: prepared.artifact.run_id,
+  };
+  const queries = [];
+  const client = { async query(sql) {
+    queries.push(sql);
+    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", transaction_read_only: "off" }] };
+    if (sql === PACKAGE_APPLY_SQL) return { rows: [{ result: baseResult }] };
+    return { rows: [] };
+  } };
+  assert.deepEqual(await applyPackage(client, prepared, receipt), baseResult);
+  assert.equal(queries.at(-1), "commit");
+  queries.length = 0;
+  const replayClient = { ...client, async query(sql) {
+    queries.push(sql);
+    if (sql.startsWith("select current_user")) return { rows: [{ current_user: "retailer_catalogue_production_executor", session_user: "supplementscout_production_executor_login", transaction_read_only: "off" }] };
+    if (sql === PACKAGE_APPLY_SQL) return { rows: [{ result: { ...baseResult, already_applied: true } }] };
+    return { rows: [] };
+  } };
+  await assert.rejects(() => applyPackage(replayClient, prepared, receipt), /receipt invalid/);
   assert.equal(queries.at(-1), "rollback");
 });
 

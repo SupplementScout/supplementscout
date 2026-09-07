@@ -208,7 +208,7 @@ async function apply(client, prepared, receipt) {
   return roleTransaction(client, "executor", async connection => {
     const entry = prepared.entry;
     const result = (await connection.query(APPLY_SQL, [receipt.approval_id, prepared.profile.artifact_sha256, entry.plan_fingerprint, entry.source_row_fingerprint, entry.retailer_id, entry.plan_kind, prepared.artifact.run_id])).rows[0]?.result;
-    invariant(result && result.approval_status === "consumed" && result.already_applied === false, "Atomic apply receipt invalid");
+    invariant(result && result.approval_status === "consumed" && result.already_applied !== true, "Atomic apply receipt invalid");
     for (const field of ["artifact_sha256", "plan_fingerprint", "source_row_fingerprint", "retailer_id", "plan_kind", "run_id"]) invariant(String(result[field]) === String({ artifact_sha256: prepared.profile.artifact_sha256, plan_fingerprint: entry.plan_fingerprint, source_row_fingerprint: entry.source_row_fingerprint, retailer_id: entry.retailer_id, plan_kind: entry.plan_kind, run_id: prepared.artifact.run_id }[field]), `Apply receipt ${field} mismatch`);
     return result;
   });
