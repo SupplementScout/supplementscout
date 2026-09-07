@@ -372,6 +372,9 @@ function assessVariantCompatibility(row, product, canonicalVariant = null) {
   const productStoredFormat = explicitProductFormat(product.product_format);
   const reviewedFormatIdentity = row.__reviewed_whey_okay_format_identity;
   const reviewedExistingVariantIdentity =
+    (row.__reviewed_catalogue_identity?.action === "map_existing_variant"
+      ? row.__reviewed_catalogue_identity
+      : null) ||
     row.__reviewed_whey_okay_existing_variant_identity ||
     (row.__reviewed_six_pack_family_identity
       ?.canonical_product_variant_id
@@ -471,9 +474,17 @@ function assessVariantCompatibility(row, product, canonicalVariant = null) {
   const rowFamily = productFamilyKey(row.product_name || row.external_name || row.name || "");
   const productFamily = productFamilyKey(product.name || "");
 
-  if (!rowFamily || !productFamily) {
+  const genericReviewedExisting =
+    row.__reviewed_catalogue_identity?.action === "map_existing_variant";
+  if (
+    genericReviewedExisting &&
+    (String(product.id) !== String(row.__reviewed_catalogue_identity.product_id) ||
+      String(canonicalVariant?.id) !== String(row.__reviewed_catalogue_identity.product_variant_id))
+  ) {
+    reasons.push("reviewed target conflict");
+  } else if (!rowFamily || !productFamily) {
     reasons.push("ambiguous product family");
-  } else if (rowFamily !== productFamily) {
+  } else if (rowFamily !== productFamily && !genericReviewedExisting) {
     reasons.push("product family conflict");
   }
 

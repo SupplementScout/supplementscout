@@ -3057,6 +3057,8 @@ test("generic reviewed catalogue profile supplies format and source identity wit
     contract: "reviewed-catalogue-package-v1", retailer_slug: "example-shop",
     review_row: 1, action: "create_reviewed_product_variant",
     external_product_id: "p-7", external_variant_id: "v-short", flavour: "Berry",
+    product_id: undefined, product_variant_id: undefined,
+    product_name: undefined, variant_name: undefined,
     size_value: "500", size_unit: "ml", pack_count: "1", product_format: "liquid",
     source_url: "https://shop.example/product/p-7", brand: "Example", category: "Amino Acids",
   });
@@ -3064,6 +3066,102 @@ test("generic reviewed catalogue profile supplies format and source identity wit
   assert.equal(evidence.productFormat, "liquid");
   assert.equal(evidence.size.value, "500");
   assert.equal(evidence.size.unit, "ml");
+});
+
+test("generic reviewed catalogue can bind an exact existing variant across retailer naming", () => {
+  const row = {
+    product_name: "Retailer Advanced Product 2.01kg",
+    brand: "Example",
+    category: "Whey Protein",
+    product_format: "powder",
+    flavour: "Chocolate",
+    size: "2010 g",
+    pack_count: "1",
+    __reviewed_catalogue_identity: {
+      action: "map_existing_variant",
+      product_id: 995,
+      product_variant_id: 1950,
+      size_value: "2010",
+      size_unit: "g",
+      pack_count: "1",
+      product_format: "powder",
+    },
+  };
+  const product = { id: 995, name: "Canonical Whey Advanced Protein 2010g", brand: "Example", product_format: "powder" };
+  const variant = { id: 1950, is_active: true, is_default: false, flavour_label: "Chocolate", size_value: "2010", size_unit: "g", pack_count: 1, product_format: "powder" };
+  assert.deepEqual(assessVariantCompatibility(row, product, variant).reasons, []);
+  assert.match(assessVariantCompatibility(row, { ...product, id: 996 }, variant).reasons.join(" "), /reviewed target conflict/);
+  assert.equal(collectCanonicalVariantEvidence({
+    ...row,
+    variant_name: "Gummy Worms / 210g",
+    variant: "Gummy Worms / 210g",
+    external_options: JSON.stringify({ Flavours: "Gummy Worms" }),
+  }).productFormat, "powder");
+});
+
+test("feed dry-run carries a generic reviewed existing-variant binding through resolution", async () => {
+  const row = baseCanonicalFeedRow({
+    retailer_name: "10 Reps",
+    retailer_website: "https://www.10reps.co.uk/",
+    product_id: "995",
+    product_variant_id: "1950",
+    external_product_id: "7535",
+    external_variant_id: "9876",
+    external_sku: "PER047",
+    external_gtin: "",
+    external_options: JSON.stringify({ Flavours: "Gummy Worms" }),
+    product_name: "Retailer Advanced Product 2.01kg",
+    variant_name: "Gummy Worms / 2010g",
+    flavour: "Gummy Worms",
+    size: "2010",
+    size_unit: "g",
+    brand: "Example",
+    category: "Whey Protein",
+    product_format: "powder",
+    slug: "retailer-advanced-product-2010g",
+    external_url: "https://www.10reps.co.uk/product/example/?attribute_flavours=Gummy%20Worms",
+    affiliate_url: "https://www.10reps.co.uk/product/example/?attribute_flavours=Gummy%20Worms",
+    shipping_known: "true",
+    shipping_cost: "3.99",
+  });
+  const reviewedRow = {
+    review_row: 1,
+    external_product_id: "7535",
+    external_variant_id: "9876",
+    action: "map_existing_variant",
+    product_id: 995,
+    product_variant_id: 1950,
+    product_name: "Canonical Advanced Protein 2010g",
+    variant_name: "Gummy Worms / 2010g",
+    flavour: "Gummy Worms",
+    size_value: "2010",
+    size_unit: "g",
+    pack_count: "1",
+    product_format: "powder",
+    source_url: row.external_url,
+    brand: "Example",
+    category: "Whey Protein",
+  };
+  const supabase = createMockSupabase({
+    retailers: [{ id: "14", name: "10 Reps", slug: "10-reps", is_active: true }],
+    products: [{ id: "995", name: "Canonical Advanced Protein 2010g", slug: row.slug, brand: "Example", category: "Whey Protein", product_format: "powder", is_active: true, merged_into_product_id: null }],
+    product_variants: [{ id: "1950", product_id: "995", display_name: "Gummy Worms / 2010g", flavour_code: "gummy worms", flavour_label: "Gummy Worms", size_value: 2010, size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false }],
+    retailer_products: [], offers: [], price_history: [],
+  });
+  setSupabaseForTests(supabase);
+  const result = await runImportRows([row], {
+    mode: "feed", safeCreate: true, dryRun: true,
+    reviewedCatalogueProfile: {
+      manifest: { retailer: { slug: "10-reps" } },
+      profile: { row_count: 1, rows: [reviewedRow] },
+    },
+  });
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.equal(result.report.blockedRows.length, 0);
+  assert.equal(result.report.approvedRows[0].importPlan.product.id, "995");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.id, "1950");
+  assert.equal(result.report.productVariantsToCreate.length, 0);
+  assert.equal(supabase.writes.length, 0);
 });
 
 test("10 Reps reviewed v8 bootstrap plans only four owner-approved new products", async () => {

@@ -1926,6 +1926,10 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
         action,
         external_product_id: genericReviewed.external_product_id,
         external_variant_id: genericReviewed.external_variant_id,
+        product_id: genericReviewed.product_id,
+        product_variant_id: genericReviewed.product_variant_id,
+        product_name: genericReviewed.product_name,
+        variant_name: genericReviewed.variant_name,
         flavour: genericReviewed.flavour,
         size_value: genericReviewed.size_value,
         size_unit: genericReviewed.size_unit,
@@ -3323,7 +3327,7 @@ function collectCanonicalVariantEvidence(row) {
   const reviewedTenReps = row.__reviewed_catalogue_identity ||
     row.__reviewed_10reps_new_product_identity;
   if (
-    ["create_reviewed_product_variant", "create_variant_after_parent"].includes(
+    ["map_existing_variant", "create_reviewed_product_variant", "create_variant_after_parent"].includes(
       reviewedTenReps?.action
     )
   ) {
@@ -5178,6 +5182,37 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     }
   }
 
+  const genericReviewedExistingVariant =
+    shippingNormalizedRow.__reviewed_catalogue_identity?.action ===
+      "map_existing_variant"
+      ? shippingNormalizedRow.__reviewed_catalogue_identity
+      : null;
+  if (
+    validationErrors.length === 0 &&
+    product?.id &&
+    !productVariant &&
+    genericReviewedExistingVariant
+  ) {
+    try {
+      if (String(product.id) !== String(genericReviewedExistingVariant.product_id)) {
+        throw new Error("reviewed catalogue product target mismatch");
+      }
+      const reviewedVariant = await fetchProductVariantById(
+        genericReviewedExistingVariant.product_variant_id
+      );
+      if (
+        !reviewedVariant ||
+        reviewedVariant.is_active === false ||
+        String(reviewedVariant.product_id) !== String(product.id)
+      ) {
+        throw new Error("reviewed catalogue variant target mismatch");
+      }
+      productVariant = reviewedVariant;
+    } catch (error) {
+      variantResolutionError = error?.message || String(error);
+    }
+  }
+
   if (validationErrors.length === 0 && product?.id && !productVariant) {
     try {
       productVariant = await resolveCanonicalProductVariant(
@@ -5634,6 +5669,7 @@ async function runImportRows(rows, options = {}) {
     rows = normalizeCanonicalRetailerFeedRows(rows, {
       safeCreate,
       sourceFileSha256: options.sourceFileSha256,
+      reviewedCatalogueProfile: options.reviewedCatalogueProfile,
     });
   }
 
