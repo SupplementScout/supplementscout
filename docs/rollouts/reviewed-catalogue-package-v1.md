@@ -61,6 +61,13 @@ canonical product/variant binding, reviewed action, brand, category, product
 and variant names, flavour, size, pack count, product format, price, stock,
 source-row fingerprint and plan fingerprint.
 
+For an owner-reviewed tablet, capsule, gummy or chew whose identity is a unit
+count rather than a weight or serving size, the row also carries the exact
+`unit_count` and `unit_type`. In that case `size_value` and `size_unit` are
+null. The importer stores the count on the product and keeps the variant size
+null; it never converts a count into grams or servings. The same optional
+fields work for every retailer using this package contract.
+
 The generic dry-run command adds the final reviewed manifest contract:
 
 ```text

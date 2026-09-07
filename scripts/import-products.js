@@ -1938,6 +1938,8 @@ function normalizeCanonicalRetailerFeedRows(rows, options = {}) {
         size_unit: genericReviewed.size_unit,
         pack_count: genericReviewed.pack_count,
         product_format: genericReviewed.product_format,
+        unit_count: genericReviewed.unit_count ?? null,
+        unit_type: genericReviewed.unit_type ?? null,
         source_url: genericReviewed.source_url,
         brand: genericReviewed.brand,
         category: genericReviewed.category,
@@ -3325,6 +3327,26 @@ function externalOptionValues(options, names) {
     .map(([, value]) => value);
 }
 
+function normalizeReviewedUnitType(value) {
+  const normalized = String(value || "").trim().toLowerCase().replace(/[^a-z]/g, "");
+  const aliases = new Map([
+    ["tab", "tablets"], ["tabs", "tablets"], ["tablet", "tablets"], ["tablets", "tablets"],
+    ["cap", "capsules"], ["caps", "capsules"], ["capsule", "capsules"], ["capsules", "capsules"],
+    ["gummy", "gummies"], ["gummies", "gummies"], ["chew", "chews"], ["chews", "chews"],
+    ["serving", "servings"], ["servings", "servings"], ["sachet", "sachets"], ["sachets", "sachets"],
+  ]);
+  return aliases.get(normalized) || null;
+}
+
+function reviewedCountIdentity(value, expectedCount, expectedType) {
+  const match = String(value || "").trim().match(/^(\d+)\s*([a-z]+)$/i);
+  return Boolean(
+    match &&
+    Number(match[1]) === Number(expectedCount) &&
+    normalizeReviewedUnitType(match[2]) === normalizeReviewedUnitType(expectedType)
+  );
+}
+
 function collectCanonicalVariantEvidence(row) {
   const options = parseExternalOptions(row.external_options);
   const reviewedTenReps = row.__reviewed_catalogue_identity ||
@@ -3349,9 +3371,13 @@ function collectCanonicalVariantEvidence(row) {
   ) {
     return {
       flavour: normalizeFlavour(reviewedTenReps.flavour),
-      size: parseSize(
-        `${reviewedTenReps.size_value} ${reviewedTenReps.size_unit}`
-      ),
+      size: reviewedTenReps.size_value && reviewedTenReps.size_unit
+        ? parseSize(`${reviewedTenReps.size_value} ${reviewedTenReps.size_unit}`)
+        : null,
+      unitCount: reviewedTenReps.unit_count == null
+        ? null
+        : Number(reviewedTenReps.unit_count),
+      unitType: reviewedTenReps.unit_type || null,
       packCount: parsePackCount(
         row.pack_count ? `pack of ${row.pack_count}` : ""
       ),
@@ -4169,6 +4195,8 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
         category: normalizeCategory(genericReviewed.category),
         format: parseProductFormat(genericReviewed.product_format),
         size: genericSize ? sizeKey(genericSize) : null,
+        unitCount: genericReviewed.unit_count == null ? null : Number(genericReviewed.unit_count),
+        unitType: genericReviewed.unit_type || null,
         packCount: Number(genericReviewed.pack_count || 1),
         allowUnflavoured:
           !genericReviewed.flavour ||
@@ -4304,6 +4332,12 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   if ((genericReviewed ? sizeKey(evidence.size) : reviewedSizeKey(evidence)) !== policy.size) {
     throw new Error("reviewed parent explicit-variant exact size mismatch");
   }
+  if (genericReviewed && (evidence.unitCount !== policy.unitCount || evidence.unitType !== policy.unitType)) {
+    throw new Error("reviewed parent explicit-variant exact unit count mismatch");
+  }
+  if (genericReviewed && !policy.size && !policy.unitCount) {
+    throw new Error("reviewed parent explicit-variant requires a size or unit count identity");
+  }
   if (policy.packCount !== undefined && Number(evidence.packCount) !== policy.packCount) {
     throw new Error("reviewed parent explicit-variant exact pack count mismatch");
   }
@@ -4328,6 +4362,11 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     );
   }
   const optionSizes = externalOptionValues(externalOptions, ["size"]);
+  const reviewedCountOptionMatches =
+    genericReviewed &&
+    optionSizes.length === 1 &&
+    policy.unitCount != null &&
+    reviewedCountIdentity(optionSizes[0], policy.unitCount, policy.unitType);
   const reviewedPackedSizeMatches =
     genericReviewed &&
     optionSizes.length === 1 &&
@@ -4336,7 +4375,7 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
     Number(parsePackCount(optionSizes[0])) === Number(evidence.packCount);
   if (optionSizes.length > 0 && (
     optionSizes.length !== 1 ||
-    (!reviewedPackedSizeMatches && sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size))
+    (!reviewedPackedSizeMatches && !reviewedCountOptionMatches && sizeKey(parseExplicitSize(optionSizes[0])) !== sizeKey(evidence.size))
   )) {
     throw new Error(
       reviewedPredators || reviewedTenReps
@@ -4484,8 +4523,15 @@ function buildPlannedVariantValues(row, product, rowNumber, evidence, options = 
   if (!flavourLabel || !flavourCode || !evidence.flavour) {
     throw new Error("create_variant requires explicit flavour evidence");
   }
-  if (!evidence.size?.value || !evidence.size?.unit) {
-    throw new Error("create_variant requires explicit size evidence");
+  const reviewedCount = row.__reviewed_catalogue_identity?.unit_count == null
+    ? null
+    : Number(row.__reviewed_catalogue_identity.unit_count);
+  const reviewedUnitType = row.__reviewed_catalogue_identity?.unit_type || null;
+  if (
+    (!evidence.size?.value || !evidence.size?.unit) &&
+    (!Number.isSafeInteger(reviewedCount) || reviewedCount <= 0 || !normalizeReviewedUnitType(reviewedUnitType))
+  ) {
+    throw new Error("create_variant requires explicit size or reviewed unit count evidence");
   }
   if (rowHasColumn(row, "product_variant_id") && optionalIdentifier(row.product_variant_id)) {
     throw new Error("create_variant cannot supply product_variant_id");
@@ -4494,14 +4540,18 @@ function buildPlannedVariantValues(row, product, rowNumber, evidence, options = 
     throw new Error("create_variant requires external product and variant identity");
   }
 
-  const sizeValue = normalizeDecimalString(evidence.size.value, "size_value");
-  const sizeUnit = evidence.size.unit;
+  const sizeValue = evidence.size?.value
+    ? normalizeDecimalString(evidence.size.value, "size_value")
+    : null;
+  const sizeUnit = evidence.size?.unit || null;
   const packCount = evidence.packCount === null
     ? "1"
     : normalizeDecimalString(evidence.packCount, "pack_count");
   const productFormat = evidence.productFormat || product?.product_format || null;
   const displayName = String(row.variant_name || "").trim() ||
-    `${flavourLabel} / ${sizeValue}${sizeUnit}`;
+    (sizeValue
+      ? `${flavourLabel} / ${sizeValue}${sizeUnit}`
+      : `${flavourLabel} / ${reviewedCount} ${reviewedUnitType}`);
   if (normalizeVariantDisplayIdentity(displayName) === "default") {
     throw new Error("create_variant cannot create a default variant");
   }
@@ -4510,7 +4560,7 @@ function buildPlannedVariantValues(row, product, rowNumber, evidence, options = 
   }
   const variantKey = [
     slugifyRetailerName(flavourLabel),
-    `${sizeValue}${sizeUnit}`,
+    sizeValue ? `${sizeValue}${sizeUnit}` : `${reviewedCount}-${reviewedUnitType}`,
     Number(packCount) === 1 ? "" : `${packCount}-pack`,
   ].filter(Boolean).join("-");
 
@@ -4674,6 +4724,14 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
     external_options: parseExternalOptions(row.external_options),
     approved_mapping_id: mapping?.id ?? null,
   };
+  const reviewedCountIdentity = row.__reviewed_catalogue_identity;
+  if (reviewedCountIdentity?.unit_count != null) {
+    variantEvidence.unit_count = normalizeDecimalString(
+      reviewedCountIdentity.unit_count,
+      "unit_count"
+    );
+    variantEvidence.unit_type = reviewedCountIdentity.unit_type;
+  }
   if (optionTupleMode === "flavour_only_parent_size") {
     variantEvidence.legacy_option_tuple_mode = optionTupleMode;
     variantEvidence.legacy_parent_size_value = String(row.legacy_parent_size_value ?? "").trim();
@@ -4703,6 +4761,11 @@ function buildAtomicImportPlan(item) {
       "create_product_with_default_variant";
   const now = resolvePlanTimestamp(item.sourceCapturedAt);
   const rawProductData = product ? null : (item.plannedProduct?.planned_create ? item.plannedProduct : buildProductData(row, item.rowNumber, "feed"));
+  const reviewedProductCount = row.__reviewed_catalogue_identity?.unit_count;
+  if (rawProductData && reviewedProductCount != null) {
+    rawProductData.unit_count = normalizeDecimalString(reviewedProductCount, "unit_count");
+    rawProductData.unit_type = row.__reviewed_catalogue_identity.unit_type;
+  }
   if (rawProductData) rawProductData.gtin = null;
   const productData = rawProductData
     ? completeObject(rawProductData, PRODUCT_PLAN_VALUE_FIELDS, {

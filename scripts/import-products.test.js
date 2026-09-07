@@ -3060,6 +3060,7 @@ test("generic reviewed catalogue profile supplies format and source identity wit
     product_id: undefined, product_variant_id: undefined,
     product_name: undefined, variant_name: undefined,
     size_value: "500", size_unit: "ml", pack_count: "1", product_format: "liquid",
+    unit_count: null, unit_type: null,
     source_url: "https://shop.example/product/p-7", brand: "Example", category: "Amino Acids",
   });
   const evidence = collectCanonicalVariantEvidence(row);
@@ -3111,6 +3112,43 @@ test("generic reviewed catalogue plans explicit-size and simple default new prod
   assert.deepEqual(result.report.approvedRows.map((item) => item.importPlan.product_variant.action), ["create_reviewed_variant", "create_default"]);
   assert.deepEqual(result.report.approvedRows[1].importPlan.product_variant.evidence.external_options, {});
   assert.deepEqual(result.report.approvedRows[1].importPlan.retailer_product.values.external_options, {});
+  assert.equal(supabase.writes.length, 0);
+});
+
+test("generic reviewed catalogue plans an owner-reviewed count product without inventing a weight or serving size", async () => {
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Example Shop", retailer_website: "https://shop.example/",
+    external_product_id: "gummy-parent", external_variant_id: "gummy-peach", external_sku: "GUM-60", external_gtin: "",
+    external_options: JSON.stringify({ Flavour: "Peach", Size: "60 Gummies" }),
+    product_name: "Example Creatine Gummies", variant_name: "Peach / 60 gummies", brand: "Example", category: "Creatine",
+    product_format: "gummy", flavour: "Peach", size: "", size_unit: "", pack_count: "1", slug: "example-creatine-gummies",
+    external_url: "https://shop.example/product/gummies?attribute_flavour=Peach", affiliate_url: "https://shop.example/product/gummies?attribute_flavour=Peach",
+  });
+  const reviewed = {
+    review_row: 1, external_product_id: "gummy-parent", external_variant_id: "gummy-peach", action: "create_product_with_variant",
+    product_id: null, product_variant_id: null, product_name: row.product_name, variant_name: row.variant_name,
+    brand: "Example", category: "Creatine", flavour: "Peach", size_value: null, size_unit: null,
+    pack_count: "1", product_format: "gummy", unit_count: 60, unit_type: "gummies", source_url: row.external_url,
+  };
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "14", name: "Example Shop", slug: "example-shop", website: "https://shop.example/", is_active: true }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([row], {
+    mode: "feed", safeCreate: true, dryRun: true,
+    reviewedCatalogueProfile: { manifest: { retailer: { slug: "example-shop" } }, profile: { row_count: 1, rows: [reviewed] } },
+  });
+  assert.deepEqual(result.report.blockedRows, []);
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product.action, "create_or_reuse_reviewed");
+  assert.equal(plan.product.values.unit_count, "60");
+  assert.equal(plan.product.values.unit_type, "gummies");
+  assert.equal(plan.product_variant.action, "create_reviewed_variant");
+  assert.equal(plan.product_variant.values.size_value, null);
+  assert.equal(plan.product_variant.values.size_unit, null);
+  assert.equal(plan.product_variant.values.variant_key, "peach-60-gummies");
+  assert.equal(plan.product_variant.evidence.unit_count, "60");
+  assert.equal(plan.product_variant.evidence.unit_type, "gummies");
   assert.equal(supabase.writes.length, 0);
 });
 

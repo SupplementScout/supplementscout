@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
-const { loadReviewedPackage, loadReviewedPackageScope, normalizedManifestSha, planFingerprint, sha256 } = require("./lib/reviewed-catalogue-package");
+const { loadReviewedPackage, loadReviewedPackageScope, normalizedManifestSha, planFingerprint, sha256, validateManifest } = require("./lib/reviewed-catalogue-package");
 const { APPROVAL_SQL, CREDENTIAL_PATH, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
 const {
   APPLY_SQL: PACKAGE_APPLY_SQL,
@@ -63,6 +63,18 @@ test("one common reviewed package accepts arbitrary source IDs and reviewed prod
   assert.equal(prepared.reviewed.external_variant_id, "v-short");
   assert.equal(prepared.reviewed.product_format, "liquid");
   assert.equal(prepared.entry.plan_fingerprint, value.plan.meta.plan_fingerprint);
+});
+
+test("common reviewed manifest supports an exact owner-reviewed count identity", () => {
+  const value = fixture();
+  const row = value.manifest.profiles[0].rows[0];
+  row.size_value = null;
+  row.size_unit = null;
+  row.unit_count = 60;
+  row.unit_type = "gummies";
+  assert.equal(validateManifest(value.manifest, "batch-1").rows[0].unit_count, 60);
+  row.unit_type = null;
+  assert.throws(() => validateManifest(value.manifest, "batch-1"), /unit count and type/);
 });
 
 test("common reviewed package loads the complete owner-approved scope once", () => {
@@ -156,6 +168,17 @@ test("database contract accepts only ledger-bound reviewed plans and keeps role 
   assert.match(sql, /has_function_privilege\('retailer_catalogue_production_approver',[\s\S]+apply_approved_product_import_plan/i);
   assert.doesNotMatch(sql, /grant execute[\s\S]+approve_reviewed_catalogue_import_plan[\s\S]+to (?:service_role|anon|authenticated|retailer_catalogue_production_executor)/i);
   assert.doesNotMatch(sql, /insert into public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+});
+
+test("shared database contract accepts reviewed count identity without retailer-specific allowlists", () => {
+  const sql = fs.readFileSync(path.join(__dirname, "../supabase/migrations/20260907210000_allow_reviewed_catalogue_count_identity.sql"), "utf8");
+  assert.match(sql, /create or replace function public\.validate_reviewed_catalogue_import_plan\(p_plan jsonb\)/i);
+  assert.match(sql, /evidence,unit_count[\s\S]+tablets\|capsules\|gummies\|chews/i);
+  assert.match(sql, /v_product_values->>'unit_count'[\s\S]+public\.products p[\s\S]+p\.unit_count/i);
+  assert.match(sql, /v_variant_values->'size_value' = 'null'::jsonb[\s\S]+v_variant_values->'size_unit' = 'null'::jsonb/i);
+  assert.doesNotMatch(sql, /10\s*Reps|\b(?:8361|8366|8395|1705|9325|9282|9522|9182|9187|9666|9293|9754|9194|8164|9288)\b/i);
+  assert.doesNotMatch(sql, /\b(?:insert\s+into|update|delete\s+from)\s+public\.(?:retailers|products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.doesNotMatch(sql, /grant execute/i);
 });
 
 test("package executor CLI binds one complete manifest profile and explicit mode", () => {

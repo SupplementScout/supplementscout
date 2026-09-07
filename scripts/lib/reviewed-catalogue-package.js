@@ -12,6 +12,8 @@ const REVIEWED_ACTIONS = new Set([
   "create_product_with_default_variant",
   "create_product_with_variant",
 ]);
+const REVIEWED_ROW_KEYS = ["review_row", "external_product_id", "external_variant_id", "external_sku", "external_gtin", "source_url", "product_id", "product_variant_id", "action", "brand", "category", "product_name", "variant_name", "flavour", "size_value", "size_unit", "pack_count", "product_format", "price", "in_stock", "source_row_fingerprint", "plan_fingerprint"];
+const REVIEWED_COUNT_ROW_KEYS = [...REVIEWED_ROW_KEYS, "unit_count", "unit_type"];
 
 function fail(message) {
   throw new Error(message);
@@ -84,12 +86,21 @@ function validateManifest(manifest, profileId) {
   const sourceIds = new Set();
   const fingerprints = new Set();
   for (const row of profile.rows) {
-    exactKeys(row, ["review_row", "external_product_id", "external_variant_id", "external_sku", "external_gtin", "source_url", "product_id", "product_variant_id", "action", "brand", "category", "product_name", "variant_name", "flavour", "size_value", "size_unit", "pack_count", "product_format", "price", "in_stock", "source_row_fingerprint", "plan_fingerprint"], "reviewed row");
+    const hasCountIdentity = Object.hasOwn(row, "unit_count") || Object.hasOwn(row, "unit_type");
+    exactKeys(row, hasCountIdentity ? REVIEWED_COUNT_ROW_KEYS : REVIEWED_ROW_KEYS, "reviewed row");
     invariant(Number.isSafeInteger(row.review_row) && row.review_row > 0, "Reviewed row number invalid");
     invariant(typeof row.external_product_id === "string" && row.external_product_id && typeof row.external_variant_id === "string" && row.external_variant_id, "Reviewed source identity missing");
     invariant(REVIEWED_ACTIONS.has(row.action), "Reviewed action invalid");
     invariant(HEX64.test(row.source_row_fingerprint) && HEX32.test(row.plan_fingerprint), "Reviewed row fingerprint invalid");
     invariant(row.external_gtin === null || row.external_gtin !== row.external_sku, "Reviewed SKU cannot be used as GTIN");
+    if (hasCountIdentity) {
+      invariant((row.unit_count === null) === (row.unit_type === null), "Reviewed unit count and type must both be present or null");
+      if (row.unit_count !== null) {
+        invariant(Number.isSafeInteger(row.unit_count) && row.unit_count > 0, "Reviewed unit count invalid");
+        invariant(/^[a-z][a-z -]*$/.test(row.unit_type), "Reviewed unit type invalid");
+        invariant(row.size_value === null && row.size_unit === null, "Reviewed count identity cannot also be a size identity");
+      }
+    }
     invariant(/^https:\/\//.test(row.source_url), "Reviewed source URL invalid");
     invariant(!sourceIds.has(row.external_variant_id) && !fingerprints.has(row.plan_fingerprint), "Reviewed row identity is duplicated");
     sourceIds.add(row.external_variant_id);
@@ -142,6 +153,13 @@ function validatePlan(entry, reviewed, retailer) {
     invariant(plan.approval.approved === true && plan.approval.approval_type === approvalType, "Reviewed product-create identity approval invalid");
   } else {
     invariant(plan.approval.approved === false && plan.approval.approval_type === "none", "Reviewed dry-run approval state invalid");
+  }
+  if (reviewed.unit_count != null) {
+    if (plan.product.action !== "existing") {
+      invariant(plan.product.values?.unit_count === String(reviewed.unit_count) && plan.product.values?.unit_type === reviewed.unit_type, "Reviewed product count identity mismatch");
+    }
+    invariant(plan.product_variant.values?.size_value == null && plan.product_variant.values?.size_unit == null, "Reviewed count variant cannot contain a size identity");
+    invariant(plan.product_variant.evidence?.unit_count === String(reviewed.unit_count) && plan.product_variant.evidence?.unit_type === reviewed.unit_type, "Reviewed variant count evidence mismatch");
   }
   invariant(plan.expected_state.retailer && String(plan.expected_state.retailer.id) === String(retailer.id), "Reviewed retailer before-state missing");
   if (plan.product.action === "existing") invariant(plan.expected_state.product && plan.expected_state.product.is_active === true && plan.expected_state.product.merged_into_product_id == null, "Reviewed existing product is inactive or merged");
