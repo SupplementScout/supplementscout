@@ -5,7 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 const { loadReviewedPackage, normalizedManifestSha, planFingerprint, sha256 } = require("./lib/reviewed-catalogue-package");
-const { APPROVAL_SQL, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
+const { APPROVAL_SQL, CREDENTIAL_PATH, approveWithClient, parseArgs, parseCredential } = require("./reviewed-catalogue-artifact-approver");
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "reviewed-catalogue-"));
@@ -78,6 +78,7 @@ test("closed CLI requires the manifest digest, profile and one exact fingerprint
 });
 
 test("credential is direct PostgreSQL approver-only", () => {
+  assert.equal(CREDENTIAL_PATH, path.join(process.env.USERPROFILE || "", ".supplementscout/credentials/production-approver.env"));
   const direct = `REVIEWED_CATALOGUE_DATABASE_URL=postgresql://${encodeURIComponent("supplementscout_production_approver_login.aftboxmrdgyhizicfsfu")}:secret@aws-0-eu-west-2.pooler.supabase.com:5432/postgres?sslmode=require`;
   assert.match(parseCredential(direct), /^postgresql:/);
   assert.throws(() => parseCredential("SUPABASE_SERVICE_ROLE_KEY=secret"), /exactly one database URL/);

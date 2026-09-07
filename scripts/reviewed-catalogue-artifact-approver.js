@@ -4,7 +4,10 @@ const { Client } = require("pg");
 const { loadReviewedPackage } = require("./lib/reviewed-catalogue-package");
 
 const ROOT = path.resolve(__dirname, "..");
-const CREDENTIAL_PATH = path.join(ROOT, ".env.production.approver.local");
+const CREDENTIAL_PATH = path.join(
+  process.env.USERPROFILE || "",
+  ".supplementscout/credentials/production-approver.env",
+);
 const APPROVER_ROLE = "retailer_catalogue_production_approver";
 const APPROVER_LOGIN = "supplementscout_production_approver_login";
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
