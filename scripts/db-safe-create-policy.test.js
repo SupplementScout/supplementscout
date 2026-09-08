@@ -21,6 +21,10 @@ const reviewedVariantCountSql = fs.readFileSync(
   path.join(process.cwd(), "supabase/migrations/20260908113000_allow_reviewed_variant_count_evidence.sql"),
   "utf8"
 );
+const reviewedCountSiblingSql = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260908120000_allow_reviewed_count_sibling_variants.sql"),
+  "utf8"
+);
 
 test("DB safe-create migration replaces only the reviewed-family policy predicate", () => {
   assert.match(sql, /atomic_import_safe_create_category_allowed\(text,text,text\)/);
@@ -86,4 +90,14 @@ test("reviewed variant count evidence is optional, paired and positive in valida
   assert.match(reviewedVariantCountSql, /unit_count.*\^\[1-9\]\[0-9\]\*\$/s);
   assert.match(reviewedVariantCountSql, /unit_type.*nullif\(btrim/s);
   assert.doesNotMatch(reviewedVariantCountSql, /10\s*Reps|retailer_id\s*=\s*14|grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
+});
+
+test("reviewed count siblings require count-bearing canonical names and an exact source option", () => {
+  assert.match(reviewedCountSiblingSql, /validate_reviewed_catalogue_import_plan\(jsonb\)/);
+  assert.match(reviewedCountSiblingSql, /jsonb_each_text\(coalesce\(v_mapping->'external_options'/);
+  assert.match(reviewedCountSiblingSql, /reviewed_option\.option_name.*\('size','pack size','count'\)/s);
+  assert.match(reviewedCountSiblingSql, /variant_key.*unit_count.*unit_type/s);
+  assert.match(reviewedCountSiblingSql, /display_name.*unit_count.*unit_type/s);
+  assert.match(reviewedCountSiblingSql, /unit_count.*is null.*pv\.flavour_code/s);
+  assert.doesNotMatch(reviewedCountSiblingSql, /10\s*Reps|retailer_id\s*=\s*14|grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
 });

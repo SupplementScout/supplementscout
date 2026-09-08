@@ -74,6 +74,8 @@ const REVIEWED_EXISTING_CATEGORIES_MIGRATION = "20260908110000_allow_reviewed_ca
 const REVIEWED_EXISTING_CATEGORIES_SHA256 = "07a1662c010f4e3c967f87aaa3709d1bb10f3bd139b5fa236653b40e271033cf";
 const REVIEWED_VARIANT_COUNT_MIGRATION = "20260908113000_allow_reviewed_variant_count_evidence.sql";
 const REVIEWED_VARIANT_COUNT_SHA256 = "d25933dac40b9ffc7c9050177c2f432db6ac822d984989b199a540a222da4a84";
+const REVIEWED_COUNT_SIBLING_MIGRATION = "20260908120000_allow_reviewed_count_sibling_variants.sql";
+const REVIEWED_COUNT_SIBLING_SHA256 = "17d4ad4d7d1647240cc8f98c6114f655df900a78f04135478e1bdaf73dea0e04";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -222,16 +224,16 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied category guard and pending reviewed variant count evidence", () => {
+test("production records the applied count evidence guard and pending count sibling support", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, [{
-    filename: REVIEWED_VARIANT_COUNT_MIGRATION,
-    sha256: REVIEWED_VARIANT_COUNT_SHA256,
+    filename: REVIEWED_COUNT_SIBLING_MIGRATION,
+    sha256: REVIEWED_COUNT_SIBLING_SHA256,
   }]);
-  assert.equal(contract.ledgerCount, 193);
+  assert.equal(contract.ledgerCount, 194);
   assert.equal(
     contract.ledgerFingerprint,
-    "ae744be26493cbb8ff1ae89201fd301b5acf257cea3f030be34dc1d2278a06df",
+    "3868dadbbdcd09d0475ce5eced414f75f600b585ca57254c3c0dc7c8384a1db5",
   );
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_PACKAGE_MIGRATION)), REVIEWED_CATALOGUE_PACKAGE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
@@ -327,7 +329,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects only reviewed variant count evidence", () => {
+test("production binds its exact ledger and selects only reviewed count sibling support", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -353,17 +355,19 @@ test("production binds its exact ledger and selects only reviewed variant count 
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 193);
+  assert.equal(result.ledger_count, 194);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 194);
-  assert.deepEqual(result.pending_files, [REVIEWED_VARIANT_COUNT_MIGRATION]);
-  assert.equal(result.pending_file, REVIEWED_VARIANT_COUNT_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_VARIANT_COUNT_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [REVIEWED_VARIANT_COUNT_MIGRATION]: REVIEWED_VARIANT_COUNT_SHA256 });
+  assert.equal(result.selected_files.length, 195);
+  assert.deepEqual(result.pending_files, [REVIEWED_COUNT_SIBLING_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_COUNT_SIBLING_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_COUNT_SIBLING_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_COUNT_SIBLING_MIGRATION]: REVIEWED_COUNT_SIBLING_SHA256 });
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_COUNT_MIGRATION)), REVIEWED_VARIANT_COUNT_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, REVIEWED_COUNT_SIBLING_MIGRATION)), REVIEWED_COUNT_SIBLING_SHA256);
+  assert.ok(result.selected_files.includes(REVIEWED_COUNT_SIBLING_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_COUNT_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_EXISTING_CATEGORIES_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_CATALOGUE_PACKAGE_MIGRATION));
@@ -515,6 +519,7 @@ test("staging excludes the production-only exact-pack migrations byte-for-byte",
     "20260826190000_enable_fit_house_price_observation_producer.sql",
     REVIEWED_EXISTING_CATEGORIES_MIGRATION,
     REVIEWED_VARIANT_COUNT_MIGRATION,
+    REVIEWED_COUNT_SIBLING_MIGRATION,
   ]) {
     assert.ok(result.excluded_files.includes(filename));
     assert.ok(!result.selected_files.includes(filename));
