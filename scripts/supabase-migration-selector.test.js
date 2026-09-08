@@ -80,6 +80,8 @@ const REVIEWED_COUNT_NORMALIZATION_MIGRATION = "20260908123000_fix_reviewed_coun
 const REVIEWED_COUNT_NORMALIZATION_SHA256 = "5e92d95c84488c5e4c9dde874155f6d7a3e2f16479239acb5665b4c4a024e652";
 const TEN_REPS_SYNC_REGISTRATION_MIGRATION = "20260908100000_add_10reps_offer_sync_registration.sql";
 const TEN_REPS_SYNC_REGISTRATION_SHA256 = "abfca02455ffd0e14618857594551d0da0fc6c68a171f7104c2995db578f0826";
+const INTERRUPTED_SHARED_REFRESH_MIGRATION = "20260908180000_supersede_interrupted_shared_refresh_plans.sql";
+const INTERRUPTED_SHARED_REFRESH_SHA256 = "0e8ec5a93f6a0d5de280bfef55f23ab150d5ccf963a96f79f8296eb4aef6de87";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -228,15 +230,16 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied 10 Reps control-plane migration", () => {
+test("production records the applied 10 Reps control-plane migration and exact cleanup pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{ filename: INTERRUPTED_SHARED_REFRESH_MIGRATION, sha256: INTERRUPTED_SHARED_REFRESH_SHA256 }]);
   assert.equal(contract.ledgerCount, 197);
   assert.equal(
     contract.ledgerFingerprint,
     "e7db3c6ea6664f14b8d44ed00825db57188e34e46c12c980eab3a279bd4bd60f",
   );
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_PACKAGE_MIGRATION)), REVIEWED_CATALOGUE_PACKAGE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
@@ -331,7 +334,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with no unexpected pending migration", () => {
+test("production binds its exact ledger and the one reviewed cleanup migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -359,11 +362,11 @@ test("production binds its exact ledger with no unexpected pending migration", (
   });
   assert.equal(result.ledger_count, 197);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 197);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 198);
+  assert.deepEqual(result.pending_files, [INTERRUPTED_SHARED_REFRESH_MIGRATION]);
+  assert.equal(result.pending_file, INTERRUPTED_SHARED_REFRESH_MIGRATION);
+  assert.equal(result.pending_sha256, INTERRUPTED_SHARED_REFRESH_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [INTERRUPTED_SHARED_REFRESH_MIGRATION]: INTERRUPTED_SHARED_REFRESH_SHA256 });
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
@@ -372,6 +375,7 @@ test("production binds its exact ledger with no unexpected pending migration", (
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_COUNT_NORMALIZATION_MIGRATION)), REVIEWED_COUNT_NORMALIZATION_SHA256);
   assert.ok(result.selected_files.includes(REVIEWED_COUNT_NORMALIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_SYNC_REGISTRATION_MIGRATION));
+  assert.ok(result.selected_files.includes(INTERRUPTED_SHARED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_COUNT_SIBLING_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_COUNT_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_EXISTING_CATEGORIES_MIGRATION));
@@ -527,6 +531,7 @@ test("staging excludes the production-only exact-pack migrations byte-for-byte",
     REVIEWED_COUNT_SIBLING_MIGRATION,
     REVIEWED_COUNT_NORMALIZATION_MIGRATION,
     TEN_REPS_SYNC_REGISTRATION_MIGRATION,
+    INTERRUPTED_SHARED_REFRESH_MIGRATION,
   ]) {
     assert.ok(result.excluded_files.includes(filename));
     assert.ok(!result.selected_files.includes(filename));

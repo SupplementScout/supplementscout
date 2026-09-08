@@ -117,6 +117,7 @@ const EXCLUSIONS = Object.freeze({
     "20260908113000_allow_reviewed_variant_count_evidence",
     "20260908120000_allow_reviewed_count_sibling_variants",
     "20260908123000_fix_reviewed_count_sibling_normalization",
+    "20260908180000_supersede_interrupted_shared_refresh_plans",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",
