@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed-catalogue-package-v1",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "owner-chat",
+  "authorized_at": "2026-09-08T00:00:00.000Z",
+  "retailer": {
+    "id": 14,
+    "name": "10 Reps",
+    "slug": "10-reps",
+    "website": "https://www.10reps.co.uk/",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 3.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": true,
+    "allow_variant_creation": true,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "ashwagandha-90-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/10reps/10reps-reviewed-ashwagandha-90-v1.csv",
+      "csv_sha256": "030eb2d16c3f5b198bc182cf84fafeb7831f8141d544ad8bb8841733a4097d41",
+      "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-ashwagandha-90-v1-dry-run.json",
+      "artifact_sha256": "490060ed459c3b05f6de8676b547d3e52f83ec5c981231ca28151dea40a844b6",
+      "row_count": 1,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 1,
+        "product_variants_create": 1,
+        "retailer_products_create": 1,
+        "offers_create": 1,
+        "price_history_create": 1
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "8162",
+          "external_variant_id": "8165",
+          "external_sku": "BLK096",
+          "external_gtin": null,
+          "source_url": "https://www.10reps.co.uk/product/bulk-ksm-ashwagandha/?attribute_size=90%20Caps",
+          "product_id": null,
+          "product_variant_id": null,
+          "action": "create_product_with_variant",
+          "brand": "Bulk",
+          "category": "Vitamins",
+          "product_name": "Bulk KSM-66 Ashwagandha 500mg 90 Capsules",
+          "variant_name": "Unflavoured / 90 capsules",
+          "flavour": "Unflavoured",
+          "size_value": null,
+          "size_unit": null,
+          "pack_count": "1",
+          "product_format": "capsule",
+          "unit_count": 90,
+          "unit_type": "capsules",
+          "price": 17.99,
+          "in_stock": true,
+          "source_row_fingerprint": "4694528b6640fb554e6f219800fc70b03cc5043a1a5236f377f23008b2a86c76",
+          "plan_fingerprint": "a8f6667c50d82b1ac8f54ad3a9fce229"
+        }
+      ]
+    }
+  ]
+}
