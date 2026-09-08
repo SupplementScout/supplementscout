@@ -55,6 +55,9 @@ class RefreshError extends Error {
 function invariant(value, message) {
   if (!value) throw new Error(message);
 }
+function safeUpdateDisabled(value) {
+  return value == null || ["0", "false", "off"].includes(String(value).trim().toLowerCase());
+}
 function git(...args) {
   return execFileSync("git", args, {
     cwd: ROOT,
@@ -153,7 +156,7 @@ async function roleCall(target, kind, readOnly, body) {
     const safeUpdate = (
       await client.query("select current_setting('app.safe_update',true) value")
     ).rows[0].value;
-    invariant(safeUpdate == null, "SAFE_UPDATE must remain unset");
+    invariant(safeUpdateDisabled(safeUpdate), "SAFE_UPDATE must remain disabled");
     await client.query(readOnly ? "begin read only" : "begin");
     await client.query(
       `select set_config('app.retailer_catalogue_${target}_marker','1',true),
@@ -169,7 +172,7 @@ async function roleCall(target, kind, readOnly, body) {
       identity.current_user === `retailer_catalogue_${target}_${kind}`,
       `${kind} role mismatch`,
     );
-    invariant(identity.safe_update == null, "SAFE_UPDATE became set");
+    invariant(safeUpdateDisabled(identity.safe_update), "SAFE_UPDATE became enabled");
     if (readOnly) invariant(identity.ro === "on", "read transaction required");
     const result = await body(client, TARGETS[target]);
     await client.query(readOnly ? "rollback" : "commit");
@@ -1648,5 +1651,6 @@ module.exports = {
   sealImmutablePreflight,
   sourceCapturedAt,
   sourceHealth,
+  safeUpdateDisabled,
   targetFor,
 };

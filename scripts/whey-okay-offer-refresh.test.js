@@ -26,7 +26,13 @@ const {
   sealImmutablePreflight,
   sourceCapturedAt,
   sourceHealth,
+  safeUpdateDisabled,
 } = require("./whey-okay-offer-refresh");
+
+test("Whey Okay accepts only an unset or explicitly disabled legacy SAFE_UPDATE setting", () => {
+  for (const value of [null, undefined, "0", "false", "FALSE", "off"]) assert.equal(safeUpdateDisabled(value), true);
+  for (const value of ["1", "true", "on", "enabled"]) assert.equal(safeUpdateDisabled(value), false);
+});
 
 test("Whey Okay ignores orphan child rows from expired plans but blocks live controls", () => {
   assert.equal(hasBlockingControls({ children: 14, parents: 0, offer_approvals: 0, import_approvals: 0, runs: 0, active_conflicting_sessions: 0 }), false);
