@@ -126,6 +126,16 @@ function sameExpectedState(actual, expected, label) {
   const actualComparable = Object.fromEntries(
     Object.keys(expectedComparable).map(field => [field, comparable(actual)?.[field]])
   );
+  for (const field of ["size_value", "pack_count"]) {
+    if (expectedComparable[field] != null && actualComparable[field] != null) {
+      const expectedNumber = Number(expectedComparable[field]);
+      const actualNumber = Number(actualComparable[field]);
+      if (Number.isFinite(expectedNumber) && Number.isFinite(actualNumber)) {
+        expectedComparable[field] = expectedNumber;
+        actualComparable[field] = actualNumber;
+      }
+    }
+  }
   same(actualComparable, expectedComparable, label);
 }
 

@@ -274,6 +274,10 @@ test("package executor keeps per-plan atomic deltas and strict commercial readba
   const history = [{ id: "9001", offer_id: "2823", checked_at: plan.offer.values.last_checked_at, ...plan.price_history.values }];
   const checked = verifyTarget(entry, { product, variant, mapping, offer, history });
   assert.equal(checked.offer_id, "2823");
+  const numericVariant = { ...variant, size_value: 40, pack_count: 1 };
+  const numericEntry = { ...entry, resolved_plan: { ...plan, expected_state: { ...plan.expected_state, product_variant: { ...plan.expected_state.product_variant, size_value: "40", pack_count: "1" } } } };
+  assert.equal(verifyTarget(numericEntry, { product, variant: numericVariant, mapping, offer, history }).offer_id, "2823");
+  assert.throws(() => verifyTarget(numericEntry, { product, variant: { ...numericVariant, pack_count: 2 }, mapping, offer, history }), /existing variant mismatch/);
   assert.throws(() => verifyTarget(entry, { product: { ...product, name: "Changed" }, variant, mapping, offer, history }), /existing product mismatch/);
   assert.throws(() => verifyTarget(entry, { product, variant, mapping, offer: { ...offer, shipping_cost: "4.99" }, history }), /price mismatch/);
 });
