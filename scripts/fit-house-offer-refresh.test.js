@@ -453,4 +453,6 @@ test("automation is retailer-scoped, keeps SAFE_UPDATE unset, and creates no cat
   assert.match(automation, /manifest_sha256\.toUpperCase\(\)/);
   assert.equal(config.shipping_policy.cost_gbp, "3.99");
   assert.equal(config.guardrails.ignore_source_sku, true);
+  assert.match(automation, /connectionTimeoutMillis:DATABASE_CONNECTION_TIMEOUT_MS/);
+  assert.match(automation, /query\.abortSignal\(controller\.signal\)/);
 });

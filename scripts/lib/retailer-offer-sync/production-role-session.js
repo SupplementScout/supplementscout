@@ -26,6 +26,9 @@ async function openPostgresClient({ connectionString, applicationName, ClientCla
     connectionString,
     ssl: { rejectUnauthorized: false },
     application_name: applicationName,
+    connectionTimeoutMillis: 15000,
+    query_timeout: 120000,
+    keepAlive: true,
     options: `${defaultReadOnly ? "-c default_transaction_read_only=on " : ""}-c statement_timeout=120000`,
   });
   await client.connect();
