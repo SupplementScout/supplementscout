@@ -31,9 +31,9 @@
       "id": "priority-products-final-2-v1",
       "status": "DRY_RUN_PASS",
       "csv_path": "tmp/retailer-feeds/10reps/10reps-reviewed-priority-products-final-2-v1.csv",
-      "csv_sha256": "fd3175cd4f097831f47b8d6c7e6ffd57613a2fb470e873c47b6044c51bbf7bb4",
+      "csv_sha256": "5cd316750000cf37d9c6bf64478632bd99341e9cc5def91a34ae1ebfdebb613d",
       "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-priority-products-final-2-v1-dry-run.json",
-      "artifact_sha256": "7fa623072c038c585d7987afafab6c4a6c6988e32f753eb31cab477064e13882",
+      "artifact_sha256": "64da014405213f3def46973e1d6a4175d9dd35c62f9e07fe7c3f087581dcb22e",
       "row_count": 2,
       "blocked_row_count": 0,
       "conflict_count": 0,
@@ -67,8 +67,8 @@
           "product_format": "softgel",
           "price": 10.49,
           "in_stock": true,
-          "source_row_fingerprint": "6e2d87d43d39246e5aaa37c9505259b3bdaa3439874e937d3af4d001396623f5",
-          "plan_fingerprint": "4d29efe8fbdcb4465c3d826c61072fbc"
+          "source_row_fingerprint": "ddf6ec436bce5ee4bc3fb12ef76a7b94a3eb6e6ef6980a9c522740f89438a7cb",
+          "plan_fingerprint": "1029fe0994d5301345bcc5a33e52ef4e"
         },
         {
           "review_row": 2,
@@ -91,8 +91,8 @@
           "product_format": "capsule",
           "price": 13.99,
           "in_stock": true,
-          "source_row_fingerprint": "bd207f3c1120abeebeb30cc8893878451840b0f322033da077e62a15d5347d92",
-          "plan_fingerprint": "4a17e1da06ff5d1b2248595326e7e950"
+          "source_row_fingerprint": "39d1aeef63cc9cc596bf90c4bc17c80acd04591de4d9c3da5bb8719a80c1d3d6",
+          "plan_fingerprint": "4fdf2e5fb2040b2b6a8fabbcc79298aa"
         }
       ]
     }
