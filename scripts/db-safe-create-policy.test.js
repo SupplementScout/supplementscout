@@ -25,6 +25,10 @@ const reviewedCountSiblingSql = fs.readFileSync(
   path.join(process.cwd(), "supabase/migrations/20260908120000_allow_reviewed_count_sibling_variants.sql"),
   "utf8"
 );
+const reviewedCountSiblingNormalizationSql = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260908123000_fix_reviewed_count_sibling_normalization.sql"),
+  "utf8"
+);
 
 test("DB safe-create migration replaces only the reviewed-family policy predicate", () => {
   assert.match(sql, /atomic_import_safe_create_category_allowed\(text,text,text\)/);
@@ -100,4 +104,11 @@ test("reviewed count siblings require count-bearing canonical names and an exact
   assert.match(reviewedCountSiblingSql, /display_name.*unit_count.*unit_type/s);
   assert.match(reviewedCountSiblingSql, /unit_count.*is null.*pv\.flavour_code/s);
   assert.doesNotMatch(reviewedCountSiblingSql, /10\s*Reps|retailer_id\s*=\s*14|grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
+});
+
+test("reviewed count sibling options compare the normalized compact count identity", () => {
+  assert.match(reviewedCountSiblingNormalizationSql, /option_name\) in \('size','packsize','count'\)/);
+  assert.match(reviewedCountSiblingNormalizationSql, /unit_count}'\) \|\|\s*\(p_plan#>>'\{product_variant,evidence,unit_type\}'\)/s);
+  assert.match(reviewedCountSiblingNormalizationSql, /when ''capsules'' then ''caps''/);
+  assert.doesNotMatch(reviewedCountSiblingNormalizationSql, /10\s*Reps|retailer_id\s*=\s*14|grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
 });
