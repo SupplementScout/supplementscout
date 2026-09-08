@@ -856,12 +856,17 @@ function getSafeCreateExclusionReasons(row, options = {}) {
     options.exactExistingProductVariant === true &&
     category.length > 0 &&
     category === String(options.canonicalCategory || "").trim();
+  const exactOwnerReviewedCategory =
+    row.__reviewed_catalogue_identity?.contract === "reviewed-catalogue-package-v1" &&
+    category.length > 0 &&
+    category === String(row.__reviewed_catalogue_identity.category || "").trim();
   const reviewedFamily = reviewedSafeCreateFamily(row);
 
   if (
     !SAFE_CREATE_ALLOWED_CATEGORIES.has(category) &&
     !reviewedFamily &&
-    !exactExistingCanonicalCategory
+    !exactExistingCanonicalCategory &&
+    !exactOwnerReviewedCategory
   ) {
     return ["category is not allowed for safe-create"];
   }

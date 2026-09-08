@@ -4980,6 +4980,31 @@ test("safe-create only allows approved supplement categories", async () => {
   }
 });
 
+test("generic owner-reviewed catalogue package permits its exact sealed canonical category", async () => {
+  const row = baseSafeCreateFeedRow({
+    retailer_name: "Example Shop",
+    external_product_id: "caffeine-1",
+    external_variant_id: "caffeine-1",
+    product_name: "Example Caffeine Tablets",
+    category: "Energy Supplements",
+    product_format: "tablet",
+  });
+  row.__reviewed_catalogue_identity = {
+    contract: "reviewed-catalogue-package-v1",
+    category: "Energy Supplements",
+  };
+  const supabase = createMockSupabase({
+    retailers: [], products: [], retailer_products: [], offers: [], price_history: [],
+  });
+  setSupabaseForTests(supabase);
+
+  const result = await runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+
+  assert.equal(result.report.approvedRows.length, 1);
+  assert.deepEqual(result.report.blockedRows, []);
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("safe-create permits an exact existing product and variant outside the new-product category allowlist", async () => {
   const row = baseCanonicalFeedRow({
     retailer_name: "Predators Gear",
