@@ -3,6 +3,7 @@ const test = require("node:test");
 const {
   parseArgs,
   pendingConfirmation,
+  appliedPendingIdentifiers,
   expectedCatalogueCounts,
   unwrapTransaction,
 } = require("./apply-selected-migrations");
@@ -30,6 +31,16 @@ test("pending confirmation is deterministic and environment-bound", () => {
     pendingConfirmation(contract),
     pendingConfirmation(contract),
   );
+});
+
+test("pending ledger verification accepts an older version applied after newer ledger rows", () => {
+  const ledger = [
+    { version: "20260908100000", name: "older_pending" },
+    { version: "20260908110000", name: "already_present" },
+    { version: "20260908123000", name: "newer_pending" },
+  ];
+  assert.deepEqual(appliedPendingIdentifiers(ledger, ["20260908100000_older_pending", "20260908123000_newer_pending"]), ["20260908100000_older_pending", "20260908123000_newer_pending"]);
+  assert.throws(() => appliedPendingIdentifiers(ledger, ["20260908100000_missing"]), /ledger sequence mismatch/);
 });
 
 test("transaction wrapper is required and removed", () => {

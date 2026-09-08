@@ -1,6 +1,7 @@
 const path = require("node:path");
 const { Client } = require("pg");
 const {
+  appliedPendingIdentifiers,
   catalogueCounts,
   databaseState,
   loadEnvFile,
@@ -73,9 +74,7 @@ async function main(argv = process.argv.slice(2)) {
       "post-migration ledger count mismatch",
     );
     const expected = contract.pending.map(({ filename }) => filename.slice(0, -4));
-    const applied = expected.length
-      ? state.remoteLedger.slice(-expected.length).map(ledgerIdentifier)
-      : [];
+    const applied = appliedPendingIdentifiers(state.remoteLedger, expected);
     invariant(
       JSON.stringify(applied) === JSON.stringify(expected),
       "applied migration sequence mismatch",

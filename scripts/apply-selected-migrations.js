@@ -97,6 +97,13 @@ function pendingConfirmation(contract) {
     .slice(0, 16);
 }
 
+function appliedPendingIdentifiers(remoteLedger, pendingIdentifiers) {
+  const remote = new Set(remoteLedger.map(ledgerIdentifier));
+  const applied = pendingIdentifiers.filter(identifier => remote.has(identifier));
+  invariant(applied.length === pendingIdentifiers.length, "post-commit migration ledger sequence mismatch");
+  return applied;
+}
+
 function unwrapTransaction(sql, filename) {
   const match = sql.match(/^\s*begin\s*;\s*([\s\S]*?)\s*commit\s*;\s*$/i);
   invariant(match, `${filename} must have one explicit begin/commit wrapper`);
@@ -244,9 +251,7 @@ async function main(argv = process.argv.slice(2)) {
         afterCommitState.remoteLedger.length === expectedLedgerCount,
         "post-commit migration ledger count mismatch",
       );
-      const applied = afterCommitState.remoteLedger
-        .slice(-contract.pending.length)
-        .map(ledgerIdentifier);
+      const applied = appliedPendingIdentifiers(afterCommitState.remoteLedger, selection.pending);
       invariant(
         JSON.stringify(applied) === JSON.stringify(selection.pending),
         "post-commit migration ledger sequence mismatch",
@@ -296,6 +301,7 @@ module.exports = {
   catalogueCounts,
   databaseState,
   expectedCatalogueCounts,
+  appliedPendingIdentifiers,
   loadEnvFile,
   parseArgs,
   pendingConfirmation,
