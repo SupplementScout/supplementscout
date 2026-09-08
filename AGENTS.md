@@ -14,10 +14,14 @@ For SEO, catalogue, retailer, automation or roadmap work:
    `docs/SEO-Execution-Plan.md` for SEO work.
 3. Follow `docs/Agent-Operating-Model.md`; keep one active SEO implementation
    and reuse existing mechanisms before creating a new one.
-4. Run `npm run verify:project` before and after changing a roadmap, execution
+4. Before proposing or starting the next step, verify the current repository
+   state, the latest execution evidence and the relevant production readback.
+   Treat older plans and conversation summaries as context, not proof that work
+   is still outstanding. Do not repeat completed work.
+5. Run `npm run verify:project` before and after changing a roadmap, execution
    status or completion evidence; resolve structural failures before continuing.
-5. Do not mark work complete without the required local and live evidence.
-6. Never give an agent autonomous product-identity or production-write
+6. Do not mark work complete without the required local and live evidence.
+7. Never give an agent autonomous product-identity or production-write
    authority; retain existing owner approvals and guarded data paths.
 
 Before creating or changing a public comparison, category, brand or retailer
