@@ -5,7 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 
 const config = require("../config/retailers/simply-supplements-offer-sync.json");
-const { canonicalHash, loadApprovedManifest, projectSourceVariants, reconcileMissingMappedVariants, registrationRequest } = require("./simply-supplements-offer-refresh");
+const { canonicalHash, isolateAggregatePriceChanges, loadApprovedManifest, projectSourceVariants, reconcileMissingMappedVariants, registrationRequest } = require("./simply-supplements-offer-refresh");
 const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
 const { baselineHash, verifyPostflight } = require("./retailer-offer-refresh-postflight");
 
@@ -69,6 +69,18 @@ test("Simply missing mapped variants stay unchanged in review while safe rows re
   assert.equal(classification.rows.length, 0);
   assert.deepEqual(classification.quarantined_rows.map((row) => [row.offer_id, row.reason]), [["1", "SOURCE_VARIANT_MISSING"]]);
   assert.equal(classification.quarantined_rows[0].source, null);
+});
+
+test("Simply holds a confirmed aggregate price wave while unchanged and stock-only rows remain executable", () => {
+  const unchanged = { offer_id: "1", action: "VERIFY_NO_CHANGE", changed_fields: { price: false } };
+  const price = { offer_id: "2", action: "UPDATE_PRICE", changed_fields: { price: true } };
+  const combined = { offer_id: "3", action: "UPDATE_PRICE_AND_STOCK", changed_fields: { price: true, stock: true } };
+  const stock = { offer_id: "4", action: "UPDATE_STOCK", changed_fields: { price: false, stock: true } };
+  const isolated = isolateAggregatePriceChanges({ state: "BLOCKED", reason: "MASS_PRICE", rows: [unchanged, price, combined, stock], quarantined_rows: [{ offer_id: "5", reason: "SOURCE_VARIANT_MISSING" }] });
+  assert.equal(isolated.state, "DRY_RUN_READY_WITH_REVIEW");
+  assert.equal(isolated.reason, null);
+  assert.deepEqual(isolated.rows.map((row) => row.offer_id), ["1", "4"]);
+  assert.deepEqual(isolated.quarantined_rows.map((row) => [row.offer_id, row.reason]), [["5", "SOURCE_VARIANT_MISSING"], ["2", "MASS_PRICE"], ["3", "MASS_PRICE"]]);
 });
 
 test("scheduled workflow reuses protected roles and contains no Awin credential", () => {

@@ -419,6 +419,15 @@ function authorizeReviewedMassOos(
 function normalizeStatePayload(value) {
   return typeof value === "string" ? JSON.parse(value) : value;
 }
+function hasBlockingControls(controls = {}) {
+  return [
+    "import_approvals",
+    "offer_approvals",
+    "parents",
+    "runs",
+    "active_conflicting_sessions",
+  ].some((key) => Number(controls[key] || 0) !== 0);
+}
 async function readState(target) {
   const call = await roleCall(target, "validator", true, (client) =>
     client.query(
@@ -436,10 +445,7 @@ async function readState(target) {
       state.counts.legacy_mappings === scope.legacyMappingCount,
     "Whey Okay approved/legacy scope drift",
   );
-  invariant(
-    Object.values(state.controls).every((value) => Number(value) === 0),
-    "active approval, workflow or conflicting session exists",
-  );
+  invariant(!hasBlockingControls(state.controls), "active approval, workflow or conflicting session exists");
   const manifestBySource = new Map(
     manifest.rows.map((row) => [row.source_key, row]),
   );
@@ -1630,6 +1636,7 @@ module.exports = {
   deliveredTotalForSourcePrice,
   diagnosticTemplate,
   guardrailsFor,
+  hasBlockingControls,
   loadManifest,
   loadImmutablePreflight,
   loadReviewedMassOosManifest,

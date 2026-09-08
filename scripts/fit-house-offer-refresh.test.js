@@ -13,16 +13,34 @@ const {
   authorizeOwnerApprovedMissingVariant,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
+  freshCapturedAt,
   loadAuditedMissingVariantManifest,
   loadOwnerApprovedMissingVariantManifest,
   loadReviewedMassOosManifest,
+  mappedOfferSourceFingerprint,
   parseArgs,
   reconcileAuditedMissingVariants,
   reconcileMissingMappedVariants,
   reconcileOwnerApprovedMissingVariant,
   requireAuditedMissingOwnerApproval,
+  safeUpdateDisabled,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
+
+test("shared role sessions accept only an unset or explicitly disabled legacy SAFE_UPDATE setting", () => {
+  for (const value of [null, undefined, "0", "false", "FALSE", "off"]) assert.equal(safeUpdateDisabled(value), true);
+  for (const value of ["1", "true", "on", "enabled"]) assert.equal(safeUpdateDisabled(value), false);
+});
+
+test("shared artifacts use one canonical source timestamp for unchanged and changed rows", () => {
+  assert.equal(freshCapturedAt(new Date("2026-09-08T18:18:52.660Z")), "2026-09-08T18:18:52.66Z");
+});
+
+test("mapped source confirmation fingerprints a missing review row without inventing price or stock", () => {
+  const records = [{ offer: { id: 2 }, mapping: { external_product_id: "3", external_variant_id: "4" } }];
+  assert.equal(mappedOfferSourceFingerprint(records, []), mappedOfferSourceFingerprint(records, []));
+  assert.notEqual(mappedOfferSourceFingerprint(records, []), mappedOfferSourceFingerprint(records, [{ external_product_id: "3", external_variant_id: "4", product_handle: "returned", price: "10.00", in_stock: true }]));
+});
 
 const ROOT = path.resolve(__dirname, "..");
 const automation = fs.readFileSync(

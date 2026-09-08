@@ -17,6 +17,7 @@ const {
   changeSummary,
   deliveredTotalForSourcePrice,
   guardrailsFor,
+  hasBlockingControls,
   loadImmutablePreflight,
   loadManifest,
   loadReviewedMassOosManifest,
@@ -26,6 +27,13 @@ const {
   sourceCapturedAt,
   sourceHealth,
 } = require("./whey-okay-offer-refresh");
+
+test("Whey Okay ignores orphan child rows from expired plans but blocks live controls", () => {
+  assert.equal(hasBlockingControls({ children: 14, parents: 0, offer_approvals: 0, import_approvals: 0, runs: 0, active_conflicting_sessions: 0 }), false);
+  for (const key of ["parents", "offer_approvals", "import_approvals", "runs", "active_conflicting_sessions"]) {
+    assert.equal(hasBlockingControls({ [key]: 1 }), true);
+  }
+});
 const {
   PROFILES,
   approvedOfferIds,
