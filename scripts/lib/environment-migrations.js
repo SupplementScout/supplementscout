@@ -120,6 +120,7 @@ const EXCLUSIONS = Object.freeze({
     "20260908180000_supersede_interrupted_shared_refresh_plans",
     "20260908190000_supersede_expired_discount_jons_refresh_plans",
     "20260908200000_serialize_shared_refresh_and_close_partial_jons",
+    "20260908210000_reuse_atomic_price_history_and_close_jons_retry",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

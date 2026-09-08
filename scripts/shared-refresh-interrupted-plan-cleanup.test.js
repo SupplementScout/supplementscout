@@ -9,6 +9,8 @@ const expiredSql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260908
 const expiredRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks/20260908190000_supersede_expired_discount_jons_refresh_plans.sql"), "utf8");
 const serializedSql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260908200000_serialize_shared_refresh_and_close_partial_jons.sql"), "utf8");
 const serializedRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks/20260908200000_serialize_shared_refresh_and_close_partial_jons.sql"), "utf8");
+const priceHistorySql = fs.readFileSync(path.join(ROOT, "supabase/migrations/20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql"), "utf8");
+const priceHistoryRollback = fs.readFileSync(path.join(ROOT, "supabase/rollbacks/20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql"), "utf8");
 
 test("cleanup is exact, control-only, and preserves completed refresh children", () => {
   for (const token of ["c2e1d342-072d-4fc0-aefa-79c345ab4e3b", "c0290d21-70f8-46fb-a7d8-5eda0ed389f2", "36c5e024442662bdd599c0946c8d607788ecd75d80d03d50f712af5c2ccee5f6", "84eadbcafb859cb1515672fb56cad9447afa9850c368077378f677f5a2031de3"]) assert.match(sql, new RegExp(token));
@@ -70,4 +72,25 @@ test("shared execution is serialized and the exact partial Jon's plan is closed 
   assert.doesNotMatch(serializedSql, /(?:insert into|delete from|update) public\.(?:products|product_variants|retailers|retailer_products|offers|price_history)/i);
   assert.match(serializedRollback, /forward-only incident cleanup/);
   assert.doesNotMatch(serializedRollback, /update public\./);
+});
+
+test("atomic price changes reuse one history row and close only the rolled-back Jon's retry", () => {
+  for (const token of [
+    "a5df3061-ee78-49ff-afc0-403ff31c2fae",
+    "b971d906e190327ed9ff5a3346a021e9bfee358280b956b8661eafc8dcc08743",
+    "c0c14eb2-3b17-4493-9ece-9c645c771e4e",
+    "d54caf10-e290-4711-8cce-fad7b44682bd",
+  ]) assert.match(priceHistorySql, new RegExp(token));
+  assert.match(priceHistorySql, /price_history_action'='create'/);
+  assert.match(priceHistorySql, /xmin::text::bigint=txid_current\(\)/);
+  assert.match(priceHistorySql, /v_existing_history_count<>1/);
+  assert.match(priceHistorySql, /jsonb_set\(v_result,'\{price_history_id\}',to_jsonb\(v_existing_history_id\),true\)[\s\S]*record_identity_proven_price_observation/);
+  assert.match(priceHistorySql, /status='APPROVED'\)<>1/);
+  assert.match(priceHistorySql, /status='PLANNED'\)<>10/);
+  assert.match(priceHistorySql, /v_rows<>11/);
+  assert.match(priceHistorySql, /v_after is distinct from v_before/);
+  assert.doesNotMatch(priceHistorySql, /(?:insert into|delete from|update) public\.(?:products|product_variants|retailers|retailer_products|offers)/i);
+  assert.doesNotMatch(priceHistorySql, /insert into public\.price_history/i);
+  assert.match(priceHistoryRollback, /forward-only price-history correction/);
+  assert.doesNotMatch(priceHistoryRollback, /update public\./);
 });
