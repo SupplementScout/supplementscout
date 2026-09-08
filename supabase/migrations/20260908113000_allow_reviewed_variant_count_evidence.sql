@@ -70,7 +70,7 @@ begin
     'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure
   ] loop
     v_definition := pg_get_functiondef(v_signature);
-    if v_definition not like '%(p_plan#>''{product_variant,evidence}'') - array[''unit_count'', ''unit_type'']%'
+    if v_definition !~* '\(p_plan#>''\{product_variant,evidence\}''\)[[:space:]]*-[[:space:]]*array'
        or v_definition not like '%product_variant,evidence,unit_count%'
        or v_definition not like '%product_variant,evidence,unit_type%' then
       raise exception 'reviewed variant count evidence installation failed: %', v_signature;

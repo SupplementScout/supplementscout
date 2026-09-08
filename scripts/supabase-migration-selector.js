@@ -245,7 +245,7 @@ const CONTRACTS = Object.freeze({
       "20260908110000_allow_reviewed_catalogue_existing_categories.sql":
         "07a1662c010f4e3c967f87aaa3709d1bb10f3bd139b5fa236653b40e271033cf",
       "20260908113000_allow_reviewed_variant_count_evidence.sql":
-        "baaa65d4054b059e1fa050b6a6980547edb3b9e75d35ae52de9ab8dfc0d59d2d",
+        "d25933dac40b9ffc7c9050177c2f432db6ac822d984989b199a540a222da4a84",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -283,7 +283,7 @@ const CONTRACTS = Object.freeze({
     pending: Object.freeze([
       Object.freeze({
         filename: "20260908113000_allow_reviewed_variant_count_evidence.sql",
-        sha256: "baaa65d4054b059e1fa050b6a6980547edb3b9e75d35ae52de9ab8dfc0d59d2d",
+        sha256: "d25933dac40b9ffc7c9050177c2f432db6ac822d984989b199a540a222da4a84",
       }),
     ]),
   }),
