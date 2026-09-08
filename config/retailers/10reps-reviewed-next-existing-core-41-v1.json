@@ -31,9 +31,9 @@
       "id": "next-existing-core-41-v1",
       "status": "DRY_RUN_PASS",
       "csv_path": "tmp/retailer-feeds/10reps/10reps-reviewed-next-existing-core-41-v1.csv",
-      "csv_sha256": "3ffefee51fe2ba654995f123b851f4815f129932e3b9c991c33d283965f51b9d",
-      "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-next-existing-core-41-v1-dry-run.json",
-      "artifact_sha256": "1115aa7f98540aea16715e75c9b833075265864306e1e9f738385a27afd3a2fb",
+      "csv_sha256": "f7bc5afd4ba4417086fa1ded33256f3ba8d72588e955bd3a5f486d57a266dd70",
+      "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-next-existing-core-41-v1-corrected-dry-run.json",
+      "artifact_sha256": "edd69a6c6d9426d159befe19aa0931779c725d84960cb7cebdf547defb978768",
       "row_count": 41,
       "blocked_row_count": 0,
       "conflict_count": 0,
@@ -67,8 +67,8 @@
           "product_format": "powder",
           "price": 29.49,
           "in_stock": true,
-          "source_row_fingerprint": "c1f73ab3ab56eaf1882140e3686b488204b6fae11ede65b8bcbaa0a0dc3b0215",
-          "plan_fingerprint": "fab6a67735f8eefeb239a65b24803194"
+          "source_row_fingerprint": "6c5f2372fd4a0d5bd553158cf71339571b1746813429131ee084b17ce63b6b08",
+          "plan_fingerprint": "59c7871ddd301b186ecfe87eae5391ff"
         },
         {
           "review_row": 2,
@@ -91,8 +91,8 @@
           "product_format": "powder",
           "price": 29.49,
           "in_stock": true,
-          "source_row_fingerprint": "02be254583bdb284926afdf90df736b9931129d30d63bad38386a54f8d67e390",
-          "plan_fingerprint": "a82b128be91cab542d6f57ac50bc1fee"
+          "source_row_fingerprint": "e3b3a70a4e98f6e8302e181192ff2ed526eddb5e0c056b75361439b848cfa5f0",
+          "plan_fingerprint": "2ebbf2f1bc3e2f1021850e1e6d8ff0bf"
         },
         {
           "review_row": 3,
@@ -115,8 +115,8 @@
           "product_format": "powder",
           "price": 29.49,
           "in_stock": true,
-          "source_row_fingerprint": "069f385bffc096c70e9fef400dea047211de0cc7cd759ed2c437db67cff6de8a",
-          "plan_fingerprint": "5650490b34ef41079902471b8ec2f0e5"
+          "source_row_fingerprint": "f2025fc8a7a4ddd735b3e6bf6003ff3fe81671e8905d1dbcf9735049402fb887",
+          "plan_fingerprint": "cbe10edf5683babad37b78191efcfd41"
         },
         {
           "review_row": 4,
@@ -139,8 +139,8 @@
           "product_format": "powder",
           "price": 29.49,
           "in_stock": true,
-          "source_row_fingerprint": "cd1c6dd76f7d16c880b3c581748d0bb9d0f6b58d376406db6c33e8e763f5be59",
-          "plan_fingerprint": "f715e713af0eba02bfa4ab41eb1be47f"
+          "source_row_fingerprint": "3c123f6acb13be79fbc8115d3e9214748cc51c4012c86dcd593bec3eeec867b0",
+          "plan_fingerprint": "8c9b406c7e3b00e43865bc484681ea9e"
         },
         {
           "review_row": 5,
@@ -163,8 +163,8 @@
           "product_format": "powder",
           "price": 29.49,
           "in_stock": true,
-          "source_row_fingerprint": "9100e9cec8574e5ef41dad874a0fa32b1d3a7b9e138fc81e6e23bc4a1c4f9f22",
-          "plan_fingerprint": "e6d188ae31035f60bc5d51aad01f464e"
+          "source_row_fingerprint": "d6c4b474995053357c427a326a19d1fe107f50445cc3dd04c06cb71f07a0d4c9",
+          "plan_fingerprint": "a761a34f0700bea0ce31e4ba9a153552"
         },
         {
           "review_row": 6,
@@ -187,8 +187,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "299f832c8d23bf4a4aaae392ee14e7d8ce39291d3a4363db5f0c786f988202bd",
-          "plan_fingerprint": "7ffd409b893711f62bcb04bfb6b4e861"
+          "source_row_fingerprint": "e0e8a89a3cd7427fed8f84761c82246c1d5e167f11dbacb9ac3989ba126d7f43",
+          "plan_fingerprint": "450f932c55333c5f7f0e7e266797ddcb"
         },
         {
           "review_row": 7,
@@ -211,8 +211,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "a2d75b53e26f7a6ec60e5ec4dc64e30d2141235a2b3cfd94e1833f4c4d726134",
-          "plan_fingerprint": "24a4119328ddf9d35ebbe5f26b500463"
+          "source_row_fingerprint": "65440c60490c56d1127c676b54088d4ffed85e17f11d234e30ce4b5a9a615f4f",
+          "plan_fingerprint": "cf722314c8e579d11427bab8664de843"
         },
         {
           "review_row": 8,
@@ -235,8 +235,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "1c51681cc832ea168ab5d46fb88f20cde314ce6c91dfe2087459da0916004c26",
-          "plan_fingerprint": "c092caa41be249b5b43c763be99950b1"
+          "source_row_fingerprint": "9a38d7116880226f9bd69942bf3ac0841c0e233a95f5464bed3eb4bf03ef7cd5",
+          "plan_fingerprint": "cbfdf6b61fea7c360c2b4bc49248c8b1"
         },
         {
           "review_row": 9,
@@ -259,8 +259,8 @@
           "product_format": "powder",
           "price": 21.45,
           "in_stock": true,
-          "source_row_fingerprint": "1129f4d927a07c3323710033c8a8ab09ba89f229f9e4ada8dd0a60aa95aff5fe",
-          "plan_fingerprint": "a2c8a7ca4d8d20086ccd1ac82c7dc6ab"
+          "source_row_fingerprint": "c9c5703a3dc2e1945c70554226cd32882a5bc94536e149c12a4c05a74d41048a",
+          "plan_fingerprint": "7cbb2ac25aeea2762a5bf2418b15516c"
         },
         {
           "review_row": 10,
@@ -283,8 +283,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "1942e30157be7ece0c1e7e21b856c9028386a6ecd759d90ffd20d90fea5d4411",
-          "plan_fingerprint": "0f2507605bdbb66e31b8491ff2ca0c48"
+          "source_row_fingerprint": "671c7cd2a1b3cf50548fc72c2c17e010de2c3c1507ef9af9047db8bb34c403f5",
+          "plan_fingerprint": "ccca25f8afb81bc396b5f22bd71634e8"
         },
         {
           "review_row": 11,
@@ -307,8 +307,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "595fb9d01a2f472ff94fed4f6f2292435bb5f5d1747808ac46381ade0b59769a",
-          "plan_fingerprint": "ba1e6deb9595eb7754242d3216ed2fd4"
+          "source_row_fingerprint": "40cfcc21bd38b73610dd2620e45f94ab8835d0726a62014b37c7118571f0bf4b",
+          "plan_fingerprint": "6bb09c9dfa9dc910cf8bf8dbe08e4601"
         },
         {
           "review_row": 12,
@@ -331,8 +331,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "dc0cee120be7f74eb4fe22abb9c51817b3293e56cb498e1d75d1f4ecc60aa206",
-          "plan_fingerprint": "a3803cff6729daa3a85d959aa521f904"
+          "source_row_fingerprint": "d6aeb179b6b5d1362e5b18278c541b44b3e1e0ab0fa392b5280ad34490b0303c",
+          "plan_fingerprint": "4652cbabba89fa9c9307f882bbadd40e"
         },
         {
           "review_row": 13,
@@ -355,8 +355,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "8127dae8aa34285741268f5b38daba6e56ba426219f5b3c3b88a892bf22125cb",
-          "plan_fingerprint": "577b77085563677482ac982143194b6d"
+          "source_row_fingerprint": "2343bc2aba13b252d29bc0589ef5a067d2b7d29c7efe348c44145a7212fa607a",
+          "plan_fingerprint": "7e57c713695ef695b3ad3590d08b8c33"
         },
         {
           "review_row": 14,
@@ -379,8 +379,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "4013d51bf4e23c7b32717b5ada24754f2f3d0fc41a5bd92a52b96e926bb7138b",
-          "plan_fingerprint": "d6c510fd369b6d9285abf486f6cf60ba"
+          "source_row_fingerprint": "0cda38cc01113e660a3f111870d99b2116b891cbe86adc3ccb7407845f04c1c4",
+          "plan_fingerprint": "d7cb653ebf4244de0bcd0c3d396a65a5"
         },
         {
           "review_row": 15,
@@ -403,8 +403,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "09159715c49309390cc4f0592b9aec55d3885645a8dcba6a06970416f8d7917a",
-          "plan_fingerprint": "7edd50f4212cb81512113476440ce6ff"
+          "source_row_fingerprint": "025a3e468f4d51e44e4a2a21782b05412dda7fb5b1209d545d2952f5caf2cb7c",
+          "plan_fingerprint": "4064e74ef39e0ece2c8d2276452142fc"
         },
         {
           "review_row": 16,
@@ -427,8 +427,8 @@
           "product_format": "powder",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "6e999d60a6b37e733c27064b10aab8434741adf08ad183d36a4e53e7b84286e9",
-          "plan_fingerprint": "23f499001bcc1f60fb60a6261903e8fc"
+          "source_row_fingerprint": "2f7c42db99df199cf1805faca893aa85a2f23c6e255eb67cc2237320e7e80b7b",
+          "plan_fingerprint": "22f15121b0d608aac507e1e688ab5e2a"
         },
         {
           "review_row": 17,
@@ -451,8 +451,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "825af8916e3723c1e7dd360c6383a41180092f5828e404123110abfec8b8b2de",
-          "plan_fingerprint": "778e5316f4eb5c6157b8c8b63b200aae"
+          "source_row_fingerprint": "112b2615b9b9ab85a4eabfff7e0beacfc69f527b9c898e6bfeabf532e1bb5d91",
+          "plan_fingerprint": "60a338f07cd8d82c3c2cf40275bd804f"
         },
         {
           "review_row": 18,
@@ -475,8 +475,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "a36538625531fdf73fb4c705d789fda72bc9a7337ebeb6fc0bf3b41c843f1c1f",
-          "plan_fingerprint": "bbb20296d5fdc744b7ffaccbf39564b6"
+          "source_row_fingerprint": "aa51d75c56609b2fa0cd8f97962021ae61675e57a18d6ae279ac41e4a55675f5",
+          "plan_fingerprint": "86586d6e3a1387dff2488ca886626f0c"
         },
         {
           "review_row": 19,
@@ -499,8 +499,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "2152def65c76f1b658d6ee49e8342192a0dc9b4c8df21b5961c905792e078960",
-          "plan_fingerprint": "8cf93fbaf94bdc3ab73ca72994a5abff"
+          "source_row_fingerprint": "cb91a64fb66bbce748c1f8234d9de9bff63fc32380f5b75691ad26ccc8adec70",
+          "plan_fingerprint": "b58026758e83329d1d58e5341e7d20b6"
         },
         {
           "review_row": 20,
@@ -523,8 +523,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "3f5d24a2df0516f61bd71d95195d7331449908d8cd0339604fdc36de22c33299",
-          "plan_fingerprint": "045daa58fdab4f6d66c3a60b7fc80bb2"
+          "source_row_fingerprint": "b4ff006129931cfbd3b6991182ef19e065daf972c7c512fc44adabd5fa186312",
+          "plan_fingerprint": "56f14b2e1de5d59e210c9592ffc13462"
         },
         {
           "review_row": 21,
@@ -547,8 +547,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "f7eee34145af4a5bef34c1c91add0cfc16e75a08b9fb760da347460ea236bab1",
-          "plan_fingerprint": "3cb1d1aee4a5808c2ea74daf06b0f832"
+          "source_row_fingerprint": "d8a737a2d2105a4a5abf5e804919d68cccc89cc6d0ff829597125f8c4e43ef90",
+          "plan_fingerprint": "ac65c0c0fe4901e837c80851c189bef0"
         },
         {
           "review_row": 22,
@@ -571,8 +571,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "a66eb9c782905155d0126788764c8fc440565915599633dbe03310e8f8765732",
-          "plan_fingerprint": "e317ff84167ed1af564833862cbd4a93"
+          "source_row_fingerprint": "788d84d636e2827deb94202606fc86bbe2d703a3d009704d18d2e04484b88388",
+          "plan_fingerprint": "8c2ea4fea46fd05fb8ad17f1633b0c57"
         },
         {
           "review_row": 23,
@@ -595,8 +595,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "71848712405158a4aa5aec48f0511013f9fdb33e3456e03a9f40d8bb9c92dcb6",
-          "plan_fingerprint": "db55b923420f4e1b88a558bb9f2da5a5"
+          "source_row_fingerprint": "0f6c18a795ce9145f8051d95ba49d03a8475c8726914d079e1319c04b096a358",
+          "plan_fingerprint": "2b1d87eb8694195b565c438808bd910e"
         },
         {
           "review_row": 24,
@@ -619,8 +619,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "b368986746d02e2ceb20b1012725d153af7c38adba8d78fba75a814861e3d134",
-          "plan_fingerprint": "ae14695272bddf41d90d5012384a216b"
+          "source_row_fingerprint": "0f33d1adf88338994fc63c0331862ef6217c13dcec4640eb8c3f61f5c10b4fb6",
+          "plan_fingerprint": "2167a59d5df4827f43c53eeda032f970"
         },
         {
           "review_row": 25,
@@ -643,8 +643,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "cff86eda51c091763905100e015c0bb584c6f36a93f2701289ad9a168096acef",
-          "plan_fingerprint": "254d6ddbf91623cbcb0cc64db2565640"
+          "source_row_fingerprint": "616fe10cb2babdd57fc7ff933f13940a47d9a6fd4cf9159dbe86adaa0e8202c6",
+          "plan_fingerprint": "9c6a418813d82437173de21b60f77411"
         },
         {
           "review_row": 26,
@@ -667,8 +667,8 @@
           "product_format": "powder",
           "price": 34.99,
           "in_stock": true,
-          "source_row_fingerprint": "ec97c2db15ed3fe703642b208b736f3a08cd6c25f3ce0f9489c785a84674b1e2",
-          "plan_fingerprint": "a78caaae077b9f3269407bbaecf7df4f"
+          "source_row_fingerprint": "a9043dfbc4c1a5488289cef01db2c22bcb5d8db0e9514064d4156df18c76b6d3",
+          "plan_fingerprint": "f035db21b8e4666d6a4aad331f596bc3"
         },
         {
           "review_row": 27,
@@ -691,8 +691,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "90119e2efaf05f67cdfab5f31115b745e1ee82c32b9e8c9c433f2b943adae231",
-          "plan_fingerprint": "986e8f0e2c6163b2b250e30a6916e59e"
+          "source_row_fingerprint": "f3f29b228345cd393bd7eccfc6b9286c70ff072e445e13c7b1ba0f015cd7273c",
+          "plan_fingerprint": "611e33b3471d288a3141437f27e2f4d7"
         },
         {
           "review_row": 28,
@@ -715,8 +715,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "f492a46ce2e7263723af8184cec55cec27bacdc008b54e16f252b49d877bac48",
-          "plan_fingerprint": "da5ed997211177b20feb7f1f8790ea6f"
+          "source_row_fingerprint": "00893094ae88297429ca69a8ca5f8f1d1cae51af53c13bcb3d9d3d3c21f95ae3",
+          "plan_fingerprint": "177865a1b0c26cd0f3df3a7ec02f8f34"
         },
         {
           "review_row": 29,
@@ -739,8 +739,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "24ba77317c1c7c0163dd60a8b761365fdee657d9d80b08ef50b89a0e374f94d9",
-          "plan_fingerprint": "5f16421a01af360c78ee4b90d53e7244"
+          "source_row_fingerprint": "3997022c3301aecc95f6812b23e8dca3656cbabfd1e99032da1b6a0412edd611",
+          "plan_fingerprint": "51fc25b3898333fe75e0fd34a52fa514"
         },
         {
           "review_row": 30,
@@ -763,8 +763,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "62bdbd751e8954ecf717e90422d1a05b261caffce94eca5502e3ce20cac76a7e",
-          "plan_fingerprint": "12fcda21b0c7a73c27bf727ef1e0ddbd"
+          "source_row_fingerprint": "51fa24e8226778c9d02e55c4154e2092a3c3eae83a976f22d382771d927b070a",
+          "plan_fingerprint": "2d770ed7030e8a07a9f0cd01ce4887c5"
         },
         {
           "review_row": 31,
@@ -787,8 +787,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "0eea1186b0681addbcd8f6ba155da8a38bcec99775926d24a4ca7d72239bba31",
-          "plan_fingerprint": "a3eaa97d1a622140729c83255f3746b1"
+          "source_row_fingerprint": "d039c98b01789550bcf7c9c87e433e33eee83cae1890af7e9690c13970e44885",
+          "plan_fingerprint": "6a708c08640b8ecb145d6f1cbc8aa271"
         },
         {
           "review_row": 32,
@@ -811,8 +811,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "a47a60525a99c7b14c3e121783a2658c1e327e15b99f5c8cd86437d7f4ffdc38",
-          "plan_fingerprint": "03517ecc0dd911390c5d0fd70a9a8a65"
+          "source_row_fingerprint": "e17fc6708eb5a4edc098aac03bbde3887e0655ae1280db64d94523f1771b95f4",
+          "plan_fingerprint": "ec8116f5c86db8bd145410da2c013242"
         },
         {
           "review_row": 33,
@@ -835,8 +835,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "4e10a78c904a9c1fdbd4cf47b0f63c37fd596bb0a64881e27f6dc3c77c88d01a",
-          "plan_fingerprint": "5ed6807f78d92905888f1b761052357c"
+          "source_row_fingerprint": "3be0dcc25f593f7d6b6cb03c4be2318875d69fb9eb33e0e3e95ce66d0b1e2864",
+          "plan_fingerprint": "465eafbaed52e29cd2399ee347c1d003"
         },
         {
           "review_row": 34,
@@ -859,8 +859,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "139682dec570d6a8e464b27002c703954a2c234574f4c21e1c7ab00eacbd92af",
-          "plan_fingerprint": "88186145cfc41c56027e3fb6fa66cd3b"
+          "source_row_fingerprint": "2ec220b2cf72cb10fd068ec32724323726c3f382cc04e269ae125eacc3592e36",
+          "plan_fingerprint": "ce96147ff8949831d63445da9e09abca"
         },
         {
           "review_row": 35,
@@ -883,8 +883,8 @@
           "product_format": "powder",
           "price": 28.99,
           "in_stock": true,
-          "source_row_fingerprint": "ac4e6118a863cc96ea5ec111843b720fea0757f1931a2fe023187567b7f2e082",
-          "plan_fingerprint": "2ad71bfae1b6ce9ad53ea7c7e241eae6"
+          "source_row_fingerprint": "daff1c66617abfb608f0b8bd4a9a3f48d1089e02f9672ad6be118a32b05c9214",
+          "plan_fingerprint": "7c8133f8e2276b93c5664060c8ccd297"
         },
         {
           "review_row": 36,
@@ -907,8 +907,8 @@
           "product_format": "liquid",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "f82956d308b32b05bbca0be2c6ae5774a8c7a851ba69e7f386bbf8c614170645",
-          "plan_fingerprint": "711abd0929ca6b0c22417a73e80bb352"
+          "source_row_fingerprint": "6b2bfc3c0e06bb9c7941fb3e0a316b4eaa1fae4bb6522a5953775239f371ebbe",
+          "plan_fingerprint": "b1573c9c25b40b395b9a5f5cc65d6e8e"
         },
         {
           "review_row": 37,
@@ -931,8 +931,8 @@
           "product_format": "liquid",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "63c432cae2f95d62833dc86d92b698087dfdbf80292fa0843a54f798618a5202",
-          "plan_fingerprint": "2d8f34a9381f4c186b5fc44703796105"
+          "source_row_fingerprint": "1912f19cd423cd8cc0d736d7339a22055eba66698e39bf10c73ce61fa8a12014",
+          "plan_fingerprint": "d4608667170b2885155cae4573a5ca3b"
         },
         {
           "review_row": 38,
@@ -955,8 +955,8 @@
           "product_format": "liquid",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "3e82b14b8fdd500cf123482a335f01ca492650443076c1da47e9bad60a7ec5ca",
-          "plan_fingerprint": "0da47533c2724c6101a4271f7cccd3b6"
+          "source_row_fingerprint": "1fe5d9c5ea9817c8cad816eae787a32d55978c03fee6c5264e2f5e2644f0d302",
+          "plan_fingerprint": "89f0fcfea47879716632cfb63ec2653e"
         },
         {
           "review_row": 39,
@@ -979,8 +979,8 @@
           "product_format": "liquid",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "a56279f481556de27c38a7d88c03ddbe3df4a977fb8e30ca552d903aadc2a507",
-          "plan_fingerprint": "04334bf6537a2cbb48dad20973cd0a29"
+          "source_row_fingerprint": "9ea03cb9e620eecb92e3652dd604c8f8c84e033e71e1928c0062445e18e0bdbe",
+          "plan_fingerprint": "0074aae85c666767b8b61e6f8fe07bc1"
         },
         {
           "review_row": 40,
@@ -1003,8 +1003,8 @@
           "product_format": "liquid",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "c962f77d26190f57e060fd6095da335aaa19397a479e7a38b6e0296e584c6486",
-          "plan_fingerprint": "0abe8990b90555023ad86b76ef3168a9"
+          "source_row_fingerprint": "b32d689ae6334a4194b84e87b371e3c31677266dbd0c7e628d49094fe8f93f9e",
+          "plan_fingerprint": "8149494f4ee0ae563d65b34718145776"
         },
         {
           "review_row": 41,
@@ -1027,8 +1027,8 @@
           "product_format": "liquid",
           "price": 21.99,
           "in_stock": true,
-          "source_row_fingerprint": "602dbf5be16e501ea715c437a3d2ad324add164c85f96fe460c48896f0dc04cc",
-          "plan_fingerprint": "30c2add66101f2e5388645a76c2cb026"
+          "source_row_fingerprint": "c654d98761a0ea6e1bd48acf2ba96df649a7cc21016ddf3f304897652c460442",
+          "plan_fingerprint": "c0c6ae61e62ac1626b7f1723beb22ef3"
         }
       ]
     }
