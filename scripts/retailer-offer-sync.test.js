@@ -292,4 +292,10 @@ test("10 Reps uses the shared refresh profile with one frozen existing-offer sco
   assert.ok(manifest.rows.every(row => row.mapping_id && row.offer_id && row.canonical_product_id && row.canonical_variant_id));
 });
 
+test("shared refresh source accepts a BOM-prefixed protected local environment file", () => {
+  const source = fs.readFileSync(path.join(__dirname, "fit-house-offer-refresh.js"), "utf8");
+  assert.match(source, /line\.replace\(\/\^\\uFEFF\//);
+  assert.match(source, /config\.local_env_path==="\.\.\/supplementscout\.env\.10reps\.local"/);
+});
+
 module.exports = { input, inventory };

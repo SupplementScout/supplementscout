@@ -9,7 +9,6 @@ const {
 } = require("./apply-selected-migrations");
 const {
   CONTRACTS,
-  ledgerIdentifier,
   ledgerRowsFingerprint,
   validateDatabaseOwner,
 } = require("./supabase-migration-selector");

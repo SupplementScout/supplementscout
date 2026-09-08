@@ -228,16 +228,15 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the exact pending 10 Reps control-plane migration", () => {
+test("production records the applied 10 Reps control-plane migration", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [
-    { filename: TEN_REPS_SYNC_REGISTRATION_MIGRATION, sha256: TEN_REPS_SYNC_REGISTRATION_SHA256 },
-  ]);
-  assert.equal(contract.ledgerCount, 196);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 197);
   assert.equal(
     contract.ledgerFingerprint,
-    "5b85298a0040d9d9729a176bdb5297184c39e342d1d1259b5d1b21bc756509c5",
+    "e7db3c6ea6664f14b8d44ed00825db57188e34e46c12c980eab3a279bd4bd60f",
   );
+  assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_PACKAGE_MIGRATION)), REVIEWED_CATALOGUE_PACKAGE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
@@ -332,7 +331,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects only the 10 Reps registration", () => {
+test("production binds its exact ledger with no unexpected pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -358,13 +357,13 @@ test("production binds its exact ledger and selects only the 10 Reps registratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 196);
+  assert.equal(result.ledger_count, 197);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 197);
-  assert.deepEqual(result.pending_files, [TEN_REPS_SYNC_REGISTRATION_MIGRATION]);
-  assert.equal(result.pending_file, TEN_REPS_SYNC_REGISTRATION_MIGRATION);
-  assert.equal(result.pending_sha256, TEN_REPS_SYNC_REGISTRATION_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [TEN_REPS_SYNC_REGISTRATION_MIGRATION]: TEN_REPS_SYNC_REGISTRATION_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
