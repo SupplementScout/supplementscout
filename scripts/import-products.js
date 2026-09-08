@@ -3017,6 +3017,15 @@ async function validateNewRetailerMappingIdentity({
     productVariant?.planned_create === true &&
     String(productVariant.product_id) === String(product?.id)
   );
+  const reviewedCatalogueIdentity = row.__reviewed_catalogue_identity;
+  const exactReviewedCataloguePlannedVariant = Boolean(
+    reviewedCatalogueIdentity?.contract === "reviewed-catalogue-package-v1" &&
+    reviewedCatalogueIdentity.action === "create_variant_after_parent" &&
+    reviewedCatalogueIdentity.external_product_id === externalProductId &&
+    reviewedCatalogueIdentity.external_variant_id === externalVariantId &&
+    productVariant?.planned_create === true &&
+    String(productVariant.product_id) === String(product?.id)
+  );
   if (
     (
       urlPeers.length > 0 ||
@@ -3037,7 +3046,8 @@ async function validateNewRetailerMappingIdentity({
       )
     ) &&
     !exactPredatorsCm3PlannedVariant &&
-    !exactPredatorsV3PlannedVariant
+    !exactPredatorsV3PlannedVariant &&
+    !exactReviewedCataloguePlannedVariant
   ) {
     throw new Error(
       "shared parent URL requires explicit exact canonical product and variant IDs"
@@ -3067,7 +3077,7 @@ async function validateNewRetailerMappingIdentity({
     external_url: getRetailerProductUrl(row),
     legacy: false,
   });
-  const canonicalUrlPeers = exactPredatorsCm3PlannedVariant || exactPredatorsV3PlannedVariant
+  const canonicalUrlPeers = exactPredatorsCm3PlannedVariant || exactPredatorsV3PlannedVariant || exactReviewedCataloguePlannedVariant
     ? urlPeers.filter((peer) => String(peer.product_id) === String(product.id))
     : urlPeers;
   validateSharedParentPeerCohort([
@@ -3711,6 +3721,9 @@ async function resolveCanonicalProductVariant(
       const evidenceMatches =
         flavourMatches &&
         (!evidence.size || sizeKey(evidence.size) === sizeKey(variantSize)) &&
+        (evidence.unitCount == null ||
+          reviewedCountIdentity(variant.display_name, evidence.unitCount, evidence.unitType) ||
+          reviewedCountIdentity(variant.variant_key, evidence.unitCount, evidence.unitType)) &&
         (evidence.packCount === null ||
           Number(evidence.packCount) === Number(variant.pack_count)) &&
         (!evidence.productFormat ||
@@ -4617,6 +4630,8 @@ function variantMatchesPlannedValues(variant, values) {
     variantFlavour &&
     valuesFlavour &&
     variantFlavour === valuesFlavour &&
+    variantSize &&
+    valuesSize &&
     variantSize === valuesSize &&
     Number(variant.pack_count ?? 1) === Number(values.pack_count ?? 1)
   );

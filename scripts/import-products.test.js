@@ -3152,6 +3152,39 @@ test("generic reviewed catalogue plans an owner-reviewed count product without i
   assert.equal(supabase.writes.length, 0);
 });
 
+test("generic reviewed catalogue permits an exact count sibling whose WooCommerce URL uses a size option", async () => {
+  const url = "https://shop.example/product/turkesterone/?attribute_size=90%20Caps";
+  const row = baseCanonicalFeedRow({
+    retailer_name: "Example Shop", retailer_website: "https://shop.example/",
+    external_product_id: "7971", external_variant_id: "7973", external_sku: "CHA071", external_gtin: "",
+    external_options: JSON.stringify({ Size: "90 Caps" }), product_name: "Example Turkesterone 500mg",
+    variant_name: "Unflavoured / 90 Capsules", brand: "Example", category: "Testosterone Boosters",
+    product_format: "capsule", flavour: "Unflavoured", size: "", size_unit: "", pack_count: "1",
+    slug: "example-turkesterone-500mg", external_url: url, affiliate_url: url, product_id: "1363", product_variant_id: "",
+  });
+  const reviewed = {
+    review_row: 1, external_product_id: "7971", external_variant_id: "7973", action: "create_variant_on_existing_product",
+    product_id: 1363, product_variant_id: null, product_name: row.product_name, variant_name: row.variant_name,
+    brand: "Example", category: "Testosterone Boosters", flavour: "Unflavoured", size_value: null, size_unit: null,
+    pack_count: "1", product_format: "capsule", unit_count: 90, unit_type: "capsules", source_url: url,
+  };
+  const supabase = createMockSupabase(reviewedSeed({
+    retailers: [{ id: "14", name: "Example Shop", slug: "example-shop", website: "https://shop.example/", is_active: true }],
+    products: [{ id: "1363", name: row.product_name, slug: row.slug, brand: "Example", category: "Testosterone Boosters", product_format: "capsule", is_active: true, merged_into_product_id: null }],
+    product_variants: [{ id: "3968", product_id: "1363", variant_key: "unflavoured-60-capsules", display_name: "Unflavoured / 60 Capsules", flavour_code: "unflavoured", flavour_label: "Unflavoured", size_value: null, size_unit: null, pack_count: 1, product_format: "capsule", is_active: true, is_default: false }],
+  }));
+  setSupabaseForTests(supabase);
+  const result = await runImportRowsRaw([row], {
+    mode: "feed", safeCreate: true, dryRun: true,
+    reviewedCatalogueProfile: { manifest: { retailer: { slug: "example-shop" } }, profile: { row_count: 1, rows: [reviewed] } },
+  });
+  assert.deepEqual(result.report.blockedRows, []);
+  assert.equal(result.report.approvedRows[0].importPlan.product.action, "existing");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.action, "create_variant");
+  assert.equal(result.report.approvedRows[0].importPlan.product_variant.evidence.unit_count, "90");
+  assert.equal(supabase.writes.length, 0);
+});
+
 test("generic reviewed catalogue accepts an explicitly reviewed unflavoured variant with or without a source flavour option", async () => {
   const row = baseCanonicalFeedRow({
     retailer_name: "Example Shop", retailer_website: "https://shop.example/",
