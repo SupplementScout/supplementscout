@@ -155,7 +155,15 @@ async function run(options, dependencies = {}) {
       actions = inspectVariants(family, existing);
       if (actions.some((row) => row.action === "CREATE_VARIANT")) fail(`Bootstrap postcondition failed for ${family.external_product_id}`);
     }
-    families.push({ external_product_id: String(family.external_product_id), product_id: String(family.product_id), actions: actions.map(({ intended, ...action }) => action) });
+    families.push({
+      external_product_id: String(family.external_product_id),
+      product_id: String(family.product_id),
+      actions: actions.map((action) => {
+        const reportAction = { ...action };
+        delete reportAction.intended;
+        return reportAction;
+      }),
+    });
   }
   const planned = families.flatMap((family) => family.actions).filter((row) => row.action === "CREATE_VARIANT").length;
   const report = { schema_version: 1, kind: "gym-high-reviewed-catalogue-bootstrap", result: "PASS", mode: options.mode, database_writes: insertedVariantCount, target_project_ref: PROJECT_REF, approval_fingerprint: approval.approval_fingerprint, family_count: families.length, approved_mapping_count: approval.approved_mapping_count, planned_variant_create_count: planned, inserted_variant_count: insertedVariantCount, families, completed_at: new Date().toISOString() };

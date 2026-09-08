@@ -370,15 +370,18 @@ async function ensureNewFamily(db, family) {
     fail(`Partial canonical family state for ${family.external_product_id}`);
   }
   if (classification.state === "EMPTY") {
-    const payload = intended.map(
-      ({ external_variant_id, expected_id, ...variant }) => ({
+    const payload = intended.map((row) => {
+      const variant = { ...row };
+      delete variant.external_variant_id;
+      delete variant.expected_id;
+      return {
         ...variant,
         product_id: product.id,
         gtin: null,
         image: null,
         nutrition_override: {},
-      })
-    );
+      };
+    });
     const result = await db
       .from("product_variants")
       .insert(payload)
@@ -451,15 +454,18 @@ async function ensureExistingFamily(db, family) {
   }
   if (missing.length > 0) {
     const result = await db.from("product_variants").insert(
-      missing.map(
-        ({ external_variant_id, expected_id, ...variant }) => ({
+      missing.map((row) => {
+        const variant = { ...row };
+        delete variant.external_variant_id;
+        delete variant.expected_id;
+        return {
           ...variant,
           product_id: Number(family.product_id),
           gtin: null,
           image: null,
           nutrition_override: {},
-        })
-      )
+        };
+      })
     );
     if (result.error) throw result.error;
     existing = await readVariants(db, Number(family.product_id));

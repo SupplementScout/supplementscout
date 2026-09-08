@@ -54,7 +54,7 @@ function optionEvidence(family, reviewed) {
   if (family.size_value != null && family.size_unit) options.Size = `${family.size_value}${family.size_unit}`;
   return options;
 }
-function controls(spec, mapping, family) {
+function controls(spec, mapping) {
   const standalone = spec.externalProductId === spec.externalVariantId;
   return standalone ? {
     legacy_mapping_upgrade: "true", retailer_product_id: String(spec.mappingId), expected_retailer_product_updated_at: mapping.updated_at,
@@ -79,7 +79,7 @@ function mappingState(spec, family, reviewed, mapping, offer) {
     offer.retailer_id === 1 && String(offer.retailer_product_id) === String(mapping.id) && String(offer.product_id) === String(spec.productId);
   return legacy ? "LEGACY" : "DRIFT";
 }
-function buildRow({ spec, source, family, reviewed, product, variant, mapping, offer, capturedAt }) {
+function buildRow({ spec, family, reviewed, product, variant, mapping, offer, capturedAt }) {
   const shippingKnown = offer.shipping_cost != null;
   return {
     retailer_name: "GYM HIGH", retailer_website: "https://gymhigh.co.uk",
@@ -91,7 +91,7 @@ function buildRow({ spec, source, family, reviewed, product, variant, mapping, o
     flavour: variant.flavour_label || variant.flavour_code || "", product_format: variant.product_format || product.product_format || "",
     pack_count: variant.pack_count ?? 1, source_updated_at: capturedAt, external_sku: "",
     external_options: optionEvidence(family, reviewed) == null ? "" : JSON.stringify(optionEvidence(family, reviewed)), product_id: String(product.id), product_variant_id: String(variant.id),
-    ...controls(spec, mapping, family),
+    ...controls(spec, mapping),
   };
 }
 async function run(options, dependencies = {}) {
@@ -119,7 +119,7 @@ async function run(options, dependencies = {}) {
     const state = mappingState(spec, family, reviewed, mapping, offer);
     if (state === "COMPLETE") { completedMappingIds.push(String(spec.mappingId)); continue; }
     if (state !== "LEGACY") fail(`Legacy identity drift for mapping ${spec.mappingId}`);
-    rows.push(buildRow({ spec, source, family, reviewed, product, variant, mapping, offer, capturedAt: sourceReport.captured_at }));
+    rows.push(buildRow({ spec, family, reviewed, product, variant, mapping, offer, capturedAt: sourceReport.captured_at }));
   }
   if (rows.length + completedMappingIds.length !== 21 || new Set([...rows.map((row) => row.retailer_product_id), ...completedMappingIds]).size !== 21) fail("GYM HIGH identity feed scope mismatch");
   const controlColumns = [...new Set(rows.flatMap(Object.keys))].filter((key) => ![...fs.readFileSync(TEMPLATE, "utf8").split(/\r?\n/, 1)[0].split(","), ...EXTRA_COLUMNS].includes(key));
