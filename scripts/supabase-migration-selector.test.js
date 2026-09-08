@@ -84,6 +84,8 @@ const INTERRUPTED_SHARED_REFRESH_MIGRATION = "20260908180000_supersede_interrupt
 const INTERRUPTED_SHARED_REFRESH_SHA256 = "0e8ec5a93f6a0d5de280bfef55f23ab150d5ccf963a96f79f8296eb4aef6de87";
 const EXPIRED_DISCOUNT_JONS_MIGRATION = "20260908190000_supersede_expired_discount_jons_refresh_plans.sql";
 const EXPIRED_DISCOUNT_JONS_SHA256 = "e6520b5d6c688913c33b1016e018d5a09281700a15d3a4d57e0e551fb779194f";
+const SERIALIZED_SHARED_REFRESH_MIGRATION = "20260908200000_serialize_shared_refresh_and_close_partial_jons.sql";
+const SERIALIZED_SHARED_REFRESH_SHA256 = "0bb7c151f5458302ff4f560d6ffa9f75db494f199343b3a4a385e3eff478e3c5";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -234,7 +236,7 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the applied control-plane and expired-plan cleanup migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{ filename: SERIALIZED_SHARED_REFRESH_MIGRATION, sha256: SERIALIZED_SHARED_REFRESH_SHA256 }]);
   assert.equal(contract.ledgerCount, 199);
   assert.equal(
     contract.ledgerFingerprint,
@@ -365,11 +367,11 @@ test("production binds its exact ledger with no unexpected pending migration", (
   });
   assert.equal(result.ledger_count, 199);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 199);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 200);
+  assert.deepEqual(result.pending_files, [SERIALIZED_SHARED_REFRESH_MIGRATION]);
+  assert.equal(result.pending_file, SERIALIZED_SHARED_REFRESH_MIGRATION);
+  assert.equal(result.pending_sha256, SERIALIZED_SHARED_REFRESH_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [SERIALIZED_SHARED_REFRESH_MIGRATION]: SERIALIZED_SHARED_REFRESH_SHA256 });
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);

@@ -256,6 +256,8 @@ const CONTRACTS = Object.freeze({
         "0e8ec5a93f6a0d5de280bfef55f23ab150d5ccf963a96f79f8296eb4aef6de87",
       "20260908190000_supersede_expired_discount_jons_refresh_plans.sql":
         "e6520b5d6c688913c33b1016e018d5a09281700a15d3a4d57e0e551fb779194f",
+      "20260908200000_serialize_shared_refresh_and_close_partial_jons.sql":
+        "0bb7c151f5458302ff4f560d6ffa9f75db494f199343b3a4a385e3eff478e3c5",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -290,7 +292,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260908200000_serialize_shared_refresh_and_close_partial_jons.sql",
+        sha256: "0bb7c151f5458302ff4f560d6ffa9f75db494f199343b3a4a385e3eff478e3c5",
+      }),
+    ]),
   }),
 });
 
