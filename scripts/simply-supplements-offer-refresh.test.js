@@ -116,6 +116,13 @@ test("Simply DB postflight proves executable freshness, review isolation and pla
   assert.equal(result.result, "PASS");
   assert.equal(result.freshness_change_count, 1);
   assert.equal(result.stock_change_count, 1);
+  const observedBaseline = { ...baseline, snapshot: { ...baseline.snapshot, business_price_history_count: 4, daily_confirmation_count: 10, price_history_count: 14 } };
+  observedBaseline.evidence_hash = baselineHash(observedBaseline);
+  const observedAfter = { ...after, business_price_history_count: 4, daily_confirmation_count: 11, price_history_count: 15 };
+  const observed = verifyPostflight(observedBaseline, observedAfter, execution);
+  assert.equal(observed.price_history_delta, 0);
+  assert.equal(observed.daily_confirmation_delta, 1);
+  assert.equal(observed.raw_price_history_delta, 1);
   assert.equal(verifyPostflight(baseline, {
     ...after,
     rows: [after.rows[0], { ...after.rows[1], last_checked_at: new Date(after.rows[1].last_checked_at) }],

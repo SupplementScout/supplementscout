@@ -154,8 +154,20 @@ async function capture(client, profile) {
     invariant(rows.length === profile.approvedMappingCount, "Approved postflight DB scope drift");
   }
   const offerIds = rows.map((row) => row.offer_id);
-  const history = await client.query("select count(*)::integer count from public.price_history where offer_id=any($1::bigint[])", [offerIds]);
-  return { captured_at: new Date().toISOString(), retailer_id: profile.retailerId, retailer_name: profile.retailerName, row_count: rows.length, price_history_count: history.rows[0].count, rows };
+  const history = await client.query(`
+    select count(*)::integer count,
+           count(*) filter(where observation_kind is distinct from 'daily_confirmation')::integer business_count,
+           count(*) filter(where observation_kind='daily_confirmation')::integer daily_confirmation_count
+      from public.price_history
+     where offer_id=any($1::bigint[])`, [offerIds]);
+  return {
+    captured_at: new Date().toISOString(), retailer_id: profile.retailerId,
+    retailer_name: profile.retailerName, row_count: rows.length,
+    price_history_count: history.rows[0].count,
+    business_price_history_count: history.rows[0].business_count,
+    daily_confirmation_count: history.rows[0].daily_confirmation_count,
+    rows,
+  };
 }
 
 function verifyPostflight(baseline, after, execution) {
@@ -217,9 +229,23 @@ function verifyPostflight(baseline, after, execution) {
   if (logical.last_checked_at_updates !== undefined) {
     invariant(freshnessChanges === Number(logical.last_checked_at_updates), "Freshness update count differs from plan");
   }
-  const historyDelta = after.price_history_count - baseline.snapshot.price_history_count;
+  const rawHistoryDelta = after.price_history_count - baseline.snapshot.price_history_count;
+  const hasObservationBreakdown = Number.isInteger(after.business_price_history_count)
+    && Number.isInteger(after.daily_confirmation_count)
+    && Number.isInteger(baseline.snapshot.business_price_history_count)
+    && Number.isInteger(baseline.snapshot.daily_confirmation_count);
+  const historyDelta = hasObservationBreakdown
+    ? after.business_price_history_count - baseline.snapshot.business_price_history_count
+    : rawHistoryDelta;
+  const confirmationDelta = hasObservationBreakdown
+    ? after.daily_confirmation_count - baseline.snapshot.daily_confirmation_count
+    : 0;
   invariant(historyDelta === Number(rowDeltas.price_history || 0), "Price history delta differs from plan");
-  return { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: baseline.profile, approved_mapping_count: execution.approved_mapping_count, executable_plan_count: execution.executable_plan_count, executed_plan_count: execution.executed_plan_count, review_row_count: execution.review_row_count, blocked_row_count: execution.blocked_row_count, price_change_count: priceChanges, stock_change_count: stockChanges, shipping_change_count: shippingChanges, total_change_count: totalChanges, offer_url_change_count: offerUrlChanges, mapping_url_change_count: mappingUrlChanges, freshness_change_count: freshnessChanges, price_history_delta: historyDelta, baseline_hash: baseline.evidence_hash, postflight_hash: hash(after), completed_at: new Date().toISOString() };
+  if (hasObservationBreakdown) {
+    invariant(rawHistoryDelta === historyDelta + confirmationDelta, "Price observation breakdown differs from raw history delta");
+    invariant(confirmationDelta >= 0 && confirmationDelta <= execution.executed_plan_count, "Daily confirmation delta exceeds executed scope");
+  }
+  return { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: baseline.profile, approved_mapping_count: execution.approved_mapping_count, executable_plan_count: execution.executable_plan_count, executed_plan_count: execution.executed_plan_count, review_row_count: execution.review_row_count, blocked_row_count: execution.blocked_row_count, price_change_count: priceChanges, stock_change_count: stockChanges, shipping_change_count: shippingChanges, total_change_count: totalChanges, offer_url_change_count: offerUrlChanges, mapping_url_change_count: mappingUrlChanges, freshness_change_count: freshnessChanges, price_history_delta: historyDelta, daily_confirmation_delta: confirmationDelta, raw_price_history_delta: rawHistoryDelta, baseline_hash: baseline.evidence_hash, postflight_hash: hash(after), completed_at: new Date().toISOString() };
 }
 
 async function run(options, dependencies = {}) {
