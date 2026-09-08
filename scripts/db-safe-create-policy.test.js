@@ -9,6 +9,10 @@ const migrationPath = path.join(
 );
 
 const sql = fs.readFileSync(migrationPath, "utf8");
+const reviewedEnergySql = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260908070000_allow_owner_reviewed_energy_supplements_default_create.sql"),
+  "utf8"
+);
 
 test("DB safe-create migration replaces only the reviewed-family policy predicate", () => {
   assert.match(sql, /atomic_import_safe_create_category_allowed\(text,text,text\)/);
@@ -46,4 +50,12 @@ test("DB safe-create migration keeps reviewed families powder-only outside the b
   assert.match(sql, /coalesce\(p_category, ''\) = 'Whey Protein'/);
   assert.match(sql, /coalesce\(p_category, ''\) = 'Pre Workout'/);
   assert.match(sql, /coalesce\(p_category, ''\) in \('Vitamins','Health Supplements','Amino Acids','Creatine'\)/);
+});
+
+test("owner-reviewed Energy Supplements uses the shared sealed manifest gate in validation and apply", () => {
+  assert.match(reviewedEnergySql, /atomic_import_validate_standard_plan_core\(jsonb\)/);
+  assert.match(reviewedEnergySql, /atomic_import_apply_standard_plan_core\(jsonb\)/);
+  assert.match(reviewedEnergySql, /approved_category}' = 'Energy Supplements'/);
+  assert.match(reviewedEnergySql, /atomic_import_reviewed_catalogue_plan_allowed\(p_plan\)/);
+  assert.doesNotMatch(reviewedEnergySql, /grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
 });
