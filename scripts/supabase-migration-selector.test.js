@@ -236,15 +236,16 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 
 test("production records the applied control-plane and expired-plan cleanup migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: SERIALIZED_SHARED_REFRESH_MIGRATION, sha256: SERIALIZED_SHARED_REFRESH_SHA256 }]);
-  assert.equal(contract.ledgerCount, 199);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 200);
   assert.equal(
     contract.ledgerFingerprint,
-    "a9a614b100a216b7f0c2dded3c5ce24d4603ccf3319bb6d7d493743c7aa05640",
+    "13e4a7f3b83f2cdcd2c664ad008cd14abd713f8f0ea46bb2c2bddf8b44e85b62",
   );
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, EXPIRED_DISCOUNT_JONS_MIGRATION)), EXPIRED_DISCOUNT_JONS_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, SERIALIZED_SHARED_REFRESH_MIGRATION)), SERIALIZED_SHARED_REFRESH_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_PACKAGE_MIGRATION)), REVIEWED_CATALOGUE_PACKAGE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_DIGEST_FIX_MIGRATION)), REVIEWED_VARIANT_DIGEST_FIX_SHA256);
@@ -365,13 +366,13 @@ test("production binds its exact ledger with no unexpected pending migration", (
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 199);
+  assert.equal(result.ledger_count, 200);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 200);
-  assert.deepEqual(result.pending_files, [SERIALIZED_SHARED_REFRESH_MIGRATION]);
-  assert.equal(result.pending_file, SERIALIZED_SHARED_REFRESH_MIGRATION);
-  assert.equal(result.pending_sha256, SERIALIZED_SHARED_REFRESH_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [SERIALIZED_SHARED_REFRESH_MIGRATION]: SERIALIZED_SHARED_REFRESH_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
@@ -382,6 +383,7 @@ test("production binds its exact ledger with no unexpected pending migration", (
   assert.ok(result.selected_files.includes(TEN_REPS_SYNC_REGISTRATION_MIGRATION));
   assert.ok(result.selected_files.includes(INTERRUPTED_SHARED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(EXPIRED_DISCOUNT_JONS_MIGRATION));
+  assert.ok(result.selected_files.includes(SERIALIZED_SHARED_REFRESH_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_COUNT_SIBLING_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_COUNT_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_EXISTING_CATEGORIES_MIGRATION));
