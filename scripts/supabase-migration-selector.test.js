@@ -78,6 +78,8 @@ const REVIEWED_COUNT_SIBLING_MIGRATION = "20260908120000_allow_reviewed_count_si
 const REVIEWED_COUNT_SIBLING_SHA256 = "17d4ad4d7d1647240cc8f98c6114f655df900a78f04135478e1bdaf73dea0e04";
 const REVIEWED_COUNT_NORMALIZATION_MIGRATION = "20260908123000_fix_reviewed_count_sibling_normalization.sql";
 const REVIEWED_COUNT_NORMALIZATION_SHA256 = "5e92d95c84488c5e4c9dde874155f6d7a3e2f16479239acb5665b4c4a024e652";
+const TEN_REPS_SYNC_REGISTRATION_MIGRATION = "20260908100000_add_10reps_offer_sync_registration.sql";
+const TEN_REPS_SYNC_REGISTRATION_SHA256 = "abfca02455ffd0e14618857594551d0da0fc6c68a171f7104c2995db578f0826";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -226,12 +228,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records count sibling support and selects its normalization fix", () => {
+test("production records the two exact pending control-plane migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{
-    filename: REVIEWED_COUNT_NORMALIZATION_MIGRATION,
-    sha256: REVIEWED_COUNT_NORMALIZATION_SHA256,
-  }]);
+  assert.deepEqual(contract.pending, [
+    { filename: TEN_REPS_SYNC_REGISTRATION_MIGRATION, sha256: TEN_REPS_SYNC_REGISTRATION_SHA256 },
+    { filename: REVIEWED_COUNT_NORMALIZATION_MIGRATION, sha256: REVIEWED_COUNT_NORMALIZATION_SHA256 },
+  ]);
   assert.equal(contract.ledgerCount, 195);
   assert.equal(
     contract.ledgerFingerprint,
@@ -359,11 +361,11 @@ test("production binds its exact ledger and selects only the count normalization
   });
   assert.equal(result.ledger_count, 195);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 196);
-  assert.deepEqual(result.pending_files, [REVIEWED_COUNT_NORMALIZATION_MIGRATION]);
-  assert.equal(result.pending_file, REVIEWED_COUNT_NORMALIZATION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_COUNT_NORMALIZATION_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [REVIEWED_COUNT_NORMALIZATION_MIGRATION]: REVIEWED_COUNT_NORMALIZATION_SHA256 });
+  assert.equal(result.selected_files.length, 197);
+  assert.deepEqual(result.pending_files, [TEN_REPS_SYNC_REGISTRATION_MIGRATION, REVIEWED_COUNT_NORMALIZATION_MIGRATION]);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, { [TEN_REPS_SYNC_REGISTRATION_MIGRATION]: TEN_REPS_SYNC_REGISTRATION_SHA256, [REVIEWED_COUNT_NORMALIZATION_MIGRATION]: REVIEWED_COUNT_NORMALIZATION_SHA256 });
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
@@ -371,6 +373,7 @@ test("production binds its exact ledger and selects only the count normalization
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_COUNT_SIBLING_MIGRATION)), REVIEWED_COUNT_SIBLING_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_COUNT_NORMALIZATION_MIGRATION)), REVIEWED_COUNT_NORMALIZATION_SHA256);
   assert.ok(result.selected_files.includes(REVIEWED_COUNT_NORMALIZATION_MIGRATION));
+  assert.ok(result.selected_files.includes(TEN_REPS_SYNC_REGISTRATION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_COUNT_SIBLING_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_VARIANT_COUNT_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_EXISTING_CATEGORIES_MIGRATION));
@@ -525,6 +528,7 @@ test("staging excludes the production-only exact-pack migrations byte-for-byte",
     REVIEWED_VARIANT_COUNT_MIGRATION,
     REVIEWED_COUNT_SIBLING_MIGRATION,
     REVIEWED_COUNT_NORMALIZATION_MIGRATION,
+    TEN_REPS_SYNC_REGISTRATION_MIGRATION,
   ]) {
     assert.ok(result.excluded_files.includes(filename));
     assert.ok(!result.selected_files.includes(filename));

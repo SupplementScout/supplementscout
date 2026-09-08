@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "retailer_id": 14,
+  "retailer_name": "10 Reps",
+  "retailer_slug": "10-reps",
+  "store_url": "https://www.10reps.co.uk/",
+  "source_platform": "CSV_PRODUCT_FEED",
+  "source_url_env": "TEN_REPS_FEED_URL",
+  "local_env_path": "../supplementscout.env.10reps.local",
+  "manifest_path": "config/retailers/10reps-approved-offer-manifest.json",
+  "manifest_sha256": "5b5c4583fc456a0cc2d1348bcada5e07faa18be3fadd8bafb8de01b9dcf7c4f8",
+  "approved_mapping_count": 950,
+  "registration_rpc": "register_10reps_offer_sync_control_plan",
+  "environment_prefix": "TEN_REPS_REFRESH",
+  "phase_prefix": "TEN_REPS_REFRESH",
+  "output_directory": "10reps-offer-refresh",
+  "guard_scope_name": "10REPS_APPROVED_EXISTING_950",
+  "source_baseline": {
+    "product_count": 473,
+    "variant_count": 1663,
+    "minimum_count_ratio": 0.9,
+    "genuine_collapse_ratio": 0.75
+  },
+  "source_fetch": {
+    "maximum_attempts": 3,
+    "retry_base_delay_ms": 500,
+    "timeout_ms": 30000,
+    "maximum_bytes": 10000000
+  },
+  "guardrails": {
+    "preserve_existing_urls": true,
+    "allowed_existing_offer_hosts": ["www.10reps.co.uk"],
+    "required_matched_offers": 950,
+    "source_freshness_hours": 24,
+    "future_clock_skew_minutes": 5,
+    "full_snapshot_minimum_source_count_ratio": 0.9,
+    "maximum_total_oos_ratio": 0.6,
+    "maximum_oos_increase_percentage_points": 0.15,
+    "maximum_changed_record_ratio": 0.25,
+    "mass_price_change_block_ratio": 0.2,
+    "per_row_price_hard_block_ratio": 0.6,
+    "per_row_price_hard_block_absolute_gbp": "20.00",
+    "mass_oos_block_count": 20,
+    "ignore_source_sku": true
+  },
+  "shipping_policy": { "mode": "fixed", "cost_gbp": "3.99" },
+  "discovery_policy": {
+    "mode": "report_only",
+    "catalogue_creates": false,
+    "missing_mapped_variant_mode": "BLOCK",
+    "maximum_missing_mapped_variants": 0,
+    "maximum_missing_mapped_variant_ratio": 0
+  },
+  "policy": {
+    "existing_identity_only": true,
+    "catalogue_creates": false,
+    "mapping_creates": false,
+    "allowed_fields": ["price", "in_stock", "last_checked_at"],
+    "maximum_price_change_ratio": 0.6,
+    "maximum_price_change_absolute_gbp": "20.00"
+  }
+}

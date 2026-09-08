@@ -1,4 +1,7 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 const fixture = require("./test-fixtures/retailer-offer-sync/jons-supplements-26.json");
 const config = require("../config/retailers/jons-supplements-offer-sync.json");
@@ -7,6 +10,7 @@ const { fingerprint, sortRows } = require("./lib/retailer-offer-sync/artifacts")
 const { classifyExistingOffers } = require("./lib/retailer-offer-sync/classifier");
 const { canTransition, transition } = require("./lib/retailer-offer-sync/state-machine");
 const { buildDryRun, buildExecutionArtifact, executeApprovedBatch, parseArgs } = require("./retailer-offer-sync");
+const { REQUIRED_COLUMNS, projectCsvRows, readCsvProductFeed, safeFeedUrl } = require("./lib/csv-product-feed-reader");
 
 function inventory() {
   const targets = [];
@@ -249,6 +253,43 @@ test("CLI is dry-run only and approved execution needs injected RPC and approval
   const calls = []; const result = await executeApprovedBatch({ approvalId: "approval", executionFingerprint: "8".repeat(64), artifact, rpc: async (...args) => { calls.push(args); return { data: "ok" }; } });
   assert.equal(result.data, "ok"); assert.equal(calls[0][0], "execute_retailer_offer_sync_batch");
   assert.deepEqual(calls[0][1].p_request.expected_migration_versions, artifact.expected_migration_versions); assert.equal(calls[0][1].p_request.expected_migration_fingerprint, artifact.expected_migration_fingerprint);
+});
+
+test("shared CSV feed reader projects exact commercial rows without exposing its protected URL", async () => {
+  const values = { product_id: "10", variant_id: "11", product_name: "Example", brand: "Brand", category: "Creatine", variant_name: "Berry", flavour: "Berry", size: "300g", sku: "SKU-11", ean: "", price: "20.00", sale_price: "18.99", current_price: "18.99", stock_status: "instock", product_url: "https://shop.example/product/example/?attribute_flavour=Berry", image_url: "https://shop.example/image.jpg", last_updated: "2026-09-08T10:00:00Z" };
+  const csv = `${REQUIRED_COLUMNS.join(",")}\n${REQUIRED_COLUMNS.map(column => values[column]).join(",")}\n`;
+  const projected = projectCsvRows(Buffer.from(csv), { storeUrl: "https://shop.example/", capturedAt: "2026-09-08T11:00:00Z" });
+  assert.deepEqual(projected.sourceVariants[0], { external_product_id: "10", external_variant_id: "11", external_sku: "SKU-11", product_handle: "product/example", price: "18.99", in_stock: true, url: values.product_url, external_url: values.product_url, source_updated_at: values.last_updated });
+  const result = await readCsvProductFeed({ feedUrl: "https://shop.example/?private_feed=secret-value", storeUrl: "https://shop.example/", maximumAttempts: 1, fetchImpl: async () => new Response(csv, { status: 200, headers: { "content-type": "text/csv; charset=utf-8" } }) });
+  assert.equal(result.source_variants.length, 1);
+  assert.equal(JSON.stringify(result).includes("secret-value"), false);
+  assert.throws(() => safeFeedUrl("https://other.example/?private_feed=secret-value", "https://shop.example/"), /retailer HTTPS origin/);
+});
+
+test("shared CSV feed reader fails closed on schema, identity, stock and price drift", () => {
+  const base = Object.fromEntries(REQUIRED_COLUMNS.map(column => [column, "x"]));
+  Object.assign(base, { product_id: "10", variant_id: "11", current_price: "10.00", stock_status: "instock", product_url: "https://shop.example/product/x", last_updated: "2026-09-08T10:00:00Z" });
+  const csv = rows => Buffer.from(`${REQUIRED_COLUMNS.join(",")}\n${rows.map(row => REQUIRED_COLUMNS.map(column => row[column]).join(",")).join("\n")}\n`);
+  assert.throws(() => projectCsvRows(csv([{ ...base, current_price: "free" }]), { storeUrl: "https://shop.example/" }), /invalid current price/);
+  assert.throws(() => projectCsvRows(csv([{ ...base, stock_status: "maybe" }]), { storeUrl: "https://shop.example/" }), /unknown stock status/);
+  assert.throws(() => projectCsvRows(csv([base, base]), { storeUrl: "https://shop.example/" }), /duplicate source identity/);
+});
+
+test("10 Reps uses the shared refresh profile with one frozen existing-offer scope", () => {
+  const config = require("../config/retailers/10reps-offer-sync.json");
+  const file = path.join(__dirname, "..", config.manifest_path);
+  const bytes = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
+  const manifest = JSON.parse(bytes);
+  assert.equal(crypto.createHash("sha256").update(bytes).digest("hex"), config.manifest_sha256);
+  assert.equal(config.source_platform, "CSV_PRODUCT_FEED");
+  assert.equal(config.approved_mapping_count, 950);
+  assert.equal(config.discovery_policy.catalogue_creates, false);
+  assert.equal(config.policy.mapping_creates, false);
+  assert.deepEqual(config.policy.allowed_fields, ["price", "in_stock", "last_checked_at"]);
+  assert.equal(config.shipping_policy.cost_gbp, "3.99");
+  assert.equal(manifest.rows.length, 950);
+  assert.equal(new Set(manifest.rows.map(row => row.external_variant_id)).size, 950);
+  assert.ok(manifest.rows.every(row => row.mapping_id && row.offer_id && row.canonical_product_id && row.canonical_variant_id));
 });
 
 module.exports = { input, inventory };

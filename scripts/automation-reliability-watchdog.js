@@ -28,9 +28,9 @@ function loadConfig(file = CONFIG_PATH) {
     config.maximum_success_age_hours === 48,
     "Watchdog success age must remain 48 hours",
   );
-  invariant(config.retailers.length === 11, "Watchdog must cover 11 retailers");
+  invariant(config.retailers.length === 12, "Watchdog must cover 12 retailers");
   invariant(
-    new Set(config.retailers.map((row) => String(row.id))).size === 11,
+    new Set(config.retailers.map((row) => String(row.id))).size === 12,
     "Watchdog retailer IDs must be unique",
   );
   const baseline = config.monitored_backlog;
@@ -40,8 +40,8 @@ function loadConfig(file = CONFIG_PATH) {
     "Watchdog monitored backlog snapshot hash is invalid",
   );
   invariant(
-    Object.keys(baseline.retailers || {}).length === 11,
-    "Watchdog monitored backlog must cover 11 retailers",
+    Object.keys(baseline.retailers || {}).length === 12,
+    "Watchdog monitored backlog must cover 12 retailers",
   );
   invariant(
     baseline.closeout_counts.review_queue_pending ===

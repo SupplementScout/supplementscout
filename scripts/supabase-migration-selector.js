@@ -250,6 +250,8 @@ const CONTRACTS = Object.freeze({
         "17d4ad4d7d1647240cc8f98c6114f655df900a78f04135478e1bdaf73dea0e04",
       "20260908123000_fix_reviewed_count_sibling_normalization.sql":
         "5e92d95c84488c5e4c9dde874155f6d7a3e2f16479239acb5665b4c4a024e652",
+      "20260908100000_add_10reps_offer_sync_registration.sql":
+        "abfca02455ffd0e14618857594551d0da0fc6c68a171f7104c2995db578f0826",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -285,6 +287,10 @@ const CONTRACTS = Object.freeze({
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
     pending: Object.freeze([
+      Object.freeze({
+        filename: "20260908100000_add_10reps_offer_sync_registration.sql",
+        sha256: "abfca02455ffd0e14618857594551d0da0fc6c68a171f7104c2995db578f0826",
+      }),
       Object.freeze({
         filename: "20260908123000_fix_reviewed_count_sibling_normalization.sql",
         sha256: "5e92d95c84488c5e4c9dde874155f6d7a3e2f16479239acb5665b4c4a024e652",

@@ -526,7 +526,7 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
     path.join(process.cwd(), ".github/workflows/automation-reliability-watchdog.yml"),
     "utf8"
   );
-  assert.equal(config.retailers.length, 11);
+  assert.equal(config.retailers.length, 12);
   assert.equal(config.maximum_success_age_hours, 48);
   assert.match(workflow, /cron: "11 \*\/6 \* \* \*"/);
   assert.match(workflow, /actions: read/);
@@ -881,8 +881,9 @@ test("watchdog isolates database-old offers only when every row is explicit revi
   assert.equal(loadWatchdogConfig().retailers.find((row) => row.id === 12).db_postflight_step, "Verify eBay UK DB postflight read-only");
 });
 
-test("shared DB postflight covers nine exact retailer scopes", () => {
+test("shared DB postflight covers exact retailer scopes", () => {
   const expected = {
+    "10-reps": [950, 950],
     "discount-supplements": [109, 109],
     "dolphin-fitness": [1, 1],
     "ebay-uk": [237, 237],

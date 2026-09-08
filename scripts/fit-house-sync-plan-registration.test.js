@@ -12,15 +12,17 @@ test("Fit House workflow runs scoped dry-run, apply, and idempotency on main", (
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.equal(
     (workflow.match(/node scripts\/fit-house-offer-refresh\.js --target=production --mode=dry-run/g) || []).length,
-    2,
+    4,
   );
   assert.equal(
     (workflow.match(/node scripts\/fit-house-offer-refresh\.js --target=production --mode=apply/g) || []).length,
-    1,
+    2,
   );
   assert.match(workflow, /cron: "47 2 \* \* \*"/);
   assert.match(workflow, /FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /secrets\.JONS_SYNC_VALIDATOR_DATABASE_URL/);
+  assert.match(workflow, /RETAILER_REFRESH_PROFILE: 10reps/);
+  assert.match(workflow, /TEN_REPS_FEED_URL: \$\{\{ secrets\.TEN_REPS_FEED_URL \}\}/);
 });
 
 test("scheduled runs are fail-closed and never expose SAFE_UPDATE", () => {

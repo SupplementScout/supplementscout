@@ -10,6 +10,13 @@ const ROOT = path.resolve(__dirname, "..");
 const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const PROFILES = Object.freeze({
+  "10-reps": {
+    retailerId: "14",
+    retailerName: "10 Reps",
+    credential: "TEN_REPS_REFRESH_VALIDATOR_DATABASE_URL",
+    manifestPath: "config/retailers/10reps-approved-offer-manifest.json",
+    approvedMappingCount: 950,
+  },
   "discount-supplements": {
     retailerId: "4",
     retailerName: "Discount Supplements",
