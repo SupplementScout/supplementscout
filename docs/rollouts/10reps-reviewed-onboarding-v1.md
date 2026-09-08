@@ -120,3 +120,23 @@ authorised production step. This is an expected sequencing boundary, not a
 reason to weaken the current guards. No bootstrap, approval submission, apply,
 retailer creation or schedule registration has occurred. Later price/stock
 automation must reuse existing guarded patterns under its own reviewed scope.
+
+## Post-catalogue importer cleanup backlog
+
+The owner requested that catalogue coverage be completed before this cleanup.
+Keep the following work together as one shared importer change rather than
+adding retailer-specific exceptions:
+
+- compare equivalent database and artifact scalars consistently, including the
+  integer `1` and serialized text `"1"`, while retaining exact semantic checks;
+- resume a partially completed reviewed package at the first unapplied row and
+  reject replay of already completed rows;
+- generate a fresh remainder package automatically after a guarded stop;
+- keep one reviewed-manifest path across source formats and source identifier
+  shapes; and
+- add regression tests for partial success, safe resume, scalar serialization,
+  approval consumption and strict final readback.
+
+Do this before 10 Reps automated refresh registration. The cleanup must retain
+single-use approvals, protected roles, per-plan atomic apply, canonical identity
+guards and fail-closed production readback.

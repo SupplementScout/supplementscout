@@ -13,6 +13,10 @@ const reviewedEnergySql = fs.readFileSync(
   path.join(process.cwd(), "supabase/migrations/20260908070000_allow_owner_reviewed_energy_supplements_default_create.sql"),
   "utf8"
 );
+const reviewedExistingCategorySql = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260908110000_allow_reviewed_catalogue_existing_categories.sql"),
+  "utf8"
+);
 
 test("DB safe-create migration replaces only the reviewed-family policy predicate", () => {
   assert.match(sql, /atomic_import_safe_create_category_allowed\(text,text,text\)/);
@@ -59,4 +63,14 @@ test("owner-reviewed Energy Supplements uses the shared sealed manifest gate in 
   assert.match(reviewedEnergySql, /approved_category}' = 'Energy Supplements'/);
   assert.match(reviewedEnergySql, /atomic_import_reviewed_catalogue_plan_allowed\(p_plan\)/);
   assert.doesNotMatch(reviewedEnergySql, /grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
+});
+
+test("sealed reviewed packages may use only categories already active in the canonical catalogue", () => {
+  assert.match(reviewedExistingCategorySql, /atomic_import_validate_standard_plan_core\(jsonb\)/);
+  assert.match(reviewedExistingCategorySql, /atomic_import_apply_standard_plan_core\(jsonb\)/);
+  assert.match(reviewedExistingCategorySql, /atomic_import_reviewed_catalogue_plan_allowed\(p_plan\)/);
+  assert.match(reviewedExistingCategorySql, /reviewed_category_product\.category = p_plan#>>'\{approval,approved_category\}'/);
+  assert.match(reviewedExistingCategorySql, /reviewed_category_product\.is_active = true/);
+  assert.match(reviewedExistingCategorySql, /reviewed_category_product\.merged_into_product_id is null/);
+  assert.doesNotMatch(reviewedExistingCategorySql, /10\s*Reps|retailer_id\s*=\s*14|grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
 });

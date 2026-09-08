@@ -242,6 +242,8 @@ const CONTRACTS = Object.freeze({
         "c89c67a80f32fcebcf65d28368929f2d15b597d2052c85908484b1e8ffbfe3f5",
       "20260908070000_allow_owner_reviewed_energy_supplements_default_create.sql":
         "5e67f0d8ff556c4b8a7e9e261a1647b90415b06a14836d816cbe88c33221cbad",
+      "20260908110000_allow_reviewed_catalogue_existing_categories.sql":
+        "07a1662c010f4e3c967f87aaa3709d1bb10f3bd139b5fa236653b40e271033cf",
     }),
     pending: Object.freeze([
       Object.freeze({
@@ -276,7 +278,12 @@ const CONTRACTS = Object.freeze({
       "20260719090000_add_expired_retailer_offer_sync_approval_close.sql":
         "978ee878cbdc93ec4ef942a30aa51da4ae40c8400bceec2ba07a641d3ca72893",
     }),
-    pending: Object.freeze([]),
+    pending: Object.freeze([
+      Object.freeze({
+        filename: "20260908110000_allow_reviewed_catalogue_existing_categories.sql",
+        sha256: "07a1662c010f4e3c967f87aaa3709d1bb10f3bd139b5fa236653b40e271033cf",
+      }),
+    ]),
   }),
 });
 

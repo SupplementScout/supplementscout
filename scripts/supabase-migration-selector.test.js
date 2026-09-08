@@ -70,6 +70,8 @@ const REVIEWED_CATALOGUE_COUNT_MIGRATION = "20260907210000_allow_reviewed_catalo
 const REVIEWED_CATALOGUE_COUNT_SHA256 = "c89c67a80f32fcebcf65d28368929f2d15b597d2052c85908484b1e8ffbfe3f5";
 const REVIEWED_ENERGY_MIGRATION = "20260908070000_allow_owner_reviewed_energy_supplements_default_create.sql";
 const REVIEWED_ENERGY_SHA256 = "5e67f0d8ff556c4b8a7e9e261a1647b90415b06a14836d816cbe88c33221cbad";
+const REVIEWED_EXISTING_CATEGORIES_MIGRATION = "20260908110000_allow_reviewed_catalogue_existing_categories.sql";
+const REVIEWED_EXISTING_CATEGORIES_SHA256 = "07a1662c010f4e3c967f87aaa3709d1bb10f3bd139b5fa236653b40e271033cf";
 const temporaryRoots = [];
 
 function temporaryRoot() {
@@ -218,9 +220,12 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied reviewed catalogue extensions and category guard", () => {
+test("production records the applied reviewed catalogue extensions and the pending shared category guard", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, []);
+  assert.deepEqual(contract.pending, [{
+    filename: REVIEWED_EXISTING_CATEGORIES_MIGRATION,
+    sha256: REVIEWED_EXISTING_CATEGORIES_SHA256,
+  }]);
   assert.equal(contract.ledgerCount, 192);
   assert.equal(
     contract.ledgerFingerprint,
@@ -320,7 +325,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with the reviewed category guard applied", () => {
+test("production binds its exact ledger and selects only the reviewed existing-category guard", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -348,13 +353,15 @@ test("production binds its exact ledger with the reviewed category guard applied
   });
   assert.equal(result.ledger_count, 192);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 192);
-  assert.deepEqual(result.pending_files, []);
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.selected_files.length, 193);
+  assert.deepEqual(result.pending_files, [REVIEWED_EXISTING_CATEGORIES_MIGRATION]);
+  assert.equal(result.pending_file, REVIEWED_EXISTING_CATEGORIES_MIGRATION);
+  assert.equal(result.pending_sha256, REVIEWED_EXISTING_CATEGORIES_SHA256);
+  assert.deepEqual(result.pending_sha256s, { [REVIEWED_EXISTING_CATEGORIES_MIGRATION]: REVIEWED_EXISTING_CATEGORIES_SHA256 });
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
+  assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
+  assert.ok(result.selected_files.includes(REVIEWED_EXISTING_CATEGORIES_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_CATALOGUE_PACKAGE_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_V9_SIBLING_VARIANTS_MIGRATION));
   assert.ok(result.selected_files.includes(TEN_REPS_NEW_PRODUCTS_V9_MIGRATION));
@@ -502,6 +509,7 @@ test("staging excludes the production-only exact-pack migrations byte-for-byte",
     "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
     "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
     "20260826190000_enable_fit_house_price_observation_producer.sql",
+    REVIEWED_EXISTING_CATEGORIES_MIGRATION,
   ]) {
     assert.ok(result.excluded_files.includes(filename));
     assert.ok(!result.selected_files.includes(filename));
