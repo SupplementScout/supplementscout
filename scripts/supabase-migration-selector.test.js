@@ -69,7 +69,7 @@ const REVIEWED_CATALOGUE_PACKAGE_SHA256 = "bd4b525fe328f17020ac5bb19ea2bf49d6c8c
 const REVIEWED_CATALOGUE_COUNT_MIGRATION = "20260907210000_allow_reviewed_catalogue_count_identity.sql";
 const REVIEWED_CATALOGUE_COUNT_SHA256 = "c89c67a80f32fcebcf65d28368929f2d15b597d2052c85908484b1e8ffbfe3f5";
 const REVIEWED_ENERGY_MIGRATION = "20260908070000_allow_owner_reviewed_energy_supplements_default_create.sql";
-const REVIEWED_ENERGY_SHA256 = "d3deafe88a9872df8383f4299b7b2fba185f1f70bf2921bc3250a1931c3cf79d";
+const REVIEWED_ENERGY_SHA256 = "5e67f0d8ff556c4b8a7e9e261a1647b90415b06a14836d816cbe88c33221cbad";
 const temporaryRoots = [];
 
 function temporaryRoot() {

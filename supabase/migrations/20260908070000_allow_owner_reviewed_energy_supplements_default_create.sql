@@ -8,8 +8,8 @@ declare
   v_signature regprocedure;
   v_definition text;
   v_updated text;
-  v_old text := $$or p_plan#>>'{approval,approved_category}' not in ('Vitamins','Health Supplements','Amino Acids','Creatine')$$;
-  v_new text := $$or (p_plan#>>'{approval,approved_category}' not in ('Vitamins','Health Supplements','Amino Acids','Creatine')
+  v_old text := $$or not public.atomic_import_safe_create_category_allowed(p_plan#>>'{approval,approved_category}', p_plan#>>'{product,values,name}', p_plan#>>'{product,values,product_format}')$$;
+  v_new text := $$or (not public.atomic_import_safe_create_category_allowed(p_plan#>>'{approval,approved_category}', p_plan#>>'{product,values,name}', p_plan#>>'{product,values,product_format}')
         and not (p_plan#>>'{approval,approved_category}' = 'Energy Supplements'
           and public.atomic_import_reviewed_catalogue_plan_allowed(p_plan)))$$;
 begin

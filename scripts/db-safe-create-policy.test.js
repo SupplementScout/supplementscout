@@ -55,6 +55,7 @@ test("DB safe-create migration keeps reviewed families powder-only outside the b
 test("owner-reviewed Energy Supplements uses the shared sealed manifest gate in validation and apply", () => {
   assert.match(reviewedEnergySql, /atomic_import_validate_standard_plan_core\(jsonb\)/);
   assert.match(reviewedEnergySql, /atomic_import_apply_standard_plan_core\(jsonb\)/);
+  assert.match(reviewedEnergySql, /or not public\.atomic_import_safe_create_category_allowed/);
   assert.match(reviewedEnergySql, /approved_category}' = 'Energy Supplements'/);
   assert.match(reviewedEnergySql, /atomic_import_reviewed_catalogue_plan_allowed\(p_plan\)/);
   assert.doesNotMatch(reviewedEnergySql, /grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
