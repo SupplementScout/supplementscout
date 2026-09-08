@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed-catalogue-package-v1",
+  "status": "OWNER_APPROVED",
+  "authorized_by": "owner-chat",
+  "authorized_at": "2026-09-08T07:00:00.000Z",
+  "retailer": {
+    "id": 14,
+    "name": "10 Reps",
+    "slug": "10-reps",
+    "website": "https://www.10reps.co.uk/",
+    "expected_action": "existing",
+    "shipping_known": true,
+    "shipping_cost": 3.99
+  },
+  "policy": {
+    "reviewed_rows_only": true,
+    "allow_product_creation": false,
+    "allow_variant_creation": false,
+    "allow_canonical_product_updates": false,
+    "allow_canonical_variant_updates": false,
+    "allow_canonical_gtin_updates": false,
+    "allow_category_changes": false,
+    "sku_is_not_gtin": true,
+    "one_plan_at_a_time": true,
+    "fresh_single_use_approval_per_plan": true,
+    "strict_production_readback_after_each_apply": true
+  },
+  "profiles": [
+    {
+      "id": "priority-products-final-2-v1",
+      "status": "DRY_RUN_PASS",
+      "csv_path": "tmp/retailer-feeds/10reps/10reps-reviewed-priority-products-final-2-v1.csv",
+      "csv_sha256": "fd3175cd4f097831f47b8d6c7e6ffd57613a2fb470e873c47b6044c51bbf7bb4",
+      "artifact_path": "tmp/retailer-feeds/10reps/10reps-reviewed-priority-products-final-2-v1-dry-run.json",
+      "artifact_sha256": "7fa623072c038c585d7987afafab6c4a6c6988e32f753eb31cab477064e13882",
+      "row_count": 2,
+      "blocked_row_count": 0,
+      "conflict_count": 0,
+      "expected_actions": {
+        "retailers_create": 0,
+        "products_create": 0,
+        "product_variants_create": 0,
+        "retailer_products_create": 2,
+        "offers_create": 2,
+        "price_history_create": 2
+      },
+      "rows": [
+        {
+          "review_row": 1,
+          "external_product_id": "2539",
+          "external_variant_id": "2539",
+          "external_sku": null,
+          "external_gtin": "5904139920084",
+          "source_url": "https://www.10reps.co.uk/product/osavi-vitamin-k2/",
+          "product_id": 684,
+          "product_variant_id": 3052,
+          "action": "map_existing_variant",
+          "brand": "Osavi",
+          "category": "Vitamins",
+          "product_name": "Osavi Vitamin K2 MK-7 100mcg 60 Softgels",
+          "variant_name": "60 Servings",
+          "flavour": null,
+          "size_value": "60",
+          "size_unit": "servings",
+          "pack_count": "1",
+          "product_format": "softgel",
+          "price": 10.49,
+          "in_stock": true,
+          "source_row_fingerprint": "6e2d87d43d39246e5aaa37c9505259b3bdaa3439874e937d3af4d001396623f5",
+          "plan_fingerprint": "4d29efe8fbdcb4465c3d826c61072fbc"
+        },
+        {
+          "review_row": 2,
+          "external_product_id": "2549",
+          "external_variant_id": "2549",
+          "external_sku": null,
+          "external_gtin": null,
+          "source_url": "https://www.10reps.co.uk/product/osavi-selenium-200-%c2%b5g/",
+          "product_id": 693,
+          "product_variant_id": 3058,
+          "action": "map_existing_variant",
+          "brand": "Osavi",
+          "category": "Vitamins",
+          "product_name": "Osavi Selenium 200mcg 90 Capsules",
+          "variant_name": "90 Servings",
+          "flavour": null,
+          "size_value": "90",
+          "size_unit": "servings",
+          "pack_count": "1",
+          "product_format": "capsule",
+          "price": 13.99,
+          "in_stock": true,
+          "source_row_fingerprint": "bd207f3c1120abeebeb30cc8893878451840b0f322033da077e62a15d5347d92",
+          "plan_fingerprint": "4a17e1da06ff5d1b2248595326e7e950"
+        }
+      ]
+    }
+  ]
+}
