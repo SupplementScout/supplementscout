@@ -232,13 +232,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied control-plane migrations and the exact pending expired-plan cleanup", () => {
+test("production records the applied control-plane and expired-plan cleanup migrations", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: EXPIRED_DISCOUNT_JONS_MIGRATION, sha256: EXPIRED_DISCOUNT_JONS_SHA256 }]);
-  assert.equal(contract.ledgerCount, 198);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 199);
   assert.equal(
     contract.ledgerFingerprint,
-    "98949c5687b7ff021a698d8a01eacb701facf7dcad123530ea0d4c7564a0460a",
+    "a9a614b100a216b7f0c2dded3c5ce24d4603ccf3319bb6d7d493743c7aa05640",
   );
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
@@ -337,7 +337,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects only the expired Discount/Jon's cleanup", () => {
+test("production binds its exact ledger with no unexpected pending migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -363,13 +363,13 @@ test("production binds its exact ledger and selects only the expired Discount/Jo
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 198);
+  assert.equal(result.ledger_count, 199);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 199);
-  assert.deepEqual(result.pending_files, [EXPIRED_DISCOUNT_JONS_MIGRATION]);
-  assert.equal(result.pending_file, EXPIRED_DISCOUNT_JONS_MIGRATION);
-  assert.equal(result.pending_sha256, EXPIRED_DISCOUNT_JONS_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [EXPIRED_DISCOUNT_JONS_MIGRATION]: EXPIRED_DISCOUNT_JONS_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_EXISTING_CATEGORIES_MIGRATION)), REVIEWED_EXISTING_CATEGORIES_SHA256);
