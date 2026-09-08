@@ -218,13 +218,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the applied reviewed catalogue extensions and one category guard pending", () => {
+test("production records the applied reviewed catalogue extensions and category guard", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.deepEqual(contract.pending, [{ filename: REVIEWED_ENERGY_MIGRATION, sha256: REVIEWED_ENERGY_SHA256 }]);
-  assert.equal(contract.ledgerCount, 191);
+  assert.deepEqual(contract.pending, []);
+  assert.equal(contract.ledgerCount, 192);
   assert.equal(
     contract.ledgerFingerprint,
-    "2e47b1d022ee253bd438e34d22f278b18f6be74eff9de7b9ac4bf00a05e146a1",
+    "232af215d17f8b39155827281d596d172bd31857061cb88b550d77b0f1f9ce3e",
   );
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_PACKAGE_MIGRATION)), REVIEWED_CATALOGUE_PACKAGE_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_VARIANT_REBIND_MIGRATION)), REVIEWED_VARIANT_REBIND_SHA256);
@@ -320,7 +320,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger and selects the reviewed category guard", () => {
+test("production binds its exact ledger with the reviewed category guard applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -346,13 +346,13 @@ test("production binds its exact ledger and selects the reviewed category guard"
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 191);
+  assert.equal(result.ledger_count, 192);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 192);
-  assert.deepEqual(result.pending_files, [REVIEWED_ENERGY_MIGRATION]);
-  assert.equal(result.pending_file, REVIEWED_ENERGY_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEWED_ENERGY_SHA256);
-  assert.deepEqual(result.pending_sha256s, { [REVIEWED_ENERGY_MIGRATION]: REVIEWED_ENERGY_SHA256 });
+  assert.deepEqual(result.pending_files, []);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_sha256s, {});
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_CATALOGUE_COUNT_MIGRATION)), REVIEWED_CATALOGUE_COUNT_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_ENERGY_MIGRATION)), REVIEWED_ENERGY_SHA256);
   assert.ok(result.selected_files.includes(REVIEWED_CATALOGUE_PACKAGE_MIGRATION));
