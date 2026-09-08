@@ -113,6 +113,7 @@ const EXCLUSIONS = Object.freeze({
     "20260907210000_allow_reviewed_catalogue_count_identity",
     "20260908070000_allow_owner_reviewed_energy_supplements_default_create",
     "20260908110000_allow_reviewed_catalogue_existing_categories",
+    "20260908113000_allow_reviewed_variant_count_evidence",
   ]),
   PRODUCTION: Object.freeze([
     "20260717120000_create_retailer_catalogue_control_ledger",

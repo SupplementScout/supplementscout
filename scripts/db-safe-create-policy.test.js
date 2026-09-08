@@ -17,6 +17,10 @@ const reviewedExistingCategorySql = fs.readFileSync(
   path.join(process.cwd(), "supabase/migrations/20260908110000_allow_reviewed_catalogue_existing_categories.sql"),
   "utf8"
 );
+const reviewedVariantCountSql = fs.readFileSync(
+  path.join(process.cwd(), "supabase/migrations/20260908113000_allow_reviewed_variant_count_evidence.sql"),
+  "utf8"
+);
 
 test("DB safe-create migration replaces only the reviewed-family policy predicate", () => {
   assert.match(sql, /atomic_import_safe_create_category_allowed\(text,text,text\)/);
@@ -73,4 +77,13 @@ test("sealed reviewed packages may use only categories already active in the can
   assert.match(reviewedExistingCategorySql, /reviewed_category_product\.is_active = true/);
   assert.match(reviewedExistingCategorySql, /reviewed_category_product\.merged_into_product_id is null/);
   assert.doesNotMatch(reviewedExistingCategorySql, /10\s*Reps|retailer_id\s*=\s*14|grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
+});
+
+test("reviewed variant count evidence is optional, paired and positive in validation and apply", () => {
+  assert.match(reviewedVariantCountSql, /atomic_import_validate_standard_plan_core\(jsonb\)/);
+  assert.match(reviewedVariantCountSql, /atomic_import_apply_standard_plan_core\(jsonb\)/);
+  assert.match(reviewedVariantCountSql, /array\['unit_count','unit_type'\]/);
+  assert.match(reviewedVariantCountSql, /unit_count.*\^\[1-9\]\[0-9\]\*\$/s);
+  assert.match(reviewedVariantCountSql, /unit_type.*nullif\(btrim/s);
+  assert.doesNotMatch(reviewedVariantCountSql, /10\s*Reps|retailer_id\s*=\s*14|grant\s|insert\s+into\s+public\.|update\s+public\.|delete\s+from\s+public\./i);
 });
