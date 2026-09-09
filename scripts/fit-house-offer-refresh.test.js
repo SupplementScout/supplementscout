@@ -28,7 +28,7 @@ const {
 } = require("./fit-house-offer-refresh");
 
 test("shared role sessions accept only an unset or explicitly disabled legacy SAFE_UPDATE setting", () => {
-  for (const value of [null, undefined, "0", "false", "FALSE", "off"]) assert.equal(safeUpdateDisabled(value), true);
+  for (const value of [null, undefined, "", "  ", "0", "false", "FALSE", "off"]) assert.equal(safeUpdateDisabled(value), true);
   for (const value of ["1", "true", "on", "enabled"]) assert.equal(safeUpdateDisabled(value), false);
 });
 

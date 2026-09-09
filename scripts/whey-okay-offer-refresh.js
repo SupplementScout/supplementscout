@@ -57,7 +57,7 @@ function invariant(value, message) {
   if (!value) throw new Error(message);
 }
 function safeUpdateDisabled(value) {
-  return value == null || ["0", "false", "off"].includes(String(value).trim().toLowerCase());
+  return value == null || ["", "0", "false", "off"].includes(String(value).trim().toLowerCase());
 }
 function git(...args) {
   return execFileSync("git", args, {

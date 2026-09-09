@@ -54,7 +54,7 @@ function roleCredential(target,kind){const direct=process.env[`${config.environm
 function git(...args){return execFileSync("git",args,{cwd:ROOT,encoding:"utf8",timeout:30000}).trim()}
 function canonicalHash(value){return sha256(canonicalJson(JSON.parse(JSON.stringify(value))))}
 function freshCapturedAt(now=new Date()){return canonicalTimestamp(now,"source capture")}
-function safeUpdateDisabled(value){return value==null||["0","false","off"].includes(String(value).trim().toLowerCase())}
+function safeUpdateDisabled(value){return value==null||["","0","false","off"].includes(String(value).trim().toLowerCase())}
 function isolateAggregatePriceChanges(classification){
   invariant(classification?.reason==="MASS_PRICE"&&Array.isArray(classification.rows),"MASS_PRICE isolation requires a blocked aggregate classification");
   const held=classification.rows.filter(row=>Boolean(row.changed_fields?.price));
