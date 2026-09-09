@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "authority": "owner-approved-chat-2026-09-09-fit-house-944-and-39-monitored-offers",
+  "approved_actions": {
+    "fit_house": {
+      "offer_id": "944",
+      "mapping_id": "1130",
+      "product_id": "517",
+      "variant_id": "966",
+      "external_product_id": "8318574264560",
+      "external_variant_id": "47976539259120",
+      "price": "31.99",
+      "shipping_cost": "3.99",
+      "total_price": "35.98",
+      "before_in_stock": true,
+      "after_in_stock": false,
+      "previous_oos_baseline": 103,
+      "new_oos_baseline": 104,
+      "scope_count": 286
+    },
+    "monitored_backlog": {
+      "7": [
+        560,
+        563,
+        564,
+        570,
+        572,
+        573,
+        582,
+        590,
+        591,
+        593,
+        598,
+        604,
+        612,
+        621,
+        625,
+        631,
+        635,
+        636,
+        638,
+        654,
+        655,
+        664,
+        667,
+        670,
+        671,
+        672,
+        673
+      ],
+      "10": [
+        1209
+      ],
+      "11": [
+        2029,
+        2060,
+        2147,
+        2148,
+        2149,
+        2150,
+        2151,
+        2152,
+        2153,
+        2154,
+        2155
+      ]
+    }
+  },
+  "review_commercial_or_identity_writes_authorized": false,
+  "source": {
+    "captured_at": "2026-09-09T09:16:56.957Z",
+    "expires_at": "2026-09-10T09:16:56.957Z",
+    "url": "https://fithouse.uk/products/mutant-mass-2-27-kg?variant=47976539259120",
+    "product_id": "8318574264560",
+    "variant": {
+      "id": 47976539259120,
+      "title": "Triple Chocolate",
+      "option1": "Triple Chocolate",
+      "option2": null,
+      "option3": null,
+      "sku": null,
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 54514799935728,
+        "product_id": 8318574264560,
+        "position": 3,
+        "created_at": "2026-08-04T13:45:28+01:00",
+        "updated_at": "2026-08-04T13:45:30+01:00",
+        "alt": null,
+        "width": 800,
+        "height": 900,
+        "src": "https://cdn.shopify.com/s/files/1/0661/8202/1360/files/Untitled_design_03cec491-7f8b-4b23-8a9f-fd159867162c.jpg?v=1785847530",
+        "variant_ids": [
+          47976539259120
+        ]
+      },
+      "available": false,
+      "name": "Mutant Mass - 2.27 kg - Triple Chocolate",
+      "public_title": "Triple Chocolate",
+      "options": [
+        "Triple Chocolate"
+      ],
+      "price": 3199,
+      "weight": 0,
+      "compare_at_price": null,
+      "inventory_management": "shopify",
+      "barcode": null,
+      "featured_media": {
+        "alt": null,
+        "id": 45536523026672,
+        "position": 3,
+        "preview_image": {
+          "aspect_ratio": 0.889,
+          "height": 900,
+          "width": 800,
+          "src": "https://cdn.shopify.com/s/files/1/0661/8202/1360/files/Untitled_design_03cec491-7f8b-4b23-8a9f-fd159867162c.jpg?v=1785847530"
+        }
+      },
+      "quantity_rule": {
+        "min": 1,
+        "max": null,
+        "increment": 1
+      },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    }
+  },
+  "function_before": [
+    {
+      "name": "validate_fit_house_stable_oos_read_only(jsonb)",
+      "md5": "aaa920e71d5e867ffc4576dddcc0fb43",
+      "acl": "{postgres=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog, public, pg_temp"
+      ]
+    },
+    {
+      "name": "validate_fit_house_confirmed_price_read_only(jsonb)",
+      "md5": "16d5383c87e84d76044834159e7d5789",
+      "acl": "{postgres=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog, public, pg_temp"
+      ]
+    },
+    {
+      "name": "retailer_offer_sync_validate_batch_read_only_internal(jsonb)",
+      "md5": "a8512ea11c4acd06dd6674924ca2a442",
+      "acl": "{postgres=X/postgres,retailer_catalogue_production_validator=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog, public, pg_temp"
+      ]
+    }
+  ]
+}

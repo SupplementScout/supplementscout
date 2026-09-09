@@ -647,6 +647,32 @@ test("automation watchdog fails on backlog growth and any new reason code", () =
   );
 });
 
+test("approved monitored reviews reject substituted, missing or duplicated stale evidence", () => {
+  const rules=JSON.parse(fs.readFileSync(path.join(__dirname,"../config/automation-reliability-watchdog.json"),"utf8")).monitored_backlog.retailers;
+  const approvalBytes=fs.readFileSync(path.join(__dirname,"../docs/rollouts/shared-automation-owner-approval-2026-09-09.json"),"utf8");
+  const approval=JSON.parse(approvalBytes);
+  const approvalHash=require("node:crypto").createHash("sha256").update(approvalBytes).digest("hex");
+  for(const [id,count] of [["7",27],["10",1],["11",11]]){
+    const rule=rules[id];
+    assert.equal(rule.owner_approval_sha256,approvalHash);
+    assert.deepEqual(rule.allowed_review_offer_ids,approval.approved_actions.monitored_backlog[id].map(String));
+    assert.equal(rule.allowed_review_offer_ids.length,count);
+    assert.deepEqual(rule.allowed_stale_offer_ids,rule.allowed_review_offer_ids);
+    const base={result:"PASS_WITH_REVIEW",failures:[],contract:{review_row_count:count,review_offer_ids:rule.allowed_review_offer_ids},database:{offers_older_than_48h:count,older_offer_ids:rule.allowed_stale_offer_ids}};
+    assert.equal(applyMonitoredBacklog(base,rule).result,"PASS_WITH_REVIEW");
+    const drift={...base,database:{...base.database,older_offer_ids:["99999",...rule.allowed_stale_offer_ids.slice(1)]}};
+    assert.deepEqual(applyMonitoredBacklog(drift,rule).monitored_backlog.growth,["STALE_SCOPE_DRIFT"]);
+    const missing={...base,database:{offers_older_than_48h:count}};
+    assert.deepEqual(applyMonitoredBacklog(missing,rule).monitored_backlog.growth,["STALE_SCOPE_EVIDENCE_MISSING"]);
+    const badCorrelation={...base,failures:["APPLY_POSTFLIGHT_CORRELATION_MISMATCH"]};
+    assert.equal(applyMonitoredBacklog(badCorrelation,rule).result,"FAIL");
+    if(count>1){
+      const duplicate={...base,database:{...base.database,older_offer_ids:Array(count).fill(rule.allowed_stale_offer_ids[0])}};
+      assert.deepEqual(applyMonitoredBacklog(duplicate,rule).monitored_backlog.growth,["STALE_SCOPE_EVIDENCE_MISSING"]);
+    }
+  }
+});
+
 test("automation watchdog never suppresses infrastructure, writes or postflight mismatch", () => {
   const baseline = {
     maximum_offers_older_than_48h: 0,

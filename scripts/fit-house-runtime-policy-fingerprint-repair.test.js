@@ -17,9 +17,12 @@ const RUNTIME = "d72ab8f4b44cdc799d7743544b346eb73ae4e335d3b40b596d597a1165d21ab
 
 test("runtime fingerprint is calculated only after shared profile defaults", () => {
   const rawPolicy = { ...rawConfig.guardrails, required_matched_offers: rawConfig.approved_mapping_count, store_url: rawConfig.store_url };
-  assert.equal(sha256({ config: rawConfig, effective_guardrails: rawPolicy }), OLD);
+  assert.equal(sha256({ config: rawConfig, effective_guardrails: rawPolicy }), "299d468781d024594d91d409894e7fff648a364126e4866abd08f8e79ca51cdd");
   assert.equal(rawConfig.output_directory, undefined);
-  assert.equal(engine.runtimePolicyFingerprint(), RUNTIME);
+  assert.equal(engine.runtimePolicyFingerprint(), "dd2f583394ffa3787b595d7009731dff5bb8e485b9114d3778084a71c120dfc1");
+  const currentMigration=fs.readFileSync(path.resolve("supabase/migrations/20260909094000_bind_fit_house_104_runtime_policy.sql"),"utf8");
+  assert(currentMigration.includes(engine.runtimePolicyFingerprint()));
+  assert(currentMigration.includes(RUNTIME));
   assert.deepEqual(engine.effectiveOfferPolicy(), {
     ...rawConfig.guardrails,
     required_matched_offers: 286,

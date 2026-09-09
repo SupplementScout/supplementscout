@@ -3,6 +3,20 @@ name: Shared Retailer Offer Refresh
 on:
   workflow_dispatch:
     inputs:
+      retailer:
+        description: "Retailer to verify; scheduled runs always cover both"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - fit-house
+          - 10reps
+      confirmations_only:
+        description: "Require the complete Fit House scope to contain unchanged confirmations only"
+        required: true
+        default: false
+        type: boolean
       operation:
         description: "Dry-run only unless an explicitly authorised apply is required"
         required: true
@@ -31,10 +45,12 @@ concurrency:
 
 jobs:
   fit-house-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
+    env:
+      FIT_HOUSE_REFRESH_CONFIRMATIONS_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.confirmations_only && 'true' || 'false' }}
 
     steps:
       - name: Validate protected execution context
@@ -133,7 +149,7 @@ jobs:
           path: tmp/fit-house-offer-refresh/*.json
 
   ten-reps-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly

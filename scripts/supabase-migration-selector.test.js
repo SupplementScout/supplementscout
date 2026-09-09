@@ -239,10 +239,10 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
 test("production records the reviewed price-history correction", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 201);
+  assert.equal(contract.ledgerCount, 203);
   assert.equal(
     contract.ledgerFingerprint,
-    "f6d7273c8e9551e32c92dc90800b89ee97edd0c507ac62e714dcfbd10fdd61be",
+    "faf58a2f766eaaedab83a92e5a624c43c85a492d90c788336886ea70dc72488d",
   );
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
@@ -369,9 +369,9 @@ test("production binds its exact ledger with no unexpected pending migration", (
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 201);
+  assert.equal(result.ledger_count, 203);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 201);
+  assert.equal(result.selected_files.length, 203);
   assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);

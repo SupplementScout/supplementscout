@@ -14,12 +14,12 @@ const POLICY = "6838770659dc772a3454846ad8e2e9e9620839b3ca688b118e9337231e520db6
 
 test("stable Fit House OOS policy fingerprint binds exact owner baseline without raising 35 percent", () => {
   const effective = { ...config.guardrails, required_matched_offers: config.approved_mapping_count, store_url: config.store_url };
-  assert.equal(sha256({ config, effective_guardrails: effective }), POLICY);
+  assert.equal(sha256({ config, effective_guardrails: effective }), "299d468781d024594d91d409894e7fff648a364126e4866abd08f8e79ca51cdd");
   assert.deepEqual(config.approved_stable_oos_baseline, {
-    retailer_id: 9, approved_mapping_count: 286, count: 103, maximum_new_oos_count: 3,
+    retailer_id: 9, approved_mapping_count: 286, count: 104, maximum_new_oos_count: 3,
     require_total_oos_not_above_previous: true,
-    authority: "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes",
-    reviewed_manifest_sha256: "168b5c604482280dc17842b93b9b27c24db42952b0873b14b0b326a6c10883f1",
+    authority: "owner-approved-chat-2026-09-09-fit-house-944-and-39-monitored-offers",
+    reviewed_manifest_sha256: "3bcac846d086c8bc71ce9c5bf5bf8e135f704f8e6eed543d03ab7bbaae0d578c",
   });
   assert.equal(config.guardrails.maximum_total_oos_ratio, 0.35);
 });

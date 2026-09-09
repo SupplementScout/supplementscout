@@ -13,6 +13,7 @@ const {
   authorizeOwnerApprovedMissingVariant,
   authorizeReviewedMassOos,
   balancedExecutionBatches,
+  enforceConfirmationOnly,
   freshCapturedAt,
   loadAuditedMissingVariantManifest,
   loadOwnerApprovedMissingVariantManifest,
@@ -26,6 +27,48 @@ const {
   safeUpdateDisabled,
   sourceHealth,
 } = require("./fit-house-offer-refresh");
+
+test("confirmation-only execution stops changed or incomplete live plans before registration", () => {
+  const rows=Array.from({length:286},(_,i)=>({offer_id:String(i),action:"VERIFY_NO_CHANGE"}));
+  const run={classification:{rows,quarantined_rows:[]},artifacts:[{rows}]};
+  assert.doesNotThrow(()=>enforceConfirmationOnly(run,"true"));
+  for(const action of ["UPDATE_STOCK","UPDATE_PRICE","UPDATE_PRICE_AND_STOCK"]){
+    const changed={...run,classification:{rows:[{...rows[0],action},...rows.slice(1)]}};
+    assert.throws(()=>enforceConfirmationOnly(changed,"true"),/scope changed/);
+  }
+  assert.throws(()=>enforceConfirmationOnly({...run,classification:{rows:rows.slice(1),quarantined_rows:[rows[0]]}},"true"),/scope changed/);
+  assert.throws(()=>enforceConfirmationOnly({...run,artifacts:[]},"true"),/scope changed/);
+  assert.throws(()=>enforceConfirmationOnly(run,"yes"),/invalid confirmations-only/);
+});
+
+test("approved Fit House 944 migration binds source, exact delta and both protected validators", () => {
+  const name="20260909093000_apply_reviewed_fit_house_944_oos.sql";
+  const sql=fs.readFileSync(path.join(__dirname,"../supabase/migrations",name),"utf8");
+  const approval=fs.readFileSync(path.join(__dirname,"../docs/rollouts/shared-automation-owner-approval-2026-09-09.json"),"utf8");
+  const digest=crypto.createHash("sha256").update(approval).digest("hex");
+  assert.equal(digest,config.approved_stable_oos_baseline.reviewed_manifest_sha256);
+  assert(sql.includes(digest));
+  assert.match(sql,/update public\.offers set in_stock=false where id=944 and in_stock/);
+  assert.match(sql,/v_rows<>1/);
+  assert.match(sql,/before-state changed/);
+  assert.match(sql,/source evidence expired/);
+  assert.match(sql,/v_total_oos>v_previous_oos/);
+  assert.match(sql,/p\.proacl is not distinct from v_function\.proacl/);
+  assert.match(sql,/p\.proconfig is not distinct from v_function\.proconfig/);
+  assert.match(sql,/validate_fit_house_confirmed_price_read_only/);
+  assert.doesNotMatch(sql,/update public\.(products|product_variants|retailer_products)|insert into public\.price_history/i);
+});
+
+test("manual Fit House confirmation mode is scoped and runs its guard before registration", () => {
+  const workflow=fs.readFileSync(path.join(__dirname,"../.github/workflows/fit-house-offer-refresh.yml"),"utf8");
+  assert.match(workflow,/inputs\.retailer == 'all' \|\| inputs\.retailer == 'fit-house'/);
+  assert.match(workflow,/inputs\.retailer == 'all' \|\| inputs\.retailer == '10reps'/);
+  assert.match(workflow,/FIT_HOUSE_REFRESH_CONFIRMATIONS_ONLY:.*inputs\.confirmations_only/);
+  const source=fs.readFileSync(path.join(__dirname,"fit-house-offer-refresh.js"),"utf8");
+  const execution=source.slice(source.indexOf("async function executeRefresh("));
+  assert(execution.indexOf("enforceConfirmationOnly(run,")<execution.indexOf("await validate(run)"));
+  assert(execution.indexOf("enforceConfirmationOnly(run,")<execution.indexOf("await register(run,"));
+});
 
 test("shared role sessions accept only an unset or explicitly disabled legacy SAFE_UPDATE setting", () => {
   for (const value of [null, undefined, "", "  ", "0", "false", "FALSE", "off"]) assert.equal(safeUpdateDisabled(value), true);
@@ -79,11 +122,11 @@ test("owner-approved stable Fit House OOS baseline is exact and does not raise g
   assert.deepEqual(approvedStableOosBaseline(), {
     retailer_id: 9,
     approved_mapping_count: 286,
-    count: 103,
+    count: 104,
     maximum_new_oos_count: 3,
     require_total_oos_not_above_previous: true,
-    authority: "owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes",
-    reviewed_manifest_sha256: "168b5c604482280dc17842b93b9b27c24db42952b0873b14b0b326a6c10883f1",
+    authority: "owner-approved-chat-2026-09-09-fit-house-944-and-39-monitored-offers",
+    reviewed_manifest_sha256: "3bcac846d086c8bc71ce9c5bf5bf8e135f704f8e6eed543d03ab7bbaae0d578c",
   });
   assert.equal(config.guardrails.maximum_total_oos_ratio, 0.35);
   assert.equal(config.guardrails.mass_oos_block_count, 4);

@@ -55,6 +55,15 @@ function git(...args){return execFileSync("git",args,{cwd:ROOT,encoding:"utf8",t
 function canonicalHash(value){return sha256(canonicalJson(JSON.parse(JSON.stringify(value))))}
 function freshCapturedAt(now=new Date()){return canonicalTimestamp(now,"source capture")}
 function safeUpdateDisabled(value){return value==null||["","0","false","off"].includes(String(value).trim().toLowerCase())}
+function enforceConfirmationOnly(run,setting){
+  invariant(setting===undefined||setting===""||setting==="false"||setting==="true","invalid confirmations-only setting");
+  if(setting!=="true")return;
+  invariant(run.classification.rows.length===config.approved_mapping_count
+    &&run.classification.rows.every(row=>row.action==="VERIFY_NO_CHANGE")
+    &&(run.classification.quarantined_rows||[]).length===0
+    &&run.artifacts.flatMap(artifact=>artifact.rows).length===config.approved_mapping_count,
+  "confirmation-only execution scope changed; no registration or write authorized");
+}
 function isolateAggregatePriceChanges(classification){
   invariant(classification?.reason==="MASS_PRICE"&&Array.isArray(classification.rows),"MASS_PRICE isolation requires a blocked aggregate classification");
   const held=classification.rows.filter(row=>Boolean(row.changed_fields?.price));
@@ -90,7 +99,7 @@ function sourceHealth(snapshot,sourceVariants){
   if(ratio<baseline.minimum_count_ratio)return{result:"BLOCK",code:"SOURCE_DEGRADED",...evidence};
   return{result:"PASS",code:null,...evidence};
 }
-function approvedStableOosBaseline(){const isFitHouse=config.retailer_id===9&&config.retailer_slug==="fit-house";if(!isFitHouse){invariant(config.approved_stable_oos_baseline===undefined,`${config.retailer_name} must not define the Fit House stable OOS baseline`);return null}const baseline=config.approved_stable_oos_baseline;invariant(baseline&&baseline.retailer_id===9&&baseline.approved_mapping_count===286&&baseline.count===103&&baseline.maximum_new_oos_count===3&&baseline.require_total_oos_not_above_previous===true&&baseline.authority==="owner-approved-chat-2026-08-10-all-three-fit-house-points-47-current-changes"&&baseline.reviewed_manifest_sha256==="168b5c604482280dc17842b93b9b27c24db42952b0873b14b0b326a6c10883f1","Fit House approved stable OOS baseline contract mismatch");return baseline}
+function approvedStableOosBaseline(){const isFitHouse=config.retailer_id===9&&config.retailer_slug==="fit-house";if(!isFitHouse){invariant(config.approved_stable_oos_baseline===undefined,`${config.retailer_name} must not define the Fit House stable OOS baseline`);return null}const baseline=config.approved_stable_oos_baseline;invariant(baseline&&baseline.retailer_id===9&&baseline.approved_mapping_count===286&&baseline.count===104&&baseline.maximum_new_oos_count===3&&baseline.require_total_oos_not_above_previous===true&&baseline.authority==="owner-approved-chat-2026-09-09-fit-house-944-and-39-monitored-offers"&&baseline.reviewed_manifest_sha256==="3bcac846d086c8bc71ce9c5bf5bf8e135f704f8e6eed543d03ab7bbaae0d578c","Fit House approved stable OOS baseline contract mismatch");return baseline}
 function applyApprovedStableOosBaselineGuard(state,diagnostic=null){const baseline=approvedStableOosBaseline();if(!baseline)return null;const databaseOosCount=state.records.filter(record=>!record.offer.in_stock).length;if(databaseOosCount>baseline.count)throw new RefreshError("STABLE_OOS_BASELINE_EXCEEDED",`Fit House current OOS count ${databaseOosCount} exceeds approved stable baseline ${baseline.count}`,"STATE_GUARD",{current_oos_count:databaseOosCount,approved_stable_oos_count:baseline.count,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256});const result={guard:"FIT_HOUSE_APPROVED_STABLE_OOS_BASELINE",result:"PASS",current_oos_count:databaseOosCount,maximum_approved_oos_count:baseline.count,authority:baseline.authority,reviewed_manifest_sha256:baseline.reviewed_manifest_sha256};if(diagnostic)diagnostic.guard_results.push(result);return result}
 function projectSourceVariants(snapshot){
   if(["WOOCOMMERCE_PRODUCT_PAGES","CSV_PRODUCT_FEED"].includes(config.source_platform)){const rows=snapshot.source_variants;if(config.shipping_policy.mode==="fixed")for(const row of rows)row.shipping_cost=Number(config.shipping_policy.cost_gbp).toFixed(2);return rows}
@@ -311,7 +320,7 @@ function authorizeOwnerApprovedMissingVariant(classification,ownerApprovedMissin
     &&changed.length===1&&changed[0].offer_id==="697"&&changed[0].retailer_product_id==="689"
     &&changed[0].external_product_id==="10028457820400"&&changed[0].external_variant_id==="49744956850416"
     &&changed[0].action==="UPDATE_STOCK"&&changed[0].target.in_stock===true&&changed[0].source.in_stock===false
-    &&classification.guard_evidence.current_oos<=baseline.count
+    &&classification.guard_evidence.current_oos<=103
     &&classification.guard_evidence.new_oos<=baseline.maximum_new_oos_count,
   "Fit House owner-approved missing variant classifier scope mismatch");
   return{...classification,state:"DRY_RUN_READY",reason:null,action:"OWNER_APPROVED_EXACT_MISSING_VARIANT"};
@@ -368,9 +377,9 @@ function applyReviewedOffer697GuardProof(guard,reviewed){
 }
 function applyOwnerApprovedMissingVariantGuardBaseline(guard,authorization){
   if(authorization?.offer_id!=="697")return guard;
-  const baseline=approvedStableOosBaseline();
+  approvedStableOosBaseline();
   invariant(authorization.manifest_sha256==="613575ec4fc1dfb989c0113c67032d9f5ad30a24c68c23f87b6b04969a3b23a7"
-    &&authorization.global_total_oos_count===baseline.count
+    &&authorization.global_total_oos_count===103
     &&guard.new_oos_count===1&&guard.total_oos_count===guard.previous_oos_count+1,
   "Fit House owner-approved offer 697 baseline proof mismatch");
   guard.previous_oos_count=guard.total_oos_count;
@@ -512,6 +521,7 @@ async function executeRefresh(args,diagnostic,reviewed=null){
   diagnostic.approved_offer_count=before.counts.offers;
   diagnostic.database_before=before.counts;
   const run=await buildRun(args.target,before,diagnostic,reviewed,args.isolateUnsafe,args.scopeSegment);
+  enforceConfirmationOnly(run,process.env[`${config.phase_prefix}_CONFIRMATIONS_ONLY`]);
   const counts={};for(const row of run.classification.rows)counts[row.action]=(counts[row.action]||0)+1;
   const reviewRows=(run.classification.quarantined_rows||[]).map(row=>({offer_id:String(row.offer_id),reason:row.reason,external_product_id:String(row.external_product_id),external_variant_id:String(row.external_variant_id)}));
   if(run.artifacts.length===0){
@@ -580,4 +590,4 @@ async function main(argv=process.argv.slice(2)){
 }
 
 if(require.main===module)main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
-module.exports={APPROVED_CANONICAL_REBINDINGS,RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeUpdateDisabled,scopeSegmentSummary,selectApprovedScopeSegment,sourceHealth,sumDeltas,verificationRecord};
+module.exports={enforceConfirmationOnly,APPROVED_CANONICAL_REBINDINGS,RefreshError,applyApprovedStableOosBaselineGuard,applyOwnerApprovedMissingVariantGuardBaseline,applyReviewedOffer697GuardProof,approvedStableOosBaseline,authorizeOwnerApprovedMissingVariant,authorizeReviewedMassOos,balancedExecutionBatches,buildRun,canonicalHash,classificationDiagnostic,diagnosticTemplate,effectiveOfferPolicy,executeRefresh,executionRow,freshCapturedAt,guardrailsFor,isApprovedCanonicalSuccessor,isExactOwnerBoundAuditedMissingReview,isolateAggregatePriceChanges,loadApprovedManifest,loadAuditedMissingVariantManifest,loadOwnerApprovedMissingVariantManifest,loadReviewedMassOosManifest,mappedOfferSourceFingerprint,migrationBinding,normalizeExactScopeRows,parseArgs,projectSourceVariants,readState,reconcileAuditedMissingVariants,reconcileMissingMappedVariants,reconcileOwnerApprovedMissingVariant,registrationRequest,requireAuditedMissingOwnerApproval,runWithDiagnostic,runtimePolicyFingerprint,safeUpdateDisabled,scopeSegmentSummary,selectApprovedScopeSegment,sourceHealth,sumDeltas,verificationRecord};

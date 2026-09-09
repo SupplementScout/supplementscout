@@ -80,6 +80,15 @@ function loadConfig(file = CONFIG_PATH) {
         `Watchdog allowed review offer IDs are invalid for retailer ${profile.id}`,
       );
     }
+    if (rule.allowed_stale_offer_ids !== undefined) {
+      invariant(
+        Array.isArray(rule.allowed_stale_offer_ids) &&
+          rule.allowed_stale_offer_ids.every((id) => /^\d+$/.test(String(id))) &&
+          new Set(rule.allowed_stale_offer_ids.map(String)).size === rule.allowed_stale_offer_ids.length &&
+          rule.allowed_stale_offer_ids.length <= rule.maximum_offers_older_than_48h,
+        `Watchdog allowed stale offer IDs are invalid for retailer ${profile.id}`,
+      );
+    }
   }
   return config;
 }
@@ -250,10 +259,21 @@ function applyMonitoredBacklog(evaluation, baseline) {
   if (review > baseline.maximum_review_row_count) {
     growth.push("REVIEW_ROW_COUNT_GROWTH");
   }
+  if (older > 0 && baseline.allowed_stale_offer_ids !== undefined) {
+    const allowedStaleIds = new Set(baseline.allowed_stale_offer_ids.map(String));
+    const observedStaleIds = evaluation.database?.older_offer_ids;
+    if (!Array.isArray(observedStaleIds) || observedStaleIds.length !== older ||
+        new Set(observedStaleIds.map(String)).size !== older) {
+      growth.push("STALE_SCOPE_EVIDENCE_MISSING");
+    } else if (observedStaleIds.some((id) => !allowedStaleIds.has(String(id)))) {
+      growth.push("STALE_SCOPE_DRIFT");
+    }
+  }
   if (review > 0 && baseline.allowed_review_offer_ids !== undefined) {
     const allowedReviewIds = new Set(baseline.allowed_review_offer_ids.map(String));
     const observedReviewIds = evaluation.contract?.review_offer_ids;
-    if (!Array.isArray(observedReviewIds) || observedReviewIds.length !== review) {
+    if (!Array.isArray(observedReviewIds) || observedReviewIds.length !== review ||
+        new Set(observedReviewIds.map(String)).size !== review) {
       growth.push("REVIEW_SCOPE_EVIDENCE_MISSING");
     } else if (observedReviewIds.some((offerId) => !allowedReviewIds.has(String(offerId)))) {
       growth.push("REVIEW_SCOPE_DRIFT");

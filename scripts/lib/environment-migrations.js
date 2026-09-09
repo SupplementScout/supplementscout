@@ -8,6 +8,8 @@ const ROOT = path.resolve(__dirname, "../..");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20260909094000_bind_fit_house_104_runtime_policy",
+    "20260909093000_apply_reviewed_fit_house_944_oos",
     "20260717130000_add_local_retailer_catalogue_child_executor",
     "20260719100000_add_production_retailer_sync_enablement",
     "20260726140000_authorize_reviewed_jons_16_mapped_scope",
