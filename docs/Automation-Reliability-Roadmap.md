@@ -1,5 +1,35 @@
 # Automation Reliability Roadmap
 
+### Shared automation technical repairs verified; owner decisions pending — 9 September 2026
+
+- Code repairs `188166a` and `942ac64` are pushed. The five local-artifact
+  checks are separated from deterministic CI with a resealed 299-file test
+  inventory. Whey immutable diagnostic ratios use the shared snapshot hash;
+  strict child-plan decimal validation remains unchanged. Empty reset
+  PostgreSQL SAFE_UPDATE settings are recognized as disabled. Local
+  `verify:quick`, `verify:full` and GitHub Quality Gate `34327670106` pass.
+- Complete apply/postflight/idempotency evidence: Whey `34328974180` 579
+  executed / 10 review; Discount `34329606669` 109/0; Simply `34329995155`
+  93/27; Jon's `34330280722` 505/1; scheduled 6 Pack `34327215238` 495/11.
+  Simply safely excluded newly changed offer 560. All price-change counts
+  were zero. Whey applied exactly the three approved stock changes.
+- Jon's scope deviation: the owner-facing approval described 505 unchanged
+  confirmations; the generic workflow rebuilt live plans and executed 503
+  confirmations plus stock changes on 1417 and 1448. Independent readback
+  proves both live variants OOS at unchanged GBP 39.99/42.99. The deviation
+  was disclosed; no rollback, replay or subsequent production write occurred.
+  These two changes require owner review and are not exact fulfillment of
+  the confirmation-only description.
+- Watchdog `34330754609` correlates the new evidence and fails only on
+  backlog growth: Simply 27, Jon's 1, 6 Pack 11. The prior 26-row Simply
+  monitoring proposal is superseded by fresh evidence; no new baseline has
+  been approved or installed. Fit House 944 is still a pre-write OOS guard
+  block at 104/286 versus its approved 103 baseline, despite the watchdog
+  retaining earlier successful Fit House evidence.
+- Outcome: `TECHNICAL_REPAIRS_VERIFIED_OWNER_DECISIONS_PENDING`, not full
+  green. [Machine-readable evidence and exact pending scopes](rollouts/shared-retailer-automation-evidence-2026-09-09.json)
+  contain run references, artifact/report hashes and independent readbacks.
+
 ### eBay reviewed 26-row remediation applied and verified - 5 September 2026
 
 The owner approved immutable read-only artifact

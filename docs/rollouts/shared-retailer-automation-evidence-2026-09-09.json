@@ -1,0 +1,1369 @@
+{
+  "schema_version": 1,
+  "kind": "shared-retailer-automation-checkpoint",
+  "generated_at": "2026-09-09T08:48:23.971Z",
+  "status": "TECHNICAL_REPAIRS_VERIFIED_OWNER_DECISIONS_PENDING",
+  "full_green": false,
+  "code_commit": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+  "code_commits": [
+    "188166a5371e8c639f6a745bb08de37375d57f6f",
+    "942ac649f87209ecbeb8af56cc5829bf04fabc65"
+  ],
+  "local_validation": {
+    "verify_project": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "focused_artifact_and_quality_tests": 125,
+    "focused_session_and_whey_tests": 53
+  },
+  "github_evidence": [
+    {
+      "value": [
+        {
+          "run": {
+            "conclusion": "failure",
+            "createdAt": "2026-09-09T07:34:03Z",
+            "databaseId": 34324507613,
+            "event": "schedule",
+            "headSha": "209bae5857e399ffc1c47865e46c3507eebabb90",
+            "status": "completed",
+            "updatedAt": "2026-09-09T07:43:38Z",
+            "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34324507613"
+          },
+          "artifacts": [
+            {
+              "id": 10093501079,
+              "name": "10reps-offer-refresh-34324507613-1",
+              "digest": "sha256:c3574dae95eaf20772e11c2cf456ce0aa4744f14bc971799bb4a02108ceab791",
+              "created_at": "2026-09-09T07:43:35Z"
+            },
+            {
+              "id": 10093198713,
+              "name": "fit-house-offer-refresh-34324507613-1",
+              "digest": "sha256:755d9d02d121ff32be6c25e89adae00d3422d27906bb3cdd74af7446de763499",
+              "created_at": "2026-09-09T07:34:44Z"
+            }
+          ]
+        },
+        {
+          "run": {
+            "conclusion": "success",
+            "createdAt": "2026-09-09T08:05:20Z",
+            "databaseId": 34327215238,
+            "event": "schedule",
+            "headSha": "188166a5371e8c639f6a745bb08de37375d57f6f",
+            "status": "completed",
+            "updatedAt": "2026-09-09T08:22:45Z",
+            "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34327215238"
+          },
+          "artifacts": [
+            {
+              "id": 10094845811,
+              "name": "six-pack-offer-refresh-34327215238-1",
+              "digest": "sha256:fafee73b2189b40487bf9cd66474dbfb24a39449549b55379f74e52e96d4ccbd",
+              "created_at": "2026-09-09T08:22:42Z"
+            }
+          ]
+        },
+        {
+          "run": {
+            "conclusion": "success",
+            "createdAt": "2026-09-09T08:24:52Z",
+            "databaseId": 34328974180,
+            "event": "workflow_dispatch",
+            "headSha": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+            "status": "completed",
+            "updatedAt": "2026-09-09T08:31:36Z",
+            "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34328974180"
+          },
+          "artifacts": [
+            {
+              "id": 10095171055,
+              "name": "whey-okay-offer-refresh-34328974180-1",
+              "digest": "sha256:ed0507d5ddd4c24bd21ffd783d3c06ec173ce81b35fe2c9c65d0e802260fa4f0",
+              "created_at": "2026-09-09T08:31:32Z"
+            }
+          ]
+        },
+        {
+          "run": {
+            "conclusion": "success",
+            "createdAt": "2026-09-09T08:22:13Z",
+            "databaseId": 34328730174,
+            "event": "workflow_dispatch",
+            "headSha": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+            "status": "completed",
+            "updatedAt": "2026-09-09T08:23:30Z",
+            "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34328730174"
+          },
+          "artifacts": [
+            {
+              "id": 10094873986,
+              "name": "whey-okay-offer-refresh-34328730174-1",
+              "digest": "sha256:ae2cbd2cc931cbf791fd9eb4c7f3cadb4e81bfaa417e179709ff05f1d41a8845",
+              "created_at": "2026-09-09T08:23:28Z"
+            }
+          ]
+        },
+        {
+          "run": {
+            "conclusion": "success",
+            "createdAt": "2026-09-09T08:05:55Z",
+            "databaseId": 34327264901,
+            "event": "workflow_dispatch",
+            "headSha": "188166a5371e8c639f6a745bb08de37375d57f6f",
+            "status": "completed",
+            "updatedAt": "2026-09-09T08:06:31Z",
+            "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34327264901"
+          },
+          "artifacts": [
+            {
+              "id": 10094274459,
+              "name": "discount-supplements-offer-refresh-34327264901-1",
+              "digest": "sha256:008e06f5c50cc36e073c0f9faa8f0ca86b1daed5528f22b13ff8604e4e61fd0a",
+              "created_at": "2026-09-09T08:06:29Z"
+            }
+          ]
+        },
+        {
+          "run": {
+            "conclusion": "success",
+            "createdAt": "2026-09-09T08:05:58Z",
+            "databaseId": 34327268807,
+            "event": "workflow_dispatch",
+            "headSha": "188166a5371e8c639f6a745bb08de37375d57f6f",
+            "status": "completed",
+            "updatedAt": "2026-09-09T08:07:10Z",
+            "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34327268807"
+          },
+          "artifacts": [
+            {
+              "id": 10094295412,
+              "name": "simply-supplements-offer-refresh-34327268807-1",
+              "digest": "sha256:7a2bae650605b8df065679099aef73087a12327ae735e3b1f91b4233efada55e",
+              "created_at": "2026-09-09T08:07:07Z"
+            }
+          ]
+        },
+        {
+          "run": {
+            "conclusion": "success",
+            "createdAt": "2026-09-09T08:06:00Z",
+            "databaseId": 34327272818,
+            "event": "workflow_dispatch",
+            "headSha": "188166a5371e8c639f6a745bb08de37375d57f6f",
+            "status": "completed",
+            "updatedAt": "2026-09-09T08:07:15Z",
+            "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34327272818"
+          },
+          "artifacts": [
+            {
+              "id": 10094297465,
+              "name": "jons-offer-refresh-34327272818-1",
+              "digest": "sha256:0c69a64215d431631fe76bf9c0a04e5e1c134de9b24d014811e06f76a5eadc87",
+              "created_at": "2026-09-09T08:07:11Z"
+            }
+          ]
+        }
+      ],
+      "Count": 7
+    },
+    {
+      "run": {
+        "conclusion": "success",
+        "createdAt": "2026-09-09T08:31:45Z",
+        "databaseId": 34329606669,
+        "event": "workflow_dispatch",
+        "headSha": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+        "status": "completed",
+        "updatedAt": "2026-09-09T08:33:59Z",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34329606669"
+      },
+      "artifacts": [
+        {
+          "id": 10095258394,
+          "name": "discount-supplements-offer-refresh-34329606669-1",
+          "digest": "sha256:7f65c6fdbfc3a6e5b425c1dc9fa069a3463a73c7f52a561c976aa032353b9568",
+          "created_at": "2026-09-09T08:33:54Z"
+        }
+      ]
+    },
+    {
+      "run": {
+        "conclusion": "success",
+        "createdAt": "2026-09-09T08:35:57Z",
+        "databaseId": 34329995155,
+        "event": "workflow_dispatch",
+        "headSha": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+        "status": "completed",
+        "updatedAt": "2026-09-09T08:37:50Z",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34329995155"
+      },
+      "artifacts": [
+        {
+          "id": 10095404402,
+          "name": "simply-supplements-offer-refresh-34329995155-1",
+          "digest": "sha256:1dcfb4bcad39d39936de79ec8c1540d1c9bea966606ac60cc0fae62b2fc748f8",
+          "created_at": "2026-09-09T08:37:47Z"
+        }
+      ]
+    },
+    {
+      "run": {
+        "conclusion": "success",
+        "createdAt": "2026-09-09T08:39:05Z",
+        "databaseId": 34330280722,
+        "event": "workflow_dispatch",
+        "headSha": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+        "status": "completed",
+        "updatedAt": "2026-09-09T08:43:24Z",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34330280722"
+      },
+      "artifacts": [
+        {
+          "id": 10095609801,
+          "name": "jons-offer-refresh-34330280722-1",
+          "digest": "sha256:5489cd23dd7a608fd5a04e49fc3ec6fdaedc67c258fc8ca9cc1a334002e3d0f0",
+          "created_at": "2026-09-09T08:43:22Z"
+        }
+      ]
+    },
+    {
+      "run": {
+        "conclusion": "failure",
+        "createdAt": "2026-09-09T08:44:14Z",
+        "databaseId": 34330754609,
+        "event": "workflow_dispatch",
+        "headSha": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+        "status": "completed",
+        "updatedAt": "2026-09-09T08:45:13Z",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34330754609"
+      },
+      "artifacts": [
+        {
+          "id": 10095674290,
+          "name": "automation-reliability-watchdog-34330754609-1",
+          "digest": "sha256:667bad36670c0aa43ee3cd154f9ac2a14fb5285a2884b65927c279e59d3f7f8b",
+          "created_at": "2026-09-09T08:45:10Z"
+        }
+      ]
+    },
+    {
+      "run": {
+        "conclusion": "success",
+        "createdAt": "2026-09-09T08:05:05Z",
+        "databaseId": 34327190909,
+        "event": "push",
+        "headSha": "188166a5371e8c639f6a745bb08de37375d57f6f",
+        "status": "completed",
+        "updatedAt": "2026-09-09T08:07:13Z",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34327190909"
+      },
+      "artifacts": []
+    },
+    {
+      "run": {
+        "conclusion": "success",
+        "createdAt": "2026-09-09T08:10:24Z",
+        "databaseId": 34327670106,
+        "event": "push",
+        "headSha": "942ac649f87209ecbeb8af56cc5829bf04fabc65",
+        "status": "completed",
+        "updatedAt": "2026-09-09T08:12:46Z",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34327670106"
+      },
+      "artifacts": []
+    }
+  ],
+  "retailers": [
+    {
+      "retailer": "whey-okay",
+      "run_id": 34328974180,
+      "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/34328974180",
+      "result": "PASS_WITH_REVIEW",
+      "executed_plan_count": 579,
+      "review_row_count": 10,
+      "price_change_count": 0,
+      "stock_change_count": 3,
+      "postflight_result": "PASS",
+      "postflight_report_sha256": "184f1938e2d6160820438b53d651debe7e7c05f784530f82f64a67e8ab1c4421",
+      "idempotency_result": "PASS",
+      "idempotency_report_sha256": "5b01854530defb1db029ac045f70e1ace43c9b0718b00f2ec674a2be80c62804",
+      "review_rows": [
+        {
+          "offer_id": "16",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "25"
+        },
+        {
+          "offer_id": "1506",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "27"
+        },
+        {
+          "offer_id": "1507",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "29"
+        },
+        {
+          "offer_id": "1508",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "1498"
+        },
+        {
+          "offer_id": "1509",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "1499"
+        },
+        {
+          "offer_id": "1510",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "1500"
+        },
+        {
+          "offer_id": "1511",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "1501"
+        },
+        {
+          "offer_id": "1512",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "1502"
+        },
+        {
+          "offer_id": "1568",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "26"
+        },
+        {
+          "offer_id": "1584",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "24",
+          "external_variant_id": "1503"
+        }
+      ]
+    },
+    {
+      "retailer": "discount-supplements",
+      "run_id": 34329606669,
+      "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/34329606669",
+      "result": "PASS",
+      "executed_plan_count": 109,
+      "review_row_count": 0,
+      "price_change_count": 0,
+      "stock_change_count": 0,
+      "postflight_result": "PASS",
+      "postflight_report_sha256": "99844f22fa4854452b7b1c60e02f5c7cffdf921055286db422a3e36be47a2f33",
+      "idempotency_result": "PASS",
+      "idempotency_report_sha256": "91eb2af0c8ea2d91e764461c165dd6dff397c843cc662c7d6704b8de8aa11e8e",
+      "review_rows": []
+    },
+    {
+      "retailer": "simply-supplements",
+      "run_id": 34329995155,
+      "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/34329995155",
+      "result": "PASS_WITH_REVIEW",
+      "executed_plan_count": 93,
+      "review_row_count": 27,
+      "price_change_count": 0,
+      "stock_change_count": 0,
+      "postflight_result": "PASS",
+      "postflight_report_sha256": "6779bb6ba4f0e24107240a055123968c1dd1a8ecf73763dcac914f315873027a",
+      "idempotency_result": "PASS",
+      "idempotency_report_sha256": "3259f2e6b75cae1a7d0609d75526fd59f8e8572092908ab202830374bbc14932",
+      "review_rows": [
+        {
+          "offer_id": "670",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "external_product_id": "15934241440093",
+          "external_variant_id": "63499230052701"
+        },
+        {
+          "offer_id": "560",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934262608221",
+          "external_variant_id": "64643270443357"
+        },
+        {
+          "offer_id": "563",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934239310173",
+          "external_variant_id": "64643254583645"
+        },
+        {
+          "offer_id": "564",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934234624349",
+          "external_variant_id": "64643258155357"
+        },
+        {
+          "offer_id": "570",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934250254685",
+          "external_variant_id": "64643273458013"
+        },
+        {
+          "offer_id": "572",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934264738141",
+          "external_variant_id": "64643255239005"
+        },
+        {
+          "offer_id": "573",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934230593885",
+          "external_variant_id": "64643272573277"
+        },
+        {
+          "offer_id": "582",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934259790173",
+          "external_variant_id": "63499278385501"
+        },
+        {
+          "offer_id": "590",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934263263581",
+          "external_variant_id": "64643254747485"
+        },
+        {
+          "offer_id": "591",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934246289757",
+          "external_variant_id": "63499243946333"
+        },
+        {
+          "offer_id": "593",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934231249245",
+          "external_variant_id": "64643269263709"
+        },
+        {
+          "offer_id": "598",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934239670621",
+          "external_variant_id": "64643258777949"
+        },
+        {
+          "offer_id": "604",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934276370781",
+          "external_variant_id": "63499327275357"
+        },
+        {
+          "offer_id": "612",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934236393821",
+          "external_variant_id": "64643270771037"
+        },
+        {
+          "offer_id": "621",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934230626653",
+          "external_variant_id": "63499200758109"
+        },
+        {
+          "offer_id": "625",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934237049181",
+          "external_variant_id": "63499214684509"
+        },
+        {
+          "offer_id": "631",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934260216157",
+          "external_variant_id": "63499279237469"
+        },
+        {
+          "offer_id": "635",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934232691037",
+          "external_variant_id": "64643271033181"
+        },
+        {
+          "offer_id": "636",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934248976733",
+          "external_variant_id": "64643256090973"
+        },
+        {
+          "offer_id": "638",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934258970973",
+          "external_variant_id": "64643277783389"
+        },
+        {
+          "offer_id": "654",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934254809437",
+          "external_variant_id": "64643273982301"
+        },
+        {
+          "offer_id": "655",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934230528349",
+          "external_variant_id": "64643275489629"
+        },
+        {
+          "offer_id": "664",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934235738461",
+          "external_variant_id": "64643258220893"
+        },
+        {
+          "offer_id": "667",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934240424285",
+          "external_variant_id": "64643259662685"
+        },
+        {
+          "offer_id": "671",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934241046877",
+          "external_variant_id": "64643277914461"
+        },
+        {
+          "offer_id": "672",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934235443549",
+          "external_variant_id": "64643255075165"
+        },
+        {
+          "offer_id": "673",
+          "reason": "MASS_PRICE",
+          "external_product_id": "15934241341789",
+          "external_variant_id": "64643258614109"
+        }
+      ]
+    },
+    {
+      "retailer": "jons-supplements",
+      "run_id": 34330280722,
+      "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/34330280722",
+      "result": "PASS_WITH_REVIEW",
+      "executed_plan_count": 505,
+      "review_row_count": 1,
+      "price_change_count": 0,
+      "stock_change_count": 2,
+      "postflight_result": "PASS",
+      "postflight_report_sha256": "56b59f1a3a2d9c0c6597923a4582efc17f093f4c4d2b07755f812c90f54bfe8d",
+      "idempotency_result": "PASS",
+      "idempotency_report_sha256": "c1dc13cce23d4b395ddb2f4cb5c89861bdaa83c910600ff663cefe2cb8387f04",
+      "review_rows": [
+        {
+          "offer_id": "1209",
+          "retailer_product_id": "1395",
+          "external_product_id": "10044164899154",
+          "external_variant_id": "50651557691730",
+          "reason": "SOURCE_VARIANT_MISSING",
+          "old_price": "16.49",
+          "new_price": null,
+          "old_stock": true,
+          "new_stock": null
+        }
+      ]
+    },
+    {
+      "retailer": "six-pack-supplements",
+      "run_id": 34327215238,
+      "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/34327215238",
+      "result": "PASS_WITH_REVIEW",
+      "executed_plan_count": 495,
+      "review_row_count": 11,
+      "price_change_count": 0,
+      "stock_change_count": 0,
+      "postflight_result": "PASS",
+      "postflight_report_sha256": "17e7e352f08c71b309f12471edb64b25d2de013d0e7331edaae7db11d6f1ebc3",
+      "idempotency_result": "PASS_WITH_REVIEW",
+      "idempotency_report_sha256": "d2769a43920427ddef14a33d9e5fee53a5dd44bae9e66af7e34c58edc6669951",
+      "review_rows": [
+        {
+          "offer_id": "2029",
+          "mapping_id": "2215",
+          "external_product_id": "3980",
+          "external_variant_id": "3995",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_STOCK",
+          "changed_fields": {
+            "price": false,
+            "stock": true,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "44.99",
+            "shipping_cost": "4.99",
+            "total_price": "49.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-1000g-7nutrition/",
+            "last_checked_at": "2026-09-04T08:01:27.355+00:00"
+          },
+          "proposed_offer": {
+            "price": "44.99",
+            "shipping_cost": "4.99",
+            "total_price": "49.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-1000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2060",
+          "mapping_id": "2246",
+          "external_product_id": "4124",
+          "external_variant_id": "4124",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_STOCK",
+          "changed_fields": {
+            "price": false,
+            "stock": true,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "12.00",
+            "shipping_cost": "4.99",
+            "total_price": "16.99",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/7nutrition-sodium-butyrate-580mg-100caps/",
+            "last_checked_at": "2026-09-02T07:52:44.332+00:00"
+          },
+          "proposed_offer": {
+            "price": "12.00",
+            "shipping_cost": "4.99",
+            "total_price": "16.99",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/7nutrition-sodium-butyrate-580mg-100caps/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2147",
+          "mapping_id": "2333",
+          "external_product_id": "2767",
+          "external_variant_id": "28798",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE",
+          "changed_fields": {
+            "price": true,
+            "stock": false,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2148",
+          "mapping_id": "2334",
+          "external_product_id": "2767",
+          "external_variant_id": "28801",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE_AND_STOCK",
+          "changed_fields": {
+            "price": true,
+            "stock": true,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2149",
+          "mapping_id": "2335",
+          "external_product_id": "2767",
+          "external_variant_id": "28804",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE_AND_STOCK",
+          "changed_fields": {
+            "price": true,
+            "stock": true,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2150",
+          "mapping_id": "2336",
+          "external_product_id": "2767",
+          "external_variant_id": "28807",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE",
+          "changed_fields": {
+            "price": true,
+            "stock": false,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2151",
+          "mapping_id": "2337",
+          "external_product_id": "2767",
+          "external_variant_id": "28810",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE_AND_STOCK",
+          "changed_fields": {
+            "price": true,
+            "stock": true,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2152",
+          "mapping_id": "2338",
+          "external_product_id": "2767",
+          "external_variant_id": "28813",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE",
+          "changed_fields": {
+            "price": true,
+            "stock": false,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2153",
+          "mapping_id": "2339",
+          "external_product_id": "2767",
+          "external_variant_id": "28816",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE",
+          "changed_fields": {
+            "price": true,
+            "stock": false,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2154",
+          "mapping_id": "2340",
+          "external_product_id": "2767",
+          "external_variant_id": "28819",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE_AND_STOCK",
+          "changed_fields": {
+            "price": true,
+            "stock": true,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        },
+        {
+          "offer_id": "2155",
+          "mapping_id": "2341",
+          "external_product_id": "2767",
+          "external_variant_id": "28822",
+          "reason": "MASS_OOS",
+          "original_action": "UPDATE_PRICE_AND_STOCK",
+          "changed_fields": {
+            "price": true,
+            "stock": true,
+            "url": false,
+            "blocked": true
+          },
+          "current_offer": {
+            "price": "69.99",
+            "shipping_cost": "4.99",
+            "total_price": "74.98",
+            "in_stock": false,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "last_checked_at": "2026-09-07T08:13:38.52+00:00"
+          },
+          "proposed_offer": {
+            "price": "79.99",
+            "shipping_cost": "4.99",
+            "total_price": "84.98",
+            "in_stock": true,
+            "url": "https://6pack-supplements.co.uk/product/whey-isolate-90-2000g-7nutrition/",
+            "source_captured_at": "2026-09-09T08:20:59.027Z"
+          }
+        }
+      ]
+    }
+  ],
+  "watchdog": {
+    "run_id": 34330754609,
+    "result": "FAIL",
+    "report_sha256": "c346201d182f17e4080da867ab6cd5a321a9462e17ae9691e34e0c6ab1a98ed7",
+    "failed_retailer_count": 3,
+    "global_failures": [],
+    "retailers": [
+      {
+        "retailer": "GYM HIGH",
+        "result": "PASS_WITH_MONITORED_BACKLOG",
+        "failures": [],
+        "evidence_correlation": "INCOMPLETE_CORE",
+        "review_row_count": null,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 66,
+          "current_offers_older_than_48h": 0,
+          "maximum_review_row_count": 0,
+          "current_review_row_count": 0
+        }
+      },
+      {
+        "retailer": "Whey Okay",
+        "result": "PASS_WITH_MONITORED_BACKLOG",
+        "failures": [],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 10,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 869,
+          "current_offers_older_than_48h": 291,
+          "maximum_review_row_count": 10,
+          "current_review_row_count": 10
+        }
+      },
+      {
+        "retailer": "Discount Supplements",
+        "result": "PASS_WITH_MONITORED_BACKLOG",
+        "failures": [],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 0,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 47,
+          "current_offers_older_than_48h": 47,
+          "maximum_review_row_count": 0,
+          "current_review_row_count": 0
+        }
+      },
+      {
+        "retailer": "Dolphin Fitness",
+        "result": "PASS_WITH_MONITORED_BACKLOG",
+        "failures": [],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 0,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 2,
+          "current_offers_older_than_48h": 2,
+          "maximum_review_row_count": 0,
+          "current_review_row_count": 0
+        }
+      },
+      {
+        "retailer": "Simply Supplements",
+        "result": "FAIL",
+        "failures": [
+          "MONITORED_BACKLOG_GROWTH"
+        ],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 27,
+        "monitored_backlog": {
+          "result": "OUTSIDE_BASELINE",
+          "unexpected_failure_codes": [],
+          "growth": [
+            "OFFERS_OLDER_THAN_48H_GROWTH",
+            "REVIEW_ROW_COUNT_GROWTH"
+          ]
+        }
+      },
+      {
+        "retailer": "KIOR Health",
+        "result": "PASS",
+        "failures": [],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 0,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 0,
+          "current_offers_older_than_48h": 0,
+          "maximum_review_row_count": 0,
+          "current_review_row_count": 0
+        }
+      },
+      {
+        "retailer": "Fit House",
+        "result": "PASS",
+        "failures": [],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 0,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 286,
+          "current_offers_older_than_48h": 0,
+          "maximum_review_row_count": 0,
+          "current_review_row_count": 0
+        }
+      },
+      {
+        "retailer": "Jon's Supplements",
+        "result": "FAIL",
+        "failures": [
+          "MONITORED_BACKLOG_GROWTH"
+        ],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 1,
+        "monitored_backlog": {
+          "result": "OUTSIDE_BASELINE",
+          "unexpected_failure_codes": [],
+          "growth": [
+            "OFFERS_OLDER_THAN_48H_GROWTH",
+            "REVIEW_ROW_COUNT_GROWTH"
+          ]
+        }
+      },
+      {
+        "retailer": "6 Pack Supplements",
+        "result": "FAIL",
+        "failures": [
+          "MONITORED_BACKLOG_GROWTH"
+        ],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 11,
+        "monitored_backlog": {
+          "result": "OUTSIDE_BASELINE",
+          "unexpected_failure_codes": [],
+          "growth": [
+            "OFFERS_OLDER_THAN_48H_GROWTH",
+            "REVIEW_ROW_COUNT_GROWTH",
+            "REVIEW_SCOPE_DRIFT"
+          ]
+        }
+      },
+      {
+        "retailer": "eBay UK",
+        "result": "PASS_WITH_MONITORED_BACKLOG",
+        "failures": [],
+        "evidence_correlation": "UNRELATED_EVIDENCE",
+        "review_row_count": 39,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 40,
+          "current_offers_older_than_48h": 35,
+          "maximum_review_row_count": 42,
+          "current_review_row_count": 39
+        }
+      },
+      {
+        "retailer": "Predators Gear",
+        "result": "PASS_WITH_MONITORED_BACKLOG",
+        "failures": [],
+        "evidence_correlation": "INCOMPLETE_CORE",
+        "review_row_count": null,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 47,
+          "current_offers_older_than_48h": 47,
+          "maximum_review_row_count": 0,
+          "current_review_row_count": 0
+        }
+      },
+      {
+        "retailer": "10 Reps",
+        "result": "PASS",
+        "failures": [],
+        "evidence_correlation": "CORRELATED",
+        "review_row_count": 0,
+        "monitored_backlog": {
+          "result": "WITHIN_BASELINE",
+          "maximum_offers_older_than_48h": 0,
+          "current_offers_older_than_48h": 0,
+          "maximum_review_row_count": 0,
+          "current_review_row_count": 0
+        }
+      }
+    ]
+  },
+  "fit_house": {
+    "status": "OWNER_DECISION_PENDING",
+    "failed_run_id": 34324507613,
+    "offer_id": "944",
+    "mapping_id": "1130",
+    "external_product_id": "8318574264560",
+    "external_variant_id": "47976539259120",
+    "product": "Mutant Mass 2.27 kg Triple Chocolate",
+    "stored_in_stock": true,
+    "source_in_stock": false,
+    "price_gbp": "31.99",
+    "approved_oos_baseline": 103,
+    "observed_oos": 104,
+    "scope": 286,
+    "generic_oos_ratio_limit": 0.35,
+    "production_writes": 0,
+    "note": "No approval received for this transition or changing the 103-row baseline. The watchdog still accepts an earlier successful Fit House run."
+  },
+  "simply_review": {
+    "captured_at": "2026-09-09T08:39:49.702Z",
+    "source_fingerprint": "ebebb587ddb8c4828ec5678d6cba33aacda412bc64199e3a9328a367ebbc0c53",
+    "rows": [
+      {
+        "offer_id": "670",
+        "reason": "SOURCE_VARIANT_MISSING",
+        "product": "Ginkgo Biloba Tablets 1,500mg",
+        "stored_price": "6.99",
+        "source_price": null
+      },
+      {
+        "offer_id": "560",
+        "reason": "MASS_PRICE",
+        "product": "Multivitamins A,B,C,D & E 100% NRV",
+        "stored_price": "4.40",
+        "source_price": "6.29"
+      },
+      {
+        "offer_id": "563",
+        "reason": "MASS_PRICE",
+        "product": "Glucosamine Sulphate 500mg",
+        "stored_price": "2.99",
+        "source_price": "3.74"
+      },
+      {
+        "offer_id": "564",
+        "reason": "MASS_PRICE",
+        "product": "Glucosamine Sulphate 1,000mg - Tablets",
+        "stored_price": "6.39",
+        "source_price": "7.99"
+      },
+      {
+        "offer_id": "570",
+        "reason": "MASS_PRICE",
+        "product": "Selenium 220mcg with Multivitamins & Iron",
+        "stored_price": "6.29",
+        "source_price": "6.74"
+      },
+      {
+        "offer_id": "572",
+        "reason": "MASS_PRICE",
+        "product": "Glucosamine 1,000mg with Vitamin C Tablets",
+        "stored_price": "7.26",
+        "source_price": "6.78"
+      },
+      {
+        "offer_id": "573",
+        "reason": "MASS_PRICE",
+        "product": "Potassium Chloride 1000mg",
+        "stored_price": "4.84",
+        "source_price": "9.69"
+      },
+      {
+        "offer_id": "582",
+        "reason": "MASS_PRICE",
+        "product": "Glucosamine 1,000mg with Vitamin C Capsules",
+        "stored_price": "7.97",
+        "source_price": "9.30"
+      },
+      {
+        "offer_id": "590",
+        "reason": "MASS_PRICE",
+        "product": "Glucosamine 500mg & Chondroitin",
+        "stored_price": "18.79",
+        "source_price": "23.49"
+      },
+      {
+        "offer_id": "591",
+        "reason": "MASS_PRICE",
+        "product": "Quick Release Glucosamine 65 Plus",
+        "stored_price": "16.79",
+        "source_price": "23.99"
+      },
+      {
+        "offer_id": "593",
+        "reason": "MASS_PRICE",
+        "product": "Multivitamin Gummies",
+        "stored_price": "2.67",
+        "source_price": "10.69"
+      },
+      {
+        "offer_id": "598",
+        "reason": "MASS_PRICE",
+        "product": "Conjugated Linoleic Acid (CLA) Capsules",
+        "stored_price": "5.84",
+        "source_price": "3.50"
+      },
+      {
+        "offer_id": "604",
+        "reason": "MASS_PRICE",
+        "product": "Vitamin C 1000mg Powder",
+        "stored_price": "3.80",
+        "source_price": "12.69"
+      },
+      {
+        "offer_id": "612",
+        "reason": "MASS_PRICE",
+        "product": "Omega 3, 6 & 9 Capsules 1,000mg",
+        "stored_price": "10.00",
+        "source_price": "14.29"
+      },
+      {
+        "offer_id": "621",
+        "reason": "MASS_PRICE",
+        "product": "SuperGreens Powder",
+        "stored_price": "6.19",
+        "source_price": "4.64"
+      },
+      {
+        "offer_id": "625",
+        "reason": "MASS_PRICE",
+        "product": "Vitamin D Tablets 400iu",
+        "stored_price": "9.89",
+        "source_price": "12.36"
+      },
+      {
+        "offer_id": "631",
+        "reason": "MASS_PRICE",
+        "product": "Vitamin D2 Tablets 2,000iu",
+        "stored_price": "8.51",
+        "source_price": "10.64"
+      },
+      {
+        "offer_id": "635",
+        "reason": "MASS_PRICE",
+        "product": "Potassium Citrate 1300mg with Vitamin C",
+        "stored_price": "2.13",
+        "source_price": "2.67"
+      },
+      {
+        "offer_id": "636",
+        "reason": "MASS_PRICE",
+        "product": "Chewable Vitamin C Tablets 1,000mg Orange Flavour",
+        "stored_price": "8.39",
+        "source_price": "9.79"
+      },
+      {
+        "offer_id": "638",
+        "reason": "MASS_PRICE",
+        "product": "Vegan Glucosamine HCl 1000mg with Vitamin C 40mg",
+        "stored_price": "11.57",
+        "source_price": "19.29"
+      },
+      {
+        "offer_id": "654",
+        "reason": "MASS_PRICE",
+        "product": "Siberian Ginseng 4,000mg",
+        "stored_price": "5.80",
+        "source_price": "6.21"
+      },
+      {
+        "offer_id": "655",
+        "reason": "MASS_PRICE",
+        "product": "Soya Isoflavones",
+        "stored_price": "5.39",
+        "source_price": "8.99"
+      },
+      {
+        "offer_id": "664",
+        "reason": "MASS_PRICE",
+        "product": "Chromium Complex",
+        "stored_price": "6.77",
+        "source_price": "11.29"
+      },
+      {
+        "offer_id": "667",
+        "reason": "MASS_PRICE",
+        "product": "Evening Primrose Oil 1500mg",
+        "stored_price": "8.74",
+        "source_price": "12.49"
+      },
+      {
+        "offer_id": "671",
+        "reason": "MASS_PRICE",
+        "product": "Vitamin B12 Tablets 500mcg",
+        "stored_price": "9.79",
+        "source_price": "13.99"
+      },
+      {
+        "offer_id": "672",
+        "reason": "MASS_PRICE",
+        "product": "Ginkgo & Ginseng Complex",
+        "stored_price": "2.93",
+        "source_price": "2.20"
+      },
+      {
+        "offer_id": "673",
+        "reason": "MASS_PRICE",
+        "product": "Acetyl L-Carnitine Capsules 500mg",
+        "stored_price": "7.49",
+        "source_price": "14.99"
+      }
+    ]
+  },
+  "jons_execution_scope_deviation": {
+    "approved_description": "505 VERIFY_NO_CHANGE; offer 1209 remains in review",
+    "observed_actions": {
+      "VERIFY_NO_CHANGE": 503,
+      "UPDATE_STOCK": 2
+    },
+    "offer_ids": [
+      "1417",
+      "1448"
+    ],
+    "price_changes": 0,
+    "independent_readback": {
+      "captured_at": "2026-09-09T08:45:53.169Z",
+      "database_writes": 0,
+      "rows": [
+        {
+          "offer_id": "1417",
+          "product": "Strom Sports PerforMAX 900g",
+          "variant": "Cherry / 900g",
+          "price": 39.99,
+          "in_stock": false,
+          "source_available": false,
+          "source_price": 39.99,
+          "http": 200,
+          "external_variant_id": "50824993636690"
+        },
+        {
+          "offer_id": "1448",
+          "product": "Atlas Infusions IGG-1 150g",
+          "variant": "150g",
+          "price": 42.99,
+          "in_stock": false,
+          "source_available": false,
+          "source_price": 42.99,
+          "http": 200,
+          "external_variant_id": "53761603895634"
+        }
+      ]
+    },
+    "status": "DISCLOSED_OWNER_REVIEW_REQUIRED",
+    "note": "The generic protected workflow rebuilt current source plans and applied two stock transitions beyond the confirmation-only scope presented for approval. Both match independently verified live source availability. No rollback or additional production write was performed after disclosure."
+  },
+  "pending_decisions": [
+    "Fit House offer 944 OOS transition and exact baseline 103 -> 104",
+    "Current isolated backlog: Simply 27 (earlier 26-row question is superseded), Jons 1, 6 Pack 11; watchdog baselines unchanged",
+    "Review the disclosed two Jon's stock transitions beyond the confirmation-only approval description"
+  ]
+}

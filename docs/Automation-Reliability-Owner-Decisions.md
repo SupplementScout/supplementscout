@@ -1,5 +1,35 @@
 # Automation Reliability — Owner Decision Pack
 
+## Current shared automation decisions ? 9 September 2026
+
+Status: pending owner decision; this section is evidence, not approval.
+Final watchdog run 34330754609 has correlated evidence for the five refreshed
+integrations. Only backlog growth remains red. The current reviewed scopes
+supersede the earlier 26-row Simply proposal:
+
+| Scope | Verified state | Pending decision |
+| --- | --- | --- |
+| Fit House offer 944 | Mutant Mass 2.27 kg Triple Chocolate, GBP 31.99 unchanged; source OOS, stored in stock; 104/286 observed OOS against approved baseline 103 | Exact OOS transition and baseline 103 to 104; no write performed |
+| Simply Supplements | 27 isolated rows: price reviews 560, 563, 564, 570, 572, 573, 582, 590, 591, 593, 598, 604, 612, 621, 625, 631, 635, 636, 638, 654, 655, 664, 667, 671, 672, 673; missing source 670 | Resolve separately or accept exactly this scope as monitored backlog; neither option is approved yet |
+| Jon's | Missing source offer 1209 | Resolve separately or accept this exact row as monitored backlog |
+| 6 Pack | Isolated offers 2029, 2060, 2147, 2148, 2149, 2150, 2151, 2152, 2153, 2154, 2155; two stock-only changes and nine GBP 69.99 to 79.99 price changes, some also changing stock | Resolve separately or accept these exact 11 rows as monitored backlog |
+
+Accepting a monitored scope would not authorize commercial or identity writes.
+Any future implementation must retain alarms for additional or substituted
+review/stale rows and continue to require correlated apply/postflight evidence.
+
+Jon's execution deviation also requires owner review: approval was presented
+as 505 unchanged confirmations, but the generic workflow rebuilt live source
+plans and performed 503 confirmations plus OOS transitions on 1417 (Strom
+PerforMAX Cherry 900g, GBP 39.99) and 1448 (Atlas IGG-1 150g, GBP 42.99).
+Both sources independently confirmed OOS at unchanged prices after execution.
+The deviation was disclosed; no rollback or subsequent production write was
+performed. Do not represent this as exact confirmation-only execution or use
+this checkpoint as authority for another apply.
+
+[Complete machine-readable evidence, source prices, run references and hashes](rollouts/shared-retailer-automation-evidence-2026-09-09.json).
+
+
 ## eBay reviewed 26-row remediation applied - 5 September 2026
 
 The exact owner approval for run `33978002980`, artifact `9972941188` and
