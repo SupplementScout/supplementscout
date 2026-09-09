@@ -5,41 +5,35 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**9 September 2026 shared automation checkpoint — owner decisions pending:**
-the two prepared commits were pushed, followed by fixes `188166a` and
-`942ac64`. Five historical 10 Reps artifact checks now use the existing
-artifact-test classification; the safe/quick approver tests remain in CI and
-the 299-file inventory is resealed. Whey Okay's failure was diagnostic-ratio
-serialization (`3/579`), not a malformed source price. Its immutable envelope
-now uses the shared snapshot fingerprint while child-plan decimal guards stay
-intact. Shared/Whey sessions also recognize PostgreSQL's empty, reset
-`app.safe_update` value. Local quick/full gates and GitHub Quality Gate
-`34327670106` passed.
+**9 September 2026 shared automation checkpoint - fully green with approved monitored backlog:**
+the owner approved Fit House offer 944 and exactly 39 monitored review offers
+(Simply 27, Jon's 1, 6 Pack 11). Commit `519e511` is pushed; local quick/full,
+zero-warning lint and GitHub Quality Gate `34335046998` pass. Final watchdog
+`34335566142` checks all 12 retailers with **0 failed retailers**, no global
+failures and no database writes. Its result is `PASS_WITH_MONITORED_BACKLOG`.
 
-Full Actions runs and DB postflights passed for Whey Okay `34328974180`
-(`579` executed, `10` review, three approved stock changes), Discount
-`34329606669` (`109/0`), Simply `34329995155` (`93/27`), Jon's
-`34330280722` (`505/1`) and scheduled 6 Pack `34327215238` (`495/11`).
-Every idempotency check passed without writes. Simply isolated a new price
-change on offer `560`, reducing the approved 94-row confirmation scope to 93.
-Jon's rebuilt source plans and performed `503 VERIFY_NO_CHANGE` plus two OOS
-changes (`1417`, `1448`), exceeding the confirmation-only scope presented for
-owner approval. Both stock states and unchanged prices were independently
-verified against live source; the deviation was disclosed and no further
-production write or rollback followed. It must not be recorded as an exact
-505-confirmation-only execution.
+Fit House 944 was changed from in stock to OOS at unchanged GBP 31.99; the
+exact approved stable baseline is now 104/286. Two guarded migrations and
+independent readback preserve all other offer fields, validator limits and
+permissions. Actions `34335094373` then executed exactly 286 unchanged
+confirmations, with PASS postflight and zero-write idempotency. The existing
+daily observation mechanism added 260 confirmations to price history, without
+changing prices. The manual run's confirmation-only guard blocks any further
+price, stock or scope change before registration. 10 Reps was skipped in this
+run and retains today's verified 950-offer PASS and seven stock updates.
 
-Final watchdog `34330754609` has correlated evidence for all five repaired
-integrations and exactly three remaining failures: monitored-backlog growth
-for Simply `27`, Jon's `1` and 6 Pack `11`. Baselines were not relaxed. Fit
-House offer `944` remains blocked before write: live source confirms OOS at
-GBP `31.99`, giving `104/286` OOS against the owner-approved baseline of `103`.
-Its watchdog PASS still uses earlier successful evidence. The full-green goal
-is **not complete**. Current evidence, artifact digests and pending decisions
-are in [the 9 September automation evidence](rollouts/shared-retailer-automation-evidence-2026-09-09.json).
-10 Reps remains complete with today's `950`-offer PASS and seven stock updates.
-The price-drop publication decision remains around 24–25 September; Predators
-Gear remains source-blocked.
+The 39 accepted reviews authorize monitoring only; no commercial or identity
+writes were made to these rows. Additional or substituted review/stale IDs
+still fail, and correlated Actions evidence remains required. Whey Okay,
+Discount, Simply, Jon's and 6 Pack retain their verified apply/postflight and
+idempotency evidence. Jon's earlier manual scope deviation (1417/1448) remains
+explicitly recorded; this closeout does not rewrite its approval history.
+
+The shared automation goal is complete within those approved monitoring
+boundaries. [verified closeout evidence](rollouts/shared-retailer-automation-closeout-2026-09-09.json) and [exact owner approval](rollouts/shared-automation-owner-approval-2026-09-09.json) contain
+run/artifact digests, migration readbacks and exact scopes. The price-drop
+publication decision remains around 24-25 September; Predators Gear remains
+source-blocked and GYM HIGH remains owner-deferred.
 
 **Automation reliability status:** The P0 Automation Reliability Sprint is closed with monitored backlog. The [Automation Reliability Roadmap](Automation-Reliability-Roadmap.md) remains the evidence source, but no longer blocks product development. Existing guarded workflows, Review Queue and alerts own ordinary freshness, OOS, source and review backlog.
 

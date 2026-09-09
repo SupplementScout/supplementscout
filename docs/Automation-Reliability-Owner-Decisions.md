@@ -1,34 +1,30 @@
 # Automation Reliability — Owner Decision Pack
 
-## Current shared automation decisions ? 9 September 2026
+## Shared automation decisions approved and verified - 9 September 2026
 
-Status: pending owner decision; this section is evidence, not approval.
-Final watchdog run 34330754609 has correlated evidence for the five refreshed
-integrations. Only backlog growth remains red. The current reviewed scopes
-supersede the earlier 26-row Simply proposal:
+The owner replied "zgoda" to the exact Fit House 944 exception and monitoring
+of the listed 39 review offers. The approval authorizes no price, availability
+or identity changes to those 39 rows. [exact owner approval](rollouts/shared-automation-owner-approval-2026-09-09.json) is immutable and hash-bound.
 
-| Scope | Verified state | Pending decision |
-| --- | --- | --- |
-| Fit House offer 944 | Mutant Mass 2.27 kg Triple Chocolate, GBP 31.99 unchanged; source OOS, stored in stock; 104/286 observed OOS against approved baseline 103 | Exact OOS transition and baseline 103 to 104; no write performed |
-| Simply Supplements | 27 isolated rows: price reviews 560, 563, 564, 570, 572, 573, 582, 590, 591, 593, 598, 604, 612, 621, 625, 631, 635, 636, 638, 654, 655, 664, 667, 671, 672, 673; missing source 670 | Resolve separately or accept exactly this scope as monitored backlog; neither option is approved yet |
-| Jon's | Missing source offer 1209 | Resolve separately or accept this exact row as monitored backlog |
-| 6 Pack | Isolated offers 2029, 2060, 2147, 2148, 2149, 2150, 2151, 2152, 2153, 2154, 2155; two stock-only changes and nine GBP 69.99 to 79.99 price changes, some also changing stock | Resolve separately or accept these exact 11 rows as monitored backlog |
+| Scope | Approved decision and verified result |
+| --- | --- |
+| Fit House 944 | Exact OOS transition at unchanged GBP 31.99, baseline 103 -> 104; applied and independently verified. Actions 34335094373 then confirmed all 286 offers without further commercial changes. |
+| Simply Supplements | Monitor exactly 27 IDs: 560, 563, 564, 570, 572, 573, 582, 590, 591, 593, 598, 604, 612, 621, 625, 631, 635, 636, 638, 654, 655, 664, 667, 670, 671, 672, 673. No review-row writes. |
+| Jon's | Monitor exactly missing-source offer 1209. No review-row write. |
+| 6 Pack | Monitor exactly 2029, 2060, 2147, 2148, 2149, 2150, 2151, 2152, 2153, 2154, 2155. No review-row writes. |
 
-Accepting a monitored scope would not authorize commercial or identity writes.
-Any future implementation must retain alarms for additional or substituted
-review/stale rows and continue to require correlated apply/postflight evidence.
+Additional/substituted review or stale IDs still trigger a failure, and
+correlated apply/postflight evidence remains required. Final watchdog
+34335566142 passed all 12 retailer evaluations with no failures or writes;
+Quality Gate 34335046998 passed. [verified closeout evidence](rollouts/shared-retailer-automation-closeout-2026-09-09.json) records the final state.
 
-Jon's execution deviation also requires owner review: approval was presented
-as 505 unchanged confirmations, but the generic workflow rebuilt live source
-plans and performed 503 confirmations plus OOS transitions on 1417 (Strom
-PerforMAX Cherry 900g, GBP 39.99) and 1448 (Atlas IGG-1 150g, GBP 42.99).
-Both sources independently confirmed OOS at unchanged prices after execution.
-The deviation was disclosed; no rollback or subsequent production write was
-performed. Do not represent this as exact confirmation-only execution or use
-this checkpoint as authority for another apply.
-
-[Complete machine-readable evidence, source prices, run references and hashes](rollouts/shared-retailer-automation-evidence-2026-09-09.json).
-
+Jon's earlier manual execution deviation remains disclosed: approval was
+presented as 505 unchanged confirmations, but run 34330280722 rebuilt plans
+and executed 503 confirmations plus OOS transitions on 1417 (GBP 39.99) and
+1448 (GBP 42.99). Both live sources and DB states were independently verified.
+This monitoring approval does not retrospectively change that approval scope
+or authorize another commercial apply. The later scheduled Jon's run remains
+separate evidence under the existing automatic workflow.
 
 ## eBay reviewed 26-row remediation applied - 5 September 2026
 

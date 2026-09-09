@@ -1,34 +1,31 @@
 # Automation Reliability Roadmap
 
-### Shared automation technical repairs verified; owner decisions pending — 9 September 2026
+### Shared automation fully green with approved monitored backlog - 9 September 2026
 
-- Code repairs `188166a` and `942ac64` are pushed. The five local-artifact
-  checks are separated from deterministic CI with a resealed 299-file test
-  inventory. Whey immutable diagnostic ratios use the shared snapshot hash;
-  strict child-plan decimal validation remains unchanged. Empty reset
-  PostgreSQL SAFE_UPDATE settings are recognized as disabled. Local
-  `verify:quick`, `verify:full` and GitHub Quality Gate `34327670106` pass.
-- Complete apply/postflight/idempotency evidence: Whey `34328974180` 579
-  executed / 10 review; Discount `34329606669` 109/0; Simply `34329995155`
-  93/27; Jon's `34330280722` 505/1; scheduled 6 Pack `34327215238` 495/11.
-  Simply safely excluded newly changed offer 560. All price-change counts
-  were zero. Whey applied exactly the three approved stock changes.
-- Jon's scope deviation: the owner-facing approval described 505 unchanged
-  confirmations; the generic workflow rebuilt live plans and executed 503
-  confirmations plus stock changes on 1417 and 1448. Independent readback
-  proves both live variants OOS at unchanged GBP 39.99/42.99. The deviation
-  was disclosed; no rollback, replay or subsequent production write occurred.
-  These two changes require owner review and are not exact fulfillment of
-  the confirmation-only description.
-- Watchdog `34330754609` correlates the new evidence and fails only on
-  backlog growth: Simply 27, Jon's 1, 6 Pack 11. The prior 26-row Simply
-  monitoring proposal is superseded by fresh evidence; no new baseline has
-  been approved or installed. Fit House 944 is still a pre-write OOS guard
-  block at 104/286 versus its approved 103 baseline, despite the watchdog
-  retaining earlier successful Fit House evidence.
-- Outcome: `TECHNICAL_REPAIRS_VERIFIED_OWNER_DECISIONS_PENDING`, not full
-  green. [Machine-readable evidence and exact pending scopes](rollouts/shared-retailer-automation-evidence-2026-09-09.json)
-  contain run references, artifact/report hashes and independent readbacks.
+- Owner-approved Fit House 944 is OOS at unchanged GBP 31.99; stable baseline
+  103 -> 104 is bound to the runtime policy in the protected validators.
+  Both migrations rehearsed and applied with exact state, definition and ACL
+  guards; independent readback passed. Final production ledger: 203 migrations,
+  fingerprint `faf58a2f766eaaedab83a92e5a624c43c85a492d90c788336886ea70dc72488d`.
+- Fit House Actions `34335094373`: 286 VERIFY_NO_CHANGE, 0 reviews, PASS
+  DB postflight and zero-write idempotency. Daily price observations +260;
+  price and stock changes in this run: 0. Manual confirmation-only mode blocks
+  scope drift before registration. The already complete 10 Reps job was skipped.
+- Exact monitored review IDs were approved: Simply 27, Jon's 1, 6 Pack 11.
+  No writes to those rows were authorized or performed. Watchdog now rejects
+  additional/substituted stale IDs as well as review IDs; existing evidence
+  correlation and failure guards remain in force.
+- Code `519e511`, local quick/full, zero-warning lint and Quality Gate
+  `34335046998` pass. Final watchdog `34335566142` is
+  `PASS_WITH_MONITORED_BACKLOG`: 12 retailers, 0 failures, 0 global failures,
+  0 database writes. Earlier Whey, Discount, Simply, Jon's and 6 Pack execution
+  evidence is correlated and remains valid; no unnecessary manual replay.
+- Outcome: **FULL_GREEN_WITH_APPROVED_MONITORED_BACKLOG**. [verified closeout evidence](rollouts/shared-retailer-automation-closeout-2026-09-09.json)
+  contains artifact digests and independent readbacks. Jon's earlier manual
+  execution exceeded its confirmation-only description (1417/1448); the
+  disclosed deviation remains in the evidence and is not retroactively approved
+  by this monitoring decision. Price-drop publication remains 24-25 September;
+  Predators Gear remains source-blocked and GYM HIGH owner-deferred.
 
 ### eBay reviewed 26-row remediation applied and verified - 5 September 2026
 
