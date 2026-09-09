@@ -1,0 +1,1002 @@
+{
+  "schema_version": 1,
+  "kind": "seo15-accrual-and-weekly-growth-audit",
+  "captured_at": "2026-09-09T10:10:18.507Z",
+  "audit_result": "COMPLETE_READ_ONLY",
+  "stage3_readiness": "NOT_READY",
+  "database_writes": 0,
+  "google_configuration_writes": 0,
+  "raw_evidence_location": "Ignored tmp/seo15-audit-2026-09-09 and private GitHub artifacts; raw Google reports are not committed",
+  "raw_production_sha256": "c4853f6e36e93dbcd23c4c5eaa651ad07b011936f962ced33b3a779cdf3be1a4",
+  "analysis_sha256": "539923dc62dd527cd7d44c317608fb505fca992fb007ed52ddb261822c9ae3c1",
+  "sql_verification_sha256": "dfb1deed1fbf35c11022fa9f93e1e25aa599285974c3e7b24e701651f07d9e50",
+  "audit_methodology": {
+    "period": "All identity-linked history through captured_at; legacy rows excluded",
+    "age": "Elapsed UTC time from first proven observation, not producer enablement date",
+    "gaps": "Missing complete UTC dates from first proven observation through yesterday; today is not treated as missing",
+    "drop_screen": "Existing Stage 3 thresholds; latest state equality, current 24h freshness, same full identity, 14 elapsed days, 3 dates, most recent prior price continuous 7 days, GBP 2 and 10% decrease; any series reset/quarantine conservatively excluded",
+    "publication": "Screening audit only. Stage 3 remains disabled; GYM HIGH remains owner-deferred."
+  },
+  "producers": [
+    {
+      "retailer_id": "1",
+      "retailer_slug": "gym-high",
+      "source_importer": "gym-high-reviewed-full-catalogue-v1",
+      "approved_scope": "reviewed-66",
+      "technically_capable": true,
+      "enabled": true,
+      "public_use": "owner-deferred",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-26T08:16:18.900Z"
+    },
+    {
+      "retailer_id": "3",
+      "retailer_slug": "whey-okay",
+      "source_importer": "retailer_offer_mixed_batch",
+      "approved_scope": "approved-586-only",
+      "technically_capable": true,
+      "enabled": false,
+      "public_use": "eligible-after-separate-approval",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-24T17:56:32.441Z"
+    },
+    {
+      "retailer_id": "7",
+      "retailer_slug": "simply-supplements",
+      "source_importer": "retailer_offer_mixed_batch",
+      "approved_scope": "approved-120",
+      "technically_capable": true,
+      "enabled": false,
+      "public_use": "eligible-after-separate-approval",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-24T17:56:32.436Z"
+    },
+    {
+      "retailer_id": "9",
+      "retailer_slug": "fit-house",
+      "source_importer": "retailer_offer_mixed_batch",
+      "approved_scope": "approved-286",
+      "technically_capable": true,
+      "enabled": true,
+      "public_use": "eligible-after-separate-approval",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-26T16:06:04.004Z"
+    },
+    {
+      "retailer_id": "10",
+      "retailer_slug": "jon-s-supplements",
+      "source_importer": "retailer_offer_mixed_batch",
+      "approved_scope": "reviewed-current-sync",
+      "technically_capable": true,
+      "enabled": true,
+      "public_use": "eligible-after-separate-approval",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-24T19:06:09.167Z"
+    },
+    {
+      "retailer_id": "11",
+      "retailer_slug": "6-pack-supplements",
+      "source_importer": "retailer_offer_mixed_batch",
+      "approved_scope": "blocked-pending-mass-oos-review",
+      "technically_capable": false,
+      "enabled": false,
+      "public_use": "blocked",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-24T17:56:32.441Z"
+    },
+    {
+      "retailer_id": "12",
+      "retailer_slug": "ebay-uk",
+      "source_importer": "ebay-existing-offer-refresh-exact-237-v1",
+      "approved_scope": "blocked-pending-237-continuity",
+      "technically_capable": false,
+      "enabled": false,
+      "public_use": "blocked",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-24T17:56:32.441Z"
+    }
+  ],
+  "history_counts": {
+    "history_rows": 12226,
+    "legacy_rows": 4053
+  },
+  "retailers": [
+    {
+      "retailer_id": "1",
+      "name": "gym-high",
+      "public_use": "owner-deferred",
+      "series": 50,
+      "observations": 300,
+      "proven": 300,
+      "quarantined": 0,
+      "at_least_14_days": 0,
+      "at_least_30_days": 0,
+      "at_least_3_dates": 50,
+      "first_proven": "2026-09-03T08:59:05.833Z",
+      "age_days_min": 6.049,
+      "age_days_max": 6.049,
+      "distinct_dates_min": 6,
+      "distinct_dates_median": 6,
+      "distinct_dates_max": 6,
+      "with_missing_completed_dates": 0,
+      "identity_drift": 0,
+      "series_resets": 0,
+      "current_eligible": 35,
+      "latest_matches": 0,
+      "amount_threshold_decreases": 0,
+      "qualified_drops": 0
+    },
+    {
+      "retailer_id": "9",
+      "name": "fit-house",
+      "public_use": "eligible-after-separate-approval",
+      "series": 260,
+      "observations": 2860,
+      "proven": 2860,
+      "quarantined": 0,
+      "at_least_14_days": 0,
+      "at_least_30_days": 0,
+      "at_least_3_dates": 260,
+      "first_proven": "2026-08-26T16:10:24.797Z",
+      "age_days_min": 13.75,
+      "age_days_max": 13.75,
+      "distinct_dates_min": 11,
+      "distinct_dates_median": 11,
+      "distinct_dates_max": 11,
+      "with_missing_completed_dates": 260,
+      "identity_drift": 0,
+      "series_resets": 0,
+      "current_eligible": 182,
+      "latest_matches": 260,
+      "amount_threshold_decreases": 0,
+      "qualified_drops": 0
+    },
+    {
+      "retailer_id": "10",
+      "name": "jon-s-supplements",
+      "public_use": "eligible-after-separate-approval",
+      "series": 503,
+      "observations": 5013,
+      "proven": 4966,
+      "quarantined": 47,
+      "at_least_14_days": 503,
+      "at_least_30_days": 0,
+      "at_least_3_dates": 503,
+      "first_proven": "2026-08-25T05:18:30.735Z",
+      "age_days_min": 14.401,
+      "age_days_max": 15.203,
+      "distinct_dates_min": 6,
+      "distinct_dates_median": 10,
+      "distinct_dates_max": 10,
+      "with_missing_completed_dates": 503,
+      "identity_drift": 0,
+      "series_resets": 0,
+      "current_eligible": 409,
+      "latest_matches": 501,
+      "amount_threshold_decreases": 0,
+      "qualified_drops": 0
+    }
+  ],
+  "daily": [
+    {
+      "retailer_id": "1",
+      "date": "2026-09-03",
+      "total": 50,
+      "proven": 50,
+      "quarantined": 0,
+      "offers": 50
+    },
+    {
+      "retailer_id": "1",
+      "date": "2026-09-04",
+      "total": 50,
+      "proven": 50,
+      "quarantined": 0,
+      "offers": 50
+    },
+    {
+      "retailer_id": "1",
+      "date": "2026-09-05",
+      "total": 50,
+      "proven": 50,
+      "quarantined": 0,
+      "offers": 50
+    },
+    {
+      "retailer_id": "1",
+      "date": "2026-09-06",
+      "total": 50,
+      "proven": 50,
+      "quarantined": 0,
+      "offers": 50
+    },
+    {
+      "retailer_id": "1",
+      "date": "2026-09-07",
+      "total": 50,
+      "proven": 50,
+      "quarantined": 0,
+      "offers": 50
+    },
+    {
+      "retailer_id": "1",
+      "date": "2026-09-08",
+      "total": 50,
+      "proven": 50,
+      "quarantined": 0,
+      "offers": 50
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-08-26",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-08-27",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-08-28",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-08-29",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-09-03",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-09-04",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-09-05",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-09-06",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-09-07",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-09-08",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "9",
+      "date": "2026-09-09",
+      "total": 260,
+      "proven": 260,
+      "quarantined": 0,
+      "offers": 260
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-08-25",
+      "total": 490,
+      "proven": 490,
+      "quarantined": 0,
+      "offers": 490
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-08-26",
+      "total": 503,
+      "proven": 503,
+      "quarantined": 0,
+      "offers": 503
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-08-27",
+      "total": 503,
+      "proven": 499,
+      "quarantined": 4,
+      "offers": 503
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-08-29",
+      "total": 503,
+      "proven": 497,
+      "quarantined": 6,
+      "offers": 503
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-08-30",
+      "total": 503,
+      "proven": 503,
+      "quarantined": 0,
+      "offers": 503
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-08-31",
+      "total": 503,
+      "proven": 503,
+      "quarantined": 0,
+      "offers": 503
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-09-03",
+      "total": 502,
+      "proven": 493,
+      "quarantined": 9,
+      "offers": 502
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-09-04",
+      "total": 502,
+      "proven": 493,
+      "quarantined": 9,
+      "offers": 502
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-09-08",
+      "total": 502,
+      "proven": 483,
+      "quarantined": 19,
+      "offers": 502
+    },
+    {
+      "retailer_id": "10",
+      "date": "2026-09-09",
+      "total": 502,
+      "proven": 502,
+      "quarantined": 0,
+      "offers": 502
+    }
+  ],
+  "sql_verification": {
+    "result": "PASS",
+    "summary": [
+      {
+        "retailer_id": "1",
+        "observations": 300,
+        "proven": 300,
+        "quarantined": 0,
+        "decreases": 0,
+        "increases": 0,
+        "dates": 6,
+        "inconsistent_dates": 0
+      },
+      {
+        "retailer_id": "9",
+        "observations": 2860,
+        "proven": 2860,
+        "quarantined": 0,
+        "decreases": 0,
+        "increases": 0,
+        "dates": 11,
+        "inconsistent_dates": 0
+      },
+      {
+        "retailer_id": "10",
+        "observations": 5013,
+        "proven": 4966,
+        "quarantined": 47,
+        "decreases": 0,
+        "increases": 3,
+        "dates": 10,
+        "inconsistent_dates": 0
+      }
+    ],
+    "gaps": [
+      {
+        "retailer_id": "9",
+        "missing_all_observations_dates": [
+          "2026-08-30",
+          "2026-08-31",
+          "2026-09-01",
+          "2026-09-02"
+        ]
+      },
+      {
+        "retailer_id": "10",
+        "missing_all_observations_dates": [
+          "2026-08-28",
+          "2026-09-01",
+          "2026-09-02",
+          "2026-09-05",
+          "2026-09-06",
+          "2026-09-07"
+        ]
+      }
+    ],
+    "duplicate_daily_keys": 0,
+    "anomaly_offers": 45,
+    "age": [
+      {
+        "retailer_id": "1",
+        "first_proven": "2026-09-03T08:59:05.833Z",
+        "first_14_day_gate": "2026-09-17T08:59:05.833Z",
+        "first_30_day_gate": "2026-10-03T08:59:05.833Z"
+      },
+      {
+        "retailer_id": "9",
+        "first_proven": "2026-08-26T16:10:24.797Z",
+        "first_14_day_gate": "2026-09-09T16:10:24.797Z",
+        "first_30_day_gate": "2026-09-25T16:10:24.797Z"
+      },
+      {
+        "retailer_id": "10",
+        "first_proven": "2026-08-25T05:18:30.735Z",
+        "first_14_day_gate": "2026-09-08T05:18:30.735Z",
+        "first_30_day_gate": "2026-09-24T05:18:30.735Z"
+      }
+    ]
+  },
+  "gym_latest_observation": {
+    "actions_run_id": 34331843129,
+    "executed": 66,
+    "status_counts": {
+      "IDENTITY_OBSERVATION_REPLAYED": 50,
+      "IDENTITY_OBSERVATION_SKIPPED": 16
+    },
+    "replayed_history_date": "2026-09-08",
+    "sample_current_offer_checked_at": "2026-09-08T18:57:15.568Z",
+    "interpretation": "50 confirmations reuse the same September 8 observation date; 16 identities are intentionally skipped. No new September 9 history exists at the audit time. Different execution IDs do not override the once-per-series/day guard. Trace source/offer timestamps before treating this as a recorder defect."
+  },
+  "latest_observation_mismatch_offer_ids": {
+    "gym_high": "all 50: latest history older than 24h at audit time",
+    "jons": [
+      "1002",
+      "1209"
+    ]
+  },
+  "growth": {
+    "github": [
+      {
+        "run": {
+          "conclusion": "success",
+          "createdAt": "2026-09-09T10:06:01Z",
+          "databaseId": 34338385065,
+          "event": "workflow_dispatch",
+          "headSha": "eea2e198a6169260e38bff4e3bd19f1196e609ab",
+          "status": "completed",
+          "updatedAt": "2026-09-09T10:06:21Z",
+          "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34338385065"
+        },
+        "artifacts": [
+          {
+            "id": 10098663684,
+            "name": "growth-analytics-34338385065-1",
+            "digest": "sha256:79f6c30866dcc980613f3567c3073bf0a841cdae819dce2ef6d74b4e7decfd1f",
+            "created_at": "2026-09-09T10:06:19Z",
+            "expired": false
+          }
+        ]
+      },
+      {
+        "run": {
+          "conclusion": "success",
+          "createdAt": "2026-09-07T14:25:41Z",
+          "databaseId": 34132888683,
+          "event": "schedule",
+          "headSha": "82ad993578c21bb8d27a699bc0b5d873aac2c9b2",
+          "status": "completed",
+          "updatedAt": "2026-09-07T14:26:06Z",
+          "url": "https://github.com/SupplementScout/supplementscout/actions/runs/34132888683"
+        },
+        "artifacts": [
+          {
+            "id": 10022801611,
+            "name": "growth-analytics-34132888683-1",
+            "digest": "sha256:6964453be7e70ac48f794eba4923ffa4c6f138e40a5fcda6399437eed767cefa",
+            "created_at": "2026-09-07T14:26:02Z",
+            "expired": false
+          }
+        ]
+      },
+      {
+        "run": {
+          "conclusion": "success",
+          "createdAt": "2026-08-31T16:21:26Z",
+          "databaseId": 33413636032,
+          "event": "schedule",
+          "headSha": "0c0122a288bf3c98be9ed6bdb146cda5acf99de7",
+          "status": "completed",
+          "updatedAt": "2026-08-31T16:21:49Z",
+          "url": "https://github.com/SupplementScout/supplementscout/actions/runs/33413636032"
+        },
+        "artifacts": [
+          {
+            "id": 9766122662,
+            "name": "growth-analytics-33413636032-1",
+            "digest": "sha256:982775ba4eba0d7fd191bd521e0bd929f034578e6a7cb443d658c2bd80e99355",
+            "created_at": "2026-08-31T16:21:45Z",
+            "expired": false
+          }
+        ]
+      }
+    ],
+    "current": {
+      "file_sha256": "2e2d88724e651c66a68936efdfa8129035042e2ffc5cda4d3e223cd5cc30d4a4",
+      "period": {
+        "startDate": "2026-09-02",
+        "endDate": "2026-09-08"
+      },
+      "generated_at": "2026-09-09T10:06:10.732Z",
+      "gsc": {
+        "clicks": 2,
+        "impressions": 801,
+        "ctr": 0.0024968789013732834,
+        "position": 56.87640449438202
+      },
+      "organic": {
+        "sessions": 69,
+        "users": 3,
+        "views": 527,
+        "retailerOfferClicks": 6
+      },
+      "alternatives": {
+        "impressions": 18,
+        "clicks": 1,
+        "clickThroughRate": 0.05555555555555555,
+        "selectingUsers": 1,
+        "downstreamRetailerClickUsers": 1,
+        "downstreamRetailerClickThroughRate": 1,
+        "downstreamWindowMinutes": 30
+      },
+      "sitemap_errors": 0,
+      "sitemap_warnings": 0,
+      "sitemap_submitted": 1322,
+      "inspections": [
+        {
+          "inspectionUrl": "https://supplementscout.co.uk/",
+          "state": "ok",
+          "verdict": "NEUTRAL",
+          "coverageState": "Page with redirect",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/",
+          "userCanonical": null,
+          "lastCrawlTime": "2026-09-09T06:07:41Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/product/cranberry-tablets-24-000mg-with-vitamin-c-160mg",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/product/cranberry-tablets-24-000mg-with-vitamin-c-160mg",
+          "userCanonical": "https://www.supplementscout.co.uk/product/cranberry-tablets-24-000mg-with-vitamin-c-160mg",
+          "lastCrawlTime": "2026-07-09T01:36:57Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/product/usn-challenge-yourself-logo-t-shirt---blue",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/product/usn-challenge-yourself-logo-t-shirt---blue",
+          "userCanonical": "https://www.supplementscout.co.uk/product/usn-challenge-yourself-logo-t-shirt---blue",
+          "lastCrawlTime": "2026-07-16T11:25:35Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/",
+          "userCanonical": null,
+          "lastCrawlTime": "2026-09-09T06:07:41Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/about",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/about",
+          "userCanonical": "https://www.supplementscout.co.uk/about",
+          "lastCrawlTime": "2026-07-08T15:02:06Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/affiliate-disclosure",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/affiliate-disclosure",
+          "userCanonical": "https://www.supplementscout.co.uk/affiliate-disclosure",
+          "lastCrawlTime": "2026-08-25T23:08:15Z"
+        }
+      ],
+      "top_pages_by_impressions": [
+        {
+          "page": "https://www.supplementscout.co.uk/mass-gainer",
+          "clicks": 0,
+          "impressions": 192,
+          "ctr": 0,
+          "position": 52.421875
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/magnesium",
+          "clicks": 0,
+          "impressions": 182,
+          "ctr": 0,
+          "position": 72.21978021978022
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/vitamin-d",
+          "clicks": 0,
+          "impressions": 77,
+          "ctr": 0,
+          "position": 64.2987012987013
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/glucosamine",
+          "clicks": 0,
+          "impressions": 62,
+          "ctr": 0,
+          "position": 59.435483870967744
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/brands/applied-nutrition",
+          "clicks": 0,
+          "impressions": 45,
+          "ctr": 0,
+          "position": 61.48888888888889
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/omega-3",
+          "clicks": 0,
+          "impressions": 38,
+          "ctr": 0,
+          "position": 52.921052631578945
+        }
+      ]
+    },
+    "latest_full_calendar_week": {
+      "file_sha256": "a36aef0b84a4fa1bf50819961396313f47eb71be46df205324d11b5c5086a089",
+      "period": {
+        "startDate": "2026-08-31",
+        "endDate": "2026-09-06"
+      },
+      "generated_at": "2026-09-07T14:25:53.609Z",
+      "gsc": {
+        "clicks": 1,
+        "impressions": 996,
+        "ctr": 0.001004016064257028,
+        "position": 58.002008032128515
+      },
+      "organic": {
+        "sessions": 53,
+        "users": 3,
+        "views": 391,
+        "retailerOfferClicks": 6
+      },
+      "alternatives": {
+        "impressions": 14,
+        "clicks": 1,
+        "clickThroughRate": 0.07142857142857142,
+        "selectingUsers": 1,
+        "downstreamRetailerClickUsers": 1,
+        "downstreamRetailerClickThroughRate": 1,
+        "downstreamWindowMinutes": 30
+      },
+      "sitemap_errors": 0,
+      "sitemap_warnings": 0,
+      "sitemap_submitted": 1119,
+      "inspections": [
+        {
+          "inspectionUrl": "https://supplementscout.co.uk/",
+          "state": "ok",
+          "verdict": "NEUTRAL",
+          "coverageState": "Page with redirect",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/",
+          "userCanonical": null,
+          "lastCrawlTime": "2026-09-06T06:17:01Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/product/usn-challenge-yourself-logo-t-shirt---blue",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/product/usn-challenge-yourself-logo-t-shirt---blue",
+          "userCanonical": "https://www.supplementscout.co.uk/product/usn-challenge-yourself-logo-t-shirt---blue",
+          "lastCrawlTime": "2026-07-16T11:25:35Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/",
+          "userCanonical": null,
+          "lastCrawlTime": "2026-09-06T06:17:01Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/about",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/about",
+          "userCanonical": "https://www.supplementscout.co.uk/about",
+          "lastCrawlTime": "2026-07-08T15:02:06Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/affiliate-disclosure",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/affiliate-disclosure",
+          "userCanonical": "https://www.supplementscout.co.uk/affiliate-disclosure",
+          "lastCrawlTime": "2026-08-25T23:08:15Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/amino-acids",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/amino-acids",
+          "userCanonical": "https://www.supplementscout.co.uk/amino-acids",
+          "lastCrawlTime": "2026-08-02T05:26:48Z"
+        }
+      ],
+      "top_pages_by_impressions": [
+        {
+          "page": "https://www.supplementscout.co.uk/mass-gainer",
+          "clicks": 0,
+          "impressions": 235,
+          "ctr": 0,
+          "position": 55.714893617021275
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/magnesium",
+          "clicks": 0,
+          "impressions": 207,
+          "ctr": 0,
+          "position": 73.52657004830918
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/vitamin-d",
+          "clicks": 0,
+          "impressions": 107,
+          "ctr": 0,
+          "position": 63.38317757009346
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/glucosamine",
+          "clicks": 0,
+          "impressions": 64,
+          "ctr": 0,
+          "position": 61.25
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/brands/applied-nutrition",
+          "clicks": 0,
+          "impressions": 61,
+          "ctr": 0,
+          "position": 63.704918032786885
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/omega-3",
+          "clicks": 0,
+          "impressions": 54,
+          "ctr": 0,
+          "position": 54.870370370370374
+        }
+      ]
+    },
+    "previous_full_calendar_week": {
+      "file_sha256": "ad404fbc6a6be3ff2bb9feb8a0194f2d6a6a5f85664e75db2d05dbb9707f4ef6",
+      "period": {
+        "startDate": "2026-08-24",
+        "endDate": "2026-08-30"
+      },
+      "generated_at": "2026-08-31T16:21:36.863Z",
+      "gsc": {
+        "clicks": 5,
+        "impressions": 1076,
+        "ctr": 0.004646840148698885,
+        "position": 64.55483271375465
+      },
+      "organic": {
+        "sessions": 20,
+        "users": 5,
+        "views": 115,
+        "retailerOfferClicks": 0
+      },
+      "alternatives": null,
+      "sitemap_errors": 0,
+      "sitemap_warnings": 0,
+      "sitemap_submitted": 1115,
+      "inspections": [
+        {
+          "inspectionUrl": "https://supplementscout.co.uk/",
+          "state": "ok",
+          "verdict": "NEUTRAL",
+          "coverageState": "Page with redirect",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/",
+          "userCanonical": null,
+          "lastCrawlTime": "2026-08-22T08:57:52Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/",
+          "userCanonical": null,
+          "lastCrawlTime": "2026-08-31T05:42:49Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/product/max-strength-glucosamine-sulphate-1858mg-2kcl",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/product/max-strength-glucosamine-sulphate-1858mg-2kcl",
+          "userCanonical": "https://www.supplementscout.co.uk/product/max-strength-glucosamine-sulphate-1858mg-2kcl",
+          "lastCrawlTime": "2026-07-08T22:04:24Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/product/performax-labs-hypermax-d-out-480g",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/product/performax-labs-hypermax-d-out-480g",
+          "userCanonical": "https://www.supplementscout.co.uk/product/performax-labs-hypermax-d-out-480g",
+          "lastCrawlTime": "2026-07-21T23:20:34Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/product/stay-lean-engage-natural-pre-workout-300g",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/product/stay-lean-engage-natural-pre-workout-300g",
+          "userCanonical": "https://www.supplementscout.co.uk/product/stay-lean-engage-natural-pre-workout-300g",
+          "lastCrawlTime": "2026-07-19T10:45:40Z"
+        },
+        {
+          "inspectionUrl": "https://www.supplementscout.co.uk/vitamins",
+          "state": "ok",
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "robotsTxtState": "ALLOWED",
+          "googleCanonical": "https://www.supplementscout.co.uk/vitamins",
+          "userCanonical": "https://www.supplementscout.co.uk/vitamins",
+          "lastCrawlTime": "2026-08-16T08:06:37Z"
+        }
+      ],
+      "top_pages_by_impressions": [
+        {
+          "page": "https://www.supplementscout.co.uk/mass-gainer",
+          "clicks": 0,
+          "impressions": 234,
+          "ctr": 0,
+          "position": 63.11965811965812
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/magnesium",
+          "clicks": 0,
+          "impressions": 232,
+          "ctr": 0,
+          "position": 74.46551724137932
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/vitamin-d",
+          "clicks": 0,
+          "impressions": 106,
+          "ctr": 0,
+          "position": 65
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/omega-3",
+          "clicks": 0,
+          "impressions": 74,
+          "ctr": 0,
+          "position": 58.32432432432432
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/glucosamine",
+          "clicks": 0,
+          "impressions": 69,
+          "ctr": 0,
+          "position": 63.20289855072464
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/brands/biotech-usa",
+          "clicks": 0,
+          "impressions": 66,
+          "ctr": 0,
+          "position": 75.0909090909091
+        }
+      ]
+    },
+    "limitations": [
+      "GSC requests dataState=final, but recent reporting dates may not yet have finalized data; no date-level completeness proof exists in these artifacts.",
+      "Weekly comparison uses two distinct Monday-Sunday periods, captured on their respective following Mondays; historical snapshots may contain reporting lag and are not a settled re-query.",
+      "Current September 2-8 overlaps August 31-September 6 and must not be used as a week-over-week change.",
+      "GA4 organic sessions are attributed sessions, not equivalent to Google Search Console clicks or unique people.",
+      "Only 3 organic users and 1 alternatives selector in the latest report: insufficient evidence of growth or conversion improvement. Internal/test traffic has not been excluded by this audit.",
+      "The sitemap indexed=0 field is not the aggregate index count. Five inspected canonical URLs pass and one non-www redirect is expected; the sample is not whole-site index coverage.",
+      "Prior report lacks alternatives metrics; missing instrumentation is not zero."
+    ]
+  },
+  "next_steps": [
+    "Observe the next ordinary Jon's/Fit House producer runs and verify new UTC-date confirmations; investigate source/run gaps through the existing path. Do not backfill missing days.",
+    "Verify GYM HIGH source timestamps and next new-date producer postflight without changing owner-deferred public status.",
+    "Re-audit continuity on September 16; retain September 24-25 as conditional 30-day review dates, not guaranteed publication.",
+    "Continue weekly GSC/GA4; inspect concentrated organic attribution/internal-test traffic before claiming growth.",
+    "Keep SEO-15 BLOCKED for Stage 3 until evidence gates and separate publication decision; SEO-17 remains behind the SEO-15 readiness decision."
+  ]
+}

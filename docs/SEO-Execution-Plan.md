@@ -1,6 +1,6 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 3 September 2026<br>
+**Status date:** 9 September 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -117,28 +117,31 @@ Console evidence and user value.
 | SEO-12 | P1 | Begin legitimate authority and backlink acquisition. | `PLANNED` | Priority retailer/brand/community outreach uses useful live resources; earned links and outcomes are recorded monthly; no bulk or paid-link scheme is used. |
 | SEO-13 | P1 | Deliver the controlled ten-page high-intent cluster. | `LIVE VERIFIED` | Protein Bars shipped in commit `c1f97bc7cb783bca9d0edf28a7aeed6eb2bdfc2f`, production deployment `6048852742` succeeded, and public HTTP, canonical, robots, sitemap, schema, exact-pack, delivered-price and internal-link checks passed. |
 | SEO-14 | P1 | Launch eligible brand and retailer landing pages. | `LIVE VERIFIED` | Applied Nutrition, Per4m, BioTech USA and eBay UK are individually gated and live verified; GYM HIGH remains owner-deferred and no dynamic page generator exists. |
-| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1 and Indexability Lifecycle P0 are live verified. Jon's runs progressed proven series/confirmations from `418/506` (`32812270590`) to `503/506` (`32915426696`). Owner-approved GYM HIGH producer enablement is live for its exact `66`-offer scope; guarded alignments increased it to `50` ready, with 16 apparel/accessory identities intentionally blocked and its first scheduled postflight pending. Fit House is now production verified: migration `20260826190000` enabled only its exact `286` scope, and controlled run `32986975109` created `260` identity series/daily confirmations while 26 incomplete source-absent identities failed closed, with zero anomalies or duplicates. Jon's, GYM HIGH and Fit House are enabled; the other four producers remain disabled. Blocker: the minimum 14-day identity-proven history cannot exist before 8 September 2026 for Jon's or 9 September for Fit House; the recommended first publication decisions are after 24 and 25 September respectively. Stage 3/public price-drop claims remain disabled. Mandatory return to SEO-15 is preserved. |
+| SEO-15 | P1 | Launch a data-backed deals and price-drops page. | `BLOCKED` | Stage 1/P0 and approved Stage 2A producers are production verified. Mandatory read-only audit completed 9 September: 813 series / 8,173 observations, no identity drift or duplicate daily confirmation; 47 quarantined Jon's rows. Jon's 503 series pass 14 elapsed days; Fit House's 260 first mature at 16:10 UTC today; GYM HIGH 50 began 3 September and remain owner-deferred. Blocker: missing whole observation dates (Fit House 4, Jon's 6), immature history and zero delivered-price decreases. Stage 3 remains disabled pending continuity, maturity, a real qualifying drop and separate decision. Next: normal producer/source-timestamp verification, 16 September recheck, conditional 24-25 September readiness reviews. |
 | SEO-16 | P1 | Launch guarded two-product comparison. | `LIVE VERIFIED` | Commit `7eec604` deployed the owner-approved lifecycle launch on 26 August 2026. Public base and pair checks passed HTTP, robots, canonical, exact-pack and delivered-price contracts; the homepage link and exactly one sitemap entry were verified. |
 | SEO-17 | P2 | Add owner-reviewed expert decision notes. | `PLANNED` | Expert judgement is clearly labelled and dated, verified facts retain provenance, and unsupported medical or formulation claims cannot publish. |
 
 ## 6. Current active task
 
-**Next executable task:** SEO-15 — return to the mandatory identity-proven
-accrual audit when its elapsed-time gate opens. It is presently `BLOCKED`, not
-active: the earliest 14-day audit is 8 September 2026 and the recommended first
-publication decision is after 24 September 2026. No SEO implementation is
-`IN PROGRESS`, and SEO-17 must not start before this return.
+**Next executable task:** SEO-15 - verify new-date producer continuity and
+source timestamps following the completed 9 September read-only audit. No SEO
+implementation is `IN PROGRESS`. SEO-15 stays `BLOCKED` for public Stage 3
+claims because dates alone do not establish continuous prior-price proof or
+real qualifying drops. SEO-17 remains behind the SEO-15 readiness decision.
 
-SEO-15 is temporarily `BLOCKED` solely by elapsed accrual. Its earliest 14-day
-audit is 8 September 2026 and its recommended first publication decision is
-after 24 September 2026. The ledger must return to SEO-15 before any Stage 3
-claim or enablement decision. Jon's and the separately owner-approved GYM HIGH
-scope are enabled producers; GYM HIGH awaits its first scheduled producer run,
-and offers `1024`, `1451` and `1459` remain fail-closed for Jon's.
+[9 September accrual and weekly growth audit](rollouts/seo15-accrual-and-growth-audit-2026-09-09.md) records 813 series, 8,173 observations, zero historical decreases,
+missing days and the exact 14/30-day gates. Next accrual recheck: 16 September;
+conditional publication-readiness reviews: 24-25 September. Preserve legacy
+history, quarantines, disabled producers and GYM HIGH's public deferral.
 
-The bounded technical design, evidence gates and decision log are maintained in
-`docs/SEO-15-Deals-Price-Intelligence-Plan.md`; this execution ledger remains
-the sole authority for SEO-15 status and roadmap order.
+The weekly GSC/GA4 read is complete: fresh run `34338385065` covers 2-8
+September. It reports 801 impressions/2 clicks, 69 organic sessions/3 users/6
+retailer clicks and 18 alternatives impressions/1 click. Small samples and
+reporting lag mean no growth or conversion-uplift claim. Raw reports stay in
+private artifacts; the linked report includes a disjoint calendar-week view.
+
+The SEO-15 technical plan remains the bounded design and evidence reference;
+this execution ledger remains the sole SEO status and ordering authority.
 
 **Blocked evidence task:** SEO-02B — capture Search Console evidence before
 changing index eligibility for products without a current offer.
@@ -146,7 +149,7 @@ changing index eligibility for products without a current offer.
 The sequence may change only when new Search Console evidence proves a more
 urgent indexing blocker. Record that evidence before changing priority.
 
-Follow the binding sequence in Operating Plan section 0.0.7: complete SEO-16,
+Follow the binding sequence in Operating Plan section 0.0.7: SEO-16 is complete;
 return mandatorily to SEO-15 for due accrual audits and any separately approved
 Stage 3 decision, then SEO-17. SEO-13 and SEO-14 are complete, and the
 250-product multi-retailer checkpoint is independently verified complete.

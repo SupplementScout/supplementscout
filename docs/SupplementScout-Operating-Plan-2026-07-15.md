@@ -5,6 +5,33 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**9 September 2026 SEO-15 and weekly measurement checkpoint:** the mandatory
+read-only accrual audit is complete. Production has 813 immutable identity
+series and 8,173 linked observations; 4,053 legacy rows were excluded. Jon's
+503 series pass 14 elapsed days; Fit House's 260 first reach that threshold
+today at 16:10 UTC. GYM HIGH's 50 actually began on 3 September and remain
+owner-deferred for public use. There is no identity drift or duplicate daily
+confirmation. Jon's has 47 quarantined RETURNED_FROM_OOS observations across
+45 offers. Independent SQL finds zero historical delivered-price decreases.
+
+SEO-15 remains BLOCKED for public historical claims: Fit House has four missing
+whole observation dates and Jon's six; maturity, continuity and a real qualifying
+drop remain required. Today's GYM HIGH run reuses September 8 observation dates
+and needs source-timestamp follow-up, not fabricated September 9 history. The
+next bounded step is ordinary-producer continuity/source-timestamp verification,
+then a 16 September accrual recheck and conditional 24-25 September 30-day
+reviews. No producer enablement, historical backfill or Stage 3 publication
+occurred. SEO-17 stays behind the SEO-15 readiness decision.
+
+Fresh authenticated GSC/GA4 run `34338385065` reports 2-8 September: 801 Google
+impressions, 2 clicks; 69 organic sessions from 3 users and 6 retailer-offer
+clicks. Better-value alternatives have 18 impressions, 1 selection and one
+downstream retailer click user. Small samples, attribution and GSC reporting
+lag prevent a growth claim. [9 September accrual and weekly growth audit](rollouts/seo15-accrual-and-growth-audit-2026-09-09.md) contains the disjoint weekly comparison,
+private-artifact digests, SQL cross-checks and next gates. This does not reopen
+the completed retailer freshness closeout below; history continuity has its
+own SEO-15 evidence requirements.
+
 **9 September 2026 shared automation checkpoint - fully green with approved monitored backlog:**
 the owner approved Fit House offer 944 and exactly 39 monitored review offers
 (Simply 27, Jon's 1, 6 Pack 11). Commit `519e511` is pushed; local quick/full,
@@ -2713,15 +2740,13 @@ retailer/data implementation at a time.
 
 Current priority order:
 
-`SEO-11` and `SEO-14` are complete and live verified.
+`SEO-11`, `SEO-13`, `SEO-14`, `SEO-16` and the 250-product multi-retailer
+milestone are complete and live verified.
 
-1. Resume `SEO-13` for the bounded Protein Bars recheck without repeating its
-   completed pages or weakening its gate.
-2. Multi-retailer coverage from the current 169 products to 250.
-3. `SEO-15` deals and price drops from existing offer/history data.
-4. `SEO-16` guarded two-product comparison.
-5. `SEO-17` owner-reviewed expert decision notes.
-6. Continuous weekly GSC/GA4 measurement; outbound outreach remains paused.
+1. `SEO-15`: follow up the completed 9 September accrual audit, verify
+   continuity, and make the conditional 24-25 September readiness decision.
+2. `SEO-17`: owner-reviewed expert decision notes after the SEO-15 decision.
+3. Continuous weekly GSC/GA4 measurement; outbound outreach remains paused.
 
 The complete definitions and interruption rules are in section 0.0.7.
 
@@ -3148,10 +3173,13 @@ Target experience:
 
 ### Current active task
 
-`SEO-15` Deals and Price Intelligence is the binding next task but remains
-temporarily `BLOCKED` solely by elapsed accrual. No SEO implementation is
-currently `IN PROGRESS`; the mandatory return must occur before SEO-17 or any
-Stage 3 decision. `SEO-16` is complete and `LIVE VERIFIED`.
+`SEO-15` remains the binding next task and is `BLOCKED` for Stage 3.
+The mandatory accrual audit was completed on 9 September; missing observation
+dates, maturity and zero qualifying price drops are the current evidence gates.
+No SEO implementation is `IN PROGRESS`. Next: verify ordinary-producer
+continuity and source timestamps, re-audit on 16 September, then review 30-day
+readiness on 24-25 September. `SEO-16` is complete and `LIVE VERIFIED`.
+The following paragraphs retain the historical producer rollout evidence.
 Stage 1 `/deals` and the corrective Indexability Lifecycle P0 are deployed and
 live verified. Stage 2A identity foundation is production verified. Jon's
 Supplements, the separately owner-approved GYM HIGH scope and Fit House are
@@ -3282,27 +3310,20 @@ publication.
 
 ### Next task
 
-Return to `SEO-15` for its mandatory identity-proven accrual audit when the
-elapsed-time gate opens. The task remains `BLOCKED`: the earliest 14-day audit
-is 8 September 2026 and the recommended publication decision is after 24
-September. Do not start SEO-17 early or enable Stage 3/public price-drop claims.
+Continue `SEO-15` with bounded, read-only verification of new UTC-date
+confirmations in the next ordinary Jon's/Fit House runs and source timestamps
+in GYM HIGH. The mandatory first audit is complete; do not repeat its baseline
+or enable Stage 3. Re-audit continuity on 16 September, then hold conditional
+30-day readiness reviews on 24 September for Jon's and 25 September for Fit
+House. These are evidence reviews, not automatic publication dates.
 
-In parallel, the existing Jon's, GYM HIGH and Fit House schedules may continue
-deterministic accrual. Jon's current verified SEO-15 coverage is `503/506` and
-Fit House is `260/286`;
-its earliest audit is 8 September 2026 and the recommended publication decision
-is after 24 September. Fit House's earliest 14-day audit is 9 September and its
-recommended publication decision is after 25 September. The three named Jon's
-conflict/deferred identities, 26 Fit House incomplete source-absent identities
-and 16 intentionally blocked GYM HIGH accessory/apparel identities remain
-fail-closed. GYM HIGH's first
-scheduled producer result requires postflight verification, no further
-producer may be enabled without separate approval, and Stage 3 historical
-claims remain disabled.
-
-Use `docs/SEO-15-Deals-Price-Intelligence-Plan.md` for the bounded technical
-design, evidence gates and decision log. It does not replace this Operating Plan
-or the SEO Execution Plan and does not change the binding roadmap order.
+Current producer scope is 503 Jon's, 260 Fit House and 50 GYM HIGH identity
+series. Other configured producers remain disabled. GYM HIGH public use remains
+owner-deferred, and its actual first observations were 3 September. Preserve
+the quarantined/identity-incomplete rows and do not backfill missing days.
+See [9 September accrual and weekly growth audit](rollouts/seo15-accrual-and-growth-audit-2026-09-09.md) and the SEO-15 technical plan for evidence and method.
+Continue weekly GSC/GA4 with an attribution/internal-test-traffic check before
+claiming growth; the latest organic and alternatives samples are too small.
 
 ### Then
 

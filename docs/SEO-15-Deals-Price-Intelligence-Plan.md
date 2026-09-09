@@ -2,11 +2,22 @@
 
 **Prepared:** 24 August 2026  
 **State:** Stage 1 and corrective Indexability Lifecycle P0 live verified;
-Stages 2 and 3 not started
+Stage 2A enabled for the approved Jon's, Fit House and GYM HIGH scopes; Stage 3 disabled
 **Authority:** `docs/SEO-Execution-Plan.md` remains the SEO status and ordering
 authority. `docs/SupplementScout-Operating-Plan-2026-07-15.md` remains the
 project authority. This document records only SEO-15 technical scope, gates,
 decisions and evidence.
+
+**9 September 2026 audit checkpoint:** the mandatory first accrual audit is
+complete, with independent read-only SQL agreement. See [9 September accrual and weekly growth audit](rollouts/seo15-accrual-and-growth-audit-2026-09-09.md). There are
+813 series/8,173 observations and no delivered-price decreases. Jon's reaches
+the 14-day elapsed gate; Fit House first reaches it today at 16:10 UTC. Missing
+dates and 47 quarantined Jon's observations prevent assuming complete history.
+GYM HIGH actually began 3 September; its first 14/30-day dates are 17 September
+and 3 October. This checkpoint supersedes the old "not due" and "first producer
+postflight pending" descriptions below. No backfill, new producer or Stage 3
+activation occurred. Recheck continuity on 16 September and conduct conditional
+Jon's/Fit House 30-day reviews on 24-25 September.
 
 ## 1. User goal
 
@@ -306,7 +317,7 @@ At one daily confirmation per offer, the absolute current ceiling is
 offers including owner-deferred GYM HIGH: `46,920` / `93,840` / `140,760` /
 `570,860` rows. Excluding GYM HIGH gives at most `1,498` offers and `44,940` /
 `89,880` / `134,820` / `546,770` rows. These are ceilings, not enabled scope:
-all producers remain disabled.
+only the separately approved Jon's, Fit House and GYM HIGH producers are enabled; the other four configured producers remain disabled.
 
 Retain at least twelve months of evidence and do not add automatic deletion
 without a separate decision. One daily confirmation per series/date controls
@@ -372,7 +383,7 @@ delay is not itself a failure.
 
 | Retailer/source | Current state | Existing schedule/path | SEO-15 action |
 |---|---|---|---|
-| GYM HIGH | HEALTHY; public publication remains owner-deferred | source monitor `03:43` and `15:43` UTC; reviewed refresh `04:13` UTC | Observation producer enabled 26 August for exact `reviewed-66`; guarded alignments raised readiness to `50`, with 16 apparel/accessory rows intentionally blocked; first scheduled producer postflight pending. |
+| GYM HIGH | HEALTHY; public publication remains owner-deferred | source monitor `03:43` and `15:43` UTC; reviewed refresh `04:13` UTC | Observation producer enabled 26 August for exact `reviewed-66`; guarded alignments raised readiness to `50`, with 16 apparel/accessory rows intentionally blocked. The 9 September audit confirms 50 series and 300 observations on 3-8 September; the latest run replays 8 September dates. |
 | Simply Supplements | HEALTHY | `05:07` UTC daily | Contract prepared but disabled; exact approved `120` scope only. |
 | Fit House | HEALTHY | `02:47` UTC daily | Producer enabled and first controlled run verified for exact approved `286`; `260` identity-proven rows and 26 fail-closed incomplete identities. |
 | Jon's Supplements | HEALTHY | `04:47` UTC daily | Producer enabled; reviewed current-sync scope only. |
@@ -528,9 +539,9 @@ credentials.
 | Stage 1 gate `12 products / 30 offers / 4 retailers`, with 2+ retailers per exact variant | Approved launch evidence; monitoring remains active | Do not reuse as an hourly robots/sitemap switch. |
 | Classify the 14 Six Pack rows as 1 stock, 8 price and 5 price+stock approvals | Evidence ready; not applied | Approve/reject as a separate production-data action. |
 | Add normalized immutable identity series plus nullable history evidence with no backfill | Production migration verified; no backfill | Preserve legacy rows and approve producers separately. |
-| Record at most one unchanged confirmation/day/series | Production verified for Jon's and Fit House; GYM HIGH enabled and awaiting its first scheduled postflight; four producers disabled | Preserve daily idempotency and approve every additional producer separately. |
+| Record at most one unchanged confirmation/day/series | 813 production series audited; zero duplicate daily keys. GYM HIGH first actual observations start 3 September; latest run reuses 8 September dates. | Preserve idempotency; verify source timestamps and new-date accrual. |
 | Enable Stage 3 only after 7/14/30/60-day audits | Proposed | Separate enablement decision after evidence. |
-| Roadmap handling during accrual | Undecided | Keep SEO-15 `IN PROGRESS`, or mark it `BLOCKED` with the exact accrual blocker and temporarily advance to SEO-16. Do not introduce a `DATA ACCRUAL` status. |
+| Roadmap handling during accrual | SEO-16 live verified; mandatory SEO-15 return completed 9 September; SEO-15 remains BLOCKED for Stage 3 | Follow continuity/readiness gates; SEO-17 follows the SEO-15 decision. |
 
 If SEO-16 is temporarily selected, the ledger must preserve a mandatory return
 to SEO-15 Stage 3. No ordering change is made by this plan.
@@ -545,7 +556,7 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | Partial/manual retailer automation | Historical breadth | Exclude affected rows; Stage 1 may proceed only if its gate independently passes. |
 | Six Pack 14-row recovery is not owner-applied | Six Pack freshness | Keep current DB state and handle through a separate approval. |
 | Full eBay read-only pass remains pending | eBay confidence | Do not run it here; exclude stale/unproven rows. |
-| Four additional Stage 2A producers are not approved; GYM HIGH first scheduled producer postflight is pending | Proven accrual beyond Jon's and Fit House | Verify GYM HIGH after its ordinary schedule; approve every further bounded producer separately after a verified readback. |
+| Four additional Stage 2A producers are not approved; GYM HIGH needs new-date source-timestamp verification | Proven accrual breadth and continuity | Preserve current scopes; check next ordinary new-date confirmations and approve any additional producer separately. |
 | No elapsed proven history exists yet | Stage 3 | Hide historical sections until audits pass. |
 
 ## 15. Evidence and release log
@@ -562,9 +573,9 @@ to SEO-15 Stage 3. No ordering change is made by this plan.
 | GYM HIGH exact-pack evidence alignment | `8bfac2a` plus ledger alignment | production ledger `142`, fingerprint `1bf9969771b17a4154baef268b6f9816766ec62540fed20e7dad46a871b04ee5` | exact 26-row audit; guarded nine-row migration rehearsal and focused/quick gates passed | nine variants added; products, mappings, offers and history unchanged; readiness `40/66` to `49/66`; Shred Mode plus 16 apparel/accessory rows remain blocked; no workflow run | `PRODUCTION VERIFIED`; first scheduled postflight pending; public GYM HIGH pages remain owner-deferred |
 | GYM HIGH Shred Mode owner resolution | `6f8ee75` plus ledger alignment | production ledger `143`, fingerprint `27176e91f21f7e7a62d202e6924d4ad97290b453e90c296656704f1b7b84085b` | owner decision plus approved label evidence bind one pack, 60 servings and one capsule per serving; rehearsal and postflight passed | one variant added; products, mappings, offers and history unchanged; readiness `49/66` to `50/66`; 16 apparel/accessory rows remain blocked; no workflow run | `PRODUCTION VERIFIED`; first scheduled postflight pending; not a public dosage claim |
 | Fit House Stage 2A producer | `6e5a3a214b9064050d20f6d54e9ed51c292c20ab` | production ledger `151`, fingerprint `12ece4c71ab77f1488afaeac6dc94049ff65b07c30309fd01bf7e8b0f30db28a`; run `32986975109`; artifact `9613320669` | official rehearsal, apply, `286/286` preflight, six validator batches, apply and fresh-source idempotency passed | exactly 260 series and daily confirmations; 26 `MISSING_OR_CONFLICTING_EXACT_IDENTITY` skips; zero anomalies, duplicate series, duplicate daily confirmations or other-retailer series changes | `PRODUCTION VERIFIED`; accrual continues, public claims disabled |
-| 7-day audit | n/a | n/a | pending | pending | not due |
-| 14-day audit | n/a | n/a | earliest 14 days after an approved producer starts | pending | not due |
-| 30-day audit | n/a | n/a | recommended first publication decision after 30 days of approved accrual | pending | not due |
+| 7-day audit | 9 September read-only audit | linked evidence above | retrospective observation-date continuity checked | gaps documented; no backfill | complete |
+| 14-day audit | 9 September read-only audit | linked evidence above | Jon's 503 pass elapsed age; Fit House first reaches 14 days at 16:10 UTC today | zero qualifying drops; continuity gaps remain | audit complete; Stage 3 not ready |
+| 30-day audit | pending | Jon's 24 September; Fit House 25 September; GYM HIGH 3 October | conditional evidence review, not publication promise | pending | not due |
 | 60-day audit | n/a | n/a | pending | pending | not due |
 | Stage 3 | pending separate approval | pending | pending | pending | not started |
 
