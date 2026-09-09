@@ -6,6 +6,14 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**9 September SEO-15 follow-up:** the read-only continuity investigation is
+complete. Failed scheduled runs explain all ten missing whole dates. GYM HIGH
+used September 8 fallback evidence after an identity discrepancy; fresh source
+recovery remains unverified. Next inspect ordinary daily runs and actual UTC
+observation dates. SEO-15 remains BLOCKED, with September 16 and conditional
+September 24–25 gates unchanged. See
+[continuity evidence](rollouts/seo15-producer-continuity-2026-09-09.md).
+
 ## 1. Purpose
 
 This is the live execution ledger for SEO work. The Operating Plan remains the

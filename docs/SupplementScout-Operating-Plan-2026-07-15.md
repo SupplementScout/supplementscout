@@ -5,6 +5,17 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**9 September 2026 producer continuity follow-up:** all ten missing whole dates
+are traced to failed scheduled runs: delta/replay failures, missing variants and
+a source-hash mismatch. Production at 10:31 UTC still has 8,173 linked
+observations, including September 9 dates for Fit House and Jon's. GYM HIGH used
+September 8 source evidence after a product 701 identity discrepancy; a fresh
+local retry timed out on product 3627. No new recorder defect or fresh GYM HIGH
+capture is established. The bounded investigation is complete; next inspect
+ordinary daily runs and actual observation dates. SEO-15 remains BLOCKED; the
+September 16 recheck and conditional September 24–25 reviews remain unchanged.
+See [continuity evidence](rollouts/seo15-producer-continuity-2026-09-09.md).
+
 **9 September 2026 SEO-15 and weekly measurement checkpoint:** the mandatory
 read-only accrual audit is complete. Production has 813 immutable identity
 series and 8,173 linked observations; 4,053 legacy rows were excluded. Jon's

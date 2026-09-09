@@ -1,5 +1,13 @@
 # SEO-15 Deals and Price Intelligence — Technical Execution Plan
 
+**9 September continuity follow-up:** read-only investigation complete; historical
+failed runs explain all ten missing whole dates. Current Fit House/Jon's history
+has September 9 observations. GYM HIGH reused September 8 evidence after an
+identity discrepancy; fresh source recovery is unverified. No recorder change,
+backfill or Stage 3 enablement. Next inspect ordinary daily runs and actual UTC
+dates; September 16 and conditional September 24–25 gates remain unchanged.
+See [continuity evidence](rollouts/seo15-producer-continuity-2026-09-09.md).
+
 **Prepared:** 24 August 2026  
 **State:** Stage 1 and corrective Indexability Lifecycle P0 live verified;
 Stage 2A enabled for the approved Jon's, Fit House and GYM HIGH scopes; Stage 3 disabled

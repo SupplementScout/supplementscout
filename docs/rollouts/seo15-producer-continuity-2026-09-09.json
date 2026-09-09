@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "kind": "seo15-producer-continuity-followup",
+  "captured_at": "2026-09-09T10:31:11.183Z",
+  "database_writes": 0,
+  "production_readback_sha256": "7d84779b6095e08af3b0f7b79a480ccfecb3c51f304fcb0ec55ae42a67775652",
+  "series": 813,
+  "linked_observations": 8173,
+  "daily_observations": {
+    "1": {
+      "2026-09-03": 50,
+      "2026-09-04": 50,
+      "2026-09-05": 50,
+      "2026-09-06": 50,
+      "2026-09-07": 50,
+      "2026-09-08": 50
+    },
+    "9": {
+      "2026-08-26": 260,
+      "2026-08-27": 260,
+      "2026-08-28": 260,
+      "2026-08-29": 260,
+      "2026-09-03": 260,
+      "2026-09-04": 260,
+      "2026-09-05": 260,
+      "2026-09-06": 260,
+      "2026-09-07": 260,
+      "2026-09-08": 260,
+      "2026-09-09": 260
+    },
+    "10": {
+      "2026-08-25": 490,
+      "2026-08-26": 503,
+      "2026-08-27": 503,
+      "2026-08-29": 503,
+      "2026-08-30": 503,
+      "2026-08-31": 503,
+      "2026-09-03": 502,
+      "2026-09-04": 502,
+      "2026-09-08": 502,
+      "2026-09-09": 502
+    }
+  },
+  "failures": [
+    {
+      "run_id": "33301837700",
+      "timestamp": "2026-08-30T08:33:11.152Z",
+      "evidence_sha256": "244d39644aea25802fe80144b524800c646b81dc827475f318204fd249cefed1",
+      "error_code": "P0001",
+      "error_message": "{\"code\": \"RSBI_EXPECTED_DELTA_MISMATCH\", \"detail\": {}, \"summary\": \"Exact mixed batch deltas mismatch\", \"severity\": \"CRITICAL\"}",
+      "business_writes_completed": 0,
+      "control_writes_completed": 1,
+      "classifier_reason": null
+    },
+    {
+      "run_id": "33375075028",
+      "timestamp": "2026-08-31T08:54:55.157Z",
+      "evidence_sha256": "07872f6439a983686ba338f1e2a7003750d1ab69946c044316a2a9a37f9bfb8e",
+      "error_code": "P0001",
+      "error_message": "{\"code\": \"RSBI_REPLAY_BLOCKED\", \"detail\": {}, \"summary\": \"An equivalent Fit House control plan is already active\", \"severity\": \"CRITICAL\"}",
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "classifier_reason": null
+    },
+    {
+      "run_id": "33484720317",
+      "timestamp": "2026-09-01T07:59:29.373Z",
+      "evidence_sha256": "82859882daddd70744fa16ce5c51a705f92e9b55e2f0266b847c3608ad747c84",
+      "error_code": "P0001",
+      "error_message": "{\"code\": \"RSBI_REPLAY_BLOCKED\", \"detail\": {}, \"summary\": \"An equivalent Fit House control plan is already active\", \"severity\": \"CRITICAL\"}",
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "classifier_reason": null
+    },
+    {
+      "run_id": "33493099424",
+      "timestamp": "2026-09-01T09:36:45.053Z",
+      "evidence_sha256": "014dc3bc0d3097481ec287dbb3dd67918773d59f06029f36a91401c37f26bd2a",
+      "error_code": "IDENTITY_DRIFT",
+      "error_message": "unreviewed Jon's mapped variants are absent from source",
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "classifier_reason": null
+    },
+    {
+      "run_id": "33602964059",
+      "timestamp": "2026-09-02T07:19:56.614Z",
+      "evidence_sha256": "cc7360a47af2d39db38d145dd2f1f2652097a7381b7b82753cb57943c589e783",
+      "error_code": "P0001",
+      "error_message": "{\"code\": \"RSBI_REPLAY_BLOCKED\", \"detail\": {}, \"summary\": \"An equivalent Fit House control plan is already active\", \"severity\": \"CRITICAL\"}",
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "classifier_reason": null
+    },
+    {
+      "run_id": "33612184737",
+      "timestamp": "2026-09-02T09:05:37.519Z",
+      "evidence_sha256": "e3aa01b947d680e7dddccf590cb633fd432f9b1861752f7c2595426125bb2a60",
+      "error_code": "IDENTITY_DRIFT",
+      "error_message": "unreviewed Jon's mapped variants are absent from source",
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "classifier_reason": null
+    },
+    {
+      "run_id": "33955790162",
+      "timestamp": "2026-09-05T08:39:05.077Z",
+      "evidence_sha256": "82b1a55d1a9b045266a3edc3fbf1ebd0c5253eec0e06b5ab6d369421ddcd9077",
+      "error_code": "P0001",
+      "error_message": "{\"code\": \"RSBI_EXPECTED_DELTA_MISMATCH\", \"detail\": {}, \"summary\": \"Exact mixed batch deltas mismatch\", \"severity\": \"CRITICAL\"}",
+      "business_writes_completed": 0,
+      "control_writes_completed": 1,
+      "classifier_reason": "MASS_OOS"
+    },
+    {
+      "run_id": "34023282163",
+      "timestamp": "2026-09-06T08:58:28.431Z",
+      "evidence_sha256": "fa0aec130db1629483a2f636c78d0cec0f9e8544d43542b30e37b22758f71f8f",
+      "error_code": "P0001",
+      "error_message": "{\"code\": \"RSBI_REPLAY_BLOCKED\", \"detail\": {}, \"summary\": \"An equivalent Jon's control plan is already active\", \"severity\": \"CRITICAL\"}",
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "classifier_reason": "MASS_OOS"
+    },
+    {
+      "run_id": "34107810620",
+      "timestamp": "2026-09-07T09:46:37.857Z",
+      "evidence_sha256": "40bd29597dfe858554335b0d246df5dbd93e98f1b8cce21f31914af1d1141ac4",
+      "error_code": "P0001",
+      "error_message": "{\"code\": \"RSBI_REPLAY_BLOCKED\", \"detail\": {}, \"summary\": \"An equivalent Jon's control plan is already active\", \"severity\": \"CRITICAL\"}",
+      "business_writes_completed": 0,
+      "control_writes_completed": 0,
+      "classifier_reason": "MASS_OOS"
+    },
+    {
+      "run_id": "33192345923",
+      "date": "2026-08-28",
+      "error_code": "RSBI_SOURCE_HASH_MISMATCH",
+      "evidence_sha256": "0462c35f8aa787953fe8f159808dcecd41f75af3c1ba5c100018a103ff8dbdef",
+      "evidence_type": "failed dry-run log"
+    }
+  ],
+  "gym_high": {
+    "run_id": "34331843129",
+    "log_sha256": "2d7a7e047ba924c66cd8653d04c7777ef550593eceb55394647aabda7d7644c5",
+    "fresh_capture_failure": "SOURCE_IDENTITY_DRIFT: Product 701 page identity drift",
+    "fallback_captured_at": "2026-09-08T18:57:15.568Z",
+    "history_result": "50 replayed September 8 observations; 16 missing/conflicting exact identity skipped (prior SQL audit)",
+    "local_fresh_recheck": "SOURCE_UNAVAILABLE: product 3627 timed out after three bounded attempts; no fresh report obtained",
+    "public_use": "owner-deferred"
+  },
+  "next_check": "Next ordinary daily executions and actual UTC observation dates; accrual recheck 2026-09-16; conditional 30-day reviews 2026-09-24/25",
+  "stage_3": "BLOCKED"
+}
