@@ -12,6 +12,7 @@ const {
 } = require("./lib/retailer-offer-sync/classifier");
 const { sealArtifact } = require("./lib/retailer-offer-sync/artifacts");
 const { canonicalTimestamp } = require("./lib/canonical-timestamp");
+const { fingerprint: snapshotFingerprint } = require("./lib/retailer-offer-sync/artifacts");
 const {
   buildExistingOfferUpdatePlan,
 } = require("./lib/retailer-offer-sync/existing-offer-plan");
@@ -684,14 +685,17 @@ function immutablePreflightCore(run) {
   };
 }
 function sealImmutablePreflight(run) {
-  const core = immutablePreflightCore(run);
-  return { ...core, payload_sha256: canonicalHash(core) };
+  const core = JSON.parse(JSON.stringify(immutablePreflightCore(run)));
+  // The envelope includes diagnostic ratios, not just database decimals.
+  // Preserve their JSON values using the shared snapshot hash; child plans
+  // retain their strict decimal canonicalization and independent fingerprints.
+  return { ...core, payload_sha256: snapshotFingerprint(core) };
 }
 function loadImmutablePreflight(file, args, options = {}) {
   const sealed = JSON.parse(fs.readFileSync(file, "utf8"));
   const { payload_sha256: payloadSha256, ...core } = sealed;
   invariant(
-    /^[0-9a-f]{64}$/.test(payloadSha256 || "") && canonicalHash(core) === payloadSha256,
+    /^[0-9a-f]{64}$/.test(payloadSha256 || "") && snapshotFingerprint(core) === payloadSha256,
     "immutable preflight payload hash mismatch",
   );
   invariant(

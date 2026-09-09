@@ -777,6 +777,7 @@ test("apply consumes one hash-bound current Whey Okay preflight", () => {
     reviewedMassOos: null,
     isolateUnsafe: true,
     head: "c".repeat(40),
+    classification: { guard_evidence: { changed_ratio: 3 / 589 } },
   };
   const sealed = sealImmutablePreflight(run);
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "whey-immutable-preflight-"));
@@ -792,6 +793,16 @@ test("apply consumes one hash-bound current Whey Okay preflight", () => {
   });
   assert.equal(loaded.sealed.payload_sha256, sealed.payload_sha256);
   assert.equal(loaded.run.artifacts[0].artifact_fingerprint, run.artifacts[0].artifact_fingerprint);
+  assert.equal(loaded.run.classification.guard_evidence.changed_ratio, 3 / 589);
+
+  const changedRatio = structuredClone(sealed);
+  changedRatio.run.classification.guard_evidence.changed_ratio = 4 / 589;
+  fs.writeFileSync(file, JSON.stringify(changedRatio));
+  assert.throws(() => loadImmutablePreflight(file, {
+    target: "production", mode: "apply", isolateUnsafe: true,
+  }, {
+    currentHead: "c".repeat(40), now: new Date("2026-09-03T10:05:00.000Z"),
+  }), /payload hash mismatch/);
 
   const tampered = structuredClone(sealed);
   tampered.run.artifacts[0].rows[0].offer_id = "6";

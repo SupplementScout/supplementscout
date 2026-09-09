@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 298,
-    "sha256": "65cbd3a24f7f8e93bdd3f7c6d0cb5bd9c03f8f2d270ec53df01c9c8748c5c156"
+    "count": 299,
+    "sha256": "3c668cc67af32cce09226dba62611fe1fbb927e6e20be616b78b862aeee4a35e"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -50,6 +50,10 @@
     "scripts/whey-okay-reviewed-product-formats-data-migration.test.js"
   ],
   "artifact": [
+    {
+      "file": "scripts/10reps-bootstrap-reviewed-artifacts.test.js",
+      "reason": "Requires five immutable owner-approved v9/v10 bootstrap artifacts and CSVs in ignored tmp/retailer-feeds/10reps; deterministic approver and rejection tests remain in the safe/quick suite."
+    },
     {
       "file": "scripts/build-reviewed-variant-nutrition-manifest.test.js",
       "reason": "Requires the immutable, intentionally untracked owner-review candidate tmp/nutrition-data/priority-batch-1-candidates.json."
