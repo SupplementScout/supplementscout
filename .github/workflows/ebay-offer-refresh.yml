@@ -244,7 +244,7 @@ jobs:
           EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npm run ebay:refresh -- --target=production --mode=dry-run
+        run: npm run ebay:refresh -- --target=production --mode=dry-run --emit-approval-contract=true
       - name: Seal same-run eBay apply, postflight and idempotency evidence
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         run: node scripts/ebay-refresh-evidence-sealer.js

@@ -368,6 +368,10 @@ test("workflow exposes a dry-run-only Review Queue reconciliation path", () => {
 test("normal catalogue refresh publishes its fresh review cards through the guarded queue RPC", () => {
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-refresh.yml"), "utf8");
   assert.match(workflow, /refresh-review-queue:[\s\S]*needs: refresh/);
+  assert.match(
+    workflow,
+    /Verify fresh no-op after apply[\s\S]*--mode=dry-run --emit-approval-contract=true/,
+  );
   assert.match(workflow, /source-run-id=\$\{\{ github\.run_id \}\}/);
   assert.match(workflow, /source-artifact-id=\$\{\{ needs\.refresh\.outputs\.artifact_id \}\}/);
   assert.match(workflow, /Publish fresh cards to Automation Review Queue/);
