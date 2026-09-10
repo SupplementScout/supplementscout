@@ -833,13 +833,21 @@ test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbi
 });
 
 test("Review Queue eBay worker derives exact single-row commercial postflight deltas", () => {
-  const { expectedDeltas } = require("./automation-review-ebay-worker");
+  const { assertDatabaseBeforeState, expectedDeltas } = require("./automation-review-ebay-worker");
   const price = expectedDeltas({ expected_state: { offer: { price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: "https://example.test" } }, offer: { values: { price: "10.58", shipping_cost: "3.99", total_price: "14.57", in_stock: true, url: "https://example.test" } } });
   assert.deepEqual(price.logical_field_deltas, { offer_price_updates: 1, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 });
   assert.equal(price.row_count_deltas.price_history, 1);
   const stock = expectedDeltas({ expected_state: { offer: { price: "22.49", shipping_cost: "0", total_price: "22.49", in_stock: false, url: "https://example.test" } }, offer: { values: { price: "22.49", shipping_cost: "0", total_price: "22.49", in_stock: true, url: "https://example.test" } } });
   assert.equal(stock.logical_field_deltas.offer_stock_updates, 1);
   assert.equal(stock.row_count_deltas.price_history, 0);
+  assert.doesNotThrow(() => assertDatabaseBeforeState(
+    { price: "22.4900", shipping_cost: "0.00", total_price: "22.49", in_stock: false, url: "https://example.test", last_checked_at: "2026-09-10T17:00:00.123000Z" },
+    { price: "22.49", shipping_cost: "0", total_price: "22.490", in_stock: false, url: "https://example.test", last_checked_at: "2026-09-10T18:00:00.123+01:00" },
+  ));
+  assert.throws(() => assertDatabaseBeforeState(
+    { price: "22.48", shipping_cost: "0", total_price: "22.48", in_stock: false, url: "https://example.test", last_checked_at: "2026-09-10T17:00:00Z" },
+    { price: "22.49", shipping_cost: "0", total_price: "22.49", in_stock: false, url: "https://example.test", last_checked_at: "2026-09-10T17:00:00Z" },
+  ), /DATABASE_BEFORE_STATE_DRIFT_PRICE/);
 });
 
 test("Review Queue stale-state hashing canonicalizes equivalent timestamps without losing microseconds", () => {

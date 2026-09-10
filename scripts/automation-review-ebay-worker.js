@@ -2,7 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
-const { canonicalJson } = require("./lib/canonical-json");
+const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { canonicalTimestamp, canonicalizeTimestamps } = require("./lib/canonical-timestamp");
 const { buildSemanticSourceRows, canonicalHash } = require("./lib/ebay-artifact-bound-contract");
 const { assertConfig, getApplicationToken } = require("./lib/ebay-browse-pilot");
@@ -87,6 +87,12 @@ function expectedDeltas(plan) {
     row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: Number(price) },
   };
 }
+function assertDatabaseBeforeState(databaseOffer, expectedOffer) {
+  invariant(databaseOffer, "DATABASE_BASELINE_MISSING");
+  for (const field of ["price", "shipping_cost", "total_price"]) invariant(normalizeDecimalString(databaseOffer[field], field) === normalizeDecimalString(expectedOffer[field], field), `DATABASE_BEFORE_STATE_DRIFT_${field.toUpperCase()}`);
+  for (const field of ["in_stock", "url"]) invariant(canonicalJson(databaseOffer[field]) === canonicalJson(expectedOffer[field]), `DATABASE_BEFORE_STATE_DRIFT_${field.toUpperCase()}`);
+  invariant(canonicalTimestamp(databaseOffer.last_checked_at, "database.last_checked_at") === canonicalTimestamp(expectedOffer.last_checked_at, "plan.last_checked_at"), "DATABASE_BEFORE_STATE_DRIFT_LAST_CHECKED_AT");
+}
 function assertCommercialEvidence(review, plan, evaluation) {
   const evidence = review.source_evidence || {};
   for (const field of ["workflow_run_id", "artifact_id", "artifact_digest", "contract_sha256", "report_sha256", "artifact_content_sha256", "source_fingerprint", "review_scope_fingerprint"]) invariant(evidence[field], "COMMERCIAL_SOURCE_EVIDENCE_MISSING");
@@ -126,8 +132,7 @@ async function run(options, dependencies = {}) {
     const baselinePath = path.join(OUT, `${options.executionRequestId}-baseline.json`), executionPath = path.join(OUT, `${options.executionRequestId}-execution.json`), postflightPath = path.join(OUT, `${options.executionRequestId}-postflight.json`);
     const baseline = await (dependencies.runPostflight || runPostflight)({ profile: "ebay-uk", mode: "baseline", baseline: null, execution: null, output: baselinePath }, dependencies);
     const baselineOffer = baseline.snapshot.rows.find((row) => String(row.offer_id) === scope.offer_id);
-    invariant(baselineOffer, "DATABASE_BASELINE_MISSING");
-    for (const field of ["price", "shipping_cost", "total_price", "in_stock", "url", "last_checked_at"]) invariant(canonicalJson(baselineOffer[field]) === canonicalJson(plan.expected_state.offer[field]), "DATABASE_BEFORE_STATE_DRIFT");
+    assertDatabaseBeforeState(baselineOffer, plan.expected_state.offer);
     await checkpoint(client, options.executionRequestId, "EXECUTING", "REVALIDATION_PASSED", { run_id: String(process.env.GITHUB_RUN_ID), run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`, commit_sha: process.env.GITHUB_SHA, before_state_hash: baseline.evidence_hash });
     const applied = await (dependencies.executePlan || executePlan)(approved, WORKER_KIND);
     databaseWrites = 1;
@@ -151,4 +156,4 @@ async function run(options, dependencies = {}) {
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run };
+module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run };
