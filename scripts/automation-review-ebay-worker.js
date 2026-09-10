@@ -101,6 +101,16 @@ function assertCommercialEvidence(review, plan, evaluation) {
   const semantic = buildSemanticSourceRows([SCOPES.find((scope) => scope.offer_id === String(review.offer_id))], [evaluation])[0];
   invariant(canonicalHash(semantic) === review.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
 }
+async function executeWithSeparatedCredentials(executor, approved, kind, env = process.env) {
+  const controlCredential = env.SUPABASE_SERVICE_ROLE_KEY;
+  invariant(controlCredential, "WORKER_CONTROL_CREDENTIAL_MISSING");
+  delete env.SUPABASE_SERVICE_ROLE_KEY;
+  try {
+    return await executor(approved, kind);
+  } finally {
+    env.SUPABASE_SERVICE_ROLE_KEY = controlCredential;
+  }
+}
 async function run(options, dependencies = {}) {
   assertContext(dependencies.env || process.env);
   fs.mkdirSync(OUT, { recursive: true });
@@ -134,7 +144,7 @@ async function run(options, dependencies = {}) {
     const baselineOffer = baseline.snapshot.rows.find((row) => String(row.offer_id) === scope.offer_id);
     assertDatabaseBeforeState(baselineOffer, plan.expected_state.offer);
     await checkpoint(client, options.executionRequestId, "EXECUTING", "REVALIDATION_PASSED", { run_id: String(process.env.GITHUB_RUN_ID), run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`, commit_sha: process.env.GITHUB_SHA, before_state_hash: baseline.evidence_hash });
-    const applied = await (dependencies.executePlan || executePlan)(approved, WORKER_KIND);
+    const applied = await executeWithSeparatedCredentials(dependencies.executePlan || executePlan, approved, WORKER_KIND, dependencies.env || process.env);
     databaseWrites = 1;
     invariant(String(applied?.offer_id) === scope.offer_id && (operation === "UPDATE_PRICE" ? applied?.price_history_id != null : applied?.price_history_id == null), "APPLY_RESULT_SCOPE_DRIFT");
     const reviewRows = SCOPES.filter((candidate) => candidate.offer_id !== scope.offer_id).map((candidate) => ({ offer_id: candidate.offer_id, review_type: "NOT_SELECTED_BY_EXECUTION_REQUEST" }));
@@ -156,4 +166,4 @@ async function run(options, dependencies = {}) {
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run };
+module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, assertDatabaseBeforeState, executeWithSeparatedCredentials, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run };

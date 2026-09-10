@@ -850,6 +850,19 @@ test("Review Queue eBay worker derives exact single-row commercial postflight de
   ), /DATABASE_BEFORE_STATE_DRIFT_PRICE/);
 });
 
+test("Review Queue eBay worker removes the control credential only during role-separated apply", async () => {
+  const { executeWithSeparatedCredentials } = require("./automation-review-ebay-worker");
+  const env = { SUPABASE_SERVICE_ROLE_KEY: "control-secret" };
+  const result = await executeWithSeparatedCredentials(async () => {
+    assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, undefined);
+    return { offer_id: "2639" };
+  }, {}, "test", env);
+  assert.equal(result.offer_id, "2639");
+  assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control-secret");
+  await assert.rejects(() => executeWithSeparatedCredentials(async () => { throw new Error("apply failed"); }, {}, "test", env), /apply failed/);
+  assert.equal(env.SUPABASE_SERVICE_ROLE_KEY, "control-secret");
+});
+
 test("Review Queue stale-state hashing canonicalizes equivalent timestamps without losing microseconds", () => {
   const { hash } = require("./automation-review-ebay-worker");
   assert.equal(
