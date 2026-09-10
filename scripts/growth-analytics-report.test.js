@@ -100,16 +100,6 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
         ],
       });
     }
-    if (url.includes("analyticsadmin.googleapis.com")) {
-      return response({
-        dataFilters: [{
-          name: "properties/123456/dataFilters/1",
-          displayName: "Internal traffic",
-          filterType: "INTERNAL_TRAFFIC",
-          state: "ACTIVE",
-        }],
-      });
-    }
     const body = JSON.parse(options.body);
     if (url.includes("searchAnalytics") && body.dimensions?.[0] === "query") {
       return response({ rows: [{ keys: ["whey protein"], clicks: 8, impressions: 100, ctr: 0.08, position: 4.2 }] });
@@ -269,7 +259,7 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     "2026-07-25", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30",
   ]);
   assert.equal(report.ga4.organicTrafficQuality.hostnameRows[0].hostName, "www.supplementscout.co.uk");
-  assert.equal(report.ga4.organicTrafficQuality.dataFilterConfiguration.filters[0].state, "ACTIVE");
+  assert.equal(report.ga4.organicTrafficQuality.dataFilterConfiguration.state, "not_exposed_by_supported_api");
   assert.equal(report.ga4.organicTrafficQuality.testDataFilterEvidence.state, "available");
   assert.deepEqual(report.ga4.betterValueAlternatives, {
     impressions: 12,
@@ -284,7 +274,7 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
   assert.equal(report.searchConsole.indexing.inspections[0].state, "ok");
   assert.equal(report.searchConsole.indexing.inspectedCount, 2);
   assert.match(report.limitations.pageIndexingTotals, /URL-level/);
-  assert.equal(requests.length, 20);
+  assert.equal(requests.length, 19);
   const gscBodies = requests
     .filter(({ url }) => url.includes("searchAnalytics"))
     .map(({ options }) => JSON.parse(options.body));

@@ -5,7 +5,6 @@ const path = require("node:path");
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GA4_API_ROOT = "https://analyticsdata.googleapis.com/v1beta";
 const GA4_FUNNEL_API_ROOT = "https://analyticsdata.googleapis.com/v1alpha";
-const GA4_ADMIN_API_ROOT = "https://analyticsadmin.googleapis.com/v1beta";
 const GSC_API_ROOT = "https://www.googleapis.com/webmasters/v3";
 const GSC_INDEXING_API_URL = "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect";
 const GOOGLE_SCOPES = [
@@ -328,7 +327,7 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const gaFunnelUrl = `${GA4_FUNNEL_API_ROOT}/properties/${propertyId}:runFunnelReport`;
   const dateRanges = [{ startDate: period.startDate, endDate: period.endDate }];
 
-  const [gscTotals, gscQueries, gscDailyFinal, gscDailyAll, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks, gaBetterValueEvents, gaBetterValueFunnel, gaOrganicDaily, gaOrganicHostnames, gaOrganicCountries, gaOrganicSources, gaTestFilters, gaDataFilters] =
+  const [gscTotals, gscQueries, gscDailyFinal, gscDailyAll, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks, gaBetterValueEvents, gaBetterValueFunnel, gaOrganicDaily, gaOrganicHostnames, gaOrganicCountries, gaOrganicSources, gaTestFilters] =
     await Promise.all([
       postJson(fetchImpl, gscQueryUrl, accessToken, { ...period, rowLimit: 1, dataState: "final" }),
       postJson(fetchImpl, gscQueryUrl, accessToken, {
@@ -469,10 +468,6 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         }),
         "GA4 test-filter dimension unavailable"
       ),
-      safeGoogleEvidence(
-        () => googleRequest(fetchImpl, `${GA4_ADMIN_API_ROOT}/properties/${propertyId}/dataFilters`, accessToken),
-        "GA4 data-filter configuration unavailable"
-      ),
     ]);
 
   const total = gscRows(gscTotals, "scope")[0] || {
@@ -545,14 +540,6 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const testFilterRows = gaTestFilters.state === "available"
     ? gaMetricRows(gaTestFilters.response)
     : [];
-  const configuredDataFilters = gaDataFilters.state === "available"
-    ? (gaDataFilters.response.dataFilters || []).map((filter) => ({
-        name: filter.name || null,
-        displayName: filter.displayName || null,
-        filterType: filter.filterType || null,
-        state: filter.state || null,
-      }))
-    : [];
 
   return {
     schemaVersion: 4,
@@ -612,9 +599,10 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         testDataFilterEvidence: gaTestFilters.state === "available"
           ? { state: "available", rows: testFilterRows }
           : gaTestFilters,
-        dataFilterConfiguration: gaDataFilters.state === "available"
-          ? { state: "available", filters: configuredDataFilters }
-          : gaDataFilters,
+        dataFilterConfiguration: {
+          state: "not_exposed_by_supported_api",
+          note: "The supported Analytics Admin API does not expose property data-filter configuration; testDataFilterName covers testing-state filters only.",
+        },
       },
       betterValueAlternatives: {
         impressions: numberValue(betterValueImpressions),
