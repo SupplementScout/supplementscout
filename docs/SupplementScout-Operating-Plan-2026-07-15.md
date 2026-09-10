@@ -1,9 +1,24 @@
 # SupplementScout Operating Plan
 
-**Status date:** 9 September 2026<br>
+**Status date:** 10 September 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**10 September 2026 GSC/GA4 quality checkpoint:** exact-date read-only run
+`34491056108` re-read 2–8 September after reporting lag. GSC settled at 1,276
+impressions, 2 clicks, 0.16% CTR and position 54.54; all seven dates have final
+activity, final/all totals agree and no incomplete date is reported. This
+supersedes the provisional 801-impression count below without erasing it.
+
+GA4 reports 71 Organic Search sessions from 4 users, but 67 sessions came from
+one user via `search.google.com / referral`, strongly indicating operational or
+test navigation. The conservative external-search signal is 4 sessions across
+the remaining Google/Bing rows. The 7 retailer clicks and one Better-value
+downstream user lack source attribution and are not conversion evidence. No
+growth claim is supported. Future weekly reports include daily GSC completeness
+and GA4 source/hostname/filter diagnostics. See the
+[traffic-quality audit](rollouts/growth-traffic-quality-audit-2026-09-10.md).
 
 **9 September 2026 producer continuity follow-up:** all ten missing whole dates
 are traced to failed scheduled runs: delta/replay failures, missing variants and

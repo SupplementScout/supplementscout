@@ -1,10 +1,19 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 9 September 2026<br>
+**Status date:** 10 September 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
+
+**10 September measurement correction:** read-only run `34491056108` re-read
+2–8 September with daily completeness and traffic-quality evidence. GSC settled
+at 1,276 impressions/2 clicks; all seven dates are present and final/all totals
+agree. Of 71 GA4 Organic Search sessions, 67 came from one user via
+`search.google.com / referral`. Use 4 sessions as the conservative external
+search signal. Retailer clicks and Better-value actions lack source attribution,
+so no growth or conversion claim is supported. See the
+[traffic-quality audit](rollouts/growth-traffic-quality-audit-2026-09-10.md).
 
 **9 September SEO-15 follow-up:** the read-only continuity investigation is
 complete. Failed scheduled runs explain all ten missing whole dates. GYM HIGH
@@ -142,11 +151,11 @@ missing days and the exact 14/30-day gates. Next accrual recheck: 16 September;
 conditional publication-readiness reviews: 24-25 September. Preserve legacy
 history, quarantines, disabled producers and GYM HIGH's public deferral.
 
-The weekly GSC/GA4 read is complete: fresh run `34338385065` covers 2-8
-September. It reports 801 impressions/2 clicks, 69 organic sessions/3 users/6
-retailer clicks and 18 alternatives impressions/1 click. Small samples and
-reporting lag mean no growth or conversion-uplift claim. Raw reports stay in
-private artifacts; the linked report includes a disjoint calendar-week view.
+The weekly GSC/GA4 read and traffic-quality follow-up are complete. Exact-date
+run `34491056108` supersedes the provisional run for 2–8 September: 1,276 final
+impressions, 2 clicks and a conservative external-search signal of 4 sessions.
+The full 71-session GA4 Organic Search label is contaminated by 67 sessions from
+one `search.google.com / referral` user. No growth or conversion-uplift claim.
 
 The SEO-15 technical plan remains the bounded design and evidence reference;
 this execution ledger remains the sole SEO status and ordering authority.
@@ -264,6 +273,7 @@ invent a date to silence the Guardian.
 
 | Date | Type | Evidence | State |
 |---|---|---|---|
+| 2026-09-10 | Weekly GSC/GA4 | Authenticated read-only workflow run `34491056108`, artifact `10157749027`, report SHA-256 `846ff030418a4460e288f0b6ea1fbd774b914d62f31d07e104bee39974f42d3a`, covering 2026-09-02 through 2026-09-08. GSC settled at 1,276 impressions, 2 clicks, 0.16% CTR and position 54.54; all seven dates have final activity, final/all totals agree and no incomplete date is reported. GA4 reports 71 Organic Search sessions/4 users, but 67 sessions belong to one `search.google.com / referral` user; the remaining Google/Bing rows contain 4 sessions. Seven retailer clicks and the one-user Better-value funnel lack source attribution. Zero Google configuration writes. | `CAPTURED; TRAFFIC CONTAMINATION ISOLATED; NO GROWTH CLAIM` |
 | 2026-09-03 | Better-value measurement validation | Authenticated read-only workflow run `33743176950` on commit `562ed4b`, artifact `9888548236` (ZIP SHA-256 `118b1122401fc307a99be1be5625d27140f4cc205fc6fbff0446b266e3edc118`; report SHA-256 `bb6bacbef5cd39798efc2d6b47c9d3b843bf2f213b147bf965da041e19139947`). Schema v3 successfully queried the existing Better-value impression/select events and the closed select-to-retailer-click user funnel with a 30-minute downstream window. The report covers 2026-08-27 through 2026-09-02 and correctly contains zero Better-value observations because the period ends before the 3 September release; this validates the reporting contract only and is not post-launch CTR evidence. URL Inspection completed 6/6 and the sitemap returned 0 warnings and 0 errors. | `VALIDATED; KPI PENDING POST-LAUNCH DATA` |
 | 2026-08-31 | Weekly GSC/GA4 | Authenticated read-only workflow run `33413636032`, artifact `9766122662` (ZIP SHA-256 `982775ba4eba0d7fd191bd521e0bd929f034578e6a7cb443d658c2bd80e99355`), covering 2026-08-24 through 2026-08-30: GSC 1,076 impressions, 5 clicks, 0.46% CTR and average position 64.55; GA4 Organic Search 20 sessions, 5 users, 115 views and 0 organic retailer-offer clicks. Sitemap reported 1,115 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors: five canonical `www` URLs were submitted and indexed, while the apex hostname was correctly reported as a redirect to the indexed `www` homepage. The sitemap API's `indexed: 0` remains excluded from aggregate Page-indexing evidence. This period predates the 3 September Better-value release and cannot measure its CTR. | `CAPTURED` |
 | 2026-08-17 | Weekly GSC/GA4 | Authenticated read-only workflow run `32014837584`, artifact `9283110120`, covering 2026-08-10 through 2026-08-16: GSC 736 impressions, 9 clicks, 1.22% CTR and average position 61.68; GA4 Organic Search 12 sessions, 4 users, 107 views and 3 organic retailer-offer clicks. Sitemap reported 1,090 submitted URLs with 0 warnings and 0 errors. URL Inspection completed 6/6 targets with 0 errors; the five canonical `www` URLs were submitted and indexed, while the apex hostname correctly resolved as a redirect to the indexed `www` homepage. | `CAPTURED` |

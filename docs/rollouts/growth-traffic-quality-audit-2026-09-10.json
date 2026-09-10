@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "kind": "growth-traffic-quality-audit",
+  "generated_at": "2026-09-10T14:44:51.266Z",
+  "period": {
+    "start_date": "2026-09-02",
+    "end_date": "2026-09-08"
+  },
+  "github": {
+    "run_id": 34491056108,
+    "artifact_id": 10157749027,
+    "commit": "db64e5e481f6ada574b79a252bf0ba6798232962",
+    "conclusion": "success"
+  },
+  "report_sha256": "846ff030418a4460e288f0b6ea1fbd774b914d62f31d07e104bee39974f42d3a",
+  "prior_report": {
+    "run_id": 34338385065,
+    "generated_at": "2026-09-09T10:06:10.732Z",
+    "report_sha256": "2e2d88724e651c66a68936efdfa8129035042e2ffc5cda4d3e223cd5cc30d4a4",
+    "gsc_impressions": 801,
+    "gsc_clicks": 2,
+    "ga4_organic_sessions": 69,
+    "ga4_organic_users": 3,
+    "ga4_organic_views": 527,
+    "organic_retailer_offer_clicks": 6
+  },
+  "search_console": {
+    "impressions": 1276,
+    "clicks": 2,
+    "ctr": 0.001567398119122257,
+    "average_position": 54.541536050156736,
+    "impression_revision_from_prior_report": 475,
+    "impression_revision_ratio": 0.5930087390761548,
+    "daily_completeness_status": "NO_INCOMPLETE_DATA_REPORTED",
+    "first_incomplete_date": null,
+    "final_equals_all": true,
+    "dates_without_final_activity": [],
+    "daily": [
+      { "date": "2026-09-02", "clicks": 0, "impressions": 153, "position": 55.55555555555556 },
+      { "date": "2026-09-03", "clicks": 0, "impressions": 158, "position": 56.392405063291136 },
+      { "date": "2026-09-04", "clicks": 0, "impressions": 143, "position": 58 },
+      { "date": "2026-09-05", "clicks": 1, "impressions": 186, "position": 59.09139784946237 },
+      { "date": "2026-09-06", "clicks": 1, "impressions": 161, "position": 55.04968944099379 },
+      { "date": "2026-09-07", "clicks": 0, "impressions": 251, "position": 51.73705179282869 },
+      { "date": "2026-09-08", "clicks": 0, "impressions": 224, "position": 49.33482142857143 }
+    ]
+  },
+  "ga4": {
+    "reported_organic": {
+      "sessions": 71,
+      "users": 4,
+      "views": 555,
+      "retailer_offer_clicks": 7
+    },
+    "source_medium": [
+      { "value": "search.google.com / referral", "sessions": 67, "users": 1 },
+      { "value": "bing / organic", "sessions": 2, "users": 1 },
+      { "value": "google / organic", "sessions": 2, "users": 2 }
+    ],
+    "hostname": [
+      { "value": "www.supplementscout.co.uk", "sessions": 71, "users": 4 }
+    ],
+    "country": [
+      { "value": "United Kingdom", "sessions": 71, "users": 4 }
+    ],
+    "test_data_filter": [
+      { "value": "(not set)", "sessions": 71, "users": 4 }
+    ],
+    "conservative_external_search_signal": {
+      "sessions_excluding_search_google_com_referral": 4,
+      "users_in_remaining_source_rows": 3,
+      "note": "User counts across source rows are not additive guarantees. Retailer clicks and Better-value events are not source-attributed in this report."
+    },
+    "ai_assistant_channel": {
+      "sessions": 6,
+      "users": 6,
+      "views": 5
+    },
+    "better_value": {
+      "impressions": 18,
+      "clicks": 1,
+      "selecting_users": 1,
+      "downstream_retailer_click_users": 1,
+      "external_attribution_verified": false
+    }
+  },
+  "decision": {
+    "growth_claim": false,
+    "conversion_claim": false,
+    "reason": "GSC was materially revised after one day and 67 of 71 GA4 Organic Search sessions came from one user via search.google.com / referral."
+  },
+  "database_writes": 0,
+  "google_configuration_writes": 0
+}
