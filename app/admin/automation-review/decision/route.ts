@@ -1,8 +1,11 @@
+import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRoute } from "../../../lib/adminAuth";
+import { resolveReviewAdapter } from "../../../lib/automationReviewAdapters";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 
-const ACTION_STATUS = new Map([["approve", "APPROVED"], ["reject", "REJECTED"], ["ignore", "IGNORED"], ["rebind", "APPROVED"], ["unavailable", "APPROVED"]]);
+const ACTION_STATUS = new Map([["approve", "APPROVED"], ["approve_execute", "APPROVED"], ["reject", "REJECTED"], ["ignore", "IGNORED"], ["rebind", "APPROVED"], ["unavailable", "APPROVED"]]);
+function executionKey(reviewId: string | number, fingerprint: string, workflow: string) { return crypto.createHash("sha256").update(`${reviewId}:${fingerprint}:${workflow}:review-queue`).digest("hex"); }
 export async function POST(request: NextRequest) {
   const unauthorized = requireAdminRoute(request); if (unauthorized) return unauthorized;
   const form = await request.formData(), targetStatus = ACTION_STATUS.get(String(form.get("action") || "")), selections = form.getAll("selection").map(String);
@@ -12,11 +15,14 @@ export async function POST(request: NextRequest) {
   const expected = new Map(parsed.map((item) => [item![1], item![2]]));
   if (expected.size !== parsed.length) return new NextResponse("Duplicate review selection.", { status: 400 });
   if (["rebind", "unavailable"].includes(String(form.get("action"))) && selections.length !== 1) return new NextResponse("This action requires one review row.", { status: 400 });
-  const { data, error } = await supabaseAdmin.from("product_match_review_queue").select("id,retailer_id,review_kind,operation_type,review_status,expires_at,source_row_fingerprint,source_evidence").in("id", [...expected.keys()]);
+  const { data, error } = await supabaseAdmin.from("product_match_review_queue").select("id,retailer_id,review_kind,operation_type,review_status,expires_at,source_row_fingerprint,source_evidence,plan_fingerprint,reason_codes").in("id", [...expected.keys()]);
   if (error || !data || data.length !== expected.size) return new NextResponse("Review rows changed; nothing was saved.", { status: 409 });
   const now = Date.now(), compatible = new Set(data.map((row) => `${row.retailer_id}:${row.review_kind}:${row.operation_type}`));
   if (compatible.size !== 1 || data.some((row) => row.review_status !== "PENDING" || !row.expires_at || new Date(row.expires_at).getTime() <= now || expected.get(String(row.id)) !== row.source_row_fingerprint)) return new NextResponse("Review rows are stale, expired or incompatible; nothing was saved.", { status: 409 });
   const action = String(form.get("action"));
+  const executeNow = action === "approve_execute";
+  const adapters = executeNow ? data.map((row) => resolveReviewAdapter(row.retailer_id, row.operation_type, row.reason_codes).adapter) : [];
+  if (executeNow && (adapters.some((adapter) => !adapter) || data.some((row) => !row.plan_fingerprint))) return new NextResponse("One or more selected rows cannot be executed safely.", { status: 422 });
   if (["approve", "rebind", "unavailable"].includes(action) && form.get("confirmImpact") !== "yes") return new NextResponse("Exact impact confirmation is required; nothing was saved.", { status: 409 });
   const changes: Record<string, unknown> = { review_status: targetStatus, updated_at: new Date().toISOString() };
   changes.decision_actor = "authenticated-admin";
@@ -39,6 +45,23 @@ export async function POST(request: NextRequest) {
   for (const row of data) {
     const { data: updated, error: updateError } = await supabaseAdmin.from("product_match_review_queue").update(changes).eq("id", String(row.id)).eq("source_row_fingerprint", row.source_row_fingerprint).eq("review_status", "PENDING").select("id").maybeSingle();
     if (updateError || !updated) return new NextResponse("A row changed during review; remaining rows were not touched.", { status: 409 });
+  }
+  if (executeNow) {
+    for (let index = 0; index < data.length; index += 1) {
+      const row = data[index], adapter = adapters[index]!;
+      const { error: queueError } = await supabaseAdmin.rpc("queue_automation_review_execution", {
+        p_review_id: row.id,
+        p_review_fingerprint: row.source_row_fingerprint,
+        p_requested_by: "authenticated-admin",
+        p_retailer_slug: adapter.retailerSlug,
+        p_workflow_name: adapter.workflow,
+        p_environment_name: adapter.environment,
+        p_execution_mode: "review-queue",
+        p_idempotency_key: executionKey(row.id, row.source_row_fingerprint, adapter.workflow),
+      });
+      if (queueError) return new NextResponse("Decisions were saved, but one execution could not be queued. It remains visible as approved.", { status: 409 });
+    }
+    return NextResponse.redirect(new URL("/admin/automation-review?status=APPROVED", request.url), 303);
   }
   return NextResponse.redirect(new URL("/admin/automation-review", request.url), 303);
 }

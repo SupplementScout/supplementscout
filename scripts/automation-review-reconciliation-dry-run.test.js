@@ -365,6 +365,15 @@ test("workflow exposes a dry-run-only Review Queue reconciliation path", () => {
   assert.doesNotMatch(workflow, /review-queue-reconciliation[\s\S]*publish_automation_review_queue_changes/);
 });
 
+test("normal catalogue refresh publishes its fresh review cards through the guarded queue RPC", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/ebay-offer-refresh.yml"), "utf8");
+  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: refresh/);
+  assert.match(workflow, /source-run-id=\$\{\{ github\.run_id \}\}/);
+  assert.match(workflow, /source-artifact-id=\$\{\{ needs\.refresh\.outputs\.artifact_id \}\}/);
+  assert.match(workflow, /Publish fresh cards to Automation Review Queue/);
+  assert.match(workflow, /automation-review-reconciliation-apply\.js/);
+});
+
 test("dry-run builder has no direct queue writes or publication RPC apply call", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts/automation-review-reconciliation-dry-run.js"), "utf8");
   assert.doesNotMatch(source, /\.from\s*\([^)]*\)\.insert\s*\(/);

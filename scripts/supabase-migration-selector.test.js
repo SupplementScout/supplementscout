@@ -28,6 +28,8 @@ const TIMESTAMP_OPERATOR_MIGRATION = "20260831081000_fix_verified_no_change_time
 const TIMESTAMP_OPERATOR_SHA256 = "16d92f7e0b404b81bcbda62bfb512ff6690bb78b36b7e5a345788b6fdcc8ef20";
 const REVIEW_QUEUE_PUBLICATION_MIGRATION = "20260831110000_create_automation_review_queue_publication_rpc.sql";
 const REVIEW_QUEUE_PUBLICATION_SHA256 = "8680e3303a8b4b22025f85af83a59a8dafbebc91e97719e423af8dff79f28409";
+const REVIEW_QUEUE_RETRY_MIGRATION = "20260910193000_allow_automation_review_retry_revisions.sql";
+const REVIEW_QUEUE_RETRY_SHA256 = "ddfb939887df1793f554adc1e4f171b64b3ba2549a4d3651bd339947d7bc496b";
 const REVIEWED_VARIANT_REBIND_MIGRATION = "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql";
 const REVIEWED_VARIANT_REBIND_SHA256 = "a8e279a8efacab24fa14b671e9ecdc211933b27f2460efc4ddf6833e789ca2b7";
 const REVIEWED_VARIANT_DIGEST_FIX_MIGRATION = "20260901100000_fix_reviewed_variant_digest_schema_resolution.sql";
@@ -142,13 +144,13 @@ test("staging records both verified no-change timestamp repairs as applied", () 
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 94);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
-  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
-  assert.equal(result.pending_file, REVIEW_QUEUE_PUBLICATION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEW_QUEUE_PUBLICATION_SHA256);
+  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION]);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 95);
+  assert.equal(result.selected_files.length, 96);
   assert.ok(result.selected_files.includes(TIMESTAMP_GUARD_MIGRATION));
   assert.ok(result.selected_files.includes(TIMESTAMP_OPERATOR_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEW_QUEUE_PUBLICATION_MIGRATION));
@@ -236,13 +238,13 @@ test("production keeps the verified no-change timestamp migrations byte-for-byte
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
 });
 
-test("production records the reviewed price-history correction", () => {
+test("production records the applied queue retry revision migration", () => {
   const contract = CONTRACTS.PRODUCTION;
   assert.deepEqual(contract.pending, []);
-  assert.equal(contract.ledgerCount, 203);
+  assert.equal(contract.ledgerCount, 204);
   assert.equal(
     contract.ledgerFingerprint,
-    "faf58a2f766eaaedab83a92e5a624c43c85a492d90c788336886ea70dc72488d",
+    "95b09e5d09814d048e41b6034272a79ef6cca14f5b2712d15bac69d14852e48f",
   );
   assert.equal(sha256File(path.join(SOURCE, TEN_REPS_SYNC_REGISTRATION_MIGRATION)), TEN_REPS_SYNC_REGISTRATION_SHA256);
   assert.equal(sha256File(path.join(SOURCE, INTERRUPTED_SHARED_REFRESH_MIGRATION)), INTERRUPTED_SHARED_REFRESH_SHA256);
@@ -327,7 +329,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 95);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 96);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -343,7 +345,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows), CONTRACT.ledgerFingerprint);
 });
 
-test("production binds its exact ledger with no unexpected pending migration", () => {
+test("production binds its exact ledger with no migration pending", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   const pending = new Set(contract.pending.map(({ filename }) => filename));
@@ -369,9 +371,9 @@ test("production binds its exact ledger with no unexpected pending migration", (
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 203);
+  assert.equal(result.ledger_count, 204);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 203);
+  assert.equal(result.selected_files.length, 204);
   assert.deepEqual(result.pending_files, []);
   assert.equal(result.pending_file, null);
   assert.equal(result.pending_sha256, null);
@@ -484,12 +486,12 @@ test("production owner guard rejects service role and accepts postgres only", ()
   assert.doesNotThrow(() => validateDatabaseOwner(contract, { current_user: "postgres" }));
 });
 
-test("staging output reports only the review queue publication RPC as pending", () => {
+test("staging output reports the review queue publication and retry migrations as pending", () => {
   const result = validateSelection(validInput());
-  assert.equal(result.pending_file, REVIEW_QUEUE_PUBLICATION_MIGRATION);
-  assert.equal(result.pending_sha256, REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION]);
-  assert.deepEqual(result.pending_sha256s, { [REVIEW_QUEUE_PUBLICATION_MIGRATION]: REVIEW_QUEUE_PUBLICATION_SHA256 });
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
+  assert.deepEqual(result.pending_files, [REVIEW_QUEUE_PUBLICATION_MIGRATION, REVIEW_QUEUE_RETRY_MIGRATION]);
+  assert.deepEqual(result.pending_sha256s, { [REVIEW_QUEUE_PUBLICATION_MIGRATION]: REVIEW_QUEUE_PUBLICATION_SHA256, [REVIEW_QUEUE_RETRY_MIGRATION]: REVIEW_QUEUE_RETRY_SHA256 });
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {

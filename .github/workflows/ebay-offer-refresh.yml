@@ -100,6 +100,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     environment: production-readonly
+    outputs:
+      artifact_id: ${{ steps.refresh_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.refresh_artifact.outputs.artifact-digest }}
+      contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
+      report_sha256: ${{ steps.review_source.outputs.report_sha256 }}
+      content_sha256: ${{ steps.review_source.outputs.content_sha256 }}
+      review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
     steps:
       - name: Validate protected execution context
         env:
@@ -186,7 +193,7 @@ jobs:
           EBAY_EPN_CAMPAIGN_ID: ${{ secrets.EBAY_EPN_CAMPAIGN_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npm run ebay:refresh -- --target=production --mode=prepare-apply ${{ github.event_name == 'workflow_dispatch' && '--approved-contract=tmp/ebay-offer-refresh/approved-artifact/production-dry-run-contract.json' || '' }}
+        run: npm run ebay:refresh -- --target=production --mode=prepare-apply ${{ github.event_name == 'workflow_dispatch' && '--approved-contract=tmp/ebay-offer-refresh/approved-artifact/production-dry-run-contract.json' || '--emit-approval-contract=true' }}
       - name: Capture eBay UK DB baseline read-only
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         env:
@@ -241,7 +248,12 @@ jobs:
       - name: Seal same-run eBay apply, postflight and idempotency evidence
         if: ${{ (github.event_name == 'schedule' && vars.EBAY_REFRESH_ENABLED == 'true') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply') }}
         run: node scripts/ebay-refresh-evidence-sealer.js
+      - name: Bind fresh Review Queue source
+        id: review_source
+        if: ${{ success() && hashFiles('tmp/ebay-offer-refresh/production-dry-run-contract.json') != '' }}
+        run: node scripts/automation-review-source-binding.js
       - name: Upload refresh evidence
+        id: refresh_artifact
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -249,6 +261,53 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: tmp/ebay-offer-refresh/*.json
+
+  refresh-review-queue:
+    needs: refresh
+    if: ${{ needs.refresh.result == 'success' && needs.refresh.outputs.artifact_id != '' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Build fresh Review Queue changes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SOURCE_ARTIFACT_DIGEST: ${{ needs.refresh.outputs.artifact_digest }}
+        run: >-
+          node scripts/automation-review-reconciliation-dry-run.js
+          --download-source-artifact
+          --source-run-id=${{ github.run_id }}
+          --source-artifact-id=${{ needs.refresh.outputs.artifact_id }}
+          --source-commit-sha=${{ github.sha }}
+          --source-artifact-digest=${SOURCE_ARTIFACT_DIGEST#sha256:}
+          --source-contract-sha256=${{ needs.refresh.outputs.contract_sha256 }}
+          --source-report-sha256=${{ needs.refresh.outputs.report_sha256 }}
+          --source-artifact-content-sha256=${{ needs.refresh.outputs.content_sha256 }}
+          --source-review-scope-fingerprint=${{ needs.refresh.outputs.review_scope_fingerprint }}
+          --output=tmp/automation-review-reconciliation/reconciliation-dry-run.json
+      - name: Publish fresh cards to Automation Review Queue
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/automation-review-reconciliation-apply.js
+      - name: Upload queue refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: automation-review-queue-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/automation-review-reconciliation/*.json
 
   review-queue-reconciliation:
     if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.operation == 'dry-run' && inputs.execution_mode == 'review-queue-reconciliation' }}

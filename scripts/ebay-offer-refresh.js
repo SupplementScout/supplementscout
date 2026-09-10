@@ -425,7 +425,7 @@ function parseArgs(argv) {
   delete options["approved-contract"];
   delete options["emit-approval-contract"];
   if (options.mode === "prepare-apply" && process.env.GITHUB_EVENT_NAME === "workflow_dispatch" && !options.approvedContract) fail("Artifact-bound manual apply requires --approved-contract");
-  if (options.mode !== "dry-run" && options.emitApprovalContract) fail("Only dry-run may emit an approval contract");
+  if (options.mode !== "dry-run" && !(options.mode === "prepare-apply" && process.env.GITHUB_EVENT_NAME === "schedule") && options.emitApprovalContract) fail("Only a dry-run or scheduled prepare may emit a review source contract");
   return options;
 }
 

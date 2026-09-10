@@ -146,7 +146,9 @@ async function downloadSourceArtifact(options, dependencies = {}) {
   const run = await githubJson(`${api}/repos/${REPOSITORY}/actions/runs/${options.sourceRunId}`, env.GITHUB_TOKEN, fetchImpl);
   if (String(run.id) !== options.sourceRunId || run.repository?.full_name !== REPOSITORY) fail("Source run repository or ID mismatch");
   if (String(run.path || "").split("@")[0] !== WORKFLOW || run.name !== "eBay Offer Refresh") fail("Source run belongs to another workflow");
-  if (run.conclusion !== "success" || run.status !== "completed" || run.event !== "workflow_dispatch" || run.head_branch !== "main" || run.head_sha !== options.sourceCommitSha) fail("Source run status, branch, event or commit mismatch");
+  const sameRun = env.GITHUB_ACTIONS === "true" && String(env.GITHUB_RUN_ID) === options.sourceRunId && run.status === "in_progress";
+  if (!(run.conclusion === "success" && run.status === "completed") && !sameRun) fail("Source run status is not usable");
+  if (!["workflow_dispatch", "schedule"].includes(run.event) || run.head_branch !== "main" || run.head_sha !== options.sourceCommitSha) fail("Source run branch, event or commit mismatch");
   const artifact = await githubJson(`${api}/repos/${REPOSITORY}/actions/artifacts/${options.sourceArtifactId}`, env.GITHUB_TOKEN, fetchImpl);
   if (String(artifact.id) !== options.sourceArtifactId || String(artifact.workflow_run?.id) !== options.sourceRunId) fail("Source artifact does not belong to source run");
   if (artifact.name !== `ebay-offer-refresh-${options.sourceRunId}-1` || artifact.expired !== false) fail("Source artifact name drifted or expired");
@@ -261,8 +263,8 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
     const before = beforeStateFromActive(active) || beforeStateFromActive(currentStateByOffer.get(offerId)) || beforeStateFromPlan(artifact);
     if (!before) fail(`Missing before_state for review offer ${offerId}`);
     return {
-      snapshot_id: `automation-review-${RETAILER_ID}-${offerId}`,
-      review_item_id: `${RETAILER_ID}:${offerId}:${sourceRowFingerprint}`,
+      snapshot_id: `automation-review-${RETAILER_ID}-${source.options.sourceRunId}`,
+      review_item_id: `${RETAILER_ID}:${offerId}:${source.options.sourceRunId}:${sourceRowFingerprint}`,
       source_record_id: `${RETAILER_ID}:${offerId}`,
       retailer: RETAILER,
       product_title: expectedState?.product?.name || active?.product_title || `Offer ${offerId}`,

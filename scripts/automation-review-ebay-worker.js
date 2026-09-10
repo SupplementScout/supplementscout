@@ -35,7 +35,7 @@ function parseArgs(argv) {
   return { reviewItemId: values["review-item-id"], executionRequestId: values["execution-request-id"], retailer: values.retailer, reviewFingerprint: values["review-fingerprint"], reviewPlanFingerprint: values["review-plan-fingerprint"], executionIdempotencyKey: values["execution-idempotency-key"], mode: values.mode };
 }
 function assertContext(env = process.env) {
-  invariant(env.GITHUB_ACTIONS === "true" && env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.GITHUB_REF === "refs/heads/main" && env.GITHUB_REPOSITORY === "SupplementScout/supplementscout", "WORKER_CONTEXT_INVALID");
+  invariant(env.GITHUB_ACTIONS === "true" && ["workflow_dispatch", "schedule"].includes(env.GITHUB_EVENT_NAME) && env.GITHUB_REF === "refs/heads/main" && env.GITHUB_REPOSITORY === "SupplementScout/supplementscout", "WORKER_CONTEXT_INVALID");
   invariant(env.SUPABASE_SERVICE_ROLE_KEY && env.NEXT_PUBLIC_SUPABASE_URL, "WORKER_CONTROL_CREDENTIAL_MISSING");
   invariant(env.EBAY_CANARY_APPROVER_DATABASE_URL && env.EBAY_CANARY_EXECUTOR_DATABASE_URL && env.EBAY_REFRESH_VALIDATOR_DATABASE_URL, "WORKER_ROLE_CREDENTIAL_MISSING");
 }
