@@ -46,6 +46,12 @@
     "per_row_price_hard_block_absolute_gbp": 20,
     "mass_oos_block_count": 4,
     "maximum_total_oos_ratio": 0.35,
-    "maximum_oos_increase_percentage_points": 0.05
+    "maximum_oos_increase_percentage_points": 0.05,
+    "source_identity_review": {
+      "maximum_rows": 1,
+      "allowed_external_product_ids": ["701"],
+      "expected_remaining_source_row_count": 70,
+      "expected_remaining_identity_fingerprint": "2a1a65f4026403dfefc59ea299042c4ae0f2421aaa47f767944f3f3e77750f04"
+    }
   }
 }

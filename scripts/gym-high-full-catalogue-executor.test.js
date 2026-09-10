@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const { parseArgs, validateScheduledPlans } = require("./gym-high-full-catalogue-executor");
+const { parseArgs, validateScheduledPlans, expectedOwnerConfirmation } = require("./gym-high-full-catalogue-executor");
 const { parseArgs: parseRefreshArgs, sameBusinessOffer } = require("./gym-high-refresh-artifact");
 const { UPGRADES } = require("./gym-high-legacy-identity-feed-builder");
 
@@ -58,6 +58,7 @@ test("workflow is manual, exact, and separates production roles", () => {
   assert.match(workflow, /cron: "13 4 \* \* \*"/);
   assert.match(workflow, /inputs\.approval_fingerprint == 'b5886eda9300b9cfb5319f868ad5b87e7e6b01b0b77d3d7c4ac270681c101919'/);
   assert.match(workflow, /OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66/);
+  assert.match(workflow, /OWNER_APPROVED_GYM_HIGH_REFRESH_65_WITH_REVIEW_701_2026_09_10/);
   assert.match(workflow, /GYM_HIGH_APPROVER_DATABASE_URL:[\s\S]*JONS_SYNC_APPROVER_DATABASE_URL/);
   assert.match(workflow, /GYM_HIGH_EXECUTOR_DATABASE_URL:[\s\S]*JONS_SYNC_EXECUTOR_DATABASE_URL/);
   assert.match(workflow, /persist-credentials: false/);
@@ -117,4 +118,12 @@ test("scheduled guard allows existing no-change rows and blocks creates or price
   thresholdCrossing[0].resolved_plan.offer.values.price = "50.00";
   thresholdCrossing[0].resolved_plan.offer.values.shipping_cost = "0";
   assert.doesNotThrow(() => validateScheduledPlans({ plans: thresholdCrossing }, complete));
+  const reviewedSubset = { ...complete, review_row_count: 1 };
+  assert.doesNotThrow(() => validateScheduledPlans({ plans: plans.slice(0, 65) }, reviewedSubset));
+});
+
+test("manual apply binds owner confirmation to the exact executable and review scope", () => {
+  assert.equal(expectedOwnerConfirmation({ review_rows: [] }), "OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66");
+  assert.equal(expectedOwnerConfirmation({ review_rows: [{ external_product_id: "701" }] }), "OWNER_APPROVED_GYM_HIGH_REFRESH_65_WITH_REVIEW_701_2026_09_10");
+  assert.throws(() => expectedOwnerConfirmation({ review_rows: [{ external_product_id: "702" }] }), /unapproved review scope/);
 });

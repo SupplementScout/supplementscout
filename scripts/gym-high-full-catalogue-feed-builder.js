@@ -51,16 +51,24 @@ function reviewedOptions(family, variant) {
 }
 
 function assertSource(approval, source, now = new Date()) {
-  if (source.result !== "PASS" || source.production_writes !== 0 || source.source_row_count !== 71 || source.source_identity_fingerprint !== approval.source_identity_fingerprint) fail("GYM HIGH source report binding mismatch");
+  const reviewPolicy = JSON.parse(fs.readFileSync(path.join(ROOT, "config", "retailers", "gym-high-woocommerce.json"), "utf8")).guardrails.source_identity_review;
+  const reviewRows = source.review_rows || [];
+  const fullPass = source.result === "PASS" && source.source_row_count === 71 && source.source_identity_fingerprint === approval.source_identity_fingerprint && reviewRows.length === 0;
+  const reviewedPass = source.result === "PASS_WITH_REVIEW" && source.source_row_count === reviewPolicy.expected_remaining_source_row_count && source.source_identity_fingerprint === reviewPolicy.expected_remaining_identity_fingerprint && reviewRows.length === 1 && source.source_review_count === 1 && reviewRows[0].reason === "SOURCE_IDENTITY_DRIFT" && reviewRows[0].external_product_id === reviewPolicy.allowed_external_product_ids[0];
+  if ((!fullPass && !reviewedPass) || source.production_writes !== 0) fail("GYM HIGH source report binding mismatch");
   const capturedAt = new Date(source.captured_at);
   if (!Number.isFinite(capturedAt.getTime()) || capturedAt > new Date(now.getTime() + 5 * 60_000) || capturedAt < new Date(now.getTime() - 24 * 60 * 60_000)) fail("GYM HIGH source report is stale or in the future");
   const approvedKeys = new Set(approval.families.flatMap((family) => family.variants.map((variant) => `${family.external_product_id}:${variant.external_variant_id}`)));
+  const reviewKeys = new Set(reviewRows.flatMap((row) => row.external_variant_ids.map((variantId) => `${row.external_product_id}:${variantId}`)));
   const sourceKeys = source.rows.map((row) => `${row.external_product_id}:${row.external_variant_id}`);
-  if (new Set(sourceKeys).size !== 71 || sourceKeys.filter((key) => approvedKeys.has(key)).length !== 66) fail("GYM HIGH approved source coverage mismatch");
+  if (new Set(sourceKeys).size !== source.source_row_count || sourceKeys.filter((key) => approvedKeys.has(key)).length + reviewKeys.size !== 66 || [...reviewKeys].some((key) => !approvedKeys.has(key) || sourceKeys.includes(key))) fail("GYM HIGH approved source coverage mismatch");
   const omitted = sourceKeys.filter((key) => !approvedKeys.has(key)).sort();
   const expectedOmitted = [...approval.excluded_source_rows, ...approval.exception_source_rows].sort();
   if (JSON.stringify(omitted) !== JSON.stringify(expectedOmitted)) fail("GYM HIGH source exclusions drift");
-  return new Map(source.rows.map((row) => [`${row.external_product_id}:${row.external_variant_id}`, row]));
+  const result = new Map(source.rows.map((row) => [`${row.external_product_id}:${row.external_variant_id}`, row]));
+  result.reviewRows = reviewRows;
+  result.reviewKeys = reviewKeys;
+  return result;
 }
 
 function resolveBindings(approval, products, variants) {
@@ -139,6 +147,7 @@ async function run(options, dependencies = {}) {
   let existingOfferCount = 0;
   for (const binding of bindings) {
     const sourceKey = `${binding.family.external_product_id}:${binding.reviewed.external_variant_id}`;
+    if (sourceByKey.reviewKeys.has(sourceKey)) continue;
     const sourceRow = sourceByKey.get(sourceKey);
     const mapping = mappingByKey.get(sourceKey) || null;
     const offer = mapping ? offerByMapping.get(String(mapping.id)) || null : null;
@@ -149,7 +158,7 @@ async function run(options, dependencies = {}) {
     if (offer) existingOfferCount += 1;
     rows.push(buildFeedRow(binding, sourceRow, mapping, offer, source.captured_at));
   }
-  if (existingMappingCount !== mappingByKey.size || existingOfferCount !== offerByMapping.size) fail("GYM HIGH retailer scope contains orphan state");
+  if (mappingByKey.size !== 66 || offerByMapping.size !== 66 || existingMappingCount + sourceByKey.reviewKeys.size !== mappingByKey.size || existingOfferCount + sourceByKey.reviewKeys.size !== offerByMapping.size) fail("GYM HIGH retailer scope contains orphan state");
   const header = [...fs.readFileSync(TEMPLATE, "utf8").split(/\r?\n/, 1)[0].split(","), ...EXTRA_COLUMNS];
   const csv = serializeCsv(header, rows);
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
@@ -163,11 +172,12 @@ async function run(options, dependencies = {}) {
     return { source_key: `${row.external_product_id}:${row.external_variant_id}`, filename, sha256: sha256(bytes) };
   });
   const report = {
-    schema_version: 1, kind: "gym-high-reviewed-full-catalogue-feed", result: "PASS", database_writes: 0,
+    schema_version: 1, kind: "gym-high-reviewed-full-catalogue-feed", result: sourceByKey.reviewRows.length ? "PASS_WITH_REVIEW" : "PASS", database_writes: 0,
     target_project_ref: PROJECT_REF, approval_fingerprint: approval.approval_fingerprint,
     source_identity_fingerprint: source.source_identity_fingerprint, source_captured_at: source.captured_at,
-    approved_row_count: rows.length, existing_mapping_count: existingMappingCount, mapping_create_count: 66 - existingMappingCount,
-    existing_offer_count: existingOfferCount, offer_create_count: 66 - existingOfferCount,
+    approved_row_count: 66, executable_row_count: rows.length, review_row_count: sourceByKey.reviewRows.length, review_rows: sourceByKey.reviewRows,
+    existing_mapping_count: mappingByKey.size, mapping_create_count: 66 - mappingByKey.size,
+    existing_offer_count: offerByMapping.size, offer_create_count: 66 - offerByMapping.size,
     csv_sha256: sha256(csv), output: path.relative(ROOT, options.output), row_artifact_count: rowArtifacts.length,
     row_artifacts_directory: path.relative(ROOT, rowsDirectory), row_artifacts: rowArtifacts,
   };

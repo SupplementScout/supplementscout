@@ -1,7 +1,9 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const test = require("node:test");
 const { buildCatalogueAudit, classification, mapLimit } = require("./gym-high-catalogue-audit");
 const { loadScope } = require("./gym-high-source-monitor");
+const { canonicalJson } = require("./lib/canonical-json");
 
 function catalogue(products) { return { captured_at: "2026-08-01T12:00:00.000Z", products }; }
 function product(id, name, type, variations = [], categories = ["Protein Powder"]) { return { external_product_id: String(id), name, slug: `p-${id}`, type, permalink: `https://gymhigh.co.uk/product/p-${id}/`, sku: null, categories, variations }; }
@@ -51,6 +53,30 @@ test("source identity fingerprint is independent of parent-product API order", a
   const forward = await audit([first, second]);
   const reordered = await audit([second, first]);
   assert.equal(forward.source_identity_fingerprint, reordered.source_identity_fingerprint);
+});
+
+test("one explicitly configured identity drift is isolated while the remaining source stays bound", async () => {
+  const drifted = product(701, "GYM HIGH Creatine Monohydrate", "simple");
+  const stable = product(707, "GYM HIGH ZMB", "simple");
+  const stableIdentity = [{
+    external_product_id: "707", external_variant_id: "707", name: "GYM HIGH ZMB", type: "simple",
+    attributes: {}, canonical_url: stable.permalink, classification: "REVIEW_SUPPLEMENT",
+  }];
+  const scope = loadScope();
+  scope.config.source.minimum_parent_products = 1;
+  scope.config.guardrails.source_identity_review.expected_remaining_source_row_count = 1;
+  scope.config.guardrails.source_identity_review.expected_remaining_identity_fingerprint = crypto.createHash("sha256").update(canonicalJson(stableIdentity)).digest("hex");
+  const report = await buildCatalogueAudit(scope, {
+    readCatalogue: async () => catalogue([drifted, stable]),
+    readPage: async ({ productId }) => productId === "701"
+      ? { ...page(drifted), product_name: "GYM HIGH Creatine Monohydrate 400g", canonical_url: "https://gymhigh.co.uk/product/gym-high-creatine-monohydrate-400g/" }
+      : page(stable),
+  });
+  assert.equal(report.result, "PASS_WITH_REVIEW");
+  assert.equal(report.source_row_count, 1);
+  assert.equal(report.source_review_count, 1);
+  assert.deepEqual(report.review_rows.map((row) => row.external_product_id), ["701"]);
+  assert.deepEqual(report.rows.map((row) => row.external_product_id), ["707"]);
 });
 
 test("classification policy and bounded concurrency are deterministic", async () => {

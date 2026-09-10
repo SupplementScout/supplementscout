@@ -71,19 +71,21 @@ function validateInputs(options, dependencies = {}) {
   const loaded = dependencies.loaded || loadDryRunArtifact(options.artifact);
   const artifact = loaded.artifact;
   const guardedRefresh = report.kind === "gym-high-guarded-existing-offer-refresh";
+  const reviewRows = report.review_rows || [];
+  const executableCount = report.executable_row_count ?? report.approved_row_count;
   if (
-    report.result !== "PASS" || (!guardedRefresh && report.kind !== "gym-high-reviewed-full-catalogue-feed") || report.database_writes !== 0 ||
+    !["PASS", "PASS_WITH_REVIEW"].includes(report.result) || (!guardedRefresh && report.kind !== "gym-high-reviewed-full-catalogue-feed") || report.database_writes !== 0 ||
     report.target_project_ref !== PROJECT_REF || report.approval_fingerprint !== APPROVAL_FINGERPRINT ||
-    report.approved_row_count !== 66 || (!guardedRefresh && report.row_artifact_count !== 66) ||
+    report.approved_row_count !== 66 || executableCount + reviewRows.length !== 66 || (report.review_row_count || 0) !== reviewRows.length || (!guardedRefresh && report.row_artifact_count !== executableCount) ||
     report.existing_mapping_count + report.mapping_create_count !== 66 ||
     report.existing_offer_count + report.offer_create_count !== 66 ||
-    artifact.environment_marker !== (guardedRefresh ? "production" : "local") || artifact.plans.length !== 66 || artifact.source_rows.length !== 66 ||
+    artifact.environment_marker !== (guardedRefresh ? "production" : "local") || artifact.plans.length !== executableCount || artifact.source_rows.length !== executableCount ||
     artifact.blocked_rows.length !== 0 || (!guardedRefresh && artifact.source_file_sha256 !== report.csv_sha256)
   ) fail("GYM HIGH full-catalogue report or artifact mismatch");
   if (guardedRefresh && (
     loaded.artifactSha256 !== report.artifact_sha256 || artifact.source_file_sha256 !== report.source_file_sha256 ||
-    report.verified_no_change_count + report.standard_change_count !== 66 ||
-    report.source_identity_fingerprint !== approval.source_identity_fingerprint ||
+    report.verified_no_change_count + report.standard_change_count !== executableCount ||
+    !/^[0-9a-f]{64}$/.test(report.source_identity_fingerprint || "") ||
     !Number.isFinite(Date.parse(report.source_captured_at)) || Date.parse(report.source_captured_at) > Date.now() + 5 * 60_000 ||
     Date.parse(report.source_captured_at) < Date.now() - 24 * 60 * 60_000
   )) fail("GYM HIGH guarded refresh artifact mismatch");
@@ -92,6 +94,8 @@ function validateInputs(options, dependencies = {}) {
   for (const family of approval.families) for (const variant of family.variants) {
     approved.set(`${family.external_product_id}:${variant.external_variant_id}`, { family, variant });
   }
+  const reviewKeys = new Set(reviewRows.flatMap((row) => (row.external_variant_ids || []).map((variantId) => `${row.external_product_id}:${variantId}`)));
+  if (reviewKeys.size !== reviewRows.length || [...reviewKeys].some((key) => !approved.has(key))) fail("GYM HIGH review scope is invalid");
   const sourceByRow = new Map(artifact.source_rows.map((row) => [String(row.row_number), row.normalized_source_row]));
   const variantsByFamily = new Map();
   const seen = new Set();
@@ -138,10 +142,12 @@ function validateInputs(options, dependencies = {}) {
     seen.add(key);
     plans.push(entry);
   }
-  if (seen.size !== 66) fail("GYM HIGH execution scope is incomplete");
+  if (seen.size + reviewKeys.size !== 66 || [...seen].some((key) => reviewKeys.has(key))) fail("GYM HIGH execution scope is incomplete");
   for (const family of approval.families) {
-    const inspected = inspectVariants(family, variantsByFamily.get(String(family.external_product_id)) || []);
-    if (inspected.length !== family.variants.length || inspected.some((row) => row.action === "CREATE_VARIANT")) fail(`Canonical family binding mismatch for ${family.external_product_id}`);
+    const executableVariants = family.variants.filter((variant) => !reviewKeys.has(`${family.external_product_id}:${variant.external_variant_id}`));
+    if (!executableVariants.length) continue;
+    const inspected = inspectVariants({ ...family, variants: executableVariants }, variantsByFamily.get(String(family.external_product_id)) || []);
+    if (inspected.length !== executableVariants.length || inspected.some((row) => row.action === "CREATE_VARIANT")) fail(`Canonical family binding mismatch for ${family.external_product_id}`);
   }
   return { loaded, plans: plans.sort((a, b) => Number(a.row_number) - Number(b.row_number)) };
 }
@@ -195,12 +201,21 @@ async function executeEntry(entry, artifactSha256, runId, clients) {
   return { row_number: entry.row_number, approval_id: approval.approval_id, retailer_product_id: String(result.retailer_product_id), offer_id: String(result.offer_id), price_history_id: result.price_history_id == null ? null : String(result.price_history_id) };
 }
 
+function expectedOwnerConfirmation(builderReport) {
+  const reviewRows = builderReport.review_rows || [];
+  if (reviewRows.length === 0) return "OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66";
+  if (reviewRows.length === 1 && String(reviewRows[0].external_product_id) === "701") {
+    return "OWNER_APPROVED_GYM_HIGH_REFRESH_65_WITH_REVIEW_701_2026_09_10";
+  }
+  fail("Manual GYM HIGH apply has an unapproved review scope");
+}
+
 async function run(options) {
   const event = process.env.GITHUB_EVENT_NAME;
   if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REF !== "refs/heads/main" || process.env.GITHUB_REPOSITORY !== "SupplementScout/supplementscout" || !["workflow_dispatch", "schedule"].includes(event) || process.env.GYM_HIGH_APPROVAL_FINGERPRINT !== APPROVAL_FINGERPRINT) fail("GYM HIGH full-catalogue execution requires the protected GitHub context on main");
   const validated = validateInputs(options);
   const builderReport = JSON.parse(fs.readFileSync(options.report, "utf8"));
-  if (event === "workflow_dispatch" && options.mode === "apply" && process.env.GYM_HIGH_OWNER_CONFIRMATION !== "OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66") fail("Manual GYM HIGH apply requires the exact owner confirmation");
+  if (event === "workflow_dispatch" && options.mode === "apply" && process.env.GYM_HIGH_OWNER_CONFIRMATION !== expectedOwnerConfirmation(builderReport)) fail("Manual GYM HIGH apply requires the exact owner confirmation");
   if (event === "schedule") {
     if (options.mode !== "apply") fail("Scheduled GYM HIGH refresh must use guarded apply mode");
     validateScheduledPlans(validated, builderReport);
@@ -216,7 +231,8 @@ async function run(options) {
   } finally {
     await Promise.allSettled(Object.values(clients).map((client) => client.end()));
   }
-  const report = { schema_version: 1, kind: "gym-high-reviewed-full-catalogue-execution", result: "PASS", mode: options.mode, target_project_ref: PROJECT_REF, approval_fingerprint: APPROVAL_FINGERPRINT, validated_plan_count: validated.plans.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString() };
+  const reviewRows = builderReport.review_rows || [];
+  const report = { schema_version: 1, kind: "gym-high-reviewed-full-catalogue-execution", result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS", mode: options.mode, target_project_ref: PROJECT_REF, approval_fingerprint: APPROVAL_FINGERPRINT, approved_mapping_count: 66, executable_plan_count: validated.plans.length, review_row_count: reviewRows.length, review_rows: reviewRows, validated_plan_count: validated.plans.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString() };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
   return report;
@@ -224,4 +240,4 @@ async function run(options) {
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify({ result: report.result, mode: report.mode, validated: report.validated_plan_count, executed: report.executed_plan_count }, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
 
-module.exports = { parseArgs, validateInputs, validateScheduledPlans };
+module.exports = { parseArgs, validateInputs, validateScheduledPlans, expectedOwnerConfirmation };

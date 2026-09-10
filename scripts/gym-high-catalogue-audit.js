@@ -27,12 +27,45 @@ async function buildCatalogueAudit(scope, dependencies = {}) {
   const readPage = dependencies.readPage || readWooCommerceProductPage;
   const catalogue = await readCatalogue({ storeUrl: scope.config.retailer.website, maximumPages: scope.config.source.maximum_pages, maximumProducts: scope.config.source.maximum_products });
   if (catalogue.products.length < scope.config.source.minimum_parent_products) fail("Catalogue collapsed below the approved minimum", "SOURCE_COVERAGE_MISMATCH");
-  const captures = await mapLimit(catalogue.products, 4, (product) => readPage({ storeUrl: scope.config.retailer.website, productId: product.external_product_id, userAgent: "SupplementScout-GYM-HIGH-Catalogue/1.0" }));
+  const reviewPolicy = scope.config.guardrails?.source_identity_review || null;
+  const allowedReviewIds = new Set(reviewPolicy?.allowed_external_product_ids || []);
+  if (reviewPolicy && (
+    reviewPolicy.maximum_rows !== 1
+    || allowedReviewIds.size !== 1
+    || !allowedReviewIds.has("701")
+    || !Number.isInteger(reviewPolicy.expected_remaining_source_row_count)
+    || reviewPolicy.expected_remaining_source_row_count < 1
+    || !/^[a-f0-9]{64}$/.test(reviewPolicy.expected_remaining_identity_fingerprint || "")
+  )) fail("Source identity review policy drift", "SOURCE_CONFIGURATION");
+  const captures = await mapLimit(catalogue.products, 4, async (product) => {
+    try {
+      return { capture: await readPage({ storeUrl: scope.config.retailer.website, productId: product.external_product_id, userAgent: "SupplementScout-GYM-HIGH-Catalogue/1.0" }) };
+    } catch (error) {
+      if (error.code === "SOURCE_IDENTITY_DRIFT" && allowedReviewIds.has(product.external_product_id)) return { error };
+      throw error;
+    }
+  });
   const rows = [];
+  const reviewRows = [];
   for (let index = 0; index < catalogue.products.length; index += 1) {
     const product = catalogue.products[index];
-    const capture = captures[index];
-    if (capture.external_product_id !== product.external_product_id || capture.product_name !== product.name || new URL(capture.canonical_url).href !== product.permalink) fail(`Product ${product.external_product_id} page identity drift`, "SOURCE_IDENTITY_DRIFT");
+    const outcome = captures[index];
+    const capture = outcome.capture;
+    const identityDrift = outcome.error || capture.external_product_id !== product.external_product_id || capture.product_name !== product.name || new URL(capture.canonical_url).href !== product.permalink;
+    if (identityDrift) {
+      if (!allowedReviewIds.has(product.external_product_id)) fail(`Product ${product.external_product_id} page identity drift`, "SOURCE_IDENTITY_DRIFT");
+      reviewRows.push({
+        external_product_id: product.external_product_id,
+        external_variant_ids: product.type === "simple" ? [product.external_product_id] : product.variations.map((row) => row.external_variant_id),
+        reason: "SOURCE_IDENTITY_DRIFT",
+        expected_name: product.name,
+        expected_permalink: product.permalink,
+        observed_product_id: capture?.external_product_id || null,
+        observed_name: capture?.product_name || null,
+        observed_canonical_url: capture?.canonical_url || null,
+      });
+      continue;
+    }
     const declared = product.variations.map((row) => row.external_variant_id);
     const observed = capture.variations.map((row) => row.external_variant_id);
     if (product.type === "variable" && !exactIds(declared, observed)) fail(`Product ${product.external_product_id} variation coverage drift`, "SOURCE_COVERAGE_MISMATCH");
@@ -51,7 +84,14 @@ async function buildCatalogueAudit(scope, dependencies = {}) {
     .map((row) => { const identity = { ...row }; delete identity.price_gbp; delete identity.in_stock; return identity; })
     .sort((left, right) => Number(right.external_product_id) - Number(left.external_product_id));
   const sourceIdentityFingerprint = crypto.createHash("sha256").update(canonicalJson(identityRows)).digest("hex");
-  return { schema_version: 1, result: "PASS", mode: "FULL_CATALOGUE_READ_ONLY_AUDIT", production_writes: 0, catalogue_creates: 0, captured_at: catalogue.captured_at, source_retry: catalogue.source_retry || null, parent_product_count: catalogue.products.length, source_row_count: rows.length, source_identity_fingerprint: sourceIdentityFingerprint, classification_counts: counts, rows };
+  if (reviewRows.length) {
+    if (
+      reviewRows.length > reviewPolicy.maximum_rows
+      || rows.length !== reviewPolicy.expected_remaining_source_row_count
+      || sourceIdentityFingerprint !== reviewPolicy.expected_remaining_identity_fingerprint
+    ) fail("Source identity review scope drift", "SOURCE_IDENTITY_DRIFT");
+  }
+  return { schema_version: 1, result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS", mode: "FULL_CATALOGUE_READ_ONLY_AUDIT", production_writes: 0, catalogue_creates: 0, captured_at: catalogue.captured_at, source_retry: catalogue.source_retry || null, parent_product_count: catalogue.products.length, source_row_count: rows.length, source_review_count: reviewRows.length, source_identity_fingerprint: sourceIdentityFingerprint, classification_counts: counts, review_rows: reviewRows, rows };
 }
 
 async function main(dependencies = {}) {
