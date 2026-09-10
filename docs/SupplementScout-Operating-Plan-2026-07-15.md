@@ -5,6 +5,32 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**10 September 2026 Automation Review Queue live checkpoint:** commit `b55d4aa`
+is on `main`; GitHub Quality Gate `34521002248` and Baseline Validation
+`34521002274` passed. Production migration
+`20260910193000_allow_automation_review_retry_revisions.sql` is applied as
+ledger row `204`. Its independent readback proved no change to products,
+variants, mappings, offers or price history.
+
+Fresh read-only eBay run `34521110056` checked all `237` registered offers and
+then published the same run's current review evidence automatically. Stale
+cards no longer appear in the default queue view, terminal attempts can have a
+fresh immutable replacement, and approved executable cards are consumed by one
+scheduled queue worker in batches of at most five. The admin page now supports
+`Zatwierdz i wykonaj` and safe zero-write retries without a Vercel GitHub token.
+
+The owner's earlier exact approvals were reused only where the fresh semantic
+fingerprints and values were unchanged. Queue worker run `34522412673` executed
+offers `2628`, `2639` and `2658`; all three ended `EXECUTED` with
+`IDEMPOTENCY_PASSED`. Production readback confirms: `2628` in stock at GBP
+22.49, `2639` in stock at GBP 29.99, and `2658` in stock at GBP 28.38. Catalogue
+counts remain products `1337`, variants `3632`, mappings/offers `3758/3758`;
+price history moved `13043 -> 13045` for the two price changes. The fresh eBay
+review backlog is `39 PENDING`: four commercial changes, 27 identity conflicts
+and eight source failures. These remain isolated for owner review. Future
+routine eBay review work should use Automation Review Queue rather than a new
+single-offer implementation.
+
 **10 September 2026 GSC/GA4 quality checkpoint:** exact-date read-only run
 `34491056108` re-read 2–8 September after reporting lag. GSC settled at 1,276
 impressions, 2 clicks, 0.16% CTR and position 54.54; all seven dates have final
