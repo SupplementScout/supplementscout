@@ -36,7 +36,8 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
     operations: {
       ...defaultOperations,
       VERIFY_NO_CHANGE: REVIEW_EXECUTABLE("Single-row immutable Review Queue freshness execution is registered and artifact-bound.", "ebay-offer-refresh.yml"),
-      UPDATE_PRICE: REVIEW_ONLY("Commercial eBay deltas stay in review; the registered Review Queue adapter is freshness-only."),
+      UPDATE_PRICE: REVIEW_EXECUTABLE("Single-row owner-approved eBay price execution revalidates immutable source evidence and database state.", "ebay-offer-refresh.yml"),
+      UPDATE_STOCK: REVIEW_EXECUTABLE("Single-row owner-approved eBay stock execution revalidates immutable source evidence and database state.", "ebay-offer-refresh.yml"),
       IDENTITY_PROMOTION: REVIEW_ONLY("eBay identity conflicts stay in review; offer 2686 remains review-only."),
       REBIND_EXISTING_VARIANT: REVIEW_ONLY("eBay rebinds stay in review; no identity apply is authorized by the adapter."),
     },

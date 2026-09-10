@@ -4,6 +4,7 @@ const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
 const { canonicalJson } = require("./lib/canonical-json");
 const { canonicalTimestamp, canonicalizeTimestamps } = require("./lib/canonical-timestamp");
+const { buildSemanticSourceRows, canonicalHash } = require("./lib/ebay-artifact-bound-contract");
 const { assertConfig, getApplicationToken } = require("./lib/ebay-browse-pilot");
 const { executePlan } = require("./ebay-offer-canary-executor");
 const { SCOPES, actionForPlan, buildSource, classifyContinuity, prepareScope } = require("./ebay-offer-refresh");
@@ -11,7 +12,8 @@ const { run: runPostflight } = require("./retailer-offer-refresh-postflight");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "tmp", "automation-review-execution");
-const WORKER_KIND = "automation-review-ebay-verify-no-change-v1";
+const WORKER_KIND = "automation-review-ebay-single-offer-v2";
+const ALLOWED_OPERATIONS = new Set(["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"]);
 
 function invariant(condition, code) {
   if (!condition) { const error = new Error(code); error.code = code; throw error; }
@@ -50,7 +52,7 @@ async function loadControlState(client, options) {
   ]);
   invariant(!reviewError && review, "REVIEW_ITEM_NOT_FOUND"); invariant(!requestError && request, "EXECUTION_REQUEST_NOT_FOUND"); invariant(!eventsError && events, "APPROVAL_AUDIT_READ_FAILED");
   invariant(request.status === "DISPATCHED" && String(request.review_id) === options.reviewItemId && request.review_fingerprint === options.reviewFingerprint && request.idempotency_key === options.executionIdempotencyKey && request.retailer_slug === options.retailer && request.execution_mode === options.mode, "EXECUTION_REQUEST_BINDING_DRIFT");
-  invariant(review.review_status === "APPROVED" && review.source_row_fingerprint === options.reviewFingerprint && review.plan_fingerprint === options.reviewPlanFingerprint && review.operation_type === "VERIFY_NO_CHANGE" && String(review.retailer_id) === "12", "REVIEW_BINDING_DRIFT");
+  invariant(review.review_status === "APPROVED" && review.source_row_fingerprint === options.reviewFingerprint && review.plan_fingerprint === options.reviewPlanFingerprint && ALLOWED_OPERATIONS.has(review.operation_type) && String(review.retailer_id) === "12", "REVIEW_BINDING_DRIFT");
   invariant(review.expires_at && Date.parse(review.expires_at) > Date.now(), "REVIEW_EVIDENCE_EXPIRED");
   invariant(review.decision_actor && review.decision_at && events.some((event) => event.new_status === "APPROVED" && event.actor === review.decision_actor && event.source_row_fingerprint === review.source_row_fingerprint && event.plan_fingerprint === review.plan_fingerprint), "APPROVAL_AUDIT_MISSING");
   let canonicalCapture = null;
@@ -72,6 +74,27 @@ function executionEvidence(review, approved, postflight, idempotency, baseline) 
     executable_offer_ids: [String(review.offer_id)], review_offer_ids: [], plan_fingerprint: approved.entry.plan_fingerprint,
   };
 }
+function expectedDeltas(plan) {
+  const before = plan.expected_state.offer, after = plan.offer.values;
+  const changed = (left, right) => Number(left) !== Number(right);
+  const price = changed(before.price, after.price), stock = before.in_stock !== after.in_stock;
+  const shipping = changed(before.shipping_cost, after.shipping_cost), total = changed(before.total_price, after.total_price);
+  return {
+    logical_field_deltas: {
+      offer_price_updates: Number(price), offer_stock_updates: Number(stock), offer_shipping_updates: Number(shipping),
+      offer_total_updates: Number(total), offer_url_updates: Number(before.url !== after.url), mapping_url_updates: 0, last_checked_at_updates: 1,
+    },
+    row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: Number(price) },
+  };
+}
+function assertCommercialEvidence(review, plan, evaluation) {
+  const evidence = review.source_evidence || {};
+  for (const field of ["workflow_run_id", "artifact_id", "artifact_digest", "contract_sha256", "report_sha256", "artifact_content_sha256", "source_fingerprint", "review_scope_fingerprint"]) invariant(evidence[field], "COMMERCIAL_SOURCE_EVIDENCE_MISSING");
+  invariant(review.review_kind === "COMMERCIAL_CHANGE", "COMMERCIAL_REVIEW_KIND_INVALID");
+  invariant(String(review.source_price) === Number(plan.offer.values.price).toFixed(2), "APPROVED_PRICE_DRIFT");
+  const semantic = buildSemanticSourceRows([SCOPES.find((scope) => scope.offer_id === String(review.offer_id))], [evaluation])[0];
+  invariant(canonicalHash(semantic) === review.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
+}
 async function run(options, dependencies = {}) {
   assertContext(dependencies.env || process.env);
   fs.mkdirSync(OUT, { recursive: true });
@@ -90,20 +113,27 @@ async function run(options, dependencies = {}) {
     const prepared = await prepareScope(scope, evaluation, "dry-run", dependencies, new Date().toISOString().replace(/[:.]/g, "-"), state.review.source_captured_at);
     invariant(prepared.approved, "PROTECTED_PLAN_NOT_EXECUTABLE");
     const approved = prepared.approved, plan = approved.entry.resolved_plan;
-    invariant(actionForPlan(plan) === "VERIFY_NO_CHANGE" && plan.offer.action === "verify_no_change" && plan.price_history.action === "noop", "OPERATION_REVALIDATION_FAILED");
-    invariant(approved.entry.source_row_fingerprint === state.review.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
-    invariant(approved.entry.plan_fingerprint === state.review.plan_fingerprint, "PLAN_FINGERPRINT_DRIFT");
-    invariant(hash(plan.expected_state) === hash(state.review.before_state), "DATABASE_BEFORE_STATE_DRIFT");
-    invariant(hash(plan.offer.values) === hash(state.review.proposed_state.offer || state.review.proposed_state), "PROPOSED_STATE_DRIFT");
+    const operation = actionForPlan(plan);
+    invariant(operation === state.review.operation_type, "OPERATION_REVALIDATION_FAILED");
+    if (operation === "VERIFY_NO_CHANGE") {
+      invariant(plan.offer.action === "verify_no_change" && plan.price_history.action === "noop", "OPERATION_REVALIDATION_FAILED");
+      invariant(approved.entry.source_row_fingerprint === state.review.source_row_fingerprint, "SOURCE_FINGERPRINT_DRIFT");
+      invariant(approved.entry.plan_fingerprint === state.review.plan_fingerprint, "PLAN_FINGERPRINT_DRIFT");
+      invariant(hash(plan.expected_state) === hash(state.review.before_state), "DATABASE_BEFORE_STATE_DRIFT");
+      invariant(hash(plan.offer.values) === hash(state.review.proposed_state.offer || state.review.proposed_state), "PROPOSED_STATE_DRIFT");
+    } else assertCommercialEvidence(state.review, plan, evaluation);
 
     const baselinePath = path.join(OUT, `${options.executionRequestId}-baseline.json`), executionPath = path.join(OUT, `${options.executionRequestId}-execution.json`), postflightPath = path.join(OUT, `${options.executionRequestId}-postflight.json`);
     const baseline = await (dependencies.runPostflight || runPostflight)({ profile: "ebay-uk", mode: "baseline", baseline: null, execution: null, output: baselinePath }, dependencies);
+    const baselineOffer = baseline.snapshot.rows.find((row) => String(row.offer_id) === scope.offer_id);
+    invariant(baselineOffer, "DATABASE_BASELINE_MISSING");
+    for (const field of ["price", "shipping_cost", "total_price", "in_stock", "url", "last_checked_at"]) invariant(canonicalJson(baselineOffer[field]) === canonicalJson(plan.expected_state.offer[field]), "DATABASE_BEFORE_STATE_DRIFT");
     await checkpoint(client, options.executionRequestId, "EXECUTING", "REVALIDATION_PASSED", { run_id: String(process.env.GITHUB_RUN_ID), run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`, commit_sha: process.env.GITHUB_SHA, before_state_hash: baseline.evidence_hash });
     const applied = await (dependencies.executePlan || executePlan)(approved, WORKER_KIND);
     databaseWrites = 1;
-    invariant(String(applied?.offer_id) === scope.offer_id && applied?.price_history_id == null, "APPLY_RESULT_SCOPE_DRIFT");
+    invariant(String(applied?.offer_id) === scope.offer_id && (operation === "UPDATE_PRICE" ? applied?.price_history_id != null : applied?.price_history_id == null), "APPLY_RESULT_SCOPE_DRIFT");
     const reviewRows = SCOPES.filter((candidate) => candidate.offer_id !== scope.offer_id).map((candidate) => ({ offer_id: candidate.offer_id, review_type: "NOT_SELECTED_BY_EXECUTION_REQUEST" }));
-    const execution = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 236, blocked_row_count: 0, execution_offer_ids: [scope.offer_id], review_rows: reviewRows, full_capture_fingerprint: state.review.source_row_fingerprint, executable_source_fingerprint: state.review.source_row_fingerprint, review_scope_fingerprint: hash(reviewRows), source_row_fingerprints: [{ offer_id: scope.offer_id, semantic_fingerprint: state.review.source_row_fingerprint, scope: "EXECUTABLE" }], expected_deltas: { logical_field_deltas: { offer_price_updates: 0, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 0, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 }, row_count_deltas: { products: 0, product_variants: 0, retailer_products: 0, offers: 0, price_history: 0 } } };
+    const execution = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 236, blocked_row_count: 0, execution_offer_ids: [scope.offer_id], review_rows: reviewRows, full_capture_fingerprint: state.review.source_row_fingerprint, executable_source_fingerprint: state.review.source_row_fingerprint, review_scope_fingerprint: hash(reviewRows), source_row_fingerprints: [{ offer_id: scope.offer_id, semantic_fingerprint: state.review.source_row_fingerprint, scope: "EXECUTABLE" }], expected_deltas: expectedDeltas(plan) };
     fs.writeFileSync(executionPath, `${JSON.stringify(execution, null, 2)}\n`);
     const postflight = await (dependencies.runPostflight || runPostflight)({ profile: "ebay-uk", mode: "postflight", baseline: baselinePath, execution: executionPath, output: postflightPath }, dependencies);
     const fresh = dependencies.idempotencyPrepared || await prepareScope(scope, dependencies.idempotencyEvaluation || await buildSource(scope, config, dependencies.fetchImpl || fetch, token), "dry-run", dependencies, `${Date.now()}-idempotency`);
@@ -121,4 +151,4 @@ async function run(options, dependencies = {}) {
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2))).then((report) => console.log(JSON.stringify(report))).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { WORKER_KIND, assertContext, executionEvidence, hash, loadControlState, parseArgs, run };
+module.exports = { WORKER_KIND, assertCommercialEvidence, assertContext, executionEvidence, expectedDeltas, hash, loadControlState, parseArgs, run };

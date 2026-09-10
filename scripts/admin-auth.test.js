@@ -719,7 +719,7 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.equal(fs.existsSync(path.join(process.cwd(), "public", "mascots", "supplement-scout-human-scout.png")), true);
 });
 
-test("automation review capability matrix groups remaining retailers without widening execution registry", () => {
+test("automation review capability matrix exposes only registered execution paths", () => {
   const matrixSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
   const adapterSource = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
   for (const retailer of ["Whey Okay", "Discount Supplements", "Dolphin Fitness", "GYM HIGH", "Simply Supplements", "6 Pack Supplements", "KIOR Health", "Fit House", "Jon's Supplements", "eBay UK"]) assert.match(matrixSource, new RegExp(retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -729,7 +729,9 @@ test("automation review capability matrix groups remaining retailers without wid
   assert.match(matrixSource, /decisionGroupForReview/);
   assert.match(matrixSource, /confidenceForReview/);
   assert.equal((adapterSource.match(/retailerSlug: "ebay-uk"/g) || []).length, 1);
-  assert.doesNotMatch(adapterSource, /UPDATE_PRICE|UPDATE_STOCK|REBIN|MARK_OOS/);
+  assert.match(adapterSource, /UPDATE_PRICE/);
+  assert.match(adapterSource, /UPDATE_STOCK/);
+  assert.doesNotMatch(adapterSource, /REBIN|MARK_OOS/);
 });
 
 test("automation review decisions fail closed on auth, fingerprint, expiry and bulk incompatibility", () => {
@@ -770,20 +772,20 @@ test("automation review execute action authenticates, queues idempotently and di
   assert.doesNotMatch(source, /\.from\("(?:products|product_variants|retailer_products|offers|price_history)"\)/);
 });
 
-test("automation review adapter registry is exact, default-deny and freshness-only", () => {
+test("automation review adapter registry is exact, single-row and default-deny", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
   assert.equal((source.match(/retailerSlug: "ebay-uk"/g) || []).length, 1);
   assert.match(source, /retailerId: "12"/);
   assert.match(source, /retailerSlug: "ebay-uk"/);
-  assert.match(source, /operations: Object\.freeze\(\["VERIFY_NO_CHANGE"\]\)/);
-  assert.match(source, /reasonCodes: Object\.freeze\(\["FRESHNESS_CONFIRMATION", "STALE_OFFER", "NO_CHANGE_CONFIRMATION"\]\)/);
+  assert.match(source, /operations: Object\.freeze\(\["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK"\]\)/);
+  assert.match(source, /"PRICE_CHANGE", "STOCK_CHANGE"/);
   assert.match(source, /maximumBatch: 1/);
   assert.match(source, /isolation: "per-row"/);
   assert.match(source, /reviewBinding: "immutable-review-record"/);
   assert.match(source, /kind: "github-artifact"/);
   for (const input of ["approved_dry_run_id", "approved_artifact_id", "approved_commit_sha", "approved_full_capture_fingerprint", "approved_executable_source_fingerprint", "approved_review_scope_fingerprint", "approved_plan_fingerprint", "approved_manifest_sha256", "approved_report_sha256", "owner_confirmation"]) assert.match(source, new RegExp(input));
   assert.match(source, /EXECUTION_UNSUPPORTED/);
-  assert.doesNotMatch(source, /UPDATE_PRICE|UPDATE_STOCK|REBIN|MARK_OOS/);
+  assert.doesNotMatch(source, /REBIN|MARK_OOS/);
 });
 
 test("automation review UI exposes executable versus review drift scope", () => {
@@ -820,6 +822,7 @@ test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbi
   assert.match(source, /event\.source_row_fingerprint === review\.source_row_fingerprint/);
   assert.match(source, /event\.plan_fingerprint === review\.plan_fingerprint/);
   assert.match(source, /SOURCE_FINGERPRINT_DRIFT/);
+  assert.match(source, /APPROVED_PRICE_DRIFT/);
   assert.match(source, /PLAN_FINGERPRINT_DRIFT/);
   assert.match(source, /DATABASE_BEFORE_STATE_DRIFT/);
   assert.match(source, /OFFER_2686_FORBIDDEN/);
@@ -827,6 +830,16 @@ test("Review Queue eBay worker is workflow-bound, revalidates evidence and forbi
   assert.match(source, /actionForPlan\(fresh\.approved\.entry\.resolved_plan\) === "VERIFY_NO_CHANGE"/);
   assert.match(source, /price_history_delta/);
   assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+});
+
+test("Review Queue eBay worker derives exact single-row commercial postflight deltas", () => {
+  const { expectedDeltas } = require("./automation-review-ebay-worker");
+  const price = expectedDeltas({ expected_state: { offer: { price: "10.00", shipping_cost: "3.99", total_price: "13.99", in_stock: true, url: "https://example.test" } }, offer: { values: { price: "10.58", shipping_cost: "3.99", total_price: "14.57", in_stock: true, url: "https://example.test" } } });
+  assert.deepEqual(price.logical_field_deltas, { offer_price_updates: 1, offer_stock_updates: 0, offer_shipping_updates: 0, offer_total_updates: 1, offer_url_updates: 0, mapping_url_updates: 0, last_checked_at_updates: 1 });
+  assert.equal(price.row_count_deltas.price_history, 1);
+  const stock = expectedDeltas({ expected_state: { offer: { price: "22.49", shipping_cost: "0", total_price: "22.49", in_stock: false, url: "https://example.test" } }, offer: { values: { price: "22.49", shipping_cost: "0", total_price: "22.49", in_stock: true, url: "https://example.test" } } });
+  assert.equal(stock.logical_field_deltas.offer_stock_updates, 1);
+  assert.equal(stock.row_count_deltas.price_history, 0);
 });
 
 test("Review Queue stale-state hashing canonicalizes equivalent timestamps without losing microseconds", () => {

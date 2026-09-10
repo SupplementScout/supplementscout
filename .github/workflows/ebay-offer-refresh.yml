@@ -324,7 +324,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Test Review Queue eBay worker without production credentials
         run: node --test --test-name-pattern="Review Queue eBay worker|automation review adapter" scripts/admin-auth.test.js
-      - name: Execute one protected Review Queue freshness confirmation
+      - name: Execute one protected Review Queue offer decision
         env:
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
