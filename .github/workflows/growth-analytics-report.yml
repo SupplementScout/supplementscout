@@ -2,6 +2,11 @@ name: Growth Analytics Report
 
 on:
   workflow_dispatch:
+    inputs:
+      end_date:
+        description: Optional inclusive report end date (YYYY-MM-DD)
+        required: false
+        type: string
   schedule:
     - cron: "37 8 * * 1"
     - cron: "37 12 * * 1"
@@ -77,12 +82,18 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON_B64 }}
           GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
           GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
-        run: node scripts/growth-analytics-report.js
+          GROWTH_REPORT_END_DATE: ${{ inputs.end_date }}
+        run: |
+          if [ -n "$GROWTH_REPORT_END_DATE" ]; then
+            node scripts/growth-analytics-report.js --end-date="$GROWTH_REPORT_END_DATE"
+          else
+            node scripts/growth-analytics-report.js
+          fi
 
       - name: Publish safe summary
         if: steps.weekly.outputs.needed == 'true' && success()
         run: |
-          node -e 'const fs=require("fs");const p=fs.readdirSync("tmp/growth-analytics").find(x=>x.endsWith(".json"));const r=require(`./tmp/growth-analytics/${p}`);const b=r.ga4.betterValueAlternatives;console.log(`## Weekly Growth Analytics\n- Period: ${r.period.startDate} to ${r.period.endDate}\n- GSC: ${r.searchConsole.totals.clicks} clicks, ${r.searchConsole.totals.impressions} impressions\n- GA4 organic: ${r.ga4.organicSearch.sessions} sessions, ${r.ga4.organicSearch.retailerOfferClicks} retailer-offer clicks\n- Better-value: ${b.impressions} impressions, ${b.clicks} clicks, ${(b.clickThroughRate*100).toFixed(2)}% CTR\n- Better-value downstream: ${b.downstreamRetailerClickUsers}/${b.selectingUsers} users within 30 minutes\n- Sitemap errors: ${r.searchConsole.sitemaps.reduce((n,s)=>n+s.errors,0)}\n- Index inspections: ${r.searchConsole.indexing.inspectedCount}/${r.searchConsole.indexing.inspectionTargets.length} requested URLs`)' >> "$GITHUB_STEP_SUMMARY"
+          node -e 'const fs=require("fs");const p=fs.readdirSync("tmp/growth-analytics").find(x=>x.endsWith(".json"));const r=require(`./tmp/growth-analytics/${p}`);const b=r.ga4.betterValueAlternatives;const q=r.ga4.organicTrafficQuality;console.log(`## Weekly Growth Analytics\n- Period: ${r.period.startDate} to ${r.period.endDate}\n- GSC: ${r.searchConsole.totals.clicks} clicks, ${r.searchConsole.totals.impressions} impressions\n- GSC completeness: ${r.searchConsole.dailyCompleteness.status}\n- GA4 organic: ${r.ga4.organicSearch.sessions} sessions, ${r.ga4.organicSearch.retailerOfferClicks} retailer-offer clicks\n- GA4 hostnames: ${q.hostnameRows.map(x=>x.hostName).join(", ")}\n- GA4 configured data filters: ${q.dataFilterConfiguration.state}\n- Better-value: ${b.impressions} impressions, ${b.clicks} clicks, ${(b.clickThroughRate*100).toFixed(2)}% CTR\n- Better-value downstream: ${b.downstreamRetailerClickUsers}/${b.selectingUsers} users within 30 minutes\n- Sitemap errors: ${r.searchConsole.sitemaps.reduce((n,s)=>n+s.errors,0)}\n- Index inspections: ${r.searchConsole.indexing.inspectedCount}/${r.searchConsole.indexing.inspectionTargets.length} requested URLs`)' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload authenticated evidence
         if: steps.weekly.outputs.needed == 'true' && success()

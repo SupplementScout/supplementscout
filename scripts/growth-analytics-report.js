@@ -5,6 +5,7 @@ const path = require("node:path");
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GA4_API_ROOT = "https://analyticsdata.googleapis.com/v1beta";
 const GA4_FUNNEL_API_ROOT = "https://analyticsdata.googleapis.com/v1alpha";
+const GA4_ADMIN_API_ROOT = "https://analyticsadmin.googleapis.com/v1beta";
 const GSC_API_ROOT = "https://www.googleapis.com/webmasters/v3";
 const GSC_INDEXING_API_URL = "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect";
 const GOOGLE_SCOPES = [
@@ -248,6 +249,32 @@ async function postJson(fetchImpl, url, accessToken, body) {
   });
 }
 
+async function safeGoogleEvidence(request, unavailableReason) {
+  try {
+    return { state: "available", response: await request() };
+  } catch (error) {
+    return {
+      state: "unavailable",
+      error: `${unavailableReason}: ${error.message}`,
+    };
+  }
+}
+
+function dateRangeDays(period) {
+  const days = [];
+  const cursor = new Date(`${period.startDate}T00:00:00.000Z`);
+  const end = new Date(`${period.endDate}T00:00:00.000Z`);
+  while (cursor <= end) {
+    days.push(isoDate(cursor));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return days;
+}
+
+function sumRows(rows, key) {
+  return rows.reduce((total, row) => total + numberValue(row[key]), 0);
+}
+
 async function inspectUrlIndexing(fetchImpl, accessToken, siteUrl, inspectionUrl) {
   const response = await postJson(
     fetchImpl,
@@ -301,14 +328,26 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
   const gaFunnelUrl = `${GA4_FUNNEL_API_ROOT}/properties/${propertyId}:runFunnelReport`;
   const dateRanges = [{ startDate: period.startDate, endDate: period.endDate }];
 
-  const [gscTotals, gscQueries, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks, gaBetterValueEvents, gaBetterValueFunnel] =
+  const [gscTotals, gscQueries, gscDailyFinal, gscDailyAll, gscPages, gscPageQueries, sitemaps, gaChannels, gaOfferClicks, gaBetterValueEvents, gaBetterValueFunnel, gaOrganicDaily, gaOrganicHostnames, gaOrganicCountries, gaOrganicSources, gaTestFilters, gaDataFilters] =
     await Promise.all([
-      postJson(fetchImpl, gscQueryUrl, accessToken, { ...period, rowLimit: 1 }),
+      postJson(fetchImpl, gscQueryUrl, accessToken, { ...period, rowLimit: 1, dataState: "final" }),
       postJson(fetchImpl, gscQueryUrl, accessToken, {
         ...period,
         dimensions: ["query"],
         rowLimit: 100,
         dataState: "final",
+      }),
+      postJson(fetchImpl, gscQueryUrl, accessToken, {
+        ...period,
+        dimensions: ["date"],
+        rowLimit: 100,
+        dataState: "final",
+      }),
+      postJson(fetchImpl, gscQueryUrl, accessToken, {
+        ...period,
+        dimensions: ["date"],
+        rowLimit: 100,
+        dataState: "all",
       }),
       postJson(fetchImpl, gscQueryUrl, accessToken, {
         ...period,
@@ -397,6 +436,43 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
           ],
         },
       }),
+      postJson(fetchImpl, gaReportUrl, accessToken, {
+        dateRanges,
+        dimensions: [{ name: "date" }],
+        metrics: [{ name: "sessions" }, { name: "totalUsers" }, { name: "screenPageViews" }],
+        dimensionFilter: { filter: { fieldName: "sessionDefaultChannelGroup", stringFilter: { matchType: "EXACT", value: "Organic Search" } } },
+      }),
+      postJson(fetchImpl, gaReportUrl, accessToken, {
+        dateRanges,
+        dimensions: [{ name: "hostName" }],
+        metrics: [{ name: "sessions" }, { name: "totalUsers" }],
+        dimensionFilter: { filter: { fieldName: "sessionDefaultChannelGroup", stringFilter: { matchType: "EXACT", value: "Organic Search" } } },
+      }),
+      postJson(fetchImpl, gaReportUrl, accessToken, {
+        dateRanges,
+        dimensions: [{ name: "country" }],
+        metrics: [{ name: "sessions" }, { name: "totalUsers" }],
+        dimensionFilter: { filter: { fieldName: "sessionDefaultChannelGroup", stringFilter: { matchType: "EXACT", value: "Organic Search" } } },
+      }),
+      postJson(fetchImpl, gaReportUrl, accessToken, {
+        dateRanges,
+        dimensions: [{ name: "sessionSourceMedium" }],
+        metrics: [{ name: "sessions" }, { name: "totalUsers" }],
+        dimensionFilter: { filter: { fieldName: "sessionDefaultChannelGroup", stringFilter: { matchType: "EXACT", value: "Organic Search" } } },
+      }),
+      safeGoogleEvidence(
+        () => postJson(fetchImpl, gaReportUrl, accessToken, {
+          dateRanges,
+          dimensions: [{ name: "testDataFilterName" }],
+          metrics: [{ name: "sessions" }, { name: "totalUsers" }],
+          dimensionFilter: { filter: { fieldName: "sessionDefaultChannelGroup", stringFilter: { matchType: "EXACT", value: "Organic Search" } } },
+        }),
+        "GA4 test-filter dimension unavailable"
+      ),
+      safeGoogleEvidence(
+        () => googleRequest(fetchImpl, `${GA4_ADMIN_API_ROOT}/properties/${propertyId}/dataFilters`, accessToken),
+        "GA4 data-filter configuration unavailable"
+      ),
     ]);
 
   const total = gscRows(gscTotals, "scope")[0] || {
@@ -452,9 +528,34 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
     )
   );
   const inspectedCount = inspectionResults.filter((item) => item.state === "ok").length;
+  const dailyFinalRows = gscRows(gscDailyFinal, "date");
+  const dailyAllRows = gscRows(gscDailyAll, "date");
+  const observedFinalDates = new Set(dailyFinalRows.map((row) => row.date));
+  const requestedDates = dateRangeDays(period);
+  const firstIncompleteDate = gscDailyAll.metadata?.first_incomplete_date || null;
+  const finalImpressions = sumRows(dailyFinalRows, "impressions");
+  const allImpressions = sumRows(dailyAllRows, "impressions");
+  const finalClicks = sumRows(dailyFinalRows, "clicks");
+  const allClicks = sumRows(dailyAllRows, "clicks");
+  const completenessStatus = firstIncompleteDate
+    ? "INCOMPLETE_FROM_REPORTED_DATE"
+    : (finalImpressions !== allImpressions || finalClicks !== allClicks)
+      ? "FINAL_AND_ALL_DIFFER_WITHOUT_METADATA"
+      : "NO_INCOMPLETE_DATA_REPORTED";
+  const testFilterRows = gaTestFilters.state === "available"
+    ? gaMetricRows(gaTestFilters.response)
+    : [];
+  const configuredDataFilters = gaDataFilters.state === "available"
+    ? (gaDataFilters.response.dataFilters || []).map((filter) => ({
+        name: filter.name || null,
+        displayName: filter.displayName || null,
+        filterType: filter.filterType || null,
+        state: filter.state || null,
+      }))
+    : [];
 
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     generatedAt: now.toISOString(),
     period,
     source: {
@@ -464,6 +565,17 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
     },
     searchConsole: {
       totals: total,
+      dailyCompleteness: {
+        status: completenessStatus,
+        firstIncompleteDate,
+        requestedDates,
+        datesWithFinalActivity: [...observedFinalDates].sort(),
+        datesWithoutFinalActivity: requestedDates.filter((date) => !observedFinalDates.has(date)),
+        finalRows: dailyFinalRows,
+        allRows: dailyAllRows,
+        finalTotals: { clicks: finalClicks, impressions: finalImpressions },
+        allTotals: { clicks: allClicks, impressions: allImpressions },
+      },
       topQueries: gscRows(gscQueries, "query"),
       topPages,
       pageQueryRows,
@@ -492,6 +604,18 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         views: numberValue(organic.screenPageViews),
         retailerOfferClicks: numberValue(offerClicks),
       },
+      organicTrafficQuality: {
+        dailyRows: gaMetricRows(gaOrganicDaily),
+        hostnameRows: gaMetricRows(gaOrganicHostnames),
+        countryRows: gaMetricRows(gaOrganicCountries),
+        sourceMediumRows: gaMetricRows(gaOrganicSources),
+        testDataFilterEvidence: gaTestFilters.state === "available"
+          ? { state: "available", rows: testFilterRows }
+          : gaTestFilters,
+        dataFilterConfiguration: gaDataFilters.state === "available"
+          ? { state: "available", filters: configuredDataFilters }
+          : gaDataFilters,
+      },
       betterValueAlternatives: {
         impressions: numberValue(betterValueImpressions),
         clicks: numberValue(betterValueClicks),
@@ -518,6 +642,8 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         "not exposed by the supported Search Console API",
       queryPrivacy:
         "Search Console may omit anonymized or very low-volume queries; page-query rows will not necessarily sum to site totals",
+      trafficQuality:
+        "hostname, country, source/medium and GA4 data-filter evidence can reveal obvious contamination but cannot prove that every remaining user is external",
     },
   };
 }

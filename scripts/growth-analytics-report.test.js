@@ -100,12 +100,27 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
         ],
       });
     }
+    if (url.includes("analyticsadmin.googleapis.com")) {
+      return response({
+        dataFilters: [{
+          name: "properties/123456/dataFilters/1",
+          displayName: "Internal traffic",
+          filterType: "INTERNAL_TRAFFIC",
+          state: "ACTIVE",
+        }],
+      });
+    }
     const body = JSON.parse(options.body);
     if (url.includes("searchAnalytics") && body.dimensions?.[0] === "query") {
       return response({ rows: [{ keys: ["whey protein"], clicks: 8, impressions: 100, ctr: 0.08, position: 4.2 }] });
     }
     if (url.includes("searchAnalytics") && body.dimensions?.length === 2) {
       return response({ rows: [{ keys: ["https://www.supplementscout.co.uk/creatine", "creatine prices uk"], clicks: 0, impressions: 24, ctr: 0, position: 18.5 }] });
+    }
+    if (url.includes("searchAnalytics") && body.dimensions?.[0] === "date") {
+      return response({
+        rows: [{ keys: ["2026-07-31"], clicks: 10, impressions: 150, ctr: 0.0667, position: 5.1 }],
+      });
     }
     if (url.includes("searchAnalytics") && body.dimensions?.[0] === "page") {
       return response({ rows: [{ keys: ["https://www.supplementscout.co.uk/whey-protein"], clicks: 6, impressions: 80, ctr: 0.075, position: 3.8 }] });
@@ -160,6 +175,41 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
         },
       });
     }
+    if (body.dimensions?.[0]?.name === "date") {
+      return response({
+        dimensionHeaders: [{ name: "date" }],
+        metricHeaders: [{ name: "sessions" }, { name: "totalUsers" }, { name: "screenPageViews" }],
+        rows: [{ dimensionValues: [{ value: "20260731" }], metricValues: [{ value: "20" }, { value: "16" }, { value: "31" }] }],
+      });
+    }
+    if (body.dimensions?.[0]?.name === "hostName") {
+      return response({
+        dimensionHeaders: [{ name: "hostName" }],
+        metricHeaders: [{ name: "sessions" }, { name: "totalUsers" }],
+        rows: [{ dimensionValues: [{ value: "www.supplementscout.co.uk" }], metricValues: [{ value: "20" }, { value: "16" }] }],
+      });
+    }
+    if (body.dimensions?.[0]?.name === "country") {
+      return response({
+        dimensionHeaders: [{ name: "country" }],
+        metricHeaders: [{ name: "sessions" }, { name: "totalUsers" }],
+        rows: [{ dimensionValues: [{ value: "United Kingdom" }], metricValues: [{ value: "20" }, { value: "16" }] }],
+      });
+    }
+    if (body.dimensions?.[0]?.name === "sessionSourceMedium") {
+      return response({
+        dimensionHeaders: [{ name: "sessionSourceMedium" }],
+        metricHeaders: [{ name: "sessions" }, { name: "totalUsers" }],
+        rows: [{ dimensionValues: [{ value: "google / organic" }], metricValues: [{ value: "20" }, { value: "16" }] }],
+      });
+    }
+    if (body.dimensions?.[0]?.name === "testDataFilterName") {
+      return response({
+        dimensionHeaders: [{ name: "testDataFilterName" }],
+        metricHeaders: [{ name: "sessions" }, { name: "totalUsers" }],
+        rows: [{ dimensionValues: [{ value: "(not set)" }], metricValues: [{ value: "20" }, { value: "16" }] }],
+      });
+    }
     if (body.dimensions?.[0]?.name === "eventName") {
       return response({
         dimensionHeaders: [{ name: "eventName" }],
@@ -206,7 +256,7 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     ctr: 0,
     position: 18.5,
   });
-  assert.equal(report.schemaVersion, 3);
+  assert.equal(report.schemaVersion, 4);
   assert.equal(report.searchConsole.sitemaps[0].errors, 0);
   assert.deepEqual(report.ga4.organicSearch, {
     sessions: 20,
@@ -214,6 +264,13 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
     views: 31,
     retailerOfferClicks: 4,
   });
+  assert.equal(report.searchConsole.dailyCompleteness.status, "NO_INCOMPLETE_DATA_REPORTED");
+  assert.deepEqual(report.searchConsole.dailyCompleteness.datesWithoutFinalActivity, [
+    "2026-07-25", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30",
+  ]);
+  assert.equal(report.ga4.organicTrafficQuality.hostnameRows[0].hostName, "www.supplementscout.co.uk");
+  assert.equal(report.ga4.organicTrafficQuality.dataFilterConfiguration.filters[0].state, "ACTIVE");
+  assert.equal(report.ga4.organicTrafficQuality.testDataFilterEvidence.state, "available");
   assert.deepEqual(report.ga4.betterValueAlternatives, {
     impressions: 12,
     clicks: 3,
@@ -227,12 +284,13 @@ test("authenticated report combines GSC, sitemap and organic GA4 evidence", asyn
   assert.equal(report.searchConsole.indexing.inspections[0].state, "ok");
   assert.equal(report.searchConsole.indexing.inspectedCount, 2);
   assert.match(report.limitations.pageIndexingTotals, /URL-level/);
-  assert.equal(requests.length, 12);
+  assert.equal(requests.length, 20);
   const gscBodies = requests
     .filter(({ url }) => url.includes("searchAnalytics"))
     .map(({ options }) => JSON.parse(options.body));
   assert.ok(gscBodies.some((body) => body.rowLimit === 100 && body.dimensions?.[0] === "page"));
   assert.ok(gscBodies.some((body) => body.rowLimit === 250 && body.dimensions?.join(",") === "page,query"));
+  assert.ok(gscBodies.some((body) => body.dataState === "all" && body.dimensions?.[0] === "date"));
   assert.ok(requests.slice(1).every(({ options }) => options.headers.Authorization === "Bearer test-token"));
   const funnelRequest = requests.find(({ url }) => url.includes(":runFunnelReport"));
   assert.ok(funnelRequest.url.includes("/v1alpha/"));
@@ -282,6 +340,8 @@ test("scheduled workflow is read-only, protected and publishes only report artif
   assert.match(workflow, /event=schedule&status=success/);
   assert.match(workflow, /steps\.weekly\.outputs\.needed == 'true'/);
   assert.match(workflow, /secrets\.GOOGLE_SERVICE_ACCOUNT_JSON_B64/);
+  assert.match(workflow, /end_date:/);
+  assert.match(workflow, /--end-date="\$GROWTH_REPORT_END_DATE"/);
   assert.match(workflow, /vars\.GA4_PROPERTY_ID/);
   assert.match(workflow, /vars\.GSC_SITE_URL/);
   assert.match(workflow, /path: tmp\/growth-analytics\/\*\.json/);
