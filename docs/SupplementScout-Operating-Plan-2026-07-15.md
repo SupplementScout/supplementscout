@@ -30,10 +30,16 @@ write-behavior proof. NUT-03 is now `IN PROGRESS`: bounded NUT-03A reused the
 existing archived label for product `38` / variant `726`, verified its manifest
 hash, manually transcribed the exact 15 g serving plus caffeine, beta-alanine and
 citrulline-malate 2:1 into one ignored four-row candidate artifact, and passed the
-existing `DRY_RUN_NO_DATABASE` validation. No OCR, source fetch, candidate write,
-approval or catalogue fact was created. The next step is NUT-03B: owner-review
-that exact artifact and separately authorize candidate-table-only storage, without
-approving or applying the candidates.
+existing `DRY_RUN_NO_DATABASE` validation. The same artifact now preserves the
+exact `Creatine Monohydrate | 3 g` label row as deferred review evidence against
+the 15 g serving. It is not a `creatine_per_serving_g` candidate because that
+legacy numeric field cannot retain ingredient form or the five required
+information states, and monohydrate mass is not treated as pure-creatine mass.
+No OCR, source fetch, candidate write, approval or catalogue fact was created.
+The next step is NUT-03B: extend the existing structured
+candidate/review/plan/apply path with creatine form, explicit-serving quantity and
+the same five states in an isolated, separately authorized implementation; no
+candidate storage or production migration belongs to that step.
 SEO-15 remains BLOCKED, the 16 September accrual check and conditional 24-25
 September reviews remain scheduled, and GYM HIGH remains owner-deferred.
 Guardian currently validates SEO, not nutrition.
